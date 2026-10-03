@@ -151,9 +151,14 @@ rsync -anic \
   --exclude='/software/gestion-de-comunidades-profesionales/demo/***' \
   "$current/client/" "$incoming/client/" > "$release/asset-overlay-final-raw.txt"
 # Only changes to already-published assets count as drift; files that exist
-# solely in the new build are expected and were overlaid above. The sed keeps
-# tolerating rsync's parent-directory warnings.
-sed -E '/^rsync\([0-9]+\): warning: .*\/images(\/software-comunidades)?: not empty, cannot delete$/d' \
+# solely in the new build are expected and were overlaid above. rsync may still
+# report the parent directories of protected assets as deletion candidates even
+# though it keeps their contents. Ignore only those exact parent-directory
+# messages; any actual file change still blocks the swap.
+sed -E \
+  -e '/^rsync\([0-9]+\): warning: .*\/images(\/software-comunidades)?: not empty, cannot delete$/d' \
+  -e '/^cannot delete non-empty directory: software(\/gestion-de-comunidades-profesionales)?$/d' \
+  -e '/^\*deleting[[:space:]]+software\/gestion-de-comunidades-profesionales\/$/d' \
   "$release/asset-overlay-final-raw.txt" > "$release/asset-overlay-final-drift.txt"
 if [[ -s "$release/asset-overlay-final-drift.txt" ]]; then
   echo 'Published static assets changed during staging; refusing swap' >&2

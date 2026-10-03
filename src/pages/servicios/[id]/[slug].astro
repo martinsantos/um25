@@ -12,12 +12,17 @@ import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import EmailLink from '../../../components/common/EmailLink.astro';
 import CineBanner from '../../../components/cine/CineBanner.astro';
 import RenderStage from '../../../components/cine/RenderStage.astro';
+import ProductStage from '../../../components/cine/ProductStage.astro';
+import { productPage } from '../../../data/productPages';
+import SystemsMap from '../../../components/cine/SystemsMap.astro';
+import DeliveryProcess from '../../../components/cine/DeliveryProcess.astro';
+import ProductMoments from '../../../components/cine/ProductMoments.astro';
 import ServiceSpecSheet from '../../../components/cine/ServiceSpecSheet.astro';
 import ShareButton from '../../../components/common/ShareButton.astro';
 import { getServiceSpec } from '../../../data/serviceSpecs';
 import { RENDERS } from '../../../data/renders';
 import SnapRail from '../../../components/cine/SnapRail.astro';
-import { SERVICE_SCENES } from '../../../data/cine/scenes';
+import { SERVICE_SCENES, serviceSceneKey, V4_CUTS } from '../../../data/cine/scenes';
 
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
@@ -435,6 +440,10 @@ const whyItems = porQueElegirnos.map((item: string) => cleanCmsText(sanitizeEdit
 const marcas = Array.isArray(servicio.marcas) ? servicio.marcas.map((m: unknown) => cleanCmsText(m)).filter(Boolean) : [];
 const serviceShortName = visual?.shortName || cmsTitle;
 const serviceRender = RENDERS[`servicio-${id}`];
+// Páginas de producto (software, soporte, consultoría): el servicio mostrado como producto,
+// en el tono de la landing de comunidades, en lugar de un render de objetos.
+const product = productPage(String(id));
+const isProductPage = Boolean(product);
 const serviceSpec = getServiceSpec(id);
 const fichaPrintHref = serviceSpec ? `/servicios/${id}/ficha` : null;
 const serviceSummaryText = cleanCmsText(plainTextFromHtml(serviceBodySource)) ||
@@ -468,7 +477,8 @@ const fichaItems = [
 >
   <CineBanner
     variant="sector"
-    scenes={[(SERVICE_SCENES[String(id)] || SERVICE_SCENES['101']).scene]}
+    scenes={[serviceSceneKey(String(id))]}
+    variants={{ [serviceSceneKey(String(id))]: Object.keys(V4_CUTS).filter((k) => V4_CUTS[k].code === String(id)) }}
     systems={(SERVICE_SCENES[String(id)] || SERVICE_SCENES['101']).systems}
     titleId="service-title"
     kicker={visual?.eyebrow || servicio.area || 'Servicio IT'}
@@ -501,8 +511,52 @@ const fichaItems = [
       </div>
     </section>
 
-    <!-- 1b · Sistema y equipamiento (render UM25) -->
-    {serviceRender && (
+    <!-- 1b · Sistema y equipamiento (render UM25) · para software, el producto como interfaz -->
+    {product ? (
+      <>
+        <section class="svc-section svc-section--paper svc-section--intro" id="para-tu-empresa" aria-labelledby="svc-intro-title">
+          <div class="svc-wrap svc-intro">
+            <div class="svc-intro__copy">
+              <h2 id="svc-intro-title">{product.intro.title}</h2>
+              <p class="svc-intro__lead">{product.intro.lead}</p>
+              <ul class="svc-intro__list" aria-label="Qué resuelve">
+                {product.intro.benefits.map((b) => <li>{b}</li>)}
+              </ul>
+              <div class="svc-intro__actions">
+                <a class="svc-btn" href="/contacto">
+                  {product.intro.cta}
+                  <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
+                </a>
+                <a class="svc-intro__link" href="#equipamiento">{product.intro.explore}</a>
+              </div>
+              <p class="svc-intro__note"><b>{product.intro.note.strong}</b> {product.intro.note.rest}</p>
+            </div>
+            <ol class="svc-intro__questions" aria-label="Preguntas que responde">
+              {product.intro.questions.map((q, i) => <li><span>{String(i + 1).padStart(2, '0')}</span>{q}</li>)}
+            </ol>
+          </div>
+        </section>
+
+        <section class="svc-section svc-section--paper" id="equipamiento" aria-labelledby="svc-render-title">
+          <div class="svc-wrap">
+            <header class="svc-head">
+              <div>
+                <p class="svc-kicker">{product.stage.kicker}</p>
+                <h2 id="svc-render-title">{product.stage.title}</h2>
+              </div>
+              <p class="svc-head__lead">{product.stage.lead}</p>
+            </header>
+            <ProductStage stage={product.stage} />
+          </div>
+        </section>
+
+        <section class="svc-section svc-section--paper" id="momentos" aria-label={product.moments.head}>
+          <div class="svc-wrap">
+            <ProductMoments moments={product.moments} />
+          </div>
+        </section>
+      </>
+    ) : serviceRender && (
       <section class="svc-section svc-section--render" id="equipamiento" aria-labelledby="svc-render-title">
         <div class="svc-wrap">
           <header class="svc-head">
@@ -517,9 +571,25 @@ const fichaItems = [
       </section>
     )}
 
+    <!-- 1c · Mapa de sistemas (páginas de producto) -->
+    {product && (
+      <section class="svc-section svc-section--paper svc-section--map" id="integraciones" aria-labelledby="svc-map-title">
+        <div class="svc-wrap">
+          <header class="svc-head">
+            <div>
+              <p class="svc-kicker">{product.map.kicker}</p>
+              <h2 id="svc-map-title">{product.map.title}</h2>
+            </div>
+            <p class="svc-head__lead">{product.map.lead}</p>
+          </header>
+          <SystemsMap core={product.map.core} coreSub={product.map.coreSub} nodes={product.map.nodes} />
+        </div>
+      </section>
+    )}
+
     <!-- 2 · Qué cubre -->
     {(serviceCapabilityItems.length > 0 || solutionItems.length > 0) && (
-      <section class="svc-section" id="alcance" aria-labelledby="svc-scope-title">
+      <section class="svc-section svc-section--text-tiles" id="alcance" aria-labelledby="svc-scope-title">
         <div class="svc-wrap">
           <header class="svc-head">
             <div>
@@ -588,8 +658,27 @@ const fichaItems = [
       </section>
     )}
 
+    <!-- 3a · Cómo se hace (páginas de producto): etapas con entregable a la vista + garantías -->
+    {product && (
+      <section class="svc-section svc-section--paper" id="como-se-construye" aria-labelledby="svc-build-title">
+        <div class="svc-wrap">
+          <header class="svc-head">
+            <div>
+              <p class="svc-kicker">{product.build.kicker}</p>
+              <h2 id="svc-build-title">{product.build.title}</h2>
+            </div>
+            <p class="svc-head__lead">{product.build.lead}</p>
+          </header>
+          <DeliveryProcess steps={product.build.steps} />
+          <dl class="svc-guarantees" aria-label="Garantías">
+            {product.build.guarantees.map((g) => <div><dt>{g.dt}</dt><dd>{g.dd}</dd></div>)}
+          </dl>
+        </div>
+      </section>
+    )}
+
     <!-- 3 · Cómo trabajamos -->
-    {showGenericProcess && (
+    {showGenericProcess && !isProductPage && (
       <section class="svc-section" aria-labelledby="svc-approach-title">
         <div class="svc-wrap">
           <header class="svc-head">
@@ -628,12 +717,11 @@ const fichaItems = [
               <a class="svc-textlink" href="/antecedentes">Ver todos los antecedentes <span aria-hidden="true">→</span></a>
             </p>
           </header>
-          <div class="svc-cases" data-rail="Casos comparables">
+          <div class="svc-cases svc-cases--text" data-rail="Casos comparables">
             {serviceCases.map((item) => (
               <a class="svc-case" href={item.href}>
                 <div class="svc-case__media">
                   <img src={item.image} alt="" width="1200" height="750" loading="lazy" decoding="async" />
-                  <span class="svc-case__seal">Imagen ilustrativa</span>
                 </div>
                 <div class="svc-case__body">
                   <p class="svc-case__client">{item.client}</p>
@@ -673,14 +761,14 @@ const fichaItems = [
     <section class="svc-section svc-section--close" aria-labelledby="svc-close-title">
       <div class="svc-wrap svc-close">
         <div class="svc-close__cta">
-          <p class="svc-kicker">Diagnóstico técnico</p>
-          <h2 id="svc-close-title">{serviceCtaTitle}</h2>
+          <p class="svc-kicker">{product ? product.close.kicker : 'Diagnóstico técnico'}</p>
+          <h2 id="svc-close-title">{product ? product.close.title : serviceCtaTitle}</h2>
           <p class="svc-close__text">
-            Revisamos sitio, riesgos, dependencias y objetivo operativo antes de proponer una solución.
+            {product ? product.close.text : 'Revisamos sitio, riesgos, dependencias y objetivo operativo antes de proponer una solución.'}
           </p>
           <div class="svc-close__actions">
             <a class="svc-btn" href="/contacto">
-              Solicitar diagnóstico
+              {product ? product.close.cta : 'Solicitar diagnóstico'}
               <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
             </a>
             <p class="svc-close__alt">
@@ -1493,4 +1581,68 @@ const fichaItems = [
       transition: none !important;
     }
   }
+
+  /* Software a medida (104): secciones "papel", el tono de la landing de comunidades
+     profesionales (superficies claras, una frase por idea). El hero cine sigue oscuro. */
+  .svc-section--paper {
+    --x-text: #182120;
+    --x-text-2: #3c423f;
+    --x-muted: #5f6368;
+    --x-line: rgba(24, 33, 32, 0.14);
+    --x-line-strong: rgba(24, 33, 32, 0.28);
+    --x-panel: #f4f6f4;
+    --x-panel-2: #e9eee9;
+    /* La piel oscura pinta p/li/dd del main con --skin-* e !important: acá esos
+       tokens pasan a sus valores claros para que el texto se lea sobre papel. */
+    --skin-text: #182120;
+    --skin-muted: #3c423f;
+    --skin-line: rgba(24, 33, 32, 0.14);
+    --skin-panel: #f4f6f4;
+    --skin-panel-strong: #e9eee9;
+    --skin-page: #fcfcf9;
+    --skin-section: #fcfcf9;
+    --skin-section-alt: #f4f6f4;
+    background: #fcfcf9;
+    color: #182120;
+    border-top: 0;
+  }
+  .svc-section--paper + .svc-section--paper { padding-top: 0; }
+  .svc-section--paper .svc-kicker { color: #bd352d; }
+  .svc-section--paper .svc-guarantees dt { color: #182120; }
+  .svc-intro { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: 48px; align-items: start; }
+  .svc-intro__copy { display: grid; gap: 20px; }
+  .svc-intro__copy h2 { margin: 0; font-size: clamp(2rem, 3.4vw, 3rem); line-height: 1.02; letter-spacing: -0.025em; font-weight: 600; color: #182120; text-wrap: balance; }
+  .svc-intro__lead { margin: 0; font-size: 1.1875rem; line-height: 1.5; color: #3c423f; max-width: 54ch; }
+  .svc-intro__list { list-style: none; margin: 4px 0 0; padding: 0; display: grid; border-top: 1px solid var(--x-line); }
+  .svc-intro__list li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--x-line); font-size: 1.0625rem; color: #182120; }
+  .svc-intro__list li::before { content: ''; width: 8px; height: 8px; background: #dc2626; }
+  .svc-intro__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; margin-top: 4px; }
+  .svc-intro__link { color: #182120; font-weight: 600; text-decoration: none; border-bottom: 2px solid #dc2626; padding-bottom: 2px; }
+  .svc-intro__link:hover { color: #bd352d; }
+  .svc-intro__note { margin: 0; font-size: 1rem; color: #3c423f; padding-top: 16px; border-top: 1px solid var(--x-line); }
+  .svc-intro__note b { font-weight: 600; color: #182120; }
+  .svc-intro__questions { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid var(--x-line); }
+  .svc-intro__questions li { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 8px; padding: 18px 0; border-bottom: 1px solid var(--x-line); font-size: 1.125rem; font-weight: 600; line-height: 1.35; color: #182120; }
+  .svc-intro__questions span { color: #bd352d; font-size: 1rem; font-variant-numeric: tabular-nums; padding-top: 3px; }
+  @media (max-width: 980px) { .svc-intro { grid-template-columns: 1fr; gap: 28px; } }
+
+  /* Software a medida (104): alcance y casos sin fotos de banco; garantías de entrega. */
+  .svc-section--text-tiles .svc-tile__media { display: none; }
+  .svc-section--text-tiles .svc-tile,
+  .svc-section--text-tiles .svc-tiles .svc-tile { grid-template-columns: 1fr; grid-template-rows: auto; }
+  .svc-cases--text .svc-case__media { display: none; }
+  .svc-cases--text .svc-case { grid-template-rows: auto; border-top: 2px solid var(--x-red); }
+  .svc-guarantees {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+    margin: 40px 0 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--x-line-strong);
+  }
+  .svc-guarantees div { display: grid; gap: 6px; min-width: 0; }
+  .svc-guarantees dt { font-size: 1.0625rem; font-weight: 600; color: #fff; }
+  .svc-guarantees dd { margin: 0; font-size: 1rem; color: var(--x-muted); line-height: 1.55; }
+  @media (max-width: 980px) { .svc-guarantees { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .svc-guarantees { grid-template-columns: 1fr; } }
 </style>

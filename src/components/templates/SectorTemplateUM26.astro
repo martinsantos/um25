@@ -1,9 +1,10 @@
 ---
 import { truncateEditorialText } from '../../utils/editorialContent';
 import SystemsStory from '../cine/SystemsStory.astro';
+import SceneServiceRail from '../cine/SceneServiceRail.astro';
 import CineBanner from '../cine/CineBanner.astro';
 import SnapRail from '../cine/SnapRail.astro';
-import { sectorBySlug } from '../../data/cine/scenes';
+import { sectorBySlug, V4_CUTS } from '../../data/cine/scenes';
 import { getAntecedentesCountShort, getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import { serviceSummary, cleanCmsText } from '../../data/serviceSummaries';
 import { buildSectorStrategicLinkGroups } from '../../data/strategicLinkGraph';
@@ -115,6 +116,7 @@ const areaLabel = (area: unknown) => {
   <CineBanner
     variant="sector"
     scenes={[cineScene]}
+    variants={{ [cineScene]: Object.keys(V4_CUTS).filter((k) => k.startsWith(`${cineScene}-`)) }}
     titleId="sector26-title"
     kicker={cineSector?.text || `Sector ${sectorNumber}`}
     title={sectorTitle}
@@ -124,6 +126,8 @@ const areaLabel = (area: unknown) => {
     stats={cineStats}
     back={{ href: '/sectores', label: '← Todos los sectores' }}
   />
+
+  <SceneServiceRail scene={cineScene} sectorName={sectorName} />
 
   <SystemsStory slug={sectorSlug} name={sectorName} />
 

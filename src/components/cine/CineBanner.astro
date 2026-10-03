@@ -2,15 +2,16 @@
 // Banner cine: plano Cycles pre-renderizado (vuelo imposible por la escena, con cortes
 // "pop" entre edificio y esqueleto de sistemas) y etiquetas que siguen a los equipos.
 // Portada: encadena las escenas. Sector o servicio: una escena en bucle.
-// El 3D interactivo se abre sólo a pedido (/cine/cine-banner.js).
+// El 3D interactivo se abre sólo a pedido (/cine/cine-banner-v4.js).
 import '../../styles/cine-banner.css';
-import { HOME_SCENES, SCENE_TITLES, type Scene } from '../../data/cine/scenes';
+import { HOME_SCENES, cutCaption } from '../../data/cine/scenes';
 
 interface Stat { label: string; value: string }
 interface Link { href: string; label: string }
 interface Props {
   variant?: 'home' | 'sector';
-  scenes?: Scene[];
+  /** Escenas base o claves v4 "<escena>-<servicio>" (mismos archivos, con sufijo). */
+  scenes?: string[];
   systems?: string[];
   kicker?: string;
   title: string;
@@ -20,17 +21,25 @@ interface Props {
   stats?: Stat[];
   back?: Link;
   titleId?: string;
+  /** Recorridos alternativos por escena ("bodega" → ["bodega-redes", …]): el reproductor
+   *  elige uno al azar en cada pasada, así la película no es siempre la misma. */
+  variants?: Record<string, string[]>;
+  /** Escena con la que arranca esta visita (índice en `scenes`). */
+  start?: number;
 }
 const {
   variant = 'home', scenes = HOME_SCENES.map((s) => s.scene), systems = [], kicker,
-  title, lead, primary, secondary, stats = [], back, titleId = 'umcTitle',
+  title, lead, primary, secondary, stats = [], back, titleId = 'umcTitle', variants = {}, start = 0,
 } = Astro.props;
-const first = scenes[0];
+const startIndex = Math.min(Math.max(Math.floor(start), 0), scenes.length - 1);
+const first = scenes[startIndex];
+const variantsAttr = Object.entries(variants).filter(([, v]) => v.length).map(([s, v]) => `${s}:${v.join('|')}`).join(';') || undefined;
 const dot = title.endsWith('.');
 const heading = dot ? title.slice(0, -1) : title;
 const rail = HOME_SCENES.filter((s) => scenes.includes(s.scene));
+const firstTitle = cutCaption(first);
 ---
-<section class:list={['umc', `umc--${variant}`]} data-umc data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} aria-labelledby={titleId}>
+<section class:list={['umc', `umc--${variant}`]} data-umc data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
   <div class="umc-stage" aria-hidden="true">
     <picture>
       <source type="image/avif" srcset={`/cine/media/cine-${first}-poster.avif`} />
@@ -64,15 +73,15 @@ const rail = HOME_SCENES.filter((s) => scenes.includes(s.scene));
     {variant === 'home' ? (
       <div class="umc-rail" role="group" aria-label="Escenas por sector">
         {rail.map((s, i) => (
-          <button type="button" data-umc-scene={s.scene} aria-pressed={i === 0 ? 'true' : 'false'}>
+          <button type="button" data-umc-scene={s.scene} aria-pressed={i === startIndex ? 'true' : 'false'}>
             <span class="umc-rail__n">{String(i + 1).padStart(2, '0')}</span>
             <span class="umc-rail__t">{s.name}<small>{s.text}</small></span>
             <i class="umc-rail__bar"><b></b></i>
           </button>
         ))}
       </div>
-    ) : scenes.length > 1 ? (
-      <p class="umc-caption" data-umc-caption>{SCENE_TITLES[first]}</p>
+    ) : (scenes.length > 1 || variantsAttr) ? (
+      <p class="umc-caption" data-umc-caption>{firstTitle}</p>
     ) : (
       <span class="umc-caption" aria-hidden="true"></span>
     )}
@@ -88,4 +97,4 @@ const rail = HOME_SCENES.filter((s) => scenes.includes(s.scene));
     </div>
   </div>
 </section>
-<script src="/cine/cine-banner.js" type="module" is:inline></script>
+<script src="/cine/cine-banner-v4.js" type="module" is:inline></script>
