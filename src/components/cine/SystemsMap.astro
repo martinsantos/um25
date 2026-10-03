@@ -5,15 +5,18 @@
  * empresa instala. Los pulsos sobre las líneas son la única animación: muestran
  * el argumento (datos que van y vienen), no decoran. En teléfono, lista.
  */
-interface Node { id: string; name: string; what: string; side: 'l' | 'r'; y: number }
-const NODES: Node[] = [
-  { id: 'cctv', name: 'CCTV y VMS', what: 'Eventos de cámara en el parte', side: 'l', y: 86 },
-  { id: 'accesos', name: 'Control de accesos', what: 'Quién entró, cuándo y a qué zona', side: 'l', y: 260 },
-  { id: 'incendios', name: 'Detección de incendios', what: 'Alarmas y mantenimiento NFPA 72', side: 'l', y: 434 },
-  { id: 'telefonia', name: 'Telefonía IP', what: 'Llamadas de mesa de ayuda y tickets', side: 'r', y: 86 },
-  { id: 'erp', name: 'ERP y facturación', what: 'Cobros, facturas y conciliación', side: 'r', y: 260 },
-  { id: 'tableros', name: 'Tableros', what: 'Indicadores del día para gerencia', side: 'r', y: 434 },
-];
+interface Node { name: string; what: string; side: 'l' | 'r'; y: number }
+interface Props { core?: string; coreSub?: string; nodes?: { name: string; what: string }[] }
+const {
+  core = 'SGI', coreSub = 'una sola fuente de datos',
+  nodes = [
+    { name: 'CCTV y VMS', what: 'Eventos de cámara en el parte' }, { name: 'Control de accesos', what: 'Quién entró, cuándo y a qué zona' }, { name: 'Detección de incendios', what: 'Alarmas y mantenimiento NFPA 72' },
+    { name: 'Telefonía IP', what: 'Llamadas de mesa de ayuda y tickets' }, { name: 'ERP y facturación', what: 'Cobros, facturas y conciliación' }, { name: 'Tableros', what: 'Indicadores del día para gerencia' },
+  ],
+} = Astro.props;
+// Seis nodos: tres a la izquierda y tres a la derecha, en el orden recibido.
+const YS = [86, 260, 434];
+const NODES: Node[] = nodes.slice(0, 6).map((n, i) => ({ ...n, side: i < 3 ? 'l' : 'r', y: YS[i % 3] }));
 const W = 960, H = 520, CX = 480, CY = 260;
 const nodeW = 300, nodeH = 70;
 const nodeX = (n: Node) => (n.side === 'l' ? 24 : W - 24 - nodeW);
@@ -27,8 +30,8 @@ const link = (n: Node) => {
 ---
 <div class="smap">
   <svg class="smap__svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="smap-title smap-desc">
-    <title id="smap-title">Mapa de integraciones del SGI</title>
-    <desc id="smap-desc">El SGI al centro, conectado con CCTV y VMS, control de accesos, detección de incendios, telefonía IP, ERP y facturación, y tableros.</desc>
+    <title id="smap-title">Mapa de integraciones: {core}</title>
+    <desc id="smap-desc">{core} al centro, conectado con {NODES.map((n) => n.name).join(', ')}.</desc>
     <g class="smap__links">
       {NODES.map((n, i) => (
         <>
@@ -39,8 +42,8 @@ const link = (n: Node) => {
     </g>
     <g class="smap__core">
       <rect x={CX - 110} y={CY - 40} width="220" height="80" rx="6" />
-      <text x={CX} y={CY - 6} text-anchor="middle" class="smap__core-name">SGI</text>
-      <text x={CX} y={CY + 22} text-anchor="middle" class="smap__core-sub">una sola fuente de datos</text>
+      <text x={CX} y={CY - 6} text-anchor="middle" class:list={['smap__core-name', core.length > 6 && 'smap__core-name--long']}>{core}</text>
+      <text x={CX} y={CY + 22} text-anchor="middle" class="smap__core-sub">{coreSub}</text>
     </g>
     {NODES.map((n) => (
       <g class="smap__node">
@@ -50,7 +53,7 @@ const link = (n: Node) => {
       </g>
     ))}
   </svg>
-  <ul class="smap__list" aria-label="Integraciones del SGI">
+  <ul class="smap__list" aria-label={`Integraciones: ${core}`}>
     {NODES.map((n) => (
       <li><b>{n.name}</b><span>{n.what}</span></li>
     ))}
@@ -74,6 +77,7 @@ const link = (n: Node) => {
   @keyframes smap-pulse { to { stroke-dashoffset: 0; } }
   .smap__core rect { fill: var(--um-red, #DC2626); }
   .smap__core-name { fill: #fff; font-size: 30px; font-weight: 700; letter-spacing: -0.02em; }
+  .smap__core-name--long { font-size: 22px; }
   .smap__core-sub { fill: #fff; font-size: 16px; opacity: 0.92; }
   .smap__node rect { fill: rgba(127, 127, 127, 0.08); stroke: rgba(127, 127, 127, 0.45); stroke-width: 1; }
   .smap__name { fill: currentColor; font-size: 18px; font-weight: 600; }

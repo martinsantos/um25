@@ -4,14 +4,17 @@
  * cada paso a la vista (documentos dibujados en CSS, sin imágenes).
  */
 interface Step { n: string; title: string; text: string; doc: string; kind: 'acta' | 'proto' | 'notas' | 'sla' }
-const STEPS: Step[] = [
-  { n: '01', title: 'Relevamiento en sitio', text: 'Entrevistas con quienes operan, inventario de sistemas existentes y el proceso dibujado tal como ocurre hoy.', doc: 'Acta de alcance firmada', kind: 'acta' },
-  { n: '02', title: 'Prototipo navegable', text: 'Antes de programar, una maqueta que se recorre en el teléfono y en la oficina. Se corrige ahí, cuando cambiar es barato.', doc: 'Prototipo clicable', kind: 'proto' },
-  { n: '03', title: 'Iteraciones quincenales', text: 'Cada dos semanas una versión en producción de prueba, con lo que entró y lo que falta por escrito.', doc: 'Notas de versión', kind: 'notas' },
-  { n: '04', title: 'Soporte con SLA', text: 'Mesa de ayuda, monitoreo y mantenimiento del sistema entregado, con tiempos de respuesta pactados.', doc: 'Acuerdo de nivel de servicio', kind: 'sla' },
-];
+interface Props { steps?: Step[] }
+const {
+  steps: STEPS = [
+    { n: '01', title: 'Relevamiento en sitio', text: 'Entrevistas con quienes operan, inventario de sistemas existentes y el proceso dibujado tal como ocurre hoy.', doc: 'Acta de alcance firmada', kind: 'acta' },
+    { n: '02', title: 'Prototipo navegable', text: 'Antes de programar, una maqueta que se recorre en el teléfono y en la oficina. Se corrige ahí, cuando cambiar es barato.', doc: 'Prototipo clicable', kind: 'proto' },
+    { n: '03', title: 'Iteraciones quincenales', text: 'Cada dos semanas una versión en producción de prueba, con lo que entró y lo que falta por escrito.', doc: 'Notas de versión', kind: 'notas' },
+    { n: '04', title: 'Soporte con SLA', text: 'Mesa de ayuda, monitoreo y mantenimiento del sistema entregado, con tiempos de respuesta pactados.', doc: 'Acuerdo de nivel de servicio', kind: 'sla' },
+  ],
+} = Astro.props;
 ---
-<ol class="dp" aria-label="Etapas de desarrollo">
+<ol class="dp" aria-label="Etapas">
   {STEPS.map((s) => (
     <li class="dp__step">
       <div class:list={['dp__doc', `dp__doc--${s.kind}`]} aria-hidden="true">
