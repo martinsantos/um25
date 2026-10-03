@@ -72,10 +72,10 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
       </div>
     </section>
     <section class="section band" id="independencia"><div class="wrap split"><div><p class="kicker">INDEPENDENCIA PARA TU INSTITUCIÓN</p><h2>El colegio toma las decisiones. El software se adapta.</h2><p class="band-intro">Un sistema propio tiene sentido cuando acompaña la forma de trabajar de tu institución y deja claras las condiciones desde el comienzo.</p></div><div><dl class="terms-list"><div><dt>Los datos</dt><dd>Son de tu organización, exportables y sin cesión ni uso para marketing de terceros.</dd></div><div><dt>Los cobros</dt><dd>Elegís los medios de pago compatibles con tu proyecto. No hay pasarela obligatoria ni comisión fija de ULTIMA MILLA por cuota; cada proveedor puede aplicar sus tarifas.</dd></div><div><dt>La implementación</dt><dd>Instalación y puesta a punto sin cargo. Definimos integraciones, automatizaciones y servicio en una propuesta en pesos argentinos.</dd></div></dl><a class="band-action" href="#consulta" data-cta="service">Veamos el formato de datos de tu institución <span aria-hidden="true">↗</span></a></div></div></section>
-    <section class="section quiz-section" id="consulta" aria-labelledby="quiz-title">
+    <section class="section quiz-section" aria-labelledby="quiz-title">
       <div class="wrap">
         <div class="quiz-intro"><p class="kicker">ENCONTREMOS POR DÓNDE EMPEZAR</p><h2 id="quiz-title">Tu colegio tiene una forma propia de trabajar. Mostranos cuál.</h2><p>Cuatro respuestas rápidas nos ayudan a mostrarte la parte del sistema más útil para tu institución. Sin registrarte y sin compartir datos de matriculados.</p></div>
-        <div class="quiz-shell" id="gc-quiz">
+        <div class="quiz-shell" id="consulta">
           <div class="quiz-side" aria-hidden="true"><span class="quiz-side-mark">UM<span>↗</span></span><p>Una conversación antes de una propuesta.</p><div class="quiz-side-steps"><span>01 / COMUNIDAD</span><span>02 / ESCALA</span><span>03 / PRIORIDAD</span><span>04 / CONTEXTO</span></div></div>
           <div class="quiz-main">
             <div class="quiz-welcome" id="quiz-welcome"><span class="quiz-eyebrow">UNA DEMO A TU MEDIDA</span><h3>Empecemos por lo que necesitás resolver.</h3><p>Elegí entre opciones generales. Al final vas a poder explorar una demo y, si te interesa, pedir que la adaptemos al formato de datos de tu institución.</p><button class="quiz-primary" type="button" id="quiz-start">Empezar <span aria-hidden="true">↗</span></button></div>
@@ -158,7 +158,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     tramites: { title: 'Empecemos por los trámites.', copy: 'Explorá la vista de gestiones y su seguimiento. En una demo para tu colegio podemos recorrer el proceso que más usan.', preview: 'Gestiones', action: 'Abrir el sistema ↗', anchor: '/software/gestion-de-comunidades-profesionales/demo/' },
     consultas: { title: 'Empecemos por las consultas.', copy: 'Explorá el circuito de tickets para reunir consultas y respuestas en un mismo lugar. Los canales concretos se acuerdan para cada proyecto.', preview: 'Consultas', action: 'Abrir el sistema ↗', anchor: '/software/gestion-de-comunidades-profesionales/demo/' },
   };
-  const quiz = document.querySelector<HTMLElement>('#gc-quiz');
+  const quiz = document.querySelector<HTMLElement>('#consulta');
   const welcome = document.querySelector<HTMLElement>('#quiz-welcome');
   const flow = document.querySelector<HTMLElement>('#quiz-flow');
   const resultPanel = document.querySelector<HTMLElement>('#quiz-result');
@@ -533,12 +533,12 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   }
   .gc [hidden] { display:none !important; }
   .gc .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-  .quiz-section { background:#f7f9f6; scroll-margin-top:92px; }
+  .quiz-section { background:#f7f9f6; }
   .quiz-intro { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(250px,.6fr); column-gap:7%; align-items:end; margin-bottom:42px; }
   .quiz-intro .kicker { grid-column:1 / -1; margin-bottom:15px; color:#a12f29; }
   body[data-skin] main.gc .quiz-intro h2 { max-width:780px; margin:0; font-size:clamp(2.35rem,4vw,4.2rem) !important; font-weight:550; line-height:1.08; }
   .gc .quiz-intro p:last-child { max-width:390px; margin:0 0 7px; color:#43514b; font-size:1.08rem; line-height:1.55; }
-  .quiz-shell { display:grid; grid-template-columns:minmax(240px,.34fr) minmax(0,.66fr); min-height:550px; overflow:hidden; border:1px solid #ccd6cd; background:#fff; box-shadow:0 20px 50px #152c1b0a; }
+  .quiz-shell { display:grid; grid-template-columns:minmax(240px,.34fr) minmax(0,.66fr); min-height:550px; overflow:hidden; border:1px solid #ccd6cd; background:#fff; box-shadow:0 20px 50px #152c1b0a; scroll-margin-top:92px; }
   .quiz-side { display:flex; flex-direction:column; padding:40px 38px; background:#172d27; color:#f4f8f3; }
   .quiz-side-mark { font-size:1.25rem; font-weight:750; letter-spacing:-.08em; }
   .quiz-side-mark span { color:#ef695f; }
