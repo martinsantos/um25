@@ -839,3 +839,13 @@ describe('Information hub visual contracts', () => {
     expect(cssBlock(geoHubDossier, '.geo-budget-brief__note')).toMatch(/font-size:\s*1rem;/);
   });
 });
+
+describe('mega-menú de escritorio', () => {
+  test('el ítem no se posiciona: el panel se ancla al ancho completo del header', () => {
+    const navbar = read('src/components/v4/NavbarV4.astro');
+    const itemRules = [...navbar.matchAll(/\n\s*\.um-ops-mega\s*\{([^}]*)\}/g)].map((m) => m[1]);
+    expect(itemRules.length).toBeGreaterThan(0);
+    for (const rule of itemRules) expect(rule).not.toMatch(/position\s*:\s*(relative|absolute|fixed|sticky)/);
+    expect(navbar).toMatch(/\.um-ops-mega__panel\s*\{[^}]*position:\s*absolute;[^}]*left:\s*0;[^}]*right:\s*0;/);
+  });
+});

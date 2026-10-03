@@ -197,6 +197,31 @@ jobs:
           test -f dist/client/software/gestion-de-comunidades-profesionales/demo/index.html
           grep -Fq '/software/gestion-de-comunidades-profesionales/demo/' dist/client/sw.js
 
+      # Each scoped release keeps the runtime it replaced (~1 GB). Only the newest
+      # folder is a rollback target; keep the two newest and prune older ones so
+      # the disk does not fill up release after release.
+      - name: Prune old scoped release folders
+        run: |
+          set -euo pipefail
+          ssh root@23.105.176.45 "bash -s -- '$DEPLOY_PATH'" <<'EOF'
+          set -euo pipefail
+          backups="$1/backups"
+          mapfile -t old < <(
+            find "$backups" -maxdepth 1 -type d -name 'umsa-campaign-[0-9]*-[0-9]*' -printf '%f\n' 2>/dev/null |
+              sort -t- -k3,3n -k4,4n | head -n -2
+          )
+          if (( ${#old[@]} == 0 )); then
+            echo 'No old scoped release folders to prune'
+            exit 0
+          fi
+          for name in "${old[@]}"; do
+            [[ "$name" =~ ^umsa-campaign-[0-9]+-[0-9]+$ ]] || continue
+            du -sh "$backups/$name"
+            rm -rf -- "${backups:?}/$name"
+          done
+          echo "Pruned ${#old[@]} old scoped release folders"
+          EOF
+
       # Read-only: report what is using the server disk (scoped release folders,
       # git worktrees) and stop before uploading when the staged build plus the
       # swap script's 2.5 GB reserve would not fit, so an aborted release never
