@@ -2,8 +2,9 @@
 /**
  * SoftwareStage — el producto de software mostrado como software.
  * Reproduce la interfaz del SGI (sistema de gestión integral que operan los
- * clientes de ULTIMA MILLA) con datos de ejemplo claramente marcados. Los
- * módulos son los reales; las filas son ilustrativas.
+ * clientes de ULTIMA MILLA) con datos de ejemplo claramente marcados, y al
+ * lado la app de campo del técnico. Los módulos son los reales; las filas son
+ * ilustrativas. Recorre los módulos solo (se detiene al pasar el mouse o tocar).
  */
 interface Row { cells: string[]; state?: 'ok' | 'warn' | 'run' }
 interface Module {
@@ -14,8 +15,8 @@ interface Module {
   head: string[];
   rows: Row[];
 }
-interface Props { product?: string; host?: string }
-const { product = 'SGI', host = 'sgi.ultimamilla.com.ar' } = Astro.props;
+interface Props { product?: string; host?: string; tour?: boolean }
+const { product = 'SGI', host = 'sgi.ultimamilla.com.ar', tour = true } = Astro.props;
 
 const MODULES: Module[] = [
   {
@@ -87,7 +88,7 @@ const MODULES: Module[] = [
 ];
 const first = MODULES[0];
 ---
-<div class="sws" data-sws>
+<div class="sws" data-sws data-tour={tour ? 'on' : 'off'}>
   <figure class="sws__frame" aria-label={`Interfaz del ${product} con datos de ejemplo`}>
     <div class="sws__bar">
       <span class="sws__host">{host}<span class="sws__path" data-sws-path>/{first.key}</span></span>
@@ -96,7 +97,7 @@ const first = MODULES[0];
     <div class="sws__app">
       <nav class="sws__nav" aria-label="Módulos del sistema">
         {MODULES.map((m, i) => (
-          <button type="button" class="sws__tab" data-sws-tab={m.key} aria-pressed={i === 0 ? 'true' : 'false'}>{m.name}</button>
+          <button type="button" class="sws__tab" data-sws-tab={m.key} aria-pressed={i === 0 ? 'true' : 'false'}>{m.name}<i class="sws__bar-progress" aria-hidden="true"></i></button>
         ))}
       </nav>
       {MODULES.map((m, i) => (
@@ -123,8 +124,32 @@ const first = MODULES[0];
         </section>
       ))}
     </div>
-    <figcaption class="sws__caption">Interfaz real del {product}: los módulos que operan nuestros clientes, con filas ilustrativas. Tocá un módulo para recorrerlo.</figcaption>
+    <figcaption class="sws__caption">Escritorio para la oficina: los módulos que operan nuestros clientes, con filas ilustrativas. Tocá un módulo para recorrerlo.</figcaption>
   </figure>
+
+  <figure class="sws__phone" aria-label="App de campo del técnico, con datos de ejemplo">
+    <div class="sws__screen">
+      <div class="sws__status"><span>09:12</span><span>UM Campo</span></div>
+      <div class="sws__app-head">
+        <small>Parte de trabajo · 4471</small>
+        <strong>Aeropuerto de Mendoza</strong>
+        <span>SDI terminal · mantenimiento mensual</span>
+      </div>
+      <ul class="sws__check" role="list">
+        <li data-done="true">Prueba de lazo 1 a 4</li>
+        <li data-done="true">Detectores limpiados: 38</li>
+        <li>Sirenas y avisadores</li>
+      </ul>
+      <div class="sws__photo"><span>Foto de la central, adjunta</span></div>
+      <div class="sws__sign">
+        <small>Firma del responsable de sitio</small>
+        <svg viewBox="0 0 220 44" aria-hidden="true"><path d="M6 32c14-22 22-20 28-6s10 12 20-2 16-16 26-4 12 12 22 2 14-18 26-6 14 14 28 0 16-10 24 2 14 8 32-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </div>
+      <button type="button" class="sws__cta" tabindex="-1" aria-hidden="true">Cerrar parte y sincronizar</button>
+    </div>
+    <figcaption class="sws__caption sws__caption--phone">Teléfono para la obra: el técnico cierra el parte en sitio y el SGI lo recibe al instante. Datos de ejemplo.</figcaption>
+  </figure>
+
   <ol class="sws__list" aria-label="Qué incluye el desarrollo">
     <li><b>Módulos por proceso</b><span>Clientes, proyectos, certificados, control, cobros y facturas, configurados sobre el flujo real del cliente.</span></li>
     <li><b>APIs e integraciones</b><span>Conectan el ERP, la app de campo y los tableros con una sola fuente de datos.</span></li>
@@ -135,15 +160,35 @@ const first = MODULES[0];
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-sws]').forEach((root) => {
-    const tabs = root.querySelectorAll<HTMLButtonElement>('[data-sws-tab]');
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-sws-tab]')];
     const panels = root.querySelectorAll<HTMLElement>('[data-sws-panel]');
     const path = root.querySelector<HTMLElement>('[data-sws-path]');
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const STEP = 5200;
+    let current = 0, timer = 0, held = false;
     const show = (key: string) => {
-      tabs.forEach((t) => t.setAttribute('aria-pressed', String(t.dataset.swsTab === key)));
+      current = Math.max(0, tabs.findIndex((t) => t.dataset.swsTab === key));
+      tabs.forEach((t) => {
+        const on = t.dataset.swsTab === key;
+        t.setAttribute('aria-pressed', String(on));
+        // reinicia la barra de progreso del recorrido automático
+        const bar = t.querySelector<HTMLElement>('.sws__bar-progress');
+        if (bar) { bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = ''; }
+      });
       panels.forEach((p) => { p.hidden = p.dataset.swsPanel !== key; });
       if (path) path.textContent = `/${key}`;
     };
-    tabs.forEach((t) => t.addEventListener('click', () => show(t.dataset.swsTab || '')));
+    const next = () => { if (!held) show(tabs[(current + 1) % tabs.length].dataset.swsTab || ''); };
+    const arm = () => { if (timer) clearInterval(timer); if (root.dataset.tour === 'on' && !reduced) timer = window.setInterval(next, STEP); };
+    tabs.forEach((t) => t.addEventListener('click', () => { show(t.dataset.swsTab || ''); root.dataset.tour = 'off'; arm(); }));
+    const hold = (v: boolean) => { held = v; root.classList.toggle('is-held', v); };
+    root.addEventListener('mouseenter', () => hold(true));
+    root.addEventListener('mouseleave', () => hold(false));
+    root.addEventListener('focusin', () => hold(true));
+    root.addEventListener('focusout', () => hold(false));
+    root.addEventListener('touchstart', () => hold(true), { passive: true });
+    // Sólo recorre cuando está a la vista.
+    new IntersectionObserver(([e]) => { if (e.isIntersecting) arm(); else if (timer) { clearInterval(timer); timer = 0; } }, { threshold: 0.3 }).observe(root);
   });
 </script>
 
@@ -152,9 +197,12 @@ const first = MODULES[0];
     display: grid;
     gap: 28px;
     color: inherit;
+    grid-template-areas: "app" "phone" "list";
   }
   .sws__frame {
+    grid-area: app;
     margin: 0;
+    min-width: 0;
     border: 1px solid rgba(127, 127, 127, 0.35);
     border-radius: var(--um-radius-lg, 8px);
     overflow: hidden;
@@ -170,7 +218,7 @@ const first = MODULES[0];
     font-size: 1rem;
     font-variant-numeric: var(--um-figures-tabular);
   }
-  .sws__host { opacity: 0.75; }
+  .sws__host { opacity: 0.75; min-width: 0; overflow-wrap: anywhere; }
   .sws__path { color: inherit; opacity: 1; font-weight: 600; }
   .sws__sample {
     font-size: 1rem;
@@ -193,6 +241,7 @@ const first = MODULES[0];
     border-right: 1px solid rgba(127, 127, 127, 0.35);
   }
   .sws__tab {
+    position: relative;
     appearance: none;
     border: 0;
     background: transparent;
@@ -215,6 +264,11 @@ const first = MODULES[0];
     background: rgba(127, 127, 127, 0.12);
   }
   .sws__tab:focus-visible { outline: 2px solid var(--um-red, #DC2626); outline-offset: 2px; }
+  /* Barra de progreso del recorrido automático: corre sólo en el módulo activo. */
+  .sws__bar-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--um-red, #DC2626); transform: scaleX(0); transform-origin: left; }
+  [data-tour="on"] .sws__tab[aria-pressed="true"] .sws__bar-progress { animation: sws-progress 5200ms linear forwards; }
+  .sws.is-held .sws__bar-progress { animation-play-state: paused; }
+  @keyframes sws-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
   .sws__panel { padding: 20px 20px 16px; min-width: 0; }
   .sws__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin: 0 0 16px; }
   .sws__head h3 { margin: 0; font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; }
@@ -245,7 +299,37 @@ const first = MODULES[0];
   tr[data-state="warn"] .sws__state { border-color: var(--um-red, #DC2626); color: var(--um-red, #DC2626); font-weight: 600; }
   tr[data-state="run"] .sws__state { border-style: dashed; }
   .sws__caption { padding: 12px 16px; border-top: 1px solid rgba(127, 127, 127, 0.35); font-size: 1rem; opacity: 0.8; }
-  .sws__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+
+  /* Teléfono del técnico */
+  .sws__phone { grid-area: phone; margin: 0; min-width: 0; display: grid; gap: 0; align-content: start; justify-items: center; }
+  .sws__screen {
+    width: min(100%, 300px);
+    border: 1px solid rgba(127, 127, 127, 0.45);
+    border-radius: 22px;
+    padding: 14px 16px 18px;
+    display: grid;
+    gap: 14px;
+    background: rgba(127, 127, 127, 0.06);
+    font-size: 1rem;
+  }
+  .sws__status { display: flex; justify-content: space-between; font-variant-numeric: var(--um-figures-tabular); opacity: 0.7; }
+  .sws__app-head { display: grid; gap: 2px; }
+  .sws__app-head small { font-size: 1rem; color: var(--um-red, #DC2626); font-weight: 600; letter-spacing: 0.04em; }
+  .sws__app-head strong { font-size: 1.25rem; font-weight: 600; line-height: 1.15; }
+  .sws__app-head span { opacity: 0.75; }
+  .sws__check { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid rgba(127, 127, 127, 0.3); }
+  .sws__check li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: center; padding: 9px 0; border-bottom: 1px solid rgba(127, 127, 127, 0.3); }
+  .sws__check li::before { content: ''; width: 16px; height: 16px; border: 1.5px solid rgba(127, 127, 127, 0.7); border-radius: 4px; }
+  .sws__check li[data-done="true"]::before { background: var(--um-red, #DC2626); border-color: var(--um-red, #DC2626); }
+  .sws__check li[data-done="true"] { opacity: 0.8; }
+  .sws__photo { display: grid; place-items: center; aspect-ratio: 16 / 9; border: 1px dashed rgba(127, 127, 127, 0.6); border-radius: var(--um-radius, 4px); opacity: 0.8; text-align: center; padding: 8px; }
+  .sws__sign { display: grid; gap: 4px; }
+  .sws__sign small { font-size: 1rem; opacity: 0.7; }
+  .sws__sign svg { width: 100%; height: 44px; border-bottom: 1px solid rgba(127, 127, 127, 0.5); opacity: 0.9; }
+  .sws__cta { appearance: none; border: 0; border-radius: var(--um-radius, 4px); padding: 12px 14px; background: var(--um-red, #DC2626); color: #fff; font: inherit; font-size: 1rem; font-weight: 600; cursor: default; }
+  .sws__caption--phone { width: min(100%, 300px); border-top: 0; padding: 12px 0 0; }
+
+  .sws__list { grid-area: list; list-style: none; margin: 0; padding: 0; display: grid; gap: 0 28px; }
   .sws__list li {
     display: grid;
     grid-template-columns: 26px minmax(0, 1fr);
@@ -257,7 +341,13 @@ const first = MODULES[0];
   .sws__list b { font-weight: 600; font-size: 1.0625rem; }
   .sws__list span { grid-column: 2; font-size: 1rem; opacity: 0.8; line-height: var(--um-body-line-height, 1.62); }
   @media (min-width: 981px) {
-    .sws { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); align-items: start; }
+    .sws { grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: "app phone" "list list"; align-items: start; }
+    .sws__list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .sws__list li { border-bottom: 0; border-top: 1px solid rgba(127, 127, 127, 0.3); padding: 16px 0 0; }
+  }
+  @media (min-width: 761px) and (max-width: 980px) {
+    .sws { grid-template-columns: minmax(0, 1fr) 280px; grid-template-areas: "app phone" "list list"; align-items: start; }
+    .sws__list { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 760px) {
     .sws__app { grid-template-columns: 1fr; }
@@ -267,5 +357,8 @@ const first = MODULES[0];
     .sws__kpis { grid-template-columns: 1fr 1fr; }
     .sws__table th:nth-child(3), .sws__table td:nth-child(3) { display: none; }
     .sws__bar { flex-wrap: wrap; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sws__bar-progress { animation: none !important; }
   }
 </style>

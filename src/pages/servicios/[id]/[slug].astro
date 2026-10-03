@@ -13,6 +13,9 @@ import EmailLink from '../../../components/common/EmailLink.astro';
 import CineBanner from '../../../components/cine/CineBanner.astro';
 import RenderStage from '../../../components/cine/RenderStage.astro';
 import SoftwareStage from '../../../components/cine/SoftwareStage.astro';
+import SystemsMap from '../../../components/cine/SystemsMap.astro';
+import DeliveryProcess from '../../../components/cine/DeliveryProcess.astro';
+import SoftwareMoments from '../../../components/cine/SoftwareMoments.astro';
 import ServiceSpecSheet from '../../../components/cine/ServiceSpecSheet.astro';
 import ShareButton from '../../../components/common/ShareButton.astro';
 import { getServiceSpec } from '../../../data/serviceSpecs';
@@ -506,18 +509,54 @@ const fichaItems = [
 
     <!-- 1b · Sistema y equipamiento (render UM25) · para software, el producto como interfaz -->
     {isSoftwareService ? (
-      <section class="svc-section svc-section--render" id="equipamiento" aria-labelledby="svc-render-title">
-        <div class="svc-wrap">
-          <header class="svc-head">
-            <div>
-              <p class="svc-kicker">El producto</p>
-              <h2 id="svc-render-title">El SGI, módulo por módulo.</h2>
+      <>
+        <section class="svc-section svc-section--paper svc-section--intro" id="para-tu-empresa" aria-labelledby="svc-intro-title">
+          <div class="svc-wrap svc-intro">
+            <div class="svc-intro__copy">
+              <h2 id="svc-intro-title">Un sistema hecho sobre cómo trabaja tu empresa.</h2>
+              <p class="svc-intro__lead">La obra, el técnico en sitio, la certificación y la cobranza en un solo lugar. Código propio, en pesos, con soporte desde Mendoza.</p>
+              <ul class="svc-intro__list" aria-label="Qué resuelve">
+                <li>Partes de trabajo desde el teléfono, con foto y firma</li>
+                <li>Certificados con la norma aplicable y el PDF al instante</li>
+                <li>Cobranza y facturas conciliadas con el ERP</li>
+                <li>Tableros del día para decidir sin pedir informes</li>
+              </ul>
+              <div class="svc-intro__actions">
+                <a class="svc-btn" href="/contacto">
+                  Solicitá una demo con tus casos
+                  <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
+                </a>
+                <a class="svc-intro__link" href="#equipamiento">Explorar el SGI</a>
+              </div>
+              <p class="svc-intro__note"><b>Relevamiento sin cargo.</b> Repositorio, documentación y pruebas se entregan con el sistema.</p>
             </div>
-            <p class="svc-head__lead">La misma plataforma que operan nuestros clientes, con datos de ejemplo. Cada módulo se configura sobre el proceso real de la empresa: la obra, el técnico en sitio, la certificación y la cobranza en una sola fuente.</p>
-          </header>
-          <SoftwareStage />
-        </div>
-      </section>
+            <ol class="svc-intro__questions" aria-label="Preguntas que responde">
+              <li><span>01</span>¿Cuánto tarda un parte de obra en llegar a la factura?</li>
+              <li><span>02</span>¿Quién sabe hoy qué certificados vencen este mes?</li>
+              <li><span>03</span>¿Qué pasa cuando el técnico no tiene señal en el sitio?</li>
+            </ol>
+          </div>
+        </section>
+
+        <section class="svc-section svc-section--paper" id="equipamiento" aria-labelledby="svc-render-title">
+          <div class="svc-wrap">
+            <header class="svc-head">
+              <div>
+                <p class="svc-kicker">El producto</p>
+                <h2 id="svc-render-title">Entrá al SGI. Probalo con datos de ejemplo.</h2>
+              </div>
+              <p class="svc-head__lead">Recorré los módulos que usan nuestros clientes: la obra, el técnico en sitio, la certificación y la cobranza en una sola fuente. Sin cuenta y sin datos reales.</p>
+            </header>
+            <SoftwareStage />
+          </div>
+        </section>
+
+        <section class="svc-section svc-section--paper" id="momentos" aria-label="Así se vive, en tres momentos">
+          <div class="svc-wrap">
+            <SoftwareMoments />
+          </div>
+        </section>
+      </>
     ) : serviceRender && (
       <section class="svc-section svc-section--render" id="equipamiento" aria-labelledby="svc-render-title">
         <div class="svc-wrap">
@@ -533,9 +572,25 @@ const fichaItems = [
       </section>
     )}
 
+    <!-- 1c · Software que toca el mundo físico (sólo 104) -->
+    {isSoftwareService && (
+      <section class="svc-section svc-section--paper svc-section--map" id="integraciones" aria-labelledby="svc-map-title">
+        <div class="svc-wrap">
+          <header class="svc-head">
+            <div>
+              <p class="svc-kicker">Lo que no puede ofrecer un estudio de software</p>
+              <h2 id="svc-map-title">Software que toca el mundo físico.</h2>
+            </div>
+            <p class="svc-head__lead">El SGI habla con las cámaras, los accesos, la detección de incendios y la telefonía que la misma empresa instala y mantiene. Un evento en campo termina en el parte, en la factura y en el tablero sin que nadie lo cargue dos veces.</p>
+          </header>
+          <SystemsMap />
+        </div>
+      </section>
+    )}
+
     <!-- 2 · Qué cubre -->
     {(serviceCapabilityItems.length > 0 || solutionItems.length > 0) && (
-      <section class="svc-section" id="alcance" aria-labelledby="svc-scope-title">
+      <section class:list={['svc-section', isSoftwareService && 'svc-section--text-tiles']} id="alcance" aria-labelledby="svc-scope-title">
         <div class="svc-wrap">
           <header class="svc-head">
             <div>
@@ -604,8 +659,30 @@ const fichaItems = [
       </section>
     )}
 
+    <!-- 3a · Cómo se construye (sólo 104): etapas con entregable a la vista + garantías -->
+    {isSoftwareService && (
+      <section class="svc-section svc-section--paper" id="como-se-construye" aria-labelledby="svc-build-title">
+        <div class="svc-wrap">
+          <header class="svc-head">
+            <div>
+              <p class="svc-kicker">Cómo se construye</p>
+              <h2 id="svc-build-title">Cada etapa deja un documento que se puede revisar.</h2>
+            </div>
+            <p class="svc-head__lead">Sin sorpresas al final: lo que se acordó, lo que se probó y lo que se entregó quedan por escrito en cada paso.</p>
+          </header>
+          <DeliveryProcess />
+          <dl class="svc-guarantees" aria-label="Garantías de entrega">
+            <div><dt>Código propio</dt><dd>Repositorio entregado al cliente, sin cajas negras ni licencias ocultas.</dd></div>
+            <div><dt>Documentación</dt><dd>Manual de operación, diagrama de integraciones y guía de despliegue.</dd></div>
+            <div><dt>Pruebas</dt><dd>Casos de prueba por módulo y validación con los usuarios reales antes de cada versión.</dd></div>
+            <div><dt>Sin dependencia</dt><dd>Otro equipo puede continuar el sistema con lo entregado. Elegirnos es una decisión, no una obligación.</dd></div>
+          </dl>
+        </div>
+      </section>
+    )}
+
     <!-- 3 · Cómo trabajamos -->
-    {showGenericProcess && (
+    {showGenericProcess && !isSoftwareService && (
       <section class="svc-section" aria-labelledby="svc-approach-title">
         <div class="svc-wrap">
           <header class="svc-head">
@@ -644,12 +721,11 @@ const fichaItems = [
               <a class="svc-textlink" href="/antecedentes">Ver todos los antecedentes <span aria-hidden="true">→</span></a>
             </p>
           </header>
-          <div class="svc-cases" data-rail="Casos comparables">
+          <div class:list={['svc-cases', isSoftwareService && 'svc-cases--text']} data-rail="Casos comparables">
             {serviceCases.map((item) => (
               <a class="svc-case" href={item.href}>
                 <div class="svc-case__media">
                   <img src={item.image} alt="" width="1200" height="750" loading="lazy" decoding="async" />
-                  <span class="svc-case__seal">Imagen ilustrativa</span>
                 </div>
                 <div class="svc-case__body">
                   <p class="svc-case__client">{item.client}</p>
@@ -689,14 +765,16 @@ const fichaItems = [
     <section class="svc-section svc-section--close" aria-labelledby="svc-close-title">
       <div class="svc-wrap svc-close">
         <div class="svc-close__cta">
-          <p class="svc-kicker">Diagnóstico técnico</p>
-          <h2 id="svc-close-title">{serviceCtaTitle}</h2>
+          <p class="svc-kicker">{isSoftwareService ? 'Demo del SGI' : 'Diagnóstico técnico'}</p>
+          <h2 id="svc-close-title">{isSoftwareService ? 'Veámoslo con tus casos.' : serviceCtaTitle}</h2>
           <p class="svc-close__text">
-            Revisamos sitio, riesgos, dependencias y objetivo operativo antes de proponer una solución.
+            {isSoftwareService
+              ? 'Una hora con la persona que opera. Recorremos el SGI con tus partes, tus certificados y tu cobranza, y te decimos qué se configura y qué hay que construir.'
+              : 'Revisamos sitio, riesgos, dependencias y objetivo operativo antes de proponer una solución.'}
           </p>
           <div class="svc-close__actions">
             <a class="svc-btn" href="/contacto">
-              Solicitar diagnóstico
+              {isSoftwareService ? 'Solicitá una demo con tus casos' : 'Solicitar diagnóstico'}
               <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
             </a>
             <p class="svc-close__alt">
@@ -1509,4 +1587,68 @@ const fichaItems = [
       transition: none !important;
     }
   }
+
+  /* Software a medida (104): secciones "papel", el tono de la landing de comunidades
+     profesionales (superficies claras, una frase por idea). El hero cine sigue oscuro. */
+  .svc-section--paper {
+    --x-text: #182120;
+    --x-text-2: #3c423f;
+    --x-muted: #5f6368;
+    --x-line: rgba(24, 33, 32, 0.14);
+    --x-line-strong: rgba(24, 33, 32, 0.28);
+    --x-panel: #f4f6f4;
+    --x-panel-2: #e9eee9;
+    /* La piel oscura pinta p/li/dd del main con --skin-* e !important: acá esos
+       tokens pasan a sus valores claros para que el texto se lea sobre papel. */
+    --skin-text: #182120;
+    --skin-muted: #3c423f;
+    --skin-line: rgba(24, 33, 32, 0.14);
+    --skin-panel: #f4f6f4;
+    --skin-panel-strong: #e9eee9;
+    --skin-page: #fcfcf9;
+    --skin-section: #fcfcf9;
+    --skin-section-alt: #f4f6f4;
+    background: #fcfcf9;
+    color: #182120;
+    border-top: 0;
+  }
+  .svc-section--paper + .svc-section--paper { padding-top: 0; }
+  .svc-section--paper .svc-kicker { color: #bd352d; }
+  .svc-section--paper .svc-guarantees dt { color: #182120; }
+  .svc-intro { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: 48px; align-items: start; }
+  .svc-intro__copy { display: grid; gap: 20px; }
+  .svc-intro__copy h2 { margin: 0; font-size: clamp(2rem, 3.4vw, 3rem); line-height: 1.02; letter-spacing: -0.025em; font-weight: 600; color: #182120; text-wrap: balance; }
+  .svc-intro__lead { margin: 0; font-size: 1.1875rem; line-height: 1.5; color: #3c423f; max-width: 54ch; }
+  .svc-intro__list { list-style: none; margin: 4px 0 0; padding: 0; display: grid; border-top: 1px solid var(--x-line); }
+  .svc-intro__list li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--x-line); font-size: 1.0625rem; color: #182120; }
+  .svc-intro__list li::before { content: ''; width: 8px; height: 8px; background: #dc2626; }
+  .svc-intro__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; margin-top: 4px; }
+  .svc-intro__link { color: #182120; font-weight: 600; text-decoration: none; border-bottom: 2px solid #dc2626; padding-bottom: 2px; }
+  .svc-intro__link:hover { color: #bd352d; }
+  .svc-intro__note { margin: 0; font-size: 1rem; color: #3c423f; padding-top: 16px; border-top: 1px solid var(--x-line); }
+  .svc-intro__note b { font-weight: 600; color: #182120; }
+  .svc-intro__questions { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid var(--x-line); }
+  .svc-intro__questions li { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 8px; padding: 18px 0; border-bottom: 1px solid var(--x-line); font-size: 1.125rem; font-weight: 600; line-height: 1.35; color: #182120; }
+  .svc-intro__questions span { color: #bd352d; font-size: 1rem; font-variant-numeric: tabular-nums; padding-top: 3px; }
+  @media (max-width: 980px) { .svc-intro { grid-template-columns: 1fr; gap: 28px; } }
+
+  /* Software a medida (104): alcance y casos sin fotos de banco; garantías de entrega. */
+  .svc-section--text-tiles .svc-tile__media { display: none; }
+  .svc-section--text-tiles .svc-tile,
+  .svc-section--text-tiles .svc-tiles .svc-tile { grid-template-columns: 1fr; grid-template-rows: auto; }
+  .svc-cases--text .svc-case__media { display: none; }
+  .svc-cases--text .svc-case { grid-template-rows: auto; border-top: 2px solid var(--x-red); }
+  .svc-guarantees {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+    margin: 40px 0 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--x-line-strong);
+  }
+  .svc-guarantees div { display: grid; gap: 6px; min-width: 0; }
+  .svc-guarantees dt { font-size: 1.0625rem; font-weight: 600; color: #fff; }
+  .svc-guarantees dd { margin: 0; font-size: 1rem; color: var(--x-muted); line-height: 1.55; }
+  @media (max-width: 980px) { .svc-guarantees { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .svc-guarantees { grid-template-columns: 1fr; } }
 </style>

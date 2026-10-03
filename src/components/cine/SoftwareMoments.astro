@@ -1,0 +1,106 @@
+---
+/**
+ * SoftwareMoments — "así se vive, en tres momentos". Mismo tono que la landing de
+ * comunidades profesionales: paneles claros, una frase por momento y una interfaz
+ * conceptual dibujada en CSS, marcada como tal. Sin datos reales.
+ */
+interface Moment { n: string; where: string; title: string; text: string; flow: string[]; kind: 'obra' | 'oficina' | 'gerencia' }
+const MOMENTS: Moment[] = [
+  { n: '01', where: 'Obra', title: 'El parte se cierra en el sitio.', text: 'El técnico marca la checklist, adjunta la foto y firma el responsable. Sin señal también: se sincroniza al volver.', flow: ['Checklist', 'Foto', 'Firma'], kind: 'obra' },
+  { n: '02', where: 'Oficina', title: 'La certificación sale con la norma.', text: 'Al cerrar el parte, el certificado queda armado con la norma aplicable y el PDF listo para el cliente.', flow: ['Parte', 'Norma', 'PDF'], kind: 'oficina' },
+  { n: '03', where: 'Gerencia', title: 'El día, en un tablero.', text: 'Avance, cobranza y técnicos en sitio sin pedir informes. Lo que importa, a primera hora.', flow: ['Avance', 'Cobranza', 'Alertas'], kind: 'gerencia' },
+];
+---
+<div class="smo">
+  <div class="smo__head">
+    <p>Así se vive, en tres momentos</p>
+    <p>Interfaces conceptuales · sin datos reales</p>
+  </div>
+  <ol class="smo__grid" aria-label="Tres momentos del sistema">
+    {MOMENTS.map((m) => (
+      <li class:list={['smo__card', `smo__card--${m.kind}`]}>
+        <div class="smo__copy">
+          <span class="smo__kicker">{m.n} / {m.where}</span>
+          <h3>{m.title}</h3>
+          <p class="smo__text">{m.text}</p>
+          <span class="smo__flow">{m.flow.map((f, i) => <>{i > 0 && <span aria-hidden="true"> → </span>}{f}</>)}</span>
+        </div>
+        <div class="smo__ui" aria-hidden="true">
+          {m.kind === 'obra' && (
+            <div class="smo__phone">
+              <div class="smo__phone-top"><span>UM Campo</span><span>09:12</span></div>
+              <div class="smo__phone-body">
+                <b>Parte 4471 · Aeropuerto de Mendoza</b>
+                <ul><li data-done="true">Prueba de lazo 1 a 4</li><li data-done="true">Detectores limpiados</li><li>Sirenas y avisadores</li></ul>
+                <i class="smo__photo">Foto adjunta</i>
+                <em>Firmado · Responsable de sitio</em>
+              </div>
+            </div>
+          )}
+          {m.kind === 'oficina' && (
+            <div class="smo__doc">
+              <div class="smo__doc-head"><b>Certificado de obra</b><span>N.º 214 · NFPA 72</span></div>
+              <div class="smo__doc-rows"><i style="--w:88%"></i><i style="--w:64%"></i><i style="--w:80%"></i><i style="--w:46%"></i></div>
+              <div class="smo__doc-foot"><span>Mantenimiento SDI · septiembre</span><b>PDF listo</b></div>
+            </div>
+          )}
+          {m.kind === 'gerencia' && (
+            <div class="smo__board">
+              <div class="smo__tile"><small>Avance de obras</small><b>82 %</b></div>
+              <div class="smo__tile"><small>Al día en cobranza</small><b>91 %</b></div>
+              <div class="smo__tile smo__tile--alert"><small>Con alerta</small><b>2</b></div>
+              <div class="smo__tile"><small>Técnicos en sitio</small><b>11</b></div>
+            </div>
+          )}
+          <span class="smo__stamp">Vista conceptual / {m.n}</span>
+        </div>
+      </li>
+    ))}
+  </ol>
+  <p class="smo__note">Las pantallas son representaciones conceptuales. Módulos, integraciones, medios de pago y alcance se especifican en la propuesta técnica y económica de cada proyecto.</p>
+</div>
+
+<style>
+  .smo { display: grid; gap: 18px; color: #182120; }
+  .smo__head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
+  .smo__head p { margin: 0; font-size: 1rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #5f6368; }
+  .smo__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .smo__card { display: grid; grid-template-rows: auto 1fr; min-width: 0; background: #e9eee9; }
+  .smo__copy { padding: 28px 28px 20px; display: grid; gap: 10px; align-content: start; }
+  /* kicker y flujo son <span> en bloque: la piel pinta todo <p> del main con !important. */
+  .smo__kicker { display: block; margin: 0; font-size: 1rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #bd352d; }
+  .smo__copy h3 { margin: 0; font-size: 1.5rem; line-height: 1.15; font-weight: 600; letter-spacing: -0.015em; color: #182120; text-wrap: balance; }
+  .smo__text { margin: 0; font-size: 1rem; line-height: 1.55; color: #3c423f; }
+  .smo__flow { display: block; margin: 6px 0 0; font-size: 1rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #bd352d; }
+  .smo__ui { position: relative; padding: 24px 28px 36px; background: #dfe6e0; display: grid; place-items: center; }
+  .smo__stamp { position: absolute; right: 16px; bottom: 12px; font-size: 1rem; letter-spacing: 0.06em; text-transform: uppercase; color: #5f6368; }
+  /* teléfono */
+  .smo__phone { width: min(100%, 240px); background: #182120; color: #fcfcf9; border-radius: 22px; padding: 12px 12px 16px; display: grid; gap: 10px; transform: rotate(-4deg); }
+  .smo__phone-top { display: flex; justify-content: space-between; font-size: 1rem; font-weight: 600; color: #e8a59d; padding: 0 4px; }
+  .smo__phone-body { background: #fcfcf9; color: #182120; border-radius: 10px; padding: 12px; display: grid; gap: 8px; font-size: 1rem; }
+  .smo__phone-body b { font-weight: 600; line-height: 1.2; }
+  .smo__phone-body ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .smo__phone-body li { display: grid; grid-template-columns: 16px 1fr; gap: 6px; align-items: center; color: #3c423f; }
+  .smo__phone-body li::before { content: ''; width: 12px; height: 12px; border: 1.5px solid #5f6368; border-radius: 3px; }
+  .smo__phone-body li[data-done="true"]::before { background: #bd352d; border-color: #bd352d; }
+  .smo__photo { display: grid; place-items: center; height: 54px; border: 1px dashed #9aa39d; border-radius: 6px; font-style: normal; color: #5f6368; }
+  .smo__phone-body em { font-style: normal; color: #bd352d; font-weight: 600; }
+  /* certificado */
+  .smo__doc { width: min(100%, 300px); background: #fcfcf9; color: #182120; border: 1px solid #c9d1cb; padding: 16px; display: grid; gap: 14px; font-size: 1rem; }
+  .smo__doc-head { display: flex; justify-content: space-between; gap: 8px; border-bottom: 2px solid #182120; padding-bottom: 8px; }
+  .smo__doc-head b { font-weight: 600; } .smo__doc-head span { color: #5f6368; }
+  .smo__doc-rows { display: grid; gap: 8px; }
+  .smo__doc-rows i { display: block; height: 6px; width: var(--w); background: #c9d1cb; border-radius: 2px; }
+  .smo__doc-foot { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+  .smo__doc-foot span { color: #5f6368; } .smo__doc-foot b { color: #bd352d; font-weight: 600; }
+  /* tablero */
+  .smo__board { width: min(100%, 300px); display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .smo__tile { background: #fcfcf9; border: 1px solid #c9d1cb; padding: 12px; display: grid; gap: 2px; }
+  .smo__tile small { font-size: 1rem; color: #5f6368; }
+  .smo__tile b { font-size: 1.75rem; font-weight: 700; line-height: 1.05; font-variant-numeric: tabular-nums; color: #182120; }
+  .smo__tile--alert b { color: #bd352d; }
+  .smo__note { margin: 0; font-size: 1rem; color: #5f6368; max-width: 90ch; }
+  @media (max-width: 980px) { .smo__grid { grid-template-columns: 1fr; } .smo__card { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto; } }
+  @media (max-width: 640px) { .smo__card { grid-template-columns: 1fr; } .smo__copy { padding: 22px 20px 16px; } .smo__ui { padding: 20px 20px 36px; } }
+  @media (prefers-reduced-motion: reduce) { .smo__phone { transform: none; } }
+</style>

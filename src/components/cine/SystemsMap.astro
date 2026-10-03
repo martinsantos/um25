@@ -1,0 +1,94 @@
+---
+/**
+ * SystemsMap — "software que toca el mundo físico".
+ * El SGI al centro y las integraciones reales con los sistemas que la misma
+ * empresa instala. Los pulsos sobre las líneas son la única animación: muestran
+ * el argumento (datos que van y vienen), no decoran. En teléfono, lista.
+ */
+interface Node { id: string; name: string; what: string; side: 'l' | 'r'; y: number }
+const NODES: Node[] = [
+  { id: 'cctv', name: 'CCTV y VMS', what: 'Eventos de cámara en el parte', side: 'l', y: 86 },
+  { id: 'accesos', name: 'Control de accesos', what: 'Quién entró, cuándo y a qué zona', side: 'l', y: 260 },
+  { id: 'incendios', name: 'Detección de incendios', what: 'Alarmas y mantenimiento NFPA 72', side: 'l', y: 434 },
+  { id: 'telefonia', name: 'Telefonía IP', what: 'Llamadas de mesa de ayuda y tickets', side: 'r', y: 86 },
+  { id: 'erp', name: 'ERP y facturación', what: 'Cobros, facturas y conciliación', side: 'r', y: 260 },
+  { id: 'tableros', name: 'Tableros', what: 'Indicadores del día para gerencia', side: 'r', y: 434 },
+];
+const W = 960, H = 520, CX = 480, CY = 260;
+const nodeW = 300, nodeH = 70;
+const nodeX = (n: Node) => (n.side === 'l' ? 24 : W - 24 - nodeW);
+const anchor = (n: Node) => (n.side === 'l' ? [nodeX(n) + nodeW, n.y] : [nodeX(n), n.y]);
+const link = (n: Node) => {
+  const [x, y] = anchor(n);
+  const tx = n.side === 'l' ? CX - 110 : CX + 110;
+  const mx = (x + tx) / 2;
+  return `M ${x} ${y} C ${mx} ${y}, ${mx} ${CY}, ${tx} ${CY}`;
+};
+---
+<div class="smap">
+  <svg class="smap__svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="smap-title smap-desc">
+    <title id="smap-title">Mapa de integraciones del SGI</title>
+    <desc id="smap-desc">El SGI al centro, conectado con CCTV y VMS, control de accesos, detección de incendios, telefonía IP, ERP y facturación, y tableros.</desc>
+    <g class="smap__links">
+      {NODES.map((n, i) => (
+        <>
+          <path class="smap__link" d={link(n)} />
+          <path class="smap__pulse" d={link(n)} style={`--d:${(i * 0.7).toFixed(1)}s`} />
+        </>
+      ))}
+    </g>
+    <g class="smap__core">
+      <rect x={CX - 110} y={CY - 40} width="220" height="80" rx="6" />
+      <text x={CX} y={CY - 6} text-anchor="middle" class="smap__core-name">SGI</text>
+      <text x={CX} y={CY + 22} text-anchor="middle" class="smap__core-sub">una sola fuente de datos</text>
+    </g>
+    {NODES.map((n) => (
+      <g class="smap__node">
+        <rect x={nodeX(n)} y={n.y - nodeH / 2} width={nodeW} height={nodeH} rx="4" />
+        <text x={nodeX(n) + 16} y={n.y - 6} class="smap__name">{n.name}</text>
+        <text x={nodeX(n) + 16} y={n.y + 18} class="smap__what">{n.what}</text>
+      </g>
+    ))}
+  </svg>
+  <ul class="smap__list" aria-label="Integraciones del SGI">
+    {NODES.map((n) => (
+      <li><b>{n.name}</b><span>{n.what}</span></li>
+    ))}
+  </ul>
+</div>
+
+<style>
+  .smap { display: grid; gap: 16px; min-width: 0; }
+  .smap__svg { width: 100%; height: auto; max-width: 100%; display: block; font-family: var(--um-font-body); }
+  .smap__link { fill: none; stroke: rgba(127, 127, 127, 0.5); stroke-width: 1.5; }
+  .smap__pulse {
+    fill: none;
+    stroke: var(--um-red, #DC2626);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 18 600;
+    stroke-dashoffset: 618;
+    animation: smap-pulse 4.6s linear infinite;
+    animation-delay: var(--d, 0s);
+  }
+  @keyframes smap-pulse { to { stroke-dashoffset: 0; } }
+  .smap__core rect { fill: var(--um-red, #DC2626); }
+  .smap__core-name { fill: #fff; font-size: 30px; font-weight: 700; letter-spacing: -0.02em; }
+  .smap__core-sub { fill: #fff; font-size: 16px; opacity: 0.92; }
+  .smap__node rect { fill: rgba(127, 127, 127, 0.08); stroke: rgba(127, 127, 127, 0.45); stroke-width: 1; }
+  .smap__name { fill: currentColor; font-size: 18px; font-weight: 600; }
+  .smap__what { fill: currentColor; font-size: 16px; opacity: 0.72; }
+  .smap__list { display: none; list-style: none; margin: 0; padding: 0; }
+  .smap__list li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 2px 0; padding: 12px 0; border-bottom: 1px solid rgba(127, 127, 127, 0.3); }
+  .smap__list li::before { content: ''; width: 14px; height: 3px; margin-top: 11px; background: var(--um-red, #DC2626); grid-row: 1 / span 2; }
+  .smap__list b { font-weight: 600; }
+  .smap__list span { grid-column: 2; opacity: 0.8; }
+  @media (max-width: 760px) {
+    /* A 390 px el texto del SVG quedaría por debajo de 16 px: va la lista. */
+    .smap__svg { display: none; }
+    .smap__list { display: grid; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .smap__pulse { animation: none; stroke-dashoffset: 0; stroke-dasharray: none; opacity: 0.35; }
+  }
+</style>
