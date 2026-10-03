@@ -120,6 +120,11 @@ describe('Production runtime configuration contracts', () => {
     expect(scopedDeploy).toContain('ln -s "$app/node_modules" "$release/node_modules"');
     expect(scopedDeploy).toContain('mv "$current" "$previous"');
     expect(scopedDeploy).toContain('sha256sum -c "$release/protected.before.sha256"');
+    // The asset overlay keeps every published file but must not drop assets that
+    // only exist in the new build (hero AVIF posters, datasheets): a server bundle
+    // shipped without them serves 404s.
+    expect(scopedDeploy).not.toContain('--delete');
+    expect(scopedDeploy).toContain("rsync -ac \\\n  --exclude='/_astro/***'");
   });
 
   test('contact API resolves SMTP settings from runtime-safe environment sources', () => {
