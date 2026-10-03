@@ -12,6 +12,7 @@ import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import EmailLink from '../../../components/common/EmailLink.astro';
 import CineBanner from '../../../components/cine/CineBanner.astro';
 import RenderStage from '../../../components/cine/RenderStage.astro';
+import SoftwareStage from '../../../components/cine/SoftwareStage.astro';
 import ServiceSpecSheet from '../../../components/cine/ServiceSpecSheet.astro';
 import ShareButton from '../../../components/common/ShareButton.astro';
 import { getServiceSpec } from '../../../data/serviceSpecs';
@@ -435,6 +436,8 @@ const whyItems = porQueElegirnos.map((item: string) => cleanCmsText(sanitizeEdit
 const marcas = Array.isArray(servicio.marcas) ? servicio.marcas.map((m: unknown) => cleanCmsText(m)).filter(Boolean) : [];
 const serviceShortName = visual?.shortName || cmsTitle;
 const serviceRender = RENDERS[`servicio-${id}`];
+// Software se muestra como software: la interfaz del producto en lugar de un render de objetos.
+const isSoftwareService = String(id) === '104';
 const serviceSpec = getServiceSpec(id);
 const fichaPrintHref = serviceSpec ? `/servicios/${id}/ficha` : null;
 const serviceSummaryText = cleanCmsText(plainTextFromHtml(serviceBodySource)) ||
@@ -501,8 +504,21 @@ const fichaItems = [
       </div>
     </section>
 
-    <!-- 1b · Sistema y equipamiento (render UM25) -->
-    {serviceRender && (
+    <!-- 1b · Sistema y equipamiento (render UM25) · para software, el producto como interfaz -->
+    {isSoftwareService ? (
+      <section class="svc-section svc-section--render" id="equipamiento" aria-labelledby="svc-render-title">
+        <div class="svc-wrap">
+          <header class="svc-head">
+            <div>
+              <p class="svc-kicker">El producto</p>
+              <h2 id="svc-render-title">El SGI, módulo por módulo.</h2>
+            </div>
+            <p class="svc-head__lead">La misma plataforma que operan nuestros clientes, con datos de ejemplo. Cada módulo se configura sobre el proceso real de la empresa: la obra, el técnico en sitio, la certificación y la cobranza en una sola fuente.</p>
+          </header>
+          <SoftwareStage />
+        </div>
+      </section>
+    ) : serviceRender && (
       <section class="svc-section svc-section--render" id="equipamiento" aria-labelledby="svc-render-title">
         <div class="svc-wrap">
           <header class="svc-head">

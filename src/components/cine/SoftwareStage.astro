@@ -1,0 +1,268 @@
+---
+/**
+ * SoftwareStage — el producto de software mostrado como software.
+ * Reproduce la interfaz del SGI (sistema de gestión integral que operan los
+ * clientes de ULTIMA MILLA) con datos de ejemplo claramente marcados. Los
+ * módulos son los reales; las filas son ilustrativas.
+ */
+interface Row { cells: string[]; state?: 'ok' | 'warn' | 'run' }
+interface Module {
+  key: string;
+  name: string;
+  what: string;
+  kpis: { label: string; value: string }[];
+  head: string[];
+  rows: Row[];
+}
+interface Props { product?: string; host?: string }
+const { product = 'SGI', host = 'sgi.ultimamilla.com.ar' } = Astro.props;
+
+const MODULES: Module[] = [
+  {
+    key: 'proyectos', name: 'Proyectos', what: 'Obras y servicios en curso, con avance y certificación',
+    kpis: [{ label: 'En curso', value: '14' }, { label: 'Certificados este mes', value: '6' }, { label: 'Con alerta', value: '2' }],
+    head: ['Obra', 'Cliente', 'Avance', 'Estado'],
+    rows: [
+      { cells: ['SDI terminal · San Juan', 'Aeropuertos Argentina 2000', '82 %', 'En curso'], state: 'run' },
+      { cells: ['Red y fibra · Hospital Perrupato', 'Ministerio de Salud', '100 %', 'Certificado'], state: 'ok' },
+      { cells: ['Soporte IT alta disponibilidad', 'Bodega La Esmeralda', '45 %', 'En curso'], state: 'run' },
+      { cells: ['CCTV de perímetro', 'Aeropuerto de Mendoza', '64 %', 'Con alerta'], state: 'warn' },
+    ],
+  },
+  {
+    key: 'clientes', name: 'Clientes', what: 'Cuentas, contactos y contratos vigentes',
+    kpis: [{ label: 'Activos', value: '38' }, { label: 'Contratos vigentes', value: '52' }, { label: 'Sectores', value: '9' }],
+    head: ['Cliente', 'Sector', 'Contratos', 'Último contacto'],
+    rows: [
+      { cells: ['Aeropuertos Argentina 2000', 'Aeropuertos', '7', 'Hoy'], state: 'ok' },
+      { cells: ['Municipalidad de Guaymallén', 'Gobierno', '3', 'Ayer'], state: 'ok' },
+      { cells: ['Bodega La Esmeralda', 'Bodegas', '2', 'Hace 3 días'], state: 'ok' },
+      { cells: ['Fundación Coprosamen', 'Salud', '1', 'Hace 9 días'], state: 'warn' },
+    ],
+  },
+  {
+    key: 'certificados', name: 'Certificados', what: 'Certificaciones de obra con norma, fecha y PDF',
+    kpis: [{ label: 'Emitidos', value: '214' }, { label: 'Este mes', value: '6' }, { label: 'Pendientes de firma', value: '1' }],
+    head: ['Obra', 'Norma', 'Fecha', 'Documento'],
+    rows: [
+      { cells: ['Cableado estructurado · Torre Thays', 'TIA/EIA-568', '28/09', 'PDF'], state: 'ok' },
+      { cells: ['Detección de incendios · Bodega Antigal', 'NFPA 72', '21/09', 'PDF'], state: 'ok' },
+      { cells: ['Tableros para data center', 'IRAM', '14/09', 'PDF'], state: 'ok' },
+      { cells: ['Fibra óptica · FUESMEN', 'ISO/IEC 11801', '—', 'Pendiente'], state: 'warn' },
+    ],
+  },
+  {
+    key: 'control', name: 'Control', what: 'Técnicos en sitio, partes de trabajo y checklist',
+    kpis: [{ label: 'Técnicos en campo', value: '11' }, { label: 'Partes de hoy', value: '19' }, { label: 'Sin cerrar', value: '3' }],
+    head: ['Técnico', 'Sitio', 'Entrada', 'Parte'],
+    rows: [
+      { cells: ['M. Ruiz', 'Aeropuerto de Mendoza', '07:40', 'Cerrado'], state: 'ok' },
+      { cells: ['J. Páez', 'Hospital Central', '08:05', 'En curso'], state: 'run' },
+      { cells: ['L. Soria', 'Planta Flexcolor', '08:30', 'En curso'], state: 'run' },
+      { cells: ['A. Vega', 'Terminal San Martín', '09:10', 'Sin cerrar'], state: 'warn' },
+    ],
+  },
+  {
+    key: 'cobros', name: 'Cobros', what: 'Cuentas por cobrar y seguimiento de vencimientos',
+    kpis: [{ label: 'Al día', value: '91 %' }, { label: 'Vencen esta semana', value: '4' }, { label: 'En mora', value: '2' }],
+    head: ['Comprobante', 'Cliente', 'Vence', 'Estado'],
+    rows: [
+      { cells: ['FC A 0004-00012871', 'Aeropuertos Argentina 2000', '08/10', 'Al día'], state: 'ok' },
+      { cells: ['FC A 0004-00012866', 'Municipalidad de Guaymallén', '05/10', 'Al día'], state: 'ok' },
+      { cells: ['FC A 0004-00012850', 'José Nucete e Hijos', '30/09', 'Vencida'], state: 'warn' },
+      { cells: ['FC A 0004-00012842', 'Cliente confidencial', '27/09', 'En gestión'], state: 'run' },
+    ],
+  },
+  {
+    key: 'facturas', name: 'Facturas', what: 'Emisión electrónica y conciliación con el ERP',
+    kpis: [{ label: 'Emitidas este mes', value: '27' }, { label: 'Conciliadas', value: '25' }, { label: 'Con diferencia', value: '0' }],
+    head: ['Número', 'Cliente', 'Concepto', 'Estado'],
+    rows: [
+      { cells: ['0004-00012871', 'Aeropuertos Argentina 2000', 'Mantenimiento SDI · septiembre', 'Emitida'], state: 'ok' },
+      { cells: ['0004-00012870', 'Bodega La Esmeralda', 'Soporte IT · septiembre', 'Emitida'], state: 'ok' },
+      { cells: ['0004-00012869', 'Hospital Perrupato', 'Certificación de red', 'Conciliada'], state: 'ok' },
+      { cells: ['0004-00012868', 'Procon SRL', 'Desarrollo · hito 2', 'Borrador'], state: 'run' },
+    ],
+  },
+];
+const first = MODULES[0];
+---
+<div class="sws" data-sws>
+  <figure class="sws__frame" aria-label={`Interfaz del ${product} con datos de ejemplo`}>
+    <div class="sws__bar">
+      <span class="sws__host">{host}<span class="sws__path" data-sws-path>/{first.key}</span></span>
+      <span class="sws__sample">Datos de ejemplo</span>
+    </div>
+    <div class="sws__app">
+      <nav class="sws__nav" aria-label="Módulos del sistema">
+        {MODULES.map((m, i) => (
+          <button type="button" class="sws__tab" data-sws-tab={m.key} aria-pressed={i === 0 ? 'true' : 'false'}>{m.name}</button>
+        ))}
+      </nav>
+      {MODULES.map((m, i) => (
+        <section class="sws__panel" data-sws-panel={m.key} hidden={i !== 0} aria-label={m.name}>
+          <header class="sws__head">
+            <h3>{m.name}</h3>
+            <p>{m.what}</p>
+          </header>
+          <ul class="sws__kpis" role="list">
+            {m.kpis.map((k) => (
+              <li><strong>{k.value}</strong><span>{k.label}</span></li>
+            ))}
+          </ul>
+          <table class="sws__table">
+            <thead><tr>{m.head.map((h) => <th scope="col">{h}</th>)}</tr></thead>
+            <tbody>
+              {m.rows.map((r) => (
+                <tr data-state={r.state}>{r.cells.map((c, j) => (j === r.cells.length - 1 ? <td><span class="sws__state">{c}</span></td> : <td>{c}</td>))}</tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      ))}
+    </div>
+    <figcaption class="sws__caption">Interfaz real del {product}: los módulos que operan nuestros clientes, con filas ilustrativas. Tocá un módulo para recorrerlo.</figcaption>
+  </figure>
+  <ol class="sws__list" aria-label="Qué incluye el desarrollo">
+    <li><b>Módulos por proceso</b><span>Clientes, proyectos, certificados, control, cobros y facturas, configurados sobre el flujo real del cliente.</span></li>
+    <li><b>APIs e integraciones</b><span>Conectan el ERP, la app de campo y los tableros con una sola fuente de datos.</span></li>
+    <li><b>Tableros operativos</b><span>Indicadores del día para decidir: avance, certificación, cobranza y técnicos en sitio.</span></li>
+    <li><b>Web y móvil</b><span>La misma plataforma en escritorio para la oficina y en el teléfono para el técnico, sin instalar nada.</span></li>
+  </ol>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-sws]').forEach((root) => {
+    const tabs = root.querySelectorAll<HTMLButtonElement>('[data-sws-tab]');
+    const panels = root.querySelectorAll<HTMLElement>('[data-sws-panel]');
+    const path = root.querySelector<HTMLElement>('[data-sws-path]');
+    const show = (key: string) => {
+      tabs.forEach((t) => t.setAttribute('aria-pressed', String(t.dataset.swsTab === key)));
+      panels.forEach((p) => { p.hidden = p.dataset.swsPanel !== key; });
+      if (path) path.textContent = `/${key}`;
+    };
+    tabs.forEach((t) => t.addEventListener('click', () => show(t.dataset.swsTab || '')));
+  });
+</script>
+
+<style>
+  .sws {
+    display: grid;
+    gap: 28px;
+    color: inherit;
+  }
+  .sws__frame {
+    margin: 0;
+    border: 1px solid rgba(127, 127, 127, 0.35);
+    border-radius: var(--um-radius-lg, 8px);
+    overflow: hidden;
+    background: rgba(127, 127, 127, 0.06);
+  }
+  .sws__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(127, 127, 127, 0.35);
+    font-size: 1rem;
+    font-variant-numeric: var(--um-figures-tabular);
+  }
+  .sws__host { opacity: 0.75; }
+  .sws__path { color: inherit; opacity: 1; font-weight: 600; }
+  .sws__sample {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: var(--um-label-tracking, 0.08em);
+    text-transform: uppercase;
+    color: var(--um-red, #DC2626);
+    white-space: nowrap;
+  }
+  .sws__app {
+    display: grid;
+    grid-template-columns: 176px minmax(0, 1fr);
+    min-height: 420px;
+  }
+  .sws__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 8px;
+    border-right: 1px solid rgba(127, 127, 127, 0.35);
+  }
+  .sws__tab {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 1rem;
+    text-align: left;
+    padding: 10px 12px;
+    border-left: 3px solid transparent;
+    border-radius: var(--um-radius, 4px);
+    cursor: pointer;
+    opacity: 0.78;
+    transition: opacity 160ms ease, border-color 160ms ease;
+  }
+  .sws__tab:hover { opacity: 1; }
+  .sws__tab[aria-pressed="true"] {
+    opacity: 1;
+    font-weight: 600;
+    border-left-color: var(--um-red, #DC2626);
+    background: rgba(127, 127, 127, 0.12);
+  }
+  .sws__tab:focus-visible { outline: 2px solid var(--um-red, #DC2626); outline-offset: 2px; }
+  .sws__panel { padding: 20px 20px 16px; min-width: 0; }
+  .sws__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin: 0 0 16px; }
+  .sws__head h3 { margin: 0; font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; }
+  .sws__head p { margin: 0; font-size: 1rem; opacity: 0.75; }
+  .sws__kpis {
+    list-style: none;
+    margin: 0 0 18px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .sws__kpis li {
+    display: grid;
+    gap: 2px;
+    padding: 12px 14px;
+    border: 1px solid rgba(127, 127, 127, 0.35);
+    border-radius: var(--um-radius, 4px);
+  }
+  .sws__kpis strong { font-size: 1.5rem; font-weight: 700; line-height: 1.1; font-variant-numeric: var(--um-figures-tabular); }
+  .sws__kpis span { font-size: 1rem; opacity: 0.75; }
+  .sws__table { width: 100%; border-collapse: collapse; font-size: 1rem; font-variant-numeric: var(--um-figures-tabular); }
+  .sws__table th { text-align: left; font-weight: 600; padding: 8px 10px; border-bottom: 1px solid rgba(127, 127, 127, 0.5); opacity: 0.85; }
+  .sws__table td { padding: 10px; border-bottom: 1px solid rgba(127, 127, 127, 0.25); vertical-align: top; }
+  .sws__table td:first-child { font-weight: 600; }
+  .sws__state { display: inline-block; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(127, 127, 127, 0.5); white-space: nowrap; }
+  tr[data-state="warn"] .sws__state { border-color: var(--um-red, #DC2626); color: var(--um-red, #DC2626); font-weight: 600; }
+  tr[data-state="run"] .sws__state { border-style: dashed; }
+  .sws__caption { padding: 12px 16px; border-top: 1px solid rgba(127, 127, 127, 0.35); font-size: 1rem; opacity: 0.8; }
+  .sws__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+  .sws__list li {
+    display: grid;
+    grid-template-columns: 26px minmax(0, 1fr);
+    gap: 4px 0;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(127, 127, 127, 0.3);
+  }
+  .sws__list li::before { content: ''; width: 14px; height: 3px; margin-top: 11px; background: var(--um-red, #DC2626); grid-row: 1 / span 2; }
+  .sws__list b { font-weight: 600; font-size: 1.0625rem; }
+  .sws__list span { grid-column: 2; font-size: 1rem; opacity: 0.8; line-height: var(--um-body-line-height, 1.62); }
+  @media (min-width: 981px) {
+    .sws { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); align-items: start; }
+  }
+  @media (max-width: 760px) {
+    .sws__app { grid-template-columns: 1fr; }
+    .sws__nav { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid rgba(127, 127, 127, 0.35); padding: 8px; }
+    .sws__tab { white-space: nowrap; border-left: 0; border-bottom: 3px solid transparent; border-radius: 0; }
+    .sws__tab[aria-pressed="true"] { border-bottom-color: var(--um-red, #DC2626); background: transparent; }
+    .sws__kpis { grid-template-columns: 1fr 1fr; }
+    .sws__table th:nth-child(3), .sws__table td:nth-child(3) { display: none; }
+    .sws__bar { flex-wrap: wrap; }
+  }
+</style>
