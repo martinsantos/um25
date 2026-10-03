@@ -99,8 +99,10 @@
       overscroll-behavior-x: contain;
       scroll-snap-type: x mandatory;
       scroll-padding-inline: var(--rail-bleed);
-      margin-inline: calc(var(--rail-bleed) * -1) !important;
-      padding-inline: var(--rail-bleed) !important;
+      /* Sangra sólo a la izquierda: el margen negativo a la derecha hacía que la
+         página entera desplazara horizontalmente 16 px en teléfono. */
+      margin-inline: calc(var(--rail-bleed) * -1) 0 !important;
+      padding-inline: var(--rail-bleed) 0 !important;
       padding-bottom: 2px;
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;

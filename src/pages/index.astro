@@ -14,6 +14,14 @@ import JournalBand from '../components/cine/JournalBand.astro';
 import SnapRail from '../components/cine/SnapRail.astro';
 import CapabilityLedger from '../components/cine/CapabilityLedger.astro';
 import { NAV_SERVICES } from '../data/navigation';
+import { HOME_SCENES, V4_CUTS } from '../data/cine/scenes';
+
+// Hero variable: cada visita arranca en otra escena y cada escena elige al azar uno de
+// sus recorridos v4 (servicio dentro de la escena). SSR: cambia en cada carga.
+const heroVariants = Object.fromEntries(
+  HOME_SCENES.map((s) => [s.scene, Object.keys(V4_CUTS).filter((k) => k.startsWith(`${s.scene}-`))]),
+);
+const heroStart = Math.floor(Math.random() * HOME_SCENES.length);
 
 const heroLead = 'Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.';
 
@@ -86,6 +94,8 @@ const hubs = [
       lead={heroLead}
       primary={{ href: '/antecedentes', label: 'Ver evidencia operativa' }}
       secondary={{ href: '/sectores', label: 'Entrar por sector' }}
+      variants={heroVariants}
+      start={heroStart}
     />
 
     <section class="um26-stats" aria-label="Indicadores ULTIMA MILLA">
@@ -154,7 +164,6 @@ const hubs = [
             <a class="um26-media-card um26-case-card" href={item.href}>
               <img src={item.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />
               <span class="um26-media-card__code">#{item.id}</span>
-              <span class="um26-media-card__ai">Imagen ilustrativa</span>
               <div>
                 <p>{item.meta}</p>
                 <h3>{item.title}</h3>
@@ -618,7 +627,7 @@ const hubs = [
 
     .um26-stats__grid {
       display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       min-height: 138px;
       background: rgba(255, 255, 255, 0.05);
       gap: 1px;

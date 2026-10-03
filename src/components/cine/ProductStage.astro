@@ -1,0 +1,286 @@
+---
+/**
+ * ProductStage — el producto mostrado como producto, con datos de ejemplo
+ * marcados como tales. Pestañas (módulos, vistas o secciones) que se recorren
+ * solas y se detienen al pasar el mouse o tocar, y al lado la pieza que recibe
+ * la otra persona: la app del técnico, el aviso en el teléfono o la ficha de un
+ * hallazgo. Contenido en src/data/productPages.ts.
+ */
+import type { ProductPage } from '../../data/productPages';
+interface Props { stage: ProductPage['stage']; tour?: boolean }
+const { stage, tour = true } = Astro.props;
+const { panels, aside } = stage;
+const first = panels[0];
+const stateClass = (s?: string) => (s ? `is-${s}` : '');
+---
+<div class="pst" data-pst data-tour={tour ? 'on' : 'off'}>
+  <figure class="pst__frame" aria-label={`${stage.product} con datos de ejemplo`}>
+    <div class="pst__bar">
+      <span class="pst__host">{stage.host}<span class="pst__path" data-pst-path>/{first.key}</span></span>
+      <span class="pst__sample">Datos de ejemplo</span>
+    </div>
+    <div class="pst__app">
+      <nav class="pst__nav" aria-label="Secciones">
+        {panels.map((m, i) => (
+          <button type="button" class="pst__tab" data-pst-tab={m.key} aria-pressed={i === 0 ? 'true' : 'false'}>{m.name}<i class="pst__progress" aria-hidden="true"></i></button>
+        ))}
+      </nav>
+      {panels.map((m, i) => (
+        <section class="pst__panel" data-pst-panel={m.key} hidden={i !== 0} aria-label={m.name}>
+          <header class="pst__head">
+            <h3>{m.name}</h3>
+            <p>{m.what}</p>
+          </header>
+          {m.kpis && (
+            <ul class="pst__kpis" role="list">
+              {m.kpis.map((k) => <li><strong>{k.value}</strong><span>{k.label}</span></li>)}
+            </ul>
+          )}
+          {m.table && (
+            <div class="pst__scroll">
+              <table class="pst__table">
+                <thead><tr>{m.table.head.map((h) => <th scope="col">{h}</th>)}</tr></thead>
+                <tbody>
+                  {m.table.rows.map((r) => (
+                    <tr data-state={r.state}>{r.cells.map((c, j) => (j === r.cells.length - 1 ? <td><span class="pst__state">{c}</span></td> : <td>{c}</td>))}</tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {m.board && (
+            <div class="pst__scroll">
+              <div class="pst__board">
+                {m.board.map((col) => (
+                  <div class="pst__col">
+                    <h4>{col.title}<span>{col.cards.length}</span></h4>
+                    {col.cards.map((c) => (
+                      <article class:list={['pst__card', stateClass(c.state)]}>
+                        <b>{c.title}</b>
+                        <span>{c.meta}</span>
+                      </article>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {m.sites && (
+            <ul class="pst__sites" role="list">
+              {m.sites.map((s) => (
+                <li data-state={s.state}>
+                  <i aria-hidden="true"></i>
+                  <div><b>{s.name}</b><span>{s.systems}</span></div>
+                  <em>{s.note}</em>
+                </li>
+              ))}
+            </ul>
+          )}
+          {m.doc && (
+            <div class="pst__doc">
+              <h4>{m.doc.heading}</h4>
+              {m.doc.paras.map((p) => <p>{p}</p>)}
+              {m.doc.bullets && <ul>{m.doc.bullets.map((b) => <li>{b}</li>)}</ul>}
+            </div>
+          )}
+        </section>
+      ))}
+    </div>
+    <figcaption class="pst__caption">{stage.caption}</figcaption>
+  </figure>
+
+  <figure class="pst__aside" aria-label="Lo que recibe la otra persona, con datos de ejemplo">
+    {aside.kind === 'field' && (
+      <div class="pst__phone">
+        <div class="pst__status"><span>09:12</span><span>{aside.app}</span></div>
+        <div class="pst__phone-head"><small>{aside.ref}</small><strong>{aside.title}</strong><span>{aside.sub}</span></div>
+        <ul class="pst__check" role="list">{aside.items.map((it) => <li data-done={it.done ? 'true' : undefined}>{it.text}</li>)}</ul>
+        <div class="pst__photo"><span>{aside.photo}</span></div>
+        <div class="pst__sign"><small>{aside.signed}</small><svg viewBox="0 0 220 44" aria-hidden="true"><path d="M6 32c14-22 22-20 28-6s10 12 20-2 16-16 26-4 12 12 22 2 14-18 26-6 14 14 28 0 16-10 24 2 14 8 32-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+        <span class="pst__cta" aria-hidden="true">{aside.cta}</span>
+      </div>
+    )}
+    {aside.kind === 'alert' && (
+      <div class="pst__phone pst__phone--alert">
+        <div class="pst__status"><span>{aside.time}</span><span>{aside.app}</span></div>
+        <div class="pst__push">
+          <small>{aside.app} · ahora</small>
+          <strong>{aside.title}</strong>
+          <span>{aside.site}</span>
+        </div>
+        <ul class="pst__lines" role="list">{aside.lines.map((l) => <li>{l}</li>)}</ul>
+        <span class="pst__cta" aria-hidden="true">{aside.cta}</span>
+      </div>
+    )}
+    {aside.kind === 'finding' && (
+      <div class="pst__finding">
+        <div class="pst__finding-head"><small>{aside.ref}</small><b>{aside.severity}</b></div>
+        <strong>{aside.title}</strong>
+        <dl>
+          <div><dt>Evidencia</dt><dd>{aside.evidence}</dd></div>
+          <div><dt>Acción</dt><dd>{aside.action}</dd></div>
+          <div><dt>Si no se hace</dt><dd>{aside.cost}</dd></div>
+        </dl>
+      </div>
+    )}
+    <figcaption class="pst__caption pst__caption--aside">{stage.asideCaption}</figcaption>
+  </figure>
+
+  <ol class="pst__list" aria-label="Qué incluye">
+    {stage.includes.map((it) => <li><b>{it.b}</b><span>{it.text}</span></li>)}
+  </ol>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-pst]').forEach((root) => {
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-pst-tab]')];
+    const panels = root.querySelectorAll<HTMLElement>('[data-pst-panel]');
+    const path = root.querySelector<HTMLElement>('[data-pst-path]');
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const STEP = 5200;
+    let current = 0, timer = 0, held = false;
+    const show = (key: string) => {
+      current = Math.max(0, tabs.findIndex((t) => t.dataset.pstTab === key));
+      tabs.forEach((t) => {
+        t.setAttribute('aria-pressed', String(t.dataset.pstTab === key));
+        const bar = t.querySelector<HTMLElement>('.pst__progress');
+        if (bar) { bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = ''; }
+      });
+      panels.forEach((p) => { p.hidden = p.dataset.pstPanel !== key; });
+      if (path) path.textContent = `/${key}`;
+    };
+    const next = () => { if (!held) show(tabs[(current + 1) % tabs.length].dataset.pstTab || ''); };
+    const arm = () => { if (timer) clearInterval(timer); if (root.dataset.tour === 'on' && !reduced) timer = window.setInterval(next, STEP); };
+    tabs.forEach((t) => t.addEventListener('click', () => { show(t.dataset.pstTab || ''); root.dataset.tour = 'off'; arm(); }));
+    const hold = (v: boolean) => { held = v; root.classList.toggle('is-held', v); };
+    root.addEventListener('mouseenter', () => hold(true));
+    root.addEventListener('mouseleave', () => hold(false));
+    root.addEventListener('focusin', () => hold(true));
+    root.addEventListener('focusout', () => hold(false));
+    root.addEventListener('touchstart', () => hold(true), { passive: true });
+    new IntersectionObserver(([e]) => { if (e.isIntersecting) arm(); else if (timer) { clearInterval(timer); timer = 0; } }, { threshold: 0.3 }).observe(root);
+  });
+</script>
+
+<style>
+  .pst { display: grid; gap: 28px; color: inherit; grid-template-areas: "app" "aside" "list"; }
+  .pst__frame { grid-area: app; margin: 0; min-width: 0; border: 1px solid rgba(127, 127, 127, 0.35); border-radius: var(--um-radius-lg, 8px); overflow: hidden; background: rgba(127, 127, 127, 0.06); }
+  .pst__bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; border-bottom: 1px solid rgba(127, 127, 127, 0.35); font-size: 1rem; font-variant-numeric: var(--um-figures-tabular); }
+  .pst__host { opacity: 0.75; min-width: 0; overflow-wrap: anywhere; }
+  .pst__path { opacity: 1; font-weight: 600; }
+  .pst__sample { font-size: 1rem; font-weight: 600; letter-spacing: var(--um-label-tracking, 0.08em); text-transform: uppercase; color: var(--um-red, #DC2626); white-space: nowrap; }
+  .pst__app { display: grid; grid-template-columns: 188px minmax(0, 1fr); min-height: 420px; }
+  .pst__nav { display: flex; flex-direction: column; gap: 2px; padding: 12px 8px; border-right: 1px solid rgba(127, 127, 127, 0.35); }
+  .pst__tab { position: relative; appearance: none; border: 0; background: transparent; color: inherit; font: inherit; font-size: 1rem; text-align: left; padding: 10px 12px; border-left: 3px solid transparent; border-radius: var(--um-radius, 4px); cursor: pointer; opacity: 0.78; transition: opacity 160ms ease, border-color 160ms ease; }
+  .pst__tab:hover { opacity: 1; }
+  .pst__tab[aria-pressed="true"] { opacity: 1; font-weight: 600; border-left-color: var(--um-red, #DC2626); background: rgba(127, 127, 127, 0.12); }
+  .pst__tab:focus-visible { outline: 2px solid var(--um-red, #DC2626); outline-offset: 2px; }
+  .pst__progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--um-red, #DC2626); transform: scaleX(0); transform-origin: left; }
+  [data-tour="on"] .pst__tab[aria-pressed="true"] .pst__progress { animation: pst-progress 5200ms linear forwards; }
+  .pst.is-held .pst__progress { animation-play-state: paused; }
+  @keyframes pst-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .pst__panel { padding: 20px 20px 16px; min-width: 0; }
+  .pst__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin: 0 0 16px; }
+  .pst__head h3 { margin: 0; font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; }
+  .pst__head p { margin: 0; font-size: 1rem; opacity: 0.75; }
+  .pst__kpis { list-style: none; margin: 0 0 18px; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .pst__kpis li { display: grid; gap: 2px; padding: 12px 14px; border: 1px solid rgba(127, 127, 127, 0.35); border-radius: var(--um-radius, 4px); }
+  .pst__kpis strong { font-size: 1.5rem; font-weight: 700; line-height: 1.1; font-variant-numeric: var(--um-figures-tabular); }
+  .pst__kpis span { font-size: 1rem; opacity: 0.75; }
+  .pst__scroll { overflow-x: auto; min-width: 0; }
+  .pst__table { width: 100%; min-width: 320px; border-collapse: collapse; font-size: 1rem; font-variant-numeric: var(--um-figures-tabular); }
+  .pst__table th { text-align: left; font-weight: 600; padding: 8px 10px; border-bottom: 1px solid rgba(127, 127, 127, 0.5); opacity: 0.85; }
+  .pst__table td { padding: 10px; border-bottom: 1px solid rgba(127, 127, 127, 0.25); vertical-align: top; }
+  .pst__table td:first-child { font-weight: 600; }
+  .pst__state { display: inline-block; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(127, 127, 127, 0.5); white-space: nowrap; }
+  tr[data-state="warn"] .pst__state { border-color: var(--um-red, #DC2626); color: var(--um-red, #DC2626); font-weight: 600; }
+  tr[data-state="run"] .pst__state { border-style: dashed; }
+  /* tablero de tickets o roadmap */
+  .pst__board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(190px, 1fr); gap: 10px; min-width: 640px; }
+  .pst__col { display: grid; gap: 8px; align-content: start; padding: 10px; border: 1px solid rgba(127, 127, 127, 0.3); border-radius: var(--um-radius, 4px); background: rgba(127, 127, 127, 0.05); }
+  .pst__col h4 { margin: 0 0 4px; font-size: 1rem; font-weight: 600; display: flex; justify-content: space-between; opacity: 0.85; }
+  .pst__col h4 span { font-weight: 400; opacity: 0.7; font-variant-numeric: var(--um-figures-tabular); }
+  .pst__card { display: grid; gap: 3px; padding: 10px; border: 1px solid rgba(127, 127, 127, 0.4); border-left: 3px solid rgba(127, 127, 127, 0.6); border-radius: var(--um-radius, 4px); font-size: 1rem; }
+  .pst__card.is-warn { border-left-color: var(--um-red, #DC2626); }
+  .pst__card.is-ok { border-left-color: rgba(127, 127, 127, 0.35); opacity: 0.8; }
+  .pst__card b { font-weight: 600; line-height: 1.25; }
+  .pst__card span { opacity: 0.75; }
+  /* sitios monitoreados */
+  .pst__sites { list-style: none; margin: 0; padding: 0; display: grid; }
+  .pst__sites li { display: grid; grid-template-columns: 14px minmax(0, 1.2fr) minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(127, 127, 127, 0.25); font-size: 1rem; }
+  .pst__sites i { width: 10px; height: 10px; border-radius: 50%; background: rgba(127, 127, 127, 0.7); }
+  .pst__sites li[data-state="down"] i { background: var(--um-red, #DC2626); box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.18); }
+  .pst__sites li[data-state="warn"] i { background: transparent; border: 2px solid var(--um-red, #DC2626); }
+  .pst__sites b { display: block; font-weight: 600; }
+  .pst__sites span { display: block; opacity: 0.7; }
+  .pst__sites em { font-style: normal; opacity: 0.85; }
+  .pst__sites li[data-state="down"] em { color: var(--um-red, #DC2626); font-weight: 600; }
+  /* documento */
+  .pst__doc { display: grid; gap: 10px; max-width: 62ch; font-size: 1rem; }
+  .pst__doc h4 { margin: 0; font-size: 1.0625rem; font-weight: 600; padding-bottom: 8px; border-bottom: 2px solid currentColor; }
+  .pst__doc p { margin: 0; line-height: 1.55; }
+  .pst__doc ul { margin: 4px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+  .pst__caption { padding: 12px 16px; border-top: 1px solid rgba(127, 127, 127, 0.35); font-size: 1rem; opacity: 0.8; }
+
+  /* la otra persona */
+  .pst__aside { grid-area: aside; margin: 0; min-width: 0; display: grid; align-content: start; justify-items: center; }
+  .pst__phone { width: min(100%, 300px); border: 1px solid rgba(127, 127, 127, 0.45); border-radius: 22px; padding: 14px 16px 18px; display: grid; gap: 14px; background: rgba(127, 127, 127, 0.06); font-size: 1rem; }
+  .pst__status { display: flex; justify-content: space-between; font-variant-numeric: var(--um-figures-tabular); opacity: 0.7; }
+  .pst__phone-head { display: grid; gap: 2px; }
+  .pst__phone-head small { font-size: 1rem; color: var(--um-red, #DC2626); font-weight: 600; letter-spacing: 0.04em; }
+  .pst__phone-head strong { font-size: 1.25rem; font-weight: 600; line-height: 1.15; }
+  .pst__phone-head span { opacity: 0.75; }
+  .pst__check { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid rgba(127, 127, 127, 0.3); }
+  .pst__check li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: center; padding: 9px 0; border-bottom: 1px solid rgba(127, 127, 127, 0.3); }
+  .pst__check li::before { content: ''; width: 16px; height: 16px; border: 1.5px solid rgba(127, 127, 127, 0.7); border-radius: 4px; }
+  .pst__check li[data-done="true"]::before { background: var(--um-red, #DC2626); border-color: var(--um-red, #DC2626); }
+  .pst__check li[data-done="true"] { opacity: 0.8; }
+  .pst__photo { display: grid; place-items: center; aspect-ratio: 16 / 9; border: 1px dashed rgba(127, 127, 127, 0.6); border-radius: var(--um-radius, 4px); opacity: 0.8; text-align: center; padding: 8px; }
+  .pst__sign { display: grid; gap: 4px; }
+  .pst__sign small { font-size: 1rem; opacity: 0.7; }
+  .pst__sign svg { width: 100%; height: 44px; border-bottom: 1px solid rgba(127, 127, 127, 0.5); opacity: 0.9; }
+  .pst__cta { display: block; text-align: center; border-radius: var(--um-radius, 4px); padding: 12px 14px; background: var(--um-red, #DC2626); color: #fff; font-size: 1rem; font-weight: 600; }
+  .pst__push { display: grid; gap: 2px; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(127, 127, 127, 0.45); border-left: 4px solid var(--um-red, #DC2626); }
+  .pst__push small { font-size: 1rem; opacity: 0.7; }
+  .pst__push strong { font-size: 1.25rem; font-weight: 600; line-height: 1.15; }
+  .pst__push span { opacity: 0.85; }
+  .pst__lines { list-style: none; margin: 0; padding: 0; display: grid; }
+  .pst__lines li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 6px; padding: 8px 0; border-bottom: 1px solid rgba(127, 127, 127, 0.3); }
+  .pst__lines li::before { content: ''; width: 10px; height: 3px; margin-top: 10px; background: var(--um-red, #DC2626); }
+  .pst__finding { width: 100%; max-width: 320px; border: 1px solid rgba(127, 127, 127, 0.45); border-top: 4px solid var(--um-red, #DC2626); padding: 16px; display: grid; gap: 12px; font-size: 1rem; background: rgba(127, 127, 127, 0.06); }
+  .pst__finding-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .pst__finding-head small { font-size: 1rem; opacity: 0.7; }
+  .pst__finding-head b { color: var(--um-red, #DC2626); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+  .pst__finding strong { font-size: 1.25rem; font-weight: 600; line-height: 1.15; }
+  .pst__finding dl { margin: 0; display: grid; gap: 10px; }
+  .pst__finding dt { font-weight: 600; }
+  .pst__finding dd { margin: 2px 0 0; opacity: 0.85; line-height: 1.5; }
+  .pst__caption--aside { width: min(100%, 320px); border-top: 0; padding: 12px 0 0; }
+
+  .pst__list { grid-area: list; list-style: none; margin: 0; padding: 0; display: grid; gap: 0 28px; }
+  .pst__list li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 4px 0; padding: 14px 0; border-bottom: 1px solid rgba(127, 127, 127, 0.3); }
+  .pst__list li::before { content: ''; width: 14px; height: 3px; margin-top: 11px; background: var(--um-red, #DC2626); grid-row: 1 / span 2; }
+  .pst__list b { font-weight: 600; font-size: 1.0625rem; }
+  .pst__list span { grid-column: 2; font-size: 1rem; opacity: 0.8; line-height: var(--um-body-line-height, 1.62); }
+  @media (min-width: 981px) {
+    .pst { grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: "app aside" "list list"; align-items: start; }
+    .pst__list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .pst__list li { border-bottom: 0; border-top: 1px solid rgba(127, 127, 127, 0.3); padding: 16px 0 0; }
+  }
+  @media (min-width: 761px) and (max-width: 980px) {
+    .pst { grid-template-columns: minmax(0, 1fr) 280px; grid-template-areas: "app aside" "list list"; align-items: start; }
+    .pst__list { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 760px) {
+    .pst__app { grid-template-columns: 1fr; }
+    .pst__nav { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid rgba(127, 127, 127, 0.35); padding: 8px; }
+    .pst__tab { white-space: nowrap; border-left: 0; border-bottom: 3px solid transparent; border-radius: 0; }
+    .pst__tab[aria-pressed="true"] { border-bottom-color: var(--um-red, #DC2626); background: transparent; }
+    .pst__kpis { grid-template-columns: 1fr 1fr; }
+    .pst__table th:nth-child(3), .pst__table td:nth-child(3) { display: none; }
+    .pst__sites li { grid-template-columns: 14px minmax(0, 1fr); }
+    .pst__sites em { grid-column: 2; }
+    .pst__bar { flex-wrap: wrap; }
+  }
+  @media (prefers-reduced-motion: reduce) { .pst__progress { animation: none !important; } }
+</style>

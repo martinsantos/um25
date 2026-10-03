@@ -2,6 +2,7 @@
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
 import CineBanner from '../../components/cine/CineBanner.astro';
+import { V4_CUTS, serviceSceneKey, baseScene } from '../../data/cine/scenes';
 
 type Service = {
   code: string;
@@ -115,6 +116,12 @@ const services: Service[] = [
 ];
 
 const totalServices = String(services.length).padStart(2, '0');
+// La imagen de cada frente es el póster de su recorrido v4 (el servicio dentro de la
+// escena del gemelo digital), no una foto de banco.
+const servicesWithPosters = services.map((s) => {
+  const key = serviceSceneKey(s.code);
+  return { ...s, image: V4_CUTS[key]?.poster ?? `/cine/media/cine-${baseScene(key)}-poster.jpg` };
+});
 ---
 
 <LayoutV4 skin="black"
@@ -136,7 +143,7 @@ const totalServices = String(services.length).padStart(2, '0');
     />
 
     <section class="services-demo-shell services-demo-list" aria-label="Frentes de servicio de ULTIMA MILLA">
-      {services.map((service, index) => (
+      {servicesWithPosters.map((service, index) => (
         <a
           class="services-demo-row"
           href={`/servicios/${service.code}/${service.slug}`}

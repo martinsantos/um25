@@ -62,8 +62,8 @@ const stamp = asset.illustrative ? 'Render ilustrativo Â· UM25' : 'Render UM25 Â
   {components.length > 0 && (
     <ul class="um-rs__components" aria-label="Componentes del sistema">
       {components.map((l) => (
-        <li>
-          {l.system && <b title={SYSTEM_NAME[l.system] ?? l.system}>{l.system}</b>}
+        <li title={l.system ? SYSTEM_NAME[l.system] ?? l.system : undefined}>
+          <i class="um-rs__mark" aria-hidden="true"></i>
           <div>
             <strong>{l.text}</strong>
             {l.role && <span>{l.role}</span>}
@@ -230,12 +230,12 @@ const stamp = asset.illustrative ? 'Render ilustrativo Â· UM25' : 'Render UM25 Â
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  .um-rs__components b {
-    font-family: var(--um-font-mono);
-    font-size: 1rem;
-    font-weight: 600;
-    color: #dc2626;
-    padding-top: 2px;
+  .um-rs__mark {
+    display: block;
+    width: 14px;
+    height: 3px;
+    margin-top: 11px;
+    background: #dc2626;
   }
 
   .um-rs__components strong {
