@@ -19,7 +19,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
                 <li>Vigencia de matrícula en la web</li>
                 <li>Trámites y consultas por tickets</li>
               </ul>
-              <div class="hero-actions"><a class="button hero-cta" href="#consulta" data-cta="hero">Solicitá una demo con el formato de datos de tu institución <span aria-hidden="true">↗</span></a><a class="text-link" href="/software/gestion-de-comunidades-profesionales/demo/" data-cta="demo-hero">Explorar el sistema <span aria-hidden="true">↗</span></a></div>
+              <div class="hero-actions"><a class="button hero-cta" href="#consulta" data-cta="hero" data-intent-open>Solicitá una demo con el formato de datos de tu institución <span aria-hidden="true">↗</span></a><a class="text-link" href="/software/gestion-de-comunidades-profesionales/demo/" data-cta="demo-hero">Explorar el sistema <span aria-hidden="true">↗</span></a></div>
               <p class="hero-service"><strong>Instalación y puesta a punto sin cargo.</strong> Servicio en pesos argentinos. Sin comisión fija de ULTIMA MILLA por cuota.</p>
             </div>
             <figure class="hero-visual">
@@ -71,11 +71,20 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
         </div>
       </div>
     </section>
-    <section class="section band" id="independencia"><div class="wrap split"><div><p class="kicker">INDEPENDENCIA PARA TU INSTITUCIÓN</p><h2>El colegio toma las decisiones. El software se adapta.</h2><p class="band-intro">Un sistema propio tiene sentido cuando acompaña la forma de trabajar de tu institución y deja claras las condiciones desde el comienzo.</p></div><div><dl class="terms-list"><div><dt>Los datos</dt><dd>Son de tu organización, exportables y sin cesión ni uso para marketing de terceros.</dd></div><div><dt>Los cobros</dt><dd>Elegís los medios de pago compatibles con tu proyecto. No hay pasarela obligatoria ni comisión fija de ULTIMA MILLA por cuota; cada proveedor puede aplicar sus tarifas.</dd></div><div><dt>La implementación</dt><dd>Instalación y puesta a punto sin cargo. Definimos integraciones, automatizaciones y servicio en una propuesta en pesos argentinos.</dd></div></dl><a class="band-action" href="#consulta" data-cta="service">Veamos el formato de datos de tu institución <span aria-hidden="true">↗</span></a></div></div></section>
-    <section class="section quiz-section" aria-labelledby="quiz-title">
-      <div class="wrap">
-        <div class="quiz-intro"><p class="kicker">ENCONTREMOS POR DÓNDE EMPEZAR</p><h2 id="quiz-title">Tu colegio tiene una forma propia de trabajar. Mostranos cuál.</h2><p>Elegí lo que necesitás y mirá un recorrido posible dentro de esta página. Podés ver el resultado cuando quieras, sin registrarte ni compartir datos de matriculados.</p></div>
-        <div class="quiz-shell" id="consulta">
+    <section class="section band" id="independencia"><div class="wrap split"><div><p class="kicker">INDEPENDENCIA PARA TU INSTITUCIÓN</p><h2>El colegio toma las decisiones. El software se adapta.</h2><p class="band-intro">Un sistema propio tiene sentido cuando acompaña la forma de trabajar de tu institución y deja claras las condiciones desde el comienzo.</p></div><div><dl class="terms-list"><div><dt>Los datos</dt><dd>Son de tu organización, exportables y sin cesión ni uso para marketing de terceros.</dd></div><div><dt>Los cobros</dt><dd>Elegís los medios de pago compatibles con tu proyecto. No hay pasarela obligatoria ni comisión fija de ULTIMA MILLA por cuota; cada proveedor puede aplicar sus tarifas.</dd></div><div><dt>La implementación</dt><dd>Instalación y puesta a punto sin cargo. Definimos integraciones, automatizaciones y servicio en una propuesta en pesos argentinos.</dd></div></dl><a class="band-action" href="#consulta" data-cta="service" data-intent-open>Veamos el formato de datos de tu institución <span aria-hidden="true">↗</span></a></div></div></section>
+    <section class="section quiz-section" id="consulta" aria-labelledby="quiz-title">
+      <div class="wrap quiz-teaser">
+        <div><p class="kicker">UN PRIMER PASO PARA TU COLEGIO</p><h2 id="quiz-title">Veamos qué necesita tu comunidad.</h2><p>Podés pedir una demo con una consulta breve o explorar qué módulos tendrían sentido para tu institución. La evaluación se hace aquí, sin registrarte ni compartir datos de matriculados.</p></div>
+        <div class="quiz-teaser-action"><span>01 / ELEGÍ CÓMO EMPEZAR</span><button class="quiz-primary" id="gc-intent-open" type="button" data-intent-open>Elegir mi próximo paso <span aria-hidden="true">↗</span></button><p>Una consulta directa o un recorrido guiado de seis pasos. Vos decidís cuándo contactarnos.</p><noscript><a href="/contacto">Contactar a Última Milla</a></noscript></div>
+      </div>
+    </section>
+    <dialog class="gc-intent-dialog" id="gc-intent-dialog" aria-labelledby="gc-dialog-title">
+      <div class="gc-dialog-frame">
+        <header class="gc-dialog-header"><span id="gc-dialog-title">Última Milla <span aria-hidden="true">/</span> Tu colegio</span><div><button id="gc-dialog-back" type="button" hidden>← Opciones</button><button id="gc-dialog-close" type="button" aria-label="Cerrar ventana">Cerrar <span aria-hidden="true">×</span></button></div></header>
+        <div class="gc-dialog-content" id="gc-dialog-content">
+          <div class="gc-intent-choice" id="gc-intent-choice"><span class="quiz-eyebrow">HAGAMOS QUE LA CONVERSACIÓN SIRVA</span><h2 id="gc-intent-title" tabindex="-1">¿Cómo querés empezar?</h2><p>Elegí el camino que te resulte más útil. Ninguno requiere datos de tus matriculados.</p><div class="gc-intent-options"><button class="gc-intent-option" type="button" data-intent-view="contact"><span>CONTACTO BREVE · 4 DATOS</span><strong>Contanos qué necesita tu colegio.</strong><small>Institución, nombre, email y necesidad. Te respondemos para acordar una demo.</small><b>Enviar una consulta ↗</b></button><button class="gc-intent-option" type="button" data-intent-view="quiz"><span>RECORRIDO GUIADO · 6 PASOS</span><strong>Armá un primer recorrido del sistema.</strong><small>Elegí prioridades, circuitos e instalación. Verás módulos y una demo antes de decidir si nos escribís.</small><b>Hacer la evaluación ↗</b></button></div><p class="gc-intent-foot">Instalación y puesta a punto sin cargo. El servicio se cotiza en pesos argentinos.</p></div>
+          <div class="gc-quiz-view" id="gc-quiz-view" hidden>
+            <div class="quiz-shell" id="quiz-shell">
           <div class="quiz-side" aria-hidden="true"><span class="quiz-side-mark">UM<span>↗</span></span><p>Primero, una idea clara de tu sistema.</p><div class="quiz-side-steps"><span>01 / COMUNIDAD</span><span>02 / ESCALA</span><span>03 / NECESIDADES</span><span>04 / CIRCUITOS</span><span>05 / INSTALACIÓN</span><span>06 / CONTEXTO</span></div></div>
           <div class="quiz-main">
             <div class="quiz-welcome" id="quiz-welcome"><span class="quiz-eyebrow">TU SISTEMA, PASO A PASO</span><h3>Armemos un primer recorrido para tu colegio.</h3><p>Podés elegir varias necesidades, omitir preguntas y ver una propuesta de módulos aquí mismo. Si después querés conversar, copiamos tus decisiones al formulario.</p><button class="quiz-primary" type="button" id="quiz-start">Empezar <span aria-hidden="true">↗</span></button></div>
@@ -83,13 +92,18 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
             <div class="quiz-result" id="quiz-result" hidden><span class="quiz-eyebrow">TU PUNTO DE PARTIDA</span><h3 id="quiz-result-title" tabindex="-1">Un recorrido posible para tu colegio.</h3><p id="quiz-result-copy"></p><div class="quiz-result-grid"><div><h4>Módulos para explorar</h4><div id="quiz-modules" class="quiz-modules"></div></div><div class="quiz-journey" aria-live="polite"><span class="quiz-eyebrow">ASÍ PODRÍA USARSE</span><h4 id="quiz-journey-title"></h4><ol id="quiz-journey-steps"></ol><p>Recorrido conceptual con datos de ejemplo. Los medios de pago, canales e integraciones concretos se definen para cada proyecto.</p></div></div><div class="quiz-install"><span class="quiz-eyebrow">CÓDIGO ABIERTO · DATOS PROPIOS</span><h4>Vos decidís dónde y con quién operarlo.</h4><p id="quiz-install-note"></p><small>Instalación y puesta a punto sin cargo. El servicio se cotiza en pesos argentinos; no implica hosting o mantenimiento gratuitos.</small></div><div class="quiz-edit-panel"><h4>Tus decisiones</h4><div id="quiz-edit-list"></div></div><p class="quiz-result-note">Este resultado orienta la conversación; no configura una institución real ni fija una cotización.</p><div class="quiz-result-actions"><button class="quiz-primary" id="quiz-open-demo" type="button">Probar el sistema aquí <span aria-hidden="true">↗</span></button><button class="quiz-secondary" id="quiz-contact" type="button">Copiar mis decisiones y pedir una demo</button></div><div id="quiz-inline-demo" class="quiz-inline-demo" hidden><p>Demo interactiva con datos de ejemplo. Elegí el módulo que querés recorrer dentro de la pantalla.</p><iframe id="quiz-demo-frame" title="Demo interactiva del sistema de colegios profesionales" loading="lazy" referrerpolicy="same-origin"></iframe></div><button class="quiz-restart" id="quiz-restart" type="button">Empezar de nuevo</button></div>
           </div>
         </div>
-        <p class="quiz-direct">¿Preferís contarnos tu caso directamente? <a href="#contacto-directo" data-cta="quiz-direct">Ir al formulario ↗</a></p>
+            <p class="quiz-direct">¿Preferís contarnos tu caso directamente? <button id="quiz-direct-contact" type="button">Ir al contacto breve ↗</button></p>
+          </div>
+          <div class="gc-contact-view" id="gc-contact-view" hidden><div class="gc-contact-intro"><span class="quiz-eyebrow">CONVERSACIÓN DIRECTA</span><h2 id="gc-contact-title" tabindex="-1">Contanos qué necesita tu colegio.</h2><p>Podemos acordar una demo con la estructura o una muestra anonimizada de tu institución. No envíes padrón ni archivos.</p></div><form id="gc-form" action="/api/contact" method="post"><label>Institución <input name="company" autocomplete="organization" maxlength="120" required /></label><label>Tu nombre <input name="name" autocomplete="name" maxlength="100" required /></label><label>Email de contacto <input type="email" name="email" autocomplete="email" maxlength="120" required /></label><label>Formato de datos y necesidad principal <textarea name="message" rows="4" minlength="12" maxlength="1200" required></textarea></label><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" /><p class="note">Usaremos estos datos para responder tu solicitud de demo. No incluyas datos personales de integrantes. <a href="/privacidad">Política de privacidad</a>.</p><button class="button" type="submit">Pedir una demo ↗</button><p id="gc-status" role="status" aria-live="polite"></p></form></div>
+        </div>
       </div>
-    </section>
-    <section class="section contact-section" id="contacto-directo"><div class="wrap split"><div><p class="kicker">HABLEMOS DE TU INSTITUCIÓN</p><h2>Veámoslo con la estructura de tu colegio.</h2><p>Contanos qué formato de datos usan y qué necesitan resolver. Podemos preparar una demo con una estructura o muestra anonimizada; no envíes datos personales ni archivos por este formulario.</p></div><form id="gc-form" action="/api/contact" method="post"><label>Institución <input name="company" autocomplete="organization" maxlength="120" required /></label><label>Tu nombre <input name="name" autocomplete="name" maxlength="100" required /></label><label>Email de contacto <input type="email" name="email" autocomplete="email" maxlength="120" required /></label><label>Formato de datos y necesidad principal <textarea name="message" rows="4" minlength="12" maxlength="1200" required></textarea></label><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" /><p class="note">Usaremos estos datos para responder tu solicitud de demo. No incluyas datos personales de integrantes. <a href="/privacidad">Política de privacidad</a>.</p><button class="button" type="submit">Solicitar demo ↗</button><p id="gc-status" role="status" aria-live="polite"></p></form></div></section>
+    </dialog>
+    <section class="section contact-section" id="contacto-directo"><div class="wrap contact-entry"><div><p class="kicker">SIGUIENTE PASO</p><h2>Podemos verlo con la estructura de tu colegio.</h2><p>Contanos qué formato de datos usan y qué quieren resolver. La instalación y puesta a punto son sin cargo.</p></div><div><button class="button" id="gc-contact-open" type="button" data-intent-open data-intent-view="contact">Enviar una consulta <span aria-hidden="true">↗</span></button><p>Si preferís explorar primero, el recorrido guiado está disponible arriba.</p><noscript><a href="/contacto">Ir a la página de contacto</a></noscript></div></div></section>
   </main>
 </LayoutV4>
 <script>
+  // Keep the campaign's decision flow clear on mobile; the global install hint can cover its CTA.
+  document.querySelector('[data-install-hint]')?.remove();
   const attribution: Record<string, string> = {};
   const campaignUrl = new URL(location.href);
   const allowedAttribution: Record<string, RegExp> = {
@@ -197,13 +211,60 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   let step = 0;
   let activeModule: ModuleKey = 'cuotas';
   let quizAttached = false;
+  let lastResultKey = '';
   const completedSteps = new Set<number>();
-  const quiz = document.querySelector<HTMLElement>('#consulta');
+  const quiz = document.querySelector<HTMLElement>('#quiz-shell');
   const welcome = document.querySelector<HTMLElement>('#quiz-welcome');
   const flow = document.querySelector<HTMLElement>('#quiz-flow');
   const resultPanel = document.querySelector<HTMLElement>('#quiz-result');
   const nextButton = document.querySelector<HTMLButtonElement>('#quiz-next');
   const choices = document.querySelector<HTMLElement>('#quiz-options');
+  type IntentView = 'choice' | 'contact' | 'quiz';
+  const intentDialog = document.querySelector<HTMLDialogElement>('#gc-intent-dialog');
+  const intentContent = document.querySelector<HTMLElement>('#gc-dialog-content');
+  const intentChoice = document.querySelector<HTMLElement>('#gc-intent-choice');
+  const intentContact = document.querySelector<HTMLElement>('#gc-contact-view');
+  const intentQuiz = document.querySelector<HTMLElement>('#gc-quiz-view');
+  const intentBack = document.querySelector<HTMLButtonElement>('#gc-dialog-back');
+  let intentView: IntentView = 'choice';
+  let intentOpener: HTMLElement | null = null;
+  const showIntentView = (view: IntentView) => {
+    if (!intentChoice || !intentContact || !intentQuiz) return;
+    intentView = view;
+    intentDialog?.classList.toggle('is-choice', view === 'choice');
+    intentChoice.hidden = view !== 'choice';
+    intentContact.hidden = view !== 'contact';
+    intentQuiz.hidden = view !== 'quiz';
+    if (intentBack) intentBack.hidden = view === 'choice';
+    if (intentContent) intentContent.scrollTop = 0;
+    if (view === 'quiz') {
+      if (welcome && !welcome.hidden) document.querySelector<HTMLButtonElement>('#quiz-start')?.click();
+      else (resultPanel && !resultPanel.hidden ? document.querySelector<HTMLElement>('#quiz-result-title') : document.querySelector<HTMLElement>('#quiz-question'))?.focus({ preventScroll: true });
+    } else document.querySelector<HTMLElement>(view === 'contact' ? '#gc-contact-title' : '#gc-intent-title')?.focus({ preventScroll: true });
+  };
+  const openIntent = (opener: HTMLElement, requested?: IntentView) => {
+    if (!intentDialog) return;
+    intentOpener = opener;
+    if (!intentDialog.open) { intentDialog.showModal(); document.documentElement.classList.add('gc-dialog-open'); track('gc_intent_open', opener.dataset.cta || opener.id || 'landing'); }
+    showIntentView(requested || intentView);
+  };
+  document.querySelectorAll<HTMLElement>('[data-intent-open]').forEach((opener) => opener.addEventListener('click', (event) => {
+    if (opener instanceof HTMLAnchorElement) event.preventDefault();
+    openIntent(opener, opener.dataset.intentView as IntentView | undefined);
+  }));
+  document.querySelectorAll<HTMLButtonElement>('#gc-intent-choice [data-intent-view]').forEach((option) => option.addEventListener('click', () => {
+    const view = option.dataset.intentView as IntentView;
+    if (view !== 'quiz' && view !== 'contact') return;
+    track('gc_intent_choice', view);
+    showIntentView(view);
+  }));
+  intentBack?.addEventListener('click', () => showIntentView('choice'));
+  document.querySelector<HTMLButtonElement>('#gc-dialog-close')?.addEventListener('click', () => intentDialog?.close());
+  intentDialog?.addEventListener('click', (event) => { if (event.target === intentDialog) intentDialog.close(); });
+  intentDialog?.addEventListener('close', () => {
+    document.documentElement.classList.remove('gc-dialog-open');
+    if (intentOpener?.isConnected) intentOpener.focus({ preventScroll: true });
+  });
   const labelFor = (options: QuizOption[], value: string) => options.find((option) => option.value === value)?.label || '';
   const selectedNeeds = (): ModuleKey[] => quizState.needs.length ? quizState.needs : ['cuotas', 'credencial', 'tramites', 'consultas'];
   const relevantGroups = () => circuitGroups.filter((group) => !quizState.needs.length || quizState.needs.includes(group.forNeed));
@@ -356,11 +417,12 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
         edits.append(button);
       });
     }
-    track('gc_quiz_result', partial ? 'partial' : 'complete');
+    const resultKey = JSON.stringify({ partial, profession: quizState.profession, size: quizState.size, needs: quizState.needs, payments: quizState.payments, procedures: quizState.procedures, channels: quizState.channels, credential: quizState.credential, install: quizState.install });
+    if (resultKey !== lastResultKey) { track('gc_quiz_result', partial ? 'partial' : 'complete'); lastResultKey = resultKey; }
   };
   document.querySelector<HTMLButtonElement>('#quiz-start')?.addEventListener('click', () => {
     if (!quiz || !welcome || !resultPanel) return;
-    quizState = initialState(); completedSteps.clear(); step = 0; quizAttached = false;
+    quizState = initialState(); completedSteps.clear(); step = 0; quizAttached = false; lastResultKey = '';
     welcome.hidden = true; resultPanel.hidden = true;
     const inline = document.querySelector<HTMLElement>('#quiz-inline-demo'); if (inline) inline.hidden = true;
     track('gc_quiz_start', 'quiz'); renderStep();
@@ -383,7 +445,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   document.querySelector<HTMLButtonElement>('#quiz-restart')?.addEventListener('click', () => {
     if (!resultPanel || !welcome || !quiz) return;
     resultPanel.hidden = true; welcome.hidden = false; quiz.classList.remove('is-result');
-    quizState = initialState(); completedSteps.clear(); quizAttached = false;
+    quizState = initialState(); completedSteps.clear(); quizAttached = false; lastResultKey = '';
     document.querySelector<HTMLIFrameElement>('#quiz-demo-frame')?.removeAttribute('src');
     const inline = document.querySelector<HTMLElement>('#quiz-inline-demo'); if (inline) inline.hidden = true;
     document.querySelector<HTMLButtonElement>('#quiz-start')?.focus();
@@ -392,9 +454,10 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     const inline = document.querySelector<HTMLElement>('#quiz-inline-demo');
     const frame = document.querySelector<HTMLIFrameElement>('#quiz-demo-frame');
     if (!inline || !frame) return;
+    const firstOpen = inline.hidden;
     inline.hidden = false;
     if (!frame.hasAttribute('src')) frame.src = '/software/gestion-de-comunidades-profesionales/demo/';
-    track('gc_quiz_demo', activeModule);
+    if (firstOpen) track('gc_quiz_demo', activeModule);
     inline.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
   });
   document.querySelector<HTMLButtonElement>('#quiz-contact')?.addEventListener('click', () => {
@@ -416,11 +479,12 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
       ...(quizState.details.trim() ? [`Detalle: ${quizState.details.trim()}`] : []),
     ];
     message.value = lines.join('\n').slice(0, 1200);
+    if (!quizAttached) track('gc_quiz_contact', 'quiz');
     quizAttached = true;
-    track('gc_quiz_contact', 'quiz');
-    document.querySelector<HTMLElement>('#contacto-directo')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+    showIntentView('contact');
     (company.value ? person : company).focus({ preventScroll: true });
   });
+  document.querySelector<HTMLButtonElement>('#quiz-direct-contact')?.addEventListener('click', () => showIntentView('contact'));
   const form = document.querySelector<HTMLFormElement>('#gc-form');
   const status = document.querySelector<HTMLElement>('#gc-status');
   let submitting = false;
@@ -697,6 +761,51 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   .gc [hidden] { display:none !important; }
   .gc .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
   .quiz-section { background:#f7f9f6; }
+  .quiz-teaser { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(300px,.7fr); align-items:center; gap:clamp(30px,6vw,100px); }
+  .quiz-teaser .kicker { margin-bottom:18px; color:#a12f29; }
+  body[data-skin] main.gc .quiz-teaser h2 { max-width:730px; margin:0 0 22px; font-size:clamp(2.45rem,4.4vw,4.5rem) !important; font-weight:570; letter-spacing:-.045em; line-height:1.08; }
+  .gc .quiz-teaser > div:first-child > p:last-child { max-width:62ch; margin:0; color:#43514b; font-size:1.08rem; line-height:1.58; }
+  .quiz-teaser-action { display:grid; justify-items:start; gap:19px; padding:clamp(25px,3.5vw,46px); border:1px solid #cad6cc; border-top:4px solid #bb3d33; background:#fff; }
+  .quiz-teaser-action > span { color:#9c3c31; font-size:.73rem; font-weight:700; letter-spacing:.11em; }
+  .gc .quiz-teaser-action p { max-width:40ch; margin:0; color:#536159; font-size:.92rem; line-height:1.5; }
+  :global(html.gc-dialog-open) { overflow:hidden; }
+  .gc-intent-dialog { box-sizing:border-box; width:min(1080px,calc(100vw - 36px)); max-width:none; height:min(860px,90dvh); max-height:none; margin:auto; padding:0; overflow:hidden; border:1px solid #aebcb0; border-radius:7px; background:#fff; color:#182120; }
+  .gc-intent-dialog.is-choice { height:min(660px,90dvh); max-height:none; }
+  .gc-intent-dialog::backdrop { background:#0b1812c9; backdrop-filter:blur(6px); }
+  .gc-dialog-frame { display:grid; grid-template-rows:auto minmax(0,1fr); height:100%; }
+  .gc-intent-dialog.is-choice .gc-dialog-frame { height:100%; max-height:none; }
+  .gc-dialog-header { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:62px; padding:0 24px; border-bottom:1px solid #cdd8d0; background:#fff; }
+  .gc-dialog-header > span { color:#172d27; font-size:.88rem; font-weight:700; }
+  .gc-dialog-header > span span { margin:0 7px; color:#bd352d; }
+  .gc-dialog-header > div { display:flex; align-items:center; gap:18px; }
+  .gc-dialog-header button { display:inline-flex; align-items:center; gap:9px; padding:9px 3px; border:0; background:none; color:#263b30; font:680 .9rem var(--um-font-body); cursor:pointer; }
+  .gc-dialog-header button:hover { color:#a12f29; }
+  #gc-dialog-close span { color:#b73c31; font-size:1.6rem; line-height:.7; }
+  .gc-dialog-content { min-height:0; overflow-y:auto; overscroll-behavior:contain; }
+  .gc-intent-choice { padding:clamp(32px,5vw,68px); }
+  .gc-intent-choice .quiz-eyebrow { margin-bottom:13px; }
+  body[data-skin] main.gc .gc-intent-choice h2 { max-width:780px; margin:0 0 12px; font-size:clamp(2.5rem,4.5vw,4.5rem) !important; font-weight:570; letter-spacing:-.055em; line-height:1.07; }
+  .gc .gc-intent-choice > p { max-width:64ch; margin:0 0 33px; color:#4a594e; font-size:1.1rem; line-height:1.5; }
+  .gc-intent-options { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .gc-intent-option { display:flex; flex-direction:column; align-items:flex-start; gap:16px; min-height:266px; padding:28px; border:1px solid #bdcbbf; border-top:4px solid #bc3d33; background:#fbfcfa; color:#1d2b22; font:inherit; text-align:left; cursor:pointer; transition:background .18s ease,border-color .18s ease; }
+  .gc-intent-option:nth-child(2) { border-top-color:#274f3b; background:#f1f6f1; }
+  .gc-intent-option:hover { border-color:#a4372e; background:#fff6f3; }
+  .gc-intent-option:nth-child(2):hover { border-color:#2d6549; background:#eaf3eb; }
+  .gc-intent-option:active { background:#f3e4de; }
+  .gc-intent-option > span { color:#9d352d; font-size:.74rem; font-weight:750; letter-spacing:.12em; }
+  .gc-intent-option:nth-child(2) > span { color:#2f6649; }
+  .gc-intent-option strong { max-width:18ch; font-size:clamp(1.55rem,2.4vw,2rem); font-weight:650; letter-spacing:-.035em; line-height:1.13; }
+  .gc-intent-option small { max-width:45ch; color:#546159; font-size:.94rem; line-height:1.45; }
+  .gc-intent-option b { margin-top:auto; color:#a12f29; font-size:.94rem; }
+  .gc-intent-option:nth-child(2) b { color:#245c3d; }
+  .gc .gc-intent-choice > p.gc-intent-foot { margin:24px 0 0; color:#607067; font-size:.85rem; }
+  .gc-quiz-view .quiz-shell { min-height:calc(min(860px,90dvh) - 62px); border:0; }
+  .gc-contact-view { display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,1fr); align-items:start; gap:clamp(30px,5vw,70px); padding:clamp(28px,5vw,65px); }
+  .gc-contact-intro .quiz-eyebrow { margin-bottom:16px; }
+  body[data-skin] main.gc .gc-contact-intro h2 { margin:0 0 20px; font-size:clamp(2.3rem,3.5vw,3.8rem) !important; font-weight:570; line-height:1.09; letter-spacing:-.05em; }
+  .gc .gc-contact-intro p { max-width:50ch; color:#4c5a53; font-size:1rem; line-height:1.58; }
+  .gc-contact-view #gc-form { min-width:0; padding:28px; }
+  .gc-intent-dialog button:focus-visible,.quiz-teaser button:focus-visible,.contact-entry button:focus-visible { outline:3px solid #bb3d33; outline-offset:3px; }
   .quiz-intro { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(250px,.6fr); column-gap:7%; align-items:end; margin-bottom:42px; }
   .quiz-intro .kicker { grid-column:1 / -1; margin-bottom:15px; color:#a12f29; }
   body[data-skin] main.gc .quiz-intro h2 { max-width:780px; margin:0; font-size:clamp(2.35rem,4vw,4.2rem) !important; font-weight:550; line-height:1.08; }
@@ -785,9 +894,17 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   .gc .quiz-inline-demo p { margin:0 0 12px; color:#45564a; font-size:.9rem; }
   .quiz-inline-demo iframe { display:block; width:100%; height:min(70vh,710px); min-height:450px; border:1px solid #b9c9bd; background:#fff; }
   .quiz-restart { display:block; margin-top:18px; }
-  .gc .quiz-direct { margin:20px 0 0; color:#4b5b50; font-size:.94rem; }
-  .quiz-direct a { margin-left:4px; color:#153726; font-weight:700; text-underline-offset:4px; }
+  .gc .quiz-direct { margin:20px 30px 30px; color:#4b5b50; font-size:.94rem; }
+  .quiz-direct button { margin-left:4px; padding:0; border:0; background:none; color:#153726; font:inherit; font-weight:700; text-decoration:underline; text-underline-offset:4px; cursor:pointer; }
   .contact-section { background:#fff; scroll-margin-top:92px; }
+  .contact-entry { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(250px,.75fr); align-items:center; gap:clamp(30px,6vw,90px); }
+  body[data-skin] main.gc .contact-entry h2 { max-width:800px; margin:0 0 18px; font-size:clamp(2.4rem,4vw,4rem) !important; line-height:1.1; }
+  .gc .contact-entry p { max-width:55ch; color:#4b5b50; font-size:1rem; line-height:1.55; }
+  .contact-entry > div:last-child { padding:28px; border-left:2px solid #bd352d; }
+  .contact-entry > div:last-child p { margin:15px 0 0; font-size:.88rem; }
+  @media(max-width:900px) { .quiz-teaser,.contact-entry,.gc-contact-view { grid-template-columns:1fr; }.gc-contact-view { gap:16px; }.gc-contact-view #gc-form { max-width:690px; } }
+  @media(max-width:700px) { .gc-intent-dialog,.gc-intent-dialog.is-choice { width:100%; height:100dvh; max-height:none; margin:0; border:0; border-radius:0; }.gc-intent-dialog.is-choice .gc-dialog-frame { height:100%; max-height:none; }.gc-dialog-header { min-height:60px; padding:0 17px; }.gc-dialog-header > span { font-size:.8rem; }.gc-dialog-header > div { gap:12px; }.gc-dialog-header button { font-size:.86rem; }.gc-intent-choice { padding:22px 18px; }.gc-intent-choice .quiz-eyebrow { margin-bottom:9px; }body[data-skin] main.gc .gc-intent-choice h2 { font-size:2.25rem !important; }.gc .gc-intent-choice > p { margin-bottom:22px; font-size:1rem; }.gc-intent-options { grid-template-columns:1fr; gap:10px; }.gc-intent-option { min-height:0; gap:11px; padding:18px 20px; }.gc-intent-option strong { max-width:22ch; font-size:1.5rem; }.gc-intent-option small { font-size:.9rem; }.gc-intent-option b { margin-top:4px; }.gc-quiz-view .quiz-shell { min-height:calc(100dvh - 60px); }.gc-contact-view { padding:30px 20px; }.contact-entry > div:last-child { padding:10px 0 10px 20px; } }
+  @media(max-width:520px) { .quiz-teaser-action { padding:25px; }.quiz-teaser-action .quiz-primary { width:100%; }.gc .quiz-direct { margin:19px 20px 25px; }.gc-contact-view #gc-form { padding:22px 18px; } }
   @media(max-width:900px) { .quiz-intro { grid-template-columns:1fr; gap:15px; }.quiz-shell { grid-template-columns:minmax(180px,.3fr) minmax(0,.7fr); }.quiz-side { padding:30px 24px; }.quiz-main { padding:35px; }.quiz-options { grid-template-columns:1fr; }.quiz-result-grid { grid-template-columns:1fr; } }
   @media(max-width:700px) { .quiz-shell { grid-template-columns:1fr; min-height:0; }.quiz-side { display:none; }.quiz-main { min-height:0; padding:35px 25px; align-items:flex-start; }.quiz-intro { margin-bottom:28px; }body[data-skin] main.gc .quiz-intro h2 { font-size:clamp(2.15rem,7vw,3rem) !important; }.quiz-progress { margin-bottom:36px; }.quiz-options { grid-template-columns:1fr 1fr; }.quiz-options :global(.quiz-option) { min-height:76px; padding:12px; font-size:.91rem; } }
   @media(max-width:520px) { .quiz-main { padding:33px 21px; }body[data-skin] main.gc .quiz-main h3 { font-size:clamp(2rem,8vw,2.6rem) !important; }.quiz-options { grid-template-columns:1fr; }.quiz-options :global(.quiz-option) { min-height:60px; }.quiz-options :global(.quiz-choice-grid) { grid-template-columns:1fr; }.quiz-controls { flex-wrap:wrap; margin-top:24px; }.quiz-controls-end { justify-content:flex-end; width:100%; }.quiz-result-actions { display:grid; }.quiz-result-actions > * { width:100%; }.quiz-shell.is-result .quiz-main { padding:25px 20px; }.quiz-journey { padding:23px; }.quiz-install { padding:22px; }#quiz-edit-list { grid-template-columns:1fr 1fr; }.gc .quiz-intro p:last-child { font-size:1rem; } }
