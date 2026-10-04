@@ -19,12 +19,12 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
                 <li>Vigencia de matrícula en la web</li>
                 <li>Trámites y consultas por tickets</li>
               </ul>
-              <div class="hero-actions"><a class="button hero-cta" href="#consulta" data-cta="hero">Solicitá una demo con el formato de datos de tu institución <span aria-hidden="true">↗</span></a><a class="text-link" href="/software/gestion-de-comunidades-profesionales/demo/" data-cta="demo-hero">Explorar el sistema <span aria-hidden="true">↗</span></a></div>
+              <div class="hero-actions"><a class="button hero-cta" href="#consulta" data-cta="quiz-hero" data-intent-open data-intent-view="quiz">Evaluá tu colegio y pedí una demo <span aria-hidden="true">↗</span></a><a class="text-link" href="/software/gestion-de-comunidades-profesionales/demo/" data-cta="demo-hero">Explorar el sistema <span aria-hidden="true">↗</span></a></div>
+              <p class="hero-cta-note">Un recorrido guiado de ocho pasos. Al final, decidís si querés que preparemos una demo con el formato de datos de tu institución.</p>
               <p class="hero-service"><strong>Instalación y puesta a punto sin cargo.</strong> Servicio en pesos argentinos. Sin comisión fija de ULTIMA MILLA por cuota.</p>
             </div>
             <figure class="hero-visual">
-              <img src="/images/software-comunidades/comunidad-reunion.jpg" width="900" height="597" alt="Profesionales adultos conversando en una reunión de trabajo; fotografía ilustrativa" />
-              <figcaption>Fotografía ilustrativa · Mario Amé / Pexels</figcaption>
+              <img src="/images/software-comunidades/comunidad-rosario.jpg" width="1800" height="1200" alt="Personas adultas colaborando con computadoras durante un hackatón en Rosario" />
             </figure>
           </div>
         </div>
@@ -37,7 +37,10 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
             </div>
             <a class="button live-demo-button" href="/software/gestion-de-comunidades-profesionales/demo/" data-cta="demo-section">Probalo <span aria-hidden="true">↗</span></a>
           </div>
-          <div class="live-demo-window"><iframe src="/software/gestion-de-comunidades-profesionales/demo/" title="Demo interactiva del software de gestión de colegios profesionales" loading="lazy" referrerpolicy="same-origin"></iframe></div>
+          <div class="live-demo-window">
+            <div class="live-demo-window-bar"><span><span class="live-demo-indicator" aria-hidden="true"></span> Demo interactiva · usá esta pantalla</span><a href="/software/gestion-de-comunidades-profesionales/demo/" data-cta="demo-fullscreen">Abrir pantalla completa <span aria-hidden="true">↗</span></a></div>
+            <iframe src="/software/gestion-de-comunidades-profesionales/demo/" title="Demo interactiva del software de gestión de colegios profesionales" loading="lazy" referrerpolicy="same-origin"></iframe>
+          </div>
           <p class="live-demo-note">Simulación local con datos de ejemplo. No realiza cobros ni envía información a una institución.</p>
         </section>
         <div class="demo-heading" id="experiencia"><span>ASÍ PODRÍA VIVIRSE, EN TRES MOMENTOS</span><span>Interfaces conceptuales · sin datos reales</span></div>
@@ -65,15 +68,44 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
             <figure><img src="/images/software-comunidades/oficio-panaderia.jpg" width="900" height="720" alt="Panadero trabajando una pieza de masa en su mesa" /><figcaption>Acompañar cada oficio</figcaption></figure>
             <figure><img src="/images/software-comunidades/oficio-taller.jpg" width="900" height="675" alt="Manos trabajando una pieza de metal en un taller" /><figcaption>Dar continuidad al trabajo</figcaption></figure>
           </div>
-          <p class="people-story-credit">Fotografías ilustrativas de Mario Amé, Crisher P.H y erik debarre / Pexels. Las personas retratadas no son clientes ni integrantes de ULTIMA MILLA.</p>
+          <details class="people-story-credit"><summary>Créditos de imágenes</summary><p>Portada: <a href="https://commons.wikimedia.org/wiki/File:Hackaton_Rosario_05.jpg">Constanza Verón (WMAR)</a> / Wikimedia Commons, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> (encuadre recortado). Otras imágenes: Mario Amé, Crisher P.H y erik debarre / Pexels.</p></details>
         </div>
       </div>
     </section>
-    <section class="section band" id="independencia"><div class="wrap split"><div><p class="kicker">INDEPENDENCIA PARA TU INSTITUCIÓN</p><h2>El colegio toma las decisiones. El software se adapta.</h2><p class="band-intro">Un sistema propio tiene sentido cuando acompaña la forma de trabajar de tu institución y deja claras las condiciones desde el comienzo.</p></div><div><dl class="terms-list"><div><dt>Los datos</dt><dd>Son de tu organización, exportables y sin cesión ni uso para marketing de terceros.</dd></div><div><dt>Los cobros</dt><dd>Elegís los medios de pago compatibles con tu proyecto. No hay pasarela obligatoria ni comisión fija de ULTIMA MILLA por cuota; cada proveedor puede aplicar sus tarifas.</dd></div><div><dt>La implementación</dt><dd>Instalación y puesta a punto sin cargo. Definimos integraciones, automatizaciones y servicio en una propuesta en pesos argentinos.</dd></div></dl><a class="band-action" href="#consulta" data-cta="service">Veamos el formato de datos de tu institución <span aria-hidden="true">↗</span></a></div></div></section>
-    <section class="section" id="consulta"><div class="wrap split"><div><p class="kicker">PRÓXIMO PASO</p><h2>Veámoslo con la estructura de tu institución.</h2><p>Contanos qué formato de datos usan y qué necesitan resolver. Podemos preparar una demo con una estructura o muestra anonimizada; no envíes datos personales ni archivos por este formulario.</p></div><form id="gc-form" action="/api/contact" method="post"><label>Institución <input name="company" autocomplete="organization" maxlength="120" required /></label><label>Tu nombre <input name="name" autocomplete="name" maxlength="100" required /></label><label>Email de contacto <input type="email" name="email" autocomplete="email" maxlength="120" required /></label><label>Formato de datos y necesidad principal <textarea name="message" rows="4" minlength="12" maxlength="1200" required></textarea></label><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" /><p class="note">Usaremos estos datos para responder tu solicitud de demo. No incluyas datos personales de integrantes. <a href="/privacidad">Política de privacidad</a>.</p><button class="button" type="submit">Solicitar demo ↗</button><p id="gc-status" role="status" aria-live="polite"></p></form></div></section>
+    <section class="section band" id="independencia"><div class="wrap split"><div><p class="kicker">INDEPENDENCIA PARA TU INSTITUCIÓN</p><h2>El colegio toma las decisiones. El software se adapta.</h2><p class="band-intro">Un sistema propio tiene sentido cuando acompaña la forma de trabajar de tu institución y deja claras las condiciones desde el comienzo.</p></div><div><dl class="terms-list"><div><dt>Los datos</dt><dd>Son de tu organización, exportables y sin cesión ni uso para marketing de terceros.</dd></div><div><dt>Los cobros</dt><dd>Elegís los medios de pago compatibles con tu proyecto. No hay pasarela obligatoria ni comisión fija de ULTIMA MILLA por cuota; cada proveedor puede aplicar sus tarifas.</dd></div><div><dt>La implementación</dt><dd>Instalación y puesta a punto sin cargo. Definimos integraciones, automatizaciones y servicio en una propuesta en pesos argentinos.</dd></div></dl><a class="band-action" href="#consulta" data-cta="quiz-service" data-intent-open data-intent-view="quiz">Evaluá tu colegio para pedir una demo <span aria-hidden="true">↗</span></a></div></div></section>
+    <section class="section quiz-section" id="consulta" aria-labelledby="quiz-title">
+      <div class="wrap quiz-teaser">
+        <div><p class="kicker">UN PRIMER PASO PARA TU COLEGIO</p><h2 id="quiz-title">Veamos qué necesita tu comunidad.</h2><p>Respondé ocho preguntas sobre tu colegio y descubrí un recorrido posible del sistema. Después, si te interesa, pedí una demo con el formato de datos de tu institución. No necesitás registrarte ni compartir datos de matriculados.</p></div>
+        <div class="quiz-teaser-action"><span>01 / EVALUACIÓN GUIADA</span><button class="quiz-primary" id="gc-intent-open" type="button" data-cta="quiz-section" data-intent-open data-intent-view="quiz">Hacer la evaluación <span aria-hidden="true">↗</span></button><p>La evaluación se hace acá mismo. Si ya sabés qué necesitás, <button class="quiz-contact-link" type="button" data-cta="contact-section" data-intent-open data-intent-view="choice">abrí las opciones de contacto</button>.</p><noscript><a href="/contacto">Contactar a Última Milla</a></noscript></div>
+      </div>
+    </section>
+    <dialog class="gc-intent-dialog" id="gc-intent-dialog" aria-labelledby="gc-dialog-title">
+      <div class="gc-dialog-frame">
+        <header class="gc-dialog-header"><span id="gc-dialog-title">Última Milla <span aria-hidden="true">/</span> Tu colegio</span><div><button id="gc-dialog-back" type="button" hidden>← Opciones</button><button id="gc-dialog-close" type="button" aria-label="Cerrar ventana">Cerrar <span aria-hidden="true">×</span></button></div></header>
+        <div class="gc-dialog-content" id="gc-dialog-content">
+          <div class="gc-intent-choice" id="gc-intent-choice"><span class="quiz-eyebrow">HAGAMOS QUE LA CONVERSACIÓN SIRVA</span><h2 id="gc-intent-title" tabindex="-1">¿Cómo querés empezar?</h2><p>Elegí el camino que te resulte más útil. Ninguno requiere datos de tus matriculados.</p><div class="gc-intent-options"><button class="gc-intent-option" type="button" data-cta="contact-choice" data-intent-view="contact"><span>CONTACTO BREVE · 4 DATOS</span><strong>Contanos qué necesita tu colegio.</strong><small>Institución, nombre, email y necesidad. Te respondemos para acordar una demo.</small><b>Enviar una consulta ↗</b></button><button class="gc-intent-option" type="button" data-cta="quiz-choice" data-intent-view="quiz"><span>RECORRIDO GUIADO · 8 PASOS</span><strong>Armá un primer recorrido del sistema.</strong><small>Elegí la actividad principal, prioridades y circuitos. Verás módulos y una demo antes de decidir si nos escribís.</small><b>Hacer la evaluación ↗</b></button></div><p class="gc-intent-foot">Instalación y puesta a punto sin cargo. El servicio se cotiza en pesos argentinos.</p></div>
+          <div class="gc-quiz-view" id="gc-quiz-view" hidden>
+            <div class="quiz-shell" id="quiz-shell">
+          <div class="quiz-side" aria-hidden="true"><span class="quiz-side-mark">UM<span>↗</span></span><p>Primero, una idea clara de tu sistema.</p><div class="quiz-side-steps"><span>01 / COMUNIDAD</span><span>02 / ACTIVIDAD</span><span>03 / ESCALA</span><span>04 / NECESIDADES</span><span>05 / CIRCUITOS</span><span>06 / FIRMA DIGITAL</span><span>07 / INSTALACIÓN</span><span>08 / CONTEXTO</span></div></div>
+          <div class="quiz-main">
+            <div class="quiz-welcome" id="quiz-welcome"><span class="quiz-eyebrow">TU SISTEMA, PASO A PASO</span><h3>Armemos un primer recorrido para tu colegio.</h3><p>Podés elegir varias necesidades, omitir preguntas y ver una propuesta de módulos aquí mismo. Si después querés conversar, copiamos tus decisiones al formulario.</p><button class="quiz-primary" type="button" id="quiz-start">Empezar <span aria-hidden="true">↗</span></button></div>
+            <div class="quiz-flow" id="quiz-flow" hidden><div class="quiz-progress"><span id="quiz-progress-label">Paso 1 de 8</span><span class="quiz-progress-track"><span id="quiz-progress-fill"></span></span></div><fieldset class="quiz-fieldset"><legend class="sr-only" id="quiz-legend">Elegí las opciones que correspondan</legend><span class="quiz-eyebrow" id="quiz-step-label"></span><h3 id="quiz-question" tabindex="-1"></h3><p id="quiz-hint"></p><div class="quiz-options" id="quiz-options"></div></fieldset><div class="quiz-controls"><button class="quiz-back" type="button" id="quiz-back">← Volver</button><div class="quiz-controls-end"><button class="quiz-skip" type="button" id="quiz-skip">Omitir</button><button class="quiz-primary" type="button" id="quiz-next">Continuar <span aria-hidden="true">↗</span></button></div></div><button class="quiz-see-result" type="button" id="quiz-see-result">Ver resultado hasta acá ↗</button></div>
+            <div class="quiz-result" id="quiz-result" hidden><span class="quiz-eyebrow">TU PUNTO DE PARTIDA</span><h3 id="quiz-result-title" tabindex="-1">Un recorrido posible para tu colegio.</h3><p id="quiz-result-copy"></p><div class="quiz-result-grid"><div><h4>Módulos para explorar</h4><div id="quiz-modules" class="quiz-modules"></div></div><div class="quiz-journey" aria-live="polite"><span class="quiz-eyebrow">ASÍ PODRÍA USARSE</span><h4 id="quiz-journey-title"></h4><ol id="quiz-journey-steps"></ol><p>Recorrido conceptual con datos de ejemplo. Los medios de pago, canales e integraciones concretos se definen para cada proyecto.</p></div></div><div class="quiz-signature" id="quiz-signature" hidden><span class="quiz-eyebrow">MÓDULO ADICIONAL A EVALUAR</span><h4>Firma digital en los trámites</h4><p id="quiz-signature-copy"></p><small>El mecanismo de firma, las integraciones, la validez aplicable y el precio se definen en una propuesta específica. Esta demo no emite firmas.</small></div><div class="quiz-install"><span class="quiz-eyebrow">CÓDIGO ABIERTO · DATOS PROPIOS</span><h4>Vos decidís dónde y con quién operarlo.</h4><p id="quiz-install-note"></p><small>Instalación y puesta a punto sin cargo. El servicio se cotiza en pesos argentinos; no implica hosting o mantenimiento gratuitos.</small></div><div class="quiz-edit-panel"><h4>Tus decisiones</h4><div id="quiz-edit-list"></div></div><p class="quiz-result-note">Este resultado orienta la conversación; no configura una institución real ni fija una cotización.</p><div class="quiz-result-actions"><button class="quiz-primary" id="quiz-open-demo" type="button" data-cta="quiz-try-demo">Probar el sistema aquí <span aria-hidden="true">↗</span></button><button class="quiz-secondary" id="quiz-contact" type="button" data-cta="quiz-request-demo">Copiar mis decisiones y pedir una demo</button></div><div id="quiz-inline-demo" class="quiz-inline-demo" hidden><p>Demo interactiva con datos de ejemplo. Elegí el módulo que querés recorrer dentro de la pantalla.</p><iframe id="quiz-demo-frame" title="Demo interactiva del sistema de colegios profesionales" loading="lazy" referrerpolicy="same-origin"></iframe></div><button class="quiz-restart" id="quiz-restart" type="button">Empezar de nuevo</button></div>
+          </div>
+        </div>
+            <p class="quiz-direct">¿Preferís contarnos tu caso directamente? <button id="quiz-direct-contact" type="button" data-cta="contact-from-quiz">Ir al contacto breve ↗</button></p>
+          </div>
+          <div class="gc-contact-view" id="gc-contact-view" hidden><div class="gc-contact-intro"><span class="quiz-eyebrow">CONVERSACIÓN DIRECTA</span><h2 id="gc-contact-title" tabindex="-1">Contanos qué necesita tu colegio.</h2><p>Podemos acordar una demo con la estructura o una muestra anonimizada de tu institución. No envíes padrón ni archivos.</p></div><form id="gc-form" action="/api/contact" method="post"><label>Institución <input name="company" autocomplete="organization" maxlength="120" required /></label><label>Tu nombre <input name="name" autocomplete="name" maxlength="100" required /></label><label>Email de contacto <input type="email" name="email" autocomplete="email" maxlength="120" required /></label><label>Formato de datos y necesidad principal <textarea name="message" rows="4" minlength="12" maxlength="1200" required></textarea></label><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" /><p class="note">Usaremos estos datos para responder tu solicitud de demo. No incluyas datos personales de integrantes. <a href="/privacidad">Política de privacidad</a>.</p><button class="button" type="submit" data-cta="contact-submit">Pedir una demo ↗</button><p id="gc-status" role="status" aria-live="polite"></p></form></div>
+        </div>
+      </div>
+    </dialog>
+    <aside class="quiz-invite" id="gc-quiz-invite" aria-labelledby="gc-quiz-invite-title" hidden><button class="quiz-invite-close" id="gc-quiz-invite-close" type="button" aria-label="Cerrar invitación">×</button><span class="quiz-invite-kicker">UNA IDEA PARA TU COLEGIO</span><p id="gc-quiz-invite-title">¿Querés ver qué partes del sistema podrían servirle a tu comunidad?</p><button class="quiz-invite-action" id="gc-quiz-invite-open" type="button" data-cta="quiz-invite" data-intent-open data-intent-view="quiz">Hacer la evaluación de 8 pasos <span aria-hidden="true">↗</span></button></aside>
+    <section class="section contact-section" id="contacto-directo"><div class="wrap contact-entry"><div><p class="kicker">SIGUIENTE PASO</p><h2>Podemos verlo con la estructura de tu colegio.</h2><p>Contanos qué formato de datos usan y qué quieren resolver. La instalación y puesta a punto son sin cargo.</p></div><div><button class="button" id="gc-contact-open" type="button" data-cta="contact-direct" data-intent-open data-intent-view="choice">Elegir cómo contactarnos <span aria-hidden="true">↗</span></button><p>Si preferís explorar primero, el recorrido guiado está disponible arriba.</p><noscript><a href="/contacto">Ir a la página de contacto</a></noscript></div></div></section>
   </main>
 </LayoutV4>
 <script>
+  // Keep the campaign's decision flow clear on mobile; the global install hint can cover its CTA.
+  document.querySelector('[data-install-hint]')?.remove();
   const attribution: Record<string, string> = {};
   const campaignUrl = new URL(location.href);
   const allowedAttribution: Record<string, RegExp> = {
@@ -92,13 +124,533 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     function queueEvent(command: string, name: string, params: Record<string, string>) { layer!.push(arguments); }
     queueEvent('event', event, { campaign: 'comunidades_profesionales', placement, ...attribution });
   };
-  document.querySelectorAll<HTMLAnchorElement>('[data-cta]').forEach((link) => link.addEventListener('click', () => track('gc_cta_click', link.dataset.cta || 'unknown')));
+  const demoFrame = document.querySelector<HTMLIFrameElement>('.live-demo-window iframe');
+  const inlineDemoFrame = document.querySelector<HTMLIFrameElement>('#quiz-demo-frame');
+  const demoSections = new Set(['cuotas', 'credencial', 'tramites', 'consultas', 'administracion']);
+  window.addEventListener('message', (event) => {
+    if (event.origin !== location.origin || (event.source !== demoFrame?.contentWindow && event.source !== inlineDemoFrame?.contentWindow)) return;
+    const message = event.data;
+    if (message?.type !== 'umsa_demo_section' || typeof message.feature !== 'string' || !demoSections.has(message.feature)) return;
+    track('gc_demo_section', message.feature);
+  });
+  document.querySelectorAll<HTMLElement>('[data-cta]').forEach((control) => control.addEventListener('click', () => track('gc_cta_click', control.dataset.cta || 'unknown')));
   document.querySelectorAll<HTMLAnchorElement>('[data-interest]').forEach((link) => link.addEventListener('click', () => track('gc_interest_click', link.dataset.interest || 'unknown')));
+  type QuizOption = { value: string; label: string };
+  type ModuleKey = 'cuotas' | 'credencial' | 'tramites' | 'consultas';
+  const professionOptions: QuizOption[] = [
+    { value: 'arquitectura', label: 'Arquitectura' }, { value: 'escribania', label: 'Escribanía' },
+    { value: 'ingenieria', label: 'Ingeniería' }, { value: 'otra', label: 'Otra profesión' },
+  ];
+  const activityOptions: QuizOption[] = [
+    { value: 'matricular', label: 'Gestionar matrículas' },
+    { value: 'certificar', label: 'Certificar documentación o títulos' },
+    { value: 'auditar', label: 'Auditar o controlar el ejercicio' },
+    { value: 'otra', label: 'Otra actividad' },
+  ];
+  const sizeOptions: QuizOption[] = [
+    { value: 'hasta-500', label: 'Hasta 500' }, { value: '500-2000', label: 'Entre 500 y 2.000' },
+    { value: 'mas-2000', label: 'Más de 2.000' }, { value: 'sin-dato', label: 'Todavía no lo sabemos' },
+  ];
+  const needOptions: QuizOption[] = [
+    { value: 'cuotas', label: 'Cuotas y cobros' }, { value: 'credencial', label: 'Credencial y matrícula' },
+    { value: 'tramites', label: 'Trámites' }, { value: 'consultas', label: 'Consultas y respuestas' },
+  ];
+  const installOptions: QuizOption[] = [
+    { value: 'propio', label: 'Tenemos equipo técnico y servidores propios' },
+    { value: 'acompanado', label: 'Tenemos equipo técnico; necesitamos ayuda para instalar o adaptar' },
+    { value: 'gestionado', label: 'Preferimos que Última Milla se encargue' },
+    { value: 'sin-definir', label: 'Todavía no sabemos' },
+  ];
+  const signatureOptions: QuizOption[] = [
+    { value: 'si', label: 'Sí, la necesitamos' },
+    { value: 'evaluar', label: 'Queremos evaluar si conviene' },
+    { value: 'no', label: 'No por ahora' },
+  ];
+  const signatureProcedureOptions: QuizOption[] = [
+    { value: 'alta', label: 'Solicitud de matrícula' },
+    { value: 'renovacion', label: 'Renovación de matrícula' },
+    { value: 'certificados', label: 'Certificados o constancias' },
+    { value: 'otro', label: 'Otro trámite por definir' },
+  ];
+  const circuitGroups: { key: 'payments' | 'procedures' | 'channels' | 'credential'; title: string; forNeed: ModuleKey; options: QuizOption[] }[] = [
+    { key: 'payments', title: 'Medios de cobro que quieren evaluar', forNeed: 'cuotas', options: [
+      { value: 'tarjeta', label: 'Tarjeta' }, { value: 'transferencia', label: 'Transferencia' },
+      { value: 'billetera', label: 'Billetera virtual' }, { value: 'por-definir', label: 'Por definir' },
+    ] },
+    { key: 'credential', title: 'Qué mostraría la credencial', forNeed: 'credencial', options: [
+      { value: 'qr', label: 'QR de consulta' }, { value: 'vigencia', label: 'Vigencia de matrícula' },
+      { value: 'cuota', label: 'Estado de cuota' },
+    ] },
+    { key: 'procedures', title: 'Trámites para recorrer en la demo', forNeed: 'tramites', options: [
+      { value: 'solicitud', label: 'Iniciar solicitud' }, { value: 'seguimiento', label: 'Seguir estado' },
+      { value: 'respuesta', label: 'Responder y cerrar' },
+    ] },
+    { key: 'channels', title: 'Canales que usan para las consultas', forNeed: 'consultas', options: [
+      { value: 'email', label: 'Email' }, { value: 'web', label: 'Web' },
+      { value: 'mensajeria', label: 'Mensajería' }, { value: 'presencial', label: 'Atención presencial' },
+    ] },
+  ];
+  const freeFields: { key: 'institution' | 'person' | 'province' | 'address' | 'details'; label: string; max: number }[] = [
+    { key: 'institution', label: 'Nombre de la institución', max: 100 },
+    { key: 'person', label: 'Tu nombre', max: 80 },
+    { key: 'province', label: 'Provincia', max: 60 },
+    { key: 'address', label: 'Dirección de la institución', max: 120 },
+    { key: 'details', label: 'Otro detalle para la demo', max: 220 },
+  ];
+  const modules: Record<ModuleKey, { title: string; purpose: string; journey: string[] }> = {
+    cuotas: { title: 'Cuotas y cobros', purpose: 'Consultar cuotas, elegir un medio compatible y seguir el estado del pago.', journey: [
+      'La persona entra a su espacio y consulta sus cuotas.', 'Elige cómo continuar el pago entre los medios acordados.', 'El colegio ve el estado y puede seguir cada cuota.',
+    ] },
+    credencial: { title: 'Credencial digital', purpose: 'Presentar una credencial en el teléfono y consultar la vigencia en la web.', journey: [
+      'El profesional abre su credencial digital.', 'Presenta el QR ilustrativo para consultar su estado.', 'El colegio muestra la vigencia de matrícula y de cuota según sus reglas.',
+    ] },
+    tramites: { title: 'Trámites', purpose: 'Iniciar gestiones, ver su estado y responder dentro del mismo entorno.', journey: [
+      'El matriculado inicia una gestión.', 'La administración recibe y actualiza su estado.', 'La persona consulta la respuesta y el seguimiento.',
+    ] },
+    consultas: { title: 'Consultas y tickets', purpose: 'Ordenar preguntas y respuestas en un circuito con seguimiento.', journey: [
+      'La consulta ingresa al circuito de tickets.', 'El equipo responde en un hilo identificable.', 'La persona consulta el estado de su caso.',
+    ] },
+  };
+  const installationCopy: Record<string, string> = {
+    propio: 'Su equipo podría operar la instalación en servidores propios. La entrega del código, la documentación y las responsabilidades se detallan en la propuesta técnica.',
+    acompanado: 'Podemos acompañar a su equipo en la instalación y adaptación. El alcance del acompañamiento y el mantenimiento se definen en la propuesta técnica.',
+    gestionado: 'Podemos proponer un servicio gestionado por Última Milla. Infraestructura, operación y mantenimiento se cotizan en pesos argentinos.',
+    'sin-definir': 'Podemos revisar juntos si conviene instalación propia, acompañada o servicio gestionado.',
+  };
+  type QuizState = {
+    profession: string; activity: string; secondaryActivities: string[]; activityOther: string;
+    size: string; needs: ModuleKey[];
+    payments: string[]; procedures: string[]; channels: string[]; credential: string[];
+    signature: string; signatureProcedures: string[];
+    install: string; institution: string; person: string; province: string; address: string; details: string;
+  };
+  const initialState = (): QuizState => ({
+    profession: '', activity: '', secondaryActivities: [], activityOther: '', size: '', needs: [],
+    payments: [], procedures: [], channels: [], credential: [], signature: '', signatureProcedures: [],
+    install: '', institution: '', person: '', province: '', address: '', details: '',
+  });
+  let quizState = initialState();
+  let step = 0;
+  let activeModule: ModuleKey = 'cuotas';
+  let quizAttached = false;
+  let lastResultKey = '';
+  const completedSteps = new Set<number>();
+  const quiz = document.querySelector<HTMLElement>('#quiz-shell');
+  const welcome = document.querySelector<HTMLElement>('#quiz-welcome');
+  const flow = document.querySelector<HTMLElement>('#quiz-flow');
+  const resultPanel = document.querySelector<HTMLElement>('#quiz-result');
+  const nextButton = document.querySelector<HTMLButtonElement>('#quiz-next');
+  const choices = document.querySelector<HTMLElement>('#quiz-options');
+  type IntentView = 'choice' | 'contact' | 'quiz';
+  const intentDialog = document.querySelector<HTMLDialogElement>('#gc-intent-dialog');
+  const intentContent = document.querySelector<HTMLElement>('#gc-dialog-content');
+  const intentChoice = document.querySelector<HTMLElement>('#gc-intent-choice');
+  const intentContact = document.querySelector<HTMLElement>('#gc-contact-view');
+  const intentQuiz = document.querySelector<HTMLElement>('#gc-quiz-view');
+  const intentBack = document.querySelector<HTMLButtonElement>('#gc-dialog-back');
+  const quizInvite = document.querySelector<HTMLElement>('#gc-quiz-invite');
+  const inviteStorageKey = 'umsa_comunidades_quiz_invite_v1';
+  let inviteHandled = false;
+  try { inviteHandled = sessionStorage.getItem(inviteStorageKey) === '1'; } catch { /* Storage can be unavailable in private browsing. */ }
+  const dismissInvite = () => {
+    if (quizInvite) quizInvite.hidden = true;
+    inviteHandled = true;
+    try { sessionStorage.setItem(inviteStorageKey, '1'); } catch { /* Keep the in-memory decision. */ }
+  };
+  document.querySelector<HTMLButtonElement>('#gc-quiz-invite-close')?.addEventListener('click', () => {
+    track('gc_quiz_invite_dismiss', 'timed');
+    dismissInvite();
+  });
+  document.querySelectorAll<HTMLElement>('[data-cta]').forEach((control) => control.addEventListener('click', dismissInvite));
+  document.querySelector<HTMLFormElement>('#gc-form')?.addEventListener('focusin', dismissInvite, { once: true });
+  document.querySelector<HTMLElement>('.live-demo-window')?.addEventListener('pointerdown', dismissInvite, { once: true });
+  let inviteActiveMs = 0;
+  let inviteLastTick = performance.now();
+  const inviteTimer = window.setInterval(() => {
+    const now = performance.now();
+    const elapsed = Math.min(now - inviteLastTick, 1200);
+    inviteLastTick = now;
+    if (inviteHandled || !quizInvite) { window.clearInterval(inviteTimer); return; }
+    const activeElement = document.activeElement;
+    const busy = intentDialog?.open || activeElement?.matches('input, textarea, select, iframe') ||
+      ['.live-demo', '#consulta', '#contacto-directo'].some((selector) => {
+        const rect = document.querySelector<HTMLElement>(selector)?.getBoundingClientRect();
+        return rect && rect.top < innerHeight && rect.bottom > 0;
+      });
+    if (document.visibilityState !== 'visible' || !document.hasFocus() || busy) return;
+    inviteActiveMs += elapsed;
+    if (inviteActiveMs < 30_000) return;
+    quizInvite.hidden = false;
+    inviteHandled = true;
+    try { sessionStorage.setItem(inviteStorageKey, '1'); } catch { /* Keep the in-memory decision. */ }
+    track('gc_quiz_invite_show', 'timed');
+    window.clearInterval(inviteTimer);
+  }, 1000);
+  let intentView: IntentView = 'choice';
+  let intentOpener: HTMLElement | null = null;
+  const showIntentView = (view: IntentView) => {
+    if (!intentChoice || !intentContact || !intentQuiz) return;
+    intentView = view;
+    intentDialog?.classList.toggle('is-choice', view === 'choice');
+    intentChoice.hidden = view !== 'choice';
+    intentContact.hidden = view !== 'contact';
+    intentQuiz.hidden = view !== 'quiz';
+    if (intentBack) intentBack.hidden = view === 'choice';
+    if (intentContent) intentContent.scrollTop = 0;
+    if (view === 'quiz') {
+      if (welcome && !welcome.hidden) document.querySelector<HTMLButtonElement>('#quiz-start')?.click();
+      else (resultPanel && !resultPanel.hidden ? document.querySelector<HTMLElement>('#quiz-result-title') : document.querySelector<HTMLElement>('#quiz-question'))?.focus({ preventScroll: true });
+    } else document.querySelector<HTMLElement>(view === 'contact' ? '#gc-contact-title' : '#gc-intent-title')?.focus({ preventScroll: true });
+  };
+  const openIntent = (opener: HTMLElement, requested?: IntentView) => {
+    if (!intentDialog) return;
+    intentOpener = opener.closest('#gc-quiz-invite') ? document.querySelector<HTMLElement>('.hero-cta') : opener;
+    if (!intentDialog.open) { intentDialog.showModal(); document.documentElement.classList.add('gc-dialog-open'); track('gc_intent_open', opener.dataset.cta || opener.id || 'landing'); }
+    showIntentView(requested || intentView);
+  };
+  document.querySelectorAll<HTMLElement>('[data-intent-open]').forEach((opener) => opener.addEventListener('click', (event) => {
+    if (opener instanceof HTMLAnchorElement) event.preventDefault();
+    openIntent(opener, opener.dataset.intentView as IntentView | undefined);
+  }));
+  // On this landing, all global Contacto links use the page's two-way selector.
+  // Other routes keep the shared contact behavior untouched.
+  document.addEventListener('click', (event) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const source = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null;
+    if (!source || source.target === '_blank') return;
+    const target = new URL(source.href, location.href);
+    if (target.origin !== location.origin || target.pathname.replace(/\/$/, '') !== '/contacto') return;
+    event.preventDefault();
+    event.stopPropagation();
+    const menuToggle = document.querySelector<HTMLButtonElement>('#menuToggle');
+    if (menuToggle?.getAttribute('aria-expanded') === 'true') menuToggle.click();
+    const placement = source.matches('[data-ops-dock-cta]') ? 'contact-dock' :
+      source.closest('#mobileMenu') ? 'contact-mobile-menu' :
+      source.closest('header') ? 'contact-header' :
+      source.closest('footer') ? 'contact-footer' : 'contact-tab';
+    track('gc_cta_click', placement);
+    dismissInvite();
+    openIntent(source.closest('#mobileMenu') && menuToggle ? menuToggle : source, 'choice');
+  }, true);
+  document.querySelectorAll<HTMLButtonElement>('#gc-intent-choice [data-intent-view]').forEach((option) => option.addEventListener('click', () => {
+    const view = option.dataset.intentView as IntentView;
+    if (view !== 'quiz' && view !== 'contact') return;
+    track('gc_intent_choice', view);
+    showIntentView(view);
+  }));
+  intentBack?.addEventListener('click', () => showIntentView('choice'));
+  document.querySelector<HTMLButtonElement>('#gc-dialog-close')?.addEventListener('click', () => intentDialog?.close());
+  intentDialog?.addEventListener('click', (event) => { if (event.target === intentDialog) intentDialog.close(); });
+  intentDialog?.addEventListener('close', () => {
+    document.documentElement.classList.remove('gc-dialog-open');
+    if (intentOpener?.isConnected) intentOpener.focus({ preventScroll: true });
+  });
+  const labelFor = (options: QuizOption[], value: string) => options.find((option) => option.value === value)?.label || '';
+  const selectedNeeds = (): ModuleKey[] => quizState.needs.length ? quizState.needs : ['cuotas', 'credencial', 'tramites', 'consultas'];
+  const relevantGroups = () => circuitGroups.filter((group) => !quizState.needs.length || quizState.needs.includes(group.forNeed));
+  const questionMeta = [
+    ['01 / COMUNIDAD', '¿Qué profesión reúne tu colegio?', 'Podés omitirlo y ver un resultado general.'],
+    ['02 / ACTIVIDAD', '¿Cuál es la actividad principal de tu colegio?', 'Elegí una actividad principal y, si corresponde, otras que también realizan.'],
+    ['03 / ESCALA', '¿Cuántos integrantes reúne, aproximadamente?', 'No necesitamos un padrón ni datos de matriculados.'],
+    ['04 / NECESIDADES', '¿Qué necesitan resolver?', 'Podés elegir más de una prioridad.'],
+    ['05 / CIRCUITOS', '¿Qué recorridos deberían acompañar esas prioridades?', 'Elegí varias opciones o seguí sin definirlas. Las integraciones se acuerdan después.'],
+    ['06 / FIRMA DIGITAL', '¿Necesitan firma digital para trámites de matrícula?', 'Es un módulo adicional a evaluar. La firma digital requiere definir mecanismo, integración y validez aplicable; no es una imagen de firma.'],
+    ['07 / INSTALACIÓN', '¿Cómo les gustaría instalar y mantener el sistema?', 'Código abierto y datos bajo control de tu organización; elegí el nivel de ayuda que necesitan.'],
+    ['08 / CONTEXTO', '¿Querés agregar contexto para la demo?', 'Todo es opcional. Queda sólo en esta página hasta que elijas copiarlo al formulario. No incluyas datos de matriculados.'],
+  ];
+  const markStep = () => {
+    if (!completedSteps.has(step)) { completedSteps.add(step); track('gc_quiz_step', `step_${step + 1}`); }
+  };
+  const trimDependencies = () => {
+    for (const group of circuitGroups) {
+      if (quizState.needs.length && !quizState.needs.includes(group.forNeed)) quizState[group.key] = [];
+    }
+  };
+  const makeChoice = (option: QuizOption, index: number, type: 'radio' | 'checkbox', groupKey: 'profession' | 'activity' | 'secondaryActivities' | 'size' | 'needs' | 'payments' | 'procedures' | 'channels' | 'credential' | 'signature' | 'signatureProcedures' | 'install') => {
+    const label = document.createElement('label'); label.className = 'quiz-option';
+    const input = document.createElement('input'); input.type = type; input.name = `quiz-${groupKey}`; input.value = option.value;
+    input.checked = type === 'checkbox' ? (quizState[groupKey] as string[]).includes(option.value) : quizState[groupKey] === option.value;
+    if (groupKey === 'secondaryActivities' && option.value === quizState.activity) input.disabled = true;
+    const number = document.createElement('span'); number.className = 'quiz-option-number'; number.textContent = String(index + 1).padStart(2, '0');
+    const text = document.createElement('span'); text.textContent = option.label;
+    const arrow = document.createElement('span'); arrow.setAttribute('aria-hidden', 'true'); arrow.textContent = type === 'checkbox' ? (input.checked ? '✓' : '+') : '↗';
+    label.append(input, number, text, arrow);
+    input.addEventListener('change', () => {
+      if (type === 'checkbox') arrow.textContent = input.checked ? '✓' : '+';
+      if (type === 'checkbox') {
+        const current = quizState[groupKey] as string[];
+        quizState[groupKey] = (input.checked ? [...current, option.value] : current.filter((item) => item !== option.value)) as never;
+        if (groupKey === 'needs') {
+          if (!quizState.needs.length) circuitGroups.forEach((group) => { quizState[group.key] = []; });
+          else trimDependencies();
+        }
+      } else {
+        quizState[groupKey] = option.value as never;
+        if (groupKey === 'activity') {
+          quizState.secondaryActivities = quizState.secondaryActivities.filter((value) => value !== option.value);
+          choices?.querySelectorAll<HTMLInputElement>('input[name="quiz-secondaryActivities"]').forEach((secondary) => {
+            secondary.disabled = secondary.value === option.value;
+            if (secondary.disabled) {
+              secondary.checked = false;
+              const mark = secondary.closest('label')?.lastElementChild;
+              if (mark) mark.textContent = '+';
+            }
+          });
+          track('gc_quiz_activity', option.value);
+        }
+        if (groupKey === 'signature') {
+          if (option.value === 'no') quizState.signatureProcedures = [];
+          renderSignatureProcedures();
+          track('gc_quiz_signature', option.value);
+        }
+      }
+      syncNext();
+    });
+    return label;
+  };
+  const renderSignatureProcedures = () => {
+    choices?.querySelector('#quiz-signature-procedures')?.remove();
+    if (!choices || !['si', 'evaluar'].includes(quizState.signature)) return;
+    const section = document.createElement('div'); section.id = 'quiz-signature-procedures'; section.className = 'quiz-choice-group';
+    section.setAttribute('role', 'group'); section.setAttribute('aria-label', 'Trámites para evaluar firma digital');
+    const heading = document.createElement('h4'); heading.textContent = '¿Para qué trámites la evaluarían? (opcional)';
+    const grid = document.createElement('div'); grid.className = 'quiz-choice-grid';
+    signatureProcedureOptions.forEach((option, index) => grid.append(makeChoice(option, index, 'checkbox', 'signatureProcedures')));
+    section.append(heading, grid); choices.append(section);
+  };
+  const syncNext = () => {
+    if (!nextButton) return;
+    nextButton.disabled = (step === 0 && !quizState.profession) || (step === 1 && !quizState.activity) ||
+      (step === 2 && !quizState.size) || (step === 3 && !quizState.needs.length) ||
+      (step === 5 && !quizState.signature) || (step === 6 && !quizState.install);
+  };
+  const renderStep = () => {
+    if (!choices || !flow || !nextButton || !resultPanel || !quiz) return;
+    quiz.classList.remove('is-result');
+    resultPanel.hidden = true; flow.hidden = false;
+    const title = document.querySelector<HTMLElement>('#quiz-question');
+    const legend = document.querySelector<HTMLElement>('#quiz-legend');
+    const hint = document.querySelector<HTMLElement>('#quiz-hint');
+    const eyebrow = document.querySelector<HTMLElement>('#quiz-step-label');
+    if (title) title.textContent = questionMeta[step][1];
+    if (legend) legend.textContent = questionMeta[step][1];
+    if (hint) hint.textContent = questionMeta[step][2];
+    if (eyebrow) eyebrow.textContent = questionMeta[step][0];
+    const progress = document.querySelector<HTMLElement>('#quiz-progress-label');
+    if (progress) progress.textContent = `Paso ${step + 1} de ${questionMeta.length}`;
+    const fill = document.querySelector<HTMLElement>('#quiz-progress-fill');
+    if (fill) fill.style.width = `${((step + 1) / questionMeta.length) * 100}%`;
+    choices.replaceChildren();
+    choices.classList.toggle('is-groups', step === 1 || step === 4 || step === 5);
+    choices.classList.toggle('is-fields', step === 7);
+    if (step === 0 || step === 2 || step === 3 || step === 6) {
+      const key = step === 0 ? 'profession' : step === 2 ? 'size' : step === 3 ? 'needs' : 'install';
+      const options = step === 0 ? professionOptions : step === 2 ? sizeOptions : step === 3 ? needOptions : installOptions;
+      options.forEach((option, index) => choices.append(makeChoice(option, index, step === 3 ? 'checkbox' : 'radio', key)));
+    } else if (step === 1) {
+      const primary = document.createElement('div'); primary.className = 'quiz-choice-group';
+      primary.setAttribute('role', 'group'); primary.setAttribute('aria-label', 'Actividad principal');
+      const mainHeading = document.createElement('h4'); mainHeading.textContent = 'Actividad principal';
+      const mainGrid = document.createElement('div'); mainGrid.className = 'quiz-choice-grid';
+      activityOptions.forEach((option, index) => mainGrid.append(makeChoice(option, index, 'radio', 'activity')));
+      primary.append(mainHeading, mainGrid); choices.append(primary);
+      const secondary = document.createElement('div'); secondary.className = 'quiz-choice-group';
+      secondary.setAttribute('role', 'group'); secondary.setAttribute('aria-label', 'Otras actividades');
+      const otherHeading = document.createElement('h4'); otherHeading.textContent = 'Otras actividades que también realizan (opcional)';
+      const otherGrid = document.createElement('div'); otherGrid.className = 'quiz-choice-grid';
+      activityOptions.forEach((option, index) => otherGrid.append(makeChoice(option, index, 'checkbox', 'secondaryActivities')));
+      secondary.append(otherHeading, otherGrid); choices.append(secondary);
+      const otherLabel = document.createElement('label'); otherLabel.className = 'quiz-field';
+      const caption = document.createElement('span'); caption.textContent = 'Si elegiste «Otra actividad», podés describirla (opcional)';
+      const otherInput = document.createElement('input'); otherInput.type = 'text'; otherInput.name = 'quiz-activityOther';
+      otherInput.maxLength = 120; otherInput.value = quizState.activityOther;
+      otherInput.addEventListener('input', () => { quizState.activityOther = otherInput.value.slice(0, 120); });
+      otherLabel.append(caption, otherInput); choices.append(otherLabel);
+    } else if (step === 4) {
+      for (const group of relevantGroups()) {
+        const section = document.createElement('div'); section.className = 'quiz-choice-group';
+        section.setAttribute('role', 'group'); section.setAttribute('aria-label', group.title);
+        const heading = document.createElement('h4'); heading.textContent = group.title; section.append(heading);
+        const grid = document.createElement('div'); grid.className = 'quiz-choice-grid';
+        group.options.forEach((option, index) => grid.append(makeChoice(option, index, 'checkbox', group.key)));
+        section.append(grid); choices.append(section);
+      }
+    } else if (step === 5) {
+      const section = document.createElement('div'); section.className = 'quiz-choice-group';
+      section.setAttribute('role', 'group'); section.setAttribute('aria-label', 'Necesidad de firma digital');
+      const grid = document.createElement('div'); grid.className = 'quiz-choice-grid';
+      signatureOptions.forEach((option, index) => grid.append(makeChoice(option, index, 'radio', 'signature')));
+      section.append(grid); choices.append(section); renderSignatureProcedures();
+    } else {
+      for (const field of freeFields) {
+        const label = document.createElement('label'); label.className = 'quiz-field';
+        const caption = document.createElement('span'); caption.textContent = field.label + ' (opcional)';
+        const input = field.key === 'details' ? document.createElement('textarea') : document.createElement('input');
+        if (input instanceof HTMLInputElement) input.type = 'text';
+        input.name = `quiz-${field.key}`; input.maxLength = field.max; input.value = quizState[field.key];
+        input.addEventListener('input', () => { quizState[field.key] = input.value.slice(0, field.max); });
+        label.append(caption, input); choices.append(label);
+      }
+    }
+    syncNext();
+    nextButton.firstChild!.textContent = step === questionMeta.length - 1 ? 'Ver resultado ' : 'Continuar ';
+    title?.focus({ preventScroll: true });
+  };
+  const renderJourney = (feature: ModuleKey) => {
+    activeModule = feature;
+    const title = document.querySelector<HTMLElement>('#quiz-journey-title');
+    if (title) title.textContent = modules[feature].title;
+    const list = document.querySelector<HTMLOListElement>('#quiz-journey-steps');
+    if (list) {
+      list.replaceChildren();
+      modules[feature].journey.forEach((item) => { const li = document.createElement('li'); li.textContent = item; list.append(li); });
+    }
+    document.querySelectorAll<HTMLButtonElement>('#quiz-modules button').forEach((button) => {
+      button.setAttribute('aria-pressed', String(button.dataset.module === feature));
+    });
+  };
+  const renderResult = (partial: boolean) => {
+    if (!flow || !resultPanel || !quiz) return;
+    flow.hidden = true; resultPanel.hidden = false; quiz.classList.add('is-result');
+    const title = document.querySelector<HTMLElement>('#quiz-result-title');
+    if (title) { title.textContent = quizState.needs.length ? 'Un recorrido posible para tu colegio.' : 'Un sistema para empezar a explorar.'; title.focus({ preventScroll: true }); }
+    const copy = document.querySelector<HTMLElement>('#quiz-result-copy');
+    const activityLabel = labelFor(activityOptions, quizState.activity);
+    const activityDetail = quizState.activity === 'otra' && quizState.activityOther.trim() ? `: ${quizState.activityOther.trim()}` : '';
+    const secondaryLabels = quizState.secondaryActivities.map((value) => value === 'otra' && quizState.activityOther.trim() ? `Otra actividad: ${quizState.activityOther.trim()}` : labelFor(activityOptions, value));
+    if (copy) copy.textContent = (activityLabel ? `Actividad principal indicada: ${activityLabel}${activityDetail}. ` : '') + (quizState.needs.length
+      ? 'Tomamos tus prioridades para ordenar los módulos. Elegí uno y mirá cómo sería el recorrido dentro del sistema.'
+      : 'Todavía no elegiste necesidades. Podés recorrer los módulos, editar tus respuestas y volver a este resultado cuando quieras.');
+    const moduleList = document.querySelector<HTMLElement>('#quiz-modules');
+    if (moduleList) {
+      moduleList.replaceChildren();
+      selectedNeeds().forEach((feature, index) => {
+        const button = document.createElement('button'); button.type = 'button'; button.dataset.module = feature;
+        button.className = 'quiz-module-card';
+        const number = document.createElement('span'); number.textContent = String(index + 1).padStart(2, '0');
+        const name = document.createElement('strong'); name.textContent = modules[feature].title;
+        const purpose = document.createElement('span'); purpose.textContent = modules[feature].purpose;
+        button.append(number, name, purpose);
+        button.addEventListener('click', () => renderJourney(feature));
+        moduleList.append(button);
+      });
+    }
+    renderJourney(selectedNeeds()[0]);
+    const signaturePanel = document.querySelector<HTMLElement>('#quiz-signature');
+    const signatureCopy = document.querySelector<HTMLElement>('#quiz-signature-copy');
+    if (signaturePanel && signatureCopy) {
+      signaturePanel.hidden = !['si', 'evaluar'].includes(quizState.signature);
+      if (!signaturePanel.hidden) {
+        const procedures = quizState.signatureProcedures.map((value) => labelFor(signatureProcedureOptions, value));
+        signatureCopy.textContent = `${quizState.signature === 'si' ? 'Indicaron que necesitan' : 'Quieren evaluar'} firma digital${procedures.length ? ` para ${procedures.join(', ').toLowerCase()}` : ' para sus trámites'}. Podemos definir el circuito y comprobar sus requisitos antes de incorporarla.`;
+      }
+    }
+    const install = document.querySelector<HTMLElement>('#quiz-install-note');
+    if (install) install.textContent = installationCopy[quizState.install] || 'Podemos revisar juntos si conviene instalación propia, acompañada o servicio gestionado.';
+    const edits = document.querySelector<HTMLElement>('#quiz-edit-list');
+    if (edits) {
+      edits.replaceChildren();
+      const summaries = [
+        ['Profesión', labelFor(professionOptions, quizState.profession) || 'A definir'],
+        ['Actividad principal', `${activityLabel ? `${activityLabel}${activityDetail}` : 'A definir'}${secondaryLabels.length ? ` · También: ${secondaryLabels.join(', ')}` : ''}`],
+        ['Integrantes', labelFor(sizeOptions, quizState.size) || 'A definir'],
+        ['Necesidades', quizState.needs.map((value) => labelFor(needOptions, value)).join(', ') || 'A definir'],
+        ['Circuitos', relevantGroups().flatMap((group) => quizState[group.key].map((value) => labelFor(group.options, value))).join(', ') || 'A definir'],
+        ['Firma digital', labelFor(signatureOptions, quizState.signature) || 'A definir'],
+        ['Instalación', labelFor(installOptions, quizState.install) || 'A definir'],
+        ['Contexto', freeFields.some((field) => quizState[field.key].trim()) ? 'Datos opcionales completados' : 'Sin datos personales'],
+      ];
+      summaries.forEach(([name, summary], index) => {
+        const button = document.createElement('button'); button.type = 'button'; button.className = 'quiz-edit';
+        const label = document.createElement('span'); label.textContent = name;
+        const value = document.createElement('strong'); value.textContent = summary;
+        const action = document.createElement('span'); action.textContent = 'Editar ↗';
+        button.append(label, value, action);
+        button.addEventListener('click', () => { step = index; renderStep(); });
+        edits.append(button);
+      });
+    }
+    const resultKey = JSON.stringify({ partial, profession: quizState.profession, activity: quizState.activity, secondaryActivities: quizState.secondaryActivities, size: quizState.size, needs: quizState.needs, payments: quizState.payments, procedures: quizState.procedures, channels: quizState.channels, credential: quizState.credential, signature: quizState.signature, signatureProcedures: quizState.signatureProcedures, install: quizState.install });
+    if (resultKey !== lastResultKey) { track('gc_quiz_result', partial ? 'partial' : 'complete'); lastResultKey = resultKey; }
+  };
+  document.querySelector<HTMLButtonElement>('#quiz-start')?.addEventListener('click', () => {
+    if (!quiz || !welcome || !resultPanel) return;
+    quizState = initialState(); completedSteps.clear(); step = 0; quizAttached = false; lastResultKey = '';
+    welcome.hidden = true; resultPanel.hidden = true;
+    const inline = document.querySelector<HTMLElement>('#quiz-inline-demo'); if (inline) inline.hidden = true;
+    track('gc_quiz_start', 'quiz'); renderStep();
+  });
+  nextButton?.addEventListener('click', () => {
+    if (nextButton.disabled) return;
+    markStep();
+    if (step === questionMeta.length - 1) renderResult(false);
+    else { step += 1; renderStep(); }
+  });
+  document.querySelector<HTMLButtonElement>('#quiz-skip')?.addEventListener('click', () => {
+    if (step === questionMeta.length - 1) renderResult(false);
+    else { step += 1; renderStep(); }
+  });
+  document.querySelector<HTMLButtonElement>('#quiz-see-result')?.addEventListener('click', () => renderResult(true));
+  document.querySelector<HTMLButtonElement>('#quiz-back')?.addEventListener('click', () => {
+    if (step > 0) { step -= 1; renderStep(); }
+    else if (welcome && flow) { flow.hidden = true; welcome.hidden = false; document.querySelector<HTMLButtonElement>('#quiz-start')?.focus(); }
+  });
+  document.querySelector<HTMLButtonElement>('#quiz-restart')?.addEventListener('click', () => {
+    if (!resultPanel || !welcome || !quiz) return;
+    resultPanel.hidden = true; welcome.hidden = false; quiz.classList.remove('is-result');
+    quizState = initialState(); completedSteps.clear(); quizAttached = false; lastResultKey = '';
+    document.querySelector<HTMLIFrameElement>('#quiz-demo-frame')?.removeAttribute('src');
+    const inline = document.querySelector<HTMLElement>('#quiz-inline-demo'); if (inline) inline.hidden = true;
+    document.querySelector<HTMLButtonElement>('#quiz-start')?.focus();
+  });
+  document.querySelector<HTMLButtonElement>('#quiz-open-demo')?.addEventListener('click', () => {
+    const inline = document.querySelector<HTMLElement>('#quiz-inline-demo');
+    const frame = document.querySelector<HTMLIFrameElement>('#quiz-demo-frame');
+    if (!inline || !frame) return;
+    const firstOpen = inline.hidden;
+    inline.hidden = false;
+    if (!frame.hasAttribute('src')) frame.src = '/software/gestion-de-comunidades-profesionales/demo/';
+    if (firstOpen) track('gc_quiz_demo', activeModule);
+    inline.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
+  });
+  document.querySelector<HTMLButtonElement>('#quiz-contact')?.addEventListener('click', () => {
+    const message = document.querySelector<HTMLTextAreaElement>('#gc-form textarea[name="message"]');
+    const company = document.querySelector<HTMLInputElement>('#gc-form input[name="company"]');
+    const person = document.querySelector<HTMLInputElement>('#gc-form input[name="name"]');
+    if (!message || !company || !person) return;
+    if (quizState.institution.trim()) company.value = quizState.institution.trim();
+    if (quizState.person.trim()) person.value = quizState.person.trim();
+    const lines = [
+      'Nos gustaría ver una demo con el formato de datos de nuestra institución.',
+      `Profesión: ${labelFor(professionOptions, quizState.profession) || 'a definir'}.`,
+      `Actividad principal: ${labelFor(activityOptions, quizState.activity) || 'a definir'}${quizState.activity === 'otra' && quizState.activityOther.trim() ? ` (${quizState.activityOther.trim()})` : ''}.`,
+      ...(quizState.secondaryActivities.length ? [`Otras actividades: ${quizState.secondaryActivities.map((value) => labelFor(activityOptions, value)).join(', ')}.`] : []),
+      ...(quizState.activity !== 'otra' && quizState.secondaryActivities.includes('otra') && quizState.activityOther.trim() ? [`Otra actividad indicada: ${quizState.activityOther.trim()}.`] : []),
+      `Integrantes: ${labelFor(sizeOptions, quizState.size) || 'a definir'}.`,
+      `Necesidades: ${quizState.needs.map((value) => labelFor(needOptions, value)).join(', ') || 'a definir'}.`,
+      ...circuitGroups.flatMap((group) => quizState[group.key].length ? [`${group.title}: ${quizState[group.key].map((value) => labelFor(group.options, value)).join(', ')}.`] : []),
+      `Firma digital: ${labelFor(signatureOptions, quizState.signature) || 'a definir'}.`,
+      ...(quizState.signatureProcedures.length ? [`Trámites para evaluar firma digital: ${quizState.signatureProcedures.map((value) => labelFor(signatureProcedureOptions, value)).join(', ')}.`] : []),
+      `Instalación: ${labelFor(installOptions, quizState.install) || 'a definir'}.`,
+      ...(quizState.province.trim() ? [`Provincia: ${quizState.province.trim()}.`] : []),
+      ...(quizState.address.trim() ? [`Dirección institucional: ${quizState.address.trim()}.`] : []),
+      ...(quizState.details.trim() ? [`Detalle: ${quizState.details.trim()}`] : []),
+    ];
+    message.value = lines.join('\n').slice(0, 1200);
+    if (!quizAttached) track('gc_quiz_contact', 'quiz');
+    quizAttached = true;
+    showIntentView('contact');
+    (company.value ? person : company).focus({ preventScroll: true });
+  });
+  document.querySelector<HTMLButtonElement>('#quiz-direct-contact')?.addEventListener('click', () => showIntentView('contact'));
   const form = document.querySelector<HTMLFormElement>('#gc-form');
   const status = document.querySelector<HTMLElement>('#gc-status');
+  let submitting = false;
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (submitting) return;
     if (!form.reportValidity()) return;
+    submitting = true;
     const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
     if (button) button.disabled = true;
     if (status) status.textContent = 'Enviando consulta…';
@@ -110,7 +662,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     const payload = {
       name: String(fields.get('name') || '').trim(), email: String(fields.get('email') || '').trim(),
       company: String(fields.get('company') || '').trim(), message: String(fields.get('message') || '').trim(),
-      website: String(fields.get('website') || ''), formVariant: 'comunidades-profesionales',
+      website: String(fields.get('website') || ''), formVariant: quizAttached ? 'comunidades-profesionales-quiz' : 'comunidades-profesionales',
       originPath: url.pathname, originTitle: document.title, originLabel: 'Solicitar demo',
       originIntent: 'Software para comunidades profesionales',
       originHref: url.origin + url.pathname + (query ? '?' + query : ''),
@@ -119,11 +671,12 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
       const response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const result = await response.json();
       if (!response.ok || result.success !== true) throw new Error('send failed');
-      if (!result.duplicate) track('gc_inquiry_confirmed', 'form');
+      if (!result.duplicate) track('gc_inquiry_confirmed', quizAttached ? 'quiz' : 'form');
       form.reset();
+      quizAttached = false;
       if (status) status.textContent = 'Recibimos tu solicitud de demo. Te responderemos por email.';
     } catch { if (status) status.textContent = 'No pudimos enviar la solicitud. Intentá nuevamente o escribinos a contacto@ultimamilla.com.ar.'; }
-    finally { if (button) button.disabled = false; }
+    finally { submitting = false; if (button) button.disabled = false; }
   });
 </script>
 <style>
@@ -163,6 +716,8 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   .people-story-grid figure:first-child img { object-position:55% center; }
   .people-story-grid figcaption { position:absolute; inset:auto 0 0; padding:38px 20px 19px; background:linear-gradient(transparent,#15201bd9); color:white; font-size:.9rem; font-weight:700; }
   .gc .people-story-credit { margin:12px 0 0; color:#66736c; font-size:.72rem; line-height:1.4; }
+  .gc .people-story-credit summary { cursor:pointer; display:list-item; width:max-content; max-width:100%; }
+  .gc .people-story-credit p { margin:7px 0 0; }
   .hero-visual { display:flex; flex-direction:column; min-width:0; border:1px solid #d5ded8; background:#f7f9f7; box-shadow:0 18px 44px #1833280d; }
   .hero-visual-foot { display:flex; justify-content:space-between; align-items:center; gap:14px; margin-top:auto; padding:17px 21px; color:#4b5954; font-size:.76rem; line-height:1.3; }
   .hero-visual-foot span:first-child { color:#1b2828; font-weight:650; }.hero-visual-foot span:last-child { text-align:right; font-size:.7rem; }
@@ -188,13 +743,18 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   .offer-line a { display:flex; align-items:flex-start; gap:15px; min-height:93px; padding:24px 22px 24px 0; color:#26352e; font-size:1rem; font-weight:650; line-height:1.35; text-decoration:none; transition:background .2s ease,color .2s ease; }
   .offer-line a + a { padding-left:22px; border-left:1px solid #d9e1da; }.offer-line a:hover { color:#ad453a; background:#f7f9f6; }.offer-line a:focus-visible { outline:2px solid #b94f45; outline-offset:-2px; }
   .offer-line a > span:last-child { margin-left:auto; color:#b94f45; }.offer-line b { flex:none; padding-top:3px; color:#ba4c42; font-size:.72rem; letter-spacing:.12em; }
-  .live-demo { margin:0 0 88px; padding:clamp(26px,4vw,52px); background:#f4f6f4; }
+  .live-demo { margin:0 0 88px; padding:clamp(26px,4vw,52px); border:1px solid #b9c9c0; border-top:6px solid #bd352d; background:#eaf0ec; box-shadow:0 20px 54px #17252312; }
   .live-demo-intro { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:end; gap:24px 36px; margin-bottom:28px; }
   .gc .live-demo h2 { max-width:760px; margin:0 0 16px; color:#182320 !important; font-size:clamp(2.3rem,4vw,3.9rem); font-weight:600; line-height:1.08; letter-spacing:-.045em; }
   .gc .live-demo-intro p { max-width:670px; margin:0; color:#35433d !important; font-size:1.07rem; line-height:1.55; }
   .live-demo-button { min-width:154px; background:#dc2626; white-space:nowrap; }
   .live-demo-button:hover { background:#b91c1c; }
-  .live-demo-window { overflow:hidden; border:1px solid #cdd7d0; background:#fff; }
+  .live-demo-window { overflow:hidden; border:1px solid #21342d; background:#fff; box-shadow:0 16px 36px #14251e21; }
+  .live-demo-window-bar { display:flex; justify-content:space-between; align-items:center; gap:14px; min-height:52px; padding:12px 20px; background:#172523; color:#fff; font-size:.9rem; font-weight:650; }
+  .live-demo-window-bar > span { display:inline-flex; align-items:center; gap:10px; }
+  .live-demo-indicator { width:9px; height:9px; border-radius:50%; background:#fa5b50; box-shadow:0 0 0 3px #fa5b5030; }
+  .live-demo-window-bar a { color:#fff; text-decoration:underline; text-decoration-color:#fa5b50; text-underline-offset:5px; white-space:nowrap; }
+  .live-demo-window-bar a:hover { color:#ffe0dc; }
   .live-demo-window iframe { display:block; width:100%; height:650px; border:0; background:#fff; }
   .gc .live-demo-note { margin:14px 0 0; color:#46554e !important; font-size:.86rem; line-height:1.45; }
   @media(max-width:800px) { .live-demo-intro { grid-template-columns:1fr; }.live-demo-window { display:none; }.live-demo-button { width:min(100%,360px); }.live-demo { margin-bottom:72px; } }
@@ -311,22 +871,28 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   .hero-heading h1 span { display:block; }
   .gc .hero-heading .hero-subtitle { max-width:55ch; margin:0; color:#242e2b; font-size:clamp(1.3rem,2vw,1.65rem); font-weight:400; line-height:1.34; letter-spacing:-.022em; }
   .hero-content { display:grid; grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr); gap:clamp(42px,5vw,76px); align-items:stretch; }
-  .hero-content .hero-copy { display:flex; flex-direction:column; padding:10px 0 0; }
+  .hero-content .hero-copy { display:flex; flex-direction:column; padding:26px 30px 24px; border-left:3px solid #bd352d; background:#f1f5f2; }
   .gc .hero-content .hero-feature-title { max-width:32ch; margin:0 0 22px; color:#1c2623; font-size:1.35rem; font-weight:600; line-height:1.25; letter-spacing:-.025em; }
-  .hero-content .hero-feature-list { display:grid; grid-template-columns:1fr; gap:0; margin:0 0 30px; }
-  .hero-content .hero-feature-list li { position:relative; padding:12px 0 12px 22px; border-top:1px solid #cdd4d0; color:#26302d; font-size:1.03rem; font-weight:500; line-height:1.35; letter-spacing:-.01em; }
-  .hero-content .hero-feature-list li::before { content:""; position:absolute; left:0; top:21px; width:6px; height:6px; background:#dc2626; }
+  .hero-content .hero-feature-list { display:block; margin:0 0 30px; padding-left:23px; list-style:disc; }
+  .hero-content .hero-feature-list li { display:list-item; padding:5px 0; border:0; color:#1d2b25; font-size:1.08rem; font-weight:550; line-height:1.42; letter-spacing:-.01em; }
+  .hero-content .hero-feature-list li::before { content:none; }
+  .hero-content .hero-feature-list li::marker { color:#bd352d; font-size:1.2em; }
   .hero-content .hero-actions { gap:14px 26px; margin:0 0 26px; }
   .hero-content .hero-cta { width:auto; max-width:420px; min-height:60px; padding:13px 19px; background:#dc2626; font-size:1rem; font-weight:600; line-height:1.3; }
   .hero-content .hero-cta:hover { background:#b91c1c; }
   .hero-content .text-link { color:#1c2623; font-size:.96rem; }
   .gc .hero-content .hero-service { max-width:53ch; margin:auto 0 0; padding-top:18px; border-top:1px solid #cdd4d0; color:#3b4842 !important; font-size:.91rem; line-height:1.5; }
-  .hero-content .hero-visual { position:relative; display:block; min-width:0; min-height:480px; margin:0; overflow:hidden; border:0; background:#e2e7e3; box-shadow:none; }
-  .hero-content .hero-visual img { display:block; width:100%; height:100%; min-height:480px; object-fit:cover; object-position:50% 38%; }
-  .hero-content .hero-visual figcaption { position:absolute; right:16px; bottom:14px; padding:7px 10px; background:#151d1bcc; color:#fff; font-size:.74rem; line-height:1.2; }
+  .hero-content .hero-visual { position:relative; display:flex; flex-direction:column; min-width:0; min-height:0; margin:0; overflow:visible; border:0; background:#fff; box-shadow:none; }
+  .hero-content .hero-visual img { display:block; width:100%; height:480px; min-height:0; object-fit:cover; object-position:50% 58%; }
+  .gc a[href],.gc button:not(:disabled) { cursor:pointer; }
+  .gc button:disabled { cursor:not-allowed; }
+  .gc a[href]:focus-visible,.gc button:focus-visible,.gc input:focus-visible,.gc textarea:focus-visible { outline:3px solid #bd352d; outline-offset:4px; }
+  .gc a[href]:active,.gc button:not(:disabled):active { filter:brightness(.88); }
+  .gc .system-nav button:hover { background:#e8eee9; color:#172523; }
+  .gc .text-link:hover,.gc .band-action:hover,.gc .note a:hover { color:#a32d26; text-decoration-color:#a32d26; }
   @media(max-width:900px) {
     .hero-content { grid-template-columns:1fr 1fr; gap:28px; }
-    .hero-content .hero-visual,.hero-content .hero-visual img { min-height:530px; }
+    .hero-content .hero-visual img { height:530px; }
     .hero-content .hero-actions { display:grid; }
   }
   @media(max-width:700px) {
@@ -338,8 +904,8 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     .gc .hero-heading .hero-subtitle { font-size:1.23rem; }
     .hero-content { grid-template-columns:1fr; gap:28px; }
     .hero-content .hero-visual { grid-row:1; }
-    .hero-content .hero-visual,.hero-content .hero-visual img { min-height:0; height:280px; }
-    .hero-content .hero-copy { padding:0; }
+    .hero-content .hero-visual img { height:280px; }
+    .hero-content .hero-copy { padding:23px 22px 20px; }
     .gc .hero-content .hero-feature-title { font-size:1.2rem; }
     .hero-content .hero-feature-list { margin-bottom:24px; }
     .hero-content .hero-actions { display:flex; align-items:flex-start; margin-bottom:22px; }
@@ -348,8 +914,176 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   @media(max-width:420px) {
     .hero { padding-top:34px; }
     body[data-skin] main.gc .hero-heading h1 { font-size:clamp(2.45rem,10.5vw,2.75rem) !important; }
-    .hero-content .hero-visual,.hero-content .hero-visual img { height:220px; }
-    .hero-content .hero-visual figcaption { right:8px; bottom:8px; font-size:.65rem; }
+    .hero-content .hero-visual img { height:220px; }
   }
+  .gc [hidden] { display:none !important; }
+  .gc .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  .quiz-section { background:#f7f9f6; }
+  .quiz-teaser { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(300px,.7fr); align-items:center; gap:clamp(30px,6vw,100px); }
+  .quiz-teaser .kicker { margin-bottom:18px; color:#a12f29; }
+  body[data-skin] main.gc .quiz-teaser h2 { max-width:730px; margin:0 0 22px; font-size:clamp(2.45rem,4.4vw,4.5rem) !important; font-weight:570; letter-spacing:-.045em; line-height:1.08; }
+  .gc .quiz-teaser > div:first-child > p:last-child { max-width:62ch; margin:0; color:#43514b; font-size:1.08rem; line-height:1.58; }
+  .quiz-teaser-action { display:grid; justify-items:start; gap:19px; padding:clamp(25px,3.5vw,46px); border:1px solid #cad6cc; border-top:4px solid #bb3d33; background:#fff; }
+  .quiz-teaser-action > span { color:#9c3c31; font-size:.73rem; font-weight:700; letter-spacing:.11em; }
+  .gc .quiz-teaser-action p { max-width:40ch; margin:0; color:#536159; font-size:.92rem; line-height:1.5; }
+  .quiz-contact-link { padding:0; border:0; background:none; color:#214a35; font:inherit; font-weight:700; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+  .quiz-contact-link:hover { color:#a12f29; }
+  .quiz-invite[hidden] { display:none; }
+  .quiz-invite { position:fixed; right:22px; bottom:22px; z-index:40; box-sizing:border-box; width:min(360px,calc(100vw - 36px)); padding:25px; border:1px solid #cbd8cc; border-top:4px solid #ba3e34; border-radius:5px; background:#fff; box-shadow:0 16px 48px #142b2340; color:#182822; font-family:var(--um-font-body); }
+  .quiz-invite-close { position:absolute; top:10px; right:12px; width:34px; height:34px; border:0; background:none; color:#43564b; font:400 1.75rem/1 var(--um-font-body); cursor:pointer; }
+  .quiz-invite-kicker { display:block; padding-right:30px; color:#a12f29; font-size:.73rem; font-weight:750; letter-spacing:.09em; }
+  .gc .quiz-invite p { margin:14px 0 20px; color:#1b2b24; font-size:1.16rem; font-weight:650; line-height:1.3; letter-spacing:-.02em; }
+  .quiz-invite-action { display:flex; justify-content:space-between; gap:16px; width:100%; padding:13px 15px; border:0; border-radius:2px; background:#bd352d; color:#fff; font:650 .92rem/1.35 var(--um-font-body); text-align:left; cursor:pointer; }
+  .quiz-invite-action:hover { background:#9f281f; }
+  .quiz-invite button:focus-visible { outline:3px solid #214a35; outline-offset:3px; }
+  :global(html.gc-dialog-open) { overflow:hidden; }
+  .gc-intent-dialog { box-sizing:border-box; width:min(1080px,calc(100vw - 36px)); max-width:none; height:min(860px,90dvh); max-height:none; margin:auto; padding:0; overflow:hidden; border:1px solid #aebcb0; border-radius:7px; background:#fff; color:#182120; }
+  .gc-intent-dialog.is-choice { height:min(660px,90dvh); max-height:none; }
+  .gc-intent-dialog::backdrop { background:#0b1812c9; backdrop-filter:blur(6px); }
+  .gc-dialog-frame { display:grid; grid-template-rows:auto minmax(0,1fr); height:100%; }
+  .gc-intent-dialog.is-choice .gc-dialog-frame { height:100%; max-height:none; }
+  .gc-dialog-header { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:62px; padding:0 24px; border-bottom:1px solid #cdd8d0; background:#fff; }
+  .gc-dialog-header > span { color:#172d27; font-size:.88rem; font-weight:700; }
+  .gc-dialog-header > span span { margin:0 7px; color:#bd352d; }
+  .gc-dialog-header > div { display:flex; align-items:center; gap:18px; }
+  .gc-dialog-header button { display:inline-flex; align-items:center; gap:9px; padding:9px 3px; border:0; background:none; color:#263b30; font:680 .9rem var(--um-font-body); cursor:pointer; }
+  .gc-dialog-header button:hover { color:#a12f29; }
+  #gc-dialog-close span { color:#b73c31; font-size:1.6rem; line-height:.7; }
+  .gc-dialog-content { min-height:0; overflow-y:auto; overscroll-behavior:contain; }
+  .gc-intent-choice { padding:clamp(32px,5vw,68px); }
+  .gc-intent-choice .quiz-eyebrow { margin-bottom:13px; }
+  body[data-skin] main.gc .gc-intent-choice h2 { max-width:780px; margin:0 0 12px; font-size:clamp(2.5rem,4.5vw,4.5rem) !important; font-weight:570; letter-spacing:-.055em; line-height:1.07; }
+  .gc .gc-intent-choice > p { max-width:64ch; margin:0 0 33px; color:#4a594e; font-size:1.1rem; line-height:1.5; }
+  .gc-intent-options { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .gc-intent-option { display:flex; flex-direction:column; align-items:flex-start; gap:16px; min-height:266px; padding:28px; border:1px solid #bdcbbf; border-top:4px solid #bc3d33; background:#fbfcfa; color:#1d2b22; font:inherit; text-align:left; cursor:pointer; transition:background .18s ease,border-color .18s ease; }
+  .gc-intent-option:nth-child(2) { border-top-color:#274f3b; background:#f1f6f1; }
+  .gc-intent-option:hover { border-color:#a4372e; background:#fff6f3; }
+  .gc-intent-option:nth-child(2):hover { border-color:#2d6549; background:#eaf3eb; }
+  .gc-intent-option:active { background:#f3e4de; }
+  .gc-intent-option > span { color:#9d352d; font-size:.74rem; font-weight:750; letter-spacing:.12em; }
+  .gc-intent-option:nth-child(2) > span { color:#2f6649; }
+  .gc-intent-option strong { max-width:18ch; font-size:clamp(1.55rem,2.4vw,2rem); font-weight:650; letter-spacing:-.035em; line-height:1.13; }
+  .gc-intent-option small { max-width:45ch; color:#546159; font-size:.94rem; line-height:1.45; }
+  .gc-intent-option b { margin-top:auto; color:#a12f29; font-size:.94rem; }
+  .gc-intent-option:nth-child(2) b { color:#245c3d; }
+  .gc .gc-intent-choice > p.gc-intent-foot { margin:24px 0 0; color:#607067; font-size:.85rem; }
+  .gc-quiz-view .quiz-shell { min-height:calc(min(860px,90dvh) - 62px); border:0; }
+  .gc-contact-view { display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,1fr); align-items:start; gap:clamp(30px,5vw,70px); padding:clamp(28px,5vw,65px); }
+  .gc-contact-intro .quiz-eyebrow { margin-bottom:16px; }
+  body[data-skin] main.gc .gc-contact-intro h2 { margin:0 0 20px; font-size:clamp(2.3rem,3.5vw,3.8rem) !important; font-weight:570; line-height:1.09; letter-spacing:-.05em; }
+  .gc .gc-contact-intro p { max-width:50ch; color:#4c5a53; font-size:1rem; line-height:1.58; }
+  .gc-contact-view #gc-form { min-width:0; padding:28px; }
+  .gc-intent-dialog button:focus-visible,.quiz-teaser button:focus-visible,.contact-entry button:focus-visible { outline:3px solid #bb3d33; outline-offset:3px; }
+  .quiz-intro { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(250px,.6fr); column-gap:7%; align-items:end; margin-bottom:42px; }
+  .quiz-intro .kicker { grid-column:1 / -1; margin-bottom:15px; color:#a12f29; }
+  body[data-skin] main.gc .quiz-intro h2 { max-width:780px; margin:0; font-size:clamp(2.35rem,4vw,4.2rem) !important; font-weight:550; line-height:1.08; }
+  .gc .quiz-intro p:last-child { max-width:390px; margin:0 0 7px; color:#43514b; font-size:1.08rem; line-height:1.55; }
+  .quiz-shell { display:grid; grid-template-columns:minmax(240px,.34fr) minmax(0,.66fr); min-height:550px; overflow:hidden; border:1px solid #ccd6cd; background:#fff; scroll-margin-top:92px; }
+  .quiz-side { display:flex; flex-direction:column; padding:40px 38px; background:#172d27; color:#f4f8f3; }
+  .quiz-side-mark { font-size:1.25rem; font-weight:750; letter-spacing:-.08em; }
+  .quiz-side-mark span { color:#ef695f; }
+  .gc .quiz-side p { max-width:10ch; margin:78px 0 70px; color:#fff !important; font-size:clamp(2.1rem,2.8vw,3.1rem); font-weight:500; line-height:1.12; letter-spacing:-.045em; }
+  .quiz-side-steps { display:grid; gap:9px; margin-top:auto; padding-top:25px; border-top:1px solid #638077; color:#b6c9bf; font-size:.69rem; font-weight:650; letter-spacing:.11em; }
+  .quiz-main { display:flex; align-items:center; min-width:0; padding:clamp(30px,5vw,74px); }
+  .quiz-welcome,.quiz-flow,.quiz-result { width:100%; max-width:700px; }
+  .quiz-eyebrow { display:block; margin-bottom:24px; color:#a12f29; font-size:.73rem; font-weight:750; letter-spacing:.12em; }
+  body[data-skin] main.gc .quiz-main h3 { max-width:18ch; margin:0 0 23px; color:#18221e; font-size:clamp(2.2rem,3.2vw,3.3rem) !important; font-weight:580; line-height:1.1; letter-spacing:-.045em; }
+  .gc .quiz-main p { max-width:55ch; color:#4c5a53; font-size:1.08rem; line-height:1.6; }
+  .quiz-primary,.quiz-secondary { display:inline-flex; justify-content:space-between; align-items:center; gap:22px; min-height:54px; padding:13px 19px; border:1px solid #bb3d33; border-radius:2px; background:#bd352d; color:#fff; font:650 1rem var(--um-font-body); line-height:1.25; text-align:left; text-decoration:none; transition:background .18s ease,transform .18s ease; }
+  .quiz-primary:hover { background:#982820; color:#fff; }
+  .quiz-primary:disabled { opacity:.44; }
+  .quiz-secondary { border-color:#8ca298; background:#fff; color:#1e3328; }
+  .quiz-secondary:hover { border-color:#263f31; background:#edf3ef; }
+  .quiz-progress { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:54px; color:#526158; font-size:.81rem; font-weight:650; }
+  .quiz-progress-track { width:min(180px,38%); height:3px; background:#dbe3dc; }
+  .quiz-progress-track span { display:block; width:25%; height:100%; background:#bd352d; transition:width .28s ease; }
+  .quiz-fieldset { min-width:0; margin:0; padding:0; border:0; }
+  .quiz-fieldset .quiz-eyebrow { margin-bottom:13px; }
+  .gc .quiz-fieldset h3 { max-width:20ch; margin-bottom:8px; }
+  .gc .quiz-fieldset > p { margin-bottom:30px; font-size:.96rem; }
+  .quiz-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .quiz-options :global(.quiz-option) { position:relative; display:flex; align-items:center; gap:13px; min-height:74px; padding:12px 16px; border:1px solid #cbd8cf; background:#fbfcfa; color:#273a31; font-size:.97rem; font-weight:600; line-height:1.25; cursor:pointer; transition:border-color .18s ease,background .18s ease; }
+  .quiz-options :global(.quiz-option:hover),.quiz-options :global(.quiz-option:has(input:checked)) { border-color:#a83b33; background:#fff8f6; }
+  .quiz-options :global(.quiz-option:has(input:disabled)) { opacity:.46; cursor:not-allowed; }
+  .quiz-options :global(.quiz-option:has(input:focus-visible)) { outline:3px solid #bd352d; outline-offset:2px; }
+  .quiz-options :global(.quiz-option input) { position:absolute; width:1px; height:1px; opacity:0; }
+  .quiz-options :global(.quiz-option-number) { flex:none; color:#ad433a; font-size:.72rem; letter-spacing:.08em; }
+  .quiz-options :global(.quiz-option span:last-child) { margin-left:auto; color:#b7443a; }
+  .quiz-options :global(.quiz-option:has(input:checked) span:last-child) { font-weight:800; }
+  .quiz-options.is-groups,.quiz-options.is-fields { grid-template-columns:1fr; gap:24px; }
+  .quiz-options :global(.quiz-choice-group h4) { margin:0 0 12px; color:#21362a; font-size:1.04rem; font-weight:700; }
+  .quiz-options :global(.quiz-choice-grid) { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .quiz-options :global(.quiz-field) { display:grid; gap:8px; color:#23372b; font-size:.9rem; font-weight:650; }
+  .quiz-options :global(.quiz-field input),.quiz-options :global(.quiz-field textarea) { box-sizing:border-box; width:100%; min-height:47px; padding:11px 13px; border:1px solid #aabbb0; border-radius:2px; background:#fff; color:#182120; font:1rem var(--um-font-body); }
+  .quiz-options :global(.quiz-field textarea) { min-height:90px; resize:vertical; }
+  .quiz-options :global(.quiz-field input:focus-visible),.quiz-options :global(.quiz-field textarea:focus-visible) { outline:3px solid #bd352d; outline-offset:2px; }
+  .quiz-controls { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:36px; }
+  .quiz-controls-end { display:flex; align-items:center; gap:18px; }
+  .quiz-skip,.quiz-see-result { border:0; background:none; color:#284c35; font:650 .94rem var(--um-font-body); text-decoration:underline; text-underline-offset:5px; }
+  .quiz-see-result { display:block; margin-top:20px; padding:8px 0; color:#a02e27; }
+  .quiz-back,.quiz-restart { padding:10px 0; border:0; background:none; color:#34473d; font:650 .93rem var(--um-font-body); text-decoration:underline; text-underline-offset:5px; }
+  .quiz-result .quiz-eyebrow { margin-bottom:12px; }
+  .gc .quiz-result h3 { margin-bottom:13px; }
+  .gc .quiz-result > p { margin-bottom:24px; }
+  .gc .quiz-result .quiz-result-note { margin:13px 0 25px; color:#657269; font-size:.82rem; line-height:1.45; }
+  .quiz-result-actions { display:flex; flex-wrap:wrap; gap:10px; }
+  .quiz-shell.is-result { grid-template-columns:1fr; }
+  .quiz-shell.is-result .quiz-side { display:none; }
+  .quiz-shell.is-result .quiz-main { padding:clamp(28px,5vw,65px); }
+  .quiz-shell.is-result .quiz-result { max-width:none; }
+  .quiz-result-grid { display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr); gap:clamp(20px,3vw,38px); margin:34px 0; }
+  .quiz-result-grid h4,.quiz-edit-panel h4,.quiz-install h4,.quiz-signature h4 { margin:0 0 17px; color:#1b2c22; font-size:1.25rem; font-weight:650; letter-spacing:-.025em; }
+  .quiz-modules { display:grid; gap:9px; }
+  .quiz-modules :global(.quiz-module-card) { display:grid; grid-template-columns:30px 1fr; gap:6px 12px; width:100%; min-height:94px; padding:15px 17px; border:1px solid #cad7cf; background:#fbfcfa; color:#24392b; font:inherit; text-align:left; }
+  .quiz-modules :global(.quiz-module-card:hover),.quiz-modules :global(.quiz-module-card[aria-pressed="true"]) { border-color:#a63b31; background:#fff8f6; }
+  .quiz-modules :global(.quiz-module-card:focus-visible) { outline:3px solid #bd352d; outline-offset:2px; }
+  .quiz-modules :global(.quiz-module-card > span:first-child) { grid-row:1 / 3; color:#af4036; font-size:.76rem; font-weight:750; }
+  .quiz-modules :global(.quiz-module-card strong) { font-size:1.08rem; font-weight:700; }
+  .quiz-modules :global(.quiz-module-card > span:last-child) { color:#526157; font-size:.88rem; line-height:1.4; }
+  .quiz-journey { padding:30px; background:#183027; color:#f7faf6; }
+  .quiz-journey .quiz-eyebrow { margin-bottom:13px; color:#efa49c; }
+  .quiz-result-grid .quiz-journey h4 { margin:0 0 21px; color:#fff; font-size:clamp(1.7rem,2.4vw,2.3rem); }
+  .quiz-journey ol { display:grid; gap:0; margin:0 0 20px; padding:0; list-style:none; counter-reset:journey; }
+  .quiz-journey :global(li) { display:grid; grid-template-columns:29px 1fr; gap:13px; padding:15px 0; border-top:1px solid #638075; color:#f6faf6 !important; counter-increment:journey; line-height:1.42; }
+  .quiz-journey :global(li::before) { content:counter(journey,decimal-leading-zero); color:#f0aba4; font-size:.79rem; font-weight:750; }
+  .gc .quiz-journey p { max-width:none; margin:0; color:#c3d3c9 !important; font-size:.82rem; line-height:1.5; }
+  .quiz-install { margin:26px 0; padding:28px 30px; border-left:3px solid #bd352d; background:#eef4ef; }
+  .quiz-signature { margin:26px 0; padding:28px 30px; border-left:3px solid #315b45; background:#edf4ef; }
+  .quiz-signature .quiz-eyebrow { margin-bottom:10px; color:#315b45; }
+  .quiz-signature h4 { margin-bottom:8px; }
+  .gc .quiz-signature p { max-width:85ch; margin:0 0 13px; color:#35493b; font-size:1rem; line-height:1.5; }
+  .quiz-signature small { color:#546459; font-size:.83rem; line-height:1.4; }
+  .quiz-install .quiz-eyebrow { margin-bottom:10px; }
+  .quiz-install h4 { margin-bottom:8px; }
+  .gc .quiz-install p { max-width:88ch; margin:0 0 13px; color:#35493b; font-size:1rem; }
+  .quiz-install small { color:#546459; font-size:.83rem; line-height:1.4; }
+  .quiz-edit-panel { margin:30px 0; }
+  #quiz-edit-list { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1px; background:#d8e2d9; border:1px solid #d8e2d9; }
+  #quiz-edit-list :global(.quiz-edit) { display:grid; gap:6px; min-width:0; padding:16px; border:0; background:#fff; color:#20342a; font:inherit; text-align:left; }
+  #quiz-edit-list :global(.quiz-edit:hover) { background:#f8faf7; }
+  #quiz-edit-list :global(.quiz-edit span:first-child) { color:#9d392f; font-size:.71rem; font-weight:750; text-transform:uppercase; letter-spacing:.08em; }
+  #quiz-edit-list :global(.quiz-edit strong) { overflow:hidden; color:#25382e; font-size:.88rem; font-weight:600; line-height:1.35; text-overflow:ellipsis; }
+  #quiz-edit-list :global(.quiz-edit span:last-child) { color:#476350; font-size:.77rem; font-weight:700; }
+  .quiz-inline-demo { margin-top:26px; scroll-margin-top:90px; }
+  .gc .quiz-inline-demo p { margin:0 0 12px; color:#45564a; font-size:.9rem; }
+  .quiz-inline-demo iframe { display:block; width:100%; height:min(70vh,710px); min-height:450px; border:1px solid #b9c9bd; background:#fff; }
+  .quiz-restart { display:block; margin-top:18px; }
+  .gc .quiz-direct { margin:20px 30px 30px; color:#4b5b50; font-size:.94rem; }
+  .quiz-direct button { margin-left:4px; padding:0; border:0; background:none; color:#153726; font:inherit; font-weight:700; text-decoration:underline; text-underline-offset:4px; cursor:pointer; }
+  .contact-section { background:#fff; scroll-margin-top:92px; }
+  .contact-entry { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(250px,.75fr); align-items:center; gap:clamp(30px,6vw,90px); }
+  body[data-skin] main.gc .contact-entry h2 { max-width:800px; margin:0 0 18px; font-size:clamp(2.4rem,4vw,4rem) !important; line-height:1.1; }
+  .gc .contact-entry p { max-width:55ch; color:#4b5b50; font-size:1rem; line-height:1.55; }
+  .contact-entry > div:last-child { padding:28px; border-left:2px solid #bd352d; }
+  .contact-entry > div:last-child p { margin:15px 0 0; font-size:.88rem; }
+  @media(max-width:900px) { .quiz-teaser,.contact-entry,.gc-contact-view { grid-template-columns:1fr; }.gc-contact-view { gap:16px; }.gc-contact-view #gc-form { max-width:690px; } }
+  @media(max-width:700px) { .gc-intent-dialog,.gc-intent-dialog.is-choice { width:100%; height:100dvh; max-height:none; margin:0; border:0; border-radius:0; }.gc-intent-dialog.is-choice .gc-dialog-frame { height:100%; max-height:none; }.gc-dialog-header { min-height:60px; padding:0 17px; }.gc-dialog-header > span { font-size:.8rem; }.gc-dialog-header > div { gap:12px; }.gc-dialog-header button { font-size:.86rem; }.gc-intent-choice { padding:22px 18px; }.gc-intent-choice .quiz-eyebrow { margin-bottom:9px; }body[data-skin] main.gc .gc-intent-choice h2 { font-size:2.25rem !important; }.gc .gc-intent-choice > p { margin-bottom:22px; font-size:1rem; }.gc-intent-options { grid-template-columns:1fr; gap:10px; }.gc-intent-option { min-height:0; gap:11px; padding:18px 20px; }.gc-intent-option strong { max-width:22ch; font-size:1.5rem; }.gc-intent-option small { font-size:.9rem; }.gc-intent-option b { margin-top:4px; }.gc-quiz-view .quiz-shell { min-height:calc(100dvh - 60px); }.gc-contact-view { padding:30px 20px; }.contact-entry > div:last-child { padding:10px 0 10px 20px; } }
+  @media(max-width:520px) { .quiz-teaser-action { padding:25px; }.quiz-teaser-action .quiz-primary { width:100%; }.gc .quiz-direct { margin:19px 20px 25px; }.gc-contact-view #gc-form { padding:22px 18px; } }
+  @media(max-width:520px) { .hero-copy { display:flex; flex-direction:column; }.hero-copy .hero-actions { order:-1; margin:0 0 22px; }.hero-copy .hero-cta-note { order:1; }.hero-copy .hero-service { order:2; }.quiz-invite { right:12px; bottom:calc(76px + env(safe-area-inset-bottom,0px)); width:calc(100vw - 24px); padding:20px; }.gc .quiz-invite p { font-size:1.08rem; margin:10px 0 16px; } }
+  @media(max-width:900px) { .quiz-intro { grid-template-columns:1fr; gap:15px; }.quiz-shell { grid-template-columns:minmax(180px,.3fr) minmax(0,.7fr); }.quiz-side { padding:30px 24px; }.quiz-main { padding:35px; }.quiz-options { grid-template-columns:1fr; }.quiz-result-grid { grid-template-columns:1fr; } }
+  @media(max-width:700px) { .quiz-shell { grid-template-columns:1fr; min-height:0; }.quiz-side { display:none; }.quiz-main { min-height:0; padding:35px 25px; align-items:flex-start; }.quiz-intro { margin-bottom:28px; }body[data-skin] main.gc .quiz-intro h2 { font-size:clamp(2.15rem,7vw,3rem) !important; }.quiz-progress { margin-bottom:36px; }.quiz-options { grid-template-columns:1fr 1fr; }.quiz-options :global(.quiz-option) { min-height:76px; padding:12px; font-size:.91rem; } }
+  @media(max-width:520px) { .quiz-main { padding:33px 21px; }body[data-skin] main.gc .quiz-main h3 { font-size:clamp(2rem,8vw,2.6rem) !important; }.quiz-options { grid-template-columns:1fr; }.quiz-options :global(.quiz-option) { min-height:60px; }.quiz-options :global(.quiz-choice-grid) { grid-template-columns:1fr; }.quiz-controls { flex-wrap:wrap; margin-top:24px; }.quiz-controls-end { justify-content:flex-end; width:100%; }.quiz-result-actions { display:grid; }.quiz-result-actions > * { width:100%; }.quiz-shell.is-result .quiz-main { padding:25px 20px; }.quiz-journey { padding:23px; }.quiz-install,.quiz-signature { padding:22px; }#quiz-edit-list { grid-template-columns:1fr 1fr; }.gc .quiz-intro p:last-child { font-size:1rem; } }
+  @media(prefers-reduced-motion:reduce) { .gc a,.gc button { transition:none !important; } }
+  @media(prefers-reduced-motion:reduce) { .quiz-options :global(.quiz-option),.quiz-progress-track span { transition:none; } }
   @media(prefers-reduced-motion:reduce) { .app-window,.pay-choice,.pay-method,.pay-action,.pay-confirm,.phone,.phone-item,.phone-detail,.credential-phone,.credential-scan,.credential-check-loading,.credential-check-result { animation:none; }.system-panel { transition:none; }.pay-action,.credential-scan,.credential-check-loading { display:none; }.pay-confirm { position:static; display:grid; grid-template-columns:24px 1fr; gap:2px 10px; align-items:center; margin-top:12px; padding:12px; background:#eaf3ed; opacity:1; transform:none; }.pay-confirm .confirm-mark { grid-row:1 / span 2; width:24px; height:24px; font-size:.8rem; }.pay-confirm strong { font-size:1rem; }.pay-confirm small { grid-column:2; }.phone-detail { opacity:1; transform:none; }.credential-check-result { margin-top:20px; opacity:1; transform:none; } }
 </style>

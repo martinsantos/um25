@@ -95,7 +95,7 @@ const SERVICE_LABEL_BY_SLUG: Record<string, string> = {
 };
 
 /** Rótulo del plano: "Hospital" para una escena base, "Hospital · Software a medida" para un recorrido v4.
- *  Mismo texto que escribe el reproductor (/cine/cine-banner.js) en cada corte. */
+ *  Mismo texto que escribe el reproductor (/cine/cine-banner-v4.js) en cada corte. */
 export const cutCaption = (key: string): string => {
   const service = SERVICE_LABEL_BY_SLUG[key.split('-')[1] || ''];
   return SCENE_TITLES[baseScene(key)] + (service ? ` · ${service}` : '');
