@@ -86,7 +86,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
                       {NAV_SECTORS.map((s) => (
                         <li>
                           <a href={s.href} class:list={[{ 'is-active': isActive(s.href) }]}>
-                            <span class="um-ops-mega__code" aria-label={s.count ? `${s.count} casos documentados` : undefined}>{s.count ?? '—'}</span>
+                            {s.count && <span class="um-ops-mega__code" aria-label={`${s.count} casos documentados`}>{s.count}</span>}
                             <span class="um-ops-mega__name">{s.name}</span>
                             <span class="um-ops-mega__text">{s.text}</span>
                           </a>

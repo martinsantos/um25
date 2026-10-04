@@ -1,0 +1,51 @@
+---
+const layers = [
+  {name:'Aplicación',description:'Una herramienta propia, con roles y permisos para cada persona que la usa.'},
+  {name:'Navegación',description:'Cada área encuentra sus módulos y tareas sin recorrer pantallas innecesarias.'},
+  {name:'Contenido',description:'Estados, indicadores y registros convierten los datos del proceso en decisiones.'},
+  {name:'Acciones',description:'Crear, revisar, aprobar y resolver: cada acción tiene contexto y deja un registro.'},
+];
+---
+<section class="sl" data-software-layers aria-label="Explorar las capas de una aplicación">
+  <div class="sl__visual">
+    <div class="sl__canvas" data-sl-canvas>
+      <svg class="sl__fallback" viewBox="0 0 400 320" aria-hidden="true">
+        <g fill="#111316" stroke="#c5c5c5" stroke-width="1.2" stroke-linejoin="round">
+          <path d="M69 177 213 93 334 163 189 247Z"/><path d="M69 177v7l120 70 145-84v-7"/>
+          <path d="m83 150 36-21 85 49-37 22Z"/><path d="m152 123 79-46 91 53-79 46Z"/>
+          <path d="m203 116 47-28 60 35-47 28Z" stroke="#dc2626"/>
+        </g><g fill="none" stroke="#777"><path d="m96 150 15-9m-7 14 15-9m-7 14 15-9m37-34 50-29m-38 36 50-29m-38 36 50-29m15-39 28-16m-19 21 28-16"/></g>
+      </svg>
+    </div>
+    <button type="button" class="sl__separate" data-sl-separate aria-pressed="true">Unir capas</button>
+  </div>
+  <div class="sl__text">
+    <p class="sl__eyebrow">Software, desde adentro</p>
+    <h3>El proceso se convierte en una herramienta.</h3>
+    <p class="sl__lead">Explorá cómo se organiza una aplicación que tu equipo puede usar todos los días.</p>
+    <div class="sl__controls" role="group" aria-label="Capas de la aplicación">
+      {layers.map((layer,i)=><button type="button" data-sl-layer={i} data-description={layer.description} aria-pressed={String(i===0)}><span aria-hidden="true">0{i+1}</span>{layer.name}</button>)}
+    </div>
+    <p class="sl__description" data-sl-description aria-live="polite">{layers[0].description}</p>
+  </div>
+</section>
+<script src="/cine/software-layers-v5.js" type="module" is:inline />
+<style>
+  .sl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,4vw,64px);align-items:center;margin-bottom:48px}
+  .sl__visual{position:relative;background:#0a0d10;min-width:0;color:#fff}
+  .sl__canvas{aspect-ratio:5/4;--hairline-plate:#0a0d10;--hairline-hi:#dc2626;--hairline-edge:#ddd;--hairline-mid:#888;--hairline-lo:#454545;--hairline-stroke:1.15}
+  .sl__fallback{display:block;width:100%;height:100%}
+  .sl__separate{position:absolute;bottom:16px;left:16px;min-height:44px;padding:0 16px;border:1px solid #ffffff55;background:#111316;color:#fff;font:600 1rem 'UM Sans',Arial,sans-serif;cursor:pointer}
+  .sl__eyebrow{margin:0 0 12px;color:var(--um-red,#dc2626);font-size:1rem;font-weight:600}
+  .sl__text h3{margin:0;font-size:clamp(1.5rem,2.5vw,2rem);font-weight:600;line-height:1.15;letter-spacing:-.025em}
+  .sl__lead{font-size:1rem;line-height:1.6;margin:16px 0 24px;max-width:48ch}
+  .sl__controls{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}
+  .sl__controls button{display:flex;gap:12px;align-items:center;min-height:52px;padding:12px 0;background:none;color:inherit;border:0;border-bottom:1px solid #7f7f7f60;font:500 1rem 'UM Sans',Arial,sans-serif;text-align:left;cursor:pointer}
+  .sl__controls span{font-variant-numeric:tabular-nums;opacity:.6}
+  .sl__controls button[aria-pressed=true]{color:var(--um-red,#dc2626);border-color:var(--um-red,#dc2626)}
+  .sl button:focus-visible{outline:2px solid var(--um-red,#dc2626);outline-offset:4px}
+  .sl__description{font-size:1rem;line-height:1.6;margin:20px 0 0;min-height:4.8em;max-width:50ch}
+  @media(hover:hover){.sl__controls button:hover{color:var(--um-red,#dc2626)}.sl__separate:hover{border-color:#dc2626}}
+  @media(max-width:760px){.sl{grid-template-columns:1fr;gap:24px}.sl__description{min-height:0}}
+  @media(prefers-reduced-motion:reduce){.sl__canvas :global(path){transition:none!important}}
+</style>

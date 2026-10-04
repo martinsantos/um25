@@ -1,0 +1,40 @@
+---
+import { HARDWARE } from '../../data/cine/hardware';
+interface Props { code: string }
+const {code} = Astro.props;
+const study = HARDWARE[code];
+const first = study.views[0];
+---
+<figure class="hw" data-hardware-stage>
+  <div class="hw__frame">
+    <img class="hw__image" src={first.image} alt={study.alt} width="1600" height="1000" loading="lazy" decoding="async" data-hw-image />
+    {study.video && <video class="hw__video" data-src={study.video} muted loop playsinline preload="none" disablepictureinpicture aria-hidden="true" />}
+    <div class="hw__controls" role="group" aria-label="Vistas del sistema">
+      {study.views.map((view,i) => <button type="button" data-hw-view data-image={view.image} data-detail={view.detail} aria-pressed={String(i===0)}>{view.name}</button>)}
+      {study.video && <button type="button" class="hw__motion" data-hw-motion aria-pressed="false">Reproducir recorrido</button>}
+    </div>
+  </div>
+  <figcaption class="hw__caption" data-hw-caption aria-live="polite">{first.detail}</figcaption>
+  <ul class="hw__parts" aria-label="Componentes del sistema">{study.components.map(p=><li><strong>{p.name}</strong><span>{p.detail}</span></li>)}</ul>
+</figure>
+<script src="/cine/cine-studies-v5.js" type="module" is:inline />
+<style>
+  .hw{margin:0;display:grid;gap:20px;color:inherit}
+  .hw__frame{position:relative;aspect-ratio:16/10;background:#0a0d10;overflow:hidden;isolation:isolate}
+  .hw__image,.hw__video{display:block;width:100%;height:100%;object-fit:contain}
+  .hw__video{position:absolute;inset:0;opacity:0;transition:opacity .24s ease;pointer-events:none}
+  .hw.is-playing .hw__video{opacity:1}
+  .hw__controls{position:absolute;bottom:16px;left:16px;right:16px;display:flex;flex-wrap:wrap;gap:6px}
+  .hw__controls button{font:600 1rem var(--um-font-body,Arial,sans-serif);color:#fff;background:#101214e8;border:1px solid #ffffff50;min-height:44px;padding:0 16px;cursor:pointer}
+  .hw__controls button[aria-pressed=true]{border-color:#dc2626;background:#701b1bee}
+  .hw__controls button:focus-visible{outline:2px solid #fff;outline-offset:3px}
+  .hw__motion{margin-left:auto}
+  .hw__caption{font-size:1rem;line-height:1.6;min-height:1.6em;max-width:70ch}
+  .hw__parts{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+  .hw__parts li{display:grid;gap:6px;padding-top:18px;border-top:1px solid #ffffff40}
+  .hw__parts strong{font-size:1.1rem;line-height:1.3;font-weight:600}
+  .hw__parts span{font-size:1rem;line-height:1.55;opacity:.8}
+  @media(hover:hover){.hw__controls button:hover{border-color:#dc2626}}
+  @media(max-width:760px){.hw__frame{aspect-ratio:auto;padding-bottom:112px}.hw__image{height:auto;aspect-ratio:16/10}.hw__video{height:auto;aspect-ratio:16/10}.hw__parts{grid-template-columns:1fr;gap:18px}.hw__controls{bottom:12px;left:12px;right:12px}.hw__controls button{padding:0 12px;flex:1}.hw__motion{margin-left:0;flex-basis:100%!important}}
+  @media(prefers-reduced-motion:reduce){.hw__video{transition:none}}
+</style>

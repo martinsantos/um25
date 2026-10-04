@@ -11,7 +11,9 @@
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import EmailLink from '../../../components/common/EmailLink.astro';
 import CineBanner from '../../../components/cine/CineBanner.astro';
-import RenderStage from '../../../components/cine/RenderStage.astro';
+import HardwareStage from '../../../components/cine/HardwareStage.astro';
+import SoftwareLayers from '../../../components/cine/SoftwareLayers.astro';
+import { HARDWARE } from '../../../data/cine/hardware';
 import ProductStage from '../../../components/cine/ProductStage.astro';
 import { productPage } from '../../../data/productPages';
 import SystemsMap from '../../../components/cine/SystemsMap.astro';
@@ -20,7 +22,6 @@ import ProductMoments from '../../../components/cine/ProductMoments.astro';
 import ServiceSpecSheet from '../../../components/cine/ServiceSpecSheet.astro';
 import ShareButton from '../../../components/common/ShareButton.astro';
 import { getServiceSpec } from '../../../data/serviceSpecs';
-import { RENDERS } from '../../../data/renders';
 import SnapRail from '../../../components/cine/SnapRail.astro';
 import { SERVICE_SCENES, serviceSceneKey, V4_CUTS } from '../../../data/cine/scenes';
 
@@ -87,7 +88,7 @@ const serviceDetailPath = `/servicios/${id}/${expectedSlug}`;
 const datasheetHref = getDatasheetPublicPath(expectedSlug);
 const replicaProd = isReplicaIdenticalCopy();
 const cmsTitle = cmsServiceTitle(servicio.Titulo);
-const cmsSubtitulo = readServiceSubtitulo(servicio);
+const cmsSubtitulo = String(id) === '104' ? 'Software a medida que impulsa tu negocio.' : readServiceSubtitulo(servicio);
 const editorialHeroTitle =
   (!replicaProd && demoCopy?.headline) || visual?.shortName || cmsTitle || servicio.Titulo;
 const serviceHeroTitle = resolveReplicaH1(serviceDetailPath, editorialHeroTitle);
@@ -439,7 +440,7 @@ const solutionItems = productCards.map((producto: any, index: number) => ({
 const whyItems = porQueElegirnos.map((item: string) => cleanCmsText(sanitizeEditorialText(item))).filter(Boolean);
 const marcas = Array.isArray(servicio.marcas) ? servicio.marcas.map((m: unknown) => cleanCmsText(m)).filter(Boolean) : [];
 const serviceShortName = visual?.shortName || cmsTitle;
-const serviceRender = RENDERS[`servicio-${id}`];
+const hardwareStudy = HARDWARE[String(id)];
 // Páginas de producto (software, soporte, consultoría): el servicio mostrado como producto,
 // en el tono de la landing de comunidades, en lugar de un render de objetos.
 const product = productPage(String(id));
@@ -546,6 +547,7 @@ const fichaItems = [
               </div>
               <p class="svc-head__lead">{product.stage.lead}</p>
             </header>
+            {String(id) === '104' && <SoftwareLayers />}
             <ProductStage stage={product.stage} />
           </div>
         </section>
@@ -556,17 +558,17 @@ const fichaItems = [
           </div>
         </section>
       </>
-    ) : serviceRender && (
+    ) : hardwareStudy && (
       <section class="svc-section svc-section--render" id="equipamiento" aria-labelledby="svc-render-title">
         <div class="svc-wrap">
           <header class="svc-head">
             <div>
               <p class="svc-kicker">Sistema y equipamiento</p>
-              <h2 id="svc-render-title">{serviceRender.title.split(' · ')[0]}, pieza por pieza.</h2>
+              <h2 id="svc-render-title">{hardwareStudy.title}</h2>
             </div>
-            <p class="svc-head__lead">Los mismos equipos que aparecen en la escena de arriba, en estudio. Cada componente se especifica según el sitio, la norma aplicable y la operación que debe sostener.</p>
+            <p class="svc-head__lead">Explorá el equipo completo y sus conexiones. Cada componente se especifica según el sitio y la operación que debe sostener.</p>
           </header>
-          <RenderStage render={serviceRender} layout="split" />
+          <HardwareStage code={String(id)} />
         </div>
       </section>
     )}
@@ -817,6 +819,7 @@ const fichaItems = [
 </LayoutV4>
 
 <style>
+  .svc-section[id] { scroll-margin-top:96px; }
   .svc {
     --svc-pad: clamp(64px, 5vw, 80px);
     background: var(--x-ink, #0a0a0b);

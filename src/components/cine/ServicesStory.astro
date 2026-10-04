@@ -1,8 +1,9 @@
 ---
 // Servicios de la home como relato: la escena del edificio queda fija en modo
 // esqueleto y, a medida que se recorre cada servicio, el motor aísla y encuadra el
-// sistema correspondiente. El 3D se monta al acercarse (en móvil, a pedido).
+// sistema correspondiente. El 3D se monta únicamente a pedido.
 import { V4_CUTS, serviceSceneKey, baseScene } from '../../data/cine/scenes';
+import { HARDWARE } from '../../data/cine/hardware';
 interface Service { code: string; name: string; href: string }
 interface Props { services: Service[] }
 const { services } = Astro.props;
@@ -22,6 +23,7 @@ const STORY: Record<string, { body: string; cmd: Record<string, unknown>[] }> = 
 // Cada servicio trae el póster de su recorrido v4 (el servicio dentro de la escena):
 // es la miniatura de la lista y la imagen del escenario mientras el 3D no está montado.
 const posterOf = (code: string) => {
+  if (HARDWARE[code]) return HARDWARE[code].views[0].image;
   const key = serviceSceneKey(code);
   return V4_CUTS[key]?.poster ?? `/cine/media/cine-${baseScene(key)}-poster.jpg`;
 };
@@ -32,13 +34,14 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
   <div class="svc-story__stage" data-src={src}>
     <img class="svc-story__poster is-on" src={items[0]?.poster ?? '/cine/media/story-fachada.jpg'} alt="" width="1920" height="1080" loading="lazy" decoding="async" data-poster-layer />
     <img class="svc-story__poster" src={items[0]?.poster ?? '/cine/media/story-fachada.jpg'} alt="" width="1920" height="1080" loading="lazy" decoding="async" data-poster-layer />
+    <video class="svc-story__movie" muted loop playsinline preload="none" aria-hidden="true"></video>
     <div class="svc-story__frame" aria-hidden="true"></div>
-    <button class="svc-story__mount" type="button" hidden>Recorrer el gemelo digital</button>
+    <div class="svc-story__controls"><button class="svc-story__motion" type="button" aria-pressed="false">Pausar recorrido</button><button class="svc-story__mount" type="button" aria-expanded="false">Recorrer el gemelo digital</button></div>
     <p class="svc-story__now" aria-live="polite"><i></i><span>{items[0]?.name}</span></p>
   </div>
   <ol class="svc-story__list">
-    {items.map((s, i) => (
-      <li class="svc-story__item" data-cmd={JSON.stringify(s.cmd)} data-name={s.name} data-poster={s.poster}>
+    {items.map((s) => (
+      <li class="svc-story__item" data-cmd={JSON.stringify(s.cmd)} data-name={s.name} data-poster={s.poster} data-video={HARDWARE[s.code]?.video}>
         <img class="svc-story__render" src={s.poster} alt="" width="320" height="180" loading="lazy" decoding="async" />
         <div>
           <p class="svc-story__code"><span>{s.code}</span></p>
@@ -51,81 +54,30 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
   </ol>
 </div>
 
-<script>
-  document.querySelectorAll<HTMLElement>('[data-svc-story]').forEach((root) => {
-    const stage = root.querySelector<HTMLElement>('.svc-story__stage')!;
-    const host = stage.querySelector<HTMLElement>('.svc-story__frame')!;
-    const mountBtn = stage.querySelector<HTMLButtonElement>('.svc-story__mount')!;
-    const now = stage.querySelector<HTMLElement>('.svc-story__now span')!;
-    const dot = stage.querySelector<HTMLElement>('.svc-story__now i')!;
-    const items = [...root.querySelectorAll<HTMLElement>('.svc-story__item')];
-    const limited = matchMedia('(prefers-reduced-motion: reduce)').matches || Boolean((navigator as any).connection?.saveData);
-    const compact = matchMedia('(max-width: 900px), (pointer: coarse)').matches;
-    let frame: HTMLIFrameElement | null = null, ready = false, active: HTMLElement | null = null, inView = false;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const send = (action: string, value?: unknown) => frame?.contentWindow?.postMessage({ type: 'um-cinema-command', action, value }, location.origin);
-    const apply = (el: HTMLElement) => { if (!ready) return; for (const c of JSON.parse(el.dataset.cmd || '[]')) send(c.action, c.value); send('play'); };
-    const mount = () => {
-      if (frame) return;
-      frame = document.createElement('iframe');
-      frame.title = 'Gemelo digital · Sistemas del edificio';
-      frame.tabIndex = -1;
-      frame.src = stage.dataset.src || '';
-      host.appendChild(frame);
-      mountBtn.hidden = true;
-    };
-    addEventListener('message', (e) => {
-      if (e.origin !== location.origin || !frame || e.source !== frame.contentWindow) return;
-      if (e.data?.type === 'um-cinema-state' && e.data.ready && !ready) { ready = true; stage.classList.add('is-ready'); if (active) apply(active); if (!inView) send('suspend', true); }
-    });
-    // Dos capas de póster que se funden: el escenario cambia de escena con cada servicio.
-    const layers = [...stage.querySelectorAll<HTMLImageElement>('[data-poster-layer]')];
-    const showPoster = (src: string) => {
-      const on = layers.find((l) => l.classList.contains('is-on')) || layers[0];
-      const off = layers.find((l) => l !== on) || layers[0];
-      if (!src || on.getAttribute('src') === src) return;
-      off.src = src;
-      const swap = () => { off.classList.add('is-on'); on.classList.remove('is-on'); };
-      if (off.complete) swap(); else off.addEventListener('load', swap, { once: true });
-    };
-    const activate = (el: HTMLElement) => {
-      if (el === active) return;
-      active = el;
-      items.forEach((i) => i.classList.toggle('is-active', i === el));
-      now.textContent = el.dataset.name || '';
-      showPoster(el.dataset.poster || '');
-      clearTimeout(timer);
-      timer = setTimeout(() => { if (active === el) apply(el); }, 240);
-    };
-    const io = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) activate(e.target as HTMLElement); }, { rootMargin: '-45% 0px -45% 0px' });
-    items.forEach((i) => io.observe(i));
-    new IntersectionObserver(([e]) => {
-      inView = e.isIntersecting;
-      if (inView && !compact && !limited) mount();
-      if (ready) send('suspend', !inView);
-    }, { rootMargin: '300px 0px' }).observe(root);
-    if (compact || limited) { mountBtn.hidden = false; mountBtn.addEventListener('click', mount); }
-    if (items[0]) activate(items[0]);
-  });
-</script>
+<script src="/cine/services-story-v5.js" type="module" is:inline />
 
 <style>
   .svc-story { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(28px, 4vw, 64px); align-items: start; }
   .svc-story__stage { position: sticky; top: 88px; height: calc(100vh - 128px); min-height: 440px; max-height: 780px; overflow: hidden; background: #07080a; border: 1px solid rgba(255, 255, 255, .08); }
-  .svc-story__poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .9s ease; }
+  .svc-story__poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .24s ease; }
   .svc-story__poster.is-on { opacity: 1; }
+  .svc-story__movie { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:0; transition:opacity .24s ease; }
+  .svc-story__stage.has-movie .svc-story__movie { opacity:1; }
   .svc-story__frame, .svc-story__frame :global(iframe) { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
   .svc-story__frame { opacity: 0; transition: opacity 1s ease; }
   .svc-story__stage.is-ready .svc-story__frame { opacity: 1; }
   .svc-story__stage.is-ready .svc-story__poster { opacity: 0; }
-  .svc-story__mount { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); min-height: 44px; padding: 0 22px; border: 0; background: #dc2626; color: #fff; font: 600 1rem 'UM Sans', Arial, sans-serif; cursor: pointer; }
+  .svc-story__controls { position:absolute;left:16px;right:16px;top:16px;display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;z-index:2; }
+  .svc-story__motion { min-height:44px;padding:0 14px;font:600 1rem 'UM Sans',Arial,sans-serif;color:#fff;background:#101214e8;border:1px solid #ffffff55;cursor:pointer; }
+  .svc-story__controls button:focus-visible { outline:2px solid #fff;outline-offset:3px; }
+  .svc-story__mount { min-height: 44px; padding: 0 22px; border: 0; background: #dc2626; color: #fff; font: 600 1rem 'UM Sans', Arial, sans-serif; cursor: pointer; }
   .svc-story__mount[hidden] { display: none; }
   .svc-story__now { position: absolute; left: 16px; bottom: 16px; margin: 0; display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(8, 10, 13, .82); border: 1px solid rgba(255, 255, 255, .14); font-size: 1rem; font-weight: 600; pointer-events: none; backdrop-filter: blur(8px); }
   .svc-story__now i { width: 10px; height: 10px; background: #dc2626; }
   .svc-story__list { list-style: none; margin: 0; padding: 6vh 0 18vh; display: flex; flex-direction: column; gap: 9vh; }
   .svc-story__item { --c: #dc2626; display: grid; grid-template-columns: 136px 1fr; gap: 22px; align-items: start; padding-left: 22px; border-left: 2px solid rgba(255, 255, 255, .1); opacity: .62; transition: opacity .24s cubic-bezier(.2, .8, .2, 1), border-color .24s cubic-bezier(.2, .8, .2, 1); }
   .svc-story__item.is-active { opacity: 1; border-left-color: var(--c); }
-  .svc-story__render { width: 136px; aspect-ratio: 16 / 10; height: auto; object-fit: cover; background: #15171b; border: 1px solid rgba(255, 255, 255, .1); }
+  .svc-story__render { width: 136px; aspect-ratio: 16 / 10; height: auto; object-fit: contain; background: #0a0d10; border: 1px solid rgba(255, 255, 255, .1); }
   .svc-story__code { margin: 0 0 8px; display: flex; align-items: center; gap: 10px; }
   .svc-story__code span { font-size: 1rem; font-weight: 600; letter-spacing: .12em; color: rgba(255, 255, 255, .55); font-variant-numeric: tabular-nums; }
   .svc-story__item.is-active .svc-story__code span { color: var(--c); }
@@ -147,6 +99,7 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
     /* En móvil el escenario queda arriba: la lista se lee completa, sin atenuar. */
     .svc-story__item { opacity: 1; }
     .svc-story__now { left: 12px; top: 12px; bottom: auto; padding: 8px 12px; font-size: .9375rem; }
-    .svc-story__mount { left: auto; top: auto; right: 12px; bottom: 12px; transform: none; padding: 0 16px; font-size: .9375rem; background: rgba(8, 10, 13, .82); border: 1px solid rgba(255, 255, 255, .28); backdrop-filter: blur(8px); }
+    .svc-story__controls { top:auto;bottom:12px;left:12px;right:12px; }
+    .svc-story__mount { padding: 0 16px; font-size: .9375rem; background: rgba(8, 10, 13, .82); border: 1px solid rgba(255, 255, 255, .28); backdrop-filter: blur(8px); }
   }
 </style>
