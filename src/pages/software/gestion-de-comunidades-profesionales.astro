@@ -75,21 +75,21 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     <section class="section quiz-section" id="consulta" aria-labelledby="quiz-title">
       <div class="wrap quiz-teaser">
         <div><p class="kicker">UN PRIMER PASO PARA TU COLEGIO</p><h2 id="quiz-title">Veamos qué necesita tu comunidad.</h2><p>Podés pedir una demo con una consulta breve o explorar qué módulos tendrían sentido para tu institución. La evaluación se hace aquí, sin registrarte ni compartir datos de matriculados.</p></div>
-        <div class="quiz-teaser-action"><span>01 / ELEGÍ CÓMO EMPEZAR</span><button class="quiz-primary" id="gc-intent-open" type="button" data-intent-open>Elegir mi próximo paso <span aria-hidden="true">↗</span></button><p>Una consulta directa o un recorrido guiado de seis pasos. Vos decidís cuándo contactarnos.</p><noscript><a href="/contacto">Contactar a Última Milla</a></noscript></div>
+        <div class="quiz-teaser-action"><span>01 / ELEGÍ CÓMO EMPEZAR</span><button class="quiz-primary" id="gc-intent-open" type="button" data-intent-open>Elegir mi próximo paso <span aria-hidden="true">↗</span></button><p>Una consulta directa o un recorrido guiado de ocho pasos. Vos decidís cuándo contactarnos.</p><noscript><a href="/contacto">Contactar a Última Milla</a></noscript></div>
       </div>
     </section>
     <dialog class="gc-intent-dialog" id="gc-intent-dialog" aria-labelledby="gc-dialog-title">
       <div class="gc-dialog-frame">
         <header class="gc-dialog-header"><span id="gc-dialog-title">Última Milla <span aria-hidden="true">/</span> Tu colegio</span><div><button id="gc-dialog-back" type="button" hidden>← Opciones</button><button id="gc-dialog-close" type="button" aria-label="Cerrar ventana">Cerrar <span aria-hidden="true">×</span></button></div></header>
         <div class="gc-dialog-content" id="gc-dialog-content">
-          <div class="gc-intent-choice" id="gc-intent-choice"><span class="quiz-eyebrow">HAGAMOS QUE LA CONVERSACIÓN SIRVA</span><h2 id="gc-intent-title" tabindex="-1">¿Cómo querés empezar?</h2><p>Elegí el camino que te resulte más útil. Ninguno requiere datos de tus matriculados.</p><div class="gc-intent-options"><button class="gc-intent-option" type="button" data-intent-view="contact"><span>CONTACTO BREVE · 4 DATOS</span><strong>Contanos qué necesita tu colegio.</strong><small>Institución, nombre, email y necesidad. Te respondemos para acordar una demo.</small><b>Enviar una consulta ↗</b></button><button class="gc-intent-option" type="button" data-intent-view="quiz"><span>RECORRIDO GUIADO · 6 PASOS</span><strong>Armá un primer recorrido del sistema.</strong><small>Elegí prioridades, circuitos e instalación. Verás módulos y una demo antes de decidir si nos escribís.</small><b>Hacer la evaluación ↗</b></button></div><p class="gc-intent-foot">Instalación y puesta a punto sin cargo. El servicio se cotiza en pesos argentinos.</p></div>
+          <div class="gc-intent-choice" id="gc-intent-choice"><span class="quiz-eyebrow">HAGAMOS QUE LA CONVERSACIÓN SIRVA</span><h2 id="gc-intent-title" tabindex="-1">¿Cómo querés empezar?</h2><p>Elegí el camino que te resulte más útil. Ninguno requiere datos de tus matriculados.</p><div class="gc-intent-options"><button class="gc-intent-option" type="button" data-intent-view="contact"><span>CONTACTO BREVE · 4 DATOS</span><strong>Contanos qué necesita tu colegio.</strong><small>Institución, nombre, email y necesidad. Te respondemos para acordar una demo.</small><b>Enviar una consulta ↗</b></button><button class="gc-intent-option" type="button" data-intent-view="quiz"><span>RECORRIDO GUIADO · 8 PASOS</span><strong>Armá un primer recorrido del sistema.</strong><small>Elegí la actividad principal, prioridades y circuitos. Verás módulos y una demo antes de decidir si nos escribís.</small><b>Hacer la evaluación ↗</b></button></div><p class="gc-intent-foot">Instalación y puesta a punto sin cargo. El servicio se cotiza en pesos argentinos.</p></div>
           <div class="gc-quiz-view" id="gc-quiz-view" hidden>
             <div class="quiz-shell" id="quiz-shell">
-          <div class="quiz-side" aria-hidden="true"><span class="quiz-side-mark">UM<span>↗</span></span><p>Primero, una idea clara de tu sistema.</p><div class="quiz-side-steps"><span>01 / COMUNIDAD</span><span>02 / ESCALA</span><span>03 / NECESIDADES</span><span>04 / CIRCUITOS</span><span>05 / INSTALACIÓN</span><span>06 / CONTEXTO</span></div></div>
+          <div class="quiz-side" aria-hidden="true"><span class="quiz-side-mark">UM<span>↗</span></span><p>Primero, una idea clara de tu sistema.</p><div class="quiz-side-steps"><span>01 / COMUNIDAD</span><span>02 / ACTIVIDAD</span><span>03 / ESCALA</span><span>04 / NECESIDADES</span><span>05 / CIRCUITOS</span><span>06 / FIRMA DIGITAL</span><span>07 / INSTALACIÓN</span><span>08 / CONTEXTO</span></div></div>
           <div class="quiz-main">
             <div class="quiz-welcome" id="quiz-welcome"><span class="quiz-eyebrow">TU SISTEMA, PASO A PASO</span><h3>Armemos un primer recorrido para tu colegio.</h3><p>Podés elegir varias necesidades, omitir preguntas y ver una propuesta de módulos aquí mismo. Si después querés conversar, copiamos tus decisiones al formulario.</p><button class="quiz-primary" type="button" id="quiz-start">Empezar <span aria-hidden="true">↗</span></button></div>
-            <div class="quiz-flow" id="quiz-flow" hidden><div class="quiz-progress"><span id="quiz-progress-label">Paso 1 de 6</span><span class="quiz-progress-track"><span id="quiz-progress-fill"></span></span></div><fieldset class="quiz-fieldset"><legend class="sr-only" id="quiz-legend">Elegí las opciones que correspondan</legend><span class="quiz-eyebrow" id="quiz-step-label"></span><h3 id="quiz-question" tabindex="-1"></h3><p id="quiz-hint"></p><div class="quiz-options" id="quiz-options"></div></fieldset><div class="quiz-controls"><button class="quiz-back" type="button" id="quiz-back">← Volver</button><div class="quiz-controls-end"><button class="quiz-skip" type="button" id="quiz-skip">Omitir</button><button class="quiz-primary" type="button" id="quiz-next">Continuar <span aria-hidden="true">↗</span></button></div></div><button class="quiz-see-result" type="button" id="quiz-see-result">Ver resultado hasta acá ↗</button></div>
-            <div class="quiz-result" id="quiz-result" hidden><span class="quiz-eyebrow">TU PUNTO DE PARTIDA</span><h3 id="quiz-result-title" tabindex="-1">Un recorrido posible para tu colegio.</h3><p id="quiz-result-copy"></p><div class="quiz-result-grid"><div><h4>Módulos para explorar</h4><div id="quiz-modules" class="quiz-modules"></div></div><div class="quiz-journey" aria-live="polite"><span class="quiz-eyebrow">ASÍ PODRÍA USARSE</span><h4 id="quiz-journey-title"></h4><ol id="quiz-journey-steps"></ol><p>Recorrido conceptual con datos de ejemplo. Los medios de pago, canales e integraciones concretos se definen para cada proyecto.</p></div></div><div class="quiz-install"><span class="quiz-eyebrow">CÓDIGO ABIERTO · DATOS PROPIOS</span><h4>Vos decidís dónde y con quién operarlo.</h4><p id="quiz-install-note"></p><small>Instalación y puesta a punto sin cargo. El servicio se cotiza en pesos argentinos; no implica hosting o mantenimiento gratuitos.</small></div><div class="quiz-edit-panel"><h4>Tus decisiones</h4><div id="quiz-edit-list"></div></div><p class="quiz-result-note">Este resultado orienta la conversación; no configura una institución real ni fija una cotización.</p><div class="quiz-result-actions"><button class="quiz-primary" id="quiz-open-demo" type="button">Probar el sistema aquí <span aria-hidden="true">↗</span></button><button class="quiz-secondary" id="quiz-contact" type="button">Copiar mis decisiones y pedir una demo</button></div><div id="quiz-inline-demo" class="quiz-inline-demo" hidden><p>Demo interactiva con datos de ejemplo. Elegí el módulo que querés recorrer dentro de la pantalla.</p><iframe id="quiz-demo-frame" title="Demo interactiva del sistema de colegios profesionales" loading="lazy" referrerpolicy="same-origin"></iframe></div><button class="quiz-restart" id="quiz-restart" type="button">Empezar de nuevo</button></div>
+            <div class="quiz-flow" id="quiz-flow" hidden><div class="quiz-progress"><span id="quiz-progress-label">Paso 1 de 8</span><span class="quiz-progress-track"><span id="quiz-progress-fill"></span></span></div><fieldset class="quiz-fieldset"><legend class="sr-only" id="quiz-legend">Elegí las opciones que correspondan</legend><span class="quiz-eyebrow" id="quiz-step-label"></span><h3 id="quiz-question" tabindex="-1"></h3><p id="quiz-hint"></p><div class="quiz-options" id="quiz-options"></div></fieldset><div class="quiz-controls"><button class="quiz-back" type="button" id="quiz-back">← Volver</button><div class="quiz-controls-end"><button class="quiz-skip" type="button" id="quiz-skip">Omitir</button><button class="quiz-primary" type="button" id="quiz-next">Continuar <span aria-hidden="true">↗</span></button></div></div><button class="quiz-see-result" type="button" id="quiz-see-result">Ver resultado hasta acá ↗</button></div>
+            <div class="quiz-result" id="quiz-result" hidden><span class="quiz-eyebrow">TU PUNTO DE PARTIDA</span><h3 id="quiz-result-title" tabindex="-1">Un recorrido posible para tu colegio.</h3><p id="quiz-result-copy"></p><div class="quiz-result-grid"><div><h4>Módulos para explorar</h4><div id="quiz-modules" class="quiz-modules"></div></div><div class="quiz-journey" aria-live="polite"><span class="quiz-eyebrow">ASÍ PODRÍA USARSE</span><h4 id="quiz-journey-title"></h4><ol id="quiz-journey-steps"></ol><p>Recorrido conceptual con datos de ejemplo. Los medios de pago, canales e integraciones concretos se definen para cada proyecto.</p></div></div><div class="quiz-signature" id="quiz-signature" hidden><span class="quiz-eyebrow">MÓDULO ADICIONAL A EVALUAR</span><h4>Firma digital en los trámites</h4><p id="quiz-signature-copy"></p><small>El mecanismo de firma, las integraciones, la validez aplicable y el precio se definen en una propuesta específica. Esta demo no emite firmas.</small></div><div class="quiz-install"><span class="quiz-eyebrow">CÓDIGO ABIERTO · DATOS PROPIOS</span><h4>Vos decidís dónde y con quién operarlo.</h4><p id="quiz-install-note"></p><small>Instalación y puesta a punto sin cargo. El servicio se cotiza en pesos argentinos; no implica hosting o mantenimiento gratuitos.</small></div><div class="quiz-edit-panel"><h4>Tus decisiones</h4><div id="quiz-edit-list"></div></div><p class="quiz-result-note">Este resultado orienta la conversación; no configura una institución real ni fija una cotización.</p><div class="quiz-result-actions"><button class="quiz-primary" id="quiz-open-demo" type="button">Probar el sistema aquí <span aria-hidden="true">↗</span></button><button class="quiz-secondary" id="quiz-contact" type="button">Copiar mis decisiones y pedir una demo</button></div><div id="quiz-inline-demo" class="quiz-inline-demo" hidden><p>Demo interactiva con datos de ejemplo. Elegí el módulo que querés recorrer dentro de la pantalla.</p><iframe id="quiz-demo-frame" title="Demo interactiva del sistema de colegios profesionales" loading="lazy" referrerpolicy="same-origin"></iframe></div><button class="quiz-restart" id="quiz-restart" type="button">Empezar de nuevo</button></div>
           </div>
         </div>
             <p class="quiz-direct">¿Preferís contarnos tu caso directamente? <button id="quiz-direct-contact" type="button">Ir al contacto breve ↗</button></p>
@@ -139,6 +139,12 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     { value: 'arquitectura', label: 'Arquitectura' }, { value: 'escribania', label: 'Escribanía' },
     { value: 'ingenieria', label: 'Ingeniería' }, { value: 'otra', label: 'Otra profesión' },
   ];
+  const activityOptions: QuizOption[] = [
+    { value: 'matricular', label: 'Gestionar matrículas' },
+    { value: 'certificar', label: 'Certificar documentación o títulos' },
+    { value: 'auditar', label: 'Auditar o controlar el ejercicio' },
+    { value: 'otra', label: 'Otra actividad' },
+  ];
   const sizeOptions: QuizOption[] = [
     { value: 'hasta-500', label: 'Hasta 500' }, { value: '500-2000', label: 'Entre 500 y 2.000' },
     { value: 'mas-2000', label: 'Más de 2.000' }, { value: 'sin-dato', label: 'Todavía no lo sabemos' },
@@ -152,6 +158,17 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     { value: 'acompanado', label: 'Tenemos equipo técnico; necesitamos ayuda para instalar o adaptar' },
     { value: 'gestionado', label: 'Preferimos que Última Milla se encargue' },
     { value: 'sin-definir', label: 'Todavía no sabemos' },
+  ];
+  const signatureOptions: QuizOption[] = [
+    { value: 'si', label: 'Sí, la necesitamos' },
+    { value: 'evaluar', label: 'Queremos evaluar si conviene' },
+    { value: 'no', label: 'No por ahora' },
+  ];
+  const signatureProcedureOptions: QuizOption[] = [
+    { value: 'alta', label: 'Solicitud de matrícula' },
+    { value: 'renovacion', label: 'Renovación de matrícula' },
+    { value: 'certificados', label: 'Certificados o constancias' },
+    { value: 'otro', label: 'Otro trámite por definir' },
   ];
   const circuitGroups: { key: 'payments' | 'procedures' | 'channels' | 'credential'; title: string; forNeed: ModuleKey; options: QuizOption[] }[] = [
     { key: 'payments', title: 'Medios de cobro que quieren evaluar', forNeed: 'cuotas', options: [
@@ -199,12 +216,15 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     'sin-definir': 'Podemos revisar juntos si conviene instalación propia, acompañada o servicio gestionado.',
   };
   type QuizState = {
-    profession: string; size: string; needs: ModuleKey[];
+    profession: string; activity: string; secondaryActivities: string[]; activityOther: string;
+    size: string; needs: ModuleKey[];
     payments: string[]; procedures: string[]; channels: string[]; credential: string[];
+    signature: string; signatureProcedures: string[];
     install: string; institution: string; person: string; province: string; address: string; details: string;
   };
   const initialState = (): QuizState => ({
-    profession: '', size: '', needs: [], payments: [], procedures: [], channels: [], credential: [],
+    profession: '', activity: '', secondaryActivities: [], activityOther: '', size: '', needs: [],
+    payments: [], procedures: [], channels: [], credential: [], signature: '', signatureProcedures: [],
     install: '', institution: '', person: '', province: '', address: '', details: '',
   });
   let quizState = initialState();
@@ -270,11 +290,13 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   const relevantGroups = () => circuitGroups.filter((group) => !quizState.needs.length || quizState.needs.includes(group.forNeed));
   const questionMeta = [
     ['01 / COMUNIDAD', '¿Qué profesión reúne tu colegio?', 'Podés omitirlo y ver un resultado general.'],
-    ['02 / ESCALA', '¿Cuántos integrantes reúne, aproximadamente?', 'No necesitamos un padrón ni datos de matriculados.'],
-    ['03 / NECESIDADES', '¿Qué necesitan resolver?', 'Podés elegir más de una prioridad.'],
-    ['04 / CIRCUITOS', '¿Qué recorridos deberían acompañar esas prioridades?', 'Elegí varias opciones o seguí sin definirlas. Las integraciones se acuerdan después.'],
-    ['05 / INSTALACIÓN', '¿Cómo les gustaría instalar y mantener el sistema?', 'Código abierto y datos bajo control de tu organización; elegí el nivel de ayuda que necesitan.'],
-    ['06 / CONTEXTO', '¿Querés agregar contexto para la demo?', 'Todo es opcional. Queda sólo en esta página hasta que elijas copiarlo al formulario. No incluyas datos de matriculados.'],
+    ['02 / ACTIVIDAD', '¿Cuál es la actividad principal de tu colegio?', 'Elegí una actividad principal y, si corresponde, otras que también realizan.'],
+    ['03 / ESCALA', '¿Cuántos integrantes reúne, aproximadamente?', 'No necesitamos un padrón ni datos de matriculados.'],
+    ['04 / NECESIDADES', '¿Qué necesitan resolver?', 'Podés elegir más de una prioridad.'],
+    ['05 / CIRCUITOS', '¿Qué recorridos deberían acompañar esas prioridades?', 'Elegí varias opciones o seguí sin definirlas. Las integraciones se acuerdan después.'],
+    ['06 / FIRMA DIGITAL', '¿Necesitan firma digital para trámites de matrícula?', 'Es un módulo adicional a evaluar. La firma digital requiere definir mecanismo, integración y validez aplicable; no es una imagen de firma.'],
+    ['07 / INSTALACIÓN', '¿Cómo les gustaría instalar y mantener el sistema?', 'Código abierto y datos bajo control de tu organización; elegí el nivel de ayuda que necesitan.'],
+    ['08 / CONTEXTO', '¿Querés agregar contexto para la demo?', 'Todo es opcional. Queda sólo en esta página hasta que elijas copiarlo al formulario. No incluyas datos de matriculados.'],
   ];
   const markStep = () => {
     if (!completedSteps.has(step)) { completedSteps.add(step); track('gc_quiz_step', `step_${step + 1}`); }
@@ -284,10 +306,11 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
       if (quizState.needs.length && !quizState.needs.includes(group.forNeed)) quizState[group.key] = [];
     }
   };
-  const makeChoice = (option: QuizOption, index: number, type: 'radio' | 'checkbox', groupKey: 'profession' | 'size' | 'needs' | 'payments' | 'procedures' | 'channels' | 'credential' | 'install') => {
+  const makeChoice = (option: QuizOption, index: number, type: 'radio' | 'checkbox', groupKey: 'profession' | 'activity' | 'secondaryActivities' | 'size' | 'needs' | 'payments' | 'procedures' | 'channels' | 'credential' | 'signature' | 'signatureProcedures' | 'install') => {
     const label = document.createElement('label'); label.className = 'quiz-option';
     const input = document.createElement('input'); input.type = type; input.name = `quiz-${groupKey}`; input.value = option.value;
     input.checked = type === 'checkbox' ? (quizState[groupKey] as string[]).includes(option.value) : quizState[groupKey] === option.value;
+    if (groupKey === 'secondaryActivities' && option.value === quizState.activity) input.disabled = true;
     const number = document.createElement('span'); number.className = 'quiz-option-number'; number.textContent = String(index + 1).padStart(2, '0');
     const text = document.createElement('span'); text.textContent = option.label;
     const arrow = document.createElement('span'); arrow.setAttribute('aria-hidden', 'true'); arrow.textContent = type === 'checkbox' ? (input.checked ? '✓' : '+') : '↗';
@@ -301,14 +324,45 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
           if (!quizState.needs.length) circuitGroups.forEach((group) => { quizState[group.key] = []; });
           else trimDependencies();
         }
-      } else quizState[groupKey] = option.value as never;
+      } else {
+        quizState[groupKey] = option.value as never;
+        if (groupKey === 'activity') {
+          quizState.secondaryActivities = quizState.secondaryActivities.filter((value) => value !== option.value);
+          choices?.querySelectorAll<HTMLInputElement>('input[name="quiz-secondaryActivities"]').forEach((secondary) => {
+            secondary.disabled = secondary.value === option.value;
+            if (secondary.disabled) {
+              secondary.checked = false;
+              const mark = secondary.closest('label')?.lastElementChild;
+              if (mark) mark.textContent = '+';
+            }
+          });
+          track('gc_quiz_activity', option.value);
+        }
+        if (groupKey === 'signature') {
+          if (option.value === 'no') quizState.signatureProcedures = [];
+          renderSignatureProcedures();
+          track('gc_quiz_signature', option.value);
+        }
+      }
       syncNext();
     });
     return label;
   };
+  const renderSignatureProcedures = () => {
+    choices?.querySelector('#quiz-signature-procedures')?.remove();
+    if (!choices || !['si', 'evaluar'].includes(quizState.signature)) return;
+    const section = document.createElement('div'); section.id = 'quiz-signature-procedures'; section.className = 'quiz-choice-group';
+    section.setAttribute('role', 'group'); section.setAttribute('aria-label', 'Trámites para evaluar firma digital');
+    const heading = document.createElement('h4'); heading.textContent = '¿Para qué trámites la evaluarían? (opcional)';
+    const grid = document.createElement('div'); grid.className = 'quiz-choice-grid';
+    signatureProcedureOptions.forEach((option, index) => grid.append(makeChoice(option, index, 'checkbox', 'signatureProcedures')));
+    section.append(heading, grid); choices.append(section);
+  };
   const syncNext = () => {
     if (!nextButton) return;
-    nextButton.disabled = (step === 0 && !quizState.profession) || (step === 1 && !quizState.size) || (step === 2 && !quizState.needs.length) || (step === 4 && !quizState.install);
+    nextButton.disabled = (step === 0 && !quizState.profession) || (step === 1 && !quizState.activity) ||
+      (step === 2 && !quizState.size) || (step === 3 && !quizState.needs.length) ||
+      (step === 5 && !quizState.signature) || (step === 6 && !quizState.install);
   };
   const renderStep = () => {
     if (!choices || !flow || !nextButton || !resultPanel || !quiz) return;
@@ -323,17 +377,36 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     if (hint) hint.textContent = questionMeta[step][2];
     if (eyebrow) eyebrow.textContent = questionMeta[step][0];
     const progress = document.querySelector<HTMLElement>('#quiz-progress-label');
-    if (progress) progress.textContent = `Paso ${step + 1} de 6`;
+    if (progress) progress.textContent = `Paso ${step + 1} de ${questionMeta.length}`;
     const fill = document.querySelector<HTMLElement>('#quiz-progress-fill');
-    if (fill) fill.style.width = `${((step + 1) / 6) * 100}%`;
+    if (fill) fill.style.width = `${((step + 1) / questionMeta.length) * 100}%`;
     choices.replaceChildren();
-    choices.classList.toggle('is-groups', step === 3);
-    choices.classList.toggle('is-fields', step === 5);
-    if (step === 0 || step === 1 || step === 2 || step === 4) {
-      const key = step === 0 ? 'profession' : step === 1 ? 'size' : step === 2 ? 'needs' : 'install';
-      const options = step === 0 ? professionOptions : step === 1 ? sizeOptions : step === 2 ? needOptions : installOptions;
-      options.forEach((option, index) => choices.append(makeChoice(option, index, step === 2 ? 'checkbox' : 'radio', key)));
-    } else if (step === 3) {
+    choices.classList.toggle('is-groups', step === 1 || step === 4 || step === 5);
+    choices.classList.toggle('is-fields', step === 7);
+    if (step === 0 || step === 2 || step === 3 || step === 6) {
+      const key = step === 0 ? 'profession' : step === 2 ? 'size' : step === 3 ? 'needs' : 'install';
+      const options = step === 0 ? professionOptions : step === 2 ? sizeOptions : step === 3 ? needOptions : installOptions;
+      options.forEach((option, index) => choices.append(makeChoice(option, index, step === 3 ? 'checkbox' : 'radio', key)));
+    } else if (step === 1) {
+      const primary = document.createElement('div'); primary.className = 'quiz-choice-group';
+      primary.setAttribute('role', 'group'); primary.setAttribute('aria-label', 'Actividad principal');
+      const mainHeading = document.createElement('h4'); mainHeading.textContent = 'Actividad principal';
+      const mainGrid = document.createElement('div'); mainGrid.className = 'quiz-choice-grid';
+      activityOptions.forEach((option, index) => mainGrid.append(makeChoice(option, index, 'radio', 'activity')));
+      primary.append(mainHeading, mainGrid); choices.append(primary);
+      const secondary = document.createElement('div'); secondary.className = 'quiz-choice-group';
+      secondary.setAttribute('role', 'group'); secondary.setAttribute('aria-label', 'Otras actividades');
+      const otherHeading = document.createElement('h4'); otherHeading.textContent = 'Otras actividades que también realizan (opcional)';
+      const otherGrid = document.createElement('div'); otherGrid.className = 'quiz-choice-grid';
+      activityOptions.forEach((option, index) => otherGrid.append(makeChoice(option, index, 'checkbox', 'secondaryActivities')));
+      secondary.append(otherHeading, otherGrid); choices.append(secondary);
+      const otherLabel = document.createElement('label'); otherLabel.className = 'quiz-field';
+      const caption = document.createElement('span'); caption.textContent = 'Si elegiste «Otra actividad», podés describirla (opcional)';
+      const otherInput = document.createElement('input'); otherInput.type = 'text'; otherInput.name = 'quiz-activityOther';
+      otherInput.maxLength = 120; otherInput.value = quizState.activityOther;
+      otherInput.addEventListener('input', () => { quizState.activityOther = otherInput.value.slice(0, 120); });
+      otherLabel.append(caption, otherInput); choices.append(otherLabel);
+    } else if (step === 4) {
       for (const group of relevantGroups()) {
         const section = document.createElement('div'); section.className = 'quiz-choice-group';
         section.setAttribute('role', 'group'); section.setAttribute('aria-label', group.title);
@@ -342,6 +415,12 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
         group.options.forEach((option, index) => grid.append(makeChoice(option, index, 'checkbox', group.key)));
         section.append(grid); choices.append(section);
       }
+    } else if (step === 5) {
+      const section = document.createElement('div'); section.className = 'quiz-choice-group';
+      section.setAttribute('role', 'group'); section.setAttribute('aria-label', 'Necesidad de firma digital');
+      const grid = document.createElement('div'); grid.className = 'quiz-choice-grid';
+      signatureOptions.forEach((option, index) => grid.append(makeChoice(option, index, 'radio', 'signature')));
+      section.append(grid); choices.append(section); renderSignatureProcedures();
     } else {
       for (const field of freeFields) {
         const label = document.createElement('label'); label.className = 'quiz-field';
@@ -354,7 +433,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
       }
     }
     syncNext();
-    nextButton.firstChild!.textContent = step === 5 ? 'Ver resultado ' : 'Continuar ';
+    nextButton.firstChild!.textContent = step === questionMeta.length - 1 ? 'Ver resultado ' : 'Continuar ';
     title?.focus({ preventScroll: true });
   };
   const renderJourney = (feature: ModuleKey) => {
@@ -376,9 +455,12 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     const title = document.querySelector<HTMLElement>('#quiz-result-title');
     if (title) { title.textContent = quizState.needs.length ? 'Un recorrido posible para tu colegio.' : 'Un sistema para empezar a explorar.'; title.focus({ preventScroll: true }); }
     const copy = document.querySelector<HTMLElement>('#quiz-result-copy');
-    if (copy) copy.textContent = quizState.needs.length
+    const activityLabel = labelFor(activityOptions, quizState.activity);
+    const activityDetail = quizState.activity === 'otra' && quizState.activityOther.trim() ? `: ${quizState.activityOther.trim()}` : '';
+    const secondaryLabels = quizState.secondaryActivities.map((value) => value === 'otra' && quizState.activityOther.trim() ? `Otra actividad: ${quizState.activityOther.trim()}` : labelFor(activityOptions, value));
+    if (copy) copy.textContent = (activityLabel ? `Actividad principal indicada: ${activityLabel}${activityDetail}. ` : '') + (quizState.needs.length
       ? 'Tomamos tus prioridades para ordenar los módulos. Elegí uno y mirá cómo sería el recorrido dentro del sistema.'
-      : 'Todavía no elegiste necesidades. Podés recorrer los módulos, editar tus respuestas y volver a este resultado cuando quieras.';
+      : 'Todavía no elegiste necesidades. Podés recorrer los módulos, editar tus respuestas y volver a este resultado cuando quieras.');
     const moduleList = document.querySelector<HTMLElement>('#quiz-modules');
     if (moduleList) {
       moduleList.replaceChildren();
@@ -394,6 +476,15 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
       });
     }
     renderJourney(selectedNeeds()[0]);
+    const signaturePanel = document.querySelector<HTMLElement>('#quiz-signature');
+    const signatureCopy = document.querySelector<HTMLElement>('#quiz-signature-copy');
+    if (signaturePanel && signatureCopy) {
+      signaturePanel.hidden = !['si', 'evaluar'].includes(quizState.signature);
+      if (!signaturePanel.hidden) {
+        const procedures = quizState.signatureProcedures.map((value) => labelFor(signatureProcedureOptions, value));
+        signatureCopy.textContent = `${quizState.signature === 'si' ? 'Indicaron que necesitan' : 'Quieren evaluar'} firma digital${procedures.length ? ` para ${procedures.join(', ').toLowerCase()}` : ' para sus trámites'}. Podemos definir el circuito y comprobar sus requisitos antes de incorporarla.`;
+      }
+    }
     const install = document.querySelector<HTMLElement>('#quiz-install-note');
     if (install) install.textContent = installationCopy[quizState.install] || 'Podemos revisar juntos si conviene instalación propia, acompañada o servicio gestionado.';
     const edits = document.querySelector<HTMLElement>('#quiz-edit-list');
@@ -401,9 +492,11 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
       edits.replaceChildren();
       const summaries = [
         ['Profesión', labelFor(professionOptions, quizState.profession) || 'A definir'],
+        ['Actividad principal', `${activityLabel ? `${activityLabel}${activityDetail}` : 'A definir'}${secondaryLabels.length ? ` · También: ${secondaryLabels.join(', ')}` : ''}`],
         ['Integrantes', labelFor(sizeOptions, quizState.size) || 'A definir'],
         ['Necesidades', quizState.needs.map((value) => labelFor(needOptions, value)).join(', ') || 'A definir'],
         ['Circuitos', relevantGroups().flatMap((group) => quizState[group.key].map((value) => labelFor(group.options, value))).join(', ') || 'A definir'],
+        ['Firma digital', labelFor(signatureOptions, quizState.signature) || 'A definir'],
         ['Instalación', labelFor(installOptions, quizState.install) || 'A definir'],
         ['Contexto', freeFields.some((field) => quizState[field.key].trim()) ? 'Datos opcionales completados' : 'Sin datos personales'],
       ];
@@ -417,7 +510,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
         edits.append(button);
       });
     }
-    const resultKey = JSON.stringify({ partial, profession: quizState.profession, size: quizState.size, needs: quizState.needs, payments: quizState.payments, procedures: quizState.procedures, channels: quizState.channels, credential: quizState.credential, install: quizState.install });
+    const resultKey = JSON.stringify({ partial, profession: quizState.profession, activity: quizState.activity, secondaryActivities: quizState.secondaryActivities, size: quizState.size, needs: quizState.needs, payments: quizState.payments, procedures: quizState.procedures, channels: quizState.channels, credential: quizState.credential, signature: quizState.signature, signatureProcedures: quizState.signatureProcedures, install: quizState.install });
     if (resultKey !== lastResultKey) { track('gc_quiz_result', partial ? 'partial' : 'complete'); lastResultKey = resultKey; }
   };
   document.querySelector<HTMLButtonElement>('#quiz-start')?.addEventListener('click', () => {
@@ -430,11 +523,11 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   nextButton?.addEventListener('click', () => {
     if (nextButton.disabled) return;
     markStep();
-    if (step === 5) renderResult(false);
+    if (step === questionMeta.length - 1) renderResult(false);
     else { step += 1; renderStep(); }
   });
   document.querySelector<HTMLButtonElement>('#quiz-skip')?.addEventListener('click', () => {
-    if (step === 5) renderResult(false);
+    if (step === questionMeta.length - 1) renderResult(false);
     else { step += 1; renderStep(); }
   });
   document.querySelector<HTMLButtonElement>('#quiz-see-result')?.addEventListener('click', () => renderResult(true));
@@ -470,9 +563,14 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     const lines = [
       'Nos gustaría ver una demo con el formato de datos de nuestra institución.',
       `Profesión: ${labelFor(professionOptions, quizState.profession) || 'a definir'}.`,
+      `Actividad principal: ${labelFor(activityOptions, quizState.activity) || 'a definir'}${quizState.activity === 'otra' && quizState.activityOther.trim() ? ` (${quizState.activityOther.trim()})` : ''}.`,
+      ...(quizState.secondaryActivities.length ? [`Otras actividades: ${quizState.secondaryActivities.map((value) => labelFor(activityOptions, value)).join(', ')}.`] : []),
+      ...(quizState.activity !== 'otra' && quizState.secondaryActivities.includes('otra') && quizState.activityOther.trim() ? [`Otra actividad indicada: ${quizState.activityOther.trim()}.`] : []),
       `Integrantes: ${labelFor(sizeOptions, quizState.size) || 'a definir'}.`,
       `Necesidades: ${quizState.needs.map((value) => labelFor(needOptions, value)).join(', ') || 'a definir'}.`,
       ...circuitGroups.flatMap((group) => quizState[group.key].length ? [`${group.title}: ${quizState[group.key].map((value) => labelFor(group.options, value)).join(', ')}.`] : []),
+      `Firma digital: ${labelFor(signatureOptions, quizState.signature) || 'a definir'}.`,
+      ...(quizState.signatureProcedures.length ? [`Trámites para evaluar firma digital: ${quizState.signatureProcedures.map((value) => labelFor(signatureProcedureOptions, value)).join(', ')}.`] : []),
       `Instalación: ${labelFor(installOptions, quizState.install) || 'a definir'}.`,
       ...(quizState.province.trim() ? [`Provincia: ${quizState.province.trim()}.`] : []),
       ...(quizState.address.trim() ? [`Dirección institucional: ${quizState.address.trim()}.`] : []),
@@ -836,6 +934,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   .quiz-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   .quiz-options :global(.quiz-option) { position:relative; display:flex; align-items:center; gap:13px; min-height:74px; padding:12px 16px; border:1px solid #cbd8cf; background:#fbfcfa; color:#273a31; font-size:.97rem; font-weight:600; line-height:1.25; cursor:pointer; transition:border-color .18s ease,background .18s ease; }
   .quiz-options :global(.quiz-option:hover),.quiz-options :global(.quiz-option:has(input:checked)) { border-color:#a83b33; background:#fff8f6; }
+  .quiz-options :global(.quiz-option:has(input:disabled)) { opacity:.46; cursor:not-allowed; }
   .quiz-options :global(.quiz-option:has(input:focus-visible)) { outline:3px solid #bd352d; outline-offset:2px; }
   .quiz-options :global(.quiz-option input) { position:absolute; width:1px; height:1px; opacity:0; }
   .quiz-options :global(.quiz-option-number) { flex:none; color:#ad433a; font-size:.72rem; letter-spacing:.08em; }
@@ -863,7 +962,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   .quiz-shell.is-result .quiz-main { padding:clamp(28px,5vw,65px); }
   .quiz-shell.is-result .quiz-result { max-width:none; }
   .quiz-result-grid { display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr); gap:clamp(20px,3vw,38px); margin:34px 0; }
-  .quiz-result-grid h4,.quiz-edit-panel h4,.quiz-install h4 { margin:0 0 17px; color:#1b2c22; font-size:1.25rem; font-weight:650; letter-spacing:-.025em; }
+  .quiz-result-grid h4,.quiz-edit-panel h4,.quiz-install h4,.quiz-signature h4 { margin:0 0 17px; color:#1b2c22; font-size:1.25rem; font-weight:650; letter-spacing:-.025em; }
   .quiz-modules { display:grid; gap:9px; }
   .quiz-modules :global(.quiz-module-card) { display:grid; grid-template-columns:30px 1fr; gap:6px 12px; width:100%; min-height:94px; padding:15px 17px; border:1px solid #cad7cf; background:#fbfcfa; color:#24392b; font:inherit; text-align:left; }
   .quiz-modules :global(.quiz-module-card:hover),.quiz-modules :global(.quiz-module-card[aria-pressed="true"]) { border-color:#a63b31; background:#fff8f6; }
@@ -879,6 +978,11 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   .quiz-journey :global(li::before) { content:counter(journey,decimal-leading-zero); color:#f0aba4; font-size:.79rem; font-weight:750; }
   .gc .quiz-journey p { max-width:none; margin:0; color:#c3d3c9 !important; font-size:.82rem; line-height:1.5; }
   .quiz-install { margin:26px 0; padding:28px 30px; border-left:3px solid #bd352d; background:#eef4ef; }
+  .quiz-signature { margin:26px 0; padding:28px 30px; border-left:3px solid #315b45; background:#edf4ef; }
+  .quiz-signature .quiz-eyebrow { margin-bottom:10px; color:#315b45; }
+  .quiz-signature h4 { margin-bottom:8px; }
+  .gc .quiz-signature p { max-width:85ch; margin:0 0 13px; color:#35493b; font-size:1rem; line-height:1.5; }
+  .quiz-signature small { color:#546459; font-size:.83rem; line-height:1.4; }
   .quiz-install .quiz-eyebrow { margin-bottom:10px; }
   .quiz-install h4 { margin-bottom:8px; }
   .gc .quiz-install p { max-width:88ch; margin:0 0 13px; color:#35493b; font-size:1rem; }
@@ -907,7 +1011,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   @media(max-width:520px) { .quiz-teaser-action { padding:25px; }.quiz-teaser-action .quiz-primary { width:100%; }.gc .quiz-direct { margin:19px 20px 25px; }.gc-contact-view #gc-form { padding:22px 18px; } }
   @media(max-width:900px) { .quiz-intro { grid-template-columns:1fr; gap:15px; }.quiz-shell { grid-template-columns:minmax(180px,.3fr) minmax(0,.7fr); }.quiz-side { padding:30px 24px; }.quiz-main { padding:35px; }.quiz-options { grid-template-columns:1fr; }.quiz-result-grid { grid-template-columns:1fr; } }
   @media(max-width:700px) { .quiz-shell { grid-template-columns:1fr; min-height:0; }.quiz-side { display:none; }.quiz-main { min-height:0; padding:35px 25px; align-items:flex-start; }.quiz-intro { margin-bottom:28px; }body[data-skin] main.gc .quiz-intro h2 { font-size:clamp(2.15rem,7vw,3rem) !important; }.quiz-progress { margin-bottom:36px; }.quiz-options { grid-template-columns:1fr 1fr; }.quiz-options :global(.quiz-option) { min-height:76px; padding:12px; font-size:.91rem; } }
-  @media(max-width:520px) { .quiz-main { padding:33px 21px; }body[data-skin] main.gc .quiz-main h3 { font-size:clamp(2rem,8vw,2.6rem) !important; }.quiz-options { grid-template-columns:1fr; }.quiz-options :global(.quiz-option) { min-height:60px; }.quiz-options :global(.quiz-choice-grid) { grid-template-columns:1fr; }.quiz-controls { flex-wrap:wrap; margin-top:24px; }.quiz-controls-end { justify-content:flex-end; width:100%; }.quiz-result-actions { display:grid; }.quiz-result-actions > * { width:100%; }.quiz-shell.is-result .quiz-main { padding:25px 20px; }.quiz-journey { padding:23px; }.quiz-install { padding:22px; }#quiz-edit-list { grid-template-columns:1fr 1fr; }.gc .quiz-intro p:last-child { font-size:1rem; } }
+  @media(max-width:520px) { .quiz-main { padding:33px 21px; }body[data-skin] main.gc .quiz-main h3 { font-size:clamp(2rem,8vw,2.6rem) !important; }.quiz-options { grid-template-columns:1fr; }.quiz-options :global(.quiz-option) { min-height:60px; }.quiz-options :global(.quiz-choice-grid) { grid-template-columns:1fr; }.quiz-controls { flex-wrap:wrap; margin-top:24px; }.quiz-controls-end { justify-content:flex-end; width:100%; }.quiz-result-actions { display:grid; }.quiz-result-actions > * { width:100%; }.quiz-shell.is-result .quiz-main { padding:25px 20px; }.quiz-journey { padding:23px; }.quiz-install,.quiz-signature { padding:22px; }#quiz-edit-list { grid-template-columns:1fr 1fr; }.gc .quiz-intro p:last-child { font-size:1rem; } }
   @media(prefers-reduced-motion:reduce) { .gc a,.gc button { transition:none !important; } }
   @media(prefers-reduced-motion:reduce) { .quiz-options :global(.quiz-option),.quiz-progress-track span { transition:none; } }
   @media(prefers-reduced-motion:reduce) { .app-window,.pay-choice,.pay-method,.pay-action,.pay-confirm,.phone,.phone-item,.phone-detail,.credential-phone,.credential-scan,.credential-check-loading,.credential-check-result { animation:none; }.system-panel { transition:none; }.pay-action,.credential-scan,.credential-check-loading { display:none; }.pay-confirm { position:static; display:grid; grid-template-columns:24px 1fr; gap:2px 10px; align-items:center; margin-top:12px; padding:12px; background:#eaf3ed; opacity:1; transform:none; }.pay-confirm .confirm-mark { grid-row:1 / span 2; width:24px; height:24px; font-size:.8rem; }.pay-confirm strong { font-size:1rem; }.pay-confirm small { grid-column:2; }.phone-detail { opacity:1; transform:none; }.credential-check-result { margin-top:20px; opacity:1; transform:none; } }
