@@ -31,7 +31,7 @@ const first=study.views[1];
     {study.parts.map(part=><li><strong>{part.name}</strong><span>{part.detail}</span></li>)}
   </ul>
 </figure>}
-<script src="/cine/isometric-services-v6.js" type="module" is:inline />
+<script src="/cine/isometric-services-v6.js" type="module" async is:inline />
 <style>
   .iso{--skin-text:#fff;--skin-muted:#c4c7cc;--x-text:#fff;--x-text-2:#c4c7cc;margin:0;color:#fff;background:#090909;padding:clamp(20px,3.2vw,44px);display:grid;gap:0;min-width:0}
   .iso__meta{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;justify-content:space-between;color:#c4c7cc;font-size:1rem;line-height:1.5;border-bottom:1px solid #ffffff24;padding-bottom:16px}
@@ -47,8 +47,8 @@ const first=study.views[1];
   .iso__drawing.is-entering{animation:iso-enter 220ms ease-out both}
   @keyframes iso-enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
   .iso__caption{display:flex;align-items:baseline;justify-content:space-between;gap:24px;padding:22px 0;border-top:1px solid #ffffff24;min-height:136px}
-  .iso__caption h3{margin:0;color:#fff;font-size:clamp(1.125rem,1.8vw,1.4rem);font-weight:600;line-height:1.3}
-  .iso__caption p{margin:10px 0 0;color:#c4c7cc;font-size:1rem;line-height:1.6;max-width:72ch}
+  .iso__caption h3{margin:0;color:#fff;font-size:var(--um-world-h3,1.25rem);font-weight:var(--um-display-weight,600);line-height:1.3}
+  .iso__caption p{margin:10px 0 0;color:#c4c7cc;font-size:var(--um-copy-description,1.125rem);line-height:var(--um-body-line-height,1.62);max-width:72ch}
   .iso__step{font:400 1rem var(--um-font-mono,monospace);color:#c4c7cc;white-space:nowrap}
   .iso__step b{font-weight:500;color:#fff}
   .iso__controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-block:1px solid #ffffff36}

@@ -92,10 +92,10 @@ test('rack hover and all scheduled work are disposed during Astro navigation',()
  root.querySelector('[data-network-part="ups"]').click();expect(root.dataset.part).toBe('switch');
 });
 test('the rack and eighteen isolated equipment views share complete, unique SVG models and connections',()=>{
- const source=fs.readFileSync('src/assets/cine/isometric/network-rack-v8.svg','utf8');const xml=new DOMParser().parseFromString(source,'image/svg+xml');expect(xml.querySelector('parsererror')).toBeNull();
+ const source=fs.readFileSync('src/assets/cine/isometric/network-rack-v9.svg','utf8');const xml=new DOMParser().parseFromString(source,'image/svg+xml');expect(xml.querySelector('parsererror')).toBeNull();
  const ids=[...xml.querySelectorAll('[id]')].map(el=>el.id);expect(new Set(ids).size).toBe(ids.length);
  for(const use of xml.querySelectorAll('use'))expect(ids).toContain(use.getAttribute('href').slice(1));
- const manifest=JSON.parse(fs.readFileSync('src/assets/cine/isometric/network-rack-v8.json','utf8'));expect(manifest.models).toHaveLength(18);expect(xml.querySelectorAll('[data-rack-slot]')).toHaveLength(8);
+ const manifest=JSON.parse(fs.readFileSync('src/assets/cine/isometric/network-rack-v9.json','utf8'));expect(manifest.models).toHaveLength(18);expect(xml.querySelectorAll('[data-rack-slot]')).toHaveLength(8);
  for(const {id} of manifest.models)for(const kind of ['base','cover','closed','full','detail'])expect(xml.getElementById(`rk-${id}-${kind}`)).not.toBeNull();
  expect(xml.querySelector('#rk-jack').querySelectorAll('[data-contact]')).toHaveLength(8);
  expect(xml.querySelector('#rk-switch-base').querySelectorAll('[data-port]')).toHaveLength(24);
@@ -123,11 +123,11 @@ test('an open cabinet lets the same equipment be extracted by tapping its mounte
 });
 
 test('all surface planes and exploded parts retain an exact equal-axis isometric projection',()=>{
- const manifest=JSON.parse(fs.readFileSync('src/assets/cine/isometric/network-rack-v8.json','utf8'));
+ const manifest=JSON.parse(fs.readFileSync('src/assets/cine/isometric/network-rack-v9.json','utf8'));
  const {x,y,z}=manifest.projectionMatrix,axes=[x,y,z],c=Math.sqrt(3)/2;
  for(const axis of axes)expect(Math.hypot(...axis)).toBeCloseTo(1,10);
  for(let i=0;i<3;i++)for(let j=i+1;j<3;j++)expect(axes[i][0]*axes[j][0]+axes[i][1]*axes[j][1]).toBeCloseTo(-.5,10);
- const xml=new DOMParser().parseFromString(fs.readFileSync('src/assets/cine/isometric/network-rack-v8.svg','utf8'),'image/svg+xml');
+ const xml=new DOMParser().parseFromString(fs.readFileSync('src/assets/cine/isometric/network-rack-v9.svg','utf8'),'image/svg+xml');
  expect(xml.querySelectorAll('[data-plane]').length).toBeGreaterThan(100);
  for(const plane of xml.querySelectorAll('[data-plane]')){
   const matrix=plane.getAttribute('transform').match(/matrix\(([^)]+)\)/)[1].split(' ').map(Number),axis=plane.getAttribute('data-plane');

@@ -527,7 +527,7 @@ const fichaItems = [
                   {product.intro.cta}
                   <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
                 </a>
-                <a class="svc-intro__link" href="#equipamiento">{product.intro.explore}</a>
+                <a class="svc-intro__link" href="#equipamiento">Explorar el sistema</a>
               </div>
               <p class="svc-intro__note"><b>{product.intro.note.strong}</b> {product.intro.note.rest}</p>
             </div>
@@ -541,13 +541,20 @@ const fichaItems = [
           <div class="svc-wrap">
             <header class="svc-head">
               <div>
-                <p class="svc-kicker">{product.stage.kicker}</p>
-                <h2 id="svc-render-title">{product.stage.title}</h2>
+                <p class="svc-kicker">El sistema</p>
+                <h2 id="svc-render-title">{hardwareStudy.title}</h2>
               </div>
-              <p class="svc-head__lead">{product.stage.lead}</p>
+              <p class="svc-head__lead">{hardwareStudy.views[0].description}</p>
             </header>
             <IsometricStage code={String(id)} />
-            <details class="svc-stage-demo"><summary>Probar la demostración del servicio</summary><ProductStage stage={product.stage} tour={false} /></details>
+            <details class="svc-stage-demo">
+              <summary>{product.intro.explore}</summary>
+              <div class="svc-stage-demo__intro">
+                <h3>{product.stage.title}</h3>
+                <p>{product.stage.lead}</p>
+              </div>
+              <ProductStage stage={product.stage} tour={false} />
+            </details>
           </div>
         </section>
 
@@ -831,6 +838,9 @@ const fichaItems = [
   .svc-stage-demo summary { cursor:pointer; min-height:56px; padding:16px 0; font-size:1rem; font-weight:600; line-height:1.5; color:var(--x-text,#111); }
   .svc-stage-demo summary:focus-visible { outline:2px solid #dc2626; outline-offset:4px; }
   .svc-stage-demo[open] summary { margin-bottom:20px; }
+  .svc-stage-demo__intro { margin-bottom:24px; max-width:72ch; }
+  .svc-stage-demo__intro h3 { margin:0; font-size:var(--um-world-h3,1.25rem); line-height:1.3; font-weight:var(--um-display-weight,600); }
+  .svc-stage-demo__intro p { margin:12px 0 0; font-size:var(--um-copy-description,1.125rem); line-height:var(--um-body-line-height,1.62); }
   .svc-wrap {
     width: 100%;
     max-width: var(--um-container-wide, 1400px);

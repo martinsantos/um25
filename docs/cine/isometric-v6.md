@@ -208,3 +208,66 @@ producción.
 Software reutiliza la interfaz de capas Hairline ya presente en su página, en
 la vista de herramienta de la home. Se monta sólo al estar visible; la vista
 de proyecto conserva su escena. El texto comercial mantiene su identidad.
+
+
+## 2026-10-05 — Primera imagen completa y controles durante SSR
+
+La revisión de carga encontró dos problemas distintos. Software mostraba un
+fallback simplificado antes de importar Hairline. Los módulos de controles
+esperaban el final del documento SSR aunque la figura y sus scripts ya habían
+llegado. Un bloque posterior de contenido podía prolongar esa espera.
+
+Software ahora entrega en HTML la geometría completa de la aplicación. Su
+primer cuadro coincide con el primer cuadro del runtime, en vista unida y
+separada. La importación se prepara a 700 px del viewport y observa el atlas
+visible cuando la figura está oculta dentro de un servicio. El montaje conserva
+la selección y no sustituye una figura visible por un espacio vacío. Al salir
+de pantalla restaura el SVG y sus atributos. Los errores de importación y la
+navegación no dejan instancias ni listeners obsoletos.
+
+Los scripts de banner, biblioteca, atlas, isometría y capas usan `async` después
+de su marcado completo. No dependen del cierre de todo el documento. En dos
+cargas de desarrollo del navegador nativo, la primera tuvo TTFB 1.969 ms,
+markup del gabinete 2.102 ms, FCP 2.116 ms, fin HTML 11.057 ms y DOM ready
+11.590 ms; Hairline comenzó a importarse a 11.433 ms. Tras el cambio, con
+recursos en caché, TTFB fue 1.989 ms, markup 2.049 ms, FCP 2.256 ms y los tres
+controles se enlazaron a 2.304 ms, antes del fin HTML (2.807 ms). Hairline se
+importó entre 2.313 y 2.315 ms. Son cargas diferentes de una preview local:
+no demuestran una mejora equivalente de LCP ni de producción. La instrumentación
+temporal se retiró del componente.
+
+El rack v9 conserva los 18 equipos y añade anillos de ventilación, fijaciones y
+componentes de placa. Comparte grupos interiores únicamente cuando reduce tanto
+bytes como elementos y conserva sus contextos de transformación. Frente al v8:
+621.068 → 586.193 bytes; 5.658 → 5.488 elementos; gzip 57.279 → 56.806 bytes.
+La mejora comprimida es pequeña (0,8 %); el bloqueo de controles fue el problema
+principal. No se rasteriza ni se reduce la resolución de los dibujos.
+
+Hairline v7 mantiene la licencia MIT y usa proyección de 30°, igual escala en
+los ejes y encuadre calculado con las cuatro capas actuales. Incorpora navegación,
+búsqueda, indicadores, tabla y formulario. La apertura está amortiguada y comienza
+en el mismo estado que el HTML; las coordenadas del puntero respetan letterboxing.
+Reproducción: `node scripts/cine/build-network-rack-v9.mjs .`,
+`node scripts/cine/build-software-hairline-v7.mjs`, después
+`node scripts/cine/build-software-preview.mjs`.
+
+Se mantienen UM Sans y sus tokens de títulos/explicaciones. Los controles usan
+16 px. La cabecera de los servicios 104/105/106 presenta el sistema isométrico;
+la demostración conserva su título y explicación dentro de su desplegable.
+Los archivos de fuentes y la campaña activa no se modifican.
+
+El banner v6 sustituye los efectos aleatorios de JavaScript por un fundido de
+1,2 s. Limita las etiquetas y comprueba en cada cuadro que no cubran el texto o
+se superpongan. Los glitches ya codificados en los MP4 v4 siguen presentes:
+este cambio no los elimina ni sustituye las películas por renders nuevos.
+Los nuevos nombres están incluidos en el deploy scoped; assets anteriores
+permanecen intactos.
+
+Validación local final: 61 suites / 469 pruebas, lint y TypeScript sin errores;
+12 warnings de lint y diez CSS preexistentes. Contratos nuevos verifican igualdad
+geométrica, el primer cuadro real de Hairline, imports retrasados/fallidos,
+limpieza y protección del titular entre actualizaciones de etiquetas.
+Revisión nativa en 1440/1280/834/390/360 px, sin desborde horizontal. Las capturas,
+mediciones y reporte están en `cinematic-loading-20261005` de las visualizaciones
+del chat. El build del nuevo commit se verifica por PR Checks en el PR #266,
+base develop. No se publica esta revisión en producción.

@@ -177,10 +177,10 @@ jobs:
               src/utils/blogTopicMap.ts|src/utils/getBlogData.ts) ;;
               # UM25 refactor: cine v4 (40 recorridos), páginas de producto
               # 104/105/106 y control visual.
-              public/cine/cine-banner-v4.js|public/cine/cine-banner-v5.js|public/cine/cine-studies-v5.js|public/cine/product-tour-v5.js|\
+              public/cine/cine-banner-v4.js|public/cine/cine-banner-v5.js|public/cine/cine-banner-v6.js|public/cine/cine-studies-v5.js|public/cine/product-tour-v5.js|\
               public/cine/services-story-v5.js|public/cine/software-layers-v5.js|\
-              public/cine/isometric-services-v6.js|public/cine/service-atlas-v6.js|public/cine/service-atlas-v7.js|public/cine/service-atlas-v8.js|public/cine/network-journey-v7.js|public/cine/network-rack-v8.js|public/cine/network-rack-v9.js|public/cine/software-layers-v6.js|\
-              public/cine/hairline-v5.js|public/cine/LICENSE-hairline-v5.txt|public/cine/media/cine-*|\
+              public/cine/isometric-services-v6.js|public/cine/service-atlas-v6.js|public/cine/service-atlas-v7.js|public/cine/service-atlas-v8.js|public/cine/network-journey-v7.js|public/cine/network-rack-v8.js|public/cine/network-rack-v9.js|public/cine/software-layers-v6.js|public/cine/software-layers-v7.js|\
+              public/cine/hairline-v5.js|public/cine/hairline-v7.js|public/cine/LICENSE-hairline-v5.txt|public/cine/media/cine-*|\
               __tests__/visualInformationHubContracts.test.js|__tests__/cineMotionLifecycle.test.js|\
               docs/cine/v5-integration.md|docs/cine/storage-maintenance-20261004.md|\
               scripts/cine/import-v4-media.mjs|scripts/cine/build-hairline-v5.mjs|scripts/cine/vendor/*|\
@@ -190,7 +190,7 @@ jobs:
               src/data/cine/scenes.ts|src/data/cine/v4-media.json|\
               src/data/productPages.ts|src/data/cine/hardware.ts|src/data/cine/isometric.ts|src/data/cine/networkAssembly.ts|\
               src/assets/cine/isometric/*|scripts/cine/build-isometric-v6.mjs|scripts/cine/isometric-models-v6.mjs|\
-              __tests__/isometricServices.test.js|__tests__/networkJourney.test.js|scripts/cine/build-network-journey-v7.mjs|scripts/cine/build-network-rack-v8.mjs|__tests__/mobileOverflowContracts.test.js|docs/cine/isometric-v6.md|\
+              __tests__/isometricServices.test.js|__tests__/networkJourney.test.js|scripts/cine/build-network-journey-v7.mjs|scripts/cine/build-network-rack-v8.mjs|scripts/cine/build-network-rack-v9.mjs|scripts/cine/share-svg-primitives.js|scripts/cine/build-software-preview.mjs|scripts/cine/build-software-hairline-v7.mjs|__tests__/isometricPerformance.test.js|__tests__/mobileOverflowContracts.test.js|docs/cine/isometric-v6.md|\
               src/pages/antecedentes/index.astro|\
               src/pages/certificaciones.astro|\
               src/pages/index.astro|\

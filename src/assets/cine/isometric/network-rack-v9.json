@@ -1,0 +1,421 @@
+{
+  "version": 9,
+  "projection": "orthographic 30°",
+  "projectionMatrix": {
+    "x": [
+      0.8660254037844386,
+      0.5
+    ],
+    "y": [
+      -0.8660254037844386,
+      0.5
+    ],
+    "z": [
+      0,
+      -1
+    ]
+  },
+  "overviewScale": 0.43,
+  "externalScale": 0.43,
+  "connections": {
+    "copper": {
+      "panelPort": 9,
+      "switchPort": 6
+    },
+    "wifi": {
+      "switchPort": 18,
+      "from": [
+        400.1,
+        334.51
+      ],
+      "to": [
+        874.02,
+        443.59
+      ],
+      "path": "M400.1,334.51L333.07,373.21L333.07,630L442.11,692.95L874.02,443.59"
+    }
+  },
+  "equipment": "Generic explanatory geometry; dimensions do not specify a product or a client installation.",
+  "interactionReference": "Hairline cabinet: nearest rack modules extend on rails.",
+  "models": [
+    {
+      "id": "switch",
+      "label": "Switch",
+      "z": 580.4,
+      "scale": 0.98,
+      "lift": [
+        0,
+        -155
+      ],
+      "motion": [
+        0,
+        0,
+        155
+      ],
+      "detailScale": 0.78,
+      "slotX": -88.33,
+      "slotY": -529.4,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "panel",
+      "label": "Patch panel",
+      "z": 669.3,
+      "scale": 1.04,
+      "lift": [
+        0,
+        -105
+      ],
+      "motion": [
+        0,
+        0,
+        105
+      ],
+      "detailScale": 1,
+      "slotX": -151.12,
+      "slotY": -582.05,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "manager",
+      "label": "Organizador",
+      "z": 624.85,
+      "scale": 1.02,
+      "lift": [
+        -69.28,
+        40
+      ],
+      "motion": [
+        0,
+        80,
+        0
+      ],
+      "detailScale": 1,
+      "slotX": -151.12,
+      "slotY": -537.6,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "fiber",
+      "label": "Fibra óptica",
+      "z": 758.2,
+      "scale": 0.97,
+      "lift": [
+        -112.58,
+        65
+      ],
+      "motion": [
+        0,
+        130,
+        0
+      ],
+      "detailScale": 1,
+      "slotX": -79.67,
+      "slotY": -712.2,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "router",
+      "label": "Router",
+      "z": 491.5,
+      "scale": 0.94,
+      "lift": [
+        0,
+        -155
+      ],
+      "motion": [
+        0,
+        0,
+        155
+      ],
+      "detailScale": 1,
+      "slotX": -71.01,
+      "slotY": -450.5,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "server",
+      "label": "Servidor",
+      "z": 358.15,
+      "scale": 0.78,
+      "lift": [
+        0,
+        -165
+      ],
+      "motion": [
+        0,
+        0,
+        165
+      ],
+      "detailScale": 0.87,
+      "slotX": 15.59,
+      "slotY": -367.15,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "ups",
+      "label": "UPS",
+      "z": 91.45,
+      "scale": 0.84,
+      "lift": [
+        -121.24,
+        70
+      ],
+      "motion": [
+        0,
+        140,
+        0
+      ],
+      "detailScale": 1,
+      "slotX": -1.73,
+      "slotY": -90.45,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "pdu",
+      "label": "Distribución",
+      "z": 224.8,
+      "scale": 1.03,
+      "lift": [
+        0,
+        -105
+      ],
+      "motion": [
+        0,
+        0,
+        105
+      ],
+      "detailScale": 1,
+      "slotX": -161.08,
+      "slotY": -131.8,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "access",
+      "label": "Punto Wi-Fi",
+      "z": 0,
+      "scale": 1.66,
+      "lift": [
+        0,
+        -90
+      ],
+      "motion": [
+        0,
+        0,
+        90
+      ],
+      "detailScale": 0.78,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "outlet",
+      "label": "Toma de datos",
+      "z": 0,
+      "scale": 2.1,
+      "lift": [
+        -82.27,
+        47.5
+      ],
+      "motion": [
+        0,
+        95,
+        0
+      ],
+      "detailScale": 0.78,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 430,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "optic",
+      "label": "Transceptor SFP",
+      "z": 0,
+      "scale": 3.4,
+      "lift": [
+        0,
+        -38
+      ],
+      "motion": [
+        0,
+        0,
+        38
+      ],
+      "detailScale": 1,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "injector",
+      "label": "Inyector PoE",
+      "z": 0,
+      "scale": 2.35,
+      "lift": [
+        0,
+        -90
+      ],
+      "motion": [
+        0,
+        0,
+        90
+      ],
+      "detailScale": 0.78,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 370,
+      "openY": 535,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "camera",
+      "label": "Cámara IP",
+      "z": 0,
+      "scale": 1.35,
+      "lift": [
+        0,
+        -100
+      ],
+      "motion": [
+        0,
+        0,
+        100
+      ],
+      "detailScale": 1,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "dome",
+      "label": "Cámara domo",
+      "z": 0,
+      "scale": 1.8,
+      "lift": [
+        0,
+        -95
+      ],
+      "motion": [
+        0,
+        0,
+        95
+      ],
+      "detailScale": 1,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "reader",
+      "label": "Lector de acceso",
+      "z": 0,
+      "scale": 2,
+      "lift": [
+        -86.6,
+        50
+      ],
+      "motion": [
+        0,
+        100,
+        0
+      ],
+      "detailScale": 1,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 430,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "radio",
+      "label": "Radioenlace",
+      "z": 0,
+      "scale": 1.45,
+      "lift": [
+        -90.93,
+        52.5
+      ],
+      "motion": [
+        0,
+        105,
+        0
+      ],
+      "detailScale": 1,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 550,
+      "openY": 535,
+      "mobilePieceY": 430
+    },
+    {
+      "id": "detector",
+      "label": "Detector",
+      "z": 0,
+      "scale": 2.3,
+      "lift": [
+        0,
+        -65
+      ],
+      "motion": [
+        0,
+        0,
+        65
+      ],
+      "detailScale": 1,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "central",
+      "label": "Central de incendio",
+      "z": 0,
+      "scale": 1.06,
+      "lift": [
+        -134.23,
+        77.5
+      ],
+      "motion": [
+        0,
+        155,
+        0
+      ],
+      "detailScale": 1,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 550,
+      "openY": 510,
+      "mobilePieceY": 430
+    }
+  ],
+  "bytes": 586193
+}

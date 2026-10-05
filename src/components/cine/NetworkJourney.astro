@@ -1,6 +1,6 @@
 ---
-import scene from '../../assets/cine/isometric/network-rack-v8.svg?raw';
-import geometry from '../../assets/cine/isometric/network-rack-v8.json';
+import scene from '../../assets/cine/isometric/network-rack-v9.svg?raw';
+import geometry from '../../assets/cine/isometric/network-rack-v9.json';
 import {NETWORK_EQUIPMENT,EQUIPMENT_KITS} from '../../data/cine/networkAssembly';
 interface Props {compact?:boolean;service?:string;catalog?:boolean}
 const {compact=false,service='101',catalog=false}=Astro.props;
@@ -39,7 +39,7 @@ const views=['Todo','Equipo','Interior','Detalle'];
  <figcaption class="network-journey__caption"><h3 data-network-title>{kit.overview}</h3><p data-network-copy>{kit.description}</p><ul class="network-journey__points" data-network-points hidden /></figcaption>
  <p class="network-journey__announcement" data-network-announce aria-live="polite" aria-atomic="true" />
 </figure>
-<script src="/cine/network-rack-v9.js" type="module" is:inline />
+<script src="/cine/network-rack-v9.js" type="module" async is:inline />
 <style>
  .network-journey{margin:0;padding:24px 28px 0;background:#08090a;color:#fff;min-width:0;overflow:hidden;--x-text:#fff;--x-text-2:#c4c7cc}
  .network-journey__meta{display:flex;justify-content:space-between;gap:16px;font-size:1rem;color:#c4c7cc;line-height:1.5;padding-bottom:16px;border-bottom:1px solid #ffffff24}
@@ -96,7 +96,7 @@ const views=['Todo','Equipo','Interior','Detalle'];
  .network-journey__controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.network-journey__controls button{min-height:48px;padding:10px 4px;font:500 1rem var(--um-font-body,'UM Sans',Arial,sans-serif);line-height:1.5;color:#c4c7cc;background:none;border:0;border-bottom:2px solid transparent;cursor:pointer}.network-journey__controls button[aria-pressed=true]{color:#fff;border-bottom-color:var(--um-red,#dc2626)}
  .network-journey__context{display:flex;flex-wrap:wrap;gap:8px 12px;list-style:none;margin:0;padding:20px 0 0;font-size:1rem;line-height:1.5;color:#c4c7cc}.network-journey__context :global(li){display:flex;gap:12px;align-items:baseline}.network-journey__context :global(li>span){color:#fff}
  .network-journey button:focus-visible,.network-journey summary:focus-visible,.network-journey select:focus-visible{outline:2px solid #fff;outline-offset:3px}.network-journey [hidden]{display:none!important}
- .network-journey__caption{padding:24px 0 28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:16px 32px;border-top:1px solid #ffffff24}.network-journey__caption h3{font-size:1.3rem;line-height:1.35;font-weight:600;margin:0;color:#fff;max-width:34ch}.network-journey__caption p{font-size:1rem;line-height:1.65;margin:0;color:#c4c7cc;max-width:60ch}.network-journey__points{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:24px;list-style:none;margin:0;padding:8px 0 0;font-size:1rem;line-height:1.5}.network-journey__points :global(li){display:grid;gap:6px}.network-journey__points :global(strong){font-weight:500;color:#fff}.network-journey__points :global(span){color:#c4c7cc}
+ .network-journey__caption{padding:24px 0 28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:16px 32px;border-top:1px solid #ffffff24}.network-journey__caption h3{font-size:var(--um-world-h3,1.25rem);line-height:1.35;font-weight:var(--um-display-weight,600);margin:0;color:#fff;max-width:34ch}.network-journey__caption p{font-size:var(--um-copy-description,1.125rem);line-height:var(--um-body-line-height,1.62);margin:0;color:#c4c7cc;max-width:60ch}.network-journey__points{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:24px;list-style:none;margin:0;padding:8px 0 0;font-size:1rem;line-height:1.5}.network-journey__points :global(li){display:grid;gap:6px}.network-journey__points :global(strong){font-weight:500;color:#fff}.network-journey__points :global(span){color:#c4c7cc}
  .network-journey__announcement{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
  .network-journey :global(.rk-view-labels){display:none}.network-journey__library{display:none}
  .network-journey--compact{padding:0}.network-journey--compact .network-journey__meta{display:none}.network-journey--compact .network-journey__status>span{display:none}.network-journey--compact .network-journey__status>div{width:100%;justify-content:space-between}.network-journey--compact .network-journey__canvas{height:clamp(290px,28vw,350px)}.network-journey--compact .network-journey__caption{grid-template-columns:1fr;gap:12px;padding:20px 0}.network-journey--compact[data-step="0"] .network-journey__caption{display:none}
