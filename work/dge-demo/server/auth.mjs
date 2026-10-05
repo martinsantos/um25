@@ -6,7 +6,7 @@ import { dirname, resolve, sep, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const scrypt = promisify(scryptCallback);
 const here = dirname(fileURLToPath(import.meta.url));
-const mime = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.svg':'image/svg+xml', '.ttf':'font/ttf', '.png':'image/png', '.jpg':'image/jpeg', '.ico':'image/x-icon', '.txt':'text/plain; charset=utf-8' };
+const mime = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.svg':'image/svg+xml', '.ttf':'font/ttf', '.png':'image/png', '.jpg':'image/jpeg', '.pdf':'application/pdf', '.ico':'image/x-icon', '.txt':'text/plain; charset=utf-8' };
 
 export async function createDemoHandler({ credentials, origin, clientDir=resolve(here,'../dist/client'), loginDir=here, base='/ofertas/dge/', secure=true, clock=Date.now, limit=10 }) {
   if (!origin || new URL(origin).origin !== origin || (secure && !origin.startsWith('https://')) || base !== '/ofertas/dge/') throw new Error('Invalid demo origin/base');
@@ -54,19 +54,19 @@ export async function createDemoHandler({ credentials, origin, clientDir=resolve
         const address=req.socket.remoteAddress || 'unknown';
         const trustedLoopback=['127.0.0.1','::1','::ffff:127.0.0.1'].includes(address);
         const ip=trustedLoopback && req.headers['x-real-ip'] ? String(req.headers['x-real-ip']).slice(0,128) : address;
-        if(attempts.size>=1000 && !attempts.has(ip)) return renderLogin(res,'Demasiados intentos. Probá más tarde.',429,{'Retry-After':'900'});
+        if(attempts.size>=1000 && !attempts.has(ip)) return renderLogin(res,'Demasiados intentos. Reintentar más tarde.',429,{'Retry-After':'900'});
         const entry=attempts.get(ip)||{ count:0, until:clock()+rateWindow };
-        if(entry.count>=limit) return renderLogin(res,'Demasiados intentos. Esperá 15 minutos.',429,{'Retry-After':'900'});
+        if(entry.count>=limit) return renderLogin(res,'Demasiados intentos. Reintentar dentro de 15 minutos.',429,{'Retry-After':'900'});
         entry.count++; attempts.set(ip,entry);
         let body=''; for await (const chunk of req) { body+=chunk; if(Buffer.byteLength(body)>4096) return respond(res,413,'Solicitud demasiado grande'); }
         const form=new URLSearchParams(body); const username=form.get('username')||'', password=form.get('password')||'';
         if(username.length>64 || password.length>128 || !password) return renderLogin(res,'Usuario o clave incorrectos.',401);
-        if(activeChecks>=4) return renderLogin(res,'Acceso ocupado. Probá de nuevo en unos segundos.',503,{'Retry-After':'5'});
+        if(activeChecks>=4) return renderLogin(res,'Acceso ocupado. Reintentar dentro de unos segundos.',503,{'Retry-After':'5'});
         let hash; activeChecks++;
         try { hash=await scrypt(password,credentials.salt,64,{N:16384,r:8,p:1}); } finally { activeChecks--; }
         const valid=timingSafeEqual(hash,Buffer.from(credentials.hash,'hex')) && username===credentials.username;
         if(!valid) return renderLogin(res,'Usuario o clave incorrectos.',401);
-        if(sessions.size>=1000) return renderLogin(res,'No hay sesiones disponibles. Probá más tarde.',503);
+        if(sessions.size>=1000) return renderLogin(res,'No hay sesiones disponibles. Reintentar más tarde.',503);
         if(token) sessions.delete(token);
         const fresh=randomBytes(32).toString('hex'); sessions.set(fresh,clock()+lifetime);
         return redirect(res,'',{'Set-Cookie':cookie(fresh,lifetime/1000)});

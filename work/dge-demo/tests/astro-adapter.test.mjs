@@ -13,9 +13,13 @@ test('Astro Request/Response conserva login, recursos privados y revocación',as
   const anonymous=await handle(new Request(root+'index.html'));
   assert.equal(anonymous.status,303); assert.equal(anonymous.headers.get('location'),'/ofertas/dge/login');
   const asset=await handle(new Request(root+'assets/um-logo.svg'));assert.equal(asset.status,303);
+  for(const path of ['assets/documentos/curso-demo-v2.pdf','assets/documentos/curso-demo-v2-1.png','assets/documentos/curso-demo-v2-thumb.png']) assert.equal((await handle(new Request(root+path))).status,303);
   const login=await handle(new Request(root+'login',{method:'POST',headers:{Origin:origin,'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({username,password})}));
   assert.equal(login.status,303);const cookie=login.headers.get('set-cookie').split(';')[0];
   const app=await handle(new Request(root,{headers:{Cookie:cookie}}));assert.equal(app.status,200);assert.match(await app.text(),/id="root"/);
+  for(const [path,type] of [['assets/documentos/curso-demo-v2.pdf','application/pdf'],['assets/documentos/curso-demo-v2-1.png','image/png']]) {
+    const doc=await handle(new Request(root+path,{headers:{Cookie:cookie}}));assert.equal(doc.status,200);assert.equal(doc.headers.get('content-type'),type);assert.match(doc.headers.get('cache-control'),/no-store/);
+  }
   const head=await handle(new Request(root+'login-assets/login.css',{method:'HEAD'}));assert.equal(head.status,200);assert.equal(await head.text(),'');
   const logout=await handle(new Request(root+'logout',{method:'POST',headers:{Origin:origin,Cookie:cookie}}));assert.equal(logout.status,303);
   assert.equal((await handle(new Request(root,{headers:{Cookie:cookie}}))).status,303);

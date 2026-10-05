@@ -16,7 +16,7 @@ async function walk(dir) {
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const privateFiles=await walk(source);
 const fingerprints=new Map();
-for(const path of privateFiles) if(/\.(html|js|json)$/.test(path)) fingerprints.set(basename(path),hash(await readFile(path)));
+for(const path of privateFiles) if(/\.(html|js|json|pdf|png)$/.test(path)) fingerprints.set(basename(path),hash(await readFile(path)));
 const publicFiles=await walk(resolve(root,'dist/client'));
 for(const path of publicFiles) {
   if(path.includes('/ofertas/dge/')) throw new Error('DGE payload may not be emitted to dist/client');
