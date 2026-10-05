@@ -169,7 +169,7 @@ describe('Information hub visual contracts', () => {
 
     expect(antecedentes).toMatch(/@media \(max-width: 639px\)[\s\S]*\.ev-card\s*\{\s*display:\s*grid;\s*grid-template-columns:\s*132px minmax\(0, 1fr\);/);
     expect(antecedentes).toMatch(/@media \(max-width: 639px\)[\s\S]*\.ev-card__media\s*\{\s*aspect-ratio:\s*auto;\s*min-height:\s*132px;/);
-    expect(services).toMatch(/@media \(max-width:\s*640px\)[\s\S]*grid-template-columns:\s*minmax\(84px, 24vw\) minmax\(0, 1fr\)/);
+    expect(services).toMatch(/@media \(max-width:\s*640px\)[\s\S]*grid-template-columns:\s*1fr/);
     expect(services).toMatch(/@media \(max-width:\s*640px\)[\s\S]*\.services-demo-body > p\s*\{\s*display:\s*none;/);
     expect(sectores).toMatch(/\.sectors-demo-stats\s*\{[\s\S]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
     expect(sectores).toMatch(/@media \(max-width:\s*620px\)[\s\S]*\.sectors-demo-filters > div\s*\{[\s\S]*flex-wrap:\s*nowrap;[\s\S]*overflow-x:\s*auto;/);
@@ -263,14 +263,15 @@ describe('Information hub visual contracts', () => {
     // cada unidad es su color de sistema y un único enlace real al servicio.
     const home = read('src/pages/index.astro');
     const story = read('src/components/cine/ServicesStory.astro');
-    const itemTemplate = story.slice(story.indexOf('<ol class="svc-story__list">'), story.indexOf('</ol>'));
+    const itemTemplate = story.slice(story.indexOf('<ol class="svc-story__list"'), story.indexOf('</ol>'));
 
     expect(home).toContain("import ServicesStory from '../components/cine/ServicesStory.astro'");
     expect(home).toContain('<ServicesStory services={services} />');
     expect(home).not.toContain('<i aria-hidden="true"></i>');
     expect(home).not.toMatch(/\.um-service-unit__head i\s*\{/);
     expect(itemTemplate).not.toMatch(/<i\b/);
-    expect(itemTemplate).toContain('<a class="svc-story__link" href={s.href}>');
+    expect(itemTemplate).toContain('data-atlas-service={s.code}');
+    expect(story).toContain('href={first.href} data-atlas-link');
     expect(home).toContain('class="um26-card-bar" aria-hidden="true"');
     expect(home).toMatch(/\.um26-card-bar\s*\{[\s\S]*background:\s*#dc2626;/);
   });
@@ -421,10 +422,9 @@ describe('Information hub visual contracts', () => {
 
     expect(home).toContain('<CineBanner');
     expect(banner).toMatch(/<img class="umc-poster"[^>]*width="1920" height="1080" fetchpriority="high" decoding="async"/);
-    // El escenario tiene dos capas de póster (se funden al cambiar de servicio) con dimensiones
-    // explícitas y carga diferida; las miniaturas son el póster v4 de cada servicio.
-    expect(story).toMatch(/<img class="svc-story__poster is-on"[^>]*width="1920" height="1080" loading="lazy" decoding="async" data-poster-layer \/>/);
-    expect(story).toMatch(/<img class="svc-story__render" src=\{s\.poster\}[^>]*width="320" height="180" loading="lazy" decoding="async" \/>/);
+    // Un único SVG isométrico reserva su tamaño y carga diferido.
+    expect(story).toMatch(/<img[^>]*width="1040" height="755" loading="lazy" decoding="async" data-atlas-image/);
+    expect(story).not.toMatch(/<video|<iframe/);
     expect(home).toContain('width="1200"');
     expect(home).toContain('height="900"');
     expect(home).toContain('decoding="async"');
@@ -605,10 +605,10 @@ describe('Information hub visual contracts', () => {
     // Rediseño 2026-09: la primera pantalla es CineBanner; las filas de servicio
     // quedan bajo el pliegue, cargan diferido y reservan su tamaño intrínseco.
     expect(servicios).toContain('<CineBanner');
-    expect(servicios).toContain('<img src={service.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />');
+    expect(servicios).toContain('<img src={service.image} alt={ISOMETRIC_STUDIES[service.code].object} width="1040" height="755" loading="lazy" decoding="async" />');
     expect(servicios).toMatch(/\.services-demo-row\s*\{[\s\S]*content-visibility:\s*auto;[\s\S]*contain-intrinsic-block-size:\s*360px;/);
-    expect(servicios).toMatch(/\.services-demo-media\s*\{[\s\S]*background-image:\s*var\(--service-image\);/);
-    expect(cssBlock(servicios, '.services-demo-media div')).toMatch(/z-index:\s*1;/);
+    expect(cssBlock(servicios, '.services-demo-media img')).toMatch(/object-fit:\s*contain;/);
+    expect(servicios).not.toContain('background-image: var(--service-image)');
     expect(cssBlock(servicios, '.services-demo-media img')).toMatch(/z-index:\s*0;/);
     expect(cssBlock(servicios, '.services-demo-media span,\n    .services-demo-media em')).toMatch(/z-index:\s*2;/);
     expect(servicios).toMatch(/\.services-demo-body ul\s*\{[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);

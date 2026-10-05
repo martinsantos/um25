@@ -1,105 +1,75 @@
 ---
-// Servicios de la home como relato: la escena del edificio queda fija en modo
-// esqueleto y, a medida que se recorre cada servicio, el motor aísla y encuadra el
-// sistema correspondiente. El 3D se monta únicamente a pedido.
-import { V4_CUTS, serviceSceneKey, baseScene } from '../../data/cine/scenes';
-import { HARDWARE } from '../../data/cine/hardware';
-interface Service { code: string; name: string; href: string }
-interface Props { services: Service[] }
-const { services } = Astro.props;
-
-// Un solo acento (rojo). El color por sistema que había antes rompía la regla
-// de un acento y hacía ruido con los códigos.
-const STORY: Record<string, { body: string; cmd: Record<string, unknown>[] }> = {
-  '101': { body: 'Cableado estructurado Cat 6/6A/7, fibra óptica, radioenlaces, LAN/WAN y data centers en Mendoza, San Juan, San Luis y todo Cuyo.', cmd: [{ action: 'mode', value: 'systems' }, { action: 'focus', value: ['Data', 'Fiber', 'WiFi'] }] },
-  '102': { body: 'Videovigilancia CCTV IP, control de acceso biométrico y RFID, alarmas y monitoreo centralizado en Mendoza, Cuyo y Patagonia.', cmd: [{ action: 'mode', value: 'systems' }, { action: 'focus', value: ['CCTV', 'Security', 'Intercom'] }] },
-  '103': { body: 'Convergencia de datos, voz y video, con enlaces para sitios remotos y operadores integrados en una misma red.', cmd: [{ action: 'mode', value: 'systems' }, { action: 'focus', value: ['Telecom'] }] },
-  '104': { body: 'Sistemas, APIs y tableros para procesos críticos: aplicaciones web, mobile y ERP con código propio.', cmd: [{ action: 'mode', value: 'systems' }, { action: 'focus', value: ['Software'] }] },
-  '105': { body: 'Mesa de ayuda, mantenimiento preventivo y correctivo, monitoreo y respuesta a incidentes con SLA, las 24 horas.', cmd: [{ action: 'mode', value: 'systems' }, { action: 'focus', value: null }] },
-  '106': { body: 'Arquitectura, auditorías de seguridad, evaluación de proveedores y roadmap tecnológico para decidir con información.', cmd: [{ action: 'focus', value: null }, { action: 'mode', value: 'building' }] },
-  '107': { body: 'Detección temprana direccionable, diseñada según NFPA 72, con habilitación de bomberos y mantenimiento periódico.', cmd: [{ action: 'mode', value: 'systems' }, { action: 'focus', value: ['Fire-detection'] }] },
-  '108': { body: 'Tableros dedicados, UPS online, bancos de baterías y puesta a tierra técnica para racks y equipos críticos.', cmd: [{ action: 'mode', value: 'systems' }, { action: 'focus', value: ['Power'] }] },
+import {ISOMETRIC_STUDIES} from '../../data/cine/isometric';
+interface Service {code:string;name:string;href:string}
+interface Props {services:Service[]}
+const {services}=Astro.props;
+const files=import.meta.glob<string>('../../assets/cine/isometric/*-*.svg',{eager:true,query:'?url',import:'default'});
+const url=(asset:string,view:string)=>files[`../../assets/cine/isometric/${asset}-${view}.svg`];
+const summaries:Record<string,string>={
+ '101':'Cableado, fibra y equipos con una función identificable.',
+ '102':'Cámaras, accesos y señales dentro del mismo sistema.',
+ '103':'Datos, voz y video entre sitios conectados.',
+ '104':'Procesos, información y acciones en una herramienta propia.',
+ '105':'Estado, prioridad y respuesta para sostener la operación.',
+ '106':'Arquitectura, evidencia y decisiones sobre el conjunto.',
+ '107':'Dispositivos, lazo y central para una detección temprana.',
+ '108':'Respaldo, alimentación y protección de las cargas críticas.',
 };
-// Cada servicio trae el póster de su recorrido v4 (el servicio dentro de la escena):
-// es la miniatura de la lista y la imagen del escenario mientras el 3D no está montado.
-const posterOf = (code: string) => {
-  if (HARDWARE[code]) return HARDWARE[code].views[0].image;
-  const key = serviceSceneKey(code);
-  return V4_CUTS[key]?.poster ?? `/cine/media/cine-${baseScene(key)}-poster.jpg`;
-};
-const items = services.map((s) => ({ ...s, ...STORY[s.code], poster: posterOf(s.code) }));
-const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=1';
+const items=services.filter(s=>ISOMETRIC_STUDIES[s.code]).map(s=>({...s,study:ISOMETRIC_STUDIES[s.code]}));
+const first=items[0];
 ---
-<div class="svc-story" data-svc-story>
-  <div class="svc-story__stage" data-src={src}>
-    <img class="svc-story__poster is-on" src={items[0]?.poster ?? '/cine/media/story-fachada.jpg'} alt="" width="1920" height="1080" loading="lazy" decoding="async" data-poster-layer />
-    <img class="svc-story__poster" src={items[0]?.poster ?? '/cine/media/story-fachada.jpg'} alt="" width="1920" height="1080" loading="lazy" decoding="async" data-poster-layer />
-    <video class="svc-story__movie" muted loop playsinline preload="none" aria-hidden="true"></video>
-    <div class="svc-story__frame" aria-hidden="true"></div>
-    <div class="svc-story__controls"><button class="svc-story__motion" type="button" aria-pressed="false">Pausar recorrido</button><button class="svc-story__mount" type="button" aria-expanded="false">Recorrer el gemelo digital</button></div>
-    <p class="svc-story__now" aria-live="polite"><i></i><span>{items[0]?.name}</span></p>
+{first && <div class="svc-story" data-service-atlas>
+  <div class="svc-story__stage">
+    <div class="svc-story__meta"><span>Un proyecto. Ocho sistemas.</span><span data-atlas-code>{first.code}</span></div>
+    <div class="svc-story__frame"><img src={url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
+    <div class="svc-story__views" role="group" aria-label="Escala del servicio">
+      <button type="button" data-atlas-view="system" aria-pressed="false">En el proyecto</button>
+      <button type="button" data-atlas-view="object" aria-pressed="true">La pieza</button>
+    </div>
+    <div class="svc-story__caption" aria-live="polite" aria-atomic="true">
+      <h3 data-atlas-title>{first.study.title}</h3>
+      <p data-atlas-copy>{summaries[first.code]}</p>
+      <a class="svc-story__link" href={first.href} data-atlas-link>Explorar {first.study.name.toLowerCase()} <span aria-hidden="true">→</span></a>
+    </div>
   </div>
-  <ol class="svc-story__list">
-    {items.map((s) => (
-      <li class="svc-story__item" data-cmd={JSON.stringify(s.cmd)} data-name={s.name} data-poster={s.poster} data-video={HARDWARE[s.code]?.video}>
-        <img class="svc-story__render" src={s.poster} alt="" width="320" height="180" loading="lazy" decoding="async" />
-        <div>
-          <p class="svc-story__code"><span>{s.code}</span></p>
-          <h3>{s.name}</h3>
-          <p class="svc-story__body">{s.body}</p>
-          <a class="svc-story__link" href={s.href}>Ver {s.name.charAt(0).toLowerCase() + s.name.slice(1)} <span aria-hidden="true">→</span></a>
-        </div>
-      </li>
-    ))}
+  <ol class="svc-story__list" aria-label="Sistemas del proyecto">
+    {items.map((s,i)=><li class="svc-story__item">
+      <button type="button" data-atlas-service={s.code} data-object={url(s.study.asset,'object')} data-system={url(s.study.asset,'system')} data-name={s.study.name} data-title={s.study.title} data-copy={summaries[s.code]} data-context={s.study.views[0].description} data-alt={s.study.object} data-href={s.href} aria-pressed={String(i===0)}>
+        <span class="svc-story__code">{s.code}</span><span class="svc-story__text"><strong>{s.study.name}</strong><span>{summaries[s.code]}</span></span><span class="svc-story__arrow" aria-hidden="true">↗</span>
+      </button>
+    </li>)}
   </ol>
-</div>
-
-<script src="/cine/services-story-v5.js" type="module" is:inline />
-
+</div>}
+<script src="/cine/service-atlas-v6.js" type="module" is:inline />
 <style>
-  .svc-story { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(28px, 4vw, 64px); align-items: start; }
-  .svc-story__stage { position: sticky; top: 88px; height: calc(100vh - 128px); min-height: 440px; max-height: 780px; overflow: hidden; background: #07080a; border: 1px solid rgba(255, 255, 255, .08); }
-  .svc-story__poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .24s ease; }
-  .svc-story__poster.is-on { opacity: 1; }
-  .svc-story__movie { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:0; transition:opacity .24s ease; }
-  .svc-story__stage.has-movie .svc-story__movie { opacity:1; }
-  .svc-story__frame, .svc-story__frame :global(iframe) { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-  .svc-story__frame { opacity: 0; transition: opacity 1s ease; }
-  .svc-story__stage.is-ready .svc-story__frame { opacity: 1; }
-  .svc-story__stage.is-ready .svc-story__poster { opacity: 0; }
-  .svc-story__controls { position:absolute;left:16px;right:16px;top:16px;display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;z-index:2; }
-  .svc-story__motion { min-height:44px;padding:0 14px;font:600 1rem 'UM Sans',Arial,sans-serif;color:#fff;background:#101214e8;border:1px solid #ffffff55;cursor:pointer; }
-  .svc-story__controls button:focus-visible { outline:2px solid #fff;outline-offset:3px; }
-  .svc-story__mount { min-height: 44px; padding: 0 22px; border: 0; background: #dc2626; color: #fff; font: 600 1rem 'UM Sans', Arial, sans-serif; cursor: pointer; }
-  .svc-story__mount[hidden] { display: none; }
-  .svc-story__now { position: absolute; left: 16px; bottom: 16px; margin: 0; display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(8, 10, 13, .82); border: 1px solid rgba(255, 255, 255, .14); font-size: 1rem; font-weight: 600; pointer-events: none; backdrop-filter: blur(8px); }
-  .svc-story__now i { width: 10px; height: 10px; background: #dc2626; }
-  .svc-story__list { list-style: none; margin: 0; padding: 6vh 0 18vh; display: flex; flex-direction: column; gap: 9vh; }
-  .svc-story__item { --c: #dc2626; display: grid; grid-template-columns: 136px 1fr; gap: 22px; align-items: start; padding-left: 22px; border-left: 2px solid rgba(255, 255, 255, .1); opacity: .62; transition: opacity .24s cubic-bezier(.2, .8, .2, 1), border-color .24s cubic-bezier(.2, .8, .2, 1); }
-  .svc-story__item.is-active { opacity: 1; border-left-color: var(--c); }
-  .svc-story__render { width: 136px; aspect-ratio: 16 / 10; height: auto; object-fit: contain; background: #0a0d10; border: 1px solid rgba(255, 255, 255, .1); }
-  .svc-story__code { margin: 0 0 8px; display: flex; align-items: center; gap: 10px; }
-  .svc-story__code span { font-size: 1rem; font-weight: 600; letter-spacing: .12em; color: rgba(255, 255, 255, .55); font-variant-numeric: tabular-nums; }
-  .svc-story__item.is-active .svc-story__code span { color: var(--c); }
-  .svc-story__item h3 { margin: 0; font-size: clamp(1.5rem, 2vw, 1.9rem) !important; line-height: 1.15 !important; font-weight: 600 !important; letter-spacing: -.015em; color: #fff; }
-  .svc-story__body { margin: 12px 0 0; font-size: 1.05rem; line-height: 1.6; color: rgba(255, 255, 255, .78); max-width: 42ch; }
-  .svc-story__link { display: inline-flex; gap: 8px; margin-top: 16px; font-size: .98rem; font-weight: 600; color: #fff; text-decoration: none; border-bottom: 1px solid var(--c); padding-bottom: 3px; }
-  .svc-story__link:hover { color: var(--c); }
-  @media (max-width: 900px) {
-    .svc-story { grid-template-columns: 1fr; gap: 0; }
-    /* Escenario fijo más bajo: deja ~70 % de la pantalla para leer. */
-    .svc-story__stage { top: 63px; height: clamp(200px, 30svh, 280px); min-height: 0; z-index: 2; }
-    .svc-story__list { padding: 8px 0 0; gap: 0; }
-    .svc-story__item { grid-template-columns: 80px 1fr; gap: 16px; padding: 20px 0 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, .08); }
-    .svc-story__render { width: 80px; }
-    .svc-story__code { margin-bottom: 4px; }
-    .svc-story__item h3 { font-size: 1.25rem !important; line-height: 1.25 !important; }
-    .svc-story__body { margin-top: 8px; font-size: 1rem; line-height: 1.55; }
-    .svc-story__link { min-height: 44px; margin-top: 4px; padding-bottom: 0; align-items: center; border-bottom: 0; text-decoration: underline; text-decoration-color: var(--c); text-underline-offset: 6px; }
-    /* En móvil el escenario queda arriba: la lista se lee completa, sin atenuar. */
-    .svc-story__item { opacity: 1; }
-    .svc-story__now { left: 12px; top: 12px; bottom: auto; padding: 8px 12px; font-size: .9375rem; }
-    .svc-story__controls { top:auto;bottom:12px;left:12px;right:12px; }
-    .svc-story__mount { padding: 0 16px; font-size: .9375rem; background: rgba(8, 10, 13, .82); border: 1px solid rgba(255, 255, 255, .28); backdrop-filter: blur(8px); }
-  }
+ .svc-story{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(24px,4vw,64px);align-items:start}
+ .svc-story__stage{background:#090909;color:#fff;padding:clamp(20px,2.8vw,36px);min-width:0}
+ .svc-story__meta{display:flex;justify-content:space-between;gap:16px;font-size:1rem;color:#c4c7cc;line-height:1.5;border-bottom:1px solid #ffffff24;padding-bottom:16px}
+ .svc-story__meta span:last-child{font-variant-numeric:tabular-nums}
+ .svc-story__frame{height:clamp(280px,29vw,405px);position:relative;min-width:0}
+ .svc-story__frame img{width:100%;height:100%!important;object-fit:contain;display:block}
+ .svc-story__frame.is-entering{animation:atlas-enter 220ms ease-out both}
+ @keyframes atlas-enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+ .svc-story__views{display:grid;grid-template-columns:1fr 1fr;border-block:1px solid #ffffff36}
+ .svc-story__views button{color:#c4c7cc;font:500 1rem var(--um-font-body,'UM Sans',Arial,sans-serif);border:0;border-bottom:2px solid transparent;background:transparent;min-height:52px;padding:12px;cursor:pointer}
+ .svc-story__views button+button{border-left:1px solid #ffffff24}
+ .svc-story__views button[aria-pressed=true]{color:#fff;background:#171717;border-bottom-color:#dc2626}
+ .svc-story__caption{padding-top:24px;min-height:186px}
+ .svc-story__caption h3{margin:0;font-size:clamp(1.375rem,2vw,1.75rem);font-weight:600;line-height:1.25;color:#fff}
+ .svc-story__caption p{font-size:1rem;line-height:1.6;color:#c4c7cc;max-width:58ch;margin:12px 0 0}
+ .svc-story__link{display:inline-flex;gap:16px;align-items:center;min-height:44px;margin-top:12px;font-size:1rem;color:#fff;text-decoration:underline;text-decoration-color:#dc2626;text-underline-offset:7px}
+ .svc-story__list{list-style:none;padding:0;margin:0;display:grid}
+ .svc-story__item{margin:0;padding:0;border-bottom:1px solid #ffffff24}
+ .svc-story__item:first-child{border-top:1px solid #ffffff24}
+ .svc-story__item button{display:grid;grid-template-columns:40px minmax(0,1fr) 18px;gap:16px;align-items:baseline;min-height:82px;width:100%;padding:16px 16px 16px 14px;background:none;color:#fff;border:0;border-left:2px solid transparent;text-align:left;cursor:pointer;font:400 1rem var(--um-font-body,'UM Sans',Arial,sans-serif)}
+ .svc-story__item button[aria-pressed=true]{border-left-color:#dc2626;background:#ffffff06}
+ .svc-story__code{color:#c4c7cc;font-variant-numeric:tabular-nums}
+ .svc-story__text{display:grid;gap:6px;min-width:0}
+ .svc-story__text strong{overflow-wrap:anywhere;font-size:1.2rem;font-weight:600;line-height:1.25}
+ .svc-story__text>span{font-size:1rem;line-height:1.45;color:#c4c7cc}
+ .svc-story__arrow{color:#c4c7cc}
+ .svc-story button:focus-visible,.svc-story a:focus-visible{outline:2px solid #fff;outline-offset:-4px}
+ @media(hover:hover){.svc-story__item button:hover,.svc-story__views button:hover{background:#ffffff09;color:#fff}.svc-story__link:hover{text-decoration-thickness:2px}}
+ @media(max-width:900px){.svc-story{grid-template-columns:1fr;gap:20px}.svc-story__list{grid-row:1;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid #ffffff24}.svc-story__item:first-child{border-top:0}.svc-story__item button{grid-template-columns:32px minmax(0,1fr);min-height:76px;gap:8px;padding:12px 10px}.svc-story__text strong{font-size:1rem;line-height:1.4}.svc-story__text>span,.svc-story__arrow{display:none}.svc-story__stage{padding:20px}.svc-story__frame{height:310px}.svc-story__caption{min-height:175px}}
+ @media(prefers-reduced-motion:reduce){.svc-story__frame.is-entering{animation:none}}
 </style>

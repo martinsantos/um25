@@ -2,7 +2,8 @@
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
 import CineBanner from '../../components/cine/CineBanner.astro';
-import { V4_CUTS, serviceSceneKey, baseScene } from '../../data/cine/scenes';
+import {ISOMETRIC_STUDIES} from '../../data/cine/isometric';
+const isometricAssets=import.meta.glob<string>('../../assets/cine/isometric/*-object.svg',{eager:true,query:'?url',import:'default'});
 
 type Service = {
   code: string;
@@ -116,12 +117,7 @@ const services: Service[] = [
 ];
 
 const totalServices = String(services.length).padStart(2, '0');
-// La imagen de cada frente es el póster de su recorrido v4 (el servicio dentro de la
-// escena del gemelo digital), no una foto de banco.
-const servicesWithPosters = services.map((s) => {
-  const key = serviceSceneKey(s.code);
-  return { ...s, image: V4_CUTS[key]?.poster ?? `/cine/media/cine-${baseScene(key)}-poster.jpg` };
-});
+const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../assets/cine/isometric/${ISOMETRIC_STUDIES[s.code].asset}-object.svg`]}));
 ---
 
 <LayoutV4 skin="black"
@@ -152,10 +148,8 @@ const servicesWithPosters = services.map((s) => {
           <div
             role="presentation"
             class={`services-demo-media services-demo-media--${service.code}`}
-            style={`--service-image: url('${service.image}')`}
           >
-            <img src={service.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />
-            <div aria-hidden="true"></div>
+            <img src={service.image} alt={ISOMETRIC_STUDIES[service.code].object} width="1040" height="755" loading="lazy" decoding="async" />
             <span>SRV.{service.code}</span>
             <em>{service.sectors} sectores</em>
           </div>
@@ -386,9 +380,6 @@ const servicesWithPosters = services.map((s) => {
       color: #fff;
       text-decoration: none;
       background-color: #0f0f11;
-      background-image: var(--service-image);
-      background-position: center;
-      background-size: cover;
     }
 
     .services-demo-media img {
@@ -396,20 +387,10 @@ const servicesWithPosters = services.map((s) => {
       inset: 0;
       z-index: 0;
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-      filter: contrast(1.08) saturate(0.9) brightness(0.82);
+      height: 100% !important;
+      object-fit: contain;
+      padding: 28px;
       transform: none;
-      transition: filter 0.18s ease;
-    }
-
-    .services-demo-media div {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      background:
-        linear-gradient(to top, rgba(10,10,11,0.92), rgba(10,10,11,0.18) 58%, rgba(10,10,11,0.04)),
-        linear-gradient(120deg, rgba(220,38,38,0.16), transparent 38%);
     }
 
     .services-demo-media span,
@@ -438,15 +419,6 @@ const servicesWithPosters = services.map((s) => {
       padding: 7px 0;
       color: rgba(255,255,255,0.78);
     }
-
-    .services-demo-media--101 { --service-image: url('/img/servicios/redes.webp'); }
-    .services-demo-media--102 { --service-image: url('/img/servicios/seguridad-electronica.webp'); }
-    .services-demo-media--103 { --service-image: url('/img/servicios/telecomunicaciones.webp'); }
-    .services-demo-media--104 { --service-image: url('/img/servicios/software-a-medida.webp'); }
-    .services-demo-media--105 { --service-image: url('/img/servicios/soporte-247.webp'); }
-    .services-demo-media--106 { --service-image: url('/img/servicios/consultoria-it.webp'); }
-    .services-demo-media--107 { --service-image: url('/img/servicios/deteccion-incendios.webp'); }
-    .services-demo-media--108 { --service-image: url('/img/servicios/electricos-it.webp'); }
 
     .services-demo-body {
       display: flex;
@@ -738,14 +710,9 @@ const servicesWithPosters = services.map((s) => {
       }
 
       .services-demo-media {
-        min-height: 176px;
+        min-height: 280px;
       }
 
-      .services-demo-media div {
-        background:
-          linear-gradient(to top, rgba(10,10,11,0.76), rgba(10,10,11,0.12) 58%, rgba(10,10,11,0.02)),
-          linear-gradient(120deg, rgba(220,38,38,0.10), transparent 38%);
-      }
 
       .services-demo-body h2 {
         max-width: 100%;
@@ -770,10 +737,10 @@ const servicesWithPosters = services.map((s) => {
 
       .services-demo-row,
       .services-demo-row:nth-child(even) {
-        grid-template-columns: minmax(84px, 24vw) minmax(0, 1fr);
+        grid-template-columns: 1fr;
         min-height: 0;
         border-top-width: 1px;
-        contain-intrinsic-block-size: 240px;
+        contain-intrinsic-block-size: 480px;
       }
 
       .services-demo-row + .services-demo-row {
@@ -785,10 +752,11 @@ const servicesWithPosters = services.map((s) => {
       }
 
       .services-demo-media {
-        min-height: 100%;
+        min-height: 240px;
       }
 
       .services-demo-media img {
+        padding: 12px;
         transform: none;
       }
 
@@ -797,11 +765,6 @@ const servicesWithPosters = services.map((s) => {
         transform: none;
       }
 
-      .services-demo-media div {
-        background:
-          linear-gradient(to top, rgba(10,10,11,0.72), rgba(10,10,11,0.18)),
-          linear-gradient(120deg, rgba(220,38,38,0.12), transparent 52%);
-      }
 
       .services-demo-media span,
       .services-demo-media em {

@@ -11,10 +11,10 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: 'Deploy, audit storage, or apply the separately approved inactive dependency cleanup'
+        description: 'Deploy or run separately approved, audited storage maintenance'
         type: choice
         default: deploy
-        options: [deploy, storage-plan, storage-apply]
+        options: [deploy, storage-plan, storage-apply, uploads-audit]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -68,7 +68,12 @@ jobs:
         continue-on-error: true  # Don't fail build if storage quota exceeded
         with:
           name: dist-build
-          path: dist/
+          path: |
+            dist/
+            !dist/client/cine/media/cine-v5-*
+            !dist/client/cine/cine-studies-v5.js
+            !dist/client/cine/services-story-v5.js
+            !dist/client/cine/software-layers-v5.js
           retention-days: 1
 
   #===========================================================================
@@ -132,7 +137,7 @@ jobs:
           while IFS= read -r path; do
             case "$path" in
               .github/workflows/production-deploy.yml|.github/workflows/community-demo-integrity.yml|\
-              scripts/ops/deploy-scoped-dist.sh|scripts/ops/prune-inactive-umbot-deps.sh|\
+              scripts/ops/deploy-scoped-dist.sh|scripts/ops/prune-inactive-umbot-deps.sh|scripts/ops/audit-directus-uploads.sh|\
               __tests__/runtimeConfigContracts.test.js|__tests__/nginxOps.test.ts|\
               docs/campaign-preview/PHOTO-SOURCES.md|docs/campaign-preview/README.md|\
               docs/campaign-preview/compose-email.mjs|docs/campaign-preview/comunidades-email.html|\
@@ -174,6 +179,7 @@ jobs:
               # 104/105/106 y control visual.
               public/cine/cine-banner-v4.js|public/cine/cine-banner-v5.js|public/cine/cine-studies-v5.js|public/cine/product-tour-v5.js|\
               public/cine/services-story-v5.js|public/cine/software-layers-v5.js|\
+              public/cine/isometric-services-v6.js|public/cine/service-atlas-v6.js|public/cine/software-layers-v6.js|\
               public/cine/hairline-v5.js|public/cine/LICENSE-hairline-v5.txt|public/cine/media/cine-*|\
               __tests__/visualInformationHubContracts.test.js|__tests__/cineMotionLifecycle.test.js|\
               docs/cine/v5-integration.md|docs/cine/storage-maintenance-20261004.md|\
@@ -182,7 +188,9 @@ jobs:
               src/components/templates/SectorTemplateUM26.astro|\
               src/components/v4/NavbarV4.astro|\
               src/data/cine/scenes.ts|src/data/cine/v4-media.json|\
-              src/data/productPages.ts|src/data/cine/hardware.ts|\
+              src/data/productPages.ts|src/data/cine/hardware.ts|src/data/cine/isometric.ts|\
+              src/assets/cine/isometric/*|scripts/cine/build-isometric-v6.mjs|scripts/cine/isometric-models-v6.mjs|\
+              __tests__/isometricServices.test.js|__tests__/mobileOverflowContracts.test.js|docs/cine/isometric-v6.md|\
               src/pages/antecedentes/index.astro|\
               src/pages/certificaciones.astro|\
               src/pages/index.astro|\
@@ -269,7 +277,13 @@ jobs:
           set -euo pipefail
           STAGE="${DEPLOY_PATH}/backups/umsa-campaign-${RELEASE_ID}/incoming-dist"
           ssh root@23.105.176.45 "mkdir -p '$STAGE'"
-          rsync -az --checksum dist/ "root@23.105.176.45:$STAGE/"
+          # Keep superseded experiments in Git for provenance, outside the release.
+          rsync -az --checksum \
+            --exclude='/client/cine/media/cine-v5-*' \
+            --exclude='/client/cine/cine-studies-v5.js' \
+            --exclude='/client/cine/services-story-v5.js' \
+            --exclude='/client/cine/software-layers-v5.js' \
+            dist/ "root@23.105.176.45:$STAGE/"
 
       - name: Swap verified runtime with automatic origin rollback
         run: |
@@ -462,9 +476,13 @@ jobs:
           OPERATION: ${{ inputs.operation }}
         run: |
           set -euo pipefail
-          mode=--plan
-          if [[ "$OPERATION" == storage-apply ]]; then mode=--apply; fi
-          ssh root@23.105.176.45 "bash -s -- '$mode'" < scripts/ops/prune-inactive-umbot-deps.sh | tee storage-report.txt
+          case "$OPERATION" in
+            storage-plan) script=scripts/ops/prune-inactive-umbot-deps.sh; mode=--plan ;;
+            storage-apply) script=scripts/ops/prune-inactive-umbot-deps.sh; mode=--apply ;;
+            uploads-audit) script=scripts/ops/audit-directus-uploads.sh; mode=--plan ;;
+            *) echo 'Unexpected maintenance operation' >&2; exit 2 ;;
+          esac
+          ssh root@23.105.176.45 "bash -s -- '$mode'" < "$script" | tee storage-report.txt
       - name: Save maintenance receipt
         if: always()
         uses: actions/upload-artifact@v7

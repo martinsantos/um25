@@ -1,4 +1,6 @@
 ---
+interface Props {compact?: boolean}
+const {compact=false}=Astro.props;
 const layers = [
   {name:'Aplicación',description:'Una herramienta propia, con roles y permisos para cada persona que la usa.'},
   {name:'Navegación',description:'Cada área encuentra sus módulos y tareas sin recorrer pantallas innecesarias.'},
@@ -6,7 +8,7 @@ const layers = [
   {name:'Acciones',description:'Crear, revisar, aprobar y resolver: cada acción tiene contexto y deja un registro.'},
 ];
 ---
-<section class="sl" data-software-layers aria-label="Explorar las capas de una aplicación">
+<section class:list={["sl", {"sl--compact":compact}]} data-software-layers data-sl-compact={String(compact)} aria-label="Explorar las capas de una aplicación">
   <div class="sl__visual">
     <div class="sl__canvas" data-sl-canvas>
       <svg class="sl__fallback" viewBox="0 0 400 320" aria-hidden="true">
@@ -29,8 +31,9 @@ const layers = [
     <p class="sl__description" data-sl-description aria-live="polite">{layers[0].description}</p>
   </div>
 </section>
-<script src="/cine/software-layers-v5.js" type="module" is:inline />
+<script src="/cine/software-layers-v6.js" type="module" is:inline />
 <style>
+  .sl--compact{display:block!important;margin:0!important;width:100%;height:100%}.sl--compact .sl__visual,.sl--compact .sl__canvas{height:100%;background:transparent;aspect-ratio:auto}.sl--compact .sl__text,.sl--compact .sl__separate{display:none}
   .sl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,4vw,64px);align-items:center;margin-bottom:48px}
   .sl__visual{position:relative;background:#0a0d10;min-width:0;color:#fff}
   .sl__canvas{aspect-ratio:5/4;--hairline-plate:#0a0d10;--hairline-hi:#dc2626;--hairline-edge:#ddd;--hairline-mid:#888;--hairline-lo:#454545;--hairline-stroke:1.15}

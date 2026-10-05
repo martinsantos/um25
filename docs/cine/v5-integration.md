@@ -1,3 +1,11 @@
+# Historical v5 experiments — superseded by isometric v6
+
+The product tours, WebGL service iframe and former home story described below are
+superseded. They are retained as source provenance; the production candidate uses
+`isometric-v6.md` for all eight service explanations. The deployment artifact and
+upload exclude unused v5 product media and the replaced service runtimes. Existing
+whole-project Blender v4 cinema and the v5 banner performance fixes remain active.
+
 # Cine v5 — integration and provenance
 
 Blender 4.5.3 LTS, official headless bpy / Cycles CPU, four threads. No Blender MCP
