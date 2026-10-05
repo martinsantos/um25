@@ -848,4 +848,33 @@ describe('mega-menú de escritorio', () => {
     for (const rule of itemRules) expect(rule).not.toMatch(/position\s*:\s*(relative|absolute|fixed|sticky)/);
     expect(navbar).toMatch(/\.um-ops-mega__panel\s*\{[^}]*position:\s*absolute;[^}]*left:\s*0;[^}]*right:\s*0;/);
   });
+  test('hover and Escape share one visible and accessible state, and keyboard can reopen it', () => {
+    const navbar = read('src/components/v4/NavbarV4.astro');
+    expect(navbar).not.toContain('.um-ops-mega:hover .um-ops-mega__panel');
+    const typescript = require('typescript');
+    const start = navbar.indexOf('    const megas =');
+    const end = navbar.indexOf('    const root = document.documentElement;', start);
+    const compiled = typescript.transpileModule(navbar.slice(start, end), {
+      compilerOptions: {target: typescript.ScriptTarget.ES2020}
+    }).outputText;
+    document.body.innerHTML = `<div class="um-ops-mega"><a href="/servicios" class="um-ops-mega__link">Servicios</a><button class="um-ops-mega__toggle" aria-expanded="false">Abrir</button><div class="um-ops-mega__panel"><div class="um-ops-mega__grid"><a href="/servicios/101">Redes</a></div></div></div>`;
+    new Function('matchMedia', compiled)(() => ({matches:true}));
+    const mega = document.querySelector('.um-ops-mega');
+    const toggle = mega.querySelector('button');
+    mega.dispatchEvent(new MouseEvent('mouseenter'));
+    expect(mega.classList.contains('is-open')).toBe(true);
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    mega.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape',bubbles:true}));
+    expect(mega.classList.contains('is-open')).toBe(false);
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(toggle);
+    mega.querySelector('.um-ops-mega__link').dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowDown',bubbles:true}));
+    expect(mega.classList.contains('is-open')).toBe(true);
+    expect(document.activeElement.textContent).toBe('Redes');
+    mega.dispatchEvent(new MouseEvent('mouseleave'));
+    expect(mega.classList.contains('is-open')).toBe(false);
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    document.body.innerHTML = '';
+  });
+
 });

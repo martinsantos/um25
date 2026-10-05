@@ -414,7 +414,6 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s linear 0.16s;
   }
 
-  .um-ops-mega:hover .um-ops-mega__panel,
   .um-ops-mega.is-open .um-ops-mega__panel {
     opacity: 1;
     visibility: visible;
@@ -1094,7 +1093,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     if (!header || !menuToggle || !mobileMenu || menuToggle.dataset.bound === 'true') return;
     menuToggle.dataset.bound = 'true';
 
-    // Mega-menú de escritorio: hover lo abre por CSS; teclado y clic usan is-open.
+    // Hover, teclado y clic comparten is-open y el mismo estado accesible.
     const megas = [...document.querySelectorAll<HTMLElement>('.um-ops-mega')];
     const closeMegas = (except?: HTMLElement) => {
       megas.forEach((m) => {
@@ -1112,6 +1111,9 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
         mega.classList.toggle('is-open', open);
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       };
+      mega.addEventListener('mouseenter', () => {
+        if (matchMedia('(hover: hover)').matches) setOpen(true);
+      });
       toggle.addEventListener('click', () => setOpen(!mega.classList.contains('is-open')));
       link?.addEventListener('keydown', (event) => {
         if (event.key === 'ArrowDown') { event.preventDefault(); setOpen(true); mega.querySelector<HTMLAnchorElement>('.um-ops-mega__grid a')?.focus(); }

@@ -48,8 +48,14 @@ respect feature → develop → master, CI checks and the server storage rule.
 
 Six new tests verify all 24 SVG files, component geometry contracts, manual view
 changes, keyboard focus, listener cleanup and the home decoder race. Full lint,
-TypeScript, CSS audit and build passed; all 59 suites / 441 tests passed. Native
+TypeScript, CSS audit and build passed; all 59 suites / 442 tests passed. Native
 production-build QA exercised all four views on every service at 390 px, 360 px
 overflow and Hairline visibility cleanup. Desktop/tablet QA also covered 1280/1440/834 px, the full-width mega-menu and
 Escape closure. Mobile home selectors precede the figure and long names stay
 inside their targets. The feature PR records publication status.
+
+La revisión final detectó y corrigió el cierre visual del mega-menú con Escape
+cuando el puntero permanece encima. Hover, teclado y clic comparten ahora el mismo
+estado; se añade un test de interacción real sobre el bloque de navegación.
+La reproducción H.264 y la pausa manual del hero se verificaron en el navegador
+nativo del Mac, con preview visible.
