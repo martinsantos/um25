@@ -180,11 +180,13 @@ test('service kits filter keyboard and mobile choices and restore each service s
  const root=rackFixture();root.dataset.networkService='101';
  const camera=root.querySelector('[data-network-part="ups"]').cloneNode(true);camera.dataset.networkPart='camera';camera.dataset.location='field';camera.textContent='Cámara';root.append(camera);
  root.insertAdjacentHTML('beforeend','<select data-network-picker></select><script type="application/json" data-network-kits>'+JSON.stringify({'101':{name:'Redes',initial:'switch',parts:['switch','fiber','ups'],overview:'Red',description:'Datos'},'102':{name:'Seguridad',initial:'camera',parts:['camera','switch'],overview:'Seguridad',description:'Video'}})+'</script>');
- root.querySelector('svg').insertAdjacentHTML('beforeend','<use data-rack-context/>');
+ root.querySelector('svg').insertAdjacentHTML('beforeend','<use data-rack-context/><g data-system-part="camera"><rect width="10" height="10"/></g>');
  const cleanup=bindRack(root),change=code=>root.dispatchEvent(new CustomEvent('um:network-service',{detail:{code}}));
  root.querySelector('[data-network-part="fiber"]').click();root.querySelector('[data-network-select="2"]').click();
  change('102');expect(root.dataset.part).toBe('camera');expect(root.dataset.location).toBe('field');expect(root.querySelector('[data-rack-context]').getAttribute('href')).toBe('#rk-camera-full');
  expect([...root.querySelector('select').options].map(option=>option.value)).toEqual(['camera','switch']);expect(root.querySelector('[data-network-part="fiber"]').hidden).toBe(true);
+ root.querySelector('[data-network-select="0"]').click();root.querySelector('[data-network-door]').click();expect(root.dataset.open).toBe('false');
+ root.querySelector('[data-system-part="camera"] rect').dispatchEvent(new MouseEvent('click',{bubbles:true}));expect(root.dataset.part).toBe('camera');expect(root.dataset.step).toBe('1');expect(root.dataset.open).toBe('true');
  camera.dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));expect(root.dataset.part).toBe('switch');
  change('101');expect(root.dataset.part).toBe('fiber');expect(root.dataset.step).toBe('2');expect(root.querySelector('select').value).toBe('fiber');expect(camera.hidden).toBe(true);expect(jest.getTimerCount()).toBe(0);
  cleanup();change('102');expect(root.dataset.networkService).toBe('101');

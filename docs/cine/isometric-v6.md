@@ -161,7 +161,7 @@ corrigieron los encuadres de piezas altas y macros de RJ45. El frente de la
 central se aparta en despiece; la puerta articulada pertenece al gabinete IT.
 Los modelos son explicativos y genéricos: no representan un SKU o una obra real.
 
-El SVG completo pesa 621.068 bytes sin comprimir; el runtime 11.539 bytes.
+El SVG completo pesa 621.068 bytes sin comprimir; el runtime 11.765 bytes.
 Las 18 piezas reutilizan definiciones SVG. No se agregan paquetes, WebGL,
 instancias de Blender, renders locales ni procesos de nube. El recorrido se
 limita a una pasada y respeta visibilidad, ahorro de datos y movimiento reducido.

@@ -47,7 +47,7 @@ export function bindNetworkJourney(root) {
   detail.style.setProperty('--detail-scale',data.detailScale);
   const x=data.location==='field'?395:245+Number(data.slotX)*.24,y=data.location==='field'?510:517+Number(data.slotY)*.24;
   root.querySelector('[data-rack-leader]').setAttribute('d',`M${x} ${y}H430L510 370H580`);
-  root.querySelectorAll('[data-rack-slot]').forEach(slot=>slot.toggleAttribute('data-selected',slot.dataset.rackSlot===id));
+  root.querySelectorAll('[data-rack-slot]').forEach(slot=>{slot.toggleAttribute('data-selected',slot.dataset.rackSlot===id);slot.toggleAttribute('data-available',parts.some(button=>button.dataset.networkPart===slot.dataset.rackSlot));});
   // Fit a newly selected geometry immediately. Interpolating the old zoom onto
   // a different device causes large chassis to clip before the transition ends.
   const reveal=step===3?detail:focus;reveal.getBoundingClientRect();
@@ -100,7 +100,7 @@ export function bindNetworkJourney(root) {
   const equipment=event.target.closest('[data-network-part]');
   if(equipment&&root.contains(equipment)){stop();setPart(equipment);select(step===0?1:step,true);return;}
   const slot=event.target.closest('[data-rack-slot],[data-system-part]');
-  if(slot&&root.contains(slot)&&opened&&step===0){const choice=parts.find(button=>button.dataset.networkPart===(slot.dataset.rackSlot||slot.dataset.systemPart));if(choice){stop();setPart(choice);select(1,true);}return;}
+  if(slot&&root.contains(slot)&&step===0&&(opened||slot.hasAttribute('data-system-part'))){const choice=parts.find(button=>button.dataset.networkPart===(slot.dataset.rackSlot||slot.dataset.systemPart));if(choice){stop();setPart(choice);select(1,true);}return;}
   if(event.target.closest('[data-network-door]')===door){stop();setDoor(!opened);return;}
   if(event.target.closest('[data-network-play]')===play){if(playing)stop();else start();}
  };
@@ -122,7 +122,7 @@ export function bindNetworkJourney(root) {
  const preview=event=>{
   if(step!==0||!opened||reduced.matches||event.pointerType==='touch')return;
   const slot=event.target.closest('[data-rack-slot]');if(slot===previewSlot)return;resetPreview();
-  if(slot&&root.contains(slot)){previewSlot=slot;slot.setAttribute('data-preview','');}
+  if(slot&&root.contains(slot)&&parts.some(button=>button.dataset.networkPart===slot.dataset.rackSlot)){previewSlot=slot;slot.setAttribute('data-preview','');}
  };
  const leave=()=>resetPreview();
  const visibility=()=>{root.dataset.visible=String(visible&&!document.hidden);if(document.hidden){resetPreview();cancelReveal();}schedule();};

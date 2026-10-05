@@ -44,7 +44,8 @@ const views=[service==='101'||service==='108'?'Gabinete':'Proyecto','Pieza','Des
  .network-journey :global(.rk-door){transform:translate(var(--hinge-x),var(--hinge-y)) matrix(.866025404,.5,0,1,0,0);transition:transform 1100ms cubic-bezier(.22,1,.36,1);transform-origin:0 0}
  .network-journey[data-open="true"] :global(.rk-door){transform:translate(var(--hinge-x),var(--hinge-y)) matrix(-1.003442,.405579788,0,1,0,0)}
  .network-journey :global(.rk-rail){transition:transform 600ms cubic-bezier(.22,1,.36,1)}
- .network-journey :global(.rk-mounted){cursor:pointer}
+ .network-journey :global(.rk-mounted){cursor:default}
+ .network-journey :global(.rk-mounted[data-available]){cursor:pointer}
  .network-journey :global(.rk-mounted[data-preview] .rk-rail){transform:translate(-69.282032px,40px)}
  .network-journey :global(.rk-rail){transition:transform 600ms cubic-bezier(.22,1,.36,1),opacity 400ms ease}
  .network-journey :global(.rk-slot-outline),.network-journey :global(.rk-leader){opacity:0;transition:opacity 400ms ease}
@@ -56,6 +57,7 @@ const views=[service==='101'||service==='108'?'Gabinete':'Proyecto','Pieza','Des
  .network-journey :global(.rk-external){transform:translate(905px,430px) scale(.43);transform-origin:0 0;transition:opacity 500ms ease}
  .network-journey :global(.rk-external-link){transition:opacity 350ms ease}
  .network-journey :global(.rk-peripheral){display:none;cursor:pointer}
+ .network-journey :global(.rk-system-wire){cursor:default}
  .network-journey[data-network-service="101"] :global(.rk-peripheral[data-context-services="101"]),.network-journey[data-network-service="102"] :global(.rk-peripheral[data-context-services="102"]),.network-journey[data-network-service="103"] :global(.rk-peripheral[data-context-services="103"]),.network-journey[data-network-service="107"] :global(.rk-peripheral[data-context-services="107"]){display:block}
  .network-journey:not([data-network-service="101"]) :global(.rk-external-link),.network-journey:not([data-network-service="101"]) :global(.rk-overview-label){display:none}
  .network-journey :global(.rk-peripherals){transition:opacity 400ms ease}
