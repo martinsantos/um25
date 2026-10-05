@@ -6,8 +6,11 @@ export function bindNetworkJourney(root) {
  const play=root.querySelector('[data-network-play]'),door=root.querySelector('[data-network-door]');
  const tag=root.querySelector('[data-network-tag]'),title=root.querySelector('[data-network-title]'),copy=root.querySelector('[data-network-copy]'),announce=root.querySelector('[data-network-announce]');
  const focus=root.querySelector('.rk-focus'),detail=root.querySelector('.rk-detail');
+ const picker=root.querySelector('[data-network-picker]');
+ const guides=root.querySelector('[data-rack-guides]');
  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
- let step=0,part=parts[0],timer=null,visible=false,playing=false,automatic=true,disposed=false,opened=reduced.matches,previewSlot=null;
+ let step=0,part=parts[0],timer=null,visible=false,playing=false,automatic=true,disposed=false,opened=reduced.matches,previewSlot=null,partReveal=null;
+ const cancelReveal=()=>{partReveal?.cancel();partReveal=null;};
  const clear=()=>{if(timer!==null)window.clearTimeout(timer);timer=null;};
  function setDoor(open){
   opened=open;root.dataset.open=String(open);
@@ -26,21 +29,30 @@ export function bindNetworkJourney(root) {
  }
  function resetPreview(){if(previewSlot)previewSlot.removeAttribute('data-preview');previewSlot=null;}
  function setPart(button,manual=false){
-  if(!button||disposed)return;resetPreview();part=button;const data=button.dataset,id=data.networkPart;
+  if(!button||disposed)return;resetPreview();cancelReveal();root.dataset.motionScope='part';part=button;const data=button.dataset,id=data.networkPart;
   root.dataset.part=id;parts.forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+  if(picker)picker.value=id;
   root.querySelector('[data-rack-base]').setAttribute('href',`#rk-${id}-base`);
   root.querySelector('[data-rack-cover]').setAttribute('href',`#rk-${id}-cover`);
   root.querySelector('[data-rack-detail]').setAttribute('href',`#rk-${id}-detail`);
+  if(guides)guides.setAttribute('href',`#rk-${id}-guides`);
   focus.style.setProperty('--slot-x',data.slotX+'px');focus.style.setProperty('--slot-y',data.slotY+'px');
   focus.style.setProperty('--part-scale',data.scale);focus.style.setProperty('--lift-x',data.liftX+'px');focus.style.setProperty('--lift-y',data.liftY+'px');
   detail.style.setProperty('--detail-scale',data.detailScale);
   const x=245+Number(data.slotX)*.24,y=517+Number(data.slotY)*.24;
   root.querySelector('[data-rack-leader]').setAttribute('d',`M${x} ${y}H430L510 370H580`);
   root.querySelectorAll('[data-rack-slot]').forEach(slot=>slot.toggleAttribute('data-selected',slot.dataset.rackSlot===id));
+  // Fit a newly selected geometry immediately. Interpolating the old zoom onto
+  // a different device causes large chassis to clip before the transition ends.
+  const reveal=step===3?detail:focus;reveal.getBoundingClientRect();
+  if(step>0&&visible&&!document.hidden&&!reduced.matches&&typeof reveal.animate==='function'){
+   partReveal=reveal.animate([{opacity:.35},{opacity:1}],{duration:180,easing:'ease-out'});partReveal.finished.catch(()=>{});
+  }
   content(manual);
  }
  function select(index,manual=false){
   if(!Number.isInteger(index)||!buttons[index]||disposed)return;
+  if(index!==step){cancelReveal();root.dataset.motionScope='view';}
   resetPreview();step=index;root.dataset.step=String(index);
   buttons.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));
   if(index>0)setDoor(true);door.hidden=index!==0;content(manual);
@@ -76,6 +88,10 @@ export function bindNetworkJourney(root) {
   if(next===undefined)return;event.preventDefault();stop();
   if(equipment){setPart(group[next]);select(step===0?1:step,true);}else select(next,true);group[next].focus();
  };
+ const choose=event=>{
+  if(event.target!==picker)return;
+  stop();setPart(parts.find(button=>button.dataset.networkPart===picker.value));select(step===0?1:step,true);
+ };
  // Hover follows Hairline's original cabinet interaction: only the nearest
  // unit moves on its rails. No continuous render loop or pointer capture.
  const preview=event=>{
@@ -84,18 +100,20 @@ export function bindNetworkJourney(root) {
   if(slot&&root.contains(slot)){previewSlot=slot;slot.setAttribute('data-preview','');}
  };
  const leave=()=>resetPreview();
- const visibility=()=>{if(document.hidden)resetPreview();schedule();};
- const change=()=>{if(reduced.matches){stop();setDoor(true);}};
+ const visibility=()=>{root.dataset.visible=String(visible&&!document.hidden);if(document.hidden){resetPreview();cancelReveal();}schedule();};
+ const change=()=>{if(reduced.matches){cancelReveal();stop();setDoor(true);}};
  const scale=event=>{stop();select(event.detail.index,true);};
  const observer=new IntersectionObserver(entries=>{
   visible=entries.some(entry=>entry.isIntersecting&&(entry.intersectionRatio===undefined||entry.intersectionRatio>=.2));
+  root.dataset.visible=String(visible&&!document.hidden);
+  if(!visible)cancelReveal();
   if(visible&&automatic){automatic=false;if(!reduced.matches&&!navigator.connection?.saveData){playing=true;status();}}
   schedule();
  },{threshold:[0,.2]});
- root.addEventListener('click',click);root.addEventListener('keydown',keyboard);root.addEventListener('pointerover',preview);root.addEventListener('pointerleave',leave);root.addEventListener('um:network-view',scale);
+ root.addEventListener('click',click);root.addEventListener('change',choose);root.addEventListener('keydown',keyboard);root.addEventListener('pointerover',preview);root.addEventListener('pointerleave',leave);root.addEventListener('um:network-view',scale);
  document.addEventListener('visibilitychange',visibility);reduced.addEventListener('change',change);
  setDoor(opened);setPart(parts[0]);select(0);observer.observe(root);
- const cleanup=()=>{if(disposed)return;disposed=true;clear();resetPreview();observer.disconnect();root.removeEventListener('click',click);root.removeEventListener('keydown',keyboard);root.removeEventListener('pointerover',preview);root.removeEventListener('pointerleave',leave);root.removeEventListener('um:network-view',scale);document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener('change',change);document.removeEventListener('astro:before-swap',cleanup);delete root.dataset.networkBound;};
+ const cleanup=()=>{if(disposed)return;disposed=true;clear();cancelReveal();resetPreview();root.dataset.visible='false';observer.disconnect();root.removeEventListener('click',click);root.removeEventListener('change',choose);root.removeEventListener('keydown',keyboard);root.removeEventListener('pointerover',preview);root.removeEventListener('pointerleave',leave);root.removeEventListener('um:network-view',scale);document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener('change',change);document.removeEventListener('astro:before-swap',cleanup);delete root.dataset.networkBound;};
  document.addEventListener('astro:before-swap',cleanup,{once:true});return cleanup;
 }
 function boot(){document.querySelectorAll('[data-network-journey]').forEach(bindNetworkJourney);}

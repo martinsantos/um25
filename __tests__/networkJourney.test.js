@@ -114,3 +114,57 @@ test('an open cabinet lets the same equipment be extracted by tapping its mounte
  expect(root.querySelector('[data-network-part="fiber"]').getAttribute('aria-pressed')).toBe('true');
  expect(root.querySelector('[data-network-title]').textContent).toBe('fiber equipo');expect(jest.getTimerCount()).toBe(0);
 });
+
+test('all surface planes and exploded parts retain an exact equal-axis isometric projection',()=>{
+ const manifest=JSON.parse(fs.readFileSync('src/assets/cine/isometric/network-rack-v8.json','utf8'));
+ const {x,y,z}=manifest.projectionMatrix,axes=[x,y,z],c=Math.sqrt(3)/2;
+ for(const axis of axes)expect(Math.hypot(...axis)).toBeCloseTo(1,10);
+ for(let i=0;i<3;i++)for(let j=i+1;j<3;j++)expect(axes[i][0]*axes[j][0]+axes[i][1]*axes[j][1]).toBeCloseTo(-.5,10);
+ const xml=new DOMParser().parseFromString(fs.readFileSync('src/assets/cine/isometric/network-rack-v8.svg','utf8'),'image/svg+xml');
+ expect(xml.querySelectorAll('[data-plane]').length).toBeGreaterThan(100);
+ for(const plane of xml.querySelectorAll('[data-plane]')){
+  const matrix=plane.getAttribute('transform').match(/matrix\(([^)]+)\)/)[1].split(' ').map(Number),axis=plane.getAttribute('data-plane');
+  expect(matrix[0]).toBeCloseTo(axis==='side'?-c:c,8);expect(matrix[1]).toBe(.5);
+  expect(matrix[2]).toBeCloseTo(axis==='top'?-c:0,8);expect(matrix[3]).toBe(axis==='top'?.5:1);
+ }
+ for(const part of manifest.models){
+  const [a,b,h]=part.motion;
+  expect(part.lift[0]).toBeCloseTo((a-b)*c,2);expect(part.lift[1]).toBeCloseTo((a+b)/2-h,2);
+ }
+ expect(manifest.externalScale).toBe(manifest.overviewScale);
+ const port=xml.querySelector('#rk-switch-base [data-port="18"]');
+ const [portX,portY]=port.getAttribute('transform').match(/translate\(([^)]+)\)/)[1].split(' ').map(Number);
+ const from=[(portX-222.2)*c,(portX+222.2)/2-(580.4+22.225-portY)].map((v,i)=>v*manifest.overviewScale+[505,555][i]);
+ expect(manifest.connections.wifi.from[0]).toBeCloseTo(from[0],2);expect(manifest.connections.wifi.from[1]).toBeCloseTo(from[1],2);
+});
+
+test('the mobile equipment selector shares exploded state and loses its handler on disposal',()=>{
+ const root=rackFixture();root.insertAdjacentHTML('beforeend','<select data-network-picker><option value="switch">Switch</option><option value="fiber">Fibra</option><option value="ups">UPS</option></select>');
+ root.querySelector('svg').insertAdjacentHTML('beforeend','<use data-rack-guides/>');
+ const picker=root.querySelector('select'),cleanup=bindRack(root);
+ intersections([{isIntersecting:true,intersectionRatio:.8}]);expect(picker.value).toBe('switch');
+ picker.value='fiber';picker.dispatchEvent(new Event('change',{bubbles:true}));
+ expect(root.dataset.part).toBe('fiber');expect(root.dataset.step).toBe('1');expect(jest.getTimerCount()).toBe(0);
+ expect(root.querySelector('[data-rack-guides]').getAttribute('href')).toBe('#rk-fiber-guides');
+ root.querySelector('[data-network-select="2"]').click();picker.value='ups';picker.dispatchEvent(new Event('change',{bubbles:true}));
+ expect(root.dataset.step).toBe('2');expect(root.querySelector('[data-rack-cover]').getAttribute('href')).toBe('#rk-ups-cover');
+ cleanup();picker.value='switch';picker.dispatchEvent(new Event('change',{bubbles:true}));expect(root.dataset.part).toBe('ups');
+});
+
+test('visibility also suspends declarative signal and connector animations outside the page',()=>{
+ const root=rackFixture(),cleanup=bindRack(root);
+ intersections([{isIntersecting:true,intersectionRatio:.8}]);expect(root.dataset.visible).toBe('true');
+ hidden=true;document.dispatchEvent(new Event('visibilitychange'));expect(root.dataset.visible).toBe('false');
+ hidden=false;document.dispatchEvent(new Event('visibilitychange'));expect(root.dataset.visible).toBe('true');
+ intersections([{isIntersecting:false,intersectionRatio:0}]);expect(root.dataset.visible).toBe('false');expect(jest.getTimerCount()).toBe(0);
+ cleanup();expect(root.dataset.visible).toBe('false');
+});
+
+test('changing equipment within a view fits the new geometry without inheriting its previous zoom',()=>{
+ const root=rackFixture(),cancel=jest.fn(),focus=root.querySelector('.rk-focus');
+ focus.animate=jest.fn(()=>({cancel,finished:Promise.resolve()}));const cleanup=bindRack(root);
+ intersections([{isIntersecting:true,intersectionRatio:.8}]);root.querySelector('[data-network-select="2"]').click();expect(root.dataset.motionScope).toBe('view');
+ root.querySelector('[data-network-part="fiber"]').click();expect(root.dataset.motionScope).toBe('part');expect(focus.animate).toHaveBeenCalledTimes(1);
+ root.querySelector('[data-network-select="1"]').click();expect(root.dataset.motionScope).toBe('view');expect(cancel).toHaveBeenCalledTimes(1);
+ root.querySelector('[data-network-part="ups"]').click();expect(focus.animate).toHaveBeenCalledTimes(2);cleanup();expect(cancel).toHaveBeenCalledTimes(2);
+});

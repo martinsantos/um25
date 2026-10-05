@@ -24,6 +24,7 @@ const views=['Gabinete','La pieza','Despiece','Conexión'];
    })}
   </div>
  </div>
+ <label class="network-journey__picker"><span>Equipo</span><select data-network-picker aria-label="Equipo de red">{NETWORK_EQUIPMENT.map(equipment=><option value={equipment.id}>{equipment.name}</option>)}</select></label>
  <div class="network-journey__canvas" set:html={scene} />
  {!compact && <figcaption class="network-journey__caption"><h3 data-network-title>Un gabinete. Todo el sistema.</h3><p data-network-copy>Abrí la puerta y extraé cada equipo. Puertos, fibra, datos y energía forman una instalación; el punto Wi-Fi lleva la red fuera del rack.</p></figcaption>}
  <p class="network-journey__announcement" data-network-announce aria-live="polite" aria-atomic="true" />
@@ -37,17 +38,21 @@ const views=['Gabinete','La pieza','Despiece','Conexión'];
  .network-journey__canvas :global(svg){position:absolute;inset:0;width:100%;height:100%!important;display:block;overflow:visible}
  .network-journey :global(.rk-cabinet),.network-journey :global(.rk-ground){transform:translate(505px,555px) scale(.43);transform-origin:0 0;transition:transform 1000ms cubic-bezier(.22,1,.36,1),opacity 600ms ease}
  .network-journey :global(.rk-ground){opacity:.55}
- .network-journey :global(.rk-door){transform:translate(var(--hinge-x),var(--hinge-y)) matrix(.866,.5,0,1,0,0);transition:transform 1100ms cubic-bezier(.22,1,.36,1);transform-origin:0 0}
- .network-journey[data-open="true"] :global(.rk-door){transform:translate(var(--hinge-x),var(--hinge-y)) matrix(-1.003,.406,0,1,0,0)}
+ .network-journey :global(.rk-door){transform:translate(var(--hinge-x),var(--hinge-y)) matrix(.866025404,.5,0,1,0,0);transition:transform 1100ms cubic-bezier(.22,1,.36,1);transform-origin:0 0}
+ .network-journey[data-open="true"] :global(.rk-door){transform:translate(var(--hinge-x),var(--hinge-y)) matrix(-1.003442,.405579788,0,1,0,0)}
  .network-journey :global(.rk-rail){transition:transform 600ms cubic-bezier(.22,1,.36,1)}
  .network-journey :global(.rk-mounted){cursor:pointer}
- .network-journey :global(.rk-mounted[data-preview] .rk-rail){transform:translate(-68px,39px)}
+ .network-journey :global(.rk-mounted[data-preview] .rk-rail){transform:translate(-69.282032px,40px)}
  .network-journey :global(.rk-rail){transition:transform 600ms cubic-bezier(.22,1,.36,1),opacity 400ms ease}
  .network-journey :global(.rk-slot-outline),.network-journey :global(.rk-leader){opacity:0;transition:opacity 400ms ease}
  .network-journey :global(.rk-focus){--part-scale:.98;--lift-x:52px;--lift-y:-175px;transform:translate(calc(505px + var(--slot-x)*.43),calc(555px + var(--slot-y)*.43)) scale(.43);transform-origin:0 0;opacity:0;transition:transform 1000ms cubic-bezier(.22,1,.36,1),opacity 500ms ease}
  .network-journey :global(.rk-cover){transform:translate(0,0);transition:transform 1000ms cubic-bezier(.22,1,.36,1)}
+ .network-journey :global(.rk-guides){opacity:0;transition:opacity 450ms ease}
+ .network-journey[data-step="2"] :global(.rk-guides){opacity:.55}
  .network-journey :global(.rk-detail){--detail-scale:.78;transform:translate(510px,510px) scale(.08);opacity:0;transform-origin:0 0;transition:transform 1000ms cubic-bezier(.22,1,.36,1),opacity 500ms ease}
- .network-journey :global(.rk-external){transform:translate(877px,357px) scale(.82);transform-origin:0 0;transition:opacity 500ms ease}
+ .network-journey :global(.rk-external){transform:translate(905px,430px) scale(.43);transform-origin:0 0;transition:opacity 500ms ease}
+ .network-journey :global(.rk-external-link){transition:opacity 350ms ease}
+ .network-journey[data-open="false"] :global(.rk-external-link),.network-journey[data-step="1"] :global(.rk-external-link),.network-journey[data-step="2"] :global(.rk-external-link),.network-journey[data-step="3"] :global(.rk-external-link){opacity:0}
  .network-journey :global(.rk-context-label){opacity:0;transition:opacity 500ms ease}
  .network-journey :global(.rk-patching){transition:opacity 350ms ease}
  .network-journey[data-step="1"] :global(.rk-cabinet),.network-journey[data-step="2"] :global(.rk-cabinet),.network-journey[data-step="3"] :global(.rk-cabinet){transform:translate(245px,517px) scale(.24);opacity:.7}
@@ -63,7 +68,8 @@ const views=['Gabinete','La pieza','Despiece','Conexión'];
  .network-journey[data-step="1"] :global(.rk-patching),.network-journey[data-step="2"] :global(.rk-patching),.network-journey[data-step="3"] :global(.rk-patching){opacity:.22}
  .network-journey[data-step="3"] :global(.rk-focus){transform:translate(461px,584px) scale(.28);opacity:.55}
  .network-journey[data-step="3"] :global(.rk-detail){transform:translate(811px,330px) scale(var(--detail-scale));opacity:1}
- .network-journey__status{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:54px;color:#c4c7cc;font-size:1rem;line-height:1.5;border-top:1px solid #ffffff24}
+ .network-journey[data-motion-scope="part"] :global(.rk-focus),.network-journey[data-motion-scope="part"] :global(.rk-detail),.network-journey[data-motion-scope="part"] :global(.rk-cover){transition:opacity 180ms ease}
+ .network-journey__status{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:54px;color:#c4c7cc;font-size:1rem;line-height:1.5}
  .network-journey__status>div{display:flex;gap:24px}
  .network-journey__status button{border:0;background:none;color:#fff;cursor:pointer;min-height:54px;padding:10px 0;white-space:normal;text-align:left;font:500 1rem var(--um-font-body,'UM Sans',Arial,sans-serif)}
  .network-journey__status button span{margin-left:8px}
@@ -79,6 +85,7 @@ const views=['Gabinete','La pieza','Despiece','Conexión'];
  .network-journey__equipment button{position:relative;min-height:44px;background:none;border:0;padding:8px 0;color:#c4c7cc;cursor:pointer;font:500 1rem var(--um-font-body,'UM Sans',Arial,sans-serif);white-space:nowrap}
  .network-journey__equipment button[aria-pressed=true]{color:#fff}
  .network-journey__equipment button[aria-pressed=true]::after{content:'';position:absolute;left:0;right:0;bottom:3px;height:2px;background:#dc2626}
+ .network-journey__picker{display:none;min-width:0}
  .network-journey button:focus-visible{outline:2px solid #fff;outline-offset:3px}
  .network-journey [hidden]{display:none!important}
  .network-journey__caption{padding:24px 0 28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:32px;border-top:1px solid #ffffff24}
@@ -97,36 +104,54 @@ const views=['Gabinete','La pieza','Despiece','Conexión'];
  .network-journey--compact .network-journey__library-label{display:none}
  .network-journey--compact .network-journey__equipment{column-gap:18px;flex-wrap:wrap;overflow-x:visible;padding:4px 0}
  .network-journey--compact .network-journey__hint{display:inline}
+ .network-journey--compact .network-journey__picker{order:3}
  @media(max-width:1000px){.network-journey__library{display:block}.network-journey__library-label{display:block;margin-bottom:6px}}
  @media(max-width:760px){
-  .network-journey{padding:20px 20px 0}
-  .network-journey__meta{display:block}.network-journey__meta span{display:block}.network-journey__meta span+span{margin-top:4px}
+  .network-journey{padding:16px 12px 0}
+  .network-journey__meta{display:flex;gap:8px;padding-bottom:8px}.network-journey__meta span+span{display:none}
   .network-journey__canvas{height:360px}
   .network-journey__canvas :global(svg){width:160%;left:-34%;max-width:none}
   .network-journey :global(.rk-overview-label),.network-journey :global(.rk-context-label),.network-journey :global(.rk-ground){display:none}
-  .network-journey :global(.rk-cabinet){transform:translate(730px,549px) scale(.44)}
-  .network-journey :global(.rk-external){display:none}
+  .network-journey :global(.rk-cabinet){transform:translate(700px,600px) scale(.54)}
+  .network-journey[data-open="true"] :global(.rk-door){transform:translate(var(--hinge-x),var(--hinge-y)) matrix(-.517638090,.640856382,0,1,0,0)}
+  .network-journey :global(.rk-external),.network-journey :global(.rk-external-link){display:none}
   .network-journey__status button span{display:none}
   .network-journey[data-step="1"] :global(.rk-cabinet),.network-journey[data-step="2"] :global(.rk-cabinet),.network-journey[data-step="3"] :global(.rk-cabinet){transform:translate(130px,568px) scale(.16);opacity:0}
   .network-journey[data-step="1"] :global(.rk-focus){transform:translate(658px,366px) scale(calc(var(--part-scale)*1.08))}
-  .network-journey[data-step="2"] :global(.rk-focus){transform:translate(630px,484px) scale(calc(var(--part-scale)*1.02))}
+  .network-journey[data-step="2"] :global(.rk-focus){transform:translate(640px,484px) scale(calc(var(--part-scale)*1.02))}
   .network-journey[data-step="3"] :global(.rk-focus){opacity:0}
   .network-journey[data-step="3"] :global(.rk-detail){transform:translate(653px,313px) scale(calc(var(--detail-scale)*1.08))}
+  .network-journey[data-step="3"][data-part="switch"] :global(.rk-detail),.network-journey[data-step="3"][data-part="access"] :global(.rk-detail){transform:translate(683px,313px) scale(calc(var(--detail-scale)*1.08))}
   .network-journey[data-step="1"][data-part="server"] :global(.rk-focus){transform:translate(645px,366px) scale(calc(var(--part-scale)*1.05))}
-  .network-journey[data-step="2"][data-part="server"] :global(.rk-focus){transform:translate(623px,484px) scale(calc(var(--part-scale)*.99))}
-  .network-journey[data-step="2"][data-part="fiber"] :global(.rk-focus){transform:translate(650px,484px) scale(calc(var(--part-scale)*.98))}
+  .network-journey[data-step="1"][data-part="ups"] :global(.rk-focus){transform:translate(640px,366px) scale(calc(var(--part-scale)*1.04))}
+  .network-journey[data-step="2"][data-part="server"] :global(.rk-focus){transform:translate(638px,484px) scale(calc(var(--part-scale)*.99))}
+  .network-journey[data-step="2"][data-part="fiber"] :global(.rk-focus){transform:translate(684px,484px) scale(calc(var(--part-scale)*.98))}
+  .network-journey[data-step="2"][data-part="manager"] :global(.rk-focus){transform:translate(674px,484px) scale(calc(var(--part-scale)*1.02))}
+  .network-journey[data-step="2"][data-part="access"] :global(.rk-focus){transform:translate(630px,484px) scale(calc(var(--part-scale)*1.02))}
   .network-journey__status{flex-wrap:wrap;gap:0;padding-top:10px}
-  .network-journey__status>span{flex-basis:100%}
+  .network-journey__status>span{display:none}
   .network-journey__status>div{width:100%;justify-content:space-between;gap:12px}
-  .network-journey__controls{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .network-journey__library{padding:12px 0}.network-journey__equipment{column-gap:18px;flex-wrap:nowrap;overflow-x:auto;padding:4px 0}
+  .network-journey__controls{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .network-journey__controls button{min-height:56px;padding:8px 2px;gap:0}
+  .network-journey__controls button span{display:none}
+  .network-journey__library{display:none}
+  .network-journey__picker{display:flex;gap:12px;align-items:center;padding:12px 0;color:#c4c7cc;font-size:1rem}
+  .network-journey__picker select{min-width:0;flex:1;min-height:44px;border:1px solid #ffffff36;border-radius:0;background:#151b20;color:#fff;font:500 1rem var(--um-font-body,'UM Sans',Arial,sans-serif);padding:8px 12px;color-scheme:dark;cursor:pointer}
+  .network-journey__picker select:focus-visible{outline:2px solid #fff;outline-offset:3px}
   .network-journey__hint{display:inline}
   .network-journey__caption{grid-template-columns:1fr;gap:12px;padding:20px 0 24px}
-  .network-journey--compact{padding:0 20px}
+  .network-journey--compact{padding:0 12px}
   .network-journey--compact .network-journey__canvas{height:320px}
-  .network-journey--compact .network-journey__controls{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .network-journey--compact .network-journey__controls{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .network-journey--compact .network-journey__library{display:none}
   .network-journey--compact .network-journey__equipment{flex-wrap:nowrap;overflow-x:auto}
   .network-journey :global(.rk-leader){display:none}
  }
- @media(prefers-reduced-motion:reduce){.network-journey :global(g){transition:none!important}}
+ @media(prefers-reduced-motion:no-preference){
+  .network-journey[data-visible="true"][data-open="true"][data-step="0"] :global(.rk-signal){animation:rk-signal 2.4s linear 3 both}
+  .network-journey[data-visible="true"][data-step="3"][data-part="switch"] :global(#rk-switch-detail .rk-plug),.network-journey[data-visible="true"][data-step="3"][data-part="access"] :global(#rk-access-detail .rk-plug){animation:rk-insert 2.8s cubic-bezier(.22,1,.36,1) 1 both}
+ }
+ @keyframes rk-signal{to{stroke-dashoffset:0}}
+ @keyframes rk-insert{0%,20%{transform:translate(0,0)}75%,100%{transform:translate(15.588457px,-9px)}}
+ @media(prefers-reduced-motion:reduce){.network-journey :global(g){transition:none!important}.network-journey :global(.rk-signal),.network-journey :global(.rk-plug){animation:none!important}}
 </style>

@@ -1,6 +1,40 @@
 {
   "version": 8,
   "projection": "orthographic 30°",
+  "projectionMatrix": {
+    "x": [
+      0.8660254037844386,
+      0.5
+    ],
+    "y": [
+      -0.8660254037844386,
+      0.5
+    ],
+    "z": [
+      0,
+      -1
+    ]
+  },
+  "overviewScale": 0.43,
+  "externalScale": 0.43,
+  "connections": {
+    "copper": {
+      "panelPort": 9,
+      "switchPort": 6
+    },
+    "wifi": {
+      "switchPort": 18,
+      "from": [
+        400.1,
+        334.51
+      ],
+      "to": [
+        874.02,
+        443.59
+      ],
+      "path": "M400.1,334.51L333.07,373.21L333.07,630L442.11,692.95L874.02,443.59"
+    }
+  },
   "equipment": "Generic explanatory geometry; dimensions do not specify a product or a client installation.",
   "interactionReference": "Hairline cabinet: nearest rack modules extend on rails.",
   "models": [
@@ -10,8 +44,13 @@
       "z": 580.4,
       "scale": 0.98,
       "lift": [
-        52,
-        -175
+        0,
+        -155
+      ],
+      "motion": [
+        0,
+        0,
+        155
       ],
       "detailScale": 0.78,
       "slotX": -88.33,
@@ -23,8 +62,13 @@
       "z": 669.3,
       "scale": 1.04,
       "lift": [
-        30,
-        -120
+        0,
+        -105
+      ],
+      "motion": [
+        0,
+        0,
+        105
       ],
       "detailScale": 1,
       "slotX": -151.12,
@@ -36,8 +80,13 @@
       "z": 624.85,
       "scale": 1.02,
       "lift": [
-        -75,
-        42
+        -69.28,
+        40
+      ],
+      "motion": [
+        0,
+        80,
+        0
       ],
       "detailScale": 1,
       "slotX": -151.12,
@@ -49,8 +98,13 @@
       "z": 758.2,
       "scale": 0.97,
       "lift": [
-        -95,
-        60
+        -112.58,
+        65
+      ],
+      "motion": [
+        0,
+        130,
+        0
       ],
       "detailScale": 1,
       "slotX": -79.67,
@@ -62,8 +116,13 @@
       "z": 491.5,
       "scale": 0.94,
       "lift": [
-        52,
-        -175
+        0,
+        -155
+      ],
+      "motion": [
+        0,
+        0,
+        155
       ],
       "detailScale": 1,
       "slotX": -71.01,
@@ -75,8 +134,13 @@
       "z": 358.15,
       "scale": 0.78,
       "lift": [
-        52,
-        -175
+        0,
+        -165
+      ],
+      "motion": [
+        0,
+        0,
+        165
       ],
       "detailScale": 0.87,
       "slotX": 15.59,
@@ -88,8 +152,13 @@
       "z": 91.45,
       "scale": 0.84,
       "lift": [
-        -100,
-        75
+        -121.24,
+        70
+      ],
+      "motion": [
+        0,
+        140,
+        0
       ],
       "detailScale": 1,
       "slotX": -1.73,
@@ -101,8 +170,13 @@
       "z": 224.8,
       "scale": 1.03,
       "lift": [
-        32,
-        -110
+        0,
+        -105
+      ],
+      "motion": [
+        0,
+        0,
+        105
       ],
       "detailScale": 1,
       "slotX": -161.08,
@@ -115,12 +189,17 @@
       "scale": 1.66,
       "lift": [
         0,
-        -95
+        -90
+      ],
+      "motion": [
+        0,
+        0,
+        90
       ],
       "detailScale": 0.78,
       "slotX": 450,
       "slotY": -280
     }
   ],
-  "bytes": 391756
+  "bytes": 411445
 }

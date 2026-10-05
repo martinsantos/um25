@@ -106,3 +106,35 @@ despieces y conexiones en móvil de 360 px; tablet 834 y escritorio 1280/1440.
 Se corrigieron los recortes de fibra y servidor. La home mantiene la selección,
 el título y el enlace al cambiar entre Redes y Software. El build se verifica por
 CI en el PR de esta rama. La preview local sigue en el puerto 4326.
+
+## 2026-10-05 — Acabado y precisión isométrica
+
+El gabinete y los nueve equipos incorporan un acabado común de metal iluminado,
+planos neutros y contornos jerarquizados sobre negro. Se reconstruyó el switch
+sin importar geometría de otra proyección: 24 puertos en dos filas, cuatro SFP,
+bancos de conexiones, placa, ASIC, disipación y alimentación. Todas las matrices
+usan el coseno de 30° sin redondearlo a 0,87; los tres ejes conservan igual escala.
+
+Las tapas se elevan por Z; organizador, fibra y baterías se extraen por Y. Las
+guías de despiece salen de esas mismas coordenadas. En el servidor se alinearon
+ocho unidades con sus bahías, separando almacenamiento, ventilación y memoria.
+El macro RJ45 usa un blindaje abierto, ocho contactos, un plug y su traba en la
+cara opuesta. La conexión se anima una vez; la señal hacia Wi-Fi hace tres pasadas.
+El punto Wi-Fi conserva la escala del gabinete. El cordón sale por el frente y
+queda oculto al pasar detrás del chasis; conecta el puerto 18 con el punto Wi-Fi.
+
+En móvil los cuatro estados ocupan una fila y el selector nativo ofrece los nueve
+equipos. Al cambiar entre equipos, la geometría entra con su escala correcta y
+un fundido de 180 ms; se evita interpolar el zoom y la apertura del modelo previo.
+Las transiciones de vistas conservan el recorrido. Animaciones y temporizadores
+se cancelan al salir de pantalla, ocultar la página o navegar; movimiento reducido
+mantiene la exploración disponible.
+
+Los modelos siguen siendo explicativos y genéricos, sin SKU ni atribución a una
+instalación real. Este acabado se integra en Redes y en la home; la revisión de
+las movies Blender conserva su alcance separado.
+
+Validación técnica: 60 suites / 457 pruebas; lint y TypeScript sin errores. Se
+añadieron contratos de proyección, escala compartida, coordenadas de conexión,
+selección móvil, visibilidad y cancelación al cambiar de equipo. La validación
+visual y el build de la revisión quedan registrados junto con la entrega.

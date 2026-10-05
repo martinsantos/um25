@@ -9,13 +9,13 @@ const C=Math.sqrt(3)/2,n=v=>Math.round(v*100)/100;
 const P=(x,y,z)=>[n((x-y)*C),n((x+y)/2-z)];
 const pts=a=>a.map(p=>P(...p).join(',')).join(' ');
 const esc=v=>String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;');
-const face=(a,f='#121212',st='#888',w=.65,extra='')=>`<polygon points="${pts(a)}" fill="${f}" stroke="${st}" stroke-width="${w}" stroke-linejoin="round" ${extra}/>`;
+const face=(a,f='#121212',st='#aaa',w=.8,extra='')=>`<polygon points="${pts(a)}" fill="${f}" stroke="${st}" stroke-width="${w}" stroke-linejoin="round" ${extra}/>`;
 const line=(a,st='#777',w=.6,extra='')=>`<polyline points="${pts(a)}" fill="none" stroke="${st}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" ${extra}/>`;
 const box=(x,y,z,w,d,h,top='#202020',front='#101010',side='#161616')=>{
  const a=x-w/2,b=x+w/2,c=y-d/2,e=y+d/2;
  return face([[a,e,z],[b,e,z],[b,e,z+h],[a,e,z+h]],front)+face([[b,c,z],[b,e,z],[b,e,z+h],[b,c,z+h]],side)+face([[a,c,z+h],[b,c,z+h],[b,e,z+h],[a,e,z+h]],top);
 };
-function plane(axis,x,y,z,content){const [a,b]=P(x,y,z);const m=axis==='front'?[C,.5,0,1]:axis==='side'?[-C,.5,0,1]:[C,.5,-C,.5];return `<g transform="matrix(${m.map(n).join(' ')} ${a} ${b})">${content}</g>`;}
+function plane(axis,x,y,z,content){const [a,b]=P(x,y,z);const m=axis==='front'?[C,.5,0,1]:axis==='side'?[-C,.5,0,1]:[C,.5,-C,.5];return `<g data-plane="${axis}" transform="matrix(${m.map(v=>Number(v.toFixed(9))).join(' ')} ${a} ${b})">${content}</g>`;}
 const front=(x,y,z,s)=>plane('front',x,y,z,s),top=(x,y,z,s)=>plane('top',x,y,z,s),side=(x,y,z,s)=>plane('side',x,y,z,s);
 const rect=(x,y,w,h,f='#0a0a0a',s='#777',r=0,sw=.6)=>`<rect x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}" rx="${r}" fill="${f}" stroke="${s}" stroke-width="${sw}"/>`;
 const circle=(x,y,r,f='#111',s='#999',sw=.5)=>`<circle cx="${n(x)}" cy="${n(y)}" r="${r}" fill="${f}" stroke="${s}" stroke-width="${sw}"/>`;
@@ -23,25 +23,59 @@ const text=(x,y,s,size=6,color='#bdbdbd')=>`<text x="${n(x)}" y="${n(y)}" fill="
 const screw=(r=2.1)=>circle(0,0,r,'#171717','#aaa')+`<path d="M${-r*.5} 0h${r}M0 ${-r*.5}v${r}" fill="none" stroke="#ccc" stroke-width=".55"/>`;
 function fan(x,y,z,r=22){return top(x,y,z,circle(0,0,r,'#0b0b0b','#999')+circle(0,0,r*.74,'none','#555')+Array.from({length:7},(_,i)=>`<path transform="rotate(${i*360/7})" d="M3-3Q${r*.55}-${r*.96} ${r*.83}-${r*.28}Q${r*.37}-${r*.2} 3 3Z" fill="#393939" stroke="#888" stroke-width=".45"/>`).join('')+circle(0,0,r*.18,'#151515','#aaa'));}
 function shell(w,d,h){let s=box(0,0,0,w,d,2,'#161616','#121212');s+=face([[-w/2,-d/2,2],[w/2,-d/2,2],[w/2,-d/2,h],[-w/2,-d/2,h]],'#101010','#555');s+=face([[w/2,-d/2,2],[w/2,d/2,2],[w/2,d/2,h],[w/2,-d/2,h]],'#171717','#999');for(let i=0;i<16;i++)s+=side(w/2+.1,-d/2+18+i*(d-36)/16,h/2,rect(-1,-h*.27,2,h*.54,'#070707','#666',1,.35));return s;}
-function lid(w,d,h){let s=box(0,0,h-2,w,d,2,'#1b1b1b','#151515');s+=top(0,0,h+.1,rect(-w/2+8,-d/2+8,w-16,d-16,'none','#444',2,.45));for(const x of [-w/2+10,w/2-10])for(const y of [-d/2+12,d/2-12])s+=top(x,y,h+.2,screw());for(let i=0;i<18;i++)s+=top(-100+i*11,-d*.23,h+.3,rect(-2,-20,4,40,'#0c0c0c','#555',1.8,.4));return s;}
+function lid(w,d,h){let s=box(0,0,h-2,w,d,2,'#1b1b1b','#151515');s+=top(0,0,h+.1,rect(-w/2+8,-d/2+8,w-16,d-16,'none','#444',2,.45));for(const x of [-w/2+10,w/2-10])for(const y of [-d/2+12,d/2-12])s+=top(x,y,h+.2,screw());for(let i=0;i<18;i++)s+=top(-100+i*11,-d*.23,h+.3,rect(-2,-20,4,40,'#0c0c0c','#555',1.8,.4));s+=face([[-w/2+3,d/2-3,h-6],[w/2-3,d/2-3,h-6],[w/2-3,d/2-3,h-2],[-w/2+3,d/2-3,h-2]],'#171717','#777',.55);return s;}
 function ears(h=44.45,y=120){let s='';for(const x of [-233,233])s+=front(x,y+2,h/2,rect(-10,-h/2+1,20,h-2,'#151515','#a3a3a3',1)+rect(-2.6,-h/2+6.35-3.5,5.2,7,'#070707','#777',2.5)+rect(-2.6,h/2-6.35-3.5,5.2,7,'#070707','#777',2.5));return s;}
 function rackFront(h,detail,d=240,mount=true){const y=d/2;return face([[-222.5,y,0],[222.5,y,0],[222.5,y,h],[-222.5,y,h]],'#121212','#aaa',.8)+front(0,y+.2,h/2,detail)+(mount?ears(h,y):'');}
 function electronics(w,d){let s=box(-25,-8,3,w-35,d-22,2,'#181818','#0e0e0e');for(let i=0;i<12;i++){const x=-w/2+27+i*(w-60)/12;s+=line([[x,d/2-18,5.3],[x,d/2-44,5.3],[x+7,d/2-51,5.3],[x+7,-d*.15,5.3]],'#626262',.7);s+=top(x+7,-d*.15,5.5,circle(0,0,1.1,'#aaa','#777'));}for(let i=0;i<3;i++){s+=box(-110+i*58,-20,5,39,40,6,'#111');for(let j=0;j<9;j++)s+=box(-126+i*58+j*4,-20,11,1.1,34,12,'#555','#252525');}s+=box(139,-d*.19,5,100,d*.37,24,'#2b2b2b');for(let i=0;i<7;i++)s+=top(103+i*12,-d*.19,29.2,rect(-1.2,-d*.13,2.4,d*.26,'#0a0a0a','#777',1,.35));return s;}
-function innerGroup(source,match){const at=source.indexOf(match);const start=source.lastIndexOf('<g',at);let level=0;const tags=/<\/?g\b[^>]*>/g;tags.lastIndex=start;let m;while((m=tags.exec(source))){level+=m[0].startsWith('</')?-1:1;if(level===0)return {start,end:tags.lastIndex,inner:source.slice(source.indexOf('>',start)+1,m.index),full:source.slice(start,tags.lastIndex)};}throw new Error('Missing group '+match);}
-function body(source){return source.replace(/^<svg[^>]*>/,'').replace(/<\/svg>\s*$/,'').replace(/<(title|desc)\b[^>]*>[\s\S]*?<\/\1>/g,'');}
-const previous=fs.readFileSync(path.join(root,'src/assets/cine/isometric/network-object.svg'),'utf8');
-const jackGroup=innerGroup(previous,'data-port="1"');
-const jack=jackGroup.inner;
-const reuseJacks=s=>s.replace(/(<g data-port="\d+">)([\s\S]*?)(<\/g>)/g,(m,a,b,c)=>a+'<use href="#rk-jack"/>'+(a.includes('data-port="6"')?'<path d="M-8.4-7.6H8.4V7.6H-8.4Z" fill="none" stroke="#dc2626" stroke-width=".8"/>':'')+c);
-let switchBody=body(previous);const switchCover=innerGroup(switchBody,'class="iso-lid"');switchBody=switchBody.replace(switchCover.full,'');const switchGuides=innerGroup(switchBody,'class="iso-guides"');switchBody=switchBody.replace(switchGuides.full,'');
-const normalized=s=>`<g transform="scale(.76923) translate(-500 -410)">${reuseJacks(s)}</g>`;
-const previousDetail=body(fs.readFileSync(path.join(root,'src/assets/cine/isometric/network-detail.svg'),'utf8')).replace(/<path d="M[^"]*l-63-36H96"[\s\S]*$/,'');
-const jackDetail=`<g transform="translate(-545 -270)">${previousDetail.replace(jack,'<use href="#rk-jack"/>')}</g>`;
+// A single physical front-plane jack: shield, keyed opening and eight contacts.
+// Every face and macro uses the exact same projection, including the switch.
+const jack=rect(-8,-7,16,14,'#aaa','#ccc',.7,.65)+rect(-7,-6,14,12,'#171717','#999',.4,.4)+`<path d="M-5.8-4.8H5.8V2.6H3.5V4.2H2.2V5.2H-2.2V4.2H-3.5V2.6H-5.8Z" fill="#070707" stroke="#777" stroke-width=".35"/>`+Array.from({length:8},(_,i)=>`<g data-contact="${i+1}">${rect(-5.35+i*1.42,-4.2,.75,4.7,'#ddd','#777',.15,.18)}</g>`).join('');
+// The macro enlarges a connector, not a second equipment chassis. The shield
+// has a cutaway roof; eight spring contacts align with the common port face.
+let socket=box(0,0,0,18,25,1,'#333')+face([[9,-12.5,1],[9,12.5,1],[9,12.5,17],[9,-12.5,17]],'#171717','#bbb',.75)+face([[-9,-12.5,1],[9,-12.5,1],[9,-12.5,17],[-9,-12.5,17]],'#171717','#bbb',.75);
+for(let i=0;i<8;i++){const x=-4.975+i*1.42;socket+=line([[x,-10,3],[x,2,3],[x,9,11.5]],'#ccc',.75);}
+socket+=face([[-9,-12.5,17],[0,-12.5,17],[0,12.5,17],[-9,12.5,17]],'#333','#bbb',.75)+face([[-9,12.5,0],[9,12.5,0],[9,12.5,17],[-9,12.5,17]],'#333','#ccc',.8)+front(0,12.7,8.5,'<use href="#rk-jack"/>');
+for(const y of [-4,7])socket+=side(9.1,y,8,rect(-1.3,-3,2.6,6,'#111','#aaa',.4,.45));
+let plug=box(0,40,4,11.4,22,8,'#777','#333');
+plug+=top(0,40,12.1,rect(-5,-10,10,20,'none','#bbb',.6)+Array.from({length:8},(_,i)=>rect(-5.35+i*1.42,-10,.75,17,'#ddd','#777',.1,.18)).join(''));
+plug+=face([[-1.6,33,1],[1.6,33,1],[1.6,48,4],[-1.6,48,4]],'#aaa','#ccc',.65)+box(0,54,3,14,7,10,'#333');
+for(let i=0;i<5;i++)plug+=box(0,59+i*2,3,14-i*.9,1.1,9-i*.7,'#444');
+plug+=line([[0,69,8],[0,77,8],[16,88,8]],'#dc2626',3);
+const jackDetail=`<g transform="scale(7.2)">${socket}<g class="rk-plug">${plug}</g></g>`;
 const iec=rect(-12,-9,24,18,'#0b0b0b','#aaa',1)+`<path d="M-8-6H8L10-3V6H-10V-3Z" fill="#050505" stroke="#777" stroke-width=".6"/>`+rect(-1.2,-4,2.4,3.4,'#aaa','#555',.2)+rect(-5.5,1,2.4,3.4,'#aaa','#555',.2)+rect(3.1,1,2.4,3.4,'#aaa','#555',.2);
 const lc=rect(-7.5,-5.5,15,11,'#1b1b1b','#aaa',.6)+rect(-5.3,-3.5,4.5,7,'#070707','#777',.4)+rect(.8,-3.5,4.5,7,'#070707','#777',.4)+`<path d="M-5-6v-2h10v2M-1-4v8" fill="none" stroke="#ccc" stroke-width=".6"/>`;
 const models=[];
 function add(id,label,base,cover,detail,z,scale,lift,detailScale=1){models.push({id,label,base,cover,detail,z,scale,lift,detailScale});}
-add('switch','Switch',normalized(switchBody),normalized(switchCover.inner),jackDetail,580.4,.98,[52,-175],.78);
+// 1U managed switch: 2 × 12 RJ45, four SFP cages, ASIC and power supply.
+let switchBody=shell(445,240,44.45),switchFace=text(-208,-12,'STATUS',4.5);
+for(let i=0;i<4;i++)switchFace+=circle(-203+i*9,-1,1.6,i===0?'#dc2626':'#aaa','#777',.35);
+switchFace+=rect(-205,9,31,9,'#080808','#aaa',.6)+text(-202,16,'CONSOLE',3.4);
+const switchPorts=[];
+for(let i=0;i<24;i++){
+ const x=-152+(i%12)*18.5,y=i<12?-8.5:8.5;
+ switchPorts.push({id:i+1,x,z:22.225-y});
+ switchFace+=`<g data-port="${i+1}" transform="translate(${x} ${y})"><use href="#rk-jack"/>${i===5?rect(-8.8,-7.8,17.6,15.6,'none','#dc2626',1,1.1):''}</g>`;
+ if(i<12)switchFace+=text(x-2.7,-17,String(i+1).padStart(2,'0'),3.2);
+}
+for(let i=0;i<4;i++){
+ const x=87+(i%2)*31,y=i<2?-10:9;
+ switchFace+=`<g data-sfp="${i+1}">${rect(x-12,y-6,24,12,'#aaa','#ccc',.4,.6)+rect(x-10,y-4,20,8,'#070707','#777',.4,.35)}</g>`;
+}
+switchFace+=text(82,-18,'SFP',4)+text(155,-10,'UM / NETWORK',4.5)+rect(156,-2,43,15,'#111','#aaa',1)+text(160,8,'24 PORTS',4.5);
+switchBody+=box(-27,-8,3,379,190,2,'#181818');
+for(let bank=0;bank<4;bank++){
+ const x=-133.5+bank*55.5;
+ switchBody+=box(x,82,5,53,71,33,'#333');
+ for(let i=0;i<6;i++)switchBody+=line([[x-19+i*7,49,7],[x-19+i*7,30,7],[x-9+i*6,-7,7]],'#999',.7);
+}
+switchBody+=box(-4,-22,5,70,72,9,'#333');
+for(let i=0;i<16;i++)switchBody+=box(-33+i*4,-22,14,1.8,65,19,'#777','#333');
+switchBody+=box(151,-29,5,112,151,31,'#333');
+switchBody+=top(151,-29,36.1,rect(-48,-68,96,136,'none','#999',2));
+switchBody+=fan(-138,-60,29,24)+fan(-77,-60,29,24);
+for(let i=0;i<9;i++)switchBody+=box(90+i*12,-102,7,6,13,16,'#aaa');
+switchBody+=rackFront(44.45,switchFace,240);
+add('switch','Switch',switchBody,lid(445,240,44.45),jackDetail,580.4,.98,[0,-155],.78);
 
 // Patch panel: one row of 24 individual jacks, rear IDC terminals and lacing bar.
 let panel=shell(445,95,44.45),panelFace='';
@@ -82,8 +116,8 @@ let server=shell(445,480,88.9),serverFace=text(-205,-35,'COMPUTE / STORAGE',4.5)
 for(let i=0;i<8;i++){const x=-181+(i%4)*83,y=i<4?-15:16;serverFace+=`<g data-drive="${i+1}">`+rect(x-36,y-11,72,22,'#0b0b0b','#8f8f8f',1)+rect(x+25,y-9,7,18,'#343434','#aaa',1)+circle(x+28.5,y,1.4,i===2?'#dc2626':'#aaa','#666');for(let v=0;v<11;v++)serverFace+=rect(x-32+v*4.6,y-7,1.8,14,'#181818','#555',.6,.35);serverFace+=text(x-35,y+2,String(i+1).padStart(2,'0'),3.4)+'</g>';}
 serverFace+=rect(157,-24,47,29,'#070707','#888',1)+rect(161,-20,39,21,'#1c1c1c','#555',.5)+text(164,-7,'SYSTEM',4.5)+circle(170,23,5,'#1a1a1a','#bbb')+rect(184,20,14,6,'#090909','#aaa',.4);
 server+=box(0,-55,3,415,365,2,'#1b1b1b');for(let i=0;i<6;i++)server+=fan(-170+i*65,30,10,26);
-for(const x of [-102,36]){server+=box(x,-113,8,85,84,9,'#202020');for(let i=0;i<16;i++)server+=box(x-36+i*4.8,-113,17,1.6,75,35,'#595959','#222');for(let i=0;i<6;i++)server+=box(x+58,-156+i*17,7,62,2.8,32,'#3b3b3b');}
-for(let i=0;i<4;i++)server+=box(-136+i*87,92,5,74,180,37,'#181818');server+=rackFront(88.9,serverFace,480);
+for(const x of [-102,36]){server+=box(x,-113,8,85,84,9,'#202020');for(let i=0;i<16;i++)server+=box(x-36+i*4.8,-113,17,1.6,75,35,'#595959','#222');for(let i=0;i<6;i++)server+=box(x+74,-156+i*17,7,62,2.8,32,'#3b3b3b');}
+for(let level=0;level<2;level++)for(let i=0;i<4;i++){const x=-181+i*83,z=17.45+level*31;server+=box(x,150,z,72,170,22,'#181818');server+=top(x,150,z+22.1,rect(-30,-72,60,144,'#222','#999',2,.4));for(const offset of [-28,28])server+=top(x+offset,219,z+22.2,screw(1.5));}server+=rackFront(88.9,serverFace,480);
 let drive=box(0,0,0,95,142,12,'#343434');drive+=top(0,0,12.2,rect(-44,-68,88,134,'none','#bbb',2)+rect(-30,-41,60,80,'#181818','#777',2)+text(-24,3,'SSD',10));for(const x of [-38,38])for(const y of [-60,60])drive+=top(x,y,12.4,screw(2.8));drive+=box(0,76,0,105,6,24,'#303030')+front(0,80,12,rect(-44,-8,88,16,'#0a0a0a','#999',2)+rect(27,-6,13,12,'#444','#bbb',1));
 add('server','Servidor',server,lid(445,480,88.9),`<g transform="scale(2.7)">${drive}</g>`,358.15,.78,[52,-175],.87);
 
@@ -105,7 +139,10 @@ let apCover=box(0,0,20,166,166,8,'#2b2b2b','#202020');apCover+=top(0,0,28.1,rect
 add('access','Punto Wi-Fi',apBase,apCover,jackDetail,0,1.66,[0,-95],.78);
 
 models.find(m=>m.id==='fiber').closed=fiberFront;models.find(m=>m.id==='ups').closed='';
-const defs='<g id="rk-jack">'+jack+'</g><g id="rk-lc">'+lc+'</g><g id="rk-iec">'+iec+'</g>'+models.map(m=>`<g id="rk-${m.id}-base">${m.base}</g><g id="rk-${m.id}-cover">${m.cover}</g><g id="rk-${m.id}-closed">${m.closed===undefined?`<use href="#rk-${m.id}-cover"/>`:m.closed}</g><g id="rk-${m.id}-full"><use href="#rk-${m.id}-base"/><use href="#rk-${m.id}-closed"/></g><g id="rk-${m.id}-detail">${m.detail}</g>`).join('');
+const motions={switch:[0,0,155],panel:[0,0,105],manager:[0,80,0],fiber:[0,130,0],router:[0,0,155],server:[0,0,165],ups:[0,140,0],pdu:[0,0,105],access:[0,0,90]};
+const dimensions={switch:[445,240,44.45],panel:[445,95,44.45],manager:[445,95,44.45],fiber:[415,226,3],router:[445,280,44.45],server:[445,480,88.9],ups:[378,333,3],pdu:[445,72,44.45],access:[166,166,28]};
+for(const model of models){model.motion=motions[model.id];model.lift=P(...model.motion);const [w,d,h]=dimensions[model.id];model.guides=[[-w*.46,-d*.43,h],[-w*.46,d*.43,h],[w*.46,d*.43,h]].map(p=>line([p,p.map((v,i)=>v+model.motion[i])],'#777',.55,'stroke-dasharray="3 5"')).join('');}
+const defs='<g id="rk-jack">'+jack+'</g><g id="rk-lc">'+lc+'</g><g id="rk-iec">'+iec+'</g>'+models.map(m=>`<g id="rk-${m.id}-base">${m.base}</g><g id="rk-${m.id}-cover">${m.cover}</g><g id="rk-${m.id}-guides">${m.guides}</g><g id="rk-${m.id}-closed">${m.closed===undefined?`<use href="#rk-${m.id}-cover"/>`:m.closed}</g><g id="rk-${m.id}-full"><use href="#rk-${m.id}-base"/><use href="#rk-${m.id}-closed"/></g><g id="rk-${m.id}-detail">${m.detail}</g>`).join('');
 
 // 18U cabinet: four posts, three rail holes per U, two side panels, removable
 // front glass, hinges, leveling feet, roof fans and grounded power at the base.
@@ -131,8 +168,8 @@ for(const m of [...models].filter(m=>m.id!=='access').sort((a,b)=>a.z-b.z)){
 // The same red physical patch joins panel 09 to switch 06; five further runs
 // are muted. Soft curves are projected from control points in cabinet space.
 function cable(a,b,color,width=2.8){const q=P(...a),t=P(...b),c1=P(a[0],a[1]+130,a[2]-22),c2=P(b[0],b[1]+125,b[2]+38);return `<path d="M${q}C${c1} ${c2} ${t}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round"/>`;}
-let patching='';for(let i=0;i<5;i++){const pa=-197.8+(8+i*2)*17.2,sw=-153+(2+i*2)*20.2;patching+=cable([pa,230,691.525],[sw,230,610],i===0?'#dc2626':'#858585');}
-let blank='';for(const z of [0,3,5,6,9,11,15,17].map(u=>47+u*44.45+22.225))blank+=front(0,224,z,rect(-221,-20,442,40,'#171717','#626262',1)+rect(-210,-12,420,24,'none','#383838',1)+text(-12,2,'UM',5));
+let patching='';for(let i=0;i<5;i++){const pa=-197.8+(8+i*2)*17.2,port=switchPorts.find(p=>p.id===6+i*2);patching+=cable([pa,224,690.525],[port.x,224,580.4+port.z],i===0?'#dc2626':'#858585',i===0?3.3:2);}
+let blank='';for(const z of [0,3,5,6,9,11,15,17].map(u=>47+u*44.45+22.225))blank+=front(0,224,z,rect(-221,-20,442,40,'#171717','#626262',1)+rect(-210,-12,420,24,'none','#383838',1));
 let door=rect(0,-896,564,896,'none','#b1b1b1',4,1.3)+rect(1,-895,21,894,'#181818','#777',1)+rect(542,-895,21,894,'#181818','#777',1)+rect(22,-895,520,22,'#181818','#777',1)+rect(22,-22,520,21,'#181818','#777',1)+rect(22,-872,520,850,'#141414','#636363',3,.8);
 // Glass is translucent; frame and lock remain readable when closed.
 door=door.replace('fill="#141414"','fill="#141414" fill-opacity=".38"');
@@ -140,14 +177,28 @@ door+=rect(516,-545,15,104,'#1c1c1c','#aaa',5,1)+rect(521,-524,5,61,'#0a0a0a','#
 for(const y of [-784,-454,-124])door+=rect(-4,y-15,9,30,'#272727','#bbb',2);
 const hinge=P(-282,284,11);
 const defaultPart=models[0],focusX=defaultPart.slotX,focusY=defaultPart.slotY;
-const scene=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" class="rk-scene" role="img" aria-labelledby="rk-title rk-description"><title id="rk-title">Un gabinete de red, pieza por pieza</title><desc id="rk-description">Gabinete de 18 unidades con puerta articulada, rieles perforados, patch panel, organizador, switch, router, bandeja óptica, servidor, UPS y distribución eléctrica. El punto Wi-Fi se conecta fuera del rack. Cada equipo se extrae, abre y muestra una conexión propia.</desc><defs>${defs}</defs><style>.rk-scene polygon,.rk-scene polyline,.rk-scene rect,.rk-scene circle,.rk-scene path{vector-effect:non-scaling-stroke}.rk-scene [stroke-width=".035"]{stroke-width:.5}</style>
+const overviewScale=.43,apOrigin=[905,430],apPort=P(0,83.2,10),wifiPort=switchPorts.find(p=>p.id===18),wifiStart=P(wifiPort.x,222.2,580.4+wifiPort.z);
+const wifiA=wifiStart.map((v,i)=>n(v*overviewScale+[505,555][i])),wifiB=apPort.map((v,i)=>n(v*overviewScale+apOrigin[i]));
+const wifiLead=[n(wifiA[0]-180*C*overviewScale),n(wifiA[1]+90*overviewScale)],wifiFloor=[wifiLead[0],630];
+const wifiCorner=[n(wifiFloor[0]+(wifiB[0]-wifiFloor[0]+(wifiB[1]-wifiFloor[1])/Math.tan(Math.PI/6))/2),0];wifiCorner[1]=n(wifiFloor[1]+(wifiCorner[0]-wifiFloor[0])*Math.tan(Math.PI/6));
+const wifiFrontPath=`M${wifiA}L${wifiLead}L${wifiFloor}L${wifiCorner}`,wifiPath=wifiFrontPath+`L${wifiB}`;
+const route=[wifiA,wifiLead,wifiFloor,wifiCorner,wifiB],routeLengths=route.slice(1).map((p,i)=>Math.hypot(p[0]-route[i][0],p[1]-route[i][1])),frontPathLength=n(100*routeLengths.slice(0,3).reduce((a,b)=>a+b,0)/routeLengths.reduce((a,b)=>a+b,0));
+const networkWire=(d,pathLength=100)=>`<path d="${d}" fill="none" stroke="#697680" stroke-width="1.2"/><path class="rk-signal" d="${d}" pathLength="${pathLength}" fill="none" stroke="#dc2626" stroke-width="2.7" stroke-dasharray="4 96" stroke-dashoffset="100"/>`;
+const sceneRaw=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" class="rk-scene" role="img" aria-labelledby="rk-title rk-description"><title id="rk-title">Un gabinete de red, pieza por pieza</title><desc id="rk-description">Gabinete de 18 unidades con puerta articulada, rieles perforados, patch panel, organizador, switch, router, bandeja óptica, servidor, UPS y distribución eléctrica. El punto Wi-Fi se conecta fuera del rack. Cada equipo se extrae, abre y muestra una conexión propia.</desc><defs>${defs}</defs><style>.rk-scene polygon,.rk-scene polyline,.rk-scene rect,.rk-scene circle,.rk-scene path{vector-effect:non-scaling-stroke}</style>
 <g class="rk-ground">${face([[-800,-600,-75],[800,-600,-75],[800,750,-75],[-800,750,-75]],'none','#303030',.5)}</g>
+<g class="rk-external-link" data-network-link="switch18-access">${networkWire(wifiPath)}</g>
 <g class="rk-cabinet">${cabinet}${mounted}${blank}<g class="rk-patching">${patching}</g>${cabinetFront}<g class="rk-door" style="--hinge-x:${hinge[0]}px;--hinge-y:${hinge[1]}px" transform="translate(${hinge.join(' ')})">${door}</g></g>
-<g class="rk-external"><use href="#rk-access-full"/><path d="M-71.9 31.5C-90 55-160 85-210 115" fill="none" stroke="#dc2626" stroke-width="1.2"/></g>
-<path class="rk-leader" data-rack-leader="" d="M220 410H440L510 370H590" fill="none" stroke="#dc2626" stroke-width=".7" stroke-dasharray="3 5"/><g class="rk-focus" style="--slot-x:${focusX}px;--slot-y:${focusY}px"><use data-rack-base="" href="#rk-switch-base"/><g class="rk-cover"><use data-rack-cover="" href="#rk-switch-cover"/></g></g>
+<g class="rk-external-link">${networkWire(wifiFrontPath,frontPathLength)}</g>
+<g class="rk-external"><use href="#rk-access-full"/></g>
+<path class="rk-leader" data-rack-leader="" d="M220 410H440L510 370H590" fill="none" stroke="#dc2626" stroke-width=".7" stroke-dasharray="3 5"/><g class="rk-focus" style="--slot-x:${focusX}px;--slot-y:${focusY}px"><use data-rack-base="" href="#rk-switch-base"/><g class="rk-guides"><use data-rack-guides="" href="#rk-switch-guides"/></g><g class="rk-cover"><use data-rack-cover="" href="#rk-switch-cover"/></g></g>
 <g class="rk-detail"><use data-rack-detail="" href="#rk-switch-detail"/></g>
-<g class="rk-view-labels" fill="#c4c7cc" font-family="Arial,sans-serif" font-size="30"><text x="805" y="175" class="rk-overview-label">Del rack al puesto</text><text x="805" y="212" class="rk-overview-label" fill="#fff">Cada conexión tiene su lugar.</text><text x="85" y="116" class="rk-context-label">El equipo conserva su contexto.</text><path d="M805 240h115" stroke="#dc2626" stroke-width="1.2" class="rk-overview-label"/></g>
+<g class="rk-view-labels" fill="#c4c7cc" font-family="Arial,sans-serif" font-size="30"><text x="805" y="175" class="rk-overview-label">Switch → punto Wi-Fi</text><text x="805" y="212" class="rk-overview-label" fill="#fff">Puerto 18 · cobre</text><text x="85" y="116" class="rk-context-label">El equipo conserva su contexto.</text><path d="M805 240h115" stroke="#dc2626" stroke-width="1.2" class="rk-overview-label"/></g>
 </svg>`;
+// Materials carry the volume; fine strokes describe construction. The same
+// neutral light reaches all nine models, with no full-surface filters or WebGL.
+const fillPalette={'#040404':'#0b0e11','#050505':'#080b0e','#060606':'#0b0e11','#070707':'#0c1014','#080808':'#11161b','#090909':'#0c1014','#0a0a0a':'#0e1318','#0b0b0b':'#11161b','#0c0c0c':'#151b20','#0e0e0e':'#1a2026','#101010':'#2b3239','#111':'#1b2228','#111111':'#1b2228','#121212':'#424b53','#141414':'#252d34','#151515':'#3b454d','#161616':'#3d474f','#171717':'#4e5962','#181818':'#333d45','#1a1a1a':'#505d67','#1b1b1b':'#77838d','#1c1c1c':'#4c5862','#202020':'#8a969f','#222':'#53616b','#222222':'#53616b','#232323':'#55616b','#242424':'#6f7d87','#252525':'#7b8791','#262626':'#65737e','#272727':'#71808b','#2b2b2b':'#626f79','#2c2c2c':'#65737d','#303030':'#7c8a94','#333':'#71808b','#333333':'#71808b','#343434':'#82909a','#393939':'#66757f','#3b3b3b':'#84949e','#444':'#9caab3','#484848':'#a6b2ba','#555':'#a9b4bd','#595959':'#aeb9c2','#777':'#c3cbd1','#aaa':'#d3d9de','#bbb':'#d8dde1','#ccc':'#e2e6e9','#ddd':'#f0f2f3'};
+const strokePalette={'#303030':'#3e4b55','#383838':'#60707c','#444':'#697985','#454545':'#697985','#555':'#71818e','#626262':'#85939e','#636363':'#85939e','#666':'#7d8c98','#686868':'#82919d','#6b6b6b':'#93a0aa','#777':'#a0adb7','#888':'#aab6c0','#898989':'#aab6c0','#8f8f8f':'#b5c0c8','#999':'#bac5cd','#aaa':'#d0d8de','#a3a3a3':'#ced7dd','#bbb':'#dce2e6','#b1b1b1':'#d5dde3','#ccc':'#eef1f3'};
+const scene=sceneRaw.replace(/\b(fill|stroke)="(#[\da-f]+)"/gi,(match,kind,color)=>`${kind}="${(kind==='fill'?fillPalette:strokePalette)[color]||color}"`);
 const dest=path.join(root,'src/assets/cine/isometric');fs.mkdirSync(dest,{recursive:true});fs.writeFileSync(path.join(dest,'network-rack-v8.svg'),scene);
-fs.writeFileSync(path.join(dest,'network-rack-v8.json'),JSON.stringify({version:8,projection:'orthographic 30°',equipment:'Generic explanatory geometry; dimensions do not specify a product or a client installation.',interactionReference:'Hairline cabinet: nearest rack modules extend on rails.',models:models.map(({id,label,z,scale,lift,detailScale,slotX=450,slotY=-280})=>({id,label,z,scale,lift,detailScale,slotX,slotY})),bytes:Buffer.byteLength(scene)},null,2));
+fs.writeFileSync(path.join(dest,'network-rack-v8.json'),JSON.stringify({version:8,projection:'orthographic 30°',projectionMatrix:{x:[C,.5],y:[-C,.5],z:[0,-1]},overviewScale,externalScale:overviewScale,connections:{copper:{panelPort:9,switchPort:6},wifi:{switchPort:18,from:wifiA,to:wifiB,path:wifiPath}},equipment:'Generic explanatory geometry; dimensions do not specify a product or a client installation.',interactionReference:'Hairline cabinet: nearest rack modules extend on rails.',models:models.map(({id,label,z,scale,lift,motion,detailScale,slotX=450,slotY=-280})=>({id,label,z,scale,lift,motion,detailScale,slotX,slotY})),bytes:Buffer.byteLength(scene)},null,2));
 console.log(JSON.stringify({models:models.length,bytes:Buffer.byteLength(scene),svg:path.join(dest,'network-rack-v8.svg')}));
