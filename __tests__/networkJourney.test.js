@@ -104,6 +104,13 @@ test('the rack and eighteen isolated equipment views share complete, unique SVG 
  expect(xml.querySelector('#rk-fiber-cover').querySelectorAll('[data-optical-adapter]')).toHaveLength(12);
  expect(xml.querySelector('#rk-pdu-base').querySelectorAll('[data-power-outlet]')).toHaveLength(8);
  expect(xml.querySelector('#rk-server-base').querySelectorAll('[data-drive]')).toHaveLength(8);
+ // A floor bend must remain inside the shared overview, including the runs
+ // hidden behind the cabinet; otherwise the connection is visibly cropped.
+ for(const path of xml.querySelectorAll('[data-system-link] path')){
+  const points=[...path.getAttribute('d').matchAll(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/g)];
+  expect(points.length).toBeGreaterThanOrEqual(2);
+  for(const [,x,y] of points){expect(Number(x)).toBeGreaterThan(8);expect(Number(x)).toBeLessThan(1192);expect(Number(y)).toBeGreaterThan(8);expect(Number(y)).toBeLessThan(712);}
+ }
 });
 
 

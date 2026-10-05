@@ -239,7 +239,7 @@ const networkWire=(d,pathLength=100)=>`<path d="${d}" fill="none" stroke="#69768
 const peripherals=[['101','outlet',885,610],['102','camera',912,360],['102','dome',958,495],['102','reader',872,670],['103','radio',908,420],['103','injector',859,611],['103','optic',1080,570],['107','central',927,555],['107','detector',1012,625]];
 const perimeter=peripherals.map(([service,id,x,y])=>`<g class="rk-peripheral" data-context-services="${service}" data-system-part="${id}" transform="translate(${x} ${y}) scale(${overviewScale})"><use href="#rk-${id}-full"/></g>`).join('');
 const screenPoint=(position,origin)=>P(...position).map((v,i)=>n(v*overviewScale+origin[i]));
-function isoCorner(a,b){const x=n(a[0]+(b[0]-a[0]+(b[1]-a[1])/Math.tan(Math.PI/6))/2);return [x,n(a[1]+(x-a[0])*Math.tan(Math.PI/6))];}
+function isoCorner(a,b,reverse=false){const slope=(reverse?-1:1)*Math.tan(Math.PI/6),x=n(a[0]+(b[0]-a[0]+(b[1]-a[1])/slope)/2);return [x,n(a[1]+(x-a[0])*slope)];}
 function isoRoute(a,b){return `M${a}L${isoCorner(a,b)}L${b}`;}
 const systemRoutes=[
  ['101','panel-outlet',screenPoint([-60.2,224,690.525],[505,555]),screenPoint([0,22,98],[885,610])],
@@ -251,10 +251,10 @@ const systemRoutes=[
 // pass behind the cabinet side. Both layers share one continuous signal path.
 const wireRun=([service,id,a,b])=>{
  if(!['panel-outlet','switch-camera'].includes(id))return {service,id,path:isoRoute(a,b)};
- const lead=[n(a[0]-180*C*overviewScale),n(a[1]+90*overviewScale)],floor=[lead[0],630],corner=isoCorner(floor,b),points=[a,lead,floor,corner,b];
+ const lead=[n(a[0]-180*C*overviewScale),n(a[1]+90*overviewScale)],floor=[lead[0],630],corner=isoCorner(floor,b,true),points=[a,lead,floor,corner,b];
  const lengths=points.slice(1).map((p,i)=>Math.hypot(p[0]-points[i][0],p[1]-points[i][1]));
- const front=`M${a}L${lead}L${floor}L${corner}`;
- return {service,id,path:front+`L${b}`,front,frontLength:n(100*lengths.slice(0,3).reduce((a,b)=>a+b,0)/lengths.reduce((a,b)=>a+b,0))};
+ const front=`M${a}L${lead}L${floor}`;
+ return {service,id,path:front+`L${corner}L${b}`,front,frontLength:n(100*lengths.slice(0,2).reduce((a,b)=>a+b,0)/lengths.reduce((a,b)=>a+b,0))};
 };
 const runs=systemRoutes.map(wireRun);
 const systemWires=runs.map(({service,id,path})=>`<g class="rk-peripheral rk-system-wire" data-context-services="${service}" data-system-link="${id}">${networkWire(path)}</g>`).join('');
