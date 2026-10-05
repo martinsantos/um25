@@ -22,7 +22,7 @@ export async function createDemoHandler({ credentials, origin, clientDir=resolve
   baseHeaders['Referrer-Policy']='same-origin';
   function respond(res, status, body='', extra={}) { res.writeHead(status,{...baseHeaders,...extra}); res.end(body); }
   function redirect(res, path, extra={}) { respond(res,303,'',{ Location:base+path,...extra }); }
-  function renderLogin(res,error='',status=200,extra={}) { respond(res,status,login.replace('{{ERROR}}',error),{'Content-Type':'text/html; charset=utf-8',...extra}); }
+  function renderLogin(res,error='',status=200,extra={},next='') { respond(res,status,login.replace('{{ERROR}}',error).replace('{{NEXT}}',next==='manual'?'manual':''),{'Content-Type':'text/html; charset=utf-8',...extra}); }
   function cookie(token,age) { return `${cookieName}=${token}; Path=${base}; HttpOnly; SameSite=Strict; Max-Age=${age}${secure?'; Secure':''}`; }
   function sweep() { const now=clock(); for(const [key,expires] of sessions) if(expires<=now) sessions.delete(key); for(const [key,item] of attempts) if(item.until<=now) attempts.delete(key); }
   async function file(res,path,head=false) {
@@ -65,11 +65,11 @@ export async function createDemoHandler({ credentials, origin, clientDir=resolve
         let hash; activeChecks++;
         try { hash=await scrypt(password,credentials.salt,64,{N:16384,r:8,p:1}); } finally { activeChecks--; }
         const valid=timingSafeEqual(hash,Buffer.from(credentials.hash,'hex')) && username===credentials.username;
-        if(!valid) return renderLogin(res,'Usuario o clave incorrectos.',401);
+        if(!valid) return renderLogin(res,'Usuario o clave incorrectos.',401,{},form.get('next'));
         if(sessions.size>=1000) return renderLogin(res,'No hay sesiones disponibles. Reintentar más tarde.',503);
         if(token) sessions.delete(token);
         const fresh=randomBytes(32).toString('hex'); sessions.set(fresh,clock()+lifetime);
-        return redirect(res,'',{'Set-Cookie':cookie(fresh,lifetime/1000)});
+        return redirect(res,form.get('next')==='manual'?'manual':'',{'Set-Cookie':cookie(fresh,lifetime/1000)});
       }
       if(!['GET','HEAD'].includes(req.method)) return respond(res,405,'Método no permitido',{'Allow':'GET, HEAD'});
       if(relative.startsWith('login-assets/')) {
@@ -78,9 +78,10 @@ export async function createDemoHandler({ credentials, origin, clientDir=resolve
         if(!['um-logo.svg','UMSans-Regular.ttf','UMSans-Bold.ttf'].includes(asset)) return respond(res,404,'No encontrado');
         return file(res,resolve(root,'assets',asset),req.method==='HEAD');
       }
-      if(relative==='login') return authenticated?redirect(res,''):renderLogin(res);
-      if(!authenticated) return redirect(res,'login');
-      if(!relative || relative==='index.html') return file(res,resolve(root,'index.html'),req.method==='HEAD');
+      if(relative==='login') { const next=new URL(req.url,origin).searchParams.get('next'); return authenticated?redirect(res,next==='manual'?'manual':''):renderLogin(res,'',200,{},next); }
+      if(!authenticated) return redirect(res,relative==='manual'||relative==='manual/'?'login?next=manual':'login');
+      if(relative==='manual/') return redirect(res,'manual');
+      if(!relative || relative==='index.html' || relative==='manual') return file(res,resolve(root,'index.html'),req.method==='HEAD');
       if(!relative.startsWith('assets/')) return respond(res,404,'No encontrado');
       return file(res,resolve(root,relative),req.method==='HEAD');
     } catch { respond(res,500,'No se pudo completar la solicitud.'); }

@@ -14,6 +14,7 @@ for(const path of ['', 'index.html','assets/um-logo.svg','assets/documentos/curs
   const r=await get(path); assert.equal(r.status,303); assert.equal(r.headers.get('location'),'/ofertas/dge/login');
 }
 assert.equal((await get('/dge-private/client/index.html')).status,404);
+assert.equal((await get('manual')).headers.get('location'),'/ofertas/dge/login?next=manual');
 assert.equal((await post('login','username=demo_invalid&password=demo_invalid')).status,401);
 assert.equal((await post('login','x=y','','https://untrusted.invalid')).status,403);
 const login=await post('login',new URLSearchParams({username,password})); assert.equal(login.status,303);
@@ -24,11 +25,16 @@ const app=await get('',cookie); assert.equal(app.status,200); const html=await a
 const js=html.match(/src="\.\/(assets\/[^" ]+\.js)"/)?.[1];assert.ok(js,'Compiled demo module missing');
 assert.equal((await get(js)).status,303); assert.equal((await get(js,cookie)).status,200);
 assert.equal((await get('/'+js)).status,404);
-for(const [path,type] of [['assets/documentos/curso-demo-v2.pdf','application/pdf'],['assets/documentos/curso-demo-v2-1.png','image/png'],['assets/documentos/curso-demo-v2-thumb.png','image/png']]) {
+for(const [path,type] of [['assets/documentos/curso-demo-v2.pdf','application/pdf'],['assets/documentos/curso-demo-v2-1.png','image/png'],['assets/documentos/curso-demo-v2-thumb.png','image/png'],['assets/manual/DGE-manual-demo-anexos.pdf','application/pdf'],...['junta-web','legajo-web','reclamo-web','junta-mobile','legajo-mobile','manual-mobile'].map(name=>['assets/manual/'+name+'.jpg','image/jpeg'])]) {
+  assert.equal((await get(path)).status,303);
   const document=await get(path,cookie); assert.equal(document.status,200); assert.equal(document.headers.get('content-type'),type); assert.match(document.headers.get('cache-control'),/no-store/);
   assert.equal((await get('/'+path)).status,404);
 }
+assert.equal((await get('manual',cookie)).status,200);
+assert.equal((await get('manual/',cookie)).headers.get('location'),'/ofertas/dge/manual');
 assert.equal((await get('',cookie.split('=')[0]+'=expired-or-forged')).status,303);
 assert.equal((await post('logout','',cookie)).status,303);
 assert.equal((await get('',cookie)).status,303);
-console.log(JSON.stringify({target:base.href,checks:'anonymous HTML/JS/PDF/page/thumbnail blocked; no public bypass; bad key and CSRF denied; login and private module/documents pass; forged/revoked sessions denied',result:'passed'}));
+const manualLogin=await post('login',new URLSearchParams({username,password,next:'manual'}));assert.equal(manualLogin.headers.get('location'),'/ofertas/dge/manual');
+const manualCookie=manualLogin.headers.get('set-cookie').split(';')[0];assert.equal((await get('manual',manualCookie)).status,200);await post('logout','',manualCookie);
+console.log(JSON.stringify({target:base.href,checks:'anonymous HTML/JS/manual/PDF/pages/thumbnails/six annexes blocked; no public bypass; bad key and CSRF denied; login, manual return and private assets pass; forged/revoked sessions denied',result:'passed'}));
