@@ -1,5 +1,6 @@
 ---
 import NetworkJourney from './NetworkJourney.astro';
+import SoftwareLayers from './SoftwareLayers.astro';
 import {ISOMETRIC_STUDIES} from '../../data/cine/isometric';
 import {EQUIPMENT_KITS} from '../../data/cine/networkAssembly';
 interface Service {code:string;name:string;href:string}
@@ -39,7 +40,7 @@ const first=items[0];
    <button type="button" data-atlas-view="object" aria-pressed="true">La herramienta</button>
    <button type="button" data-atlas-view="system" aria-pressed="false">En el proyecto</button>
   </div>
-  <div class="svc-story__frame" hidden><img src={url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
+  <div class="svc-story__frame" hidden><div class="svc-story__software" data-atlas-software hidden><SoftwareLayers compact /></div><img src={url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
   <p class="svc-story__illustration-copy" data-atlas-context hidden />
   <div class="svc-story__caption"><p data-atlas-copy>{first.message.copy}</p><a class="svc-story__link" href={first.href} data-atlas-link>Explorar {first.study.name.toLowerCase()} <span aria-hidden="true">→</span></a></div>
   <p class="svc-story__announcement" data-atlas-announce aria-live="polite" aria-atomic="true" />
@@ -54,6 +55,7 @@ const first=items[0];
  .svc-story__heading h3{margin:0;font-size:clamp(1.375rem,2vw,1.75rem);font-weight:600;line-height:1.3;max-width:30ch;color:#fff;text-wrap:balance}
  .svc-story [hidden]{display:none!important}
  .svc-story__frame{height:clamp(280px,29vw,405px);position:relative;min-width:0}.svc-story__frame img{width:100%;height:100%!important;object-fit:contain;display:block}
+ .svc-story__software{width:100%;height:100%}
  .svc-story__frame.is-entering{animation:atlas-enter 220ms ease-out both}@keyframes atlas-enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
  .svc-story__views{display:grid;grid-template-columns:1fr 1fr;border-block:1px solid #ffffff36}
  .svc-story__views button{color:var(--story-muted);font:500 1rem var(--um-font-body,'UM Sans',Arial,sans-serif);border:0;border-bottom:2px solid transparent;background:transparent;min-height:52px;padding:12px;cursor:pointer}

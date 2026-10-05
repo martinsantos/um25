@@ -204,3 +204,7 @@ Las evidencias de browser y validación se conservan fuera del repositorio en la
 carpeta `human-ux-20261005` de visualizaciones del chat. Esta pasada trata home
 y equipamiento; no sustituye la revisión de las movies Blender ni publica en
 producción.
+
+Software reutiliza la interfaz de capas Hairline ya presente en su página, en
+la vista de herramienta de la home. Se monta sólo al estar visible; la vista
+de proyecto conserva su escena. El texto comercial mantiene su identidad.

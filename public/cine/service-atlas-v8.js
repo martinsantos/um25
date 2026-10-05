@@ -3,13 +3,14 @@ export function bindServiceAtlas(root) {
   const services=[...root.querySelectorAll('[data-atlas-service]')],views=[...root.querySelectorAll('[data-atlas-view]')];
   const network=root.querySelector('[data-atlas-network]'),networkFigure=network?.querySelector('[data-network-journey]');
   const viewControls=root.querySelector('.svc-story__views'),picker=root.querySelector('[data-atlas-picker]'),illustrationCopy=root.querySelector('[data-atlas-context]');
-  const image=root.querySelector('[data-atlas-image]'),frame=image.parentElement;
+  const image=root.querySelector('[data-atlas-image]'),frame=image.parentElement,software=root.querySelector('[data-atlas-software]');
   const title=root.querySelector('[data-atlas-title]'),copy=root.querySelector('[data-atlas-copy]'),code=root.querySelector('[data-atlas-code]'),link=root.querySelector('[data-atlas-link]');
   let active=services[0],view='object',revision=0,disposed=false;
   async function sync() {
     if(!active)return;networkFigure?.dispatchEvent(new CustomEvent('um:network-pause'));
     if(network){const shown=active.dataset.atlasService==='101'||!!active.dataset.equipmentKit;network.hidden=!shown;frame.hidden=shown;if(viewControls)viewControls.hidden=shown;}
     const token=++revision,src=active.dataset[view];
+    if(software){software.hidden=active.dataset.atlasService!=='104'||view!=='object';image.hidden=!software.hidden;}
     services.forEach(button=>button.setAttribute('aria-pressed',String(button===active)));
     views.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.atlasView===view)));
     title.textContent=active.dataset.title;copy.textContent=active.dataset.copy;code.textContent=active.dataset.name;root.dataset.activeService=active.dataset.atlasService;
@@ -22,6 +23,7 @@ export function bindServiceAtlas(root) {
       else networkFigure?.dispatchEvent(new CustomEvent('um:network-view',{detail:{index:view==='system'?0:1}}));
       return;
     }
+    if(software&&!software.hidden)return;
     if(image.getAttribute('src')===src)return;
     const next=new Image();next.src=src;
     try{await next.decode();}catch{if(token===revision)image.alt=`Vista de ${active.dataset.name.toLowerCase()} no disponible`;return;}
