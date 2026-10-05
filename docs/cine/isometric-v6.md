@@ -306,3 +306,59 @@ La decodificación completa confirma H.264, 1920×1080, 24 fps y duración 0,5 s
 Esto valida el circuito de entrega; no valida todavía la película entera ni
 reemplaza las movies v4. El MP4 final y los tracks se entregarán en la misma
 Page privada de la tarea Blender.
+
+
+## 2026-10-05 — Una historia técnica en los ocho servicios
+
+El criterio del dueño es transmitir liderazgo técnico nacional por la complejidad
+legible y la elegancia del trabajo. El recorrido conecta proyecto, relaciones entre
+sistemas, equipo e interior/detalle. Cada servicio explica una responsabilidad
+concreta y conduce al siguiente; no exige volver a un índice para seguir mirando.
+Los enlaces provienen de NAV_SERVICES y conservan el ancla #equipamiento.
+
+Redes, Seguridad, Telecomunicaciones, Incendio y Energía conservan sus conjuntos
+propios de la biblioteca detallada. Sus controles usan Sistema / Equipo / Interior /
+Detalle. El recorrido solicitado por el visitante dura una pasada: 6,4 segundos por
+vista y 7,2 segundos para el interior, además de abrir el gabinete. Se pausa fuera
+del viewport y al ocultar la página, se cancela con una elección manual y respeta
+movimiento reducido. Software, Soporte y Consultoría usan la misma secuencia de
+cuatro vistas y duración. Las capas persistentes se desplazan sin reiniciar todo
+el dibujo entre pieza completa e interior.
+
+Soporte tiene tres capas distintas: telemetría, diagnóstico y respuesta verificada.
+El contexto conecta gabinete, consola y responsable usando la misma proyección.
+Consultoría separa el plano del sitio, las dependencias de arquitectura y una matriz
+de decisiones con criterios y evidencia. Se agregan seis SVG vectoriales (70.225
+bytes), con fuentes reproducibles en build-operation-isometrics-v7.mjs y manifiesto
+operations-v7.json. Los encuadres incluyen la apertura máxima; el detalle se mejora
+ajustando el espacio del dibujo, sin reducir resolución ni rasterizarlo.
+
+La home reutiliza exactamente los dibujos y el controlador de estas capas. En
+Soporte y Consultoría agrega Por capas junto a La herramienta y En el proyecto.
+Permanece un único servicio visible. Los controladores honran una selección recibida
+antes de enlazarse durante SSR, evitan decodes de imágenes innecesarios y conservan
+la exploración existente de Software y los cinco conjuntos de equipos. Las páginas
+de servicio ofrecen además los cuatro estados y su recorrido controlado.
+
+Los archivos públicos nuevos son isometric-services-v7.js, network-rack-v10.js y
+service-atlas-v9.js. Los anteriores permanecen intactos. Se amplía sólo la whitelist
+necesaria. La campaña activa, los archivos de fuente y producción no se modifican.
+El piloto cinematográfico de Blender continúa en el executor Cloud original,
+conservando configuración, cuadros y entrega; su criterio para las siguientes
+películas es proyecto → sistemas → equipo → detalle.
+
+La comprobación nativa detectó que elegir una vista situada debajo del dibujo
+dejaba el resultado fuera de pantalla. En los tres servicios de interfaz, los
+controles ahora preceden al dibujo y una selección manual mantiene la figura
+visible en pantallas pequeñas. La home conserva sus controles compartidos.
+
+Validación final del bloque: 62 suites / 476 pruebas, lint y tipos sin errores,
+auditoría CSS sin errores comerciales y build de producción. La cadena completa
+mide 24,14 s; build Astro 11,54 s; RSS máximo 816.168.960 bytes (unos 778 MiB),
+heap Node 768 MB. Conserva doce warnings de lint y diez CSS preexistentes.
+Revisión nativa de los siete servicios restantes en escritorio; home con los
+ocho selectores a 360 px; capas de Soporte a 390 px y Consultoría a 360 px dentro
+del encuadre. En una pantalla de 360×760, los controles quedan a 88 px bajo la
+cabecera y la figura completa entre 214 y 514 px, sin desborde. La pausa y el
+avance real del recorrido se verificaron en el navegador nativo. Evidencias
+guardadas en service-story-20261005 de las visualizaciones del chat.

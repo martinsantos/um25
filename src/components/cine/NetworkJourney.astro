@@ -6,7 +6,7 @@ interface Props {compact?:boolean;service?:string;catalog?:boolean}
 const {compact=false,service='101',catalog=false}=Astro.props;
 const kit=EQUIPMENT_KITS[service]||EQUIPMENT_KITS['101'];
 const equipment=catalog?NETWORK_EQUIPMENT:kit.parts.map(id=>NETWORK_EQUIPMENT.find(part=>part.id===id)!);
-const views=['Todo','Equipo','Interior','Detalle'];
+const views=['Sistema','Equipo','Interior','Detalle'];
 ---
 <figure class:list={['network-journey',{'network-journey--compact':compact}]} data-network-journey data-network-service={service} data-step="0" data-part={kit.initial} data-open="false">
  <script type="application/json" data-network-kits set:html={JSON.stringify(EQUIPMENT_KITS)} is:inline />
@@ -39,7 +39,7 @@ const views=['Todo','Equipo','Interior','Detalle'];
  <figcaption class="network-journey__caption"><h3 data-network-title>{kit.overview}</h3><p data-network-copy>{kit.description}</p><ul class="network-journey__points" data-network-points hidden /></figcaption>
  <p class="network-journey__announcement" data-network-announce aria-live="polite" aria-atomic="true" />
 </figure>
-<script src="/cine/network-rack-v9.js" type="module" async is:inline />
+<script src="/cine/network-rack-v10.js" type="module" async is:inline />
 <style>
  .network-journey{margin:0;padding:24px 28px 0;background:#08090a;color:#fff;min-width:0;overflow:hidden;--x-text:#fff;--x-text-2:#c4c7cc}
  .network-journey__meta{display:flex;justify-content:space-between;gap:16px;font-size:1rem;color:#c4c7cc;line-height:1.5;padding-bottom:16px;border-bottom:1px solid #ffffff24}

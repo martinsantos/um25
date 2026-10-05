@@ -1,6 +1,7 @@
 ---
 import NetworkJourney from './NetworkJourney.astro';
 import SoftwareLayers from './SoftwareLayers.astro';
+import IsometricStage from './IsometricStage.astro';
 import {ISOMETRIC_STUDIES} from '../../data/cine/isometric';
 import {EQUIPMENT_KITS} from '../../data/cine/networkAssembly';
 interface Service {code:string;name:string;href:string}
@@ -27,7 +28,7 @@ const first=items[0];
   <label class="svc-story__picker"><span>Servicio</span><select data-atlas-picker aria-label="Servicio que querés conocer">{items.map(s=><option value={s.code} selected={s===first}>{s.study.name}</option>)}</select></label>
   <ol class="svc-story__list" aria-label="Servicios disponibles">
    {items.map((s,i)=><li class="svc-story__item">
-    <button type="button" data-atlas-service={s.code} data-equipment-kit={EQUIPMENT_KITS[s.code]?s.code:undefined} data-object={url(s.study.asset,'object')} data-system={url(s.study.asset,'system')} data-name={s.study.name} data-title={s.message.title} data-copy={s.message.copy} data-context={s.study.views[0].description} data-object-copy={s.study.views[1].description} data-alt={s.study.object} data-href={s.href} aria-pressed={String(i===0)}>
+    <button type="button" data-atlas-service={s.code} data-equipment-kit={EQUIPMENT_KITS[s.code]?s.code:undefined} data-object={url(s.study.asset,'object')} data-system={url(s.study.asset,'system')} data-name={s.study.name} data-title={s.message.title} data-copy={s.message.copy} data-context={s.study.views[0].description} data-object-copy={s.study.views[1].description} data-layers-copy={s.study.views[2].description} data-alt={s.study.object} data-href={s.href} aria-pressed={String(i===0)}>
      <span class="svc-story__code">{String(i+1).padStart(2,'0')}</span><span class="svc-story__text"><strong>{s.study.name}</strong><span>{s.message.summary}</span></span><span class="svc-story__arrow" aria-hidden="true">→</span>
     </button>
    </li>)}
@@ -39,14 +40,16 @@ const first=items[0];
   <div class="svc-story__views" hidden role="group" aria-label="Vistas del servicio">
    <button type="button" data-atlas-view="object" aria-pressed="true">La herramienta</button>
    <button type="button" data-atlas-view="system" aria-pressed="false">En el proyecto</button>
+   <button type="button" data-atlas-view="layers" aria-pressed="false" hidden>Por capas</button>
   </div>
-  <div class="svc-story__frame" hidden><div class="svc-story__software" data-atlas-software hidden><SoftwareLayers compact /></div><img src={url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
+  <div class="svc-story__frame" hidden><div class="svc-story__operations" data-atlas-operation="105" hidden><IsometricStage code="105" compact /></div><div class="svc-story__operations" data-atlas-operation="106" hidden><IsometricStage code="106" compact /></div><div class="svc-story__software" data-atlas-software hidden><SoftwareLayers compact /></div><img src={url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
   <p class="svc-story__illustration-copy" data-atlas-context hidden />
   <div class="svc-story__caption"><p data-atlas-copy>{first.message.copy}</p><a class="svc-story__link" href={first.href} data-atlas-link>Explorar {first.study.name.toLowerCase()} <span aria-hidden="true">→</span></a></div>
   <p class="svc-story__announcement" data-atlas-announce aria-live="polite" aria-atomic="true" />
  </div>
 </div>}
-<script src="/cine/service-atlas-v8.js" type="module" async is:inline />
+<script src="/cine/isometric-services-v7.js" type="module" async is:inline />
+<script src="/cine/service-atlas-v9.js" type="module" async is:inline />
 <style>
  .svc-story{--story-muted:#c4c7cc;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(24px,4vw,64px);align-items:start;color:#fff}
  .svc-story__choice{grid-column:2;grid-row:1;min-width:0}.svc-story__stage{scroll-margin-top:80px;grid-column:1;grid-row:1;min-width:0;background:#090909;padding:clamp(20px,2.8vw,36px)}
@@ -56,6 +59,7 @@ const first=items[0];
  .svc-story [hidden]{display:none!important}
  .svc-story__frame{height:clamp(280px,29vw,405px);position:relative;min-width:0}.svc-story__frame img{width:100%;height:100%!important;object-fit:contain;display:block}
  .svc-story__software{width:100%;height:100%}
+ .svc-story__operations{width:100%;height:100%}.svc-story[data-active-service="105"] .svc-story__views,.svc-story[data-active-service="106"] .svc-story__views{grid-template-columns:repeat(3,minmax(0,1fr))}
  .svc-story__frame.is-entering{animation:atlas-enter 220ms ease-out both}@keyframes atlas-enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
  .svc-story__views{display:grid;grid-template-columns:1fr 1fr;border-block:1px solid #ffffff36}
  .svc-story__views button{color:var(--story-muted);font:500 1rem var(--um-font-body,'UM Sans',Arial,sans-serif);border:0;border-bottom:2px solid transparent;background:transparent;min-height:52px;padding:12px;cursor:pointer}

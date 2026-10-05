@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {bindNetworkJourney as bindRack} from '../public/cine/network-rack-v9.js';
+import {bindNetworkJourney as bindRack} from '../public/cine/network-rack-v10.js';
 import {bindNetworkJourney} from '../public/cine/network-journey-v7.js';
 
 let intersections,reduced,hidden=false;
@@ -60,7 +60,7 @@ test('entry opens the cabinet once; an explicit tour pauses outside the viewport
  intersections([{isIntersecting:true,intersectionRatio:.6}]);jest.advanceTimersByTime(700);expect(root.dataset.open).toBe('true');expect(root.dataset.step).toBe('0');
  intersections([{isIntersecting:false,intersectionRatio:0}]);expect(jest.getTimerCount()).toBe(0);
  jest.advanceTimersByTime(9000);expect(root.dataset.step).toBe('0');
- intersections([{isIntersecting:true,intersectionRatio:.6}]);expect(jest.getTimerCount()).toBe(0);root.querySelector('[data-network-play]').click();jest.advanceTimersByTime(700+3200+4000+4600+4000);
+ intersections([{isIntersecting:true,intersectionRatio:.6}]);expect(jest.getTimerCount()).toBe(0);root.querySelector('[data-network-play]').click();jest.advanceTimersByTime(700+6400+6400+7200+6400);
  expect(root.dataset.step).toBe('3');expect(jest.getTimerCount()).toBe(0);expect(root.querySelector('[data-network-play]').getAttribute('aria-pressed')).toBe('false');
 });
 test('selecting equipment cancels autoplay and keeps its exploded state and connection in sync',()=>{

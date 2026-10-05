@@ -3,16 +3,19 @@ import {ISOMETRIC_STUDIES} from '../../data/cine/isometric';
 import SoftwareLayers from './SoftwareLayers.astro';
 import NetworkJourney from './NetworkJourney.astro';
 import {EQUIPMENT_KITS} from '../../data/cine/networkAssembly';
-interface Props { code: string }
-const {code}=Astro.props;
+interface Props { code: string; compact?:boolean }
+const {code,compact=false}=Astro.props;
 const study=ISOMETRIC_STUDIES[code];
 const drawings=import.meta.glob<string>('../../assets/cine/isometric/*-*.svg',{eager:true,query:'?raw',import:'default'});
 const drawing=(view:string)=>drawings[`../../assets/cine/isometric/${study.asset}-${view}.svg`];
 const prefix=`iso-${code}`;
 const first=study.views[1];
 ---
-{EQUIPMENT_KITS[code] ? <NetworkJourney service={code} /> : <figure class="iso" data-isometric data-iso-code={code} data-iso-view="1">
-  <div class="iso__meta"><span>{study.name}</span><span>{study.object}</span></div>
+{EQUIPMENT_KITS[code] ? <NetworkJourney service={code} /> : <figure class:list={['iso',{'iso--compact':compact}]} data-isometric data-iso-code={code} data-iso-view="1">
+  <div class="iso__meta"><span>{study.name}</span><span>{study.object}</span><button type="button" class="iso__play" data-iso-play aria-pressed="false">Ver recorrido</button></div>
+  <div class="iso__controls" role="group" aria-label={`Explorar ${study.name.toLowerCase()}`}>
+    {study.views.map((view,i)=><button type="button" id={`${prefix}-view-${i}`} data-iso-select={i} data-title={view.title} data-description={view.description} aria-pressed={String(i===1)}><span aria-hidden="true">0{i+1}</span>{view.label}</button>)}
+  </div>
   <div class="iso__frame">
     <div class="iso__drawing" data-iso-panel="system" hidden set:html={drawing('system')} />
     <div class="iso__drawing" data-iso-panel="object">
@@ -24,18 +27,20 @@ const first=study.views[1];
     <div><h3 data-iso-title>{first.title}</h3><p data-iso-description>{first.description}</p></div>
     <span class="iso__step" aria-hidden="true"><b data-iso-step>02</b> / 04</span>
   </figcaption>
-  <div class="iso__controls" role="group" aria-label={`Explorar ${study.name.toLowerCase()}`}>
-    {study.views.map((view,i)=><button type="button" id={`${prefix}-view-${i}`} data-iso-select={i} data-title={view.title} data-description={view.description} aria-pressed={String(i===1)}><span aria-hidden="true">0{i+1}</span>{view.label}</button>)}
-  </div>
   <ul class="iso__parts" aria-label="Qué forma el sistema">
     {study.parts.map(part=><li><strong>{part.name}</strong><span>{part.detail}</span></li>)}
   </ul>
 </figure>}
-<script src="/cine/isometric-services-v6.js" type="module" async is:inline />
+{!compact&&!EQUIPMENT_KITS[code]&&<script src="/cine/isometric-services-v7.js" type="module" async is:inline />}
 <style>
   .iso{--skin-text:#fff;--skin-muted:#c4c7cc;--x-text:#fff;--x-text-2:#c4c7cc;margin:0;color:#fff;background:#090909;padding:clamp(20px,3.2vw,44px);display:grid;gap:0;min-width:0}
+  .iso--compact{padding:0!important;height:100%;background:transparent}.iso--compact .iso__meta,.iso--compact .iso__caption,.iso--compact .iso__controls,.iso--compact .iso__parts{display:none}.iso--compact .iso__frame{height:100%;margin:0}
   .iso__meta{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;justify-content:space-between;color:#c4c7cc;font-size:1rem;line-height:1.5;border-bottom:1px solid #ffffff24;padding-bottom:16px}
   .iso__meta span:first-child{font-weight:600;color:#fff}
+  .iso__play{min-height:48px;min-width:44px;border:0;background:none;color:#fff;font:500 1rem var(--um-font-body,Arial,sans-serif);cursor:pointer;text-decoration:underline;text-decoration-color:#DC2626;text-underline-offset:6px;padding:8px 0}.iso__play:focus-visible{outline:2px solid #fff;outline-offset:4px}
+  .iso__drawing :global(.iso-operation-layer){transition:transform 640ms cubic-bezier(.65,0,.35,1)}
+  .iso.is-open :global(.iso-operation-layer--middle){transform:translate(48px,-84px)}
+  .iso.is-open :global(.iso-operation-layer--front){transform:translate(96px,-168px)}
   .iso__frame{height:clamp(340px,38vw,490px);position:relative;margin:8px 0 0;min-width:0}
   .iso__drawing{position:absolute;inset:0;width:100%;height:100%;display:block}
   .iso__drawing[hidden]{display:none}
@@ -51,7 +56,7 @@ const first=study.views[1];
   .iso__caption p{margin:10px 0 0;color:#c4c7cc;font-size:var(--um-copy-description,1.125rem);line-height:var(--um-body-line-height,1.62);max-width:72ch}
   .iso__step{font:400 1rem var(--um-font-mono,monospace);color:#c4c7cc;white-space:nowrap}
   .iso__step b{font-weight:500;color:#fff}
-  .iso__controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-block:1px solid #ffffff36}
+  .iso__controls{scroll-margin-top:88px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-block:1px solid #ffffff36}
   .iso__controls button{display:flex;align-items:center;justify-content:center;gap:12px;min-height:54px;padding:12px 8px;color:#c4c7cc;background:transparent;border:0;border-bottom:2px solid transparent;font:500 1rem var(--um-font-body,'UM Sans',Arial,sans-serif);cursor:pointer}
   .iso__controls button+button{border-left:1px solid #ffffff24}
   .iso__controls button[aria-pressed=true]{background:#171717;color:#fff;border-bottom-color:#dc2626}
@@ -63,5 +68,5 @@ const first=study.views[1];
   .iso__parts li>span{color:#c4c7cc}
   @media(hover:hover){.iso__controls button:hover{background:#1c1c1c;color:#fff}}
   @media(max-width:760px){.iso{padding:20px}.iso__meta{display:grid;gap:6px}.iso__frame{height:300px;margin:16px -8px 0}.iso__caption{padding:18px 0;gap:12px;min-height:172px}.iso__controls{grid-template-columns:1fr 1fr}.iso__controls button{justify-content:flex-start;padding-left:12px}.iso__controls button:nth-child(3){border-left:0}.iso__controls button:nth-child(-n+2){border-bottom-color:#ffffff24}.iso__controls button[aria-pressed=true]{border-bottom-color:#dc2626}.iso__parts{grid-template-columns:1fr;gap:20px}}
-  @media(prefers-reduced-motion:reduce){.iso__drawing.is-entering{animation:none}.iso__drawing :global(.iso-lid){transition:none}.iso__drawing :global(.iso-internals),.iso__drawing :global(.iso-guides){transition:none}}
+  @media(prefers-reduced-motion:reduce){.iso__drawing.is-entering{animation:none}.iso__drawing :global(.iso-lid),.iso__drawing :global(.iso-operation-layer){transition:none}.iso__drawing :global(.iso-internals),.iso__drawing :global(.iso-guides){transition:none}}
 </style>

@@ -12,6 +12,7 @@ import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import EmailLink from '../../../components/common/EmailLink.astro';
 import CineBanner from '../../../components/cine/CineBanner.astro';
 import IsometricStage from '../../../components/cine/IsometricStage.astro';
+import ServiceSequence from '../../../components/cine/ServiceSequence.astro';
 import { ISOMETRIC_STUDIES } from '../../../data/cine/isometric';
 import ProductStage from '../../../components/cine/ProductStage.astro';
 import { productPage } from '../../../data/productPages';
@@ -555,6 +556,7 @@ const fichaItems = [
               </div>
               <ProductStage stage={product.stage} tour={false} />
             </details>
+            <ServiceSequence code={String(id)} />
           </div>
         </section>
 
@@ -575,6 +577,7 @@ const fichaItems = [
             <p class="svc-head__lead">Explorá el equipo completo y sus conexiones. Cada componente se especifica según el sitio y la operación que debe sostener.</p>
           </header>
           <IsometricStage code={String(id)} />
+          <ServiceSequence code={String(id)} />
         </div>
       </section>
     )}
