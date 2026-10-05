@@ -1,4 +1,5 @@
 ---
+import NetworkJourney from './NetworkJourney.astro';
 import {ISOMETRIC_STUDIES} from '../../data/cine/isometric';
 interface Service {code:string;name:string;href:string}
 interface Props {services:Service[]}
@@ -21,8 +22,9 @@ const first=items[0];
 {first && <div class="svc-story" data-service-atlas>
   <div class="svc-story__stage">
     <div class="svc-story__meta"><span>Un proyecto. Ocho sistemas.</span><span data-atlas-code>{first.code}</span></div>
-    <div class="svc-story__frame"><img src={url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
-    <div class="svc-story__views" role="group" aria-label="Escala del servicio">
+    <div data-atlas-network><NetworkJourney compact /></div>
+    <div class="svc-story__frame" hidden><img src={url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
+    <div class="svc-story__views" hidden role="group" aria-label="Escala del servicio">
       <button type="button" data-atlas-view="system" aria-pressed="false">En el proyecto</button>
       <button type="button" data-atlas-view="object" aria-pressed="true">La pieza</button>
     </div>
@@ -40,12 +42,13 @@ const first=items[0];
     </li>)}
   </ol>
 </div>}
-<script src="/cine/service-atlas-v6.js" type="module" is:inline />
+<script src="/cine/service-atlas-v7.js" type="module" is:inline />
 <style>
  .svc-story{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(24px,4vw,64px);align-items:start}
  .svc-story__stage{background:#090909;color:#fff;padding:clamp(20px,2.8vw,36px);min-width:0}
  .svc-story__meta{display:flex;justify-content:space-between;gap:16px;font-size:1rem;color:#c4c7cc;line-height:1.5;border-bottom:1px solid #ffffff24;padding-bottom:16px}
  .svc-story__meta span:last-child{font-variant-numeric:tabular-nums}
+ .svc-story [hidden]{display:none!important}
  .svc-story__frame{height:clamp(280px,29vw,405px);position:relative;min-width:0}
  .svc-story__frame img{width:100%;height:100%!important;object-fit:contain;display:block}
  .svc-story__frame.is-entering{animation:atlas-enter 220ms ease-out both}

@@ -547,7 +547,7 @@ const fichaItems = [
               <p class="svc-head__lead">{product.stage.lead}</p>
             </header>
             <IsometricStage code={String(id)} />
-            <ProductStage stage={product.stage} />
+            <details class="svc-stage-demo"><summary>Probar la demostración del servicio</summary><ProductStage stage={product.stage} tour={false} /></details>
           </div>
         </section>
 
@@ -558,7 +558,7 @@ const fichaItems = [
         </section>
       </>
     ) : hardwareStudy && (
-      <section class="svc-section svc-section--render" id="equipamiento" aria-labelledby="svc-render-title">
+      <section class:list={['svc-section','svc-section--render',{'svc-section--journey':String(id)==='101'}]} id="equipamiento" aria-labelledby="svc-render-title">
         <div class="svc-wrap">
           <header class="svc-head">
             <div>
@@ -826,6 +826,11 @@ const fichaItems = [
     font-family: var(--um-font-editorial);
   }
 
+  .svc-section--journey { padding-block:48px; }
+  .svc-stage-demo { margin-top:32px; border-block:1px solid var(--x-line,#d4d4d4); }
+  .svc-stage-demo summary { cursor:pointer; min-height:56px; padding:16px 0; font-size:1rem; font-weight:600; line-height:1.5; color:var(--x-text,#111); }
+  .svc-stage-demo summary:focus-visible { outline:2px solid #dc2626; outline-offset:4px; }
+  .svc-stage-demo[open] summary { margin-bottom:20px; }
   .svc-wrap {
     width: 100%;
     max-width: var(--um-container-wide, 1400px);
@@ -894,6 +899,8 @@ const fichaItems = [
     line-height: 1.08;
     text-wrap: balance;
   }
+
+  .svc-section--journey .svc-head { margin-bottom:24px; }
 
   .svc-head__lead {
     max-width: 62ch;
