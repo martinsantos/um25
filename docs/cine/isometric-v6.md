@@ -174,3 +174,33 @@ cinco conjuntos en vista de proyecto. Se verifica también la integración SSR
 de Seguridad y su conjunto específico. Evidencias y capturas se conservan en
 la carpeta de visualizaciones de este chat. El build final se verifica por CI
 en el PR #266, con base develop. Esta ampliación no se publica en producción.
+
+
+## 2026-10-05 — Jerarquía comercial y continuidad de uso
+
+La home mantiene un titular y un alcance propios para cada servicio. Los eventos
+de equipos ya no reemplazan ese mensaje por una descripción de óptica, placa o
+conector. La pieza tiene su propio título y explicación junto al dibujo.
+
+Un desplegable nativo permite elegir el servicio en móvil. La biblioteca de
+equipos usa otro selector nativo, con las vistas Todo, Equipo, Interior y Detalle.
+Estas opciones se revelan mediante «Explorar equipos»; quedan antes del dibujo
+en todas las pantallas. Cambiar de equipo o vista ajusta el desplazamiento móvil
+sólo cuando el resultado queda fuera del área útil, sin transferir el foco.
+
+La entrada abre el gabinete una vez al hacerse visible. El recorrido completo
+se inicia a pedido y termina después de una pasada. Pausa fuera del viewport,
+limpia sus listeners al navegar y respeta movimiento reducido y ahorro de datos.
+
+Las 18 piezas explican su función, su conexión con el sistema y dos componentes
+relevantes. Los cinco conjuntos muestran un recorrido funcional propio. Incendio
+usa la central como referencia; no muestra un gabinete de red como parte de su
+instalación. La proyección y la geometría compartida se conservan.
+
+Se incorporan runtimes nuevos: `service-atlas-v8.js` y `network-rack-v9.js`.
+Se conservan los assets anteriores y se amplía la whitelist scoped con los dos
+paths nuevos para evitar que el overlay público restaure un runtime anterior.
+Las evidencias de browser y validación se conservan fuera del repositorio en la
+carpeta `human-ux-20261005` de visualizaciones del chat. Esta pasada trata home
+y equipamiento; no sustituye la revisión de las movies Blender ni publica en
+producción.

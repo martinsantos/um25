@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {bindIsometric} from '../public/cine/isometric-services-v6.js';
-import {bindServiceAtlas} from '../public/cine/service-atlas-v7.js';
+import {bindServiceAtlas} from '../public/cine/service-atlas-v8.js';
 
 const assets=path.join(process.cwd(),'src/assets/cine/isometric');
 const settle=async()=>{for(let i=0;i<6;i++)await Promise.resolve();};
@@ -61,11 +61,12 @@ test('a slower earlier image decode cannot overwrite the last selected home serv
  expect(root.querySelector('a').getAttribute('href')).toBe('/servicios/108');expect(root.querySelector('iframe')).toBeNull();expect(root.querySelector('video')).toBeNull();
 });
 
-test('the home narrative updates the active network caption without overwriting another selected service',()=>{
+test('equipment events never overwrite the home service headline or summary',()=>{
  document.body.innerHTML=`<div data-service-atlas><div data-atlas-network><figure data-network-journey></figure></div><div><img data-atlas-image src="/102.svg"></div><h3 data-atlas-title></h3><p data-atlas-copy></p><span data-atlas-code></span><a data-atlas-link>Explorar <span>→</span></a><div class="svc-story__views"><button data-atlas-view="system"></button><button data-atlas-view="object"></button></div>${['101','102'].map(code=>`<button data-atlas-service="${code}" data-object="/${code}.svg" data-system="/${code}-system.svg" data-title="Servicio ${code}" data-name="Servicio ${code}" data-copy="Descripción ${code}" data-context="Contexto ${code}" data-href="/servicios/${code}">${code}</button>`).join('')}</div>`;
  const root=document.querySelector('[data-service-atlas]'),figure=root.querySelector('figure');bindServiceAtlas(root);
+ root.querySelector('[data-atlas-service="101"]').click();
  figure.dispatchEvent(new CustomEvent('um:network-step',{bubbles:true,detail:{title:'La pieza',copy:'24 puertos'}}));
- expect(root.querySelector('h3').textContent).toBe('La pieza');expect(root.querySelector('p').textContent).toBe('24 puertos');
+ expect(root.querySelector('h3').textContent).toBe('Servicio 101');expect(root.querySelector('p').textContent).toBe('Descripción 101');
  root.querySelector('[data-atlas-service="102"]').click();expect(root.querySelector('[data-atlas-network]').hidden).toBe(true);
  figure.dispatchEvent(new CustomEvent('um:network-step',{bubbles:true,detail:{title:'Aviso tardío',copy:'No debe reemplazar'}}));
  expect(root.querySelector('h3').textContent).toBe('Servicio 102');
@@ -76,7 +77,17 @@ test('hardware home services select the shared equipment kit and keep their own 
  document.body.innerHTML=`<div data-service-atlas><div data-atlas-network><figure data-network-journey></figure></div><div><img data-atlas-image src="/network.svg"></div><h3 data-atlas-title></h3><p data-atlas-copy></p><span data-atlas-code></span><a data-atlas-link>Explorar <span>→</span></a><div class="svc-story__views"></div>${['101','102','104'].map(code=>`<button data-atlas-service="${code}" ${code==='104'?'':`data-equipment-kit="${code}"`} data-title="Servicio ${code}" data-name="Servicio ${code}" data-object="/${code}.svg" data-href="/servicios/${code}">${code}</button>`).join('')}</div>`;
  const root=document.querySelector('[data-service-atlas]'),figure=root.querySelector('figure'),select=jest.fn();figure.addEventListener('um:network-service',select);bindServiceAtlas(root);
  root.querySelector('[data-atlas-service="102"]').click();expect(root.querySelector('[data-atlas-network]').hidden).toBe(false);expect(select.mock.calls[0][0].detail.code).toBe('102');expect(root.querySelector('a').getAttribute('href')).toBe('/servicios/102');
- figure.dispatchEvent(new CustomEvent('um:network-step',{bubbles:true,detail:{title:'Domo',copy:'Óptica y protección'}}));expect(root.querySelector('h3').textContent).toBe('Domo');
+ figure.dispatchEvent(new CustomEvent('um:network-step',{bubbles:true,detail:{title:'Domo',copy:'Óptica y protección'}}));expect(root.querySelector('h3').textContent).toBe('Servicio 102');
  root.querySelector('[data-atlas-service="104"]').click();expect(root.querySelector('[data-atlas-network]').hidden).toBe(true);
  figure.dispatchEvent(new CustomEvent('um:network-step',{bubbles:true,detail:{title:'Señal tardía',copy:'Cámara'}}));expect(root.querySelector('h3').textContent).toBe('Servicio 104');
+});
+
+test('the mobile service choice updates the kit, destination and stable service message together',()=>{
+ document.body.innerHTML=`<div data-service-atlas><select data-atlas-picker><option value="101">Redes</option><option value="102">Seguridad</option><option value="104">Software</option></select><div data-atlas-network><figure data-network-journey></figure></div><div><img data-atlas-image src="/104.svg"></div><h3 data-atlas-title></h3><p data-atlas-copy></p><span data-atlas-code></span><a data-atlas-link>Explorar <span>→</span></a><p data-atlas-announce></p><div class="svc-story__views"></div>${['101','102','104'].map(code=>`<button data-atlas-service="${code}" ${code==='104'?'':`data-equipment-kit="${code}"`} data-title="Resultado ${code}" data-name="Servicio ${code}" data-copy="Alcance ${code}" data-object="/${code}.svg" data-href="/servicios/${code}">${code}</button>`).join('')}</div>`;
+ const root=document.querySelector('[data-service-atlas]'),picker=root.querySelector('select'),figure=root.querySelector('figure'),select=jest.fn();figure.addEventListener('um:network-service',select);
+ const cleanup=bindServiceAtlas(root);picker.value='102';picker.dispatchEvent(new Event('change',{bubbles:true}));
+ expect(select.mock.calls[0][0].detail.code).toBe('102');expect(root.querySelector('h3').textContent).toBe('Resultado 102');expect(root.querySelector('a').getAttribute('href')).toBe('/servicios/102');
+ figure.dispatchEvent(new CustomEvent('um:network-step',{bubbles:true,detail:{title:'Óptica',copy:'Anatomía'}}));expect(root.querySelector('h3').textContent).toBe('Resultado 102');expect(root.querySelector('p').textContent).toBe('Alcance 102');
+ root.querySelector('[data-atlas-service="104"]').click();expect(picker.value).toBe('104');expect(root.querySelector('[data-atlas-network]').hidden).toBe(true);
+ cleanup();picker.value='101';picker.dispatchEvent(new Event('change',{bubbles:true}));expect(root.querySelector('h3').textContent).toBe('Resultado 104');
 });

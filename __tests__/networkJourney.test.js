@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {bindNetworkJourney as bindRack} from '../public/cine/network-rack-v8.js';
+import {bindNetworkJourney as bindRack} from '../public/cine/network-rack-v9.js';
 import {bindNetworkJourney} from '../public/cine/network-journey-v7.js';
 
 let intersections,reduced,hidden=false;
@@ -54,13 +54,13 @@ function rackFixture(){
  document.body.innerHTML=`<figure data-network-journey data-step="0"><span data-network-tag></span><button data-network-door>Abrir gabinete <span>↗</span></button><button data-network-play>Ver recorrido <span>↗</span></button><h3 data-network-title></h3><p data-network-copy></p><p data-network-announce></p><svg><g class="rk-focus"><use data-rack-base/><g class="rk-cover"><use data-rack-cover/></g></g><g class="rk-detail"><use data-rack-detail/></g><path data-rack-leader/>${['switch','fiber','ups'].map(id=>`<g data-rack-slot="${id}"></g>`).join('')}</svg>${[0,1,2,3].map(i=>`<button data-network-select="${i}">0${i+1} Vista ${i}</button>`).join('')}${['switch','fiber','ups'].map((id,i)=>`<button data-network-part="${id}" data-title="${id} equipo" data-copy="${id} descripción" data-construction="${id} abierto" data-inside="${id} interior" data-detail="${id} conexión" data-closeup="${id} detalle" data-slot-x="${i*10}" data-slot-y="${-i*20}" data-scale="1" data-lift-x="40" data-lift-y="-100" data-detail-scale=".8">${id}</button>`).join('')}</figure>`;
  return document.querySelector('figure');
 }
-test('rack opens once before the narrative and pauses completely outside the viewport',()=>{
+test('entry opens the cabinet once; an explicit tour pauses outside the viewport',()=>{
  const root=rackFixture();bindRack(root);
  intersections([{isIntersecting:true,intersectionRatio:.1}]);jest.advanceTimersByTime(10000);expect(root.dataset.open).toBe('false');
  intersections([{isIntersecting:true,intersectionRatio:.6}]);jest.advanceTimersByTime(700);expect(root.dataset.open).toBe('true');expect(root.dataset.step).toBe('0');
  intersections([{isIntersecting:false,intersectionRatio:0}]);expect(jest.getTimerCount()).toBe(0);
  jest.advanceTimersByTime(9000);expect(root.dataset.step).toBe('0');
- intersections([{isIntersecting:true,intersectionRatio:.6}]);jest.advanceTimersByTime(3200+4000+4600+4000);
+ intersections([{isIntersecting:true,intersectionRatio:.6}]);expect(jest.getTimerCount()).toBe(0);root.querySelector('[data-network-play]').click();jest.advanceTimersByTime(700+3200+4000+4600+4000);
  expect(root.dataset.step).toBe('3');expect(jest.getTimerCount()).toBe(0);expect(root.querySelector('[data-network-play]').getAttribute('aria-pressed')).toBe('false');
 });
 test('selecting equipment cancels autoplay and keeps its exploded state and connection in sync',()=>{
@@ -190,4 +190,21 @@ test('service kits filter keyboard and mobile choices and restore each service s
  camera.dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));expect(root.dataset.part).toBe('switch');
  change('101');expect(root.dataset.part).toBe('fiber');expect(root.dataset.step).toBe('2');expect(root.querySelector('select').value).toBe('fiber');expect(camera.hidden).toBe(true);expect(jest.getTimerCount()).toBe(0);
  cleanup();change('102');expect(root.dataset.networkService).toBe('101');
+});
+
+test('changing a device brings its result into the mobile viewport without moving keyboard focus',()=>{
+ reduced.matches=true;const root=rackFixture();root.insertAdjacentHTML('beforeend','<details data-network-explore open><summary>Explorar</summary><div class="network-journey__exploration"><select data-network-picker><option value="switch">Switch</option><option value="fiber">Fibra</option></select></div></details><div class="network-journey__canvas"></div>');
+ Object.defineProperty(window,'innerWidth',{configurable:true,value:360});Object.defineProperty(window,'innerHeight',{configurable:true,value:740});
+ const controls=root.querySelector('.network-journey__exploration'),canvas=root.querySelector('.network-journey__canvas'),picker=root.querySelector('select');controls.scrollIntoView=jest.fn();canvas.getBoundingClientRect=()=>({top:750,bottom:1070});
+ const cleanup=bindRack(root);picker.focus();picker.value='fiber';picker.dispatchEvent(new Event('change',{bubbles:true}));
+ expect(root.dataset.part).toBe('fiber');expect(controls.scrollIntoView).toHaveBeenCalledWith({block:'start',behavior:'auto'});expect(document.activeElement).toBe(picker);
+ canvas.getBoundingClientRect=()=>({top:250,bottom:570});picker.value='switch';picker.dispatchEvent(new Event('change',{bubbles:true}));expect(controls.scrollIntoView).toHaveBeenCalledTimes(1);
+ const explore=root.querySelector('details');explore.open=false;explore.dispatchEvent(new Event('toggle'));expect(root.dataset.step).toBe('0');cleanup();
+ Object.defineProperty(window,'innerWidth',{configurable:true,value:1024});Object.defineProperty(window,'innerHeight',{configurable:true,value:768});
+});
+
+test('switching to another home service stops a requested tour and disposal removes that handler',()=>{
+ const root=rackFixture(),cleanup=bindRack(root);intersections([{isIntersecting:true,intersectionRatio:.8}]);root.querySelector('[data-network-play]').click();expect(jest.getTimerCount()).toBe(1);
+ root.dispatchEvent(new CustomEvent('um:network-pause'));expect(jest.getTimerCount()).toBe(0);expect(root.querySelector('[data-network-play]').getAttribute('aria-pressed')).toBe('false');
+ cleanup();root.querySelector('[data-network-play]').setAttribute('aria-pressed','true');root.dispatchEvent(new CustomEvent('um:network-pause'));expect(root.querySelector('[data-network-play]').getAttribute('aria-pressed')).toBe('true');
 });
