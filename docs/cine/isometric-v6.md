@@ -59,3 +59,50 @@ cuando el puntero permanece encima. Hover, teclado y clic comparten ahora el mis
 estado; se añade un test de interacción real sobre el bloque de navegación.
 La reproducción H.264 y la pausa manual del hero se verificaron en el navegador
 nativo del Mac, con preview visible.
+
+
+## 2026-10-05 — Redes: gabinete y biblioteca v8
+
+La revisión de Redes reemplaza el piloto de un solo switch por un gabinete negro
+de 18U con puerta articulada, cuatro postes, rieles perforados, techo ventilado,
+panel lateral, niveladores, fijaciones, frentes ciegos y cinco cordones de patch.
+El rojo conserva una conexión concreta: panel 09 → switch 06. La interacción de
+extraer módulos sobre rieles recupera la dirección del gabinete de Hairline; los
+equipos detallados son geometría SVG propia, con una proyección y una paleta.
+
+Nueve equipos comparten sus geometrías entre gabinete y vistas aisladas: switch,
+patch panel, organizador, bandeja óptica, router, servidor, UPS, distribución IEC y
+punto Wi-Fi. Cada selección conserva equipo, despiece y conexión. La bandeja de
+fibra y el cassette de baterías se extraen; las otras cubiertas se apartan de sus
+electrónicas. El macro conserva ocho contactos RJ45; otros detalles incluyen IDC,
+LC, SFP, bandeja SSD, peine de cables y alojamiento IEC. Son modelos explicativos
+genéricos, sin SKU ni atribución a un proyecto instalado.
+
+Se integra en servicio 101 y la home. En la página de servicio, los controles
+preceden al dibujo para evitar que elegir una pieza deje la animación fuera de
+pantalla. En la home, la ilustración aparece primero y los controles son compactos.
+El gabinete se puede abrir, explorar con el puntero y seleccionar al tocar sus
+módulos. Los botones ofrecen el recorrido equivalente con teclado, flechas,
+Home/End, estados seleccionados y descripciones que siguen la pieza actual.
+
+El recorrido automático hace una sola pasada cuando el componente está visible.
+Se detiene al seleccionar, cancela sus temporizadores fuera de pantalla y elimina
+observadores y eventos al navegar en Astro. Respeta movimiento reducido. El SVG
+completo pesa 391.756 bytes antes de compresión; el runtime, 7.837 bytes. Usa
+referencias compartidas para las geometrías y transiciones de transformaciones.
+
+Fuentes: `scripts/cine/build-network-rack-v8.mjs`,
+`src/data/cine/networkAssembly.ts`, `src/components/cine/NetworkJourney.astro`.
+Regenerar: `node scripts/cine/build-network-rack-v8.mjs .` desde la raíz del repo.
+Los assets son `src/assets/cine/isometric/network-rack-v8.{svg,json}`; el runtime
+nuevo es `public/cine/network-rack-v8.js`. La whitelist scoped admite estos paths
+sin modificar assets ya publicados. Las movies Blender requieren su revisión
+visual pendiente; esta entrega no las presenta como renovadas.
+
+Validación: 60 suites / 453 tests; lint y TypeScript sin errores, con 12 warnings
+de lint preexistentes. Auditoría CSS: cero errores comerciales, diez warnings
+preexistentes. Revisión nativa: nueve despieces en escritorio; nueve piezas,
+despieces y conexiones en móvil de 360 px; tablet 834 y escritorio 1280/1440.
+Se corrigieron los recortes de fibra y servidor. La home mantiene la selección,
+el título y el enlace al cambiar entre Redes y Software. El build se verifica por
+CI en el PR de esta rama. La preview local sigue en el puerto 4326.
