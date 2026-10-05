@@ -271,3 +271,38 @@ Revisión nativa en 1440/1280/834/390/360 px, sin desborde horizontal. Las captu
 mediciones y reporte están en `cinematic-loading-20261005` de las visualizaciones
 del chat. El build del nuevo commit se verifica por PR Checks en el PR #266,
 base develop. No se publica esta revisión en producción.
+
+
+## 2026-10-05 — Escala UM Sans y controles de sectores
+
+La medición nativa de la home encontró títulos del mismo nivel en 34, 46 y
+52 px. Empresa, Capacidad y Producto ahora consumen el rol existente de UM Sans:
+34 px en escritorio y tablet, 28 px hasta 760 px. Las tarjetas usan 20 px;
+las entradillas comparten 17–18 px y línea 1,62; los controles usan 16 px.
+Se preservan la familia, archivos y estilos globales del trabajo tipográfico.
+Los títulos de los tres momentos de Software también usan el rol de 20 px.
+
+En el atlas móvil, el nombre del sector y el botón de reproducción se tapaban.
+El nombre queda arriba y el control abajo; la revisión nativa comprueba sus
+rectángulos sin intersección, pausa efectiva y botón de 44 px. Home comprobada
+en 1440/834/390 px sin desborde. Se vuelve a verificar el interior del switch
+sobre el build de producción y su explicación completa.
+
+`npm run check` pasa: 61 suites / 469 pruebas, lint y tipos sin errores,
+CSS sin errores comerciales y build de producción. La cadena completa mide
+22,72 s, con RSS máximo de 844.513.280 bytes (unos 805 MiB) y heap de Node
+limitado a 768 MB. Conserva 12 warnings de lint y diez de CSS preexistentes.
+La preview continúa en el mismo puerto 4326 con un único proceso limitado.
+
+El piloto Blender Bodega / Redes de 24 s está en cálculo en el executor Cloud
+original: tres cámaras de ocho segundos, 1080p24, Cycles CPU, cuatro hilos y
+16 samples fijos. Las optimizaciones medidas (caché, rebotes, adaptive y Eevee)
+no mejoraron la combinación de tiempo y nitidez; se estima 12–15 horas para
+el lote. Se conservan los checkpoints y se reutilizan doce cuadros limpios.
+El fragmento de esos doce cuadros se recibió en el Mac sin recodificar mediante
+JSON de transporte: 712.340 bytes, SHA256
+`fa3d4fffdd5ff4bbff7b4af27d72e98645491aee31719eb82046612870e2632f`.
+La decodificación completa confirma H.264, 1920×1080, 24 fps y duración 0,5 s.
+Esto valida el circuito de entrega; no valida todavía la película entera ni
+reemplaza las movies v4. El MP4 final y los tracks se entregarán en la misma
+Page privada de la tarea Blender.

@@ -57,7 +57,7 @@
 }
 .umc--sector h1 { font-size: clamp(2.6rem, 5vw, 4.8rem); max-width: 16ch; }
 .umc-dot { color: var(--umc-red); }
-.umc-lead { margin: 24px 0 0; max-width: 46ch; font-size: clamp(1.08rem, 1.3vw, 1.25rem); line-height: 1.55; color: rgba(255, 255, 255, .86); text-wrap: pretty; }
+.umc-lead { margin: 24px 0 0; max-width: 46ch; font-size: var(--um-copy-description, 1.125rem); line-height: var(--um-body-line-height, 1.62); color: rgba(255, 255, 255, .86); text-wrap: pretty; }
 .umc-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; margin-top: 34px; }
 .umc-btn {
   display: inline-flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 24px;

@@ -100,8 +100,8 @@ const coverage = [
   .um-cap__head > p {
     margin: 0;
     color: rgba(255, 255, 255, 0.78);
-    font-size: 1.12rem;
-    line-height: 1.6;
+    font-size: var(--um-copy-description, 1.125rem);
+    line-height: var(--um-body-line-height, 1.62);
     max-width: 48ch;
   }
 
@@ -125,8 +125,8 @@ const coverage = [
 
   .um-cap h2 {
     margin: 0;
-    font-size: clamp(2rem, 3.2vw, 3rem) !important;
-    line-height: 1.06 !important;
+    font-size: var(--um-world-h2, 2.125rem) !important;
+    line-height: var(--um-heading-h2-line-height, 1.12) !important;
     font-weight: 600 !important;
     letter-spacing: -0.025em;
     max-width: 20ch;
@@ -302,8 +302,8 @@ const coverage = [
       margin-bottom: 24px;
     }
 
-    .um-cap__head > p {
-      font-size: 1.0625rem;
+    .um-cap h2 {
+      font-size: 1.75rem !important;
     }
 
     .um-cap__process li {
