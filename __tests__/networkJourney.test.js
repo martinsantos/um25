@@ -91,11 +91,11 @@ test('rack hover and all scheduled work are disposed during Astro navigation',()
  cleanup();cleanup();expect(jest.getTimerCount()).toBe(0);expect(root.dataset.networkBound).toBeUndefined();
  root.querySelector('[data-network-part="ups"]').click();expect(root.dataset.part).toBe('switch');
 });
-test('the rack and nine isolated equipment views share complete, unique SVG models and connections',()=>{
+test('the rack and eighteen isolated equipment views share complete, unique SVG models and connections',()=>{
  const source=fs.readFileSync('src/assets/cine/isometric/network-rack-v8.svg','utf8');const xml=new DOMParser().parseFromString(source,'image/svg+xml');expect(xml.querySelector('parsererror')).toBeNull();
  const ids=[...xml.querySelectorAll('[id]')].map(el=>el.id);expect(new Set(ids).size).toBe(ids.length);
  for(const use of xml.querySelectorAll('use'))expect(ids).toContain(use.getAttribute('href').slice(1));
- const manifest=JSON.parse(fs.readFileSync('src/assets/cine/isometric/network-rack-v8.json','utf8'));expect(manifest.models).toHaveLength(9);expect(xml.querySelectorAll('[data-rack-slot]')).toHaveLength(8);
+ const manifest=JSON.parse(fs.readFileSync('src/assets/cine/isometric/network-rack-v8.json','utf8'));expect(manifest.models).toHaveLength(18);expect(xml.querySelectorAll('[data-rack-slot]')).toHaveLength(8);
  for(const {id} of manifest.models)for(const kind of ['base','cover','closed','full','detail'])expect(xml.getElementById(`rk-${id}-${kind}`)).not.toBeNull();
  expect(xml.querySelector('#rk-jack').querySelectorAll('[data-contact]')).toHaveLength(8);
  expect(xml.querySelector('#rk-switch-base').querySelectorAll('[data-port]')).toHaveLength(24);
@@ -167,4 +167,18 @@ test('changing equipment within a view fits the new geometry without inheriting 
  root.querySelector('[data-network-part="fiber"]').click();expect(root.dataset.motionScope).toBe('part');expect(focus.animate).toHaveBeenCalledTimes(1);
  root.querySelector('[data-network-select="1"]').click();expect(root.dataset.motionScope).toBe('view');expect(cancel).toHaveBeenCalledTimes(1);
  root.querySelector('[data-network-part="ups"]').click();expect(focus.animate).toHaveBeenCalledTimes(2);cleanup();expect(cancel).toHaveBeenCalledTimes(2);
+});
+
+test('service kits filter keyboard and mobile choices and restore each service selection',()=>{
+ const root=rackFixture();root.dataset.networkService='101';
+ const camera=root.querySelector('[data-network-part="ups"]').cloneNode(true);camera.dataset.networkPart='camera';camera.dataset.location='field';camera.textContent='Cámara';root.append(camera);
+ root.insertAdjacentHTML('beforeend','<select data-network-picker></select><script type="application/json" data-network-kits>'+JSON.stringify({'101':{name:'Redes',initial:'switch',parts:['switch','fiber','ups'],overview:'Red',description:'Datos'},'102':{name:'Seguridad',initial:'camera',parts:['camera','switch'],overview:'Seguridad',description:'Video'}})+'</script>');
+ root.querySelector('svg').insertAdjacentHTML('beforeend','<use data-rack-context/>');
+ const cleanup=bindRack(root),change=code=>root.dispatchEvent(new CustomEvent('um:network-service',{detail:{code}}));
+ root.querySelector('[data-network-part="fiber"]').click();root.querySelector('[data-network-select="2"]').click();
+ change('102');expect(root.dataset.part).toBe('camera');expect(root.dataset.location).toBe('field');expect(root.querySelector('[data-rack-context]').getAttribute('href')).toBe('#rk-camera-full');
+ expect([...root.querySelector('select').options].map(option=>option.value)).toEqual(['camera','switch']);expect(root.querySelector('[data-network-part="fiber"]').hidden).toBe(true);
+ camera.dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));expect(root.dataset.part).toBe('switch');
+ change('101');expect(root.dataset.part).toBe('fiber');expect(root.dataset.step).toBe('2');expect(root.querySelector('select').value).toBe('fiber');expect(camera.hidden).toBe(true);expect(jest.getTimerCount()).toBe(0);
+ cleanup();change('102');expect(root.dataset.networkService).toBe('101');
 });

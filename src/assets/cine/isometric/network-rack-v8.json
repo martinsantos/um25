@@ -54,7 +54,10 @@
       ],
       "detailScale": 0.78,
       "slotX": -88.33,
-      "slotY": -529.4
+      "slotY": -529.4,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
     },
     {
       "id": "panel",
@@ -72,7 +75,10 @@
       ],
       "detailScale": 1,
       "slotX": -151.12,
-      "slotY": -582.05
+      "slotY": -582.05,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
     },
     {
       "id": "manager",
@@ -90,7 +96,10 @@
       ],
       "detailScale": 1,
       "slotX": -151.12,
-      "slotY": -537.6
+      "slotY": -537.6,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
     },
     {
       "id": "fiber",
@@ -108,7 +117,10 @@
       ],
       "detailScale": 1,
       "slotX": -79.67,
-      "slotY": -712.2
+      "slotY": -712.2,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
     },
     {
       "id": "router",
@@ -126,7 +138,10 @@
       ],
       "detailScale": 1,
       "slotX": -71.01,
-      "slotY": -450.5
+      "slotY": -450.5,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
     },
     {
       "id": "server",
@@ -144,7 +159,10 @@
       ],
       "detailScale": 0.87,
       "slotX": 15.59,
-      "slotY": -367.15
+      "slotY": -367.15,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
     },
     {
       "id": "ups",
@@ -162,7 +180,10 @@
       ],
       "detailScale": 1,
       "slotX": -1.73,
-      "slotY": -90.45
+      "slotY": -90.45,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
     },
     {
       "id": "pdu",
@@ -180,7 +201,10 @@
       ],
       "detailScale": 1,
       "slotX": -161.08,
-      "slotY": -131.8
+      "slotY": -131.8,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
     },
     {
       "id": "access",
@@ -198,8 +222,200 @@
       ],
       "detailScale": 0.78,
       "slotX": 450,
-      "slotY": -280
+      "slotY": -280,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "outlet",
+      "label": "Toma de datos",
+      "z": 0,
+      "scale": 2.1,
+      "lift": [
+        -82.27,
+        47.5
+      ],
+      "motion": [
+        0,
+        95,
+        0
+      ],
+      "detailScale": 0.78,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 430,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "optic",
+      "label": "Transceptor SFP",
+      "z": 0,
+      "scale": 3.4,
+      "lift": [
+        0,
+        -38
+      ],
+      "motion": [
+        0,
+        0,
+        38
+      ],
+      "detailScale": 1,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "injector",
+      "label": "Inyector PoE",
+      "z": 0,
+      "scale": 2.35,
+      "lift": [
+        0,
+        -90
+      ],
+      "motion": [
+        0,
+        0,
+        90
+      ],
+      "detailScale": 0.78,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 370,
+      "openY": 535,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "camera",
+      "label": "Cámara IP",
+      "z": 0,
+      "scale": 1.35,
+      "lift": [
+        0,
+        -100
+      ],
+      "motion": [
+        0,
+        0,
+        100
+      ],
+      "detailScale": 1,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "dome",
+      "label": "Cámara domo",
+      "z": 0,
+      "scale": 1.8,
+      "lift": [
+        0,
+        -95
+      ],
+      "motion": [
+        0,
+        0,
+        95
+      ],
+      "detailScale": 1,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "reader",
+      "label": "Lector de acceso",
+      "z": 0,
+      "scale": 2,
+      "lift": [
+        -86.6,
+        50
+      ],
+      "motion": [
+        0,
+        100,
+        0
+      ],
+      "detailScale": 1,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 430,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "radio",
+      "label": "Radioenlace",
+      "z": 0,
+      "scale": 1.45,
+      "lift": [
+        -90.93,
+        52.5
+      ],
+      "motion": [
+        0,
+        105,
+        0
+      ],
+      "detailScale": 1,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 550,
+      "openY": 535,
+      "mobilePieceY": 430
+    },
+    {
+      "id": "detector",
+      "label": "Detector",
+      "z": 0,
+      "scale": 2.3,
+      "lift": [
+        0,
+        -65
+      ],
+      "motion": [
+        0,
+        0,
+        65
+      ],
+      "detailScale": 1,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 370,
+      "openY": 473,
+      "mobilePieceY": 366
+    },
+    {
+      "id": "central",
+      "label": "Central de incendio",
+      "z": 0,
+      "scale": 1.06,
+      "lift": [
+        -134.23,
+        77.5
+      ],
+      "motion": [
+        0,
+        155,
+        0
+      ],
+      "detailScale": 1,
+      "slotX": 450,
+      "slotY": -280,
+      "pieceY": 550,
+      "openY": 510,
+      "mobilePieceY": 430
     }
   ],
-  "bytes": 411445
+  "bytes": 621124
 }

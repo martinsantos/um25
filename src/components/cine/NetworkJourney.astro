@@ -1,13 +1,16 @@
 ---
 import scene from '../../assets/cine/isometric/network-rack-v8.svg?raw';
 import geometry from '../../assets/cine/isometric/network-rack-v8.json';
-import {NETWORK_EQUIPMENT} from '../../data/cine/networkAssembly';
-interface Props {compact?:boolean}
-const {compact=false}=Astro.props;
-const views=['Gabinete','La pieza','Despiece','Conexión'];
+import {NETWORK_EQUIPMENT,EQUIPMENT_KITS} from '../../data/cine/networkAssembly';
+interface Props {compact?:boolean;service?:string;catalog?:boolean}
+const {compact=false,service='101',catalog=false}=Astro.props;
+const kit=EQUIPMENT_KITS[service]||EQUIPMENT_KITS['101'];
+const equipment=catalog?NETWORK_EQUIPMENT:kit.parts.map(id=>NETWORK_EQUIPMENT.find(part=>part.id===id)!);
+const views=[service==='101'||service==='108'?'Gabinete':'Proyecto','Pieza','Despiece','Conexión'];
 ---
-<figure class:list={['network-journey',{'network-journey--compact':compact}]} data-network-journey data-step="0" data-part="switch" data-open="false">
- <div class="network-journey__meta"><span>Redes de datos</span><span>Un sistema. Nueve equipos.</span></div>
+<figure class:list={['network-journey',{'network-journey--compact':compact}]} data-network-journey data-network-service={service} data-step="0" data-part={kit.initial} data-open="false">
+ <script type="application/json" data-network-kits set:html={JSON.stringify(EQUIPMENT_KITS)} is:inline />
+ <div class="network-journey__meta"><span data-network-name>{kit.name}</span><span data-network-count>{kit.parts.length} elementos del sistema.</span></div>
  <div class="network-journey__status">
   <span data-network-tag>18U · cobre / fibra / cómputo / energía</span>
   <div><button type="button" data-network-door aria-pressed="false">Abrir gabinete <span aria-hidden="true">↗</span></button><button type="button" data-network-play aria-pressed="false">Ver recorrido <span aria-hidden="true">↗</span></button></div>
@@ -16,17 +19,17 @@ const views=['Gabinete','La pieza','Despiece','Conexión'];
   {views.map((view,i)=><button type="button" data-network-select={i} aria-pressed={String(i===0)}><span>0{i+1}</span>{view}</button>)}
  </div>
  <div class="network-journey__library" role="group" aria-label="Equipos de la instalación">
-  <span class="network-journey__library-label">Extraer del sistema <span class="network-journey__hint" aria-hidden="true">· 9 equipos ↔</span></span>
+  <span class="network-journey__library-label">Extraer del sistema</span>
   <div class="network-journey__equipment">
-   {NETWORK_EQUIPMENT.map((equipment)=>{
+   {equipment.map((equipment)=>{
     const model=geometry.models.find(m=>m.id===equipment.id)!;
-    return <button type="button" data-network-part={equipment.id} data-title={equipment.title} data-copy={equipment.copy} data-construction={equipment.construction} data-inside={equipment.inside} data-detail={equipment.detail} data-closeup={equipment.closeup} data-slot-x={model.slotX} data-slot-y={model.slotY} data-scale={model.scale} data-lift-x={model.lift[0]} data-lift-y={model.lift[1]} data-detail-scale={model.detailScale} aria-pressed={String(equipment.id==='switch')}>{equipment.name}</button>;
+    return <button type="button" data-network-part={equipment.id} data-location={model.z>0?'rack':'field'} data-title={equipment.title} data-copy={equipment.copy} data-construction={equipment.construction} data-inside={equipment.inside} data-detail={equipment.detail} data-closeup={equipment.closeup} data-slot-x={model.slotX} data-slot-y={model.slotY} data-scale={model.scale} data-lift-x={model.lift[0]} data-lift-y={model.lift[1]} data-detail-scale={model.detailScale} data-piece-y={model.pieceY} data-open-y={model.openY} data-mobile-piece-y={model.mobilePieceY} hidden={!kit.parts.includes(equipment.id)} aria-pressed={String(equipment.id===kit.initial)}>{equipment.name}</button>;
    })}
   </div>
  </div>
- <label class="network-journey__picker"><span>Equipo</span><select data-network-picker aria-label="Equipo de red">{NETWORK_EQUIPMENT.map(equipment=><option value={equipment.id}>{equipment.name}</option>)}</select></label>
+ <label class="network-journey__picker"><span>Equipo</span><select data-network-picker aria-label="Equipo del sistema">{kit.parts.map(id=><option value={id} selected={id===kit.initial}>{NETWORK_EQUIPMENT.find(part=>part.id===id)!.name}</option>)}</select></label>
  <div class="network-journey__canvas" set:html={scene} />
- {!compact && <figcaption class="network-journey__caption"><h3 data-network-title>Un gabinete. Todo el sistema.</h3><p data-network-copy>Abrí la puerta y extraé cada equipo. Puertos, fibra, datos y energía forman una instalación; el punto Wi-Fi lleva la red fuera del rack.</p></figcaption>}
+ {!compact && <figcaption class="network-journey__caption"><h3 data-network-title>{kit.overview}</h3><p data-network-copy>{kit.description}</p></figcaption>}
  <p class="network-journey__announcement" data-network-announce aria-live="polite" aria-atomic="true" />
 </figure>
 <script src="/cine/network-rack-v8.js" type="module" is:inline />
@@ -52,14 +55,22 @@ const views=['Gabinete','La pieza','Despiece','Conexión'];
  .network-journey :global(.rk-detail){--detail-scale:.78;transform:translate(510px,510px) scale(.08);opacity:0;transform-origin:0 0;transition:transform 1000ms cubic-bezier(.22,1,.36,1),opacity 500ms ease}
  .network-journey :global(.rk-external){transform:translate(905px,430px) scale(.43);transform-origin:0 0;transition:opacity 500ms ease}
  .network-journey :global(.rk-external-link){transition:opacity 350ms ease}
+ .network-journey :global(.rk-peripheral){display:none;cursor:pointer}
+ .network-journey[data-network-service="101"] :global(.rk-peripheral[data-context-services="101"]),.network-journey[data-network-service="102"] :global(.rk-peripheral[data-context-services="102"]),.network-journey[data-network-service="103"] :global(.rk-peripheral[data-context-services="103"]),.network-journey[data-network-service="107"] :global(.rk-peripheral[data-context-services="107"]){display:block}
+ .network-journey:not([data-network-service="101"]) :global(.rk-external-link),.network-journey:not([data-network-service="101"]) :global(.rk-overview-label){display:none}
+ .network-journey :global(.rk-peripherals){transition:opacity 400ms ease}
+ .network-journey[data-open="false"] :global(.rk-system-wire){opacity:0}
+ .network-journey[data-step="1"] :global(.rk-peripherals),.network-journey[data-step="2"] :global(.rk-peripherals),.network-journey[data-step="3"] :global(.rk-peripherals){opacity:0;pointer-events:none}
+ .network-journey :global(.rk-context-object){transform:translate(395px,562px) scale(.35);transform-origin:0 0;opacity:0;pointer-events:none}
+ .network-journey[data-location="field"]:not([data-step="0"]) :global(.rk-context-object){opacity:.65}
  .network-journey[data-open="false"] :global(.rk-external-link),.network-journey[data-step="1"] :global(.rk-external-link),.network-journey[data-step="2"] :global(.rk-external-link),.network-journey[data-step="3"] :global(.rk-external-link){opacity:0}
  .network-journey :global(.rk-context-label){opacity:0;transition:opacity 500ms ease}
  .network-journey :global(.rk-patching){transition:opacity 350ms ease}
  .network-journey[data-step="1"] :global(.rk-cabinet),.network-journey[data-step="2"] :global(.rk-cabinet),.network-journey[data-step="3"] :global(.rk-cabinet){transform:translate(245px,517px) scale(.24);opacity:.7}
  .network-journey[data-step="1"] :global(.rk-ground),.network-journey[data-step="2"] :global(.rk-ground),.network-journey[data-step="3"] :global(.rk-ground),.network-journey[data-step="1"] :global(.rk-external),.network-journey[data-step="2"] :global(.rk-external),.network-journey[data-step="3"] :global(.rk-external),.network-journey[data-step="1"] :global(.rk-overview-label),.network-journey[data-step="2"] :global(.rk-overview-label),.network-journey[data-step="3"] :global(.rk-overview-label){opacity:0}
  .network-journey[data-step="1"] :global(.rk-context-label),.network-journey[data-step="2"] :global(.rk-context-label),.network-journey[data-step="3"] :global(.rk-context-label){opacity:1}
- .network-journey[data-step="1"] :global(.rk-focus){transform:translate(803px,370px) scale(var(--part-scale));opacity:1}
- .network-journey[data-step="2"] :global(.rk-focus){transform:translate(788px,473px) scale(var(--part-scale));opacity:1}
+ .network-journey[data-step="1"] :global(.rk-focus){transform:translate(803px,var(--piece-y,370px)) scale(var(--part-scale));opacity:1}
+ .network-journey[data-step="2"] :global(.rk-focus){transform:translate(788px,var(--open-y,473px)) scale(var(--part-scale));opacity:1}
  .network-journey[data-step="2"] :global(.rk-cover){transform:translate(var(--lift-x),var(--lift-y))}
  .network-journey[data-step="1"] :global(.rk-mounted[data-selected] .rk-rail),.network-journey[data-step="2"] :global(.rk-mounted[data-selected] .rk-rail),.network-journey[data-step="3"] :global(.rk-mounted[data-selected] .rk-rail){opacity:.14}
  .network-journey[data-step="1"] :global(.rk-slot-outline),.network-journey[data-step="2"] :global(.rk-slot-outline),.network-journey[data-step="3"] :global(.rk-slot-outline){opacity:0}
@@ -115,13 +126,18 @@ const views=['Gabinete','La pieza','Despiece','Conexión'];
   .network-journey :global(.rk-cabinet){transform:translate(700px,600px) scale(.54)}
   .network-journey[data-open="true"] :global(.rk-door){transform:translate(var(--hinge-x),var(--hinge-y)) matrix(-.517638090,.640856382,0,1,0,0)}
   .network-journey :global(.rk-external),.network-journey :global(.rk-external-link){display:none}
+  .network-journey :global(.rk-context-object){display:none}
+  .network-journey[data-network-service="101"] :global(.rk-peripherals){display:none}
+  .network-journey[data-step="0"]:not([data-network-service="101"]) :global(.rk-cabinet){transform:translate(518.83721px,561.39535px) scale(.28)}
+  .network-journey[data-step="0"]:not([data-network-service="101"]) :global(.rk-peripherals){transform:translate(190px,200px) scale(.65116279);transform-origin:0 0}
   .network-journey__status button span{display:none}
   .network-journey[data-step="1"] :global(.rk-cabinet),.network-journey[data-step="2"] :global(.rk-cabinet),.network-journey[data-step="3"] :global(.rk-cabinet){transform:translate(130px,568px) scale(.16);opacity:0}
-  .network-journey[data-step="1"] :global(.rk-focus){transform:translate(658px,366px) scale(calc(var(--part-scale)*1.08))}
+  .network-journey[data-step="1"] :global(.rk-focus){transform:translate(658px,var(--mobile-piece-y,366px)) scale(calc(var(--part-scale)*1.08))}
   .network-journey[data-step="2"] :global(.rk-focus){transform:translate(640px,484px) scale(calc(var(--part-scale)*1.02))}
   .network-journey[data-step="3"] :global(.rk-focus){opacity:0}
   .network-journey[data-step="3"] :global(.rk-detail){transform:translate(653px,313px) scale(calc(var(--detail-scale)*1.08))}
   .network-journey[data-step="3"][data-part="switch"] :global(.rk-detail),.network-journey[data-step="3"][data-part="access"] :global(.rk-detail){transform:translate(683px,313px) scale(calc(var(--detail-scale)*1.08))}
+  .network-journey[data-step="3"][data-part="outlet"] :global(.rk-detail),.network-journey[data-step="3"][data-part="injector"] :global(.rk-detail){transform:translate(683px,313px) scale(calc(var(--detail-scale)*1.08))}
   .network-journey[data-step="1"][data-part="server"] :global(.rk-focus){transform:translate(645px,366px) scale(calc(var(--part-scale)*1.05))}
   .network-journey[data-step="1"][data-part="ups"] :global(.rk-focus){transform:translate(640px,366px) scale(calc(var(--part-scale)*1.04))}
   .network-journey[data-step="2"][data-part="server"] :global(.rk-focus){transform:translate(638px,484px) scale(calc(var(--part-scale)*.99))}
@@ -131,7 +147,7 @@ const views=['Gabinete','La pieza','Despiece','Conexión'];
   .network-journey__status{flex-wrap:wrap;gap:0;padding-top:10px}
   .network-journey__status>span{display:none}
   .network-journey__status>div{width:100%;justify-content:space-between;gap:12px}
-  .network-journey__controls{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .network-journey__controls{grid-template-columns:repeat(4,minmax(0,1fr));column-gap:6px}
   .network-journey__controls button{min-height:56px;padding:8px 2px;gap:0}
   .network-journey__controls button span{display:none}
   .network-journey__library{display:none}
@@ -150,6 +166,7 @@ const views=['Gabinete','La pieza','Despiece','Conexión'];
  @media(prefers-reduced-motion:no-preference){
   .network-journey[data-visible="true"][data-open="true"][data-step="0"] :global(.rk-signal){animation:rk-signal 2.4s linear 3 both}
   .network-journey[data-visible="true"][data-step="3"][data-part="switch"] :global(#rk-switch-detail .rk-plug),.network-journey[data-visible="true"][data-step="3"][data-part="access"] :global(#rk-access-detail .rk-plug){animation:rk-insert 2.8s cubic-bezier(.22,1,.36,1) 1 both}
+  .network-journey[data-visible="true"][data-step="3"][data-part="outlet"] :global(#rk-outlet-detail .rk-plug),.network-journey[data-visible="true"][data-step="3"][data-part="injector"] :global(#rk-injector-detail .rk-plug){animation:rk-insert 2.8s cubic-bezier(.22,1,.36,1) 1 both}
  }
  @keyframes rk-signal{to{stroke-dashoffset:0}}
  @keyframes rk-insert{0%,20%{transform:translate(0,0)}75%,100%{transform:translate(15.588457px,-9px)}}

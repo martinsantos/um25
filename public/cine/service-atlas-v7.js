@@ -8,13 +8,17 @@ export function bindServiceAtlas(root) {
   let active=services[0],view='object',revision=0,disposed=false;
   async function sync() {
     if(!active)return;
-    if(network){const shown=active.dataset.atlasService==='101';network.hidden=!shown;frame.hidden=shown;if(viewControls)viewControls.hidden=shown;}
+    if(network){const shown=active.dataset.atlasService==='101'||!!active.dataset.equipmentKit;network.hidden=!shown;frame.hidden=shown;if(viewControls)viewControls.hidden=shown;}
     const token=++revision,src=active.dataset[view];
     services.forEach(button=>button.setAttribute('aria-pressed',String(button===active)));
     views.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.atlasView===view)));
     title.textContent=active.dataset.title;copy.textContent=active.dataset[view==='system'?'context':'copy'];code.textContent=active.dataset.atlasService;
     link.href=active.dataset.href;link.firstChild.textContent=`Explorar ${active.dataset.name.toLowerCase()} `;
-    if(network&&!network.hidden){networkFigure?.dispatchEvent(new CustomEvent('um:network-view',{detail:{index:view==='system'?0:1}}));return;}
+    if(network&&!network.hidden){
+      if(active.dataset.equipmentKit)networkFigure?.dispatchEvent(new CustomEvent('um:network-service',{detail:{code:active.dataset.equipmentKit}}));
+      else networkFigure?.dispatchEvent(new CustomEvent('um:network-view',{detail:{index:view==='system'?0:1}}));
+      return;
+    }
     if(image.getAttribute('src')===src)return;
     const next=new Image();next.src=src;
     try{await next.decode();}catch{if(token===revision)image.alt=`Vista de ${active.dataset.name.toLowerCase()} no disponible`;return;}
@@ -36,7 +40,7 @@ export function bindServiceAtlas(root) {
     if(e.key==='Home')next=0;if(e.key==='End')next=list.length-1;
     if(next===undefined)return;e.preventDefault();list[next].focus();list[next].click();
   };
-  const narrative=e=>{if(active.dataset.atlasService==='101'&&e.target===networkFigure){title.textContent=e.detail.title;copy.textContent=e.detail.copy;}};
+  const narrative=e=>{if(network&&!network.hidden&&e.target===networkFigure){title.textContent=e.detail.title;copy.textContent=e.detail.copy;}};
   root.addEventListener('um:network-step',narrative);root.addEventListener('click',click);root.addEventListener('keydown',keyboard);
   const cleanup=()=>{disposed=true;revision++;root.removeEventListener('um:network-step',narrative);root.removeEventListener('click',click);root.removeEventListener('keydown',keyboard);delete root.dataset.bound;};
   document.addEventListener('astro:before-swap',cleanup,{once:true});return cleanup;

@@ -2,6 +2,7 @@
 import {ISOMETRIC_STUDIES} from '../../data/cine/isometric';
 import SoftwareLayers from './SoftwareLayers.astro';
 import NetworkJourney from './NetworkJourney.astro';
+import {EQUIPMENT_KITS} from '../../data/cine/networkAssembly';
 interface Props { code: string }
 const {code}=Astro.props;
 const study=ISOMETRIC_STUDIES[code];
@@ -10,7 +11,7 @@ const drawing=(view:string)=>drawings[`../../assets/cine/isometric/${study.asset
 const prefix=`iso-${code}`;
 const first=study.views[1];
 ---
-{code==='101' ? <NetworkJourney /> : <figure class="iso" data-isometric data-iso-code={code} data-iso-view="1">
+{EQUIPMENT_KITS[code] ? <NetworkJourney service={code} /> : <figure class="iso" data-isometric data-iso-code={code} data-iso-view="1">
   <div class="iso__meta"><span>{study.name}</span><span>{study.object}</span></div>
   <div class="iso__frame">
     <div class="iso__drawing" data-iso-panel="system" hidden set:html={drawing('system')} />

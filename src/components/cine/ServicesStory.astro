@@ -1,6 +1,7 @@
 ---
 import NetworkJourney from './NetworkJourney.astro';
 import {ISOMETRIC_STUDIES} from '../../data/cine/isometric';
+import {EQUIPMENT_KITS} from '../../data/cine/networkAssembly';
 interface Service {code:string;name:string;href:string}
 interface Props {services:Service[]}
 const {services}=Astro.props;
@@ -22,7 +23,7 @@ const first=items[0];
 {first && <div class="svc-story" data-service-atlas>
   <div class="svc-story__stage">
     <div class="svc-story__meta"><span>Un proyecto. Ocho sistemas.</span><span data-atlas-code>{first.code}</span></div>
-    <div data-atlas-network><NetworkJourney compact /></div>
+    <div data-atlas-network><NetworkJourney compact catalog /></div>
     <div class="svc-story__frame" hidden><img src={url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
     <div class="svc-story__views" hidden role="group" aria-label="Escala del servicio">
       <button type="button" data-atlas-view="system" aria-pressed="false">En el proyecto</button>
@@ -36,7 +37,7 @@ const first=items[0];
   </div>
   <ol class="svc-story__list" aria-label="Sistemas del proyecto">
     {items.map((s,i)=><li class="svc-story__item">
-      <button type="button" data-atlas-service={s.code} data-object={url(s.study.asset,'object')} data-system={url(s.study.asset,'system')} data-name={s.study.name} data-title={s.study.title} data-copy={summaries[s.code]} data-context={s.study.views[0].description} data-alt={s.study.object} data-href={s.href} aria-pressed={String(i===0)}>
+      <button type="button" data-atlas-service={s.code} data-equipment-kit={EQUIPMENT_KITS[s.code]?s.code:undefined} data-object={url(s.study.asset,'object')} data-system={url(s.study.asset,'system')} data-name={s.study.name} data-title={s.study.title} data-copy={summaries[s.code]} data-context={s.study.views[0].description} data-alt={s.study.object} data-href={s.href} aria-pressed={String(i===0)}>
         <span class="svc-story__code">{s.code}</span><span class="svc-story__text"><strong>{s.study.name}</strong><span>{summaries[s.code]}</span></span><span class="svc-story__arrow" aria-hidden="true">↗</span>
       </button>
     </li>)}

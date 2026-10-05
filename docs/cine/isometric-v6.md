@@ -138,3 +138,39 @@ Validación técnica: 60 suites / 457 pruebas; lint y TypeScript sin errores. Se
 añadieron contratos de proyección, escala compartida, coordenadas de conexión,
 selección móvil, visibilidad y cancelación al cambiar de equipo. La validación
 visual y el build de la revisión quedan registrados junto con la entrega.
+
+
+## 2026-10-05 — Biblioteca de 18 equipos y cinco servicios
+
+Se recupera el gabinete negro articulado y se amplía la biblioteca de nueve a
+18 modelos. Se agregan toma doble RJ45, transceptor SFP, inyector PoE, cámara IP,
+domo, lector de acceso, radioenlace, detector y central de incendio. Cada uno
+comparte su geometría entre pieza completa, despiece, detalle y contexto del
+proyecto. Los cuerpos circulares usan facetas proyectadas con los mismos tres
+ejes; chapa, puertos, fijaciones, placas y controles conservan la paleta común.
+
+Los servicios 101, 102, 103, 107 y 108 seleccionan conjuntos propios. La home usa
+la misma biblioteca y recuerda la pieza y vista de cada servicio. El teclado y
+el selector móvil ofrecen sólo los equipos del conjunto activo. Software,
+Soporte y Consultoría mantienen su representación de interfaz isométrica.
+
+El contexto sitúa los equipos de campo al lado del gabinete con igual escala.
+Los tendidos salen por el frente abierto y quedan ocultos detrás del lateral.
+En móvil, gabinete y periféricos conservan una transformación afín común. Se
+corrigieron los encuadres de piezas altas y macros de RJ45. El frente de la
+central se aparta en despiece; la puerta articulada pertenece al gabinete IT.
+Los modelos son explicativos y genéricos: no representan un SKU o una obra real.
+
+El SVG completo pesa 621.124 bytes sin comprimir; el runtime 11.539 bytes.
+Las 18 piezas reutilizan definiciones SVG. No se agregan paquetes, WebGL,
+instancias de Blender, renders locales ni procesos de nube. El recorrido se
+limita a una pasada y respeta visibilidad, ahorro de datos y movimiento reducido.
+
+Validación: 60 suites / 459 pruebas pasan; lint y TypeScript sin errores. Se
+mantienen 12 advertencias de lint y diez de la auditoría CSS, ajenas a esta
+ampliación. La revisión nativa cubre los 27 estados de las nueve piezas nuevas
+(pieza, despiece y conexión) en escritorio y móvil de 360 px, además de los
+cinco conjuntos en vista de proyecto. Se verifica también la integración SSR
+de Seguridad y su conjunto específico. Evidencias y capturas se conservan en
+la carpeta de visualizaciones de este chat. El build final se verifica por CI
+en el PR #266, con base develop. Esta ampliación no se publica en producción.
