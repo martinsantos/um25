@@ -2,7 +2,7 @@
 // Banner cine: plano Cycles pre-renderizado (vuelo imposible por la escena, con cortes
 // "pop" entre edificio y esqueleto de sistemas) y etiquetas que siguen a los equipos.
 // Portada: encadena las escenas. Sector o servicio: una escena en bucle.
-// El 3D interactivo se abre sólo a pedido (/cine/cine-banner-v4.js).
+// Las películas completas quedan en Blender; la exploración de servicios usa isométricos.
 import '../../styles/cine-banner.css';
 import { HOME_SCENES, cutCaption } from '../../data/cine/scenes';
 
@@ -73,7 +73,7 @@ const firstTitle = cutCaption(first);
     {variant === 'home' ? (
       <div class="umc-rail" role="group" aria-label="Escenas por sector">
         {rail.map((s, i) => (
-          <button type="button" data-umc-scene={s.scene} aria-pressed={i === startIndex ? 'true' : 'false'}>
+          <button type="button" data-umc-scene={s.scene} aria-pressed={s.scene === first ? 'true' : 'false'}>
             <span class="umc-rail__n">{String(i + 1).padStart(2, '0')}</span>
             <span class="umc-rail__t">{s.name}<small>{s.text}</small></span>
             <i class="umc-rail__bar"><b></b></i>
@@ -86,10 +86,7 @@ const firstTitle = cutCaption(first);
       <span class="umc-caption" aria-hidden="true"></span>
     )}
     <div class="umc-tools">
-      <button class="umc-tool" type="button" data-umc-3d aria-label="Recorrer el gemelo digital de la escena">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Zm0 9 8-4.5M12 12 4 7.5M12 12v9"/></svg>
-        <span>Recorrer el gemelo digital</span>
-      </button>
+
       <button class="umc-tool umc-tool--icon" type="button" data-umc-motion aria-label="Pausar el recorrido">
         <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>
         <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5v14l12-7L7 5Z"/></svg>
@@ -97,4 +94,4 @@ const firstTitle = cutCaption(first);
     </div>
   </div>
 </section>
-<script src="/cine/cine-banner-v4.js" type="module" is:inline></script>
+<script src="/cine/cine-banner-v5.js" type="module" is:inline></script>

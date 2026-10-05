@@ -43,11 +43,10 @@ describe('mobile overflow production contracts', () => {
     expect(css).toContain('class="services-demo"');
     expect(css).toMatch(/\.services-demo-row\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*1\.02fr\) minmax\(0,\s*1fr\);/);
     expect(css).toMatch(/@media \(max-width:\s*980px\)\s*\{[\s\S]*\.services-demo-row,[\s\S]*\.services-demo-row:nth-child\(even\)\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
-    // Rediseño 2026-09: miniatura móvil 84px/24vw (antes 92px/27vw); la columna de
-    // texto sigue siendo minmax(0, 1fr) y la miniatura queda acotada por vw.
-    const mobileRow = css.match(/@media \(max-width:\s*640px\)\s*\{[\s\S]*?\.services-demo-row,\s*\.services-demo-row:nth-child\(even\)\s*\{[^}]*grid-template-columns:\s*minmax\((\d+)px,\s*(\d+)vw\) minmax\(0,\s*1fr\);/);
-    expect(mobileRow).not.toBeNull();
-    expect(Number(mobileRow[2])).toBeLessThanOrEqual(30);
+    // Isométricos v6: la figura usa todo el ancho disponible, sin una columna
+    // mínima que compita con el texto y sin recortar la geometría.
+    expect(css).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*?\.services-demo-row,\s*\.services-demo-row:nth-child\(even\)\s*\{[^}]*grid-template-columns:\s*1fr;/);
+    expect(css).toMatch(/\.services-demo-media img\s*\{[^}]*object-fit:\s*contain;/);
     expect(css).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-demo-body > p\s*\{[\s\S]*display:\s*none;/);
     expect(css).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.services-demo-body ul\s*\{[\s\S]*display:\s*none;/);
     expect(css).toMatch(/@media \(max-width:\s*980px\)\s*\{[\s\S]*\.services-demo-body ul\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
