@@ -211,7 +211,7 @@ export function banner(el) {
     raf=0;
     if (!canPlay() || active.paused || !active.classList.contains('is-on')) return;
     const time=active.currentTime;
-    const protectedRect=el.querySelector('.umc-content')?.getBoundingClientRect();
+    const protectedRect=el.querySelector('.umc-copy')?.getBoundingClientRect();
     const stageRect=stage.getBoundingClientRect(),heroRect=el.getBoundingClientRect(),visibleBoxes=[];
     if (track) {
       posNow=parseFloat(getComputedStyle(active).objectPosition)/100 || .5;

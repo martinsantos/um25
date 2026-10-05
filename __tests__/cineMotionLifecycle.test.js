@@ -98,12 +98,12 @@ test('the cinematic hero starts without waiting for unrelated window load and bi
 
 
 test('a moving equipment label hides before crossing hero copy even between label selection intervals',async()=>{
- document.body.innerHTML='<div data-umc data-scenes="bodega-label-test"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><div class="umc-content"><h1>Operación</h1><a href="/contacto">Contactar</a></div></div>';
+ document.body.innerHTML='<div data-umc data-scenes="bodega-label-test"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><div class="umc-copy"><h1>Operación</h1><a href="/contacto">Contactar</a></div></div>';
  const root=document.querySelector('[data-umc]'),stage=root.querySelector('.umc-stage'),video=stage.querySelector('video');
  Object.defineProperty(root,'clientWidth',{configurable:true,value:1000});Object.defineProperty(stage,'clientWidth',{configurable:true,value:1000});Object.defineProperty(stage,'clientHeight',{configurable:true,value:600});
  const sceneRect={left:0,top:0,right:1000,bottom:600,width:1000,height:600};
  jest.spyOn(root,'getBoundingClientRect').mockReturnValue(sceneRect);jest.spyOn(stage,'getBoundingClientRect').mockReturnValue(sceneRect);
- jest.spyOn(root.querySelector('.umc-content'),'getBoundingClientRect').mockReturnValue({left:0,top:200,right:600,bottom:550,width:600,height:350});
+ jest.spyOn(root.querySelector('.umc-copy'),'getBoundingClientRect').mockReturnValue({left:0,top:200,right:600,bottom:550,width:600,height:350});
  fetch.mockResolvedValue({ok:true,json:()=>Promise.resolve({frames:2,fps:24,order:'linear',assets:[{id:'camera',system:'CCTV',name:'Cámara IP'}],track:{camera:[[.92,.6,true],[.72,.6,true]]}})});
  banner(root);root.querySelectorAll('.umc-tag__card').forEach(card=>{Object.defineProperty(card,'offsetWidth',{configurable:true,value:260});Object.defineProperty(card,'offsetHeight',{configurable:true,value:80});});
  visible(root);jest.advanceTimersByTime(600);for(let i=0;i<4;i++)await settle();
