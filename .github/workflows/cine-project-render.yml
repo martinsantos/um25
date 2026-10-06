@@ -142,6 +142,15 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
           mkdir delivery
+          # A single recovered artifact is extracted into the workspace root.
+          for PART in $(seq 1 18); do
+            TARGET="site-$PROJECT_SCENE-part-$PART"
+            if test ! -f "$TARGET/part-$PART.mp4" && test -f "part-$PART.mp4"; then
+              mkdir -p "$TARGET"
+              mv "part-$PART.mp4" "part-$PART-info.json" "$TARGET/"
+            fi
+            test -s "$TARGET/part-$PART.mp4"
+          done
           for PART in $(seq 1 18); do printf "file 'site-%s-part-%s/part-%s.mp4'\n" "$PROJECT_SCENE" "$PART" "$PART"; done > parts.txt
           ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-project-v3.mp4
           ffmpeg -v error -i delivery/cine-project-v3.mp4 -vf 'crop=1080:1080:730:0' -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-project-v3-sq.mp4
