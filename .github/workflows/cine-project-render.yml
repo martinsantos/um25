@@ -6,18 +6,23 @@ on:
       mode:
         description: 'Proof three views, or render completed movies'
         type: choice
-        options: [proof, full]
+        options: [proof, full, deliver]
         default: proof
       projects:
         description: 'Remaining projects reuse the already delivered building movie'
         type: choice
         options: [remaining, clinic, terminal, plant, winery, mine]
         default: remaining
+      source_run:
+        description: 'For deliver mode: existing render run containing this project’s 18 parts'
+        type: string
+        required: false
 
 permissions:
   contents: read
+  actions: read
 concurrency:
-  group: blender-project-chunks-${{ github.ref }}
+  group: ${{ inputs.mode == 'deliver' && format('blender-project-delivery-{0}-{1}-{2}', github.ref, inputs.source_run, inputs.projects) || format('blender-project-chunks-{0}', github.ref) }}
   cancel-in-progress: true
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -33,10 +38,12 @@ jobs:
         env:
           MODE: ${{ inputs.mode }}
           PROJECTS: ${{ inputs.projects }}
+          SOURCE_RUN: ${{ inputs.source_run }}
         run: |
           python3 - <<'PY'
           import json,os
           scenes=['clinic','terminal','plant','winery','mine'] if os.environ['PROJECTS']=='remaining' else [os.environ['PROJECTS']]
+          if os.environ['MODE']=='deliver': assert os.environ['SOURCE_RUN'].isdigit()
           rows=[]
           for scene in scenes:
               if os.environ['MODE']=='proof':
@@ -48,6 +55,7 @@ jobs:
               out.write('scenes='+json.dumps(scenes)+'\n')
           PY
   render:
+    if: inputs.mode != 'deliver'
     name: ${{ matrix.scene }} · part ${{ matrix.part }}
     needs: plan
     runs-on: ubuntu-24.04
@@ -95,7 +103,7 @@ jobs:
           retention-days: 1
   assemble:
     name: Deliver ${{ matrix.scene }} cinema
-    if: inputs.mode == 'full'
+    if: always() && inputs.mode != 'proof' && (inputs.mode == 'deliver' || needs.render.result == 'success')
     needs: [plan, render]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -107,6 +115,8 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           pattern: site-${{ matrix.scene }}-part-*
+          run-id: ${{ inputs.mode == 'deliver' && inputs.source_run || github.run_id }}
+          github-token: ${{ github.token }}
       - name: Join, crop and decode every frame
         env:
           PROJECT_SCENE: ${{ matrix.scene }}
