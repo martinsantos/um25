@@ -4,55 +4,83 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Benchmark two camera views before rendering the full movie'
+        description: 'Proof three views, or render completed movies'
         type: choice
-        options: [benchmark, full]
-        default: benchmark
+        options: [proof, full]
+        default: proof
+      projects:
+        description: 'Remaining projects reuse the already delivered building movie'
+        type: choice
+        options: [remaining, clinic, terminal, plant, winery, mine]
+        default: remaining
 
 permissions:
   contents: read
-
 concurrency:
-  group: blender-project-chunks-${{ github.event.pull_request.number || github.ref }}
+  group: blender-project-chunks-${{ github.ref }}
   cancel-in-progress: true
-
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      scenes: ${{ steps.plan.outputs.scenes }}
+    steps:
+      - id: plan
+        env:
+          MODE: ${{ inputs.mode }}
+          PROJECTS: ${{ inputs.projects }}
+        run: |
+          python3 - <<'PY'
+          import json,os
+          scenes=['clinic','terminal','plant','winery','mine'] if os.environ['PROJECTS']=='remaining' else [os.environ['PROJECTS']]
+          rows=[]
+          for scene in scenes:
+              if os.environ['MODE']=='proof':
+                  rows.extend(dict(scene=scene,part=i+1,start=f,end=f,frames=1) for i,f in enumerate([0,144,288]))
+              else:
+                  rows.extend(dict(scene=scene,part=i+1,start=i*24,end=i*24+23,frames=24) for i in range(18))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+              out.write('matrix='+json.dumps({'include':rows})+'\n')
+              out.write('scenes='+json.dumps(scenes)+'\n')
+          PY
   render:
-    name: Blender part ${{ matrix.part }}
+    name: ${{ matrix.scene }} · part ${{ matrix.part }}
+    needs: plan
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     strategy:
-      fail-fast: true
-      matrix: ${{ fromJSON(inputs.mode == 'benchmark' && '{"include":[{"part":1,"start":0,"end":0,"frames":1,"samples":8},{"part":2,"start":288,"end":288,"frames":1,"samples":8},{"part":3,"start":0,"end":0,"frames":1,"samples":16},{"part":4,"start":288,"end":288,"frames":1,"samples":16}]}' || '{"include":[{"part":1,"start":0,"end":23,"frames":24,"samples":8},{"part":2,"start":24,"end":47,"frames":24,"samples":8},{"part":3,"start":48,"end":71,"frames":24,"samples":8},{"part":4,"start":72,"end":95,"frames":24,"samples":8},{"part":5,"start":96,"end":119,"frames":24,"samples":8},{"part":6,"start":120,"end":143,"frames":24,"samples":8},{"part":7,"start":144,"end":167,"frames":24,"samples":8},{"part":8,"start":168,"end":191,"frames":24,"samples":8},{"part":9,"start":192,"end":215,"frames":24,"samples":8},{"part":10,"start":216,"end":239,"frames":24,"samples":8},{"part":11,"start":240,"end":263,"frames":24,"samples":8},{"part":12,"start":264,"end":287,"frames":24,"samples":8},{"part":13,"start":288,"end":311,"frames":24,"samples":8},{"part":14,"start":312,"end":335,"frames":24,"samples":8},{"part":15,"start":336,"end":359,"frames":24,"samples":8},{"part":16,"start":360,"end":383,"frames":24,"samples":8},{"part":17,"start":384,"end":407,"frames":24,"samples":8},{"part":18,"start":408,"end":431,"frames":24,"samples":8}]}') }}
+      fail-fast: false
+      max-parallel: 18
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - name: Install verified official Blender and a software graphics context
+      - name: Install verified official Blender
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq libgl1 libegl1 libgl1-mesa-dri libglx-mesa0 libxrender1 libxi6 xvfb xauth ffmpeg
+          sudo apt-get install -y -qq libgl1 libegl1 libxrender1 libxi6 ffmpeg
           curl -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender-4.5.3-linux-x64.tar.xz
           curl -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256 -o blender.sha256
           awk '$2 == "blender-4.5.3-linux-x64.tar.xz" {print}' blender.sha256 > blender-selected.sha256
           test -s blender-selected.sha256
           sha256sum -c blender-selected.sha256
           tar -xf blender-4.5.3-linux-x64.tar.xz
-      - name: Render measured full-resolution frames with Cycles
+      - name: Render native Full HD with the measured Cycles settings
         run: |
-          python3 scripts/cine/render-site-project-v1.py --validate-only
-          ./blender-4.5.3-linux-x64/blender -b -t 4 --python scripts/cine/render-site-project-v1.py -- --engine cycles --samples ${{ matrix.samples }} --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
-      - name: Save benchmark frames and timings
-        if: inputs.mode == 'benchmark'
-        uses: actions/upload-artifact@v7
+          python3 scripts/cine/render-site-project-v1.py --validate-only --scene ${{ matrix.scene }}
+          ./blender-4.5.3-linux-x64/blender -b -t 4 --python scripts/cine/render-site-project-v1.py -- --scene ${{ matrix.scene }} --samples 8 --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
+      - uses: actions/upload-artifact@v7
+        if: inputs.mode == 'proof'
         with:
-          name: construction-benchmark-${{ matrix.part }}
+          name: site-${{ matrix.scene }}-proof-${{ matrix.part }}
           path: frames
           retention-days: 1
-      - name: Encode part without retaining raw frames
+      - name: Encode recoverable part
         if: inputs.mode == 'full'
         run: |
           cp frames/render-info.json part-${{ matrix.part }}-info.json
@@ -60,34 +88,40 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: inputs.mode == 'full'
         with:
-          name: construction-part-${{ matrix.part }}
+          name: site-${{ matrix.scene }}-part-${{ matrix.part }}
           path: |
             part-${{ matrix.part }}.mp4
             part-${{ matrix.part }}-info.json
           retention-days: 1
   assemble:
+    name: Deliver ${{ matrix.scene }} cinema
     if: inputs.mode == 'full'
-    name: Assemble and validate cinema
+    needs: [plan, render]
     runs-on: ubuntu-24.04
-    needs: render
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        scene: ${{ fromJSON(needs.plan.outputs.scenes) }}
     steps:
       - uses: actions/download-artifact@v8
         with:
-          pattern: construction-part-*
-      - name: Join, prepare responsive crop and validate every frame
+          pattern: site-${{ matrix.scene }}-part-*
+      - name: Join, crop and decode every frame
+        env:
+          PROJECT_SCENE: ${{ matrix.scene }}
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
           mkdir delivery
-          for PART in $(seq 1 18); do printf "file 'construction-part-%s/part-%s.mp4'\n" "$PART" "$PART"; done > parts.txt
-          ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-construction-project-v2.mp4
-          ffmpeg -v error -i delivery/cine-construction-project-v2.mp4 -vf 'crop=1080:1080:730:0' -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-construction-project-v2-sq.mp4
-          ffmpeg -v error -i delivery/cine-construction-project-v2.mp4 -frames:v 1 -q:v 2 delivery/cine-construction-project-v2.poster.jpg
-          ffmpeg -v error -i delivery/cine-construction-project-v2.poster.jpg -c:v libaom-av1 -still-picture 1 -crf 24 delivery/cine-construction-project-v2.poster.avif
-          ffmpeg -v error -i delivery/cine-construction-project-v2.mp4 -f null -
-          ffmpeg -v error -i delivery/cine-construction-project-v2-sq.mp4 -f null -
-          ffprobe -v error -count_frames -show_streams -show_format -of json delivery/cine-construction-project-v2.mp4 > delivery/validation.json
+          for PART in $(seq 1 18); do printf "file 'site-%s-part-%s/part-%s.mp4'\n" "$PROJECT_SCENE" "$PART" "$PART"; done > parts.txt
+          ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-project-v3.mp4
+          ffmpeg -v error -i delivery/cine-project-v3.mp4 -vf 'crop=1080:1080:730:0' -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-project-v3-sq.mp4
+          ffmpeg -v error -i delivery/cine-project-v3.mp4 -frames:v 1 -q:v 2 delivery/cine-project-v3.poster.jpg
+          ffmpeg -v error -i delivery/cine-project-v3.poster.jpg -c:v libaom-av1 -still-picture 1 -crf 24 delivery/cine-project-v3.poster.avif
+          ffmpeg -v error -i delivery/cine-project-v3.mp4 -f null -
+          ffmpeg -v error -i delivery/cine-project-v3-sq.mp4 -f null -
+          ffprobe -v error -count_frames -show_streams -show_format -of json delivery/cine-project-v3.mp4 > delivery/validation.json
           python3 - <<'PY'
           import json
           from pathlib import Path
@@ -96,10 +130,10 @@ jobs:
           assert abs(float(v['duration'])-18)<.01,v
           assert sum(p.stat().st_size for p in Path('delivery').iterdir())<40_000_000
           PY
-          cp construction-part-1/part-1-info.json delivery/render-info.json
+          cp site-$PROJECT_SCENE-part-1/part-1-info.json delivery/render-info.json
           sha256sum delivery/* > delivery/SHA256SUMS
       - uses: actions/upload-artifact@v7
         with:
-          name: construction-cinema-v2
+          name: site-${{ matrix.scene }}-cinema-v3
           path: delivery
           retention-days: 1

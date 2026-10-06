@@ -9,28 +9,41 @@ def smooth(t):
     t = max(0, min(1, t))
     return t * t * t * (t * (t * 6 - 15) + 10)
 
-def camera_pose(frame, wide=33.5):
-    """One continuous dolly: building → riser → technical room → building. No cuts or object reveals."""
-    keys = [(0, (300, 172, 142), wide, 1.0), (144, (535, 243, 148), 12.0, .92),
-            (288, (518, 277, 43), 4.9, .66), (431, (300, 172, 142), wide, 1.0)]
-    for a, b in zip(keys, keys[1:]):
+CAMERA_KEYS = {
+    'building': [(300,172,142),(535,243,148),(518,277,43)],
+    'clinic': [(300,170,48),(245,83,24),(518,277,43)],
+    'terminal': [(300,170,48),(239,64,37),(518,277,43)],
+    'plant': [(300,170,48),(210,110,43),(518,277,43)],
+    'winery': [(300,170,52),(192,151,58),(518,277,43)],
+    'mine': [(300,170,61),(371,309,104),(518,277,43)],
+}
+
+def camera_pose(frame, wide=None, scene_id='building'):
+    """Continuous camera from the whole site through its operation to its technical room."""
+    wide = wide or (33.5 if scene_id=='building' else 25)
+    poses = CAMERA_KEYS[scene_id]
+    keys = [(0,poses[0],wide,1.0),(144,poses[1],12.0,.92),
+            (288,poses[2],4.9,.66),(431,poses[0],wide,1.0)]
+    for a,b in zip(keys,keys[1:]):
         if frame <= b[0]:
-            u = smooth((frame - a[0]) / (b[0] - a[0]))
-            mix = lambda x, y: x + (y - x) * u
-            return tuple(mix(x, y) * SCALE for x, y in zip(a[1], b[1])), mix(a[2], b[2]), mix(a[3], b[3])
+            u=smooth((frame-a[0])/(b[0]-a[0]))
+            mix=lambda x,y:x+(y-x)*u
+            return tuple(mix(x,y)*SCALE for x,y in zip(a[1],b[1])),mix(a[2],b[2]),mix(a[3],b[3])
     raise ValueError(frame)
 
-def validate(data):
-    project = next(s for s in data['scenes'] if s['id'] == 'building')
-    assert len(project['boxes']) > 400
-    assert {'101', '102', '103', '107', '108'} <= {r['code'] for r in project['routes']}
+def validate(data,scene_id='building'):
+    project=next(s for s in data['scenes'] if s['id']==scene_id)
+    assert len(project['boxes']) > (400 if scene_id=='building' else 150)
+    assert {'101','102','103','107','108'} <= {r['code'] for r in project['routes']}
     for box in project['boxes']:
-        assert min(box[k] for k in ('w', 'd', 'h')) > 0
-        assert all(math.isfinite(box[k]) for k in ('x', 'y', 'z', 'w', 'd', 'h'))
+        assert min(box[k] for k in ('w','d','h')) > 0
+        assert all(math.isfinite(box[k]) for k in ('x','y','z','w','d','h'))
+    for c in project.get('cylinders',[]):
+        assert min(c['r'],c['topR'],c['h'])>0
     for frame in range(FRAMES):
-        target, size, elevation = camera_pose(frame)
-        assert size > 0 and all(math.isfinite(n) for n in (*target, size, elevation))
-    assert camera_pose(0) == camera_pose(FRAMES - 1)
+        target,size,elevation=camera_pose(frame,scene_id=scene_id)
+        assert size>0 and all(math.isfinite(n) for n in (*target,size,elevation))
+    assert camera_pose(0,scene_id=scene_id)==camera_pose(FRAMES-1,scene_id=scene_id)
     return project
 
 def render(args, data, project):
@@ -95,6 +108,15 @@ def render(args, data, project):
         verts.extend(tuple(c * SCALE for c in p) for p in [(x,y,z),(x+w,y,z),(x+w,y+d,z),(x,y+d,z),
                   (x,y,z+h),(x+w,y,z+h),(x+w,y+d,z+h),(x,y+d,z+h)])
         faces.extend(tuple(offset + i for i in f) for f in [(0,3,2,1),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)])
+    for c in project.get('cylinders',[]):
+        verts,faces=groups.setdefault(c['material'],([],[]))
+        offset=len(verts)
+        for radius,z in [(c['r'],c['z']),(c['topR'],c['z']+c['h'])]:
+            verts.extend(((c['x']+radius*math.cos(i*math.pi/16))*SCALE,
+                          (c['y']+radius*math.sin(i*math.pi/16))*SCALE,z*SCALE) for i in range(32))
+        faces.append(tuple(offset+i for i in reversed(range(32))))
+        faces.append(tuple(offset+32+i for i in range(32)))
+        faces.extend((offset+i,offset+(i+1)%32,offset+32+(i+1)%32,offset+32+i) for i in range(32))
     for name, (verts, faces) in groups.items():
         mesh = bpy.data.meshes.new(name + '-geometry')
         mesh.from_pydata(verts, [], faces)
@@ -154,9 +176,9 @@ def render(args, data, project):
                for x in (b['x']-b['w']/2,b['x']+b['w']/2)
                for y in (b['y']-b['d']/2,b['y']+b['d']/2)
                for z in (b['z'],b['z']+b['h'])]
-    wide = 33.5
+    wide = 33.5 if args.scene=='building' else 25
     for attempt in range(24):
-        target, size, elevation = camera_pose(0, wide)
+        target, size, elevation = camera_pose(0, wide, args.scene)
         target = Vector(target)
         cam.location = target + Vector((32,32,32*elevation))
         cam.rotation_euler = (target-cam.location).to_track_quat('-Z','Y').to_euler()
@@ -174,7 +196,7 @@ def render(args, data, project):
     dest.mkdir(parents=True, exist_ok=True)
     timings=[]
     for frame in range(args.start, args.end + 1):
-        target, size, elevation = camera_pose(frame, wide)
+        target, size, elevation = camera_pose(frame, wide, args.scene)
         target = Vector(target)
         cam.location = target + Vector((32, 32, 32 * elevation))
         cam.rotation_euler = (target - cam.location).to_track_quat('-Z', 'Y').to_euler()
@@ -186,10 +208,11 @@ def render(args, data, project):
         seconds=round(time.time()-started,2)
         timings.append({'frame':frame,'seconds':seconds})
         print(json.dumps({'frame':frame,'total':FRAMES,'seconds':seconds,'path':scene.render.filepath}), flush=True)
-    (dest / 'render-info.json').write_text(json.dumps({'blender':bpy.app.version_string,'scene':'building','frames':FRAMES,'fps':FPS,'engine':scene.render.engine,'samples':args.samples,'resolution':[1920,1080],'start':args.start,'end':args.end,'camera':'continuous quintic dolly','geometry':len(project['boxes']),'wideOrtho':wide,'wideBounds':bounds,'timings':timings}))
+    (dest / 'render-info.json').write_text(json.dumps({'blender':bpy.app.version_string,'scene':args.scene,'frames':FRAMES,'fps':FPS,'engine':scene.render.engine,'samples':args.samples,'resolution':[1920,1080],'start':args.start,'end':args.end,'camera':'continuous quintic dolly','geometry':len(project['boxes']),'wideOrtho':wide,'wideBounds':bounds,'timings':timings}))
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
+    p.add_argument('--scene',choices=list(CAMERA_KEYS),default='building')
     p.add_argument('--start', type=int, default=0)
     p.add_argument('--end', type=int, default=FRAMES-1)
     p.add_argument('--output', default='render')
@@ -200,7 +223,7 @@ if __name__ == '__main__':
     assert 4 <= args.samples <= 128
     assert 0 <= args.start <= args.end < FRAMES
     data = json.loads((ROOT / 'src/assets/cine/isometric/site-projects-v1.json').read_text())
-    project = validate(data)
+    project = validate(data,args.scene)
     if args.validate_only:
         print(json.dumps({'valid':True,'boxes':len(project['boxes']),'cameraFrames':FRAMES}))
     else:
