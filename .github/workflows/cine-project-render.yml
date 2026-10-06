@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: blender-project-${{ github.event.pull_request.number || github.ref }}
+  group: blender-project-chunks-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -17,14 +17,20 @@ jobs:
   render:
     name: Blender part ${{ matrix.part }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: 35
     strategy:
       fail-fast: true
       matrix:
         include:
-          - {part: 1, start: 0, end: 143}
-          - {part: 2, start: 144, end: 287}
-          - {part: 3, start: 288, end: 431}
+          - {part: 1, start: 0, end: 47}
+          - {part: 2, start: 48, end: 95}
+          - {part: 3, start: 96, end: 143}
+          - {part: 4, start: 144, end: 191}
+          - {part: 5, start: 192, end: 239}
+          - {part: 6, start: 240, end: 287}
+          - {part: 7, start: 288, end: 335}
+          - {part: 8, start: 336, end: 383}
+          - {part: 9, start: 384, end: 431}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -37,26 +43,19 @@ jobs:
           python -m pip install --disable-pip-version-check --no-cache-dir 'bpy==4.5.3'
           sudo apt-get update -qq
           sudo apt-get install -y -qq libgl1 libxrender1 libxi6 ffmpeg
-      - name: Validate geometry and render a full-resolution proof
+      - name: Render 48 full-resolution frames
         run: |
           python scripts/cine/render-site-project-v1.py --validate-only
-          python scripts/cine/render-site-project-v1.py --start ${{ matrix.start }} --end ${{ matrix.start }} --output frames
-      - name: Save first-frame proof immediately
-        uses: actions/upload-artifact@v7
-        with:
-          name: construction-proof-${{ matrix.part }}
-          path: frames/*.png
-          if-no-files-found: ignore
-          retention-days: 1
-      - name: Render remaining camera movement
-        run: python scripts/cine/render-site-project-v1.py --start $(( ${{ matrix.start }} + 1 )) --end ${{ matrix.end }} --output frames
+          python scripts/cine/render-site-project-v1.py --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
       - name: Encode part without retaining raw frames
         run: |
-          ffmpeg -v error -framerate 24 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 144 -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -r 24 -g 48 -an -movflags +faststart part-${{ matrix.part }}.mp4
+          ffmpeg -v error -framerate 24 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 48 -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -r 24 -g 48 -an -movflags +faststart part-${{ matrix.part }}.mp4
       - uses: actions/upload-artifact@v7
         with:
           name: construction-part-${{ matrix.part }}
-          path: part-${{ matrix.part }}.mp4
+          path: |
+            part-${{ matrix.part }}.mp4
+            frames/render-info.json
           retention-days: 1
   assemble:
     name: Assemble and validate cinema
@@ -67,13 +66,12 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           pattern: construction-part-*
-          merge-multiple: true
       - name: Join, prepare responsive crop and validate every frame
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
           mkdir delivery
-          printf "file 'part-1.mp4'\nfile 'part-2.mp4'\nfile 'part-3.mp4'\n" > parts.txt
+          for PART in $(seq 1 9); do printf "file 'construction-part-%s/part-%s.mp4'\n" "$PART" "$PART"; done > parts.txt
           ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-construction-project-v1.mp4
           ffmpeg -v error -i delivery/cine-construction-project-v1.mp4 -vf 'crop=1080:1080:730:0' -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-construction-project-v1-sq.mp4
           ffmpeg -v error -i delivery/cine-construction-project-v1.mp4 -frames:v 1 -q:v 2 delivery/cine-construction-project-v1.poster.jpg
@@ -89,6 +87,7 @@ jobs:
           assert abs(float(v['duration'])-18)<.01,v
           assert sum(p.stat().st_size for p in Path('delivery').iterdir())<40_000_000
           PY
+          cp construction-part-1/render-info.json delivery/render-info.json
           sha256sum delivery/* > delivery/SHA256SUMS
       - uses: actions/upload-artifact@v7
         with:

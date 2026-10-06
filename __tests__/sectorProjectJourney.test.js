@@ -20,6 +20,7 @@ afterEach(()=>{document.dispatchEvent(new Event('astro:before-swap'));jest.useRe
 
 test('Constructoras follows the six services of its project, with optical fiber in the building riser',()=>{
  expect(project.chapters.map(c=>c.code)).toEqual(['101','103','108','102','107','106']);
+ expect(project.chapters.at(-1).scenes.at(-1).title).toBe('La obra queda documentada.');
  const fiber=project.chapters.find(c=>c.code==='103');expect(fiber.scenes.every(s=>s.part==='fiber')).toBe(true);
  expect(fiber.scenes.map(s=>s.view)).toEqual(['system','system','object','layers','detail']);
 });

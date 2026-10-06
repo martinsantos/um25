@@ -118,3 +118,11 @@ test('a still sector hero mounts no media, track fetch, animation clock or obser
  banner(document.querySelector('[data-umc]'));await jest.advanceTimersByTimeAsync(30000);
  expect(observers).toHaveLength(0);expect(fetch).not.toHaveBeenCalled();expect(frames.size).toBe(0);expect(jest.getTimerCount()).toBe(0);
 });
+
+
+test('a single unannotated project movie plays natively without track fetches, overlay tags or a JS frame loop',async()=>{
+ document.body.innerHTML='<div data-umc data-scenes="fachada-proyecto-v1" data-annotations="none"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><button data-umc-motion></button></div>';
+ const root=document.querySelector('[data-umc]');const cleanup=banner(root);visible(root);await jest.advanceTimersByTimeAsync(600);await settle();
+ expect(root.querySelector('video').paused).toBe(false);expect(root.querySelectorAll('.umc-tag')).toHaveLength(0);expect(fetch).not.toHaveBeenCalled();expect(frames.size).toBe(0);
+ visible(root,false);expect(root.querySelector('video').paused).toBe(true);cleanup();
+});

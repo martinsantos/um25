@@ -60,7 +60,7 @@ export function banner(el) {
   const layer = el.querySelector('.umc-ar'), rail = [...el.querySelectorAll('[data-umc-scene]')];
   const motion = el.querySelector('[data-umc-motion]'), caption = el.querySelector('[data-umc-caption]');
   if (!scenes.length || !va || !vb || !poster || !stage || !layer) return;
-  const multi = scenes.length > 1 || vary;
+  const multi = scenes.length > 1 || vary, annotations=el.dataset.annotations!=='none';
   const SQ = {x:487,w:1080,h:1080};
   const narrow = () => stage.clientWidth <= stage.clientHeight * 1.05;
   const src = scene => `/cine/media/cine-${scene}${narrow() ? '-sq' : ''}.mp4`;
@@ -68,7 +68,7 @@ export function banner(el) {
   let active = va, idle = vb, track = null, playingCut = '', visible = false, userPaused = motionLimited();
   let started = false, disposed = false, raf = 0, cutting = false, generation = 0, preloaded = '', fxTimer = 0, startTimer = 0;
   let shown = [], lastPick = 0, posNow = .5;
-  const pool = Array.from({length:4}, () => {
+  const pool = Array.from({length:annotations?4:0}, () => {
     const t = document.createElement('a'); t.className = 'umc-tag'; t.tabIndex = -1;
     t.innerHTML = '<i class="umc-tag__ret"></i><i class="umc-tag__lead"></i><span class="umc-tag__card"><small></small><strong></strong></span>';
     layer.appendChild(t);
@@ -76,10 +76,11 @@ export function banner(el) {
   });
   const stopFrames = () => { cancelAnimationFrame(raf); raf = 0; };
   const canPlay = () => !disposed && started && visible && !document.hidden && !userPaused && !el.classList.contains('is-exploring');
-  const startFrames = () => { if (!raf && canPlay() && !active.paused) raf = requestAnimationFrame(frame); };
+  const startFrames = () => { if (!raf && (multi||rail.length||annotations) && canPlay() && !active.paused) raf = requestAnimationFrame(frame); };
   const clearTags = () => { track = null; shown = []; pool.forEach(p => {p.id=null;p.el.classList.remove('is-on');}); el.classList.remove('is-glitch'); };
   const useTrack = scene => {
     clearTags();
+    if(!annotations)return;
     loadTrack(scene).then(t => { if (!disposed && playingCut === scene && t?.track && t?.assets) {track=t;startFrames();} });
   };
   const mark = i => {

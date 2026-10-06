@@ -10,6 +10,8 @@ interface Link { href: string; label: string }
 interface Props {
   variant?: 'home' | 'sector';
   motion?: 'auto' | 'still';
+  annotations?: boolean;
+  framing?: 'cover' | 'project';
   /** Escenas base o claves v4 "<escena>-<servicio>" (mismos archivos, con sufijo). */
   scenes?: string[];
   systems?: string[];
@@ -28,7 +30,7 @@ interface Props {
   start?: number;
 }
 const {
-  variant = 'home', motion = 'auto', scenes = HOME_SCENES.map((s) => s.scene), systems = [], kicker,
+  variant = 'home', motion = 'auto', annotations = true, framing = 'cover', scenes = HOME_SCENES.map((s) => s.scene), systems = [], kicker,
   title, lead, primary, secondary, stats = [], back, titleId = 'umcTitle', variants = {}, start = 0,
 } = Astro.props;
 const startIndex = Math.min(Math.max(Math.floor(start), 0), scenes.length - 1);
@@ -39,7 +41,7 @@ const heading = dot ? title.slice(0, -1) : title;
 const rail = HOME_SCENES.filter((s) => scenes.includes(s.scene));
 const firstTitle = cutCaption(first);
 ---
-<section class:list={['umc', `umc--${variant}`]} data-umc data-motion={motion} data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
+<section class:list={['umc', `umc--${variant}`]} data-umc data-motion={motion} data-annotations={annotations?'tracked':'none'} data-framing={framing} data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
   <div class="umc-stage" aria-hidden="true">
     <picture>
       <source type="image/avif" srcset={`/cine/media/cine-${first}-poster.avif`} />
@@ -95,3 +97,7 @@ const firstTitle = cutCaption(first);
   </div>
 </section>
 <script src="/cine/cine-banner-v7.js" type="module" async is:inline></script>
+
+<style>
+ @media(max-width:820px){.umc[data-framing="project"] :global(.umc-poster),.umc[data-framing="project"] :global(.umc-video){object-fit:contain;object-position:center center}}
+</style>
