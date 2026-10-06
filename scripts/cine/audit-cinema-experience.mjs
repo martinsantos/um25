@@ -127,6 +127,13 @@ for(const route of routes){
    if(route==='/'||route==='/servicios'){
     const other=story.locator('[data-atlas-service]').nth(1);
     if(profile==='mobile')await other.tap();else await other.click();await theater.evaluate(node=>node.scrollIntoView({block:'center',behavior:'instant'}));
+    // Scrolling queues IntersectionObserver delivery. Settle visibility before
+    // accelerating reading time; otherwise a paused clock can consume the whole
+    // measurement while the stage is still correctly marked offscreen.
+    for(let attempt=0;attempt<20;attempt++){
+     await story.clock.runFor(100);await delay(50);
+     if(['exploring','playing'].includes((await storyState(story)).state))break;
+    }
     // Leave pointer and focus on the chosen control: continuation must not need another gesture.
     row.manualBefore=await storyState(story);
     await story.clock.runFor(20000);await delay(30);row.manualAfter=await storyState(story);
