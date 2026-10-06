@@ -12,7 +12,11 @@ for(const route of routes){
  assert.match(html,/<h1[^>]*>/,route+': page heading');
  assert.ok(!html.includes('data-scene-rail'),route+': obsolete repeated movie rail');
  assert.ok(!html.includes('src="/3d/cinema.html"'),route+': obsolete automatic WebGL');
- if(route!=='/sectores')assert.equal((html.match(/data-atlas-project\s/g)||[]).length,1,route+': one persistent service project');
+ if(route!=='/sectores'){
+  assert.equal((html.match(/data-atlas-project\s/g)||[]).length,1,route+': one persistent service project');
+  assert.ok(html.includes('/cine/service-atlas-v12.js'),route+': autonomous service story');
+  if(!route.startsWith('/servicios/'))assert.match(html,/data-story-loop="true"/,route+': continuous service journey');
+ }
  else assert.match(html,/data-sector-atlas/,route+': sector journey');
  assert.ok(html.includes('/cine/cine-banner-v8.js'),route+': active cinema player');
  if(process.argv.includes('--movies')){

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import {sectorProject} from '../src/data/cine/sectorNarrative';
-import {bindServiceAtlas} from '../public/cine/service-atlas-v11.js';
+import {bindServiceAtlas} from '../public/cine/service-atlas-v12.js';
 import {EQUIPMENT_KITS,NETWORK_EQUIPMENT} from '../src/data/cine/networkAssembly';
 const model=JSON.parse(fs.readFileSync('src/assets/cine/isometric/site-projects-v1.json','utf8'));
 const project=sectorProject('constructoras','fachada',['101','102','103','106','107','108']);
@@ -63,7 +63,11 @@ test('project visibility stops the route clock and manual inspection preserves t
  root.querySelector('[data-atlas-view="object"]').click();expect(root.querySelector('[data-atlas-project]').dataset.projectView).toBe('1');
  expect(root.querySelector('[data-atlas-network]').hidden).toBe(false);expect(root.querySelector('[data-project-leader]').getAttribute('d')).toMatch(/^M/);
  root.querySelector('[data-atlas-service="103"]').click();expect(root.querySelector('[data-atlas-context]').textContent).toContain('cuarto técnico');
- expect(root.querySelector('[data-atlas-network]').hidden).toBe(true);expect(jest.getTimerCount()).toBe(0);
+ expect(root.querySelector('[data-atlas-network]').hidden).toBe(true);expect(root.dataset.storyState).toBe('exploring');
+ const drawing=root.querySelector('.sp-root');
+ const chapter=project.chapters.find(chapter=>chapter.code==='103');
+ await jest.advanceTimersByTimeAsync(6000+chapter.scenes[0].duration+chapter.scenes[1].duration);
+ expect(root.dataset.activeService).toBe('103');expect(root.querySelector('[data-atlas-project]').dataset.projectView).toBe('1');expect(root.querySelector('.sp-root')).toBe(drawing);
 });
 
 test('the integrated sector template uses one project, with no repeated movie rail, legacy interactive scene or duplicate service grid',()=>{
