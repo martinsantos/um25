@@ -1107,7 +1107,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
       const link = mega.querySelector<HTMLAnchorElement>('.um-ops-mega__link');
       if (!toggle) return;
       const setOpen = (open: boolean) => {
-        closeMegas(mega);
+        if (open) closeMegas(mega);
         mega.classList.toggle('is-open', open);
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       };

@@ -878,4 +878,28 @@ describe('mega-menú de escritorio', () => {
     document.body.innerHTML = '';
   });
 
+  test('moving hover and focus between menus keeps the newly opened panel visible', () => {
+    const navbar = read('src/components/v4/NavbarV4.astro');
+    const typescript = require('typescript');
+    const start = navbar.indexOf('    const megas =');
+    const end = navbar.indexOf('    const root = document.documentElement;', start);
+    const compiled = typescript.transpileModule(navbar.slice(start, end), {
+      compilerOptions: {target: typescript.ScriptTarget.ES2020}
+    }).outputText;
+    document.body.innerHTML = ['servicios','sectores'].map(group => `<div class="um-ops-mega" data-group="${group}"><button class="um-ops-mega__toggle" aria-expanded="false">${group}</button><div class="um-ops-mega__panel"></div></div>`).join('');
+    new Function('matchMedia', compiled)(() => ({matches:true}));
+    const [services,sectors] = document.querySelectorAll('.um-ops-mega');
+    services.dispatchEvent(new MouseEvent('mouseenter'));services.querySelector('button').focus();
+    sectors.dispatchEvent(new MouseEvent('mouseenter'));sectors.querySelector('button').focus();
+    expect(services.classList.contains('is-open')).toBe(false);
+    expect(services.querySelector('button').getAttribute('aria-expanded')).toBe('false');
+    expect(sectors.classList.contains('is-open')).toBe(true);
+    expect(sectors.querySelector('button').getAttribute('aria-expanded')).toBe('true');
+    sectors.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape',bubbles:true}));
+    expect(sectors.classList.contains('is-open')).toBe(false);
+    services.dispatchEvent(new MouseEvent('mouseenter'));services.querySelector('button').focus();
+    expect(services.classList.contains('is-open')).toBe(true);
+    document.body.innerHTML = '';
+  });
+
 });

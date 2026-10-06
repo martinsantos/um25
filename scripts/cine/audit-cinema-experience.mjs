@@ -13,7 +13,7 @@ const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const browser=await chromium.launch({channel:'chrome',headless:true});
 const viewport=profile==='mobile'?{width:390,height:844}:{width:1440,height:900};
 const servicePaths=[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(match=>match[1]);
-const routes=['/','/servicios','/sectores',...['constructoras','bodegas','salud','aeropuertos','industria','mineria','gobiernosectorpublico','seguridad-electronica','software'].map(s=>'/'+s),...servicePaths];
+const routes=process.env.VISUAL_AUDIT_HOME_ONLY==='1'?['/']:['/','/servicios','/sectores',...['constructoras','bodegas','salud','aeropuertos','industria','mineria','gobiernosectorpublico','seguridad-electronica','software'].map(s=>'/'+s),...servicePaths];
 const report={profile,viewport,commit:process.env.GITHUB_SHA,pages:[],findings:[],movieCoverage:[],clock:'Native playback; narrative timers accelerated only in separate story pages'};
 const movies=new Set();
 const slug=route=>route==='/'?'home':route.replace(/\/$/,'').replaceAll('/','_').slice(1);
@@ -67,6 +67,7 @@ for(const route of routes){
     await toggle.hover();await toggle.focus();await delay(250);
     const menu=page.locator('#um-mega-'+group);
     row.menus.push({group,expanded:await toggle.getAttribute('aria-expanded'),box:await menu.boundingBox()});
+    if(await toggle.getAttribute('aria-expanded')!=='true'||!await menu.isVisible())finding(route,'Moving hover and focus to a menu closes its panel',group);
     row.shots.push(await snapshot(page,name+'-menu-'+group));
     await page.keyboard.press('Escape');await delay(250);
     if(await toggle.getAttribute('aria-expanded')!=='false'||await menu.isVisible())finding(route,'Escape does not close the visible mega-menu',group);
