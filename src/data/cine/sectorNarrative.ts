@@ -1,4 +1,5 @@
 import {SERVICE_NARRATIVE,type ServiceChapter} from './serviceNarrative';
+import {operationScenes} from './operationNarrative';
 import type {Scene} from './scenes';
 export type SiteScene='building'|'clinic'|'terminal'|'plant'|'winery'|'mine';
 export interface SectorProject {scene:SiteScene;name:string;headline:string;lead:string;chapters:ServiceChapter[]}
@@ -28,12 +29,10 @@ export function sectorProject(slug:string,scene:Scene,codes?:string[]):SectorPro
  const order=sectorOrders[slug]||SERVICE_NARRATIVE.map(chapter=>chapter.code);
  const selected=order.filter(code=>!codes?.length||codes.includes(code));
  const chapters=selected.map(code=>{
-  const base=SERVICE_NARRATIVE.find(chapter=>chapter.code===code)!;
-  const context=routes[type][code]||routes.building[code];
+  const context=routes[type][code];
   const part=['building','clinic','terminal','winery'].includes(type)&&code==='103'?'fiber':undefined;
-  const system=base.scenes.find(s=>s.view==='system')!;
-  const scenes=[{...system,view:'system' as const,open:false,duration:2400,title:slug==='constructoras'&&code==='101'?'Antes de cerrar los muros.':context[0],copy:context[1],...(part?{part}:{})},{...system,view:'system' as const,open:true,duration:8200,title:context[0],copy:context[1],...(part?{part}:{})},...base.scenes.filter(s=>s.view!=='system').map(s=>({...s,copy:s.copy.replace('Su lugar en el gabinete sigue visible.','Su lugar en el proyecto sigue visible.'),...(part?{part}:{}),...(part&&s.view==='object'?{title:'La fibra termina en una pieza accesible.',copy:'Bandeja, adaptadores y reservas protegen la terminación óptica. Su ubicación y sus conexiones siguen visibles dentro del proyecto.'}:{}),...(part&&s.view==='layers'?{title:'La reserva y la terminación, dentro del distribuidor.',copy:'La bandeja se abre para reconocer el recorrido protegido de la fibra, sus fijaciones y sus adaptadores.'}:{}),...(code==='106'&&s.view==='detail'?{title:slug==='constructoras'?'La obra queda documentada.':'Un proyecto que se puede operar.',copy:context[1]}:{}),...(part&&s.view==='detail'?{title:'Cada extremo conserva su identificación.',copy:'Los conectores y adaptadores unen el enlace óptico con los equipos de red. Su terminación se entrega identificada y probada.'}:{})}))];
+  const scenes=operationScenes(code,context,part);
   return {code,scenes};
  });
- return {scene:type,name:names[type],headline:slug==='constructoras'?'La infraestructura se resuelve con la obra.':type==='clinic'?'La infraestructura acompaña cada espacio de atención.':type==='terminal'?'Cada punto de la terminal pertenece al mismo sistema.':type==='winery'?'Del proceso de la bodega a una operación conectada.':type==='mine'?'Cada enlace sostiene la operación en el terreno.':type==='plant'?'Los sistemas siguen el recorrido de la operación.':'Los sistemas comparten un mismo proyecto.',lead:slug==='constructoras'?'Un edificio, sus recorridos y el equipo que resuelve cada conexión. Del plano a una instalación que se puede operar y mantener.':'Recorré el sitio, seguí cada sistema y abrí la pieza que lo conecta con la operación.',chapters};
+ return {scene:type,name:names[type],headline:slug==='constructoras'?'La infraestructura se resuelve con la obra.':type==='clinic'?'La infraestructura acompaña cada espacio de atención.':type==='terminal'?'Cada punto de la terminal pertenece al mismo sistema.':type==='winery'?'Del proceso de la bodega a una operación conectada.':type==='mine'?'Cada enlace sostiene la operación en el terreno.':type==='plant'?'Los sistemas siguen el recorrido de la operación.':'Los sistemas comparten un mismo proyecto.',lead:slug==='constructoras'?'Un edificio, sus recorridos y el equipo que resuelve cada conexión. Del plano a una instalación que se puede operar y mantener.':'Del sitio a sus sistemas: cómo se conectan, qué hacen y qué resuelve Última Milla en cada etapa.',chapters};
 }

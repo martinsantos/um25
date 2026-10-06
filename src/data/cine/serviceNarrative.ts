@@ -7,6 +7,7 @@ export interface ServiceScene {
   part?: string;
   open?: boolean;
   layer?: number;
+  flow?: {phase: number; nodes: [string,string,string]; reverse?: boolean};
 }
 export interface ServiceChapter {code: string; scenes: ServiceScene[]}
 const equipment = (part: string, system: [string,string], object: [string,string], inside: [string,string], detail: [string,string], cabinet = true): ServiceScene[] => [

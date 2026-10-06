@@ -115,7 +115,7 @@ for(const route of routes){
     if(state.state==='complete')break;
     if(state.state!=='playing'){finding(route,'Story cannot progress on its own while the drawing is visible',state);break;}
     const key=state.code+'-'+state.scene;
-    if(!captured.has(key)&&(state.code===chapters[0].code||['object','detail'].includes(state.view))){
+    if(!captured.has(key)&&(state.code===chapters[0].code||['object','detail'].includes(state.view)||current?.flow?.phase===1)){
      captured.add(key);await delay(1550);
      row.shots.push(await snapshot(story,name+'-'+key+'-'+state.view,story.locator('.svc-story__stage')));
     }
@@ -146,6 +146,23 @@ for(const route of routes){
  }
  fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));
 }
+// Record actual elapsed-time operation and verify CSS transport, independently of fake clocks.
+const liveContext=await browser.newContext({viewport,isMobile:profile==='mobile',hasTouch:profile==='mobile',reducedMotion:'no-preference',recordVideo:{dir:out,size:viewport}});
+const live=await liveContext.newPage();
+await live.goto(origin,{waitUntil:'load'});
+await live.locator('[data-atlas-theater]').evaluate(node=>node.scrollIntoView({block:'center',behavior:'instant'}));
+report.liveOperation=[];
+for(let sample=0;sample<16;sample++){
+ await delay(2000);
+ report.liveOperation.push(await live.locator('[data-service-atlas]').evaluate(root=>({code:root.dataset.activeService,phase:root.querySelector('[data-atlas-project]')?.dataset.operationPhase,state:root.dataset.storyState,signals:[...root.querySelectorAll('.sp-signal')].slice(0,2).map(node=>({offset:getComputedStyle(node).strokeDashoffset,animation:getComputedStyle(node).animationName,playState:getComputedStyle(node).animationPlayState}))})));
+}
+const nativeCodes=new Set(report.liveOperation.map(s=>s.code));
+if(nativeCodes.size<2)finding('/','Native operation does not reach another service without input',report.liveOperation);
+const transported=report.liveOperation.filter(s=>s.phase==='1').flatMap(s=>s.signals);
+if(!transported.length||new Set(transported.map(s=>s.offset)).size<2||transported.some(s=>s.animation==='none'||s.playState!=='running'))finding('/','Operational signals do not move on native time',transported);
+await live.close();await liveContext.close();
+await live.video().saveAs(path.join(out,'home-operation-native.webm'));
+
 // Accessibility preference is verified separately from the automatic story.
 const reduced=await browser.newContext({viewport,reducedMotion:'reduce'}),quiet=await reduced.newPage();
 await quiet.goto(origin,{waitUntil:'domcontentloaded'});await delay(1800);

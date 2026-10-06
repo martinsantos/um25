@@ -1,4 +1,4 @@
-import {bindServiceAtlas} from '../public/cine/service-atlas-v14.js';
+import {bindServiceAtlas} from '../public/cine/service-atlas-v15.js';
 import {SERVICE_NARRATIVE} from '../src/data/cine/serviceNarrative';
 import {EQUIPMENT_KITS,NETWORK_EQUIPMENT} from '../src/data/cine/networkAssembly';
 
