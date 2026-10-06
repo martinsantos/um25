@@ -2,6 +2,12 @@
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
 import CineBanner from '../../components/cine/CineBanner.astro';
+import ServicesStory from '../../components/cine/ServicesStory.astro';
+import {NAV_SERVICES} from '../../data/navigation';
+import {sectorProject} from '../../data/cine/sectorNarrative';
+import {cinemaChapters} from '../../data/cine/projectCinema';
+const project=sectorProject('integral','fachada');
+const chapters=cinemaChapters();
 import {ISOMETRIC_STUDIES} from '../../data/cine/isometric';
 const isometricAssets=import.meta.glob<string>('../../assets/cine/isometric/*-object.svg',{eager:true,query:'?url',import:'default'});
 
@@ -129,7 +135,9 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
   <div class="services-demo">
     <CineBanner
       variant="sector"
-      scenes={['fachada', 'aeropuerto', 'planta', 'hospital', 'bodega']}
+      scenes={chapters.map(chapter=>chapter.scene)}
+      annotations={false}
+      framing="project"
       titleId="services-demo-title"
       kicker="Servicios"
       title="Ocho frentes de servicio."
@@ -138,6 +146,8 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
       secondary={{ href: '/antecedentes', label: 'Ver evidencia operativa' }}
     />
 
+    <section class="services-demo-shell services-demo-journey" id="equipamiento" aria-label="Los ocho servicios en un mismo proyecto"><ServicesStory services={NAV_SERVICES} project={project} /></section>
+    <details class="services-demo-shell services-demo-compare"><summary>Comparar el alcance de los ocho servicios</summary>
     <section class="services-demo-shell services-demo-list" aria-label="Frentes de servicio de ULTIMA MILLA">
       {servicesWithPosters.map((service, index) => (
         <a
@@ -171,6 +181,7 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
         </a>
       ))}
     </section>
+    </details>
 
     <section class="services-demo-shell services-demo-compare" aria-labelledby="services-compare-title">
       <div class="services-demo-compare__head">
@@ -219,6 +230,10 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
   </div>
 
   <style>
+    .services-demo-journey{padding-block:48px;scroll-margin-top:88px}
+    .services-demo-compare>summary{min-height:64px;display:flex;align-items:center;cursor:pointer;color:#fff;font-size:1.125rem;border-block:1px solid #ffffff30}
+    .services-demo-compare{margin-bottom:48px}
+
     .services-demo {
       min-height: 100vh;
       background: #0a0a0b;

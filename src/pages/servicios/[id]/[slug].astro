@@ -11,7 +11,10 @@
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import EmailLink from '../../../components/common/EmailLink.astro';
 import CineBanner from '../../../components/cine/CineBanner.astro';
-import IsometricStage from '../../../components/cine/IsometricStage.astro';
+import ServicesStory from '../../../components/cine/ServicesStory.astro';
+import {NAV_SERVICES} from '../../../data/navigation';
+import {sectorProject} from '../../../data/cine/sectorNarrative';
+import {serviceMovie,serviceProjectScene} from '../../../data/cine/projectCinema';
 import ServiceSequence from '../../../components/cine/ServiceSequence.astro';
 import { ISOMETRIC_STUDIES } from '../../../data/cine/isometric';
 import ProductStage from '../../../components/cine/ProductStage.astro';
@@ -23,7 +26,7 @@ import ServiceSpecSheet from '../../../components/cine/ServiceSpecSheet.astro';
 import ShareButton from '../../../components/common/ShareButton.astro';
 import { getServiceSpec } from '../../../data/serviceSpecs';
 import SnapRail from '../../../components/cine/SnapRail.astro';
-import { SERVICE_SCENES, serviceSceneKey, V4_CUTS } from '../../../data/cine/scenes';
+import { SERVICE_SCENES, serviceSceneKey } from '../../../data/cine/scenes';
 
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
@@ -441,6 +444,10 @@ const whyItems = porQueElegirnos.map((item: string) => cleanCmsText(sanitizeEdit
 const marcas = Array.isArray(servicio.marcas) ? servicio.marcas.map((m: unknown) => cleanCmsText(m)).filter(Boolean) : [];
 const serviceShortName = visual?.shortName || cmsTitle;
 const hardwareStudy = ISOMETRIC_STUDIES[String(id)];
+const projectMovie=serviceMovie(String(id));
+const projectContext=serviceProjectScene(String(id));
+const project=sectorProject(projectContext.slug,projectContext.scene,[String(id)]);
+const projectServices=NAV_SERVICES.filter(service=>service.code===String(id));
 // Páginas de producto (software, soporte, consultoría): el servicio mostrado como producto,
 // en el tono de la landing de comunidades, en lugar de un render de objetos.
 const product = productPage(String(id));
@@ -478,8 +485,10 @@ const fichaItems = [
 >
   <CineBanner
     variant="sector"
-    scenes={[serviceSceneKey(String(id))]}
-    variants={{ [serviceSceneKey(String(id))]: Object.keys(V4_CUTS).filter((k) => V4_CUTS[k].code === String(id)) }}
+    scenes={[projectMovie?.scene||serviceSceneKey(String(id))]}
+    motion={projectMovie?.status==='ready'?'auto':'still'}
+    annotations={false}
+    framing="project"
     systems={(SERVICE_SCENES[String(id)] || SERVICE_SCENES['101']).systems}
     titleId="service-title"
     kicker={visual?.eyebrow || servicio.area || 'Servicio IT'}
@@ -547,7 +556,7 @@ const fichaItems = [
               </div>
               <p class="svc-head__lead">{hardwareStudy.views[0].description}</p>
             </header>
-            <IsometricStage code={String(id)} />
+            <div class="svc-project-story"><ServicesStory services={projectServices} project={project} single /></div>
             <details class="svc-stage-demo">
               <summary>{product.intro.explore}</summary>
               <div class="svc-stage-demo__intro">
@@ -576,7 +585,7 @@ const fichaItems = [
             </div>
             <p class="svc-head__lead">Explorá el equipo completo y sus conexiones. Cada componente se especifica según el sitio y la operación que debe sostener.</p>
           </header>
-          <IsometricStage code={String(id)} />
+          <div class="svc-project-story"><ServicesStory services={projectServices} project={project} single /></div>
           <ServiceSequence code={String(id)} />
         </div>
       </section>
@@ -828,6 +837,8 @@ const fichaItems = [
 </LayoutV4>
 
 <style>
+.svc-project-story{background:#0a0a0b;color:#fff;padding:clamp(20px,3vw,32px)}
+
   .svc-section[id] { scroll-margin-top:96px; }
   .svc {
     --svc-pad: clamp(64px, 5vw, 80px);

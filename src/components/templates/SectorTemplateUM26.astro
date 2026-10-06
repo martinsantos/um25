@@ -5,7 +5,7 @@ import SectorJourney from '../cine/SectorJourney.astro';
 import CineBanner from '../cine/CineBanner.astro';
 import SnapRail from '../cine/SnapRail.astro';
 import { sectorBySlug } from '../../data/cine/scenes';
-import SITE_MOVIES from '../../data/cine/site-movies-v1.json';
+import {sectorMovie} from '../../data/cine/projectCinema';
 import { getAntecedentesCountShort, getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import { buildSectorStrategicLinkGroups } from '../../data/strategicLinkGraph';
 
@@ -80,13 +80,13 @@ const strategicLinkGroups = buildSectorStrategicLinkGroups({
 });
 const cineSector = sectorBySlug(sectorDataSlug);
 const cineScene = cineSector?.scene || 'fachada';
-const projectMovie=sectorDataSlug==='constructoras'?SITE_MOVIES.constructoras:undefined;
+const projectMovie=sectorMovie(sectorDataSlug);
 const cineStats = [
   cineSector?.count
-    ? { label: projectMovie?'Casos':'Casos en el sector', value: cineSector.count }
-    : { label: 'Proyectos documentados', value: String(getAntecedentesCatalogCount()) },
+    ? { label: 'Casos', value: cineSector.count }
+    : { label: 'Archivo', value: String(getAntecedentesCatalogCount()) },
   { label: 'Soporte', value: '24/7' },
-  { label: projectMovie?'Años':'Trayectoria', value: projectMovie?'22+':'22+ años' },
+  { label: 'Años', value: '22+' },
 ];
 const nextLinks = strategicLinkGroups.flatMap((group: any) => group.links || []).slice(0, 4);
 const caseNameAcronyms = new Set(['SA', 'SRL', 'IT', 'CCTV', 'SDI', 'API', 'APIS', 'ERP']);

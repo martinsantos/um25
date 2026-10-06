@@ -2,30 +2,31 @@
 // Sectores (alfa) como un solo instrumento: la escena 3D del sector queda a la
 // izquierda y la lista a la derecha. Si el puntero se detiene sobre un sector
 // (o recibe foco), la escena cambia con un fundido; el clic entra al sector.
-import { SCENE_TITLES, sectorBySlug } from '../../data/cine/scenes';
+import { sectorBySlug } from '../../data/cine/scenes';
+import {sectorMovie} from '../../data/cine/projectCinema';
 interface Sector { name: string; href: string; count?: string | number | null; text: string }
 interface Props { sectors: Sector[] }
 const { sectors } = Astro.props;
-const titles = SCENE_TITLES;
-const items = sectors.map((s) => ({ ...s, scene: sectorBySlug(s.href.replace(/^\//, '').split('/')[0])?.scene || 'fachada' }));
-const first = items[0]?.scene || 'aeropuerto';
+const items=sectors.map(s=>{const slug=s.href.replace(/^\//,'').split('/')[0],movie=sectorMovie(slug);return {...s,scene:movie?.scene||sectorBySlug(slug)?.scene||'fachada'};});
+const first=items[0]?.scene||'aeropuerto';
+const scenes=[...new Set(items.map(s=>s.scene))];
 ---
-<div class="um-atlas" data-scene={first}>
+<div class="um-atlas" data-sector-atlas data-scene={first}>
   <div class="um-atlas__stage">
-    {['hospital', 'aeropuerto', 'bodega', 'fachada', 'planta'].map((k) => (
+    {scenes.map((k) => (
       <picture>
         <source type="image/avif" srcset={`/cine/media/cine-${k}-poster.avif`} />
         <img class:list={['um-atlas__poster', { 'is-on': k === first }]} data-poster={k} src={`/cine/media/cine-${k}-poster.jpg`} alt="" width="1920" height="1080" loading="lazy" decoding="async" />
       </picture>
     ))}
-    <video class="um-atlas__video" muted loop playsinline preload="none" aria-hidden="true"></video>
-    <p class="um-atlas__now" aria-live="polite"><i></i><span>{titles[first]}</span></p>
-    <button class="um-atlas__motion" type="button">Reproducir recorrido</button>
+    <video class="um-atlas__video" muted playsinline preload="none" aria-hidden="true"></video>
+    <p class="um-atlas__now" aria-live="off"><i></i><span>{items[0]?.name}</span></p>
+    <button class="um-atlas__motion" type="button" aria-pressed="false">Pausar recorrido</button>
   </div>
   <ol class="um-atlas__list">
     {items.map((s, i) => (
       <li>
-        <a href={s.href} data-scene={s.scene} data-title={titles[s.scene]} class:list={[{ 'is-active': i === 0 }]}>
+        <a href={s.href} data-scene={s.scene} data-title={s.name} class:list={[{ 'is-active': i === 0 }]}>
           <span class="um-atlas__count">{s.count ?? ""}</span>
           <span class="um-atlas__name">{s.name}<small>{s.text}</small></span>
           <span class="um-atlas__go" aria-hidden="true">→</span>
@@ -35,50 +36,12 @@ const first = items[0]?.scene || 'aeropuerto';
   </ol>
 </div>
 
-<script>
-  const atlas = document.querySelector<HTMLElement>('.um-atlas');
-  if (atlas) {
-    const video = atlas.querySelector<HTMLVideoElement>('video')!;
-    const button = atlas.querySelector<HTMLButtonElement>('.um-atlas__motion')!;
-    const now = atlas.querySelector<HTMLElement>('.um-atlas__now span')!;
-    const posters = [...atlas.querySelectorAll<HTMLImageElement>('[data-poster]')];
-    const links = [...atlas.querySelectorAll<HTMLAnchorElement>('.um-atlas__list a')];
-    const conn = (navigator as any).connection;
-    const limited = matchMedia('(prefers-reduced-motion: reduce)').matches || Boolean(conn?.saveData);
-    const compact = innerWidth <= 820 || matchMedia('(pointer: coarse)').matches;
-    let scene = atlas.dataset.scene || 'aeropuerto', userPaused = limited, visible = false, timer: ReturnType<typeof setTimeout> | undefined;
-    const label = () => { button.textContent = video.paused ? 'Reproducir recorrido' : 'Pausar recorrido'; };
-    const load = () => { const src = `/cine/media/cine-${scene}.mp4`; if (!video.src.endsWith(src)) { video.classList.remove('is-on'); video.src = src; } };
-    const sync = () => { if (visible && !userPaused && !document.hidden) { load(); video.play().catch((e) => { if (e?.name === 'NotAllowedError') { userPaused = true; label(); } }); } else video.pause(); };
-    video.addEventListener('playing', () => { video.classList.add('is-on'); label(); });
-    video.addEventListener('pause', label);
-    video.addEventListener('canplay', sync);
-    const show = (a: HTMLAnchorElement) => {
-      links.forEach((l) => l.classList.toggle('is-active', l === a));
-      now.textContent = a.dataset.title || '';
-      const next = a.dataset.scene || scene;
-      if (next === scene) return;
-      scene = next; atlas.dataset.scene = scene;
-      posters.forEach((p) => p.classList.toggle('is-on', p.dataset.poster === scene));
-      video.classList.remove('is-on');
-      sync();
-    };
-    // Intención: el cambio de escena espera a que el puntero se detenga 180 ms.
-    links.forEach((a) => {
-      a.addEventListener('pointerenter', () => { clearTimeout(timer); timer = setTimeout(() => show(a), 180); });
-      a.addEventListener('focus', () => show(a));
-    });
-    atlas.querySelector('.um-atlas__list')!.addEventListener('pointerleave', () => clearTimeout(timer));
-    button.addEventListener('click', () => { if (video.paused) { userPaused = false; sync(); } else { userPaused = true; video.pause(); } label(); });
-    document.addEventListener('visibilitychange', sync);
-    new IntersectionObserver(([e]) => { visible = e.isIntersecting; sync(); }, { threshold: .25 }).observe(atlas);
-  }
-</script>
+<script src="/cine/sector-atlas-v2.js" type="module" async is:inline />
 
 <style>
   .um-atlas{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(20px,3vw,40px);align-items:start}
-  .um-atlas__stage{position:sticky;top:96px;aspect-ratio:16/10;border-radius:6px;overflow:hidden;background:#101113}
-  .um-atlas__poster,.um-atlas__video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .8s ease}
+  .um-atlas__stage{position:sticky;top:96px;aspect-ratio:16/10;border-radius:0;overflow:hidden;background:#101113}
+  .um-atlas__poster,.um-atlas__video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .8s ease}
   .um-atlas__poster.is-on,.um-atlas__video.is-on{opacity:1}
   .um-atlas__now{position:absolute;left:14px;bottom:14px;margin:0;display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(14,15,17,.82);border:1px solid #ffffff22;color:#fff;font-size:16px;font-weight:600}
   .um-atlas__now i{width:8px;height:8px;flex-shrink:0;background:var(--um-red,#DC2626)}
@@ -94,5 +57,6 @@ const first = items[0]?.scene || 'aeropuerto';
   .um-atlas__go{color:#8b929a;transition:transform .3s ease,color .3s ease}
   .um-atlas__list a.is-active .um-atlas__go,.um-atlas__list a:hover .um-atlas__go{color:#fff;transform:translateX(3px)}
   .um-atlas__motion{min-height:44px;min-width:44px}
+  @media(prefers-reduced-motion:reduce){.um-atlas__poster,.um-atlas__video,.um-atlas__list a,.um-atlas__go,.um-atlas__list a::before{transition:none}}
   @media (max-width:900px){.um-atlas{grid-template-columns:1fr;gap:16px}.um-atlas__stage{position:relative;top:auto;aspect-ratio:16/9;border-radius:0}.um-atlas__now{left:10px;top:10px;bottom:auto;max-width:calc(100% - 20px)}.um-atlas__motion{right:10px;bottom:10px}.um-atlas__list a{grid-template-columns:44px 1fr 16px;gap:12px;padding:12px 4px 12px 10px;min-height:64px}.um-atlas__name{font-size:17px}.um-atlas__count{font-size:20px}}
 </style>

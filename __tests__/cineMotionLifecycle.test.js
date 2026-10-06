@@ -1,7 +1,7 @@
 import { bindHardware } from '../public/cine/cine-studies-v5.js';
 import { bindProductTour } from '../public/cine/product-tour-v5.js';
 import { bindServicesStory } from '../public/cine/services-story-v5.js';
-import { banner } from '../public/cine/cine-banner-v7.js';
+import { banner } from '../public/cine/cine-banner-v8.js';
 
 let observers, preferences, media, frames, nextFrame;
 const settle = async () => { await Promise.resolve(); await Promise.resolve(); };

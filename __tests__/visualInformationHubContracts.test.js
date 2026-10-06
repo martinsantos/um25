@@ -266,7 +266,7 @@ describe('Information hub visual contracts', () => {
     const itemTemplate = story.slice(story.indexOf('<ol class="svc-story__list"'), story.indexOf('</ol>'));
 
     expect(home).toContain("import ServicesStory from '../components/cine/ServicesStory.astro'");
-    expect(home).toContain('<ServicesStory services={services} />');
+    expect(home).toContain('<ServicesStory services={services} project={integralProject} />');
     expect(home).not.toContain('<i aria-hidden="true"></i>');
     expect(home).not.toMatch(/\.um-service-unit__head i\s*\{/);
     expect(itemTemplate).not.toMatch(/<i\b/);
