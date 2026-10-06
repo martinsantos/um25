@@ -10,7 +10,7 @@ const layers = [
   {name:'Acciones',description:'Crear, revisar, aprobar y resolver: cada acción tiene contexto y deja un registro.'},
 ];
 ---
-<section class:list={["sl", {"sl--compact":compact}]} data-software-layers data-sl-compact={String(compact)} aria-label="Explorar las capas de una aplicación">
+<section class:list={["sl", {"sl--compact":compact}]} data-software-layers data-sl-compact={String(compact)} data-sl-expanded={String(!compact)} aria-label="Explorar las capas de una aplicación">
   <div class="sl__visual">
     <div class="sl__canvas" data-sl-canvas data-hairline="exploded" data-hairline-theme="dark" role="img" aria-label="Aplicación isométrica con navegación, contenido y acciones.">
       <Fragment set:html={compact?preview:expandedPreview} />

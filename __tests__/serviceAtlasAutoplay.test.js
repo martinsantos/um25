@@ -1,4 +1,4 @@
-import {bindServiceAtlas} from '../public/cine/service-atlas-v12.js';
+import {bindServiceAtlas} from '../public/cine/service-atlas-v13.js';
 import {SERVICE_NARRATIVE} from '../src/data/cine/serviceNarrative';
 import {EQUIPMENT_KITS,NETWORK_EQUIPMENT} from '../src/data/cine/networkAssembly';
 
@@ -133,4 +133,16 @@ test('a continuous project visits all eight services and returns to its beginnin
  await jest.advanceTimersByTimeAsync(duration);expect(root.dataset.activeService).toBe('101');expect(root.dataset.storyScene).toBe('0');expect(root.dataset.storyState).toBe('playing');
  root.querySelector('[data-atlas-play]').click();await jest.advanceTimersByTimeAsync(duration);
  expect(root.dataset.activeService).toBe('101');expect(root.dataset.storyScene).toBe('0');expect(root.dataset.storyState).toBe('paused');expect(jest.getTimerCount()).toBe(0);
+});
+
+
+test('a software-only story progresses with no unused hardware library mounted',async()=>{
+ const root=fixture();root.querySelector('[data-atlas-network]').remove();
+ root.querySelectorAll('[data-atlas-service]').forEach(button=>{if(button.dataset.atlasService!=='104')button.remove();});
+ const project=document.createElement('div');project.dataset.atlasProject='';root.querySelector('[data-atlas-theater]').prepend(project);
+ const frame=root.querySelector('[data-atlas-image]').parentElement;frame.hidden=true;
+ bindServiceAtlas(root);see();await settle();expect(frame.hidden).toBe(true);
+ await jest.advanceTimersByTimeAsync(SERVICE_NARRATIVE.find(c=>c.code==='104').scenes[0].duration);
+ expect(root.dataset.activeService).toBe('104');expect(frame.hidden).toBe(false);expect(root.querySelector('[data-atlas-software]').hidden).toBe(false);
+ expect(root.querySelector('[data-atlas-view="object"]').getAttribute('aria-pressed')).toBe('true');
 });

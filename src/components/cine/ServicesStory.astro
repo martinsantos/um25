@@ -28,6 +28,10 @@ const items=plan.map(chapter=>services.find(s=>s.code===chapter.code)).filter((s
 const narrative=plan.filter(chapter=>items.some(item=>item.code===chapter.code));
 const phases=[{id:'system',name:'Proyecto'},{id:'object',name:'Pieza'},{id:'layers',name:'Interior'},{id:'detail',name:'Detalle'}];
 const first=items[0];
+const hasHardware=items.some(s=>s.code==='101'||Boolean(EQUIPMENT_KITS[s.code]));
+const hasSoftware=items.some(s=>s.code==='104');
+const hasSupport=items.some(s=>s.code==='105');
+const hasConsulting=items.some(s=>s.code==='106');
 const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Telecomunicaciones','104':'Software','105':'Soporte 24/7','106':'Consultoría','107':'Incendios','108':'Energía IT'};
 ---
 {first && <div class:list={["svc-story",{"svc-story--project":Boolean(project),"svc-story--single":single}]} data-service-atlas data-story-loop={String(items.length>1)} data-active-service={first.code} data-story-state="waiting">
@@ -50,8 +54,8 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
   <div class="svc-story__views" role="group" aria-label="Vistas del servicio">{phases.map((phase,i)=><button type="button" data-atlas-view={phase.id} aria-pressed={String(i===0)}><span aria-hidden="true">0{i+1}</span>{phase.name}</button>)}</div>
   <div class="svc-story__theater" data-atlas-theater>
    {projectMarkup&&<div class="svc-story__project" data-atlas-project data-project-floors={project?.scene==='building'?3:1} data-project-service={first.code} data-project-view="0" data-project-open="false" data-project-visible="false"><Fragment set:html={projectMarkup} /></div>}
-   <div data-atlas-network hidden={Boolean(project)}><NetworkJourney compact catalog guided /></div>
-   <div class="svc-story__frame" hidden><div class="svc-story__operations" data-atlas-operation="105" hidden><IsometricStage code="105" compact /></div><div class="svc-story__operations" data-atlas-operation="106" hidden><IsometricStage code="106" compact /></div><div class="svc-story__software" data-atlas-software hidden><SoftwareLayers compact /></div><img src={project?undefined:url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
+   {hasHardware&&<div data-atlas-network hidden={Boolean(project)}><NetworkJourney compact catalog guided /></div>}
+   <div class="svc-story__frame" hidden>{hasSupport&&<div class="svc-story__operations" data-atlas-operation="105" hidden><IsometricStage code="105" compact /></div>}{hasConsulting&&<div class="svc-story__operations" data-atlas-operation="106" hidden><IsometricStage code="106" compact /></div>}{hasSoftware&&<div class="svc-story__software" data-atlas-software hidden><SoftwareLayers compact /></div>}<img src={project?undefined:url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
   </div>
   <div class="svc-story__narration">{project&&<p class="svc-story__object-name" data-atlas-part-name hidden />}<p class="svc-story__scene-title" data-atlas-scene-title>{narrative[0].scenes[0].title}</p><p class="svc-story__illustration-copy" data-atlas-context>{narrative[0].scenes[0].copy}</p></div>
   <div class="svc-story__exploration"><details class="svc-story__equipment" data-atlas-equipment><summary>Explorar otras piezas</summary><label><span>Equipo</span><select data-atlas-part aria-label="Equipo que querés explorar">{EQUIPMENT_KITS[first.code]?.parts.map(id=><option value={id} selected={id===EQUIPMENT_KITS[first.code].initial}>{NETWORK_EQUIPMENT.find(part=>part.id===id)?.name}</option>)}</select></label></details></div>
@@ -60,7 +64,7 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
  </div>
 </div>}
 <script src="/cine/isometric-services-v7.js" type="module" async is:inline />
-<script src="/cine/service-atlas-v12.js" type="module" async is:inline />
+<script src="/cine/service-atlas-v13.js" type="module" async is:inline />
 <style>
  .svc-story{--story-muted:#c4c7cc;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(24px,4vw,64px);align-items:start;color:#fff}
  .svc-story__choice{grid-column:2;grid-row:1;min-width:0}.svc-story__stage{scroll-margin-top:80px;grid-column:1;grid-row:1;min-width:0;background:#090909;padding:clamp(20px,2.8vw,36px)}
@@ -126,6 +130,9 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
  .svc-story--project .svc-story__theater>[data-atlas-network],.svc-story--project .svc-story__frame{position:absolute;inset:0;background:transparent}
  .svc-story--project :global(.rk-cabinet),.svc-story--project :global(.rk-ground),.svc-story--project :global(.rk-context-object),.svc-story--project :global(.rk-context-label),.svc-story--project :global(.rk-leader){opacity:0!important;pointer-events:none}
  .svc-story--project .svc-story__software,.svc-story--project .svc-story__operations{margin-left:27%;width:73%}
+ .svc-story--project .svc-story__software :global(.sl__canvas){transform:scale(1.36);transform-origin:64% 50%}
+ .svc-story--project .svc-story__software :global(.sl[data-sl-expanded="true"] .sl__canvas){transform:scale(1.08)}
+ @media(prefers-reduced-motion:no-preference){.svc-story--project .svc-story__software :global(.sl__canvas){transition:transform 900ms cubic-bezier(.22,1,.36,1)}}
  @media(prefers-reduced-motion:no-preference){
   .svc-story__project[data-project-open=true][data-project-service="101"] :global(.sp-route--101 path){animation:project-route 3200ms cubic-bezier(.22,1,.36,1) 1 both}
   .svc-story__project[data-project-open=true][data-project-service="102"] :global(.sp-route--102 path){animation:project-route 3200ms cubic-bezier(.22,1,.36,1) 1 both}

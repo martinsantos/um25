@@ -61,7 +61,7 @@ export const NETWORK_EQUIPMENT = [
  },
  {
    "id": "fiber",
-   "name": "Fibra óptica",
+   "name": "Distribuidor óptico",
    "title": "Une áreas y edificios por fibra.",
    "copy": "Recibe los enlaces ópticos y protege sus empalmes. Desde esta bandeja, la fibra se conecta a los equipos que comunican las distintas áreas del sitio.",
    "construction": "Los empalmes quedan protegidos.",

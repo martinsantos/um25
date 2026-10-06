@@ -21,7 +21,7 @@ const finding=(route,message,detail)=>{report.findings.push({route,message,detai
 const context=await browser.newContext({viewport,isMobile:profile==='mobile',hasTouch:profile==='mobile',reducedMotion:'no-preference'});
 async function snapshot(page,name,locator){
  const file=name+'.png';
- if(locator)await locator.screenshot({path:path.join(out,file),animations:'allow',timeout:20000});
+ if(locator&&profile!=='mobile')await locator.screenshot({path:path.join(out,file),animations:'allow',timeout:20000});
  else await page.screenshot({path:path.join(out,file),fullPage:false,animations:'allow',timeout:20000});
  return file;
 }
@@ -30,7 +30,7 @@ async function storyState(page){return page.locator('[data-service-atlas]').eval
 for(const route of routes){
  const name=slug(route),row={route,shots:[],errors:[],httpErrors:[]};report.pages.push(row);
  console.log('AUDIT',profile,route);
- const page=await context.newPage();
+ const page=await context.newPage();await page.bringToFront();
  page.on('pageerror',e=>row.errors.push(e.message));
  page.on('response',response=>{if(response.status()>=400&&response.url().startsWith(origin))row.httpErrors.push({url:response.url().slice(origin.length),status:response.status()});});
  try{
@@ -53,7 +53,7 @@ for(const route of routes){
    if(route==='/'&&new Set(row.movie.map(s=>s.scene)).size<5)finding(route,'Home movie did not visit all five scenes without a click',row.movie.map(s=>s.scene));
    report.movieCoverage.push({route,key,played,full,scenes:[...new Set(row.movie.map(s=>s.scene))]});
    const motion=page.locator('[data-umc-motion]');
-   if(await motion.count()){
+   if(played&&await motion.count()){
     await motion.click();const before=await movieState(page);await delay(1000);const after=await movieState(page);
     row.moviePause={before,after};
     if(after.videos.some(v=>v.on&&!v.paused))finding(route,'Explicit movie pause is ineffective',after);
@@ -64,22 +64,34 @@ for(const route of routes){
    row.menus=[];
    for(const group of ['servicios','sectores']){
     const toggle=page.locator(`[data-mega="${group}"] .um-ops-mega__toggle`);
-    await toggle.click();await delay(250);
+    await toggle.hover();await toggle.focus();await delay(250);
     const menu=page.locator('#um-mega-'+group);
     row.menus.push({group,expanded:await toggle.getAttribute('aria-expanded'),box:await menu.boundingBox()});
     row.shots.push(await snapshot(page,name+'-menu-'+group));
+    await page.keyboard.press('Escape');await delay(250);
+    if(await toggle.getAttribute('aria-expanded')!=='false'||await menu.isVisible())finding(route,'Escape does not close the visible mega-menu',group);
+    await toggle.press('Enter');await delay(250);
+    if(await toggle.getAttribute('aria-expanded')!=='true'||!await menu.isVisible())finding(route,'Keyboard cannot reopen the mega-menu',group);
     await page.keyboard.press('Escape');
    }
+  }
+  if(route==='/'&&profile==='mobile'){
+   const toggle=page.locator('#menuToggle');await toggle.tap();await delay(250);
+   row.mobileMenu={expanded:await toggle.getAttribute('aria-expanded')};
+   row.shots.push(await snapshot(page,name+'-mobile-menu'));
+   await toggle.tap();await delay(250);
+   if(await toggle.getAttribute('aria-expanded')!=='false')finding(route,'Mobile menu does not close',row.mobileMenu);
   }
   if(row.errors.length)finding(route,'Browser runtime errors',row.errors);
   if(row.httpErrors.length)finding(route,'Missing local assets',row.httpErrors);
  }catch(error){finding(route,'Native first-fold audit failed',error.message);}
  await page.close();
 
- // A separate page installs the clock before site code runs. Native movie and
+ // A separate context installs the clock before site code runs. Native movie and
  // load timing above are never measured with the accelerated narrative clock.
  if(route!=='/sectores'){
-  const story=await context.newPage();
+  const storyContext=await browser.newContext({viewport,isMobile:profile==='mobile',hasTouch:profile==='mobile',reducedMotion:'no-preference'});
+  const story=await storyContext.newPage();await story.bringToFront();
   story.on('pageerror',e=>row.errors.push(e.message));
   try{
    const epoch=new Date('2026-10-06T00:00:00Z');
@@ -95,6 +107,8 @@ for(const route of routes){
    row.timeline=[];
    const total=chapters.reduce((sum,c)=>sum+c.scenes.length,0),captured=new Set();
    for(let step=0;step<=total+2;step++){
+    await theater.evaluate(node=>node.scrollIntoView({block:'center',behavior:'instant'}));
+    await story.clock.runFor(60);await delay(60);
     const state=await storyState(story);row.timeline.push(state);
     const current=chapters.find(c=>c.code===state.code)?.scenes[state.scene];
     if(state.state==='complete')break;
@@ -120,7 +134,7 @@ for(const route of routes){
     row.shots.push(await snapshot(story,name+'-after-exploration',story.locator('.svc-story__stage')));
    }
   }catch(error){finding(route,'Automatic narrative audit failed',error.message);}
-  await story.close();
+  await storyContext.close();
  }
  fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));
 }
