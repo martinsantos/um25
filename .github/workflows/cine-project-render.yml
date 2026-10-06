@@ -26,7 +26,7 @@ jobs:
     timeout-minutes: 35
     strategy:
       fail-fast: true
-      matrix: ${{ fromJSON(inputs.mode == 'benchmark' && '{"include":[{"part":1,"start":0,"end":0,"frames":1,"samples":8},{"part":2,"start":288,"end":288,"frames":1,"samples":8},{"part":3,"start":0,"end":0,"frames":1,"samples":16},{"part":4,"start":288,"end":288,"frames":1,"samples":16}]}' || '{"include":[{"part":1,"start":0,"end":47,"frames":48,"samples":8},{"part":2,"start":48,"end":95,"frames":48,"samples":8},{"part":3,"start":96,"end":143,"frames":48,"samples":8},{"part":4,"start":144,"end":191,"frames":48,"samples":8},{"part":5,"start":192,"end":239,"frames":48,"samples":8},{"part":6,"start":240,"end":287,"frames":48,"samples":8},{"part":7,"start":288,"end":335,"frames":48,"samples":8},{"part":8,"start":336,"end":383,"frames":48,"samples":8},{"part":9,"start":384,"end":431,"frames":48,"samples":8}]}') }}
+      matrix: ${{ fromJSON(inputs.mode == 'benchmark' && '{"include":[{"part":1,"start":0,"end":0,"frames":1,"samples":8},{"part":2,"start":288,"end":288,"frames":1,"samples":8},{"part":3,"start":0,"end":0,"frames":1,"samples":16},{"part":4,"start":288,"end":288,"frames":1,"samples":16}]}' || '{"include":[{"part":1,"start":0,"end":23,"frames":24,"samples":8},{"part":2,"start":24,"end":47,"frames":24,"samples":8},{"part":3,"start":48,"end":71,"frames":24,"samples":8},{"part":4,"start":72,"end":95,"frames":24,"samples":8},{"part":5,"start":96,"end":119,"frames":24,"samples":8},{"part":6,"start":120,"end":143,"frames":24,"samples":8},{"part":7,"start":144,"end":167,"frames":24,"samples":8},{"part":8,"start":168,"end":191,"frames":24,"samples":8},{"part":9,"start":192,"end":215,"frames":24,"samples":8},{"part":10,"start":216,"end":239,"frames":24,"samples":8},{"part":11,"start":240,"end":263,"frames":24,"samples":8},{"part":12,"start":264,"end":287,"frames":24,"samples":8},{"part":13,"start":288,"end":311,"frames":24,"samples":8},{"part":14,"start":312,"end":335,"frames":24,"samples":8},{"part":15,"start":336,"end":359,"frames":24,"samples":8},{"part":16,"start":360,"end":383,"frames":24,"samples":8},{"part":17,"start":384,"end":407,"frames":24,"samples":8},{"part":18,"start":408,"end":431,"frames":24,"samples":8}]}') }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -80,7 +80,7 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
           mkdir delivery
-          for PART in $(seq 1 9); do printf "file 'construction-part-%s/part-%s.mp4'\n" "$PART" "$PART"; done > parts.txt
+          for PART in $(seq 1 18); do printf "file 'construction-part-%s/part-%s.mp4'\n" "$PART" "$PART"; done > parts.txt
           ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-construction-project-v2.mp4
           ffmpeg -v error -i delivery/cine-construction-project-v2.mp4 -vf 'crop=1080:1080:730:0' -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-construction-project-v2-sq.mp4
           ffmpeg -v error -i delivery/cine-construction-project-v2.mp4 -frames:v 1 -q:v 2 delivery/cine-construction-project-v2.poster.jpg

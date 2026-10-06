@@ -172,6 +172,7 @@ def render(args, data, project):
     print(json.dumps({'wideOrtho':wide,'wideBounds':bounds}),flush=True)
     dest = Path(args.output)
     dest.mkdir(parents=True, exist_ok=True)
+    timings=[]
     for frame in range(args.start, args.end + 1):
         target, size, elevation = camera_pose(frame, wide)
         target = Vector(target)
@@ -182,8 +183,10 @@ def render(args, data, project):
         scene.render.filepath = str(dest / f'{frame:04d}.png')
         started = time.time()
         bpy.ops.render.render(write_still=True)
-        print(json.dumps({'frame':frame,'total':FRAMES,'seconds':round(time.time()-started,2),'path':scene.render.filepath}), flush=True)
-    (dest / 'render-info.json').write_text(json.dumps({'blender':bpy.app.version_string,'scene':'building','frames':FRAMES,'fps':FPS,'engine':scene.render.engine,'samples':args.samples,'resolution':[1920,1080],'start':args.start,'end':args.end,'camera':'continuous quintic dolly','geometry':len(project['boxes']),'wideOrtho':wide,'wideBounds':bounds}))
+        seconds=round(time.time()-started,2)
+        timings.append({'frame':frame,'seconds':seconds})
+        print(json.dumps({'frame':frame,'total':FRAMES,'seconds':seconds,'path':scene.render.filepath}), flush=True)
+    (dest / 'render-info.json').write_text(json.dumps({'blender':bpy.app.version_string,'scene':'building','frames':FRAMES,'fps':FPS,'engine':scene.render.engine,'samples':args.samples,'resolution':[1920,1080],'start':args.start,'end':args.end,'camera':'continuous quintic dolly','geometry':len(project['boxes']),'wideOrtho':wide,'wideBounds':bounds,'timings':timings}))
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
