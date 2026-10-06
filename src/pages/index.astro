@@ -14,10 +14,11 @@ import JournalBand from '../components/cine/JournalBand.astro';
 import SnapRail from '../components/cine/SnapRail.astro';
 import CapabilityLedger from '../components/cine/CapabilityLedger.astro';
 import { NAV_SERVICES } from '../data/navigation';
-import {cinemaChapters} from '../data/cine/projectCinema';
+import { HOME_SCENES } from '../data/cine/scenes';
 import {sectorProject} from '../data/cine/sectorNarrative';
 
-const heroChapters=cinemaChapters();
+// La portada conserva los vuelos completos de Blender; los servicios cuentan
+// su recorrido con el proyecto isométrico bajo el hero.
 const integralProject=sectorProject('integral','fachada');
 
 const heroLead = 'Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.';
@@ -91,10 +92,10 @@ const hubs = [
       lead={heroLead}
       primary={{ href: '/antecedentes', label: 'Ver evidencia operativa' }}
       secondary={{ href: '/sectores', label: 'Entrar por sector' }}
-      scenes={heroChapters.map(chapter=>chapter.scene)}
-      chapters={heroChapters}
+      scenes={HOME_SCENES.map(chapter=>chapter.scene)}
+      chapters={HOME_SCENES}
       annotations={false}
-      framing="project"
+      framing="cover"
     />
 
     <section class="um26-stats" aria-label="Indicadores ULTIMA MILLA">

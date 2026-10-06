@@ -19,7 +19,10 @@ for(const route of routes){
   const scenes=[...html.matchAll(/data-scenes="([^"]+)"/g)].flatMap(m=>m[1].split(','));
   assert.ok(scenes.length>0,route+': movie playlist');
   assert.match(html,/data-motion="auto"/,route+': completed cinema enabled');
-  for(const scene of scenes)assert.match(scene,/proyecto-v[23]$/,route+': new cinema '+scene);
+  if(route==='/'){
+   assert.deepEqual(scenes,['bodega','fachada','aeropuerto','hospital','planta'],route+': original whole-project Blender cinema');
+   assert.match(html,/data-framing="cover"/,route+': immersive home movie');
+  }else for(const scene of scenes)assert.match(scene,/proyecto-v[23]$/,route+': new cinema '+scene);
   for(const scene of scenes)assert.ok(fs.existsSync('public/cine/media/cine-'+scene+'.mp4'),route+': completed movie '+scene);
  }
  reports.push({route,status:response.status,bytes:Buffer.byteLength(html)});
