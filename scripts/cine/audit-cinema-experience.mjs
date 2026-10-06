@@ -126,7 +126,7 @@ for(const route of routes){
    if(route==='/'||route==='/servicios'){
     const other=story.locator('[data-atlas-service]').nth(1);
     if(profile==='mobile')await other.tap();else await other.click();await theater.evaluate(node=>node.scrollIntoView({block:'center',behavior:'instant'}));
-    if(profile==='mobile')await theater.tap({position:{x:8,y:8}});else{await theater.click({position:{x:8,y:8}});await story.mouse.move(1,1);}
+    // Leave pointer and focus on the chosen control: continuation must not need another gesture.
     row.manualBefore=await storyState(story);
     await story.clock.runFor(20000);await delay(30);row.manualAfter=await storyState(story);
     row.manualContinues=row.manualAfter.state==='playing'&&(row.manualBefore.code!==row.manualAfter.code||row.manualBefore.scene!==row.manualAfter.scene);

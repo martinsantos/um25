@@ -14,7 +14,7 @@ for(const route of routes){
  assert.ok(!html.includes('src="/3d/cinema.html"'),route+': obsolete automatic WebGL');
  if(route!=='/sectores'){
   assert.equal((html.match(/data-atlas-project\s/g)||[]).length,1,route+': one persistent service project');
-  assert.ok(html.includes('/cine/service-atlas-v13.js'),route+': autonomous service story');
+  assert.ok(html.includes('/cine/service-atlas-v14.js'),route+': autonomous service story');
   if(!route.startsWith('/servicios/'))assert.match(html,/data-story-loop="true"/,route+': continuous service journey');
  }
  else assert.match(html,/data-sector-atlas/,route+': sector journey');

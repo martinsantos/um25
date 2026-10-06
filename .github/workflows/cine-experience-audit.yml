@@ -58,7 +58,7 @@ jobs:
           PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
           VISUAL_AUDIT_PROFILE: ${{ matrix.profile }}
           VISUAL_AUDIT_DIR: ${{ runner.temp }}/um-visual-${{ matrix.profile }}
-          VISUAL_AUDIT_STRICT: ${{ inputs.strict && '1' || '0' }}
+          VISUAL_AUDIT_STRICT: ${{ (github.event_name == 'push' || inputs.strict) && '1' || '0' }}
       - name: Save screenshots and observations
         if: always()
         uses: actions/upload-artifact@v7

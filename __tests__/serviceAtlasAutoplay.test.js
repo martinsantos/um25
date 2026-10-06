@@ -1,4 +1,4 @@
-import {bindServiceAtlas} from '../public/cine/service-atlas-v13.js';
+import {bindServiceAtlas} from '../public/cine/service-atlas-v14.js';
 import {SERVICE_NARRATIVE} from '../src/data/cine/serviceNarrative';
 import {EQUIPMENT_KITS,NETWORK_EQUIPMENT} from '../src/data/cine/networkAssembly';
 
@@ -58,11 +58,12 @@ test('manual choices hold the current service and view, then continue from that 
  await jest.advanceTimersByTimeAsync(7200);expect(root.querySelector('[data-atlas-view="detail"]').getAttribute('aria-pressed')).toBe('true');expect(root.dataset.activeService).toBe('105');
 });
 
-test('focus intent and hovering interactive geometry pause the clock before an unwanted transition',async()=>{
+test('a resting pointer does not stall the story, while keyboard focus holds the current scene',async()=>{
  const root=fixture();bindServiceAtlas(root);see();await settle();await jest.advanceTimersByTimeAsync(900);
- const slot=root.querySelector('[data-rack-slot]');slot.dispatchEvent(new Event('pointerover',{bubbles:true}));await jest.advanceTimersByTimeAsync(10000);expect(root.dataset.storyScene).toBe('0');expect(jest.getTimerCount()).toBe(0);
- slot.dispatchEvent(new Event('pointerout',{bubbles:true}));await jest.advanceTimersByTimeAsync(1700);expect(root.dataset.storyScene).toBe('1');
- const button=root.querySelector('[data-atlas-view="object"]');button.focus();await jest.advanceTimersByTimeAsync(20000);expect(root.dataset.storyState).toBe('exploring');expect(document.activeElement).toBe(button);
+ const slot=root.querySelector('[data-rack-slot]');slot.dispatchEvent(new Event('pointerover',{bubbles:true}));
+ await jest.advanceTimersByTimeAsync(1700);expect(root.dataset.storyScene).toBe('1');expect(root.dataset.storyState).toBe('playing');
+ const button=root.querySelector('[data-atlas-view="object"]');button.focus();await jest.advanceTimersByTimeAsync(20000);
+ expect(root.dataset.storyState).toBe('exploring');expect(document.activeElement).toBe(button);
 });
 
 test.each(['motion','data'])('%s preference disables automatic playback while explicit play and manual views remain available',async kind=>{
@@ -98,11 +99,10 @@ test('Astro disposal clears clocks, listeners and observers, including a render 
 });
 
 
-test('moving from another control to the play control releases a hover hold so explicit resume takes effect',async()=>{
+test('explicit resume from a pointer inspection continues immediately',async()=>{
  const root=fixture();bindServiceAtlas(root);see();await settle();
  const support=root.querySelector('[data-atlas-service="105"]'),play=root.querySelector('[data-atlas-play]');
  support.dispatchEvent(new Event('pointerover',{bubbles:true}));support.click();
- const leave=new Event('pointerout',{bubbles:true});Object.defineProperty(leave,'relatedTarget',{value:play});support.dispatchEvent(leave);
  play.click();await settle();expect(root.dataset.storyState).toBe('playing');expect(jest.getTimerCount()).toBe(1);
  await jest.advanceTimersByTimeAsync(6400);expect(root.querySelector('[data-atlas-view="object"]').getAttribute('aria-pressed')).toBe('true');
 });
@@ -111,10 +111,10 @@ test('moving from another control to the play control releases a hover hold so e
 test('pointer exploration continues after reading time without an extra play click, while explicit pause persists',async()=>{
  const root=fixture();bindServiceAtlas(root);see();await settle();
  const support=root.querySelector('[data-atlas-service="105"]');
- support.dispatchEvent(new Event('pointerdown',{bubbles:true}));support.focus();support.click();support.blur();
+ support.dispatchEvent(new Event('pointerover',{bubbles:true}));support.dispatchEvent(new Event('pointerdown',{bubbles:true}));support.focus();support.click();
  expect(root.dataset.activeService).toBe('105');expect(root.dataset.storyState).toBe('exploring');
  await jest.advanceTimersByTimeAsync(5999);expect(root.dataset.storyScene).toBe('0');
- await jest.advanceTimersByTimeAsync(6401);expect(root.dataset.storyScene).toBe('1');expect(root.dataset.storyState).toBe('playing');
+ await jest.advanceTimersByTimeAsync(6401);expect(root.dataset.storyScene).toBe('1');expect(root.dataset.storyState).toBe('playing');expect(document.activeElement).toBe(support);
  const play=root.querySelector('[data-atlas-play]');play.click();expect(root.dataset.storyState).toBe('paused');
  root.querySelector('[data-atlas-service="108"]').click();await jest.advanceTimersByTimeAsync(90000);
  expect(root.dataset.activeService).toBe('108');expect(root.dataset.storyScene).toBe('0');expect(root.dataset.storyState).toBe('paused');expect(jest.getTimerCount()).toBe(0);
