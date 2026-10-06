@@ -3,7 +3,8 @@ import NetworkJourney from './NetworkJourney.astro';
 import SoftwareLayers from './SoftwareLayers.astro';
 import IsometricStage from './IsometricStage.astro';
 import {ISOMETRIC_STUDIES} from '../../data/cine/isometric';
-import {EQUIPMENT_KITS} from '../../data/cine/networkAssembly';
+import {SERVICE_NARRATIVE} from '../../data/cine/serviceNarrative';
+import {EQUIPMENT_KITS,NETWORK_EQUIPMENT} from '../../data/cine/networkAssembly';
 interface Service {code:string;name:string;href:string}
 interface Props {services:Service[]}
 const {services}=Astro.props;
@@ -19,16 +20,19 @@ const messages:Record<string,{title:string;summary:string;copy:string}>={
  '107':{title:'Detección temprana para activar la respuesta.',summary:'Dispositivos, central y puesta en marcha del sistema.',copy:'Diseñamos la detección según el riesgo y el lugar. Instalamos, probamos y documentamos los dispositivos y la central para que alarmas y fallas tengan una respuesta prevista.'},
  '108':{title:'Respaldo eléctrico donde tu operación lo necesita.',summary:'Alimentación, UPS y distribución para cargas de IT.',copy:'Definimos las cargas críticas y la autonomía necesaria. Integramos alimentación, respaldo y distribución para sostener los equipos y facilitar su mantenimiento.'},
 };
-const items=services.filter(s=>ISOMETRIC_STUDIES[s.code]).map(s=>({...s,study:ISOMETRIC_STUDIES[s.code],message:messages[s.code]}));
+const items=SERVICE_NARRATIVE.map(chapter=>services.find(s=>s.code===chapter.code)).filter((s):s is Service=>!!s&&!!ISOMETRIC_STUDIES[s.code]).map(s=>({...s,study:ISOMETRIC_STUDIES[s.code],message:messages[s.code]}));
+const narrative=SERVICE_NARRATIVE.filter(chapter=>items.some(item=>item.code===chapter.code));
+const phases=[{id:'system',name:'Proyecto'},{id:'object',name:'Pieza'},{id:'layers',name:'Interior'},{id:'detail',name:'Detalle'}];
 const first=items[0];
 ---
-{first && <div class="svc-story" data-service-atlas data-active-service={first.code}>
+{first && <div class="svc-story" data-service-atlas data-active-service={first.code} data-story-state="waiting">
+ <script type="application/json" data-atlas-narrative set:html={JSON.stringify(narrative)} is:inline />
  <div class="svc-story__choice">
-  <p class="svc-story__choice-title">Elegí un servicio para conocerlo.</p>
+  <p class="svc-story__choice-title">Ocho servicios. Una operación conectada.</p>
   <label class="svc-story__picker"><span>Servicio</span><select data-atlas-picker aria-label="Servicio que querés conocer">{items.map(s=><option value={s.code} selected={s===first}>{s.study.name}</option>)}</select></label>
   <ol class="svc-story__list" aria-label="Servicios disponibles">
    {items.map((s,i)=><li class="svc-story__item">
-    <button type="button" data-atlas-service={s.code} data-equipment-kit={EQUIPMENT_KITS[s.code]?s.code:undefined} data-object={url(s.study.asset,'object')} data-system={url(s.study.asset,'system')} data-name={s.study.name} data-title={s.message.title} data-copy={s.message.copy} data-context={s.study.views[0].description} data-object-copy={s.study.views[1].description} data-layers-copy={s.study.views[2].description} data-alt={s.study.object} data-href={s.href} aria-pressed={String(i===0)}>
+    <button type="button" data-atlas-service={s.code} data-equipment-kit={EQUIPMENT_KITS[s.code]?s.code:undefined} data-object={url(s.study.asset,'object')} data-system={url(s.study.asset,'system')} data-detail={url(s.study.asset,'detail')} data-name={s.study.name} data-title={s.message.title} data-copy={s.message.copy} data-context={s.study.views[0].description} data-object-copy={s.study.views[1].description} data-layers-copy={s.study.views[2].description} data-detail-copy={s.study.views[3].description} data-alt={s.study.object} data-href={s.href} aria-pressed={String(i===0)}>
      <span class="svc-story__code">{String(i+1).padStart(2,'0')}</span><span class="svc-story__text"><strong>{s.study.name}</strong><span>{s.message.summary}</span></span><span class="svc-story__arrow" aria-hidden="true">→</span>
     </button>
    </li>)}
@@ -36,42 +40,53 @@ const first=items[0];
  </div>
  <div class="svc-story__stage">
   <header class="svc-story__heading"><span data-atlas-code>{first.study.name}</span><h3 data-atlas-title>{first.message.title}</h3></header>
-  <div data-atlas-network><NetworkJourney compact catalog /></div>
-  <div class="svc-story__views" hidden role="group" aria-label="Vistas del servicio">
-   <button type="button" data-atlas-view="object" aria-pressed="true">La herramienta</button>
-   <button type="button" data-atlas-view="system" aria-pressed="false">En el proyecto</button>
-   <button type="button" data-atlas-view="layers" aria-pressed="false" hidden>Por capas</button>
+  <div class="svc-story__playback"><span class="svc-story__counter" data-atlas-counter>01 / {String(items.length).padStart(2,'0')}</span><span data-atlas-status>Una operación, por dentro.</span><button type="button" data-atlas-play aria-pressed="false" hidden>Seguir la historia</button></div>
+  <div class="svc-story__chapters" aria-hidden="true">{items.map((s,i)=><span data-atlas-chapter={s.code} data-state={i===0?'current':'next'} />)}</div>
+  <div class="svc-story__views" role="group" aria-label="Vistas del servicio">{phases.map((phase,i)=><button type="button" data-atlas-view={phase.id} aria-pressed={String(i===0)}><span aria-hidden="true">0{i+1}</span>{phase.name}</button>)}</div>
+  <div class="svc-story__theater" data-atlas-theater>
+   <div data-atlas-network><NetworkJourney compact catalog guided /></div>
+   <div class="svc-story__frame" hidden><div class="svc-story__operations" data-atlas-operation="105" hidden><IsometricStage code="105" compact /></div><div class="svc-story__operations" data-atlas-operation="106" hidden><IsometricStage code="106" compact /></div><div class="svc-story__software" data-atlas-software hidden><SoftwareLayers compact /></div><img src={url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
   </div>
-  <div class="svc-story__frame" hidden><div class="svc-story__operations" data-atlas-operation="105" hidden><IsometricStage code="105" compact /></div><div class="svc-story__operations" data-atlas-operation="106" hidden><IsometricStage code="106" compact /></div><div class="svc-story__software" data-atlas-software hidden><SoftwareLayers compact /></div><img src={url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
-  <p class="svc-story__illustration-copy" data-atlas-context hidden />
-  <div class="svc-story__caption"><p data-atlas-copy>{first.message.copy}</p><a class="svc-story__link" href={first.href} data-atlas-link>Explorar {first.study.name.toLowerCase()} <span aria-hidden="true">→</span></a></div>
+  <div class="svc-story__narration"><p class="svc-story__scene-title" data-atlas-scene-title>{narrative[0].scenes[0].title}</p><p class="svc-story__illustration-copy" data-atlas-context>{narrative[0].scenes[0].copy}</p></div>
+  <div class="svc-story__exploration"><details class="svc-story__equipment" data-atlas-equipment><summary>Explorar otras piezas</summary><label><span>Equipo</span><select data-atlas-part aria-label="Equipo que querés explorar">{EQUIPMENT_KITS[first.code]?.parts.map(id=><option value={id} selected={id===EQUIPMENT_KITS[first.code].initial}>{NETWORK_EQUIPMENT.find(part=>part.id===id)?.name}</option>)}</select></label></details></div>
+  <div class="svc-story__caption"><p data-atlas-copy hidden>{first.message.copy}</p><a class="svc-story__link" href={first.href} data-atlas-link>Explorar {first.study.name.toLowerCase()} <span aria-hidden="true">→</span></a></div>
   <p class="svc-story__announcement" data-atlas-announce aria-live="polite" aria-atomic="true" />
  </div>
 </div>}
 <script src="/cine/isometric-services-v7.js" type="module" async is:inline />
-<script src="/cine/service-atlas-v9.js" type="module" async is:inline />
+<script src="/cine/service-atlas-v10.js" type="module" async is:inline />
 <style>
  .svc-story{--story-muted:#c4c7cc;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(24px,4vw,64px);align-items:start;color:#fff}
  .svc-story__choice{grid-column:2;grid-row:1;min-width:0}.svc-story__stage{scroll-margin-top:80px;grid-column:1;grid-row:1;min-width:0;background:#090909;padding:clamp(20px,2.8vw,36px)}
  .svc-story__choice-title{font-size:1rem;line-height:1.5;color:var(--story-muted);margin:0 0 16px}
  .svc-story__heading{padding-bottom:24px}.svc-story__heading>span{display:block;font-size:1rem;line-height:1.5;color:var(--story-muted);margin-bottom:12px}
- .svc-story__heading h3{margin:0;font-size:var(--um-world-h3,1.25rem);font-weight:var(--um-display-weight,600);line-height:1.3;max-width:30ch;color:#fff;text-wrap:balance}
+ .svc-story__heading h3{min-block-size:3.9em;margin:0;font-size:var(--um-world-h3,1.25rem);font-weight:var(--um-display-weight,600);line-height:1.3;max-width:30ch;color:#fff;text-wrap:balance}
  .svc-story [hidden]{display:none!important}
- .svc-story__frame{height:clamp(280px,29vw,405px);position:relative;min-width:0}.svc-story__frame img{width:100%;height:100%!important;object-fit:contain;display:block}
+ .svc-story__theater{height:clamp(280px,38svh,380px);position:relative;min-width:0;isolation:isolate}.svc-story__theater>[data-atlas-network],.svc-story__frame{width:100%;height:100%;position:relative;min-width:0}.svc-story__frame img{width:100%;height:100%!important;object-fit:contain;display:block}
  .svc-story__software{width:100%;height:100%}
- .svc-story__operations{width:100%;height:100%}.svc-story[data-active-service="105"] .svc-story__views,.svc-story[data-active-service="106"] .svc-story__views{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .svc-story__operations{width:100%;height:100%}
  .svc-story__frame.is-entering{animation:atlas-enter 220ms ease-out both}@keyframes atlas-enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
- .svc-story__views{display:grid;grid-template-columns:1fr 1fr;border-block:1px solid #ffffff36}
- .svc-story__views button{color:var(--story-muted);font:500 1rem var(--um-font-body,'UM Sans',Arial,sans-serif);border:0;border-bottom:2px solid transparent;background:transparent;min-height:52px;padding:12px;cursor:pointer}
+ .svc-story__views{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-block:1px solid #ffffff36}
+ .svc-story__views button{color:var(--story-muted);font:500 1rem var(--um-font-body,'UM Sans',Arial,sans-serif);border:0;border-bottom:2px solid transparent;background:transparent;min-height:52px;padding:12px 4px;cursor:pointer}
  .svc-story__views button[aria-pressed=true]{color:#fff;border-bottom-color:var(--um-red,#dc2626)}
  .svc-story__caption{padding-top:24px;border-top:1px solid #ffffff24}.svc-story__caption p,.svc-story__illustration-copy{font-size:var(--um-copy-description,1.125rem);line-height:var(--um-body-line-height,1.62);color:var(--story-muted);max-width:58ch;margin:0}
- .svc-story__illustration-copy{padding-bottom:20px}.svc-story__link{display:flex;justify-content:space-between;gap:16px;align-items:center;min-height:48px;margin-top:16px;font-size:1rem;line-height:1.5;color:#fff;text-decoration:underline;text-decoration-color:var(--um-red,#dc2626);text-underline-offset:7px}
+ .svc-story__illustration-copy{padding-bottom:0}.svc-story__link{display:flex;justify-content:space-between;gap:16px;align-items:center;min-height:48px;margin-top:16px;font-size:1rem;line-height:1.5;color:#fff;text-decoration:underline;text-decoration-color:var(--um-red,#dc2626);text-underline-offset:7px}
  .svc-story__list{list-style:none;padding:0;margin:0;display:grid}.svc-story__item{margin:0;padding:0;border-bottom:1px solid #ffffff24}.svc-story__item:first-child{border-top:1px solid #ffffff24}
  .svc-story__item button{display:grid;grid-template-columns:32px minmax(0,1fr) 18px;gap:16px;align-items:baseline;min-height:82px;width:100%;padding:16px 16px 16px 14px;background:none;color:#fff;border:0;border-left:2px solid transparent;text-align:left;cursor:pointer;font:400 1rem var(--um-font-body,'UM Sans',Arial,sans-serif)}
  .svc-story__item button[aria-pressed=true]{border-left-color:var(--um-red,#dc2626);background:#ffffff06}.svc-story__code{color:var(--story-muted);font-variant-numeric:tabular-nums}.svc-story__text{display:grid;gap:6px;min-width:0}.svc-story__text strong{font-size:var(--um-world-h3,1.25rem);font-weight:var(--um-display-weight,600);line-height:1.3}.svc-story__text>span{font-size:1rem;line-height:1.45;color:var(--story-muted)}.svc-story__arrow{color:var(--story-muted)}
  .svc-story__picker{display:none;min-width:0;align-items:center;gap:16px;font-size:1rem;color:var(--story-muted)}.svc-story__picker select{flex:1;min-width:0;width:100%;min-height:48px;padding:10px 12px;border:1px solid #ffffff36;border-radius:0;background:#111;color:#fff;color-scheme:dark;font:500 1rem var(--um-font-body,'UM Sans',Arial,sans-serif);cursor:pointer}
  .svc-story button:focus-visible,.svc-story a:focus-visible,.svc-story select:focus-visible{outline:2px solid #fff;outline-offset:3px}.svc-story__announcement{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);margin:-1px;white-space:nowrap}
  @media(hover:hover){.svc-story__item button:hover,.svc-story__views button:hover{background:#ffffff09;color:#fff}.svc-story__link:hover{text-decoration-thickness:2px}.svc-story__picker select:hover{border-color:#c4c7cc}}
- @media(max-width:900px){.svc-story{grid-template-columns:1fr;gap:20px}.svc-story__choice{grid-column:1;grid-row:1}.svc-story__stage{grid-column:1;grid-row:2;padding:20px 12px}.svc-story__list,.svc-story__choice-title{display:none}.svc-story__picker{display:flex}.svc-story__heading{padding-bottom:20px}.svc-story__heading>span{margin-bottom:8px}.svc-story__frame{height:clamp(240px,40svh,320px)}.svc-story__caption{padding-top:20px}}
+ @media(max-width:900px){.svc-story{grid-template-columns:1fr;gap:20px}.svc-story__choice{grid-column:1;grid-row:1}.svc-story__stage{grid-column:1;grid-row:2;padding:20px 12px}.svc-story__list,.svc-story__choice-title{display:none}.svc-story__picker{display:flex}.svc-story__heading{padding-bottom:20px}.svc-story__heading>span{margin-bottom:8px}.svc-story__theater{height:clamp(240px,40svh,320px)}.svc-story__caption{padding-top:20px}}
+ .svc-story__playback{display:flex;align-items:center;gap:16px;min-height:52px;font-size:1rem;line-height:1.5;color:var(--story-muted)}
+ .svc-story__counter{font-variant-numeric:tabular-nums;white-space:nowrap;color:#fff}.svc-story__playback>span:nth-child(2){flex:1;min-width:0}
+ .svc-story__playback button{min-height:44px;border:0;background:transparent;color:#fff;padding:8px 0;font:500 1rem var(--um-font-body,'UM Sans',Arial,sans-serif);cursor:pointer;text-decoration:underline;text-underline-offset:6px;text-decoration-color:var(--um-red,#dc2626)}
+ .svc-story__chapters{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;padding:12px 0 20px}.svc-story__chapters span{height:2px;background:#ffffff28;transition:background 300ms ease}.svc-story__chapters [data-state="seen"]{background:#aeb3ba}.svc-story__chapters [data-state="current"]{background:var(--um-red,#dc2626)}
+ .svc-story__views button span{display:none}.svc-story__narration{min-block-size:164px;padding-top:20px}.svc-story__scene-title{font-size:var(--um-world-h3,1.25rem);line-height:1.3;font-weight:var(--um-display-weight,600);color:#fff;margin:0 0 12px;text-wrap:balance}
+ .svc-story__exploration{min-block-size:48px}
+ .svc-story__equipment{border-top:1px solid #ffffff24;font-size:1rem;line-height:1.5}.svc-story__equipment summary{min-height:48px;display:flex;align-items:center;gap:16px;cursor:pointer;list-style:none}.svc-story__equipment summary::after{content:'+';margin-left:auto;font-size:1.5rem;font-weight:400}.svc-story__equipment[open] summary::after{content:'−'}.svc-story__equipment summary::-webkit-details-marker{display:none}.svc-story__equipment label{display:flex;align-items:center;gap:16px;padding:8px 0 16px;color:var(--story-muted)}.svc-story__equipment select{flex:1;min-width:0;min-height:48px;padding:8px 12px;color:#fff;background:#111;border:1px solid #ffffff36;border-radius:0;color-scheme:dark;font:500 1rem var(--um-font-body,'UM Sans',Arial,sans-serif)}
+ .svc-story__caption{padding-top:0}.svc-story__link{margin-top:8px}
+ @media(min-width:901px){.svc-story__heading h3{min-block-size:2.6em}.svc-story__views button span{display:inline;margin-right:8px;color:var(--story-muted)}.svc-story__stage{position:sticky;top:88px}.svc-story__narration{min-block-size:128px}}
+ @media(max-width:600px){.svc-story__playback{gap:12px;flex-wrap:wrap}.svc-story__playback>span:nth-child(2){display:none}.svc-story__playback button{margin-left:auto}.svc-story__heading{padding-bottom:8px}.svc-story__chapters{padding:8px 0 16px}.svc-story__views button{font-size:1rem}.svc-story__illustration-copy{font-size:1rem}.svc-story__narration{min-block-size:220px}.svc-story__scene-title{font-size:1.125rem}}
  @media(prefers-reduced-motion:reduce){.svc-story__frame.is-entering{animation:none}}
 </style>

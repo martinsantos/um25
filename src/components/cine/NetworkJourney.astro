@@ -2,13 +2,13 @@
 import scene from '../../assets/cine/isometric/network-rack-v9.svg?raw';
 import geometry from '../../assets/cine/isometric/network-rack-v9.json';
 import {NETWORK_EQUIPMENT,EQUIPMENT_KITS} from '../../data/cine/networkAssembly';
-interface Props {compact?:boolean;service?:string;catalog?:boolean}
-const {compact=false,service='101',catalog=false}=Astro.props;
+interface Props {compact?:boolean;service?:string;catalog?:boolean;guided?:boolean}
+const {compact=false,service='101',catalog=false,guided=false}=Astro.props;
 const kit=EQUIPMENT_KITS[service]||EQUIPMENT_KITS['101'];
 const equipment=catalog?NETWORK_EQUIPMENT:kit.parts.map(id=>NETWORK_EQUIPMENT.find(part=>part.id===id)!);
 const views=['Sistema','Equipo','Interior','Detalle'];
 ---
-<figure class:list={['network-journey',{'network-journey--compact':compact}]} data-network-journey data-network-service={service} data-step="0" data-part={kit.initial} data-open="false">
+<figure class:list={['network-journey',{'network-journey--compact':compact,'network-journey--guided':guided}]} data-network-journey data-network-guided={String(guided)} data-network-service={service} data-step="0" data-part={kit.initial} data-open="false">
  <script type="application/json" data-network-kits set:html={JSON.stringify(EQUIPMENT_KITS)} is:inline />
  <div class="network-journey__meta"><span data-network-name>{kit.name}</span><span>Equipos y conexiones</span></div>
  <div class="network-journey__status">
@@ -39,7 +39,7 @@ const views=['Sistema','Equipo','Interior','Detalle'];
  <figcaption class="network-journey__caption"><h3 data-network-title>{kit.overview}</h3><p data-network-copy>{kit.description}</p><ul class="network-journey__points" data-network-points hidden /></figcaption>
  <p class="network-journey__announcement" data-network-announce aria-live="polite" aria-atomic="true" />
 </figure>
-<script src="/cine/network-rack-v10.js" type="module" async is:inline />
+<script src="/cine/network-rack-v11.js" type="module" async is:inline />
 <style>
  .network-journey{margin:0;padding:24px 28px 0;background:#08090a;color:#fff;min-width:0;overflow:hidden;--x-text:#fff;--x-text-2:#c4c7cc}
  .network-journey__meta{display:flex;justify-content:space-between;gap:16px;font-size:1rem;color:#c4c7cc;line-height:1.5;padding-bottom:16px;border-bottom:1px solid #ffffff24}
@@ -153,4 +153,7 @@ const views=['Sistema','Equipo','Interior','Detalle'];
  @keyframes rk-signal{to{stroke-dashoffset:0}}
  @keyframes rk-insert{0%,20%{transform:translate(0,0)}75%,100%{transform:translate(15.588457px,-9px)}}
  @media(prefers-reduced-motion:reduce){.network-journey :global(g){transition:none!important}.network-journey__expand{transition:none}.network-journey :global(.rk-signal),.network-journey :global(.rk-plug){animation:none!important}}
+ .network-journey--guided{height:100%;padding:0!important;background:transparent}
+ .network-journey--guided .network-journey__meta,.network-journey--guided .network-journey__status,.network-journey--guided .network-journey__explore,.network-journey--guided .network-journey__context,.network-journey--guided .network-journey__caption{display:none!important}
+ .network-journey--guided .network-journey__canvas{height:100%!important}
 </style>

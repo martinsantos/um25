@@ -362,3 +362,41 @@ del encuadre. En una pantalla de 360×760, los controles quedan a 88 px bajo la
 cabecera y la figura completa entre 214 y 514 px, sin desborde. La pausa y el
 avance real del recorrido se verificaron en el navegador nativo. Evidencias
 guardadas en service-story-20261005 de las visualizaciones del chat.
+
+## Automatic service narrative — 2026-10-05
+
+The home and service index now tell one operation through all eight services:
+Redes → Telecomunicaciones → Seguridad → Incendio → Energía → Software → Soporte →
+Consultoría. `src/data/cine/serviceNarrative.ts` owns the 37 scenes, business copy,
+representative device, layer, door state and reading time. One full pass takes
+211.8 seconds and finishes on “Ocho servicios. Un mismo equipo.”
+
+A shared stage keeps Proyecto / Pieza / Interior / Detalle controls, chapter
+position and scene explanations together. The hardware cabinet and its isolated
+device retain the existing geometry. Software keeps the Hairline interface;
+Soporte and Consultoría use the same layered SVGs as their service pages.
+
+`service-atlas-v10.js` owns one timeout. It starts when at least 35% of the drawing
+is visible, preserves the remaining scene time while offscreen or in a hidden tab,
+and finishes once. Manual choices, keyboard focus and pointer intent pause the
+story; hovering an interactive object temporarily holds it. “Seguir la historia”
+continues from the selected chapter; “Volver a ver” restarts after the final scene.
+Automatic progression never scrolls, moves focus or fills the live announcement.
+Reduced-motion and Save-Data preferences default to manual exploration, while an
+explicit play request remains available. The existing reduced-motion SVG/Hairline
+behavior prevents large animated movement.
+
+`network-rack-v11.js` accepts one atomic `um:network-story` command containing the
+service code, equipment id, view index and door state. `software-layers-v8.js`
+accepts `um:software-view` with view index and active layer. The parent stores the
+latest request in a data attribute before dispatching it, so asynchronously loaded
+controllers mount directly in the requested state. Hidden drawings retain complete
+server-rendered vectors; delayed image decodes cannot overwrite a newer service.
+All clocks, observers, listeners and transient animations are disposed on Astro
+navigation. There is no new library, bitmap, WebGL scene or local Blender job.
+
+These are new public filenames for the scoped overlay. The workflow whitelist
+includes the new runtimes, narrative data and lifecycle tests. Service-detail
+controls, UM Sans fonts and global typography, campaign files and production
+configuration are unchanged by this narrative update. PR #266 remains a draft;
+this preview does not authorize or represent a production release.

@@ -24,10 +24,10 @@ const layers = [
     <div class="sl__controls" role="group" aria-label="Capas de la aplicación">
       {layers.map((layer,i)=><button type="button" data-sl-layer={i} data-description={layer.description} aria-pressed={String(i===0)}><span aria-hidden="true">0{i+1}</span>{layer.name}</button>)}
     </div>
-    <p class="sl__description" data-sl-description aria-live="polite">{layers[0].description}</p>
+    <p class="sl__description" data-sl-description aria-live={compact?"off":"polite"}>{layers[0].description}</p>
   </div>
 </section>
-<script src="/cine/software-layers-v7.js" type="module" async is:inline />
+<script src="/cine/software-layers-v8.js" type="module" async is:inline />
 <style>
   .sl--compact{display:block!important;margin:0!important;width:100%;height:100%}.sl--compact .sl__visual,.sl--compact .sl__canvas{height:100%;background:transparent;aspect-ratio:auto}.sl--compact .sl__text,.sl--compact .sl__separate{display:none}
   .sl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,4vw,64px);align-items:center;margin-bottom:48px}

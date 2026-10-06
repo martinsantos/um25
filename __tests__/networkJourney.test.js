@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {bindNetworkJourney as bindRack} from '../public/cine/network-rack-v10.js';
+import {bindNetworkJourney as bindRack} from '../public/cine/network-rack-v11.js';
 import {bindNetworkJourney} from '../public/cine/network-journey-v7.js';
 
 let intersections,reduced,hidden=false;
@@ -207,4 +207,13 @@ test('switching to another home service stops a requested tour and disposal remo
  const root=rackFixture(),cleanup=bindRack(root);intersections([{isIntersecting:true,intersectionRatio:.8}]);root.querySelector('[data-network-play]').click();expect(jest.getTimerCount()).toBe(1);
  root.dispatchEvent(new CustomEvent('um:network-pause'));expect(jest.getTimerCount()).toBe(0);expect(root.querySelector('[data-network-play]').getAttribute('aria-pressed')).toBe('false');
  cleanup();root.querySelector('[data-network-play]').setAttribute('aria-pressed','true');root.dispatchEvent(new CustomEvent('um:network-pause'));expect(root.querySelector('[data-network-play]').getAttribute('aria-pressed')).toBe('true');
+});
+
+test('a parent story requested before bind retains its device and exploded view without an independent timer',()=>{
+ const root=rackFixture();root.dataset.networkGuided='true';root.dataset.networkStory=JSON.stringify({code:'101',part:'fiber',index:2,open:true});
+ const cleanup=bindRack(root);intersections([{isIntersecting:true,intersectionRatio:.8}]);
+ expect(root.dataset.part).toBe('fiber');expect(root.dataset.step).toBe('2');expect(root.querySelector('[data-rack-cover]').getAttribute('href')).toBe('#rk-fiber-cover');expect(jest.getTimerCount()).toBe(0);
+ root.dispatchEvent(new CustomEvent('um:network-story',{detail:{code:'101',part:'ups',index:0,open:false}}));
+ expect(root.dataset.part).toBe('ups');expect(root.dataset.step).toBe('0');expect(root.dataset.open).toBe('false');expect(jest.getTimerCount()).toBe(0);
+ cleanup();root.dispatchEvent(new CustomEvent('um:network-story',{detail:{code:'101',part:'switch',index:3}}));expect(root.dataset.part).toBe('ups');
 });

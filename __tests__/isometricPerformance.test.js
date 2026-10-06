@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import {shareSvgPrimitives} from '../scripts/cine/share-svg-primitives.js';
 import {exploded} from '../public/cine/hairline-v7.js';
-import {bindSoftware} from '../public/cine/software-layers-v7.js';
+import {bindSoftware} from '../public/cine/software-layers-v8.js';
 
 const xml=source=>new DOMParser().parseFromString(source,'image/svg+xml');
 const original=fs.readFileSync('src/assets/cine/isometric/network-rack-v8.svg','utf8');
@@ -65,4 +65,14 @@ test('software keeps its complete first frame when interaction mounts and every 
   expect(Math.abs((points[3]-points[1])/(points[2]-points[0]))).toBeCloseTo(Math.tan(Math.PI/6),3);
   figure.destroy();host.remove();
  }
+});
+
+test('home software retains the latest story layer across delayed mounting and removes its external handler',async()=>{
+ const root=fixture();root.dataset.softwareView=JSON.stringify({index:2,layer:1});let resolve;
+ const pending=new Promise(done=>resolve=done),figure={update:jest.fn(),destroy:jest.fn()},exploded=jest.fn(()=>figure);
+ const cleanup=bindSoftware(root,()=>pending);expect(root.dataset.slActive).toBe('1');expect(root.dataset.slExpanded).toBe('true');
+ observers[0].callback([{isIntersecting:true}]);root.dispatchEvent(new CustomEvent('um:software-view',{detail:{index:3,layer:3}}));resolve({exploded});await settle();
+ expect(exploded).toHaveBeenCalledTimes(1);expect(exploded.mock.calls[0][1]).toMatchObject({activeLayer:3,expansion:.9});
+ root.dispatchEvent(new CustomEvent('um:software-view',{detail:{index:1,layer:0}}));expect(figure.update).toHaveBeenCalledWith(expect.objectContaining({activeLayer:0,expansion:.18}));
+ cleanup();root.dispatchEvent(new CustomEvent('um:software-view',{detail:{index:2,layer:2}}));expect(root.dataset.slActive).toBe('0');expect(figure.destroy).toHaveBeenCalledTimes(1);
 });

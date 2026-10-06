@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {bindIsometric} from '../public/cine/isometric-services-v7.js';
-import {bindServiceAtlas} from '../public/cine/service-atlas-v9.js';
+import {bindServiceAtlas} from '../public/cine/service-atlas-v10.js';
 
 const assets=path.join(process.cwd(),'src/assets/cine/isometric');
 const settle=async()=>{for(let i=0;i<6;i++)await Promise.resolve();};
