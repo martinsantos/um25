@@ -1,7 +1,7 @@
 import { bindHardware } from '../public/cine/cine-studies-v5.js';
 import { bindProductTour } from '../public/cine/product-tour-v5.js';
 import { bindServicesStory } from '../public/cine/services-story-v5.js';
-import { banner } from '../public/cine/cine-banner-v6.js';
+import { banner } from '../public/cine/cine-banner-v7.js';
 
 let observers, preferences, media, frames, nextFrame;
 const settle = async () => { await Promise.resolve(); await Promise.resolve(); };
@@ -110,4 +110,11 @@ test('a moving equipment label hides before crossing hero copy even between labe
  const tick=now=>{const pending=[...frames.values()];frames.clear();pending.forEach(fn=>fn(now));};
  tick(2000);const label=root.querySelector('.umc-tag.is-on');expect(label).not.toBeNull();expect(label.classList.contains('is-obscured')).toBe(false);
  video.currentTime=1/24;tick(2100);expect(label.classList.contains('is-obscured')).toBe(true);expect(root.querySelectorAll('.umc-tag.is-on')).toHaveLength(1);
+});
+
+
+test('a still sector hero mounts no media, track fetch, animation clock or observer',async()=>{
+ document.body.innerHTML='<div data-umc data-motion="still" data-scenes="fachada"><img class="umc-poster"></div>';
+ banner(document.querySelector('[data-umc]'));await jest.advanceTimersByTimeAsync(30000);
+ expect(observers).toHaveLength(0);expect(fetch).not.toHaveBeenCalled();expect(frames.size).toBe(0);expect(jest.getTimerCount()).toBe(0);
 });

@@ -1,0 +1,121 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const out=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../src/assets/cine/isometric');
+const C=Math.sqrt(3)/2,S=.8;
+const P=([x,y,z])=>[540+(x-y)*C*S,278+((x+y)/2-z)*S];
+const n=v=>Math.round(v*1000)/1000;
+const esc=v=>String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;');
+const palette={slab:'#686e77',side:'#343941',top:'#939aa4',metal:'#79828e',body:'#20252c',glass:'#788b9b',screen:'#0c1219',edge:'#a5adb8',red:'#DC2626',white:'#d7dce3'};
+const scenes=[{id:'building',name:'Edificio preparado desde la obra',floors:3,program:'office'},{id:'clinic',name:'Infraestructura de un centro de salud',floors:1,program:'clinic'},{id:'terminal',name:'Infraestructura de una terminal',floors:1,program:'terminal'},{id:'plant',name:'Infraestructura de una nave productiva',floors:1,program:'plant'}];
+const all=[];
+for(const spec of scenes){
+ const boxes=[],lines=[],circles=[],labels=[],routes=[],pins={},meta=[];
+ const box=(id,x,y,z,w,d,h,material='body',service=null)=>{const item={id,x,y,z,w,d,h,material,service};boxes.push(item);return item;};
+ const line=(points,color='edge',width=.65,service=null)=>lines.push({points,color,width,service});
+ const circle=(at,r,color='edge',service=null)=>circles.push({at,r,color,service});
+ const route=(code,points)=>routes.push({code,points});
+ const pin=(code,at)=>pins[code]=at;
+ const cabinet=(id,x,y,z)=>{
+  box(id,x,y,z,37,31,86,'body');
+  box(id+'-top',x,y,z+86,37,31,2,'metal');
+  for(let u=0;u<18;u++){
+   const yy=z+5+u*4.1;line([[x-17,y+15.8,yy],[x+17,y+15.8,yy]],'edge',.45);
+   for(const xx of [-17,17])circle([x+xx,y+15.9,yy],.45,'white');
+  }
+  for(let unit=0;unit<7;unit++){
+   const zz=z+8+unit*9;box(id+'-unit-'+unit,x,y+15.7,zz,30,1.4,6,'metal');
+   const count=unit<3?24:4;
+   for(let j=0;j<count;j++)box(id+'-port-'+unit+'-'+j,x-13+j*(26/count),y+16.6,zz+2,unit<3?.74:3.1,.35,unit<3?2.2:2.5,'screen');
+   circle([x+14,y+16.7,zz+2.6],.6,unit===2?'red':'white');
+  }
+  // A transparent, hinged door is open sideways; the rack stays recognizable.
+  line([[x-20,y+17,z+2],[x-42,y+31,z+2],[x-42,y+31,z+85],[x-20,y+17,z+85],[x-20,y+17,z+2]],'edge',.75);
+  line([[x-39,y+29,z+12],[x-39,y+29,z+76]],'side',.6);
+ };
+ const monitor=(id,x,y,z,service=null)=>{box(id+'-foot',x,y,z,11,8,1.6,'metal',service);box(id+'-stem',x,y,z+2,1.8,2.5,9,'metal',service);box(id+'-body',x,y,z+11,22,2.7,15,'metal',service);box(id+'-screen',x,y+1.5,z+12,20.2,.3,13,'screen',service);line([[x-8,y+1.8,z+23],[x+6,y+1.8,z+23]],'edge',.6,service);line([[x-8,y+1.8,z+19],[x+8,y+1.8,z+19]],'edge',.55,service);};
+ const desk=(id,x,y,z)=>{box(id+'-top',x,y,z+26,61,29,2,'metal');for(const xx of [-27,27])for(const yy of [-11,11])box(id+'-leg-'+xx+'-'+yy,x+xx,y+yy,z,2,2,26,'side');monitor(id,x,y+3,z+28,'104');box(id+'-chair',x,y+27,z+11,13,13,3,'body');box(id+'-back',x,y+33,z+14,13,2,14,'metal');line([[x-7,y+19,z+28],[x+8,y+19,z+28]],'white',.6);};
+ const camera=(id,x,y,z)=>{box(id+'-bracket',x,y,z-7,2,5,8,'side','102');box(id,x,y+4,z,9,16,7,'metal','102');box(id+'-hood',x,y+5,z+7,11,18,1.5,'body','102');circle([x,y+12.2,z+3.4],2.2,'white','102');circle([x,y+12.4,z+3.4],1.1,'body','102');};
+ const detector=(id,x,y,z)=>{circle([x,y,z],4.5,'white','107');circle([x,y,z+.2],3.2,'metal','107');circle([x+.8,y+.8,z+.4],.7,'red','107');};
+ const floorNames=['Planta baja','Primer piso','Segundo piso'];
+ for(let floor=0;floor<spec.floors;floor++){
+  const z=floor*112;
+  box('slab-'+floor,300,170,z-9,600,340,9,'slab');
+  for(const x of [18,290,582])for(const y of [18,322])box('column-'+floor+'-'+x+'-'+y,x,y,z,8,8,102,'side');
+  // Exterior frame and transparent envelope: no repeated facade reveal.
+  for(const x of [0,600]){line([[x,0,z],[x,340,z],[x,340,z+94],[x,0,z+94],[x,0,z]],'edge',.65);for(let y=40;y<340;y+=40)line([[x,y,z],[x,y,z+94]],'side',.5);}
+  line([[0,0,z+94],[600,0,z+94],[600,340,z+94]],'edge',.65);
+  for(let x=40;x<600;x+=40)line([[x,0,z],[x,0,z+94]],'side',.4);
+  // Riser and accessible trays remain in one position through every service.
+  box('shaft-'+floor,555,224,z,23,26,107,'body');
+  for(let rung=0;rung<12;rung++)line([[545,237.3,z+rung*8.8],[565,237.3,z+rung*8.8]],'metal',.65);
+  box('tray-'+floor,292,165,z+83,545,8,3,'metal');
+  for(let hole=0;hole<50;hole++)line([[32+hole*10.5,169.3,z+84],[36+hole*10.5,169.3,z+84]],'body',.4);
+  // Partition doors and swing arcs are readable in the floor plan.
+  for(const x of [164,337]){
+   box('partition-'+floor+'-'+x,x,64,z,2,118,66,'glass');
+   line([[x,4,z+68],[x,123,z+68]],'edge',.6);
+   line([[x,125,z],[x+19,125,z],[x+19,125,z+58],[x,125,z+58]],'edge',.6);
+  }
+  if(spec.program==='office'){
+   for(let row=0;row<2;row++)for(let col=0;col<3;col++)desk('desk-'+floor+'-'+row+'-'+col,72+col*177,46+row*68,z);
+   box('meeting-'+floor,158,252,z+26,136,53,3,'metal');
+   for(const x of [113,158,203])for(const y of [212,292]){box('meeting-seat-'+floor+'-'+x+'-'+y,x,y,z+12,16,16,3,'body');box('meeting-back-'+floor+'-'+x+'-'+y,x,y+(y<250?-7:7),z+15,16,2,14,'metal');}
+  }else if(spec.program==='clinic'){
+   for(let col=0;col<3;col++){
+    const x=68+col*172;for(let row=0;row<2;row++){const y=44+row*74;box('bed-base-'+col+'-'+row,x,y,9,43,64,12,'body');box('bed-mattress-'+col+'-'+row,x,y,21,45,66,6,'white');box('bed-pillow-'+col+'-'+row,x,y-22,27,32,14,3,'metal');line([[x-21,y-32,29],[x-21,y+32,29]],'edge',.65);box('bed-cabinet-'+col+'-'+row,x+31,y,0,15,19,28,'metal');}
+   }
+   desk('nursing',217,257,0);desk('admission',85,257,0);
+  }else if(spec.program==='terminal'){
+   for(let station=0;station<5;station++){const x=52+station*91;box('counter-'+station,x,61,0,67,31,29,'metal');monitor('checkin-'+station,x,61,29,'104');box('baggage-'+station,x+33,62,8,15,90,5,'body');for(let roll=0;roll<10;roll++)line([[x+26,23+roll*8,13.5],[x+40,23+roll*8,13.5]],'metal',.6);}
+   for(let row=0;row<3;row++)for(let seat=0;seat<5;seat++){const x=60+seat*54,y=218+row*35;box('lounge-seat-'+row+'-'+seat,x,y,13,24,22,2,'metal');box('lounge-back-'+row+'-'+seat,x,y+10,15,24,2,20,'metal');line([[x,y,0],[x,y,13]],'side',.7);}
+   box('gate',390,273,0,55,28,34,'body');monitor('gate-display',390,273,36,'104');
+  }else{
+   for(let row=0;row<2;row++)for(let col=0;col<3;col++){
+    const x=73+col*122,y=62+row*102;box('process-'+row+'-'+col,x,y,0,63,68,73,'metal');box('process-top-'+row+'-'+col,x,y,73,63,68,3,'top');for(let seam=0;seam<4;seam++)line([[x-31.7,y-34,14+seam*16],[x-31.7,y+34,14+seam*16]],'edge',.45);circle([x-32,y+10,18],4,'edge');}
+   desk('lab',470,62,0);box('electrical-panel',420,275,0,52,18,78,'body');
+   for(let block=0;block<3;block++)box('pallet-'+block,88+block*106,280,0,75,59,25,'side');
+  }
+  // Shared project endpoints; each service is traced independently.
+  for(let col=0;col<3;col++){
+   const x=74+col*174;
+   box('data-outlet-'+floor+'-'+col,x,119,z+16,5,1.7,5,'metal','101');
+   box('wifi-'+floor+'-'+col,x,142,z+91,10,10,1.3,'white','101');
+   detector('detector-'+floor+'-'+col,x,230,z+94);
+   route('101',[[542,263,49],[542,224,z+88],[x,165,z+88],[x,122,z+88],[x,119,z+20]]);
+   route('107',[[512,283,38],[532,224,z+93],[x,224,z+93],[x,230,z+94]]);
+  }
+  camera('camera-'+floor,374,319,z+80);camera('camera-entry-'+floor,20,321,z+80);
+  route('102',[[538,269,62],[561,224,z+88],[561,309,z+88],[374,309,z+88],[374,323,z+80]]);
+  route('108',[[481,265,29],[566,229,z+82],[292,174,z+82],[292,117,z+18]]);
+  if(floor<spec.floors-1)route('103',[[553,228,z+60],[553,228,z+172]]);
+  labels.push({at:[-18,325,z+10],text:floorNames[floor]});
+ }
+ // The technical room is a real part of the building, with an operable rack.
+ cabinet('rack',540,278,0);
+ box('ups',481,265,0,31,29,44,'body','108');for(let band=0;band<9;band++)line([[466,280.2,8+band*3],[496,280.2,8+band*3]],'metal',.65);box('ups-screen',481,280.6,33,10,.6,7,'screen','108');
+ box('fire-panel',512,306,23,25,8,35,'metal','107');box('fire-lcd',512,310.3,45,14,.6,7,'screen','107');for(let led=0;led<5;led++)circle([504+led*3.6,310.5,38],.65,led===1?'red':'white','107');
+ box('reader',370,322,0,6,3,13,'body','102');box('reader-screen',370,324,7,4,.4,4,'screen','102');
+ desk('operations',397,264,0);route('104',[[540,274,64],[540,255,64],[398,255,28],[398,266,40]]);route('105',[[398,266,40],[466,255,28],[481,265,29],[540,274,64]]);
+ route('103',[[553,228,49],[578,228,49],[578,38,49],[628,38,0]]);
+ pin('101',[74,119,20]);pin('103',[553,228,49]);pin('102',[374,323,80]);pin('107',[512,306,49]);pin('108',[481,265,40]);pin('104',[397,264,42]);pin('105',[397,264,42]);pin('106',[294,159,83]);
+ const faces=[];
+ for(const b of boxes){const x=b.x-b.w/2,y=b.y-b.d/2,z=b.z;const vertices=[[x,y,z],[x+b.w,y,z],[x+b.w,y+b.d,z],[x,y+b.d,z],[x,y,z+b.h],[x+b.w,y,z+b.h],[x+b.w,y+b.d,z+b.h],[x,y+b.d,z+b.h]];const base=palette[b.material]||palette.body;
+  faces.push({id:b.id,pts:[vertices[3],vertices[2],vertices[6],vertices[7]],color:b.material==='glass'?palette.glass:b.material==='white'?palette.metal:palette.side,alpha:b.material==='glass'?.12:1,service:b.service});
+  faces.push({id:b.id,pts:[vertices[1],vertices[2],vertices[6],vertices[5]],color:b.material==='glass'?palette.glass:palette.body,alpha:b.material==='glass'?.1:1,service:b.service});
+  faces.push({id:b.id,pts:[vertices[4],vertices[5],vertices[6],vertices[7]],color:base,alpha:b.material==='slab'?.38:b.material==='glass'?.1:1,service:b.service});
+ }
+ faces.sort((a,b)=>{const depth=f=>f.pts.reduce((sum,p)=>sum+p[0]+p[1]+p[2]*1.5,0)/f.pts.length;return depth(a)-depth(b);});
+ const polygon=f=>'<polygon points="'+f.pts.map(p=>P(p).map(n).join(',')).join(' ')+'" fill="'+f.color+'" fill-opacity="'+f.alpha+'" stroke="'+palette.edge+'" stroke-opacity="'+(f.alpha<.5?.4:.65)+'" stroke-width=".45" vector-effect="non-scaling-stroke" stroke-linejoin="round"'+(f.service?' data-project-device="'+f.service+'"':'')+'/>';
+ const pathLine=(r,extra='')=>'<path d="M'+r.points.map(p=>P(p).map(n).join(' ')).join('L')+'" fill="none" stroke="'+(palette[r.color]||palette.edge)+'" stroke-width="'+r.width+'" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" '+extra+'/>';
+ const circlesSVG=circles.map(c=>{const [x,y]=P(c.at);return '<ellipse cx="'+n(x)+'" cy="'+n(y)+'" rx="'+n(c.r*S)+'" ry="'+n(c.r*S*.58)+'" fill="'+(palette[c.color]||palette.edge)+'"'+(c.service?' data-project-device="'+c.service+'"':'')+'/>';}).join('');
+ const routeSVG=Object.entries(routes.reduce((groups,r)=>{(groups[r.code]||=[]).push(r);return groups;},{})).map(([code,rows])=>'<g class="sp-route sp-route--'+code+'" data-project-route="'+code+'">'+rows.map(r=>pathLine({...r,color:'red',width:1.65},'pathLength="100"')).join('')+'</g>').join('');
+ const pinSVG=Object.entries(pins).map(([code,at])=>{const [x,y]=P(at);return '<g class="sp-pin sp-pin--'+code+'" data-project-pin="'+code+'" data-x="'+n(x)+'" data-y="'+n(y)+'"><circle cx="'+n(x)+'" cy="'+n(y)+'" r="5.2" fill="'+palette.red+'"/><circle cx="'+n(x)+'" cy="'+n(y)+'" r="9" fill="none" stroke="'+palette.white+'" stroke-opacity=".55" stroke-width=".65" vector-effect="non-scaling-stroke"/></g>';}).join('');
+ const labelSVG=labels.map(l=>{const [x,y]=P(l.at);return '<text x="'+n(x-16)+'" y="'+n(y)+'" fill="#aeb5bf" font-family="UM Sans,Arial,sans-serif" font-size="18" text-anchor="end" class="sp-floor-label">'+esc(l.text)+'</text>';}).join('');
+ const structure=faces.map(polygon).join('')+lines.map(l=>pathLine(l)).join('')+circlesSVG;
+ const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" class="sp-scene" role="img" aria-labelledby="sp-'+spec.id+'-title sp-'+spec.id+'-desc"><title id="sp-'+spec.id+'-title">'+esc(spec.name)+'</title><desc id="sp-'+spec.id+'-desc">Un solo proyecto isométrico con espacios, equipos, montante, bandejas y recorridos. La estructura permanece; cada servicio recorre su instalación.</desc><g class="sp-root"><g class="sp-structure">'+structure+'</g>'+routeSVG+pinSVG+labelSVG+'</g><path class="sp-leader" data-project-leader="" fill="none" stroke="#DC2626" stroke-opacity=".65" stroke-width=".8" stroke-dasharray="3 5" vector-effect="non-scaling-stroke"/></svg>';
+ fs.writeFileSync(path.join(out,'site-'+spec.id+'-v1.svg'),svg);
+ all.push({...spec,boxes,lines,circles,routes,pins,projection:{c:C,s:.5,scale:S,origin:[540,278]},dimensions:{width:600,depth:340,floorHeight:112},svgBytes:Buffer.byteLength(svg),faceCount:faces.length});
+}
+fs.writeFileSync(path.join(out,'site-projects-v1.json'),JSON.stringify({version:1,description:'Shared generic project geometry for the authored isometric and Blender cinema.',palette,scenes:all}));
+console.log(JSON.stringify(all.map(s=>({scene:s.id,boxes:s.boxes.length,faces:s.faceCount,svgBytes:s.svgBytes}))));

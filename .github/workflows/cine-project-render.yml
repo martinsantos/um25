@@ -1,0 +1,103 @@
+name: Blender project cinema
+
+on:
+  pull_request:
+    branches: [develop]
+    paths:
+      - '.github/workflows/cine-project-render.yml'
+      - 'scripts/cine/render-site-project-v1.py'
+      - 'src/assets/cine/isometric/site-projects-v1.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: blender-project-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  render:
+    name: Blender part ${{ matrix.part }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - {part: 1, start: 0, end: 143}
+          - {part: 2, start: 144, end: 287}
+          - {part: 3, start: 288, end: 431}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install official Blender Python and encoder on the runner
+        run: |
+          python -m pip install --disable-pip-version-check --no-cache-dir 'bpy==4.5.3'
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libgl1 libxrender1 libxi6 ffmpeg
+      - name: Validate geometry and render a full-resolution proof
+        run: |
+          python scripts/cine/render-site-project-v1.py --validate-only
+          python scripts/cine/render-site-project-v1.py --start ${{ matrix.start }} --end ${{ matrix.start }} --output frames
+      - name: Save first-frame proof immediately
+        uses: actions/upload-artifact@v4
+        with:
+          name: construction-proof-${{ matrix.part }}
+          path: frames/*.png
+          if-no-files-found: ignore
+          retention-days: 1
+      - name: Render remaining camera movement
+        run: python scripts/cine/render-site-project-v1.py --start $(( ${{ matrix.start }} + 1 )) --end ${{ matrix.end }} --output frames
+      - name: Encode part without retaining raw frames
+        run: |
+          ffmpeg -v error -framerate 24 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 144 -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -r 24 -g 48 -an -movflags +faststart part-${{ matrix.part }}.mp4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: construction-part-${{ matrix.part }}
+          path: part-${{ matrix.part }}.mp4
+          retention-days: 1
+  assemble:
+    name: Assemble and validate cinema
+    runs-on: ubuntu-24.04
+    needs: render
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: construction-part-*
+          merge-multiple: true
+      - name: Join, prepare responsive crop and validate every frame
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          mkdir delivery
+          printf "file 'part-1.mp4'\nfile 'part-2.mp4'\nfile 'part-3.mp4'\n" > parts.txt
+          ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-construction-project-v1.mp4
+          ffmpeg -v error -i delivery/cine-construction-project-v1.mp4 -vf 'crop=1080:1080:600:0' -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-construction-project-v1-sq.mp4
+          ffmpeg -v error -i delivery/cine-construction-project-v1.mp4 -frames:v 1 -q:v 2 delivery/cine-construction-project-v1.poster.jpg
+          ffmpeg -v error -i delivery/cine-construction-project-v1.poster.jpg -c:v libaom-av1 -still-picture 1 -crf 24 delivery/cine-construction-project-v1.poster.avif
+          ffmpeg -v error -i delivery/cine-construction-project-v1.mp4 -f null -
+          ffmpeg -v error -i delivery/cine-construction-project-v1-sq.mp4 -f null -
+          ffprobe -v error -count_frames -show_streams -show_format -of json delivery/cine-construction-project-v1.mp4 > delivery/validation.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          v=json.loads(Path('delivery/validation.json').read_text())['streams'][0]
+          assert (v['width'],v['height'],v['nb_read_frames'],v['avg_frame_rate']) == (1920,1080,'432','24/1'),v
+          assert abs(float(v['duration'])-18)<.01,v
+          assert sum(p.stat().st_size for p in Path('delivery').iterdir())<40_000_000
+          PY
+          sha256sum delivery/* > delivery/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: construction-cinema-v1
+          path: delivery
+          retention-days: 1

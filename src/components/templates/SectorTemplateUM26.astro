@@ -1,12 +1,10 @@
 ---
 import { truncateEditorialText } from '../../utils/editorialContent';
-import SystemsStory from '../cine/SystemsStory.astro';
-import SceneServiceRail from '../cine/SceneServiceRail.astro';
+import SectorJourney from '../cine/SectorJourney.astro';
 import CineBanner from '../cine/CineBanner.astro';
 import SnapRail from '../cine/SnapRail.astro';
-import { sectorBySlug, V4_CUTS } from '../../data/cine/scenes';
+import { sectorBySlug } from '../../data/cine/scenes';
 import { getAntecedentesCountShort, getAntecedentesCatalogCount } from '../../utils/verifiedProof';
-import { serviceSummary, cleanCmsText } from '../../data/serviceSummaries';
 import { buildSectorStrategicLinkGroups } from '../../data/strategicLinkGraph';
 
 interface Props {
@@ -24,8 +22,6 @@ const {
 } = Astro.props;
 
 const truncate = (value: unknown, length = 150) => truncateEditorialText(value, length);
-const serviceExcerpt = (value: unknown, length = 150) => truncate(value, length)
-  .replace(/soluciones integrales/gi, 'arquitectura técnica integrada');
 const sectorSlug = sector.slug || '';
 const sectorDataSlug = sectorSlug === 'gobierno' ? 'gobiernosectorpublico' : sectorSlug;
 const sectorName = sector.nombre || sector.label || sector.pageHeadline || 'Sector';
@@ -116,7 +112,7 @@ const areaLabel = (area: unknown) => {
   <CineBanner
     variant="sector"
     scenes={[cineScene]}
-    variants={{ [cineScene]: Object.keys(V4_CUTS).filter((k) => k.startsWith(`${cineScene}-`)) }}
+    motion="still"
     titleId="sector26-title"
     kicker={cineSector?.text || `Sector ${sectorNumber}`}
     title={sectorTitle}
@@ -127,35 +123,7 @@ const areaLabel = (area: unknown) => {
     back={{ href: '/sectores', label: '← Todos los sectores' }}
   />
 
-  <SceneServiceRail scene={cineScene} sectorName={sectorName} />
-
-  <SystemsStory slug={sectorSlug} name={sectorName} />
-
-  <section class="sector26-services" aria-label="Servicios aplicados">
-    <div class="sector26-shell">
-      <div class="sector26-section-head">
-        <p class="sector26-kicker"><span></span>Servicios</p>
-        <h2>Servicios aplicados a {sectorName.toLowerCase()}.</h2>
-      </div>
-      <div class="sector26-service-grid" data-rail="Servicios aplicados">
-        {serviceItems.map((item: any, index: number) => (
-          <a href={`/servicios/${item.id}/${item.slug || ''}`} class="um-click-surface sector26-service-card">
-            <span>{String(index + 1).padStart(2, '0')}</span>
-            <strong>{serviceSummary(item.id)?.name || cleanCmsText(item.nombre || item.Titulo).split(' · ')[0] || 'Servicio'}</strong>
-            <p>{serviceSummary(item.id)?.summary || cleanCmsText(item.descripcion || item.Descripcion)}</p>
-            <em class="um-click-action">Ver detalle</em>
-          </a>
-        ))}
-        {serviceItems.length === 0 && sectorServices.map((item: string, index: number) => (
-          <article class="sector26-service-card">
-            <span>{String(index + 1).padStart(2, '0')}</span>
-            <strong>{item}</strong>
-            <p>Capacidad aplicada al mapa operativo de {sectorName}.</p>
-          </article>
-        ))}
-      </div>
-    </div>
-  </section>
+  <SectorJourney slug={sectorDataSlug} scene={cineScene} codes={serviceItems.map((item:any)=>String(item.id))} />
 
   {criteriaItems.length > 0 && (
     <section class="sector26-criteria">
