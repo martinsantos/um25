@@ -20,7 +20,7 @@ CAMERA_KEYS = {
 
 def camera_pose(frame, wide=None, scene_id='building'):
     """Continuous camera from the whole site through its operation to its technical room."""
-    wide = wide or (33.5 if scene_id=='building' else 25)
+    wide = wide or 33.5
     poses = CAMERA_KEYS[scene_id]
     keys = [(0,poses[0],wide,1.0),(144,poses[1],12.0,.92),
             (288,poses[2],4.9,.66),(431,poses[0],wide,1.0)]
@@ -111,9 +111,11 @@ def render(args, data, project):
     for c in project.get('cylinders',[]):
         verts,faces=groups.setdefault(c['material'],([],[]))
         offset=len(verts)
-        for radius,z in [(c['r'],c['z']),(c['topR'],c['z']+c['h'])]:
-            verts.extend(((c['x']+radius*math.cos(i*math.pi/16))*SCALE,
-                          (c['y']+radius*math.sin(i*math.pi/16))*SCALE,z*SCALE) for i in range(32))
+        for radius,t in [(c['r'],0),(c['topR'],c['h'])]:
+            for i in range(32):
+                dx,dq=radius*math.cos(i*math.pi/16),radius*math.sin(i*math.pi/16)
+                point=(c['x']+dx,c['y']+t,c['z']+dq) if c.get('axis')=='y' else (c['x']+dx,c['y']+dq,c['z']+t)
+                verts.append(tuple(n*SCALE for n in point))
         faces.append(tuple(offset+i for i in reversed(range(32))))
         faces.append(tuple(offset+32+i for i in range(32)))
         faces.extend((offset+i,offset+(i+1)%32,offset+32+(i+1)%32,offset+32+i) for i in range(32))
@@ -176,7 +178,7 @@ def render(args, data, project):
                for x in (b['x']-b['w']/2,b['x']+b['w']/2)
                for y in (b['y']-b['d']/2,b['y']+b['d']/2)
                for z in (b['z'],b['z']+b['h'])]
-    wide = 33.5 if args.scene=='building' else 25
+    wide = 33.5
     for attempt in range(24):
         target, size, elevation = camera_pose(0, wide, args.scene)
         target = Vector(target)

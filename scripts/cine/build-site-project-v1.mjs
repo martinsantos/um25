@@ -12,7 +12,7 @@ const all=[];
 for(const spec of scenes){
  const boxes=[],cylinders=[],lines=[],circles=[],labels=[],routes=[],pins={};
  const box=(id,x,y,z,w,d,h,material='body',service=null)=>{const item={id,x,y,z,w,d,h,material,service};boxes.push(item);return item;};
- const cylinder=(id,x,y,z,r,h,material='metal',topR=r)=>cylinders.push({id,x,y,z,r,h,topR,material});
+ const cylinder=(id,x,y,z,r,h,material='metal',topR=r,axis='z')=>cylinders.push({id,x,y,z,r,h,topR,material,axis});
  const line=(points,color='edge',width=.65,service=null)=>lines.push({points,color,width,service});
  const circle=(at,r,color='edge',service=null)=>circles.push({at,r,color,service});
  const route=(code,points)=>routes.push({code,points});
@@ -96,12 +96,21 @@ for(const spec of scenes){
    for(let i=0;i<3;i++){box('communications-module-'+i,62,51+i*93,0,81,67,48,'metal');box('module-roof-'+i,62,51+i*93,48,86,72,3,'top');box('module-door-'+i,62,86+i*93,0,18,1,39,'body');for(let j=0;j<3;j++)box('module-window-'+i+'-'+j,27+j*25,86.5+i*93,22,15,.4,17,'screen');}
    box('equipment-skid',277,249,0,166,106,7,'side');
    for(let i=0;i<3;i++){box('equipment-pump-'+i,226+i*49,247,7,35,55,35,'metal');cylinder('pump-drive-'+i,226+i*49,247,42,11,6,'top');}
-   for(const x of [183,371]){box('mast-foot-'+x,x,319,0,16,16,4,'metal','103');box('mast-'+x,x,319,4,3,3,130,'metal','103');for(let h=20;h<125;h+=13)line([[x-9,319,h],[x+9,319,h+13]],'edge',.6,'103');box('radio-unit-'+x,x,319,103,13,6,26,'body','103');cylinder('radio-reflector-'+x,x,319,135,12,2,'metal');line([[x,319,128],[x-29,335,1]],'edge',.45,'103');line([[x,319,128],[x+29,335,1]],'edge',.45,'103');}
+   for(const x of [183,371]){box('mast-foot-'+x,x,319,0,16,16,4,'metal','103');box('mast-'+x,x,319,4,3,3,130,'metal','103');for(let h=20;h<125;h+=13)line([[x-9,319,h],[x+9,319,h+13]],'edge',.6,'103');box('radio-unit-'+x,x,319,103,13,6,26,'body','103');cylinder('radio-reflector-'+x,x,322,115,12,3,'metal',12,'y');line([[x,319,128],[x-29,335,1]],'edge',.45,'103');line([[x,319,128],[x+29,335,1]],'edge',.45,'103');}
    route('103',[[553,228,49],[553,304,49],[371,304,49],[371,319,116],[183,319,116],[183,319,29],[62,319,29]]);
    box('weather-base',440,45,0,7,7,76,'metal');line([[421,45,76],[455,45,76]],'edge',1.2);circle([450,45,76],5,'white');
   }else{
    for(let row=0;row<2;row++)for(let col=0;col<3;col++){
-    const x=73+col*122,y=62+row*102;box('process-'+row+'-'+col,x,y,0,63,68,73,'metal');box('process-top-'+row+'-'+col,x,y,73,63,68,3,'top');for(let seam=0;seam<4;seam++)line([[x-31.7,y-34,14+seam*16],[x-31.7,y+34,14+seam*16]],'edge',.45);circle([x-32,y+10,18],4,'edge');}
+    const x=73+col*122,y=62+row*102;box('process-'+row+'-'+col,x,y,0,63,68,73,'metal');box('process-top-'+row+'-'+col,x,y,73,63,68,3,'top');for(let seam=0;seam<4;seam++)line([[x-31.7,y-34,14+seam*16],[x-31.7,y+34,14+seam*16]],'edge',.45);circle([x-32,y+10,18],4,'edge');
+    box('process-window-'+row+'-'+col,x,y+34.6,41,35,.7,20,'screen');
+    for(const dx of [-19,19])box('process-window-frame-'+row+'-'+col+'-'+dx,x+dx,y+35,39,2,1,24,'top');
+    box('process-hmi-'+row+'-'+col,x+20,y+35.2,26,12,1.6,9,'body','104');
+    box('process-hmi-screen-'+row+'-'+col,x+20,y+36.1,28,9,.3,5,'screen','104');
+    circle([x+24,y+36.3,18],1.6,'red');
+    box('process-handle-'+row+'-'+col,x-23,y+35.4,26,2,3,17,'metal');
+    for(let vent=0;vent<7;vent++)line([[x-16,y+35.1,8+vent*2.4],[x+12,y+35.1,8+vent*2.4]],'body',.6);
+    cylinder('process-drive-'+row+'-'+col,x+37,y,0,8,24,'body');
+    cylinder('process-drive-top-'+row+'-'+col,x+37,y,24,8,3,'metal');}
    desk('lab',470,62,0);box('electrical-panel',420,275,0,52,18,78,'body');
    for(let block=0;block<3;block++)box('pallet-'+block,88+block*106,280,0,75,59,25,'side');
   }
@@ -135,8 +144,8 @@ for(const spec of scenes){
   faces.push({id:b.id,pts:[vertices[4],vertices[5],vertices[6],vertices[7]],color:base,alpha:b.material==='slab'?.38:b.material==='glass'?.1:1,service:b.service});
  }
  for(const c of cylinders){
-  const ring=(r,z)=>Array.from({length:32},(_,i)=>[c.x+r*Math.cos(i*Math.PI/16),c.y+r*Math.sin(i*Math.PI/16),z]);
-  const lo=ring(c.r,c.z),hi=ring(c.topR,c.z+c.h);
+  const ring=(r,t)=>Array.from({length:32},(_,i)=>c.axis==='y'?[c.x+r*Math.cos(i*Math.PI/16),c.y+t,c.z+r*Math.sin(i*Math.PI/16)]:[c.x+r*Math.cos(i*Math.PI/16),c.y+r*Math.sin(i*Math.PI/16),c.z+t]);
+  const lo=ring(c.r,0),hi=ring(c.topR,c.h);
   for(let i=0;i<32;i++){
    const j=(i+1)%32;
    if(Math.cos((i+.5)*Math.PI/16)+Math.sin((i+.5)*Math.PI/16)>0){
