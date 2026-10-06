@@ -12,7 +12,7 @@ const operations:Record<string,Operation>={
 };
 export function operationScenes(code:string,context:[string,string]|undefined,part?:string):ServiceScene[]{
  const operation=operations[code];
- return operation.steps.map(([title,copy],phase)=>({view:'system',open:true,duration:phase===2?6500:5500,part,
+ return operation.steps.map(([title,copy],phase)=>({view:phase===1?'object':'system',open:true,duration:phase===1?8000:6500,part,
   title:phase===0&&context?context[0]:title,copy:phase===0&&context?context[1]:copy,
   flow:{phase,nodes:operation.nodes,reverse:operation.reverse}}));
 }

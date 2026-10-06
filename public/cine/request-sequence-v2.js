@@ -1,8 +1,8 @@
-const STEP=4000,TOTAL=STEP*8;
+const STEP=6000,TOTAL=STEP*8;
 const ingress=[[195,340],[333,420],[577,217]];
 const uplink=[[577,217],[720,327],[900,202]];
-const processing=[[900,202],[1080,275],[1080,318],[1080,361]];
-const response=[[1080,361],[720,447],[577,242],[333,442],[195,340]];
+const processing=[[900,202],[1080,310],[1080,353],[1080,396]];
+const response=[[1080,396],[720,447],[577,242],[333,442],[195,340]];
 export function along(points,t){
  const lengths=points.slice(1).map((p,i)=>Math.hypot(p[0]-points[i][0],p[1]-points[i][1]));
  let distance=lengths.reduce((a,b)=>a+b,0)*Math.max(0,Math.min(1,t));

@@ -50,7 +50,7 @@ markup=f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 510" role="
 <ellipse cx="566" cy="421" rx="159" ry="35" fill="#000" opacity=".55"/>
 
 <path class="rq-wire" fill="none" stroke="#dc2626" stroke-width="2" d="M195 340L333 420L577 217L720 327L900 202"/>
-<path class="rq-return" fill="none" stroke="#c4c7cc" stroke-opacity=".25" stroke-width="1" stroke-dasharray="4 6" d="M1080 361L720 447L577 242L333 442L195 340"/>
+<path class="rq-return" fill="none" stroke="#c4c7cc" stroke-opacity=".25" stroke-width="1" stroke-dasharray="4 6" d="M1080 396L720 447L577 242L333 442L195 340"/>
 <g data-request-station="" transform="translate(195 365)">{desk}</g>
 <g data-request-switch="" transform="translate(600 355) scale(.26)">{rack}</g>
 {app}

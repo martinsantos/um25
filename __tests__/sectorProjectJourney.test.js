@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import {sectorProject} from '../src/data/cine/sectorNarrative';
-import {bindServiceAtlas} from '../public/cine/service-atlas-v15.js';
+import {bindServiceAtlas} from '../public/cine/service-atlas-v16.js';
 import {EQUIPMENT_KITS,NETWORK_EQUIPMENT} from '../src/data/cine/networkAssembly';
 const model=JSON.parse(fs.readFileSync('src/assets/cine/isometric/site-projects-v1.json','utf8'));
 const project=sectorProject('constructoras','fachada',['101','102','103','106','107','108']);
@@ -22,7 +22,7 @@ test('Constructoras follows the six services of its project, with optical fiber 
  expect(project.chapters.map(c=>c.code)).toEqual(['101','103','108','102','107','106']);
  expect(project.chapters.at(-1).scenes.at(-1).copy).toContain('Última Milla');
  const fiber=project.chapters.find(c=>c.code==='103');expect(fiber.scenes.every(s=>s.part==='fiber')).toBe(true);
- expect(fiber.scenes.map(s=>s.view)).toEqual(['system','system','system']);
+ expect(fiber.scenes.map(s=>s.view)).toEqual(['system','object','system']);
  expect(fiber.scenes.map(s=>s.flow.phase)).toEqual([0,1,2]);
 });
 
@@ -51,6 +51,8 @@ test('one persistent building progresses through all six services without replac
    expect(root.querySelector('[data-flow-node][data-state="current"] [data-flow-label]').textContent).toBe(scene.flow.nodes[scene.flow.phase]);
    expect(root.querySelector('[data-atlas-project]').dataset.projectView).toBe(String({system:0,object:1,layers:2,detail:3}[scene.view]));
    if(scene.view==='system')expect(root.querySelector('[data-atlas-network]').hidden).toBe(true);
+   if(scene.view==='object'&&EQUIPMENT_KITS[chapter.code])expect(root.querySelector('[data-atlas-network]').hidden).toBe(false);
+   expect(root.querySelector('[data-atlas-flow]').hidden).toBe(false);
    await jest.advanceTimersByTimeAsync(scene.duration);
   }
  }

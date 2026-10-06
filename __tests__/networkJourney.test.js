@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {bindNetworkJourney as bindRack} from '../public/cine/network-rack-v11.js';
+import {bindNetworkJourney as bindRack} from '../public/cine/network-rack-v12.js';
 import {bindNetworkJourney} from '../public/cine/network-journey-v7.js';
 
 let intersections,reduced,hidden=false;
@@ -216,4 +216,19 @@ test('a parent story requested before bind retains its device and exploded view 
  root.dispatchEvent(new CustomEvent('um:network-story',{detail:{code:'101',part:'ups',index:0,open:false}}));
  expect(root.dataset.part).toBe('ups');expect(root.dataset.step).toBe('0');expect(root.dataset.open).toBe('false');expect(jest.getTimerCount()).toBe(0);
  cleanup();root.dispatchEvent(new CustomEvent('um:network-story',{detail:{code:'101',part:'switch',index:3}}));expect(root.dataset.part).toBe('ups');
+});
+
+test('guided hardware stays inert until its first close-up, mounts once and replays the requested device',()=>{
+ const root=rackFixture();root.dataset.networkGuided='true';
+ const svg=root.querySelector('svg'),template=document.createElement('template');template.dataset.networkScene='';template.content.append(svg);root.append(template);
+ bindRack(root);expect(root.querySelector('svg')).toBeNull();expect(root.dataset.networkBound).toBeUndefined();
+ root.dispatchEvent(new CustomEvent('um:network-story',{detail:{code:'101',part:'fiber',index:0,open:true}}));expect(root.querySelector('svg')).toBeNull();
+ root.dispatchEvent(new CustomEvent('um:network-story',{detail:{code:'101',part:'fiber',index:1}}));
+ expect(root.querySelectorAll('svg')).toHaveLength(1);expect(root.dataset.part).toBe('fiber');expect(root.dataset.step).toBe('1');
+ const mounted=root.querySelector('svg');bindRack(root);expect(root.querySelector('svg')).toBe(mounted);
+ document.dispatchEvent(new Event('astro:before-swap'));expect(jest.getTimerCount()).toBe(0);
+});
+test('navigation disposes a deferred hardware scene before it ever mounts',()=>{
+ const root=rackFixture();root.dataset.networkGuided='true';const template=document.createElement('template');template.dataset.networkScene='';template.content.append(root.querySelector('svg'));root.append(template);
+ bindRack(root);document.dispatchEvent(new Event('astro:before-swap'));root.dispatchEvent(new CustomEvent('um:network-story',{detail:{code:'101',part:'switch',index:1}}));expect(root.querySelector('svg')).toBeNull();expect(root.dataset.networkDeferred).toBeUndefined();
 });
