@@ -36,7 +36,7 @@ const scenes=[...new Set(items.map(s=>s.scene))];
   </ol>
 </div>
 
-<script src="/cine/sector-atlas-v2.js" type="module" async is:inline />
+<script src="/cine/sector-atlas-v3.js" type="module" async is:inline />
 
 <style>
   .um-atlas{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(20px,3vw,40px);align-items:start}
@@ -53,9 +53,10 @@ const scenes=[...new Set(items.map(s=>s.scene))];
   .um-atlas__list a.is-active::before{transform:scaleY(1)}
   .um-atlas__count{font:600 22px/1 var(--um-font-editorial,sans-serif);font-variant-numeric:tabular-nums;color:#fff}
   .um-atlas__name{display:flex;flex-direction:column;gap:3px;font-size:18px;font-weight:600}
-  .um-atlas__name small{color:#a4abb3;font-size:16px;font-weight:400}
-  .um-atlas__go{color:#8b929a;transition:transform .3s ease,color .3s ease}
+  .um-atlas__name small{color:#c4c7cc;font-size:16px;font-weight:400}
+  .um-atlas__go{color:#c4c7cc;transition:transform .3s ease,color .3s ease}
   .um-atlas__list a.is-active .um-atlas__go,.um-atlas__list a:hover .um-atlas__go{color:#fff;transform:translateX(3px)}
+  .um-atlas__list a:focus-visible,.um-atlas__motion:focus-visible{outline:2px solid #fff;outline-offset:3px}
   .um-atlas__motion{min-height:44px;min-width:44px}
   @media(prefers-reduced-motion:reduce){.um-atlas__poster,.um-atlas__video,.um-atlas__list a,.um-atlas__go,.um-atlas__list a::before{transition:none}}
   @media (max-width:900px){.um-atlas{grid-template-columns:1fr;gap:16px}.um-atlas__stage{position:relative;top:auto;aspect-ratio:16/9;border-radius:0}.um-atlas__now{left:10px;top:10px;bottom:auto;max-width:calc(100% - 20px)}.um-atlas__motion{right:10px;bottom:10px}.um-atlas__list a{grid-template-columns:44px 1fr 16px;gap:12px;padding:12px 4px 12px 10px;min-height:64px}.um-atlas__name{font-size:17px}.um-atlas__count{font-size:20px}}

@@ -4,7 +4,7 @@
  * documentación y con qué cobertura. Textos tomados de /certificaciones,
  * /nosotros y los servicios publicados; sin cifras no aprobadas.
  */
-import RenderStage from './RenderStage.astro';
+
 
 const process = [
   ['Relevamiento', 'Visita técnica, inventario de sistemas existentes y definición de alcance con el responsable de operación.'],
@@ -21,20 +21,15 @@ const deliverables = [
   ['Dossier para licitaciones', 'Antecedentes, protocolos y documentación del rubro, a medida del pliego.'],
 ];
 
-const coverage = [
-  ['Mendoza', 'Sede central'],
-  ['San Juan', 'Cuyo'],
-  ['San Luis', 'Cuyo'],
-  ['Neuquén', 'Patagonia'],
-];
+const outputs = ['Alcance e inventario', 'Planos y memoria técnica', 'Registro de instalación', 'Protocolos y mediciones', 'Tickets e historial'];
 ---
 <div class="um-cap">
   <div class="um-cap__head">
     <div>
       <p class="um-cap__kicker"><span></span>Capacidad de proveedor</p>
-      <h2>Un proveedor que entrega obra, documentación y soporte.</h2>
+      <h2>De la visita técnica a una entrega verificable.</h2>
     </div>
-    <p>Cada proyecto recorre el mismo circuito, de la visita técnica al mantenimiento. Lo que se instala queda documentado para operar, auditar y ampliar.</p>
+    <p>Cada etapa produce algo que tu equipo puede revisar. Esa documentación conecta la obra con su operación y su mantenimiento.</p>
   </div>
 
   <div class="um-cap__body">
@@ -46,13 +41,12 @@ const coverage = [
             <strong>{title}</strong>
             <p>{text}</p>
           </div>
+          <p class="um-cap__output"><span>Entregable</span><strong>{outputs[i]}</strong></p>
         </li>
       ))}
     </ol>
 
-    <div class="um-cap__stage">
-      <RenderStage render="fachada-sistemas" />
-    </div>
+
   </div>
 
   <div class="um-cap__ledger">
@@ -66,19 +60,9 @@ const coverage = [
       <a href="/certificaciones">Ver documentación técnica <span aria-hidden="true">→</span></a>
     </section>
 
-    <section class="um-cap__block" aria-labelledby="cap-cov">
-      <h3 id="cap-cov">Cobertura con equipo propio</h3>
-      <ul class="um-cap__coverage">
-        {coverage.map(([city, region]) => (
-          <li><strong>{city}</strong><span>{region}</span></li>
-        ))}
-      </ul>
-      <a href="/servicios-it-empresas-argentina">Ver cobertura en Argentina <span aria-hidden="true">→</span></a>
-    </section>
-
     <section class="um-cap__block um-cap__block--cta" aria-labelledby="cap-rfq">
       <h3 id="cap-rfq">Pedido de cotización</h3>
-      <p>Enviá el pliego, el plano o una descripción del sitio. Respondemos en el día con un relevamiento técnico y una propuesta verificable.</p>
+      <p>Enviá el pliego, el plano o una descripción del sitio. Definimos el alcance y la información técnica necesaria para preparar la propuesta.</p>
       <a class="um-cap__btn" href="/presupuesto-servicios-it-empresas">Pedir presupuesto <span aria-hidden="true">↗</span></a>
     </section>
   </div>
@@ -99,7 +83,7 @@ const coverage = [
 
   .um-cap__head > p {
     margin: 0;
-    color: rgba(255, 255, 255, 0.78);
+    color: #c4c7cc;
     font-size: var(--um-copy-description, 1.125rem);
     line-height: var(--um-body-line-height, 1.62);
     max-width: 48ch;
@@ -114,7 +98,7 @@ const coverage = [
     font-weight: 600;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.78);
+    color: #c4c7cc;
   }
 
   .um-cap__kicker span {
@@ -135,7 +119,7 @@ const coverage = [
 
   .um-cap__body {
     display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: clamp(28px, 5vw, 72px);
     align-items: center;
   }
@@ -149,7 +133,7 @@ const coverage = [
 
   .um-cap__process li {
     display: grid;
-    grid-template-columns: 44px minmax(0, 1fr);
+    grid-template-columns: 44px minmax(0, 1.6fr) minmax(180px, .8fr);
     gap: 12px;
     padding: 18px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
@@ -172,29 +156,28 @@ const coverage = [
 
   .um-cap__process p {
     margin: 6px 0 0;
-    color: rgba(255, 255, 255, 0.72);
+    color: #c4c7cc;
     font-size: 1rem;
     line-height: 1.55;
   }
 
   .um-cap__ledger {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1px;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: clamp(24px, 5vw, 64px);
     margin-top: clamp(40px, 5vw, 72px);
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   .um-cap__block {
     display: flex;
     flex-direction: column;
-    padding: clamp(22px, 2.6vw, 34px);
-    background: #0a0a0b;
+    padding: 28px 0;
+    background: transparent;
   }
 
   .um-cap__block--cta {
-    background: #111214;
+    background: transparent;
   }
 
   .um-cap__block h3 {
@@ -224,7 +207,7 @@ const coverage = [
   }
 
   .um-cap__block li span {
-    color: rgba(255, 255, 255, 0.7);
+    color: #c4c7cc;
     font-size: 1rem;
     line-height: 1.5;
   }
@@ -243,7 +226,7 @@ const coverage = [
   .um-cap__block > p {
     flex: 1;
     margin: 0;
-    color: rgba(255, 255, 255, 0.78);
+    color: #c4c7cc;
     font-size: 1rem;
     line-height: 1.55;
   }
@@ -279,6 +262,10 @@ const coverage = [
     background: #b91c1c;
   }
 
+  .um-cap__process .um-cap__output{margin:0;padding:0 0 0 24px;border-left:1px solid #ffffff20;align-self:center}
+  .um-cap__output span{display:block;margin-bottom:6px;color:#c4c7cc;font-size:1rem}
+  .um-cap__output strong{font-size:1rem;color:#fff;line-height:1.5}
+  @media(max-width:600px){.um-cap__process li{grid-template-columns:28px minmax(0,1fr)}.um-cap__process .um-cap__output{grid-column:2;padding:8px 0 0;border:0}.um-cap__output span{display:inline;margin-right:8px}.um-cap__output strong{display:inline}}
   @media (max-width: 1100px) {
     .um-cap__ledger {
       grid-template-columns: 1fr;

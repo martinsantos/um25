@@ -184,7 +184,23 @@ await quiet.goto(origin,{waitUntil:'domcontentloaded'});await delay(1800);
 if(await quiet.locator('[data-request-story]').count()){await quiet.locator('[data-request-canvas]').evaluate(node=>node.scrollIntoView({block:'center',behavior:'instant'}));await delay(400);if(await quiet.locator('[data-request-story]').getAttribute('data-request-state')!=='paused')finding('/','Request pilot ignores reduced motion');}
 report.reducedMotion=await quiet.locator('[data-umc]').evaluate(root=>({paused:root.classList.contains('is-paused'),loaded:[...root.querySelectorAll('video')].some(v=>!!v.getAttribute('src'))}));
 if(!report.reducedMotion.paused||report.reducedMotion.loaded)finding('/','Reduced motion does not keep the hero still',report.reducedMotion);
-await reduced.close();await context.close();await browser.close();
+await reduced.close();await context.close();
+// Inspect every home band at the design contract widths, not just the hero.
+report.responsive=[];
+for(const width of (profile==='desktop'?[1440,1280,834]:[390,360])){
+ const layoutContext=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
+ const layoutPage=await layoutContext.newPage();await layoutPage.goto(origin,{waitUntil:'load'});
+ for(const id of ['servicios-it','sectores','antecedentes-home','empresa','capacidad','producto','cobertura','blog-home']){
+  const section=layoutPage.locator('#'+id);await section.evaluate(node=>node.scrollIntoView({block:'start',behavior:'instant'}));await delay(450);
+  const geometry=await layoutPage.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
+  if(geometry.scrollWidth>width+2)finding('/','Home section overflows at '+width,{id,...geometry});
+  await layoutPage.screenshot({path:path.join(out,`home-${width}-${id}.png`),fullPage:false});
+  report.responsive.push({width,section:id,...geometry});
+ }
+ await layoutPage.screenshot({path:path.join(out,`home-${width}-full.png`),fullPage:true});
+ await layoutContext.close();
+}
+await browser.close();
 fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify({profile,pages:report.pages.length,findings:report.findings.length,movies:report.movieCoverage.length,out}));
 if(process.env.VISUAL_AUDIT_STRICT==='1'&&report.findings.length)process.exitCode=1;

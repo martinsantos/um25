@@ -1,4 +1,4 @@
-import {bindRequestSequence,requestFrame} from '../public/cine/request-sequence-v1.js';
+import {bindRequestSequence,requestFrame} from '../public/cine/request-sequence-v2.js';
 import {REQUEST_SEQUENCE} from '../src/data/cine/requestSequence';
 let observer,hidden,reduced;
 function fixture(){document.body.innerHTML=`<article data-request-story><script data-request-script type="application/json">${JSON.stringify(REQUEST_SEQUENCE)}</script><button data-request-play></button><h3 data-request-title></h3><p data-request-copy></p><p data-request-role></p><span data-request-status></span><div data-request-canvas><svg><g data-request-camera><g data-request-packet></g></g></svg></div>${REQUEST_SEQUENCE.map(()=>'<li data-request-milestone></li>').join('')}</article>`;return document.querySelector('article');}
@@ -12,7 +12,7 @@ test('one request reaches reception, validation, resolution and returns without 
  await jest.advanceTimersByTimeAsync(4000);expect(root.dataset.requestStep).toBe('0');expect(document.activeElement).toBe(document.body);
 });
 test('transport reaches the switch and application, and the response returns to the originating workstation',()=>{
- expect(requestFrame(4000).point).toEqual([195,310]);expect(requestFrame(8000).point).toEqual([521,281]);expect(requestFrame(12000).point).toEqual([938,270]);expect(requestFrame(27999).point[0]).toBeCloseTo(195,0);
+ expect(requestFrame(4000).point).toEqual([195,340]);expect(requestFrame(8000).point).toEqual([577,217]);expect(requestFrame(12000).point).toEqual([900,202]);expect(requestFrame(27999).point[0]).toBeCloseTo(195,0);
  expect(requestFrame(6500).point).not.toEqual(requestFrame(6000).point);
 });
 test('pause, offscreen and hidden tab preserve elapsed progress; pointer focus never gates playback',async()=>{

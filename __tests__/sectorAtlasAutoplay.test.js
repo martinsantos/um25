@@ -1,4 +1,4 @@
-import {bindSectorAtlas} from '../public/cine/sector-atlas-v2.js';
+import {bindSectorAtlas} from '../public/cine/sector-atlas-v3.js';
 let observe,hidden,paused,ended,reduced,play;
 const settle=async()=>{for(let i=0;i<8;i++)await Promise.resolve();};
 function fixture(){
@@ -40,4 +40,12 @@ test('keyboard exploration holds the chosen sector, and cleanup prevents media f
  root.querySelectorAll('a')[1].focus();await settle();video.dispatchEvent(new Event('ended'));await settle();expect(root.dataset.scene).toBe('aeropuerto-proyecto-v3');
  document.dispatchEvent(new Event('astro:before-swap'));const before=play.mock.calls.length;
  document.dispatchEvent(new Event('visibilitychange'));observe([{intersectionRatio:1}]);await settle();expect(play).toHaveBeenCalledTimes(before);expect(paused).toBe(true);
+});
+
+test('a parked pointer cannot stall the autonomous story and detached links cannot restart it',async()=>{
+ const root=fixture(),video=root.querySelector('video'),links=root.querySelectorAll('a');
+ const dispose=bindSectorAtlas(root);observe([{intersectionRatio:1}]);await settle();
+ links[1].dispatchEvent(new Event('pointerenter'));await settle();expect(root.dataset.scene).toBe('aeropuerto-proyecto-v3');
+ video.dispatchEvent(new Event('ended'));await settle();expect(root.dataset.scene).toBe('fachada-proyecto-v2');
+ dispose();const before=play.mock.calls.length;links[0].dispatchEvent(new Event('pointerenter'));links[0].focus();root.querySelector('button').click();await settle();expect(play).toHaveBeenCalledTimes(before);
 });

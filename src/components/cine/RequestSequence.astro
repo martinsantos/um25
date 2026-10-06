@@ -8,14 +8,14 @@ import {REQUEST_SEQUENCE} from '../../data/cine/requestSequence';
  <div class="request-story__narration"><p class="request-story__eyebrow" data-request-role>{REQUEST_SEQUENCE[0].role}</p><h3 data-request-title>{REQUEST_SEQUENCE[0].title}</h3></div>
  <figure class="request-story__figure">
   <div class="request-story__canvas" data-request-canvas set:html={illustration}/>
-  <div class="request-story__receipt"><span>Solicitud <strong>024</strong></span><span data-request-status>{REQUEST_SEQUENCE[0].status}</span><span class="request-story__example">Ejemplo de un proceso interno</span></div>
+  <div class="request-story__receipt"><span>Orden <strong>024</strong></span><span data-request-status>{REQUEST_SEQUENCE[0].status}</span><span class="request-story__example">Ejemplo ilustrativo · Mantenimiento</span></div>
   <figcaption data-request-copy>{REQUEST_SEQUENCE[0].copy}</figcaption>
  </figure>
  <ol class="request-story__progress" aria-label="Etapas del recorrido">{['Puesto','Red','Enlace','Recepción','Validación','Resolución','Respuesta','Integración'].map((label,i)=><li data-request-milestone data-state={i===0?'current':'next'}><span>{label}</span></li>)}</ol>
  <footer><a href="/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces">Infraestructura de redes ↗</a><a href="/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp">Software a medida ↗</a></footer>
  <details class="request-story__transcript"><summary>Leer la explicación completa</summary><ol>{REQUEST_SEQUENCE.map(step=><li><strong>{step.title}</strong> {step.copy}</li>)}</ol></details>
 </article>
-<script src="/cine/request-sequence-v1.js" type="module" async is:inline />
+<script src="/cine/request-sequence-v2.js" type="module" async is:inline />
 <style>
  .request-story{color:#fff;max-width:1120px;margin-inline:auto;--muted:#c4c7cc}
  .request-story__header{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:56px;border-top:1px solid #ffffff30}
@@ -26,6 +26,8 @@ import {REQUEST_SEQUENCE} from '../../data/cine/requestSequence';
  .request-story__canvas :global([data-request-row] rect){transition:fill 700ms ease,stroke 700ms ease}
  .request-story[data-request-step="3"] :global([data-request-row="0"] rect),.request-story[data-request-step="4"] :global([data-request-row="1"] rect),.request-story[data-request-step="5"] :global([data-request-row="2"] rect){fill:#4b171b;stroke:#ff777e;stroke-width:2}
  .request-story[data-request-step="6"] :global(.rq-return){stroke:#fff;stroke-opacity:1;stroke-width:2}
+ .request-story__canvas :global(.rq-door){transform:translate(-490.17px,-10px) matrix(.866025404,.5,0,1,0,0);transition:transform 1600ms cubic-bezier(.22,1,.36,1)}
+ .request-story[data-request-step="1"] :global(.rq-door),.request-story[data-request-step="2"] :global(.rq-door),.request-story[data-request-step="3"] :global(.rq-door),.request-story[data-request-step="4"] :global(.rq-door),.request-story[data-request-step="5"] :global(.rq-door){transform:translate(-490.17px,-10px) matrix(-1.003442,.405579788,0,1,0,0)}
  .request-story__receipt{display:flex;align-items:center;gap:24px;min-height:52px;border-block:1px solid #ffffff25;font-size:1rem}.request-story__receipt strong{font-variant-numeric:tabular-nums}.request-story__receipt [data-request-status]{color:#fff}.request-story__example{margin-left:auto;color:var(--muted)}
  .request-story figcaption{max-width:68ch;min-height:110px;padding:20px 0;color:var(--muted);font-size:var(--um-copy-description,1.125rem);line-height:1.6}
  .request-story__progress{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;margin:0;padding:0;list-style:none}.request-story__progress li{border-top:2px solid #ffffff30;padding-top:12px;color:var(--muted);font-size:1rem}.request-story__progress li[data-state=current],.request-story__progress li[data-state=seen]{border-color:#dc2626}.request-story__progress li[data-state=current]{color:#fff}
@@ -33,5 +35,5 @@ import {REQUEST_SEQUENCE} from '../../data/cine/requestSequence';
  .request-story__transcript{font-size:1rem;color:var(--muted);margin-top:8px}.request-story__transcript summary{cursor:pointer;min-height:44px;padding-top:10px}.request-story__transcript li{line-height:1.6;margin-bottom:16px;max-width:70ch}
  .request-story button:focus-visible,.request-story a:focus-visible,.request-story summary:focus-visible{outline:2px solid #fff;outline-offset:4px}
  @media(max-width:760px){.request-story__header p span{display:none}.request-story__canvas{aspect-ratio:600/510}.request-story__narration{min-height:116px}.request-story__receipt{flex-wrap:wrap;gap:8px 20px;padding:12px 0}.request-story__example{flex-basis:100%;margin-left:0}.request-story figcaption{min-height:148px;font-size:1rem}.request-story__progress li span{display:none}.request-story__progress li{padding-top:0}.request-story footer{gap:8px 20px}.request-story__canvas :global(.rq-object-labels){font-size:27px}}
- @media(prefers-reduced-motion:reduce){.request-story__canvas :global([data-request-row] rect){transition:none}}
+ @media(prefers-reduced-motion:reduce){.request-story__canvas :global([data-request-row] rect),.request-story__canvas :global(.rq-door){transition:none}}
 </style>
