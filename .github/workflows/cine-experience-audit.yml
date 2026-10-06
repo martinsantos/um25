@@ -1,0 +1,70 @@
+name: Cinema experience visual audit
+
+on:
+  push:
+    branches: [feature/isometric-redes-review]
+    paths:
+      - '.github/workflows/cine-experience-audit.yml'
+      - 'scripts/cine/audit-cinema-experience.mjs'
+  workflow_dispatch:
+    inputs:
+      strict:
+        description: 'Fail on experience findings after collecting evidence'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  ASTRO_TELEMETRY_DISABLED: '1'
+
+jobs:
+  visual:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [desktop, mobile]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.x'
+          cache: npm
+      - run: npm ci
+      - name: Build an isolated copy of the candidate
+        run: npm run build
+        env:
+          NODE_OPTIONS: --max-old-space-size=2048
+      - name: Install the audit browser on the disposable runner
+        run: |
+          npm install --prefix "$RUNNER_TEMP/um-visual-runtime" --no-save --no-package-lock playwright@1.63.0
+          "$RUNNER_TEMP/um-visual-runtime/node_modules/.bin/playwright" install chrome
+      - name: Start isolated loopback preview
+        run: |
+          HOST=127.0.0.1 PORT=4326 NODE_ENV=production node dist/server/entry.mjs > "$RUNNER_TEMP/um-preview.log" 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -fsS --max-time 2 http://127.0.0.1:4326/ -o /dev/null; then exit 0; fi
+            sleep 2
+          done
+          tail -30 "$RUNNER_TEMP/um-preview.log"
+          exit 1
+      - name: Capture native movie playback and automatic isometric sequences
+        run: node scripts/cine/audit-cinema-experience.mjs
+        env:
+          PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
+          VISUAL_AUDIT_PROFILE: ${{ matrix.profile }}
+          VISUAL_AUDIT_DIR: ${{ runner.temp }}/um-visual-${{ matrix.profile }}
+          VISUAL_AUDIT_STRICT: ${{ inputs.strict && '1' || '0' }}
+      - name: Save screenshots and observations
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cinema-experience-${{ matrix.profile }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/um-visual-${{ matrix.profile }}/
+            ${{ runner.temp }}/um-preview.log
+          retention-days: 3
