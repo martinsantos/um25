@@ -1,13 +1,6 @@
 name: Blender project cinema
 
 on:
-  pull_request:
-    types: [opened, reopened, ready_for_review]
-    branches: [develop]
-    paths:
-      - '.github/workflows/cine-project-render.yml'
-      - 'scripts/cine/render-site-project-v1.py'
-      - 'src/assets/cine/isometric/site-projects-v1.json'
   workflow_dispatch:
 
 permissions:
