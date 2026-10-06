@@ -27,8 +27,7 @@ const scenes=[...new Set(items.map(s=>s.scene))];
     {items.map((s, i) => (
       <li>
         <a href={s.href} data-scene={s.scene} data-title={s.name} class:list={[{ 'is-active': i === 0 }]}>
-          <span class="um-atlas__count">{s.count ?? ""}</span>
-          <span class="um-atlas__name">{s.name}<small>{s.text}</small></span>
+          <span class="um-atlas__name"><span class="um-atlas__title">{s.name}{s.count&&<span class="um-atlas__count">{s.count} proyectos</span>}</span><small>{s.text}</small></span>
           <span class="um-atlas__go" aria-hidden="true">→</span>
         </a>
       </li>
@@ -47,11 +46,12 @@ const scenes=[...new Set(items.map(s=>s.scene))];
   .um-atlas__now i{width:8px;height:8px;flex-shrink:0;background:var(--um-red,#DC2626)}
   .um-atlas__motion{position:absolute;right:14px;bottom:14px;padding:8px 12px;border-radius:4px;border:1px solid #ffffff40;background:rgba(16,17,19,.8);color:#fff;font:600 16px/1.5 var(--um-font-editorial,sans-serif);cursor:pointer}
   .um-atlas__list{list-style:none;margin:0;padding:0;border-top:1px solid #ffffff1c}
-  .um-atlas__list a{display:grid;grid-template-columns:52px 1fr 20px;gap:14px;align-items:center;padding:14px 8px 14px 12px;border-bottom:1px solid #ffffff1c;color:#fff;text-decoration:none;position:relative;transition:background .3s ease}
+  .um-atlas__list a{display:grid;grid-template-columns:minmax(0,1fr) 20px;gap:14px;align-items:center;padding:14px 8px 14px 12px;border-bottom:1px solid #ffffff1c;color:#fff;text-decoration:none;position:relative;transition:background .3s ease}
   .um-atlas__list a::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:2px;background:var(--um-red,#DC2626);transform:scaleY(0);transition:transform .3s ease}
   .um-atlas__list a.is-active,.um-atlas__list a:hover{background:#ffffff08}
   .um-atlas__list a.is-active::before{transform:scaleY(1)}
-  .um-atlas__count{font:600 22px/1 var(--um-font-editorial,sans-serif);font-variant-numeric:tabular-nums;color:#fff}
+  .um-atlas__count{font:400 16px/1.5 var(--um-font-editorial,sans-serif);font-variant-numeric:tabular-nums;color:#fff}
+  .um-atlas__title{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px}.um-atlas__count{color:#c4c7cc;white-space:nowrap}
   .um-atlas__name{display:flex;flex-direction:column;gap:3px;font-size:18px;font-weight:600}
   .um-atlas__name small{color:#c4c7cc;font-size:16px;font-weight:400}
   .um-atlas__go{color:#c4c7cc;transition:transform .3s ease,color .3s ease}
@@ -59,5 +59,5 @@ const scenes=[...new Set(items.map(s=>s.scene))];
   .um-atlas__list a:focus-visible,.um-atlas__motion:focus-visible{outline:2px solid #fff;outline-offset:3px}
   .um-atlas__motion{min-height:44px;min-width:44px}
   @media(prefers-reduced-motion:reduce){.um-atlas__poster,.um-atlas__video,.um-atlas__list a,.um-atlas__go,.um-atlas__list a::before{transition:none}}
-  @media (max-width:900px){.um-atlas{grid-template-columns:1fr;gap:16px}.um-atlas__stage{position:relative;top:auto;aspect-ratio:16/9;border-radius:0}.um-atlas__now{left:10px;top:10px;bottom:auto;max-width:calc(100% - 20px)}.um-atlas__motion{right:10px;bottom:10px}.um-atlas__list a{grid-template-columns:44px 1fr 16px;gap:12px;padding:12px 4px 12px 10px;min-height:64px}.um-atlas__name{font-size:17px}.um-atlas__count{font-size:20px}}
+  @media (max-width:900px){.um-atlas{grid-template-columns:1fr;gap:16px}.um-atlas__stage{position:relative;top:auto;aspect-ratio:16/9;border-radius:0}.um-atlas__now{left:10px;top:10px;bottom:auto;max-width:calc(100% - 20px)}.um-atlas__motion{right:10px;bottom:10px}.um-atlas__list a{grid-template-columns:minmax(0,1fr) 16px;gap:12px;padding:12px 4px 12px 10px;min-height:64px}.um-atlas__name{font-size:17px}.um-atlas__count{font-size:16px}}
 </style>

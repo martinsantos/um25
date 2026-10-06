@@ -120,7 +120,7 @@ export function bindServiceAtlas(root) {
       const pin=project.querySelector(`[data-project-pin="${active.dataset.atlasService}"]`),leader=project.querySelector('[data-project-leader]');
       if(pin&&leader){
         const mobile=window.innerWidth<=760,id=manualPart||narration?.part;
-        const x=Number(pin.dataset.x)*(mobile?.28:.33)+(mobile?240:-80),y=Number(pin.dataset.y)*(mobile?.28:.33)+(mobile?360:340);
+        const x=Number(pin.dataset.x)*(mobile?.20:.33)+(mobile?220:-80),y=Number(pin.dataset.y)*(mobile?.20:.33)+(mobile?70:340);
         const target=index===3?[mobile?(['switch','access','outlet','injector'].includes(id)?683:653):811,mobile?313:330]:index===2?[mobile?(id==='fiber'?684:640):788,mobile?484:473]:[mobile?658:803,mobile?366:370];
         leader.setAttribute('d',`M${x} ${y}H430L${target[0]-110} ${target[1]+20}H${target[0]-80}`);
       }
