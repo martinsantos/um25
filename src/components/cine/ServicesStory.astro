@@ -51,13 +51,16 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
   <header class="svc-story__heading"><span data-atlas-code>{first.study.name}</span><h3 data-atlas-title>{first.message.title}</h3></header>
   <div class="svc-story__playback"><span class="svc-story__counter" data-atlas-counter>01 / {String(items.length).padStart(2,'0')}</span><span data-atlas-status>Una operación, por dentro.</span><button type="button" data-atlas-play aria-pressed="false" hidden>Seguir la historia</button></div>
   <div class="svc-story__chapters" aria-hidden="true">{items.map((s,i)=><span data-atlas-chapter={s.code} data-state={i===0?'current':'next'} />)}</div>
-  <div class="svc-story__views" role="group" aria-label="Vistas del servicio">{phases.map((phase,i)=><button type="button" data-atlas-view={phase.id} aria-pressed={String(i===0)}><span aria-hidden="true">0{i+1}</span>{phase.name}</button>)}</div>
+  <div class="svc-story__narration">{project&&<p class="svc-story__object-name" data-atlas-part-name hidden />}<h3 class="svc-story__scene-title" data-atlas-scene-title>{narrative[0].scenes[0].title}</h3></div>
+  <figure class="svc-story__explanation">
   <div class="svc-story__theater" data-atlas-theater>
    {projectMarkup&&<div class="svc-story__project" data-atlas-project data-project-floors={project?.scene==='building'?3:1} data-project-service={first.code} data-project-view="0" data-project-open="false" data-project-visible="false"><Fragment set:html={projectMarkup} /></div>}
    {hasHardware&&<div data-atlas-network hidden={Boolean(project)}><NetworkJourney compact catalog guided /></div>}
    <div class="svc-story__frame" hidden>{hasSupport&&<div class="svc-story__operations" data-atlas-operation="105" hidden><IsometricStage code="105" compact /></div>}{hasConsulting&&<div class="svc-story__operations" data-atlas-operation="106" hidden><IsometricStage code="106" compact /></div>}{hasSoftware&&<div class="svc-story__software" data-atlas-software hidden><SoftwareLayers compact /></div>}<img src={project?undefined:url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
   </div>
-  <div class="svc-story__narration">{project&&<p class="svc-story__object-name" data-atlas-part-name hidden />}<p class="svc-story__scene-title" data-atlas-scene-title>{narrative[0].scenes[0].title}</p><p class="svc-story__illustration-copy" data-atlas-context>{narrative[0].scenes[0].copy}</p></div>
+   <figcaption class="svc-story__illustration-copy" data-atlas-context>{narrative[0].scenes[0].copy}</figcaption>
+  </figure>
+  <div class="svc-story__views" role="group" aria-label="Vistas del servicio">{phases.map((phase,i)=><button type="button" data-atlas-view={phase.id} aria-pressed={String(i===0)}><span aria-hidden="true">0{i+1}</span>{phase.name}</button>)}</div>
   <div class="svc-story__exploration"><details class="svc-story__equipment" data-atlas-equipment><summary>Explorar otras piezas</summary><label><span>Equipo</span><select data-atlas-part aria-label="Equipo que querés explorar">{EQUIPMENT_KITS[first.code]?.parts.map(id=><option value={id} selected={id===EQUIPMENT_KITS[first.code].initial}>{NETWORK_EQUIPMENT.find(part=>part.id===id)?.name}</option>)}</select></label></details></div>
   <div class="svc-story__caption"><p data-atlas-copy hidden>{first.message.copy}</p><a class="svc-story__link" href={first.href} data-atlas-link>Explorar {first.study.name.toLowerCase()} <span aria-hidden="true">→</span></a></div>
   <p class="svc-story__announcement" data-atlas-announce aria-live="polite" aria-atomic="true" />
@@ -72,6 +75,7 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
  .svc-story__heading{padding-bottom:24px}.svc-story__heading>span{display:block;font-size:1rem;line-height:1.5;color:var(--story-muted);margin-bottom:12px}
  .svc-story__heading h3{min-block-size:3.9em;margin:0;font-size:var(--um-world-h3,1.25rem);font-weight:var(--um-display-weight,600);line-height:1.3;max-width:30ch;color:#fff;text-wrap:balance}
  .svc-story [hidden]{display:none!important}
+ .svc-story__explanation{margin:0;min-width:0}.svc-story__explanation>figcaption{padding-block:16px 24px}
  .svc-story__theater{height:clamp(280px,38svh,380px);position:relative;min-width:0;isolation:isolate}.svc-story__theater>[data-atlas-network],.svc-story__frame{width:100%;height:100%;position:relative;min-width:0}.svc-story__frame img{width:100%;height:100%!important;object-fit:contain;display:block}
  .svc-story__software{width:100%;height:100%}
  .svc-story__operations{width:100%;height:100%}
@@ -105,12 +109,18 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
  .svc-story--project .svc-story__list{display:flex;gap:0;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#666 transparent;border-block:1px solid #ffffff30}
  .svc-story--project .svc-story__item{flex:0 0 auto;border:0!important}.svc-story--project .svc-story__item button{min-height:56px;width:auto;grid-template-columns:22px minmax(0,1fr);gap:8px;padding:12px 12px;border-left:0;border-bottom:2px solid transparent}.svc-story--project .svc-story__item button[aria-pressed=true]{border-bottom-color:var(--um-red,#dc2626)}
  .svc-story--project .svc-story__text strong{font-size:1rem;white-space:nowrap}.svc-story--project .svc-story__text>span,.svc-story--project .svc-story__arrow{display:none}
- .svc-story--project .svc-story__stage{display:grid;grid-template-columns:minmax(0,8fr) minmax(280px,4fr);gap:0 40px;padding:16px 0 0;background:transparent;position:static}
- .svc-story--project .svc-story__heading{grid-column:2;grid-row:1;padding:8px 0 24px}.svc-story--project .svc-story__heading h3{display:none}.svc-story--project .svc-story__heading>span{font-size:var(--um-world-h3,1.25rem);font-weight:var(--um-display-weight,600);color:#fff;margin:0}
- .svc-story--project .svc-story__playback{grid-column:1;grid-row:1}.svc-story--project .svc-story__chapters{display:none}.svc-story--project .svc-story__views{grid-column:1;grid-row:2}
- .svc-story--project .svc-story__theater{overflow:hidden;grid-column:1;grid-row:3/6;height:clamp(420px,53svh,580px)}
- .svc-story--project .svc-story__narration{grid-column:2;grid-row:2/4;padding-top:24px;min-block-size:0}.svc-story--project .svc-story__object-name{font-size:1rem;line-height:1.5;color:var(--story-muted);margin:0 0 12px}.svc-story--project .svc-story__scene-title{font-size:var(--um-world-h3,1.25rem);line-height:1.3;margin-bottom:20px}.svc-story--project .svc-story__illustration-copy{font-size:var(--um-copy-description,1.125rem);line-height:var(--um-body-line-height,1.62)}
- .svc-story--project .svc-story__exploration{grid-column:2;grid-row:4;align-self:end}.svc-story--project .svc-story__caption{grid-column:2;grid-row:5;align-self:end}
+ /* One reading column: proposition → animated explanation → meaning → optional exploration. */
+ .svc-story--project .svc-story__stage{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 24px;max-width:1040px;margin-inline:auto;padding:20px 0 0;background:transparent;position:static}
+ .svc-story--project .svc-story__heading{grid-column:1;grid-row:1;padding:0;align-self:center}.svc-story--project .svc-story__heading h3{display:none}.svc-story--project .svc-story__heading>span{font-size:1rem;font-weight:500;color:var(--story-muted);margin:0}
+ .svc-story--project .svc-story__playback{grid-column:2;grid-row:1;justify-content:flex-end}.svc-story--project .svc-story__playback>span:nth-child(2){display:none}.svc-story--project .svc-story__chapters{display:none}
+ .svc-story--project .svc-story__narration{grid-column:1/-1;grid-row:2;padding-top:12px;min-block-size:100px;max-width:64ch}
+ .svc-story--project .svc-story__object-name{font-size:1rem;line-height:1.5;color:var(--story-muted);margin:0 0 8px}
+ .svc-story--project .svc-story__scene-title{font-size:var(--um-world-h3,1.25rem);line-height:1.3;margin:0}
+ .svc-story--project .svc-story__explanation{grid-column:1/-1;grid-row:3;display:grid;justify-items:stretch}
+ .svc-story--project .svc-story__theater{overflow:hidden;height:clamp(340px,49svh,480px);width:100%;max-width:860px;justify-self:center}
+ .svc-story--project .svc-story__illustration-copy{font-size:var(--um-copy-description,1.125rem);line-height:var(--um-body-line-height,1.62);max-width:64ch;min-block-size:100px;padding:16px 0 24px}
+ .svc-story--project .svc-story__views{grid-column:1/-1;grid-row:4;border-top:0}
+ .svc-story--project .svc-story__exploration{grid-column:1;grid-row:5;align-self:center}.svc-story--project .svc-story__caption{grid-column:2;grid-row:5;align-self:center;border:0;padding-top:0}.svc-story--project .svc-story__link{margin-top:0;gap:24px}
  .svc-story__project{position:absolute;inset:0;pointer-events:none}.svc-story__project :global(svg){width:100%;height:100%;overflow:visible}.svc-story__project :global(.sp-root){transform-origin:0 0;transform:translate(0,0) scale(1);transition:transform 1400ms cubic-bezier(.22,1,.36,1)}
  .svc-story__project[data-project-floors="1"][data-project-view="0"] :global(.sp-root){transform:translate(0,-100px) scale(1.04)}
  .svc-story__project[data-project-floors="1"][data-project-open=true][data-project-view="0"] :global(.sp-root){transform:translate(-20px,-112px) scale(1.08)}
@@ -145,10 +155,10 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
   @keyframes project-route{from{stroke-dasharray:100;stroke-dashoffset:100}to{stroke-dasharray:100;stroke-dashoffset:0}}
   .svc-story__project[data-project-visible=false] :global(.sp-route path){animation-play-state:paused!important}
  }
- @media(max-width:1000px){.svc-story--project .svc-story__stage{grid-template-columns:minmax(0,6fr) minmax(250px,4fr);gap:0 24px}.svc-story--project .svc-story__item button{padding-inline:14px}}
+ @media(max-width:1000px){.svc-story--project .svc-story__item button{padding-inline:14px}}
  @media(max-width:760px){
-  .svc-story--project .svc-story__stage{display:block;padding-top:12px}.svc-story--project .svc-story__heading{display:block;padding:0 0 12px}.svc-story--project .svc-story__playback>span:nth-child(2){display:none}.svc-story--project .svc-story__playback{flex-wrap:nowrap;gap:12px}.svc-story--project .svc-story__playback>span:nth-child(2){font-size:1rem}
-  .svc-story--project .svc-story__views button span{display:none}.svc-story--project .svc-story__theater{height:clamp(280px,40svh,340px)}.svc-story--project .svc-story__narration{padding-top:20px;min-block-size:180px}.svc-story--project .svc-story__illustration-copy{font-size:1rem}.svc-story--project .svc-story__caption{margin-top:8px}
+  .svc-story--project .svc-story__stage{display:grid;gap:0 12px;padding-top:12px}.svc-story--project .svc-story__heading{display:block;padding:0}.svc-story--project .svc-story__playback>span:nth-child(2){display:none}.svc-story--project .svc-story__playback{flex-wrap:nowrap;gap:12px}.svc-story--project .svc-story__playback>span:nth-child(2){font-size:1rem}
+  .svc-story--project .svc-story__views button span{display:none}.svc-story--project .svc-story__theater{height:clamp(280px,40svh,340px)}.svc-story--project .svc-story__narration{padding-top:12px;min-block-size:116px}.svc-story--project .svc-story__illustration-copy{font-size:1rem;min-block-size:156px}.svc-story--project .svc-story__caption{grid-column:1/-1;grid-row:6;margin-top:8px}.svc-story--project .svc-story__exploration{grid-column:1/-1}
   .svc-story__project :global(svg){position:absolute;width:160%;left:-34%;max-width:none}
   .svc-story__project:not([data-project-view="0"]) :global(.sp-root){transform:translate(240px,360px) scale(.28)}
   .svc-story__project :global(.sp-floor-label){display:none}
