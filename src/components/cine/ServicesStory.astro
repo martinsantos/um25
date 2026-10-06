@@ -50,7 +50,7 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
   <div class="svc-story__views" role="group" aria-label="Vistas del servicio">{phases.map((phase,i)=><button type="button" data-atlas-view={phase.id} aria-pressed={String(i===0)}><span aria-hidden="true">0{i+1}</span>{phase.name}</button>)}</div>
   <div class="svc-story__theater" data-atlas-theater>
    {projectMarkup&&<div class="svc-story__project" data-atlas-project data-project-floors={project?.scene==='building'?3:1} data-project-service={first.code} data-project-view="0" data-project-open="false" data-project-visible="false"><Fragment set:html={projectMarkup} /></div>}
-   <div data-atlas-network><NetworkJourney compact catalog guided /></div>
+   <div data-atlas-network hidden={Boolean(project)}><NetworkJourney compact catalog guided /></div>
    <div class="svc-story__frame" hidden><div class="svc-story__operations" data-atlas-operation="105" hidden><IsometricStage code="105" compact /></div><div class="svc-story__operations" data-atlas-operation="106" hidden><IsometricStage code="106" compact /></div><div class="svc-story__software" data-atlas-software hidden><SoftwareLayers compact /></div><img src={project?undefined:url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
   </div>
   <div class="svc-story__narration">{project&&<p class="svc-story__object-name" data-atlas-part-name hidden />}<p class="svc-story__scene-title" data-atlas-scene-title>{narrative[0].scenes[0].title}</p><p class="svc-story__illustration-copy" data-atlas-context>{narrative[0].scenes[0].copy}</p></div>
@@ -97,11 +97,11 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
  @media(prefers-reduced-motion:reduce){.svc-story__frame.is-entering{animation:none}}
 
  .svc-story--single .svc-story__choice,.svc-story--single .svc-story__caption{display:none}
- .svc-story--project{display:block}.svc-story--project .svc-story__choice{margin-bottom:20px}.svc-story--project .svc-story__choice-title,.svc-story--project .svc-story__picker{display:none}
+ .svc-story--project{display:block}.svc-story--project .svc-story__choice{margin-bottom:8px}.svc-story--project .svc-story__choice-title,.svc-story--project .svc-story__picker{display:none}
  .svc-story--project .svc-story__list{display:flex;gap:0;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#666 transparent;border-block:1px solid #ffffff30}
  .svc-story--project .svc-story__item{flex:0 0 auto;border:0!important}.svc-story--project .svc-story__item button{min-height:56px;width:auto;grid-template-columns:22px minmax(0,1fr);gap:8px;padding:12px 12px;border-left:0;border-bottom:2px solid transparent}.svc-story--project .svc-story__item button[aria-pressed=true]{border-bottom-color:var(--um-red,#dc2626)}
  .svc-story--project .svc-story__text strong{font-size:1rem;white-space:nowrap}.svc-story--project .svc-story__text>span,.svc-story--project .svc-story__arrow{display:none}
- .svc-story--project .svc-story__stage{display:grid;grid-template-columns:minmax(0,8fr) minmax(280px,4fr);gap:0 40px;padding:24px 0 0;background:transparent;position:static}
+ .svc-story--project .svc-story__stage{display:grid;grid-template-columns:minmax(0,8fr) minmax(280px,4fr);gap:0 40px;padding:16px 0 0;background:transparent;position:static}
  .svc-story--project .svc-story__heading{grid-column:2;grid-row:1;padding:8px 0 24px}.svc-story--project .svc-story__heading h3{display:none}.svc-story--project .svc-story__heading>span{font-size:var(--um-world-h3,1.25rem);font-weight:var(--um-display-weight,600);color:#fff;margin:0}
  .svc-story--project .svc-story__playback{grid-column:1;grid-row:1}.svc-story--project .svc-story__chapters{display:none}.svc-story--project .svc-story__views{grid-column:1;grid-row:2}
  .svc-story--project .svc-story__theater{overflow:hidden;grid-column:1;grid-row:3/6;height:clamp(420px,53svh,580px)}

@@ -18,6 +18,8 @@ for(const route of routes){
  if(process.argv.includes('--movies')){
   const scenes=[...html.matchAll(/data-scenes="([^"]+)"/g)].flatMap(m=>m[1].split(','));
   assert.ok(scenes.length>0,route+': movie playlist');
+  assert.match(html,/data-motion="auto"/,route+': completed cinema enabled');
+  for(const scene of scenes)assert.match(scene,/proyecto-v[23]$/,route+': new cinema '+scene);
   for(const scene of scenes)assert.ok(fs.existsSync('public/cine/media/cine-'+scene+'.mp4'),route+': completed movie '+scene);
  }
  reports.push({route,status:response.status,bytes:Buffer.byteLength(html)});
