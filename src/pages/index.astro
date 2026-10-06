@@ -5,6 +5,7 @@ import { getAntecedentesCatalogCount } from '../utils/verifiedProof';
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import EmailLink from '../components/common/EmailLink.astro';
 import CineBanner from '../components/cine/CineBanner.astro';
+import RequestSequence from '../components/cine/RequestSequence.astro';
 import ServicesStory from '../components/cine/ServicesStory.astro';
 import SectorAtlas from '../components/cine/SectorAtlas.astro';
 import CoverageMap from '../components/cine/CoverageMap.astro';
@@ -124,12 +125,13 @@ const hubs = [
         <div class="um26-section__head" data-reveal>
           <div>
             <p class="um26-kicker"><span></span>Servicios</p>
-            <h2>Ocho frentes de servicio IT.</h2>
+            <h2>Del puesto de trabajo a una respuesta.</h2>
           </div>
-          <p>Un mismo equipo releva, instala y sostiene cada sistema, de la obra a la operación diaria.</p>
+          <p>Seguí una solicitud para entender cómo conectamos la infraestructura con los procesos de tu operación.</p>
         </div>
 
-        <ServicesStory services={services} project={integralProject} />
+        <RequestSequence />
+        <details class="um26-service-library"><summary>Explorar los ocho servicios IT</summary><ServicesStory services={services} project={integralProject} /></details>
 
         <a class="um26-text-link" href="/servicios">Ver los ocho servicios</a>
       </div>
@@ -1352,3 +1354,5 @@ const hubs = [
   </style>
 
 </LayoutV4>
+
+<style>.um26-service-library{margin-top:40px;border-top:1px solid #ffffff30}.um26-service-library>summary{padding:20px 0;color:#c4c7cc;font-size:1rem;cursor:pointer}.um26-service-library>summary:focus-visible{outline:2px solid #fff;outline-offset:4px}</style>

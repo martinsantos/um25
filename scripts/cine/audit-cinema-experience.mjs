@@ -101,6 +101,7 @@ for(const route of routes){
    await story.goto(origin+route,{waitUntil:'domcontentloaded',timeout:60000});
    await story.clock.runFor(1000);
    for(let n=0;n<40;n++){if(await story.locator('[data-service-atlas]').getAttribute('data-bound')==='true')break;await delay(150);await story.clock.runFor(100);}
+   if(await story.locator('.um26-service-library').count())await story.locator('.um26-service-library').evaluate(node=>node.open=true);
    const theater=story.locator('[data-atlas-theater]');
    await theater.evaluate(node=>node.scrollIntoView({block:'center',behavior:'instant'}));
    await story.clock.runFor(250);await delay(300);
@@ -150,6 +151,19 @@ for(const route of routes){
 const liveContext=await browser.newContext({viewport,isMobile:profile==='mobile',hasTouch:profile==='mobile',reducedMotion:'no-preference',recordVideo:{dir:out,size:viewport}});
 const live=await liveContext.newPage();
 await live.goto(origin,{waitUntil:'load'});
+if(await live.locator('[data-request-story]').count()){
+ await live.locator('[data-request-canvas]').evaluate(node=>node.scrollIntoView({block:'center',behavior:'instant'}));
+ report.livePilot=[];const shots=new Set();
+ for(let sample=0;sample<17;sample++){
+  await delay(2000);
+  const state=await live.locator('[data-request-story]').evaluate(root=>({step:root.dataset.requestStep,state:root.dataset.requestState,status:root.querySelector('[data-request-status]').textContent,packet:root.querySelector('[data-request-packet]').getAttribute('transform'),camera:root.querySelector('[data-request-camera]').getAttribute('transform')}));
+  report.livePilot.push(state);
+  if(!shots.has(state.step)){shots.add(state.step);await snapshot(live,'home-request-'+state.step,live.locator('[data-request-story]'));}
+ }
+ if(new Set(report.livePilot.map(s=>s.step)).size!==8)finding('/','Request pilot does not tell its complete story without input',report.livePilot);
+ if(new Set(report.livePilot.map(s=>s.packet)).size<5)finding('/','The request does not travel through the system',report.livePilot);
+ const control=live.locator('[data-request-play]');await control.click();const paused=await live.locator('[data-request-packet]').getAttribute('transform');await delay(700);if(await live.locator('[data-request-packet]').getAttribute('transform')!==paused)finding('/','Request pause does not stop transport');
+}else{
 await live.locator('[data-atlas-theater]').evaluate(node=>node.scrollIntoView({block:'center',behavior:'instant'}));
 report.liveOperation=[];
 for(let sample=0;sample<16;sample++){
@@ -160,12 +174,14 @@ const nativeCodes=new Set(report.liveOperation.map(s=>s.code));
 if(nativeCodes.size<2)finding('/','Native operation does not reach another service without input',report.liveOperation);
 const transported=report.liveOperation.filter(s=>s.phase==='1').flatMap(s=>s.signals);
 if(!transported.length||new Set(transported.map(s=>s.offset)).size<2||transported.some(s=>s.animation==='none'||s.playState!=='running'))finding('/','Operational signals do not move on native time',transported);
+}
 await live.close();await liveContext.close();
 await live.video().saveAs(path.join(out,'home-operation-native.webm'));
 
 // Accessibility preference is verified separately from the automatic story.
 const reduced=await browser.newContext({viewport,reducedMotion:'reduce'}),quiet=await reduced.newPage();
 await quiet.goto(origin,{waitUntil:'domcontentloaded'});await delay(1800);
+if(await quiet.locator('[data-request-story]').count()){await quiet.locator('[data-request-canvas]').evaluate(node=>node.scrollIntoView({block:'center',behavior:'instant'}));await delay(400);if(await quiet.locator('[data-request-story]').getAttribute('data-request-state')!=='paused')finding('/','Request pilot ignores reduced motion');}
 report.reducedMotion=await quiet.locator('[data-umc]').evaluate(root=>({paused:root.classList.contains('is-paused'),loaded:[...root.querySelectorAll('video')].some(v=>!!v.getAttribute('src'))}));
 if(!report.reducedMotion.paused||report.reducedMotion.loaded)finding('/','Reduced motion does not keep the hero still',report.reducedMotion);
 await reduced.close();await context.close();await browser.close();
