@@ -2,6 +2,12 @@ name: Blender project cinema
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Benchmark two camera views before rendering the full movie'
+        type: choice
+        options: [benchmark, full]
+        default: benchmark
 
 permissions:
   contents: read
@@ -20,38 +26,39 @@ jobs:
     timeout-minutes: 35
     strategy:
       fail-fast: true
-      matrix:
-        include:
-          - {part: 1, start: 0, end: 47}
-          - {part: 2, start: 48, end: 95}
-          - {part: 3, start: 96, end: 143}
-          - {part: 4, start: 144, end: 191}
-          - {part: 5, start: 192, end: 239}
-          - {part: 6, start: 240, end: 287}
-          - {part: 7, start: 288, end: 335}
-          - {part: 8, start: 336, end: 383}
-          - {part: 9, start: 384, end: 431}
+      matrix: ${{ fromJSON(inputs.mode == 'benchmark' && '{"include":[{"part":1,"start":0,"end":1,"frames":2},{"part":2,"start":288,"end":289,"frames":2}]}' || '{"include":[{"part":1,"start":0,"end":47,"frames":48},{"part":2,"start":48,"end":95,"frames":48},{"part":3,"start":96,"end":143,"frames":48},{"part":4,"start":144,"end":191,"frames":48},{"part":5,"start":192,"end":239,"frames":48},{"part":6,"start":240,"end":287,"frames":48},{"part":7,"start":288,"end":335,"frames":48},{"part":8,"start":336,"end":383,"frames":48},{"part":9,"start":384,"end":431,"frames":48}]}') }}
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
-      - name: Install official Blender Python and encoder on the runner
+      - name: Install verified official Blender and a software graphics context
         run: |
-          python -m pip install --disable-pip-version-check --no-cache-dir 'bpy==4.5.3'
           sudo apt-get update -qq
-          sudo apt-get install -y -qq libgl1 libxrender1 libxi6 ffmpeg
-      - name: Render 48 full-resolution frames
+          sudo apt-get install -y -qq libgl1 libegl1 libgl1-mesa-dri libglx-mesa0 libxrender1 libxi6 xvfb xauth ffmpeg
+          curl -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender-4.5.3-linux-x64.tar.xz
+          curl -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256 -o blender.sha256
+          awk '$2 == "blender-4.5.3-linux-x64.tar.xz" {print}' blender.sha256 > blender-selected.sha256
+          test -s blender-selected.sha256
+          sha256sum -c blender-selected.sha256
+          tar -xf blender-4.5.3-linux-x64.tar.xz
+      - name: Render measured full-resolution frames with Eevee
         run: |
-          python scripts/cine/render-site-project-v1.py --validate-only
-          python scripts/cine/render-site-project-v1.py --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
+          python3 scripts/cine/render-site-project-v1.py --validate-only
+          LIBGL_ALWAYS_SOFTWARE=1 LP_NUM_THREADS=4 xvfb-run -a -s "-screen 0 1920x1080x24" ./blender-4.5.3-linux-x64/blender -b -t 4 --python scripts/cine/render-site-project-v1.py -- --engine eevee --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
+      - name: Save benchmark frames and timings
+        if: inputs.mode == 'benchmark'
+        uses: actions/upload-artifact@v7
+        with:
+          name: construction-benchmark-${{ matrix.part }}
+          path: frames
+          retention-days: 1
       - name: Encode part without retaining raw frames
+        if: inputs.mode == 'full'
         run: |
           cp frames/render-info.json part-${{ matrix.part }}-info.json
-          ffmpeg -v error -framerate 24 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 48 -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -r 24 -g 48 -an -movflags +faststart part-${{ matrix.part }}.mp4
+          ffmpeg -v error -framerate 24 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v ${{ matrix.frames }} -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -r 24 -g 48 -an -movflags +faststart part-${{ matrix.part }}.mp4
       - uses: actions/upload-artifact@v7
+        if: inputs.mode == 'full'
         with:
           name: construction-part-${{ matrix.part }}
           path: |
@@ -59,6 +66,7 @@ jobs:
             part-${{ matrix.part }}-info.json
           retention-days: 1
   assemble:
+    if: inputs.mode == 'full'
     name: Assemble and validate cinema
     runs-on: ubuntu-24.04
     needs: render
@@ -73,13 +81,13 @@ jobs:
           sudo apt-get install -y -qq ffmpeg
           mkdir delivery
           for PART in $(seq 1 9); do printf "file 'construction-part-%s/part-%s.mp4'\n" "$PART" "$PART"; done > parts.txt
-          ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-construction-project-v1.mp4
-          ffmpeg -v error -i delivery/cine-construction-project-v1.mp4 -vf 'crop=1080:1080:730:0' -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-construction-project-v1-sq.mp4
-          ffmpeg -v error -i delivery/cine-construction-project-v1.mp4 -frames:v 1 -q:v 2 delivery/cine-construction-project-v1.poster.jpg
-          ffmpeg -v error -i delivery/cine-construction-project-v1.poster.jpg -c:v libaom-av1 -still-picture 1 -crf 24 delivery/cine-construction-project-v1.poster.avif
-          ffmpeg -v error -i delivery/cine-construction-project-v1.mp4 -f null -
-          ffmpeg -v error -i delivery/cine-construction-project-v1-sq.mp4 -f null -
-          ffprobe -v error -count_frames -show_streams -show_format -of json delivery/cine-construction-project-v1.mp4 > delivery/validation.json
+          ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-construction-project-v2.mp4
+          ffmpeg -v error -i delivery/cine-construction-project-v2.mp4 -vf 'crop=1080:1080:730:0' -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-construction-project-v2-sq.mp4
+          ffmpeg -v error -i delivery/cine-construction-project-v2.mp4 -frames:v 1 -q:v 2 delivery/cine-construction-project-v2.poster.jpg
+          ffmpeg -v error -i delivery/cine-construction-project-v2.poster.jpg -c:v libaom-av1 -still-picture 1 -crf 24 delivery/cine-construction-project-v2.poster.avif
+          ffmpeg -v error -i delivery/cine-construction-project-v2.mp4 -f null -
+          ffmpeg -v error -i delivery/cine-construction-project-v2-sq.mp4 -f null -
+          ffprobe -v error -count_frames -show_streams -show_format -of json delivery/cine-construction-project-v2.mp4 > delivery/validation.json
           python - <<'PY'
           import json
           from pathlib import Path

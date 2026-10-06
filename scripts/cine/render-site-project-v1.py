@@ -1,5 +1,5 @@
 """Render the authored project on a remote CPU runner; never launch Blender on the Mac."""
-import argparse, json, math, os, time
+import argparse, json, math, os, sys, time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -38,7 +38,13 @@ def render(args, data, project):
     from mathutils import Vector
     bpy.ops.wm.read_factory_settings(use_empty=True)
     scene = bpy.context.scene
-    scene.render.engine = 'CYCLES'
+    scene.render.engine = 'BLENDER_EEVEE_NEXT' if args.engine=='eevee' else 'CYCLES'
+    if args.engine=='eevee':
+        scene.eevee.taa_render_samples = 64
+        scene.eevee.use_raytracing = False
+        scene.eevee.shadow_ray_count = 2
+        scene.eevee.shadow_step_count = 8
+        if hasattr(scene.eevee,'use_gtao'):scene.eevee.use_gtao = True
     scene.cycles.device = 'CPU'
     scene.cycles.samples = 32
     scene.cycles.use_denoising = True
@@ -54,6 +60,7 @@ def render(args, data, project):
     scene.render.image_settings.color_mode = 'RGB'
     scene.view_settings.view_transform = 'AgX'
     scene.render.fps = FPS
+    scene.render.use_persistent_data = True
     scene.world = bpy.data.worlds.new('Graphite studio')
     scene.world.use_nodes = True
     scene.world.node_tree.nodes['Background'].inputs[0].default_value = (.035, .038, .042, 1)
@@ -176,7 +183,7 @@ def render(args, data, project):
         started = time.time()
         bpy.ops.render.render(write_still=True)
         print(json.dumps({'frame':frame,'total':FRAMES,'seconds':round(time.time()-started,2),'path':scene.render.filepath}), flush=True)
-    (dest / 'render-info.json').write_text(json.dumps({'blender':bpy.app.version_string,'scene':'building','frames':FRAMES,'fps':FPS,'samples':32,'resolution':[1920,1080],'start':args.start,'end':args.end,'camera':'continuous quintic dolly','geometry':len(project['boxes']),'wideOrtho':wide,'wideBounds':bounds}))
+    (dest / 'render-info.json').write_text(json.dumps({'blender':bpy.app.version_string,'scene':'building','frames':FRAMES,'fps':FPS,'engine':scene.render.engine,'samples':64 if args.engine=='eevee' else 32,'resolution':[1920,1080],'start':args.start,'end':args.end,'camera':'continuous quintic dolly','geometry':len(project['boxes']),'wideOrtho':wide,'wideBounds':bounds}))
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
@@ -184,7 +191,8 @@ if __name__ == '__main__':
     p.add_argument('--end', type=int, default=FRAMES-1)
     p.add_argument('--output', default='render')
     p.add_argument('--validate-only', action='store_true')
-    args = p.parse_args()
+    p.add_argument('--engine',choices=['cycles','eevee'],default='eevee')
+    args = p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else None)
     assert 0 <= args.start <= args.end < FRAMES
     data = json.loads((ROOT / 'src/assets/cine/isometric/site-projects-v1.json').read_text())
     project = validate(data)

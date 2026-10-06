@@ -100,8 +100,9 @@ export function banner(el) {
     motion?.setAttribute('aria-label',paused ? 'Reanudar el recorrido' : 'Pausar el recorrido');
   };
   const showPoster = scene => {
-    const source = poster.closest('picture')?.querySelector('source');
+    const source = poster.closest('picture')?.querySelector('source:not([media])');
     if (source) source.srcset=`/cine/media/cine-${scene}-poster.avif`;
+    poster.closest('picture')?.querySelectorAll('[data-poster-square]').forEach(s=>s.srcset=`/cine/media/cine-${scene}-poster-sq.${s.type==='image/avif'?'avif':'jpg'}`);
     poster.src=`/cine/media/cine-${scene}-poster.jpg`;
     poster.classList.remove('is-hidden');
   };
