@@ -6,7 +6,7 @@ on:
       mode:
         description: 'Proof three views, or render completed movies'
         type: choice
-        options: [proof, full, deliver]
+        options: [proof, full, deliver, repair]
         default: proof
       projects:
         description: 'Remaining projects reuse the already delivered building movie'
@@ -17,12 +17,20 @@ on:
         description: 'For deliver mode: existing render run containing this project’s 18 parts'
         type: string
         required: false
+      part:
+        description: 'For repair mode: one missing part from 1 to 18'
+        type: number
+        default: 1
+      repair_run:
+        description: 'For deliver mode: optional run containing recovered parts'
+        type: string
+        required: false
 
 permissions:
   contents: read
   actions: read
 concurrency:
-  group: ${{ inputs.mode == 'deliver' && format('blender-project-delivery-{0}-{1}-{2}', github.ref, inputs.source_run, inputs.projects) || format('blender-project-chunks-{0}', github.ref) }}
+  group: ${{ (inputs.mode == 'deliver' || inputs.mode == 'repair') && format('blender-project-{0}-{1}-{2}-{3}', inputs.mode, github.ref, inputs.projects, inputs.part) || format('blender-project-chunks-{0}', github.ref) }}
   cancel-in-progress: true
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -39,6 +47,7 @@ jobs:
           MODE: ${{ inputs.mode }}
           PROJECTS: ${{ inputs.projects }}
           SOURCE_RUN: ${{ inputs.source_run }}
+          REPAIR_PART: ${{ inputs.part }}
         run: |
           python3 - <<'PY'
           import json,os
@@ -46,7 +55,10 @@ jobs:
           if os.environ['MODE']=='deliver': assert os.environ['SOURCE_RUN'].isdigit()
           rows=[]
           for scene in scenes:
-              if os.environ['MODE']=='proof':
+              if os.environ['MODE']=='repair':
+                  part=int(os.environ['REPAIR_PART']);assert 1<=part<=18 and len(scenes)==1
+                  rows.append(dict(scene=scene,part=part,start=(part-1)*24,end=part*24-1,frames=24))
+              elif os.environ['MODE']=='proof':
                   rows.extend(dict(scene=scene,part=i+1,start=f,end=f,frames=1) for i,f in enumerate([0,144,288]))
               else:
                   rows.extend(dict(scene=scene,part=i+1,start=i*24,end=i*24+23,frames=24) for i in range(18))
@@ -89,12 +101,12 @@ jobs:
           path: frames
           retention-days: 1
       - name: Encode recoverable part
-        if: inputs.mode == 'full'
+        if: inputs.mode == 'full' || inputs.mode == 'repair'
         run: |
           cp frames/render-info.json part-${{ matrix.part }}-info.json
           ffmpeg -v error -framerate 24 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v ${{ matrix.frames }} -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -r 24 -g 48 -an -movflags +faststart part-${{ matrix.part }}.mp4
       - uses: actions/upload-artifact@v7
-        if: inputs.mode == 'full'
+        if: inputs.mode == 'full' || inputs.mode == 'repair'
         with:
           name: site-${{ matrix.scene }}-part-${{ matrix.part }}
           path: |
@@ -103,7 +115,7 @@ jobs:
           retention-days: 1
   assemble:
     name: Deliver ${{ matrix.scene }} cinema
-    if: always() && inputs.mode != 'proof' && (inputs.mode == 'deliver' || needs.render.result == 'success')
+    if: always() && (inputs.mode == 'full' || inputs.mode == 'deliver') && (inputs.mode == 'deliver' || needs.render.result == 'success')
     needs: [plan, render]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -116,6 +128,12 @@ jobs:
         with:
           pattern: site-${{ matrix.scene }}-part-*
           run-id: ${{ inputs.mode == 'deliver' && inputs.source_run || github.run_id }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v8
+        if: inputs.mode == 'deliver' && inputs.repair_run != ''
+        with:
+          pattern: site-${{ matrix.scene }}-part-*
+          run-id: ${{ inputs.repair_run }}
           github-token: ${{ github.token }}
       - name: Join, crop and decode every frame
         env:
