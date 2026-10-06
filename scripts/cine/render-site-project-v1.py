@@ -40,13 +40,13 @@ def render(args, data, project):
     scene = bpy.context.scene
     scene.render.engine = 'BLENDER_EEVEE_NEXT' if args.engine=='eevee' else 'CYCLES'
     if args.engine=='eevee':
-        scene.eevee.taa_render_samples = 64
+        scene.eevee.taa_render_samples = args.samples
         scene.eevee.use_raytracing = False
         scene.eevee.shadow_ray_count = 2
         scene.eevee.shadow_step_count = 8
         if hasattr(scene.eevee,'use_gtao'):scene.eevee.use_gtao = True
     scene.cycles.device = 'CPU'
-    scene.cycles.samples = 32
+    scene.cycles.samples = args.samples
     scene.cycles.use_denoising = True
     scene.cycles.use_adaptive_sampling = True
     scene.cycles.adaptive_threshold = .025
@@ -183,7 +183,7 @@ def render(args, data, project):
         started = time.time()
         bpy.ops.render.render(write_still=True)
         print(json.dumps({'frame':frame,'total':FRAMES,'seconds':round(time.time()-started,2),'path':scene.render.filepath}), flush=True)
-    (dest / 'render-info.json').write_text(json.dumps({'blender':bpy.app.version_string,'scene':'building','frames':FRAMES,'fps':FPS,'engine':scene.render.engine,'samples':64 if args.engine=='eevee' else 32,'resolution':[1920,1080],'start':args.start,'end':args.end,'camera':'continuous quintic dolly','geometry':len(project['boxes']),'wideOrtho':wide,'wideBounds':bounds}))
+    (dest / 'render-info.json').write_text(json.dumps({'blender':bpy.app.version_string,'scene':'building','frames':FRAMES,'fps':FPS,'engine':scene.render.engine,'samples':args.samples,'resolution':[1920,1080],'start':args.start,'end':args.end,'camera':'continuous quintic dolly','geometry':len(project['boxes']),'wideOrtho':wide,'wideBounds':bounds}))
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
@@ -191,8 +191,10 @@ if __name__ == '__main__':
     p.add_argument('--end', type=int, default=FRAMES-1)
     p.add_argument('--output', default='render')
     p.add_argument('--validate-only', action='store_true')
-    p.add_argument('--engine',choices=['cycles','eevee'],default='eevee')
+    p.add_argument('--engine',choices=['cycles','eevee'],default='cycles')
+    p.add_argument('--samples',type=int,default=8)
     args = p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else None)
+    assert 4 <= args.samples <= 128
     assert 0 <= args.start <= args.end < FRAMES
     data = json.loads((ROOT / 'src/assets/cine/isometric/site-projects-v1.json').read_text())
     project = validate(data)

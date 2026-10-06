@@ -26,7 +26,7 @@ jobs:
     timeout-minutes: 35
     strategy:
       fail-fast: true
-      matrix: ${{ fromJSON(inputs.mode == 'benchmark' && '{"include":[{"part":1,"start":0,"end":1,"frames":2},{"part":2,"start":288,"end":289,"frames":2}]}' || '{"include":[{"part":1,"start":0,"end":47,"frames":48},{"part":2,"start":48,"end":95,"frames":48},{"part":3,"start":96,"end":143,"frames":48},{"part":4,"start":144,"end":191,"frames":48},{"part":5,"start":192,"end":239,"frames":48},{"part":6,"start":240,"end":287,"frames":48},{"part":7,"start":288,"end":335,"frames":48},{"part":8,"start":336,"end":383,"frames":48},{"part":9,"start":384,"end":431,"frames":48}]}') }}
+      matrix: ${{ fromJSON(inputs.mode == 'benchmark' && '{"include":[{"part":1,"start":0,"end":0,"frames":1,"samples":8},{"part":2,"start":288,"end":288,"frames":1,"samples":8},{"part":3,"start":0,"end":0,"frames":1,"samples":16},{"part":4,"start":288,"end":288,"frames":1,"samples":16}]}' || '{"include":[{"part":1,"start":0,"end":47,"frames":48,"samples":8},{"part":2,"start":48,"end":95,"frames":48,"samples":8},{"part":3,"start":96,"end":143,"frames":48,"samples":8},{"part":4,"start":144,"end":191,"frames":48,"samples":8},{"part":5,"start":192,"end":239,"frames":48,"samples":8},{"part":6,"start":240,"end":287,"frames":48,"samples":8},{"part":7,"start":288,"end":335,"frames":48,"samples":8},{"part":8,"start":336,"end":383,"frames":48,"samples":8},{"part":9,"start":384,"end":431,"frames":48,"samples":8}]}') }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -41,10 +41,10 @@ jobs:
           test -s blender-selected.sha256
           sha256sum -c blender-selected.sha256
           tar -xf blender-4.5.3-linux-x64.tar.xz
-      - name: Render measured full-resolution frames with Eevee
+      - name: Render measured full-resolution frames with Cycles
         run: |
           python3 scripts/cine/render-site-project-v1.py --validate-only
-          LIBGL_ALWAYS_SOFTWARE=1 LP_NUM_THREADS=4 xvfb-run -a -s "-screen 0 1920x1080x24" ./blender-4.5.3-linux-x64/blender -b -t 4 --python scripts/cine/render-site-project-v1.py -- --engine eevee --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
+          ./blender-4.5.3-linux-x64/blender -b -t 4 --python scripts/cine/render-site-project-v1.py -- --engine cycles --samples ${{ matrix.samples }} --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
       - name: Save benchmark frames and timings
         if: inputs.mode == 'benchmark'
         uses: actions/upload-artifact@v7
@@ -88,7 +88,7 @@ jobs:
           ffmpeg -v error -i delivery/cine-construction-project-v2.mp4 -f null -
           ffmpeg -v error -i delivery/cine-construction-project-v2-sq.mp4 -f null -
           ffprobe -v error -count_frames -show_streams -show_format -of json delivery/cine-construction-project-v2.mp4 > delivery/validation.json
-          python - <<'PY'
+          python3 - <<'PY'
           import json
           from pathlib import Path
           v=json.loads(Path('delivery/validation.json').read_text())['streams'][0]
@@ -100,6 +100,6 @@ jobs:
           sha256sum delivery/* > delivery/SHA256SUMS
       - uses: actions/upload-artifact@v7
         with:
-          name: construction-cinema-v1
+          name: construction-cinema-v2
           path: delivery
           retention-days: 1
