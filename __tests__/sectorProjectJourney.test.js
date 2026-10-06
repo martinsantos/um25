@@ -24,6 +24,7 @@ test('Constructoras follows the six services of its project, with optical fiber 
  const fiber=project.chapters.find(c=>c.code==='103');expect(fiber.scenes.every(s=>s.part==='fiber')).toBe(true);
  expect(fiber.scenes.map(s=>s.view)).toEqual(['system','object','system']);
  expect(fiber.scenes.map(s=>s.flow.phase)).toEqual([0,1,2]);
+ expect(fiber.scenes[1].copy).toContain('distribuidor óptico');expect(fiber.scenes[1].copy).not.toContain('radio');
 });
 
 test.each(model.scenes.map(s=>[s.id,s]))('%s has a detailed valid SVG and exact equal-axis projection from shared physical geometry',(id,scene)=>{

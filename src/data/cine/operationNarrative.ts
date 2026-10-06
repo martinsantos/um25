@@ -11,7 +11,12 @@ const operations:Record<string,Operation>={
  '106':{nodes:['Sitio y necesidades','Arquitectura y prioridades','Plan y documentación'],steps:[['Primero entendemos la operación.','Relevamos equipos, conexiones, necesidades y riesgos antes de proponer una intervención.'],['Las dependencias ordenan las decisiones.','Relacionamos infraestructura, sistemas y prioridades para definir qué resolver y en qué orden.'],['Un proyecto que se puede operar.','Última Milla entrega alcance, criterios y documentación para evaluar la inversión y orientar su ejecución.']]},
 };
 export function operationScenes(code:string,context:[string,string]|undefined,part?:string):ServiceScene[]{
- const operation=operations[code];
+ const operation:Operation=code==='103'&&part==='fiber'?{
+  nodes:['Áreas del proyecto','Distribuidor óptico','Equipos de red'],
+  steps:[['Las áreas se conectan con el cuarto técnico.','La fibra vincula los puntos previstos por el proyecto con su distribución central.'],
+   ['Cada fibra tiene una terminación identificada.','El distribuidor óptico organiza y protege las terminaciones. Los latiguillos conectan cada enlace con los equipos de red del cuarto técnico.'],
+   ['La conexión se entrega medida y documentada.','Última Milla instala y verifica los enlaces ópticos. La identificación y las mediciones permiten operar, mantener y ampliar la red.']],
+ }:operations[code];
  return operation.steps.map(([title,copy],phase)=>({view:phase===1?'object':'system',open:true,duration:phase===1?8000:6500,part,
   title:phase===0&&context?context[0]:title,copy:phase===0&&context?context[1]:copy,
   flow:{phase,nodes:operation.nodes,reverse:operation.reverse}}));
