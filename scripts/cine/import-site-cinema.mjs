@@ -36,6 +36,6 @@ for(const [source,target] of pairs){
  else fs.copyFileSync(input,output,fs.constants.COPYFILE_EXCL);
  inventory.push({file:target,bytes:fs.statSync(output).size,sha256:sha(output)});
 }
-const report={version:1,constructoras:{scene:'fachada-proyecto-v1',status:'ready',engine:'Blender 4.5.3 / Cycles',camera:'continuous quintic dolly; building, riser, technical room',duration:18,fps:24,frames:432,resolution:[1920,1080],run:`https://github.com/martinsantos/um25/actions/runs/${run}`,assets:inventory}};
+const report={version:1,constructoras:{scene:'fachada-proyecto-v2',status:'ready',engine:'Blender 4.5.3 / Cycles',camera:'continuous quintic dolly; building, riser, technical room',duration:18,fps:24,frames:432,resolution:[1920,1080],run:`https://github.com/martinsantos/um25/actions/runs/${run}`,assets:inventory}};
 fs.writeFileSync(path.join(root,'src/data/cine/site-movies-v1.json'),JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify({imported:true,totalBytes:total,report},null,2));

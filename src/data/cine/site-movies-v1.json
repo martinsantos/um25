@@ -1,35 +1,48 @@
 {
   "version": 1,
   "constructoras": {
-    "scene": "fachada-proyecto-v1",
-    "status": "poster",
+    "scene": "fachada-proyecto-v2",
+    "status": "ready",
     "engine": "Blender 4.5.3 / Cycles",
+    "camera": "continuous quintic dolly; building, riser, technical room",
+    "duration": 18,
+    "fps": 24,
+    "frames": 432,
     "resolution": [
       1920,
       1080
     ],
-    "run": "https://github.com/martinsantos/um25/actions/runs/37454221316",
-    "frame": 0,
+    "run": "https://github.com/martinsantos/um25/actions/runs/37466172537",
     "assets": [
       {
-        "file": "cine-fachada-proyecto-v1-poster.jpg",
-        "bytes": 170542,
-        "sha256": "1e081676783cf88f5b71613cfeedb4a05d5afed52b4f34fcc270d2ffd901d731"
+        "file": "cine-fachada-proyecto-v2.mp4",
+        "bytes": 6610174,
+        "sha256": "514dcb14212503f47f6cb5f282fb9bd9ffe72fe4f87eb18bf36fead4919251ee"
       },
       {
-        "file": "cine-fachada-proyecto-v1-poster.avif",
-        "bytes": 35208,
-        "sha256": "f640bf3a196a56c501032b43535cb256a4de269fe78aa245f802d15734b302b2"
+        "file": "cine-fachada-proyecto-v2-sq.mp4",
+        "bytes": 4585461,
+        "sha256": "e44543e99cb8e77df7fdc14633e1493295f46c09bae2dba0a530b4abb143205b"
       },
       {
-        "file": "cine-fachada-proyecto-v1-poster-sq.jpg",
-        "bytes": 140993,
-        "sha256": "c4600aaa33d500a8b14ec50b0399117b814499ae41ee3863ccce7675f1e7e616"
+        "file": "cine-fachada-proyecto-v2-poster.jpg",
+        "bytes": 97783,
+        "sha256": "2e85c4a7b768324cc0a5a538c7e1c38855862df5ae323d6418fe6a3c163dc805"
       },
       {
-        "file": "cine-fachada-proyecto-v1-poster-sq.avif",
-        "bytes": 34961,
-        "sha256": "e5bf01d54f4fa3d27e974fa5410651e396ef3cb8cc0972cbb4c272e8320079a0"
+        "file": "cine-fachada-proyecto-v2-poster.avif",
+        "bytes": 18771,
+        "sha256": "14026e1e5dff07886167eb5370dc616757e554bd66d462c9c419e0e2f80dcd42"
+      },
+      {
+        "file": "cine-fachada-proyecto-v2-poster-sq.jpg",
+        "bytes": 138006,
+        "sha256": "af77374d349aaefc185057f6f879ccacc2fc64e2786eb7f5d8ea8a23a7f53e6e"
+      },
+      {
+        "file": "cine-fachada-proyecto-v2-poster-sq.avif",
+        "bytes": 33231,
+        "sha256": "a4451d0392130bf32f1703bf87968acbdca224eff27c5631e2d162aa0979de82"
       }
     ]
   }
