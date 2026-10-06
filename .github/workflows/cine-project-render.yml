@@ -2,6 +2,7 @@ name: Blender project cinema
 
 on:
   pull_request:
+    types: [opened, reopened, ready_for_review]
     branches: [develop]
     paths:
       - '.github/workflows/cine-project-render.yml'
@@ -48,7 +49,7 @@ jobs:
           python scripts/cine/render-site-project-v1.py --validate-only
           python scripts/cine/render-site-project-v1.py --start ${{ matrix.start }} --end ${{ matrix.start }} --output frames
       - name: Save first-frame proof immediately
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: construction-proof-${{ matrix.part }}
           path: frames/*.png
@@ -59,7 +60,7 @@ jobs:
       - name: Encode part without retaining raw frames
         run: |
           ffmpeg -v error -framerate 24 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 144 -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -r 24 -g 48 -an -movflags +faststart part-${{ matrix.part }}.mp4
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: construction-part-${{ matrix.part }}
           path: part-${{ matrix.part }}.mp4
@@ -70,7 +71,7 @@ jobs:
     needs: render
     timeout-minutes: 10
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: construction-part-*
           merge-multiple: true
@@ -81,7 +82,7 @@ jobs:
           mkdir delivery
           printf "file 'part-1.mp4'\nfile 'part-2.mp4'\nfile 'part-3.mp4'\n" > parts.txt
           ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-construction-project-v1.mp4
-          ffmpeg -v error -i delivery/cine-construction-project-v1.mp4 -vf 'crop=1080:1080:600:0' -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-construction-project-v1-sq.mp4
+          ffmpeg -v error -i delivery/cine-construction-project-v1.mp4 -vf 'crop=1080:1080:730:0' -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-construction-project-v1-sq.mp4
           ffmpeg -v error -i delivery/cine-construction-project-v1.mp4 -frames:v 1 -q:v 2 delivery/cine-construction-project-v1.poster.jpg
           ffmpeg -v error -i delivery/cine-construction-project-v1.poster.jpg -c:v libaom-av1 -still-picture 1 -crf 24 delivery/cine-construction-project-v1.poster.avif
           ffmpeg -v error -i delivery/cine-construction-project-v1.mp4 -f null -
@@ -96,7 +97,7 @@ jobs:
           assert sum(p.stat().st_size for p in Path('delivery').iterdir())<40_000_000
           PY
           sha256sum delivery/* > delivery/SHA256SUMS
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: construction-cinema-v1
           path: delivery

@@ -9,10 +9,10 @@ def smooth(t):
     t = max(0, min(1, t))
     return t * t * t * (t * (t * 6 - 15) + 10)
 
-def camera_pose(frame):
+def camera_pose(frame, wide=33.5):
     """One continuous dolly: building → riser → technical room → building. No cuts or object reveals."""
-    keys = [(0, (300, 172, 142), 25.0, 1.0), (144, (535, 243, 148), 12.0, .92),
-            (288, (518, 277, 43), 4.9, .66), (431, (300, 172, 142), 25.0, 1.0)]
+    keys = [(0, (300, 172, 142), wide, 1.0), (144, (535, 243, 148), 12.0, .92),
+            (288, (518, 277, 43), 4.9, .66), (431, (300, 172, 142), wide, 1.0)]
     for a, b in zip(keys, keys[1:]):
         if frame <= b[0]:
             u = smooth((frame - a[0]) / (b[0] - a[0]))
@@ -141,10 +141,32 @@ def render(args, data, project):
     cam = bpy.data.objects.new('Continuous project camera', camera)
     scene.collection.objects.link(cam)
     scene.camera = cam
+    from bpy_extras.object_utils import world_to_camera_view
+    corners = [Vector((x * SCALE, y * SCALE, z * SCALE))
+               for b in project['boxes']
+               for x in (b['x']-b['w']/2,b['x']+b['w']/2)
+               for y in (b['y']-b['d']/2,b['y']+b['d']/2)
+               for z in (b['z'],b['z']+b['h'])]
+    wide = 33.5
+    for attempt in range(24):
+        target, size, elevation = camera_pose(0, wide)
+        target = Vector(target)
+        cam.location = target + Vector((32,32,32*elevation))
+        cam.rotation_euler = (target-cam.location).to_track_quat('-Z','Y').to_euler()
+        camera.ortho_scale, camera.shift_x = size, -.12 * (size/25)
+        bpy.context.view_layer.update()
+        projected = [world_to_camera_view(scene,cam,point) for point in corners]
+        bounds = [min(p.x for p in projected),min(p.y for p in projected),max(p.x for p in projected),max(p.y for p in projected)]
+        if min(bounds[:2]) >= .025 and max(bounds[2:]) <= .975:
+            break
+        wide *= 1.035
+    else:
+        raise RuntimeError(f'Wide framing does not contain the project: {bounds}')
+    print(json.dumps({'wideOrtho':wide,'wideBounds':bounds}),flush=True)
     dest = Path(args.output)
     dest.mkdir(parents=True, exist_ok=True)
     for frame in range(args.start, args.end + 1):
-        target, size, elevation = camera_pose(frame)
+        target, size, elevation = camera_pose(frame, wide)
         target = Vector(target)
         cam.location = target + Vector((32, 32, 32 * elevation))
         cam.rotation_euler = (target - cam.location).to_track_quat('-Z', 'Y').to_euler()
@@ -154,7 +176,7 @@ def render(args, data, project):
         started = time.time()
         bpy.ops.render.render(write_still=True)
         print(json.dumps({'frame':frame,'total':FRAMES,'seconds':round(time.time()-started,2),'path':scene.render.filepath}), flush=True)
-    (dest / 'render-info.json').write_text(json.dumps({'blender':bpy.app.version_string,'scene':'building','frames':FRAMES,'fps':FPS,'samples':32,'resolution':[1920,1080],'start':args.start,'end':args.end,'camera':'continuous quintic dolly','geometry':len(project['boxes'])}))
+    (dest / 'render-info.json').write_text(json.dumps({'blender':bpy.app.version_string,'scene':'building','frames':FRAMES,'fps':FPS,'samples':32,'resolution':[1920,1080],'start':args.start,'end':args.end,'camera':'continuous quintic dolly','geometry':len(project['boxes']),'wideOrtho':wide,'wideBounds':bounds}))
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()

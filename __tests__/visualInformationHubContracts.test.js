@@ -311,15 +311,16 @@ describe('Information hub visual contracts', () => {
     expect(coverage).not.toMatch(/outline:\s*(none|0)/);
   });
 
-  test('sector service cards expose real link interaction states', () => {
-    expect(sectorUM26).toContain('class="um-click-surface sector26-service-card"');
-    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</em>');
-    expect(sectorUM26).toMatch(/\.sector26-service-card,[\s\S]*--um-click-hover-bg:[\s\S]*#171719;/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover,[\s\S]*a\.sector26-service-card:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.22\);/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover strong,[\s\S]*a\.sector26-service-card:focus-visible strong\s*\{[\s\S]*color:\s*#fff !important;/);
-    expect(sectorUM26).toMatch(/\.sector26-service-card em\s*\{[\s\S]*text-decoration:\s*underline;/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover em::after,[\s\S]*a\.sector26-service-card:focus-visible em::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
+  test('sector chapters keep selected, hover and keyboard focus states with a real detail link', () => {
+    const story = read('src/components/cine/ServicesStory.astro');
+    expect(sectorUM26).toContain('<SectorJourney ');
+    expect(story).toContain('data-atlas-service={s.code}');
+    expect(story).toContain('aria-pressed={String(i===0)}');
+    expect(story).toContain('button:focus-visible');
+    expect(story).toContain('outline:2px solid #fff');
+    expect(story).toContain('button[aria-pressed=true]');
+    expect(story).toContain('href={first.href} data-atlas-link');
+    expect(story).toContain('text-underline-offset:7px');
   });
 
   test('sector evidence links expose active hover and focus states', () => {

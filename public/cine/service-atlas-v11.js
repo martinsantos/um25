@@ -12,6 +12,7 @@ export function bindServiceAtlas(root) {
   const title=root.querySelector('[data-atlas-title]'),copy=root.querySelector('[data-atlas-copy]'),code=root.querySelector('[data-atlas-code]'),link=root.querySelector('[data-atlas-link]');
   const play=root.querySelector('[data-atlas-play]'),status=root.querySelector('[data-atlas-status]'),counter=root.querySelector('[data-atlas-counter]');
   const equipment=root.querySelector('[data-atlas-equipment]'),equipmentPicker=root.querySelector('[data-atlas-part]');
+  const partName=root.querySelector('[data-atlas-part-name]'),serviceRail=root.querySelector('.svc-story__list');
   const track=[...root.querySelectorAll('[data-atlas-chapter]')],theater=root.querySelector('[data-atlas-theater]');
   const chapters=JSON.parse(root.querySelector('[data-atlas-narrative]')?.textContent||'[]').filter(chapter=>services.some(button=>button.dataset.atlasService===chapter.code));
   const guided=chapters.length>0;
@@ -74,13 +75,18 @@ export function bindServiceAtlas(root) {
       project.dataset.projectService=active.dataset.atlasService;project.dataset.projectView=String(index);project.dataset.projectOpen=String(narration?.open??true);
       const pin=project.querySelector(`[data-project-pin="${active.dataset.atlasService}"]`),leader=project.querySelector('[data-project-leader]');
       if(pin&&leader){
-        const x=Number(pin.dataset.x)*.33-80,y=Number(pin.dataset.y)*.33+340;
         const mobile=window.innerWidth<=760,id=manualPart||narration?.part;
+        const x=Number(pin.dataset.x)*(mobile?.28:.33)+(mobile?240:-80),y=Number(pin.dataset.y)*(mobile?.28:.33)+(mobile?360:340);
         const target=index===3?[mobile?(['switch','access','outlet','injector'].includes(id)?683:653):811,mobile?313:330]:index===2?[mobile?(id==='fiber'?684:640):788,mobile?484:473]:[mobile?658:803,mobile?366:370];
         leader.setAttribute('d',`M${x} ${y}H430L${target[0]-110} ${target[1]+20}H${target[0]-80}`);
       }
       root.querySelectorAll('[data-atlas-project-link]').forEach(anchor=>anchor.href=active.dataset.href);
     }
+    if(project&&serviceRail&&serviceRail.scrollWidth>serviceRail.clientWidth&&serviceRail.scrollTo){
+      const left=active.offsetLeft-serviceRail.offsetLeft,right=left+active.offsetWidth;
+      if(left<serviceRail.scrollLeft||right>serviceRail.scrollLeft+serviceRail.clientWidth)serviceRail.scrollTo({left:Math.max(0,left-(serviceRail.clientWidth-active.offsetWidth)/2),behavior:reduced.matches?'auto':'smooth'});
+    }
+    if(partName){partName.hidden=view==='system';partName.textContent=active.dataset.atlasService==='104'?'Interfaz de software':active.dataset.atlasService==='105'?'Centro de operaciones':active.dataset.atlasService==='106'?'Planos y documentación':'';}
     const token=++revision,src=active.dataset[view];
     if(software)software.hidden=active.dataset.atlasService!=='104'||(!guided&&view!=='object')||(guided&&view==='system');
     image.hidden=!!operation||Boolean(software&&!software.hidden);
@@ -105,6 +111,7 @@ export function bindServiceAtlas(root) {
           equipmentPicker.value=part;
         }
         requestNetwork({code:active.dataset.atlasService,part,index,open:narration?.open??index>0});
+        if(partName)partName.textContent=networkFigure.querySelector(`[data-network-part="${part}"]`)?.textContent.trim()||'';
         if((manualPart||manual)&&!(project&&view==='system')){
           if(sceneTitle)sceneTitle.textContent=networkFigure.querySelector('[data-network-title]')?.textContent||active.dataset.name;
           if(illustrationCopy)illustrationCopy.textContent=networkFigure.querySelector('[data-network-copy]')?.textContent||active.dataset.copy;
@@ -186,7 +193,7 @@ export function bindServiceAtlas(root) {
   const networkStep=e=>{
     if(!guided||rendering||network?.hidden)return;
     const detail=e.detail||{};
-    if(detail.manual){pause();view=INDEX_VIEW[detail.index]||view;manualPart=detail.part||manualPart;sceneIndex=Math.max(0,chapter().scenes.findIndex(item=>item.view===view));remaining=scene().duration;views.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.atlasView===view)));}
+    if(detail.manual){pause();view=INDEX_VIEW[detail.index]||view;manualPart=detail.part||manualPart;sceneIndex=Math.max(0,chapter().scenes.findIndex(item=>item.view===view));remaining=scene().duration;views.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.atlasView===view)));if(project)sync({manual:true});}
     if((manualPart||!intent)&&sceneTitle&&illustrationCopy){sceneTitle.textContent=detail.title;illustrationCopy.textContent=detail.copy;}
     if(equipmentPicker&&detail.part)equipmentPicker.value=detail.part;ui();
   };

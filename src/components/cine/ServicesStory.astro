@@ -50,9 +50,9 @@ const first=items[0];
   <div class="svc-story__theater" data-atlas-theater>
    {projectMarkup&&<div class="svc-story__project" data-atlas-project data-project-service={first.code} data-project-view="0" data-project-open="false" data-project-visible="false"><Fragment set:html={projectMarkup} /></div>}
    <div data-atlas-network><NetworkJourney compact catalog guided /></div>
-   <div class="svc-story__frame" hidden><div class="svc-story__operations" data-atlas-operation="105" hidden><IsometricStage code="105" compact /></div><div class="svc-story__operations" data-atlas-operation="106" hidden><IsometricStage code="106" compact /></div><div class="svc-story__software" data-atlas-software hidden><SoftwareLayers compact /></div><img src={url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
+   <div class="svc-story__frame" hidden><div class="svc-story__operations" data-atlas-operation="105" hidden><IsometricStage code="105" compact /></div><div class="svc-story__operations" data-atlas-operation="106" hidden><IsometricStage code="106" compact /></div><div class="svc-story__software" data-atlas-software hidden><SoftwareLayers compact /></div><img src={project?undefined:url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
   </div>
-  <div class="svc-story__narration"><p class="svc-story__scene-title" data-atlas-scene-title>{narrative[0].scenes[0].title}</p><p class="svc-story__illustration-copy" data-atlas-context>{narrative[0].scenes[0].copy}</p></div>
+  <div class="svc-story__narration">{project&&<p class="svc-story__object-name" data-atlas-part-name hidden />}<p class="svc-story__scene-title" data-atlas-scene-title>{narrative[0].scenes[0].title}</p><p class="svc-story__illustration-copy" data-atlas-context>{narrative[0].scenes[0].copy}</p></div>
   <div class="svc-story__exploration"><details class="svc-story__equipment" data-atlas-equipment><summary>Explorar otras piezas</summary><label><span>Equipo</span><select data-atlas-part aria-label="Equipo que querés explorar">{EQUIPMENT_KITS[first.code]?.parts.map(id=><option value={id} selected={id===EQUIPMENT_KITS[first.code].initial}>{NETWORK_EQUIPMENT.find(part=>part.id===id)?.name}</option>)}</select></label></details></div>
   <div class="svc-story__caption"><p data-atlas-copy hidden>{first.message.copy}</p><a class="svc-story__link" href={first.href} data-atlas-link>Explorar {first.study.name.toLowerCase()} <span aria-hidden="true">→</span></a></div>
   <p class="svc-story__announcement" data-atlas-announce aria-live="polite" aria-atomic="true" />
@@ -97,13 +97,13 @@ const first=items[0];
 
  .svc-story--project{display:block}.svc-story--project .svc-story__choice{margin-bottom:20px}.svc-story--project .svc-story__choice-title,.svc-story--project .svc-story__picker{display:none}
  .svc-story--project .svc-story__list{display:flex;gap:0;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#666 transparent;border-block:1px solid #ffffff30}
- .svc-story--project .svc-story__item{flex:0 0 auto;border:0!important}.svc-story--project .svc-story__item button{min-height:56px;width:auto;grid-template-columns:22px minmax(0,1fr);gap:10px;padding:12px 18px;border-left:0;border-bottom:2px solid transparent}.svc-story--project .svc-story__item button[aria-pressed=true]{border-bottom-color:var(--um-red,#dc2626)}
+ .svc-story--project .svc-story__item{flex:0 0 auto;border:0!important}.svc-story--project .svc-story__item button{min-height:56px;width:auto;grid-template-columns:22px minmax(0,1fr);gap:8px;padding:12px 12px;border-left:0;border-bottom:2px solid transparent}.svc-story--project .svc-story__item button[aria-pressed=true]{border-bottom-color:var(--um-red,#dc2626)}
  .svc-story--project .svc-story__text strong{font-size:1rem;white-space:nowrap}.svc-story--project .svc-story__text>span,.svc-story--project .svc-story__arrow{display:none}
  .svc-story--project .svc-story__stage{display:grid;grid-template-columns:minmax(0,8fr) minmax(280px,4fr);gap:0 40px;padding:24px 0 0;background:transparent;position:static}
  .svc-story--project .svc-story__heading{grid-column:2;grid-row:1;padding:8px 0 24px}.svc-story--project .svc-story__heading h3{display:none}.svc-story--project .svc-story__heading>span{font-size:var(--um-world-h3,1.25rem);font-weight:var(--um-display-weight,600);color:#fff;margin:0}
  .svc-story--project .svc-story__playback{grid-column:1;grid-row:1}.svc-story--project .svc-story__chapters{display:none}.svc-story--project .svc-story__views{grid-column:1;grid-row:2}
- .svc-story--project .svc-story__theater{grid-column:1;grid-row:3/6;height:clamp(420px,53svh,580px)}
- .svc-story--project .svc-story__narration{grid-column:2;grid-row:2/4;padding-top:24px;min-block-size:0}.svc-story--project .svc-story__scene-title{font-size:var(--um-world-h3,1.25rem);line-height:1.3;margin-bottom:20px}.svc-story--project .svc-story__illustration-copy{font-size:var(--um-copy-description,1.125rem);line-height:var(--um-body-line-height,1.62)}
+ .svc-story--project .svc-story__theater{overflow:hidden;grid-column:1;grid-row:3/6;height:clamp(420px,53svh,580px)}
+ .svc-story--project .svc-story__narration{grid-column:2;grid-row:2/4;padding-top:24px;min-block-size:0}.svc-story--project .svc-story__object-name{font-size:1rem;line-height:1.5;color:var(--story-muted);margin:0 0 12px}.svc-story--project .svc-story__scene-title{font-size:var(--um-world-h3,1.25rem);line-height:1.3;margin-bottom:20px}.svc-story--project .svc-story__illustration-copy{font-size:var(--um-copy-description,1.125rem);line-height:var(--um-body-line-height,1.62)}
  .svc-story--project .svc-story__exploration{grid-column:2;grid-row:4;align-self:end}.svc-story--project .svc-story__caption{grid-column:2;grid-row:5;align-self:end}
  .svc-story__project{position:absolute;inset:0;pointer-events:none}.svc-story__project :global(svg){width:100%;height:100%;overflow:visible}.svc-story__project :global(.sp-root){transform-origin:0 0;transform:translate(0,0) scale(1);transition:transform 1400ms cubic-bezier(.22,1,.36,1)}
  .svc-story__project[data-project-open=true][data-project-view="0"] :global(.sp-root){transform:translate(-20px,-12px) scale(1.04)}
@@ -123,13 +123,13 @@ const first=items[0];
  .svc-story--project :global(.rk-cabinet),.svc-story--project :global(.rk-ground),.svc-story--project :global(.rk-context-object),.svc-story--project :global(.rk-context-label),.svc-story--project :global(.rk-leader){opacity:0!important;pointer-events:none}
  .svc-story--project .svc-story__software,.svc-story--project .svc-story__operations{margin-left:27%;width:73%}
  @media(prefers-reduced-motion:no-preference){
-  .svc-story__project[data-project-visible=true][data-project-open=true][data-project-service="101"] :global(.sp-route--101 path){animation:project-route 3200ms cubic-bezier(.22,1,.36,1) 1 both}
-  .svc-story__project[data-project-visible=true][data-project-open=true][data-project-service="102"] :global(.sp-route--102 path){animation:project-route 3200ms cubic-bezier(.22,1,.36,1) 1 both}
-  .svc-story__project[data-project-visible=true][data-project-open=true][data-project-service="103"] :global(.sp-route--103 path){animation:project-route 3200ms cubic-bezier(.22,1,.36,1) 1 both}
-  .svc-story__project[data-project-visible=true][data-project-open=true][data-project-service="104"] :global(.sp-route--104 path){animation:project-route 3200ms cubic-bezier(.22,1,.36,1) 1 both}
-  .svc-story__project[data-project-visible=true][data-project-open=true][data-project-service="105"] :global(.sp-route--105 path){animation:project-route 3200ms cubic-bezier(.22,1,.36,1) 1 both}
-  .svc-story__project[data-project-visible=true][data-project-open=true][data-project-service="107"] :global(.sp-route--107 path){animation:project-route 3200ms cubic-bezier(.22,1,.36,1) 1 both}
-  .svc-story__project[data-project-visible=true][data-project-open=true][data-project-service="108"] :global(.sp-route--108 path){animation:project-route 3200ms cubic-bezier(.22,1,.36,1) 1 both}
+  .svc-story__project[data-project-open=true][data-project-service="101"] :global(.sp-route--101 path){animation:project-route 3200ms cubic-bezier(.22,1,.36,1) 1 both}
+  .svc-story__project[data-project-open=true][data-project-service="102"] :global(.sp-route--102 path){animation:project-route 3200ms cubic-bezier(.22,1,.36,1) 1 both}
+  .svc-story__project[data-project-open=true][data-project-service="103"] :global(.sp-route--103 path){animation:project-route 3200ms cubic-bezier(.22,1,.36,1) 1 both}
+  .svc-story__project[data-project-open=true][data-project-service="104"] :global(.sp-route--104 path){animation:project-route 3200ms cubic-bezier(.22,1,.36,1) 1 both}
+  .svc-story__project[data-project-open=true][data-project-service="105"] :global(.sp-route--105 path){animation:project-route 3200ms cubic-bezier(.22,1,.36,1) 1 both}
+  .svc-story__project[data-project-open=true][data-project-service="107"] :global(.sp-route--107 path){animation:project-route 3200ms cubic-bezier(.22,1,.36,1) 1 both}
+  .svc-story__project[data-project-open=true][data-project-service="108"] :global(.sp-route--108 path){animation:project-route 3200ms cubic-bezier(.22,1,.36,1) 1 both}
 
   @keyframes project-route{from{stroke-dasharray:100;stroke-dashoffset:100}to{stroke-dasharray:100;stroke-dashoffset:0}}
   .svc-story__project[data-project-visible=false] :global(.sp-route path){animation-play-state:paused!important}
@@ -139,6 +139,8 @@ const first=items[0];
   .svc-story--project .svc-story__stage{display:block;padding-top:12px}.svc-story--project .svc-story__heading{display:none}.svc-story--project .svc-story__playback>span:nth-child(2){display:block}.svc-story--project .svc-story__playback{flex-wrap:nowrap;gap:12px}.svc-story--project .svc-story__playback>span:nth-child(2){font-size:1rem}
   .svc-story--project .svc-story__views button span{display:none}.svc-story--project .svc-story__theater{height:clamp(300px,48svh,420px)}.svc-story--project .svc-story__narration{padding-top:20px;min-block-size:180px}.svc-story--project .svc-story__illustration-copy{font-size:1rem}.svc-story--project .svc-story__caption{margin-top:8px}
   .svc-story__project :global(svg){position:absolute;width:160%;left:-34%;max-width:none}
+  .svc-story__project:not([data-project-view="0"]) :global(.sp-root){transform:translate(240px,360px) scale(.28)}
+  .svc-story__project :global(.sp-floor-label){display:none}
   .svc-story--project .svc-story__software,.svc-story--project .svc-story__operations{margin-left:25%;width:75%}
  }
  @media(max-width:340px){.svc-story--project .svc-story__views{grid-template-columns:repeat(2,minmax(0,1fr))}.svc-story--project .svc-story__playback>span:nth-child(2){display:none}}
