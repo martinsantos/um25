@@ -49,13 +49,14 @@ jobs:
           python scripts/cine/render-site-project-v1.py --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
       - name: Encode part without retaining raw frames
         run: |
+          cp frames/render-info.json part-${{ matrix.part }}-info.json
           ffmpeg -v error -framerate 24 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 48 -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -r 24 -g 48 -an -movflags +faststart part-${{ matrix.part }}.mp4
       - uses: actions/upload-artifact@v7
         with:
           name: construction-part-${{ matrix.part }}
           path: |
             part-${{ matrix.part }}.mp4
-            frames/render-info.json
+            part-${{ matrix.part }}-info.json
           retention-days: 1
   assemble:
     name: Assemble and validate cinema
@@ -87,7 +88,7 @@ jobs:
           assert abs(float(v['duration'])-18)<.01,v
           assert sum(p.stat().st_size for p in Path('delivery').iterdir())<40_000_000
           PY
-          cp construction-part-1/render-info.json delivery/render-info.json
+          cp construction-part-1/part-1-info.json delivery/render-info.json
           sha256sum delivery/* > delivery/SHA256SUMS
       - uses: actions/upload-artifact@v7
         with:
