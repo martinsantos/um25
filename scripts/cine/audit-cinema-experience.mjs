@@ -154,7 +154,7 @@ await live.goto(origin,{waitUntil:'load'});
 if(await live.locator('[data-request-story]').count()){
  await live.locator('[data-request-canvas]').evaluate(node=>node.scrollIntoView({block:'center',behavior:'instant'}));
  report.livePilot=[];const shots=new Set();
- for(let sample=0;sample<25;sample++){
+ for(let sample=0;sample<34;sample++){
   await delay(2000);
   const state=await live.locator('[data-request-story]').evaluate(root=>({step:root.dataset.requestStep,state:root.dataset.requestState,status:root.querySelector('[data-request-status]').textContent,packet:root.querySelector('[data-request-packet]').getAttribute('transform'),camera:root.querySelector('[data-request-camera]').getAttribute('transform')}));
   report.livePilot.push(state);

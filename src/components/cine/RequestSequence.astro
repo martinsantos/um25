@@ -1,39 +1,51 @@
 ---
-import illustration from '../../assets/cine/isometric/request-operation-v1.svg?raw';
+import illustration from '../../assets/cine/isometric/request-operation-v2.svg?raw';
 import {REQUEST_SEQUENCE} from '../../data/cine/requestSequence';
 ---
-<article class="request-story" data-request-story data-request-step="0" data-request-state="waiting" aria-label="Del puesto a una respuesta: redes y software">
+<article class="request-story" data-request-story data-request-step="0" data-request-state="waiting" aria-label="Una instalación en operación: ocho servicios conectados">
  <script type="application/json" data-request-script set:html={JSON.stringify(REQUEST_SEQUENCE)} is:inline />
- <header class="request-story__header"><p>Redes + software <span>Un recorrido de 48 segundos</span></p><button type="button" data-request-play aria-pressed="false">Pausar recorrido</button></header>
+ <header class="request-story__header"><p>Una instalación, por dentro <span>Un recorrido de 64 segundos</span></p><button type="button" data-request-play aria-pressed="false">Pausar recorrido</button></header>
  <div class="request-story__narration"><p class="request-story__eyebrow" data-request-role>{REQUEST_SEQUENCE[0].role}</p><h3 data-request-title>{REQUEST_SEQUENCE[0].title}</h3></div>
  <figure class="request-story__figure">
+  <div class="request-story__callout"><span class="request-story__live-dot" aria-hidden="true"/><span data-operation-label>{REQUEST_SEQUENCE[0].label}</span></div>
   <div class="request-story__canvas" data-request-canvas set:html={illustration}/>
-  <div class="request-story__receipt"><span>Orden <strong>024</strong></span><span data-request-status>{REQUEST_SEQUENCE[0].status}</span><span class="request-story__example">Ejemplo ilustrativo · Mantenimiento</span></div>
+  <div class="request-story__receipt"><span>Última Milla / Integración</span><span data-request-status>{REQUEST_SEQUENCE[0].status}</span><span class="request-story__example">Ejemplo ilustrativo · Puesta en marcha</span></div>
   <figcaption data-request-copy>{REQUEST_SEQUENCE[0].copy}</figcaption>
  </figure>
- <ol class="request-story__progress" aria-label="Etapas del recorrido">{['Puesto','Red','Enlace','Recepción','Validación','Resolución','Respuesta','Integración'].map((label,i)=><li data-request-milestone data-state={i===0?'current':'next'}><span>{label}</span></li>)}</ol>
+ <ol class="request-story__progress" aria-label="Etapas del recorrido">{['Proyecto','Red','Video','Detección','Respaldo','Software','Soporte','Enlace'].map((label,i)=><li data-request-milestone data-state={i===0?'current':'next'}><span>{label}</span></li>)}</ol>
  <footer><a href="/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces">Infraestructura de redes ↗</a><a href="/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp">Software a medida ↗</a></footer>
  <details class="request-story__transcript"><summary>Leer la explicación completa</summary><ol>{REQUEST_SEQUENCE.map(step=><li><strong>{step.title}</strong> {step.copy}</li>)}</ol></details>
 </article>
-<script src="/cine/request-sequence-v2.js" type="module" async is:inline />
+<script src="/cine/request-sequence-v3.js" type="module" async is:inline />
 <style>
  .request-story{color:#fff;max-width:1120px;margin-inline:auto;--muted:#c4c7cc}
  .request-story__header{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:56px;border-top:1px solid #ffffff30}
  .request-story__header p{font-size:1rem;margin:0}.request-story__header p span{color:var(--muted);margin-left:20px}.request-story__header button{min-height:44px;border:0;background:none;color:#fff;font:inherit;cursor:pointer;text-decoration:underline;text-decoration-color:#dc2626;text-underline-offset:6px}
  .request-story__narration{min-height:112px;padding-top:16px}.request-story__eyebrow{margin:0 0 10px;color:var(--muted);font-size:1rem}.request-story h3{margin:0;max-width:48ch;font-size:var(--um-world-h3,1.25rem);font-weight:600;line-height:1.35}
- .request-story__figure{margin:0}.request-story__canvas{aspect-ratio:1200/510;width:100%;overflow:hidden}.request-story__canvas :global(svg){width:100%;height:100%;display:block}
+ .request-story__figure{margin:0;position:relative;background:#090d12}.request-story__callout{position:absolute;z-index:1;top:12px;left:12px;max-width:calc(100% - 24px);background:#090d12ed;display:flex;align-items:center;gap:12px;padding:16px 20px;font-size:1rem;color:#fff;border-left:2px solid #dc2626}.request-story__live-dot{width:6px;height:6px;border-radius:50%;background:#dc2626;flex:none}.request-story__canvas{aspect-ratio:1200/740;width:100%;overflow:hidden}.request-story__canvas :global(svg){width:100%;height:100%;display:block}
  .request-story__canvas :global(.rq-wire){fill:none;stroke:#dc2626;stroke-width:2;stroke-linejoin:round}.request-story__canvas :global(.rq-return){fill:none;stroke:#c4c7cc;stroke-opacity:.25;stroke-width:1;stroke-dasharray:4 6}
  .request-story__canvas :global([data-request-row] rect){transition:fill 700ms ease,stroke 700ms ease}
- .request-story[data-request-step="3"] :global([data-request-row="0"] rect),.request-story[data-request-step="4"] :global([data-request-row="1"] rect),.request-story[data-request-step="5"] :global([data-request-row="2"] rect){fill:#4b171b;stroke:#ff777e;stroke-width:2}
+ .request-story[data-request-step="5"] :global([data-request-row="0"] rect),.request-story[data-request-step="6"] :global([data-request-row="1"] rect),.request-story[data-request-step="7"] :global([data-request-row="2"] rect){fill:#4b171b;stroke:#ff777e;stroke-width:2}
  .request-story[data-request-step="6"] :global(.rq-return){stroke:#fff;stroke-opacity:1;stroke-width:2}
  .request-story__canvas :global(.rq-door){transform:translate(-490.17px,-10px) matrix(.866025404,.5,0,1,0,0);transition:transform 1600ms cubic-bezier(.22,1,.36,1)}
  .request-story[data-request-step="1"] :global(.rq-door),.request-story[data-request-step="2"] :global(.rq-door),.request-story[data-request-step="3"] :global(.rq-door),.request-story[data-request-step="4"] :global(.rq-door),.request-story[data-request-step="5"] :global(.rq-door){transform:translate(-490.17px,-10px) matrix(-1.003442,.405579788,0,1,0,0)}
- .request-story__receipt{display:flex;align-items:center;gap:24px;min-height:52px;border-block:1px solid #ffffff25;font-size:1rem}.request-story__receipt strong{font-variant-numeric:tabular-nums}.request-story__receipt [data-request-status]{color:#fff}.request-story__example{margin-left:auto;color:var(--muted)}
- .request-story figcaption{max-width:68ch;min-height:110px;padding:20px 0;color:var(--muted);font-size:var(--um-copy-description,1.125rem);line-height:1.6}
+ .request-story__receipt{padding-inline:20px;display:flex;align-items:center;gap:24px;min-height:52px;border-block:1px solid #ffffff25;font-size:1rem}.request-story__receipt strong{font-variant-numeric:tabular-nums}.request-story__receipt [data-request-status]{color:#fff}.request-story__example{margin-left:auto;color:var(--muted)}
+ .request-story figcaption{max-width:72ch;padding-inline:20px;min-height:110px;padding:20px 0;color:var(--muted);font-size:var(--um-copy-description,1.125rem);line-height:1.6}
  .request-story__progress{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;margin:0;padding:0;list-style:none}.request-story__progress li{border-top:2px solid #ffffff30;padding-top:12px;color:var(--muted);font-size:1rem}.request-story__progress li[data-state=current],.request-story__progress li[data-state=seen]{border-color:#dc2626}.request-story__progress li[data-state=current]{color:#fff}
  .request-story footer{display:flex;gap:24px;flex-wrap:wrap;padding-top:24px}.request-story a{color:#fff;font-size:1rem;min-height:44px;text-decoration-color:#dc2626;text-underline-offset:6px}
  .request-story__transcript{font-size:1rem;color:var(--muted);margin-top:8px}.request-story__transcript summary{cursor:pointer;min-height:44px;padding-top:10px}.request-story__transcript li{line-height:1.6;margin-bottom:16px;max-width:70ch}
  .request-story button:focus-visible,.request-story a:focus-visible,.request-story summary:focus-visible{outline:2px solid #fff;outline-offset:4px}
- @media(max-width:760px){.request-story__header p span{display:none}.request-story__canvas{aspect-ratio:600/510}.request-story__narration{min-height:116px}.request-story__receipt{flex-wrap:wrap;gap:8px 20px;padding:12px 0}.request-story__example{flex-basis:100%;margin-left:0}.request-story figcaption{min-height:148px;font-size:1rem}.request-story__progress li span{display:none}.request-story__progress li{padding-top:0}.request-story footer{gap:8px 20px}.request-story__canvas :global(.rq-object-labels){display:none}}
+ @media(max-width:760px){.request-story__header p span{display:none}.request-story__canvas{aspect-ratio:640/520}.request-story__narration{min-height:116px}.request-story__receipt{flex-wrap:wrap;gap:8px 20px;padding:12px 0}.request-story__example{flex-basis:100%;margin-left:0}.request-story figcaption{min-height:148px;font-size:1rem}.request-story__progress li span{display:none}.request-story__progress li{padding-top:0}.request-story footer{gap:8px 20px}.request-story__canvas :global(.rq-object-labels){display:none}}
  @media(prefers-reduced-motion:reduce){.request-story__canvas :global([data-request-row] rect),.request-story__canvas :global(.rq-door){transition:none}}
+
+ .request-story__canvas :global(.op-route){opacity:0;stroke-dasharray:1;stroke-dashoffset:1;transition:opacity 700ms ease}
+ .request-story__canvas :global(.op-route[data-active="true"]){opacity:1}
+ .request-story[data-request-step="7"] :global(.op-route){stroke-dashoffset:0!important;opacity:.55}
+ .request-story__canvas :global([data-operation-part]){opacity:.45;transition:opacity 1100ms ease}
+ .request-story[data-request-step="0"] :global([data-operation-part]),.request-story[data-request-step="7"] :global([data-operation-part]){opacity:1}
+ .request-story[data-request-step="1"] :global([data-operation-part="network"]),.request-story[data-request-step="1"] :global([data-operation-part="workplace"]),.request-story[data-request-step="2"] :global([data-operation-part="security"]),.request-story[data-request-step="2"] :global([data-operation-part="software"]),.request-story[data-request-step="3"] :global([data-operation-part="fire"]),.request-story[data-request-step="4"] :global([data-operation-part="energy"]),.request-story[data-request-step="4"] :global([data-operation-part="network"]),.request-story[data-request-step="5"] :global([data-operation-part="software"]),.request-story[data-request-step="6"] :global([data-operation-part="software"]),.request-story[data-request-step="6"] :global([data-operation-part="network"]){opacity:1}
+ .request-story__canvas :global(.op-software-feed){opacity:0}.request-story[data-request-step="5"] :global(.op-software-feed),.request-story[data-request-step="6"] :global(.op-software-feed),.request-story[data-request-step="7"] :global(.op-software-feed){opacity:1}
+ .request-story[data-request-step="5"] :global(.op-video-feed),.request-story[data-request-step="6"] :global(.op-video-feed),.request-story[data-request-step="7"] :global(.op-video-feed){opacity:0}
+ .request-story__canvas :global([data-operation-focus]){display:none}.request-story__canvas :global(.op-coverage),.request-story__canvas :global(.op-alarm),.request-story__canvas :global(.op-battery){opacity:0;transition:opacity 900ms ease}.request-story[data-request-step="2"] :global(.op-coverage),.request-story[data-request-step="3"] :global(.op-alarm),.request-story[data-request-step="4"] :global(.op-battery){opacity:1}
+ @media(prefers-reduced-motion:reduce){.request-story__canvas :global([data-operation-part]),.request-story__canvas :global(.op-route){transition:none}}
 </style>

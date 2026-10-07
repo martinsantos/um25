@@ -70,7 +70,7 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
  </div>
 </div>}
 <script src="/cine/isometric-services-v7.js" type="module" async is:inline />
-<script src="/cine/service-atlas-v16.js" type="module" async is:inline />
+<script src="/cine/service-atlas-v17.js" type="module" async is:inline />
 <style>
  .svc-story{--skin-text:#fff;--skin-muted:#c4c7cc;--x-text:#fff;--x-text-2:#c4c7cc;--story-muted:#c4c7cc;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(24px,4vw,64px);align-items:start;color:#fff}
  .svc-story__choice{grid-column:2;grid-row:1;min-width:0}.svc-story__stage{scroll-margin-top:80px;grid-column:1;grid-row:1;min-width:0;background:#090909;padding:clamp(20px,2.8vw,36px)}
@@ -195,4 +195,6 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
  .svc-story__project[data-project-service="105"] :global([data-project-device="105"]){stroke:#fff;stroke-opacity:1;stroke-width:1}
  .svc-story__project[data-project-service="107"] :global([data-project-device="107"]){stroke:#fff;stroke-opacity:1;stroke-width:1}
  .svc-story__project[data-project-service="108"] :global([data-project-device="108"]){stroke:#fff;stroke-opacity:1;stroke-width:1}
+ .svc-story__project :global(.sp-operation-label){font:16px var(--um-font-body,Arial,sans-serif);fill:#fff;stroke:#090d12;stroke-width:6px;stroke-linejoin:round;paint-order:stroke;opacity:0;transition:opacity 700ms ease}
+ .svc-story__project[data-operation-phase="1"] :global(.sp-operation-label){opacity:1}
 </style>

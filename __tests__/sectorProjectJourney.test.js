@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import {sectorProject} from '../src/data/cine/sectorNarrative';
-import {bindServiceAtlas} from '../public/cine/service-atlas-v16.js';
+import {bindServiceAtlas} from '../public/cine/service-atlas-v17.js';
 import {EQUIPMENT_KITS,NETWORK_EQUIPMENT} from '../src/data/cine/networkAssembly';
 const model=JSON.parse(fs.readFileSync('src/assets/cine/isometric/site-projects-v1.json','utf8'));
 const project=sectorProject('constructoras','fachada',['101','102','103','106','107','108']);
@@ -22,7 +22,7 @@ test('Constructoras follows the six services of its project, with optical fiber 
  expect(project.chapters.map(c=>c.code)).toEqual(['101','103','108','102','107','106']);
  expect(project.chapters.at(-1).scenes.at(-1).copy).toContain('Última Milla');
  const fiber=project.chapters.find(c=>c.code==='103');expect(fiber.scenes.every(s=>s.part==='fiber')).toBe(true);
- expect(fiber.scenes.map(s=>s.view)).toEqual(['system','object','system']);
+ expect(fiber.scenes.map(s=>s.view)).toEqual(['system','system','system']);
  expect(fiber.scenes.map(s=>s.flow.phase)).toEqual([0,1,2]);
  expect(fiber.scenes[1].copy).toContain('distribuidor óptico');expect(fiber.scenes[1].copy).not.toContain('radio');
 });
