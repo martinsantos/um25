@@ -1,5 +1,7 @@
 # Revisión integrada de la experiencia · 6 de octubre de 2026
 
+> Actualización posterior: [Instalación continua](continuous-operation-20261006.md) sustituye el relato de 48 segundos y el paso automático a equipos flotantes. Este documento conserva la evidencia de la iteración anterior.
+
 ## Criterio de esta iteración
 
 Explicar una operación sin exigir clics; mostrar el equipo dentro del proyecto; conservar el cine de apertura; sostener legibilidad y continuidad en móvil. La revisión visual tiene prioridad sobre un resultado verde de pruebas.

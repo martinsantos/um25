@@ -26,7 +26,7 @@ En la home, la segunda explicación completa queda dentro de «Explorar cada ser
 ## Implementación y recursos
 
 - `build-request-operation-v2.py` produce el SVG y sus coordenadas desde la misma proyección de 30 grados. Reutiliza el gabinete y el puesto propios.
-- SVG: 392.606 bytes; 37.260 bytes al comprimirlo con gzip en la medición local. No es una medición de transferencia del servidor.
+- SVG: 392.972 bytes; 37.296 bytes al comprimirlo con gzip en la medición local. No es una medición de transferencia del servidor.
 - El controlador pausa fuera de pantalla, con la pestaña oculta y por elección explícita. Movimiento reducido comienza detenido con explicación textual completa disponible.
 - La cámara móvil interpola los encuadres sin saltos entre etapas. No se incorporaron dependencias de 3D ni imágenes rasterizadas para sustituir detalle.
 - Los nuevos archivos públicos tienen nombres versionados compatibles con el overlay de despliegue.
@@ -35,10 +35,17 @@ En la home, la segunda explicación completa queda dentro de «Explorar cada ser
 
 `npm run check`: lint, tipos, auditoría CSS, 66 suites / 517 pruebas y build correctos. Las pruebas cubren recorrido completo, continuidad de cámara, pausa, pestaña oculta, salida de viewport y movimiento reducido. Las regresiones del atlas compartido comprueban que persiste la misma geometría a través de todos los servicios.
 
-Revisión visual en curso sobre builds aislados de GitHub Actions:
-- `37552091949`: home, Chrome escritorio/móvil y WebKit; commit `4386b412`.
-- `37552260021`: 20 rutas, Chrome escritorio/móvil; commit `dcfe5b35`, incorpora separación de entrada eléctrica y salida de UPS.
+Revisión visual terminada en builds aislados de GitHub Actions:
+- [37552091949](https://github.com/martinsantos/um25/actions/runs/37552091949): primer pase de home, Chrome escritorio/móvil y 20 combinaciones de WebKit; commit `4386b412`. Cero hallazgos funcionales. La inspección de imágenes motivó las correcciones siguientes.
+- [37552260021](https://github.com/martinsantos/um25/actions/runs/37552260021): 20 rutas en Chrome escritorio y móvil; commit `dcfe5b35`. Todas respondieron HTTP 200, sin errores de ejecución ni hallazgos de la auditoría. Reproducción nativa comprobada en las 20 rutas y secuencias autónomas completas.
+- [37552981855](https://github.com/martinsantos/um25/actions/runs/37552981855): home final, Chrome escritorio/móvil, capturas a 1440/1280/834/390/360 y 20 combinaciones de WebKit (cuatro rutas por cinco anchos); commit `1ded54bc`. Cero hallazgos funcionales. Las ocho etapas se completan sin entrada del usuario. WebKit Linux no equivale a una prueba en un Safari físico.
+
+Se revisaron imágenes de las 20 rutas, las ocho etapas de la home y fotogramas de la grabación móvil una vez estabilizado el paneo. Se corrigieron la superposición inicial de la anotación con la cámara, los rótulos pequeños en móvil y los recorridos que atravesaban el espacio en diagonal. La proyección verifica que cada segmento siga un único eje físico.
+
+Después de las capturas de `1ded54bc`, se ocultaron los rótulos generales de planta durante el acercamiento para evitar fragmentos de texto en los bordes. Es un cambio CSS acotado; el `npm run check` final, incluido el build y las 517 pruebas, se ejecutó también con esa corrección. No se repitió la matriz completa de navegadores por esa regla aislada.
+
+La evidencia local queda en `continuous-installation-20261006/` dentro del directorio de visualizaciones del hilo: informes, capturas de cada etapa y grabaciones nativas de escritorio y móvil.
 
 ## Límites de esta entrega
 
-La película grande de Blender y las películas sectoriales existentes se conservan. No se renderizaron películas nuevas en esta iteración. No se modificaron producción, campaña protegida, datos del CMS ni tipografía global. La evaluación visual y los resultados del navegador se documentarán antes de cerrar la revisión; los tests no declaran perfección artística ni autorización de despliegue.
+La película grande de Blender y las películas sectoriales existentes se conservan. No se renderizaron películas nuevas en esta iteración. No se modificaron producción, campaña protegida, datos del CMS ni tipografía global. La validación técnica y visual descrita no declara perfección artística ni autorización de despliegue.
