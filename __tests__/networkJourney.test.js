@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {bindNetworkJourney as bindRack} from '../public/cine/network-rack-v12.js';
+import {bindNetworkJourney as bindRack} from '../public/cine/network-rack-v13.js';
 import {bindNetworkJourney} from '../public/cine/network-journey-v7.js';
 
 let intersections,reduced,hidden=false;
@@ -231,4 +231,24 @@ test('guided hardware stays inert until its first close-up, mounts once and repl
 test('navigation disposes a deferred hardware scene before it ever mounts',()=>{
  const root=rackFixture();root.dataset.networkGuided='true';const template=document.createElement('template');template.dataset.networkScene='';template.content.append(root.querySelector('svg'));root.append(template);
  bindRack(root);document.dispatchEvent(new Event('astro:before-swap'));root.dispatchEvent(new CustomEvent('um:network-story',{detail:{code:'101',part:'switch',index:1}}));expect(root.querySelector('svg')).toBeNull();expect(root.dataset.networkDeferred).toBeUndefined();
+});
+
+test('the hardware catalog stays off the network until inspection and preserves the latest choice during loading',async()=>{
+ const root=rackFixture();root.dataset.networkGuided='true';
+ const svg=root.querySelector('svg'),markup=new XMLSerializer().serializeToString(svg),source=document.createElement('div');source.dataset.networkSource='/_astro/rack.svg';svg.replaceWith(source);
+ let resolve;const load=jest.fn(()=>new Promise(done=>resolve=done));const dispose=bindRack(root,load);
+ expect(load).not.toHaveBeenCalled();
+ root.dispatchEvent(new CustomEvent('um:network-story',{detail:{code:'101',index:1,part:'switch'}}));
+ root.dispatchEvent(new CustomEvent('um:network-story',{detail:{code:'101',index:2,part:'switch'}}));
+ expect(load).toHaveBeenCalledTimes(1);expect(root.getAttribute('aria-busy')).toBe('true');
+ resolve(markup);for(let i=0;i<10;i++)await Promise.resolve();
+ expect(root.querySelector('svg')).not.toBeNull();expect(root.dataset.step).toBe('2');expect(root.hasAttribute('aria-busy')).toBe(false);
+ dispose();expect(jest.getTimerCount()).toBe(0);
+});
+
+test('a delayed equipment response cannot mount after navigation',async()=>{
+ const root=rackFixture(),svg=root.querySelector('svg'),markup=new XMLSerializer().serializeToString(svg),source=document.createElement('div');source.dataset.networkSource='/_astro/rack.svg';svg.replaceWith(source);
+ let resolve;const dispose=bindRack(root,()=>new Promise(done=>resolve=done));
+ root.dispatchEvent(new CustomEvent('um:network-story',{detail:{code:'101',index:1}}));dispose();resolve(markup);
+ for(let i=0;i<10;i++)await Promise.resolve();expect(root.querySelector('svg')).toBeNull();expect(jest.getTimerCount()).toBe(0);
 });

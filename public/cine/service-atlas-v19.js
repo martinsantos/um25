@@ -177,6 +177,7 @@ export function bindServiceAtlas(root) {
     updateOperation(narration,index);reading(narration);
     const systemMode=Boolean(discipline&&narration?.disciplineStage!==undefined&&!manualPart);
     root.dataset.disciplineActive=String(systemMode);
+    if(systemMode||active.dataset.atlasService!=='104')software?.dispatchEvent(new CustomEvent('um:software-pause'));
     if(discipline){
       discipline.dataset.visible=String(systemMode);discipline.inert=!systemMode;
       discipline.dataset.disciplineService=active.dataset.atlasService;

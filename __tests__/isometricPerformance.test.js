@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import {shareSvgPrimitives} from '../scripts/cine/share-svg-primitives.js';
 import {exploded} from '../public/cine/hairline-v7.js';
-import {bindSoftware} from '../public/cine/software-layers-v8.js';
+import {bindSoftware} from '../public/cine/software-layers-v9.js';
 
 const xml=source=>new DOMParser().parseFromString(source,'image/svg+xml');
 const original=fs.readFileSync('src/assets/cine/isometric/network-rack-v8.svg','utf8');
@@ -75,4 +75,14 @@ test('home software retains the latest story layer across delayed mounting and r
  expect(exploded).toHaveBeenCalledTimes(1);expect(exploded.mock.calls[0][1]).toMatchObject({activeLayer:3,expansion:.9});
  root.dispatchEvent(new CustomEvent('um:software-view',{detail:{index:1,layer:0}}));expect(figure.update).toHaveBeenCalledWith(expect.objectContaining({activeLayer:0,expansion:.18}));
  cleanup();root.dispatchEvent(new CustomEvent('um:software-view',{detail:{index:2,layer:2}}));expect(root.dataset.slActive).toBe('0');expect(figure.destroy).toHaveBeenCalledTimes(1);
+});
+
+test('a guided software inspector does not warm up or render behind the default architecture',async()=>{
+ const root=fixture();root.dataset.softwareGuided='true';
+ const figure={update:jest.fn(),destroy:jest.fn()},exploded=jest.fn(()=>figure),load=jest.fn(async()=>({exploded}));
+ const dispose=bindSoftware(root,load);observers[1].callback([{isIntersecting:true}]);observers[0].callback([{isIntersecting:true}]);await settle();
+ expect(load).not.toHaveBeenCalled();
+ root.dispatchEvent(new CustomEvent('um:software-view',{detail:{index:1,layer:0}}));await settle();expect(exploded).toHaveBeenCalledTimes(1);
+ root.dispatchEvent(new CustomEvent('um:software-pause'));expect(figure.destroy).toHaveBeenCalledTimes(1);
+ observers[0].callback([{isIntersecting:true}]);await settle();expect(exploded).toHaveBeenCalledTimes(1);dispose();
 });

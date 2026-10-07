@@ -1,5 +1,6 @@
 ---
 import scene from '../../assets/cine/isometric/network-rack-v10.svg?raw';
+import sceneUrl from '../../assets/cine/isometric/network-rack-v10.svg?url';
 import geometry from '../../assets/cine/isometric/network-rack-v10.json';
 import {NETWORK_EQUIPMENT,EQUIPMENT_KITS} from '../../data/cine/networkAssembly';
 interface Props {compact?:boolean;service?:string;catalog?:boolean;guided?:boolean}
@@ -35,13 +36,14 @@ const views=['Sistema','Equipo','Interior','Detalle'];
   </div>
  </div>
  <ol class="network-journey__context" data-network-context aria-label="Recorrido del servicio">{kit.context.map((text,i)=><li>{i>0&&<span aria-hidden="true">→</span>}{text}</li>)}</ol>
- <div class="network-journey__canvas">{guided && <template data-network-scene set:html={scene}></template>}{!guided && <Fragment set:html={scene} />}</div>
+ <div class="network-journey__canvas">{guided && <div class="network-journey__loading" data-network-source={sceneUrl} aria-live="polite"></div>}{!guided && <Fragment set:html={scene} />}</div>
  <figcaption class="network-journey__caption"><h3 data-network-title>{kit.overview}</h3><p data-network-copy>{kit.description}</p><ul class="network-journey__points" data-network-points hidden /></figcaption>
  <p class="network-journey__announcement" data-network-announce aria-live="polite" aria-atomic="true" />
 </figure>
-<script src="/cine/network-rack-v12.js" type="module" async is:inline />
+<script src="/cine/network-rack-v13.js" type="module" async is:inline />
 <style>
  .network-journey{margin:0;padding:24px 28px 0;background:#08090a;color:#fff;min-width:0;overflow:hidden;--x-text:#fff;--x-text-2:#c4c7cc}
+ .network-journey__loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:32px;font-size:1rem;color:#c4c7cc;text-align:center}
  .network-journey__meta{display:flex;justify-content:space-between;gap:16px;font-size:1rem;color:#c4c7cc;line-height:1.5;padding-bottom:16px;border-bottom:1px solid #ffffff24}
  .network-journey__meta span:first-child{color:#fff;font-weight:600}
  .network-journey__canvas{height:clamp(400px,35vw,500px);position:relative;overflow:hidden}

@@ -16,7 +16,7 @@ Tres escalas de un mismo relato:
 - **Detección de incendio:** cobertura → dispositivos → circuitos supervisados → central → aviso → respaldo y pruebas. La señalización y la alimentación son ramales distintos del circuito de detección. La central, sus baterías y los dispositivos tienen formas propias. El esquema es explicativo, no un plano de seguridad para instalación.
 - **Software:** producto y UX/UI → reglas de negocio → integraciones → datos → despliegue → infraestructura. Una interfaz es la parte visible de una arquitectura. MVP define el primer alcance útil; contenedores son una opción de despliegue, no un requerimiento universal.
 
-Las ocho arquitecturas usan el mismo componente de la home, servicios y sectores. Seis etapas, ocho segundos de lectura por etapa y una visión completa al inicio y al cierre. Los diagramas están en el HTML inicial y no requieren cargar un reproductor 3D. El catálogo comparte 517.601 bytes de SVG sin comprimir. Cada página de servicio recibe solamente su dibujo y las definiciones que éste referencia; todos quedan por debajo de 30 KB con gzip. También se retira la maqueta física oculta de las ocho páginas de servicio. Esto reduce geometría y carga inicial sin bajar la resolución: los dibujos siguen siendo vectoriales. La inspección detallada de equipos existente queda disponible y el recorrido automático vuelve después de una exploración con puntero.
+Las ocho arquitecturas usan el mismo componente de la home, servicios y sectores. Seis etapas, ocho segundos de lectura por etapa y una visión completa al inicio y al cierre. Los diagramas están en el HTML inicial y no requieren cargar un reproductor 3D. El catálogo comparte 518.300 bytes de SVG sin comprimir. Cada página de servicio recibe solamente su dibujo y las definiciones que éste referencia; todos quedan por debajo de 30 KB con gzip. También se retira la maqueta física oculta de las ocho páginas de servicio. Esto reduce geometría y carga inicial sin bajar la resolución: los dibujos siguen siendo vectoriales. La inspección detallada de equipos existente queda disponible y el recorrido automático vuelve después de una exploración con puntero.
 
 La selección editorial de servicios por sector ya existe en `sectorNarrative.ts`. El recorrido de un sector debe usar esa selección y no quedar recortado por las relaciones parciales del CMS. Estas relaciones continúan sirviendo como evidencia de cada antecedente; no se atribuyen capacidades no verificadas a un cliente.
 
@@ -80,3 +80,9 @@ Los pases funcionales no certifican el nivel artístico del conjunto. Los pendie
 - Pruebas de cada diagrama: seis capas, referencias internas completas, geometría propia y peso comprimido menor a 30 KB.
 - Run 37619280503: auditoría de todas las rutas en curso. Se revisará su evidencia antes de declararla aprobada.
 - Las variantes móviles de la película conservarán toda la arquitectura; no recortan lateralmente la interfaz para formar un cuadrado.
+
+### Carga bajo demanda
+
+Se detectó otra carga evitable: el HTML de los servicios físicos transportaba el SVG completo de 597.400 bytes del catálogo de equipos dentro de un template oculto. `network-rack-v13.js` descarga ese recurso con nombre hash sólo cuando se pide inspeccionar un equipo. El esquema narrativo de seis capas permanece inline desde el primer render. Una petición atrasada no monta contenido después de navegar y conserva la última vista solicitada durante la descarga.
+
+La versión `software-layers-v9.js` tampoco precarga Hairline ni inicia su dibujo detrás de la arquitectura de software. Se activa al explorar y se destruye al volver al recorrido. `npm run check`: 67 suites, 546 pruebas, lint, tipos, contrato CSS y build aprobados.
