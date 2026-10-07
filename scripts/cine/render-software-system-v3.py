@@ -35,8 +35,8 @@ def camera_pose(t):
       (0.00,13.4,-87,(.1,0,2.65),0),
       (0.14,12.5,-83,(.35,0,2.65),0),
       (0.26,9.8,-78,(1.8,-.25,2.75),0),
-      (0.51,22.0,-66,(.1,.8,2.5),0),
-      (0.69,20.8,-63,(.5,.6,2.35),0),
+      (0.51,24.8,-66,(.1,.8,3.2),0),
+      (0.69,23.8,-63,(.5,.6,3.6),0),
       (0.80,17.4,-68,(1.5,-.3,2.1),0),
       (1.00,13.4,-87,(.1,0,2.65),0),
     ]
@@ -159,6 +159,13 @@ def validate():
     extent=[min(b[0] for b in bounds),min(b[1] for b in bounds),max(b[2] for b in bounds),max(b[3] for b in bounds)]
     assert all(math.isfinite(v) for v in extent),extent
     assert placement('detail',0)==placement('detail',1)
+    # Wide shots must retain the complete composition. Only the authored close
+    # shot may crop surroundings, and its complete action panel stays in frame.
+    for t in (0,.51,.69,1):
+        b=projected(p,t);assert min(b[:2])>.025 and max(b[2:])<.975,(t,b)
+    from types import SimpleNamespace
+    b=projected(SimpleNamespace(points={'detail':p.points['detail']}),.26)
+    assert min(b[:2])>.06 and max(b[2:])<.95,b
     print(json.dumps({'scene':'software-system-v3','frames':FRAMES,'bounds':extent,'components':len(p.boxes),'labels':len(p.texts)}))
 
 def render(args):
@@ -166,12 +173,14 @@ def render(args):
     from mathutils import Vector
     from bpy_extras.object_utils import world_to_camera_view
     bpy.ops.wm.read_factory_settings(use_empty=True)
-    scene=bpy.context.scene;scene.render.engine='CYCLES';scene.cycles.device='CPU';scene.cycles.samples=args.samples
+    scene=bpy.context.scene;scene.render.engine='BLENDER_EEVEE_NEXT' if args.engine=='eevee' else 'CYCLES';
+    if args.engine=='eevee' and hasattr(scene.eevee,'taa_render_samples'):scene.eevee.taa_render_samples=64
+    scene.cycles.device='CPU';scene.cycles.samples=args.samples
     scene.cycles.use_denoising=True;scene.cycles.use_adaptive_sampling=True;scene.cycles.adaptive_threshold=.008
     scene.cycles.max_bounces=4;scene.render.threads_mode='FIXED';scene.render.threads=4
     scene.render.resolution_x=args.width;scene.render.resolution_y=round(args.width*9/16);scene.render.resolution_percentage=100
     scene.render.image_settings.file_format='PNG';scene.render.image_settings.color_mode='RGB';scene.render.fps=FPS
-    scene.render.use_persistent_data=True;scene.view_settings.view_transform='AgX'
+    scene.render.use_persistent_data=True;scene.view_settings.view_transform='Standard'
     scene.world=bpy.data.worlds.new('Product studio');scene.world.use_nodes=True
     scene.world.node_tree.nodes['Background'].inputs[0].default_value=(.035,.04,.05,1)
     scene.world.node_tree.nodes['Background'].inputs[1].default_value=.22
@@ -181,7 +190,7 @@ def render(args):
         rgb=[int(hexvalue[i:i+2],16)/255 for i in [1,3,5]];rgb=[v/12.92 if v<=.04045 else ((v+.055)/1.055)**2.4 for v in rgb]
         mat=bpy.data.materials.new(name);mat.use_nodes=True;n=mat.node_tree.nodes['Principled BSDF']
         n.inputs['Base Color'].default_value=(*rgb,1);n.inputs['Roughness'].default_value=.72;n.inputs['Metallic'].default_value=0
-        if name in ['white','muted','red']:n.inputs['Emission Color'].default_value=(*rgb,1);n.inputs['Emission Strength'].default_value=.08
+        if name in ['white','muted','red','paper','shell']:n.inputs['Emission Color'].default_value=(*rgb,1);n.inputs['Emission Strength'].default_value=.32 if name in ['paper','shell'] else .08
         mats[name]=mat
     root=Path(__file__).resolve().parents[2]
     font_dir=Path(args.font_dir) if args.font_dir else root/'public/fonts/um-sans'
@@ -190,7 +199,7 @@ def render(args):
     light_groups={'heading','metrics','records','detail','shell','data'}
     p.texts=[(g,s,x,y,.037,size,('ink' if m in {'white','muted'} else m) if g in light_groups and s!='Actualizar solicitud' else m,bold) for g,s,x,y,z,size,m,bold in p.texts]
     p.lines=[(g,[(x,y,.032) for x,y,z in pts],m,r) for g,pts,m,r in p.lines]
-    p.boxes=[(g,x,y,.027 if z>.08 else z,w,d,min(h,.004) if z>.08 else h,'softselection' if m=='selection' and g in light_groups else m) for g,x,y,z,w,d,h,m in p.boxes]
+    p.boxes=[(g,x,y,.027 if z>.08 else z,w,d,min(h,.004) if z>.08 else h,'softselection' if m=='selection' and g in light_groups else m) for g,x,y,z,w,d,h,m in p.boxes if not(g=='navigation' and abs(w-.09)<.001 and abs(d-.09)<.001)]
     for name in p.points:
         obj=bpy.data.objects.new(name,None);scene.collection.objects.link(obj);parents[name]=obj
     meshes={}
@@ -225,7 +234,10 @@ def render(args):
     for frame in range(args.start,args.end+1):
         t=frame/(FRAMES-1);size,angle,target,shift=camera_pose(t);target=Vector(target)
         cam.location=target+Vector((22*math.cos(angle),22*math.sin(angle),28));cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler();camera.ortho_scale=size;camera.shift_x=-shift
-        for name,obj in parents.items():obj.location=placement(name,t);obj.scale=(scale(name,t),)*3
+        for name,obj in parents.items():
+            obj.location=placement(name,t);obj.scale=(scale(name,t),)*3
+            if name in ('logic','data','runtime'):
+                for child in obj.children:child.hide_render=reveal(t)<.01
         points=[Vector(placement(g,t))+Vector(local)*scale(g,t) for g,local in [('detail',(3.55,-1.8,.15)),('logic',(3.05,-1.18,.15)),('data',(2.87,0,.13)),('runtime',(2.85,0,.13))]]
         for v,point in zip(flowpath.points,points):v.co=(*point,1)
         strength=ease(reveal(t)*3);flow.hide_render=strength<.001;packet.hide_render=strength<.001
@@ -240,10 +252,10 @@ def render(args):
         assert all(math.isfinite(v) for v in extent),(frame,extent)
         scene.render.filepath=str(out/f'{frame:04d}.png');start=time.time();bpy.ops.render.render(write_still=True)
         timings.append({'frame':frame,'seconds':round(time.time()-start,2)});bounds.append({'frame':frame,'bounds':extent});print(json.dumps(timings[-1]),flush=True)
-    (out/'render-info.json').write_text(json.dumps({'service':'104','scene':'software-system-v3','blender':bpy.app.version_string,'engine':'CYCLES','samples':args.samples,'frames':FRAMES,'fps':FPS,'resolution':[scene.render.resolution_x,scene.render.resolution_y],'camera':'recognizable product interface unfolds into rules, data and runtime; continuous 24 second loop','timings':timings,'bounds':bounds}))
+    (out/'render-info.json').write_text(json.dumps({'service':'104','scene':'software-system-v3','blender':bpy.app.version_string,'engine':scene.render.engine,'samples':args.samples,'frames':FRAMES,'fps':FPS,'resolution':[scene.render.resolution_x,scene.render.resolution_y],'camera':'recognizable product interface unfolds into rules, data and runtime; continuous 24 second loop','timings':timings,'bounds':bounds}))
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--start',type=int,default=0);parser.add_argument('--end',type=int,default=FRAMES-1);parser.add_argument('--samples',type=int,default=48);parser.add_argument('--width',type=int,default=1920);parser.add_argument('--output',default='frames');parser.add_argument('--validate-only',action='store_true');parser.add_argument('--font-dir')
+    parser=argparse.ArgumentParser();parser.add_argument('--start',type=int,default=0);parser.add_argument('--end',type=int,default=FRAMES-1);parser.add_argument('--samples',type=int,default=48);parser.add_argument('--width',type=int,default=1920);parser.add_argument('--engine',choices=['cycles','eevee'],default='cycles');parser.add_argument('--output',default='frames');parser.add_argument('--validate-only',action='store_true');parser.add_argument('--font-dir')
     args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else None)
     assert 0<=args.start<=args.end<FRAMES and 16<=args.samples<=128 and args.width in (1920,2560,3840)
     validate()
