@@ -31,7 +31,7 @@ test.each(model.scenes.map(s=>[s.id,s]))('%s has a detailed valid SVG and exact 
  const svg=new DOMParser().parseFromString(fs.readFileSync(`src/assets/cine/isometric/site-${id}-v1.svg`,'utf8'),'image/svg+xml');
  expect(svg.querySelector('parsererror')).toBeNull();expect(svg.documentElement.getAttribute('viewBox')).toBe('0 0 1200 720');
  expect(svg.querySelectorAll('.sp-root')).toHaveLength(1);expect(svg.querySelector('image')).toBeNull();
- expect(scene.boxes.length).toBeGreaterThan(150);expect(svg.querySelectorAll('polygon').length).toBe(scene.faceCount);
+ expect(scene.boxes.length).toBeGreaterThan(150);expect(svg.querySelectorAll('.sp-structure polygon').length).toBe(scene.faceCount);
  const {c,s,scale}=scene.projection;
  expect(Math.atan2(s,c)*180/Math.PI).toBeCloseTo(30,10);
  expect(Math.hypot(c*scale,s*scale)).toBeCloseTo(scale,10);

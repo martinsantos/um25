@@ -199,4 +199,29 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
  .svc-story__project[data-operation-phase="1"] :global(.sp-operation-label){opacity:1}
  @media(max-width:760px){.svc-story__project :global(.sp-operation-label){display:none}}
  .svc-story__project[data-operation-phase="1"] :global(.sp-floor-label){display:none}
+
+ /* State changes are attached to the actual camera, panel, UPS and console. */
+ .svc-story__project :global(.sp-effect){opacity:0;pointer-events:none;transition:opacity 900ms ease}
+ .svc-story__project[data-project-service="101"][data-operation-phase="0"] :global(.sp-effect--101.sp-effect--phase-0){opacity:1}
+ .svc-story__project[data-project-service="101"][data-operation-phase="1"] :global(.sp-effect--101.sp-effect--phase-1){opacity:1}
+ .svc-story__project[data-project-service="101"][data-operation-phase="2"] :global(.sp-effect--101.sp-effect--phase-2){opacity:1}
+ .svc-story__project[data-project-service="102"][data-operation-phase="0"] :global(.sp-effect--102.sp-effect--phase-0){opacity:1}
+ .svc-story__project[data-project-service="102"][data-operation-phase="1"] :global(.sp-effect--102.sp-effect--phase-1){opacity:1}
+ .svc-story__project[data-project-service="102"][data-operation-phase="2"] :global(.sp-effect--102.sp-effect--phase-2){opacity:1}
+ .svc-story__project[data-project-service="104"][data-operation-phase="0"] :global(.sp-effect--104.sp-effect--phase-0){opacity:1}
+ .svc-story__project[data-project-service="104"][data-operation-phase="1"] :global(.sp-effect--104.sp-effect--phase-1){opacity:1}
+ .svc-story__project[data-project-service="104"][data-operation-phase="2"] :global(.sp-effect--104.sp-effect--phase-2){opacity:1}
+ .svc-story__project[data-project-service="105"][data-operation-phase="0"] :global(.sp-effect--105.sp-effect--phase-0){opacity:1}
+ .svc-story__project[data-project-service="105"][data-operation-phase="1"] :global(.sp-effect--105.sp-effect--phase-1){opacity:1}
+ .svc-story__project[data-project-service="105"][data-operation-phase="2"] :global(.sp-effect--105.sp-effect--phase-2){opacity:1}
+ .svc-story__project[data-project-service="106"][data-operation-phase="0"] :global(.sp-effect--106.sp-effect--phase-0){opacity:1}
+ .svc-story__project[data-project-service="106"][data-operation-phase="1"] :global(.sp-effect--106.sp-effect--phase-1){opacity:1}
+ .svc-story__project[data-project-service="106"][data-operation-phase="2"] :global(.sp-effect--106.sp-effect--phase-2){opacity:1}
+ .svc-story__project[data-project-service="107"][data-operation-phase="0"] :global(.sp-effect--107.sp-effect--phase-0){opacity:1}
+ .svc-story__project[data-project-service="107"][data-operation-phase="1"] :global(.sp-effect--107.sp-effect--phase-1){opacity:1}
+ .svc-story__project[data-project-service="107"][data-operation-phase="2"] :global(.sp-effect--107.sp-effect--phase-2){opacity:1}
+ .svc-story__project[data-project-service="108"][data-operation-phase="0"] :global(.sp-effect--108.sp-effect--phase-0){opacity:1}
+ .svc-story__project[data-project-service="108"][data-operation-phase="1"] :global(.sp-effect--108.sp-effect--phase-1){opacity:1}
+ .svc-story__project[data-project-service="108"][data-operation-phase="2"] :global(.sp-effect--108.sp-effect--phase-2){opacity:1}
+ @media(prefers-reduced-motion:reduce){.svc-story__project :global(.sp-effect){transition:none}}
 </style>

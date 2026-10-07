@@ -118,6 +118,12 @@ for(const route of routes){
     const key=state.code+'-'+state.scene;
     if(!captured.has(key)&&(state.code===chapters[0].code||['object','detail'].includes(state.view)||current?.flow?.phase===1)){
      captured.add(key);await delay(1550);
+     if(current?.flow?.phase===1&&state.code!=='103'){
+      const effect=await story.locator('[data-atlas-project]').evaluate(root=>({code:root.dataset.projectService,visible:[...root.querySelectorAll('.sp-effect')].filter(node=>Number(getComputedStyle(node).opacity)>.8).map(node=>node.getAttribute('class'))}));
+      row.deviceEffects||=[];row.deviceEffects.push(effect);
+      // Network delivery is visible in phase 2; other systems act in phase 1.
+      if(state.code!=='101'&&!effect.visible.length)finding(route,'The service has no visible device response',effect);
+     }
      row.shots.push(await snapshot(story,name+'-'+key+'-'+state.view,story.locator('.svc-story__stage')));
     }
     await story.clock.runFor((current?.duration||8000)+40);

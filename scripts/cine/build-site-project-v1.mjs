@@ -163,8 +163,38 @@ for(const spec of scenes){
  const routeSVG=Object.entries(routes.reduce((groups,r)=>{(groups[r.code]||=[]).push(r);return groups;},{})).map(([code,rows])=>'<g class="sp-route sp-route--'+code+'" data-project-route="'+code+'">'+rows.map(r=>pathLine({...r,color:'red',width:1.65},'pathLength="100"')).join('')+'</g>').join('');
  const pinSVG=Object.entries(pins).map(([code,at])=>{const [x,y]=P(at);return '<g class="sp-pin sp-pin--'+code+'" data-project-pin="'+code+'" data-x="'+n(x)+'" data-y="'+n(y)+'"><circle cx="'+n(x)+'" cy="'+n(y)+'" r="5.2" fill="'+palette.red+'"/><circle cx="'+n(x)+'" cy="'+n(y)+'" r="9" fill="none" stroke="'+palette.white+'" stroke-opacity=".55" stroke-width=".65" vector-effect="non-scaling-stroke"/></g>';}).join('');
  const labelSVG=labels.map(l=>{const [x,y]=P(l.at);return '<text x="'+n(x-16)+'" y="'+n(y)+'" fill="#aeb5bf" font-family="UM Sans,Arial,sans-serif" font-size="18" text-anchor="end" class="sp-floor-label">'+esc(l.text)+'</text>';}).join('');
+ // Operational consequences belong to the installed devices, in the same projection.
+ const effect=(code,body,phase='')=>'<g class="sp-effect sp-effect--'+code+(phase?' sp-effect--phase-'+phase:'')+'">'+body+'</g>';
+ const surface=(pts,fill,opacity=1)=>'<polygon points="'+pts.map(p=>P(p).map(n).join(',')).join(' ')+'" fill="'+fill+'" fill-opacity="'+opacity+'"/>';
+ const display=(x,y,z,w,h,color)=>surface([[x,y,z],[x+w,y,z],[x+w,y,z+h],[x,y,z+h]],color);
+ const effects=[];
+ for(let floor=0;floor<spec.floors;floor++){
+  const z=floor*112;
+  effects.push(effect('102',surface([[374,323,z+80],[306,252,z+1],[438,252,z+1]],palette.red,.09)+pathLine({points:[[374,323,z+80],[306,252,z+1],[438,252,z+1],[374,323,z+80]],color:'red',width:.8}),'1'));
+  for(let col=0;col<3;col++){
+   const x=74+col*174;
+   const at=P([x,230,z+94.4]);
+   effects.push(effect('107','<ellipse cx="'+n(at[0])+'" cy="'+n(at[1])+'" rx="7" ry="4" fill="none" stroke="#DC2626" stroke-width="1.4"/>','1'));
+   effects.push(effect('101',display(x-1,120,z+18,2,1,palette.white),'2'));
+  }
+ }
+ // Console screen: the picture, task and resolution each have their own visual state.
+ for(let row=0;row<2;row++)for(let col=0;col<2;col++)effects.push(effect('102',display(389+col*8,268.9,42+row*5,7,4,row===0?palette.metal:palette.side),'1'));
+ for(const code of ['104','105'])for(let phase=0;phase<3;phase++){
+  let rows='';
+  for(let row=0;row<3;row++)rows+=display(389,268.95,42+row*3.5,15-row*2,1.6,row<=phase?(phase===2?palette.white:palette.red):palette.side);
+  effects.push(effect(code,rows,String(phase)));
+ }
+ effects.push(effect('107',display(506,310.75,46,12,4,palette.red),'1'));
+ effects.push(effect('107',display(506,310.75,46,12,4,palette.white),'2'));
+ for(let phase=1;phase<=2;phase++){
+  let bars='';for(let i=0;i<4;i++)bars+=display(477+i*2,281,34,1.3,4,phase===1?palette.red:palette.white);
+  effects.push(effect('108',bars,String(phase)));
+ }
+ effects.push(effect('106',pathLine({points:[[12,12,.4],[588,12,.4],[588,328,.4],[12,328,.4],[12,12,.4]],color:'red',width:1},'stroke-dasharray="4 5"'),'1'));
  const structure=faces.map(polygon).join('')+lines.map(l=>pathLine(l)).join('')+circlesSVG;
- const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" class="sp-scene" role="img" aria-labelledby="sp-'+spec.id+'-title sp-'+spec.id+'-desc"><title id="sp-'+spec.id+'-title">'+esc(spec.name)+'</title><desc id="sp-'+spec.id+'-desc">Un solo proyecto isométrico con espacios, equipos, montante, bandejas y recorridos. La estructura permanece; cada servicio recorre su instalación.</desc><g class="sp-root"><g class="sp-structure">'+structure+'</g>'+routeSVG+pinSVG+labelSVG+'</g><path class="sp-leader" data-project-leader="" fill="none" stroke="#DC2626" stroke-opacity=".65" stroke-width=".8" stroke-dasharray="3 5" vector-effect="non-scaling-stroke"/></svg>';
+
+ const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" class="sp-scene" role="img" aria-labelledby="sp-'+spec.id+'-title sp-'+spec.id+'-desc"><title id="sp-'+spec.id+'-title">'+esc(spec.name)+'</title><desc id="sp-'+spec.id+'-desc">Un solo proyecto isométrico con espacios, equipos, montante, bandejas y recorridos. La estructura permanece; cada servicio recorre su instalación.</desc><g class="sp-root"><g class="sp-structure">'+structure+'</g>'+routeSVG+effects.join('')+pinSVG+labelSVG+'</g><path class="sp-leader" data-project-leader="" fill="none" stroke="#DC2626" stroke-opacity=".65" stroke-width=".8" stroke-dasharray="3 5" vector-effect="non-scaling-stroke"/></svg>';
  fs.writeFileSync(path.join(out,'site-'+spec.id+'-v1.svg'),svg);
  all.push({...spec,boxes,cylinders,lines,circles,routes,pins,projection:{c:C,s:.5,scale:S,origin:[540,278]},dimensions:{width:600,depth:340,floorHeight:112},svgBytes:Buffer.byteLength(svg),faceCount:faces.length});
 }
