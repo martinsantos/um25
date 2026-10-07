@@ -56,6 +56,7 @@ jobs:
             scripts/cine/render-software-system-v2.py
             public/fonts/um-sans/UMSans-Regular.ttf
             public/fonts/um-sans/UMSans-SemiBold.ttf
+            scripts/cine/prepare-blender-fonts.py
           sparse-checkout-cone-mode: false
       - name: Install verified official Blender
         run: |
@@ -68,10 +69,21 @@ jobs:
           sha256sum -c blender-selected.sha256
           tar -xf blender-4.5.3-linux-x64.tar.xz
         timeout-minutes: 15
+      - uses: actions/setup-python@v6
+        if: (inputs.version || 'v2') == 'v2'
+        with:
+          python-version: '3.12'
+      - name: Prepare render-only type contours
+        if: (inputs.version || 'v2') == 'v2'
+        run: |
+          python -m pip install --disable-pip-version-check fonttools==4.58.0 skia-pathops==0.8.0.post2
+          python scripts/cine/prepare-blender-fonts.py public/fonts/um-sans /tmp/um-cine-fonts
       - name: Render the software architecture
         run: |
+          FONT_ARGS=()
+          if [ "$VERSION" = v2 ]; then FONT_ARGS=(--font-dir /tmp/um-cine-fonts); fi
           python3 scripts/cine/render-software-system-$VERSION.py --validate-only
-          ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-$VERSION.py -- --samples 24 --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
+          ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-$VERSION.py -- --samples 24 --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames "${FONT_ARGS[@]}"
       - uses: actions/upload-artifact@v7
         if: (inputs.mode || 'proof') == 'proof'
         with:

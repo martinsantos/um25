@@ -18,3 +18,5 @@ La película es un recorrido autónomo de 24 segundos, sin audio obligatorio ni 
 - El render se ejecuta en GitHub Actions, con Blender oficial verificado, Cycles y 24 muestras. No ejecuta Blender en el Mac.
 
 Estado: **prueba visual enviada; todavía no incorporada a la preview**. Este documento no declara terminado el resultado ni autoriza producción.
+
+La segunda prueba permitió ver recortes en las letras al convertir la tipografía a curvas Blender. El runner prepara copias temporales con los contornos superpuestos unidos mediante [FontTools](https://fonttools.readthedocs.io/en/latest/ttLib/removeOverlaps.html); comprueba que los avances y los archivos originales no cambien. La web conserva sus binarios UM Sans. Esta corrección se revisa en nuevas pruebas antes de la película completa.

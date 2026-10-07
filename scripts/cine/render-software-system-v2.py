@@ -154,7 +154,8 @@ def render(args):
         if name in ['white','muted','red']:n.inputs['Emission Color'].default_value=(*rgb,1);n.inputs['Emission Strength'].default_value=.24
         mats[name]=mat
     root=Path(__file__).resolve().parents[2]
-    fonts={False:bpy.data.fonts.load(str(root/'public/fonts/um-sans/UMSans-Regular.ttf')),True:bpy.data.fonts.load(str(root/'public/fonts/um-sans/UMSans-SemiBold.ttf'))}
+    font_dir=Path(args.font_dir) if args.font_dir else root/'public/fonts/um-sans'
+    fonts={False:bpy.data.fonts.load(str(font_dir/'UMSans-Regular.ttf')),True:bpy.data.fonts.load(str(font_dir/'UMSans-SemiBold.ttf'))}
     p=build();parents={}
     for name in p.points:
         obj=bpy.data.objects.new(name,None);scene.collection.objects.link(obj);parents[name]=obj
@@ -208,7 +209,7 @@ def render(args):
     (out/'render-info.json').write_text(json.dumps({'service':'104','scene':'software-system-v2','blender':bpy.app.version_string,'engine':'CYCLES','samples':args.samples,'frames':FRAMES,'fps':FPS,'resolution':[1920,1080],'camera':'recognizable product interface unfolds into rules, data and runtime; continuous 24 second loop','timings':timings,'bounds':bounds}))
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--start',type=int,default=0);parser.add_argument('--end',type=int,default=FRAMES-1);parser.add_argument('--samples',type=int,default=24);parser.add_argument('--output',default='frames');parser.add_argument('--validate-only',action='store_true')
+    parser=argparse.ArgumentParser();parser.add_argument('--start',type=int,default=0);parser.add_argument('--end',type=int,default=FRAMES-1);parser.add_argument('--samples',type=int,default=24);parser.add_argument('--output',default='frames');parser.add_argument('--validate-only',action='store_true');parser.add_argument('--font-dir')
     args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else None)
     assert 0<=args.start<=args.end<FRAMES and 16<=args.samples<=64
     validate()
