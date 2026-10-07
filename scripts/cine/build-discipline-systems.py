@@ -3,7 +3,7 @@ Only referenced definitions are retained; the visible SVG needs no browser libra
 """
 from pathlib import Path
 import xml.etree.ElementTree as ET
-import re, json
+import re, json, math
 ROOT=Path(__file__).resolve().parents[2]
 ET.register_namespace('', 'http://www.w3.org/2000/svg')
 rack=ET.fromstring((ROOT/'src/assets/cine/isometric/network-rack-v10.svg').read_text())
@@ -47,13 +47,16 @@ def api(x,y,layer):
         content+=''.join(f'<rect x="{cx+10+j*8}" y="{cy+33}" width="4" height="9" fill="#dc2626"/>' for j in range(5))
     return plane(content,x,y,layer)
 def data(x,y,layer):
-    content=''
-    for cx,cy in [(53,64),(169,88),(108,39)]:
-        content+=f'<path d="M{cx-26} {cy}v47a26 12 0 0 0 52 0v-47" fill="#2b3d4b" stroke="#adbfcb"/>'
-        for dy in [15,31,47]:content+=f'<path d="M{cx-26} {cy+dy}a26 12 0 0 0 52 0" fill="none" stroke="#829cae"/>'
-        content+=f'<ellipse cx="{cx}" cy="{cy}" rx="26" ry="12" fill="#18232d" stroke="#cfdae2"/><circle cx="{cx+12}" cy="{cy+34}" r="2.5" fill="#dc2626"/>'
-    # Cylinders are drawn in screen space on an isometric tray, not skewed twice.
-    return plane(content,x,y,layer)
+    # Storage volumes stand vertically on the tray. Applying the UI-plane matrix
+    # to a cylinder would incorrectly shear its vertical axis.
+    c='<path d="M0 0L208 120L69 200L-139 80Z" fill="#152330" stroke="#8ea5b5"/>'
+    for px,py in [(70,43),(169,55),(118,118)]:
+        cx=(px-py)*.8660254;cy=(px+py)*.5;rx=33;ry=rx/math.sqrt(3);height=73
+        c+=f'<path d="M{cx-rx} {cy-height}v{height}a{rx} {ry} 0 0 0 {rx*2} 0v{-height}" fill="#273d4d" stroke="#a5b9c7"/>'
+        for dz in [18,36,54]:c+=f'<path d="M{cx-rx} {cy-dz}a{rx} {ry} 0 0 0 {rx*2} 0" fill="none" stroke="#839bab"/>'
+        c+=f'<g class="ds-cover" style="--ds-lift:-12px"><ellipse cx="{cx}" cy="{cy-height}" rx="{rx}" ry="{ry}" fill="#445f73" stroke="#c4d0d9"/><ellipse cx="{cx}" cy="{cy-height}" rx="{rx*.67}" ry="{ry*.67}" fill="#1b2c3a" stroke="#6e8a9e"/></g><circle cx="{cx+10}" cy="{cy-10}" r="2" fill="#dc2626"/>'
+    return f'<g class="ds-node" data-discipline-node="{layer}"><g transform="translate({x} {y})">{c}</g></g>'
+
 def deploy(x,y,layer):
     content='<path d="M15 79H226" stroke="#dc2626" stroke-width="2"/>'
     for i in range(3):

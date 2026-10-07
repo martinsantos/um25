@@ -10,8 +10,8 @@ import type {SectorProject} from '../../data/cine/sectorNarrative';
 import {SERVICE_NARRATIVE} from '../../data/cine/serviceNarrative';
 import {EQUIPMENT_KITS,NETWORK_EQUIPMENT} from '../../data/cine/networkAssembly';
 interface Service {code:string;name:string;href:string}
-interface Props {services:Service[];project?:SectorProject;single?:boolean}
-const {services,project,single=false}=Astro.props;
+interface Props {services:Service[];project?:SectorProject;single?:boolean;sector?:boolean}
+const {services,project,single=false,sector=false}=Astro.props;
 const projectFiles=import.meta.glob<string>('../../assets/cine/isometric/site-*-v1.svg',{eager:true,query:'?raw',import:'default'});
 const disciplineOnly=single&&services.length===1&&Boolean(DISCIPLINE_SYSTEMS[services[0].code]);
 const projectMarkup=project&&!disciplineOnly?projectFiles[`../../assets/cine/isometric/site-${project.scene}-v1.svg`]:undefined;
@@ -28,7 +28,7 @@ const messages:Record<string,{title:string;summary:string;copy:string}>={
  '107':{title:'Detección temprana para activar la respuesta.',summary:'Dispositivos, central y puesta en marcha del sistema.',copy:'Diseñamos la detección según el riesgo y el lugar. Instalamos, probamos y documentamos los dispositivos y la central para que alarmas y fallas tengan una respuesta prevista.'},
  '108':{title:'Respaldo eléctrico donde tu operación lo necesita.',summary:'Alimentación, UPS y distribución para cargas de IT.',copy:'Definimos las cargas críticas y la autonomía necesaria. Integramos alimentación, respaldo y distribución para sostener los equipos y facilitar su mantenimiento.'},
 };
-const items=plan.map(chapter=>services.find(s=>s.code===chapter.code)).filter((s):s is Service=>!!s&&!!ISOMETRIC_STUDIES[s.code]).map(s=>({...s,study:ISOMETRIC_STUDIES[s.code],message:messages[s.code]}));
+const items=plan.map(chapter=>services.find(s=>s.code===chapter.code)).filter((s):s is Service=>!!s&&!!ISOMETRIC_STUDIES[s.code]).map(s=>({...s,study:ISOMETRIC_STUDIES[s.code],message:{...messages[s.code],...(sector?{title:plan.find(chapter=>chapter.code===s.code)!.scenes[0].title}:{})}}));
 const narrative=plan.filter(chapter=>items.some(item=>item.code===chapter.code));
 const phases=[{id:'system',name:'Proyecto'},{id:'object',name:'Pieza'},{id:'layers',name:'Interior'},{id:'detail',name:'Detalle'}];
 const first=items[0];

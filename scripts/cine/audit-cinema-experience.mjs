@@ -47,10 +47,17 @@ for(const route of routes){
   if(await page.locator('[data-umc]').count()){
    const initial=await movieState(page);row.movie=[initial];
    const key=initial.scene,full=route==='/'||!movies.has(key);movies.add(key);
-   const duration=route==='/'?43000:full?19500:1600,until=Date.now()+duration;
+   const nativeDuration=Math.max(...initial.videos.map(video=>video.duration||0));
+   const duration=route==='/'?43000:full?Math.max(19500,nativeDuration*1000+3000):1600,until=Date.now()+duration;
    while(Date.now()<until){await delay(1100);row.movie.push(await movieState(page));}
    const played=row.movie.some(state=>state.videos.some(v=>v.on&&!v.paused&&v.time>.4&&!v.error));
    if(!played)finding(route,'Movie does not play automatically with native H.264',row.movie);
+   if(full&&route!=='/'){
+    const times=row.movie.flatMap(state=>state.videos.filter(video=>video.on&&!video.error).map(video=>video.time));
+    row.movieTraversal={duration:nativeDuration,lastDecodedTime:Math.max(...times),distinctTimes:new Set(times.map(time=>Math.floor(time*10))).size};
+    if(nativeDuration>0&&(row.movieTraversal.lastDecodedTime<nativeDuration*.85||row.movieTraversal.distinctTimes<8))finding(route,'The movie does not traverse its complete native duration',row.movieTraversal);
+    row.shots.push(await snapshot(page,name+'-hero-playing'));
+   }
    if(route==='/'&&new Set(row.movie.map(s=>s.scene)).size<5)finding(route,'Home movie did not visit all five scenes without a click',row.movie.map(s=>s.scene));
    report.movieCoverage.push({route,key,played,full,scenes:[...new Set(row.movie.map(s=>s.scene))]});
    const motion=page.locator('[data-umc-motion]');

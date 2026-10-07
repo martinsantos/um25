@@ -190,7 +190,7 @@ export function bindServiceAtlas(root) {
     for(const node of operations){
       node.hidden=node!==operation;
       const figure=node.querySelector('[data-isometric]');
-      if(figure&&node===operation){figure.dataset.isoView=String(index);figure.dispatchEvent(new CustomEvent('um:iso-select',{detail:{index}}));}
+      if(figure&&node===operation&&!systemMode){figure.dataset.isoView=String(index);figure.dispatchEvent(new CustomEvent('um:iso-select',{detail:{index}}));}
     }
     for(const button of views)button.hidden=button.dataset.atlasView==='layers'&&!guided&&!operation;
     const hardware=!!network&&(active.dataset.atlasService==='101'||!!active.dataset.equipmentKit);
