@@ -1,0 +1,156 @@
+name: Blender service cinema
+on:
+  push:
+    branches: [feature/isometric-redes-review]
+    paths: [.github/workflows/cine-services-render.yml]
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        options: [proof, full]
+        default: proof
+      services:
+        description: 'Comma-separated service codes, or all'
+        default: all
+      engine:
+        type: choice
+        options: [eevee, cycles]
+        default: eevee
+permissions:
+  contents: read
+concurrency:
+  group: blender-services-${{ github.ref }}-${{ inputs.mode || 'proof' }}
+  cancel-in-progress: false
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  LIBGL_ALWAYS_SOFTWARE: '1'
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      services: ${{ steps.plan.outputs.services }}
+    steps:
+      - id: plan
+        env:
+          MODE: ${{ inputs.mode || 'proof' }}
+          SERVICES: ${{ inputs.services || 'all' }}
+        run: |
+          python3 - <<'PY'
+          import json,os
+          codes=['101','102','103','105','106','107','108']
+          selected=codes if os.environ['SERVICES']=='all' else os.environ['SERVICES'].split(',')
+          assert selected and set(selected)<=set(codes) and len(selected)==len(set(selected))
+          rows=[dict(service=s,part=1,start=0,end=0) for s in selected] if os.environ['MODE']=='proof' else [dict(service=s,part=i+1,start=i*48,end=i*48+47) for s in selected for i in range(12)]
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+              out.write('matrix='+json.dumps({'include':rows})+'\n')
+              out.write('services='+json.dumps(selected)+'\n')
+          PY
+  render:
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    strategy:
+      fail-fast: false
+      max-parallel: 14
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Install verified official Blender
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libgl1 libegl1 libxrender1 libxi6 xvfb ffmpeg
+          curl -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender-4.5.3-linux-x64.tar.xz
+          curl -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256 -o blender.sha256
+          awk '$2 == "blender-4.5.3-linux-x64.tar.xz" {print}' blender.sha256 > blender-selected.sha256
+          test -s blender-selected.sha256
+          sha256sum -c blender-selected.sha256
+          tar -xf blender-4.5.3-linux-x64.tar.xz
+      - name: Render authored discipline
+        env:
+          SERVICE: ${{ matrix.service }}
+          ENGINE: ${{ inputs.engine || 'eevee' }}
+          MODE: ${{ inputs.mode || 'proof' }}
+          START: ${{ matrix.start }}
+          END: ${{ matrix.end }}
+        run: |
+          python3 scripts/cine/render-service-cinema-v1.py --service "$SERVICE" --validate-only
+          SAMPLES=48
+          if [ "$ENGINE" = cycles ]; then SAMPLES=24; fi
+          EXTRA=()
+          if [ "$MODE" = proof ]; then EXTRA=(--proof-frames 0,144,288); fi
+          xvfb-run -a ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-service-cinema-v1.py -- --service "$SERVICE" --engine "$ENGINE" --samples "$SAMPLES" --start "$START" --end "$END" --output frames "${EXTRA[@]}"
+      - uses: actions/upload-artifact@v7
+        if: (inputs.mode || 'proof') == 'proof'
+        with:
+          name: service-proof-${{ matrix.service }}
+          path: frames
+          retention-days: 3
+      - name: Encode recoverable part
+        if: inputs.mode == 'full'
+        run: |
+          cp frames/render-info.json part-${{ matrix.part }}-info.json
+          ffmpeg -v error -framerate 24 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 48 -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r 24 -g 48 -an -movflags +faststart part-${{ matrix.part }}.mp4
+      - uses: actions/upload-artifact@v7
+        if: inputs.mode == 'full'
+        with:
+          name: service-${{ matrix.service }}-part-${{ matrix.part }}
+          path: |
+            part-${{ matrix.part }}.mp4
+            part-${{ matrix.part }}-info.json
+          retention-days: 3
+  assemble:
+    needs: [plan, render]
+    if: inputs.mode == 'full'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJSON(needs.plan.outputs.services) }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: service-${{ matrix.service }}-part-*
+      - name: Assemble, derive mobile edition and validate
+        env:
+          SERVICE: ${{ matrix.service }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          mkdir delivery
+          for PART in $(seq 1 12); do printf "file 'service-%s-part-%s/part-%s.mp4'\n" "$SERVICE" "$PART" "$PART"; done > parts.txt
+          SCENE=$(python3 -c "import json;print(json.load(open('service-${SERVICE}-part-1/part-1-info.json'))['scene'])")
+          NAME="delivery/cine-$SCENE"
+          ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart "$NAME.mp4"
+          ffmpeg -v error -i "$NAME.mp4" -vf 'crop=1520:1080:400:0,pad=1520:1520:0:220:color=0x0B1019,scale=1080:1080' -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -an -movflags +faststart "$NAME-sq.mp4"
+          ffmpeg -v error -i "$NAME.mp4" -frames:v 1 -q:v 2 "$NAME-poster.jpg"
+          ffmpeg -v error -i "$NAME-sq.mp4" -frames:v 1 -q:v 2 "$NAME-poster-sq.jpg"
+          for SUFFIX in poster poster-sq; do ffmpeg -v error -i "$NAME-$SUFFIX.jpg" -c:v libaom-av1 -still-picture 1 -crf 24 "$NAME-$SUFFIX.avif"; done
+          ffmpeg -v error -i "$NAME.mp4" -f null -
+          ffmpeg -v error -i "$NAME-sq.mp4" -f null -
+          ffprobe -v error -count_frames -show_streams -show_format -of json "$NAME.mp4" > delivery/validation.json
+          ffprobe -v error -count_frames -show_streams -show_format -of json "$NAME-sq.mp4" > delivery/validation-square.json
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          for filename,width,height in [('validation.json',1920,1080),('validation-square.json',1080,1080)]:
+              v=json.loads(Path('delivery',filename).read_text())['streams'][0]
+              assert (v['codec_name'],v['width'],v['height'],v['nb_read_frames'],v['avg_frame_rate'],v['pix_fmt'])==('h264',width,height,'576','24/1','yuv420p'),v
+              assert abs(float(v['duration'])-24)<.01
+          infos=[json.loads(Path(f"service-{os.environ['SERVICE']}-part-{i}/part-{i}-info.json").read_text()) for i in range(1,13)]
+          info=infos[0]
+          info['timings']=[t for item in infos for t in item['timings']]
+          info['bounds']=[b for item in infos for b in item['bounds']]
+          assert [t['frame'] for t in info['timings']]==list(range(576))
+          assert sum(p.stat().st_size for p in Path('delivery').glob('*'))<40_000_000
+          Path('delivery/render-info.json').write_text(json.dumps(info))
+          PY
+          sha256sum delivery/* > delivery/SHA256SUMS
+      - uses: actions/upload-artifact@v7
+        with:
+          name: service-cinema-${{ matrix.service }}
+          path: delivery
+          retention-days: 5
