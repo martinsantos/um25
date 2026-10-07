@@ -8,7 +8,7 @@ def smooth(t):
 
 def pose(frame):
     t=frame/(FRAMES-1);approach=math.sin(math.pi*t)**2
-    return (21.5-2.6*approach, math.radians(-58+7*math.sin(2*math.pi*t)), .38*approach)
+    return (22.0-1.8*approach, math.radians(-58+7*math.sin(2*math.pi*t)), .38*approach)
 
 def render(args):
     import bpy
@@ -135,6 +135,10 @@ def render(args):
     bpy.ops.mesh.primitive_uv_sphere_add(segments=16,ring_count=8,radius=.062)
     packet=bpy.context.object;packet.name='One request and its response';packet.data.materials.append(mats['packet'])
     for p in packet.data.polygons:p.use_smooth=True
+    indicators=[]
+    for x,y,z,threshold in [(-1.38,1.04,1.55,.20),(-.30,1.04,1.55,.30),(.80,1.04,1.55,.40),(3.53,.78,1.29,.62),(3.35,3.7,1.75,.92)]:
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=12,ring_count=6,radius=.043,location=(x,y,z))
+        lamp=bpy.context.object;lamp.name='Verified stage';lamp.data.materials.append(mats['packet']);indicators.append((lamp,threshold))
     path=[Vector(p) for p in request];lengths=[(b-a).length for a,b in zip(path,path[1:])];total=sum(lengths)
     def travel(t):
         distance=t*total
@@ -155,10 +159,12 @@ def render(args):
     for frame in range(args.start,args.end+1):
         size,angle,lift=pose(frame);target=Vector((-.25,1.0,.65+lift))
         cam.location=target+Vector((22*math.cos(angle),22*math.sin(angle),24))
-        cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler();camera.ortho_scale=size;camera.shift_x=-.14
+        cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler();camera.ortho_scale=size;camera.shift_x=-.11
         # A single round trip over 24 seconds, with a gentle arrival at each end.
         t=frame/(FRAMES-1);progress=smooth(2*t) if t<=.5 else 1-smooth((t-.5)*2)
-        packet.location=travel(progress);bpy.context.view_layer.update()
+        packet.location=travel(progress)
+        for indicator,threshold in indicators:indicator.hide_render=progress<threshold
+        bpy.context.view_layer.update()
         view=[world_to_camera_view(scene,cam,Vector(p)) for p in bounds]
         extent=[min(p.x for p in view),min(p.y for p in view),max(p.x for p in view),max(p.y for p in view)]
         assert extent[0]>.01 and extent[1]>.01 and extent[2]<.99 and extent[3]<.99,extent

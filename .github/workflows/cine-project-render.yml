@@ -23,7 +23,7 @@ on:
         type: string
         required: false
       part:
-        description: 'For repair mode: one missing part from 1 to 18'
+        description: 'For repair mode: one missing part (1–24 for software; 1–18 for sites)'
         type: number
         default: 1
       repair_run:
@@ -104,11 +104,11 @@ jobs:
           if [[ "$RENDERER" == "v2" ]]; then SAMPLES=16; fi
           if [[ "${{ matrix.scene }}" == "software" ]]; then
             python3 scripts/cine/render-software-system-v1.py --validate-only
-            ./blender-4.5.3-linux-x64/blender -b -t 4 --python scripts/cine/render-software-system-v1.py -- --samples 24 --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
+            ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-v1.py -- --samples 24 --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
             exit 0
           fi
           python3 "scripts/cine/render-site-project-${RENDERER}.py" --validate-only --scene ${{ matrix.scene }}
-          ./blender-4.5.3-linux-x64/blender -b -t 4 --python "scripts/cine/render-site-project-${RENDERER}.py" -- --scene ${{ matrix.scene }} --samples "$SAMPLES" --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
+          ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python "scripts/cine/render-site-project-${RENDERER}.py" -- --scene ${{ matrix.scene }} --samples "$SAMPLES" --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
       - uses: actions/upload-artifact@v7
         if: inputs.mode == 'proof'
         with:
@@ -171,8 +171,9 @@ jobs:
           for PART in $(seq 1 "$PARTS"); do printf "file 'site-%s-part-%s/part-%s.mp4'\n" "$PROJECT_SCENE" "$PART" "$PART"; done > parts.txt
           ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-project-v3.mp4
           CROP=730
-          if [[ "$PROJECT_SCENE" == "software" ]]; then CROP=690; fi
-          ffmpeg -v error -i delivery/cine-project-v3.mp4 -vf "crop=1080:1080:$CROP:0" -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-project-v3-sq.mp4
+          FILTER="crop=1080:1080:$CROP:0"
+          if [[ "$PROJECT_SCENE" == "software" ]]; then FILTER='crop=1520:1080:400:0,pad=1520:1520:0:220:color=0x0B1019,scale=1080:1080'; fi
+          ffmpeg -v error -i delivery/cine-project-v3.mp4 -vf "$FILTER" -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-project-v3-sq.mp4
           ffmpeg -v error -i delivery/cine-project-v3.mp4 -frames:v 1 -q:v 2 delivery/cine-project-v3.poster.jpg
           ffmpeg -v error -i delivery/cine-project-v3.poster.jpg -c:v libaom-av1 -still-picture 1 -crf 24 delivery/cine-project-v3.poster.avif
           ffmpeg -v error -i delivery/cine-project-v3.mp4 -f null -

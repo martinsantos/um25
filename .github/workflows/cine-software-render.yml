@@ -54,7 +54,7 @@ jobs:
       - name: Render the software architecture
         run: |
           python3 scripts/cine/render-software-system-v1.py --validate-only
-          ./blender-4.5.3-linux-x64/blender -b -t 4 --python scripts/cine/render-software-system-v1.py -- --samples 24 --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
+          ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-v1.py -- --samples 24 --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
       - uses: actions/upload-artifact@v7
         if: inputs.mode == 'proof'
         with:
@@ -90,7 +90,7 @@ jobs:
           mkdir delivery
           for PART in $(seq 1 12); do printf "file 'software-part-%s/part-%s.mp4'\n" "$PART" "$PART"; done > parts.txt
           ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-software-system-v1.mp4
-          ffmpeg -v error -i delivery/cine-software-system-v1.mp4 -vf 'crop=1080:1080:690:0' -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-software-system-v1-sq.mp4
+          ffmpeg -v error -i delivery/cine-software-system-v1.mp4 -vf 'crop=1520:1080:400:0,pad=1520:1520:0:220:color=0x0B1019,scale=1080:1080' -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-software-system-v1-sq.mp4
           ffmpeg -v error -i delivery/cine-software-system-v1.mp4 -frames:v 1 -q:v 2 delivery/cine-software-system-v1-poster.jpg
           ffmpeg -v error -i delivery/cine-software-system-v1-sq.mp4 -frames:v 1 -q:v 2 delivery/cine-software-system-v1-poster-sq.jpg
           for SUFFIX in poster poster-sq; do ffmpeg -v error -i delivery/cine-software-system-v1-$SUFFIX.jpg -c:v libaom-av1 -still-picture 1 -crf 24 delivery/cine-software-system-v1-$SUFFIX.avif; done
