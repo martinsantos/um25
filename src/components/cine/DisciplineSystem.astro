@@ -15,7 +15,7 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precis
  <Fragment set:html={markup} />
  <p class="discipline-system__key"><span aria-hidden="true"></span><span data-discipline-key>Un sistema. Todas sus capas.</span></p>
 </div>
-<script src="/cine/precision-systems-v2.js" type="module" async is:inline />
+<script src="/cine/precision-systems-v3.js" type="module" async is:inline />
 <style>
  @property --um-ds-door-angle{syntax:"<angle>";inherits:false;initial-value:0deg}
  .discipline-system{position:absolute;inset:0;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 700ms ease;isolation:isolate}
@@ -43,9 +43,12 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precis
  .discipline-system[data-discipline-stage="-1"] :global(.pn-node),.discipline-system[data-discipline-stage="6"] :global(.pn-node){opacity:1}
  .discipline-system[data-discipline-stage="2"] :global(.pn-node:not([data-current=true])),.discipline-system[data-discipline-stage="3"] :global(.pn-node:not([data-current=true])){opacity:.52}
  .discipline-system[data-discipline-stage="3"] :global(.pn-cabinet){opacity:.7}
+ .discipline-system[data-discipline-stage="-1"] :global(.pn-project),.discipline-system[data-discipline-stage="1"] :global(.pn-project),.discipline-system[data-discipline-stage="6"] :global(.pn-project){opacity:1}
+ .discipline-system[data-discipline-stage="-1"] :global(.pn-inspection),.discipline-system[data-discipline-stage="1"] :global(.pn-inspection),.discipline-system[data-discipline-stage="6"] :global(.pn-inspection){opacity:0}
+ .discipline-system[data-discipline-stage="1"] :global(.pn-project .pn-node){opacity:1}
  .discipline-system :global(.ps-text){font-family:var(--um-font-body,Arial,sans-serif)}
  .discipline-system :global(.ps-layer){transition:none}
  .discipline-system :global(.pn-tag){font-family:var(--um-font-body,'UM Sans',Arial,sans-serif)}
- @media(max-width:600px){.discipline-system :global(.pn-tag){font-size:24px}.discipline-system :global(.pn-tag tspan:not(.pn-tag__number)){display:none}}
+ @media(max-width:600px){.discipline-system[data-discipline-service="101"] :global(.pn-tag){display:none}.discipline-system :global(.pn-project){transform:translate(500px,435px) scale(.69)}.discipline-system :global(.pn-tag){font-size:24px}.discipline-system :global(.pn-tag tspan:not(.pn-tag__number)){display:none}}
  @media(prefers-reduced-motion:reduce){.discipline-system,.discipline-system :global(.ds-node),.discipline-system :global(.ds-cover),.discipline-system :global(.ds-door){transition:none!important}.discipline-system :global(.pn-signal),.discipline-system :global(.ds-packet){animation:none!important;stroke-dasharray:none;stroke-width:1.6}}
 </style>

@@ -215,14 +215,22 @@ def workstation():
     return c
 
 def access_point():
-    c=''
-    # Circular enclosure with concentric return edge, LED ring, fixing plate.
-    for z,r,stroke in [(0,35,'seam'),(3,35,'edge'),(6,34,'fine'),(8,29,'seam')]:c+=circle3(0,0,z,r,'top',stroke,.7,'face')
-    c+=circle3(0,0,8.1,8,'top','light',.65)
-    c+=circle3(0,0,8.2,6.6,'top','red',.7)
+    base=circle3(0,0,0,35,'top','seam',.65,'side')+circle3(0,0,2,34,'top','fine',.6,'face')
+    base+=circle3(0,0,2.2,28,'top','fine',.55,'side')
+    base+=box(-5,-5,2.4,10,10,2,'fine')
+    for n in range(6):
+        a=2*pi*n/6
+        # Six printed antenna sectors and impedance-matched feed paths.
+        ps=[(r*cos(a+t),r*sin(a+t),2.6) for r,t in [(12,-.22),(25,-.22),(25,.22),(18,.22),(18,-.06),(23,-.06)]]
+        base+=line(ps,'fine',.6)
+        base+=line([(5*cos(a),5*sin(a),2.8),(12*cos(a),12*sin(a),2.8)],'fine',.45)
+        base+=circle3(30*cos(a),30*sin(a),2.5,1,'top','seam',.45)
+    cover=''
+    for z,r,stroke in [(3,35,'edge'),(6,34,'fine'),(8,29,'seam')]:cover+=circle3(0,0,z,r,'top',stroke,.7,'face')
+    cover+=circle3(0,0,8.1,8,'top','light',.65)+circle3(0,0,8.2,6.6,'top','red',.7)
     for n in range(28):
-        a=2*pi*n/28;c+=line([(30*cos(a),30*sin(a),5.6),(32*cos(a),32*sin(a),5.6)],'fine',.4)
-    return c
+        a=2*pi*n/28;cover+=line([(30*cos(a),30*sin(a),5.6),(32*cos(a),32*sin(a),5.6)],'fine',.4)
+    return base+group(cover,'pn-ap-cover')
 
 def tester():
     c=box(0,0,0,53,90,12)
@@ -232,6 +240,50 @@ def tester():
     for x,y in [(15,69),(26,64),(37,69),(26,75)]:panel+=f'<circle cx="{x}" cy="{y}" r="3.6" fill="#15171a" stroke="#646b73" stroke-width=".5"/>'
     c+=top_plane(0,0,12.1,panel)
     return c
+
+def installation():
+    c=face([(-440,-210,0),(440,-210,0),(440,310,0),(-440,310,0)],'side','fine',.8)
+    c+=top_grid(-440,-210,.1,880,520,55)
+    # Cutaway partitions keep access, open workspace and technical room legible.
+    for x,w in [(-440,350),(-32,224),(248,192)]:c+=box(x,-210,1,w,6,86,'fine')
+    for y,d in [(-210,215),(62,248)]:c+=box(434,y,1,6,d,86,'fine')
+    c+=box(168,-210,1,6,143,86,'fine')+box(168,-12,1,6,77,86,'fine')
+    c+=box(-88,-210,1,6,206,64,'fine')
+    # Doors swing around a visible hinge; no repeated slab animation.
+    c+=line([(168,-67,2),(127,-28,2),(168,-12,2)],'seam',.65)
+    c+=line([(192,-210,2),(224,-177,2),(248,-210,2)],'seam',.65)
+    for x in range(-404,-125,31):c+=line([(x,-204,38),(x,-204,76)],'seam',.5)
+    for x,y in [(-350,-130),(-165,-130),(-350,154),(-150,154)]:
+        desk=''
+        for dx,dy in [(0,0),(113,0),(0,71),(113,71)]:desk+=box(x-8+dx,y-2+dy,2,4,4,70,'seam')
+        desk+=box(x-18,y-12,72,144,101,3,'fine')
+        desk+=f'<g transform="translate({xy(pt(x,y,75))}) scale(.54)">{workstation()}</g>'
+        # Cantilever chair and seat, distinct from the workstation's silhouette.
+        desk+=box(x+31,y+100,42,47,40,3,'fine')
+        desk+=box(x+31,y+138,45,47,3,45,'fine')
+        desk+=line([(x+33,y+136,42),(x+33,y+100,3),(x+76,y+100,3),(x+76,y+136,42)],'fine',.8)
+        c+=group(desk,'pn-node',0)
+    meeting=''
+    for x in (64,218):meeting+=box(x,135,1,5,72,71,'seam')
+    meeting+=box(40,116,72,221,109,3,'fine')
+    for x in (70,160,235):
+        for y in (70,250):meeting+=box(x,y,44,32,29,3,'seam')+box(x,y+26,47,32,3,32,'seam')
+    c+=group(meeting,'pn-node',0)
+    # Shared physical rack geometry also appears at its actual place in the site.
+    rack_markup=rack().replace('pn-door','pn-context-door').replace('pn-switch-drawer','pn-context-switch').replace('pn-lid','pn-context-lid').replace('pn-cord','pn-context-cord')
+    c+=f'<g transform="translate({xy(pt(252,-177,1))}) scale(.55)">{rack_markup}</g>'
+    tray=''
+    for y in (8,24):tray+=box(-379,y,185,642,2,4,'fine')
+    for x in range(-371,255,18):tray+=box(x,9,185,2,15,2,'seam')
+    for n in range(4):tray+=line([(-379,11+n*3,188),(254,11+n*3,188),(254,-157,188)],'fine',.6)
+    c+=group(tray,'pn-node',1)
+    for x,y in [(-282.5,-103),(-97.5,-103),(-282.5,181),(-82.5,181)]:
+        c+=route([(270,-106,130),(270,-106,188),(254,-106,188),(254,16,188),(x,16,188),(x,y,188),(x,y,81.5)],'0 1 2 3')
+    for x,y in [(42,-75),(304,166)]:
+        c+=group(f'<g transform="translate({xy(pt(x,y,186))}) scale(.48)">{access_point()}</g>','pn-node',4)
+        c+=route([(270,-106,130),(270,-106,188),(254,-106,188),(254,16,188),(x,16,188),(x,y,188)],'1 3 4')
+    c+=route([(270,-107,95),(390,-107,95),(390,5,95),(390,5,8)],'2 5')
+    return f'<g class="pn-project" transform="translate(500 335) scale(.69)">{c}</g>'
 
 def network():
     # Draw coordinates are global world units, with a single consistent projection.
@@ -264,18 +316,18 @@ def network():
     # World to screen, leaving annotation space without reducing the cabinet.
     body=f'<g class="pn-world" transform="translate(430 396) scale(1.05)">{body}</g>'
     labels=tag(0,115,279,'Puestos')+tag(1,250,121,'Tendidos')+tag(2,594,175,'Distribución','right')+tag(3,715,300,'Red activa','right')+tag(4,772,470,'Wi-Fi','right')+tag(5,127,548,'Medición')
-    return f'<g class="ds-drawing pn-drawing" data-discipline-drawing="101"><svg class="pn-viewport" viewBox="0 0 1000 650" width="100%" height="100%">{body}{labels}</svg></g>'
+    return f'<g class="ds-drawing pn-drawing" data-discipline-drawing="101"><svg class="pn-viewport" viewBox="0 0 1000 650" width="100%" height="100%"><g class="pn-inspection">{body}{labels}</g></svg>{installation()}</g>'
 
 STYLE='''
 .pn-drawing{--pn-ink:#c4c7cc;stroke-linejoin:round;stroke-linecap:round}
 .pn-node{opacity:.92;transition:opacity 900ms ease}
 .pn-node[data-current=true]{opacity:1}
-.pn-floor{opacity:.32}
+.pn-floor{opacity:.32}.pn-project{opacity:0;transition:opacity 1000ms ease}.pn-inspection{transition:opacity 1000ms ease}
 .pn-engraving{font-family:Arial,sans-serif;fill:#81878e;stroke:none;letter-spacing:.15px}
 .pn-tag{fill:#c4c7cc;color:#41464d;font:16px Arial,sans-serif;transition:fill 600ms}
 .pn-tag__number{fill:#646b73;font-variant-numeric:tabular-nums}
 .pn-tag[data-current=true],.pn-tag[data-current=true] .pn-tag__number{fill:#fff;color:#dc2626}
-.pn-cord{stroke:#848a90}.pn-cord--accent{stroke:#b7393c}
+.pn-cord,.pn-context-cord{stroke:#848a90}.pn-cord--accent,.pn-context-cord--accent{stroke:#b7393c}
 .pn-signal{opacity:0}
 .pn-link[data-current=true] .pn-signal{opacity:.9}
 '''

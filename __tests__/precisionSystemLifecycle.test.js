@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {bindPrecisionSystem} from '../public/cine/precision-systems-v2.js';
+import {bindPrecisionSystem} from '../public/cine/precision-systems-v3.js';
 const settle=async()=>{for(let i=0;i<5;i++)await Promise.resolve();};
 let motion,small,hidden;
 function fixture(){
@@ -35,7 +35,7 @@ test('an opening inspection keeps every patch cord attached while pausing and re
 test('mobile inspection moves its viewport without changing another service and stops when hidden',async()=>{
  small.matches=true;const root=fixture(),viewport=root.querySelector('.pn-viewport');
  root.dataset.disciplineStage='4';await settle();await jest.advanceTimersByTimeAsync(2600);
- expect(viewport.getAttribute('viewBox')).toBe('590 340 350 280');
+ expect(viewport.getAttribute('viewBox')).toBe('550 342 245 240');
  root.dataset.disciplineService='104';root.dataset.disciplineStage='1';await settle();
  expect(jest.getTimerCount()).toBe(0);
  root.dataset.disciplineService='101';await settle();await jest.advanceTimersByTimeAsync(800);
