@@ -39,6 +39,17 @@ try{
   await page.goto(origin+check,{waitUntil:'domcontentloaded'});
   assert.equal(await page.locator('.pn-drawing').count(),1,check);
  }
+ // The six software planes must expose their full contents by themselves.
+ const softwareRoute=[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/104\/[^']+)'/g)][0][1];
+ await page.goto(origin+softwareRoute,{waitUntil:'domcontentloaded'});
+ await page.locator('[data-atlas-theater]').evaluate(el=>scrollTo(0,el.getBoundingClientRect().top+scrollY-100));
+ report.software=[];
+ for(const stage of [-1,0,1,2,3,4,5,6]){
+  await page.waitForFunction(stage=>Number(document.querySelector('[data-discipline-system]').dataset.disciplineStage)===stage,stage,{timeout:15000});await delay(2700);
+  const state=await page.locator('.ps-drawing').evaluate(el=>({stage:el.closest('[data-discipline-system]').dataset.disciplineStage,planes:[...el.querySelectorAll('.ps-layer')].map(layer=>({layer:layer.dataset.disciplineNode,transform:getComputedStyle(layer).transform})),width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
+  assert.equal(state.width,state.scrollWidth);report.software.push(state);
+  await page.locator('[data-atlas-theater]').screenshot({path:path.join(out,`precision-software-${stage}.png`),animations:'allow'});
+ }
  const reduced=await browser.newContext({viewport,reducedMotion:'reduce'}),quiet=await reduced.newPage();
  await quiet.goto(origin+route,{waitUntil:'domcontentloaded'});await delay(700);
  report.reduced=await quiet.locator('[data-service-atlas]').getAttribute('data-story-state');

@@ -264,7 +264,7 @@ def network():
     # World to screen, leaving annotation space without reducing the cabinet.
     body=f'<g class="pn-world" transform="translate(430 396) scale(1.05)">{body}</g>'
     labels=tag(0,115,279,'Puestos')+tag(1,250,121,'Tendidos')+tag(2,594,175,'Distribución','right')+tag(3,715,300,'Red activa','right')+tag(4,772,470,'Wi-Fi','right')+tag(5,127,548,'Medición')
-    return f'<g class="ds-drawing pn-drawing" data-discipline-drawing="101">{body}{labels}</g>'
+    return f'<g class="ds-drawing pn-drawing" data-discipline-drawing="101"><svg class="pn-viewport" viewBox="0 0 1000 650" width="100%" height="100%">{body}{labels}</svg></g>'
 
 STYLE='''
 .pn-drawing{--pn-ink:#c4c7cc;stroke-linejoin:round;stroke-linecap:round}
@@ -280,5 +280,6 @@ STYLE='''
 .pn-link[data-current=true] .pn-signal{opacity:.9}
 '''
 svg=f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 650" class="ds-svg pn-svg" aria-hidden="true"><style>{STYLE}</style>{network()}</svg>'
-(OUT/'discipline-101-v2.svg').write_text(svg)
-print(f'101 precision: {len(svg):,} bytes; {svg.count("<path")} authored paths')
+if __name__=='__main__':
+    (OUT/'discipline-101-v2.svg').write_text(svg)
+    print(f'101 precision: {len(svg):,} bytes; {svg.count("<path")} authored paths')
