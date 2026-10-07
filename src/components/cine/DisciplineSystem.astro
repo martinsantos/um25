@@ -20,6 +20,7 @@ const markup=codes.length===1?individual[`../../assets/cine/isometric/discipline
  .discipline-system :global(.ds-node[data-current=true]),.discipline-system[data-discipline-stage="-1"] :global(.ds-node),.discipline-system[data-discipline-stage="6"] :global(.ds-node){opacity:1}
  .discipline-system :global(.ds-cover){transition:transform 1800ms cubic-bezier(.22,1,.36,1)}
  .discipline-system :global(.ds-node[data-current=true] .ds-cover){transform:translate(var(--ds-lift-x,0px),var(--ds-lift))}
+ .discipline-system :global(.ds-tag text){font-family:var(--um-font-body,'UM Sans',Arial,sans-serif)}
  .discipline-system :global(.ds-tag circle){transition:fill 600ms,stroke 600ms}
  .discipline-system :global(.ds-tag[data-current=true] circle){fill:#981b24;stroke:#f4b5b5}
  .discipline-system :global(.ds-packet){opacity:0;animation:discipline-signal 4200ms linear infinite}

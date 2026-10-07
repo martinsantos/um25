@@ -11,6 +11,25 @@ const routes:Record<SiteScene,Record<string,[string,string]>>={
  winery:{'101':['La red llega al proceso de la bodega.','Tanques, laboratorio y línea de embotellado se conectan con la sala técnica. Cada puesto y cada equipo tiene un recorrido identificado.'],'103':['La fibra comunica la bodega.','El enlace óptico vincula producción, laboratorio y administración. Los extremos se entregan identificados y accesibles.'],'104':['Del tanque al registro de producción.','La aplicación reúne lotes, estados y tareas de la bodega. Los puestos del laboratorio y la línea aportan datos al mismo proceso.'],'108':['Respaldo para la red de producción.','La UPS y la distribución sostienen las cargas de comunicaciones definidas para la bodega. El proceso determina el alcance del respaldo.']},
  mine:{'101':['La red conecta el sitio de operación.','Despacho, módulos de comunicación y sala técnica forman una instalación identificada. Sus recorridos se definen para las condiciones del emplazamiento.'],'103':['Unir los extremos en el terreno.','Mástiles, radios, alimentación y red comunican el sitio con su operación. El montaje y la alineación pertenecen al mismo enlace.'],'105':['Sostener un sitio que está lejos.','Monitoreo, incidentes y responsables conservan el contexto del equipo remoto. La intervención se prepara con diagnóstico y documentación.'],'108':['Respaldo donde la operación lo necesita.','La energía sostiene el cuarto técnico y los equipos de comunicaciones. Cargas y autonomía se definen para el emplazamiento.']},
 };
+// Software and public services have their own operation; a generic building
+// is not the narrative context for their applications.
+const sectorContexts:Record<string,Record<string,[string,string]>>={
+ software:{
+  '104':['Una acción visible, una arquitectura detrás.','Interfaz, reglas, integraciones y datos convierten tareas en una herramienta de trabajo. Definimos el primer alcance útil y cómo podrá evolucionar.'],
+  '101':['La aplicación depende de una red operable.','Puestos, entornos y recursos necesitan comunicarse. Relevamos conectividad y permisos para que las personas lleguen a sus herramientas.'],
+  '105':['Cada incidente conserva el proceso afectado.','Reunimos síntomas, versiones y contexto para distinguir problemas de aplicación, datos o infraestructura. El caso acompaña la intervención.'],
+  '106':['Las necesidades se convierten en arquitectura.','Relacionamos procesos, datos, sistemas existentes y restricciones. Las decisiones de alcance y las etapas de entrega quedan explícitas.'],
+  '103':['Conectar sedes también es conectar sus aplicaciones.','El enlace se diseña según la demanda y el recorrido. Los usuarios y sistemas de cada extremo definen lo que la conexión debe sostener.'],
+  '102':['La infraestructura también necesita accesos definidos.','Cuando el proyecto incluye instalaciones propias, integramos control y supervisión de los espacios técnicos con sus responsables.'],
+  '108':['Respaldar los recursos que sostienen la aplicación.','Identificamos las cargas de IT previstas, su consumo y la autonomía requerida. El diseño distingue la aplicación de la infraestructura que la sostiene.'],
+  '107':['Proteger los espacios donde opera la infraestructura.','Si el alcance incluye instalaciones físicas, la detección se diseña para esos ambientes. El sistema se prueba y documenta según el proyecto.'],
+ },
+ gobiernosectorpublico:{
+  '104':['Del trámite a su siguiente responsable.','Roles, estados y registros organizan la atención y el trabajo interno. La aplicación integra información y conserva el contexto de cada gestión.'],
+  '105':['Sostener las herramientas de atención.','El incidente conserva la dependencia, el puesto y la gestión afectados. Prioridad, diagnóstico y seguimiento organizan la respuesta.'],
+  '106':['Una arquitectura que acompaña la gestión.','Relevamos sistemas, conexiones y necesidades de las áreas. Las dependencias y los recursos disponibles ordenan las etapas del proyecto.'],
+ },
+};
 export const siteSceneForSector=(slug:string,scene:Scene):SiteScene=>slug==='bodegas'?'winery':slug==='mineria'?'mine':scene==='hospital'?'clinic':scene==='aeropuerto'?'terminal':scene==='bodega'||scene==='planta'?'plant':'building';
 const sectorOrders:Record<string,string[]>={
  constructoras:['101','103','108','102','107','106'],
@@ -29,10 +48,10 @@ export function sectorProject(slug:string,scene:Scene,codes?:string[]):SectorPro
  const order=sectorOrders[slug]||SERVICE_NARRATIVE.map(chapter=>chapter.code);
  const selected=order.filter(code=>!codes?.length||codes.includes(code));
  const chapters=selected.map(code=>{
-  const context=routes[type][code];
+  const context=sectorContexts[slug]?.[code]||routes[type][code];
   const part=['building','clinic','terminal','winery'].includes(type)&&code==='103'?'fiber':undefined;
   const scenes=operationScenes(code,context,part);
   return {code,scenes,overview:operationOverview(code,part)};
  });
- return {scene:type,name:names[type],headline:slug==='constructoras'?'La infraestructura se resuelve con la obra.':type==='clinic'?'La infraestructura acompaña cada espacio de atención.':type==='terminal'?'Cada punto de la terminal pertenece al mismo sistema.':type==='winery'?'Del proceso de la bodega a una operación conectada.':type==='mine'?'Cada enlace sostiene la operación en el terreno.':type==='plant'?'Los sistemas siguen el recorrido de la operación.':'Los sistemas comparten un mismo proyecto.',lead:slug==='constructoras'?'Un edificio, sus recorridos y el equipo que resuelve cada conexión. Del plano a una instalación que se puede operar y mantener.':'Del sitio a sus sistemas: cómo se conectan, qué hacen y qué resuelve Última Milla en cada etapa.',chapters};
+ return {scene:type,name:names[type],headline:slug==='software'?'Una herramienta útil, con todas sus capas resueltas.':slug==='gobiernosectorpublico'?'Tecnología que sostiene la atención y la gestión.':slug==='constructoras'?'La infraestructura se resuelve con la obra.':type==='clinic'?'La infraestructura acompaña cada espacio de atención.':type==='terminal'?'Cada punto de la terminal pertenece al mismo sistema.':type==='winery'?'Del proceso de la bodega a una operación conectada.':type==='mine'?'Cada enlace sostiene la operación en el terreno.':type==='plant'?'Los sistemas siguen el recorrido de la operación.':'Los sistemas comparten un mismo proyecto.',lead:slug==='constructoras'?'Un edificio, sus recorridos y el equipo que resuelve cada conexión. Del plano a una instalación que se puede operar y mantener.':'Del sitio a sus sistemas: cómo se conectan, qué hacen y qué resuelve Última Milla en cada etapa.',chapters};
 }

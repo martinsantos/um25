@@ -19,7 +19,7 @@ def use(part,x,y,scale=.3,layer=0,opened=False):
     lift=models[part]['lift']
     return f'<g data-discipline-node="{layer}" class="ds-node"><g transform="translate({x} {y}) scale({scale})"><use href="#ds-{part}-base"/><g class="ds-cover" style="--ds-lift:{lift[1]}px;--ds-lift-x:{lift[0]}px"><use href="#ds-{part}-cover"/></g></g></g>'
 def tag(index,x,y):
-    return f'<g class="ds-tag" data-discipline-tag="{index}"><circle cx="{x}" cy="{y}" r="19" fill="#0c1117" stroke="#83939e" stroke-width="1"/><text x="{x}" y="{y+1}" dominant-baseline="middle" text-anchor="middle" fill="#e8edf0" font-family="Arial,sans-serif" font-size="22">{index+1:02}</text></g>'
+    return f'<g class="ds-tag" data-discipline-tag="{index}"><circle cx="{x}" cy="{y}" r="19" fill="#0c1117" stroke="#83939e" stroke-width="1"/><text x="{x}" y="{y+1}" dominant-baseline="middle" text-anchor="middle" fill="#e8edf0" font-family="Arial,sans-serif" font-size="27">{index+1:02}</text></g>'
 def route(path,layers='all',dashed=False):
     dash='stroke-dasharray="5 7"' if dashed else ''
     return f'<g data-discipline-route="{layers}"><path d="{path}" class="ds-route" fill="none" stroke="#71818e" stroke-width="1.3" {dash}/><path d="{path}" pathLength="100" class="ds-packet" fill="none" stroke="#ec4141" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 97"/></g>'
@@ -182,7 +182,7 @@ security=route('M137 190L330 302L513 197','0 1 2')+route('M330 302L440 365L650 3
 security+=use('camera',161,171,.76,0)+use('dome',385,121,.76,1)+use('reader',137,375,.85,1)+use('switch',508,213,.39,2)+use('server',556,380,.43,3)+workstation(844,304,4)+report(470,441,5)
 security+=''.join(tag(i,x,y) for i,(x,y) in enumerate([(107,65),(50,296),(563,92),(617,352),(866,174),(387,430)]))
 # Power: the normal supply, protected path and load remain distinct branches.
-energy=route('M190 190L340 277L505 182','0 1')+route('M505 182L722 307L857 229','1 2')+route('M857 229L940 277L940 410L813 483','2 3')+route('M813 483L650 577L506 494L506 177','3 4')+route('M506 494L340 494L220 424','4 5',True)
+energy=route('M190 190L340 277L505 182','0 1',True)+route('M505 182L722 307L857 229','1 2')+route('M857 229L940 277L940 410L813 483','2 3')+route('M813 483L650 577L506 494','3 4')+route('M506 494L340 494L220 424','4 5',True)
 energy+=workstation(160,202,0)+distribution(504,235,1)+use('ups',794,245,.50,2)+use('pdu',814,455,.44,3)+use('server',500,453,.41,4)+report(182,368,5,'signal')
 energy+=''.join(tag(i,x,y) for i,(x,y) in enumerate([(62,114),(520,101),(833,120),(914,423),(535,349),(100,340)]))
 # Support: evidence enters a case; diagnosis tests separate equipment dependencies.
