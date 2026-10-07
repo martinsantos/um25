@@ -64,4 +64,27 @@ for(const [engine,type] of (probe?[['WebKit',webkit]]:[['Chrome',chromium],['Web
  }
  await browser.close();
 }
+// Compare the same encoded file without the website player on the disposable runner.
+if(probe){
+ const browser=await webkit.launch({headless:true});
+ const context=await browser.newContext({viewport:{width:390,height:900}});
+ report.nativeComparison=[];
+ for(const looping of [false,true]){
+  const page=await context.newPage();
+  await page.goto('http://127.0.0.1:4326/');
+  await page.setContent('<video muted playsinline style="width:390px" src="/cine/media/cine-network-system-v1-sq.mp4"></video>');
+  await page.locator('video').evaluate((v,looping)=>{
+   v.muted=true;v.loop=looping;window.__nativeFrames=[];window.__nativeEvents=[];
+   for(const name of ['timeupdate','ended','seeking','seeked','waiting','error'])v.addEventListener(name,()=>window.__nativeEvents.push({event:name,time:v.currentTime,wall:performance.now(),rate:v.playbackRate,ended:v.ended}));
+   const frame=(now,meta)=>{window.__nativeFrames.push({time:v.currentTime,media:meta.mediaTime,frames:meta.presentedFrames,wall:now});v.requestVideoFrameCallback(frame);};
+   if(v.requestVideoFrameCallback)v.requestVideoFrameCallback(frame);
+   return v.play();
+  },looping);
+  await page.waitForTimeout(27000);
+  report.nativeComparison.push(await page.locator('video').evaluate(v=>({loop:v.loop,duration:v.duration,time:v.currentTime,paused:v.paused,ended:v.ended,events:window.__nativeEvents,frames:window.__nativeFrames,quality:v.getVideoPlaybackQuality?.()})));
+  await page.close();
+ }
+ await browser.close();
+ fs.writeFileSync(path.join(out,'framing-report.json'),JSON.stringify(report,null,2));
+}
 console.log(JSON.stringify({pages:report.pages.length,findings:report.findings.length}));if(report.findings.length)process.exitCode=1;

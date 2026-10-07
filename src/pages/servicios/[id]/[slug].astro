@@ -135,7 +135,7 @@ const pageDescription = rawDesc.length > 155 ? rawDesc.slice(0, 155) + '...' :
   rawDesc || `${seoTitleBase} - Servicios tecnológicos en Mendoza, Cuyo y Patagonia.`;
 const bodyPlainLead = plainTextFromHtml(serviceBodySource, 120);
 const heroLead = serviceHeroLead(
-  cmsSubtitulo,
+  (!replicaProd && DISCIPLINE_SYSTEMS[String(id)]?.premise) || cmsSubtitulo,
   replicaProd ? undefined : visual?.proof,
   !replicaProd && demoCopy?.paragraph ? demoCopy.paragraph : pageDescription,
   bodyPlainLead,
@@ -496,7 +496,7 @@ const fichaItems = [
     title={serviceHeroTitle}
     lead={heroLead}
     primary={{ href: '/contacto', label: 'Solicitar diagnóstico' }}
-    secondary={{ href: '/antecedentes', label: 'Ver evidencia' }}
+    secondary={{ href: serviceCases.length > 0 ? '#experiencia' : '/antecedentes', label: 'Ver proyectos' }}
     back={{ href: '/servicios', label: '← Todos los servicios' }}
   />
 
@@ -726,7 +726,7 @@ const fichaItems = [
 
     <!-- 4 · Antecedentes del servicio -->
     {serviceCases.length > 0 && (
-      <section class="svc-section" aria-labelledby="svc-cases-title">
+      <section class="svc-section" id="experiencia" aria-labelledby="svc-cases-title">
         <div class="svc-wrap">
           <header class="svc-head">
             <div>
