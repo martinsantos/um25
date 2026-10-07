@@ -144,3 +144,18 @@ test('the winery narrative brings software and support into the sector without c
  const source=fs.readFileSync('src/components/cine/SectorJourney.astro','utf8');
  expect(source).toContain('sectorProject(slug,scene)');
 });
+
+
+test('software sector and service select the same ready software architecture, preserving other sector films',()=>{
+ jest.isolateModules(()=>{
+  jest.doMock('../src/data/cine/site-movies-v1.json',()=>({
+   constructoras:{scene:'building-test',status:'ready',assets:[]},
+   services:{'104':{scene:'software-system-test',status:'ready',assets:[]}}
+  }));
+  const {sectorMovie,serviceMovie}=require('../src/data/cine/projectCinema');
+  expect(sectorMovie('software').scene).toBe('software-system-test');
+  expect(sectorMovie('software')).toBe(serviceMovie('104'));
+  expect(sectorMovie('constructoras').scene).toBe('building-test');
+ });
+ jest.dontMock('../src/data/cine/site-movies-v1.json');
+});

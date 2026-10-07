@@ -16,7 +16,7 @@ Tres escalas de un mismo relato:
 - **Detección de incendio:** cobertura → dispositivos → circuitos supervisados → central → aviso → respaldo y pruebas. La señalización y la alimentación son ramales distintos del circuito de detección. La central, sus baterías y los dispositivos tienen formas propias. El esquema es explicativo, no un plano de seguridad para instalación.
 - **Software:** producto y UX/UI → reglas de negocio → integraciones → datos → despliegue → infraestructura. Una interfaz es la parte visible de una arquitectura. MVP define el primer alcance útil; contenedores son una opción de despliegue, no un requerimiento universal.
 
-Las ocho arquitecturas usan el mismo componente de la home, servicios y sectores. Seis etapas, ocho segundos de lectura por etapa y una visión completa al inicio y al cierre. Los diagramas están en el HTML inicial y no requieren cargar un reproductor 3D. El catálogo comparte 518.306 bytes de SVG sin comprimir. Cada página de servicio recibe solamente su dibujo y las definiciones que éste referencia; todos quedan por debajo de 30 KB con gzip. También se retira la maqueta física oculta de las ocho páginas de servicio. Esto reduce geometría y carga inicial sin bajar la resolución: los dibujos siguen siendo vectoriales. La inspección detallada de equipos existente queda disponible y el recorrido automático vuelve después de una exploración con puntero.
+Las ocho arquitecturas usan el mismo componente de la home, servicios y sectores. Seis etapas, ocho segundos de lectura por etapa y una visión completa al inicio y al cierre. Los diagramas están en el HTML inicial y no requieren cargar un reproductor 3D. El catálogo comparte 518.276 bytes de SVG sin comprimir. Cada página de servicio recibe solamente su dibujo y las definiciones que éste referencia; todos quedan por debajo de 30 KB con gzip. También se retira la maqueta física oculta de las ocho páginas de servicio. Esto reduce geometría y carga inicial sin bajar la resolución: los dibujos siguen siendo vectoriales. La inspección detallada de equipos existente queda disponible y el recorrido automático vuelve después de una exploración con puntero.
 
 La selección editorial de servicios por sector ya existe en `sectorNarrative.ts`. El recorrido de un sector debe usar esa selección y no quedar recortado por las relaciones parciales del CMS. Estas relaciones continúan sirviendo como evidencia de cada antecedente; no se atribuyen capacidades no verificadas a un cliente.
 
@@ -54,13 +54,13 @@ Las cinco arquitecturas de esta tabla ya forman parte del recorrido automático,
 
 Una persona inicia una solicitud. La cámara atraviesa una interfaz construida como superficie, sigue las reglas y permisos, cruza una integración, encuentra un registro y revela los entornos y recursos que sostienen la aplicación. Finalmente vuelve a la interfaz con el nuevo estado de la solicitud.
 
-Usar arquitectura abstracta legible, con superficies finas, módulos, conectores y datos; **ningún edificio como sustituto del software**. Los tres encuadres se renderizaron en Blender 4.5.3 / Cycles y se inspeccionaron antes del render completo. La cámara recorre la arquitectura en 24 segundos, con un solo trayecto de solicitud y respuesta. Las conexiones de despliegue e infraestructura se distinguen del flujo de la aplicación. La primera prueba reveló un recorte en el acercamiento: se corrigió el encuadre y se añadió `--python-exit-code 1` para que una excepción Blender no produzca un falso éxito de CI. La segunda prueba produjo los tres encuadres completos: run 37618785156. El render completo está en el run 37619441111; no se declara integrado hasta verificar e importar la entrega.
+Usar arquitectura abstracta legible, con superficies finas, módulos, conectores y datos; **ningún edificio como sustituto del software**. Los tres encuadres se renderizaron en Blender 4.5.3 / Cycles y se inspeccionaron antes del render completo. La cámara recorre la arquitectura en 24 segundos, con un solo trayecto de solicitud y respuesta. Las conexiones de despliegue e infraestructura se distinguen del flujo de la aplicación. La primera prueba reveló un recorte en el acercamiento: se corrigió el encuadre y se añadió `--python-exit-code 1` para que una excepción Blender no produzca un falso éxito de CI. La segunda prueba produjo los tres encuadres completos: run 37618785156. La entrega del run 37619441111 ya está importada: 576 cuadros, 24 fps, Full HD, Cycles a 24 muestras, formatos ancho y cuadrado y pósters AVIF/JPEG. El conjunto ocupa 9.219.497 bytes. Se verificaron SHA-256, duración, decodificación y cinco momentos del recorrido. Servicio 104 y sección Software usan esta arquitectura.
 
 ## Estado y criterios de aceptación
 
 Integrado: ocho mapas de disciplina, seis capas por mapa, explicación automática, conexiones persistentes, equipos detallados y piezas específicas para cada disciplina. Home y páginas de servicio explican el sistema completo. La biblioteca anterior permanece disponible para inspección.
 
-En curso: entrega e integración de la película específica de software. Pendiente: recorridos cinematográficos específicos para las demás disciplinas; conservan por ahora los filmes sectoriales existentes. Evaluar ritmo y detalle con evidencia visual de la versión integrada; pasar pruebas de código no equivale a alcanzar el nivel artístico deseado.
+Integrada: película específica de software en las dos rutas. Pendiente: recorridos cinematográficos específicos para las demás disciplinas; conservan por ahora los filmes sectoriales existentes. Evaluar ritmo y detalle con evidencia visual de la versión integrada; pasar pruebas de código no equivale a alcanzar el nivel artístico deseado.
 
 No es un GO a producción. Campaña activa, tipografía del hilo paralelo y servidor no se modifican.
 
@@ -78,7 +78,8 @@ Los pases funcionales no certifican el nivel artístico del conjunto. Los pendie
 
 - `npm run check`: lint, tipos, contrato CSS, 66 suites / 535 pruebas y build aprobados antes de los últimos ajustes de carga. El control posterior incorpora las ocho verificaciones de SVG y conserva los mismos controles.
 - Pruebas de cada diagrama: seis capas, referencias internas completas, geometría propia y peso comprimido menor a 30 KB.
-- Run 37619280503: auditoría de todas las rutas en curso. Se revisará su evidencia antes de declararla aprobada.
+- Run 37619280503, commit 58f160c5: veinte rutas en Chrome de escritorio y móvil y cincuenta combinaciones en WebKit; cero hallazgos funcionales.
+- Run 37622237038, commit fe879ae1: home, Bodegas y las ocho disciplinas en Chrome de escritorio/móvil, más cincuenta combinaciones en WebKit; cero hallazgos. Capturas revisadas antes de ajustar los materiales de las superficies.
 - Las variantes móviles de la película conservarán toda la arquitectura; no recortan lateralmente la interfaz para formar un cuadrado.
 
 ### Carga bajo demanda
@@ -88,3 +89,11 @@ Se detectó otra carga evitable: el HTML de los servicios físicos transportaba 
 La versión `software-layers-v9.js` tampoco precarga Hairline ni inicia su dibujo detrás de la arquitectura de software. Se activa al explorar y se destruye al volver al recorrido. `npm run check`: 67 suites, 546 pruebas, lint, tipos, contrato CSS y build aprobados.
 
 Medición HTTP local después del cambio: Redes pasa de 925.459 a 328.142 bytes de HTML (de 113.291 a 54.111 bytes con gzip); incendio, de 799.088 a 201.771 (de 99.676 a 40.811 con gzip). Son pesos del documento, no porcentajes medidos de tiempo de carga. La auditoría móvil de las veinte rutas quedó funcionalmente sin hallazgos y permitió detectar márgenes blancos alrededor de los mapas de producto. Se corrigieron en `fe879ae1`, junto con el doble margen interior. La isometría de energía también distingue el relevamiento de cargas del trayecto físico de alimentación.
+
+## Último refinamiento integrado
+
+Las superficies de interfaz y documentación usan un material claro con tinta oscura; los equipos conservan su metal. Los elementos fuera del foco mantienen opacidad 0,86 para que el sistema siga comprensible. La puerta del gabinete gira desde una bisagra fija y continúa abierta al explicar la red activa. La isometría conserva sus ejes y su resolución vectorial.
+
+El banner de software separa la lectura de la arquitectura en escritorio. En tablet mantiene el plano ancho; en teléfono usa la edición cuadrada que conserva todas las capas. El encuadre se verifica junto con reproducción nativa, pausa y vuelta al recorrido.
+
+Validación local: npm run check, 67 suites / 547 pruebas; después del ajuste de encuadre, 21 pruebas dirigidas aprobadas y un nuevo build. El último control visual sobre película, materiales y bisagra se registra al terminar la corrida correspondiente.

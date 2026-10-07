@@ -5,7 +5,7 @@ interface ProjectMovie {scene:string;status:string;duration?:number;assets:{file
 const stored=registry as typeof registry & {projects?:Partial<Record<SiteScene,ProjectMovie>>;services?:Record<string,ProjectMovie>};
 export const PROJECT_CINEMA:Partial<Record<SiteScene,ProjectMovie>>={building:stored.constructoras,...stored.projects};
 export const PROJECT_SCENE_KEYS:Record<SiteScene,string>={building:'fachada-proyecto-v2',clinic:'hospital-proyecto-v3',terminal:'aeropuerto-proyecto-v3',plant:'planta-proyecto-v3',winery:'bodega-proyecto-v4',mine:'mineria-proyecto-v3'};
-export function sectorMovie(slug:string){const sector=sectorBySlug(slug);return PROJECT_CINEMA[siteSceneForSector(slug,sector?.scene||'fachada')];}
+export function sectorMovie(slug:string){if(slug==='software')return serviceMovie('104');const sector=sectorBySlug(slug);return PROJECT_CINEMA[siteSceneForSector(slug,sector?.scene||'fachada')];}
 export const SERVICE_PROJECTS:Record<string,SiteScene>={'101':'building','102':'terminal','103':'mine','104':'building','105':'terminal','106':'building','107':'winery','108':'clinic'};
 export function serviceMovie(code:string){return stored.services?.[code]?.status==='ready'?stored.services[code]:PROJECT_CINEMA[SERVICE_PROJECTS[code]||'building'];}
 export function serviceProjectScene(code:string):{slug:string;scene:Scene}{const site=SERVICE_PROJECTS[code];return site==='mine'?{slug:'mineria',scene:'planta'}:site==='winery'?{slug:'bodegas',scene:'bodega'}:site==='terminal'?{slug:'aeropuertos',scene:'aeropuerto'}:site==='clinic'?{slug:'salud',scene:'hospital'}:{slug:'integral',scene:'fachada'};}

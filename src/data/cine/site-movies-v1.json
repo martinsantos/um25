@@ -277,5 +277,53 @@
         }
       ]
     }
+  },
+  "services": {
+    "104": {
+      "scene": "software-system-v1",
+      "status": "ready",
+      "engine": "Blender 4.5.3 / Cycles",
+      "samples": 24,
+      "duration": 24,
+      "fps": 24,
+      "frames": 576,
+      "resolution": [
+        1920,
+        1080
+      ],
+      "run": "https://github.com/martinsantos/um25/actions/runs/37619441111",
+      "assets": [
+        {
+          "file": "cine-software-system-v1.mp4",
+          "bytes": 6457221,
+          "sha256": "5d5714715eb3d167f5a5cb86e021ce682ca310315c2b1b50f2106934e56e7309"
+        },
+        {
+          "file": "cine-software-system-v1-sq.mp4",
+          "bytes": 2524096,
+          "sha256": "20c02862813ee89a73131d25aa58c231072ebeff6294b3ea9348e5ab7faece20"
+        },
+        {
+          "file": "cine-software-system-v1-poster.jpg",
+          "bytes": 115605,
+          "sha256": "74a4acf4160c319449e669bad91a63271097d02acf54a29d333f9378f2a9c129"
+        },
+        {
+          "file": "cine-software-system-v1-poster.avif",
+          "bytes": 24505,
+          "sha256": "d12c4e0cd6b5832200bdc91b7401f642bb3616911e5d9d40d10ee4a87f27e36f"
+        },
+        {
+          "file": "cine-software-system-v1-poster-sq.jpg",
+          "bytes": 72932,
+          "sha256": "996da84aba66096fc068127cd2ad16cebbf0e176fbb1115a5414474f70f16635"
+        },
+        {
+          "file": "cine-software-system-v1-poster-sq.avif",
+          "bytes": 25138,
+          "sha256": "3664d35c1aa2cb497c9ddb99f7081e0d0ce12cea25dd0908f381da064b24c0e4"
+        }
+      ]
+    }
   }
 }

@@ -4,11 +4,12 @@ const {webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const out=process.env.VISUAL_AUDIT_DIR;if(!out||!path.isAbsolute(out))throw Error('Absolute artifact directory required');
 fs.mkdirSync(out,{recursive:true});
 const browser=await webkit.launch({headless:true});
-const paths=[...(process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?[]:['/','/constructoras']),...(process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?['104']:['101','102','103','104','105','106','107','108']).map(code=>[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(m=>m[1]).find(route=>route.startsWith('/servicios/'+code+'/')))];
+const paths=[...(process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?['/software']:['/','/constructoras','/software']),...(process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?['104']:['101','102','103','104','105','106','107','108']).map(code=>[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(m=>m[1]).find(route=>route.startsWith('/servicios/'+code+'/')))];
 const report={engine:'WebKit on isolated Linux runner; not a physical Safari device',pages:[],findings:[]};
 for(const width of [1440,1280,834,390,360]){
  const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
  for(const [index,route] of paths.entries()){
+  console.log('WEBKIT',width,route);
   const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
   try{
    const response=await page.goto('http://127.0.0.1:4326'+route,{waitUntil:'load',timeout:60000});
@@ -31,6 +32,7 @@ for(const width of [1440,1280,834,390,360]){
    await page.screenshot({path:path.join(out,`webkit-${width}-${index}-detail.png`)});
   }catch(error){report.findings.push({width,route,error:error.message});}
   await page.close();
+  fs.writeFileSync(path.join(out,'webkit-report.json'),JSON.stringify(report,null,2));
  }
  await context.close();
 }

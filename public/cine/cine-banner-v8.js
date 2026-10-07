@@ -63,7 +63,8 @@ export function banner(el) {
   const multi = scenes.length > 1 || vary, annotations=el.dataset.annotations!=='none';
   const SQ = {x:487,w:1080,h:1080};
   const narrow = () => stage.clientWidth <= stage.clientHeight * 1.05;
-  const src = scene => `/cine/media/cine-${scene}${narrow() ? '-sq' : ''}.mp4`;
+  // The software desktop composition uses the wide negative space beside its copy.
+  const src = scene => `/cine/media/cine-${scene}${narrow() && !(scene.startsWith('software-system-') && innerWidth > 820) ? '-sq' : ''}.mp4`;
   let index = Math.max(0, Math.min(Number(el.dataset.start) || 0, scenes.length - 1));
   let active = va, idle = vb, track = null, playingCut = '', visible = false, userPaused = motionLimited();
   let started = false, disposed = false, raf = 0, cutting = false, generation = 0, preloaded = '', fxTimer = 0, startTimer = 0;

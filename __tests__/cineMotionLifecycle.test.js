@@ -126,3 +126,14 @@ test('a single unannotated project movie plays natively without track fetches, o
  expect(root.querySelector('video').paused).toBe(false);expect(root.querySelectorAll('.umc-tag')).toHaveLength(0);expect(fetch).not.toHaveBeenCalled();expect(frames.size).toBe(0);
  visible(root,false);expect(root.querySelector('video').paused).toBe(true);cleanup();
 });
+
+
+test.each([[834,'cine-software-system-v1.mp4'],[390,'cine-software-system-v1-sq.mp4']])('software at %spx preserves the intended banner framing',async(width,file)=>{
+ const previous=window.innerWidth;Object.defineProperty(window,'innerWidth',{configurable:true,value:width});
+ document.body.innerHTML='<div data-umc data-scenes="software-system-v1" data-annotations="none"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><button data-umc-motion></button></div>';
+ const root=document.querySelector('[data-umc]'),stage=root.querySelector('.umc-stage');
+ Object.defineProperty(stage,'clientWidth',{configurable:true,value:width*.75});Object.defineProperty(stage,'clientHeight',{configurable:true,value:756});
+ const cleanup=banner(root);
+ try{visible(root);await jest.advanceTimersByTimeAsync(600);await settle();expect(root.querySelector('video').getAttribute('src')).toBe('/cine/media/'+file);}
+ finally{cleanup();Object.defineProperty(window,'innerWidth',{configurable:true,value:previous});}
+});

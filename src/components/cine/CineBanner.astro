@@ -105,6 +105,13 @@ const firstTitle = rail.find(chapter=>chapter.scene===first)?.name||cutCaption(f
 <style>
  .umc[data-framing="project"] :global(.umc-stage){left:0;right:0}
  .umc[data-framing="project"] :global(.umc-poster),.umc[data-framing="project"] :global(.umc-video){object-fit:contain;object-position:center center}
+ /* The software film reserves the left column for reading. Its complete
+    architecture remains visible beside the copy instead of behind it. */
+ @media(min-width:821px){
+  .umc[data-scene^="software-system-"] :global(.umc-stage){left:25%;right:0}
+  .umc[data-scene^="software-system-"] :global(.umc-copy){width:min(520px,42%)}
+  .umc[data-scene^="software-system-"] :global(.umc-grade){background:linear-gradient(90deg,var(--umc-ink),transparent 20%),linear-gradient(0deg,var(--umc-ink),transparent 26%),linear-gradient(180deg,rgba(7,8,10,.3),transparent 18%)}
+ }
  @media(max-width:820px){
   .umc--sector :global(.umc-stats){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
   .umc--sector :global(.umc-stats div){padding:16px 0 0;margin-right:0}

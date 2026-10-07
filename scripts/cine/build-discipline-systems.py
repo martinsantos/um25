@@ -25,8 +25,12 @@ def route(path,layers='all',dashed=False):
     return f'<g data-discipline-route="{layers}"><path d="{path}" class="ds-route" fill="none" stroke="#71818e" stroke-width="1.3" {dash}/><path d="{path}" pathLength="100" class="ds-packet" fill="none" stroke="#ec4141" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 97"/></g>'
 
 def plane(content,x,y,layer,w=240,h=160):
-    # UI surfaces share the exact orthographic basis with the equipment.
-    return f'<g class="ds-node" data-discipline-node="{layer}"><g transform="translate({x} {y})"><path d="M0 0L{w*.866} {w*.5}L{(w-h)*.866} {(w+h)*.5}L{-h*.866} {h*.5}Z" fill="#303b45" stroke="#99a9b4"/><g class="ds-cover" style="--ds-lift:-12px" transform="translate(0 -8)"><g transform="matrix(.8660254 .5 -.8660254 .5 0 0)" fill="none"><rect width="{w}" height="{h}" fill="#111923" stroke="#d2dbe2" stroke-width="1.3"/>{content}</g></g></g></g>'
+    # Paper interfaces and documentation remain legible against the dark stage.
+    # Physical equipment retains its machined-metal palette.
+    paper_ink={"#dee4e9":"#30495a","#c5d1da":"#314b5c","#b1c1cc":"#536f82","#a4b3bd":"#526e80","#bdc9d1":"#425d6e","#98afbf":"#496676","#c4d0d9":"#536d7f","#8c9da8":"#5b7384","#afc0cb":"#627e8f","#99aebc":"#60798b","#a8bcc9":"#6f8796","#c0cdd6":"#6f8796","#95a8b5":"#677f90"}
+    for old,new in paper_ink.items():content=content.replace(f'stroke="{old}"',f'stroke="{new}"')
+    for old,new in {"#24313f":"#b7c6d0","#263440":"#bccbd4","#263643":"#bccbd4","#1e2b36":"#bccbd4","#263e50":"#c5d1d8"}.items():content=content.replace(f'fill="{old}"',f'fill="{new}"')
+    return f'<g class="ds-node" data-discipline-node="{layer}"><g transform="translate({x} {y})"><path d="M0 0L{w*.866} {w*.5}L{(w-h)*.866} {(w+h)*.5}L{-h*.866} {h*.5}Z" fill="#869ba9" stroke="#b9c8d2"/><g class="ds-cover" style="--ds-lift:-12px" transform="translate(0 -8)"><g transform="matrix(.8660254 .5 -.8660254 .5 0 0)" fill="none"><rect width="{w}" height="{h}" fill="#dce4e9" stroke="#eef2f5" stroke-width="1.3"/>{content}</g></g></g></g>'
 def app(x,y,layer):
     content='<path d="M0 27H240M43 27V160" stroke="#71818e"/>'
     content+=''.join(f'<circle cx="{12+i*10}" cy="13" r="2.2" fill="#b5c3cb"/>' for i in range(3))
@@ -132,7 +136,7 @@ def cabinet(x,y,layer):
     door='<path d="M0 0H244V313H0Z M12 13H232V300H12Z" fill="#526777" fill-rule="evenodd" stroke="#a6b8c3"/>'
     for yy in range(23,296,9):door+=f'<path d="M16 {yy}H228" stroke="#8296a5" stroke-opacity=".16"/>'
     door+='<rect x="221" y="135" width="6" height="39" rx="2" fill="#a4b6c2"/>'
-    c+=f'<g class="ds-cover" style="--ds-lift:52px;--ds-lift-x:-90px"><g transform="translate(-147.22 -229) matrix(.8660254 .5 0 1 0 0)">{door}</g></g>'
+    c+=f'<g transform="translate(-147.22 -229)"><g class="ds-door" transform="matrix(.8660254 .5 0 1 0 0)">{door}</g></g>'
     return f'<g class="ds-node" data-discipline-node="{layer}"><g transform="translate({x} {y}) scale(.72)">{c}</g></g>'
 def tray(x,y,layer):
     c=''
