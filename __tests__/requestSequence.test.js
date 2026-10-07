@@ -16,7 +16,7 @@ test('signals move through continuous routes and the camera never jumps at a cha
   const first=requestFrame(step*8000),middle=requestFrame(step*8000+3000),last=requestFrame(step*8000+7999);
   expect(first.point).not.toEqual(middle.point);
   const next=requestFrame((step+1)*8000);
-  expect(Math.hypot(last.center[0]-next.center[0],last.center[1]-next.center[1])).toBeLessThan(.01);
+  expect(Math.hypot(last.center[0]-next.center[0],last.center[1]-next.center[1])).toBeLessThan(.01);expect(last.zoom).toBeCloseTo(next.zoom,4);
  }
 });
 test('pause, offscreen and hidden tab preserve elapsed progress; pointer focus never gates playback',async()=>{

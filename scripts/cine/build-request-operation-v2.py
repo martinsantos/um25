@@ -58,7 +58,7 @@ energy+=box(548,12,0,26,15,87)
 for z in [18,35,52]:energy+=box(552,28,z,17,4,10,'#b2bdc8')
 ex,ey=P(505,228,62)
 energy+=f'<g class="op-battery" transform="translate({ex} {ey})"><path d="M-7 -4h14v8H-7zM7 -2h2v4H7" fill="none" stroke="white" stroke-width="1.3"/><path d="M-4 -2v4M0 -2v4M4 -2v4" stroke="white"/></g>'
-energy+='<g class="op-grid-feed">'+line([(560,25,40),(560,215,5),(505,215,5)],'#bcc7d2',1.6)+'</g>'
+energy+='<g class="op-grid-feed">'+line([(560,25,40),(560,25,5),(560,215,5),(505,215,5)],'#bcc7d2',1.6)+'</g>'
 gx,gy=P(560,125,22)
 energy+=f'<g class="op-grid-loss" transform="translate({gx} {gy})"><path d="M-5 -5L5 5M5 -5L-5 5" stroke="#ef4444" stroke-width="2"/></g>'
 fixtures+=group(energy,'energy')
@@ -77,14 +77,24 @@ for z in [10,22,34,46]:remote+=line([(640,107,z),(674,107,z)],'#95a6b6',2)
 fixtures+=group(remote,'remote')
 # Floor zones and installation identifiers remain quiet context, not floating cards.
 labels='' 
-routes=[[(150,245,2),(150,145,5),(445,145,5),(445,80,84)],[(65,50,110),(65,145,5),(445,145,5),(445,80,84),(570,145,5),(570,345,5),(470,345,92)],[(240,75,104),(240,6,100),(12,6,100),(12,160,65)],[(505,215,35),(505,215,5),(445,215,5),(445,80,38)],[(445,80,65),(570,145,5),(570,345,5),(470,345,92)],[(470,345,92),(570,345,5),(570,145,5),(445,80,84)],[(445,80,84),(570,80,5),(650,80,45)]]
+routes=[
+ [(150,245,2),(150,245,5),(150,145,5),(445,145,5),(445,80,5),(445,80,84)],
+ [(65,50,110),(65,50,5),(65,145,5),(445,145,5),(445,80,5),(445,80,84),(445,80,5),(570,80,5),(570,345,5),(470,345,5),(470,345,92)],
+ [(240,75,104),(240,75,100),(240,6,100),(12,6,100),(12,160,100),(12,160,65)],
+ [(505,215,35),(505,215,5),(445,215,5),(445,80,5),(445,80,38)],
+ [(445,80,65),(445,80,5),(570,80,5),(570,345,5),(470,345,5),(470,345,92)],
+ [(470,345,92),(470,345,5),(570,345,5),(570,80,5),(445,80,5),(445,80,84)],
+ [(445,80,84),(445,80,5),(650,80,5),(650,80,45)]]
+# Every segment follows a physical axis; no diagonal shortcuts through rooms.
+assert all(sum(a!=b for a,b in zip(start,end))==1 for route in routes for start,end in zip(route,route[1:]))
+
 paths=''
 for i,route in enumerate(routes):
  paths+=line(route,'#8195a9',1.1,f'opacity=".3"')
  paths+=line(route,'#ef4444',2.6,f'data-operation-route="{i}" pathLength="1" class="op-route"')
 # Coordinates are exported for the timeline; drawings and animation cannot drift apart.
 import json
-geometry={'routes':[[P(*p) for p in route] for route in routes],'targets':[[600,400],list(P(445,80,45)),list(P(65,50,60)),list(P(140,75,65)),list(P(505,215,40)),list(P(470,345,110)),list(P(470,345,110)),[800,350]]}
+geometry={'routes':[[P(*p) for p in route] for route in routes],'targets':[[600,400],list(P(445,80,120)),list(P(65,50,60)),list(P(140,75,65)),list(P(505,215,40)),list(P(470,345,110)),list(P(470,345,110)),[800,350]]}
 (R/'src/data/cine/operationGeometry.json').write_text(json.dumps(geometry,indent=2)+'\n')
 (R/'public/cine/operation-geometry-v1.js').write_text('export default '+json.dumps(geometry,separators=(',',':'))+';\n')
 

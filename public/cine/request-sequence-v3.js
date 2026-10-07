@@ -13,7 +13,9 @@ export function requestFrame(elapsed){
  const previous=geometry.targets[(step+7)%8],target=geometry.targets[step];
  const t=Math.min(1,progress*3),ease=t*t*(3-2*t);
  const center=target.map((v,i)=>previous[i]+(v-previous[i])*ease);
- return {step,progress,point,center};
+ const zoomFor=s=>(s===0||s===7)?0.62:1;
+ const zoom=zoomFor((step+7)%8)+(zoomFor(step)-zoomFor((step+7)%8))*ease;
+ return {step,progress,point,center,zoom};
 }
 
 export function bindRequestSequence(root){
@@ -37,7 +39,7 @@ export function bindRequestSequence(root){
   packet.style.opacity=step===0?'0':'1';
   const center=Math.max(320,Math.min(880,state.center[0]));
   const vertical=Math.max(245,Math.min(465,state.center[1]));
-  camera.setAttribute('transform',mobile?`translate(${(320-center).toFixed(2)} ${(260-vertical).toFixed(2)})`:'translate(0 0)');
+  camera.setAttribute('transform',mobile?`translate(${(320-center*state.zoom).toFixed(2)} ${(310-vertical*state.zoom).toFixed(2)}) scale(${state.zoom.toFixed(4)})`:'translate(0 0)');
   const route=root.querySelector(`[data-operation-route="${step-1}"]`);
   route?.style.setProperty('stroke-dashoffset',String(1-Math.min(1,state.progress*1.6)));
  }
