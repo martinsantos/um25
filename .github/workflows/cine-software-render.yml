@@ -44,6 +44,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
+      recovery: ${{ steps.plan.outputs.recovery }}
     steps:
       - id: plan
         env:
@@ -52,13 +53,15 @@ jobs:
         run: |
           python3 - <<'PYPLAN'
           import json,os
+          selected=[]
           rows=[dict(part=i+1,start=f,end=f,frames=1) for i,f in enumerate([0,144,288,432,575])] if os.environ['MODE']=='proof' else [dict(part=i+1,start=i*48,end=i*48+47,frames=48) for i in range(12)]
           if os.environ['MODE']=='repair':
               selected=[int(n) for n in os.environ['REPAIR_PARTS'].split(',')]
               assert selected and len(selected)==len(set(selected)) and all(1<=n<=12 for n in selected)
-              rows=[dict(part=n,start=(n-1)*48,end=n*48-1,frames=48) for n in selected]
+              rows=[dict(part=n,segment=k+1,start=(n-1)*48+k*12,end=(n-1)*48+k*12+11,frames=12) for n in selected for k in range(4)]
           if os.environ['MODE']=='assemble':rows=[]
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('matrix='+json.dumps({'include':rows})+'\n')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('recovery='+json.dumps({'part':selected})+'\n')
           PYPLAN
   render:
     needs: plan
@@ -116,17 +119,65 @@ jobs:
       - name: Encode recoverable part
         if: inputs.mode == 'full' || inputs.mode == 'repair'
         run: |
-          cp frames/render-info.json part-${{ matrix.part }}-info.json
-          ffmpeg -v error -framerate 24 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v ${{ matrix.frames }} -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r 24 -g 48 -an -movflags +faststart part-${{ matrix.part }}.mp4
+          KEY='${{ matrix.part }}${{ matrix.segment && format('-{0}', matrix.segment) || '' }}'
+          cp frames/render-info.json part-$KEY-info.json
+          ffmpeg -v error -framerate 24 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v ${{ matrix.frames }} -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r 24 -g 48 -an -movflags +faststart part-$KEY.mp4
       - uses: actions/upload-artifact@v7
         if: inputs.mode == 'full' || inputs.mode == 'repair'
         with:
-          name: software-part-${{ matrix.part }}
+          name: software-part-${{ matrix.part }}${{ matrix.segment && format('-{0}', matrix.segment) || '' }}
           path: |
-            part-${{ matrix.part }}.mp4
-            part-${{ matrix.part }}-info.json
+            part-${{ matrix.part }}${{ matrix.segment && format('-{0}', matrix.segment) || '' }}.mp4
+            part-${{ matrix.part }}${{ matrix.segment && format('-{0}', matrix.segment) || '' }}-info.json
           retention-days: 4
     if: inputs.mode != 'assemble'
+  recover-parts:
+    needs:
+      - plan
+      - render
+    if: inputs.mode == 'repair'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.recovery) }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: software-part-${{ matrix.part }}-*
+      - name: Join verified short recovery slices
+        env:
+          REPAIR_PARTS: ${{ matrix.part }}
+        run: |
+          sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq ffmpeg
+          python3 - <<'PYRECOVER'
+          import json,os,subprocess
+          from pathlib import Path
+          for part in map(int,os.environ['REPAIR_PARTS'].split(',')):
+              rows=[]
+              for segment in range(1,5):
+                  folder=Path(f'software-part-{part}-{segment}')
+                  info=json.loads((folder/f'part-{part}-{segment}-info.json').read_text())
+                  frames=list(range((part-1)*48+(segment-1)*12,(part-1)*48+segment*12))
+                  assert [t['frame'] for t in info['timings']]==frames
+                  assert [b['frame'] for b in info['bounds']]==frames
+                  rows.append(info)
+              assert all(r['scene']==rows[0]['scene'] and r['samples']==rows[0]['samples'] and r['engine']==rows[0]['engine'] for r in rows)
+              info=dict(rows[0],timings=[t for r in rows for t in r['timings']],bounds=[b for r in rows for b in r['bounds']])
+              out=Path(f'recovered/software-part-{part}');out.mkdir(parents=True)
+              (out/f'part-{part}-info.json').write_text(json.dumps(info))
+              listing=Path(f'concat-{part}.txt')
+              listing.write_text(''.join(f"file 'software-part-{part}-{s}/part-{part}-{s}.mp4'\n" for s in range(1,5)))
+              movie=out/f'part-{part}.mp4'
+              subprocess.run(['ffmpeg','-v','error','-f','concat','-safe','0','-i',str(listing),'-c','copy','-movflags','+faststart',str(movie)],check=True)
+              probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-count_frames','-show_streams','-of','json',str(movie)]))['streams'][0]
+              assert (probe['width'],probe['height'],probe['nb_read_frames'],probe['avg_frame_rate'])==(1920,1080,'48','24/1')
+          PYRECOVER
+      - uses: actions/upload-artifact@v7
+        with:
+          name: software-part-${{ matrix.part }}
+          path: recovered/software-part-${{ matrix.part }}
+          retention-days: 4
   assemble:
     needs:
       - plan
