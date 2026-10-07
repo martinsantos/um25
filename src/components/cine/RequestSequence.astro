@@ -1,22 +1,29 @@
 ---
-import illustration from '../../assets/cine/isometric/request-operation-v2.svg?raw';
+import illustration from '../../assets/cine/isometric/request-operation-v3.svg?raw';
 import {REQUEST_SEQUENCE} from '../../data/cine/requestSequence';
 ---
-<article class="request-story" data-request-story data-request-step="0" data-request-state="waiting" aria-label="Una instalación en operación: ocho servicios conectados">
+<article class="request-story" data-request-story data-request-step="0" data-request-state="waiting" data-grid-state="normal" data-case-state="none" aria-label="Una instalación en operación: ocho servicios conectados">
  <script type="application/json" data-request-script set:html={JSON.stringify(REQUEST_SEQUENCE)} is:inline />
- <header class="request-story__header"><p>Una instalación, por dentro <span>Un recorrido de 64 segundos</span></p><button type="button" data-request-play aria-pressed="false">Pausar recorrido</button></header>
+ <header class="request-story__header"><p>La continuidad, por dentro <span>Un recorrido de 64 segundos</span></p><button type="button" data-request-play aria-pressed="false">Pausar recorrido</button></header>
  <div class="request-story__narration"><p class="request-story__eyebrow" data-request-role>{REQUEST_SEQUENCE[0].role}</p><h3 data-request-title>{REQUEST_SEQUENCE[0].title}</h3></div>
  <figure class="request-story__figure">
   <div class="request-story__callout"><span class="request-story__live-dot" aria-hidden="true"/><span data-operation-label>{REQUEST_SEQUENCE[0].label}</span></div>
   <div class="request-story__canvas" data-request-canvas set:html={illustration}/>
-  <div class="request-story__receipt"><span>Última Milla / Integración</span><span data-request-status>{REQUEST_SEQUENCE[0].status}</span><span class="request-story__example">Ejemplo ilustrativo · Puesta en marcha</span></div>
+  <dl class="request-story__systems" aria-label="Estado ilustrativo de la instalación">
+   <div><dt>Entrada eléctrica</dt><dd data-operation-grid>Disponible</dd></div>
+   <div><dt>Cargas protegidas</dt><dd data-operation-supply>Alimentación normal</dd></div>
+   <div><dt>Red y video</dt><dd>En funcionamiento</dd></div>
+  </dl>
+  <div class="request-story__incident"><div><span>Registro operativo <b data-operation-case-number>024</b></span><strong data-operation-case-status>Sin incidentes</strong></div><ol aria-label="Seguimiento del caso">{['Recibido','Asignado','Verificado','Cerrado'].map(label=><li data-operation-case-row data-state="next">{label}</li>)}</ol></div>
+  <span data-request-status class="request-story__sr-status">{REQUEST_SEQUENCE[0].status}</span>
   <figcaption data-request-copy>{REQUEST_SEQUENCE[0].copy}</figcaption>
  </figure>
- <ol class="request-story__progress" aria-label="Etapas del recorrido">{['Proyecto','Red','Video','Detección','Respaldo','Software','Soporte','Enlace'].map((label,i)=><li data-request-milestone data-state={i===0?'current':'next'}><span>{label}</span></li>)}</ol>
+ <ol class="request-story__progress" aria-label="Etapas del recorrido">{['Preparación','Corte','Continuidad','Aviso','Asignación','Intervención','Verificación','Cierre'].map((label,i)=><li data-request-milestone data-state={i===0?'current':'next'}><span>{label}</span></li>)}</ol>
 
+ <p class="request-story__example">Simulación explicativa · No es telemetría real</p>
  <details class="request-story__transcript"><summary>Leer la explicación completa</summary><ol>{REQUEST_SEQUENCE.map(step=><li><strong>{step.title}</strong> {step.copy}</li>)}</ol></details>
 </article>
-<script src="/cine/request-sequence-v3.js" type="module" async is:inline />
+<script src="/cine/request-sequence-v4.js" type="module" async is:inline />
 <style>
  .request-story{color:#fff;max-width:1120px;margin-inline:auto;--muted:#c4c7cc}
  .request-story__header{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:56px;border-top:1px solid #ffffff30}
@@ -38,15 +45,19 @@ import {REQUEST_SEQUENCE} from '../../data/cine/requestSequence';
  @media(max-width:760px){.request-story__header p span{display:none}.request-story__canvas{aspect-ratio:640/520}.request-story__narration{min-height:116px}.request-story__receipt{flex-wrap:wrap;gap:8px 20px;padding:12px 0}.request-story__example{flex-basis:100%;margin-left:0}.request-story figcaption{min-height:148px;font-size:1rem}.request-story__progress li span{display:none}.request-story__progress li{padding-top:0}.request-story footer{gap:8px 20px}.request-story__canvas :global(.rq-object-labels){display:none}}
  @media(prefers-reduced-motion:reduce){.request-story__canvas :global([data-request-row] rect),.request-story__canvas :global(.rq-door){transition:none}}
 
- .request-story__canvas :global(.op-route){opacity:0;stroke-dasharray:1;stroke-dashoffset:1;transition:opacity 700ms ease}
- .request-story__canvas :global(.op-route[data-active="true"]){opacity:1}
- .request-story[data-request-step="7"] :global(.op-route){stroke-dashoffset:0!important;opacity:.55}
- .request-story__canvas :global([data-operation-part]){opacity:.45;transition:opacity 1100ms ease}
- .request-story[data-request-step="0"] :global([data-operation-part]),.request-story[data-request-step="7"] :global([data-operation-part]){opacity:1}
- .request-story[data-request-step="1"] :global([data-operation-part="network"]),.request-story[data-request-step="1"] :global([data-operation-part="workplace"]),.request-story[data-request-step="2"] :global([data-operation-part="security"]),.request-story[data-request-step="2"] :global([data-operation-part="software"]),.request-story[data-request-step="3"] :global([data-operation-part="fire"]),.request-story[data-request-step="4"] :global([data-operation-part="energy"]),.request-story[data-request-step="4"] :global([data-operation-part="network"]),.request-story[data-request-step="5"] :global([data-operation-part="software"]),.request-story[data-request-step="6"] :global([data-operation-part="software"]),.request-story[data-request-step="6"] :global([data-operation-part="network"]){opacity:1}
- .request-story__canvas :global(.op-software-feed){opacity:0}.request-story[data-request-step="5"] :global(.op-software-feed),.request-story[data-request-step="6"] :global(.op-software-feed),.request-story[data-request-step="7"] :global(.op-software-feed){opacity:1}
- .request-story[data-request-step="5"] :global(.op-video-feed),.request-story[data-request-step="6"] :global(.op-video-feed),.request-story[data-request-step="7"] :global(.op-video-feed){opacity:0}
- .request-story__canvas :global([data-operation-focus]){display:none}.request-story__canvas :global(.op-coverage),.request-story__canvas :global(.op-alarm),.request-story__canvas :global(.op-battery){opacity:0;transition:opacity 900ms ease}.request-story[data-request-step="2"] :global(.op-coverage),.request-story[data-request-step="3"] :global(.op-alarm),.request-story[data-request-step="4"] :global(.op-battery){opacity:1}
- @media(prefers-reduced-motion:reduce){.request-story__canvas :global([data-operation-part]),.request-story__canvas :global(.op-route){transition:none}}
- .request-story__canvas :global(.op-grid-loss){opacity:0}.request-story[data-request-step="4"] :global(.op-grid-feed){opacity:.15}.request-story[data-request-step="4"] :global(.op-grid-loss){opacity:1}
+
+ .request-story__systems{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin:0;padding:20px 0;border-block:1px solid #ffffff25;font-size:1rem}.request-story__systems dt{color:#c4c7cc;margin-bottom:6px}.request-story__systems dd{margin:0;color:#fff;font-weight:600}.request-story[data-grid-state="lost"] [data-operation-grid]{color:#ff8585}
+ .request-story__incident{border-bottom:1px solid #ffffff25;padding:16px 0;font-size:1rem;min-height:104px}.request-story__incident>div{display:flex;justify-content:space-between;gap:16px}.request-story__incident b{margin-left:8px;font-variant-numeric:tabular-nums}.request-story__incident ol{display:flex;gap:24px;padding:0;margin:16px 0 0;list-style:none;color:#c4c7cc}.request-story__incident li::before{content:'○';margin-right:8px}.request-story__incident li[data-state="complete"]::before{content:'✓'}.request-story__incident li[data-state="current"]{color:#fff}.request-story__incident li[data-state="current"]::before{color:#dc2626;content:'●'}
+ .request-story[data-case-state="none"] .request-story__incident b,.request-story[data-case-state="none"] .request-story__incident ol{visibility:hidden}.request-story__sr-status{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden}
+ .request-story__example{font-size:1rem;color:#c4c7cc;margin-top:22px}.request-story__canvas{height:clamp(380px,42vw,510px);aspect-ratio:auto}
+ .request-story__canvas :global(.op-route){opacity:0;stroke-dasharray:1;stroke-dashoffset:1;transition:opacity 700ms ease}.request-story__canvas :global(.op-route[data-active="true"]){opacity:1}.request-story[data-request-step="7"] :global(.op-route){stroke-dashoffset:0!important;stroke:#c4c7cc;opacity:.45}
+ .request-story__canvas :global([data-operation-part]){opacity:1}.request-story__canvas :global([data-operation-part="workplace"]){transition:filter 800ms ease}.request-story[data-grid-state="lost"] :global([data-operation-part="workplace"]){filter:brightness(.2)}
+ .request-story__canvas :global(.op-coverage){opacity:0;transition:opacity 900ms ease}.request-story[data-request-step="2"] :global(.op-coverage){opacity:1}
+ .request-story__canvas :global(.op-alarm),.request-story__canvas :global(.op-battery),.request-story__canvas :global(.op-grid-loss),.request-story__canvas :global(.op-software-feed),.request-story__canvas :global(.op-incident-marker),.request-story__canvas :global(.op-remote-alert){opacity:0}
+ .request-story[data-grid-state="lost"] :global(.op-battery),.request-story[data-grid-state="lost"] :global(.op-grid-loss){opacity:1}.request-story[data-grid-state="lost"] :global(.op-grid-feed){opacity:.15}
+ .request-story[data-request-step="6"] :global(.op-alarm){opacity:1}.request-story:not([data-case-state="none"]) :global(.op-software-feed){opacity:1}.request-story:not([data-case-state="none"]) :global(.op-video-feed){opacity:0}.request-story:not([data-case-state="none"]) :global(.op-incident-marker){opacity:1}.request-story[data-case-state="received"] :global(.op-remote-alert){opacity:1}
+ .request-story[data-case-state="closed"] :global(.op-incident-marker rect){fill:#202933}.request-story__canvas :global([data-operation-focus]){display:none}
+ .request-story__canvas :global(.rq-door){transform:translate(-490.17px,-10px) matrix(.866025404,.5,0,1,0,0)!important}.request-story[data-request-step="5"] :global(.rq-door),.request-story[data-request-step="6"] :global(.rq-door){transform:translate(-490.17px,-10px) matrix(-1.003442,.405579788,0,1,0,0)!important}
+ @media(max-width:760px){.request-story__canvas{height:auto;aspect-ratio:640/520}.request-story__systems{gap:12px;grid-template-columns:1fr 1fr;padding:16px 0}.request-story__systems>div:last-child{grid-column:1/-1;display:flex;gap:16px}.request-story__incident>div{flex-wrap:wrap;gap:8px}.request-story__incident ol{gap:12px;flex-wrap:wrap}.request-story__incident{min-height:134px}.request-story__progress{gap:6px}.request-story__example{line-height:1.5}}
+ @media(prefers-reduced-motion:reduce){.request-story__canvas :global(*){transition:none!important}}
 </style>

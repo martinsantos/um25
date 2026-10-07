@@ -1,4 +1,4 @@
-import {bindRequestSequence,requestFrame} from '../public/cine/request-sequence-v3.js';
+import {bindRequestSequence,requestFrame} from '../public/cine/request-sequence-v4.js';
 import {REQUEST_SEQUENCE} from '../src/data/cine/requestSequence';
 let observer,hidden,reduced;
 function fixture(){document.body.innerHTML=`<article data-request-story><script data-request-script type="application/json">${JSON.stringify(REQUEST_SEQUENCE)}</script><button data-request-play></button><h3 data-request-title></h3><p data-request-copy></p><p data-request-role></p><span data-request-status></span><div data-request-canvas><svg><g data-request-camera><g data-request-packet></g></g></svg></div>${REQUEST_SEQUENCE.map(()=>'<li data-request-milestone></li>').join('')}</article>`;return document.querySelector('article');}
@@ -27,3 +27,12 @@ test('pause, offscreen and hidden tab preserve elapsed progress; pointer focus n
  hidden=true;document.dispatchEvent(new Event('visibilitychange'));await jest.advanceTimersByTimeAsync(30000);expect(root.dataset.requestStep).toBe('2');hidden=false;document.dispatchEvent(new Event('visibilitychange'));await jest.advanceTimersByTimeAsync(8000);expect(root.dataset.requestStep).toBe('3');dispose();expect(jest.getTimerCount()).toBe(0);
 });
 test('reduced motion waits for an explicit start and cleans up on navigation',async()=>{reduced.matches=true;const root=fixture();bindRequestSequence(root);observer([{isIntersecting:true,intersectionRatio:1}]);await jest.advanceTimersByTimeAsync(10000);expect(root.dataset.requestState).toBe('paused');expect(jest.getTimerCount()).toBe(0);root.querySelector('button').click();await jest.advanceTimersByTimeAsync(8500);expect(root.dataset.requestStep).toBe('1');document.dispatchEvent(new Event('astro:before-swap'));expect(jest.getTimerCount()).toBe(0);expect(root.dataset.requestBound).toBeUndefined();});
+
+test('the power incident persists through diagnosis and only closes after restoration and verification',()=>{
+ expect(requestFrame(0).gridLost).toBe(false);
+ expect(requestFrame(10000).gridLost).toBe(true);
+ for(const time of [20000,28000,36000,44000,50000])expect(requestFrame(time).gridLost).toBe(true);
+ expect(requestFrame(53000).caseState).toBe('working');
+ expect(requestFrame(54000).gridLost).toBe(false);expect(requestFrame(54000).caseState).toBe('verified');
+ expect(requestFrame(57000).caseState).toBe('closed');expect(requestFrame(64000).caseState).toBe('none');
+});

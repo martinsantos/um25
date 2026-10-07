@@ -156,10 +156,13 @@ if(await live.locator('[data-request-story]').count()){
  report.livePilot=[];const shots=new Set();
  for(let sample=0;sample<34;sample++){
   await delay(2000);
-  const state=await live.locator('[data-request-story]').evaluate(root=>({step:root.dataset.requestStep,state:root.dataset.requestState,status:root.querySelector('[data-request-status]').textContent,packet:root.querySelector('[data-request-packet]').getAttribute('transform'),camera:root.querySelector('[data-request-camera]').getAttribute('transform')}));
+  const state=await live.locator('[data-request-story]').evaluate(root=>({step:root.dataset.requestStep,state:root.dataset.requestState,grid:root.dataset.gridState,caseState:root.dataset.caseState,status:root.querySelector('[data-request-status]').textContent,packet:root.querySelector('[data-request-packet]').getAttribute('transform'),camera:root.querySelector('[data-request-camera]').getAttribute('transform')}));
   report.livePilot.push(state);
   if(!shots.has(state.step)){shots.add(state.step);await snapshot(live,'home-request-'+state.step,live.locator('[data-request-story]'));}
  }
+ const caseStates=new Set(report.livePilot.map(s=>s.caseState));
+ if(!['received','assigned','working','verified','closed'].every(s=>caseStates.has(s)))finding('/','Incident does not reach every operational state',report.livePilot);
+ if(report.livePilot.some(s=>['2','3','4','5'].includes(s.step)&&s.grid!=='lost'))finding('/','Power incident clears before intervention',report.livePilot);
  if(new Set(report.livePilot.map(s=>s.step)).size!==8)finding('/','Request pilot does not tell its complete story without input',report.livePilot);
  if(new Set(report.livePilot.map(s=>s.packet)).size<5)finding('/','The request does not travel through the system',report.livePilot);
  const control=live.locator('[data-request-play]');await control.click();const paused=await live.locator('[data-request-packet]').getAttribute('transform');await delay(700);if(await live.locator('[data-request-packet]').getAttribute('transform')!==paused)finding('/','Request pause does not stop transport');

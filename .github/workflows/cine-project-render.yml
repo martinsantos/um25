@@ -13,6 +13,11 @@ on:
         type: choice
         options: [remaining, clinic, terminal, plant, winery, mine]
         default: remaining
+      renderer:
+        description: 'v2: continuous approach, restrained technical lighting and selective circuits'
+        type: choice
+        options: [v1, v2]
+        default: v1
       source_run:
         description: 'For deliver mode: existing render run containing this project’s 18 parts'
         type: string
@@ -91,9 +96,11 @@ jobs:
           sha256sum -c blender-selected.sha256
           tar -xf blender-4.5.3-linux-x64.tar.xz
       - name: Render native Full HD with the measured Cycles settings
+        env:
+          RENDERER: ${{ inputs.renderer || 'v1' }}
         run: |
-          python3 scripts/cine/render-site-project-v1.py --validate-only --scene ${{ matrix.scene }}
-          ./blender-4.5.3-linux-x64/blender -b -t 4 --python scripts/cine/render-site-project-v1.py -- --scene ${{ matrix.scene }} --samples 8 --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
+          python3 "scripts/cine/render-site-project-${RENDERER}.py" --validate-only --scene ${{ matrix.scene }}
+          ./blender-4.5.3-linux-x64/blender -b -t 4 --python "scripts/cine/render-site-project-${RENDERER}.py" -- --scene ${{ matrix.scene }} --samples 16 --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
       - uses: actions/upload-artifact@v7
         if: inputs.mode == 'proof'
         with:
