@@ -1,9 +1,11 @@
 name: Cinema poster and playback framing
 on:
-  push:
-    branches: [feature/isometric-redes-review]
-    paths: [.github/workflows/cine-framing-audit.yml]
   workflow_dispatch:
+    inputs:
+      probe:
+        description: Diagnose native WebKit playback on two mobile routes
+        type: boolean
+        default: false
 permissions:
   contents: read
 env:
@@ -40,6 +42,7 @@ jobs:
         run: node scripts/cine/audit-software-frame.mjs
         env:
           PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
+          FRAMING_PROBE: ${{ inputs.probe }}
           VISUAL_AUDIT_DIR: ${{ runner.temp }}/software-framing
       - uses: actions/upload-artifact@v7
         if: always()

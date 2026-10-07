@@ -8,12 +8,21 @@ const routes=['/software',...[...fs.readFileSync('src/data/navigation.ts','utf8'
 const registry=JSON.parse(fs.readFileSync('src/data/cine/site-movies-v1.json','utf8'));
 const report={scope:'all-eight-service-films',pages:[],findings:[]};
 const traversedWebKit=new Set();
-for(const [engine,type] of [['Chrome',chromium],['WebKit',webkit]]){
+const probe=process.env.FRAMING_PROBE==='true';
+for(const [engine,type] of (probe?[['WebKit',webkit]]:[['Chrome',chromium],['WebKit',webkit]])){
  const browser=await type.launch(engine==='Chrome'?{channel:'chrome',headless:true}:{headless:true});
- for(const width of [1440,1280,834,390,360]){
+ for(const width of (probe?[390]:[1440,1280,834,390,360])){
   const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
-  for(const [index,route] of routes.entries()){
+  for(const [index,route] of (probe?routes.slice(0,2):routes).entries()){
    const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
+   await page.addInitScript(()=>{
+    window.__cinemaEvents=[];
+    for(const name of ['play','playing','pause','waiting','stalled','ended','error','timeupdate'])document.addEventListener(name,event=>{
+     const video=event.target;if(!(video instanceof HTMLVideoElement))return;
+     window.__cinemaEvents.push({event:name,time:video.currentTime,paused:video.paused,ready:video.readyState,visibility:document.visibilityState,wall:performance.now()});
+     if(window.__cinemaEvents.length>160)window.__cinemaEvents.shift();
+    },true);
+   });
    try{
     await page.goto('http://127.0.0.1:4326'+route,{waitUntil:'load',timeout:60000});
     await page.locator('.umc-poster').evaluate(image=>image.decode());
@@ -39,13 +48,16 @@ for(const [engine,type] of [['Chrome',chromium],['WebKit',webkit]]){
      if(Math.abs(playing.y-state.poster.y)>1||Math.abs(playing.height-state.poster.height)>1)report.findings.push({engine,width,route,poster:state.poster,playing});
      await page.screenshot({path:path.join(out,`${engine}-${width}-${index}-playing.png`)});
      if(engine==='WebKit'&&width===390&&!traversedWebKit.has(expected)){
-      await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime>=22,{},{timeout:30000});
+      await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime>=22,{},{timeout:35000,polling:250});
       const end=await page.locator('.umc-video.is-on').evaluate(v=>({time:v.currentTime,duration:v.duration,error:v.error?.code||null,src:v.currentSrc}));
-      await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime<2,{},{timeout:6000});
+      await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime<2,{},{timeout:6000,polling:100});
       row.nativeLoop={end,after:await page.locator('.umc-video.is-on').evaluate(v=>v.currentTime)};traversedWebKit.add(expected);
      }
     }
-   }catch(error){report.findings.push({engine,width,route,error:error.message});}
+   }catch(error){
+    const playback=await page.evaluate(()=>({visibility:document.visibilityState,scrollY,events:window.__cinemaEvents,videos:[...document.querySelectorAll('.umc-video')].map(v=>({src:v.currentSrc,time:v.currentTime,duration:v.duration,paused:v.paused,ready:v.readyState,network:v.networkState,error:v.error?.message,loop:v.loop,buffered:Array.from({length:v.buffered.length},(_,i)=>[v.buffered.start(i),v.buffered.end(i)]),rect:v.getBoundingClientRect().toJSON()}))})).catch(()=>null);
+    report.findings.push({engine,width,route,error:error.message,playback});
+   }
    await page.close();fs.writeFileSync(path.join(out,'framing-report.json'),JSON.stringify(report,null,2));
   }
   await context.close();
