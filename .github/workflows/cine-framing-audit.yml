@@ -1,5 +1,8 @@
 name: Cinema poster and playback framing
 on:
+  push:
+    branches: [feature/isometric-redes-review]
+    paths: [.github/workflows/cine-framing-audit.yml]
   workflow_dispatch:
 permissions:
   contents: read
