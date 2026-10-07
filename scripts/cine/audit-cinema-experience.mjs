@@ -113,6 +113,13 @@ for(const route of routes){
    const theater=story.locator('[data-atlas-theater]');
    await theater.evaluate(node=>node.scrollIntoView({block:'center',behavior:'instant'}));
    await story.clock.runFor(250);await delay(300);
+   row.optionalInspector=await story.locator('[data-service-atlas]').evaluate(root=>({
+    diagram:root.dataset.disciplineActive==='true',
+    hardwareMounted:Boolean(root.querySelector('[data-atlas-network] svg')),
+    hiddenCatalog:Boolean(root.querySelector('template[data-network-scene]')),
+    fetched:performance.getEntriesByType('resource').map(entry=>entry.name).filter(url=>/network-rack-v10[^/]*\.svg|\/hairline-v7\.js/.test(url))
+   }));
+   if(row.optionalInspector.diagram&&(row.optionalInspector.hardwareMounted||row.optionalInspector.hiddenCatalog||row.optionalInspector.fetched.length))finding(route,'The default system loads the unused optional inspector',row.optionalInspector);
    const chapters=JSON.parse(await story.locator('[data-atlas-narrative]').textContent());
    row.timeline=[];
    const total=chapters.reduce((sum,c)=>sum+c.scenes.length,0),captured=new Set();
