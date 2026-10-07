@@ -100,3 +100,19 @@ test('a single-service infographic keeps explaining its operation without waitin
  expect(projectNode.dataset.operationPhase).toBe('0');expect(root.dataset.storyState).toBe('paused');
  dispose();expect(projectNode.querySelector('.sp-operation')).toBeNull();expect(jest.getTimerCount()).toBe(0);
 });
+
+
+test.each(model.scenes)('$id keeps front ports visible and routes on orthogonal installation axes',scene=>{
+ const svg=new DOMParser().parseFromString(fs.readFileSync('src/assets/cine/isometric/site-'+scene.id+'-v1.svg','utf8'),'image/svg+xml');
+ const polygons=[...svg.querySelectorAll('.sp-structure polygon')];
+ const front=box=>{
+  const {c,scale,origin}=scene.projection;
+  const project=([x,y,z])=>[origin[0]+(x-y)*c*scale,origin[1]+((x+y)/2-z)*scale].map(n=>Math.round(n*1000)/1000).join(',');
+  const x=box.x-box.w/2,y=box.y+box.d/2,z=box.z;
+  return [[x,y,z],[x+box.w,y,z],[x+box.w,y,z+box.h],[x,y,z+box.h]].map(project).join(' ');
+ };
+ const body=polygons.findIndex(p=>p.getAttribute('points')===front(scene.boxes.find(b=>b.id==='rack')));
+ const port=polygons.findIndex(p=>p.getAttribute('points')===front(scene.boxes.find(b=>b.id==='rack-port-0-0')));
+ expect(body).toBeGreaterThanOrEqual(0);expect(port).toBeGreaterThan(body);
+ for(const route of scene.routes)for(let i=1;i<route.points.length;i++)expect(route.points[i].filter((v,k)=>v!==route.points[i-1][k])).toHaveLength(1);
+});

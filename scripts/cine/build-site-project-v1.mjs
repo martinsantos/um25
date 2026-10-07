@@ -15,7 +15,16 @@ for(const spec of scenes){
  const cylinder=(id,x,y,z,r,h,material='metal',topR=r,axis='z')=>cylinders.push({id,x,y,z,r,h,topR,material,axis});
  const line=(points,color='edge',width=.65,service=null)=>lines.push({points,color,width,service});
  const circle=(at,r,color='edge',service=null)=>circles.push({at,r,color,service});
- const route=(code,points)=>routes.push({code,points});
+ const route=(code,input)=>{
+  const points=[input[0]];
+  for(const target of input.slice(1)){
+   const point=[...points.at(-1)];
+   // Rise before crossing; cross on the tray plane, then descend to the device.
+   const axes=target[2]>point[2]?[2,1,0]:[1,0,2];
+   for(const axis of axes)if(point[axis]!==target[axis]){point[axis]=target[axis];points.push([...point]);}
+  }
+  routes.push({code,points});
+ };
  const pin=(code,at)=>pins[code]=at;
  const cabinet=(id,x,y,z)=>{
   box(id,x,y,z,37,31,86,'body');
@@ -156,7 +165,50 @@ for(const spec of scenes){
   }
   faces.push({id:c.id,pts:hi,color:palette[c.material],alpha:1});
  }
- faces.sort((a,b)=>{const depth=f=>f.pts.reduce((sum,p)=>sum+p[0]+p[1]+p[2]*1.5,0)/f.pts.length;return depth(a)-depth(b);});
+ // Large enclosure faces must not paint over their own smaller front panels.
+ // Sort overlapping faces by depth at the overlap, rather than by centroid alone.
+ const projected=faces.map(f=>f.pts.map(P));
+ const bounds=projected.map(pts=>[Math.min(...pts.map(p=>p[0])),Math.min(...pts.map(p=>p[1])),Math.max(...pts.map(p=>p[0])),Math.max(...pts.map(p=>p[1]))]);
+ const depthAt=(f,p)=>{
+  const [a,b,c]=f.pts,u=b.map((v,i)=>v-a[i]),v=c.map((n,i)=>n-a[i]);
+  const normal=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]],den=normal.reduce((x,y)=>x+y,0);
+  if(Math.abs(den)<1e-7)return null;
+  const dx=(p[0]-540)/(C*S),dy=(p[1]-278)/S;
+  const base=[dx/2,-dx/2,-dy];
+  const t=normal.reduce((sum,n,i)=>sum+n*(a[i]-base[i]),0)/den;
+  return 3*t-dy;
+ };
+ const intersection=(subject,clip)=>{
+  let result=subject;
+  const area=clip.reduce((sum,p,i)=>sum+p[0]*clip[(i+1)%clip.length][1]-clip[(i+1)%clip.length][0]*p[1],0);
+  const sign=area>=0?1:-1;
+  for(let k=0;k<clip.length&&result.length;k++){
+   const a=clip[k],b=clip[(k+1)%clip.length],side=p=>sign*((b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0]));
+   const input=result;result=[];
+   for(let i=0;i<input.length;i++){
+    const p=input[i],q=input[(i+1)%input.length],sp=side(p),sq=side(q);
+    if(sp>=0)result.push(p);
+    if((sp>=0)!==(sq>=0)){const t=sp/(sp-sq);result.push([p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t]);}
+   }
+  }
+  return result;
+ };
+ const edges=faces.map(()=>[]),incoming=new Uint16Array(faces.length);
+ for(let i=0;i<faces.length;i++)for(let j=i+1;j<faces.length;j++){
+  const a=bounds[i],b=bounds[j];if(a[2]<=b[0]+.001||b[2]<=a[0]+.001||a[3]<=b[1]+.001||b[3]<=a[1]+.001)continue;
+  const overlap=intersection(projected[i],projected[j]);if(overlap.length<3)continue;
+  const overlapArea=Math.abs(overlap.reduce((sum,p,k)=>sum+p[0]*overlap[(k+1)%overlap.length][1]-overlap[(k+1)%overlap.length][0]*p[1],0));
+  if(overlapArea<.001)continue;
+  const p=overlap.reduce((sum,q)=>[sum[0]+q[0]/overlap.length,sum[1]+q[1]/overlap.length],[0,0]);
+  const da=depthAt(faces[i],p),db=depthAt(faces[j],p);if(da===null||db===null||Math.abs(da-db)<.001)continue;
+  const [far,near]=da<db?[i,j]:[j,i];edges[far].push(near);incoming[near]++;
+ }
+ const queue=faces.map((_,i)=>i).filter(i=>!incoming[i]),ordered=[],seen=new Set();
+ while(queue.length){const i=queue.shift();ordered.push(faces[i]);seen.add(i);for(const next of edges[i])if(--incoming[next]===0)queue.push(next);}
+ console.log(JSON.stringify({scene:spec.id,orderedFaces:ordered.length,totalFaces:faces.length}));
+ // Interpenetrating illustrative geometry can form a cycle; keep it deterministic.
+ if(ordered.length<faces.length)ordered.push(...faces.filter((_,i)=>!seen.has(i)).sort((a,b)=>a.pts.reduce((sum,p)=>sum+p[0]+p[1]+p[2],0)/a.pts.length-b.pts.reduce((sum,p)=>sum+p[0]+p[1]+p[2],0)/b.pts.length));
+ faces.splice(0,faces.length,...ordered);
  const polygon=f=>'<polygon points="'+f.pts.map(p=>P(p).map(n).join(',')).join(' ')+'" fill="'+f.color+'" fill-opacity="'+f.alpha+'" stroke="'+palette.edge+'" stroke-opacity="'+(f.alpha<.5?.4:.65)+'" stroke-width=".45" vector-effect="non-scaling-stroke" stroke-linejoin="round"'+(f.service?' data-project-device="'+f.service+'"':'')+'/>';
  const pathLine=(r,extra='')=>'<path d="M'+r.points.map(p=>P(p).map(n).join(' ')).join('L')+'" fill="none" stroke="'+(palette[r.color]||palette.edge)+'" stroke-width="'+r.width+'" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" '+extra+'/>';
  const circlesSVG=circles.map(c=>{const [x,y]=P(c.at);return '<ellipse cx="'+n(x)+'" cy="'+n(y)+'" rx="'+n(c.r*S)+'" ry="'+n(c.r*S*.58)+'" fill="'+(palette[c.color]||palette.edge)+'"'+(c.service?' data-project-device="'+c.service+'"':'')+'/>';}).join('');

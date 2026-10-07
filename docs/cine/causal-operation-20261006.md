@@ -19,14 +19,18 @@ Implementación: `RequestSequence.astro`, `requestSequence.ts`, controlador púb
 
 ## Integración en servicios y sectores
 
-Las seis maquetas sectoriales mantienen el proyecto completo y añaden efectos vectoriales situados sobre los equipos: cobertura y mosaico de video, aviso y verificación en la central, indicador de respaldo en la UPS, filas de trabajo que avanzan en la consola y confirmación de los puntos de red. Consultoría señala el perímetro del relevamiento. Telecomunicaciones conserva el transporte por su enlace. Las tres etapas autónomas continúan sin interacción. Los estados se apagan al pasar a otro servicio y respetan movimiento reducido.
+Las seis maquetas sectoriales mantienen el proyecto completo y añaden efectos vectoriales situados sobre los equipos: cobertura y mosaico de video, aviso y verificación en la central, indicador de respaldo en la UPS, filas de trabajo que avanzan en la consola y confirmación de los puntos de red. Consultoría señala el perímetro del relevamiento. Telecomunicaciones conserva el transporte por su enlace. La etapa intermedia se acerca al dispositivo protagonista sin sacarlo de la maqueta; telecomunicaciones conserva los dos extremos del enlace. Las tres etapas autónomas continúan sin interacción. Los estados se apagan al pasar a otro servicio y respetan movimiento reducido.
+
+## Precisión de la isometría
+
+La revisión de los primeros planos reveló que el orden por centroide de las caras ocultaba módulos pequeños detrás de la carcasa del gabinete. El generador ahora compara la profundidad en el área de superposición y ordena las caras antes de dibujarlas. Una regresión sobre las seis maquetas verifica que los puertos queden delante de su carcasa. Los recorridos se descomponen en tramos ortogonales, también verificados por prueba; se eliminan las diagonales arbitrarias. Estas operaciones ocurren al generar el SVG, sin cargar cómputo extra al navegador.
 
 ## Validación en curso
 
 - `npm run check` pasó lint, tipos, auditoría CSS, 66 suites y 518 pruebas, además del build, en `ef55428e`.
 - La auditoría remota `37556051386` comprueba la secuencia en Chrome escritorio/móvil y los anchos del contrato; incluye conservación del corte hasta la intervención y los estados recibido/asignado/intervención/verificado/cerrado. Terminó correctamente en ambos perfiles y en las 20 combinaciones de WebKit. Se inspeccionaron las capturas y la secuencia móvil; esa revisión detectó la cartela superpuesta y motivó su eliminación.
 - La composición corregida y los textos breves se verifican en `37557355117`, commit `3e39599c`.
-- Las nuevas respuestas sobre dispositivos pasaron `npm run check`: 66 suites / 518 pruebas y build. La matriz de 20 rutas se ejecuta en `37557798673`, commit `355f9648`.
+- Las nuevas respuestas sobre dispositivos pasaron `npm run check`: 66 suites / 518 pruebas y build. Las auditorías `37557798673` y `37558397771` se cancelaron al descubrir y corregir los problemas de encuadre y profundidad; no constituyen validaciones finales.
 - La matriz anterior de 20 rutas corresponde a la versión previa y está documentada en `continuous-operation-20261006.md`; no se presenta como evidencia de esta nueva narración.
 
 ## Piloto cinematográfico Blender
