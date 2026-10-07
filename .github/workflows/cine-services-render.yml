@@ -26,7 +26,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: blender-services-${{ github.ref }}-${{ inputs.mode || 'proof' }}
+  group: blender-services-${{ github.ref }}-${{ inputs.mode || 'proof' }}-${{ inputs.mode == 'repair' && inputs.repairs || 'batch' }}
   cancel-in-progress: false
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
