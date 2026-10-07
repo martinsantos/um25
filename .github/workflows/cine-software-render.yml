@@ -8,6 +8,8 @@ name: Blender software architecture
         options:
           - proof
           - full
+          - repair
+          - assemble
         default: proof
       version:
         description: Authored movie version
@@ -16,10 +18,23 @@ name: Blender software architecture
           - v1
           - v2
         default: v2
+      repair_parts:
+        description: Comma-separated missing part numbers (1–12)
+        type: string
+        default: ''
+      source_run:
+        description: Original full render run for assembly
+        type: string
+        default: ''
+      repair_runs:
+        description: Comma-separated recovery run IDs for assembly
+        type: string
+        default: ''
 permissions:
   contents: read
+  actions: read
 concurrency:
-  group: blender-software-${{ github.ref }}-${{ inputs.version || 'v2' }}-${{ inputs.mode || 'proof' }}
+  group: blender-software-${{ github.ref }}-${{ inputs.version || 'v2' }}-${{ inputs.mode || 'proof' }}-${{ inputs.mode == 'repair' && inputs.repair_parts || 'batch' }}
   cancel-in-progress: false
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -33,16 +48,22 @@ jobs:
       - id: plan
         env:
           MODE: ${{ inputs.mode || 'proof' }}
+          REPAIR_PARTS: ${{ inputs.repair_parts }}
         run: |
           python3 - <<'PYPLAN'
           import json,os
           rows=[dict(part=i+1,start=f,end=f,frames=1) for i,f in enumerate([0,144,288,432,575])] if os.environ['MODE']=='proof' else [dict(part=i+1,start=i*48,end=i*48+47,frames=48) for i in range(12)]
+          if os.environ['MODE']=='repair':
+              selected=[int(n) for n in os.environ['REPAIR_PARTS'].split(',')]
+              assert selected and len(selected)==len(set(selected)) and all(1<=n<=12 for n in selected)
+              rows=[dict(part=n,start=(n-1)*48,end=n*48-1,frames=48) for n in selected]
+          if os.environ['MODE']=='assemble':rows=[]
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('matrix='+json.dumps({'include':rows})+'\n')
           PYPLAN
   render:
     needs: plan
     runs-on: ubuntu-24.04
-    timeout-minutes: 65
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       max-parallel: 12
@@ -60,8 +81,10 @@ jobs:
           sparse-checkout-cone-mode: false
       - name: Install verified official Blender
         run: |
-          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update -qq
-          sudo apt-get install -y -qq libgl1 libegl1 libxrender1 libxi6 ffmpeg
+          if ! sudo timeout 120 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update -qq; then
+            echo "Package index refresh timed out; using runner cached signed indexes."
+          fi
+          sudo timeout 180 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq libgl1 libegl1 libxrender1 libxi6 ffmpeg
           curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender-4.5.3-linux-x64.tar.xz
           curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256 -o blender.sha256
           awk '$2 == "blender-4.5.3-linux-x64.tar.xz" {print}' blender.sha256 > blender-selected.sha256
@@ -91,31 +114,52 @@ jobs:
           path: frames
           retention-days: 4
       - name: Encode recoverable part
-        if: inputs.mode == 'full'
+        if: inputs.mode == 'full' || inputs.mode == 'repair'
         run: |
           cp frames/render-info.json part-${{ matrix.part }}-info.json
           ffmpeg -v error -framerate 24 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v ${{ matrix.frames }} -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r 24 -g 48 -an -movflags +faststart part-${{ matrix.part }}.mp4
       - uses: actions/upload-artifact@v7
-        if: inputs.mode == 'full'
+        if: inputs.mode == 'full' || inputs.mode == 'repair'
         with:
           name: software-part-${{ matrix.part }}
           path: |
             part-${{ matrix.part }}.mp4
             part-${{ matrix.part }}-info.json
           retention-days: 4
+    if: inputs.mode != 'assemble'
   assemble:
-    needs: render
-    if: inputs.mode == 'full'
+    needs:
+      - plan
+      - render
+    if: always() && needs.plan.result == 'success' && ((inputs.mode == 'full' && needs.render.result == 'success') || inputs.mode == 'assemble')
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/download-artifact@v8
         with:
           pattern: software-part-*
+          run-id: ${{ inputs.source_run || github.run_id }}
+          github-token: ${{ github.token }}
+      - name: Restore only recovered software fragments
+        if: inputs.mode == 'assemble' && inputs.repair_runs != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          REPAIR_RUNS: ${{ inputs.repair_runs }}
+        run: |
+          [[ "$REPAIR_RUNS" =~ ^[0-9]+(,[0-9]+)*$ ]]
+          IFS=',' read -ra RUNS <<< "$REPAIR_RUNS"
+          for RUN in "${RUNS[@]}"; do
+            NAMES=$(gh api "repos/$GH_REPO/actions/runs/$RUN/artifacts?per_page=100" --jq '.artifacts[].name | select(test("^software-part-[0-9]+$"))')
+            test -n "$NAMES"
+            while IFS= read -r NAME; do gh run download "$RUN" -n "$NAME" -D "$NAME"; done <<< "$NAMES"
+          done
       - name: Assemble and verify cinema
         run: |
-          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update -qq
-          sudo apt-get install -y -qq ffmpeg
+          if ! sudo timeout 120 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update -qq; then
+            echo "Package index refresh timed out; using runner cached signed indexes."
+          fi
+          sudo timeout 180 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq ffmpeg
           mkdir delivery
           for PART in $(seq 1 12); do printf "file 'software-part-%s/part-%s.mp4'\n" "$PART" "$PART"; done > parts.txt
           ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-software-system-$VERSION.mp4
@@ -147,6 +191,11 @@ jobs:
           PYINFO
           ffprobe -v error -count_frames -show_streams -show_format -of json delivery/cine-software-system-$VERSION-sq.mp4 > delivery/validation-square.json
           ffmpeg -v error -i delivery/cine-software-system-$VERSION.mp4 -f framemd5 delivery/frame-integrity.txt
+          python3 - <<'PYFRAMES'
+          from pathlib import Path
+          frames=[line.split(',')[-1].strip() for line in Path('delivery/frame-integrity.txt').read_text().splitlines() if line and not line.startswith('#')]
+          assert len(frames)==576 and len(set(frames))>=570, 'Movie contains frozen or duplicated frames'
+          PYFRAMES
           sha256sum delivery/* > delivery/SHA256SUMS
       - uses: actions/upload-artifact@v7
         with:

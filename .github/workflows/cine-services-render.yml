@@ -79,8 +79,10 @@ jobs:
       - name: Install verified official Blender
         timeout-minutes: 15
         run: |
-          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update -qq
-          sudo apt-get install -y -qq libgl1 libegl1 libxrender1 libxi6 xvfb ffmpeg
+          if ! sudo timeout 120 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update -qq; then
+            echo "Package index refresh timed out; using runner cached signed indexes."
+          fi
+          sudo timeout 180 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq libgl1 libegl1 libxrender1 libxi6 xvfb ffmpeg
           curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender-4.5.3-linux-x64.tar.xz
           curl --retry 3 --connect-timeout 15 --max-time 60 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256 -o blender.sha256
           awk '$2 == "blender-4.5.3-linux-x64.tar.xz" {print}' blender.sha256 > blender-selected.sha256
@@ -156,8 +158,10 @@ jobs:
           SOURCE_RUN: ${{ inputs.source_run || github.run_id }}
           REPAIR_RUNS: ${{ inputs.repair_runs }}
         run: |
-          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update -qq
-          sudo apt-get install -y -qq ffmpeg
+          if ! sudo timeout 120 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update -qq; then
+            echo "Package index refresh timed out; using runner cached signed indexes."
+          fi
+          sudo timeout 180 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq ffmpeg
           mkdir delivery
           for PART in $(seq 1 12); do printf "file 'service-%s-part-%s/part-%s.mp4'\n" "$SERVICE" "$PART" "$PART"; done > parts.txt
           SCENE=$(python3 -c "import json;print(json.load(open('service-${SERVICE}-part-1/part-1-info.json'))['scene'])")
