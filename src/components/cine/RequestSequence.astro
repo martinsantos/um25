@@ -48,4 +48,5 @@ import {REQUEST_SEQUENCE} from '../../data/cine/requestSequence';
  .request-story[data-request-step="5"] :global(.op-video-feed),.request-story[data-request-step="6"] :global(.op-video-feed),.request-story[data-request-step="7"] :global(.op-video-feed){opacity:0}
  .request-story__canvas :global([data-operation-focus]){display:none}.request-story__canvas :global(.op-coverage),.request-story__canvas :global(.op-alarm),.request-story__canvas :global(.op-battery){opacity:0;transition:opacity 900ms ease}.request-story[data-request-step="2"] :global(.op-coverage),.request-story[data-request-step="3"] :global(.op-alarm),.request-story[data-request-step="4"] :global(.op-battery){opacity:1}
  @media(prefers-reduced-motion:reduce){.request-story__canvas :global([data-operation-part]),.request-story__canvas :global(.op-route){transition:none}}
+ .request-story__canvas :global(.op-grid-loss){opacity:0}.request-story[data-request-step="4"] :global(.op-grid-feed){opacity:.15}.request-story[data-request-step="4"] :global(.op-grid-loss){opacity:1}
 </style>

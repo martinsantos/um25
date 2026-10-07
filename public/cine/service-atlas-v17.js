@@ -107,7 +107,7 @@ export function bindServiceAtlas(root) {
           const signal=document.createElementNS(svgNS,'path');signal.setAttribute('d',path.getAttribute('d'));signal.setAttribute('pathLength','100');signal.setAttribute('class','sp-signal');signal.style.animationDelay=`${-i*.23}s`;signalLayer.append(signal);
         }
         const coordinates=path.getAttribute('d').match(/-?\d+(?:\.\d+)?/g)?.map(Number)||[];
-        if(i===0&&state){
+        if(i===0&&state&&code!=='106'){
           const start=state.reverse?coordinates.slice(-2):coordinates.slice(0,2),end=state.reverse?coordinates.slice(0,2):coordinates.slice(-2);
           for(const [point,label] of [[start,state.nodes[0]],[end,state.nodes[2]]]){
             if(point.length!==2)continue;
