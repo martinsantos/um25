@@ -76,7 +76,7 @@ jobs:
     name: ${{ matrix.scene }} · part ${{ matrix.part }}
     needs: plan
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       max-parallel: 18
@@ -99,8 +99,10 @@ jobs:
         env:
           RENDERER: ${{ inputs.renderer || 'v1' }}
         run: |
+          SAMPLES=8
+          if [[ "$RENDERER" == "v2" ]]; then SAMPLES=16; fi
           python3 "scripts/cine/render-site-project-${RENDERER}.py" --validate-only --scene ${{ matrix.scene }}
-          ./blender-4.5.3-linux-x64/blender -b -t 4 --python "scripts/cine/render-site-project-${RENDERER}.py" -- --scene ${{ matrix.scene }} --samples 16 --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
+          ./blender-4.5.3-linux-x64/blender -b -t 4 --python "scripts/cine/render-site-project-${RENDERER}.py" -- --scene ${{ matrix.scene }} --samples "$SAMPLES" --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
       - uses: actions/upload-artifact@v7
         if: inputs.mode == 'proof'
         with:

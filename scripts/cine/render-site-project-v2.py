@@ -100,6 +100,7 @@ def render(args, data, project):
         material(name, hexcode, .62 if name in ('metal', 'top', 'edge') else .04,
                  .31 if name == 'metal' else .48, .12 if name == 'red' else 0)
     groups = {}
+    smooth_faces = {}
     for b in project['boxes']:
         verts, faces = groups.setdefault(b['material'], ([], []))
         x, y, z = b['x'] - b['w']/2, b['y'] - b['d']/2, b['z']
@@ -110,18 +111,21 @@ def render(args, data, project):
     for c in project.get('cylinders',[]):
         verts,faces=groups.setdefault(c['material'],([],[]))
         offset=len(verts)
+        segments=96
         for radius,t in [(c['r'],0),(c['topR'],c['h'])]:
-            for i in range(32):
-                dx,dq=radius*math.cos(i*math.pi/16),radius*math.sin(i*math.pi/16)
+            for i in range(segments):
+                dx,dq=radius*math.cos(i*2*math.pi/segments),radius*math.sin(i*2*math.pi/segments)
                 point=(c['x']+dx,c['y']+t,c['z']+dq) if c.get('axis')=='y' else (c['x']+dx,c['y']+dq,c['z']+t)
                 verts.append(tuple(n*SCALE for n in point))
-        faces.append(tuple(offset+i for i in reversed(range(32))))
-        faces.append(tuple(offset+32+i for i in range(32)))
-        faces.extend((offset+i,offset+(i+1)%32,offset+32+(i+1)%32,offset+32+i) for i in range(32))
+        faces.append(tuple(offset+i for i in reversed(range(segments))))
+        faces.append(tuple(offset+segments+i for i in range(segments)))
+        smooth_faces.setdefault(c['material'],set()).update(range(len(faces),len(faces)+segments))
+        faces.extend((offset+i,offset+(i+1)%segments,offset+segments+(i+1)%segments,offset+segments+i) for i in range(segments))
     for name, (verts, faces) in groups.items():
         mesh = bpy.data.meshes.new(name + '-geometry')
         mesh.from_pydata(verts, [], faces)
         mesh.update()
+        for face in smooth_faces.get(name,[]):mesh.polygons[face].use_smooth=True
         obj = bpy.data.objects.new(name + '-components', mesh)
         scene.collection.objects.link(obj)
         obj.data.materials.append(materials[name])
@@ -132,9 +136,32 @@ def render(args, data, project):
     for line in project['lines']:
         linegroups.setdefault((line['color'], max(.004, line['width'] * .009)), []).append(line['points'])
     for route in project['routes']:
+        if args.scene=='winery':
+            # Actual cable topology follows the overhead tray and vertical drops.
+            # Software/support are logical relationships, not separate physical wires.
+            if route['code']!='101':continue
+            endpoint=route['points'][-1]
+            ex,ey,ez=endpoint
+            route={**route,'points':[[542,294,49],[542,294,88],[542,165,88],[ex,165,88],[ex,ey,88],endpoint]}
         name='route-'+route['code']
         if name not in materials:material(name,'#475460',.3,.42)
         linegroups.setdefault((name,.010),[]).append(route['points'])
+    if args.scene=='winery':
+        # Jacket seams, sanitary fittings and ladder rails make each vessel readable.
+        for c in project.get('cylinders',[]):
+            if not c['id'].endswith('-vessel'):continue
+            x,y,r=c['x'],c['y'],c['r']
+            for z in [29,49,70,88]:
+                ring=[[x+(r+.08)*math.cos(i*math.pi/32),y+(r+.08)*math.sin(i*math.pi/32),z] for i in range(65)]
+                linegroups.setdefault(('edge',.007),[]).append(ring)
+            for dx in [22,28]:
+                linegroups.setdefault(('metal',.018),[]).append([[x+dx,y+12,8],[x+dx,y+12,91]])
+        # Cable tray hangers and routed patch leads inside the existing rack.
+        for x in [55,160,270,380,490]:
+            linegroups.setdefault(('side',.016),[]).append([[x,162,85],[x,162,101]])
+        for i in range(8):
+            x=528+i*2.8
+            linegroups.setdefault(('side',.012),[]).append([[x,295.5,64],[x,298,64],[x,298,60],[x+1,295.5,55]])
     for (name, radius), paths in linegroups.items():
         curve = bpy.data.curves.new(name + '-traces', 'CURVE')
         curve.dimensions, curve.bevel_depth, curve.bevel_resolution = '3D', radius, 1
