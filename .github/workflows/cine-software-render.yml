@@ -162,43 +162,33 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.recovery) }}
     steps:
-      - uses: actions/download-artifact@v8
-        if: inputs.slice_source_run != ''
+      - uses: actions/checkout@v6
         with:
-          pattern: software-part-${{ matrix.part }}-*
-          run-id: ${{ inputs.slice_source_run }}
-          github-token: ${{ github.token }}
-      - uses: actions/download-artifact@v8
-        with:
-          pattern: software-part-${{ matrix.part }}-*
+          persist-credentials: false
+          sparse-checkout: scripts/cine/recover-software-parts.py
+          sparse-checkout-cone-mode: false
+      - name: Download each recovery slice into its named directory
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PART: ${{ matrix.part }}
+          PREVIOUS: ${{ inputs.slice_source_run }}
+        run: |
+          for RUN in "$PREVIOUS" "$GITHUB_RUN_ID"; do
+            [ -n "$RUN" ] || continue
+            NAMES=$(gh api "repos/$GH_REPO/actions/runs/$RUN/artifacts?per_page=100" --jq '.artifacts[].name | select(test("^software-part-[0-9]+-[1-4]$"))')
+            test -n "$NAMES"
+            while IFS= read -r NAME; do
+              [[ "$NAME" == "software-part-$PART-"* ]] || continue
+              gh run download "$RUN" -n "$NAME" -D "$NAME"
+            done <<< "$NAMES"
+          done
       - name: Join verified short recovery slices
         env:
           REPAIR_PARTS: ${{ matrix.part }}
         run: |
           sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq ffmpeg
-          python3 - <<'PYRECOVER'
-          import json,os,subprocess
-          from pathlib import Path
-          for part in map(int,os.environ['REPAIR_PARTS'].split(',')):
-              rows=[]
-              for segment in range(1,5):
-                  folder=Path(f'software-part-{part}-{segment}')
-                  info=json.loads((folder/f'part-{part}-{segment}-info.json').read_text())
-                  frames=list(range((part-1)*48+(segment-1)*12,(part-1)*48+segment*12))
-                  assert [t['frame'] for t in info['timings']]==frames
-                  assert [b['frame'] for b in info['bounds']]==frames
-                  rows.append(info)
-              assert all(r['scene']==rows[0]['scene'] and r['samples']==rows[0]['samples'] and r['engine']==rows[0]['engine'] for r in rows)
-              info=dict(rows[0],timings=[t for r in rows for t in r['timings']],bounds=[b for r in rows for b in r['bounds']])
-              out=Path(f'recovered/software-part-{part}');out.mkdir(parents=True)
-              (out/f'part-{part}-info.json').write_text(json.dumps(info))
-              listing=Path(f'concat-{part}.txt')
-              listing.write_text(''.join(f"file 'software-part-{part}-{s}/part-{part}-{s}.mp4'\n" for s in range(1,5)))
-              movie=out/f'part-{part}.mp4'
-              subprocess.run(['ffmpeg','-v','error','-f','concat','-safe','0','-i',str(listing),'-c','copy','-movflags','+faststart',str(movie)],check=True)
-              probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-count_frames','-show_streams','-of','json',str(movie)]))['streams'][0]
-              assert (probe['width'],probe['height'],probe['nb_read_frames'],probe['avg_frame_rate'])==(1920,1080,'48','24/1')
-          PYRECOVER
+          python3 scripts/cine/recover-software-parts.py --parts "$REPAIR_PARTS" --output recovered
       - uses: actions/upload-artifact@v7
         with:
           name: software-part-${{ matrix.part }}
@@ -212,6 +202,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts/cine/recover-software-parts.py
+          sparse-checkout-cone-mode: false
       - uses: actions/download-artifact@v8
         with:
           pattern: software-part-*
@@ -227,7 +222,7 @@ jobs:
           [[ "$REPAIR_RUNS" =~ ^[0-9]+(,[0-9]+)*$ ]]
           IFS=',' read -ra RUNS <<< "$REPAIR_RUNS"
           for RUN in "${RUNS[@]}"; do
-            NAMES=$(gh api "repos/$GH_REPO/actions/runs/$RUN/artifacts?per_page=100" --jq '.artifacts[].name | select(test("^software-part-[0-9]+$"))')
+            NAMES=$(gh api "repos/$GH_REPO/actions/runs/$RUN/artifacts?per_page=100" --jq '.artifacts[].name | select(test("^software-part-[0-9]+(-[1-4])?$"))')
             test -n "$NAMES"
             while IFS= read -r NAME; do gh run download "$RUN" -n "$NAME" -D "$NAME"; done <<< "$NAMES"
           done
@@ -239,6 +234,7 @@ jobs:
             fi
             sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq ffmpeg
           fi
+          python3 scripts/cine/recover-software-parts.py
           mkdir delivery
           for PART in $(seq 1 12); do printf "file 'software-part-%s/part-%s.mp4'\n" "$PART" "$PART"; done > parts.txt
           ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-software-system-$VERSION.mp4
