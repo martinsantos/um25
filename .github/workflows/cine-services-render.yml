@@ -1,8 +1,5 @@
 name: Blender service cinema
 on:
-  push:
-    branches: [feature/isometric-redes-review]
-    paths: [.github/workflows/cine-services-render.yml]
   workflow_dispatch:
     inputs:
       mode:
@@ -15,7 +12,7 @@ on:
       engine:
         type: choice
         options: [eevee, cycles]
-        default: eevee
+        default: cycles
 permissions:
   contents: read
 concurrency:
@@ -52,12 +49,14 @@ jobs:
     timeout-minutes: 65
     strategy:
       fail-fast: false
-      max-parallel: 14
+      max-parallel: 20
       matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
+          sparse-checkout: scripts/cine/render-service-cinema-v1.py
+          sparse-checkout-cone-mode: false
       - name: Install verified official Blender
         run: |
           sudo apt-get update -qq
@@ -71,7 +70,7 @@ jobs:
       - name: Render authored discipline
         env:
           SERVICE: ${{ matrix.service }}
-          ENGINE: ${{ inputs.engine || 'eevee' }}
+          ENGINE: ${{ inputs.engine || 'cycles' }}
           MODE: ${{ inputs.mode || 'proof' }}
           START: ${{ matrix.start }}
           END: ${{ matrix.end }}
@@ -83,7 +82,7 @@ jobs:
           if [ "$MODE" = proof ]; then EXTRA=(--proof-frames 0,144,288); fi
           xvfb-run -a ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-service-cinema-v1.py -- --service "$SERVICE" --engine "$ENGINE" --samples "$SAMPLES" --start "$START" --end "$END" --output frames "${EXTRA[@]}"
       - uses: actions/upload-artifact@v7
-        if: (inputs.mode || 'proof') == 'proof'
+        if: always() && (inputs.mode || 'proof') == 'proof'
         with:
           name: service-proof-${{ matrix.service }}
           path: frames

@@ -4,8 +4,8 @@ const {chromium,webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright'
 const out=process.env.VISUAL_AUDIT_DIR;
 if(!out||!path.isAbsolute(out))throw Error('Absolute artifact directory required');
 fs.mkdirSync(out,{recursive:true});
-const routes=['/software',[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/104\/[^']+)'/g)][0][1]];
-const report={pages:[],findings:[]};
+const routes=['/software',...[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(match=>match[1])];
+const report={scope:'all-eight-service-films',pages:[],findings:[]};
 for(const [engine,type] of [['Chrome',chromium],['WebKit',webkit]]){
  const browser=await type.launch(engine==='Chrome'?{channel:'chrome',headless:true}:{headless:true});
  for(const width of [1440,1280,834,390,360]){

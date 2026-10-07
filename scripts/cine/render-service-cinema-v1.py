@@ -419,7 +419,7 @@ def render(args,s):
     scene=bpy.context.scene
     scene.render.engine='CYCLES' if args.engine=='cycles' else 'BLENDER_EEVEE_NEXT'
     scene.cycles.device='CPU';scene.cycles.samples=args.samples;scene.cycles.use_denoising=True
-    scene.cycles.use_adaptive_sampling=True;scene.cycles.adaptive_threshold=.025;scene.cycles.max_bounces=4
+    scene.cycles.use_adaptive_sampling=True;scene.cycles.adaptive_threshold=.035;scene.cycles.adaptive_min_samples=4;scene.cycles.max_bounces=4
     scene.eevee.taa_render_samples=args.samples;scene.eevee.use_raytracing=False
     scene.eevee.shadow_ray_count=3;scene.eevee.shadow_step_count=8
     scene.render.threads_mode='FIXED';scene.render.threads=4
@@ -507,7 +507,7 @@ def render(args,s):
     for frame in frames:
         t=frame/(FRAMES-1);size,angle,pan,lift=pose(frame);target=Vector((pan,1.30,1.05+lift))
         cam.location=target+Vector((24*math.cos(angle),24*math.sin(angle),22));cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler()
-        camera.ortho_scale=size;camera.shift_x=-.10
+        camera.ortho_scale=size*1.025;camera.shift_x=-.10;camera.shift_y=.01
         for obj,r in packets:
             visible=r['start']<=t<=r['end'];obj.hide_render=not visible
             obj.location=travel(r,smooth((t-r['start'])/(r['end']-r['start'])))

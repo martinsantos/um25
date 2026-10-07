@@ -128,9 +128,10 @@ test('a single unannotated project movie plays natively without track fetches, o
 });
 
 
-test.each([[834,'cine-software-system-v1.mp4'],[820,'cine-software-system-v1-sq.mp4'],[390,'cine-software-system-v1-sq.mp4']])('software at %spx preserves the intended banner framing',async(width,file)=>{
+test.each(['software','network','security','telecom','support','consulting','fire','power'].flatMap(scene=>[834,820,390].map(width=>[scene,width])))('%s cinema at %spx preserves the intended banner framing',async(scene,width)=>{
+ const file='cine-'+scene+'-system-v1'+(width<=820?'-sq':'')+'.mp4';
  const previous=window.innerWidth;Object.defineProperty(window,'innerWidth',{configurable:true,value:width});
- document.body.innerHTML='<div data-umc data-scenes="software-system-v1" data-annotations="none"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><button data-umc-motion></button></div>';
+ document.body.innerHTML='<div data-umc data-scenes="'+scene+'-system-v1" data-composition="discipline" data-annotations="none"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><button data-umc-motion></button></div>';
  const root=document.querySelector('[data-umc]'),stage=root.querySelector('.umc-stage');
  Object.defineProperty(stage,'clientWidth',{configurable:true,value:width>820?width*.75:Math.min(width,600)});Object.defineProperty(stage,'clientHeight',{configurable:true,value:width>820?756:Math.min(width,600)*27/38});
  const cleanup=banner(root);
