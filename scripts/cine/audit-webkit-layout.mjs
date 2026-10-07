@@ -4,7 +4,7 @@ const {webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const out=process.env.VISUAL_AUDIT_DIR;if(!out||!path.isAbsolute(out))throw Error('Absolute artifact directory required');
 fs.mkdirSync(out,{recursive:true});
 const browser=await webkit.launch({headless:true});
-const paths=process.env.VISUAL_AUDIT_HOME_ONLY==='1'?['/']:[...(process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?['/software']:['/','/constructoras','/software']),...(process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?['104']:['101','102','103','104','105','106','107','108']).map(code=>[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(m=>m[1]).find(route=>route.startsWith('/servicios/'+code+'/')))];
+const paths=process.env.VISUAL_AUDIT_REFINEMENT_ONLY==='1'?['/software',...['101','104','108'].map(code=>[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(m=>m[1]).find(route=>route.startsWith('/servicios/'+code+'/')))]:process.env.VISUAL_AUDIT_HOME_ONLY==='1'?['/']:[...(process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?['/software']:['/','/constructoras','/software']),...(process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?['104']:['101','102','103','104','105','106','107','108']).map(code=>[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(m=>m[1]).find(route=>route.startsWith('/servicios/'+code+'/')))];
 const report={engine:'WebKit on isolated Linux runner; not a physical Safari device',pages:[],findings:[]};
 for(const width of [1440,1280,834,390,360]){
  const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
@@ -29,11 +29,17 @@ for(const width of [1440,1280,834,390,360]){
 
    }
    const technical=story.locator('.svc-story__technical');if(await technical.count())await technical.evaluate(node=>node.open=true);
+   const inspectionStart=Date.now();
    await story.locator('[data-atlas-view="object"]').click();
+   const caption=await story.evaluate(root=>{const figure=root.querySelector('[data-network-journey]');if(!figure||root.querySelector('[data-atlas-network]')?.hidden)return null;const command=JSON.parse(figure.dataset.networkStory||'{}');const part=figure.querySelector(`[data-network-part="${command.part}"]`);return {actual:root.querySelector('[data-atlas-scene-title]')?.textContent,expected:part?.dataset.title};});
+   if(caption?.expected&&caption.actual!==caption.expected)report.findings.push({width,route,caption});
+   const hardware=story.locator('[data-atlas-network]:not([hidden])');
+   if(await hardware.count())await hardware.locator('svg').waitFor({state:'attached',timeout:5000});
+   const inspectionReadyMs=Date.now()-inspectionStart;
    await story.locator('[data-atlas-theater]').evaluate(node=>node.scrollIntoView({block:'center',behavior:'instant'}));
    await page.waitForTimeout(600);
    const state=await story.evaluate(root=>({code:root.dataset.activeService,projectView:root.querySelector('[data-atlas-project]')?.dataset.projectView,hardwareVisible:Boolean(root.querySelector('[data-atlas-network]')&&!root.querySelector('[data-atlas-network]').hidden),hardwareMounted:!!root.querySelector('[data-atlas-network] svg'),width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
-   report.pages.push({width,route,status:response.status(),state,errors});
+   report.pages.push({width,route,status:response.status(),state,inspectionReadyMs,caption,errors});
    if(response.status()!==200||state.scrollWidth>width+2||(state.projectView!==undefined&&state.projectView!=='1')||(state.hardwareVisible&&!state.hardwareMounted)||errors.length)report.findings.push({width,route,state,errors});
    await page.screenshot({path:path.join(out,`webkit-${width}-${index}-detail.png`)});
   }catch(error){report.findings.push({width,route,error:error.message});}

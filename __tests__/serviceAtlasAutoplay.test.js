@@ -180,3 +180,18 @@ test('a software architecture loops without retaining an unrelated physical proj
   expect(root.dataset.storyScene).toBe('0');expect(root.dataset.storyState).toBe('playing');expect(root.dataset.disciplineActive).toBe('true');
  }
 });
+
+test('an equipment inspection describes the selected service before its lazy geometry arrives',async()=>{
+ const root=fixture(),network=root.querySelector('[data-network-journey]');
+ network.insertAdjacentHTML('beforeend','<h3 data-network-title>Texto anterior de Redes</h3><p data-network-copy>Descripción anterior de Redes</p>');
+ for(const equipment of NETWORK_EQUIPMENT){const button=network.querySelector('[data-network-part="'+equipment.id+'"]');Object.assign(button.dataset,equipment);}
+ bindServiceAtlas(root);see();await settle();
+ root.querySelector('[data-atlas-service="108"]').click();
+ const ups=NETWORK_EQUIPMENT.find(part=>part.id==='ups');
+ for(const [view,title,copy] of [['object',ups.title,ups.copy],['layers',ups.construction,ups.inside],['detail',ups.detail,ups.closeup]]){
+  root.querySelector('[data-atlas-view="'+view+'"]').click();await settle();
+  expect(root.querySelector('[data-atlas-scene-title]').textContent).toBe(title);
+  expect(root.querySelector('[data-atlas-context]').textContent).toBe(copy);
+  expect(network.querySelector('svg')).toBeNull();
+ }
+});

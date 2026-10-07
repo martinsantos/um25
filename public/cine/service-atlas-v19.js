@@ -240,8 +240,11 @@ export function bindServiceAtlas(root) {
         requestNetwork({code:active.dataset.atlasService,part,index,open:narration?.open??index>0});
         if(partName)partName.textContent=networkFigure.querySelector(`[data-network-part="${part}"]`)?.textContent.trim()||'';
         if((manualPart||manual)&&!(project&&view==='system')){
-          if(sceneTitle)sceneTitle.textContent=networkFigure.querySelector('[data-network-title]')?.textContent||active.dataset.name;
-          if(illustrationCopy)illustrationCopy.textContent=networkFigure.querySelector('[data-network-copy]')?.textContent||active.dataset.copy;
+          // Equipment metadata is already in the document. A lazy SVG fetch
+          // must never expose the previous service's caption while it loads.
+          const selected=networkFigure.querySelector(`[data-network-part="${part}"]`)?.dataset;
+          if(sceneTitle)sceneTitle.textContent=selected?.[index===2?'construction':index===3?'detail':'title']||active.dataset.name;
+          if(illustrationCopy)illustrationCopy.textContent=selected?.[index===2?'inside':index===3?'closeup':'copy']||active.dataset.copy;
         }
       }else if(active.dataset.equipmentKit)networkFigure?.dispatchEvent(new CustomEvent('um:network-service',{detail:{code:active.dataset.equipmentKit}}));
       else networkFigure?.dispatchEvent(new CustomEvent('um:network-view',{detail:{index:view==='system'?0:1}}));
