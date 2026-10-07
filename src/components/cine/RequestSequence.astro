@@ -13,7 +13,7 @@ import {REQUEST_SEQUENCE} from '../../data/cine/requestSequence';
   <figcaption data-request-copy>{REQUEST_SEQUENCE[0].copy}</figcaption>
  </figure>
  <ol class="request-story__progress" aria-label="Etapas del recorrido">{['Proyecto','Red','Video','Detección','Respaldo','Software','Soporte','Enlace'].map((label,i)=><li data-request-milestone data-state={i===0?'current':'next'}><span>{label}</span></li>)}</ol>
- <footer><a href="/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces">Infraestructura de redes ↗</a><a href="/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp">Software a medida ↗</a></footer>
+
  <details class="request-story__transcript"><summary>Leer la explicación completa</summary><ol>{REQUEST_SEQUENCE.map(step=><li><strong>{step.title}</strong> {step.copy}</li>)}</ol></details>
 </article>
 <script src="/cine/request-sequence-v3.js" type="module" async is:inline />

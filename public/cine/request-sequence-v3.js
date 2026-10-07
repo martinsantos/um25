@@ -35,7 +35,6 @@ export function bindRequestSequence(root){
   const target=geometry.targets[step];
   focus?.setAttribute('transform',`translate(${target[0]} ${target[1]})`);
   packet.style.opacity=step===0?'0':'1';
-  root.style.setProperty('--operation-progress',String(state.progress));
   const center=Math.max(320,Math.min(880,state.center[0]));
   const vertical=Math.max(245,Math.min(465,state.center[1]));
   camera.setAttribute('transform',mobile?`translate(${(320-center).toFixed(2)} ${(260-vertical).toFixed(2)})`:'translate(0 0)');
