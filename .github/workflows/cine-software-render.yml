@@ -16,10 +16,15 @@ name: Blender software architecture
           - v1
           - v2
         default: v2
+  push:
+    branches:
+      - feature/isometric-redes-review
+    paths:
+      - .github/workflows/cine-software-render.yml
 permissions:
   contents: read
 concurrency:
-  group: blender-software-${{ github.ref }}-${{ inputs.version || 'v2' }}-${{ inputs.mode }}
+  group: blender-software-${{ github.ref }}-${{ inputs.version || 'v2' }}-${{ inputs.mode || 'proof' }}
   cancel-in-progress: false
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -32,7 +37,7 @@ jobs:
     steps:
       - id: plan
         env:
-          MODE: ${{ inputs.mode }}
+          MODE: ${{ inputs.mode || 'proof' }}
         run: |
           python3 - <<'PYPLAN'
           import json,os
@@ -73,7 +78,7 @@ jobs:
           python3 scripts/cine/render-software-system-$VERSION.py --validate-only
           ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-$VERSION.py -- --samples 24 --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
       - uses: actions/upload-artifact@v7
-        if: inputs.mode == 'proof'
+        if: (inputs.mode || 'proof') == 'proof'
         with:
           name: software-proof-${{ matrix.part }}
           path: frames
