@@ -233,10 +233,12 @@ jobs:
           done
       - name: Assemble and verify cinema
         run: |
-          if ! sudo timeout 120 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update -qq; then
-            echo "Package index refresh timed out; using runner cached signed indexes."
+          if ! command -v ffmpeg >/dev/null; then
+            if ! sudo timeout 120 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update -qq; then
+              echo "Package index refresh timed out; using runner cached signed indexes."
+            fi
+            sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq ffmpeg
           fi
-          sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq ffmpeg
           mkdir delivery
           for PART in $(seq 1 12); do printf "file 'software-part-%s/part-%s.mp4'\n" "$PART" "$PART"; done > parts.txt
           ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-software-system-$VERSION.mp4
