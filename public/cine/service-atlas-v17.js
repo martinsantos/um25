@@ -115,7 +115,7 @@ export function bindServiceAtlas(root) {
       const paths=project.querySelectorAll(code==='106'?'[data-project-route] path':`[data-project-route="${code}"] path`);
       paths.forEach((path,i)=>{
         if(code!=='106'){
-          const signal=document.createElementNS(svgNS,'path');signal.setAttribute('d',path.getAttribute('d'));signal.setAttribute('pathLength','100');signal.setAttribute('class','sp-signal');signal.style.animationDelay=`${-i*.23}s`;signalLayer.append(signal);
+          const signal=document.createElementNS(svgNS,'path');signal.setAttribute('d',path.getAttribute('d'));signal.setAttribute('pathLength','100');signal.setAttribute('class','sp-signal');signal.setAttribute('vector-effect','non-scaling-stroke');signal.style.animationDelay=`${-i*.23}s`;signalLayer.append(signal);
         }
         const coordinates=path.getAttribute('d').match(/-?\d+(?:\.\d+)?/g)?.map(Number)||[];
         if(i===0&&state&&code!=='106'){
