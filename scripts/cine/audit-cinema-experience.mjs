@@ -223,8 +223,10 @@ const firstChapter=JSON.parse(await live.locator('[data-atlas-narrative]').textC
 const samples=Math.ceil(firstChapter.scenes.reduce((total,scene)=>total+scene.duration,0)/2000)+2;
 for(let sample=0;sample<samples;sample++){
  await delay(2000);
- report.liveOperation.push(await live.locator('[data-service-atlas]').evaluate(root=>({code:root.dataset.activeService,phase:root.dataset.disciplineActive==='true'?'1':root.querySelector('[data-atlas-project]')?.dataset.operationPhase,state:root.dataset.storyState,signals:[...root.querySelectorAll(root.dataset.disciplineActive==='true'?'[data-discipline-drawing="'+root.dataset.activeService+'"] [data-discipline-route][data-current="true"] .ds-packet':'.sp-signal')].slice(0,2).map(node=>({offset:getComputedStyle(node).strokeDashoffset,animation:getComputedStyle(node).animationName,playState:getComputedStyle(node).animationPlayState}))})));
+ report.liveOperation.push(await live.locator('[data-service-atlas]').evaluate(root=>({door:(()=>{const node=root.querySelector('[data-discipline-drawing="101"] .ds-door');if(!node||root.dataset.activeService!=='101')return null;const matrix=new DOMMatrix(getComputedStyle(node).transform);return {c:matrix.c,d:matrix.d,angle:getComputedStyle(node).getPropertyValue('--um-ds-door-angle')};})(),code:root.dataset.activeService,phase:root.dataset.disciplineActive==='true'?'1':root.querySelector('[data-atlas-project]')?.dataset.operationPhase,state:root.dataset.storyState,signals:[...root.querySelectorAll(root.dataset.disciplineActive==='true'?'[data-discipline-drawing="'+root.dataset.activeService+'"] [data-discipline-route][data-current="true"] .ds-packet':'.sp-signal')].slice(0,2).map(node=>({offset:getComputedStyle(node).strokeDashoffset,animation:getComputedStyle(node).animationName,playState:getComputedStyle(node).animationPlayState}))})));
 }
+const doors=report.liveOperation.flatMap(s=>s.door?[s.door]:[]);
+if(doors.some(door=>Math.abs(door.c)>.0001||Math.abs(door.d-1)>.0001))finding('/','Cabinet hinge changes its vertical axis during opening',doors);
 const nativeCodes=new Set(report.liveOperation.map(s=>s.code));
 if(nativeCodes.size<2)finding('/','Native operation does not reach another service without input',report.liveOperation);
 const transported=report.liveOperation.filter(s=>s.phase==='1').flatMap(s=>s.signals);
