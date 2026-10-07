@@ -4,17 +4,27 @@ on:
     inputs:
       mode:
         type: choice
-        options: [proof, full]
+        options: [proof, full, repair, assemble]
         default: proof
       services:
         description: 'Comma-separated service codes, or all'
         default: all
+      repairs:
+        description: 'Exact missing fragments, for example 102:11,107:3'
+        default: ''
+      source_run:
+        description: 'Original full render, for assembly after recovery'
+        default: ''
+      repair_runs:
+        description: 'Comma-separated successful repair runs'
+        default: ''
       engine:
         type: choice
         options: [eevee, cycles]
         default: cycles
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: blender-services-${{ github.ref }}-${{ inputs.mode || 'proof' }}
   cancel-in-progress: false
@@ -32,6 +42,7 @@ jobs:
         env:
           MODE: ${{ inputs.mode || 'proof' }}
           SERVICES: ${{ inputs.services || 'all' }}
+          REPAIRS: ${{ inputs.repairs }}
         run: |
           python3 - <<'PY'
           import json,os
@@ -39,11 +50,17 @@ jobs:
           selected=codes if os.environ['SERVICES']=='all' else os.environ['SERVICES'].split(',')
           assert selected and set(selected)<=set(codes) and len(selected)==len(set(selected))
           rows=[dict(service=s,part=1,start=0,end=0) for s in selected] if os.environ['MODE']=='proof' else [dict(service=s,part=i+1,start=i*48,end=i*48+47) for s in selected for i in range(12)]
+          if os.environ['MODE']=='repair':
+              pairs=[item.split(':') for item in os.environ['REPAIRS'].split(',')]
+              assert pairs and all(len(pair)==2 and pair[0] in codes and pair[1].isdigit() and 1<=int(pair[1])<=12 for pair in pairs)
+              assert len({tuple(pair) for pair in pairs})==len(pairs)
+              rows=[dict(service=code,part=int(part),start=(int(part)-1)*48,end=int(part)*48-1) for code,part in pairs]
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:
               out.write('matrix='+json.dumps({'include':rows})+'\n')
               out.write('services='+json.dumps(selected)+'\n')
           PY
   render:
+    if: inputs.mode != 'assemble'
     needs: plan
     runs-on: ubuntu-24.04
     timeout-minutes: 65
@@ -62,7 +79,7 @@ jobs:
       - name: Install verified official Blender
         timeout-minutes: 15
         run: |
-          sudo apt-get update -qq
+          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update -qq
           sudo apt-get install -y -qq libgl1 libegl1 libxrender1 libxi6 xvfb ffmpeg
           curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender-4.5.3-linux-x64.tar.xz
           curl --retry 3 --connect-timeout 15 --max-time 60 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256 -o blender.sha256
@@ -92,12 +109,12 @@ jobs:
           path: frames
           retention-days: 3
       - name: Encode recoverable part
-        if: inputs.mode == 'full'
+        if: inputs.mode == 'full' || inputs.mode == 'repair'
         run: |
           cp frames/render-info.json part-${{ matrix.part }}-info.json
           ffmpeg -v error -framerate 24 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 48 -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r 24 -g 48 -an -movflags +faststart part-${{ matrix.part }}.mp4
       - uses: actions/upload-artifact@v7
-        if: inputs.mode == 'full'
+        if: inputs.mode == 'full' || inputs.mode == 'repair'
         with:
           name: service-${{ matrix.service }}-part-${{ matrix.part }}
           path: |
@@ -106,9 +123,9 @@ jobs:
           retention-days: 3
   assemble:
     needs: [plan, render]
-    if: inputs.mode == 'full'
+    if: always() && needs.plan.result == 'success' && ((inputs.mode == 'full' && needs.render.result == 'success') || inputs.mode == 'assemble')
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -117,11 +134,29 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           pattern: service-${{ matrix.service }}-part-*
+          run-id: ${{ inputs.source_run || github.run_id }}
+          github-token: ${{ github.token }}
+      - name: Restore only the recovered fragments
+        if: inputs.mode == 'assemble' && inputs.repair_runs != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          REPAIR_RUNS: ${{ inputs.repair_runs }}
+        run: |
+          [[ "$REPAIR_RUNS" =~ ^[0-9]+(,[0-9]+)*$ ]]
+          IFS=',' read -ra RUNS <<< "$REPAIR_RUNS"
+          for RUN in "${RUNS[@]}"; do
+            NAMES=$(gh api "repos/$GH_REPO/actions/runs/$RUN/artifacts?per_page=100" --jq '.artifacts[].name | select(test("^service-[0-9]+-part-[0-9]+$"))')
+            test -n "$NAMES"
+            while IFS= read -r NAME; do gh run download "$RUN" -n "$NAME" -D "$NAME"; done <<< "$NAMES"
+          done
       - name: Assemble, derive mobile edition and validate
         env:
           SERVICE: ${{ matrix.service }}
+          SOURCE_RUN: ${{ inputs.source_run || github.run_id }}
+          REPAIR_RUNS: ${{ inputs.repair_runs }}
         run: |
-          sudo apt-get update -qq
+          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update -qq
           sudo apt-get install -y -qq ffmpeg
           mkdir delivery
           for PART in $(seq 1 12); do printf "file 'service-%s-part-%s/part-%s.mp4'\n" "$SERVICE" "$PART" "$PART"; done > parts.txt
@@ -145,6 +180,8 @@ jobs:
               assert abs(float(v['duration'])-24)<.01
           infos=[json.loads(Path(f"service-{os.environ['SERVICE']}-part-{i}/part-{i}-info.json").read_text()) for i in range(1,13)]
           info=infos[0]
+          assert all(item['service']==os.environ['SERVICE'] and item['scene']==info['scene'] and item['engine']==info['engine'] and item['samples']==info['samples'] for item in infos)
+          info['sourceRuns']=[os.environ['SOURCE_RUN']]+[r for r in os.environ.get('REPAIR_RUNS','').split(',') if r]
           info['timings']=[t for item in infos for t in item['timings']]
           info['bounds']=[b for item in infos for b in item['bounds']]
           assert [t['frame'] for t in info['timings']]==list(range(576))
