@@ -22,6 +22,14 @@ name: Blender software architecture
         description: Comma-separated missing part numbers (1–12)
         type: string
         default: ''
+      repair_segments:
+        description: Recovery slices (1–4); empty renders all slices of each selected part
+        type: string
+        default: ''
+      slice_source_run:
+        description: Previous sliced recovery with completed artifacts to preserve
+        type: string
+        default: ''
       source_run:
         description: Original full render run for assembly
         type: string
@@ -50,6 +58,7 @@ jobs:
         env:
           MODE: ${{ inputs.mode || 'proof' }}
           REPAIR_PARTS: ${{ inputs.repair_parts }}
+          REPAIR_SEGMENTS: ${{ inputs.repair_segments }}
         run: |
           python3 - <<'PYPLAN'
           import json,os
@@ -58,7 +67,9 @@ jobs:
           if os.environ['MODE']=='repair':
               selected=[int(n) for n in os.environ['REPAIR_PARTS'].split(',')]
               assert selected and len(selected)==len(set(selected)) and all(1<=n<=12 for n in selected)
-              rows=[dict(part=n,segment=k+1,start=(n-1)*48+k*12,end=(n-1)*48+k*12+11,frames=12) for n in selected for k in range(4)]
+              segments=[int(n) for n in os.environ.get('REPAIR_SEGMENTS','').split(',') if n] or [1,2,3,4]
+              assert len(segments)==len(set(segments)) and all(1<=n<=4 for n in segments)
+              rows=[dict(part=n,segment=k,start=(n-1)*48+(k-1)*12,end=(n-1)*48+k*12-1,frames=12) for n in selected for k in segments]
           if os.environ['MODE']=='assemble':rows=[]
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('matrix='+json.dumps({'include':rows})+'\n')
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('recovery='+json.dumps({'part':selected})+'\n')
@@ -84,10 +95,19 @@ jobs:
           sparse-checkout-cone-mode: false
       - name: Install verified official Blender
         run: |
-          if ! sudo timeout 120 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update -qq; then
-            echo "Package index refresh timed out; using runner cached signed indexes."
+          MISSING=()
+          for PACKAGE in libgl1 libegl1 libxrender1 libxi6 ffmpeg; do
+            if [ "$(dpkg-query -W -f='${db:Status-Status}' "$PACKAGE" 2>/dev/null)" != installed ]; then MISSING+=("$PACKAGE"); fi
+          done
+          if [ "${#MISSING[@]}" -gt 0 ]; then
+            echo "Missing render dependencies: ${MISSING[*]}"
+            if ! sudo timeout 120 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update -qq; then
+              echo "Package index refresh timed out; using runner cached signed indexes."
+            fi
+            sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq "${MISSING[@]}"
+          else
+            echo "Render dependencies already installed; no package upgrades required."
           fi
-          sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq libgl1 libegl1 libxrender1 libxi6 ffmpeg
           curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender-4.5.3-linux-x64.tar.xz
           curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256 -o blender.sha256
           awk '$2 == "blender-4.5.3-linux-x64.tar.xz" {print}' blender.sha256 > blender-selected.sha256
@@ -142,6 +162,12 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.recovery) }}
     steps:
+      - uses: actions/download-artifact@v8
+        if: inputs.slice_source_run != ''
+        with:
+          pattern: software-part-${{ matrix.part }}-*
+          run-id: ${{ inputs.slice_source_run }}
+          github-token: ${{ github.token }}
       - uses: actions/download-artifact@v8
         with:
           pattern: software-part-${{ matrix.part }}-*
