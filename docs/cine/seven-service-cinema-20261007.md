@@ -2,7 +2,7 @@
 
 ## Alcance
 
-Completar las siete disciplinas que todavía usaban películas de sector. La película de Software ya está integrada. La gran película de la home y los proyectos de sector conservan su función. Cada servicio combina cine arriba y explicación isométrica autónoma abajo.
+Las siete disciplinas que usaban películas de sector ya tienen su película propia en la preview. Software conserva su película específica mientras se termina su nueva edición de interfaz y arquitectura. La gran película de la home y los proyectos de sector conservan su función. Cada servicio combina cine arriba y explicación isométrica autónoma abajo.
 
 | Servicio | Acción y elementos propios |
 | --- | --- |
@@ -33,3 +33,9 @@ La integración usa el mismo encuadre para el póster y la película. Los equipo
 Antes de incorporar los archivos: 67 suites, 572 pruebas, lint, tipos, contrato CSS y build aprobados. La revisión final debe comprobar los ocho recorridos completos en Chrome nativo, la explicación automática y la composición en Chrome/WebKit a 1440, 1280, 834, 390 y 360 px.
 
 Estado de producción: **sin despliegue**. Las pruebas artísticas y funcionales no equivalen por sí solas a una declaración de perfección o GO general.
+
+## Entrega integrada
+
+El [ensamblado 37675998479](https://github.com/martinsantos/um25/actions/runs/37675998479) reúne los 84 fragmentos originales y recuperados. Se importaron las siete películas, cada una con 576 cuadros únicos de 24 segundos, ancho Full HD, edición cuadrada y cuatro pósters. Los 42 archivos suman 64.408.960 bytes; cada página descarga sólo su edición. El importador verificó SHA-256, duración, formato y los 576 encuadres antes de escribir el registro.
+
+Después de importarlas, `npm run check` aprobó lint, tipos, contrato CSS, 67 suites / 572 pruebas y build. La preview del puerto 4326 se reinició sobre ese build y Redes sirve `network-system-v1`. La revisión nativa de navegador de esta nueva entrega sigue pendiente; no debe confundirse con las revisiones de versiones anteriores.

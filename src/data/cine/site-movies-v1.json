@@ -279,6 +279,147 @@
     }
   },
   "services": {
+    "101": {
+      "scene": "network-system-v1",
+      "status": "ready",
+      "engine": "Blender 4.5.3 LTS / Cycles",
+      "samples": 24,
+      "duration": 24,
+      "fps": 24,
+      "frames": 576,
+      "resolution": [
+        1920,
+        1080
+      ],
+      "camera": "one continuous 24 second orbit; matching loop endpoints",
+      "run": "https://github.com/martinsantos/um25/actions/runs/37675998479",
+      "assets": [
+        {
+          "file": "cine-network-system-v1.mp4",
+          "bytes": 7527264,
+          "sha256": "865b16c5c246bb6f36d5f45614f09b891cfc66065c9dd232ddb63e565730b83d"
+        },
+        {
+          "file": "cine-network-system-v1-sq.mp4",
+          "bytes": 3013657,
+          "sha256": "431ce5c1cae7771b5acaa91464cf89be939a5a51162d9472862d9b6d0a1dc069"
+        },
+        {
+          "file": "cine-network-system-v1-poster.jpg",
+          "bytes": 96633,
+          "sha256": "10f1fb6cb81e9886622f3bdf8a7268ff4378c509b054c0700e98a52e5bf25101"
+        },
+        {
+          "file": "cine-network-system-v1-poster.avif",
+          "bytes": 19892,
+          "sha256": "ff4d9c3dbcf3fef4e0c3eb0903475e708f670f1b76ad351eb80c2a04db370e56"
+        },
+        {
+          "file": "cine-network-system-v1-poster-sq.jpg",
+          "bytes": 60737,
+          "sha256": "d30abee8fad9ebf6156e8b103e79dd7b3d0a7dca74b0905e6659a09754941886"
+        },
+        {
+          "file": "cine-network-system-v1-poster-sq.avif",
+          "bytes": 12874,
+          "sha256": "216f980a2153248ee8a0f3ec6e9d33bed88a9475f0d97c409c33f8b39b46e5c6"
+        }
+      ]
+    },
+    "102": {
+      "scene": "security-system-v1",
+      "status": "ready",
+      "engine": "Blender 4.5.3 LTS / Cycles",
+      "samples": 24,
+      "duration": 24,
+      "fps": 24,
+      "frames": 576,
+      "resolution": [
+        1920,
+        1080
+      ],
+      "camera": "one continuous 24 second orbit; matching loop endpoints",
+      "run": "https://github.com/martinsantos/um25/actions/runs/37675998479",
+      "assets": [
+        {
+          "file": "cine-security-system-v1.mp4",
+          "bytes": 6182995,
+          "sha256": "bb06201bb67007ad3de9afe2da954ef45d41121997a6d73bd9623a51a4ef2493"
+        },
+        {
+          "file": "cine-security-system-v1-sq.mp4",
+          "bytes": 2477730,
+          "sha256": "4e0a54aaad73af2467dff0664d9cb1df56d82ac5a66d1e6529fb623d07eead46"
+        },
+        {
+          "file": "cine-security-system-v1-poster.jpg",
+          "bytes": 83845,
+          "sha256": "5da921c2046431ddbaf6ad009f62e7c3680ed7d39cc9939ddd71d9eb1666f345"
+        },
+        {
+          "file": "cine-security-system-v1-poster.avif",
+          "bytes": 14966,
+          "sha256": "cd61e99bb88a4e5c50d769ff8002c1f334c1d67b6770dbe3784934f076b17776"
+        },
+        {
+          "file": "cine-security-system-v1-poster-sq.jpg",
+          "bytes": 53478,
+          "sha256": "010eaa7cef2230babc54ffb03f09da2462e1e662bc4d14eb6946eea4a96c3cfd"
+        },
+        {
+          "file": "cine-security-system-v1-poster-sq.avif",
+          "bytes": 10079,
+          "sha256": "84f0c67d23bd20562537f0b4f5a657fcff6d51e6c9fc35e4d9b8f8bab9a8dba9"
+        }
+      ]
+    },
+    "103": {
+      "scene": "telecom-system-v1",
+      "status": "ready",
+      "engine": "Blender 4.5.3 LTS / Cycles",
+      "samples": 24,
+      "duration": 24,
+      "fps": 24,
+      "frames": 576,
+      "resolution": [
+        1920,
+        1080
+      ],
+      "camera": "one continuous 24 second orbit; matching loop endpoints",
+      "run": "https://github.com/martinsantos/um25/actions/runs/37675998479",
+      "assets": [
+        {
+          "file": "cine-telecom-system-v1.mp4",
+          "bytes": 6286340,
+          "sha256": "00119e3318f26c3fa49e0906abf1f792e689f2fdd6f7ebff633c8e366f5e875f"
+        },
+        {
+          "file": "cine-telecom-system-v1-sq.mp4",
+          "bytes": 2422130,
+          "sha256": "66c55a49289a9ed91c50207e52608c980a7e793fa28568ec8a31ff67c2c5821a"
+        },
+        {
+          "file": "cine-telecom-system-v1-poster.jpg",
+          "bytes": 78806,
+          "sha256": "966875480c6ef889718b649e63db5ea561c1b34fd9e98037bcdf1d9a3859115f"
+        },
+        {
+          "file": "cine-telecom-system-v1-poster.avif",
+          "bytes": 15112,
+          "sha256": "11f9fd285f273dc2dd03e43f4425d26fd6ed8380cf8ae46e8fdf671683c33bcd"
+        },
+        {
+          "file": "cine-telecom-system-v1-poster-sq.jpg",
+          "bytes": 50393,
+          "sha256": "10bc5e8c400b127cc1368188a0917424a106b5cd2020653b0bd47a90f96bb806"
+        },
+        {
+          "file": "cine-telecom-system-v1-poster-sq.avif",
+          "bytes": 10249,
+          "sha256": "219a37b7c2b5b86345c2ee524cfe9129aabcf232c6fe4849be0ceff1eb5a3a1e"
+        }
+      ]
+    },
     "104": {
       "scene": "software-system-v1",
       "status": "ready",
@@ -322,6 +463,194 @@
           "file": "cine-software-system-v1-poster-sq.avif",
           "bytes": 25138,
           "sha256": "3664d35c1aa2cb497c9ddb99f7081e0d0ce12cea25dd0908f381da064b24c0e4"
+        }
+      ]
+    },
+    "105": {
+      "scene": "support-system-v1",
+      "status": "ready",
+      "engine": "Blender 4.5.3 LTS / Cycles",
+      "samples": 24,
+      "duration": 24,
+      "fps": 24,
+      "frames": 576,
+      "resolution": [
+        1920,
+        1080
+      ],
+      "camera": "one continuous 24 second orbit; matching loop endpoints",
+      "run": "https://github.com/martinsantos/um25/actions/runs/37675998479",
+      "assets": [
+        {
+          "file": "cine-support-system-v1.mp4",
+          "bytes": 6723814,
+          "sha256": "1485d86ca2661eaf1facb4bb55c1ea7df61881b2dd688d2d3c0390f8c088dc70"
+        },
+        {
+          "file": "cine-support-system-v1-sq.mp4",
+          "bytes": 2663406,
+          "sha256": "a8ee9d9b6d302526cb11817234274cdba583487dc56664d58d20cf7a551fe871"
+        },
+        {
+          "file": "cine-support-system-v1-poster.jpg",
+          "bytes": 94886,
+          "sha256": "209b241d4de6bebea398193cff357e10c78d8c921605ef4108d69485e6140da1"
+        },
+        {
+          "file": "cine-support-system-v1-poster.avif",
+          "bytes": 17230,
+          "sha256": "da083ffe49183f79d3f3c9df73f3a2055667682febbb4807ed72975c4c0a6913"
+        },
+        {
+          "file": "cine-support-system-v1-poster-sq.jpg",
+          "bytes": 60035,
+          "sha256": "0b271f35537caec97b215db91db8bd43667409363415cbb42c14d4c617c7724d"
+        },
+        {
+          "file": "cine-support-system-v1-poster-sq.avif",
+          "bytes": 11621,
+          "sha256": "679c71597cb003e06e04b997ae7de4fbb6ffe8fb861371c93998e5eb3d41a3c5"
+        }
+      ]
+    },
+    "106": {
+      "scene": "consulting-system-v1",
+      "status": "ready",
+      "engine": "Blender 4.5.3 LTS / Cycles",
+      "samples": 24,
+      "duration": 24,
+      "fps": 24,
+      "frames": 576,
+      "resolution": [
+        1920,
+        1080
+      ],
+      "camera": "one continuous 24 second orbit; matching loop endpoints",
+      "run": "https://github.com/martinsantos/um25/actions/runs/37675998479",
+      "assets": [
+        {
+          "file": "cine-consulting-system-v1.mp4",
+          "bytes": 5959063,
+          "sha256": "8e5da431a2a0e47e44c080ed6251995bfb6296bad6ed09f553a6d4ffcafe3b36"
+        },
+        {
+          "file": "cine-consulting-system-v1-sq.mp4",
+          "bytes": 2348316,
+          "sha256": "10e6a17353f95640173a72fc5950d9f069bde8b5c67bdc654f0717fbddde5137"
+        },
+        {
+          "file": "cine-consulting-system-v1-poster.jpg",
+          "bytes": 89533,
+          "sha256": "515592feee070d8fb8b152588b9e588c4491a72f68dd013bd55c9dce679c8edb"
+        },
+        {
+          "file": "cine-consulting-system-v1-poster.avif",
+          "bytes": 14343,
+          "sha256": "6eb67df618ee3ca49c9ed8222570718679eddd85ab681c2406dde9668d4dec2c"
+        },
+        {
+          "file": "cine-consulting-system-v1-poster-sq.jpg",
+          "bytes": 57794,
+          "sha256": "64fd95f2eba98ac9c7c0e7a47fe9e52eb6546b1b059b7932abb73e4e937abff4"
+        },
+        {
+          "file": "cine-consulting-system-v1-poster-sq.avif",
+          "bytes": 10007,
+          "sha256": "5fa48a06b13cfddbc96d25db4c7e52e331b462208c81b481d2f3edbb402eaf47"
+        }
+      ]
+    },
+    "107": {
+      "scene": "fire-system-v1",
+      "status": "ready",
+      "engine": "Blender 4.5.3 LTS / Cycles",
+      "samples": 24,
+      "duration": 24,
+      "fps": 24,
+      "frames": 576,
+      "resolution": [
+        1920,
+        1080
+      ],
+      "camera": "one continuous 24 second orbit; matching loop endpoints",
+      "run": "https://github.com/martinsantos/um25/actions/runs/37675998479",
+      "assets": [
+        {
+          "file": "cine-fire-system-v1.mp4",
+          "bytes": 5931047,
+          "sha256": "ecee50ea99da71da06867df15e33134eb84423ab7aa95369af559211cb81b924"
+        },
+        {
+          "file": "cine-fire-system-v1-sq.mp4",
+          "bytes": 2391199,
+          "sha256": "623fa6fe9874155b097a01c245222978c886dc905ec7de131fad148817fe435b"
+        },
+        {
+          "file": "cine-fire-system-v1-poster.jpg",
+          "bytes": 84120,
+          "sha256": "b3f1618eb9b73e41010e21750caa7c4f235e91776f065c89c80e68345b2c1546"
+        },
+        {
+          "file": "cine-fire-system-v1-poster.avif",
+          "bytes": 14409,
+          "sha256": "87154f2b671a7fa009b99b085d434bfc0d0196700f988c25ab1aa2a32411fc52"
+        },
+        {
+          "file": "cine-fire-system-v1-poster-sq.jpg",
+          "bytes": 54381,
+          "sha256": "9589140b6b237c37c3b415b7cdedd8bb213f8062873cfd81d7517cb37733e423"
+        },
+        {
+          "file": "cine-fire-system-v1-poster-sq.avif",
+          "bytes": 9871,
+          "sha256": "c973ea7d784258f3529dd996d27e32476be6caff975d44e6b457c4040aad7938"
+        }
+      ]
+    },
+    "108": {
+      "scene": "power-system-v1",
+      "status": "ready",
+      "engine": "Blender 4.5.3 LTS / Cycles",
+      "samples": 24,
+      "duration": 24,
+      "fps": 24,
+      "frames": 576,
+      "resolution": [
+        1920,
+        1080
+      ],
+      "camera": "one continuous 24 second orbit; matching loop endpoints",
+      "run": "https://github.com/martinsantos/um25/actions/runs/37675998479",
+      "assets": [
+        {
+          "file": "cine-power-system-v1.mp4",
+          "bytes": 6664225,
+          "sha256": "aaa28f29e088043927da54274033d97282977c428c3a23fdd9b0c3adb8c0a6d7"
+        },
+        {
+          "file": "cine-power-system-v1-sq.mp4",
+          "bytes": 2618175,
+          "sha256": "701f7c52ada7359816bf64abcbf49d108565b793ac82247c064c84a89d8f2070"
+        },
+        {
+          "file": "cine-power-system-v1-poster.jpg",
+          "bytes": 88925,
+          "sha256": "bfbdb784b134e72501b4809a43201d41114258fcffd0c31b55791b6a1d5f9019"
+        },
+        {
+          "file": "cine-power-system-v1-poster.avif",
+          "bytes": 17496,
+          "sha256": "b31d19b94b1beaf43ac34ac9c6900f5c3175b3675dd6a59a516a0ff0a90e83a8"
+        },
+        {
+          "file": "cine-power-system-v1-poster-sq.jpg",
+          "bytes": 56096,
+          "sha256": "42a38a6366f1c7c2874dabdfeac188202adc7defe026b1fa5791df1965107f1d"
+        },
+        {
+          "file": "cine-power-system-v1-poster-sq.avif",
+          "bytes": 11788,
+          "sha256": "985da4cd6cfa89b2945d48469c4a79618addbed2257581478a2fd38975dc6446"
         }
       ]
     }
