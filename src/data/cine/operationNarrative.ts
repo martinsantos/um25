@@ -11,16 +11,23 @@ const operations:Record<string,Operation>={
  '105':{nodes:['Señal o incidente','Diagnóstico y prioridad','Resolución y registro'],steps:[['Una señal se convierte en un caso.','La mesa de ayuda recibe el incidente con el equipo, el sitio y la operación afectados.'],['El caso llega al responsable adecuado.','Diagnóstico y prioridad organizan la intervención y el seguimiento de la respuesta.'],['La intervención queda documentada.','Última Milla acompaña la resolución y el mantenimiento. El registro conserva lo aprendido para la próxima intervención.']]},
  '106':{nodes:['Sitio y necesidades','Arquitectura y prioridades','Plan y documentación'],steps:[['Primero entendemos la operación.','Relevamos equipos, conexiones, necesidades y riesgos antes de proponer una intervención.'],['Las dependencias ordenan las decisiones.','Relacionamos infraestructura, sistemas y prioridades para definir qué resolver y en qué orden.'],['Un proyecto que se puede operar.','Última Milla entrega alcance, criterios y documentación para evaluar la inversión y orientar su ejecución.']]},
 };
-export function operationScenes(code:string,context:[string,string]|undefined,part?:string):ServiceScene[]{
+function operationFor(code:string,part?:string):Operation{
  const operation:Operation=code==='103'&&part==='fiber'?{
   nodes:['Áreas del proyecto','Distribuidor óptico','Equipos de red'],
   steps:[['Las áreas se conectan con el cuarto técnico.','La fibra vincula los puntos previstos por el proyecto con su distribución central.'],
    ['Cada fibra tiene una terminación identificada.','El distribuidor óptico organiza y protege las terminaciones. Los latiguillos conectan cada enlace con los equipos de red del cuarto técnico.'],
    ['La conexión se entrega medida y documentada.','Última Milla instala y verifica los enlaces ópticos. La identificación y las mediciones permiten operar, mantener y ampliar la red.']],
  }:operations[code];
+ return operation;
+}
+export function operationOverview(code:string,part?:string){
+ return operationFor(code,part).steps.map(([title,copy])=>({title,copy}));
+}
+export function operationScenes(code:string,context:[string,string]|undefined,part?:string):ServiceScene[]{
+ const operation=operationFor(code,part);
  const base=SERVICE_NARRATIVE.find(chapter=>chapter.code===code)!;
  const component=part||base.scenes.find(scene=>scene.part)?.part;
- const detail=base.scenes.filter(scene=>scene.view!=='system').slice(0,3);
+ const detail=base.scenes.filter(scene=>scene.view!=='system');
  const equipment=NETWORK_EQUIPMENT.find(item=>item.id===component);
  const equipmentCopy=equipment?[[equipment.title,equipment.copy],[equipment.construction,equipment.inside],[equipment.detail,equipment.closeup]]:null;
  const flow=(phase:number)=>({phase,nodes:operation.nodes,reverse:operation.reverse});

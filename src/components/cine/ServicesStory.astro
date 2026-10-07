@@ -28,7 +28,7 @@ const items=plan.map(chapter=>services.find(s=>s.code===chapter.code)).filter((s
 const narrative=plan.filter(chapter=>items.some(item=>item.code===chapter.code));
 const phases=[{id:'system',name:'Proyecto'},{id:'object',name:'Pieza'},{id:'layers',name:'Interior'},{id:'detail',name:'Detalle'}];
 const first=items[0];
-const outline=(chapter:typeof narrative[number])=>[chapter.scenes[0],chapter.scenes.find(scene=>scene.view==='layers')||chapter.scenes[1],chapter.scenes.at(-1)!];
+const outline=(chapter:typeof narrative[number])=>chapter.overview||[chapter.scenes[0],chapter.scenes.find(scene=>scene.view==='layers')||chapter.scenes[1],chapter.scenes.at(-1)!];
 const hasHardware=items.some(s=>s.code==='101'||Boolean(EQUIPMENT_KITS[s.code]));
 const hasSoftware=items.some(s=>s.code==='104');
 const hasSupport=items.some(s=>s.code==='105');

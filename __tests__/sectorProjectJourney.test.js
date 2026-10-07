@@ -123,7 +123,7 @@ test('the complete explanation stays readable while project, equipment and inter
  outline.innerHTML=[0,1,2].map(()=>'<li data-story-point><h4 data-point-title></h4><p data-point-copy></p></li>').join('');root.append(outline);
  bindServiceAtlas(root);observer([{isIntersecting:true,intersectionRatio:1}]);await settle();
  const words=outline.textContent;
- expect(words).toContain('Última Milla');expect(words).toContain('Los puertos');
+ expect(words).toContain('Última Milla');expect(words).toContain('Cableado, fibra');
  const states=[];
  for(const scene of project.chapters[0].scenes){
   expect(outline.textContent).toBe(words);

@@ -22,7 +22,7 @@ export function bindServiceAtlas(root) {
   function reading(narration){
     const current=chapter();if(!current)return;
     if(outlineChapter!==current){
-      const points=[current.scenes[0],current.scenes.find(item=>item.view==='layers')||current.scenes[1],current.scenes.at(-1)];
+      const points=current.overview||[current.scenes[0],current.scenes.find(item=>item.view==='layers')||current.scenes[1],current.scenes.at(-1)];
       outline.forEach((node,i)=>{node.querySelector('[data-point-title]').textContent=points[i].title;node.querySelector('[data-point-copy]').textContent=points[i].copy;});
       outlineChapter=current;
     }
@@ -30,8 +30,9 @@ export function bindServiceAtlas(root) {
     root.dataset.storyView=view;
     outline.forEach((node,i)=>{node.dataset.state=i===phase?'current':i<phase?'seen':'next';});
     const beat=phase===2?'result':view;
-    beats.forEach(node=>{node.dataset.current=String(node.dataset.atlasBeat===beat);});
-    if(scaleLabel)scaleLabel.textContent={system:phase===2?'El sistema, funcionando':'En el proyecto',object:'El equipo que lo hace posible',layers:'Cómo funciona por dentro',detail:'La conexión, en detalle'}[view];
+    const labels=active.dataset.atlasService==='104'?['Proyecto','Aplicación','Navegación','Datos y acciones','Resultado']:active.dataset.atlasService==='105'?['Proyecto','Consola','Diagnóstico','Seguimiento','Resultado']:active.dataset.atlasService==='106'?['Proyecto','Arquitectura','Dependencias','Plan','Resultado']:['Proyecto','Equipo','Por dentro','Conexión','Resultado'];
+    beats.forEach((node,i)=>{node.dataset.current=String(node.dataset.atlasBeat===beat);node.textContent=labels[i];});
+    if(scaleLabel)scaleLabel.textContent={system:phase===2?'El sistema, funcionando':'En el proyecto',object:'El equipo que lo hace posible',layers:'Cómo funciona por dentro',detail:active.dataset.atlasService==='104'?'Datos y acciones':active.dataset.atlasService==='105'?'El caso, documentado':active.dataset.atlasService==='106'?'El plan de trabajo':'La conexión, en detalle'}[view];
   }
   let signalCode=null,signalLayer=null;
   const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)')||{matches:true,addEventListener(){},removeEventListener(){}};

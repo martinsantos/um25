@@ -1,5 +1,5 @@
 import {SERVICE_NARRATIVE,type ServiceChapter} from './serviceNarrative';
-import {operationScenes} from './operationNarrative';
+import {operationScenes,operationOverview} from './operationNarrative';
 import type {Scene} from './scenes';
 export type SiteScene='building'|'clinic'|'terminal'|'plant'|'winery'|'mine';
 export interface SectorProject {scene:SiteScene;name:string;headline:string;lead:string;chapters:ServiceChapter[]}
@@ -32,7 +32,7 @@ export function sectorProject(slug:string,scene:Scene,codes?:string[]):SectorPro
   const context=routes[type][code];
   const part=['building','clinic','terminal','winery'].includes(type)&&code==='103'?'fiber':undefined;
   const scenes=operationScenes(code,context,part);
-  return {code,scenes};
+  return {code,scenes,overview:operationOverview(code,part)};
  });
  return {scene:type,name:names[type],headline:slug==='constructoras'?'La infraestructura se resuelve con la obra.':type==='clinic'?'La infraestructura acompaña cada espacio de atención.':type==='terminal'?'Cada punto de la terminal pertenece al mismo sistema.':type==='winery'?'Del proceso de la bodega a una operación conectada.':type==='mine'?'Cada enlace sostiene la operación en el terreno.':type==='plant'?'Los sistemas siguen el recorrido de la operación.':'Los sistemas comparten un mismo proyecto.',lead:slug==='constructoras'?'Un edificio, sus recorridos y el equipo que resuelve cada conexión. Del plano a una instalación que se puede operar y mantener.':'Del sitio a sus sistemas: cómo se conectan, qué hacen y qué resuelve Última Milla en cada etapa.',chapters};
 }

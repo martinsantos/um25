@@ -9,7 +9,7 @@ export interface ServiceScene {
   layer?: number;
   flow?: {phase: number; nodes: [string,string,string]; reverse?: boolean};
 }
-export interface ServiceChapter {code: string; scenes: ServiceScene[]}
+export interface ServiceChapter {code: string; scenes: ServiceScene[]; overview?: {title:string;copy:string}[]}
 const equipment = (part: string, system: [string,string], object: [string,string], inside: [string,string], detail: [string,string], cabinet = true): ServiceScene[] => [
   {view:'system',duration:cabinet?2600:6400,title:system[0],copy:system[1],part,open:false},
   ...(cabinet?[{view:'system' as const,duration:4200,title:system[0],copy:system[1],part,open:true}]:[]),
