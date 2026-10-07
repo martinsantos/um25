@@ -11,7 +11,7 @@ on:
       projects:
         description: 'Remaining projects reuse the already delivered building movie'
         type: choice
-        options: [remaining, clinic, terminal, plant, winery, mine]
+        options: [remaining, clinic, terminal, plant, winery, mine, software]
         default: remaining
       renderer:
         description: 'v2: continuous approach, restrained technical lighting and selective circuits'
@@ -60,13 +60,14 @@ jobs:
           if os.environ['MODE']=='deliver': assert os.environ['SOURCE_RUN'].isdigit()
           rows=[]
           for scene in scenes:
+              parts=24 if scene=='software' else 18
               if os.environ['MODE']=='repair':
-                  part=int(os.environ['REPAIR_PART']);assert 1<=part<=18 and len(scenes)==1
+                  part=int(os.environ['REPAIR_PART']);assert 1<=part<=parts and len(scenes)==1
                   rows.append(dict(scene=scene,part=part,start=(part-1)*24,end=part*24-1,frames=24))
               elif os.environ['MODE']=='proof':
                   rows.extend(dict(scene=scene,part=i+1,start=f,end=f,frames=1) for i,f in enumerate([0,144,288]))
               else:
-                  rows.extend(dict(scene=scene,part=i+1,start=i*24,end=i*24+23,frames=24) for i in range(18))
+                  rows.extend(dict(scene=scene,part=i+1,start=i*24,end=i*24+23,frames=24) for i in range(parts))
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:
               out.write('matrix='+json.dumps({'include':rows})+'\n')
               out.write('scenes='+json.dumps(scenes)+'\n')
@@ -101,6 +102,11 @@ jobs:
         run: |
           SAMPLES=8
           if [[ "$RENDERER" == "v2" ]]; then SAMPLES=16; fi
+          if [[ "${{ matrix.scene }}" == "software" ]]; then
+            python3 scripts/cine/render-software-system-v1.py --validate-only
+            ./blender-4.5.3-linux-x64/blender -b -t 4 --python scripts/cine/render-software-system-v1.py -- --samples 24 --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
+            exit 0
+          fi
           python3 "scripts/cine/render-site-project-${RENDERER}.py" --validate-only --scene ${{ matrix.scene }}
           ./blender-4.5.3-linux-x64/blender -b -t 4 --python "scripts/cine/render-site-project-${RENDERER}.py" -- --scene ${{ matrix.scene }} --samples "$SAMPLES" --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
       - uses: actions/upload-artifact@v7
@@ -152,7 +158,9 @@ jobs:
           sudo apt-get install -y -qq ffmpeg
           mkdir delivery
           # A single recovered artifact is extracted into the workspace root.
-          for PART in $(seq 1 18); do
+          PARTS=18
+          if [[ "$PROJECT_SCENE" == "software" ]]; then PARTS=24; fi
+          for PART in $(seq 1 "$PARTS"); do
             TARGET="site-$PROJECT_SCENE-part-$PART"
             if test ! -f "$TARGET/part-$PART.mp4" && test -f "part-$PART.mp4"; then
               mkdir -p "$TARGET"
@@ -160,20 +168,23 @@ jobs:
             fi
             test -s "$TARGET/part-$PART.mp4"
           done
-          for PART in $(seq 1 18); do printf "file 'site-%s-part-%s/part-%s.mp4'\n" "$PROJECT_SCENE" "$PART" "$PART"; done > parts.txt
+          for PART in $(seq 1 "$PARTS"); do printf "file 'site-%s-part-%s/part-%s.mp4'\n" "$PROJECT_SCENE" "$PART" "$PART"; done > parts.txt
           ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-project-v3.mp4
-          ffmpeg -v error -i delivery/cine-project-v3.mp4 -vf 'crop=1080:1080:730:0' -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-project-v3-sq.mp4
+          CROP=730
+          if [[ "$PROJECT_SCENE" == "software" ]]; then CROP=690; fi
+          ffmpeg -v error -i delivery/cine-project-v3.mp4 -vf "crop=1080:1080:$CROP:0" -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-project-v3-sq.mp4
           ffmpeg -v error -i delivery/cine-project-v3.mp4 -frames:v 1 -q:v 2 delivery/cine-project-v3.poster.jpg
           ffmpeg -v error -i delivery/cine-project-v3.poster.jpg -c:v libaom-av1 -still-picture 1 -crf 24 delivery/cine-project-v3.poster.avif
           ffmpeg -v error -i delivery/cine-project-v3.mp4 -f null -
           ffmpeg -v error -i delivery/cine-project-v3-sq.mp4 -f null -
           ffprobe -v error -count_frames -show_streams -show_format -of json delivery/cine-project-v3.mp4 > delivery/validation.json
           python3 - <<'PY'
-          import json
+          import json,os
           from pathlib import Path
+          frames,duration=(576,24) if os.environ['PROJECT_SCENE']=='software' else (432,18)
           v=json.loads(Path('delivery/validation.json').read_text())['streams'][0]
-          assert (v['width'],v['height'],v['nb_read_frames'],v['avg_frame_rate']) == (1920,1080,'432','24/1'),v
-          assert abs(float(v['duration'])-18)<.01,v
+          assert (v['width'],v['height'],v['nb_read_frames'],v['avg_frame_rate']) == (1920,1080,str(frames),'24/1'),v
+          assert abs(float(v['duration'])-duration)<.01,v
           assert sum(p.stat().st_size for p in Path('delivery').iterdir())<40_000_000
           PY
           cp site-$PROJECT_SCENE-part-1/part-1-info.json delivery/render-info.json
