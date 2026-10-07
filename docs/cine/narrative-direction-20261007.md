@@ -64,36 +64,30 @@ Integrada: película específica de software en las dos rutas. Pendiente: recorr
 
 No es un GO a producción. Campaña activa, tipografía del hilo paralelo y servidor no se modifican.
 
-## Verificación de esta integración
+## Verificación de la versión integrada
 
-- `npm run check`: 66 suites, 530 pruebas, lint, tipos, contrato CSS y build correctos.
-- [37613243408, commit 5a335dfa](https://github.com/martinsantos/um25/actions/runs/37613243408): home, Bodegas y servicios 103/104/107 en Chrome de escritorio y móvil; 30 combinaciones de página y ancho en WebKit. Cero hallazgos. Capturas de los tres sistemas inspeccionadas.
-- [37615155050, commit 4cc151eb](https://github.com/martinsantos/um25/actions/runs/37615155050): software sin la maqueta física, en Chrome escritorio/móvil y cinco anchos WebKit. Cero hallazgos. Incluye reproducción nativa de la home como regresión.
-- Después del pase visual se corrigió el indicador de flujo de software para que avance aun sin maqueta física. Se verificó con 37 pruebas específicas de autonomía/sectores y un nuevo build. No cambia geometría ni composición.
-- Evidencia conservada en la carpeta de la tarea `narrative-architecture-20261007`; preview integrada en el mismo puerto 4326.
+Las pruebas de código y el control visual tienen alcances distintos. Las primeras verifican comportamiento y regresiones; las capturas y la reproducción nativa permiten evaluar composición y movimiento. Ninguna certifica por sí sola el objetivo artístico.
 
-Los pases funcionales no certifican el nivel artístico del conjunto. Los pendientes cinematográficos siguen expresados arriba.
+| Evidencia | Versión y alcance | Resultado |
+| --- | --- | --- |
+| Integridad del código | `29747ec1`, `npm run check`: lint, tipos, contrato CSS, 67 suites / 551 pruebas y build. | Aprobados. |
+| Integración amplia | `58f160c5`, [37619280503](https://github.com/martinsantos/um25/actions/runs/37619280503): veinte rutas Chrome escritorio/móvil y cincuenta combinaciones WebKit. | Cero hallazgos funcionales. |
+| Ocho arquitecturas y película de software | `fe7c92dd`, [37628383315](https://github.com/martinsantos/um25/actions/runs/37628383315): home, Bodegas, Software y ocho servicios. | Chrome: once rutas por perfil, cero hallazgos. WebKit: 55 combinaciones, una inspección de Energía aún cargando al capturar después de 600 ms. La captura expuso además un texto transitorio de otra disciplina. Se corrigió el contexto y la revisión siguiente espera la señal real de montaje, con límite de cinco segundos. |
+| Bisagra y recorrido nativo | `1eb3eaa9`, [37629904762](https://github.com/martinsantos/um25/actions/runs/37629904762): Chrome escritorio/móvil y cinco anchos WebKit. | Cero hallazgos. El giro conserva los coeficientes verticales c=0 y d=1 durante su apertura y cierre. La home avanza de servicio en tiempo real sin entrada del usuario. |
+| Encuadre móvil de software | `7f4ef07f`, [37632035932](https://github.com/martinsantos/um25/actions/runs/37632035932): ambas rutas de software y cinco anchos WebKit. | Chrome y las diez combinaciones WebKit, sin hallazgos. Botones visibles en móvil y reproducción nativa de los 24 segundos. |
 
-## Ampliación a ocho disciplinas
+La [revisión de los refinamientos 37634255500](https://github.com/martinsantos/um25/actions/runs/37634255500), sobre `29747ec1`, cubre las dos rutas de software, Redes y Energía en Chrome escritorio/móvil y veinte combinaciones WebKit. Conserva capturas del banner y del inspector, comprueba el texto desde el momento de la selección y registra el tiempo real de montaje del SVG. Sus reportes son la evidencia del cierre; el estado de la validación se resume en el PR #266.
 
-- `npm run check`: lint, tipos, contrato CSS, 66 suites / 535 pruebas y build aprobados antes de los últimos ajustes de carga. El control posterior incorpora las ocho verificaciones de SVG y conserva los mismos controles.
-- Pruebas de cada diagrama: seis capas, referencias internas completas, geometría propia y peso comprimido menor a 30 KB.
-- Run 37619280503, commit 58f160c5: veinte rutas en Chrome de escritorio y móvil y cincuenta combinaciones en WebKit; cero hallazgos funcionales.
-- Run 37622237038, commit fe879ae1: home, Bodegas y las ocho disciplinas en Chrome de escritorio/móvil, más cincuenta combinaciones en WebKit; cero hallazgos. Capturas revisadas antes de ajustar los materiales de las superficies.
-- Las variantes móviles de la película conservarán toda la arquitectura; no recortan lateralmente la interfaz para formar un cuadrado.
+La corrección móvil elimina del encuadre sólo las bandas de relleno del video cuadrado y suaviza su unión con el fondo. Conserva todas las piezas. El póster y la película usan el mismo encuadre. En escritorio, el plano ancho reserva la columna izquierda para la lectura. La composición móvil acerca el contenido y el CTA al recorrido.
 
-### Carga bajo demanda
+### Carga inicial y consumo
 
-Se detectó otra carga evitable: el HTML de los servicios físicos transportaba el SVG completo de 597.400 bytes del catálogo de equipos dentro de un template oculto. `network-rack-v13.js` descarga ese recurso con nombre hash sólo cuando se pide inspeccionar un equipo. El esquema narrativo de seis capas permanece inline desde el primer render. Una petición atrasada no monta contenido después de navegar y conserva la última vista solicitada durante la descarga.
+El HTML de los servicios físicos incluía el catálogo SVG completo de 597.400 bytes dentro de un template oculto. `network-rack-v13.js` lo descarga ahora con nombre hash sólo al inspeccionar un equipo. Una respuesta atrasada no monta contenido después de navegar y conserva la última selección realizada durante la descarga. `software-layers-v9.js` tampoco carga Hairline ni anima una vista oculta detrás de la arquitectura de software. Películas y recorridos se suspenden cuando dejan de verse o se oculta la pestaña.
 
-La versión `software-layers-v9.js` tampoco precarga Hairline ni inicia su dibujo detrás de la arquitectura de software. Se activa al explorar y se destruye al volver al recorrido. `npm run check`: 67 suites, 546 pruebas, lint, tipos, contrato CSS y build aprobados.
+Medición HTTP local: Redes pasa de 925.459 a 328.142 bytes de HTML —de 113.291 a 54.111 con gzip—; incendio, de 799.088 a 201.771 —de 99.676 a 40.811 con gzip—. Son pesos del documento, no una medición de aceleración en la conexión del visitante. Los ocho dibujos siguen siendo vectoriales; cada servicio transporta menos de 30 KB de SVG con gzip. No se redujo su resolución.
 
-Medición HTTP local después del cambio: Redes pasa de 925.459 a 328.142 bytes de HTML (de 113.291 a 54.111 bytes con gzip); incendio, de 799.088 a 201.771 (de 99.676 a 40.811 con gzip). Son pesos del documento, no porcentajes medidos de tiempo de carga. La auditoría móvil de las veinte rutas quedó funcionalmente sin hallazgos y permitió detectar márgenes blancos alrededor de los mapas de producto. Se corrigieron en `fe879ae1`, junto con el doble margen interior. La isometría de energía también distingue el relevamiento de cargas del trayecto físico de alimentación.
+### Composición y geometría
 
-## Último refinamiento integrado
+Las superficies de interfaz y documentación usan material claro y tinta oscura. Los equipos conservan su metal y sus detalles. Los elementos fuera del foco mantienen opacidad 0,86 para que las dependencias sigan legibles. La puerta gira desde una bisagra fija y permanece abierta al explicar la red activa. Las páginas de producto tienen un fondo continuo, sin márgenes blancos alrededor del sistema ni doble margen interior.
 
-Las superficies de interfaz y documentación usan un material claro con tinta oscura; los equipos conservan su metal. Los elementos fuera del foco mantienen opacidad 0,86 para que el sistema siga comprensible. La puerta del gabinete gira desde una bisagra fija y continúa abierta al explicar la red activa. La isometría conserva sus ejes y su resolución vectorial.
-
-El banner de software separa la lectura de la arquitectura en escritorio. En tablet mantiene el plano ancho; en teléfono usa la edición cuadrada que conserva todas las capas. El encuadre se verifica junto con reproducción nativa, pausa y vuelta al recorrido.
-
-Validación local: npm run check, 67 suites / 547 pruebas; después del ajuste de encuadre, 21 pruebas dirigidas aprobadas y un nuevo build. El último control visual sobre película, materiales y bisagra se registra al terminar la corrida correspondiente.
+Las evidencias se conservan fuera del disco interno, en `/Volumes/SDTERA/Codex UM25 audits/20261007/`. La preview integrada continúa en el puerto 4326.
