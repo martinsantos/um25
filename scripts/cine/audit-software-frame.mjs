@@ -7,6 +7,7 @@ fs.mkdirSync(out,{recursive:true});
 const routes=['/software',...[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(match=>match[1])];
 const registry=JSON.parse(fs.readFileSync('src/data/cine/site-movies-v1.json','utf8'));
 const report={scope:'all-eight-service-films',pages:[],findings:[]};
+const traversedWebKit=new Set();
 for(const [engine,type] of [['Chrome',chromium],['WebKit',webkit]]){
  const browser=await type.launch(engine==='Chrome'?{channel:'chrome',headless:true}:{headless:true});
  for(const width of [1440,1280,834,390,360]){
@@ -28,7 +29,7 @@ for(const [engine,type] of [['Chrome',chromium],['WebKit',webkit]]){
     const center=b=>b.y+b.height/2;
     if(Math.abs(center(state.poster)-center(state.stage))>1||Math.abs(state.poster.y-state.video.y)>1||Math.abs(state.poster.height-state.video.height)>1||state.scrollWidth>width+2||errors.length)report.findings.push(row);
     await page.screenshot({path:path.join(out,`${engine}-${width}-${index}-poster.png`)});
-    if(engine==='Chrome'&&(width===1440||width===390)){
+    if(width===1440||width===390){
      await page.locator('[data-umc-motion]').click();
      // Clicking the mobile control scrolls it into view. Restore the same
      // viewport before comparing media coordinates and taking the hero shot.
@@ -37,6 +38,12 @@ for(const [engine,type] of [['Chrome',chromium],['WebKit',webkit]]){
      const playing=await page.locator('.umc-video.is-on').boundingBox();row.playing=playing;
      if(Math.abs(playing.y-state.poster.y)>1||Math.abs(playing.height-state.poster.height)>1)report.findings.push({engine,width,route,poster:state.poster,playing});
      await page.screenshot({path:path.join(out,`${engine}-${width}-${index}-playing.png`)});
+     if(engine==='WebKit'&&width===390&&!traversedWebKit.has(expected)){
+      await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime>=22,{},{timeout:30000});
+      const end=await page.locator('.umc-video.is-on').evaluate(v=>({time:v.currentTime,duration:v.duration,error:v.error?.code||null,src:v.currentSrc}));
+      await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime<2,{},{timeout:6000});
+      row.nativeLoop={end,after:await page.locator('.umc-video.is-on').evaluate(v=>v.currentTime)};traversedWebKit.add(expected);
+     }
     }
    }catch(error){report.findings.push({engine,width,route,error:error.message});}
    await page.close();fs.writeFileSync(path.join(out,'framing-report.json'),JSON.stringify(report,null,2));
