@@ -26,6 +26,9 @@ for(const [engine,type] of [['Chrome',chromium],['WebKit',webkit]]){
     await page.screenshot({path:path.join(out,`${engine}-${width}-${index}-poster.png`)});
     if(engine==='Chrome'&&(width===1440||width===390)){
      await page.locator('[data-umc-motion]').click();
+     // Clicking the mobile control scrolls it into view. Restore the same
+     // viewport before comparing media coordinates and taking the hero shot.
+     await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
      await page.waitForFunction(()=>[...document.querySelectorAll('.umc-video')].some(video=>video.classList.contains('is-on')&&video.currentTime>.5),{},{timeout:15000});
      const playing=await page.locator('.umc-video.is-on').boundingBox();row.playing=playing;
      if(Math.abs(playing.y-state.poster.y)>1||Math.abs(playing.height-state.poster.height)>1)report.findings.push({engine,width,route,poster:state.poster,playing});
