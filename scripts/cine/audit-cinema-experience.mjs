@@ -115,9 +115,16 @@ for(const route of routes){
     const state=await storyState(story);row.timeline.push(state);
     const current=chapters.find(c=>c.code===state.code)?.scenes[state.scene];
     if(state.state==='complete')break;
+    if(state.view!=='system'){
+     const activeDetail=await story.locator('[data-service-atlas]').evaluate(root=>{
+      const code=root.dataset.activeService,selector=['101','102','103','107','108'].includes(code)?'[data-atlas-network]':code==='104'?'[data-atlas-software]':'[data-atlas-operation="'+code+'"]';
+      const node=root.querySelector(selector);return {code,shown:!!node&&node.getBoundingClientRect().width>0&&getComputedStyle(node).visibility!=='hidden',gated:!!root.closest('details:not([open])')};
+     });
+     if(!activeDetail.shown||activeDetail.gated)finding(route,'Automatic phase leaves its explanatory drawing hidden',activeDetail);
+    }
     if(state.state!=='playing'){finding(route,'Story cannot progress on its own while the drawing is visible',state);break;}
     const key=state.code+'-'+state.scene;
-    if(!captured.has(key)&&(state.code===chapters[0].code||['object','layers','detail'].includes(state.view)||current?.flow?.phase===1)){
+    if(!captured.has(key)&&(route==='/'||state.code===chapters[0].code)){
      captured.add(key);await delay(1550);
      if(current?.flow?.phase===1&&state.view==='system'){
       const framing=await story.locator('[data-atlas-project]').evaluate(root=>{
@@ -224,7 +231,10 @@ for(const width of (profile==='desktop'?[1440,1280,834]:[390,360])){
  for(const id of ['servicios-it','sectores','antecedentes-home','empresa','capacidad','producto','cobertura','blog-home']){
   const section=layoutPage.locator('#'+id);await section.evaluate(node=>node.scrollIntoView({block:'start',behavior:'instant'}));await delay(450);
   const geometry=await layoutPage.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
-  if(geometry.scrollWidth>width+2)finding('/','Home section overflows at '+width,{id,...geometry});
+  if(geometry.scrollWidth>width+2){
+   const elements=await layoutPage.evaluate(()=>[...document.querySelectorAll('body *')].filter(node=>{const r=node.getBoundingClientRect();return r.width&&r.right>innerWidth+2&&getComputedStyle(node).position!=='fixed';}).slice(-12).map(node=>({tag:node.tagName,class:node.getAttribute('class'),text:node.textContent.slice(0,80),right:node.getBoundingClientRect().right})));
+   finding('/','Home section overflows at '+width,{id,...geometry,elements});
+  }
   await layoutPage.screenshot({path:path.join(out,`home-${width}-${id}.png`),fullPage:false});
   report.responsive.push({width,section:id,...geometry});
  }

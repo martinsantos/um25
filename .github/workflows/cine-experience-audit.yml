@@ -65,7 +65,7 @@ jobs:
           VISUAL_AUDIT_DIR: ${{ runner.temp }}/um-visual-${{ matrix.profile }}
           VISUAL_AUDIT_STRICT: ${{ (github.event_name == 'push' || inputs.strict) && '1' || '0' }}
       - name: Verify SVG layout in WebKit at every contract width
-        if: matrix.profile == 'desktop' && inputs.home_only
+        if: matrix.profile == 'desktop'
         run: |
           "$RUNNER_TEMP/um-visual-runtime/node_modules/.bin/playwright" install --with-deps webkit
           node scripts/cine/audit-webkit-layout.mjs
