@@ -288,6 +288,16 @@ def consulting(s):
     s.box(-.9,2.25,.46,.33,.6,1.20,'graphite')
     for i in range(6):s.box(-.9,1.94,.56+i*.15,.22,.012,.065,'edge')
     s.text('RELEVAMIENTO',-4.75,.32,.466,.17,'ink')
+    # Survey markings are part of the drawing: rooms, dimensions, endpoints.
+    for j in range(20):
+        s.box(-4.72+j*.20,.48,.467,.01,.11 if j%5==0 else .06,.003,'ink')
+    for j in range(14):
+        s.box(-5.04,1.0+j*.20,.467,.09 if j%5==0 else .05,.009,.003,'ink')
+    for xx,yy in [(-4.3,1.4),(-2.4,1.4),(-2.4,3.0),(-1.2,3.0)]:
+        s.line([(xx,yy,.71),(xx,yy+.31,.71),(xx+.2,yy+.31,.71)],'red',.012)
+        s.cylinder(xx+.2,yy+.31,.71,.025,.01,'red')
+    for j in range(3):
+        s.text(['01 / ACCESO','02 / OPERACION','03 / NUCLEO'][j],-4.64+j*1.37,3.35,1.02,.085,'ink')
     # Evidence portfolio with legible hierarchy and distinct diagrams.
     for j in range(3):
         x=1.0+j*1.58;y=2.80
@@ -296,6 +306,8 @@ def consulting(s):
         for k in range(5):
             s.box(x,y+.35-k*.24,.422+j*.018,.98 if k%2 else .75,.026,.004,'muted')
         s.box(x-.44,y-.79,.422+j*.018,.10,.10,.006,'red')
+        for k in range(4):
+            s.box(x+.20,y-.80+k*.15,.423+j*.018,.36,.012,.003,'ink')
     # A plan is a visible dependency path, not an invented quantitative score.
     s.box(1.3,-.9,.27,6.30,2.10,.045,'paper')
     s.text('PLAN DE IMPLEMENTACION',-1.52,-.32,.321,.17,'ink')
