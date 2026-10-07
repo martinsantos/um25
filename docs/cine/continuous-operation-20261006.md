@@ -1,5 +1,7 @@
 # Instalación continua · 6 de octubre de 2026
 
+> Actualización: [Continuidad operativa](causal-operation-20261006.md) incorpora un incidente persistente y consecuencias propias de cada sistema. Este documento conserva la evidencia de la etapa anterior.
+
 Esta iteración sustituye en la home el trámite de mantenimiento de 48 segundos por una puesta en marcha ilustrativa de 64 segundos. La explicación principal recorre los ocho servicios sin clics. El gabinete, los puestos, la cámara, el detector, la central, la UPS y la consola permanecen instalados en una planta isométrica común.
 
 ## Relación entre dibujo y explicación

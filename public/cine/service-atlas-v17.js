@@ -90,8 +90,18 @@ export function bindServiceAtlas(root) {
         if(points.length){
           const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);
           const left=Math.min(...xs),right=Math.max(...xs),top=Math.min(...ys),bottom=Math.max(...ys);
-          const scale=Math.min(1.8,850/Math.max(300,right-left),450/Math.max(220,bottom-top));
-          const x=600-(left+right)*.5*scale,y=350-(top+bottom)*.5*scale;
+          // The middle passage shows the installed device at working scale.
+          // Telecom keeps both ends in view; a cabinet or console needs a closer look.
+          let scale=Math.min(1.8,850/Math.max(300,right-left),450/Math.max(220,bottom-top));
+          let center=[(left+right)*.5,(top+bottom)*.5];
+          if(code!=='103'&&code!=='106'){
+            const first=routePaths[0].getAttribute('d').match(/-?\d+(?:\.\d+)?/g).map(Number);
+            center=['101','107','108'].includes(code)?first.slice(0,2):first.slice(-2);
+            scale=window.innerWidth<=760?5:3.2;
+            // Aim above the connection point to include the device body.
+            center[1]-=code==='101'||code==='105'?20:8;
+          }
+          const x=600-center[0]*scale,y=350-center[1]*scale;
           sceneRoot.style.transform=`translate(${x}px,${y}px) scale(${scale})`;
         }
       }
