@@ -1,4 +1,5 @@
-import {bindServiceAtlas} from '../public/cine/service-atlas-v18.js';
+import {bindServiceAtlas} from '../public/cine/service-atlas-v19.js';
+import {operationScenes,operationOverview} from '../src/data/cine/operationNarrative';
 import {SERVICE_NARRATIVE} from '../src/data/cine/serviceNarrative';
 import {EQUIPMENT_KITS,NETWORK_EQUIPMENT} from '../src/data/cine/networkAssembly';
 
@@ -145,4 +146,23 @@ test('a software-only story progresses with no unused hardware library mounted',
  await jest.advanceTimersByTimeAsync(SERVICE_NARRATIVE.find(c=>c.code==='104').scenes[0].duration);
  expect(root.dataset.activeService).toBe('104');expect(frame.hidden).toBe(false);expect(root.querySelector('[data-atlas-software]').hidden).toBe(false);
  expect(root.querySelector('[data-atlas-view="object"]').getAttribute('aria-pressed')).toBe('true');
+});
+
+
+test.each(['103','104','107'])('%s explains every connected layer by itself, with no hidden equipment boot or required clicks',async code=>{
+ const root=fixture();root.querySelector('[data-atlas-narrative]').textContent=JSON.stringify([{code,scenes:operationScenes(code,undefined),overview:operationOverview(code)}]);
+ const diagram=document.createElement('div');diagram.dataset.disciplineSystem='';diagram.innerHTML='<span data-discipline-key></span>'+[0,1,2,3,4,5].map(i=>`<g data-discipline-node="${i}"></g><g data-discipline-tag="${i}"></g><g data-discipline-route="${i}"></g>`).join('');root.querySelector('[data-atlas-theater]').append(diagram);
+ const list=document.createElement('ol');list.innerHTML=[0,1,2].map(()=>'<li data-story-point><span class="svc-story__point-number"></span><h4 data-point-title></h4><p data-point-copy></p></li>').join('');root.append(list);
+ const hardware=jest.fn();root.querySelector('[data-network-journey]').addEventListener('um:network-story',hardware);
+ bindServiceAtlas(root);see();await settle();
+ const geometry=[...diagram.children];
+ for(const scene of operationScenes(code,undefined)){
+  expect(root.dataset.disciplineActive).toBe('true');expect(diagram.dataset.visible).toBe('true');expect(diagram.dataset.disciplineStage).toBe(String(scene.disciplineStage));
+  expect([...diagram.children]).toEqual(geometry);expect(root.querySelectorAll('[data-story-point]')).toHaveLength(6);
+  expect(root.querySelector('[data-atlas-context]').textContent).toBe(scene.copy);
+  if(scene.disciplineStage>=0&&scene.disciplineStage<6)expect(diagram.querySelector('[data-discipline-node][data-current="true"]').dataset.disciplineNode).toBe(String(scene.disciplineStage));
+  await jest.advanceTimersByTimeAsync(scene.duration);
+ }
+ expect(hardware).not.toHaveBeenCalled();expect(root.dataset.storyState).toBe('complete');expect(jest.getTimerCount()).toBe(0);
+ expect(document.activeElement).toBe(document.body);
 });

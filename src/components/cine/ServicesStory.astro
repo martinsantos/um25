@@ -1,4 +1,7 @@
 ---
+import DisciplineSystem from './DisciplineSystem.astro';
+import {DISCIPLINE_SYSTEMS} from '../../data/cine/disciplineSystems';
+import {operationScenes,operationOverview} from '../../data/cine/operationNarrative';
 import NetworkJourney from './NetworkJourney.astro';
 import SoftwareLayers from './SoftwareLayers.astro';
 import IsometricStage from './IsometricStage.astro';
@@ -11,7 +14,7 @@ interface Props {services:Service[];project?:SectorProject;single?:boolean}
 const {services,project,single=false}=Astro.props;
 const projectFiles=import.meta.glob<string>('../../assets/cine/isometric/site-*-v1.svg',{eager:true,query:'?raw',import:'default'});
 const projectMarkup=project?projectFiles[`../../assets/cine/isometric/site-${project.scene}-v1.svg`]:undefined;
-const plan=project?.chapters||SERVICE_NARRATIVE;
+const plan=(project?.chapters||SERVICE_NARRATIVE).map(chapter=>single&&DISCIPLINE_SYSTEMS[chapter.code]?{...chapter,scenes:operationScenes(chapter.code,undefined),overview:operationOverview(chapter.code)}:chapter);
 const files=import.meta.glob<string>('../../assets/cine/isometric/*-*.svg',{eager:true,query:'?url',import:'default'});
 const url=(asset:string,view:string)=>files[`../../assets/cine/isometric/${asset}-${view}.svg`];
 const messages:Record<string,{title:string;summary:string;copy:string}>={
@@ -30,12 +33,13 @@ const phases=[{id:'system',name:'Proyecto'},{id:'object',name:'Pieza'},{id:'laye
 const first=items[0];
 const outline=(chapter:typeof narrative[number])=>chapter.overview||[chapter.scenes[0],chapter.scenes.find(scene=>scene.view==='layers')||chapter.scenes[1],chapter.scenes.at(-1)!];
 const hasHardware=items.some(s=>s.code==='101'||Boolean(EQUIPMENT_KITS[s.code]));
+const hasDiscipline=items.some(s=>Boolean(DISCIPLINE_SYSTEMS[s.code]));
 const hasSoftware=items.some(s=>s.code==='104');
 const hasSupport=items.some(s=>s.code==='105');
 const hasConsulting=items.some(s=>s.code==='106');
 const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Telecomunicaciones','104':'Software','105':'Soporte 24/7','106':'Consultoría','107':'Incendios','108':'Energía IT'};
 ---
-{first && <div class:list={["svc-story",{"svc-story--project":Boolean(project),"svc-story--single":single}]} data-service-atlas data-story-loop={String(Boolean(project)||items.length>1)} data-active-service={first.code} data-story-state="waiting" data-story-view="system">
+{first && <div class:list={["svc-story",{"svc-story--project":Boolean(project),"svc-story--single":single}]} data-service-atlas data-discipline-active={String(Boolean(DISCIPLINE_SYSTEMS[first.code]))} data-story-loop={String(Boolean(project)||items.length>1)} data-active-service={first.code} data-story-state="waiting" data-story-view="system">
  <script type="application/json" data-atlas-narrative set:html={JSON.stringify(narrative)} is:inline />
  <div class="svc-story__stage">
   <div class="svc-story__masthead"><span data-atlas-code>{first.study.name}</span><div class="svc-story__playback"><span class="svc-story__counter" data-atlas-counter>01 / {String(items.length).padStart(2,'0')}</span><span data-atlas-status>Recorrido automático</span><button type="button" data-atlas-play aria-pressed="false" hidden>Pausar</button></div></div>
@@ -44,6 +48,7 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
   <div class="svc-story__visual">
   <div class="svc-story__location"><span data-atlas-scale>En el proyecto</span><span data-atlas-part-name hidden /></div>
   <div class="svc-story__theater" data-atlas-theater>
+   {hasDiscipline&&<DisciplineSystem code={first.code} />}
    {projectMarkup&&<div class="svc-story__project" data-atlas-project data-project-floors={project?.scene==='building'?3:1} data-project-service={first.code} data-project-view="0" data-project-open="false" data-project-visible="false"><Fragment set:html={projectMarkup} /></div>}
    {hasHardware&&<div data-atlas-network hidden={Boolean(project)}><NetworkJourney compact catalog guided /></div>}
    <div class="svc-story__frame" hidden>{hasSupport&&<div class="svc-story__operations" data-atlas-operation="105" hidden><IsometricStage code="105" compact /></div>}{hasConsulting&&<div class="svc-story__operations" data-atlas-operation="106" hidden><IsometricStage code="106" compact /></div>}{hasSoftware&&<div class="svc-story__software" data-atlas-software hidden><SoftwareLayers compact /></div>}<img src={project?undefined:url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
@@ -51,7 +56,7 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
    <div class="svc-story__narration"><h4 class="svc-story__scene-title" data-atlas-scene-title>{narrative[0].scenes[0].title}</h4><p class="svc-story__illustration-copy" data-atlas-context>{narrative[0].scenes[0].copy}</p></div>
   </div>
   <figcaption class="svc-story__reading">
-   <p class="svc-story__reading-label">Cómo lo resolvemos</p>
+   <p class="svc-story__reading-label" data-atlas-reading-label>Cómo lo resolvemos</p>
    <ol class="svc-story__outline" data-atlas-outline>{outline(narrative[0]).map((scene,i)=><li data-story-point data-state={i===0?'current':'next'}><span class="svc-story__point-number" aria-hidden="true">0{i+1}</span><div><h4 data-point-title>{scene.title}</h4><p data-point-copy>{scene.copy}</p></div></li>)}</ol>
    <a class="svc-story__link" href={first.href} data-atlas-link>Explorar {first.study.name.toLowerCase()} <span aria-hidden="true">→</span></a>
   </figcaption>
@@ -79,7 +84,7 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
  </div>
 </div>}
 <script src="/cine/isometric-services-v7.js" type="module" async is:inline />
-<script src="/cine/service-atlas-v18.js" type="module" async is:inline />
+<script src="/cine/service-atlas-v19.js" type="module" async is:inline />
 <style>
  .svc-story{--skin-text:#fff;--skin-muted:#c4c7cc;--x-text:#fff;--x-text-2:#c4c7cc;color:#fff;min-width:0}
  .svc-story [hidden]{display:none!important}.svc-story button,.svc-story select,.svc-story summary,.svc-story a{font:500 1rem var(--um-font-body,'UM Sans',Arial,sans-serif)}
@@ -199,4 +204,12 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
  @media(max-width:600px){.svc-story__project:not([data-project-view="0"]) :global(.sp-root){transform:translate(220px,70px) scale(.20)}.svc-story--project .svc-story__software,.svc-story--project .svc-story__operations{margin-left:16%;width:84%}}
  .svc-story__text{min-width:0;overflow-wrap:anywhere}
  @media(max-width:600px){.svc-story__project :global(svg){position:absolute;width:160%;height:100%;left:-34%;max-width:none}.svc-story__masthead{flex-wrap:wrap}.svc-story__playback{margin-left:auto}}
+ .svc-story[data-discipline-active=true] .svc-story__project,.svc-story[data-discipline-active=true] [data-atlas-network],.svc-story[data-discipline-active=true] .svc-story__frame{visibility:hidden!important;opacity:0!important;pointer-events:none}
+ .svc-story[data-discipline-active=true] .svc-story__theater{height:480px}
+ .svc-story[data-discipline-active=true] .svc-story__beat{display:none}
+ .svc-story[data-discipline-active=true] .svc-story__outline li{padding-bottom:20px}
+ .svc-story[data-discipline-active=true] .svc-story__outline h4{margin-bottom:4px}
+ .svc-story:not([data-story-state=playing]) :global(.ds-packet){animation-play-state:paused}
+ @media(max-width:900px){.svc-story[data-discipline-active=true] .svc-story__outline{grid-template-columns:repeat(2,minmax(0,1fr))}.svc-story[data-discipline-active=true] .svc-story__theater{height:480px}}
+ @media(max-width:600px){.svc-story[data-discipline-active=true] .svc-story__theater{height:290px}.svc-story[data-discipline-active=true] .svc-story__outline{display:grid;gap:16px}.svc-story[data-discipline-active=true] .svc-story__outline li{display:block}.svc-story[data-discipline-active=true] .svc-story__outline .svc-story__point-number{margin-bottom:8px}.svc-story[data-discipline-active=true] .svc-story__narration{min-height:205px}.svc-story :global(.ds-tag text){font-size:62px}.svc-story :global(.ds-tag circle){r:42px}}
 </style>

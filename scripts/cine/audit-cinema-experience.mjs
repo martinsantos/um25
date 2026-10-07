@@ -14,8 +14,8 @@ const browser=await chromium.launch({channel:'chrome',headless:true});
 const viewport=profile==='mobile'?{width:390,height:844}:{width:1440,height:900};
 const servicePaths=[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(match=>match[1]);
 const pilotOnly=process.env.VISUAL_AUDIT_PILOT_ONLY==='1',includeHome=process.env.VISUAL_AUDIT_HOME_ONLY==='1';
-const routes=pilotOnly?[...(includeHome?['/']:[]),'/bodegas',servicePaths.find(path=>path.startsWith('/servicios/107/'))]:process.env.VISUAL_AUDIT_HOME_ONLY==='1'?['/']:['/','/servicios','/sectores',...['constructoras','bodegas','salud','aeropuertos','industria','mineria','gobiernosectorpublico','seguridad-electronica','software'].map(s=>'/'+s),...servicePaths];
-const report={profile,viewport,scope:pilotOnly?(includeHome?'home-and-winery-pilot':'winery-pilot'):process.env.VISUAL_AUDIT_HOME_ONLY==='1'?'home':'all',commit:process.env.GITHUB_SHA,pages:[],findings:[],movieCoverage:[],clock:'Native playback; narrative timers accelerated only in separate story pages'};
+const routes=process.env.VISUAL_AUDIT_DISCIPLINE_ONLY==='1'?['/','/bodegas',...['103','104','107'].map(code=>servicePaths.find(route=>route.startsWith('/servicios/'+code+'/')))]:pilotOnly?[...(includeHome?['/']:[]),'/bodegas',servicePaths.find(path=>path.startsWith('/servicios/107/'))]:process.env.VISUAL_AUDIT_HOME_ONLY==='1'?['/']:['/','/servicios','/sectores',...['constructoras','bodegas','salud','aeropuertos','industria','mineria','gobiernosectorpublico','seguridad-electronica','software'].map(s=>'/'+s),...servicePaths];
+const report={profile,viewport,scope:process.env.VISUAL_AUDIT_DISCIPLINE_ONLY==='1'?'discipline-systems':pilotOnly?(includeHome?'home-and-winery-pilot':'winery-pilot'):process.env.VISUAL_AUDIT_HOME_ONLY==='1'?'home':'all',commit:process.env.GITHUB_SHA,pages:[],findings:[],movieCoverage:[],clock:'Native playback; narrative timers accelerated only in separate story pages'};
 const movies=new Set();
 const slug=route=>route==='/'?'home':route.replace(/\/$/,'').replaceAll('/','_').slice(1);
 const finding=(route,message,detail)=>{report.findings.push({route,message,detail});console.log('FINDING',route,message);};
@@ -117,7 +117,7 @@ for(const route of routes){
     if(state.state==='complete')break;
     if(state.view!=='system'){
      const activeDetail=await story.locator('[data-service-atlas]').evaluate(root=>{
-      const code=root.dataset.activeService,selector=['101','102','103','107','108'].includes(code)?'[data-atlas-network]':code==='104'?'[data-atlas-software]':'[data-atlas-operation="'+code+'"]';
+      const code=root.dataset.activeService,selector=root.dataset.disciplineActive==='true'?'[data-discipline-system]':['101','102','103','107','108'].includes(code)?'[data-atlas-network]':code==='104'?'[data-atlas-software]':'[data-atlas-operation="'+code+'"]';
       const node=root.querySelector(selector);return {code,shown:!!node&&node.getBoundingClientRect().width>0&&getComputedStyle(node).visibility!=='hidden',gated:!!root.closest('details:not([open])')};
      });
      if(!activeDetail.shown||activeDetail.gated)finding(route,'Automatic phase leaves its explanatory drawing hidden',activeDetail);
@@ -147,10 +147,11 @@ for(const route of routes){
       const detail=await story.locator('[data-service-atlas]').evaluate(root=>{
        const hardware=root.querySelector('[data-atlas-network]'),software=root.querySelector('[data-atlas-software]');
        const visible=node=>Boolean(node&&getComputedStyle(node).visibility!=='hidden'&&node.getBoundingClientRect().width>0);
-       return {view:root.dataset.storyView,hardware:visible(hardware)&&!!hardware.querySelector('svg'),software:visible(software),outline:root.querySelectorAll('[data-story-point]').length,disclosure:!!root.closest('details:not([open])')};
+       const discipline=root.querySelector('[data-discipline-system]');
+       return {system:root.dataset.disciplineActive==='true',diagram:visible(discipline),layers:discipline?.querySelectorAll(`[data-discipline-drawing="${root.dataset.activeService}"] [data-discipline-tag]`).length,stage:discipline?.dataset.disciplineStage,view:root.dataset.storyView,hardware:visible(hardware)&&!!hardware.querySelector('svg'),software:visible(software),outline:root.querySelectorAll('[data-story-point]').length,disclosure:!!root.closest('details:not([open])')};
       });
       row.defaultDetails||=[];row.defaultDetails.push({code:state.code,...detail});
-      if(detail.disclosure||detail.outline!==3||(['101','102','103','107','108'].includes(state.code)&&!detail.hardware)||(state.code==='104'&&!detail.software))finding(route,'The explanatory detail is not visible by default',detail);
+      if(detail.disclosure||(detail.system?(!detail.diagram||detail.layers!==6||detail.outline!==6||Number(detail.stage)!==current?.disciplineStage):(detail.outline!==3||(['101','102','103','107','108'].includes(state.code)&&!detail.hardware)||(state.code==='104'&&!detail.software))))finding(route,'The explanatory detail is not visible by default',detail);
      }
      row.shots.push(await snapshot(story,name+'-'+key+'-'+state.view,story.locator('.svc-story__stage')));
     }

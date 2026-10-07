@@ -1,4 +1,5 @@
 import {SERVICE_NARRATIVE,type ServiceScene} from './serviceNarrative';
+import {DISCIPLINE_SYSTEMS} from './disciplineSystems';
 import {NETWORK_EQUIPMENT} from './networkAssembly';
 interface Operation {nodes:[string,string,string]; steps:[string,string][]; reverse?:boolean}
 const operations:Record<string,Operation>={
@@ -21,9 +22,20 @@ function operationFor(code:string,part?:string):Operation{
  return operation;
 }
 export function operationOverview(code:string,part?:string){
+ if(DISCIPLINE_SYSTEMS[code])return DISCIPLINE_SYSTEMS[code].layers.map(layer=>({title:layer.name,copy:layer.decision}));
  return operationFor(code,part).steps.map(([title,copy])=>({title,copy}));
 }
 export function operationScenes(code:string,context:[string,string]|undefined,part?:string):ServiceScene[]{
+ const discipline=DISCIPLINE_SYSTEMS[code];
+ if(discipline){
+  const operation=operations[code];
+  const flow=(phase:number)=>({phase,nodes:operation.nodes,reverse:operation.reverse});
+  return [
+   {view:'system',disciplineStage:-1,open:true,duration:5500,title:context?.[0]||discipline.premise,copy:context?.[1]||operation.steps[0][1],flow:flow(0)},
+   ...discipline.layers.map((layer,i):ServiceScene=>({view:'layers',disciplineStage:i,open:true,duration:8000,title:layer.title,copy:layer.copy,flow:flow(1)})),
+   {view:'system',disciplineStage:6,open:true,duration:6500,title:discipline.result,copy:operation.steps[2][1],flow:flow(2)},
+  ];
+ }
  const operation=operationFor(code,part);
  const base=SERVICE_NARRATIVE.find(chapter=>chapter.code===code)!;
  const component=part||base.scenes.find(scene=>scene.part)?.part;

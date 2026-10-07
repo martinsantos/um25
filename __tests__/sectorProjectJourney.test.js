@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import {sectorProject} from '../src/data/cine/sectorNarrative';
-import {bindServiceAtlas} from '../public/cine/service-atlas-v18.js';
+import {bindServiceAtlas} from '../public/cine/service-atlas-v19.js';
 import {EQUIPMENT_KITS,NETWORK_EQUIPMENT} from '../src/data/cine/networkAssembly';
 const model=JSON.parse(fs.readFileSync('src/assets/cine/isometric/site-projects-v1.json','utf8'));
 const project=sectorProject('constructoras','fachada',['101','102','103','106','107','108']);
@@ -21,10 +21,11 @@ afterEach(()=>{document.dispatchEvent(new Event('astro:before-swap'));jest.useRe
 test('Constructoras follows the six services of its project, with optical fiber in the building riser',()=>{
  expect(project.chapters.map(c=>c.code)).toEqual(['101','103','108','102','107','106']);
  expect(project.chapters.at(-1).scenes.at(-1).copy).toContain('Última Milla');
- const fiber=project.chapters.find(c=>c.code==='103');expect(fiber.scenes.every(s=>s.part==='fiber')).toBe(true);
- expect(fiber.scenes.map(s=>s.view)).toEqual(['system','object','layers','detail','system']);
- expect(fiber.scenes.map(s=>s.flow.phase)).toEqual([0,1,1,1,2]);
- expect(fiber.scenes[1].copy).toContain('enlaces ópticos');expect(fiber.scenes[1].copy).not.toContain('radio');
+ const telecom=project.chapters.find(c=>c.code==='103');
+ expect(telecom.scenes[0].copy).toContain('cuarto técnico');
+ expect(telecom.scenes.map(s=>s.disciplineStage)).toEqual([-1,0,1,2,3,4,5,6]);
+ expect(telecom.overview.map(s=>s.title)).toEqual(['Extremos','Transporte','Terminación','Red lógica','Servicios','Operación']);
+ expect(telecom.scenes[2].copy).toContain('alternativas de diseño');
 });
 
 test.each(model.scenes.map(s=>[s.id,s]))('%s has a detailed valid SVG and exact equal-axis projection from shared physical geometry',(id,scene)=>{
@@ -134,4 +135,12 @@ test('the complete explanation stays readable while project, equipment and inter
  }
  expect(states).toEqual(['system','object','layers','detail','system']);
  expect(outline.textContent).not.toBe(words);expect(root.dataset.activeService).toBe('103');
+});
+
+
+test('the winery narrative brings software and support into the sector without claiming them for an individual case',()=>{
+ const winery=sectorProject('bodegas','bodega');
+ expect(winery.chapters.map(c=>c.code)).toEqual(['101','104','108','107','102','103','105','106']);
+ const source=fs.readFileSync('src/components/cine/SectorJourney.astro','utf8');
+ expect(source).toContain('sectorProject(slug,scene)');
 });

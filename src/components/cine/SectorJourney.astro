@@ -3,9 +3,9 @@ import ServicesStory from './ServicesStory.astro';
 import {NAV_SERVICES} from '../../data/navigation';
 import {sectorProject} from '../../data/cine/sectorNarrative';
 import type {Scene} from '../../data/cine/scenes';
-interface Props {slug:string;scene:Scene;codes?:string[]}
-const {slug,scene,codes}=Astro.props;
-const project=sectorProject(slug,scene,codes);
+interface Props {slug:string;scene:Scene;}
+const {slug,scene}=Astro.props;
+const project=sectorProject(slug,scene);
 const services=NAV_SERVICES.filter(service=>project.chapters.some(chapter=>chapter.code===service.code));
 ---
 <section class="sector-journey" id="sistemas" aria-labelledby="sector-journey-title">

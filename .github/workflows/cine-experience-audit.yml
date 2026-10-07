@@ -3,6 +3,10 @@ name: Cinema experience visual audit
 on:
   workflow_dispatch:
     inputs:
+      discipline_only:
+        description: 'Home and the telecom, software and fire system narratives'
+        type: boolean
+        default: false
       strict:
         description: 'Fail on experience findings after collecting evidence'
         type: boolean
@@ -59,6 +63,7 @@ jobs:
         run: node scripts/cine/audit-cinema-experience.mjs
         env:
           PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
+          VISUAL_AUDIT_DISCIPLINE_ONLY: ${{ inputs.discipline_only && '1' || '0' }}
           VISUAL_AUDIT_PROFILE: ${{ matrix.profile }}
           VISUAL_AUDIT_PILOT_ONLY: ${{ inputs.pilot_only && '1' || '0' }}
           VISUAL_AUDIT_HOME_ONLY: ${{ inputs.home_only && '1' || '0' }}

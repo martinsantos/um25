@@ -4,6 +4,7 @@ export interface ServiceScene {
   duration: number;
   title: string;
   copy: string;
+  disciplineStage?: number;
   part?: string;
   open?: boolean;
   layer?: number;

@@ -128,7 +128,7 @@ const areaLabel = (area: unknown) => {
     back={{ href: '/sectores', label: '← Todos los sectores' }}
   />
 
-  <SectorJourney slug={sectorDataSlug} scene={cineScene} codes={serviceItems.map((item:any)=>String(item.id))} />
+  <SectorJourney slug={sectorDataSlug} scene={cineScene} />
 
   {criteriaItems.length > 0 && (
     <section class="sector26-criteria">
