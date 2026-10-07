@@ -6,12 +6,13 @@ if(!out||!path.isAbsolute(out))throw Error('Absolute artifact directory required
 fs.mkdirSync(out,{recursive:true});
 const routes=['/software',...[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(match=>match[1])];
 const registry=JSON.parse(fs.readFileSync('src/data/cine/site-movies-v1.json','utf8'));
-const report={scope:'all-eight-service-films',pages:[],findings:[]};
+const controlsOnly=process.env.FRAMING_CONTROLS_ONLY==='true';
+const report={scope:controlsOnly?'mobile-cinema-controls':'all-eight-service-films',pages:[],findings:[]};
 const traversedWebKit=new Set();
 const probe=process.env.FRAMING_PROBE==='true';
 for(const [engine,type] of (probe?[['WebKit',webkit]]:[['Chrome',chromium],['WebKit',webkit]])){
  const browser=await type.launch(engine==='Chrome'?{channel:'chrome',headless:true}:{headless:true});
- for(const width of (probe?[390]:[1440,1280,834,390,360])){
+ for(const width of (probe?[390]:controlsOnly?[820,390,360]:[1440,1280,834,390,360])){
   const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
   for(const [index,route] of (probe?routes.slice(0,2):routes).entries()){
    const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
@@ -29,9 +30,13 @@ for(const [engine,type] of (probe?[['WebKit',webkit]]:[['Chrome',chromium],['Web
     const state=await page.locator('[data-umc]').evaluate(root=>{
      const box=node=>{const b=node.getBoundingClientRect();return {x:b.x,y:b.y,width:b.width,height:b.height};};
      const poster=root.querySelector('.umc-poster'),stage=root.querySelector('.umc-stage'),video=root.querySelector('video');
-     return {poster:box(poster),stage:box(stage),video:box(video),source:poster.currentSrc,mask:getComputedStyle(poster).maskImage,width:innerWidth,scrollWidth:document.documentElement.scrollWidth};
+     const motion=root.querySelector('[data-umc-motion]'),controlBox=box(motion);
+     const hit=document.elementFromPoint(controlBox.x+controlBox.width/2,controlBox.y+controlBox.height/2);
+     const control={...controlBox,exposed:hit===motion||motion.contains(hit)};
+     return {control,poster:box(poster),stage:box(stage),video:box(video),source:poster.currentSrc,mask:getComputedStyle(poster).maskImage,width:innerWidth,scrollWidth:document.documentElement.scrollWidth};
     });
     const row={engine,width,route,state,errors};report.pages.push(row);
+    if(width<=820&&(!state.control.exposed||state.control.y<0||state.control.y+state.control.height>840||state.control.width<44||state.control.height<44))report.findings.push({engine,width,route,message:'Motion control is obscured or undersized',control:state.control});
     const code=route.match(/^\/servicios\/(\d+)\//)?.[1]||'104';
     const expected=registry.services?.[code]?.scene;
     if(!expected||!state.source.includes('cine-'+expected+'-poster'+(width<=820?'-sq':'')))report.findings.push({engine,width,route,expected,source:state.source});
@@ -47,7 +52,7 @@ for(const [engine,type] of (probe?[['WebKit',webkit]]:[['Chrome',chromium],['Web
      const playing=await page.locator('.umc-video.is-on').boundingBox();row.playing=playing;
      if(Math.abs(playing.y-state.poster.y)>1||Math.abs(playing.height-state.poster.height)>1)report.findings.push({engine,width,route,poster:state.poster,playing});
      await page.screenshot({path:path.join(out,`${engine}-${width}-${index}-playing.png`)});
-     if(engine==='WebKit'&&width===390&&!traversedWebKit.has(expected)){
+     if(!controlsOnly&&engine==='WebKit'&&width===390&&!traversedWebKit.has(expected)){
       await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime>=22,{},{timeout:35000,polling:250});
       const end=await page.locator('.umc-video.is-on').evaluate(v=>({time:v.currentTime,duration:v.duration,error:v.error?.code||null,src:v.currentSrc}));
       await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime<2,{},{timeout:6000,polling:100});

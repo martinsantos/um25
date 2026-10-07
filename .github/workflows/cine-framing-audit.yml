@@ -2,6 +2,10 @@ name: Cinema poster and playback framing
 on:
   workflow_dispatch:
     inputs:
+      controls_only:
+        description: Verify mobile motion controls across services without repeating duration tests
+        type: boolean
+        default: false
       probe:
         description: Diagnose native WebKit playback on two mobile routes
         type: boolean
@@ -43,6 +47,7 @@ jobs:
         env:
           PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
           FRAMING_PROBE: ${{ inputs.probe }}
+          FRAMING_CONTROLS_ONLY: ${{ inputs.controls_only }}
           VISUAL_AUDIT_DIR: ${{ runner.temp }}/software-framing
       - uses: actions/upload-artifact@v7
         if: always()
