@@ -1,7 +1,7 @@
 import { bindHardware } from '../public/cine/cine-studies-v5.js';
 import { bindProductTour } from '../public/cine/product-tour-v5.js';
 import { bindServicesStory } from '../public/cine/services-story-v5.js';
-import { banner } from '../public/cine/cine-banner-v8.js';
+import { banner } from '../public/cine/cine-banner-v9.js';
 
 let observers, preferences, media, frames, nextFrame;
 const settle = async () => { await Promise.resolve(); await Promise.resolve(); };
@@ -137,4 +137,17 @@ test.each(['software','network','security','telecom','support','consulting','fir
  const cleanup=banner(root);
  try{visible(root);await jest.advanceTimersByTimeAsync(600);await settle();expect(root.querySelector('video').getAttribute('src')).toBe('/cine/media/'+file);}
  finally{cleanup();Object.defineProperty(window,'innerWidth',{configurable:true,value:previous});}
+});
+
+test('a complete single movie restarts after ended and preserves an explicit pause',async()=>{
+ document.body.innerHTML='<div data-umc data-scenes="network-system-v1" data-annotations="none"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><button data-umc-motion></button></div>';
+ const root=document.querySelector('[data-umc]'),video=root.querySelector('video');
+ const cleanup=banner(root);visible(root);await jest.advanceTimersByTimeAsync(600);await settle();
+ expect(video.loop).toBe(false);
+ video.currentTime=23.9;video.dispatchEvent(new Event('timeupdate'));expect(video.currentTime).toBe(23.9);
+ video.currentTime=24;video.pause();video.dispatchEvent(new Event('ended'));await settle();
+ expect(video.currentTime).toBe(0);expect(video.paused).toBe(false);
+ root.querySelector('[data-umc-motion]').click();video.currentTime=24;video.dispatchEvent(new Event('ended'));await settle();
+ expect(video.currentTime).toBe(24);expect(video.paused).toBe(true);
+ cleanup();
 });
