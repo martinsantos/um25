@@ -2,7 +2,7 @@
 
 ## Alcance
 
-Las siete disciplinas que usaban películas de sector ya tienen su película propia en la preview. Software conserva su película específica mientras se termina su nueva edición de interfaz y arquitectura. La gran película de la home y los proyectos de sector conservan su función. Cada servicio combina cine arriba y explicación isométrica autónoma abajo.
+Las siete disciplinas que usaban películas de sector ya tienen su película propia en la preview. Software incorpora su nueva película v2 de interfaz y arquitectura, documentada en `software-product-direction-20261007.md`. La gran película de la home y los proyectos de sector conservan su función. Cada servicio combina cine arriba y explicación isométrica autónoma abajo.
 
 | Servicio | Acción y elementos propios |
 | --- | --- |
@@ -30,7 +30,7 @@ El workflow `Blender service cinema` produce fragmentos recuperables de 48 cuadr
 
 La integración usa el mismo encuadre para el póster y la película. Los equipos verticales conservan un área opaca mayor que la arquitectura de software para que los degradados no borren extremos. El reproductor selecciona la edición móvil por el contrato de composición, no por una medición del contenedor durante la carga.
 
-Antes de incorporar los archivos: 67 suites, 572 pruebas, lint, tipos, contrato CSS y build aprobados. La revisión final debe comprobar los ocho recorridos completos en Chrome nativo, la explicación automática y la composición en Chrome/WebKit a 1440, 1280, 834, 390 y 360 px.
+El control del código final aprobó 67 suites / 573 pruebas, lint, tipos, contrato CSS y build. La revisión [37678895936](https://github.com/martinsantos/um25/actions/runs/37678895936) comprobó once rutas en Chrome por perfil (escritorio y móvil), reproducción completa, avance autónomo y 55 composiciones WebKit, sin hallazgos. Se revisaron las capturas reales de los siete banners y de las arquitecturas de redes, incendio y energía. La revisión final [37690846436](https://github.com/martinsantos/um25/actions/runs/37690846436) incluye Software v2, la escala tablet y el reproductor v9 en 90 combinaciones de ruta, motor y ancho.
 
 Estado de producción: **sin despliegue**. Las pruebas artísticas y funcionales no equivalen por sí solas a una declaración de perfección o GO general.
 
@@ -38,4 +38,7 @@ Estado de producción: **sin despliegue**. Las pruebas artísticas y funcionales
 
 El [ensamblado 37675998479](https://github.com/martinsantos/um25/actions/runs/37675998479) reúne los 84 fragmentos originales y recuperados. Se importaron las siete películas, cada una con 576 cuadros únicos de 24 segundos, ancho Full HD, edición cuadrada y cuatro pósters. Los 42 archivos suman 64.408.960 bytes; cada página descarga sólo su edición. El importador verificó SHA-256, duración, formato y los 576 encuadres antes de escribir el registro.
 
-Después de importarlas, `npm run check` aprobó lint, tipos, contrato CSS, 67 suites / 572 pruebas y build. La preview del puerto 4326 se reinició sobre ese build y Redes sirve `network-system-v1`. La revisión nativa de navegador de esta nueva entrega sigue pendiente; no debe confundirse con las revisiones de versiones anteriores.
+Después de importarlas, `npm run check` aprobó lint, tipos, contrato CSS, 67 suites / 572 pruebas y build. La preview del puerto 4326 se reinició sobre ese build y Redes sirve `network-system-v1`. La revisión nativa de esta entrega se completó en `37678895936`, citada arriba. Las comprobaciones adicionales del reproductor v9 y Software v2 corresponden a los runs finales; no se confunden con esta revisión anterior.
+
+
+La revisión final `37690846436`, sobre `165a1b2b`, aprobó las 90 composiciones Chrome/WebKit sin hallazgos y verificó los ocho bucles completos en WebKit móvil. La revisión de Software v2 `37690850289` también finalizó sin hallazgos. El reproductor v9 espera el final antes de repetir; el control respeta movimiento reducido y pausa explícita. Estas comprobaciones se realizaron en runners Linux, no en dispositivos físicos iOS.
