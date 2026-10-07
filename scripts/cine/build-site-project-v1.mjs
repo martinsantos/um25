@@ -244,9 +244,16 @@ for(const spec of scenes){
   effects.push(effect('108',bars,String(phase)));
  }
  effects.push(effect('106',pathLine({points:[[12,12,.4],[588,12,.4],[588,328,.4],[12,328,.4],[12,12,.4]],color:'red',width:1},'stroke-dasharray="4 5"'),'1'));
+ const focusPrefixes={'101':['rack'],'102':['camera-0'],'104':['operations'],'105':['rack'],'107':['fire-panel','fire-lcd'],'108':['ups']};
+ const focusSVG=Object.entries(focusPrefixes).map(([code,prefixes])=>{
+  const selected=boxes.filter(b=>prefixes.some(prefix=>b.id===prefix||b.id.startsWith(prefix+'-')));
+  const pts=selected.flatMap(b=>[b.x-b.w/2,b.x+b.w/2].flatMap(x=>[b.y-b.d/2,b.y+b.d/2].flatMap(y=>[b.z,b.z+b.h].map(z=>P([x,y,z])))));
+  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]),left=Math.min(...xs),right=Math.max(...xs),top=Math.min(...ys),bottom=Math.max(...ys);
+  return '<g data-project-focus="'+code+'" data-x="'+n((left+right)/2)+'" data-y="'+n((top+bottom)/2)+'" data-width="'+n(right-left)+'" data-height="'+n(bottom-top)+'"/>';
+ }).join('');
  const structure=faces.map(polygon).join('')+lines.map(l=>pathLine(l)).join('')+circlesSVG;
 
- const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" class="sp-scene" role="img" aria-labelledby="sp-'+spec.id+'-title sp-'+spec.id+'-desc"><title id="sp-'+spec.id+'-title">'+esc(spec.name)+'</title><desc id="sp-'+spec.id+'-desc">Un solo proyecto isométrico con espacios, equipos, montante, bandejas y recorridos. La estructura permanece; cada servicio recorre su instalación.</desc><g class="sp-root"><g class="sp-structure">'+structure+'</g>'+routeSVG+effects.join('')+pinSVG+labelSVG+'</g><path class="sp-leader" data-project-leader="" fill="none" stroke="#DC2626" stroke-opacity=".65" stroke-width=".8" stroke-dasharray="3 5" vector-effect="non-scaling-stroke"/></svg>';
+ const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" class="sp-scene" role="img" aria-labelledby="sp-'+spec.id+'-title sp-'+spec.id+'-desc"><title id="sp-'+spec.id+'-title">'+esc(spec.name)+'</title><desc id="sp-'+spec.id+'-desc">Un solo proyecto isométrico con espacios, equipos, montante, bandejas y recorridos. La estructura permanece; cada servicio recorre su instalación.</desc><g class="sp-root"><g class="sp-structure">'+structure+'</g>'+routeSVG+effects.join('')+focusSVG+pinSVG+labelSVG+'</g><path class="sp-leader" data-project-leader="" fill="none" stroke="#DC2626" stroke-opacity=".65" stroke-width=".8" stroke-dasharray="3 5" vector-effect="non-scaling-stroke"/></svg>';
  fs.writeFileSync(path.join(out,'site-'+spec.id+'-v1.svg'),svg);
  all.push({...spec,boxes,cylinders,lines,circles,routes,pins,projection:{c:C,s:.5,scale:S,origin:[540,278]},dimensions:{width:600,depth:340,floorHeight:112},svgBytes:Buffer.byteLength(svg),faceCount:faces.length});
 }

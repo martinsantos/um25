@@ -78,7 +78,7 @@ export function bindServiceAtlas(root) {
       });
     }
     project.dataset.operationPhase=state?String(state.phase):'';
-    const sceneRoot=project.querySelector('.sp-root');
+    const sceneRoot=project.querySelector('.sp-root');let operationScale=1;
     if(sceneRoot){
       sceneRoot.style.removeProperty('transform');
       if(state?.phase===1&&index===0){
@@ -95,12 +95,13 @@ export function bindServiceAtlas(root) {
           let scale=Math.min(1.8,850/Math.max(300,right-left),450/Math.max(220,bottom-top));
           let center=[(left+right)*.5,(top+bottom)*.5];
           if(code!=='103'&&code!=='106'){
-            const first=routePaths[0].getAttribute('d').match(/-?\d+(?:\.\d+)?/g).map(Number);
-            center=['101','107','108'].includes(code)?first.slice(0,2):first.slice(-2);
-            scale=window.innerWidth<=760?5:3.2;
-            // Aim above the connection point to include the device body.
-            center[1]-=code==='101'||code==='105'?20:8;
+            const bounds=project.querySelector(`[data-project-focus="${code}"]`);
+            if(bounds){
+              center=[Number(bounds.dataset.x),Number(bounds.dataset.y)];
+              scale=Math.min(window.innerWidth<=760?5:3.2,600/Math.max(1,Number(bounds.dataset.width)),520/Math.max(1,Number(bounds.dataset.height)));
+            }
           }
+          operationScale=scale;
           const x=600-center[0]*scale,y=350-center[1]*scale;
           sceneRoot.style.transform=`translate(${x}px,${y}px) scale(${scale})`;
         }
@@ -131,7 +132,15 @@ export function bindServiceAtlas(root) {
       });
       project.querySelector('.sp-root')?.append(signalLayer);
     }
-    if(signalLayer)signalLayer.style.display=state?'':'none';
+    if(signalLayer){
+      signalLayer.style.display=state?'':'none';
+      const box=project.querySelector('svg').getBoundingClientRect();
+      const factor=box.width&&box.height?Math.min(box.width/1200,box.height/720):1;
+      signalLayer.querySelectorAll('.sp-operation-label').forEach(label=>{
+        label.style.fontSize=`${16/(factor*operationScale)}px`;
+        label.style.strokeWidth=`${4/(factor*operationScale)}px`;
+      });
+    }
   }
   async function sync({manual=false,narration=null,newChapter=false}={}) {
     if(!active||disposed)return;

@@ -13,9 +13,9 @@ const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const browser=await chromium.launch({channel:'chrome',headless:true});
 const viewport=profile==='mobile'?{width:390,height:844}:{width:1440,height:900};
 const servicePaths=[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(match=>match[1]);
-const pilotOnly=process.env.VISUAL_AUDIT_PILOT_ONLY==='1';
-const routes=pilotOnly?['/bodegas',servicePaths.find(path=>path.startsWith('/servicios/107/'))]:process.env.VISUAL_AUDIT_HOME_ONLY==='1'?['/']:['/','/servicios','/sectores',...['constructoras','bodegas','salud','aeropuertos','industria','mineria','gobiernosectorpublico','seguridad-electronica','software'].map(s=>'/'+s),...servicePaths];
-const report={profile,viewport,scope:pilotOnly?'winery-pilot':process.env.VISUAL_AUDIT_HOME_ONLY==='1'?'home':'all',commit:process.env.GITHUB_SHA,pages:[],findings:[],movieCoverage:[],clock:'Native playback; narrative timers accelerated only in separate story pages'};
+const pilotOnly=process.env.VISUAL_AUDIT_PILOT_ONLY==='1',includeHome=process.env.VISUAL_AUDIT_HOME_ONLY==='1';
+const routes=pilotOnly?[...(includeHome?['/']:[]),'/bodegas',servicePaths.find(path=>path.startsWith('/servicios/107/'))]:process.env.VISUAL_AUDIT_HOME_ONLY==='1'?['/']:['/','/servicios','/sectores',...['constructoras','bodegas','salud','aeropuertos','industria','mineria','gobiernosectorpublico','seguridad-electronica','software'].map(s=>'/'+s),...servicePaths];
+const report={profile,viewport,scope:pilotOnly?(includeHome?'home-and-winery-pilot':'winery-pilot'):process.env.VISUAL_AUDIT_HOME_ONLY==='1'?'home':'all',commit:process.env.GITHUB_SHA,pages:[],findings:[],movieCoverage:[],clock:'Native playback; narrative timers accelerated only in separate story pages'};
 const movies=new Set();
 const slug=route=>route==='/'?'home':route.replace(/\/$/,'').replaceAll('/','_').slice(1);
 const finding=(route,message,detail)=>{report.findings.push({route,message,detail});console.log('FINDING',route,message);};
@@ -119,6 +119,17 @@ for(const route of routes){
     const key=state.code+'-'+state.scene;
     if(!captured.has(key)&&(state.code===chapters[0].code||['object','detail'].includes(state.view)||current?.flow?.phase===1)){
      captured.add(key);await delay(1550);
+     if(current?.flow?.phase===1){
+      const framing=await story.locator('[data-atlas-project]').evaluate(root=>{
+       const focus=root.querySelector(`[data-project-focus="${root.dataset.projectService}"]`);if(!focus)return null;
+       const x=Number(focus.dataset.x),y=Number(focus.dataset.y),w=Number(focus.dataset.width),h=Number(focus.dataset.height);
+       const matrix=root.querySelector('.sp-root').getScreenCTM();
+       const points=[[x-w/2,y-h/2],[x+w/2,y+h/2]].map(([x,y])=>new DOMPoint(x,y).matrixTransform(matrix));
+       const stage=root.closest('[data-atlas-theater]').getBoundingClientRect();
+       return {device:{left:points[0].x,top:points[0].y,right:points[1].x,bottom:points[1].y},stage:{left:stage.left,top:stage.top,right:stage.right,bottom:stage.bottom}};
+      });
+      if(framing){const {device,stage}=framing;if(device.left<stage.left-2||device.right>stage.right+2||device.top<stage.top-2||device.bottom>stage.bottom+2)finding(route,'The focused device is clipped by the stage',{code:state.code,...framing});}
+     }
      if(current?.flow?.phase===1&&state.code!=='103'){
       const effect=await story.locator('[data-atlas-project]').evaluate(root=>({code:root.dataset.projectService,visible:[...root.querySelectorAll('.sp-effect')].filter(node=>Number(getComputedStyle(node).opacity)>.8).map(node=>node.getAttribute('class'))}));
       row.deviceEffects||=[];row.deviceEffects.push(effect);
@@ -155,7 +166,7 @@ for(const route of routes){
  fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));
 }
 // Record actual elapsed-time operation and verify CSS transport, independently of fake clocks.
-if(!pilotOnly){
+if(!pilotOnly||includeHome){
 const liveContext=await browser.newContext({viewport,isMobile:profile==='mobile',hasTouch:profile==='mobile',reducedMotion:'no-preference',recordVideo:{dir:out,size:viewport}});
 const live=await liveContext.newPage();
 await live.goto(origin,{waitUntil:'load'});
