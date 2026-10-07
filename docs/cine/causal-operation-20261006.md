@@ -1,39 +1,29 @@
-# Continuidad operativa: un incidente de principio a fin
+# Explicación autónoma de servicios · 7 de octubre de 2026
 
-Esta iteración reemplaza la puesta en marcha de ocho escenas independientes por un único incidente eléctrico ilustrativo de 64 segundos. La historia mantiene el estado de la instalación entre servicios: el corte no desaparece cuando cambia el título.
+La composición pública conserva el cine Blender en la apertura y usa debajo una sola explicación isométrica. La información principal se entrega sin abrir una biblioteca ni seleccionar una vista.
 
-| Momento | Evidencia visible |
-| --- | --- |
-| Preparación | Instalación completa y cargas previstas |
-| Corte | Entrada interrumpida, puesto sin respaldo atenuado, UPS activa |
-| Continuidad | Cámara y recorrido de video disponibles |
-| Aviso | Comunicación con la supervisión remota |
-| Asignación | Registro 024 y responsable de soporte |
-| Intervención | Gabinete abierto; alimentación de respaldo todavía activa |
-| Verificación | Entrada restablecida, comprobación independiente de los sistemas |
-| Cierre | Alimentación habitual y caso documentado |
+- La home muestra `ServicesStory` directamente. `RequestSequence` queda conservado como prototipo, fuera de la home.
+- La secuencia predeterminada recorre proyecto, equipo, interior, conexión y resultado. Software incluye aplicación, navegación, contenido y acciones.
+- Cada servicio conserva una explicación legible de necesidad, funcionamiento y entrega mientras la ilustración cambia. La leyenda del dibujo describe el detalle que se está viendo, sin repetir el texto de alcance.
+- El modelo del sitio se conserva como contexto durante los despieces. La transición usa las mismas geometrías vectoriales y muestra su relación con el componente.
+- La selección de servicio queda después del relato. Los controles de vistas permiten volver sobre la explicación; no son la entrada obligatoria al contenido.
+- El recorrido inicia al entrar en pantalla, continúa al terminar una exploración y respeta pausa explícita, teclado, pestaña oculta y movimiento reducido.
 
-Los tres estados de infraestructura y el registro operativo permanecen visibles. La narración explica el dimensionamiento de autonomía y la integración configurada; es una simulación explicativa, no telemetría ni un caso real atribuido a un cliente. Los textos se acortaron para poder leerlos durante cada etapa de ocho segundos.
+## Verificación
 
-Implementación: `RequestSequence.astro`, `requestSequence.ts`, controlador público versionado `request-sequence-v4.js`, geometría `request-operation-v3.svg` generada por `build-request-operation-v3.py`. Se conservan las pausas por visibilidad, pestaña, elección explícita y movimiento reducido. Los detalles de equipos siguen disponibles en la biblioteca de servicios.
+El primer pase remoto `37604189102` confirmó el recorrido autónomo en home, Bodegas y servicio 107, incluyendo equipos e interiores. Chrome escritorio no reportó fallos. Móvil y WebKit detectaron desborde a 360 px. La inspección de las capturas detectó además una regla de ancho SVG anulada por la cascada: la vista general móvil quedaba pequeña y corrida a la izquierda. Ambos problemas se corrigieron en `135565f6`.
 
-## Integración en servicios y sectores
+Se revisó también la grabación nativa del recorrido, sin reloj acelerado, para evaluar la transición al interior y el retorno al proyecto. Las capturas con reloj acelerado pueden mostrar una transición intermedia y no se toman como prueba de su posición final.
 
-Las seis maquetas sectoriales mantienen el proyecto completo y añaden efectos vectoriales situados sobre los equipos: cobertura y mosaico de video, aviso y verificación en la central, indicador de respaldo en la UPS, filas de trabajo que avanzan en la consola y confirmación de los puntos de red. Consultoría señala el perímetro del relevamiento. Telecomunicaciones conserva el transporte por su enlace. La etapa intermedia se acerca al dispositivo protagonista sin sacarlo de la maqueta; telecomunicaciones conserva los dos extremos del enlace. Las tres etapas autónomas continúan sin interacción. Los estados se apagan al pasar a otro servicio y respetan movimiento reducido.
+`npm run check` pasó lint, tipos, auditoría CSS, 66 suites / 525 pruebas y build. La prueba del relato verifica que la explicación completa permanezca visible mientras proyecto, equipo, interior y detalle avanzan sin eventos de entrada.
 
-## Precisión de la isometría
+La verificación completa del código `135565f6` terminó correctamente en [37605771152](https://github.com/martinsantos/um25/actions/runs/37605771152): 20 rutas en Chrome escritorio/móvil y 20 combinaciones de ruta/ancho en WebKit, cero hallazgos y cero errores de ejecución. Todos los servicios previstos fueron visitados sin interacción. A 360 y 390 px el ancho de documento coincide con el viewport. Se inspeccionaron las capturas corregidas y la grabación nativa final; WebKit Linux no equivale a Safari físico.
 
-La revisión de los primeros planos reveló que el orden por centroide de las caras ocultaba módulos pequeños detrás de la carcasa del gabinete. El generador ahora compara la profundidad en el área de superposición y ordena las caras antes de dibujarlas. Una regresión sobre las seis maquetas verifica que los puertos queden delante de su carcasa. Los recorridos se descomponen en tramos ortogonales, también verificados por prueba; se eliminan las diagonales arbitrarias. Estas operaciones ocurren al generar el SVG, sin cargar cómputo extra al navegador.
+Los checks del PR sobre el código validado pasaron build, pruebas, lint y comparación de la campaña protegida. La preview local entrega sus 14 referencias de scripts/estilos sin errores HTTP. No se modifican assets bajo `public/cine` que ya existieran en la base `develop`.
 
-## Validación terminada
+Evidencia conservada en `autonomous-explanation-20261007` dentro de las visualizaciones del hilo: informes de ambos perfiles, informe WebKit, grabaciones nativas y capturas de contexto, interior y software.
 
-- `npm run check` pasó lint, tipos, auditoría CSS, 66 suites y 518 pruebas, además del build, en `ef55428e`.
-- La auditoría remota `37556051386` comprueba la secuencia en Chrome escritorio/móvil y los anchos del contrato; incluye conservación del corte hasta la intervención y los estados recibido/asignado/intervención/verificado/cerrado. Terminó correctamente en ambos perfiles y en las 20 combinaciones de WebKit. Se inspeccionaron las capturas y la secuencia móvil; esa revisión detectó la cartela superpuesta y motivó su eliminación.
-- La composición corregida y los textos breves pasaron `37557355117`, commit `3e39599c`, en Chrome escritorio/móvil y 20 combinaciones de WebKit.
-- La integración completa de dispositivos, profundidad y video pasó `npm run check`: 66 suites / 524 pruebas y build. Las auditorías `37557798673` y `37558397771` se cancelaron al descubrir y corregir los problemas de encuadre y profundidad; no constituyen validaciones finales.
-- `37559290210`, commit `7d168d94`: 20 rutas en Chrome escritorio y móvil, 20 películas reproduciéndose por perfil, servicios previstos visitados sin clics, cero errores de ejecución y cero hallazgos funcionales. Se inspeccionaron capturas de las veinte rutas.
-- La revisión del piloto detectó después un gabinete recortado en móvil y rótulos que crecían con el zoom. El encuadre ahora usa límites geométricos del dispositivo; los rótulos conservan 16 px de lectura y los marcadores no tapan sus pantallas. La auditoría incluye una medición que rechaza equipos fuera de cuadro. Pase de encuadres `37560835964`, commit `40d119dd`; pase final de marcadores `37561106925`, commit `623f5852`. Ambos terminaron correctamente, con cero hallazgos. El primero incluye los ocho servicios de la home, Bodegas, servicio 107 y 20 combinaciones de WebKit; el segundo confirma el último ajuste de marcadores y reproducción del video en escritorio/móvil. Se inspeccionaron las capturas finales del gabinete completo y de la central, con rótulos de tamaño constante. WebKit Linux no sustituye una prueba en Safari físico.
-- La matriz anterior de 20 rutas corresponde a la versión previa y está documentada en `continuous-operation-20261006.md`; no se presenta como evidencia de esta nueva narración.
+La preview integrada continúa en `http://127.0.0.1:4326/`. Esta revisión no genera películas nuevas ni cambia la tipografía global. Conserva el piloto Blender de Bodegas y la apertura cinematográfica de la home. Producción no se despliega desde esta iteración.
 
 ## Piloto cinematográfico Blender
 
@@ -41,11 +31,3 @@ Se preparó `render-site-project-v2.py` con una aproximación continua de 18 seg
 
 La película está importada como `bodega-proyecto-v4` y seleccionada por el registro de Bodegas y el servicio 107. No se reemplaza ningún asset publicado. La película grande original de la home se conserva. La reproducción web del medio nuevo pasó `37559937756`, commit `4bd057de`: Bodegas y servicio 107 en escritorio y móvil, reproducción automática y cero hallazgos.
 
-No hay despliegue a producción en esta iteración. No se modifican la campaña protegida, CMS, infraestructura del servidor ni tipografía global.
-
-
-## Entrega de la revisión
-
-Preview integrada: `http://127.0.0.1:4326/` y `/bodegas`. Evidencia conservada en el directorio `causal-operation-20261006` de las visualizaciones del hilo: informes de veinte rutas, cierre de encuadres, WebKit, capturas y grabaciones. El código final pasó los checks del PR: build, pruebas, lint y comparación de la campaña protegida. El guard de rutas scoped se evaluó contra los archivos del PR y no detectó rutas fuera de alcance ni assets públicos modificados respecto de la base.
-
-Esta entrega renueva la película de Bodegas; las películas de los otros proyectos se conservan. La validación documentada cubre funcionamiento, geometría, legibilidad y revisión visual de esta versión. No acredita superioridad frente a todos los sitios del mundo ni reemplaza la verificación de infraestructura necesaria para publicar.
