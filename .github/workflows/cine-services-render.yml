@@ -167,7 +167,7 @@ jobs:
           ffmpeg -v error -i "$NAME.mp4" -frames:v 1 -q:v 2 "$NAME-poster.jpg"
           ffmpeg -v error -i "$NAME-sq.mp4" -frames:v 1 -q:v 2 "$NAME-poster-sq.jpg"
           for SUFFIX in poster poster-sq; do ffmpeg -v error -i "$NAME-$SUFFIX.jpg" -c:v libaom-av1 -still-picture 1 -crf 24 "$NAME-$SUFFIX.avif"; done
-          ffmpeg -v error -i "$NAME.mp4" -f null -
+          ffmpeg -v error -i "$NAME.mp4" -f framemd5 delivery/frame-integrity.txt
           ffmpeg -v error -i "$NAME-sq.mp4" -f null -
           ffprobe -v error -count_frames -show_streams -show_format -of json "$NAME.mp4" > delivery/validation.json
           ffprobe -v error -count_frames -show_streams -show_format -of json "$NAME-sq.mp4" > delivery/validation-square.json
@@ -179,6 +179,9 @@ jobs:
               assert (v['codec_name'],v['width'],v['height'],v['nb_read_frames'],v['avg_frame_rate'],v['pix_fmt'])==('h264',width,height,'576','24/1','yuv420p'),v
               assert abs(float(v['duration'])-24)<.01
           infos=[json.loads(Path(f"service-{os.environ['SERVICE']}-part-{i}/part-{i}-info.json").read_text()) for i in range(1,13)]
+          decoded=[line for line in Path('delivery/frame-integrity.txt').read_text().splitlines() if line and not line.startswith('#')]
+          assert len(decoded)==576
+          assert len({line.split(',')[-1].strip() for line in decoded})>=570, 'Encoded movie freezes or duplicates its frames'
           info=infos[0]
           assert all(item['service']==os.environ['SERVICE'] and item['scene']==info['scene'] and item['engine']==info['engine'] and item['samples']==info['samples'] for item in infos)
           info['sourceRuns']=[os.environ['SOURCE_RUN']]+[r for r in os.environ.get('REPAIR_RUNS','').split(',') if r]
