@@ -7,7 +7,7 @@ import {REQUEST_SEQUENCE} from '../../data/cine/requestSequence';
  <header class="request-story__header"><p>La continuidad, por dentro <span>Un recorrido de 64 segundos</span></p><button type="button" data-request-play aria-pressed="false">Pausar recorrido</button></header>
  <div class="request-story__narration"><p class="request-story__eyebrow" data-request-role>{REQUEST_SEQUENCE[0].role}</p><h3 data-request-title>{REQUEST_SEQUENCE[0].title}</h3></div>
  <figure class="request-story__figure">
-  <div class="request-story__callout"><span class="request-story__live-dot" aria-hidden="true"/><span data-operation-label>{REQUEST_SEQUENCE[0].label}</span></div>
+  <figcaption data-request-copy>{REQUEST_SEQUENCE[0].copy}</figcaption>
   <div class="request-story__canvas" data-request-canvas set:html={illustration}/>
   <dl class="request-story__systems" aria-label="Estado ilustrativo de la instalación">
    <div><dt>Entrada eléctrica</dt><dd data-operation-grid>Disponible</dd></div>
@@ -16,7 +16,6 @@ import {REQUEST_SEQUENCE} from '../../data/cine/requestSequence';
   </dl>
   <div class="request-story__incident"><div><span>Registro operativo <b data-operation-case-number>024</b></span><strong data-operation-case-status>Sin incidentes</strong></div><ol aria-label="Seguimiento del caso">{['Recibido','Asignado','Verificado','Cerrado'].map(label=><li data-operation-case-row data-state="next">{label}</li>)}</ol></div>
   <span data-request-status class="request-story__sr-status">{REQUEST_SEQUENCE[0].status}</span>
-  <figcaption data-request-copy>{REQUEST_SEQUENCE[0].copy}</figcaption>
  </figure>
  <ol class="request-story__progress" aria-label="Etapas del recorrido">{['Preparación','Corte','Continuidad','Aviso','Asignación','Intervención','Verificación','Cierre'].map((label,i)=><li data-request-milestone data-state={i===0?'current':'next'}><span>{label}</span></li>)}</ol>
 
@@ -34,8 +33,7 @@ import {REQUEST_SEQUENCE} from '../../data/cine/requestSequence';
  .request-story__canvas :global([data-request-row] rect){transition:fill 700ms ease,stroke 700ms ease}
  .request-story[data-request-step="5"] :global([data-request-row="0"] rect),.request-story[data-request-step="6"] :global([data-request-row="1"] rect),.request-story[data-request-step="7"] :global([data-request-row="2"] rect){fill:#4b171b;stroke:#ff777e;stroke-width:2}
  .request-story[data-request-step="6"] :global(.rq-return){stroke:#fff;stroke-opacity:1;stroke-width:2}
- .request-story__canvas :global(.rq-door){transform:translate(-490.17px,-10px) matrix(.866025404,.5,0,1,0,0);transition:transform 1600ms cubic-bezier(.22,1,.36,1)}
- .request-story[data-request-step="1"] :global(.rq-door),.request-story[data-request-step="2"] :global(.rq-door),.request-story[data-request-step="3"] :global(.rq-door),.request-story[data-request-step="4"] :global(.rq-door),.request-story[data-request-step="5"] :global(.rq-door){transform:translate(-490.17px,-10px) matrix(-1.003442,.405579788,0,1,0,0)}
+ .request-story__canvas :global(.rq-door){transition:transform 1600ms cubic-bezier(.22,1,.36,1)}
  .request-story__receipt{padding-inline:20px;display:flex;align-items:center;gap:24px;min-height:52px;border-block:1px solid #ffffff25;font-size:1rem}.request-story__receipt strong{font-variant-numeric:tabular-nums}.request-story__receipt [data-request-status]{color:#fff}.request-story__example{margin-left:auto;color:var(--muted)}
  .request-story figcaption{max-width:72ch;padding-inline:20px;min-height:110px;padding:20px 0;color:var(--muted);font-size:var(--um-copy-description,1.125rem);line-height:1.6}
  .request-story__progress{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;margin:0;padding:0;list-style:none}.request-story__progress li{border-top:2px solid #ffffff30;padding-top:12px;color:var(--muted);font-size:1rem}.request-story__progress li[data-state=current],.request-story__progress li[data-state=seen]{border-color:#dc2626}.request-story__progress li[data-state=current]{color:#fff}
@@ -57,7 +55,20 @@ import {REQUEST_SEQUENCE} from '../../data/cine/requestSequence';
  .request-story[data-grid-state="lost"] :global(.op-battery),.request-story[data-grid-state="lost"] :global(.op-grid-loss){opacity:1}.request-story[data-grid-state="lost"] :global(.op-grid-feed){opacity:.15}
  .request-story[data-request-step="6"] :global(.op-alarm){opacity:1}.request-story:not([data-case-state="none"]) :global(.op-software-feed){opacity:1}.request-story:not([data-case-state="none"]) :global(.op-video-feed){opacity:0}.request-story:not([data-case-state="none"]) :global(.op-incident-marker){opacity:1}.request-story[data-case-state="received"] :global(.op-remote-alert){opacity:1}
  .request-story[data-case-state="closed"] :global(.op-incident-marker rect){fill:#202933}.request-story__canvas :global([data-operation-focus]){display:none}
- .request-story__canvas :global(.rq-door){transform:translate(-490.17px,-10px) matrix(.866025404,.5,0,1,0,0)!important}.request-story[data-request-step="5"] :global(.rq-door),.request-story[data-request-step="6"] :global(.rq-door){transform:translate(-490.17px,-10px) matrix(-1.003442,.405579788,0,1,0,0)!important}
+ .request-story__canvas :global(.rq-door){transform:translate(-490.17px,-10px) matrix(.866025404,.5,0,1,0,0)}.request-story[data-request-step="5"] :global(.rq-door),.request-story[data-request-step="6"] :global(.rq-door){transform:translate(-490.17px,-10px) matrix(-1.003442,.405579788,0,1,0,0)}
  @media(max-width:760px){.request-story__canvas{height:auto;aspect-ratio:640/520}.request-story__systems{gap:12px;grid-template-columns:1fr 1fr;padding:16px 0}.request-story__systems>div:last-child{grid-column:1/-1;display:flex;gap:16px}.request-story__incident>div{flex-wrap:wrap;gap:8px}.request-story__incident ol{gap:12px;flex-wrap:wrap}.request-story__incident{min-height:134px}.request-story__progress{gap:6px}.request-story__example{line-height:1.5}}
  @media(prefers-reduced-motion:reduce){.request-story__canvas :global(*){transition:none!important}}
+
+ /* Read the event while seeing its consequences; keep the drawing unobstructed. */
+ .request-story__narration{min-height:88px}
+ .request-story figcaption{min-height:88px;padding:4px 0 20px;margin:0;max-width:76ch}
+ .request-story__incident ol{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;max-width:580px}
+ @media(max-width:760px){
+  .request-story__header{min-height:52px;gap:12px}.request-story__header p{max-width:18ch}.request-story__header button{white-space:nowrap;flex:none}
+  .request-story__narration{min-height:108px;padding-top:20px}
+  .request-story figcaption{min-height:126px;padding:0 0 16px;font-size:1rem;line-height:1.5}
+  .request-story__incident{min-height:112px}
+  .request-story__incident ol{gap:8px;margin-top:12px}
+  .request-story__incident li::before{display:block;margin:0 0 4px}
+ }
 </style>
