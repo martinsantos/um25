@@ -17,6 +17,7 @@ name: Blender software architecture
         options:
           - v1
           - v2
+          - v3
         default: v2
       repair_parts:
         description: Comma-separated missing part numbers (1–12)
@@ -56,6 +57,7 @@ jobs:
     steps:
       - id: plan
         env:
+          VERSION: ${{ inputs.version || 'v2' }}
           MODE: ${{ inputs.mode || 'proof' }}
           REPAIR_PARTS: ${{ inputs.repair_parts }}
           REPAIR_SEGMENTS: ${{ inputs.repair_segments }}
@@ -63,7 +65,9 @@ jobs:
           python3 - <<'PYPLAN'
           import json,os
           selected=[]
-          rows=[dict(part=i+1,start=f,end=f,frames=1) for i,f in enumerate([0,144,288,432,575])] if os.environ['MODE']=='proof' else [dict(part=i+1,start=i*48,end=i*48+47,frames=48) for i in range(12)]
+          assert os.environ['VERSION']!='v3' or os.environ['MODE']=='proof', 'v3 requires visual proof before a full render'
+          proof_frames=[0,360,720,1080,1439] if os.environ['VERSION']=='v3' else [0,144,288,432,575]
+          rows=[dict(part=i+1,start=f,end=f,frames=1) for i,f in enumerate(proof_frames)] if os.environ['MODE']=='proof' else [dict(part=i+1,start=i*48,end=i*48+47,frames=48) for i in range(12)]
           if os.environ['MODE']=='repair':
               selected=[int(n) for n in os.environ['REPAIR_PARTS'].split(',')]
               assert selected and len(selected)==len(set(selected)) and all(1<=n<=12 for n in selected)
@@ -89,6 +93,7 @@ jobs:
           sparse-checkout: |-
             scripts/cine/render-software-system-v1.py
             scripts/cine/render-software-system-v2.py
+            scripts/cine/render-software-system-v3.py
             public/fonts/um-sans/UMSans-Regular.ttf
             public/fonts/um-sans/UMSans-SemiBold.ttf
             scripts/cine/prepare-blender-fonts.py
@@ -116,20 +121,22 @@ jobs:
           tar -xf blender-4.5.3-linux-x64.tar.xz
         timeout-minutes: 20
       - uses: actions/setup-python@v6
-        if: (inputs.version || 'v2') == 'v2'
+        if: (inputs.version || 'v2') != 'v1'
         with:
           python-version: '3.12'
       - name: Prepare render-only type contours
-        if: (inputs.version || 'v2') == 'v2'
+        if: (inputs.version || 'v2') != 'v1'
         run: |
           python -m pip install --disable-pip-version-check fonttools==4.58.0 skia-pathops==0.8.0.post2
           python scripts/cine/prepare-blender-fonts.py public/fonts/um-sans /tmp/um-cine-fonts
       - name: Render the software architecture
         run: |
           FONT_ARGS=()
-          if [ "$VERSION" = v2 ]; then FONT_ARGS=(--font-dir /tmp/um-cine-fonts); fi
+          if [ "$VERSION" != v1 ]; then FONT_ARGS=(--font-dir /tmp/um-cine-fonts); fi
+          QUALITY_ARGS=(--samples 24)
+          if [ "$VERSION" = v3 ]; then QUALITY_ARGS=(--samples 48 --width 3840); fi
           python3 scripts/cine/render-software-system-$VERSION.py --validate-only
-          ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-$VERSION.py -- --samples 24 --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames "${FONT_ARGS[@]}"
+          ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-$VERSION.py -- "${QUALITY_ARGS[@]}" --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames "${FONT_ARGS[@]}"
       - uses: actions/upload-artifact@v7
         if: (inputs.mode || 'proof') == 'proof'
         with:
