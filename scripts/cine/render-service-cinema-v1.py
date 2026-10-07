@@ -290,7 +290,7 @@ def consulting(s):
     s.text('RELEVAMIENTO',-4.75,.32,.466,.17,'ink')
     # Survey markings are part of the drawing: rooms, dimensions, endpoints.
     for j in range(20):
-        s.box(-4.72+j*.20,.48,.467,.01,.11 if j%5==0 else .06,.003,'ink')
+        s.box(-4.72+j*.20,3.92,.467,.01,.11 if j%5==0 else .06,.003,'ink')
     for j in range(14):
         s.box(-5.04,1.0+j*.20,.467,.09 if j%5==0 else .05,.009,.003,'ink')
     for xx,yy in [(-4.3,1.4),(-2.4,1.4),(-2.4,3.0),(-1.2,3.0)]:
@@ -303,8 +303,19 @@ def consulting(s):
         x=1.0+j*1.58;y=2.80
         s.box(x,y,.38+j*.018,1.34,2.20,.022,'paper')
         s.text(['DEPENDENCIAS','RIESGOS','ALTERNATIVAS'][j],x-.58,y+.77,.425+j*.018,.10,'ink')
-        for k in range(5):
-            s.box(x,y+.35-k*.24,.422+j*.018,.98 if k%2 else .75,.026,.004,'muted')
+        zz=.423+j*.018
+        if j==0:
+            for dx,dy in [(-.3,.3),(.3,.3),(0,-.25)]:
+                s.box(x+dx,y+dy,zz,.26,.23,.015,'slate')
+            s.line([(x-.3,y+.16,zz+.012),(x-.3,y-.11,zz+.012),(x+.3,y-.11,zz+.012),(x+.3,y+.16,zz+.012)],'blue',.009)
+            s.line([(x,y-.11,zz+.012),(x,y-.25,zz+.012)],'red',.01)
+        elif j==1:
+            for a in range(3):
+                for b in range(3):s.box(x-.30+a*.3,y-.3+b*.3,zz,.25,.25,.012,'red' if (a,b)==(2,2) else 'blue' if a+b>1 else 'muted')
+        else:
+            for k in range(3):
+                s.box(x-.10,y+.32-k*.31,zz,.75,.19,.013,'slate')
+                s.box(x+.45,y+.32-k*.31,zz,.10,.10,.015,'red' if k==1 else 'muted')
         s.box(x-.44,y-.79,.422+j*.018,.10,.10,.006,'red')
         for k in range(4):
             s.box(x+.20,y-.80+k*.15,.423+j*.018,.36,.012,.003,'ink')
@@ -377,7 +388,12 @@ def power(s):
             s.box(xx,yy,.34,.58,.74,.58,'graphite')
             s.box(xx,yy,.92,.57,.72,.033,'paper')
             for dx in (-.15,.15):s.box(xx+dx,yy,.96,.055,.1,.046,'copper')
-            s.line([(xx-.15,yy,1.01),(xx+.15,yy,1.01)],'copper',.025)
+            # Series straps join adjacent modules, never a battery's own terminals.
+            if ix<2:s.line([(xx+.15,yy,1.01),(xx+.53,yy,1.01)],'copper',.025)
+    for iy in range(2):
+        yy=-.47+iy*.92
+        s.line([(-1.19,yy,1.01),(-1.60,yy,1.01),(-1.60,1.2,.55),(-.74,1.70,.55)],'black',.026)
+        s.line([(.47,yy,1.01),(.96,yy,1.01),(.96,1.2,.55),(.04,1.70,.55)],'red',.026)
     s.rack(3.82,2.85,units=5,door=False)
     # Distribution strip is a separate parallel branch to the protected loads.
     s.box(2.04,2.90,.40,.23,.35,3.00,'paper')
@@ -510,8 +526,10 @@ def render(args,s):
         camera.ortho_scale=size*1.025;camera.shift_x=-.10;camera.shift_y=.01
         for obj,r in packets:
             visible=r['start']<=t<=r['end'];obj.hide_render=not visible
-            obj.location=travel(r,smooth((t-r['start'])/(r['end']-r['start'])))
-            obj.scale=(1,1,1) if .005<t<.995 else (.001,.001,.001)
+            q=(t-r['start'])/(r['end']-r['start'])
+            obj.location=travel(r,smooth(q))
+            fade=max(.001,min(smooth(q/.08),smooth((1-q)/.08)))
+            obj.scale=(fade,fade,fade)
         for obj in parents.values():obj.rotation_euler[2]=-math.radians(68)*math.sin(math.pi*t)**2
         bpy.context.view_layer.update()
         allbounds=list(bounds)
