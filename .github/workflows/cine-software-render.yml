@@ -26,6 +26,7 @@ name: Blender software architecture
         options:
           - cycles
           - eevee
+          - workbench
         default: cycles
       repair_parts:
         description: Comma-separated missing part numbers (1–12)
@@ -148,7 +149,7 @@ jobs:
           if [ "$VERSION" = v3 ]; then QUALITY_ARGS=(--samples 48 --width 3840 --engine '${{ inputs.engine || 'cycles' }}'); fi
           if [ '${{ inputs.mode }}' = motion-proof ]; then QUALITY_ARGS=(--samples 32 --width 1920 --engine '${{ inputs.engine || 'cycles' }}'); fi
           RENDER=(./blender-4.5.3-linux-x64/blender)
-          if [ '${{ inputs.engine }}' = eevee ]; then RENDER=(xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender); fi
+          if [ '${{ inputs.engine }}' != cycles ]; then RENDER=(xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender); fi
           python3 scripts/cine/render-software-system-$VERSION.py --validate-only
           "${RENDER[@]}" -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-$VERSION.py -- "${QUALITY_ARGS[@]}" --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames "${FONT_ARGS[@]}"
       - uses: actions/upload-artifact@v7

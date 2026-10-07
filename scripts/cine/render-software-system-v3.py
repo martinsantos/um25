@@ -173,8 +173,14 @@ def render(args):
     from mathutils import Vector
     from bpy_extras.object_utils import world_to_camera_view
     bpy.ops.wm.read_factory_settings(use_empty=True)
-    scene=bpy.context.scene;scene.render.engine='BLENDER_EEVEE_NEXT' if args.engine=='eevee' else 'CYCLES';
-    if args.engine=='eevee' and hasattr(scene.eevee,'taa_render_samples'):scene.eevee.taa_render_samples=64
+    scene=bpy.context.scene;scene.render.engine={'cycles':'CYCLES','eevee':'BLENDER_EEVEE_NEXT','workbench':'BLENDER_WORKBENCH'}[args.engine];
+    if args.engine=='eevee' and hasattr(scene.eevee,'taa_render_samples'):scene.eevee.taa_render_samples=args.samples
+    if args.engine=='workbench':
+        scene.display.shading.light='STUDIO';scene.display.shading.color_type='MATERIAL'
+        scene.display.shading.show_shadows=True;scene.display.shading.shadow_intensity=.22
+        scene.display.shading.show_cavity=False;scene.display.shading.show_specular_highlight=False
+        scene.display.shading.show_object_outline=False;scene.display.shading.background_type='WORLD'
+        scene.display.render_aa='32'
     scene.cycles.device='CPU';scene.cycles.samples=args.samples
     scene.cycles.use_denoising=True;scene.cycles.use_adaptive_sampling=True;scene.cycles.adaptive_threshold=.008
     scene.cycles.max_bounces=4;scene.render.threads_mode='FIXED';scene.render.threads=4
@@ -188,7 +194,7 @@ def render(args):
     mats={}
     for name,hexvalue in palette.items():
         rgb=[int(hexvalue[i:i+2],16)/255 for i in [1,3,5]];rgb=[v/12.92 if v<=.04045 else ((v+.055)/1.055)**2.4 for v in rgb]
-        mat=bpy.data.materials.new(name);mat.use_nodes=True;n=mat.node_tree.nodes['Principled BSDF']
+        mat=bpy.data.materials.new(name);mat.diffuse_color=(*rgb,1);mat.use_nodes=True;n=mat.node_tree.nodes['Principled BSDF']
         n.inputs['Base Color'].default_value=(*rgb,1);n.inputs['Roughness'].default_value=.72;n.inputs['Metallic'].default_value=0
         if name in ['white','muted','red','paper','shell']:n.inputs['Emission Color'].default_value=(*rgb,1);n.inputs['Emission Strength'].default_value=.32 if name in ['paper','shell'] else .08
         mats[name]=mat
@@ -255,7 +261,7 @@ def render(args):
     (out/'render-info.json').write_text(json.dumps({'service':'104','scene':'software-system-v3','blender':bpy.app.version_string,'engine':scene.render.engine,'samples':args.samples,'frames':FRAMES,'fps':FPS,'resolution':[scene.render.resolution_x,scene.render.resolution_y],'camera':'recognizable product interface unfolds into rules, data and runtime; continuous 24 second loop','timings':timings,'bounds':bounds}))
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--start',type=int,default=0);parser.add_argument('--end',type=int,default=FRAMES-1);parser.add_argument('--samples',type=int,default=48);parser.add_argument('--width',type=int,default=1920);parser.add_argument('--engine',choices=['cycles','eevee'],default='cycles');parser.add_argument('--output',default='frames');parser.add_argument('--validate-only',action='store_true');parser.add_argument('--font-dir')
+    parser=argparse.ArgumentParser();parser.add_argument('--start',type=int,default=0);parser.add_argument('--end',type=int,default=FRAMES-1);parser.add_argument('--samples',type=int,default=48);parser.add_argument('--width',type=int,default=1920);parser.add_argument('--engine',choices=['cycles','eevee','workbench'],default='cycles');parser.add_argument('--output',default='frames');parser.add_argument('--validate-only',action='store_true');parser.add_argument('--font-dir')
     args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else None)
     assert 0<=args.start<=args.end<FRAMES and 16<=args.samples<=128 and args.width in (1920,2560,3840)
     validate()
