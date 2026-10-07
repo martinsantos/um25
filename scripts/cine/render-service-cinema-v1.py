@@ -88,9 +88,9 @@ class Studio:
         self.parts.append('cabinet')
         w,d,h=2.65,1.85,3.9
         self.box(x,y,z,w,d,.12,'edge');self.box(x,y,z+h-.12,w,d,.12,'edge')
-        self.box(x,y+d/2-.04,z,.085,.08,h,'edge')
+        self.box(x,y+d/2-.04,z+.12,.085,.08,h-.24,'edge')
         for dx in (-1,1):
-            self.box(x+dx*(w/2-.07),y,z,.10,d,h,'graphite')
+            self.box(x+dx*(w/2-.07),y,z+.12,.10,d,h-.24,'graphite')
             self.box(x+dx*1.17,y-.73,z,.05,.045,h,'edge')
             for k in range(29):self.box(x+dx*1.17,y-.76,z+.15+k*.125,.027,.009,.046,'black')
         for k in range(units): self.unit(x,y,z+.23+k*.56,'patch' if k==units-1 else 'switch' if k==units-2 else 'server')
@@ -195,7 +195,7 @@ def networks(s):
 def security(s):
     s.base(.0,1.0,11.8,7.9,'SEGURIDAD / VER, VERIFICAR, ACTUAR')
     # One controlled entrance, with strike, reader and two visible optical devices.
-    for x in (-4.75,-1.95):s.box(x,2.7,.22,.12,.18,3.65,'paper')
+    for x in (-4.75,-1.95):s.box(x,2.7,.22,.12,.18,3.53,'paper')
     s.box(-3.35,2.7,3.75,2.93,.18,.12,'paper')
     s.box(-3.6,2.75,.24,2.20,.055,3.45,'muted')
     for x in (-4.65,-2.55):s.box(x,2.70,.24,.035,.06,3.45,'edge')
@@ -280,7 +280,8 @@ def consulting(s):
     s.base(0,1.0,11.6,7.5,'CONSULTORIA / EVIDENCIA ANTES DE DECIDIR')
     # A survey model on an architectural worktable, with actual routes and riser.
     s.box(-2.8,2.1,.35,4.8,4.05,.11,'paper')
-    for yy in (.7,2.2,3.7):s.box(-2.8,yy,.46,4.18,.06,.55,'muted')
+    for yy in (.7,2.2,3.7):
+        for left,right in [(-4.88,-3.6),(-3.6,-.71)]:s.box((left+right)/2,yy,.46,right-left-.055,.06,.55,'muted')
     for xx in (-4.88,-3.6,-.71):s.box(xx,2.2,.46,.055,3.05,.55,'muted')
     for xx,yy in [(-4.3,1.4),(-2.4,1.4),(-2.4,3.0),(-1.2,3.0)]:
         s.box(xx,yy,.47,.63,.39,.20,'edge');s.box(xx,yy,.68,.6,.36,.015,'blue')
@@ -335,7 +336,7 @@ def fire(s):
     s.base(0,1.0,11.8,7.9,'INCENDIO / DETECTAR, IDENTIFICAR, NOTIFICAR')
     # A cutaway wing: coverage lives in spaces, not a stack of anonymous red boxes.
     for x in (-4.95,-2.58,-.2):
-        s.box(x,2.9,.22,.07,3.70,2.50,'paper')
+        s.box(x,2.8575,.22,.07,3.615,2.50,'paper')
     s.box(-2.58,4.7,.22,4.80,.07,2.50,'paper')
     for x in (-3.76,-1.4):
         s.box(x,2.8,2.69,2.28,.075,.07,'edge')
@@ -523,7 +524,7 @@ def render(args,s):
     for frame in frames:
         t=frame/(FRAMES-1);size,angle,pan,lift=pose(frame);target=Vector((pan,1.30,1.05+lift))
         cam.location=target+Vector((24*math.cos(angle),24*math.sin(angle),22));cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler()
-        camera.ortho_scale=size*1.025;camera.shift_x=-.10;camera.shift_y=.01
+        camera.ortho_scale=size*1.025;camera.shift_x=-.10;camera.shift_y=.004
         for obj,r in packets:
             visible=r['start']<=t<=r['end'];obj.hide_render=not visible
             q=(t-r['start'])/(r['end']-r['start'])

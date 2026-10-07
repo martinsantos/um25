@@ -49,13 +49,15 @@ jobs:
     timeout-minutes: 65
     strategy:
       fail-fast: false
-      max-parallel: 20
+      max-parallel: 84
       matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
-          sparse-checkout: scripts/cine/render-service-cinema-v1.py
+          sparse-checkout: |
+            scripts/cine/render-service-cinema-v1.py
+            scripts/cine/check-service-composition.py
           sparse-checkout-cone-mode: false
       - name: Install verified official Blender
         run: |
@@ -76,6 +78,7 @@ jobs:
           END: ${{ matrix.end }}
         run: |
           python3 scripts/cine/render-service-cinema-v1.py --service "$SERVICE" --validate-only
+          python3 scripts/cine/check-service-composition.py scripts/cine/render-service-cinema-v1.py "$SERVICE"
           SAMPLES=48
           if [ "$ENGINE" = cycles ]; then SAMPLES=24; fi
           EXTRA=()
