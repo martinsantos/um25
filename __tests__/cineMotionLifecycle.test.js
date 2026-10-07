@@ -128,11 +128,11 @@ test('a single unannotated project movie plays natively without track fetches, o
 });
 
 
-test.each([[834,'cine-software-system-v1.mp4'],[390,'cine-software-system-v1-sq.mp4']])('software at %spx preserves the intended banner framing',async(width,file)=>{
+test.each([[834,'cine-software-system-v1.mp4'],[820,'cine-software-system-v1-sq.mp4'],[390,'cine-software-system-v1-sq.mp4']])('software at %spx preserves the intended banner framing',async(width,file)=>{
  const previous=window.innerWidth;Object.defineProperty(window,'innerWidth',{configurable:true,value:width});
  document.body.innerHTML='<div data-umc data-scenes="software-system-v1" data-annotations="none"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><button data-umc-motion></button></div>';
  const root=document.querySelector('[data-umc]'),stage=root.querySelector('.umc-stage');
- Object.defineProperty(stage,'clientWidth',{configurable:true,value:width*.75});Object.defineProperty(stage,'clientHeight',{configurable:true,value:756});
+ Object.defineProperty(stage,'clientWidth',{configurable:true,value:width>820?width*.75:Math.min(width,600)});Object.defineProperty(stage,'clientHeight',{configurable:true,value:width>820?756:Math.min(width,600)*27/38});
  const cleanup=banner(root);
  try{visible(root);await jest.advanceTimersByTimeAsync(600);await settle();expect(root.querySelector('video').getAttribute('src')).toBe('/cine/media/'+file);}
  finally{cleanup();Object.defineProperty(window,'innerWidth',{configurable:true,value:previous});}

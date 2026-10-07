@@ -13,6 +13,7 @@ for(const width of [1440,1280,834,390,360]){
   const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
   try{
    const response=await page.goto('http://127.0.0.1:4326'+route,{waitUntil:'load',timeout:60000});
+   if(route==='/software'||route.startsWith('/servicios/104/'))await page.screenshot({path:path.join(out,`webkit-${width}-${index}-hero.png`)});
    const story=page.locator('[data-service-atlas]');
    if(await page.locator('.um26-service-library').count())await page.locator('.um26-service-library').evaluate(node=>node.open=true);
    await story.locator('[data-atlas-theater]').scrollIntoViewIfNeeded();

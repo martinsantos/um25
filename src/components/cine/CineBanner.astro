@@ -42,12 +42,13 @@ const dot = title.endsWith('.');
 const heading = dot ? title.slice(0, -1) : title;
 const rail = chapters||HOME_SCENES.filter((s) => scenes.includes(s.scene));
 const firstTitle = rail.find(chapter=>chapter.scene===first)?.name||cutCaption(first);
+const squarePosterMedia = first.startsWith('software-system-') ? '(max-width:820px)' : '(max-width:546px) and (max-aspect-ratio:651/1000)';
 ---
 <section class:list={['umc', `umc--${variant}`]} data-umc data-motion={motion} data-annotations={annotations?'tracked':'none'} data-framing={framing} data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
   <div class="umc-stage" aria-hidden="true">
     <picture>
-      {framing==='project'&&<source media="(max-width:546px) and (max-aspect-ratio:651/1000)" type="image/avif" srcset={`/cine/media/cine-${first}-poster-sq.avif`} data-poster-square />}
-      {framing==='project'&&<source media="(max-width:546px) and (max-aspect-ratio:651/1000)" type="image/jpeg" srcset={`/cine/media/cine-${first}-poster-sq.jpg`} data-poster-square />}
+      {framing==='project'&&<source media={squarePosterMedia} type="image/avif" srcset={`/cine/media/cine-${first}-poster-sq.avif`} data-poster-square />}
+      {framing==='project'&&<source media={squarePosterMedia} type="image/jpeg" srcset={`/cine/media/cine-${first}-poster-sq.jpg`} data-poster-square />}
       <source type="image/avif" srcset={`/cine/media/cine-${first}-poster.avif`} />
       <img class="umc-poster" src={`/cine/media/cine-${first}-poster.jpg`} alt="" width="1920" height="1080" fetchpriority="high" decoding="async" />
     </picture>
@@ -113,6 +114,15 @@ const firstTitle = rail.find(chapter=>chapter.scene===first)?.name||cutCaption(f
   .umc[data-scene^="software-system-"] :global(.umc-grade){background:linear-gradient(90deg,var(--umc-ink),transparent 20%),linear-gradient(0deg,var(--umc-ink),transparent 26%),linear-gradient(180deg,rgba(7,8,10,.3),transparent 18%)}
  }
  @media(max-width:820px){
+  /* Remove only the padding encoded around the mobile frame. All six
+     architecture layers remain in view, at their original resolution. */
+  .umc[data-scene^="software-system-"] :global(.umc-stage){top:24px;left:50%;right:auto;width:min(100%,600px);height:auto;aspect-ratio:38/27;transform:translateX(-50%)}
+  .umc[data-scene^="software-system-"] :global(.umc-poster),.umc[data-scene^="software-system-"] :global(.umc-video){object-fit:cover;mask-image:linear-gradient(180deg,transparent,#000 19%,#000 81%,transparent)}
+  .umc[data-scene^="software-system-"] :global(.umc-grade){background:none}
+  .umc[data-scene^="software-system-"] :global(.umc-copy){padding-top:calc(min(100vw,600px) * 27 / 38 + 24px)}
+  .umc[data-scene^="software-system-"] :global(.umc-eyebrow){margin-bottom:14px}
+  .umc[data-scene^="software-system-"] :global(.umc-lead){margin-top:16px}
+  .umc[data-scene^="software-system-"] :global(.umc-cta){margin-top:24px}
   .umc--sector :global(.umc-stats){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
   .umc--sector :global(.umc-stats div){padding:16px 0 0;margin-right:0}
   .umc--sector :global(.umc-stats dt){letter-spacing:0;text-transform:none}

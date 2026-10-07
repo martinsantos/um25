@@ -45,6 +45,13 @@ for(const route of routes){
   if(row.layout.scrollWidth>viewport.width+2)finding(route,'Page overflows horizontally',row.layout);
   row.shots.push(await snapshot(page,name+'-hero'));
   if(await page.locator('[data-umc]').count()){
+   row.heroComposition=await page.locator('[data-umc]').evaluate(root=>{
+    const rect=node=>{const r=node?.getBoundingClientRect();return r?{x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom}:null;};
+    const media=root.querySelector('.umc-video.is-on')||root.querySelector('.umc-poster');
+    const style=getComputedStyle(media);
+    return {stage:rect(root.querySelector('.umc-stage')),copy:rect(root.querySelector('.umc-copy')),cta:rect(root.querySelector('.umc-btn')),objectFit:style.objectFit,mask:style.maskImage,source:media.currentSrc};
+   });
+   if(route==='/software'&&profile==='mobile'&&row.heroComposition.cta?.bottom>viewport.height-60)finding(route,'Software primary action falls behind the mobile dock',row.heroComposition);
    const initial=await movieState(page);row.movie=[initial];
    const key=initial.scene,full=route==='/'||!movies.has(key);movies.add(key);
    const nativeDuration=Math.max(...initial.videos.map(video=>video.duration||0));
