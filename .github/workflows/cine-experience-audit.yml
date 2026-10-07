@@ -7,6 +7,10 @@ on:
         description: 'Fail on experience findings after collecting evidence'
         type: boolean
         default: true
+      pilot_only:
+        description: 'Only Bodegas and its service movie after a versioned media import'
+        type: boolean
+        default: false
       home_only:
         description: 'Only home for a focused navigation regression check'
         type: boolean
@@ -56,6 +60,7 @@ jobs:
         env:
           PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
           VISUAL_AUDIT_PROFILE: ${{ matrix.profile }}
+          VISUAL_AUDIT_PILOT_ONLY: ${{ inputs.pilot_only && '1' || '0' }}
           VISUAL_AUDIT_HOME_ONLY: ${{ inputs.home_only && '1' || '0' }}
           VISUAL_AUDIT_DIR: ${{ runner.temp }}/um-visual-${{ matrix.profile }}
           VISUAL_AUDIT_STRICT: ${{ (github.event_name == 'push' || inputs.strict) && '1' || '0' }}

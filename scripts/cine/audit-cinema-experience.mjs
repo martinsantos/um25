@@ -13,8 +13,9 @@ const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const browser=await chromium.launch({channel:'chrome',headless:true});
 const viewport=profile==='mobile'?{width:390,height:844}:{width:1440,height:900};
 const servicePaths=[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(match=>match[1]);
-const routes=process.env.VISUAL_AUDIT_HOME_ONLY==='1'?['/']:['/','/servicios','/sectores',...['constructoras','bodegas','salud','aeropuertos','industria','mineria','gobiernosectorpublico','seguridad-electronica','software'].map(s=>'/'+s),...servicePaths];
-const report={profile,viewport,commit:process.env.GITHUB_SHA,pages:[],findings:[],movieCoverage:[],clock:'Native playback; narrative timers accelerated only in separate story pages'};
+const pilotOnly=process.env.VISUAL_AUDIT_PILOT_ONLY==='1';
+const routes=pilotOnly?['/bodegas',servicePaths.find(path=>path.startsWith('/servicios/107/'))]:process.env.VISUAL_AUDIT_HOME_ONLY==='1'?['/']:['/','/servicios','/sectores',...['constructoras','bodegas','salud','aeropuertos','industria','mineria','gobiernosectorpublico','seguridad-electronica','software'].map(s=>'/'+s),...servicePaths];
+const report={profile,viewport,scope:pilotOnly?'winery-pilot':process.env.VISUAL_AUDIT_HOME_ONLY==='1'?'home':'all',commit:process.env.GITHUB_SHA,pages:[],findings:[],movieCoverage:[],clock:'Native playback; narrative timers accelerated only in separate story pages'};
 const movies=new Set();
 const slug=route=>route==='/'?'home':route.replace(/\/$/,'').replaceAll('/','_').slice(1);
 const finding=(route,message,detail)=>{report.findings.push({route,message,detail});console.log('FINDING',route,message);};
@@ -154,6 +155,7 @@ for(const route of routes){
  fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));
 }
 // Record actual elapsed-time operation and verify CSS transport, independently of fake clocks.
+if(!pilotOnly){
 const liveContext=await browser.newContext({viewport,isMobile:profile==='mobile',hasTouch:profile==='mobile',reducedMotion:'no-preference',recordVideo:{dir:out,size:viewport}});
 const live=await liveContext.newPage();
 await live.goto(origin,{waitUntil:'load'});
@@ -208,6 +210,7 @@ for(const width of (profile==='desktop'?[1440,1280,834]:[390,360])){
  }
  await layoutPage.screenshot({path:path.join(out,`home-${width}-full.png`),fullPage:true});
  await layoutContext.close();
+}
 }
 await browser.close();
 fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));
