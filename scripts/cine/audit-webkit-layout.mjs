@@ -4,7 +4,7 @@ const {webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const out=process.env.VISUAL_AUDIT_DIR;if(!out||!path.isAbsolute(out))throw Error('Absolute artifact directory required');
 fs.mkdirSync(out,{recursive:true});
 const browser=await webkit.launch({headless:true});
-const paths=[...(process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?[]:['/','/constructoras']),...(process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?['104']:['101','103','104','107']).map(code=>[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(m=>m[1]).find(route=>route.startsWith('/servicios/'+code+'/')))];
+const paths=[...(process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?[]:['/','/constructoras']),...(process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?['104']:['101','102','103','104','105','106','107','108']).map(code=>[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(m=>m[1]).find(route=>route.startsWith('/servicios/'+code+'/')))];
 const report={engine:'WebKit on isolated Linux runner; not a physical Safari device',pages:[],findings:[]};
 for(const width of [1440,1280,834,390,360]){
  const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
@@ -27,7 +27,7 @@ for(const width of [1440,1280,834,390,360]){
    await page.waitForTimeout(600);
    const state=await story.evaluate(root=>({code:root.dataset.activeService,projectView:root.querySelector('[data-atlas-project]')?.dataset.projectView,hardwareVisible:Boolean(root.querySelector('[data-atlas-network]')&&!root.querySelector('[data-atlas-network]').hidden),hardwareMounted:!!root.querySelector('[data-atlas-network] svg'),width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
    report.pages.push({width,route,status:response.status(),state,errors});
-   if(response.status()!==200||state.scrollWidth>width+2||(state.code!=='104'&&state.projectView!=='1')||(state.hardwareVisible&&!state.hardwareMounted)||errors.length)report.findings.push({width,route,state,errors});
+   if(response.status()!==200||state.scrollWidth>width+2||(state.projectView!==undefined&&state.projectView!=='1')||(state.hardwareVisible&&!state.hardwareMounted)||errors.length)report.findings.push({width,route,state,errors});
    await page.screenshot({path:path.join(out,`webkit-${width}-${index}-detail.png`)});
   }catch(error){report.findings.push({width,route,error:error.message});}
   await page.close();

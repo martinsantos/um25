@@ -168,7 +168,7 @@ export function bindServiceAtlas(root) {
   }
   async function sync({manual=false,narration=null,newChapter=false}={}) {
     if(!active||disposed)return;
-    if(project&&!narration&&view==='system')narration=chapter()?.scenes[sceneIndex]||null;
+    if((project||discipline)&&!narration&&view==='system')narration=chapter()?.scenes.find(item=>item.disciplineStage===-1)||chapter()?.scenes[sceneIndex]||null;
     rendering=true;
     networkFigure?.dispatchEvent(new CustomEvent('um:network-pause'));
     const operation=operations.find(node=>node.dataset.atlasOperation===active.dataset.atlasService);

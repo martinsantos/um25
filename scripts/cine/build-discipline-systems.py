@@ -3,23 +3,27 @@ Only referenced definitions are retained; the visible SVG needs no browser libra
 """
 from pathlib import Path
 import xml.etree.ElementTree as ET
-import re
+import re, json
 ROOT=Path(__file__).resolve().parents[2]
 ET.register_namespace('', 'http://www.w3.org/2000/svg')
 rack=ET.fromstring((ROOT/'src/assets/cine/isometric/network-rack-v10.svg').read_text())
 source={e.attrib['id']:ET.tostring(e,encoding='unicode') for e in rack.find('{http://www.w3.org/2000/svg}defs') if 'id' in e.attrib}
 needed=set()
+models={m['id']:m for m in json.loads((ROOT/'src/assets/cine/isometric/network-rack-v10.json').read_text())['models']}
 def include(key):
     if key in needed:return
     needed.add(key)
     for child in re.findall(r'href="#([^"]+)"',source[key]):include(child)
 def use(part,x,y,scale=.3,layer=0,opened=False):
     for suffix in ('base','cover'):include(f'rk-{part}-{suffix}')
-    return f'<g data-discipline-node="{layer}" class="ds-node"><g transform="translate({x} {y}) scale({scale})"><use href="#ds-{part}-base"/><g class="ds-cover" style="--ds-lift:-55px"><use href="#ds-{part}-cover"/></g></g></g>'
+    lift=models[part]['lift']
+    return f'<g data-discipline-node="{layer}" class="ds-node"><g transform="translate({x} {y}) scale({scale})"><use href="#ds-{part}-base"/><g class="ds-cover" style="--ds-lift:{lift[1]}px;--ds-lift-x:{lift[0]}px"><use href="#ds-{part}-cover"/></g></g></g>'
 def tag(index,x,y):
     return f'<g class="ds-tag" data-discipline-tag="{index}"><circle cx="{x}" cy="{y}" r="19" fill="#0c1117" stroke="#83939e" stroke-width="1"/><text x="{x}" y="{y+1}" dominant-baseline="middle" text-anchor="middle" fill="#e8edf0" font-family="Arial,sans-serif" font-size="22">{index+1:02}</text></g>'
 def route(path,layers='all',dashed=False):
-    return f'<g data-discipline-route="{layers}"><path d="{path}" class="ds-route" fill="none" stroke="#71818e" stroke-width="1.3" {"stroke-dasharray=\"5 7\"" if dashed else ""}/><path d="{path}" pathLength="100" class="ds-packet" fill="none" stroke="#ec4141" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 97"/></g>'
+    dash='stroke-dasharray="5 7"' if dashed else ''
+    return f'<g data-discipline-route="{layers}"><path d="{path}" class="ds-route" fill="none" stroke="#71818e" stroke-width="1.3" {dash}/><path d="{path}" pathLength="100" class="ds-packet" fill="none" stroke="#ec4141" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 97"/></g>'
+
 def plane(content,x,y,layer,w=240,h=160):
     # UI surfaces share the exact orthographic basis with the equipment.
     return f'<g class="ds-node" data-discipline-node="{layer}"><g transform="translate({x} {y})"><path d="M0 0L{w*.866} {w*.5}L{(w-h)*.866} {(w+h)*.5}L{-h*.866} {h*.5}Z" fill="#303b45" stroke="#99a9b4"/><g class="ds-cover" style="--ds-lift:-12px" transform="translate(0 -8)"><g transform="matrix(.8660254 .5 -.8660254 .5 0 0)" fill="none"><rect width="{w}" height="{h}" fill="#111923" stroke="#d2dbe2" stroke-width="1.3"/>{content}</g></g></g></g>'
@@ -98,8 +102,119 @@ fire+=''.join(tag(i,x,y) for i,(x,y) in enumerate([(153,102),(48,280),(121,210),
 soft=route('M180 242L335 331L500 236','0 1')+route('M500 236L635 314L818 208','1 2')+route('M818 208L929 272L929 433L840 484','2 3')+route('M840 484L710 559L523 451','3 4')+route('M523 451L385 531L209 429','4 5')
 soft+=app(170,106,0)+logic(500,96,1)+api(825,99,2)+data(825,407,3)+deploy(505,397,4)+use('server',200,437,.40,5)
 soft+=''.join(tag(i,x,y) for i,(x,y) in enumerate([(90,76),(420,67),(749,72),(910,392),(588,382),(73,388)]))
-all_drawings=drawing('103',tele)+drawing('107',fire)+drawing('104',soft)
+
+# Small supporting objects use the same axes, materials and precision as hardware.
+def workstation(x,y,layer):
+    c=box(0,0,0,160,95,7,'#516371','#263744','#91a2ad')
+    c+=box(67,25,7,26,18,60,'#415563','#243541','#8297a7')
+    c+=box(9,16,58,143,10,93,'#253644','#101b26','#8d9eaa')
+    face='<rect width="130" height="77" fill="#101a24" stroke="#7f96a7"/><path d="M0 16H130M24 16V77" stroke="#4a6376"/><rect x="33" y="25" width="87" height="13" fill="#40596b"/>'
+    face+=''.join(f'<path d="M35 {49+j*9}H116" stroke="#93a7b5"/>' for j in range(3))
+    c+=f'<g transform="translate(-9 -130) matrix(.8660254 .5 0 1 0 0)">{face}</g>'
+    # A keyboard with individual key rows, in the horizontal plane.
+    keyboard='<rect width="108" height="30" fill="#364b5b" stroke="#b0bdc6"/>'
+    keyboard+=''.join(f'<rect x="{4+i*9}" y="{3+j*8}" width="6" height="5" fill="#9faeba"/>' for j in range(3) for i in range(11))
+    c+=f'<g transform="translate(-39 46) matrix(.8660254 .5 -.8660254 .5 0 0)">{keyboard}</g>'
+    return f'<g class="ds-node" data-discipline-node="{layer}" transform="translate({x} {y})">{c}</g>'
+def cabinet(x,y,layer):
+    c=box(0,0,0,250,170,12,'#1d2c38','#101a24','#536877')
+    c+=box(0,0,330,250,170,9,'#425664','#263b4a','#8a9ca8')
+    for xx,yy in [(0,0),(242,0),(0,162),(242,162)]:
+        c+=box(xx,yy,12,8,8,318,'#627785','#354a5a','#adc0cb')
+        # Equal-pitch mounting holes on the front two rails.
+        if yy==162:
+            for z in range(28,326,12):
+                c+=f'<circle cx="{(xx-yy+4)*.866:.2f}" cy="{(xx+yy+4)*.5-z:.2f}" r="1.4" fill="#0c1721"/>'
+    # Door is articulated as one frame, not an opaque face obscuring the equipment.
+    door='<path d="M0 0H244V313H0Z M12 13H232V300H12Z" fill="#526777" fill-rule="evenodd" stroke="#a6b8c3"/>'
+    for yy in range(23,296,9):door+=f'<path d="M16 {yy}H228" stroke="#8296a5" stroke-opacity=".16"/>'
+    door+='<rect x="221" y="135" width="6" height="39" rx="2" fill="#a4b6c2"/>'
+    c+=f'<g class="ds-cover" style="--ds-lift:52px;--ds-lift-x:-90px"><g transform="translate(-147.22 -229) matrix(.8660254 .5 0 1 0 0)">{door}</g></g>'
+    return f'<g class="ds-node" data-discipline-node="{layer}"><g transform="translate({x} {y}) scale(.72)">{c}</g></g>'
+def tray(x,y,layer):
+    c=''
+    for yy in [0,50]:c+=box(0,yy,0,265,5,14,'#708593','#3a4e60','#aec0ce')
+    for xx in range(0,266,19):c+=box(xx,0,0,5,55,4,'#8296a4','#526b7a','#b0c1cd')
+    for i in range(4):
+        c+=f'<path d="M{point(0,13+i*7,7)}L{point(260,13+i*7,7)}" fill="none" stroke="{["#ca3c43","#879eac","#687f95","#c3ccd2"][i]}" stroke-width="2"/>'
+    return f'<g class="ds-node" data-discipline-node="{layer}" transform="translate({x} {y})">{c}</g>'
+def report(x,y,layer,kind='records'):
+    content='<path d="M16 24H132M16 36H81" stroke="#c5d1da" stroke-width="3"/>'
+    if kind=='scope':
+        for i in range(4):
+            yy=58+i*23
+            content+=f'<path d="M17 {yy}H212" stroke="#466072"/><rect x="{50+i*31}" y="{yy-6}" width="54" height="12" fill="#617f94" stroke="#b2c3ce"/>'
+    elif kind=='signal':
+        content+='<path d="M15 126H225M15 52V126" stroke="#819baa"/><path d="M15 105L36 103L53 97L66 104L79 72L94 95L109 91L128 49L143 88L156 77L174 90L190 82L209 90L225 69" fill="none" stroke="#dc2626" stroke-width="2"/>'
+    elif kind=='risk':
+        for i in range(4):
+            for j in range(5):content+=f'<rect x="{19+j*39}" y="{52+i*23}" width="33" height="18" fill="{["#3e5668","#627a8a","#98434a"][min(2,(i+j)//3)]}" stroke="#889eae" stroke-width=".5"/>'
+    elif kind=='compare':
+        for i in range(3):
+            xx=18+i*73
+            content+=f'<rect x="{xx}" y="52" width="61" height="90" fill="#263e50" stroke="#9fb4c2"/>'
+            for j in range(4):content+=f'<path d="M{xx+10} {65+j*18}H{xx+48}" stroke="#acbeca" stroke-width="2"/>'
+            content+=f'<path d="M{xx+10} 133H{xx+31+i*6}" stroke="#dc2626" stroke-width="3"/>'
+    else:
+        for i in range(5):
+            yy=55+i*19
+            content+=f'<rect x="17" y="{yy-4}" width="7" height="7" fill="none" stroke="#c4d0d9"/><path d="M36 {yy}H{182-i*7}M190 {yy}H221" stroke="#98afbf" stroke-width="2"/>'
+    return plane(content,x,y,layer)
+def distribution(x,y,layer):
+    c=box(0,0,0,140,65,175,'#617987','#2c4050','#a2b3bf')
+    face='<rect x="9" y="9" width="122" height="157" fill="#122331" stroke="#95aaba"/>'
+    for i in range(4):
+        xx=18+i*27
+        face+=f'<rect x="{xx}" y="34" width="21" height="55" fill="#c4ced6" stroke="#edf1f4"/><rect x="{xx+5}" y="48" width="11" height="17" fill="#233b4d"/><path d="M{xx+4} 77H{xx+17}" stroke="#ac3e47" stroke-width="2"/>'
+    face+='<path d="M16 108H124M16 138H124" stroke="#c28155" stroke-width="3"/>'
+    face+=''.join(f'<circle cx="{23+i*18}" cy="138" r="3" fill="#bdcad4"/>' for i in range(6))
+    c+=f'<g transform="translate(-56.29 -142.5) matrix(.8660254 .5 0 1 0 0)">{face}</g>'
+    return f'<g class="ds-node" data-discipline-node="{layer}" transform="translate({x} {y})">{c}</g>'
+# Networks: an actual distribution cabinet anchors the whole topology.
+net=route('M160 195L160 274L352 274L477 346','0 1 2')+route('M477 346L477 396L730 396L851 326','2 3 4')+route('M730 396L730 466L797 505','3 5')
+net+=cabinet(482,337,2)+workstation(125,188,0)+tray(250,216,1)+use('panel',475,252,.26,2)+use('switch',479,322,.27,3)+use('router',479,372,.26,3)+use('access',820,299,.92,4)+report(788,452,5)
+net+=''.join(tag(i,x,y) for i,(x,y) in enumerate([(54,109),(248,176),(388,136),(392,353),(831,202),(850,437)]))
+# Security: two inputs converge on transport; recording and supervision are downstream.
+security=route('M137 190L330 302L513 197','0 1 2')+route('M330 302L440 365L650 365L805 276','2 3 4')+route('M650 365L650 447L477 547','3 5')
+security+=use('camera',161,171,.76,0)+use('dome',385,121,.76,1)+use('reader',137,375,.85,1)+use('switch',508,213,.39,2)+use('server',556,380,.43,3)+workstation(844,304,4)+report(470,441,5)
+security+=''.join(tag(i,x,y) for i,(x,y) in enumerate([(107,65),(50,296),(563,92),(617,352),(866,174),(387,430)]))
+# Power: the normal supply, protected path and load remain distinct branches.
+energy=route('M190 190L340 277L505 182','0 1')+route('M505 182L722 307L857 229','1 2')+route('M857 229L940 277L940 410L813 483','2 3')+route('M813 483L650 577L506 494L506 177','3 4')+route('M506 494L340 494L220 424','4 5',True)
+energy+=workstation(160,202,0)+distribution(504,235,1)+use('ups',794,245,.50,2)+use('pdu',814,455,.44,3)+use('server',500,453,.41,4)+report(182,368,5,'signal')
+energy+=''.join(tag(i,x,y) for i,(x,y) in enumerate([(62,114),(520,101),(833,120),(914,423),(535,349),(100,340)]))
+# Support: evidence enters a case; diagnosis tests separate equipment dependencies.
+support=route('M175 212L320 296L495 195','0 1')+route('M495 195L653 286L813 194','1 2')+route('M813 194L914 252L914 348L785 422','2 3')+route('M785 422L680 483L510 385','3 4')+route('M510 385L510 490L345 585L175 487','4 5')
+support+=workstation(144,194,0)+report(485,80,1)+report(817,80,2,'risk')+use('router',794,422,.38,3)+use('optic',883,359,.75,3)+workstation(487,414,4)+report(175,384,5)
+support+=''.join(tag(i,x,y) for i,(x,y) in enumerate([(66,105),(398,60),(749,58),(861,310),(416,309),(88,361)]))
+# Consulting: the surveyed equipment becomes a dependency map and a staged plan.
+consult=route('M190 221L335 305L503 208','0 1')+route('M503 208L651 293L815 198','1 2')+route('M815 198L935 267L935 431L817 499','2 3')+route('M817 499L655 592L510 508','3 4')+route('M510 508L346 603L181 508','4 5')
+consult+=workstation(145,184,0)+use('server',512,226,.30,1)+use('router',500,145,.27,1)+use('optic',371,197,.65,1)+report(817,83,2,'risk')+report(817,398,3,'compare')+report(510,402,4,'scope')+report(183,396,5)
+consult+=''.join(tag(i,x,y) for i,(x,y) in enumerate([(71,96),(546,78),(745,54),(901,383),(598,388),(96,372)]))
+# Software control dependencies are not a serial part of the application request.
+soft=route('M180 242L335 331L500 236','0 1')+route('M500 236L635 314L818 208','1 2')+route('M818 208L929 272L929 433L840 484','2 3')+route('M523 451L523 340L500 236','4',True)+route('M209 429L209 350L180 242','5',True)+route('M523 451L385 531L209 429','4 5',True)
+soft+=app(170,106,0)+logic(500,96,1)+api(825,99,2)+data(825,407,3)+deploy(505,397,4)+use('server',200,437,.40,5)
+soft+=''.join(tag(i,x,y) for i,(x,y) in enumerate([(90,76),(420,67),(749,72),(910,392),(588,382),(73,388)]))
+all_drawings=''.join(drawing(code,body) for code,body in [('101',net),('102',security),('103',tele),('104',soft),('105',support),('106',consult),('107',fire),('108',energy)])
+
 definitions=''.join(source[key].replace('rk-','ds-') for key in source if key in needed)
 svg=f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 650" class="ds-svg" aria-hidden="true"><defs>{definitions}</defs>{all_drawings}</svg>'
 (ROOT/'src/assets/cine/isometric/discipline-systems-v1.svg').write_text(svg)
-print(f'Wrote {len(svg):,} bytes; {len(needed)} shared definitions, 3 connected discipline drawings.')
+print(f'Wrote {len(svg):,} bytes; {len(needed)} shared definitions, 8 connected discipline drawings.')
+# Service pages carry only their own diagram and its recursively referenced geometry.
+# Multi-service stories share the combined symbol table once.
+parsed=ET.fromstring(svg)
+ns='{http://www.w3.org/2000/svg}'
+shared={e.attrib['id']:e for e in parsed.find(ns+'defs')}
+for item in parsed.findall(ns+'g'):
+    code=item.attrib['data-discipline-drawing']
+    body=ET.tostring(item,encoding='unicode')
+    keep=set()
+    def retain(key):
+        if key in keep:return
+        keep.add(key)
+        for ref in re.findall(r'href="#([^"]+)"',ET.tostring(shared[key],encoding='unicode')):retain(ref)
+    for ref in re.findall(r'href="#([^"]+)"',body):retain(ref)
+    definitions=''.join(ET.tostring(node,encoding='unicode') for key,node in shared.items() if key in keep)
+    result=f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 650" class="ds-svg" aria-hidden="true"><defs>{definitions}</defs>{body}</svg>'
+    (ROOT/f'src/assets/cine/isometric/discipline-{code}-v1.svg').write_text(result)
+    print(f'{code}: {len(result):,} bytes; {len(keep)} definitions')

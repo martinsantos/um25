@@ -124,16 +124,16 @@ test('the complete explanation stays readable while project, equipment and inter
  outline.innerHTML=[0,1,2].map(()=>'<li data-story-point><h4 data-point-title></h4><p data-point-copy></p></li>').join('');root.append(outline);
  bindServiceAtlas(root);observer([{isIntersecting:true,intersectionRatio:1}]);await settle();
  const words=outline.textContent;
- expect(words).toContain('Última Milla');expect(words).toContain('Cableado, fibra');
+ expect(words).toContain('Puestos');expect(words).toContain('Distribución');expect(words).toContain('Mediciones, planos e identificación.');expect(outline.children).toHaveLength(6);
  const states=[];
  for(const scene of project.chapters[0].scenes){
   expect(outline.textContent).toBe(words);
   states.push(root.dataset.storyView);
-  expect(outline.querySelector('[data-state="current"]')).not.toBeNull();
+  if(scene.disciplineStage>=0&&scene.disciplineStage<6)expect(outline.querySelector('[data-state="current"]')).not.toBeNull();
   if(scene.view!=='system')expect(root.querySelector('[data-atlas-network]').dataset.atlasVisible).toBe('true');
   await jest.advanceTimersByTimeAsync(scene.duration);
  }
- expect(states).toEqual(['system','object','layers','detail','system']);
+ expect(states).toEqual(['system',...Array(6).fill('layers'),'system']);
  expect(outline.textContent).not.toBe(words);expect(root.dataset.activeService).toBe('103');
 });
 

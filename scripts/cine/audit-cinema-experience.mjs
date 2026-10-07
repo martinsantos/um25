@@ -14,7 +14,7 @@ const browser=await chromium.launch({channel:'chrome',headless:true});
 const viewport=profile==='mobile'?{width:390,height:844}:{width:1440,height:900};
 const servicePaths=[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(match=>match[1]);
 const pilotOnly=process.env.VISUAL_AUDIT_PILOT_ONLY==='1',includeHome=process.env.VISUAL_AUDIT_HOME_ONLY==='1';
-const routes=process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?[servicePaths.find(route=>route.startsWith('/servicios/104/'))]:process.env.VISUAL_AUDIT_DISCIPLINE_ONLY==='1'?['/','/bodegas',...['103','104','107'].map(code=>servicePaths.find(route=>route.startsWith('/servicios/'+code+'/')))]:pilotOnly?[...(includeHome?['/']:[]),'/bodegas',servicePaths.find(path=>path.startsWith('/servicios/107/'))]:process.env.VISUAL_AUDIT_HOME_ONLY==='1'?['/']:['/','/servicios','/sectores',...['constructoras','bodegas','salud','aeropuertos','industria','mineria','gobiernosectorpublico','seguridad-electronica','software'].map(s=>'/'+s),...servicePaths];
+const routes=process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?[servicePaths.find(route=>route.startsWith('/servicios/104/'))]:process.env.VISUAL_AUDIT_DISCIPLINE_ONLY==='1'?['/','/bodegas',...['101','102','103','104','105','106','107','108'].map(code=>servicePaths.find(route=>route.startsWith('/servicios/'+code+'/')))]:pilotOnly?[...(includeHome?['/']:[]),'/bodegas',servicePaths.find(path=>path.startsWith('/servicios/107/'))]:process.env.VISUAL_AUDIT_HOME_ONLY==='1'?['/']:['/','/servicios','/sectores',...['constructoras','bodegas','salud','aeropuertos','industria','mineria','gobiernosectorpublico','seguridad-electronica','software'].map(s=>'/'+s),...servicePaths];
 const report={profile,viewport,scope:process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?'software':process.env.VISUAL_AUDIT_DISCIPLINE_ONLY==='1'?'discipline-systems':pilotOnly?(includeHome?'home-and-winery-pilot':'winery-pilot'):process.env.VISUAL_AUDIT_HOME_ONLY==='1'?'home':'all',commit:process.env.GITHUB_SHA,pages:[],findings:[],movieCoverage:[],clock:'Native playback; narrative timers accelerated only in separate story pages'};
 const movies=new Set();
 const slug=route=>route==='/'?'home':route.replace(/\/$/,'').replaceAll('/','_').slice(1);
@@ -205,9 +205,11 @@ if(await live.locator('[data-request-story]').count()){
 }else{
 await live.locator('[data-atlas-theater]').evaluate(node=>node.scrollIntoView({block:'center',behavior:'instant'}));
 report.liveOperation=[];
-for(let sample=0;sample<16;sample++){
+const firstChapter=JSON.parse(await live.locator('[data-atlas-narrative]').textContent())[0];
+const samples=Math.ceil(firstChapter.scenes.reduce((total,scene)=>total+scene.duration,0)/2000)+2;
+for(let sample=0;sample<samples;sample++){
  await delay(2000);
- report.liveOperation.push(await live.locator('[data-service-atlas]').evaluate(root=>({code:root.dataset.activeService,phase:root.querySelector('[data-atlas-project]')?.dataset.operationPhase,state:root.dataset.storyState,signals:[...root.querySelectorAll('.sp-signal')].slice(0,2).map(node=>({offset:getComputedStyle(node).strokeDashoffset,animation:getComputedStyle(node).animationName,playState:getComputedStyle(node).animationPlayState}))})));
+ report.liveOperation.push(await live.locator('[data-service-atlas]').evaluate(root=>({code:root.dataset.activeService,phase:root.dataset.disciplineActive==='true'?'1':root.querySelector('[data-atlas-project]')?.dataset.operationPhase,state:root.dataset.storyState,signals:[...root.querySelectorAll(root.dataset.disciplineActive==='true'?'[data-discipline-drawing="'+root.dataset.activeService+'"] [data-discipline-route][data-current="true"] .ds-packet':'.sp-signal')].slice(0,2).map(node=>({offset:getComputedStyle(node).strokeDashoffset,animation:getComputedStyle(node).animationName,playState:getComputedStyle(node).animationPlayState}))})));
 }
 const nativeCodes=new Set(report.liveOperation.map(s=>s.code));
 if(nativeCodes.size<2)finding('/','Native operation does not reach another service without input',report.liveOperation);
