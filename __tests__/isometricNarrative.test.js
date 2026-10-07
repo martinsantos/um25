@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import {bindIsometric} from '../public/cine/isometric-services-v7.js';
-import {bindServiceAtlas} from '../public/cine/service-atlas-v17.js';
+import {bindServiceAtlas} from '../public/cine/service-atlas-v18.js';
 
 let visible, hidden, reduced, motion;
 const fixture=()=>{

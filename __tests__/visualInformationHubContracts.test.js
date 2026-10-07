@@ -263,7 +263,7 @@ describe('Information hub visual contracts', () => {
     // cada unidad es su color de sistema y un único enlace real al servicio.
     const home = read('src/pages/index.astro');
     const story = read('src/components/cine/ServicesStory.astro');
-    const itemTemplate = story.slice(story.indexOf('<ol class="svc-story__list"'), story.indexOf('</ol>'));
+    const itemTemplate = story.slice(story.indexOf('<ol class="svc-story__list"'), story.indexOf('</ol>',story.indexOf('<ol class="svc-story__list"')));
 
     expect(home).toContain("import ServicesStory from '../components/cine/ServicesStory.astro'");
     expect(home).toContain('<ServicesStory services={services} project={integralProject} />');

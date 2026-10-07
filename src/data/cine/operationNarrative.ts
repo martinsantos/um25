@@ -1,4 +1,5 @@
-import type {ServiceScene} from './serviceNarrative';
+import {SERVICE_NARRATIVE,type ServiceScene} from './serviceNarrative';
+import {NETWORK_EQUIPMENT} from './networkAssembly';
 interface Operation {nodes:[string,string,string]; steps:[string,string][]; reverse?:boolean}
 const operations:Record<string,Operation>={
  '101':{nodes:['Puestos y Wi-Fi','Red de datos','Aplicaciones'],reverse:true,steps:[['Cada puesto necesita llegar a sus sistemas.','Identificamos dónde trabajan las personas y qué equipos necesitan comunicarse.'],['El tráfico encuentra su recorrido.','Cableado, fibra, switches y Wi-Fi conectan esos puntos con los sistemas del sitio.'],['Una red instalada, identificada y probada.','Última Milla diseña, instala y verifica las conexiones. La documentación permite operarlas y mantenerlas.']]},
@@ -17,7 +18,18 @@ export function operationScenes(code:string,context:[string,string]|undefined,pa
    ['Cada fibra tiene una terminación identificada.','El distribuidor óptico organiza y protege las terminaciones. Los latiguillos conectan cada enlace con los equipos de red del cuarto técnico.'],
    ['La conexión se entrega medida y documentada.','Última Milla instala y verifica los enlaces ópticos. La identificación y las mediciones permiten operar, mantener y ampliar la red.']],
  }:operations[code];
- return operation.steps.map(([title,copy],phase)=>({view:'system',open:true,duration:phase===1?8000:6500,part,
-  title:phase===0&&context?context[0]:title,copy:phase===0&&context?context[1]:copy,
-  flow:{phase,nodes:operation.nodes,reverse:operation.reverse}}));
+ const base=SERVICE_NARRATIVE.find(chapter=>chapter.code===code)!;
+ const component=part||base.scenes.find(scene=>scene.part)?.part;
+ const detail=base.scenes.filter(scene=>scene.view!=='system').slice(0,3);
+ const equipment=NETWORK_EQUIPMENT.find(item=>item.id===component);
+ const equipmentCopy=equipment?[[equipment.title,equipment.copy],[equipment.construction,equipment.inside],[equipment.detail,equipment.closeup]]:null;
+ const flow=(phase:number)=>({phase,nodes:operation.nodes,reverse:operation.reverse});
+ // The complete explanation is the default route, including real equipment
+ // interiors. Manual controls only let a visitor revisit something already shown.
+ return [
+  {view:'system',open:true,duration:5500,part:component,title:context?.[0]||operation.steps[0][0],copy:context?.[1]||operation.steps[0][1],flow:flow(0)},
+  ...detail.map((scene,index)=>({...scene,part:component,open:true,duration:index===1?7500:5500,
+   ...(equipmentCopy?{title:equipmentCopy[index][0],copy:equipmentCopy[index][1]}:{}),flow:flow(1)})),
+  {view:'system',open:true,duration:6500,part:component,title:operation.steps[2][0],copy:operation.steps[2][1],flow:flow(2)},
+ ];
 }

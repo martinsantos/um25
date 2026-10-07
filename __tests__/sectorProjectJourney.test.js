@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import {sectorProject} from '../src/data/cine/sectorNarrative';
-import {bindServiceAtlas} from '../public/cine/service-atlas-v17.js';
+import {bindServiceAtlas} from '../public/cine/service-atlas-v18.js';
 import {EQUIPMENT_KITS,NETWORK_EQUIPMENT} from '../src/data/cine/networkAssembly';
 const model=JSON.parse(fs.readFileSync('src/assets/cine/isometric/site-projects-v1.json','utf8'));
 const project=sectorProject('constructoras','fachada',['101','102','103','106','107','108']);
@@ -22,9 +22,9 @@ test('Constructoras follows the six services of its project, with optical fiber 
  expect(project.chapters.map(c=>c.code)).toEqual(['101','103','108','102','107','106']);
  expect(project.chapters.at(-1).scenes.at(-1).copy).toContain('Última Milla');
  const fiber=project.chapters.find(c=>c.code==='103');expect(fiber.scenes.every(s=>s.part==='fiber')).toBe(true);
- expect(fiber.scenes.map(s=>s.view)).toEqual(['system','system','system']);
- expect(fiber.scenes.map(s=>s.flow.phase)).toEqual([0,1,2]);
- expect(fiber.scenes[1].copy).toContain('distribuidor óptico');expect(fiber.scenes[1].copy).not.toContain('radio');
+ expect(fiber.scenes.map(s=>s.view)).toEqual(['system','object','layers','detail','system']);
+ expect(fiber.scenes.map(s=>s.flow.phase)).toEqual([0,1,1,1,2]);
+ expect(fiber.scenes[1].copy).toContain('enlaces ópticos');expect(fiber.scenes[1].copy).not.toContain('radio');
 });
 
 test.each(model.scenes.map(s=>[s.id,s]))('%s has a detailed valid SVG and exact equal-axis projection from shared physical geometry',(id,scene)=>{
@@ -51,7 +51,7 @@ test('one persistent building progresses through all six services without replac
    expect(root.querySelector('[data-atlas-project]').dataset.operationPhase).toBe(String(scene.flow.phase));
    expect(root.querySelector('[data-flow-node][data-state="current"] [data-flow-label]').textContent).toBe(scene.flow.nodes[scene.flow.phase]);
    expect(root.querySelector('[data-atlas-project]').dataset.projectView).toBe(String({system:0,object:1,layers:2,detail:3}[scene.view]));
-   if(scene.view==='system')expect(root.querySelector('[data-atlas-network]').hidden).toBe(true);
+   if(scene.view==='system')expect(root.querySelector('[data-atlas-network]').dataset.atlasVisible).toBe('false');
    if(scene.view==='object'&&EQUIPMENT_KITS[chapter.code])expect(root.querySelector('[data-atlas-network]').hidden).toBe(false);
    expect(root.querySelector('[data-atlas-flow]').hidden).toBe(false);
    await jest.advanceTimersByTimeAsync(scene.duration);
@@ -69,10 +69,10 @@ test('project visibility stops the route clock and manual inspection preserves t
  root.querySelector('[data-atlas-view="object"]').click();expect(root.querySelector('[data-atlas-project]').dataset.projectView).toBe('1');
  expect(root.querySelector('[data-atlas-network]').hidden).toBe(false);expect(root.querySelector('[data-project-leader]').getAttribute('d')).toMatch(/^M/);
  root.querySelector('[data-atlas-service="103"]').click();expect(root.querySelector('[data-atlas-context]').textContent).toContain('cuarto técnico');
- expect(root.querySelector('[data-atlas-network]').hidden).toBe(true);expect(root.dataset.storyState).toBe('exploring');
+ expect(root.querySelector('[data-atlas-network]').dataset.atlasVisible).toBe('false');expect(root.dataset.storyState).toBe('exploring');
  const drawing=root.querySelector('.sp-root');
  const chapter=project.chapters.find(chapter=>chapter.code==='103');
- await jest.advanceTimersByTimeAsync(6000+chapter.scenes[0].duration+chapter.scenes[1].duration);
+ await jest.advanceTimersByTimeAsync(6000+chapter.scenes.slice(0,-1).reduce((sum,scene)=>sum+scene.duration,0));
  expect(root.dataset.activeService).toBe('103');expect(root.querySelector('[data-atlas-project]').dataset.projectView).toBe('0');expect(root.querySelector('.sp-root')).toBe(drawing);
  expect(root.querySelector('[data-atlas-project]').dataset.operationPhase).toBe('2');
 });
@@ -115,4 +115,23 @@ test.each(model.scenes)('$id keeps front ports visible and routes on orthogonal 
  const port=polygons.findIndex(p=>p.getAttribute('points')===front(scene.boxes.find(b=>b.id==='rack-port-0-0')));
  expect(body).toBeGreaterThanOrEqual(0);expect(port).toBeGreaterThan(body);
  for(const route of scene.routes)for(let i=1;i<route.points.length;i++)expect(route.points[i].filter((v,k)=>v!==route.points[i-1][k])).toHaveLength(1);
+});
+
+
+test('the complete explanation stays readable while project, equipment and interior advance without input',async()=>{
+ const root=fixture(),outline=document.createElement('ol');
+ outline.innerHTML=[0,1,2].map(()=>'<li data-story-point><h4 data-point-title></h4><p data-point-copy></p></li>').join('');root.append(outline);
+ bindServiceAtlas(root);observer([{isIntersecting:true,intersectionRatio:1}]);await settle();
+ const words=outline.textContent;
+ expect(words).toContain('Última Milla');expect(words).toContain('Los puertos');
+ const states=[];
+ for(const scene of project.chapters[0].scenes){
+  expect(outline.textContent).toBe(words);
+  states.push(root.dataset.storyView);
+  expect(outline.querySelector('[data-state="current"]')).not.toBeNull();
+  if(scene.view!=='system')expect(root.querySelector('[data-atlas-network]').dataset.atlasVisible).toBe('true');
+  await jest.advanceTimersByTimeAsync(scene.duration);
+ }
+ expect(states).toEqual(['system','object','layers','detail','system']);
+ expect(outline.textContent).not.toBe(words);expect(root.dataset.activeService).toBe('103');
 });

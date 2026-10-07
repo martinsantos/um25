@@ -102,7 +102,7 @@ for(const route of routes){
    await story.goto(origin+route,{waitUntil:'domcontentloaded',timeout:60000});
    await story.clock.runFor(1000);
    for(let n=0;n<40;n++){if(await story.locator('[data-service-atlas]').getAttribute('data-bound')==='true')break;await delay(150);await story.clock.runFor(100);}
-   if(await story.locator('.um26-service-library').count())await story.locator('.um26-service-library').evaluate(node=>node.open=true);
+   if(await story.locator('[data-service-atlas]').evaluate(root=>Boolean(root.closest('details:not([open])'))))finding(route,'The primary story is hidden behind a disclosure');
    const theater=story.locator('[data-atlas-theater]');
    await theater.evaluate(node=>node.scrollIntoView({block:'center',behavior:'instant'}));
    await story.clock.runFor(250);await delay(300);
@@ -117,9 +117,9 @@ for(const route of routes){
     if(state.state==='complete')break;
     if(state.state!=='playing'){finding(route,'Story cannot progress on its own while the drawing is visible',state);break;}
     const key=state.code+'-'+state.scene;
-    if(!captured.has(key)&&(state.code===chapters[0].code||['object','detail'].includes(state.view)||current?.flow?.phase===1)){
+    if(!captured.has(key)&&(state.code===chapters[0].code||['object','layers','detail'].includes(state.view)||current?.flow?.phase===1)){
      captured.add(key);await delay(1550);
-     if(current?.flow?.phase===1){
+     if(current?.flow?.phase===1&&state.view==='system'){
       const framing=await story.locator('[data-atlas-project]').evaluate(root=>{
        const focus=root.querySelector(`[data-project-focus="${root.dataset.projectService}"]`);if(!focus)return null;
        const x=Number(focus.dataset.x),y=Number(focus.dataset.y),w=Number(focus.dataset.width),h=Number(focus.dataset.height);
@@ -130,11 +130,20 @@ for(const route of routes){
       });
       if(framing){const {device,stage}=framing;if(device.left<stage.left-2||device.right>stage.right+2||device.top<stage.top-2||device.bottom>stage.bottom+2)finding(route,'The focused device is clipped by the stage',{code:state.code,...framing});}
      }
-     if(current?.flow?.phase===1&&state.code!=='103'){
+     if(current?.flow?.phase===1&&state.view==='system'&&state.code!=='103'){
       const effect=await story.locator('[data-atlas-project]').evaluate(root=>({code:root.dataset.projectService,visible:[...root.querySelectorAll('.sp-effect')].filter(node=>Number(getComputedStyle(node).opacity)>.8).map(node=>node.getAttribute('class'))}));
       row.deviceEffects||=[];row.deviceEffects.push(effect);
       // Network delivery is visible in phase 2; other systems act in phase 1.
       if(state.code!=='101'&&!effect.visible.length)finding(route,'The service has no visible device response',effect);
+     }
+     if(state.view!=='system'){
+      const detail=await story.locator('[data-service-atlas]').evaluate(root=>{
+       const hardware=root.querySelector('[data-atlas-network]'),software=root.querySelector('[data-atlas-software]');
+       const visible=node=>Boolean(node&&getComputedStyle(node).visibility!=='hidden'&&node.getBoundingClientRect().width>0);
+       return {view:root.dataset.storyView,hardware:visible(hardware)&&!!hardware.querySelector('svg'),software:visible(software),outline:root.querySelectorAll('[data-story-point]').length,disclosure:!!root.closest('details:not([open])')};
+      });
+      row.defaultDetails||=[];row.defaultDetails.push({code:state.code,...detail});
+      if(detail.disclosure||detail.outline!==3||(['101','102','103','107','108'].includes(state.code)&&!detail.hardware)||(state.code==='104'&&!detail.software))finding(route,'The explanatory detail is not visible by default',detail);
      }
      row.shots.push(await snapshot(story,name+'-'+key+'-'+state.view,story.locator('.svc-story__stage')));
     }

@@ -1,4 +1,4 @@
-import {bindServiceAtlas} from '../public/cine/service-atlas-v17.js';
+import {bindServiceAtlas} from '../public/cine/service-atlas-v18.js';
 import {SERVICE_NARRATIVE} from '../src/data/cine/serviceNarrative';
 import {EQUIPMENT_KITS,NETWORK_EQUIPMENT} from '../src/data/cine/networkAssembly';
 
@@ -141,7 +141,7 @@ test('a software-only story progresses with no unused hardware library mounted',
  root.querySelectorAll('[data-atlas-service]').forEach(button=>{if(button.dataset.atlasService!=='104')button.remove();});
  const project=document.createElement('div');project.dataset.atlasProject='';root.querySelector('[data-atlas-theater]').prepend(project);
  const frame=root.querySelector('[data-atlas-image]').parentElement;frame.hidden=true;
- bindServiceAtlas(root);see();await settle();expect(frame.hidden).toBe(true);
+ bindServiceAtlas(root);see();await settle();expect(frame.dataset.atlasVisible).toBe('false');expect(frame.inert).toBe(true);
  await jest.advanceTimersByTimeAsync(SERVICE_NARRATIVE.find(c=>c.code==='104').scenes[0].duration);
  expect(root.dataset.activeService).toBe('104');expect(frame.hidden).toBe(false);expect(root.querySelector('[data-atlas-software]').hidden).toBe(false);
  expect(root.querySelector('[data-atlas-view="object"]').getAttribute('aria-pressed')).toBe('true');
