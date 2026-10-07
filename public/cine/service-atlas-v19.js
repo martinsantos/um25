@@ -91,7 +91,7 @@ export function bindServiceAtlas(root) {
     softwareFigure.dispatchEvent(new CustomEvent('um:software-view',{detail}));
   }
   function updateOperation(narration,index){
-    if(!operational||!project)return;
+    if(!operational)return;
     const state=narration?.flow,code=active.dataset.atlasService;
     if(flow){
       flow.hidden=!state;
@@ -100,6 +100,7 @@ export function bindServiceAtlas(root) {
         const label=node.querySelector('[data-flow-label]');if(label&&state)label.textContent=state.nodes[i];
       });
     }
+    if(!project)return;
     project.dataset.operationPhase=state?String(state.phase):'';
     const sceneRoot=project.querySelector('.sp-root');let operationScale=1;
     if(sceneRoot){

@@ -172,10 +172,11 @@ test('a software architecture loops without retaining an unrelated physical proj
  const root=fixture();root.dataset.storyLoop='true';
  const scenes=operationScenes('104',undefined);root.querySelector('[data-atlas-narrative]').textContent=JSON.stringify([{code:'104',scenes,overview:operationOverview('104')}]);
  const diagram=document.createElement('div');diagram.dataset.disciplineSystem='';diagram.innerHTML='<span data-discipline-key></span>';root.querySelector('[data-atlas-theater]').append(diagram);
+ const flow=document.createElement('ol');flow.dataset.atlasFlow='';flow.innerHTML=[0,1,2].map(()=>'<li data-flow-node><span data-flow-label></span></li>').join('');root.append(flow);
  bindServiceAtlas(root);see();await settle();
  expect(root.querySelector('[data-atlas-project]')).toBeNull();
  for(let cycle=0;cycle<2;cycle++){
-  await jest.advanceTimersByTimeAsync(scenes.reduce((sum,scene)=>sum+scene.duration,0));
+  for(const scene of scenes){expect(flow.querySelector('[data-state="current"] [data-flow-label]').textContent).toBe(scene.flow.nodes[scene.flow.phase]);await jest.advanceTimersByTimeAsync(scene.duration);}
   expect(root.dataset.storyScene).toBe('0');expect(root.dataset.storyState).toBe('playing');expect(root.dataset.disciplineActive).toBe('true');
  }
 });
