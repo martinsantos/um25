@@ -17,6 +17,7 @@ const pilotOnly=process.env.VISUAL_AUDIT_PILOT_ONLY==='1',includeHome=process.en
 const routes=process.env.VISUAL_AUDIT_REFINEMENT_ONLY==='1'?['/software',...['101','104','108'].map(code=>servicePaths.find(route=>route.startsWith('/servicios/'+code+'/')))]:process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?['/software',servicePaths.find(route=>route.startsWith('/servicios/104/'))]:process.env.VISUAL_AUDIT_DISCIPLINE_ONLY==='1'?['/','/bodegas','/software',...['101','102','103','104','105','106','107','108'].map(code=>servicePaths.find(route=>route.startsWith('/servicios/'+code+'/')))]:pilotOnly?[...(includeHome?['/']:[]),'/bodegas',servicePaths.find(path=>path.startsWith('/servicios/107/'))]:process.env.VISUAL_AUDIT_HOME_ONLY==='1'?['/']:['/','/servicios','/sectores',...['constructoras','bodegas','salud','aeropuertos','industria','mineria','gobiernosectorpublico','seguridad-electronica','software'].map(s=>'/'+s),...servicePaths];
 const report={profile,viewport,scope:process.env.VISUAL_AUDIT_REFINEMENT_ONLY==='1'?'integrated-refinements':process.env.VISUAL_AUDIT_SOFTWARE_ONLY==='1'?'software':process.env.VISUAL_AUDIT_DISCIPLINE_ONLY==='1'?'discipline-systems':pilotOnly?(includeHome?'home-and-winery-pilot':'winery-pilot'):process.env.VISUAL_AUDIT_HOME_ONLY==='1'?'home':'all',commit:process.env.GITHUB_SHA,pages:[],findings:[],movieCoverage:[],clock:'Native playback; narrative timers accelerated only in separate story pages'};
 const movies=new Set();
+const movieRegistry=JSON.parse(fs.readFileSync('src/data/cine/site-movies-v1.json','utf8'));
 const slug=route=>route==='/'?'home':route.replace(/\/$/,'').replaceAll('/','_').slice(1);
 const finding=(route,message,detail)=>{report.findings.push({route,message,detail});console.log('FINDING',route,message);};
 const context=await browser.newContext({viewport,isMobile:profile==='mobile',hasTouch:profile==='mobile',reducedMotion:'no-preference'});
@@ -52,7 +53,13 @@ for(const route of routes){
     return {stage:rect(root.querySelector('.umc-stage')),copy:rect(root.querySelector('.umc-copy')),cta:rect(root.querySelector('.umc-btn')),objectFit:style.objectFit,mask:style.maskImage,source:media.currentSrc};
    });
    if(route==='/software'&&profile==='mobile'&&row.heroComposition.cta?.bottom>viewport.height-60)finding(route,'Software primary action falls behind the mobile dock',row.heroComposition);
+   await page.waitForFunction(()=>[...document.querySelectorAll('[data-umc] video')].some(video=>Number.isFinite(video.duration)&&video.duration>0&&video.readyState>=2),{},{timeout:15000});
    const initial=await movieState(page);row.movie=[initial];
+   const serviceCode=route.match(/^\/servicios\/(\d+)\//)?.[1]||(route==='/software'?'104':null);
+   if(serviceCode){
+    const expected=movieRegistry.services?.[serviceCode];
+    if(!expected||initial.scene!==expected.scene)finding(route,'Service does not use its own authored movie',{expected:expected?.scene,actual:initial.scene});
+   }
    const key=initial.scene,full=route==='/'||!movies.has(key);movies.add(key);
    const nativeDuration=Math.max(...initial.videos.map(video=>video.duration||0));
    const duration=route==='/'?43000:full?Math.max(19500,nativeDuration*1000+3000):1600,until=Date.now()+duration;

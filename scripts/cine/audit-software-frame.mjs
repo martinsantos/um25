@@ -5,6 +5,7 @@ const out=process.env.VISUAL_AUDIT_DIR;
 if(!out||!path.isAbsolute(out))throw Error('Absolute artifact directory required');
 fs.mkdirSync(out,{recursive:true});
 const routes=['/software',...[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(match=>match[1])];
+const registry=JSON.parse(fs.readFileSync('src/data/cine/site-movies-v1.json','utf8'));
 const report={scope:'all-eight-service-films',pages:[],findings:[]};
 for(const [engine,type] of [['Chrome',chromium],['WebKit',webkit]]){
  const browser=await type.launch(engine==='Chrome'?{channel:'chrome',headless:true}:{headless:true});
@@ -21,6 +22,9 @@ for(const [engine,type] of [['Chrome',chromium],['WebKit',webkit]]){
      return {poster:box(poster),stage:box(stage),video:box(video),source:poster.currentSrc,mask:getComputedStyle(poster).maskImage,width:innerWidth,scrollWidth:document.documentElement.scrollWidth};
     });
     const row={engine,width,route,state,errors};report.pages.push(row);
+    const code=route.match(/^\/servicios\/(\d+)\//)?.[1]||'104';
+    const expected=registry.services?.[code]?.scene;
+    if(!expected||!state.source.includes('cine-'+expected+'-poster'+(width<=820?'-sq':'')))report.findings.push({engine,width,route,expected,source:state.source});
     const center=b=>b.y+b.height/2;
     if(Math.abs(center(state.poster)-center(state.stage))>1||Math.abs(state.poster.y-state.video.y)>1||Math.abs(state.poster.height-state.video.height)>1||state.scrollWidth>width+2||errors.length)report.findings.push(row);
     await page.screenshot({path:path.join(out,`${engine}-${width}-${index}-poster.png`)});
