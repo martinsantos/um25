@@ -13,7 +13,8 @@ interface Service {code:string;name:string;href:string}
 interface Props {services:Service[];project?:SectorProject;single?:boolean}
 const {services,project,single=false}=Astro.props;
 const projectFiles=import.meta.glob<string>('../../assets/cine/isometric/site-*-v1.svg',{eager:true,query:'?raw',import:'default'});
-const projectMarkup=project?projectFiles[`../../assets/cine/isometric/site-${project.scene}-v1.svg`]:undefined;
+const softwareOnly=single&&services.length===1&&services[0].code==='104';
+const projectMarkup=project&&!softwareOnly?projectFiles[`../../assets/cine/isometric/site-${project.scene}-v1.svg`]:undefined;
 const plan=(project?.chapters||SERVICE_NARRATIVE).map(chapter=>single&&DISCIPLINE_SYSTEMS[chapter.code]?{...chapter,scenes:operationScenes(chapter.code,undefined),overview:operationOverview(chapter.code)}:chapter);
 const files=import.meta.glob<string>('../../assets/cine/isometric/*-*.svg',{eager:true,query:'?url',import:'default'});
 const url=(asset:string,view:string)=>files[`../../assets/cine/isometric/${asset}-${view}.svg`];
@@ -212,4 +213,7 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
  .svc-story:not([data-story-state=playing]) :global(.ds-packet){animation-play-state:paused}
  @media(max-width:900px){.svc-story[data-discipline-active=true] .svc-story__outline{grid-template-columns:repeat(2,minmax(0,1fr))}.svc-story[data-discipline-active=true] .svc-story__theater{height:480px}}
  @media(max-width:600px){.svc-story[data-discipline-active=true] .svc-story__theater{height:290px}.svc-story[data-discipline-active=true] .svc-story__outline{display:grid;gap:16px}.svc-story[data-discipline-active=true] .svc-story__outline li{display:block}.svc-story[data-discipline-active=true] .svc-story__outline .svc-story__point-number{margin-bottom:8px}.svc-story[data-discipline-active=true] .svc-story__narration{min-height:205px}.svc-story :global(.ds-tag text){font-size:62px}.svc-story :global(.ds-tag circle){r:42px}}
+ .svc-story[data-active-service="104"] .svc-story__project{display:none}
+ .svc-story[data-active-service="104"] .svc-story__software{margin-left:0;width:100%}
+ .svc-story[data-active-service="104"] .svc-story__software :global(.sl__canvas){transform:none}
 </style>

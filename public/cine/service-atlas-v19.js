@@ -15,7 +15,7 @@ export function bindServiceAtlas(root) {
   const partName=root.querySelector('[data-atlas-part-name]'),serviceRail=root.querySelector('.svc-story__list');
   const track=[...root.querySelectorAll('[data-atlas-chapter]')],theater=root.querySelector('[data-atlas-theater]');
   const chapters=JSON.parse(root.querySelector('[data-atlas-narrative]')?.textContent||'[]').filter(chapter=>services.some(button=>button.dataset.atlasService===chapter.code));
-  const guided=chapters.length>0,operational=Boolean(project&&chapters[0]?.scenes[0]?.flow),looping=root.dataset.storyLoop==='true'&&(operational||chapters.length>1);
+  const guided=chapters.length>0,operational=Boolean(chapters[0]?.scenes[0]?.flow),looping=root.dataset.storyLoop==='true'&&(operational||chapters.length>1);
   const flow=root.querySelector('[data-atlas-flow]');
   let outline=[...root.querySelectorAll('[data-story-point]')];
   const discipline=root.querySelector('[data-discipline-system]');
@@ -91,7 +91,7 @@ export function bindServiceAtlas(root) {
     softwareFigure.dispatchEvent(new CustomEvent('um:software-view',{detail}));
   }
   function updateOperation(narration,index){
-    if(!operational)return;
+    if(!operational||!project)return;
     const state=narration?.flow,code=active.dataset.atlasService;
     if(flow){
       flow.hidden=!state;

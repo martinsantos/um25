@@ -3,6 +3,10 @@ name: Cinema experience visual audit
 on:
   workflow_dispatch:
     inputs:
+      software_only:
+        description: 'Software narrative after removing the building payload'
+        type: boolean
+        default: false
       discipline_only:
         description: 'Home and the telecom, software and fire system narratives'
         type: boolean
@@ -63,6 +67,7 @@ jobs:
         run: node scripts/cine/audit-cinema-experience.mjs
         env:
           PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
+          VISUAL_AUDIT_SOFTWARE_ONLY: ${{ inputs.software_only && '1' || '0' }}
           VISUAL_AUDIT_DISCIPLINE_ONLY: ${{ inputs.discipline_only && '1' || '0' }}
           VISUAL_AUDIT_PROFILE: ${{ matrix.profile }}
           VISUAL_AUDIT_PILOT_ONLY: ${{ inputs.pilot_only && '1' || '0' }}
@@ -75,6 +80,7 @@ jobs:
           "$RUNNER_TEMP/um-visual-runtime/node_modules/.bin/playwright" install --with-deps webkit
           node scripts/cine/audit-webkit-layout.mjs
         env:
+          VISUAL_AUDIT_SOFTWARE_ONLY: ${{ inputs.software_only && '1' || '0' }}
           PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
           VISUAL_AUDIT_DIR: ${{ runner.temp }}/um-visual-${{ matrix.profile }}
       - name: Save screenshots and observations

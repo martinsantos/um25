@@ -166,3 +166,16 @@ test.each(['103','104','107'])('%s explains every connected layer by itself, wit
  expect(hardware).not.toHaveBeenCalled();expect(root.dataset.storyState).toBe('complete');expect(jest.getTimerCount()).toBe(0);
  expect(document.activeElement).toBe(document.body);
 });
+
+
+test('a software architecture loops without retaining an unrelated physical project',async()=>{
+ const root=fixture();root.dataset.storyLoop='true';
+ const scenes=operationScenes('104',undefined);root.querySelector('[data-atlas-narrative]').textContent=JSON.stringify([{code:'104',scenes,overview:operationOverview('104')}]);
+ const diagram=document.createElement('div');diagram.dataset.disciplineSystem='';diagram.innerHTML='<span data-discipline-key></span>';root.querySelector('[data-atlas-theater]').append(diagram);
+ bindServiceAtlas(root);see();await settle();
+ expect(root.querySelector('[data-atlas-project]')).toBeNull();
+ for(let cycle=0;cycle<2;cycle++){
+  await jest.advanceTimersByTimeAsync(scenes.reduce((sum,scene)=>sum+scene.duration,0));
+  expect(root.dataset.storyScene).toBe('0');expect(root.dataset.storyState).toBe('playing');expect(root.dataset.disciplineActive).toBe('true');
+ }
+});
