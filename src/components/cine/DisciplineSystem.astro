@@ -1,15 +1,19 @@
 ---
 import {DISCIPLINE_SYSTEMS} from '../../data/cine/disciplineSystems';
 import drawing from '../../assets/cine/isometric/discipline-systems-v1.svg?raw';
+import precisionNetwork from '../../assets/cine/isometric/discipline-101-v2.svg?raw';
 interface Props {code?:string;codes?:string[]}
 const {code='103',codes=[]}=Astro.props;
 const individual=import.meta.glob<string>('../../assets/cine/isometric/discipline-*-v1.svg',{eager:true,query:'?raw',import:'default'});
-const markup=codes.length===1?individual[`../../assets/cine/isometric/discipline-${code}-v1.svg`]:drawing;
+const precisionBody=precisionNetwork.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
+const combined=drawing.replace(/<g data-discipline-drawing="101"[\s\S]*?(?=<g data-discipline-drawing="102")/,precisionBody);
+const markup=codes.length===1?(code==='101'?precisionNetwork:individual[`../../assets/cine/isometric/discipline-${code}-v1.svg`]):combined;
 ---
 <div class="discipline-system" data-discipline-system data-visible={String(Boolean(DISCIPLINE_SYSTEMS[code]))} data-discipline-service={code} data-discipline-stage="-1" role="img" aria-label="Capas conectadas del servicio, explicadas en el recorrido contiguo">
  <Fragment set:html={markup} />
  <p class="discipline-system__key"><span aria-hidden="true"></span><span data-discipline-key>Un sistema. Todas sus capas.</span></p>
 </div>
+<script src="/cine/precision-systems-v1.js" type="module" async is:inline />
 <style>
  @property --um-ds-door-angle{syntax:"<angle>";inherits:false;initial-value:0deg}
  .discipline-system{position:absolute;inset:0;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 700ms ease;isolation:isolate}
@@ -32,5 +36,12 @@ const markup=codes.length===1?individual[`../../assets/cine/isometric/discipline
  .discipline-system__key{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:10px;margin:0;font-size:1rem;line-height:1.5;color:#c4c7cc}
  .discipline-system__key>span:first-child{width:20px;height:2px;background:#dc2626;flex-shrink:0}
  @keyframes discipline-signal{to{stroke-dashoffset:-100}}
- @media(prefers-reduced-motion:reduce){.discipline-system,.discipline-system :global(.ds-node),.discipline-system :global(.ds-cover),.discipline-system :global(.ds-door){transition:none!important}.discipline-system :global(.ds-packet){animation:none;stroke-dasharray:none;stroke-width:1.6}}
+ .discipline-system :global(.pn-link[data-current=true] .pn-signal){animation:discipline-signal 5s linear infinite}
+ .discipline-system :global(.pn-link:not([data-current=true]) .pn-signal){animation:none}
+ .discipline-system[data-discipline-stage="-1"] :global(.pn-node),.discipline-system[data-discipline-stage="6"] :global(.pn-node){opacity:1}
+ .discipline-system[data-discipline-stage="2"] :global(.pn-node:not([data-current=true])),.discipline-system[data-discipline-stage="3"] :global(.pn-node:not([data-current=true])){opacity:.52}
+ .discipline-system[data-discipline-stage="3"] :global(.pn-cabinet){opacity:.7}
+ .discipline-system :global(.pn-tag){font-family:var(--um-font-body,'UM Sans',Arial,sans-serif)}
+ @media(max-width:600px){.discipline-system :global(.pn-tag){font-size:24px}.discipline-system :global(.pn-tag tspan:not(.pn-tag__number)){display:none}}
+ @media(prefers-reduced-motion:reduce){.discipline-system,.discipline-system :global(.ds-node),.discipline-system :global(.ds-cover),.discipline-system :global(.ds-door){transition:none!important}.discipline-system :global(.pn-signal),.discipline-system :global(.ds-packet){animation:none!important;stroke-dasharray:none;stroke-width:1.6}}
 </style>

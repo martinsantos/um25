@@ -3,6 +3,10 @@ name: Cinema experience visual audit
 on:
   workflow_dispatch:
     inputs:
+      precision_only:
+        description: 'Native-speed precision cabinet, autonomous layers, pause and reduced motion'
+        type: boolean
+        default: false
       refinement_only:
         description: 'Software framing and first-use equipment context in Networks and Power'
         type: boolean
@@ -68,7 +72,12 @@ jobs:
           tail -30 "$RUNNER_TEMP/um-preview.log"
           exit 1
       - name: Capture native movie playback and automatic isometric sequences
-        run: node scripts/cine/audit-cinema-experience.mjs
+        run: |
+          if [ '${{ inputs.precision_only }}' = true ]; then
+            node scripts/cine/audit-precision-network.mjs
+          else
+            node scripts/cine/audit-cinema-experience.mjs
+          fi
         env:
           PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
           VISUAL_AUDIT_SOFTWARE_ONLY: ${{ inputs.software_only && '1' || '0' }}
@@ -80,7 +89,7 @@ jobs:
           VISUAL_AUDIT_DIR: ${{ runner.temp }}/um-visual-${{ matrix.profile }}
           VISUAL_AUDIT_STRICT: ${{ (github.event_name == 'push' || inputs.strict) && '1' || '0' }}
       - name: Verify SVG layout in WebKit at every contract width
-        if: matrix.profile == 'desktop'
+        if: matrix.profile == 'desktop' && !inputs.precision_only
         run: |
           "$RUNNER_TEMP/um-visual-runtime/node_modules/.bin/playwright" install --with-deps webkit
           node scripts/cine/audit-webkit-layout.mjs
