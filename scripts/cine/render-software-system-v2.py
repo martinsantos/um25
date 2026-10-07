@@ -13,21 +13,24 @@ def reveal(t):
 def placement(group,t):
     e=reveal(t)
     positions={
-      'shell':(-1.9*e,-.4*e,2.55+1.2*e),
-      'navigation':(-1.9*e-.22*e,-.4*e,2.68+1.32*e),
-      'heading':(-1.9*e,-.4*e+.22*e,2.68+1.45*e),
-      'metrics':(-1.9*e,-.4*e,2.68+1.8*e),
-      'records':(-1.9*e-.2*e,-.4*e-.22*e,2.68+1.3*e),
-      'detail':(-1.9*e+.32*e,-.4*e-.22*e,2.68+2.05*e),
-      'logic':(1.55*e,1.0*e,1.55),
-      'data':(2.8*e,2.0*e,.62),
-      'runtime':(3.6*e,2.8*e,.08),
+      'shell':(-2.4*e,1.8*e,2.55+1.2*e),
+      'navigation':(-2.4*e-.15*e,1.8*e,2.68+1.32*e),
+      'heading':(-2.4*e,1.8*e+.16*e,2.68+1.45*e),
+      'metrics':(-2.4*e,1.8*e,2.68+1.65*e),
+      'records':(-2.4*e-.12*e,1.8*e-.16*e,2.68+1.3*e),
+      'detail':(-2.4*e+.2*e,1.8*e-.16*e,2.68+1.75*e),
+      'logic':(-2.8*e,-2.2*e,1.55+.2*e),
+      'data':(3.8*e,-.6*e,.62+.9*e),
+      'runtime':(3.6*e,3.7*e,.08+.1*e),
     }
     return positions[group]
 
 def camera_pose(t):
     e=reveal(t)
-    return (18.8+6.9*e,math.radians(-83+27*e+3*math.sin(2*math.pi*t)),(.6*e,.9*e,2.65),.12)
+    return (18.8+7.7*e,math.radians(-83+18*e+3*math.sin(2*math.pi*t)),(0,.2*e,2.65),.12)
+
+def scale(group,t):
+    return 1-(.25 if group in ['logic','data','runtime'] else .18)*reveal(t)
 
 class Product:
     def __init__(self):self.boxes=[];self.texts=[];self.lines=[];self.points={}
@@ -116,7 +119,7 @@ def projected(p,t):
     for group,points in p.points.items():
         dx,dy,dz=placement(group,t)
         for x,y,z in points:
-            x+=dx-target[0];y+=dy-target[1];z+=dz-target[2]
+            s=scale(group,t);x=x*s+dx-target[0];y=y*s+dy-target[1];z=z*s+dz-target[2]
             xs.append(.5+shift+(-math.sin(angle)*x+math.cos(angle)*y)/size)
             ys.append(.5+(-math.cos(angle)*sn*x-math.sin(angle)*sn*y+cs*z)*16/9/size)
     return [min(xs),min(ys),max(xs),max(ys)]
@@ -187,8 +190,8 @@ def render(args):
     for frame in range(args.start,args.end+1):
         t=frame/(FRAMES-1);size,angle,target,shift=camera_pose(t);target=Vector(target)
         cam.location=target+Vector((22*math.cos(angle),22*math.sin(angle),28));cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler();camera.ortho_scale=size;camera.shift_x=-shift
-        for name,obj in parents.items():obj.location=placement(name,t)
-        points=[Vector(placement(g,t))+Vector(local) for g,local in [('detail',(3.55,-1.8,.15)),('logic',(3.05,-1.18,.15)),('data',(2.87,0,.13)),('runtime',(2.85,0,.13))]]
+        for name,obj in parents.items():obj.location=placement(name,t);obj.scale=(scale(name,t),)*3
+        points=[Vector(placement(g,t))+Vector(local)*scale(g,t) for g,local in [('detail',(3.55,-1.8,.15)),('logic',(3.05,-1.18,.15)),('data',(2.87,0,.13)),('runtime',(2.85,0,.13))]]
         for v,point in zip(flowpath.points,points):v.co=(*point,1)
         strength=ease(reveal(t)*3);flow.hide_render=strength<.001;packet.hide_render=strength<.001
         flow.data.bevel_depth=.023*max(.001,strength);packet.scale=(strength,)*3
@@ -197,7 +200,7 @@ def render(args):
         labels['Actualizar solicitud'].body='Cambios guardados' if confirmed else 'Actualizar solicitud'
         labels['En revisión'].body='Confirmada' if confirmed else 'En revisión'
         bpy.context.view_layer.update()
-        projected_points=[world_to_camera_view(scene,cam,Vector(point)+parents[g].location) for g,coords in p.points.items() for point in coords]
+        projected_points=[world_to_camera_view(scene,cam,Vector(point)*scale(g,t)+parents[g].location) for g,coords in p.points.items() for point in coords]
         extent=[min(v.x for v in projected_points),min(v.y for v in projected_points),max(v.x for v in projected_points),max(v.y for v in projected_points)]
         assert extent[0]>.215 and extent[1]>.07 and extent[2]<.98 and extent[3]<.93,(frame,extent)
         scene.render.filepath=str(out/f'{frame:04d}.png');start=time.time();bpy.ops.render.render(write_still=True)

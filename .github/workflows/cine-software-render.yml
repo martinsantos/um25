@@ -16,11 +16,6 @@ name: Blender software architecture
           - v1
           - v2
         default: v2
-  push:
-    branches:
-      - feature/isometric-redes-review
-    paths:
-      - .github/workflows/cine-software-render.yml
 permissions:
   contents: read
 concurrency:
