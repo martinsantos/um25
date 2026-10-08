@@ -105,6 +105,21 @@ if(fireOnly){
    }
    await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime<2,{},{timeout:6500,polling:100});
    report.autonomous.push({engine,width,observations,loop:true,errors});
+   // Continue the same visit into the explanation, with no selection clicks.
+   await page.locator('[data-atlas-theater]').evaluate(el=>scrollTo(0,el.getBoundingClientRect().top+scrollY-100));
+   const layers=[];
+   for(const stage of [0,1,2,3,4,5,6]){
+    await page.waitForFunction(stage=>Number(document.querySelector('[data-discipline-system]').dataset.disciplineStage)===stage,stage,{timeout:16000});
+    await page.waitForTimeout(2800);
+    const pose=await page.locator('.pf-drawing').evaluate(el=>({stage:el.closest('[data-discipline-system]').dataset.disciplineStage,door:el.querySelector('.pf-door').getAttribute('transform'),front:el.querySelector('.pf-door-front').getAttribute('opacity'),back:el.querySelector('.pf-door-back').getAttribute('opacity'),view:el.querySelector('.pf-viewport').getAttribute('viewBox'),width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
+    if(pose.width!==pose.scrollWidth||(stage>=3&&pose.back!=='1'))report.findings.push({engine,width,scope:'fire-isometry',pose});
+    layers.push(pose);await page.locator('[data-atlas-theater]').screenshot({path:path.join(out,`fire-isometry-${engine}-${width}-${stage}.png`),animations:'allow'});
+   }
+   report.autonomous.at(-1).layers=layers;
+   await page.locator('[data-atlas-play]').click();
+   const paused=await page.locator('.pf-door').getAttribute('transform');await page.waitForTimeout(800);
+   if(await page.locator('.pf-door').getAttribute('transform')!==paused)report.findings.push({engine,width,message:'Fire inspection ignores its pause control'});
+
    if(errors.length)report.findings.push({engine,width,errors});
   }catch(error){report.findings.push({engine,width,scope:'autonomous-fire',error:error.message});}
   finally{await browser.close();}

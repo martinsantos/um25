@@ -3,12 +3,14 @@ import {DISCIPLINE_SYSTEMS} from '../../data/cine/disciplineSystems';
 import drawing from '../../assets/cine/isometric/discipline-systems-v2.svg?raw';
 import precisionNetwork from '../../assets/cine/isometric/discipline-101-v2.svg?raw';
 import precisionSoftware from '../../assets/cine/isometric/discipline-104-v2.svg?raw';
+import precisionFire from '../../assets/cine/isometric/discipline-107-v2.svg?raw';
 interface Props {code?:string;codes?:string[];visible?:boolean}
 const {code='103',codes=[],visible=true}=Astro.props;
 const individual=import.meta.glob<string>('../../assets/cine/isometric/discipline-*-v2.svg',{eager:true,query:'?raw',import:'default'});
 const precisionBody=precisionNetwork.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
 const softwareBody=precisionSoftware.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
-const combined=drawing.replace(/<g data-discipline-drawing="101"[\s\S]*?(?=<g data-discipline-drawing="102")/,precisionBody).replace(/<g data-discipline-drawing="104"[\s\S]*?(?=<g data-discipline-drawing="105")/,softwareBody);
+const fireBody=precisionFire.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
+const combined=drawing.replace(/<g data-discipline-drawing="101"[\s\S]*?(?=<g data-discipline-drawing="102")/,precisionBody).replace(/<g data-discipline-drawing="104"[\s\S]*?(?=<g data-discipline-drawing="105")/,softwareBody).replace(/<g data-discipline-drawing="107"[\s\S]*?(?=<g data-discipline-drawing="108")/,fireBody);
 const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precisionSoftware:individual[`../../assets/cine/isometric/discipline-${code}-v2.svg`]):combined;
 ---
 <div class="discipline-system" data-discipline-system data-visible={String(visible&&Boolean(DISCIPLINE_SYSTEMS[code]))} data-discipline-service={code} data-discipline-stage="-1" role="img" aria-label="Capas conectadas del servicio, explicadas en el recorrido contiguo">
@@ -16,6 +18,7 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precis
  <p class="discipline-system__key"><span aria-hidden="true"></span><span data-discipline-key>Un sistema. Todas sus capas.</span></p>
 </div>
 <script src="/cine/precision-systems-v5.js" type="module" async is:inline />
+<script src="/cine/fire-system-v1.js" type="module" async is:inline />
 <style>
  @property --um-ds-door-angle{syntax:"<angle>";inherits:false;initial-value:0deg}
  .discipline-system{position:absolute;inset:0;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 700ms ease;isolation:isolate}
@@ -45,6 +48,7 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precis
  .discipline-system[data-discipline-stage="-1"] :global(.pn-project),.discipline-system[data-discipline-stage="1"] :global(.pn-project),.discipline-system[data-discipline-stage="6"] :global(.pn-project){opacity:1}
  .discipline-system[data-discipline-stage="-1"] :global(.pn-inspection),.discipline-system[data-discipline-stage="1"] :global(.pn-inspection),.discipline-system[data-discipline-stage="6"] :global(.pn-inspection){opacity:0}
  .discipline-system[data-discipline-stage="1"] :global(.pn-project .pn-node){opacity:1}
+ .discipline-system :global(.pf-label),.discipline-system :global(.pf-engraving),.discipline-system :global(.pf-tag){font-family:var(--um-font-body,Arial,sans-serif)}
  .discipline-system :global(.ps-text){font-family:var(--um-font-body,Arial,sans-serif)}
  .discipline-system :global(.ps-layer){transition:none}
  .discipline-system :global(.pn-tag){font-family:var(--um-font-body,'UM Sans',Arial,sans-serif)}
