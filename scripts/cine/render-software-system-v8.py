@@ -17,6 +17,11 @@ WIDE_TIMES=(0,1)
 
 def placement(group,t):
     e=reveal(t)
+    if group=='heading':return (0,.72*e,0)
+    if group in ('endpoint','contract','record'):
+        parent,start,end={'endpoint':('connection',.12,.28),'contract':('mapping',.34,.49),'record':('data',.53,.68)}[group]
+        x,y,z=placement(parent,t);lift=ease((t-start)/.04)*(1-ease((t-end)/.06))
+        return (x,y,z+.46*lift)
     if group in CENTERS:
         x,y=CENTERS[group]
         # Components remain registered to the same application. Only genuine
@@ -29,7 +34,7 @@ def scale(group,t):return 1
 
 def camera_pose(t):
     # scale, aim, x/y camera inclination, optical roll (degrees).
-    keys=[(0,17.8,(0,-.1,.1),(5,-11,-1.5)),
+    keys=[(0,20.1,(0,-.1,.1),(5,-11,-1.5)),
           (.13,9.55,(-2.25,1.22,1.30),(9,-17,-3.0)),
           (.27,8.75,(-2.22,1.04,1.30),(6,-18,-2.2)),
           (.37,9.60,(3.65,1.23,1.10),(-7,-16,2.0)),
@@ -38,8 +43,8 @@ def camera_pose(t):
           (.65,8.8,(-2.17,-2.52,.95),(5,-18,-2.5)),
           (.72,9.65,(3.65,-2.38,1.25),(-7,-16,2)),
           (.81,8.9,(3.69,-2.57,1.25),(-4,-18,2.5)),
-          (.92,17.9,(0,-.1,.35),(7,-14,-2)),
-          (1,17.8,(0,-.1,.1),(5,-11,-1.5))]
+          (.92,20.1,(0,-.1,.35),(7,-14,-2)),
+          (1,20.1,(0,-.1,.1),(5,-11,-1.5))]
     a,b=keys[0],keys[-1]
     for left,right in zip(keys,keys[1:]):
         if left[0]<=t<=right[0]:a,b=left,right;break
@@ -84,6 +89,9 @@ class Product:
         self.rounded(g,x,y,z,r*2,r*2,.002,m,r)
     def glyph(self,g,kind,x,y,m='muted',size=.09):
         shapes={
+            'chevron': [[(0,.6),(.4,.2),(.8,.6)]],
+            'copy': [[(.2,.2),(.2,.8),(.8,.8),(.8,.2),(.2,.2)],[(0,.6),(0,0),(.6,0)]],
+            'lock': [[(0,0),(.8,0),(.8,.5),(0,.5),(0,0)],[(.15,.5),(.15,.75),(.4,.9),(.65,.75),(.65,.5)],[(.4,.15),(.4,.35)]],
             'grid':[[(0,0),(.75,0),(.75,.75),(0,.75),(0,0)],[(.375,0),(.375,.75)],[(0,.375),(.75,.375)]],
             'list':[[(0,.1),(.8,.1)],[(0,.4),(.8,.4)],[(0,.7),(.8,.7)]],
             'folder':[[(0,0),(.9,0),(.9,.6),(.4,.6),(.3,.8),(0,.8),(0,0)]],
@@ -105,14 +113,15 @@ class Interface(Product):
     def card(self,g,w=5.42,h=3.20):
         # A broad, graded penumbra below the entire surface, not glyph bevels.
         for i in range(24,0,-1):
-            spread=i*.011
+            spread=i*.006
             self.rounded(g,.045,-.073,-.030+(24-i)*.0001,w+spread*2,h+spread*2,.00005,'shadow%02d'%i,.14+spread)
         self.rounded(g,0,0,-.016,w,h,.016,'edge',.12)
         self.rounded(g,0,0,.000,w-.020,h-.020,.018,'panel',.11)
     def field(self,g,label,value,x,y,w,icon=None):
+        if label=='Endpoint de la API':g='endpoint'
         self.label(g,label,x,y,.15,'muted')
         self.rounded(g,x+w/2,y-.33,.026,w,.43,.004,'inputedge',.064)
-        self.rounded(g,x+w/2,y-.322,.032,w-.014,.41,.003,'input',.058)
+        self.rounded(g,x+w/2,y-.33,.032,w-.014,.416,.003,'input',.058)
         self.label(g,value,x+.14,y-.384,.185)
         if icon:self.glyph(g,icon,x+w-.28,y-.36,'muted',.14)
     def badge(self,g,label,x,y,w,fill='mint',ink='green'):
@@ -179,20 +188,21 @@ def build():
     g='connection';p.card(g);p.mark(g,'erp',-2.18,1.19,.49,'blue')
     p.label(g,'Inventario / ERP',-1.79,1.17,.25,'ink',True);p.label(g,'Conexión segura con tus sistemas',-1.79,.89,.15,'muted');p.badge(g,'Conectado',1.24,1.20,1.19)
     p.divider(g,-2.43,2.43,.64)
-    p.field(g,'Entorno','Producción',-2.42,.32,2.30,'list');p.field(g,'Autenticación','Token de servicio',.12,.32,2.30,'check')
-    p.field(g,'Endpoint de la API','api.empresa.com / v1 / stock',-2.42,-.57,4.84,'close')
+    p.field(g,'Entorno','Producción',-2.42,.32,2.30,'chevron');p.field(g,'Autenticación','Token de servicio',.12,.32,2.30,'lock')
+    p.field(g,'Endpoint de la API','api.empresa.com / v1 / stock',-2.42,-.57,4.84,'copy')
     p.dot(g,-2.36,-1.32,.031,'green');p.label(g,'TLS activo',-2.23,-1.38,.15,'green');p.label(g,'Última sincronización · ahora',-.66,-1.38,.15,'muted');p.toggle(g,2.18,-1.32)
     # 02 — Field mapping uses nested editable rows and ports, not four title cards.
     g='mapping';p.card(g);p.mark(g,'api',-2.18,1.19,.49,'violet')
     p.label(g,'Mapeo de campos',-1.79,1.17,.25,'ink',True);p.label(g,'El mismo significado en cada sistema',-1.79,.89,.15,'muted');p.badge(g,'4 reglas',1.47,1.20,.94,'lavender','violet')
     p.label(g,'ORIGEN / ERP',-2.39,.42,.12,'muted',True);p.label(g,'DESTINO / PLATAFORMA',.46,.42,.12,'muted',True)
     for i,(source,target,typ) in enumerate([('item.code','producto.sku','string'),('item.name','producto.nombre','text'),('warehouse.qty','stock.disponible','integer'),('updated_at','evento.fecha','date')]):
-        y=.015-i*.367
+        g='contract' if i==2 else 'mapping';y=.015-i*.367
         for x,w in [(-1.38,2.10),(1.34,2.18)]:p.rounded(g,x,y+.035,.030,w,.296,.005,'input',.045)
         p.label(g,source,-2.27,y-.014,.16,'ink');p.label(g,target,.39,y-.014,.16,'ink')
         p.dot(g,-.31,y+.039,.030,'violet');p.dot(g,.21,y+.039,.030,'violet')
         p.line(g,[(-.28,y+.039,.05),(.18,y+.039,.05)],'guidefine',.0035)
         p.line(g,[(.10,y+.10,.052),(.19,y+.039,.052),(.10,y-.022,.052)],'violet',.0045)
+    g='mapping'
     p.label(g,'Validación de tipos',-2.39,-1.38,.15,'muted');p.glyph(g,'check',1.07,-1.352,'green',.16);p.label(g,'Compatible',1.32,-1.38,.15,'green',True)
     # 03 — A relational record, visible types, row selection and a real payload.
     g='data';p.card(g);p.mark(g,'db',-2.18,1.19,.49,'teal')
@@ -201,11 +211,12 @@ def build():
     for x,label in [(-2.29,'SKU'),(-1.13,'PRODUCTO'),(1.32,'STOCK')]:p.label(g,label,x,.36,.115,'muted',True)
     rows=[('SW-024','Switch administrable','128'),('AP-006','Punto de acceso','64'),('FO-012','Módulo de fibra','256')]
     for i,(code,name,stock) in enumerate(rows):
-        y=-.09-i*.40
+        g='record' if i==0 else 'data';y=-.09-i*.40
         if i==0:p.rounded(g,0,y+.05,.032,4.85,.38,.003,'selected',.027);p.box(g,-2.419,y+.05,.039,.018,.37,.003,'blue')
         p.label(g,code,-2.29,y,.16,'blue' if i==0 else 'muted');p.label(g,name,-1.13,y,.175,'ink',i==0);p.label(g,stock,1.54,y,.18,'ink',True)
         p.glyph(g,'check',2.17,y+.015,'green',.14)
         if i<2:p.divider(g,-2.40,2.40,y-.155)
+    g='data'
     p.dot(g,-2.36,-1.33,.031,'green');p.label(g,'3 registros verificados',-2.23,-1.39,.15,'green');p.label(g,'Evento #0248',1.05,-1.39,.15,'muted')
     # 04 — Runtime includes a fine chart, task states and operational evidence.
     g='runtime';p.card(g);p.mark(g,'wave',-2.18,1.19,.49,'green')
@@ -246,6 +257,8 @@ def validate():
     assert all(math.isfinite(v) for v in extent)
     for g in p.points:assert placement(g,0)==placement(g,1)
     assert camera_pose(0)==camera_pose(1)
+    for t in WIDE_TIMES:
+        b=projected(p,t);assert min(b[:2])>.025 and max(b[2:])<.975,('wide',t,b)
     for group,(start,end) in FOCUS_WINDOWS.items():
         for i in range(61):
             t=start+(end-start)*i/60;b=projected(SimpleNamespace(points={group:p.points[group]}),t)
@@ -274,10 +287,10 @@ def render(args):
     scene.world=bpy.data.worlds.new('Product studio');scene.world.use_nodes=True
     scene.world.node_tree.nodes['Background'].inputs[0].default_value=(.035,.04,.05,1)
     scene.world.node_tree.nodes['Background'].inputs[1].default_value=.22
-    palette={'avatar':'#DCE7F0','sage':'#217761','bluegrey':'#476577','shell':'#F3F5F7','nav':'#EAEFF3','panel':'#FFFFFF','detail':'#FFFFFF','edge':'#C0CDD8','paper':'#FFFFFF','white':'#172B3D','ink':'#172B3D','muted':'#62768A','selection':'#E5EFFB','selected':'#E6F0FC','active':'#F9E7E2','warm':'#AE3C30','red':'#DC2626','trace':'#D2DDE6','floor':'#D9E1E9','buttonink':'#FFFFFF','input':'#F5F8FB','inputedge':'#CAD6E1','blue':'#315ED0','violet':'#7860B5','teal':'#237F91','green':'#267C65','amber':'#B37C29','mint':'#E3F3EB','lavender':'#F0EAF9','guide':'#477AC0','guidefine':'#A3BDE0'}
+    palette={'avatar':'#DCE7F0','sage':'#217761','bluegrey':'#476577','shell':'#F3F5F7','nav':'#EAEFF3','panel':'#FFFFFF','detail':'#FFFFFF','edge':'#C0CDD8','paper':'#FFFFFF','white':'#172B3D','ink':'#172B3D','muted':'#62768A','selection':'#E5EFFB','selected':'#E6F0FC','active':'#F9E7E2','warm':'#AE3C30','red':'#DC2626','trace':'#D2DDE6','floor':'#D9E1E9','buttonink':'#FFFFFF','input':'#F5F8FB','inputedge':'#CAD6E1','blue':'#315ED0','violet':'#315ED0','teal':'#237F91','green':'#267C65','amber':'#B37C29','mint':'#E3F3EB','lavender':'#E6F0FC','guide':'#477AC0','guidefine':'#A3BDE0'}
     for i in range(1,25):
         # Layered opaque penumbra against the known canvas, clean in Workbench.
-        q=i/24;rgb=tuple(round(a+(b-a)*q*q) for a,b in [(191,243),(205,245),(216,247)])
+        q=i/24;rgb=tuple(round(a+(b-a)*q*q) for a,b in [(224,243),(231,245),(237,247)])
         palette['shadow%02d'%i]='#%02x%02x%02x'%rgb
     mats={}
     for name,hexvalue in palette.items():
@@ -344,7 +357,18 @@ def render(args):
     for i in range(4):
         y=.015-i*.367
         obj,spline=curve('Type validation / '+str(i),[(-.28,y+.039,.063),(.18,y+.039,.063)],'violet',.010)
-        obj.parent=parents['mapping'];tracked.append((i,obj))
+        obj.parent=parents['contract' if i==2 else 'mapping'];tracked.append((i,obj))
+    lifted=[]
+    for name,parent,x,y,w,h in [('endpoint','connection',0,-.90,4.84,.43),('contract','mapping',0,-.70,4.86,.30),('record','data',0,-.04,4.85,.38)]:
+        corners=[(x-w/2,y-h/2),(x+w/2,y-h/2),(x+w/2,y+h/2),(x-w/2,y+h/2)]
+        obj,_=curve('Inspect actual control / '+name,[(xx,yy,.079) for xx,yy in corners+[corners[0]]],'guide',.003)
+        obj.parent=parents[name];lifted.append((name,parent,obj,None))
+        for xx,yy in corners:
+            obj,spline=curve('Control depth / '+name,[(xx,yy,.075),(xx,yy,.075)],'guidefine',.0025)
+            obj.parent=parents[name];lifted.append((name,parent,obj,spline))
+    activity=[]
+    for ob in parents['runtime'].children:
+        if ob.type=='CURVE' and ob.data.type=='CURVE' and ob.data.bevel_depth>.0065:activity.append(ob)
     bpy.ops.mesh.primitive_plane_add(size=200,location=(0,0,-.16));bpy.context.object.data.materials.append(mats['floor'])
     for name,xyz,energy,size,color in [('Key',(-4,1,15),1300,12,(1,1,1)),('Edge',(5,9,8),650,10,(1,1,1)),('Fill',(0,-10,12),750,12,(1,1,1))]:
         data=bpy.data.lights.new(name,'AREA');data.energy=energy;data.shape='DISK';data.size=size;data.color=color
@@ -376,6 +400,19 @@ def render(args):
                 pts=[(ax-2.76,ay,az),(ax-2.90,ay,az),(bx+2.90,by,bz),(bx+2.76,by,bz)]
             for vertex,point in zip(spline.points,pts):vertex.co=(*point,1)
             obj.hide_render=reveal(t)<.025
+        for name,parent,obj,spline in lifted:
+            dz=placement(name,t)[2]-placement(parent,t)[2]
+            obj.hide_render=dz<.01
+            if spline:spline.points[1].co.z=.06-dz
+        confirmed=.235<t<.965
+        states={('connection','Conectado'):'Conectado' if confirmed else 'Conectando' if t>.12 else 'Lista',
+                ('connection','Última sincronización · ahora'):'Última sincronización · ahora' if confirmed else 'Conexión pendiente de verificar',
+                ('record','128'):'128' if .61<t<.965 else '104',
+                ('data','3 registros verificados'):'3 registros verificados' if .635<t<.965 else 'Vista previa de los registros',
+                ('runtime','Inventario actualizado'):'Inventario actualizado' if .76<t<.965 else 'Esperando sincronización'}
+        for key,value in states.items():
+            for label in labels.get(key,[]):label.body=value
+        for ob in activity:ob.data.bevel_factor_end=max(.01,ease((t-.69)/.09)) if .65<t<.96 else 1
         for i,obj in tracked:
             start=.345+i*.027;progress=ease((t-start)/.07)*(1-ease((t-.86)/.12))
             obj.data.bevel_factor_end=max(.0001,progress);obj.hide_render=progress<.001
