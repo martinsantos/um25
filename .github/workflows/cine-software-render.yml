@@ -89,6 +89,7 @@ jobs:
           assert os.environ['VERSION']!='v3' or os.environ['MODE'] in ('proof','motion-proof','full','assemble','repair')
           chunk=120 if os.environ['VERSION'] in ('v3','v5') else 48
           proof_frames=[0,360,720,1080,1439] if os.environ['VERSION'] in ('v3','v5') else [0,144,288,432,575]
+          if os.environ['VERSION']=='v5':proof_frames=[0,375,1152]
           rows=[dict(part=i+1,start=f,end=f,frames=1) for i,f in enumerate(proof_frames)] if os.environ['MODE']=='proof' else [dict(part=i+1,start=i*chunk,end=(i+1)*chunk-1,frames=chunk) for i in range(12)]
           if os.environ['MODE']=='motion-proof':
               assert os.environ['VERSION'] in ('v3','v5')

@@ -85,6 +85,9 @@ class Product:
             'check':[[(0,.4),(.3,.1),(.9,.8)]],
             'plus':[[(0,.4),(.8,.4)],[(.4,0),(.4,.8)]],
             'search':[[(.45,.08),(.05,.22),(.05,.62),(.45,.76),(.72,.5),(.62,.18),(.45,.08)],[(.65,.18),(.9,-.1)]]}
+        circle=[(.4+.36*math.cos(i*math.tau/40),.4+.36*math.sin(i*math.tau/40)) for i in range(41)]
+        if kind=='search':shapes[kind]=[circle,[(.66,.14),(.92,-.12)]]
+        if kind=='clock':shapes[kind]=[circle,[(.4,.66),(.4,.4),(.60,.4)]]
         for path in shapes[kind]:self.line(g,[(x+a*size,y+b*size,.041) for a,b in path],m,.0035)
 
 def build():
@@ -144,8 +147,8 @@ def build():
         p.pill('records',state,.35,y,1.02,'active' if i==0 else 'nav','warm' if i==0 else 'muted',.10)
         for k in range(3):p.dot('records',1.62+k*.047,y+.04,.008)
         if i<3:p.line('records',[(-3.37,y-.215,.032),(1.84,y-.215,.032)],'trace',.002)
-    p.text('records','4 de 24 solicitudes',-3.36,-2.35,.039,.103)
-    p.text('records','Actualizado ahora',.68,-2.35,.039,.103)
+    p.text('records','4 de 24 solicitudes',-3.36,-2.48,.039,.103)
+    p.text('records','Actualizado ahora',.68,-2.48,.039,.103)
     p.panel('detail',3.59,-1.08,2.62,2.91,'detail')
     p.text('detail','SOLICITUD / 0248',2.48,.10,.038,.107,'warm',True)
     p.text('detail','Conectar una nueva sede',2.48,-.20,.038,.168,'white',True)
