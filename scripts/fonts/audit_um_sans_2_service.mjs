@@ -43,6 +43,8 @@ for (const [route, marker] of [
   ['/estilo/fuentes/plantilla', 'Plantillas-UMSans2-2.0.0.zip'],
   ['/estilo/fuente/plantillas', 'Plantillas-UMSans2-2.0.0.zip'],
   ['/estilo/fuente/planillas', 'Plantillas-UMSans2-2.0.0.zip'],
+  ['/estilo/fuente/planilla', 'Plantillas-UMSans2-2.0.0.zip'],
+  ['/planilla', 'Plantillas-UMSans2-2.0.0.zip'],
 ]) {
   const html = await (await get(route)).text();
   assert(html.includes(marker), `${route}: missing ${marker}`);
