@@ -1,8 +1,8 @@
 # Candidata integrada · 8 de octubre de 2026
 
-Estado a las 06:26 UTC. Checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`, rama `feature/isometric-redes-review`, PR #266 a develop, draft. Preview `http://127.0.0.1:4326/` reconstruida en `56b82257`; PID propio 9672. Verificar proceso y cwd antes de reiniciar. No modificar el checkout principal ni desplegar.
+Estado a las 07:03 UTC. Checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`, rama `feature/isometric-redes-review`, PR #266 a develop, draft. Producto `9c2f3dee`. Preview `http://127.0.0.1:4326/` reconstruida en ese commit; PID propio 17070. Verificar proceso y cwd antes de reiniciar. No modificar el checkout principal ni desplegar.
 
-Las ocho disciplinas ya usan películas específicas de 24 segundos y 1.440 cuadros nativos 4K/60. Edición móvil, cuatro pósters, hashes, color y continuidad verificados al importar. No queda ninguna película v1 en servicios.
+Las ocho disciplinas usan películas específicas de 24 segundos y 1.440 cuadros nativos 4K/60. Edición móvil, cuatro pósters, hashes, color y continuidad verificados al importar: 48 assets y 305.149.322 bytes en total; cada página carga sólo su película. No queda ninguna película v1 en servicios.
 
 | Servicio | Versión integrada | Render completo | Bytes de sus seis assets |
 | --- | --- | --- | ---: |
@@ -13,25 +13,35 @@ Las ocho disciplinas ya usan películas específicas de 24 segundos y 1.440 cuad
 | Soporte 105 | support-project-v2 | 37732222296 | 26.838.088 |
 | Consultoría 106 | consulting-project-v2 | 37734092440 | 39.796.059 |
 | Incendio 107 | fire-project-v2 | 37716425530 | 51.136.539 |
-| Energía 108 | power-project-v2 | 37728931491 | 30.546.459 |
+| Energía 108 | power-project-v3 | 37736980890 | 32.078.931 |
 
-## Verificación actual y siguiente acción
+## Cambios verificados de esta revisión
 
-- Software integrado `37733716485`: 20 composiciones Chrome/WebKit, ciclo móvil y color, cero hallazgos; capturas inspeccionadas. Foco de las seis capas `37736011734`: autonomía, encuadre completo, contexto atenuado y movimiento reducido correctos, capturas revisadas. El recorte que aparentaba afectar la capa activa pertenecía al contexto: no presentarlo como un recorte activo corregido.
-- Soporte integrado `37734884810`: 10 composiciones y dos ciclos completos, cinco frases ligadas al reloj del video, cero hallazgos. Chrome 10 cuadros descartados de 1.378; WebKit 0 de 1.371. Se inspeccionaron fotogramas nativos y capturas reales de escritorio y móvil.
-- Consultoría integrada `37736654589`: 10 composiciones y dos ciclos autónomos, cinco frases sincronizadas, cero hallazgos; reportes y capturas inspeccionados. Chrome 21/1.378 cuadros descartados, WebKit 0/1.374. El render rechazado `37728975470` no fue importado; el nuevo `37734092440` tiene plano general completo y 1.440 cuadros únicos.
-- Revisión completa `37735559008` de home, sectores y ocho servicios en ejecución. Fuente `9fe62961`; las únicas diferencias de producto posteriores son Consultoría v2 y el contraste de Software, con revisión dirigida propia.
-- `npm run check` en `9fe62961`: 71 suites / 592 pruebas, lint, tipos, CSS y build aprobados; 10 advertencias previas. Build de `56b82257` aprobado. No equivale a aprobación artística.
+- Soporte, Consultoría y Energía tienen introducciones propias: portátil con caso 0248, folio de relevamiento con plano y analizador de carga con pinza. Se conserva la proyección de 30°, los mecanismos y las seis capas. Fuentes SVG `discipline-105-v3`, `106-v3`, `108-v4`; el último conserva el cartucho de baterías detallado. Capturas reales de escritorio/móvil inspeccionadas.
+- Software v5 cuenta una transacción completa entre interfaz, reglas, datos y despliegue. UM Sans, búsqueda, estados, responsables, contratos y registros reales en la ilustración. La capa activa conserva contraste; el contexto baja a .22 durante el acercamiento.
+- Energía v3 conserva geometría/cámara de v2 y añade sombras de contacto mejor resueltas. Se revisaron cuadros nativos 0/500/925/1200/1439 y un segmento continuo 840–959; no presenta el ruido de la prueba rechazada. 1.440 cuadros únicos. Importación `9c2f3dee`.
+- El titular general del servicio y la narración contextual ya no duplican la misma frase en sectores.
+- La home mantiene su gran película. Los mecanismos se preparan al acercarse al viewport y conservan SVG estático si falla la descarga; pausa, movimiento reducido y suspensión fuera de pantalla permanecen operativos.
 
-## Refinamiento de iluminación activo
+No quedan renders ni auditorías visuales en ejecución de esta revisión. Todos los renders aceptados están incorporados en la preview; el render descartado no cuenta como entrega.
 
-Prueba de Energía `37736008661`, fuente `8e230d96`: plano general y UPS abierta inspeccionados, mejora visible de contacto bajo baterías y dentro del gabinete, sin el ruido de la prueba anterior. Se conservaron geometría, tipografía y 4K. 273–286 s de preparación y 10,8–12,1 s por fotograma en el runner. La prueba anterior `37735238602` se rechazó por ruido; Cycles y EEVEE completos se descartaron por 440 y 536 s/cuadro respectivamente.
+## Evidencia funcional y visual
 
-Render completo **power-project-v3 `37736980890`**, fuente `357bd155`, en curso. Debe descargarse, revisarse en movimiento, importarse con archivos nuevos y auditarse en la página antes de sustituir v2. El plan del workflow se comprobó: 12 partes / 1.440 cuadros; rechaza motores no revisados. No relanzar duplicados ni mezclar fuentes.
+- `npm run check` en `9c2f3dee`: 71 suites / 592 pruebas, lint, tipos, CSS y build aprobados; 10 advertencias previas. Guarda de release: 472 rutas admitidas contra `origin/master` `7585f7c5`, cero modificaciones de assets de cine publicados, campaña y fuentes protegidas intactas. No es un despliegue.
+- Chrome completo `37735559008`: 20 rutas en escritorio y móvil, cero hallazgos/errores; home recorre cinco películas y los servicios avanzan solos. Ese workflow terminó fallido porque su prueba WebKit buscaba un botón retirado en Constructoras. La prueba se actualizó para comprobar el proyecto sectorial real, sus seis capas, geometría, estabilidad y movimiento reducido; no se omitió la ruta. Revisión posterior WebKit `37739121530`: 55 composiciones en cinco anchos, cero hallazgos; reportes y capturas de Constructoras y Soporte inspeccionados y archivados.
+- Home/Bodegas/Incendio `37738849768`: ambas configuraciones Chrome y cinco anchos de home en WebKit aprobados. Reproducción nativa de las películas, navegación, pausa y movimiento reducido; cero hallazgos. Capturas revisadas: película central conservada y titular contextual distinto del general.
+- Isometrías nuevas `37738500419`: Chrome y WebKit, escritorio y móvil, 140 estados + 20 vistas reducidas, cero hallazgos y errores. El primer intento WebKit móvil agotó el tiempo de captura esperando fuentes después de 29 estados; la repetición sin cambios de producto completó sus 35 estados y cinco vistas reducidas. Se inspeccionaron las capturas nuevas de Energía (analizador, PDU y conjunto completo); ambos intentos se conservan identificados.
+- Software `37733716485`: 20 composiciones Chrome/WebKit, ciclo móvil y color, cero hallazgos. Foco de seis capas `37736011734`: autonomía, encuadre completo, contexto atenuado y movimiento reducido correctos. El recorte que parecía afectar la capa activa pertenecía al contexto; no presentarlo como un recorte activo corregido.
+- Soporte `37734884810`: diez composiciones y dos ciclos completos, cinco frases ligadas al reloj nativo, cero hallazgos. Chrome 10/1.378 cuadros descartados; WebKit 0/1.371.
+- Consultoría `37736654589`: diez composiciones y dos ciclos autónomos, cinco frases sincronizadas, cero hallazgos. Chrome 21/1.378 cuadros descartados; WebKit 0/1.374. Render anterior `37728975470` rechazado, nunca importado.
+- Energía v3 integrada `37739962114`: diez composiciones y dos ciclos autónomos, cinco frases sincronizadas, cero hallazgos. Chrome 7/1.379 cuadros descartados; WebKit móvil 0/1.372. Capturas de tablero y UPS en ambos motores inspeccionadas y archivadas.
+- Arranque `37733323821`: página 4/1.408 cuadros descartados, repetición 5/1.408, video aislado 0/1.405. Es una medición del runner; WebKit Linux no sustituye un dispositivo iOS físico.
 
-La home mantiene su gran película. Los mecanismos se preparan antes de entrar en pantalla y conservan SVG estático si falla la descarga. Medición dirigida de arranque `37733323821`: página 4/1.408 cuadros descartados, repetición 5/1.408, video aislado 0/1.405. Es evidencia del runner, no garantía para todos los dispositivos.
+## Criterio y límites
 
-Evidencias con SHA256 verificado en `/Volumes/SDTERA/Codex UM25 audits/20261007/`. Render pesado únicamente en GitHub Actions; no Blender local. Campaña protegida y binarios UM Sans sin cambios. Los resultados funcionales no prueban igualdad artística con Ryan, Solvaix o Hill. **Sin GO de producción.**
+Se compararon fotogramas nativos con Ryan, Solvaix y David Hill. Las mejoras verificables son detalle reconocible, contornos finos, tipografía sin deformaciones, lectura de conexiones, planos continuos y correspondencia entre animación y relato. Los controles funcionales no prueban igualdad artística con esas referencias ni ausencia de margen de mejora. No se declara perfección ni GO de producción.
+
+La prueba de iluminación `37735238602` se rechazó por ruido; Cycles y EEVEE completos se descartaron tras medir 440 y 536 s/cuadro. El render aceptado de Energía v3 usa la luz difusa previamente revisada, sin reducir 4K ni interpolar cuadros. Render pesado sólo en GitHub Actions; no Blender local. Evidencias con SHA256 verificado en `/Volumes/SDTERA/Codex UM25 audits/20261007/`.
 
 ---
 
