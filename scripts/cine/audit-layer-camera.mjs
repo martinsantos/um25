@@ -33,7 +33,16 @@ try{
    const state=await measure(page,code,stage);report.states.push({code,...state});inspect(code,state);
    await page.locator('[data-atlas-theater]').screenshot({path:path.join(out,`${code}-${stage}.png`),animations:'allow'});save();
    if(code==='104'&&stage===2){
+    // The theater capture leaves the masthead above the fixed navigation.
+    // Expose the real control before clicking it; WebKit's automatic scroll
+    // otherwise targets a moving viewport instead of pausing the story.
+    await page.locator('.svc-story__masthead').evaluate(el=>scrollTo({top:el.getBoundingClientRect().top+scrollY-90,behavior:'instant'}));
+    await page.waitForFunction(()=>document.querySelector('[data-service-atlas]').dataset.storyState==='playing',{},{timeout:5000});
+    const control=await page.locator('[data-atlas-play]').evaluate(el=>{const b=el.getBoundingClientRect(),hit=document.elementFromPoint(b.x+b.width/2,b.y+b.height/2);return {label:el.textContent,exposed:hit===el||el.contains(hit),rect:b.toJSON()};});
+    assert(control.exposed,'The story pause control must receive pointer input');
+    report.softwarePause={control,stable:false};save();
     await page.locator('[data-atlas-play]').click();
+    report.softwarePause.afterClick=await page.locator('[data-service-atlas]').getAttribute('data-story-state');save();
     await page.waitForFunction(()=>document.querySelector('[data-service-atlas]').dataset.storyState==='paused',{},{timeout:3000});await page.waitForTimeout(150);
     const paused=await page.locator('.ps-drawing').evaluate(el=>el.getAnimations({subtree:true}).filter(a=>a.playState!=='finished').map(a=>({time:a.currentTime,state:a.playState})));
     await page.waitForTimeout(700);
@@ -43,6 +52,7 @@ try{
     assert.deepEqual(after,paused,'Pause must stop inner software states as well as the camera');
     assert(after.every(a=>a.state==='paused'));report.softwarePause={animations:after.length,stable:true};
     await page.locator('[data-atlas-play]').click();
+    await page.locator('[data-atlas-theater]').evaluate(el=>scrollTo({top:el.getBoundingClientRect().top+scrollY-100,behavior:'instant'}));
    }
   }
  }
