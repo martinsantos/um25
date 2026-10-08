@@ -72,11 +72,22 @@ class Telecom(network.Network):
   # Splice reserve loops and two trays live inside the enclosure.
   for tray in range(2):
    xx=cx-.122+tray*.244;zz=cz+.233
-   self.box(xx,cy,zz,.216,.144,.008,'pcb')
+   self.box(xx,cy,zz,.216,.144,.008,'paper')
+   for dx in [-.105,.105]:self.box(xx+dx,cy,zz+.008,.003,.144,.011,'edge')
+   for dy in [-.069,.069]:self.box(xx,cy+dy,zz+.008,.212,.003,.011,'edge')
    for j in range(5):
     radius=.046+j*.004
-    self.line([(xx+radius*math.cos(k*math.tau/96),cy+.048*math.sin(k*math.tau/96),zz+.009+j*.0003) for k in range(97)],'blue' if j%2 else 'copper',.00055)
-   for j in range(6):self.box(xx-.057+j*.023,cy-.055,zz+.009,.015,.025,.004,'edge')
+    loop=[(xx+radius*math.cos(k*math.tau/96),cy+.048*math.sin(k*math.tau/96),zz+.009+j*.0003) for k in range(97)]
+    start=(cx-.193+(tray*6+j)*.032,cy-.158,cz+.093)
+    end=(xx-.057+j*.023,cy-.055,zz+.013)
+    self.line(self.rounded_path([start,(start[0],cy-.085,zz+.009),loop[0]],.01)+loop[1:]+[end],'blue' if j%2 else 'copper',.00055)
+   for j in range(6):
+    sx=xx-.057+j*.023
+    for side in [-1,1]:self.box(sx+side*.004,cy-.055,zz+.009,.002,.028,.009,'edge')
+    self.cylinder(sx,cy-.044,zz+.014,.002,.023,'muted','y')
+   for dx in [-.029,.029]:
+    self.box(xx+dx,cy,zz+.009,.006,.018,.009,'edge')
+   self.text('RESERVA / FUSION',xx-.074,cy+.060,zz+.020,.005,'ink')
   self.line(self.rounded_path([(x+direction*.06,1.45,3.04),(x,1.45,2.95),(x,1.45,1.44),(cx,cy+.20,1.44)]),'muted',.003)
   self.text('SITIO '+label,x-.55,-.072,.22,.08,'ink',True)
 
@@ -85,7 +96,7 @@ def build():
  # The connection across air and the fiber option have different, legible paths.
  s.line([(-2.59,1.45,3.12),(2.59,1.45,3.12)],'trace',.0016)
  s.routes.append(dict(pts=[(-2.59,1.45,3.12),(2.59,1.45,3.12)],start=.18,end=.48))
- pts=s.rounded_path([(-3.05,.30,1.48),(-3.05,-.22,1.48),(-3.05,-.22,.05),(-3.05,-1.0,.05),(3.05,-1.0,.05),(3.05,-.22,.05),(3.05,-.22,1.48),(3.05,.30,1.48)],.12)
+ pts=s.rounded_path([(-3.243,.339,1.370),(-3.243,-.22,1.370),(-3.243,-.22,.05),(-3.05,-1.0,.05),(3.05,-1.0,.05),(2.857,-.22,.05),(2.857,-.22,1.370),(2.857,.339,1.370)],.12)
  s.line(pts,'blue',.004);s.routes.append(dict(pts=pts,start=.49,end=.90))
  for x in [-2,-1,0,1,2]:s.box(x,-1.0,.018,.08,.07,.016,'edge')
  s.text('RADIO / LINEA DE VISTA',-.98,1.48,3.13,.052,'muted')
@@ -122,5 +133,5 @@ if __name__=='__main__':
  s=build();info=describe(s)
  if args.validate_only:print(json.dumps(info))
  else:studio.render(args,s,dict(source=__file__,sources=[str(Path(__file__).with_name('render-network-project-v2.py')),__file__],describe=describe,camera=camera,animate=animate,bake_frame=1000,
-  packet_radius=.012,description='two sites, aligned radio transport, a distinct optical alternative and measured terminations; continuous 24 second loop',
+  smooth_bake=True,packet_radius=.012,description='two sites, aligned radio transport, a distinct optical alternative and measured terminations; continuous 24 second loop',
   lights=[('Optical termination inspection',(-3.0,-.3,2.8),24,1.2,(1,1,1),(-3.05,.5,1.55))]))

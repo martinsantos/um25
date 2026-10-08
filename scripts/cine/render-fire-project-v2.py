@@ -525,6 +525,26 @@ def render(args,s,story=None):
         bpy.context.view_layer.objects.active=bake_objects[0]
         scene.render.engine='CYCLES';scene.cycles.samples=128
         bpy.ops.object.bake(type='DIFFUSE',pass_filter={'COLOR','DIRECT','INDIRECT'},target='VERTEX_COLORS',use_clear=True,use_selected_to_active=False)
+        if story and story.get('smooth_bake'):
+            # Average light samples across continuous smooth surfaces, preserving
+            # flat manufactured edges. This removes corner-sampling seams, not detail.
+            for obj in bake_objects:
+                attr=obj.data.color_attributes.active_color
+                sums={};neighbors={};loops=[]
+                for face in obj.data.polygons:
+                    if not face.use_smooth:continue
+                    indices=list(face.loop_indices)
+                    for li in indices:
+                        vi=obj.data.loops[li].vertex_index;rgba=attr.data[li].color
+                        total,count=sums.get(vi,([0.0]*4,0))
+                        sums[vi]=([total[k]+rgba[k] for k in range(4)],count+1);loops.append((li,vi))
+                    for a,b in zip(indices,indices[1:]+indices[:1]):
+                        a=obj.data.loops[a].vertex_index;b=obj.data.loops[b].vertex_index
+                        neighbors.setdefault(a,set()).add(b);neighbors.setdefault(b,set()).add(a)
+                colors={vi:[c/n for c in total] for vi,(total,n) in sums.items()}
+                for _ in range(3):
+                    colors={vi:[.6*color[k]+.4*sum(colors[n][k] for n in neighbors[vi])/len(neighbors[vi]) for k in range(4)] for vi,color in colors.items()}
+                for li,vi in loops:attr.data[li].color=colors[vi]
         bake_info={'seconds':round(time.time()-start,2),'objects':len(bake_objects),'corners':sum(len(o.data.loops) for o in bake_objects),'source':'Cycles diffuse direct and indirect light'}
         print(json.dumps({'lighting_bake':bake_info}),flush=True)
         scene.render.engine='BLENDER_WORKBENCH'

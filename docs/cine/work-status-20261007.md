@@ -22,13 +22,13 @@ Pipeline genérico de ensamblado/importación preparado para `fire-project-v2` y
 
 ## Preparación de Seguridad v2
 
-Nueva escena `render-security-project-v2.py`: acceso a escala, lector, hoja articulada, cámara con óptica separable y sensor, grabador con cuatro discos y electrónica, consola que relaciona imagen/evento/respuesta. Recorrido y tres mecanismos propios. La prueba `37721895406` completó cuatro planos. Se rechaza el espacio vacío de la instalación, el monitor esquemático y la tapa que tapa el controlador. Se corrigen ventanas, profundidad de la escena, plano/eventos detallados, ángulo de la óptica y desplazamiento de tapa. La ejecución completa sigue bloqueada hasta revisar la corrección. No se ha modificado la película registrada del servicio 102.
+Nueva escena `render-security-project-v2.py`: acceso a escala, lector, hoja articulada, cámara con óptica separable y sensor, grabador con cuatro discos y electrónica, consola que relaciona imagen/evento/respuesta. Recorrido y tres mecanismos propios. La prueba `37721895406` completó cuatro planos. Se rechaza el espacio vacío de la instalación, el monitor esquemático y la tapa que tapa el controlador. Se corrigen ventanas, profundidad de la escena, plano/eventos detallados, ángulo de la óptica y desplazamiento de tapa. La segunda prueba `37722697682` mejora la apertura y el plano general, pero revela el fondo de un panel de UI mal ubicado; se corrige y se refina la lente. Nueva prueba de 520 y 1200 pendiente; no render completo aún. No se ha modificado la película registrada del servicio 102.
 
 ## Telecomunicaciones v2 y últimos controles
 
-Modelo `render-telecom-project-v2.py`: dos sitios, parábolas de doble piel, alimentación y herrajes, montantes, óptica con bandejas y reservas de fibra. Dos alternativas de transporte con intervalos independientes; no se presentan en serie. Falta su primera prueba Blender. El workflow sólo permite proof/motion-proof para 102 y 103.
+Modelo `render-telecom-project-v2.py`: dos sitios, parábolas de doble piel, alimentación y herrajes, montantes, óptica con bandejas y reservas de fibra. Dos alternativas de transporte con intervalos independientes; no se presentan en serie. Prueba `37722701691` completa: se inspeccionaron los tres planos. Se corrigen ruido de sombreado en la parábola, bandejas de empalme demasiado genéricas y la llegada de fibra al panel óptico (antes caía sobre RJ45). Nueva prueba dirigida pendiente. El workflow sólo permite proof/motion-proof para 102 y 103.
 
-`37721308823`: cuatro perfiles de las cinco isometrías terminaron correctamente. Falta completar la inspección de sus nuevas capturas. `37721311238`: Incendio tuvo cero hallazgos funcionales, pero el circuito dejaba el contexto demasiado oscuro. Se aumenta su legibilidad y se componen acercamientos propios de escritorio para las seis capas; pendiente revisión posterior.
+`37721308823`: cuatro perfiles de las cinco isometrías terminaron correctamente. Los 140 estados y 20 vistas reducidas tienen cero errores/hallazgos; se inspeccionaron capturas de las cinco disciplinas en móvil/escritorio. `37721311238`: Incendio tuvo cero hallazgos funcionales, pero el circuito dejaba el contexto demasiado oscuro. Se aumenta su legibilidad y se componen acercamientos propios de escritorio para las seis capas; pendiente revisión posterior.
 
 ## Límites de la revisión
 

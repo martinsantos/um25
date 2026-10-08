@@ -102,7 +102,7 @@ if(fireOnly||networkOnly||serviceCode){
    const observations=[];
    for(const time of (fireOnly?[2,7.65,14.2,16,22.8]:networkOnly?[2,7.45,10.4,17.35,22.8]:[2,8.65,16,20.1,22.8])){
     await page.waitForFunction(time=>document.querySelector('.umc-video.is-on')?.currentTime>=time,time,{timeout:20000,polling:100});
-    observations.push(await page.locator('.umc-video.is-on').evaluate(v=>({time:v.currentTime,duration:v.duration,ready:v.readyState,paused:v.paused,quality:v.getVideoPlaybackQuality?.()})));
+    observations.push(await page.locator('.umc-video.is-on').evaluate(v=>({time:v.currentTime,duration:v.duration,ready:v.readyState,paused:v.paused,quality:(q=>q?{total:q.totalVideoFrames,dropped:q.droppedVideoFrames,corrupted:q.corruptedVideoFrames}:null)(v.getVideoPlaybackQuality?.())})));
     await page.screenshot({path:path.join(out,`${film}-autonomous-${engine}-${width}-${time}.png`)});
    }
    await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime<2,{},{timeout:6500,polling:100});
@@ -154,7 +154,7 @@ if(probe){
    return v.play();
   },looping);
   await page.waitForTimeout(27000);
-  report.nativeComparison.push(await page.locator('video').evaluate(v=>({loop:v.loop,duration:v.duration,time:v.currentTime,paused:v.paused,ended:v.ended,events:window.__nativeEvents,frames:window.__nativeFrames,quality:v.getVideoPlaybackQuality?.()})));
+  report.nativeComparison.push(await page.locator('video').evaluate(v=>({loop:v.loop,duration:v.duration,time:v.currentTime,paused:v.paused,ended:v.ended,events:window.__nativeEvents,frames:window.__nativeFrames,quality:(q=>q?{total:q.totalVideoFrames,dropped:q.droppedVideoFrames,corrupted:q.corruptedVideoFrames}:null)(v.getVideoPlaybackQuality?.())})));
   await page.close();
  }
  await browser.close();

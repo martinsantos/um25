@@ -32,11 +32,14 @@ class Security(network.Network):
   group='optical-head';self.doors.append(dict(name=group,pivot=(0,0,0),kind='slide'))
   for dy,r,h,mat in [(-.130,.036,.009,'graphite'),(-.139,.034,.012,'paper'),(-.151,.029,.006,'black'),(-.158,.022,.009,'graphite'),(-.168,.016,.004,'lens')]:
    self.cylinder(x,y+dy,z+.045,r,h,mat,'y',group=group)
+  self.cylinder(x,y-.1725,z+.045,.014,.0008,'black','y',group=group)
+  self.cylinder(x-.005,y-.1735,z+.050,.003,.0004,'muted','y',group=group)
   for j in range(12):
    a=j*math.tau/12
    self.cylinder(x+.027*math.cos(a),y-.157,z+.045+.027*math.sin(a),.0021,.002,'black','y',group=group)
   for dx in [-.029,.029]:
    self.cylinder(x+dx,y-.146,z+.045,.002,.002,'edge','y',group=group)
+  self.cylinder(x+.10,y+.163,z-.10,.005,.020,'graphite','y')
   self.line(self.rounded_path([(x,y+.19,z+.01),(x,y+.20,z-.06),(x+.08,y+.2,z-.10),(x+.10,y+.155,z-.10)]),'muted',.003)
  def recorder(self,x,y,z):
   self.parts.append('recorder-storage-and-controller')
@@ -90,7 +93,7 @@ class Security(network.Network):
   # Its fine partition, open leaf, sensor and field of view retain the site context.
   left=x-.284;bottom=z+.100;yy=y-.019
   self.text('PLANO / VESTIBULO',left,yy,z+.270,.008,'muted',True)
-  self.box(x-.120,yy,z+.174,.320,.001,.140,'black')
+  self.box(x-.120,yy,z+.101,.320,.001,.160,'black')
   for a,b in [((left+.017,bottom+.019),(left+.277,bottom+.019)),((left+.017,bottom+.019),(left+.017,bottom+.129)),((left+.017,bottom+.129),(left+.061,bottom+.129)),((left+.123,bottom+.129),(left+.277,bottom+.129)),((left+.277,bottom+.129),(left+.277,bottom+.019))]:
    self.line([(a[0],yy-.001,a[1]),(b[0],yy-.001,b[1])],'edge',.0006)
   self.line([(left+.061,yy-.002,bottom+.129),(left+.089,yy-.002,bottom+.083)],'paper',.0007)
