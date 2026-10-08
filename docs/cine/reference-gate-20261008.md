@@ -68,3 +68,19 @@ La dirección clara se mantiene. No recuperar pantalla negra ni cámara inclinad
 Archivo verificado: `/Volumes/SDTERA/Codex UM25 audits/20261008/`. Manifiesto `software-v7-native-and-power-review-SHA256.json`: 59 archivos y 46.266.306 bytes de entrega, cuadros y gabinete. Blender sólo se ejecutó en GitHub Actions. Producción no modificada.
 
 Cierre de esta corrección: preview reconstruida y confirmada por HTTP, producto `a9cc73ee`, PID propio 44653. Ambos accesos usan Software v7 y pósters `srgb-v1`. Auditoría final `37765683012` intento 2 aprobada; capturas de escritorio y móvil inspeccionadas. Archivo final verificado mediante `software-v7-final-browser-review-SHA256.json`. Sin trabajos de render o auditoría de esta corrección pendientes. Continúa pendiente la igualdad artística con las referencias; no desplegar por inferencia de los controles técnicos.
+
+## Software v8 · revisión sobre componentes reales
+
+El rechazo posterior de v7 continúa vigente. v8 reemplaza el recorrido entre placas por una aplicación de integraciones: conexión ERP, contrato de campos, registros sincronizados y actividad. El campo de API, un contrato y un registro se separan de su posición original, conservando las relaciones y las proporciones. El dato cambia durante la explicación.
+
+- Primera prueba `37781803057`, fuente `c52aef4e`: seis planos 4K inspeccionados. Se rechazó el exceso de sombra, se detectó un recorte del plano general y un enlace cruzando la tabla.
+- Segunda prueba `37782369402` y tramo `37782374040`: fallaron por usar un atributo inexistente de `Curve` en Blender. Corregido en `e9ae2ac5`; no se los cuenta como evidencia visual.
+- Prueba corregida `37782767946`: seis planos completos. Se inspeccionaron apertura, conexión y registro. Superficies más finas, controles de propósito reconocible, lectura mayor, profundidad ligada a elementos del mismo producto. Los planos no certifican la continuidad de toda la película ni igualdad con Hill.
+- Integración preparada `01c55867`: entrega móvil 4:3 con acercamiento continuo al componente, sin deformación ni interpolación de cuadros, y plano general completo en apertura/cierre. Seis frases siguen el reloj nativo. Validación geométrica incluye los controles que se elevan y reserva márgenes para el encuadre móvil.
+- `npm run check`: 71 suites y 593 pruebas aprobadas, build, tipos, CSS y lint aprobados; diez advertencias previas. Registro y preview aún conservan v7 hasta revisar/importar la entrega completa.
+
+Criterio pendiente: comparar fluidez, jerarquía, detalle visible y profundidad contra Hill al mismo tamaño, además de revisar ambos accesos de Software en Chrome y WebKit. No traducir el recuento de pruebas a un porcentaje de calidad.
+
+La secuencia nativa `37782772383` finalizó: 120 cuadros 3840 × 2160 / 60 fps, 2 segundos, 787,82 segundos de render remoto, sin errores de controlador; seis instantes inspeccionados. Render completo `37784593927`: diez tramos terminados. Los tramos 4 y 10 fallaron antes de Blender, al agotar 600 segundos instalando `libegl1` y `ffmpeg`; recuperación selectiva `37786880247`, sin repetir los otros diez. La unión ahora conserva y verifica la evidencia de encuadre de cada subtramo, además de fuente, fuentes tipográficas y tratamiento.
+
+El banner también se corrige: botones y estadísticas pasan después de la película y su narración. El escenario de escritorio se ajusta al alto de ventana, y en móvil conserva la composición 4:3. Esto responde al espacio que ocultaba el recorrido bajo los controles en el primer viewport.
