@@ -97,7 +97,16 @@ export function bindSoftwarePrecision(root){
   // WebKit does not consistently match a selector outside an inline SVG's
   // stylesheet. Explicitly suspend its inner CSS timelines with the story clock.
   const innerPlaying=active&&owner.dataset.storyState==='playing'&&root.dataset.visible==='true'&&!document.hidden&&!reduced.matches;
-  drawing.querySelectorAll('.ps-detail,.ps-outcome,.ps-check,.ps-draw,.ps-flow').forEach(node=>{node.style.animationPlayState=innerPlaying?'running':'paused';});
+  drawing.querySelectorAll('.ps-detail,.ps-outcome,.ps-check,.ps-draw,.ps-flow').forEach(node=>{
+   node.style.animationPlayState=innerPlaying?'running':'paused';
+   // Some WebKit SVG CSS timelines ignore animation-play-state updates.
+   // Control the actual timelines too, preserving their elapsed position.
+   for(const animation of node.getAnimations?.()||[]){
+    if(animation.playState==='finished')continue;
+    if(innerPlaying&&animation.playState==='paused')animation.play();
+    else if(!innerPlaying&&animation.playState!=='paused')animation.pause();
+   }
+  });
   for(const animation of animations){
    if(reduced.matches){animation.finish();continue;}
    if(animation.playState==='finished')continue;
