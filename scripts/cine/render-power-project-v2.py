@@ -206,6 +206,6 @@ if __name__=='__main__':
  assert 0<=args.start<=args.end<1440 and args.width in [1920,3840] and 16<=args.samples<=128
  s=build();info=describe(s)
  if args.validate_only:print(json.dumps(info))
- else:studio.render(args,s,dict(source=__file__,sources=[str(Path(__file__).with_name('render-network-project-v2.py')),__file__],describe=describe,camera=camera,animate=animate,bake_frame=900,
-  brand_font=True,text_depth=0,smooth_bake=True,packet_radius=.010,description='protection, contained energy storage, identified distribution and critical loads; continuous 24 second loop',
+ else:studio.render(args,s,dict(source=__file__,sources=[str(Path(__file__).with_name('render-network-project-v2.py')),str(Path(__file__).with_name('prepare-render-font.py')),__file__],describe=describe,camera=camera,animate=animate,bake_frame=900,
+  brand_font=True,normalized_font=True,text_depth=0,smooth_bake=True,packet_radius=.010,description='protection, contained energy storage, identified distribution and critical loads; continuous 24 second loop',
   lights=[('Distribution inspection',(-2.4,-.2,2.1),35,1.4,(1,1,1),(-2.1,1.15,.99)),('Battery inspection',(-.8,-.2,1.9),28,1.3,(1,1,1),(-.25,.7,.65))]))

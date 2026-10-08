@@ -156,6 +156,6 @@ if __name__=='__main__':
  assert 0<=args.start<=args.end<1440 and args.width in [1920,3840] and 16<=args.samples<=128
  s=build();info=describe(s)
  if args.validate_only:print(json.dumps(info))
- else:studio.render(args,s,dict(source=__file__,sources=[str(Path(__file__).with_name('render-network-project-v2.py')),__file__],describe=describe,camera=camera,animate=animate,bake_frame=620,
-  brand_font=True,text_depth=0,smooth_bake=True,packet_radius=.005,description='one measured study model reveals infrastructure dependencies, then links evidence to a verifiable implementation plan; continuous 24 second loop',
+ else:studio.render(args,s,dict(source=__file__,sources=[str(Path(__file__).with_name('render-network-project-v2.py')),str(Path(__file__).with_name('prepare-render-font.py')),__file__],describe=describe,camera=camera,animate=animate,bake_frame=620,
+  brand_font=True,normalized_font=True,text_depth=0,smooth_bake=True,packet_radius=.005,description='one measured study model reveals infrastructure dependencies, then links evidence to a verifiable implementation plan; continuous 24 second loop',
   lights=[('Drafting inspection',(0,-.4,3.0),70,2.4,(1,1,1),(0,.3,.85))]))

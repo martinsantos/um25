@@ -148,6 +148,8 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
  /* Detailed product and installation films use the entire authored frame.
     Give it a separate column and preserve its edges through every close-up. */
  .umc[data-product-composition="true"] :global(.umc-poster),.umc[data-product-composition="true"] :global(.umc-video){mask-image:none}
+ /* The poster is the first native frame. Blending two 4K layers delays decoding. */
+ .umc[data-product-composition="true"] :global(.umc-poster),.umc[data-product-composition="true"] :global(.umc-video){transition:none}
  .umc[data-product-composition="true"]{--umc-ink:#090a0c}
  .umc[data-product-composition="true"] :global(.umc-grade){background:none}
  /* Match the decoded native studio background, so the film has no rectangular seam. */

@@ -144,6 +144,6 @@ if __name__=='__main__':
  assert 0<=args.start<=args.end<1440 and args.width in [1920,3840] and 16<=args.samples<=128
  s=build();info=describe(s)
  if args.validate_only:print(json.dumps(info))
- else:studio.render(args,s,dict(source=__file__,sources=[str(Path(__file__).with_name('render-network-project-v2.py')),__file__],describe=describe,camera=camera,animate=animate,bake_frame=910,
-  brand_font=True,text_depth=0,smooth_bake=True,packet_radius=.006,description='one illustrative support case: observed symptom, equipment diagnosis and recorded verification; continuous 24 second loop',
+ else:studio.render(args,s,dict(source=__file__,sources=[str(Path(__file__).with_name('render-network-project-v2.py')),str(Path(__file__).with_name('prepare-render-font.py')),__file__],describe=describe,camera=camera,animate=animate,bake_frame=910,
+  brand_font=True,normalized_font=True,text_depth=0,smooth_bake=True,packet_radius=.006,description='one illustrative support case: observed symptom, equipment diagnosis and recorded verification; continuous 24 second loop',
   lights=[('Bench inspection',(.2,-.8,2.5),45,1.8,(1,1,1),(.3,.3,.8))]))

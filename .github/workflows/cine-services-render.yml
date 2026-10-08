@@ -103,6 +103,7 @@ jobs:
             scripts/cine/render-power-project-v2.py
             scripts/cine/render-support-project-v2.py
             scripts/cine/render-consulting-project-v2.py
+            scripts/cine/prepare-render-font.py
             public/fonts/um-sans/UMSans-Regular.ttf
             scripts/cine/check-service-composition.py
           sparse-checkout-cone-mode: false
@@ -126,6 +127,12 @@ jobs:
           test -s blender-selected.sha256
           sha256sum -c blender-selected.sha256
           tar -xf blender-4.5.3-linux-x64.tar.xz
+      - name: Prepare disposable font outlines for Blender
+        if: inputs.version == 'power-v2' || inputs.version == 'support-v2' || inputs.version == 'consulting-v2'
+        run: |
+          python3 -m pip install --target "$RUNNER_TEMP/um-font-normalize" fonttools==4.66.1 skia-pathops==0.9.2
+          PYTHONPATH="$RUNNER_TEMP/um-font-normalize" python3 scripts/cine/prepare-render-font.py public/fonts/um-sans/UMSans-Regular.ttf "$RUNNER_TEMP/um-render-font.ttf"
+          echo "UM_CINE_RENDER_FONT=$RUNNER_TEMP/um-render-font.ttf" >> "$GITHUB_ENV"
       - name: Render authored discipline
         env:
           SERVICE: ${{ matrix.service }}

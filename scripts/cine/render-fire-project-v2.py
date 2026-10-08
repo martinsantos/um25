@@ -2,7 +2,7 @@
 Render exclusively on the disposable CI runner. Plain Python validates the model.
 The depicted layout explains a system; it is not a construction or coverage plan.
 """
-import argparse, hashlib, importlib.util, json, math, sys, time
+import argparse, hashlib, importlib.util, json, math, os, sys, time
 from pathlib import Path
 spec=importlib.util.spec_from_file_location('service_geometry',Path(__file__).with_name('render-service-cinema-v1.py'))
 legacy=importlib.util.module_from_spec(spec);spec.loader.exec_module(legacy)
@@ -401,7 +401,8 @@ def render(args,s,story=None):
         if group:obj.parent=parents[group]
         if group and group.startswith('ui-'):obj['flat_authored_color']=True
     font_file=Path(__file__).resolve().parents[2]/'public/fonts/um-sans/UMSans-Regular.ttf'
-    authored_font=bpy.data.fonts.load(str(font_file)) if story and story.get('brand_font') else None
+    render_font_file=Path(os.environ['UM_CINE_RENDER_FONT']) if story and story.get('normalized_font') else font_file
+    authored_font=bpy.data.fonts.load(str(render_font_file)) if story and story.get('brand_font') else None
     for label in s.texts:
         c=bpy.data.curves.new(label['value'],'FONT');c.body=label['value'];c.size=label['size'];c.extrude=story.get('text_depth',.0005) if story else .0005
         if authored_font:c.font=authored_font
@@ -495,7 +496,7 @@ def render(args,s,story=None):
         record={'frame':scene.frame_current,'seconds':round(time.time()-started[0],2)};timings.append(record);print(json.dumps(record),flush=True)
         info={**describe(s),'blender':bpy.app.version_string,'engine':scene.render.engine,'samples':args.samples,
               'resolution':[args.width,round(args.width*9/16)],'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()+(b''.join(Path(p).read_bytes() for p in story.get('sources',[story['source']])) if story else b'')).hexdigest(),'camera':story['description'] if story else 'workplace to detector to supervised circuit to central; continuous 24 second loop',
-              'render_mode':'persistent native animation','font_sha256':hashlib.sha256(font_file.read_bytes()).hexdigest() if authored_font else None,'baked_lighting':bake_info,'bounds':extents,'timings':timings}
+              'render_mode':'persistent native animation','font_sha256':hashlib.sha256(font_file.read_bytes()).hexdigest() if authored_font else None,'render_font_sha256':hashlib.sha256(render_font_file.read_bytes()).hexdigest() if authored_font else None,'baked_lighting':bake_info,'bounds':extents,'timings':timings}
         (out/'render-info.json').write_text(json.dumps(info))
     if args.engine=='baked':
         # The lights and installation stay fixed while the camera moves. Bake
