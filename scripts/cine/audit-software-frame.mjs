@@ -111,7 +111,14 @@ if(fireOnly){
    for(const stage of [0,1,2,3,4,5,6]){
     await page.waitForFunction(stage=>Number(document.querySelector('[data-discipline-system]').dataset.disciplineStage)===stage,stage,{timeout:16000});
     await page.waitForTimeout(2800);
-    const pose=await page.locator('.pf-drawing').evaluate(el=>({stage:el.closest('[data-discipline-system]').dataset.disciplineStage,door:el.querySelector('.pf-door').getAttribute('transform'),front:el.querySelector('.pf-door-front').getAttribute('opacity'),back:el.querySelector('.pf-door-back').getAttribute('opacity'),view:el.querySelector('.pf-viewport').getAttribute('viewBox'),width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
+    const pose=await page.locator('.pf-drawing').evaluate((el,stage)=>{
+     const root=el.closest('[data-discipline-system]'),frame=root.querySelector('svg').getBoundingClientRect();
+     const nodes=[...el.querySelectorAll(`[data-pf-focus="${stage}"]${stage===2?', [data-discipline-route~="2"]':''}`)];
+     const boxes=nodes.map(n=>n.getBoundingClientRect().toJSON());
+     const detector=el.querySelector('.pf-detector-cover use').getBBox();
+     return {stage:root.dataset.disciplineStage,door:el.querySelector('.pf-door').getAttribute('transform'),front:el.querySelector('.pf-door-front').getAttribute('opacity'),back:el.querySelector('.pf-door-back').getAttribute('opacity'),view:el.querySelector('.pf-viewport').getAttribute('viewBox'),outer:root.querySelector('svg').getAttribute('viewBox'),width:innerWidth,scrollWidth:document.documentElement.scrollWidth,frame:frame.toJSON(),boxes,detector:{width:detector.width,height:detector.height}};
+    },stage);
+    if(pose.outer!=='0 0 1000 650'||pose.detector.width<40||pose.detector.height<20||stage<6&&!pose.boxes.length||pose.boxes.some(b=>b.left<pose.frame.left+2||b.right>pose.frame.right-2||b.top<pose.frame.top+2||b.bottom>pose.frame.bottom-2))report.findings.push({engine,width,scope:'fire-visible-components',pose});
     if(pose.width!==pose.scrollWidth||(stage>=3&&pose.back!=='1'))report.findings.push({engine,width,scope:'fire-isometry',pose});
     layers.push(pose);await page.locator('[data-atlas-theater]').screenshot({path:path.join(out,`fire-isometry-${engine}-${width}-${stage}.png`),animations:'allow'});
    }

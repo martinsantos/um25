@@ -36,3 +36,8 @@ test('reduced motion gives one stable open drawing and disposal stops the pendin
  reduced.matches=false;root.dataset.disciplineStage='0';await settle();await jest.advanceTimersByTimeAsync(350);document.dispatchEvent(new Event('astro:before-swap'));const before=root.querySelector('.pf-door').getAttribute('transform');
  root.dataset.disciplineStage='3';await settle();await jest.advanceTimersByTimeAsync(4000);expect(root.querySelector('.pf-door').getAttribute('transform')).toBe(before);expect(jest.getTimerCount()).toBe(0);
 });
+
+test('reusable detector geometry remains valid SVG when embedded in HTML',()=>{
+ const root=fixture(),part=root.querySelector('#pf-detail-detector-cover');
+ expect(part).not.toBeNull();expect(part.localName).toBe('g');expect(part.namespaceURI).toBe('http://www.w3.org/2000/svg');
+});

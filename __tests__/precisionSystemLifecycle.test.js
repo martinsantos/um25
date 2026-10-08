@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {bindPrecisionSystem} from '../public/cine/precision-systems-v5.js';
+import {bindPrecisionSystem,bindDisciplineCamera} from '../public/cine/precision-systems-v6.js';
 const settle=async()=>{for(let i=0;i<5;i++)await Promise.resolve();};
 let motion,small,hidden;
 function fixture(){
@@ -51,4 +51,15 @@ test('reduced motion exposes a stable open cabinet and Astro disposal removes pe
  document.dispatchEvent(new Event('astro:before-swap'));
  expect(jest.getTimerCount()).toBe(0);const before=root.querySelector('.pn-door').getAttribute('transform');root.dataset.disciplineStage='3';await settle();await jest.advanceTimersByTimeAsync(5000);
  expect(root.querySelector('.pn-door').getAttribute('transform')).toBe(before);
+});
+
+test('the software lens leaves all other discipline cameras alone',async()=>{
+ for(const code of ['101','102','103','105','106','107','108']){
+  document.body.innerHTML='<section data-service-atlas data-story-state="playing"><div data-discipline-system data-visible="true" data-discipline-service="'+code+'" data-discipline-stage="3"><svg viewBox="12 24 450 600"></svg></div></section>';
+  const root=document.querySelector('[data-discipline-system]'),svg=root.querySelector('svg');
+  const dispose=bindDisciplineCamera(root);
+  expect(svg.getAttribute('viewBox')).toBe('12 24 450 600');
+  root.dataset.disciplineStage='5';await Promise.resolve();
+  expect(svg.getAttribute('viewBox')).toBe('12 24 450 600');dispose();
+ }
 });

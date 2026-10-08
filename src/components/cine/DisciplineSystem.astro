@@ -17,7 +17,7 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precis
  <Fragment set:html={markup} />
  <p class="discipline-system__key"><span aria-hidden="true"></span><span data-discipline-key>Un sistema. Todas sus capas.</span></p>
 </div>
-<script src="/cine/precision-systems-v5.js" type="module" async is:inline />
+<script src="/cine/precision-systems-v6.js" type="module" async is:inline />
 <script src="/cine/fire-system-v1.js" type="module" async is:inline />
 <script src="/cine/discipline-camera-v1.js" type="module" async is:inline />
 <style>
@@ -50,6 +50,7 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precis
  .discipline-system[data-discipline-stage="-1"] :global(.pn-project),.discipline-system[data-discipline-stage="1"] :global(.pn-project),.discipline-system[data-discipline-stage="6"] :global(.pn-project){opacity:1}
  .discipline-system[data-discipline-stage="-1"] :global(.pn-inspection),.discipline-system[data-discipline-stage="1"] :global(.pn-inspection),.discipline-system[data-discipline-stage="6"] :global(.pn-inspection){opacity:0}
  .discipline-system[data-discipline-stage="1"] :global(.pn-project .pn-node){opacity:1}
+ .discipline-system :global(.pf-drawing[data-focused=true] .pf-tag){visibility:hidden}
  .discipline-system :global(.pf-label),.discipline-system :global(.pf-engraving),.discipline-system :global(.pf-tag){font-family:var(--um-font-body,Arial,sans-serif)}
  .discipline-system :global(.ps-text){font-family:var(--um-font-body,Arial,sans-serif)}
  .discipline-system :global(.ps-layer){transition:none}

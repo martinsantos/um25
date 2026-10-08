@@ -9,7 +9,7 @@ export function bindFirePrecision(root){
  const door=drawing.querySelector('.pf-door'),front=drawing.querySelector('.pf-door-front'),back=drawing.querySelector('.pf-door-back'),cover=drawing.querySelector('.pf-detector-cover');
  const ribbons=[...drawing.querySelectorAll('.pf-ribbon')],small=matchMedia('(max-width:600px)'),reduced=matchMedia('(prefers-reduced-motion: reduce)');
  let current=[0,0,0,0,1000,650],target=[...current],from=[...current],elapsed=0,last=0,frame=0,disposed=false;
- const views={0:[0,10,490,305],1:[85,5,470,410],2:[85,30,705,505],3:[288,42,485,470],4:[788,198,185,270],5:[532,354,210,187]};
+ const views={0:[0,10,490,305],1:[85,5,470,410],2:[85,30,705,505],3:[240,42,545,490],4:[788,198,185,270],5:[532,337,225,187]};
  function active(){return !disposed&&root.dataset.disciplineService==='107'&&root.dataset.visible==='true'&&owner?.dataset.storyState==='playing'&&!document.hidden;}
  function render(){
   const [angle,lift,...view]=current,t=angle*Math.PI/180,hinge=point(-.26,-.064,0);
@@ -32,7 +32,7 @@ export function bindFirePrecision(root){
   cancelAnimationFrame(frame);frame=0;last=0;
   if(root.dataset.disciplineService!=='107')return;
   outer.setAttribute('viewBox','0 0 1000 650');
-  const stage=Number(root.dataset.disciplineStage),focus=reduced.matches?[0,0,1000,650]:small.matches?(views[stage]||[0,0,1000,650]):stage===3||stage===5?[210,30,760,494]:[0,0,1000,650];
+  const stage=Number(root.dataset.disciplineStage);drawing.dataset.focused=String(!reduced.matches&&stage>=0&&stage<6);const focus=reduced.matches?[0,0,1000,650]:small.matches?(views[stage]||[0,0,1000,650]):stage===3||stage===5?[210,30,760,494]:[0,0,1000,650];
   const next=[reduced.matches||stage>=3?102:0,reduced.matches||stage===1?65:0,...focus];
   if(next.some((v,i)=>v!==target[i])){from=[...current];target=next;elapsed=0;}
   if(reduced.matches){current=[...target];render();return;}

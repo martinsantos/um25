@@ -5,6 +5,7 @@ from pathlib import Path
 from math import sqrt,cos,sin,pi
 from html import escape
 import importlib.util,json,gzip,xml.etree.ElementTree as ET
+ET.register_namespace('', 'http://www.w3.org/2000/svg')
 ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/'src/assets/cine/isometric'
 spec=importlib.util.spec_from_file_location('fire',Path(__file__).with_name('render-fire-project-v2.py'));fire=importlib.util.module_from_spec(spec);spec.loader.exec_module(fire)
 S=450;A=sqrt(3)/2
@@ -114,7 +115,7 @@ routes=connection('M609 178L537 137L455 184L357 240L250 302L182 263L181 235L363 
 # Backup is inside this panel, so its focus region identifies the actual cells.
 backup='<rect x="567" y="379" width="124" height="105" fill="none" stroke="none" data-discipline-node="5" data-pf-focus="5"/>'
 labels=''
-for i,x,y,label in [(0,87,61,'Ambientes'),(1,331,225,'Detección'),(2,186,399,'Circuito supervisado'),(3,774,142,'Central'),(4,854,443,'Aviso'),(5,597,510,'Respaldo')]:
+for i,x,y,label in [(0,87,61,'Ambientes'),(1,315,50,'Detección'),(2,186,399,'Circuito supervisado'),(3,774,142,'Central'),(4,854,443,'Aviso'),(5,597,510,'Respaldo')]:
  labels+=f'<g class="pf-tag" data-discipline-tag="{i}"><text x="{x}" y="{y}"><tspan fill="#737d87">{i+1:02}</tspan><tspan dx="9">{label}</tspan></text></g>'
 style='''
 .pf-drawing{stroke-linecap:round;stroke-linejoin:round}
@@ -122,7 +123,7 @@ style='''
 .pf-engraving,.pf-label{font-family:Arial,sans-serif;fill:#a2a8af;stroke:none}
 .pf-door-front,.pf-door-back{transition:none}
 '''
-markup=f'<g data-discipline-drawing="107" class="ds-drawing pf-drawing"><svg class="pf-viewport" viewBox="0 0 1000 650" width="100%" height="100%">{routes}{coverage}{detector}{body}{sounder}{backup}{labels}</svg></g>'
+markup=f'<g data-discipline-drawing="107" class="ds-drawing pf-drawing"><svg class="pf-viewport" viewBox="0 0 1000 650" width="1000" height="650">{routes}{coverage}{detector}{body}{sounder}{backup}{labels}</svg></g>'
 svg='<svg xmlns="http://www.w3.org/2000/svg" class="ds-svg" viewBox="0 0 1000 650" aria-hidden="true"><defs>'+olddefs+''.join(f'<g id="{name}">{shape}</g>' for name,shape in shapes.values())+'</defs><style>'+style+'</style>'+markup+'</svg>'
 ET.fromstring(svg)
 (OUT/'discipline-107-v2.svg').write_text(svg)
