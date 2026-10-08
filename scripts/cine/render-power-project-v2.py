@@ -200,7 +200,7 @@ def describe(s):
 
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--start',type=int,default=0);p.add_argument('--end',type=int,default=0)
- p.add_argument('--samples',type=int,default=32);p.add_argument('--engine',choices=['cycles','eevee','workbench','baked'],default='baked')
+ p.add_argument('--samples',type=int,default=32);p.add_argument('--engine',choices=['cycles','eevee','workbench','baked','baked-detail'],default='baked')
  p.add_argument('--width',type=int,default=3840);p.add_argument('--output',default='frames');p.add_argument('--validate-only',action='store_true')
  args=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else None);args.proof_frames=None
  assert 0<=args.start<=args.end<1440 and args.width in [1920,3840] and 16<=args.samples<=128

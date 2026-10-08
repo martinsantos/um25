@@ -322,8 +322,8 @@ def render(args,s,story=None):
     from bpy_extras.object_utils import world_to_camera_view
     bpy.ops.wm.read_factory_settings(use_empty=True)
     scene=bpy.context.scene
-    scene.render.engine={'cycles':'CYCLES','eevee':'BLENDER_EEVEE_NEXT','workbench':'BLENDER_WORKBENCH','baked':'CYCLES'}[args.engine]
-    if args.engine in ('workbench','baked'):
+    scene.render.engine={'cycles':'CYCLES','eevee':'BLENDER_EEVEE_NEXT','workbench':'BLENDER_WORKBENCH','baked':'CYCLES','baked-detail':'CYCLES'}[args.engine]
+    if args.engine in ('workbench','baked','baked-detail'):
         scene.display.shading.light='STUDIO';scene.display.shading.color_type='MATERIAL';scene.display.render_aa='16'
         scene.display.shading.show_shadows=False;scene.display.shading.show_cavity=True;scene.display.shading.cavity_type='BOTH'
         scene.display.shading.curvature_ridge_factor=.55;scene.display.shading.curvature_valley_factor=.8
@@ -387,6 +387,17 @@ def render(args,s,story=None):
         obj=bpy.data.objects.new(mat+' '+(group or 'equipment'),mesh);scene.collection.objects.link(obj);mesh.materials.append(mats[mat])
         if group:obj.parent=parents[group]
         if group and group.startswith('ui-'):obj['flat_authored_color']=True
+        if args.engine=='baked-detail' and not group:
+            # Four corner samples cannot describe the contact shadow under a
+            # cabinet or battery. Add planar light samples, keeping its shape.
+            import bmesh
+            bm=bmesh.new();bm.from_mesh(mesh)
+            spacing=.08 if mat in ('concrete','flooring') else .025
+            for _ in range(9):
+                edges=[edge for edge in bm.edges if edge.calc_length()>spacing]
+                if not edges:break
+                bmesh.ops.subdivide_edges(bm,edges=edges,cuts=1,use_grid_fill=True,use_only_quads=True)
+            bm.to_mesh(mesh);bm.free();mesh.update()
         bevel=obj.modifiers.new('Manufactured edges','BEVEL');bevel.width=.0008;bevel.segments=3
         obj.modifiers.new('Weighted normals','WEIGHTED_NORMAL').keep_sharp=True
     linegroups={}
@@ -508,7 +519,7 @@ def render(args,s,story=None):
               'resolution':[args.width,round(args.width*9/16)],'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()+(b''.join(Path(p).read_bytes() for p in story.get('sources',[story['source']])) if story else b'')).hexdigest(),'camera':story['description'] if story else 'workplace to detector to supervised circuit to central; continuous 24 second loop',
               'render_mode':'persistent native animation','font_sha256':hashlib.sha256(font_file.read_bytes()).hexdigest() if authored_font else None,'render_font_sha256':hashlib.sha256(render_font_file.read_bytes()).hexdigest() if authored_font else None,'baked_lighting':bake_info,'bounds':extents,'timings':timings}
         (out/'render-info.json').write_text(json.dumps(info))
-    if args.engine=='baked':
+    if args.engine in ('baked','baked-detail'):
         # The lights and installation stay fixed while the camera moves. Bake
         # their diffuse response once, at mesh precision, then keep native 4K
         # animation without recalculating screen-space illumination per frame.
@@ -561,7 +572,7 @@ def render(args,s,story=None):
                 for _ in range(3):
                     colors={vi:[.6*color[k]+.4*sum(colors[n][k] for n in neighbors[vi])/len(neighbors[vi]) for k in range(4)] for vi,color in colors.items()}
                 for li,vi in loops:attr.data[li].color=colors[vi]
-        bake_info={'seconds':round(time.time()-start,2),'objects':len(bake_objects),'corners':sum(len(o.data.loops) for o in bake_objects),'source':'Cycles diffuse direct and indirect light'}
+        bake_info={'seconds':round(time.time()-start,2),'objects':len(bake_objects),'corners':sum(len(o.data.loops) for o in bake_objects),'source':'Cycles diffuse direct and indirect light','surface_samples':'dense planar' if args.engine=='baked-detail' else 'mesh corners'}
         print(json.dumps({'lighting_bake':bake_info}),flush=True)
         scene.render.engine='BLENDER_WORKBENCH'
         scene.display.shading.light='FLAT';scene.display.shading.color_type='VERTEX'
