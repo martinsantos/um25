@@ -111,3 +111,14 @@ Cinco cámaras de isometrías ahora calculan el encuadre sobre la pieza cerrada 
 Redes v2 está en pruebas dirigidas. Se rehízo la radio tras rechazar un PCB vacío y se corrigió la tapa del switch para evitar intersección con el patch panel. Los planos de `37720542508` muestran el detalle, pero aún motivan correcciones de carcasa, ranuras y protagonismo del cable. Todavía no hay película nueva de Redes publicada en la preview.
 
 Estado completo y siguientes pasos en `work-status-20261007.md`. El candidato sigue en draft: las cinco películas restantes y la calidad global no se certifican por pasar pruebas de reproducción.
+
+
+## Revisión posterior: Redes nativa y rechazo de las primeras pruebas restantes
+
+Redes v2 ya está integrada desde `d615181c`: 1.440 cuadros únicos, 24 s y seis assets verificados, provenientes de `37721892202`. Se inspeccionaron sus planos completos. `37724634688` comprobó diez composiciones y dos ciclos nativos; en Chrome aparecieron 51 cuadros descartados al inicio y tres adicionales durante la pasada. El player v10 prepara sólo el video visible antes de reproducirlo; el control posterior `37726404454` terminó correctamente, pendiente de lectura detallada de sus métricas al escribir esta entrada. No se presenta el arranque como resuelto por el estado verde del workflow.
+
+Las cinco isometrías restantes completaron `37721308823`: 140 estados y 20 vistas con movimiento reducido en Chrome/WebKit, escritorio/móvil. Sus capturas se inspeccionaron y se archivaron con SHA-256. La jerarquía atenúa el contexto sin transparentar la pieza activa. Incendio completó otra revisión de escritorio `37722704881` después de mejorar sus encuadres.
+
+La prueba de Energía `37725156994` fue rechazada por un cable que terminaba sobre una rejilla y por ocultar la electrónica de la UPS. La corrección añade inlets y conectores de alimentación identificables, conductores unidos a terminales DIN y una tapa que revela la electrónica con un ángulo superior. Se revisará de nuevo antes del render completo.
+
+Soporte `37725441653` confirma la secuencia autónoma señal/diagnóstico/verificación y una interfaz legible. El instrumento todavía mostraba facetado y letras con relieve desproporcionado. Se alisa la carcasa y se imprimen las etiquetas sin extrusión. La escena mantiene un único caso ilustrativo asociado al puerto 12; no inventa registros de clientes ni métricas de operación.

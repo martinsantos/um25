@@ -54,10 +54,10 @@ class Support(network.Network):
   # Shaped protective shell, recessed screen, socket, membrane keys and fasteners.
   outline=[];w,d,r=.10,.19,.013
   for cx,cy,a in [(w/2-r,d/2-r,0),(-w/2+r,d/2-r,90),(-w/2+r,-d/2+r,180),(w/2-r,-d/2+r,270)]:
-   for j in range(9):
-    q=math.radians(a+j*90/8);outline.append((x+cx+r*math.cos(q),y+cy+r*math.sin(q)))
+   for j in range(17):
+    q=math.radians(a+j*90/16);outline.append((x+cx+r*math.cos(q),y+cy+r*math.sin(q)))
   vv=[(xx,yy,zz) for zz in [z,z+.036] for xx,yy in outline];n=len(outline)
-  self.mesh(vv,[tuple(reversed(range(n))),tuple(range(n,2*n))]+[(j,(j+1)%n,(j+1)%n+n,j+n) for j in range(n)],'graphite')
+  self.mesh(vv,[tuple(reversed(range(n))),tuple(range(n,2*n))]+[(j,(j+1)%n,(j+1)%n+n,j+n) for j in range(n)],'graphite');self.meshes[-1]['smooth_side']=True
   self.box(x,y+.023,z+.036,.083,.10,.002,'black');self.box(x,y+.023,z+.039,.073,.089,.001,'screen')
   self.text('ENLACE / 12',x-.032,y+.055,z+.041,.0065,'paper')
   for k,label in enumerate(['ORIGEN  >  EXTREMO','PARES / CONTINUIDAD','PRUEBA REGISTRADA']):self.text(label,x-.032,y+.029-k*.017,z+.041,.0038,'signal' if k==2 else 'muted')
@@ -145,5 +145,5 @@ if __name__=='__main__':
  s=build();info=describe(s)
  if args.validate_only:print(json.dumps(info))
  else:studio.render(args,s,dict(source=__file__,sources=[str(Path(__file__).with_name('render-network-project-v2.py')),__file__],describe=describe,camera=camera,animate=animate,bake_frame=910,
-  brand_font=True,smooth_bake=True,packet_radius=.006,description='one illustrative support case: observed symptom, equipment diagnosis and recorded verification; continuous 24 second loop',
+  brand_font=True,text_depth=0,smooth_bake=True,packet_radius=.006,description='one illustrative support case: observed symptom, equipment diagnosis and recorded verification; continuous 24 second loop',
   lights=[('Bench inspection',(.2,-.8,2.5),45,1.8,(1,1,1),(.3,.3,.8))]))

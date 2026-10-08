@@ -403,7 +403,7 @@ def render(args,s,story=None):
     font_file=Path(__file__).resolve().parents[2]/'public/fonts/um-sans/UMSans-Regular.ttf'
     authored_font=bpy.data.fonts.load(str(font_file)) if story and story.get('brand_font') else None
     for label in s.texts:
-        c=bpy.data.curves.new(label['value'],'FONT');c.body=label['value'];c.size=label['size'];c.extrude=.0005
+        c=bpy.data.curves.new(label['value'],'FONT');c.body=label['value'];c.size=label['size'];c.extrude=story.get('text_depth',.0005) if story else .0005
         if authored_font:c.font=authored_font
         obj=bpy.data.objects.new(label['value'],c);scene.collection.objects.link(obj);obj.location=label['at']
         if label['front']:obj.rotation_euler[0]=math.pi/2

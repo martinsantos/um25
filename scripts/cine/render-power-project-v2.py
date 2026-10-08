@@ -47,10 +47,16 @@ class Power(network.Network):
     xx=x-.207+j*.018
     self.cylinder(xx,y+.014,z+row+.008,.0024,.002,'edge','y')
     self.line([(xx-.0015,y+.011,z+row+.008),(xx+.0015,y+.011,z+row+.008)],'ink',.0003)
-  for row in [.185,.457]:
-   for j in range(10):
-    xx=x-.20+j*.043;side=-1 if j<5 else 1;end=x+side*.246
-    self.line(self.rounded_path([(xx,y-.01,z+row+.078),(xx,y+.044,z+row+.10),(end,y+.044,z+row+.10),(end,y+.044,z+row+.14)],.008),'blue' if j%3==1 else 'copper',.0015)
+  # Every conductor starts on a modelled terminal and enters a wiring duct.
+  rows=[(.457,[(-.175,4)]+[(-.063+j*.061,2) for j in range(4)]),(.185,[(-.155,4)]+[(-.04+j*.058,1) for j in range(4)])]
+  for row,breakers in rows:
+   for j,(offset,poles) in enumerate(breakers):
+    for k in range(poles):
+     xx=x+offset-poles*.018/2+.018*(k+.5);side=-1 if xx<x else 1;end=x+side*.265
+     for top in [True,False]:
+      zz=z+row+(.078 if top else .006);rise=.020+k*.003 if top else -.020-k*.003
+      pts=[(xx,y-.008,zz),(xx,y+.008,zz+rise),(end,y+.008,zz+rise),(end,y+.025,zz+rise)]
+      self.line(self.rounded_path(pts,.006),'blue' if k==poles-1 else 'copper',.00085)
   self.box(x,y-.008,z+.670,.175,.037,.077,'graphite')
   self.box(x,y-.028,z+.687,.126,.002,.045,'screen')
   self.text('ENTRADA / RED',x-.055,y-.030,z+.716,.007,'muted',True)
@@ -79,7 +85,9 @@ class Power(network.Network):
   w,d,h=.54,.62,.89
   self.box(x,y,z,w,d,.014,'graphite');self.box(x,y+d/2,z,w,.003,h,'graphite')
   for dx in [-w/2,w/2]:self.box(x+dx,y,z,.003,d,h,'graphite')
-  self.box(x,y,z+h,w,d,.003,'graphite')
+  self.doors.append(dict(name='ups-roof',pivot=(0,0,0),kind='lift'))
+  self.box(x,y,z+h,w,d,.003,'graphite','ups-roof')
+  for dx in [-w/2+.006,w/2-.006]:self.box(x+dx,y,z+h-.013,.012,d,.013,'graphite','ups-roof')
   for dx in [-.22,.22]:
    for dy in [-.26,.26]:self.cylinder(x+dx,y+dy,z-.040,.022,.040,'edge')
   for row in range(3):
@@ -122,16 +130,26 @@ class Power(network.Network):
   for dx in [-.274,.274]:
    self.box(x+dx,y-d/2+.020,z,.024,.017,h,'edge')
    for j in range(84):self.box(x+dx,y-d/2+.011,z+.024+j*.015,.007,.001,.006,'black')
-  # A distinct distribution unit and two connected 2U compute chassis.
+  # Rear service view: power leads terminate in PSU inlets, never fan grilles.
   for dz in [.60,.81]:
    self.box(x,y-.08,z+dz,.4826,.49,.0889,'graphite')
    self.box(x,y-.326,z+dz,.4826,.003,.0889,'edge')
-   for j in range(8):
-    xx=x-.202+j*.057
+   for k in range(2):
+    xx=x-.187+k*.058
+    self.box(xx,y-.329,z+dz+.012,.052,.004,.063,'graphite')
+    self.box(xx,y-.332,z+dz+.025,.032,.002,.025,'edge')
+    face=[(-.012,0),(.012,0),(.012,.014),(.007,.020),(-.007,.020),(-.012,.014)]
+    self.mesh([(xx+dx,y-.334,z+dz+.028+zz) for dx,zz in face],[(0,1,2,3,4,5)],'black')
+    for dx,zz in [(-.006,.034),(.006,.034),(0,.042)]:self.box(xx+dx,y-.335,z+dz+zz,.002,.001,.006,'copper')
+    self.text('PSU '+str(k+1),xx-.018,y-.334,z+dz+.063,.005,'paper',True)
+   for j in range(5):
+    xx=x-.059+j*.058
     self.box(xx,y-.329,z+dz+.014,.047,.003,.050,'graphite')
     for k in range(5):self.box(xx-.018+k*.009,y-.331,z+dz+.023,.003,.001,.025,'black')
     self.box(xx+.016,y-.332,z+dz+.059,.0017,.001,.002,'signal')
-   self.text('CARGA '+('01' if dz==.60 else '02'),x-.20,y-.332,z+dz+.074,.006,'paper',True)
+   self.text('CARGA '+('01' if dz==.60 else '02'),x-.060,y-.332,z+dz+.074,.006,'paper',True)
+   for dx in [-.234,.234]:
+    for zz in [.017,.070]:self.screw(x+dx,y-.333,z+dz+zz)
   self.box(x-.20,y-.25,z+.105,.054,.045,.38,'graphite')
   for j in range(6):
    zz=z+.133+j*.054
@@ -139,7 +157,9 @@ class Power(network.Network):
    self.box(x-.20,y-.276,zz+.004,.026,.001,.019,'black')
    for dx in [-.008,0,.008]:self.box(x-.20+dx,y-.278,zz+.010,.002,.001,.006,'muted')
   for j,dz in enumerate([.60,.81]):
-   self.line(self.rounded_path([(x-.20,y-.29,z+.143+j*.054),(x-.24,y-.32,z+.143+j*.054),(x-.24,y-.34,z+dz+.030),(x-.215,y-.34,z+dz+.030)],.016),'muted',.003)
+   self.box(x-.187,y-.347,z+dz+.029,.023,.026,.019,'graphite')
+   self.box(x-.20,y-.288,z+.135+j*.054,.024,.025,.019,'graphite')
+   self.line(self.rounded_path([(x-.20,y-.302,z+.143+j*.054),(x-.248,y-.36,z+.143+j*.054),(x-.248,y-.39,z+dz+.038),(x-.187,y-.39,z+dz+.038),(x-.187,y-.359,z+dz+.038)],.018),'muted',.0025)
   self.text('DISTRIBUCION / IT',x-.22,y-.34,z+1.22,.014,'paper',True)
 
 def build():
@@ -161,7 +181,7 @@ def build():
 def camera(t):
  keys=[(0,13.1,-65,(0,.55,1.03),24,18),(.12,12.4,-62,(-.1,.65,1.03),24,18),
        (.29,2.08,-73,(-2.18,1.13,.99),5,2.2),(.40,1.95,-69,(-2.17,1.14,1.00),5,2.1),
-       (.58,2.05,-66,(-.31,.74,.64),5,2.4),(.70,1.90,-61,(-.31,.73,.66),5,2.6),
+       (.58,2.52,-66,(-.31,.74,.79),5,4.5),(.70,2.42,-61,(-.31,.73,.80),5,4.7),
        (.84,2.10,-68,(2.05,.79,.77),5,2.7),(1,13.1,-65,(0,.55,1.03),24,18)]
  if t<=0 or t>=1:k=keys[0];return k[1],math.radians(k[2]),k[3],k[4],k[5]
  a,b=next((a,b) for a,b in zip(keys,keys[1:]) if a[0]<=t<=b[0]);q=smooth((t-a[0])/(b[0]-a[0]));mix=lambda x,y:x+(y-x)*q
@@ -170,9 +190,10 @@ def camera(t):
 def animate(t,parents):
  parents['distribution-door'].rotation_euler[2]=-math.radians(102)*smooth((t-.18)/.085)*(1-smooth((t-.42)/.08))
  parents['ups-door'].rotation_euler[2]=-math.radians(104)*smooth((t-.47)/.09)*(1-smooth((t-.73)/.10))
+ parents['ups-roof'].location.z=.30*smooth((t-.50)/.075)*(1-smooth((t-.73)/.075))
 
 def describe(s):
- assert camera(0)==camera(1) and len(s.doors)==2
+ assert camera(0)==camera(1) and len(s.doors)==3
  assert len(set(s.parts))==3 and len(s.routes)==2
  assert all(min(b[k] for k in ['w','d','h'])>0 for b in s.boxes)
  return dict(service='108',scene='power-project-v2',boxes=len(s.boxes),meshes=len(s.meshes),parts=s.parts,frames=1440,fps=60,duration=24)
@@ -186,5 +207,5 @@ if __name__=='__main__':
  s=build();info=describe(s)
  if args.validate_only:print(json.dumps(info))
  else:studio.render(args,s,dict(source=__file__,sources=[str(Path(__file__).with_name('render-network-project-v2.py')),__file__],describe=describe,camera=camera,animate=animate,bake_frame=900,
-  brand_font=True,smooth_bake=True,packet_radius=.010,description='protection, contained energy storage, identified distribution and critical loads; continuous 24 second loop',
+  brand_font=True,text_depth=0,smooth_bake=True,packet_radius=.010,description='protection, contained energy storage, identified distribution and critical loads; continuous 24 second loop',
   lights=[('Distribution inspection',(-2.4,-.2,2.1),35,1.4,(1,1,1),(-2.1,1.15,.99)),('Battery inspection',(-.8,-.2,1.9),28,1.3,(1,1,1),(-.25,.7,.65))]))
