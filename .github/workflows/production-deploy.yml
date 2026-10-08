@@ -489,6 +489,16 @@ jobs:
       - name: Directus integration release audit
         run: node scripts/directus-release-audit.mjs --base-url https://www.ultimamilla.com.ar
 
+      - name: Compact identical rollback assets after successful release
+        run: |
+          set -euo pipefail
+          ssh root@23.105.176.45 'python3 -' \
+            < scripts/ops/compact-runtime-backups.py > /tmp/runtime-compaction-plan.json
+          plan_sha="$(python3 -c 'import json; print(json.load(open("/tmp/runtime-compaction-plan.json"))["plan_sha256"])')"
+          [[ "$plan_sha" =~ ^[0-9a-f]{64}$ ]]
+          ssh root@23.105.176.45 "python3 - --apply --expected-plan-sha $plan_sha" \
+            < scripts/ops/compact-runtime-backups.py
+
       - name: Restore previous runtime after failed checks
         if: failure() && steps.ssh_agent.outcome == 'success'
         run: |
