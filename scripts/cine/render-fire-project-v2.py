@@ -526,7 +526,7 @@ def render(args,s,story=None):
         # Moving covers do not cast an immobile shadow onto the fixed assembly.
         start=time.time();scene.frame_set(story.get('bake_frame',960) if story else 960);update_frame(scene)
         for obj in scene.objects:
-            if obj.parent in parents.values() or obj in [item[0] for item in packets]:obj.visible_shadow=False
+            if obj.parent in parents.values() or obj in [item[0] for item in packets] or (args.engine=='baked-detail' and obj.type=='CURVE'):obj.visible_shadow=False
         bake_objects=[]
         for obj in list(scene.objects):
             if obj.type not in ('MESH','CURVE','FONT'):continue
@@ -552,6 +552,25 @@ def render(args,s,story=None):
         bpy.context.view_layer.objects.active=bake_objects[0]
         scene.render.engine='CYCLES';scene.cycles.samples=128
         bpy.ops.object.bake(type='DIFFUSE',pass_filter={'COLOR','DIRECT','INDIRECT'},target='VERTEX_COLORS',use_clear=True,use_selected_to_active=False)
+        if args.engine=='baked-detail':
+            # The same planar corner can be sampled once per adjacent face.
+            # Share those samples and smooth only along the same face normal,
+            # preserving creases instead of baking a checkerboard into the floor.
+            for obj in bake_objects:
+                attr=obj.data.color_attributes.active_color;sums={};neighbors={};loops=[]
+                for face in obj.data.polygons:
+                    normal=tuple(round(v,4) for v in face.normal)
+                    keys=[]
+                    for li in face.loop_indices:
+                        key=(obj.data.loops[li].vertex_index,normal);keys.append(key)
+                        value=list(attr.data[li].color);total,count=sums.get(key,([0.0]*4,0))
+                        sums[key]=([total[k]+value[k] for k in range(4)],count+1);loops.append((li,key))
+                    for a,b in zip(keys,keys[1:]+keys[:1]):
+                        neighbors.setdefault(a,set()).add(b);neighbors.setdefault(b,set()).add(a)
+                colors={key:[c/n for c in total] for key,(total,n) in sums.items()}
+                for _ in range(3):
+                    colors={key:[.6*color[k]+.4*sum(colors[n][k] for n in neighbors[key])/len(neighbors[key]) for k in range(4)] for key,color in colors.items()}
+                for li,key in loops:attr.data[li].color=colors[key]
         if story and story.get('smooth_bake'):
             # Average light samples across continuous smooth surfaces, preserving
             # flat manufactured edges. This removes corner-sampling seams, not detail.
