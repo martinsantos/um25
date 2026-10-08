@@ -1,6 +1,6 @@
 # Revisión de precisión · 7 de octubre de 2026
 
-Candidato de interfaz: `fa74c436`, rama `feature/isometric-redes-review`, PR #266 a develop. Trabajo en la preview `http://127.0.0.1:4326/`. La evaluación anterior encontró una diferencia sustancial de calidad frente a Ryan, Solvaix y David Hill. Esta iteración reconstruye partes de la propuesta; un control funcional verde no constituye aprobación artística ni autorización de release.
+Candidato de interfaz y color: `74242c92`, rama `feature/isometric-redes-review`, PR #266 a develop. Trabajo en la preview `http://127.0.0.1:4326/`. La evaluación anterior encontró una diferencia sustancial de calidad frente a Ryan, Solvaix y David Hill. Esta iteración reconstruye partes de la propuesta; un control funcional verde no constituye aprobación artística ni autorización de release.
 
 ## Cambios visibles
 
@@ -54,12 +54,38 @@ El guard del release scoped rechazaba 32 rutas ya presentes en la rama. Se añad
 
 `fa74c436` conserva opacidad de las carcasas y dibuja el techo después de los equipos interiores. El énfasis deja de volver transparentes las superficies: se apoya en la apertura física, el recorrido y la anotación. Software declara su presentación como arquitectura de aplicación y evita la instalación genérica también en los servicios complementarios.
 
-El control `37710000335` del candidato `eff9ff29` confirmó reproducción completa de Software en Chrome: escritorio 1.843 cuadros presentados/decodificados según el contador del navegador, 41 descartados; móvil 1.815, seis descartados. Duración recorrida 23,98 y 23,48 s de 24 s, respectivamente. Es una medición del runner, no de dispositivos de usuarios. CLS observado 0 en ambas rutas. El control global falló porque todavía leía los botones retirados y buscaba el selector anterior de señales; se corrigió para comprobar el estado real, el contexto visible y ambas familias de señales. No se presenta ese run como aprobado. Sus capturas están verificadas en `/Volumes/SDTERA/Codex UM25 audits/20261007/software-v3-integrated-eff9ff29/`.
+El control `37710000335` del candidato `eff9ff29` confirmó reproducción completa de Software en Chrome: escritorio 1.843 cuadros en `totalVideoFrames` del navegador, 41 descartados; móvil 1.815, seis descartados. Duración recorrida 23,98 y 23,48 s de 24 s, respectivamente. Es una medición del runner, no de dispositivos de usuarios. CLS observado 0 en ambas rutas. El control global falló porque todavía leía los botones retirados y buscaba el selector anterior de señales; se corrigió para comprobar el estado real, el contexto visible y ambas familias de señales. No se presenta ese run como aprobado. Sus capturas están verificadas en `/Volumes/SDTERA/Codex UM25 audits/20261007/software-v3-integrated-eff9ff29/`.
 
-La revisión corregida del candidato de interfaz está en `37710967875` y `37710968497`. El control separado de encuadre Chrome/WebKit `37710003097` sigue pendiente. `npm run check` pasó de nuevo: 68 suites / 579 pruebas.
+El [control de precisión 37710968497](https://github.com/martinsantos/um25/actions/runs/37710968497) terminó correctamente: ocho disciplinas en Chrome escritorio/móvil, ciclos nativos completos de Redes y Software, home y contextos sectoriales, pausa y movimiento reducido; WebKit en los cinco anchos del contrato. Se inspeccionaron el gabinete abierto y el recorte móvil, confirmando que el techo oculta los equipos que quedan detrás.
+
+El [encuadre 37710003097](https://github.com/martinsantos/um25/actions/runs/37710003097) terminó correctamente: 20 composiciones Chrome/WebKit y repetición nativa de Software v3. El control integrado `37710967875` completó Chrome escritorio y móvil; el perfil móvil cerró sin hallazgos. La preparación de WebKit consumió casi 27 minutos. Al cancelar el perfil de escritorio, el navegador alcanzó a verificar las dos rutas a 1440 px sin hallazgos; no completó los otros cuatro anchos. Los controles completos de precisión y Software v4 aportan cobertura posterior, pero no convierten esta revisión parcial en una completa. No presentar este run cancelado como aprobado. `npm run check` de `74242c92`: 68 suites / 579 pruebas, tipos, CSS, lint y build correctos.
 
 ## Prueba de instalación de Incendio
 
 `399f24b6` añade un modelo independiente del entregado: recinto de 8 × 5,4 m, equipamiento a escala, detectores de 140 mm, circuitos montados, central con placa y borneras, baterías dentro del gabinete, puestos y mobiliario. Una cámara continua compone contexto, detector, circuito, central y regreso.
 
 El run `37711352258` produce tres planos 4K/Cycles (cuadros 0, 460 y 960) para inspección. No hay película nueva importada ni se habilita el render completo de esta versión antes de revisar los planos. El script es `scripts/cine/render-fire-project-v2.py`; Blender corre sólo en el runner remoto.
+
+
+## Color de Software v4 y comprobación en el navegador
+
+`74242c92` conserva exactamente los 1.440 cuadros de la entrega v3 y corrige la señalización de color. El archivo anterior no declaraba su matriz: el navegador interpretaba como BT.709 una conversión RGB/YUV BT.601 y el rojo aparecía anaranjado. `repack-software-color-v4.py` declara matriz SMPTE 170M, primarias BT.709, transferencia sRGB y rango limitado en H.264 y en el contenedor. La operación usa copia de stream: los 1.440 hashes de cuadros decodificados se mantienen, sin recomprimir ni alterar el movimiento.
+
+Seis assets nuevos `software-system-v4`, 58.415.732 bytes. Los seis v3 reemplazados se retiraron de la rama después de verificar que nunca existieron en `origin/master`; el original se conserva con SHA-256 en SDTERA. Las dos rutas de Software usan la v4 en la preview reconstruida.
+
+El [control 37712634510](https://github.com/martinsantos/um25/actions/runs/37712634510), sobre `74242c92`, terminó sin hallazgos: 20 composiciones, las dos rutas, cinco anchos, Chrome y WebKit, controles y repetición completa en WebKit móvil. El rojo dominante medido en reproducción es RGB 219/38/38 en Chrome y 218/34/37 en WebKit, dentro de seis niveles por canal respecto de 220/38/38. Se inspeccionaron las capturas reales integradas de escritorio y móvil. Esto confirma color, composición y reproducción; no una equivalencia artística con David Hill.
+
+Evidencia verificada por SHA-256:
+- `/Volumes/SDTERA/Codex UM25 audits/20261007/precision-fa74c436/` (111 archivos).
+- `/Volumes/SDTERA/Codex UM25 audits/20261007/software-v4-framing-37712634510/` (30 archivos).
+- `/Volumes/SDTERA/Codex UM25 audits/20261007/software-v4-delivery-color/` (original de entrega).
+
+## Rechazos y correcciones de Incendio
+
+La prueba Cycles `37711352258` obtuvo los planos general y central; el tercer trabajo falló instalando dependencias. Fueron rechazados por conductos sobredimensionados, electrónica genérica, soporte del detector arbitrario y composición todavía pobre. Los tiempos fueron 340,25 y 549,3 s por cuadro. No se produjo la película completa con esos parámetros.
+
+`f623f29b` reconstruye la central con chapa plegada, juntas, placas independientes sobre separadores, terminales, circuitos integrados y pines, relés, disipador, baterías de menor escala, controles y electrónica trasera de la puerta. El cableado conserva radios de curvatura y el mobiliario tiene superficies curvas. La referencia documental de construcción del gabinete fue el [manual oficial de FireNET L@titude](https://www.hochikiamerica.com/img/category/description/LatitudeInstallation_Hochiki.pdf); la ilustración es propia y representativa, no un plano de instalación ni un modelo de ese fabricante.
+
+La prueba `37713001828` completó tres planos Workbench 4K. Mejoró las proporciones y el detalle, pero sus sombras duras y oscuridad se rechazaron. `23c7c78c` elimina esas sombras, aclara el acabado y añade un mazo flexible que mantiene unida la electrónica de la puerta. Los tres planos de `37713406882` están completos e inspeccionados (12,10–20,38 s por cuadro). Se conservan en `/Volumes/SDTERA/Codex UM25 audits/20261007/fire-project-v2-proofs-37713406882/`.
+
+El ángulo superior ocultaba el mecanismo del detector. `089f1e81` dirige ese acercamiento desde debajo de su soporte; la prueba dirigida es `37713799416`. La muestra nativa de doce cuadros `37713409706` terminó correctamente: doce PNG nativos distintos, 225,36 s totales, 18,3 s por cuadro de mediana. Esa muestra prueba el tramo de la central; no la apertura nueva del detector ni el ciclo completo. Ningún plano de prueba reemplazó todavía la película de Incendio del sitio. Las otras siete películas conservan su versión anterior; ese es trabajo pendiente de acabado, no un GO a producción.

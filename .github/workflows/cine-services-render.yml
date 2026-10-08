@@ -99,12 +99,15 @@ jobs:
         timeout-minutes: 20
         run: |
           MISSING=()
-          for PACKAGE in libgl1 libegl1 libxrender1 libxi6 xvfb ffmpeg; do
+          PACKAGES=(libgl1 libegl1 libxrender1 libxi6 xvfb)
+          if [ '${{ inputs.mode }}' = full ] || [ '${{ inputs.mode }}' = repair ]; then PACKAGES+=(ffmpeg); fi
+          for PACKAGE in "${PACKAGES[@]}"; do
             if ! dpkg-query -W -f='${Status}' "$PACKAGE" 2>/dev/null | grep -q '^install ok installed$'; then MISSING+=("$PACKAGE"); fi
           done
           if [ ${#MISSING[@]} -gt 0 ]; then
+            echo "Installing only missing render dependencies: ${MISSING[*]}"
             sudo timeout 90 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 update -qq || true
-            sudo timeout 180 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 install -y -qq "${MISSING[@]}"
+            sudo timeout 180 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 install -y --no-install-recommends "${MISSING[@]}"
           fi
           curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender-4.5.3-linux-x64.tar.xz
           curl --retry 3 --connect-timeout 15 --max-time 60 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256 -o blender.sha256
