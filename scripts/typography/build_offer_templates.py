@@ -61,7 +61,9 @@ def build_docx(kind,out,logo):
    if item.tag in [qn('w:pBdr'),qn('w:numPr')]:style.element.get_or_add_pPr().remove(item)
   if name.startswith('Heading'):style.paragraph_format.space_before=Pt(16);style.paragraph_format.keep_with_next=True
  header=s.header.paragraphs[0];header.add_run().add_picture(str(logo),width=Mm(78));header.paragraph_format.space_after=Pt(8)
- border=OxmlElement('w:pBdr');bottom=OxmlElement('w:bottom');bottom.set(qn('w:val'),'single');bottom.set(qn('w:sz'),'12');bottom.set(qn('w:color'),'B91C1C');border.append(bottom);header._p.get_or_add_pPr().append(border)
+ # Paragraph spacing separates the header from the body, not the image from
+ # its border. Reserve an explicit 12 pt gap above the rule in every page header.
+ border=OxmlElement('w:pBdr');bottom=OxmlElement('w:bottom');bottom.set(qn('w:val'),'single');bottom.set(qn('w:sz'),'12');bottom.set(qn('w:space'),'12');bottom.set(qn('w:color'),'B91C1C');border.append(bottom);header._p.get_or_add_pPr().append(border)
  foot=s.footer.paragraphs[0];field(foot,FOOTER+'\n',size=9.5);field(foot,'Página ',size=9.5);r=foot.add_run();f=OxmlElement('w:fldSimple');f.set(qn('w:instr'),'PAGE');r._r.addnext(f)
  doc.add_paragraph('[Código de documento] · [Fecha]',style='Caption');doc.add_paragraph(title,style='Title');doc.add_paragraph(lead,style='Subtitle')
  p=doc.add_paragraph();field(p,'Para: ',True);field(p,'[Cliente / organización]');p=doc.add_paragraph();field(p,'Proyecto: ',True);field(p,'[Nombre del proyecto]')
