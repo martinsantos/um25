@@ -32,7 +32,7 @@ jobs:
           OPERATION: ${{ inputs.operation }}
         run: |
           required=true
-          if [[ "$EVENT" == workflow_dispatch && "$OPERATION" != deploy ]]; then
+          if [[ "$EVENT" == workflow_dispatch && -n "$OPERATION" && "$OPERATION" != deploy ]]; then
             required=false
           elif [[ "$EVENT" == push ]] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
             required=false
@@ -183,7 +183,13 @@ jobs:
               src/styles/font-service.css|src/styles/v4.css|\
               src/styles/cine-hero.css) ;;
               .github/workflows/production-deploy.yml|.github/workflows/community-demo-integrity.yml|\
+<<<<<<< HEAD
               scripts/ops/deploy-scoped-dist.sh|\
+=======
+              .github/workflows/server-storage-maintenance.yml|\
+              scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|\
+              scripts/ops/deploy-scoped-dist.sh|scripts/ops/prune-inactive-umbot-deps.sh|scripts/ops/audit-directus-uploads.sh|\
+>>>>>>> 034357c5 (fix(ops): retain manual deploy and allow audited maintenance files)
               __tests__/runtimeConfigContracts.test.js|__tests__/nginxOps.test.ts|\
               docs/campaign-preview/PHOTO-SOURCES.md|docs/campaign-preview/README.md|\
               docs/campaign-preview/compose-email.mjs|docs/campaign-preview/comunidades-email.html|\
@@ -304,6 +310,11 @@ jobs:
           echo '--- git worktrees'
           git -C "$app" worktree list 2>/dev/null || true
           git -C "$app" worktree prune --dry-run -v 2>/dev/null || true
+          used_pct="$(df -Pk "$app" | awk 'NR==2 {gsub(/%/, "", $5); print $5}')"
+          if (( used_pct > 90 )); then
+            echo "Disk usage ${used_pct}% exceeds the architecture limit of 90%; nothing was uploaded" >&2
+            exit 1
+          fi
           avail_kb="$(df -Pk "$app" | awk 'NR==2 {print $4}')"
           echo "available_kb=$avail_kb need_kb=$need_kb"
           if (( avail_kb < need_kb )); then
