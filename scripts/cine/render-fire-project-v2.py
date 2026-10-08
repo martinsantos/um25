@@ -85,19 +85,20 @@ class Installation(legacy.Studio):
             self.line([(xx-.0014,y-.0095,z+.007),(xx+.0014,y-.0095,z+.007)],'ink',.00038)
             self.box(xx,y-.0075,z+.0005,.004,.001,.0035,'black')
     def ceiling_section(self,x,y):
-        # A continuous annular cutaway retains the detector's mounting support.
-        # The open inspection aperture makes the optical assembly visible above.
+        # A 600 mm ceiling tile with an inspection aperture retains the mount.
+        # Its straight cut edges and T rails identify actual ceiling structure.
         n=64;vv=[]
         for z in [2.797,2.814]:
-            for radius in [.083,.23]:
+            for outer in [False,True]:
                 for j in range(n):
-                    a=j*math.tau/n;vv.append((x+radius*math.cos(a),y+radius*math.sin(a),z))
+                    a=j*math.tau/n;r=.3/max(abs(math.cos(a)),abs(math.sin(a))) if outer else .083
+                    vv.append((x+r*math.cos(a),y+r*math.sin(a),z))
         ff=[]
         for j in range(n):
             k=(j+1)%n;ff.extend([(j,k,n+k,n+j),(2*n+j,3*n+j,3*n+k,2*n+k),(n+j,n+k,3*n+k,3*n+j),(j,2*n+j,2*n+k,k)])
         self.mesh(vv,ff,'paper')
-        for dx in [-.20,.20]:
-            self.box(x+dx,y,2.817,.012,.50,.025,'edge')
+        for dx in [-.30,.30]:
+            self.box(x+dx,y,2.817,.012,.624,.025,'edge')
             self.line([(x+dx,y-.18,2.84),(x+dx,y-.18,3.08)],'edge',.0016)
             self.line([(x+dx,y+.18,2.84),(x+dx,y+.18,3.08)],'edge',.0016)
 
@@ -272,7 +273,9 @@ def build():
         s.ceiling_section(x,.35)
         s.detector(x,.35,'D-01' if x<0 else 'D-02')
     # Continuously supported conduit and junctions; the detector links return.
-    loop=[(2.68,2.18,1.88),(2.68,2.18,2.80),(2.68,2.40,2.80),(-2.05,2.40,2.80),(-2.05,.35,2.80),(2.18,.35,2.80),(2.18,2.30,2.80),(2.76,2.30,2.80),(2.76,2.18,1.88)]
+    loop=[(2.68,2.18,1.88),(2.68,2.18,2.80),(2.68,2.40,2.80),(-2.05,2.40,2.80),(-2.05,.35,2.80),(2.18,.35,2.80),
+          (3.61,.35,2.80),(3.61,-1.70,2.80),(3.61,-1.70,1.245),(3.65,-1.70,1.245),
+          (3.69,-1.70,1.245),(3.69,-1.70,2.80),(3.69,2.30,2.80),(2.76,2.30,2.80),(2.76,2.18,1.88)]
     loop=s.rounded_path(loop);s.line(loop,'red',.006)
     s.routes.append(dict(pts=loop,start=.20,end=.69))
     for x in [-2.05,-.75,.75,2.18,2.68]:
@@ -289,7 +292,7 @@ def build():
     for j in range(8):s.box(3.65,-1.778,2.05+j*.01,.073,.004,.003,'black')
     s.cylinder(3.65,-1.75,2.15,.037,.035,'paper')
     s.route([(2.88,2.18,1.84),(2.88,2.30,2.76),(3.65,2.30,2.76),(3.65,-1.7,2.76),(3.65,-1.7,2.09)],.69,.94)
-    s.parts.extend(['two-zones','mounted-conduit','occupied-workplace','standby-supply','manual-call-point','notification'])
+    s.parts.extend(['two-zones','mounted-conduit','occupied-workplace','standby-supply','manual-call-point','continuous-detector-and-call-point-loop','notification'])
     return s
 
 def validate(s):
@@ -389,16 +392,20 @@ def render(args,s):
     # A flexible eight-conductor loom remains attached to the moving fascia.
     ribbon=[]
     for i in range(8):
-        c=bpy.data.curves.new('Fascia ribbon '+str(i),'CURVE');c.dimensions='3D';c.bevel_depth=.0006;c.bevel_resolution=2
-        sp=c.splines.new('POLY');sp.points.add(23)
-        obj=bpy.data.objects.new('Fascia ribbon '+str(i),c);scene.collection.objects.link(obj);c.materials.append(mats['red' if i==0 else 'muted'])
-        ribbon.append(sp)
+        # Constant topology permits vertex colors and continuous flexing, so a
+        # moving conductor cannot fall back to Workbench's white curve color.
+        mesh=bpy.data.meshes.new('Fascia conductor '+str(i));verts=[(0,0,0)]*(24*6)
+        faces=[(j*6+k,j*6+(k+1)%6,(j+1)*6+(k+1)%6,(j+1)*6+k) for j in range(23) for k in range(6)]
+        mesh.from_pydata(verts,[],faces);mesh.update()
+        obj=bpy.data.objects.new('Fascia ribbon '+str(i),mesh);scene.collection.objects.link(obj)
+        mesh.materials.append(mats['red' if i==0 else 'muted']);obj['flat_authored_color']=True
+        ribbon.append(mesh)
     packets=[]
     for r in s.routes:
         bpy.ops.mesh.primitive_uv_sphere_add(segments=16,ring_count=8,radius=.018)
         obj=bpy.context.object;obj.data.materials.append(mats['packet']);packets.append((obj,r))
         for p in obj.data.polygons:p.use_smooth=True
-    bpy.ops.mesh.primitive_plane_add(size=200,location=(0,0,-.05));bpy.context.object.data.materials.append(mats['floor'])
+    bpy.ops.mesh.primitive_plane_add(size=200,location=(0,0,-.05));bpy.context.object.data.materials.append(mats['floor']);bpy.context.object['flat_authored_color']=True
     def area(name,at,power,size,color):
         d=bpy.data.lights.new(name,'AREA');d.energy=power;d.shape='DISK';d.size=size;d.color=color
         obj=bpy.data.objects.new(name,d);scene.collection.objects.link(obj);obj.location=at
@@ -433,12 +440,17 @@ def render(args,s):
             if part.get('kind')=='detector':obj.location.z=-.14*smooth((t-.23)/.06)*(1-smooth((t-.40)/.07))
             else:obj.rotation_euler[2]=-math.radians(102)*smooth((t-.52)/.10)*(1-smooth((t-.79)/.13))
         bpy.context.view_layer.update()
-        for i,sp in enumerate(ribbon):
+        for i,mesh in enumerate(ribbon):
             a=Vector((2.628+i*.0015,2.18+.001,1.22+.346))
             d=parents['central-door'].matrix_world@Vector((.17+i*.0015,.018,.380))
             b=a+Vector((-.045,-.09,-.06));c=d+Vector((-.05,.065,-.06))
-            for j,v in enumerate(sp.points):
-                q=j/(len(sp.points)-1);v.co=(*((1-q)**3*a+3*(1-q)**2*q*b+3*(1-q)*q*q*c+q**3*d),1)
+            for j in range(24):
+                q=j/23;at=(1-q)**3*a+3*(1-q)**2*q*b+3*(1-q)*q*q*c+q**3*d
+                tangent=(3*(1-q)**2*(b-a)+6*(1-q)*q*(c-b)+3*q*q*(d-c)).normalized()
+                normal=tangent.cross(Vector((0,0,1))).normalized();side=tangent.cross(normal).normalized()
+                for k in range(6):
+                    angle=k*math.tau/6;mesh.vertices[j*6+k].co=at+.0006*(math.cos(angle)*normal+math.sin(angle)*side)
+            mesh.update()
         # Full model extent is checked only on establishing endpoints. Each shot's
         # framing proof is inspected separately rather than clipping the closeups.
         if frame in (0,FRAMES-1):
@@ -466,20 +478,28 @@ def render(args,s):
             if obj.parent in parents.values() or obj in [item[0] for item in packets]:obj.visible_shadow=False
         bake_objects=[]
         for obj in list(scene.objects):
-            if obj.type!='MESH' or obj.hide_render:continue
+            if obj.type not in ('MESH','CURVE','FONT'):continue
             bpy.ops.object.select_all(action='DESELECT');obj.select_set(True);bpy.context.view_layer.objects.active=obj
+            # Workbench vertex rendering requires a colored mesh for every
+            # conductor and marking too, not just the original solid objects.
+            if obj.type in ('CURVE','FONT'):
+                obj['flat_authored_color']=obj.type=='FONT'
+                bpy.ops.object.convert(target='MESH');obj=bpy.context.object
             for modifier in list(obj.modifiers):bpy.ops.object.modifier_apply(modifier=modifier.name)
             attr=obj.data.color_attributes.new(name='UM area-light response',type='FLOAT_COLOR',domain='CORNER')
             obj.data.color_attributes.active_color_index=obj.data.color_attributes.find(attr.name)
             obj.data.color_attributes.render_color_index=obj.data.color_attributes.find(attr.name)
-            bake_objects.append(obj)
+            if obj.get('flat_authored_color') or obj.hide_render:
+                color=obj.data.materials[0].diffuse_color[:]
+                for item in attr.data:item.color=color
+            else:bake_objects.append(obj)
         # A diffuse technical finish keeps colors readable; no metallic lookup
         # gets mistaken for a dark unlit material during the static bake.
         for mat in mats.values():mat.node_tree.nodes['Principled BSDF'].inputs['Metallic'].default_value=0
         bpy.ops.object.select_all(action='DESELECT')
         for obj in bake_objects:obj.select_set(True)
         bpy.context.view_layer.objects.active=bake_objects[0]
-        scene.render.engine='CYCLES';scene.cycles.samples=32
+        scene.render.engine='CYCLES';scene.cycles.samples=64
         bpy.ops.object.bake(type='DIFFUSE',pass_filter={'COLOR','DIRECT','INDIRECT'},target='VERTEX_COLORS',use_clear=True,use_selected_to_active=False)
         bake_info={'seconds':round(time.time()-start,2),'objects':len(bake_objects),'corners':sum(len(o.data.loops) for o in bake_objects),'source':'Cycles diffuse direct and indirect light'}
         print(json.dumps({'lighting_bake':bake_info}),flush=True)
