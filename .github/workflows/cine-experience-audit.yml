@@ -10,7 +10,7 @@ on:
       camera_service:
         description: Narrow a mechanism audit to the equipment that changed
         type: choice
-        options: [all, "102", "103", "105", "106", "108"]
+        options: [all, "102", "103", "104", "105", "106", "108"]
         default: all
       layer_camera_only:
         description: 'All six layers, swept bounds and reduced motion in the five remaining disciplines'

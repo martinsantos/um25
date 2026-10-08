@@ -32,6 +32,16 @@ try{
    await page.waitForTimeout(2700);
    const state=await measure(page,code,stage);report.states.push({code,...state});inspect(code,state);
    await page.locator('[data-atlas-theater]').screenshot({path:path.join(out,`${code}-${stage}.png`),animations:'allow'});save();
+   if(code==='104'&&stage===2){
+    await page.locator('[data-atlas-play]').click();await page.waitForTimeout(150);
+    const paused=await page.locator('.ps-drawing').evaluate(el=>el.getAnimations({subtree:true}).filter(a=>a.playState!=='finished').map(a=>({time:a.currentTime,state:a.playState})));
+    await page.waitForTimeout(700);
+    const after=await page.locator('.ps-drawing').evaluate(el=>el.getAnimations({subtree:true}).filter(a=>a.playState!=='finished').map(a=>({time:a.currentTime,state:a.playState})));
+    assert(paused.length>0,'The integration must animate its information flow');
+    assert.deepEqual(after,paused,'Pause must stop inner software states as well as the camera');
+    assert(after.every(a=>a.state==='paused'));report.softwarePause={animations:after.length,stable:true};
+    await page.locator('[data-atlas-play]').click();
+   }
   }
  }
  await context.close();

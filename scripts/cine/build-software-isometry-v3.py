@@ -129,7 +129,7 @@ style='''
 .ps-layer[data-current=true] .ps-check{animation:ps-line 1000ms ease 2200ms both}
 .ps-layer[data-current=true] .ps-draw{animation:ps-line 2400ms ease 2200ms both}
 .ps-layer[data-current=true] .ps-flow{animation:ps-flow 2300ms linear 2400ms infinite}
-[data-story-state=paused] .ps-drawing *,[data-visible=false] .ps-drawing *{animation-play-state:paused!important}
+[data-story-state]:not([data-story-state=playing]) .ps-drawing *,[data-visible=false] .ps-drawing *{animation-play-state:paused!important}
 @keyframes ps-reveal{from{opacity:.12}to{opacity:1}}
 @keyframes ps-line{to{stroke-dashoffset:0}}
 @keyframes ps-flow{to{stroke-dashoffset:-100}}
