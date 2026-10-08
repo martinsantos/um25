@@ -1,5 +1,7 @@
 # Candidata integrada · 8 de octubre de 2026
 
+**Revisión reabierta y resultado rechazado por calidad visual.** El estado de aceptación actual está en [reference-gate-20261008.md](reference-gate-20261008.md). Software v6 fue descartado y su render completo cancelado; v7 sólo tiene pruebas en curso. El registro de entrega siguiente describe la integración técnica anterior, no una aprobación de calidad.
+
 Estado a las 07:03 UTC. Checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`, rama `feature/isometric-redes-review`, PR #266 a develop, draft. Producto `9c2f3dee`. Preview `http://127.0.0.1:4326/` reconstruida en ese commit; PID propio 17070. Verificar proceso y cwd antes de reiniciar. No modificar el checkout principal ni desplegar.
 
 Las ocho disciplinas usan películas específicas de 24 segundos y 1.440 cuadros nativos 4K/60. Edición móvil, cuatro pósters, hashes, color y continuidad verificados al importar: 48 assets y 305.149.322 bytes en total; cada página carga sólo su película. No queda ninguna película v1 en servicios.

@@ -44,11 +44,11 @@ const heading = dot ? title.slice(0, -1) : title;
 const rail = chapters||HOME_SCENES.filter((s) => scenes.includes(s.scene));
 const firstTitle = rail.find(chapter=>chapter.scene===first)?.name||cutCaption(first);
 const disciplineComposition = /^(software|network|security|telecom|support|consulting|fire|power)-(system|project)-v\d+$/.test(first);
-const productComposition = /^(software-system-v[3456]|power-project-v3|(?:fire|network|security|telecom|power|support|consulting)-project-v2)$/.test(first);
+const productComposition = /^(software-system-v[34567]|power-project-v3|(?:fire|network|security|telecom|power|support|consulting)-project-v2)$/.test(first);
 const filmChapters = FILM_CHAPTERS[first];
 const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-width:546px) and (max-aspect-ratio:651/1000)';
 ---
-<section class:list={['umc', `umc--${variant}`]} data-umc data-motion={motion} data-annotations={annotations?'tracked':'none'} data-framing={framing} data-composition={disciplineComposition?'discipline':undefined} data-product-composition={productComposition?'true':undefined} data-movie-chapters={filmChapters?JSON.stringify(filmChapters):undefined} data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
+<section class:list={['umc', `umc--${variant}`]} data-umc data-motion={motion} data-annotations={annotations?'tracked':'none'} data-framing={framing} data-composition={disciplineComposition?'discipline':undefined} data-software-cinema={first==='software-system-v7'?'true':undefined} data-product-composition={productComposition?'true':undefined} data-movie-chapters={filmChapters?JSON.stringify(filmChapters):undefined} data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
   <div class="umc-stage" aria-hidden="true">
     <picture>
       {framing==='project'&&<source media={squarePosterMedia} type="image/avif" srcset={`/cine/media/cine-${first}-poster-sq.avif`} data-poster-square />}
@@ -168,5 +168,28 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
  @media(max-width:820px){
   .umc[data-product-composition="true"] :global(.umc-stage){aspect-ratio:16/9}
   .umc[data-product-composition="true"] :global(.umc-copy){padding-top:calc(min(100vw,600px) * 9 / 16 + 40px)}
+ }
+ /* Software is inspected at the scale of a product film, with its reading
+    above the frame. No headline masks the interface or reduces it to a sticker. */
+ .umc[data-software-cinema="true"]{--umc-ink:#11151c;min-height:0;grid-template-rows:auto auto auto;padding-bottom:28px}
+ .umc[data-software-cinema="true"] :global(.umc-copy){grid-row:1;grid-column:1;width:calc(100% - var(--umc-gutter)*2);margin:48px var(--umc-gutter) 28px;padding-top:0}
+ .umc[data-software-cinema="true"] :global(.umc-stage){position:relative;grid-row:2;grid-column:1;inset:auto;z-index:0;transform:none;justify-self:center;width:min(100%,1440px);height:auto;aspect-ratio:16/9}
+ .umc[data-software-cinema="true"] :global(.umc-poster),.umc[data-software-cinema="true"] :global(.umc-video){inset:0;height:100%;margin:0}
+ .umc[data-software-cinema="true"] :global(.umc-foot){display:contents}
+ .umc[data-software-cinema="true"] :global(.umc-tools){position:relative;inset:auto;grid-row:2;grid-column:1;z-index:2;align-self:start;justify-self:end;margin:20px var(--umc-gutter)}
+ .umc[data-software-cinema="true"] :global(.umc-film-caption){position:static;grid-row:3;grid-column:1;margin:18px var(--umc-gutter) 0;padding:0;max-width:80ch}
+ @media(min-width:821px){
+  .umc[data-software-cinema="true"] :global(.umc-copy){display:grid;grid-template-columns:1.15fr 1fr;column-gap:56px;row-gap:14px}
+  .umc[data-software-cinema="true"] :global(.umc-back){grid-column:1;grid-row:1;margin:0}
+  .umc[data-software-cinema="true"] :global(.umc-eyebrow){grid-column:1;grid-row:2;margin:0}
+  .umc[data-software-cinema="true"] :global(h1){grid-column:1;grid-row:3/6;font-size:clamp(2.75rem,4.2vw,4.25rem);line-height:1.04;max-width:20ch}
+  .umc[data-software-cinema="true"] :global(.umc-lead){grid-column:2;grid-row:3;margin:0;max-width:48ch}
+  .umc[data-software-cinema="true"] :global(.umc-cta){grid-column:2;grid-row:4;margin:4px 0 0}
+  .umc[data-software-cinema="true"] :global(.umc-stats){grid-column:2;grid-row:5;margin:12px 0 0}
+ }
+ @media(max-width:820px){
+  .umc[data-software-cinema="true"] :global(.umc-copy){margin-top:28px;margin-bottom:24px}
+  .umc[data-software-cinema="true"] :global(.umc-film-caption){margin-top:16px}
+  .umc[data-software-cinema="true"] :global(.umc-tools){margin:12px var(--umc-gutter)}
  }
 </style>

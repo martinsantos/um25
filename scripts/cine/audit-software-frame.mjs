@@ -36,24 +36,35 @@ for(const [engine,type] of (probe?[['WebKit',webkit]]:[['Chrome',chromium],['Web
    try{
     await page.goto('http://127.0.0.1:4326'+route,{waitUntil:'load',timeout:60000});
     await page.locator('.umc-poster').evaluate(image=>image.decode());
+    const cinema=await page.locator('[data-umc]').getAttribute('data-software-cinema')==='true';
+    if(cinema){
+     await page.screenshot({path:path.join(out,`${engine}-${width}-${index}-hero-top.png`)});
+     await page.locator('.umc-stage').evaluate(stage=>scrollTo({top:stage.getBoundingClientRect().top+scrollY-90,behavior:'instant'}));
+    }
+    const filmScroll=await page.evaluate(()=>scrollY);
     const state=await page.locator('[data-umc]').evaluate(root=>{
      const box=node=>{const b=node.getBoundingClientRect();return {x:b.x,y:b.y,width:b.width,height:b.height};};
      const poster=root.querySelector('.umc-poster'),stage=root.querySelector('.umc-stage'),video=root.querySelector('video');
      const motion=root.querySelector('[data-umc-motion]'),controlBox=box(motion);
      const hit=document.elementFromPoint(controlBox.x+controlBox.width/2,controlBox.y+controlBox.height/2);
      const control={...controlBox,exposed:hit===motion||motion.contains(hit)};
-     return {product:root.dataset.productComposition==='true',copy:box(root.querySelector('.umc-copy')),control,narration:root.querySelector('[data-umc-film-caption]')?box(root.querySelector('[data-umc-film-caption]')):null,readingStart:root.querySelector('.umc-back,.umc-eyebrow,h1')?.getBoundingClientRect().top,poster:box(poster),stage:box(stage),video:box(video),source:poster.currentSrc,mask:getComputedStyle(poster).maskImage,width:innerWidth,scrollWidth:document.documentElement.scrollWidth};
+     return {cinema:root.dataset.softwareCinema==='true',product:root.dataset.productComposition==='true',copy:box(root.querySelector('.umc-copy')),control,narration:root.querySelector('[data-umc-film-caption]')?box(root.querySelector('[data-umc-film-caption]')):null,readingStart:root.querySelector('.umc-back,.umc-eyebrow,h1')?.getBoundingClientRect().top,poster:box(poster),stage:box(stage),video:box(video),source:poster.currentSrc,mask:getComputedStyle(poster).maskImage,width:innerWidth,scrollWidth:document.documentElement.scrollWidth};
     });
     const row={engine,width,route,state,errors};report.pages.push(row);
     if(state.product){
      if(state.mask!=='none')report.findings.push({engine,width,route,message:'Product UI is erased by a mask'});
-     if(width>820&&state.stage.x<state.copy.x+state.copy.width+16)report.findings.push({engine,width,route,message:'Product film overlaps its reading column',state});
+     if(!state.cinema&&width>820&&state.stage.x<state.copy.x+state.copy.width+16)report.findings.push({engine,width,route,message:'Product film overlaps its reading column',state});
      if(width<=820&&Math.abs(state.stage.width/state.stage.height-16/9)>.01)report.findings.push({engine,width,route,message:'Mobile product frame is cropped',state});
+    }
+    if(state.cinema){
+     if(state.copy.y+state.copy.height>state.stage.y-16)report.findings.push({engine,width,route,message:'Copy overlaps the full-width software film',state});
+     if(Math.abs(state.stage.width/state.stage.height-16/9)>.01||state.stage.width<width*.70&&width<=1440)report.findings.push({engine,width,route,message:'The software film lost its broad native composition',state});
     }
     if(state.narration){
      const c=state.narration;
-     if(width<=820&&(c.y<state.poster.y+state.poster.height+8||c.y+c.height>state.readingStart-8))report.findings.push({engine,width,route,message:'Narration overlaps film or reading copy',state});
-     if(width>820&&c.x<state.video.x-2)report.findings.push({engine,width,route,message:'Narration is detached from its film column',state});
+     if(state.cinema&&c.y<state.stage.y+state.stage.height+8)report.findings.push({engine,width,route,message:'Software narration overlaps the product film',state});
+     if(!state.cinema&&width<=820&&(c.y<state.poster.y+state.poster.height+8||c.y+c.height>state.readingStart-8))report.findings.push({engine,width,route,message:'Narration overlaps film or reading copy',state});
+     if(!state.cinema&&width>820&&c.x<state.video.x-2)report.findings.push({engine,width,route,message:'Narration is detached from its film column',state});
     }
     if(width<=820&&(!state.control.exposed||state.control.y<0||state.control.y+state.control.height>840||state.control.width<44||state.control.height<44))report.findings.push({engine,width,route,message:'Motion control is obscured or undersized',control:state.control});
     const code=route.match(/^\/servicios\/(\d+)\//)?.[1]||'104';
@@ -66,12 +77,12 @@ for(const [engine,type] of (probe?[['WebKit',webkit]]:[['Chrome',chromium],['Web
      await page.locator('[data-umc-motion]').click();
      // Clicking the mobile control scrolls it into view. Restore the same
      // viewport before comparing media coordinates and taking the hero shot.
-     await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
+     await page.evaluate(top=>window.scrollTo({top,behavior:'instant'}),filmScroll);
      await page.waitForFunction(()=>[...document.querySelectorAll('.umc-video')].some(video=>video.classList.contains('is-on')&&video.currentTime>.5),{},{timeout:15000});
      const playing=await page.locator('.umc-video.is-on').boundingBox();row.playing=playing;
      if(Math.abs(playing.y-state.poster.y)>1||Math.abs(playing.height-state.poster.height)>1)report.findings.push({engine,width,route,poster:state.poster,playing});
      await page.screenshot({path:path.join(out,`${engine}-${width}-${index}-playing.png`)});
-     if(['software-system-v4','software-system-v5','software-system-v6'].includes(expected)){
+     if(['software-system-v4','software-system-v5','software-system-v6','software-system-v7'].includes(expected)){
       row.movieRed=await redSwatch(await page.locator('.umc-video.is-on').screenshot({animations:'allow'}));
       if(!row.movieRed||Math.max(...row.movieRed.rgb.map((v,i)=>Math.abs(v-[220,38,38][i])))>6)report.findings.push({engine,width,route,message:'Movie changes the authored UM red',swatch:row.movieRed});
      }
@@ -103,9 +114,10 @@ if(fireOnly||networkOnly||serviceCode){
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   try{
    await page.goto('http://127.0.0.1:4326'+routes[0],{waitUntil:'load'});
+   if(await page.locator('[data-umc]').getAttribute('data-software-cinema')==='true')await page.locator('.umc-stage').evaluate(stage=>scrollTo({top:stage.getBoundingClientRect().top+scrollY-90,behavior:'instant'}));
    await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime>.1,{},{timeout:20000});
    const observations=[];
-   for(const time of (fireOnly?[2,7.65,14.2,16,22.8]:networkOnly?[2,7.45,10.4,17.35,22.8]:registry.services[serviceCode]?.scene==='software-system-v6'?[2,8.65,13.2,18.2,22.8]:[2,8.65,16,20.1,22.8])){
+   for(const time of (fireOnly?[2,7.65,14.2,16,22.8]:networkOnly?[2,7.45,10.4,17.35,22.8]:registry.services[serviceCode]?.scene==='software-system-v7'?[2,6.8,10.8,14.8,18.5,22.8]:registry.services[serviceCode]?.scene==='software-system-v6'?[2,8.65,13.2,18.2,22.8]:[2,8.65,16,20.1,22.8])){
     await page.waitForFunction(time=>document.querySelector('.umc-video.is-on')?.currentTime>=time,time,{timeout:20000,polling:100});
     observations.push(await page.locator('.umc-video.is-on').evaluate(v=>({time:v.currentTime,duration:v.duration,ready:v.readyState,paused:v.paused,narration:document.querySelector('[data-film-text]')?.textContent,quality:(q=>q?{total:q.totalVideoFrames,dropped:q.droppedVideoFrames,corrupted:q.corruptedVideoFrames}:null)(v.getVideoPlaybackQuality?.())})));
     await page.screenshot({path:path.join(out,`${film}-autonomous-${engine}-${width}-${time}.png`)});

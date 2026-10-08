@@ -8,9 +8,11 @@ def probe(file):return json.loads(subprocess.check_output(['ffprobe','-v','error
 infos=[];movies=[]
 for i in range(1,13):
  folder=source/f'software-part-{i}';movie=folder/f'part-{i}.mp4';info=json.loads((folder/f'part-{i}-info.json').read_text());expected=list(range((i-1)*120,i*120))
- assert info['scene'] in ('software-system-v5','software-system-v6') and info['frames']==1440 and info['fps']==60 and info['resolution']==[3840,2160],info
+ assert info['scene'] in ('software-system-v5','software-system-v6','software-system-v7') and info['frames']==1440 and info['fps']==60 and info['resolution']==[3840,2160],info
  assert len(info['authoring_sha256'])==64 and set(info['font_sha256'])=={'Regular','SemiBold'}
- assert info['engine']=='BLENDER_WORKBENCH' and info.get('lighting')=='flat product surfaces'
+ if info['scene']=='software-system-v7':
+  assert info['engine']=='BLENDER_EEVEE_NEXT' and info.get('lighting')=='emissive interface with soft substrate shadows'
+ else:assert info['engine']=='BLENDER_WORKBENCH' and info.get('lighting')=='flat product surfaces'
  assert [t['frame'] for t in info['timings']]==expected and [b['frame'] for b in info['bounds']]==expected,(i,'Missing native frames')
  v=probe(movie)['streams'][0]
  assert (v['width'],v['height'],v['nb_read_frames'],v['avg_frame_rate'],v['pix_fmt'])==(3840,2160,'120','60/1','yuv420p'),v
@@ -18,11 +20,12 @@ for i in range(1,13):
  assert abs(float(v['duration'])-2)<.01
  infos.append(info);movies.append(movie)
 assert len({i['scene'] for i in infos})==1,'Do not mix authored movie versions'
+assert len({(i['engine'],i['samples'],i['lighting']) for i in infos})==1,'Do not mix render treatments'
 assert len({i['authoring_sha256'] for i in infos})==1,'Do not mix authored revisions'
 assert len({json.dumps(i['font_sha256'],sort_keys=True) for i in infos})==1,'Do not mix font revisions'
 info=dict(infos[0],timings=[t for p in infos for t in p['timings']],bounds=[b for p in infos for b in p['bounds']])
 assert [t['frame'] for t in info['timings']]==list(range(1440))
-if info['scene']=='software-system-v6':
+if info['scene'] in ('software-system-v6','software-system-v7'):
  assert all(not p.get('handler_errors') for p in infos)
  info['focus_bounds']=[b for p in infos for b in p['focus_bounds']]
  assert set(b['group'] for b in info['focus_bounds'])=={'detail','logic','data','runtime'}
@@ -34,7 +37,8 @@ wide=out/(stem+'.mp4');square=out/(stem+'-sq.mp4')
 call('ffmpeg','-y','-v','error','-f','concat','-safe','0','-i',listing,'-c','copy','-movflags','+faststart',wide)
 # The mobile delivery preserves the complete frame. CSS removes the encoded
 # padding; it never crops away the application's navigation or action panel.
-call('ffmpeg','-y','-v','error','-i',wide,'-vf','scale=1920:1080:flags=lanczos:in_color_matrix=bt709:out_color_matrix=bt709:in_range=tv:out_range=tv,pad=1920:1920:0:420:color=0x090A0C','-c:v','libx264','-preset','medium','-crf','18','-pix_fmt','yuv420p','-color_range','tv','-colorspace','bt709','-color_primaries','bt709','-color_trc','iec61966-2-1','-an','-movflags','+faststart',square)
+background='0x11151C' if info['scene']=='software-system-v7' else '0x090A0C'
+call('ffmpeg','-y','-v','error','-i',wide,'-vf',f'scale=1920:1080:flags=lanczos:in_color_matrix=bt709:out_color_matrix=bt709:in_range=tv:out_range=tv,pad=1920:1920:0:420:color={background}','-c:v','libx264','-preset','medium','-crf','18','-pix_fmt','yuv420p','-color_range','tv','-colorspace','bt709','-color_primaries','bt709','-color_trc','iec61966-2-1','-an','-movflags','+faststart',square)
 for movie,label,size in [(wide,'',(3840,2160)),(square,'-square',(1920,1920))]:
  call('ffmpeg','-v','error','-i',movie,'-f','null','-')
  val=probe(movie);v=val['streams'][0]
