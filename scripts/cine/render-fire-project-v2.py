@@ -13,7 +13,7 @@ def camera_pose(t):
     # Establish the place, understand one sensor, follow its cable, read the
     # panel's construction, then return to the installation. No disconnected cuts.
     keys=[(0,14.7,-66,(0,.15,1.1)),(.15,13.8,-61,(-.15,.40,1.3)),
-          (.32,1.25,-72,(-2.05,.35,2.73)),(.44,4.6,-71,(-1.4,1.3,2.65)),
+          (.32,.92,-72,(-2.05,.35,2.68)),(.44,4.6,-71,(-1.4,1.3,2.65)),
           (.62,1.75,-73,(2.64,2.13,1.55)),(.77,1.65,-70,(2.62,2.13,1.56)),
           (1,14.7,-66,(0,.15,1.1))]
     if t<=0 or t>=1:return keys[0][1],math.radians(keys[0][2]),keys[0][3]
@@ -418,7 +418,9 @@ def render(args,s):
     def update_frame(scene):
         frame=scene.frame_current
         t=frame/(FRAMES-1);size,angle,target=camera_pose(t);target=Vector(target)
-        cam.location=target+Vector((24*math.cos(angle),24*math.sin(angle),22));cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler()
+        inspection=smooth((t-.19)/.11)*(1-smooth((t-.36)/.11))
+        distance=24-20*inspection;elevation=22-22.9*inspection
+        cam.location=target+Vector((distance*math.cos(angle),distance*math.sin(angle),elevation));cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler()
         camera.ortho_scale=size;camera.shift_x=0;camera.shift_y=0
         for obj,r in packets:
             visible=r['start']<=t<=r['end'];obj.hide_render=not visible
