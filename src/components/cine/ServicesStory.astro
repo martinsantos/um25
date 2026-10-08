@@ -30,7 +30,7 @@ const messages:Record<string,{title:string;summary:string;copy:string}>={
  '107':{title:'Detección temprana para activar la respuesta.',summary:'Dispositivos, central y puesta en marcha del sistema.',copy:'Diseñamos la detección según el riesgo y el lugar. Instalamos, probamos y documentamos los dispositivos y la central para que alarmas y fallas tengan una respuesta prevista.'},
  '108':{title:'Respaldo eléctrico donde tu operación lo necesita.',summary:'Alimentación, UPS y distribución para cargas de IT.',copy:'Definimos las cargas críticas y la autonomía necesaria. Integramos alimentación, respaldo y distribución para sostener los equipos y facilitar su mantenimiento.'},
 };
-const items=plan.map(chapter=>services.find(s=>s.code===chapter.code)).filter((s):s is Service=>!!s&&!!ISOMETRIC_STUDIES[s.code]).map(s=>({...s,study:ISOMETRIC_STUDIES[s.code],message:{...messages[s.code],...(sector?{title:plan.find(chapter=>chapter.code===s.code)!.scenes[0].title}:{})}}));
+const items=plan.map(chapter=>services.find(s=>s.code===chapter.code)).filter((s):s is Service=>!!s&&!!ISOMETRIC_STUDIES[s.code]).map(s=>({...s,study:ISOMETRIC_STUDIES[s.code],message:messages[s.code]}));
 const narrative=plan.filter(chapter=>items.some(item=>item.code===chapter.code));
 const phases=[{id:'system',name:'Proyecto'},{id:'object',name:'Pieza'},{id:'layers',name:'Interior'},{id:'detail',name:'Detalle'}];
 const first=items[0];
