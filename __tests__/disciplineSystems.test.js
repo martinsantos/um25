@@ -4,7 +4,7 @@ import {DISCIPLINE_SYSTEMS} from '../src/data/cine/disciplineSystems';
 import {operationScenes} from '../src/data/cine/operationNarrative';
 
 test.each(Object.keys(DISCIPLINE_SYSTEMS))('%s has six connected and self-contained layers in its first-paint diagram',code=>{
- const source=fs.readFileSync(`src/assets/cine/isometric/discipline-${code}-v2.svg`,'utf8');
+ const source=fs.readFileSync(`src/assets/cine/isometric/discipline-${code}-v${code==='108'?3:2}.svg`,'utf8');
  const doc=new DOMParser().parseFromString(source,'image/svg+xml');
  expect(doc.querySelector('parsererror')).toBeNull();
  expect([...doc.querySelectorAll('[data-discipline-drawing]')].map(n=>n.dataset.disciplineDrawing)).toEqual([code]);
