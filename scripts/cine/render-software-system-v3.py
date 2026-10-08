@@ -164,6 +164,8 @@ def validate():
     for t in (0,.51,.69,1):
         b=projected(p,t);assert min(b[:2])>.025 and max(b[2:])<.975,(t,b)
     from types import SimpleNamespace
+    data_bounds=projected(SimpleNamespace(points={'data':p.points['data']}),.80)
+    assert min(data_bounds[:2])>.06 and max(data_bounds[2:])<.95,data_bounds
     b=projected(SimpleNamespace(points={'detail':p.points['detail']}),.26)
     assert min(b[:2])>.06 and max(b[2:])<.95,b
     print(json.dumps({'scene':'software-system-v3','frames':FRAMES,'bounds':extent,'components':len(p.boxes),'labels':len(p.texts)}))
@@ -228,8 +230,6 @@ def render(args):
         for v,xyz in zip(spline.points,pts):v.co=(*xyz,1)
         obj=bpy.data.objects.new(name,data);scene.collection.objects.link(obj);data.materials.append(mats[mat]);return obj,spline
     for g,pts,m,radius in p.lines:obj,_=curve('Interface connector',pts,m,radius);obj.parent=parents[g]
-    flow,flowpath=curve('One request through the system',[(0,0,0)]*4,'red',.023)
-    bpy.ops.mesh.primitive_uv_sphere_add(segments=16,ring_count=8,radius=.027);packet=bpy.context.object;packet.data.materials.append(mats['white'])
     bpy.ops.mesh.primitive_plane_add(size=200,location=(0,0,-.16));bpy.context.object.data.materials.append(mats['floor'])
     for name,xyz,energy,size,color in [('Key',(-4,1,15),1300,12,(1,1,1)),('Edge',(5,9,8),650,10,(1,1,1)),('Fill',(0,-10,12),750,12,(1,1,1))]:
         data=bpy.data.lights.new(name,'AREA');data.energy=energy;data.shape='DISK';data.size=size;data.color=color
@@ -245,15 +245,12 @@ def render(args):
             obj.location=placement(name,t);obj.scale=(scale(name,t),)*3
             if name in ('logic','data','runtime'):
                 for child in obj.children:child.hide_render=reveal(t)<.01
-        points=[Vector(placement(g,t))+Vector(local)*scale(g,t) for g,local in [('detail',(3.55,-1.8,.15)),('logic',(3.05,-1.18,.15)),('data',(2.87,0,.13)),('heading',(.7,2.03,.04))]]
-        for v,point in zip(flowpath.points,points):v.co=(*point,1)
-        strength=ease(reveal(t)*3);flow.hide_render=strength<.001;packet.hide_render=strength<.001
-        flow.data.bevel_depth=.010*max(.001,strength);packet.scale=(strength,)*3
-        progress=ease((t-.28)/.32) if t<.61 else 1-ease((t-.61)/.22);q=progress*3;i=min(2,int(q));packet.location=points[i].lerp(points[i+1],q-i)
         confirmed=.63<t<.925
         states={'Actualizar solicitud':'Cambios guardados' if confirmed else 'Actualizar solicitud',
                 'En revisión':'Confirmada' if confirmed else 'En revisión',
-                '24':'23' if confirmed else '24','16':'17' if confirmed else '16'}
+                '24':'23' if confirmed else '24','16':'17' if confirmed else '16',
+                'estado / validada':'estado / confirmada' if confirmed else 'estado / validada',
+                'version / 03':'version / 04' if confirmed else 'version / 03'}
         for key,value in states.items():
             if labels[key].body!=value:labels[key].body=value
         bpy.context.view_layer.update()

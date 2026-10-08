@@ -20,7 +20,7 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precis
  @property --um-ds-door-angle{syntax:"<angle>";inherits:false;initial-value:0deg}
  .discipline-system{position:absolute;inset:0;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 700ms ease;isolation:isolate}
  .discipline-system[data-visible=true]{visibility:visible;opacity:1}
- .discipline-system :global(.ds-svg){display:block;width:100%;height:100%;overflow:visible}
+ .discipline-system :global(.ds-svg){display:block;width:100%;height:calc(100% - 36px);overflow:hidden}
  .discipline-system :global(.ds-drawing){display:none}
  .discipline-system[data-discipline-service="101"] :global([data-discipline-drawing="101"]),.discipline-system[data-discipline-service="102"] :global([data-discipline-drawing="102"]),.discipline-system[data-discipline-service="103"] :global([data-discipline-drawing="103"]),.discipline-system[data-discipline-service="104"] :global([data-discipline-drawing="104"]),.discipline-system[data-discipline-service="105"] :global([data-discipline-drawing="105"]),.discipline-system[data-discipline-service="106"] :global([data-discipline-drawing="106"]),.discipline-system[data-discipline-service="107"] :global([data-discipline-drawing="107"]),.discipline-system[data-discipline-service="108"] :global([data-discipline-drawing="108"]){display:block}
  .discipline-system :global(.ds-node){opacity:.86;transition:opacity 900ms ease}
@@ -36,7 +36,7 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precis
  .discipline-system :global(.ds-packet){opacity:0;animation:discipline-signal 4200ms linear infinite}
  .discipline-system :global([data-current=true]>.ds-packet){opacity:1}
  .discipline-system :global([data-current=true]>.ds-route){stroke:#e0a4a7}
- .discipline-system__key{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:10px;margin:0;font-size:1rem;line-height:1.5;color:#c4c7cc}
+ .discipline-system__key{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:10px;margin:0;min-height:30px;background:#090909;font-size:1rem;line-height:1.5;color:#c4c7cc}
  .discipline-system__key>span:first-child{width:20px;height:2px;background:#dc2626;flex-shrink:0}
  @keyframes discipline-signal{to{stroke-dashoffset:-100}}
  .discipline-system :global(.pn-link[data-current=true] .pn-signal){animation:discipline-signal 5s linear infinite}

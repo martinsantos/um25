@@ -14,7 +14,8 @@ for part in parts:
     for segment in range(1,5):
         folder=Path(f'software-part-{part}-{segment}')
         info=json.loads((folder/f'part-{part}-{segment}-info.json').read_text())
-        frames=list(range((part-1)*48+(segment-1)*12,(part-1)*48+segment*12))
+        fps=info.get('fps',24);chunk=fps*2;slice_frames=chunk//4
+        frames=list(range((part-1)*chunk+(segment-1)*slice_frames,(part-1)*chunk+segment*slice_frames))
         assert [t['frame'] for t in info['timings']]==frames
         assert [b['frame'] for b in info['bounds']]==frames
         rows.append(info)
@@ -27,6 +28,6 @@ for part in parts:
     movie=out/f'part-{part}.mp4'
     subprocess.run(['ffmpeg','-v','error','-f','concat','-safe','0','-i',str(listing),'-c','copy','-movflags','+faststart',str(movie)],check=True)
     probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-count_frames','-show_streams','-of','json',str(movie)]))['streams'][0]
-    assert (probe['width'],probe['height'],probe['nb_read_frames'],probe['avg_frame_rate'])==(1920,1080,'48','24/1')
+    assert (probe['width'],probe['height'],probe['nb_read_frames'],probe['avg_frame_rate'])==(*info.get('resolution',[1920,1080]),str(chunk),str(fps)+'/1')
     assert abs(float(probe['duration'])-2)<.01
-    print(f'Recovered part {part}: 48 frames from four existing slices')
+    print(f'Recovered part {part}: {chunk} native frames from four existing slices')

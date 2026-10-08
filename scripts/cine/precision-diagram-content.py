@@ -81,3 +81,19 @@ CONTENT={
  ('106',5):rows('ALCANCE DEL PROYECTO','Decisiones que se pueden ejecutar y verificar.',('ENTREGA','CONTENIDO','CRITERIO'),[('Arquitectura','Dependencias','Coherencia'),('Plan','Etapas','Secuencia'),('Alcance','Inclusiones','Acuerdo'),('Aceptación','Pruebas','Evidencia')],(91,80)),
  ('108',5):transfer(),
 }
+
+
+def monitor(title,subtitle,rows):
+ c=rect(0,0,130,77,'#101419','#929aa3',.5)+text(7,11,title,6.2,600)+text(7,22,subtitle,4.6,fill='#8e99a5')+line('M6 27H124','#515d68',.45)
+ for i,(label,state) in enumerate(rows):
+  y=39+i*14
+  c+=rect(7,y-5,3,3,'#dc2626' if i==0 else '#737d88','none')+text(15,y,label,5.5)+text(83,y,state,4.9,fill='#e0a4a7' if i==0 else '#8e99a5')+line(f'M7 {y+5}H124','#343b44',.35)
+ return c
+
+MONITORS={
+ ('102',4):monitor('SUPERVISIÓN','Un evento. Su ubicación y registro.',[('Acceso A01','Permitido'),('Cámara C04','Registro'),('Puerta P02','Cerrada')]),
+ ('105',0):monitor('MESA TÉCNICA','Sede norte / Aplicaciones',[('Caso 0248','Abierto'),('Impacto','Operación'),('Contacto','Asignado')]),
+ ('105',4):monitor('VALIDACIÓN','La recuperación se comprueba.',[('Acceso a ERP','Verificado'),('Red de sede','Disponible'),('Respuesta','Registrada')]),
+ ('106',0):monitor('RELEVAMIENTO','Equipos, uso y dependencias.',[('Aplicación','ERP'),('Personas','Operación'),('Dependencia','Red / datos')]),
+ ('108',0):monitor('CARGAS CRÍTICAS','La continuidad comienza aquí.',[('Red de datos','Protegida'),('Aplicaciones','Respaldo'),('Supervisión','Activa')]),
+}

@@ -4,7 +4,8 @@ Keeps their equipment and system topology; never replaces them with stock icons.
 from pathlib import Path
 import xml.etree.ElementTree as ET
 import runpy
-CONTENT=runpy.run_path(str(Path(__file__).with_name('precision-diagram-content.py')))['CONTENT']
+interfaces=runpy.run_path(str(Path(__file__).with_name('precision-diagram-content.py')))
+CONTENT=interfaces['CONTENT'];MONITORS=interfaces['MONITORS']
 ROOT=Path(__file__).resolve().parents[2]/'src/assets/cine/isometric'
 ET.register_namespace('', 'http://www.w3.org/2000/svg')
 
@@ -25,6 +26,11 @@ def refine(source):
   if not code:continue
   for node in drawing.iter():
    key=(code,int(node.get('data-discipline-node','-1')))
+   if key in MONITORS:
+    screen=next((el for el in node.iter() if el.get('transform','')=='translate(-9 -130) matrix(.8660254 .5 0 1 0 0)'),None)
+    if screen is not None:
+     for child in list(screen):screen.remove(child)
+     screen.extend(list(ET.fromstring('<svg xmlns="http://www.w3.org/2000/svg">'+MONITORS[key]+'</svg>')));screen.set('data-authored-interface','true')
    if key not in CONTENT:continue
    surface=next((el for el in node.iter() if el.get('transform','').startswith('matrix(.8660254 .5 -.8660254 .5')),None)
    if surface is None:continue

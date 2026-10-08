@@ -1,0 +1,42 @@
+# Revisión de precisión · 7 de octubre de 2026
+
+Candidato de interfaz: `fcb8c0e9`, rama `feature/isometric-redes-review`, PR #266 a develop. Trabajo en la preview `http://127.0.0.1:4326/`. La evaluación anterior encontró una diferencia sustancial de calidad frente a Ryan, Solvaix y David Hill. Esta iteración reconstruye partes de la propuesta; un control funcional verde no constituye aprobación artística ni autorización de release.
+
+## Cambios visibles
+
+- **Redes:** gabinete nuevo a 30°, herrajes, perforaciones, terminaciones ópticas, contactos RJ45, placas, disipador, memoria, ventilación, organizadores y cables. La puerta gira sobre su eje y el switch se extrae con sus guías; los latiguillos conservan sus extremos unidos. El punto de acceso abre su tapa y expone las antenas y la electrónica. La instalación contiene puestos, sala técnica, bandejas, derivaciones y terminales; usa la misma geometría del gabinete y de los equipos de detalle.
+- **Software:** seis superficies opacas y finas con una interfaz concreta, reglas, contratos de API, relaciones de datos, publicación y operación. La capa seleccionada se desplaza desde el conjunto. Sus contenidos conservan jerarquía y ocultación; las líneas de las capas inferiores no atraviesan la superficie activa.
+- **Otras disciplinas:** se conserva su equipamiento propio y se unifica el trazo. Las planillas de Telecomunicaciones, Soporte, Consultoría, Seguridad y Energía ahora tienen contenido técnico específico: extremos y servicios del enlace, registro de incidente, prioridad, alternativas, dependencias, alcance, eventos y transferencia eléctrica. Los ordinales grandes encerrados en círculos se reemplazan por anotaciones discretas.
+- **Contexto:** los sectores muestran su instalación al comenzar y al cerrar cada servicio. En el tramo central se explica el mecanismo de la disciplina. Bodegas conserva tanques, fraccionamiento y sala técnica; Constructoras conserva la montante y los pisos. La home usa el texto general de cada disciplina, evitando describir una montante de varios pisos sobre el dibujo de una oficina.
+- **Ritmo:** el índice dedica 19,5 segundos a contexto, mecanismo y resultado por servicio; las ocho disciplinas recorren el conjunto en 2 minutos y 36 segundos. Cada página de servicio conserva sus seis capas y su vuelta al sistema en un ciclo de 60 segundos. Las seis descripciones permanecen disponibles en ambos casos.
+- **Móvil:** el encuadre se calcula sobre la geometría real de la pieza activa. Software acompaña la posición final de la superficie que se despliega. La leyenda exterior conserva la explicación y sustituye anotaciones que no son legibles a esa escala.
+- **Integración:** el alto del escenario y la distribución editorial se conservan al alternar contexto y detalle. Las disciplinas nuevas no montan ni ofrecen un regreso al catálogo visual anterior. Las formas están en el HTML inicial y no esperan descargas de imágenes para iniciar la explicación.
+
+Las pausas explícitas, la salida del viewport, la pestaña oculta, movimiento reducido y la navegación de Astro interrumpen el trabajo de animación correspondiente. Los scripts públicos nuevos son `precision-systems-v5.js` y `service-atlas-v20.js`; se conservan los anteriores porque el despliegue scoped trata los assets públicos existentes como inmutables.
+
+## Verificación
+
+- `npm test -- --runInBand`: 68 suites y 578 pruebas aprobadas. Incluye continuidad de cables, pausa y reanudación en la misma posición, reducción de movimiento, disposición al navegar, recorrido completo, ritmo del índice y separación entre proyecto sectorial y pieza.
+- Build, tipos, lint y contrato CSS locales. Lint conserva diez advertencias anteriores.
+- [Control visual 37705402194](https://github.com/martinsantos/um25/actions/runs/37705402194), commit `03fd9a41`: correcto en Chrome escritorio y móvil; recorridos completos a velocidad real de Redes y Software, las otras seis disciplinas, home, Bodegas y Constructoras; WebKit en los cinco anchos del contrato y movimiento de las piezas. La revisión humana de estas capturas detectó anotaciones móviles demasiado grandes, Software pequeño y diferencias de acabado en el contexto; se corrigieron en `fcb8c0e9`.
+- [Control visual del candidato fcb8c0e9](https://github.com/martinsantos/um25/actions/runs/37706692696): correcto en ambos navegadores y perfiles; evidencia descargada y revisada. Se ajustaron luego la franja de leyenda móvil y cinco pantallas de supervisión, relevamiento y energía que conservaban líneas genéricas.
+
+Los controles remotos ejecutan una copia del candidato en un runner descartable. WebKit en Linux no representa un iPhone físico. Las capturas previas siguen siendo evidencia del commit al que pertenecen.
+
+## Película de Software v3: prueba, no entrega
+
+La preview conserva Software v2. La v3 propone una interfaz más fina, acercamientos compuestos por separado, apertura hacia reglas y datos y una confirmación que vuelve a la aplicación. Es una secuencia de 24 segundos y 1.440 cuadros nativos a 60 fps.
+
+- Prueba Cycles 4K: permitió detectar recorte del plano general y superficies grises. Rechazada como entrega; se corrigieron cámara y tratamiento del material.
+- Prueba Eevee 4K: un fotograma medido tomó 345,92 segundos en el runner. No se multiplicó ese costo por la película completa.
+- [Prueba nativa 37705747887](https://github.com/martinsantos/um25/actions/runs/37705747887): doce cuadros consecutivos 300–311, 1920 × 1080; 342,91 segundos de render, 28,58 segundos por cuadro de media. La tipografía y los controles se leen mejor, pero la iluminación de estudio todavía vuelve gris la interfaz. Rechazada como entrega. El ensayo anterior de 120 cuadros `37703339008` se canceló al obtener esta evidencia.
+- El render conserva una operación de animación nativa en lugar de reiniciar un render de imagen por cuadro; evita reconstruir textos que no cambiaron y guarda tiempos y cuadros de prueba recuperables.
+- [Cinco planos 4K con color de superficie](https://github.com/martinsantos/um25/actions/runs/37706695771) y [muestra consecutiva 4K](https://github.com/martinsantos/um25/actions/runs/37706698727): completos tras recuperar dos instalaciones de dependencias que agotaron su tiempo. Se conservan los planos blancos, los contornos finos y la lectura de la aplicación. Se eliminó el conector exterior que atravesaba el contenido de los planos y se coordinó el cambio de estado con la versión del registro.
+
+No se ha lanzado una película v3 completa ni sustituido su registro de medios. Las siete películas de las demás disciplinas siguen siendo las entregadas antes de esta reconstrucción. El cierre anterior de reproducción y encuadre no certifica que hayan alcanzado el acabado de las referencias.
+
+## Criterio de cierre
+
+Comparar el resultado a tamaño de uso con [Ryan](https://x.com/wheresryan22/status/2106439475551154186), [Solvaix](https://x.com/Solvaix/status/2106830508797706560) y [David Hill](https://x.com/iamdavidhill/status/2107616166713655476): el acercamiento debe revelar construcción útil; los recorridos deben conservar conexiones; cada cambio de plano debe aportar información; los textos y estados deben contar la misma acción. Verificar inicio, tramo medio, frenado y unión del ciclo. La igualdad de tecnología o de resolución no demuestra igualdad visual.
+
+Producción, la campaña protegida y los binarios de UM Sans permanecen fuera de esta iteración. El PR conserva estado draft.

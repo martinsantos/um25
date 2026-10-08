@@ -84,9 +84,10 @@ jobs:
           python3 - <<'PYPLAN'
           import json,os
           selected=[]
-          assert os.environ['VERSION']!='v3' or os.environ['MODE'] in ('proof','motion-proof'), 'v3 requires visual proof before a full render'
+          assert os.environ['VERSION']!='v3' or os.environ['MODE'] in ('proof','motion-proof','full','assemble','repair')
+          chunk=120 if os.environ['VERSION']=='v3' else 48
           proof_frames=[0,360,720,1080,1439] if os.environ['VERSION']=='v3' else [0,144,288,432,575]
-          rows=[dict(part=i+1,start=f,end=f,frames=1) for i,f in enumerate(proof_frames)] if os.environ['MODE']=='proof' else [dict(part=i+1,start=i*48,end=i*48+47,frames=48) for i in range(12)]
+          rows=[dict(part=i+1,start=f,end=f,frames=1) for i,f in enumerate(proof_frames)] if os.environ['MODE']=='proof' else [dict(part=i+1,start=i*chunk,end=(i+1)*chunk-1,frames=chunk) for i in range(12)]
           if os.environ['MODE']=='motion-proof':
               assert os.environ['VERSION']=='v3'
               count=int(os.environ['MOTION_FRAMES']);assert 12<=count<=120
@@ -96,7 +97,7 @@ jobs:
               assert selected and len(selected)==len(set(selected)) and all(1<=n<=12 for n in selected)
               segments=[int(n) for n in os.environ.get('REPAIR_SEGMENTS','').split(',') if n] or [1,2,3,4]
               assert len(segments)==len(set(segments)) and all(1<=n<=4 for n in segments)
-              rows=[dict(part=n,segment=k,start=(n-1)*48+(k-1)*12,end=(n-1)*48+k*12-1,frames=12) for n in selected for k in segments]
+              rows=[dict(part=n,segment=k,start=(n-1)*chunk+(k-1)*(chunk//4),end=(n-1)*chunk+k*(chunk//4)-1,frames=chunk//4) for n in selected for k in segments]
           if os.environ['MODE']=='assemble':rows=[]
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('matrix='+json.dumps({'include':rows})+'\n')
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('recovery='+json.dumps({'part':selected})+'\n')
@@ -207,7 +208,9 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
-          sparse-checkout: scripts/cine/recover-software-parts.py
+          sparse-checkout: |-
+            scripts/cine/recover-software-parts.py
+            scripts/cine/assemble-software-v3.py
           sparse-checkout-cone-mode: false
       - name: Download each recovery slice into its named directory
         env:
@@ -247,7 +250,9 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
-          sparse-checkout: scripts/cine/recover-software-parts.py
+          sparse-checkout: |-
+            scripts/cine/recover-software-parts.py
+            scripts/cine/assemble-software-v3.py
           sparse-checkout-cone-mode: false
       - uses: actions/download-artifact@v8
         with:
@@ -275,6 +280,11 @@ jobs:
               echo "Package index refresh timed out; using runner cached signed indexes."
             fi
             sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq ffmpeg
+          fi
+          if [ "$VERSION" = v3 ]; then
+            python3 scripts/cine/recover-software-parts.py
+            python3 scripts/cine/assemble-software-v3.py
+            exit 0
           fi
           python3 scripts/cine/recover-software-parts.py
           mkdir delivery

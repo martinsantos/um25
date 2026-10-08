@@ -1,3 +1,11 @@
+# Continuidad activa · revisión de precisión
+
+Actualizado después del cierre histórico de v2. Candidato de interfaz `fcb8c0e9`, PR #266 (draft), checkout `/Users/santosma/Documents/Codex/um25-cine-integracion` y preview `http://127.0.0.1:4326/`.
+
+La comparación con las referencias rechazó el acabado anterior. Se reconstruyeron Redes y Software, se refinaron las otras seis disciplinas y sus interfaces, se corrigieron contexto, ritmo y acercamiento móvil y se retiró el catálogo antiguo del recorrido nuevo. Ver [revisión de precisión](precision-review-20261007.md) para cambios, evidencia y resultados pendientes. La película v3 de Software está en prueba remota; v2 sigue integrada. No tratar el cierre funcional anterior como aprobación visual o GO a producción.
+
+## Registro histórico de la entrega anterior
+
 # Continuidad · cine de servicios UM25
 
 Cierre del 7 de octubre de 2026. Rama `feature/isometric-redes-review`, PR #266 a develop (draft). Último commit de producto `62f5952e`. Este cierre entrega una candidata integrada y revisada; no despliega a producción.
