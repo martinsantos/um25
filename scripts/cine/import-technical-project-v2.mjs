@@ -7,7 +7,7 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
 const folder=path.resolve(process.argv[2]||''),run=process.argv[3];assert(process.argv[2]);assert.match(run||'',/^\d+$/);
 const read=file=>JSON.parse(fs.readFileSync(path.join(folder,file),'utf8'));
 const info=read('render-info.json');
-assert(['fire-project-v2','network-project-v2','security-project-v2','telecom-project-v2','power-project-v2'].includes(info.scene));assert.equal(info.service,{'fire-project-v2':'107','network-project-v2':'101','security-project-v2':'102','telecom-project-v2':'103','power-project-v2':'108'}[info.scene]);assert.equal(info.fps,60);assert.equal(info.frames,1440);
+assert(['fire-project-v2','network-project-v2','security-project-v2','telecom-project-v2','power-project-v2','support-project-v2'].includes(info.scene));assert.equal(info.service,{'fire-project-v2':'107','network-project-v2':'101','security-project-v2':'102','telecom-project-v2':'103','power-project-v2':'108','support-project-v2':'105'}[info.scene]);assert.equal(info.fps,60);assert.equal(info.frames,1440);
 assert.equal(info.engine,'BLENDER_WORKBENCH');assert.equal(info.baked_lighting.source,'Cycles diffuse direct and indirect light');assert.deepEqual(info.resolution,[3840,2160]);
 assert.deepEqual(info.timings.map(t=>t.frame),Array.from({length:1440},(_,i)=>i));
 assert.deepEqual([...new Set(info.bounds.map(t=>t.frame))],[0,1439]);

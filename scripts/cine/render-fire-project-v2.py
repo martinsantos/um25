@@ -386,6 +386,7 @@ def render(args,s,story=None):
         for index in smoothfaces.get((mat,group),set()):mesh.polygons[index].use_smooth=True
         obj=bpy.data.objects.new(mat+' '+(group or 'equipment'),mesh);scene.collection.objects.link(obj);mesh.materials.append(mats[mat])
         if group:obj.parent=parents[group]
+        if group and group.startswith('ui-'):obj['flat_authored_color']=True
         bevel=obj.modifiers.new('Manufactured edges','BEVEL');bevel.width=.0008;bevel.segments=3
         obj.modifiers.new('Weighted normals','WEIGHTED_NORMAL').keep_sharp=True
     linegroups={}
@@ -398,6 +399,7 @@ def render(args,s,story=None):
             if not group:bounds.extend(pts)
         obj=bpy.data.objects.new(mat+' conductors',curve);scene.collection.objects.link(obj);curve.materials.append(mats[mat])
         if group:obj.parent=parents[group]
+        if group and group.startswith('ui-'):obj['flat_authored_color']=True
     font_file=Path(__file__).resolve().parents[2]/'public/fonts/um-sans/UMSans-Regular.ttf'
     authored_font=bpy.data.fonts.load(str(font_file)) if story and story.get('brand_font') else None
     for label in s.texts:
@@ -510,7 +512,7 @@ def render(args,s,story=None):
             # Workbench vertex rendering requires a colored mesh for every
             # conductor and marking too, not just the original solid objects.
             if obj.type in ('CURVE','FONT'):
-                obj['flat_authored_color']=obj.type=='FONT'
+                obj['flat_authored_color']=obj.type=='FONT' or bool(obj.get('flat_authored_color'))
                 bpy.ops.object.convert(target='MESH');obj=bpy.context.object
             for modifier in list(obj.modifiers):bpy.ops.object.modifier_apply(modifier=modifier.name)
             attr=obj.data.color_attributes.new(name='UM area-light response',type='FLOAT_COLOR',domain='CORNER')
