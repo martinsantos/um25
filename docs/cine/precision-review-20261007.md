@@ -89,3 +89,12 @@ La prueba Cycles `37711352258` obtuvo los planos general y central; el tercer tr
 La prueba `37713001828` completó tres planos Workbench 4K. Mejoró las proporciones y el detalle, pero sus sombras duras y oscuridad se rechazaron. `23c7c78c` elimina esas sombras, aclara el acabado y añade un mazo flexible que mantiene unida la electrónica de la puerta. Los tres planos de `37713406882` están completos e inspeccionados (12,10–20,38 s por cuadro). Se conservan en `/Volumes/SDTERA/Codex UM25 audits/20261007/fire-project-v2-proofs-37713406882/`.
 
 El ángulo superior ocultaba el mecanismo del detector. `089f1e81` dirige ese acercamiento desde debajo de su soporte; la prueba dirigida es `37713799416`. La muestra nativa de doce cuadros `37713409706` terminó correctamente: doce PNG nativos distintos, 225,36 s totales, 18,3 s por cuadro de mediana. Esa muestra prueba el tramo de la central; no la apertura nueva del detector ni el ciclo completo. Ningún plano de prueba reemplazó todavía la película de Incendio del sitio. Las otras siete películas conservan su versión anterior; ese es trabajo pendiente de acabado, no un GO a producción.
+
+
+## Continuidad · central articulada y película de Incendio
+
+`af2c9e6e` incorpora una isometría construida con las piezas medidas de la central Blender, con geometrías SVG reutilizadas (14.412 bytes gzip). La bisagra, los extremos del mazo, la cara posterior de la puerta y la tapa del detector responden al mismo reloj del relato. Mobile recibe acercamientos por capa; movimiento reducido conserva una vista completa estable. Las baterías se explican dentro del gabinete. `npm run check`: 69 suites / 582 pruebas y compilación correctas. Auditoría visual de la página: `37716790081`, pendiente de resultado al escribir esta entrada.
+
+La prueba del detector `37713799416` falló instalando dependencias; `37714330070` recuperó el encuadre. La prueba de luz precalculada `37714555071` reveló curvas blancas; `37715078018` recuperó sus materiales y produjo cinco encuadres. `37715412939` mejoró superficies y luz del detector pero mostró las caras del soporte invertidas. Se corrigieron y se añadieron invariantes geométricas; `37715859677` se inspeccionó con la cara inferior visible, iluminación suave y carcasa sin facetado grueso. El render completo `37716425530`, a 4K/60 nativo, está en curso sobre `83cae61f`; aún no se ha importado.
+
+Evidencias verificadas por SHA-256 en SDTERA: `fire-five-shots-37715078018/` y `fire-detector-37715859677/`. Las pruebas que mostraron defectos no sustituyen las películas del sitio.

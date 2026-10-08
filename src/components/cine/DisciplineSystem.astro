@@ -19,6 +19,7 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precis
 </div>
 <script src="/cine/precision-systems-v5.js" type="module" async is:inline />
 <script src="/cine/fire-system-v1.js" type="module" async is:inline />
+<script src="/cine/discipline-camera-v1.js" type="module" async is:inline />
 <style>
  @property --um-ds-door-angle{syntax:"<angle>";inherits:false;initial-value:0deg}
  .discipline-system{position:absolute;inset:0;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 700ms ease;isolation:isolate}
@@ -33,6 +34,7 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precis
  .discipline-system :global(.ds-door){--um-ds-door-angle:0deg;transform:matrix(calc(.8660254 * (cos(var(--um-ds-door-angle)) - sin(var(--um-ds-door-angle)))),calc(.5 * (cos(var(--um-ds-door-angle)) + sin(var(--um-ds-door-angle)))),0,1,0,0);transform-origin:0 0;transition:--um-ds-door-angle 2200ms cubic-bezier(.22,1,.36,1)}
  .discipline-system :global(.ds-node[data-current=true] .ds-door),.discipline-system[data-discipline-stage="3"] :global(.ds-door){--um-ds-door-angle:74deg}
  .discipline-system :global([data-authored-interface] text){font-family:var(--um-font-body,'UM Sans',Arial,sans-serif)}
+ .discipline-system[data-layer-camera=true] :global(.ds-tag){opacity:0}
  .discipline-system :global(.ds-tag text){font-family:var(--um-font-body,'UM Sans',Arial,sans-serif)}
  .discipline-system :global(.ds-tag circle){transition:fill 600ms,stroke 600ms}
  .discipline-system :global(.ds-tag[data-current=true] circle){fill:#981b24;stroke:#f4b5b5}

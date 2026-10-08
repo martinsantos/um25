@@ -1,0 +1,58 @@
+name: Discipline camera and mechanisms
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  ASTRO_TELEMETRY_DISABLED: '1'
+jobs:
+  camera:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [Chrome, WebKit]
+        width: [1440, 390]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.x'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          NODE_OPTIONS: --max-old-space-size=2048
+      - name: Prepare native browser
+        run: |
+          npm install --prefix "$RUNNER_TEMP/um-visual-runtime" --no-save --no-package-lock playwright@1.63.0
+          if [ '${{ matrix.engine }}' = Chrome ]; then
+            "$RUNNER_TEMP/um-visual-runtime/node_modules/.bin/playwright" install chrome
+          else
+            "$RUNNER_TEMP/um-visual-runtime/node_modules/.bin/playwright" install --with-deps webkit
+          fi
+      - name: Start isolated candidate
+        run: |
+          HOST=127.0.0.1 PORT=4326 NODE_ENV=production node dist/server/entry.mjs > "$RUNNER_TEMP/um-preview.log" 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -fsS --max-time 2 http://127.0.0.1:4326/ -o /dev/null; then exit 0; fi
+            sleep 2
+          done
+          exit 1
+      - name: Inspect autonomous cameras and open mechanisms
+        run: node scripts/cine/audit-layer-camera.mjs
+        env:
+          PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
+          VISUAL_ENGINE: ${{ matrix.engine }}
+          VISUAL_WIDTH: ${{ matrix.width }}
+          VISUAL_AUDIT_DIR: ${{ runner.temp }}/layer-camera
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: layer-camera-${{ matrix.engine }}-${{ matrix.width }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/layer-camera/
+            ${{ runner.temp }}/um-preview.log
+          retention-days: 3
