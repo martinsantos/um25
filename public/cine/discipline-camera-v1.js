@@ -3,6 +3,12 @@
 const CODES=new Set(['102','103','105','106','108']);
 const ease=t=>t<.5?16*t**5:1-((-2*t+2)**5)/2;
 const union=boxes=>{const x=Math.min(...boxes.map(b=>b[0])),y=Math.min(...boxes.map(b=>b[1]));return [x,y,Math.max(...boxes.map(b=>b[0]+b[2]))-x,Math.max(...boxes.map(b=>b[1]+b[3]))-y];};
+// SVG getScreenCTM still returns legacy SVGMatrix in some engines. Compose
+// numeric coefficients directly, without passing a DOMMatrix into that API.
+export function composeAffine(m,p){
+ const [a,b,c,d,e,f]=p;
+ return {a:m.a*a+m.c*b,b:m.b*a+m.d*b,c:m.a*c+m.c*d,d:m.b*c+m.d*d,e:m.a*e+m.c*f+m.e,f:m.b*e+m.d*f+m.f};
+}
 export function bindDisciplineCamera(root){
  if(root.dataset.layerCameraBound)return;root.dataset.layerCameraBound='true';
  const owner=root.closest('[data-service-atlas]'),svg=root.querySelector('svg');if(!owner||!svg)return;
@@ -28,7 +34,7 @@ export function bindDisciplineCamera(root){
   const boxes=nodes.map(el=>boxInRoot(el)).filter(Boolean),base=svg.getScreenCTM();
   if(base)for(const p of onlyParts){
    const parent=base.inverse().multiply(p.el.parentElement.getScreenCTM());
-   for(const pose of [p.base,p.open]){const b=boxInRoot(p.el,parent.multiply(new DOMMatrix(pose)));if(b)boxes.push(b);}
+   for(const pose of [p.base,p.open]){const b=boxInRoot(p.el,composeAffine(parent,pose));if(b)boxes.push(b);}
   }
   return boxes.length?union(boxes):[0,0,1000,650];
  }
