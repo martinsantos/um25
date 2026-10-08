@@ -41,6 +41,8 @@ for (let index = 0; index < files.length; index += 6) {
 for (const [route, marker] of [
   ['/estilo/fuente', 'data-font-release="2.0.0"'],
   ['/estilo/fuentes/plantilla', 'Plantillas-UMSans2-2.0.0.zip'],
+  ['/estilo/fuente/plantillas', 'Plantillas-UMSans2-2.0.0.zip'],
+  ['/estilo/fuente/planillas', 'Plantillas-UMSans2-2.0.0.zip'],
 ]) {
   const html = await (await get(route)).text();
   assert(html.includes(marker), `${route}: missing ${marker}`);
