@@ -159,7 +159,7 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
  @media(min-width:821px){.umc-film-caption{margin-left:calc(42vw - var(--umc-gutter));padding-right:16px}}
  @media(max-width:820px){
   .umc-film-caption{position:absolute;top:calc(24px + min(100vw,600px) * 9 / 16 + 12px);left:20px;right:20px}
-  .umc[data-product-composition="true"][data-movie-chapters] :global(.umc-copy){padding-top:calc(min(100vw,600px) * 9 / 16 + 104px)}
+  .umc[data-product-composition="true"][data-movie-chapters]:not([data-software-cinema="true"]) :global(.umc-copy){padding-top:calc(min(100vw,600px) * 9 / 16 + 104px)}
  }
  @media(min-width:821px){
   .umc[data-product-composition="true"] :global(.umc-stage){left:42%;right:0}

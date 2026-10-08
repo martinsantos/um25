@@ -57,6 +57,7 @@ for(const [engine,type] of (probe?[['WebKit',webkit]]:[['Chrome',chromium],['Web
      if(width<=820&&Math.abs(state.stage.width/state.stage.height-16/9)>.01)report.findings.push({engine,width,route,message:'Mobile product frame is cropped',state});
     }
     if(state.cinema){
+     if(state.readingStart-state.copy.y>8)report.findings.push({engine,width,route,message:'Software copy inherits an empty movie reservation',state});
      if(state.copy.y+state.copy.height>state.stage.y-16)report.findings.push({engine,width,route,message:'Copy overlaps the full-width software film',state});
      if(Math.abs(state.stage.width/state.stage.height-16/9)>.01||state.stage.width<width*.70&&width<=1440)report.findings.push({engine,width,route,message:'The software film lost its broad native composition',state});
     }
