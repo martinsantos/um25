@@ -17,11 +17,40 @@ env:
   RELEASE_ID: ${{ github.run_id }}-${{ github.run_attempt }}
 
 jobs:
+  runtime-scope:
+    runs-on: ubuntu-latest
+    outputs:
+      required: ${{ steps.scope.outputs.required }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: scope
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          OPERATION: ${{ inputs.operation }}
+        run: |
+          required=true
+          if [[ "$EVENT" == workflow_dispatch && "$OPERATION" != deploy ]]; then
+            required=false
+          elif [[ "$EVENT" == push ]] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            required=false
+            while IFS= read -r path; do
+              case "$path" in
+                .github/workflows/production-deploy.yml|.github/workflows/server-storage-maintenance.yml|scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py) ;;
+                *) required=true ;;
+              esac
+            done < <(git diff --name-only "$BEFORE" HEAD)
+          fi
+          echo "required=$required" >> "$GITHUB_OUTPUT"
   #===========================================================================
   # JOB 1: BUILD & TEST
   #===========================================================================
   build-and-test:
     name: Build & Test
+    needs: runtime-scope
+    if: needs.runtime-scope.outputs.required == 'true'
     runs-on: ubuntu-latest
 
     steps:
