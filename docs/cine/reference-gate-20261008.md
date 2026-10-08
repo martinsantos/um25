@@ -2,7 +2,7 @@
 
 ## Estado de aceptación
 
-La evaluación del usuario rechaza el conjunto actual: 12 % respecto de las referencias y 3 % para el banner de Software. Son valoraciones del usuario, no métricas objetivas ni porcentajes de trabajo completado. **No hay aprobación artística ni GO para producción.** La preview sirve ahora Software v7 claro y frontal: importación `23aeb972`, ajuste móvil `3c4a2ba7`. El cambio responde al rechazo de pantalla negra y perspectiva deformada; no demuestra paridad con las referencias.
+La evaluación del usuario rechaza el conjunto actual: 12 % respecto de las referencias y 3 % para el banner de Software. Son valoraciones del usuario, no métricas objetivas ni porcentajes de trabajo completado. **No hay aprobación artística ni GO para producción.** La preview sirve Software v8: importación `2ed18c45`, película clara de componentes funcionales y escenario móvil 4:3. La revisión reemplaza v7, también rechazada; no demuestra paridad con las referencias.
 
 Referencias a contrastar a igual tamaño visible y en movimiento:
 - Ryan, precisión y mecanismos isométricos: https://x.com/wheresryan22/status/2106439475551154186
@@ -13,7 +13,7 @@ Los archivos originales de referencia están en `/private/tmp/um-ryan-reference.
 
 ## Nueva revisión en curso
 
-El usuario también rechazó la entrega clara v7: «mejor pero inaceptable, no se ve, ni se compara al efecto de referencia». No está artísticamente aceptada. La revisión v8 construye una aplicación de integraciones con cuatro componentes funcionales, inspección volumétrica y acercamientos mayores. Se comprueba primero con planos nativos y un tramo corto remoto. No hay reemplazo de la preview ni render completo autorizado por una supuesta paridad todavía.
+El usuario también rechazó la entrega clara v7: «mejor pero inaceptable, no se ve, ni se compara al efecto de referencia». No está artísticamente aceptada. La revisión v8 construye una aplicación de integraciones con cuatro componentes funcionales, inspección volumétrica y acercamientos mayores. Se revisaron planos nativos y un tramo corto remoto, se completó el render y se integró como candidata. La sustitución de la preview no implica aprobación artística; consultar la entrega v8 al final de este documento.
 
 ## Antecedentes de la iteración · conservados como historial
 
@@ -84,3 +84,15 @@ Criterio pendiente: comparar fluidez, jerarquía, detalle visible y profundidad 
 La secuencia nativa `37782772383` finalizó: 120 cuadros 3840 × 2160 / 60 fps, 2 segundos, 787,82 segundos de render remoto, sin errores de controlador; seis instantes inspeccionados. Render completo `37784593927`: diez tramos terminados. Los tramos 4 y 10 fallaron antes de Blender, al agotar 600 segundos instalando `libegl1` y `ffmpeg`; recuperación selectiva `37786880247`, sin repetir los otros diez. La unión ahora conserva y verifica la evidencia de encuadre de cada subtramo, además de fuente, fuentes tipográficas y tratamiento.
 
 El banner también se corrige: botones y estadísticas pasan después de la película y su narración. El escenario de escritorio se ajusta al alto de ventana, y en móvil conserva la composición 4:3. Esto responde al espacio que ocultaba el recorrido bajo los controles en el primer viewport.
+
+## Entrega v8 / recuperación de continuidad
+
+- Ensamblado `37787831278` aprobado, render fuente `01c55867`, recuperación de tramos `37786880247`. Importación `2ed18c45`: 1.440 cuadros 4K/60, 24 s, 403 registros de encuadre, cero errores de controlador. La igualdad de geometría inicial/final no garantiza identidad de todos los rótulos: el estado de conexión se reinicia al comenzar el ciclo.
+- Seis assets activos, 70.226.044 bytes, hashes verificados; escritorio 52.486.760 bytes, móvil 16.700.118 bytes. No presentar estas cifras como garantía de carga rápida en cualquier conexión.
+- La película precede a las acciones y estadísticas. Narración externa de seis etapas; móvil 4:3 con acercamiento continuo. Ambos accesos responden con v8, PID propio 15122.
+- `npm run check` final: 71 suites / 593 pruebas, lint/tipos/CSS/build aprobados, diez advertencias previas.
+- Navegadores `37789286659`: veinte composiciones, dos ciclos autónomos de 24 s, seis frases, sin errores JS ni corrupción. Última muestra Chrome 8/1.378 cuadros descartados, WebKit móvil 0/1.370. Un hallazgo: no había rojo en el fotograma tomado después del acercamiento. `1b9d138c` fija la comparación de color a un fotograma decodificado de 0,75 s, guarda evidencia de esa medición y mantiene independiente la prueba sin intervención. Revisión `37792551419` pendiente.
+- Capturas inspeccionadas: home de Software en escritorio/móvil, conexión y mapeo. Persiste menor variedad de jerarquías y detalle funcional que Hill. En móvil las capturas del navegador muestran dentado que no aparece igual al extraer/reducir el archivo nativo; aislar la presentación del video antes de atribuirlo al render. La cabecera de contexto y su botón se recortan en algunos acercamientos; no confundir con el componente activo completo ni ignorarlo en la revisión de acabado.
+- Recuperación del fork: el hilo **UMSA HOME PRODU (3)** reportó dos errores de compactación remota con desconexión de stream. No hay causa de transporte detallada ni evidencia de pérdida del código/assets. Estado recuperado desde Git y HTTP, sin reiniciar el render. Mantener el PR draft y producción intacta.
+
+Archivo v8 verificado: `/Volumes/SDTERA/Codex UM25 audits/20261008/software-v8/SHA256.json`, 74 archivos / 80.979.295 bytes de entrega y primera auditoría. No se borraron originales.
