@@ -477,7 +477,7 @@ const repertoire = [
         <div class="ums2-delivery-note">
           <div>
             <p class="ums2-kicker">Criterio de promoción</p>
-            <h3>{isPublicRoute ? 'UM Sans 1.2 está lista para integrarse en la web.' : 'La web usa UM Sans Text 1.2 en todos los roles editoriales.'}</h3>
+            <h3>{isPublicRoute ? 'UM Sans 1.2 está lista para integrarse en la web.' : 'El sistema anterior usa UM Sans Text 1.2 en todos los roles editoriales.'}</h3>
           </div>
           <p>{isPublicRoute
             ? 'La entrega incluye procedencia, auditoría óptica, QA estructural, hashes y paquete instalable para una integración controlada.'
@@ -535,6 +535,13 @@ const repertoire = [
     --ums2-muted: #62656b;
     --ums2-line: #d9dadd;
     --ums2-paper: #f7f7f6;
+    /* Historical specimen: keep its actual 1.2 faces when the site adopts 2.0. */
+    --um-font-editorial: 'UM Sans', Arial, sans-serif;
+    --um-font-body: 'UM Sans', Arial, sans-serif;
+    --um-font-display: 'UM Sans', Arial, sans-serif;
+    --um-font-impact: 'UM Sans', Arial, sans-serif;
+    --um-font-ui: 'UM Sans', Arial, sans-serif;
+    font-size-adjust: 0.546;
     --ums2-display-font: var(--um-font-body, 'UM Sans', Arial, sans-serif);
     --ums2-text-font: var(--um-font-body, 'UM Sans', Arial, sans-serif);
     --ums2-candidate-font: var(--um-font-body, 'UM Sans', Arial, sans-serif);

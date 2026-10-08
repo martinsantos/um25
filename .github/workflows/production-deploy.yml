@@ -81,6 +81,7 @@ jobs:
   #===========================================================================
   deploy-production:
     name: Deploy to Production
+    if: github.ref == 'refs/heads/master'
     needs: build-and-test
     runs-on: ubuntu-latest
     environment:
@@ -136,6 +137,34 @@ jobs:
           test -s /tmp/umsa-release-paths.txt
           while IFS= read -r path; do
             case "$path" in
+              # UM Sans 2: versioned binaries and document templates. Keep the
+              # 1.2 service and unrelated unpublished assets unchanged.
+              public/fonts/um-sans/v2.0.0/*|\
+              scripts/fonts/release_um_sans_2.py|\
+              scripts/fonts/audit_um_sans_2_service.mjs|\
+              scripts/typography/build_offer_templates.py|\
+              scripts/visual-contrast-audit.mjs|\
+              __tests__/umSansFontContract.test.js|\
+              __tests__/umSans2FontContract.test.js|\
+              __tests__/umSans2Release.test.js|\
+              __tests__/visualAuditRunnerContracts.test.js|\
+              docs/typography/UM-SANS-2-SERVICE.md|\
+              docs/typography/um-sans-2.0.0-standards.json|\
+              src/layouts/LayoutV4.astro|\
+              src/pages/estilo/fuente.astro|\
+              src/pages/estilo/um-sans.astro|\
+              src/pages/estilo/fuentes/plantilla.astro|\
+              src/pages/estilo/fuente/plantillas.astro|\
+              src/pages/estilo/fuente/planillas.astro|\
+              src/pages/estilo/fuente/planilla.astro|\
+              src/pages/planilla.astro|\
+              src/pages/fuente.astro|\
+              src/pages/estilos/index.astro|\
+              src/pages/estilos/fuente.astro|\
+              src/pages/estilos/fuente/plantilla.astro|\
+              src/pages/estilo/fuente/plantilla.astro|\
+              src/styles/font-service.css|src/styles/v4.css|\
+              src/styles/cine-hero.css) ;;
               .github/workflows/production-deploy.yml|.github/workflows/community-demo-integrity.yml|\
               scripts/ops/deploy-scoped-dist.sh|scripts/ops/prune-inactive-umbot-deps.sh|scripts/ops/audit-directus-uploads.sh|\
               __tests__/runtimeConfigContracts.test.js|__tests__/nginxOps.test.ts|\
@@ -200,6 +229,11 @@ jobs:
               *) echo "Unexpected release path: $path" >&2; exit 1 ;;
             esac
           done < /tmp/umsa-release-paths.txt
+          # Versioned font/template URLs may only be added, never overwritten.
+          if [[ -n "$(git diff --name-only --diff-filter=MRD "${GITHUB_SHA}^1" "$GITHUB_SHA" -- public/fonts/um-sans/v2.0.0)" ]]; then
+            echo 'Published UM Sans URLs are immutable; use a new release directory' >&2
+            exit 1
+          fi
           # The scoped overlay restores every already-published public asset, so a
           # modified file under public/cine would silently ship its old version.
           # Cinema assets may only be added; ship changes under a new name.
@@ -425,6 +459,14 @@ jobs:
 
       - name: SEO and GEO release audit
         run: node scripts/seo-audit.mjs --base-url https://www.ultimamilla.com.ar
+
+      - name: Apply scoped font CORS and cache headers
+        run: |
+          ssh root@23.105.176.45 'UMSANS_FONT_MODE=apply bash -s' \
+            < scripts/ops/apply-umsans-font-headers.sh
+
+      - name: Verify UM Sans service and offer downloads at public edge
+        run: node scripts/fonts/audit_um_sans_2_service.mjs https://www.ultimamilla.com.ar
 
       - name: GEO scoring release audit
         run: npm run geo:score -- --base-url https://www.ultimamilla.com.ar --min-score 90 --json
