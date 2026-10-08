@@ -23,6 +23,9 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precis
  @property --um-ds-door-angle{syntax:"<angle>";inherits:false;initial-value:0deg}
  .discipline-system{position:absolute;inset:0;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 700ms ease;isolation:isolate}
  .discipline-system[data-visible=true]{visibility:visible;opacity:1}
+ /* Reserve the full stage while deferring the offscreen SVG paint. The loader
+    exposes it 300 px before arrival, before any mechanism is prepared. */
+ .discipline-system[data-discipline-runtime="waiting"]{content-visibility:hidden}
  .discipline-system :global(.ds-svg){display:block;width:100%;height:calc(100% - 36px);overflow:hidden}
  .discipline-system :global(.ds-drawing){display:none}
  .discipline-system[data-discipline-service="101"] :global([data-discipline-drawing="101"]),.discipline-system[data-discipline-service="102"] :global([data-discipline-drawing="102"]),.discipline-system[data-discipline-service="103"] :global([data-discipline-drawing="103"]),.discipline-system[data-discipline-service="104"] :global([data-discipline-drawing="104"]),.discipline-system[data-discipline-service="105"] :global([data-discipline-drawing="105"]),.discipline-system[data-discipline-service="106"] :global([data-discipline-drawing="106"]),.discipline-system[data-discipline-service="107"] :global([data-discipline-drawing="107"]),.discipline-system[data-discipline-service="108"] :global([data-discipline-drawing="108"]){display:block}

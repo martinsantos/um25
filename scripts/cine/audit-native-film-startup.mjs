@@ -12,9 +12,9 @@ const source='/cine/media/cine-'+registry.services[code].scene+'.mp4';
 const browser=await chromium.launch({channel:'chrome',headless:true});
 const report={code,source,measurements:[],findings:[]};
 try{
- // Reverse the original order and repeat the identical page to distinguish
- // first-decoder startup from work done by the offscreen diagrams.
- for(const mode of ['page-no-isometry','page','page-repeat','native']){
+ // The first page measures the cold drawing cost; the identical repeat
+ // separates that cost from steady playback of the same native movie.
+ for(const mode of ['page','native','page-repeat']){
   const context=await browser.newContext({viewport:{width:1440,height:900},reducedMotion:'no-preference'});
   const page=await context.newPage();
   if(mode==='page-no-isometry')await page.route('**/cine/*.js',route=>/precision-systems|discipline-camera|fire-system/.test(route.request().url())?route.abort():route.continue());

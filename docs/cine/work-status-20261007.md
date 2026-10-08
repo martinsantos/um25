@@ -1,6 +1,6 @@
 # Continuidad activa · 8 de octubre de 2026
 
-Rama `feature/isometric-redes-review`, PR #266 (draft), checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`. Preview `http://127.0.0.1:4326/`, compilada hasta `f7f13c38`, con Redes v2, Seguridad v2, narración sincronizada y sin superposición de capas 4K al inicio. No editar el checkout principal ni desplegar. PID propio en `/private/tmp/um-eight-preview.pid`: verificar proceso y cwd antes de reiniciar.
+Rama `feature/isometric-redes-review`, PR #266 (draft), checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`. Preview `http://127.0.0.1:4326/`, compilada hasta `919ef94d`, con Redes, Seguridad, Telecomunicaciones y Energía v2, nueva isometría de baterías y preparación diferida de mecanismos. No editar el checkout principal ni desplegar. PID propio en `/private/tmp/um-eight-preview.pid`: verificar proceso y cwd antes de reiniciar.
 
 ## Resultado integrado
 
@@ -10,7 +10,20 @@ Rama `feature/isometric-redes-review`, PR #266 (draft), checkout `/Users/santosm
 - **Isometría de Incendio:** central de 576 piezas, 33 geometrías compartidas y 14.391 bytes gzip. Puerta de 102°, electrónica posterior, conductores unidos, detector separable y baterías dentro del gabinete. Namespaces SVG, etiquetas y cámaras corregidos.
 - **Cinco cámaras restantes:** Telecomunicaciones, Seguridad, Soporte, Consultoría y Energía encuadran el volumen cerrado y abierto. Auditoría `37721308823`: Chrome/WebKit × escritorio/móvil, 140 estados y 20 vistas con movimiento reducido, cero hallazgos y errores. Capturas de las cinco disciplinas inspeccionadas. El mecanismo activo mantiene contraste; el contexto se atenúa. La cámara exterior de `precision-systems-v6.js` pertenece sólo a Software.
 
-Último `npm run check` completo (candidato con narración del 08/10): 70 suites / 588 pruebas, lint, tipos, CSS y build correctos. Diez advertencias previas de lint. No equivale a aprobación artística.
+Último `npm run check` completo (candidato con narración del 08/10): 71 suites / 591 pruebas, lint, tipos, CSS y build correctos. Diez advertencias previas de lint. No equivale a aprobación artística.
+
+## Revisión en curso · 08/10 05:27 UTC
+
+- Telecomunicaciones completa `37725154508`: 1.440 cuadros distintos, 22.544.283 bytes de assets, importada en `04e742e1`. Auditoría integrada `37731345742` terminada; se leen reportes y capturas.
+- Energía completa `37728931491`: 1.440 cuadros distintos, 30.546.459 bytes, importada en `919ef94d`. Fotogramas nativos revisados. Isometría v3 auditada en `37730364837`: 28 estados + 4 vistas de movimiento reducido, Chrome/WebKit escritorio/móvil, cero hallazgos. Capturas revisadas.
+- Soporte original `37728960586` **rechazado**: el plano general cortaba la parte inferior. Blender registraba la excepción del handler sin fallar el proceso; el ensamblador detectó la ausencia de evidencia de encuadre y no publicó la entrega. Cámara corregida y handler con fallo explícito. Prueba `37731805461`: extremos 0/1439 completos, límites [0.143, 0.085, 0.851, 0.860], inspeccionados; nuevo render completo `37732222296` iniciado en fuente `6b524161`. No mezclar fragmentos anteriores.
+- Consultoría completa `37728975470`, fuente `437bd83b`, aún renderizando. No relanzar mientras avance.
+- Software v5: pruebas `37730591177` (detalle UI), `37731201989` (cuatro planos sin ocultar despliegue) y 120 cuadros continuos `37731388098` revisados. El pie de tabla y los iconos están corregidos. Render completo `37732092147`, fuente `6b524161`, en marcha. Registry todavía v4 hasta importar la entrega verificada. Tipos normalizados deterministas en todos los fragmentos.
+- Preparación diferida `d4506581`: SVG presente desde el HTML, mecanismos descargados y preparados a 300 px del recorrido. 13 pruebas de ciclo de vida/pausa/navegación aprobadas. Auditoría real de autonomía `37731923927` en marcha. No afirma mejorar decodificación por sí sola.
+- Medición `37731342858`: página 60 cuadros descartados, nativo 0, segunda página 3. Las dos páginas tenían runtime `waiting` y ningún módulo de mecanismos cargado, por lo que la diferencia **no demuestra** que la isometría sea su causa. Control invertido `37732413354`: primera página sin módulos 56 descartes; página normal 4; repetida 3; nativa 1. La atribución a los módulos queda descartada como explicación suficiente. Se prueba contener el dibujo SVG fuera de pantalla; sigue abierto.
+- Preview propia PID `97862`; comprobar cwd antes de reiniciarla. Último check completo `919ef94d`: 71 suites / 591 pruebas, lint/tipos/CSS/build correctos, diez advertencias existentes.
+
+Los párrafos siguientes documentan los pasos anteriores; prevalece esta revisión para los estados de ejecución.
 
 ## Películas en refinamiento
 
