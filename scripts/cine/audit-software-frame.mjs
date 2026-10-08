@@ -11,7 +11,8 @@ const out=process.env.VISUAL_AUDIT_DIR;
 if(!out||!path.isAbsolute(out))throw Error('Absolute artifact directory required');
 fs.mkdirSync(out,{recursive:true});
 const allRoutes=['/software',...[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(match=>match[1])];
-const routes=process.env.FRAMING_SOFTWARE_ONLY==='true'?allRoutes.filter(route=>route==='/software'||route.startsWith('/servicios/104/')):allRoutes;
+const fireOnly=process.env.FRAMING_FIRE_ONLY==='true';
+const routes=fireOnly?allRoutes.filter(route=>route.startsWith('/servicios/107/')):process.env.FRAMING_SOFTWARE_ONLY==='true'?allRoutes.filter(route=>route==='/software'||route.startsWith('/servicios/104/')):allRoutes;
 const registry=JSON.parse(fs.readFileSync('src/data/cine/site-movies-v1.json','utf8'));
 const controlsOnly=process.env.FRAMING_CONTROLS_ONLY==='true';
 const report={scope:controlsOnly?'mobile-cinema-controls':'all-eight-service-films',pages:[],findings:[]};
@@ -84,6 +85,31 @@ for(const [engine,type] of (probe?[['WebKit',webkit]]:[['Chrome',chromium],['Web
   await context.close();
  }
  await browser.close();
+}
+// The authored fire film must start and complete its explanation without input.
+// Let real time advance: seeking would conceal lifecycle and continuity faults.
+if(fireOnly){
+ report.autonomous=[];
+ for(const [engine,type,width] of [['Chrome',chromium,1440],['WebKit',webkit,390]]){
+  const browser=await type.launch(engine==='Chrome'?{channel:'chrome',headless:true}:{headless:true});
+  const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'no-preference'}),page=await context.newPage();
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  try{
+   await page.goto('http://127.0.0.1:4326'+routes[0],{waitUntil:'load'});
+   await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime>.1,{},{timeout:20000});
+   const observations=[];
+   for(const time of [2,7.65,14.2,16,22.8]){
+    await page.waitForFunction(time=>document.querySelector('.umc-video.is-on')?.currentTime>=time,time,{timeout:20000,polling:100});
+    observations.push(await page.locator('.umc-video.is-on').evaluate(v=>({time:v.currentTime,duration:v.duration,ready:v.readyState,paused:v.paused,quality:v.getVideoPlaybackQuality?.()})));
+    await page.screenshot({path:path.join(out,`fire-autonomous-${engine}-${width}-${time}.png`)});
+   }
+   await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime<2,{},{timeout:6500,polling:100});
+   report.autonomous.push({engine,width,observations,loop:true,errors});
+   if(errors.length)report.findings.push({engine,width,errors});
+  }catch(error){report.findings.push({engine,width,scope:'autonomous-fire',error:error.message});}
+  finally{await browser.close();}
+ }
+ fs.writeFileSync(path.join(out,'framing-report.json'),JSON.stringify(report,null,2));
 }
 // Compare the same encoded file without the website player on the disposable runner.
 if(probe){

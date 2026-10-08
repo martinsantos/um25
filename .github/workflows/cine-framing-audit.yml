@@ -6,6 +6,10 @@ on:
         description: Verify only Software's new composition and native movie
         type: boolean
         default: false
+      fire_only:
+        description: Verify the fire installation, closeups and autonomous complete loop
+        type: boolean
+        default: false
       controls_only:
         description: Verify mobile motion controls across services without repeating duration tests
         type: boolean
@@ -50,6 +54,7 @@ jobs:
         run: node scripts/cine/audit-software-frame.mjs
         env:
           PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
+          FRAMING_FIRE_ONLY: ${{ inputs.fire_only }}
           FRAMING_SOFTWARE_ONLY: ${{ inputs.software_only }}
           FRAMING_PROBE: ${{ inputs.probe }}
           FRAMING_CONTROLS_ONLY: ${{ inputs.controls_only }}

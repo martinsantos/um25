@@ -42,8 +42,8 @@ const dot = title.endsWith('.');
 const heading = dot ? title.slice(0, -1) : title;
 const rail = chapters||HOME_SCENES.filter((s) => scenes.includes(s.scene));
 const firstTitle = rail.find(chapter=>chapter.scene===first)?.name||cutCaption(first);
-const disciplineComposition = /^(software|network|security|telecom|support|consulting|fire|power)-system-v\d+$/.test(first);
-const productComposition = /^software-system-v[34]$/.test(first);
+const disciplineComposition = /^(software|network|security|telecom|support|consulting|fire|power)-(system|project)-v\d+$/.test(first);
+const productComposition = /^(software-system-v[34]|fire-project-v2)$/.test(first);
 const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-width:546px) and (max-aspect-ratio:651/1000)';
 ---
 <section class:list={['umc', `umc--${variant}`]} data-umc data-motion={motion} data-annotations={annotations?'tracked':'none'} data-framing={framing} data-composition={disciplineComposition?'discipline':undefined} data-product-composition={productComposition?'true':undefined} data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
@@ -141,7 +141,7 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
     surfaces. Keep the mast tops and cabinet feet inside the opaque region. */
  .umc[data-composition="discipline"]:not([data-scene^="software-system-v"]) :global(.umc-poster),
  .umc[data-composition="discipline"]:not([data-scene^="software-system-v"]) :global(.umc-video){mask-image:linear-gradient(180deg,transparent,#000 6%,#000 94%,transparent)}
- /* The product film uses the entire image, including its fine interface.
+ /* Detailed product and installation films use the entire authored frame.
     Give it a separate column and preserve its edges through every close-up. */
  .umc[data-product-composition="true"] :global(.umc-poster),.umc[data-product-composition="true"] :global(.umc-video){mask-image:none}
  .umc[data-product-composition="true"]{--umc-ink:#090a0c}

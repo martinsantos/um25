@@ -101,7 +101,7 @@ const DISCIPLINE_TITLES: Record<string,string> = {
   support:'Soporte 24/7', consulting:'Consultoría IT', fire:'Detección de incendios', power:'Energía para IT',
 };
 export const cutCaption = (key: string): string => {
-  if (/^[a-z]+-system-v\d+$/.test(key)) return DISCIPLINE_TITLES[key.split('-')[0]] || 'Infraestructura IT';
+  if (/^[a-z]+-(system|project)-v\d+$/.test(key)) return DISCIPLINE_TITLES[key.split('-')[0]] || 'Infraestructura IT';
   const service = SERVICE_LABEL_BY_SLUG[key.split('-')[1] || ''];
   return SCENE_TITLES[baseScene(key)] + (service ? ` · ${service}` : '');
 };
