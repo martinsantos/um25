@@ -1,21 +1,21 @@
 ---
 import {DISCIPLINE_SYSTEMS} from '../../data/cine/disciplineSystems';
-import drawing from '../../assets/cine/isometric/discipline-systems-v1.svg?raw';
+import drawing from '../../assets/cine/isometric/discipline-systems-v2.svg?raw';
 import precisionNetwork from '../../assets/cine/isometric/discipline-101-v2.svg?raw';
 import precisionSoftware from '../../assets/cine/isometric/discipline-104-v2.svg?raw';
-interface Props {code?:string;codes?:string[]}
-const {code='103',codes=[]}=Astro.props;
-const individual=import.meta.glob<string>('../../assets/cine/isometric/discipline-*-v1.svg',{eager:true,query:'?raw',import:'default'});
+interface Props {code?:string;codes?:string[];visible?:boolean}
+const {code='103',codes=[],visible=true}=Astro.props;
+const individual=import.meta.glob<string>('../../assets/cine/isometric/discipline-*-v2.svg',{eager:true,query:'?raw',import:'default'});
 const precisionBody=precisionNetwork.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
 const softwareBody=precisionSoftware.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
 const combined=drawing.replace(/<g data-discipline-drawing="101"[\s\S]*?(?=<g data-discipline-drawing="102")/,precisionBody).replace(/<g data-discipline-drawing="104"[\s\S]*?(?=<g data-discipline-drawing="105")/,softwareBody);
-const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precisionSoftware:individual[`../../assets/cine/isometric/discipline-${code}-v1.svg`]):combined;
+const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precisionSoftware:individual[`../../assets/cine/isometric/discipline-${code}-v2.svg`]):combined;
 ---
-<div class="discipline-system" data-discipline-system data-visible={String(Boolean(DISCIPLINE_SYSTEMS[code]))} data-discipline-service={code} data-discipline-stage="-1" role="img" aria-label="Capas conectadas del servicio, explicadas en el recorrido contiguo">
+<div class="discipline-system" data-discipline-system data-visible={String(visible&&Boolean(DISCIPLINE_SYSTEMS[code]))} data-discipline-service={code} data-discipline-stage="-1" role="img" aria-label="Capas conectadas del servicio, explicadas en el recorrido contiguo">
  <Fragment set:html={markup} />
  <p class="discipline-system__key"><span aria-hidden="true"></span><span data-discipline-key>Un sistema. Todas sus capas.</span></p>
 </div>
-<script src="/cine/precision-systems-v3.js" type="module" async is:inline />
+<script src="/cine/precision-systems-v4.js" type="module" async is:inline />
 <style>
  @property --um-ds-door-angle{syntax:"<angle>";inherits:false;initial-value:0deg}
  .discipline-system{position:absolute;inset:0;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 700ms ease;isolation:isolate}

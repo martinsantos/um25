@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import {sectorProject} from '../src/data/cine/sectorNarrative';
-import {bindServiceAtlas} from '../public/cine/service-atlas-v19.js';
+import {bindServiceAtlas} from '../public/cine/service-atlas-v20.js';
 import {EQUIPMENT_KITS,NETWORK_EQUIPMENT} from '../src/data/cine/networkAssembly';
 const model=JSON.parse(fs.readFileSync('src/assets/cine/isometric/site-projects-v1.json','utf8'));
 const project=sectorProject('constructoras','fachada',['101','102','103','106','107','108']);

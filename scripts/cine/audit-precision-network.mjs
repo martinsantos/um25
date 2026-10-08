@@ -22,7 +22,7 @@ try{
  for(const stage of [-1,0,1,2,3,4,5,6]){
   await page.waitForFunction(stage=>Number(document.querySelector('[data-discipline-system]').dataset.disciplineStage)===stage,stage,{timeout:15000});
   await delay(stage===-1?500:2700);
-  const state=await page.locator('[data-discipline-system]').evaluate(el=>({stage:el.dataset.disciplineStage,bound:el.dataset.precisionBound,door:el.querySelector('.pn-door')?.getAttribute('transform'),drawer:el.querySelector('.pn-switch-drawer')?.getAttribute('transform'),size:el.getBoundingClientRect().toJSON(),width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
+  const state=await page.locator('[data-discipline-system]').evaluate(el=>({stage:el.dataset.disciplineStage,framing:el.dataset.precisionFraming,bound:el.dataset.precisionBound,door:el.querySelector('.pn-door')?.getAttribute('transform'),drawer:el.querySelector('.pn-switch-drawer')?.getAttribute('transform'),size:el.getBoundingClientRect().toJSON(),width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
   assert.equal(state.bound,'true');assert.equal(state.scrollWidth,state.width);report.states.push(state);
   await page.screenshot({path:path.join(out,`precision-${stage}-viewport.png`)});
   await theater.screenshot({path:path.join(out,`precision-${stage}-drawing.png`),animations:'allow'});
@@ -34,10 +34,33 @@ try{
  report.pauseVerified=true;
  assert.equal(errors.length,0);
  await page.screenshot({path:path.join(out,'precision-page.png'),fullPage:true});
- // All service-family mounts use the same authored asset, including home/sector.
- for(const check of ['/','/bodegas','/constructoras']){
+ // A sector must show its own installation, then the mechanism, then return.
+ report.context=[];
+ for(const check of ['/bodegas','/constructoras','/']){
   await page.goto(origin+check,{waitUntil:'domcontentloaded'});
-  assert.equal(await page.locator('.pn-drawing').count(),1,check);
+  await page.locator('[data-atlas-theater]').evaluate(el=>scrollTo(0,el.getBoundingClientRect().top+scrollY-110));
+  const stages=check==='/'?[-1,3]:[-1,3,6];
+  for(const stage of stages){
+   await page.waitForFunction(stage=>Number(document.querySelector('[data-discipline-system]').dataset.disciplineStage)===stage,stage,{timeout:12000});await delay(2700);
+   const state=await page.locator('[data-service-atlas]').evaluate(root=>({code:root.dataset.activeService,stage:root.querySelector('[data-discipline-system]').dataset.disciplineStage,discipline:root.dataset.disciplineActive,height:root.querySelector('[data-atlas-theater]').getBoundingClientRect().height,context:root.querySelector('[data-atlas-context]').textContent,width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
+   assert.equal(state.discipline,String(check==='/'||stage===3));assert.equal(state.width,state.scrollWidth);
+   report.context.push({route:check,...state});
+   await page.locator('[data-atlas-theater]').screenshot({path:path.join(out,`context-${check.replaceAll('/','')||'home'}-${stage}.png`),animations:'allow'});
+  }
+  await page.waitForFunction(()=>document.querySelector('[data-service-atlas]').dataset.activeService!=='101',null,{timeout:12000});
+  assert.equal(new Set(report.context.filter(s=>s.route===check).map(s=>s.height)).size,1,'Theater height must stay stable across context and mechanism');
+ }
+ // Each remaining discipline renders its authored geometry on first arrival.
+ report.services=[];
+ for(const code of ['102','103','105','106','107','108']){
+  const href=[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(m=>m[1]).find(href=>href.startsWith('/servicios/'+code+'/'));
+  await page.goto(origin+href,{waitUntil:'domcontentloaded'});
+  await page.locator('[data-atlas-theater]').evaluate(el=>scrollTo(0,el.getBoundingClientRect().top+scrollY-110));
+  await page.waitForFunction(()=>document.querySelector('[data-discipline-system]').dataset.disciplineStage==='0',null,{timeout:12000});await delay(2200);
+  const state=await page.locator('[data-service-atlas]').evaluate(root=>({code:root.dataset.activeService,stage:root.querySelector('[data-discipline-system]').dataset.disciplineStage,stroke:root.querySelector('[data-discipline-drawing="'+root.dataset.activeService+'"] [stroke]')?.getAttribute('stroke'),width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
+  assert.equal(state.width,state.scrollWidth);report.services.push(state);
+  await page.screenshot({path:path.join(out,`service-${code}-viewport.png`)});
+  await page.locator('[data-atlas-theater]').screenshot({path:path.join(out,`service-${code}-drawing.png`),animations:'allow'});
  }
  // The six software planes must expose their full contents by themselves.
  const softwareRoute=[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/104\/[^']+)'/g)][0][1];

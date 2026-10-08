@@ -1,4 +1,4 @@
-import {SERVICE_NARRATIVE,type ServiceScene} from './serviceNarrative';
+import {SERVICE_NARRATIVE,type ServiceChapter,type ServiceScene} from './serviceNarrative';
 import {DISCIPLINE_SYSTEMS} from './disciplineSystems';
 import {NETWORK_EQUIPMENT} from './networkAssembly';
 interface Operation {nodes:[string,string,string]; steps:[string,string][]; reverse?:boolean}
@@ -51,4 +51,17 @@ export function operationScenes(code:string,context:[string,string]|undefined,pa
    ...(equipmentCopy?{title:equipmentCopy[index][0],copy:equipmentCopy[index][1]}:{}),flow:flow(1)})),
   {view:'system',open:true,duration:6500,part:component,title:operation.steps[2][0],copy:operation.steps[2][1],flow:flow(2)},
  ];
+}
+
+/** In a service index, show context, a useful mechanism and its result.
+ * The dedicated service page retains the complete six-layer explanation.
+ * All six layer descriptions remain visible in either route.
+ */
+export function overviewChapter(chapter:ServiceChapter):ServiceChapter{
+ const focus:Record<string,number>={'101':3,'102':1,'103':2,'104':3,'105':2,'106':3,'107':3,'108':2};
+ const first=chapter.scenes.find(scene=>scene.disciplineStage===-1);
+ const mechanism=chapter.scenes.find(scene=>scene.disciplineStage===focus[chapter.code]);
+ const result=chapter.scenes.find(scene=>scene.disciplineStage===6);
+ if(!first||!mechanism||!result)return chapter;
+ return {...chapter,scenes:[{...first,duration:5500},{...mechanism,duration:8500},{...result,duration:5500}]};
 }

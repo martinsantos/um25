@@ -10,7 +10,7 @@ import json
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'src/assets/cine/isometric'
 A = sqrt(3) / 2
-PALETTE = {'face':'#111316','top':'#181b1f','side':'#0d0f11','edge':'#81878e','seam':'#41464d','fine':'#646b73','light':'#c4c7cc','red':'#dc2626'}
+PALETTE = {'face':'#111316','top':'#181b1f','side':'#0d0f11','edge':'#a2a8af','seam':'#565d66','fine':'#81878e','light':'#c4c7cc','red':'#dc2626'}
 
 def fmt(v): return f'{v:.2f}'.rstrip('0').rstrip('.')
 def pt(x,y,z=0): return (A*(x-y), (x+y)/2-z)
@@ -24,11 +24,12 @@ def face(ps,fill='face',stroke='edge',width=.7):return line(ps,stroke,width,True
 def box(x,y,z,w,d,h,edge='edge'):
     return face([(x,y+d,z),(x+w,y+d,z),(x+w,y+d,z+h),(x,y+d,z+h)],'face',edge)+face([(x+w,y,z),(x+w,y+d,z),(x+w,y+d,z+h),(x+w,y,z+h)],'side',edge)+face([(x,y,z+h),(x+w,y,z+h),(x+w,y+d,z+h),(x,y+d,z+h)],'top',edge)
 def circle3(x,y,z,r,plane='top',stroke='fine',width=.6,fill='none'):
-    ps=[]
-    for i in range(33):
-        a=2*pi*i/32
-        ps.append((x+r*cos(a),y+r*sin(a),z) if plane=='top' else (x+r*cos(a),y,z+r*sin(a)))
-    return line(ps,stroke,width,True,fill)
+    cx,cy=pt(x,y,z)
+    attrs=f'stroke="{PALETTE.get(stroke,stroke)}" stroke-width="{width}" fill="{PALETTE.get(fill,fill)}"'
+    # Exact conics, rather than 32-segment approximations of drilled holes.
+    if plane=='top':return f'<ellipse cx="{fmt(cx)}" cy="{fmt(cy)}" rx="{fmt(r*sqrt(1.5))}" ry="{fmt(r/sqrt(2))}" {attrs}/>'
+    return f'<circle r="{r}" transform="matrix({A} .5 0 1 {fmt(cx)} {fmt(cy)})" {attrs}/>'
+
 def rect_front(x,y,z,w,h,stroke='fine',fill='none',width=.6):
     return face([(x,y,z),(x+w,y,z),(x+w,y,z+h),(x,y,z+h)],fill,stroke,width)
 def screw(x,y,z,r=1.4,plane='front'):
@@ -176,7 +177,7 @@ def rack():
     lid=box(10,28,191.5,140,98,1.5,'fine')
     for n in range(24):lid+=line([(26+n*4.5,47,193.1),(26+n*4.5,90,193.1)],'seam',.45)
     switch+=group(lid,'pn-lid')
-    c+=group(switch,'pn-switch-drawer pn-node',3)
+    c+=group(switch,'pn-switch-drawer pn-node',3,extra='data-pn-focus="3"')
     # Cable combs occupy separate units, with visible retaining fingers.
     organizer=box(14,125,202,132,10,7)
     for i in range(19):organizer+=line([(17+i*6.8,135,203),(17+i*6.8,135,209)],'fine',.6)
@@ -257,7 +258,7 @@ def installation():
         desk=''
         for dx,dy in [(0,0),(113,0),(0,71),(113,71)]:desk+=box(x-8+dx,y-2+dy,2,4,4,70,'seam')
         desk+=box(x-18,y-12,72,144,101,3,'fine')
-        desk+=f'<g transform="translate({xy(pt(x,y,75))}) scale(.54)">{workstation()}</g>'
+        desk+=f'<g transform="translate({xy(pt(x,y,75))}) scale(.54)"><use href="#pn-workstation-shape"/></g>'
         # Cantilever chair and seat, distinct from the workstation's silhouette.
         desk+=box(x+31,y+100,42,47,40,3,'fine')
         desk+=box(x+31,y+138,45,47,3,45,'fine')
@@ -270,8 +271,7 @@ def installation():
         for y in (70,250):meeting+=box(x,y,44,32,29,3,'seam')+box(x,y+26,47,32,3,32,'seam')
     c+=group(meeting,'pn-node',0)
     # Shared physical rack geometry also appears at its actual place in the site.
-    rack_markup=rack().replace('pn-door','pn-context-door').replace('pn-switch-drawer','pn-context-switch').replace('pn-lid','pn-context-lid').replace('pn-cord','pn-context-cord')
-    c+=f'<g transform="translate({xy(pt(252,-177,1))}) scale(.55)">{rack_markup}</g>'
+    c+=f'<g transform="translate({xy(pt(252,-177,1))}) scale(.55)"><use href="#pn-network-rack"/></g>'
     tray=''
     for y in (8,24):tray+=box(-379,y,185,642,2,4,'fine')
     for x in range(-371,255,18):tray+=box(x,9,185,2,15,2,'seam')
@@ -280,7 +280,7 @@ def installation():
     for x,y in [(-282.5,-103),(-97.5,-103),(-282.5,181),(-82.5,181)]:
         c+=route([(270,-106,130),(270,-106,188),(254,-106,188),(254,16,188),(x,16,188),(x,y,188),(x,y,81.5)],'0 1 2 3')
     for x,y in [(42,-75),(304,166)]:
-        c+=group(f'<g transform="translate({xy(pt(x,y,186))}) scale(.48)">{access_point()}</g>','pn-node',4)
+        c+=group(f'<g transform="translate({xy(pt(x,y,186))}) scale(.48)"><use href="#pn-ap-shape"/></g>','pn-node',4)
         c+=route([(270,-106,130),(270,-106,188),(254,-106,188),(254,16,188),(x,16,188),(x,y,188)],'1 3 4')
     c+=route([(270,-107,95),(390,-107,95),(390,5,95),(390,5,8)],'2 5')
     return f'<g class="pn-project" transform="translate(500 335) scale(.69)">{c}</g>'
@@ -304,15 +304,15 @@ def network():
     body+=route([(-123,133,12),(-123,190,12),(-22,190,12),(-22,139,12),(-22,139,160),(12,139,160)],'0 1 2 3')
     body+=route([(144,129,184),(174,129,184),(174,-4,184),(275,-4,184),(275,-4,86)],'3 4')
     body+=route([(13,129,239),(-23,129,239),(-23,129,8),(-23,205,8),(-132,205,8),(-132,211,12)],'2 5')
-    body+=group(f'<g transform="translate({xy(pt(-248,82,0))})">{workstation()}</g>','pn-node',0)
-    body+=rack()
+    body+=group(f'<g transform="translate({xy(pt(-248,82,0))})" data-pn-focus="0"><g id="pn-workstation-shape">{workstation()}</g></g>','pn-node',0)
+    body+='<g id="pn-network-rack" data-pn-focus="2">'+rack()+'</g>'
     # Wi-Fi belongs to the same installation; the ceiling plane provides context.
     ceiling=face([(222,-52,64),(346,-52,64),(346,76,64),(222,76,64)],'none','seam',.55)
     ceiling+=top_grid(222,-52,64,124,128,32)
-    ceiling+=f'<g transform="translate({xy(pt(279,12,77))})">{access_point()}</g>'
+    ceiling+=f'<g transform="translate({xy(pt(279,12,77))})" data-pn-focus="4"><g id="pn-ap-shape">{access_point()}</g></g>'
     for r in (48,64):ceiling+=circle3(279,12,80,r,'top','seam',.45)
     body+=group(ceiling,'pn-node pn-wireless',4)
-    body+=group(f'<g transform="translate({xy(pt(-158,211,0))})">{tester()}</g>','pn-node',5)
+    body+=group(f'<g transform="translate({xy(pt(-158,211,0))})" data-pn-focus="5">{tester()}</g>','pn-node',5)
     # World to screen, leaving annotation space without reducing the cabinet.
     body=f'<g class="pn-world" transform="translate(430 396) scale(1.05)">{body}</g>'
     labels=tag(0,115,279,'Puestos')+tag(1,250,121,'Tendidos')+tag(2,594,175,'Distribución','right')+tag(3,715,300,'Red activa','right')+tag(4,772,470,'Wi-Fi','right')+tag(5,127,548,'Medición')

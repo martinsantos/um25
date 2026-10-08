@@ -1,5 +1,5 @@
-import {bindServiceAtlas} from '../public/cine/service-atlas-v19.js';
-import {operationScenes,operationOverview} from '../src/data/cine/operationNarrative';
+import {bindServiceAtlas} from '../public/cine/service-atlas-v20.js';
+import {operationScenes,operationOverview,overviewChapter} from '../src/data/cine/operationNarrative';
 import {SERVICE_NARRATIVE} from '../src/data/cine/serviceNarrative';
 import {EQUIPMENT_KITS,NETWORK_EQUIPMENT} from '../src/data/cine/networkAssembly';
 
@@ -193,5 +193,34 @@ test('an equipment inspection describes the selected service before its lazy geo
   expect(root.querySelector('[data-atlas-scene-title]').textContent).toBe(title);
   expect(root.querySelector('[data-atlas-context]').textContent).toBe(copy);
   expect(network.querySelector('svg')).toBeNull();
+ }
+});
+
+
+test('a sector alternates its own installation and the service mechanism, without booting hidden equipment',async()=>{
+ const root=fixture();root.dataset.contextProject='true';
+ const chapter=overviewChapter({code:'101',scenes:operationScenes('101',['La red de la bodega.','Tanques, laboratorio y fraccionamiento.']),overview:operationOverview('101')});
+ root.querySelector('[data-atlas-narrative]').textContent=JSON.stringify([chapter]);
+ const project=document.createElement('div');project.dataset.atlasProject='';project.innerHTML='<svg><g class="sp-root"></g></svg>';root.querySelector('[data-atlas-theater]').append(project);
+ const diagram=document.createElement('div');diagram.dataset.disciplineSystem='';diagram.innerHTML='<span data-discipline-key></span>';root.querySelector('[data-atlas-theater]').append(diagram);
+ const hardware=jest.fn();root.querySelector('[data-network-journey]').addEventListener('um:network-story',hardware);
+ bindServiceAtlas(root);see();await settle();
+ for(const scene of chapter.scenes){
+  expect(diagram.dataset.visible).toBe(String(scene.view!=='system'));
+  expect(root.querySelector('[data-atlas-context]').textContent).toBe(scene.copy);
+  expect(project.dataset.projectService).toBe('101');
+  await jest.advanceTimersByTimeAsync(scene.duration);
+ }
+ expect(hardware).not.toHaveBeenCalled();expect(root.dataset.storyState).toBe('complete');
+});
+
+test('the index reaches all eight services in under three minutes, preserving context and all six visible layer descriptions',()=>{
+ const codes=['101','102','103','104','105','106','107','108'];
+ const chapters=codes.map(code=>overviewChapter({code,scenes:operationScenes(code,['Contexto del sector','La operación concreta.']),overview:operationOverview(code)}));
+ expect(chapters.reduce((sum,c)=>sum+c.scenes.reduce((n,s)=>n+s.duration,0),0)).toBeLessThan(180000);
+ for(const c of chapters){
+  expect(c.scenes[0].title).toBe('Contexto del sector');expect(c.scenes.map(s=>s.flow.phase)).toEqual([0,1,2]);
+  expect(c.scenes[1].disciplineStage).toBeGreaterThanOrEqual(0);expect(c.scenes[1].disciplineStage).toBeLessThan(6);
+  expect(c.overview).toHaveLength(6);expect(operationScenes(c.code).map(s=>s.disciplineStage)).toEqual([-1,0,1,2,3,4,5,6]);
  }
 });

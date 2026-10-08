@@ -37,7 +37,7 @@ def camera_pose(t):
       (0.26,9.8,-78,(1.8,-.25,2.75),0),
       (0.51,24.8,-66,(.1,.8,3.2),0),
       (0.69,23.8,-63,(.5,.6,3.6),0),
-      (0.80,17.4,-68,(1.5,-.3,2.1),0),
+      (0.80,12.6,-72,(3.4,-1.55,1.36),0),
       (1.00,13.4,-87,(.1,0,2.65),0),
     ]
     a,b=keys[0],keys[-1]
@@ -244,14 +244,17 @@ def render(args):
             obj.location=placement(name,t);obj.scale=(scale(name,t),)*3
             if name in ('logic','data','runtime'):
                 for child in obj.children:child.hide_render=reveal(t)<.01
-        points=[Vector(placement(g,t))+Vector(local)*scale(g,t) for g,local in [('detail',(3.55,-1.8,.15)),('logic',(3.05,-1.18,.15)),('data',(2.87,0,.13)),('runtime',(2.85,0,.13))]]
+        points=[Vector(placement(g,t))+Vector(local)*scale(g,t) for g,local in [('detail',(3.55,-1.8,.15)),('logic',(3.05,-1.18,.15)),('data',(2.87,0,.13)),('heading',(.7,2.03,.04))]]
         for v,point in zip(flowpath.points,points):v.co=(*point,1)
         strength=ease(reveal(t)*3);flow.hide_render=strength<.001;packet.hide_render=strength<.001
         flow.data.bevel_depth=.010*max(.001,strength);packet.scale=(strength,)*3
         progress=ease((t-.28)/.32) if t<.61 else 1-ease((t-.61)/.22);q=progress*3;i=min(2,int(q));packet.location=points[i].lerp(points[i+1],q-i)
-        confirmed=.79<t<.945
-        labels['Actualizar solicitud'].body='Cambios guardados' if confirmed else 'Actualizar solicitud'
-        labels['En revisión'].body='Confirmada' if confirmed else 'En revisión'
+        confirmed=.63<t<.925
+        states={'Actualizar solicitud':'Cambios guardados' if confirmed else 'Actualizar solicitud',
+                'En revisión':'Confirmada' if confirmed else 'En revisión',
+                '24':'23' if confirmed else '24','16':'17' if confirmed else '16'}
+        for key,value in states.items():
+            if labels[key].body!=value:labels[key].body=value
         bpy.context.view_layer.update()
         projected_points=[world_to_camera_view(scene,cam,Vector(point)*scale(g,t)+parents[g].location) for g,coords in p.points.items() for point in coords]
         extent=[min(v.x for v in projected_points),min(v.y for v in projected_points),max(v.x for v in projected_points),max(v.y for v in projected_points)]
