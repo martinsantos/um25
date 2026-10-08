@@ -58,3 +58,6 @@ export const FILM_CHAPTERS: Record<string, FilmChapter[]> = {
     { at: 22, text: 'La complejidad se transforma en decisiones ejecutables.' },
   ],
 };
+
+// Lighting refinement preserves the authored camera and narration timing.
+FILM_CHAPTERS['power-project-v3'] = FILM_CHAPTERS['power-project-v2'];

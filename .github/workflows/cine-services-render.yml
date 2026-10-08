@@ -5,7 +5,7 @@ on:
       version:
         description: Authored delivery and recoverable native fire installation cinema
         type: choice
-        options: [v1, fire-v2, network-v2, security-v2, telecom-v2, power-v2, support-v2, consulting-v2]
+        options: [v1, fire-v2, network-v2, security-v2, telecom-v2, power-v2, power-v3, support-v2, consulting-v2]
         default: v1
       mode:
         type: choice
@@ -57,23 +57,26 @@ jobs:
         run: |
           python3 - <<'PY'
           import json,os
-          assert os.environ['ENGINE'] in (['cycles','eevee','workbench','baked','baked-detail'] if os.environ['VERSION'] in ['fire-v2','network-v2','security-v2','telecom-v2','power-v2','support-v2','consulting-v2'] else ['eevee','cycles'])
-          # Bound the physical-lighting comparison to native single-frame proofs.
+          assert os.environ['ENGINE'] in (['cycles','eevee','workbench','baked','baked-detail'] if os.environ['VERSION'] in ['fire-v2','network-v2','security-v2','telecom-v2','power-v2','power-v3','support-v2','consulting-v2'] else ['eevee','cycles'])
+          # Power v3 uses the dense contact-light finish reviewed in 37736008661.
+          # Unreviewed physical engines remain single-frame comparisons.
           if os.environ['ENGINE'] in ['eevee','baked-detail'] and os.environ['VERSION']!='v1':
-              assert os.environ['VERSION']=='power-v2' and os.environ['MODE']=='proof', 'Physical lighting requires visual review before full rendering'
-          assert os.environ['MODE']!='motion-proof' or os.environ['VERSION'] in ['fire-v2','network-v2','security-v2','telecom-v2','power-v2','support-v2','consulting-v2']
+              assert (os.environ['VERSION']=='power-v2' and os.environ['MODE']=='proof') or (os.environ['VERSION']=='power-v3' and os.environ['ENGINE']=='baked-detail'), 'Only the visually reviewed dense bake may render in full'
+          if os.environ['VERSION']=='power-v3':
+              assert os.environ['ENGINE']=='baked-detail', 'Power v3 identifies the reviewed dense lighting finish'
+          assert os.environ['MODE']!='motion-proof' or os.environ['VERSION'] in ['fire-v2','network-v2','security-v2','telecom-v2','power-v2','power-v3','support-v2','consulting-v2']
           codes=['101','102','103','105','106','107','108']
           selected=codes if os.environ['SERVICES']=='all' else os.environ['SERVICES'].split(',')
           assert selected and set(selected)<=set(codes) and len(selected)==len(set(selected))
-          stride=120 if os.environ['VERSION'] in ['fire-v2','network-v2','security-v2','telecom-v2','power-v2','support-v2','consulting-v2'] else 48
+          stride=120 if os.environ['VERSION'] in ['fire-v2','network-v2','security-v2','telecom-v2','power-v2','power-v3','support-v2','consulting-v2'] else 48
           rows=[dict(service=s,part=1,start=0,end=0) for s in selected] if os.environ['MODE']=='proof' else [dict(service=s,part=i+1,start=i*stride,end=(i+1)*stride-1) for s in selected for i in range(12)]
           if os.environ['MODE']=='repair':
               pairs=[item.split(':') for item in os.environ['REPAIRS'].split(',')]
               assert pairs and all(len(pair)==2 and pair[0] in codes and pair[1].isdigit() and 1<=int(pair[1])<=12 for pair in pairs)
               assert len({tuple(pair) for pair in pairs})==len(pairs)
               rows=[dict(service=code,part=int(part),start=(int(part)-1)*stride,end=int(part)*stride-1) for code,part in pairs]
-          if os.environ['VERSION'] in ['fire-v2','network-v2','security-v2','telecom-v2','power-v2','support-v2','consulting-v2']:
-              code={'fire-v2':'107','network-v2':'101','security-v2':'102','telecom-v2':'103','power-v2':'108','support-v2':'105','consulting-v2':'106'}[os.environ['VERSION']]
+          if os.environ['VERSION'] in ['fire-v2','network-v2','security-v2','telecom-v2','power-v2','power-v3','support-v2','consulting-v2']:
+              code={'fire-v2':'107','network-v2':'101','security-v2':'102','telecom-v2':'103','power-v2':'108','power-v3':'108','support-v2':'105','consulting-v2':'106'}[os.environ['VERSION']]
               assert selected==[code] and all(row['service']==code for row in rows), 'The installation belongs to its authored discipline'
               # Final proofs: power 37727185973, support 37727188484, consulting 37728326918.
               frames=[int(f) for f in os.environ['PROOF_FRAMES'].split(',')]
@@ -131,7 +134,7 @@ jobs:
           sha256sum -c blender-selected.sha256
           tar -xf blender-4.5.3-linux-x64.tar.xz
       - name: Prepare disposable font outlines for Blender
-        if: inputs.version == 'power-v2' || inputs.version == 'support-v2' || inputs.version == 'consulting-v2'
+        if: inputs.version == 'power-v2' || inputs.version == 'power-v3' || inputs.version == 'support-v2' || inputs.version == 'consulting-v2'
         run: |
           python3 -m pip install --target "$RUNNER_TEMP/um-font-normalize" fonttools==4.66.1 skia-pathops==0.9.2
           PYTHONPATH="$RUNNER_TEMP/um-font-normalize" python3 scripts/cine/prepare-render-font.py public/fonts/um-sans/UMSans-Regular.ttf "$RUNNER_TEMP/um-render-font.ttf"
@@ -144,18 +147,20 @@ jobs:
           START: ${{ matrix.start }}
           END: ${{ matrix.end }}
         run: |
-          if [ '${{ inputs.version }}' = fire-v2 ] || [ '${{ inputs.version }}' = network-v2 ] || [ '${{ inputs.version }}' = security-v2 ] || [ '${{ inputs.version }}' = telecom-v2 ] || [ '${{ inputs.version }}' = power-v2 ] || [ '${{ inputs.version }}' = support-v2 ] || [ '${{ inputs.version }}' = consulting-v2 ]; then
+          if [ '${{ inputs.version }}' = fire-v2 ] || [ '${{ inputs.version }}' = network-v2 ] || [ '${{ inputs.version }}' = security-v2 ] || [ '${{ inputs.version }}' = telecom-v2 ] || [ '${{ inputs.version }}' = power-v2 ] || [ '${{ inputs.version }}' = power-v3 ] || [ '${{ inputs.version }}' = support-v2 ] || [ '${{ inputs.version }}' = consulting-v2 ]; then
             AUTHOR='scripts/cine/render-fire-project-v2.py'
             if [ '${{ inputs.version }}' = network-v2 ]; then AUTHOR='scripts/cine/render-network-project-v2.py'; fi
             if [ '${{ inputs.version }}' = security-v2 ]; then AUTHOR='scripts/cine/render-security-project-v2.py'; fi
             if [ '${{ inputs.version }}' = telecom-v2 ]; then AUTHOR='scripts/cine/render-telecom-project-v2.py'; fi
-            if [ '${{ inputs.version }}' = power-v2 ]; then AUTHOR='scripts/cine/render-power-project-v2.py'; fi
+            if [ '${{ inputs.version }}' = power-v2 ] || [ '${{ inputs.version }}' = power-v3 ]; then AUTHOR='scripts/cine/render-power-project-v2.py'; fi
+            EXTRA=()
+            if [ '${{ inputs.version }}' = power-v3 ]; then EXTRA=(--scene power-project-v3); fi
             if [ '${{ inputs.version }}' = support-v2 ]; then AUTHOR='scripts/cine/render-support-project-v2.py'; fi
             if [ '${{ inputs.version }}' = consulting-v2 ]; then AUTHOR='scripts/cine/render-consulting-project-v2.py'; fi
-            python3 "$AUTHOR" --validate-only
+            python3 "$AUTHOR" --validate-only "${EXTRA[@]}"
             RENDER=(./blender-4.5.3-linux-x64/blender)
             if [ "$ENGINE" != cycles ]; then RENDER=(xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender); fi
-            "${RENDER[@]}" -b -t 4 --python-exit-code 1 --python "$AUTHOR" -- --engine "$ENGINE" --samples 32 --width 3840 --start "$START" --end "$END" --output frames
+            "${RENDER[@]}" -b -t 4 --python-exit-code 1 --python "$AUTHOR" -- --engine "$ENGINE" --samples 32 --width 3840 --start "$START" --end "$END" --output frames "${EXTRA[@]}"
             exit 0
           fi
           python3 scripts/cine/render-service-cinema-v1.py --service "$SERVICE" --validate-only
@@ -168,14 +173,14 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always() && ((inputs.mode || 'proof') == 'proof' || inputs.mode == 'motion-proof')
         with:
-          name: ${{ inputs.version == 'consulting-v2' && format('consulting-project-v2-proof-{0}', matrix.part) || inputs.version == 'support-v2' && format('support-project-v2-proof-{0}', matrix.part) || inputs.version == 'power-v2' && format('power-project-v2-proof-{0}', matrix.part) || inputs.version == 'telecom-v2' && format('telecom-project-v2-proof-{0}', matrix.part) || inputs.version == 'security-v2' && format('security-project-v2-proof-{0}', matrix.part) || inputs.version == 'network-v2' && format('network-project-v2-proof-{0}', matrix.part) || inputs.version == 'fire-v2' && format('fire-project-v2-proof-{0}', matrix.part) || format('service-proof-{0}', matrix.service) }}
+          name: ${{ inputs.version == 'consulting-v2' && format('consulting-project-v2-proof-{0}', matrix.part) || inputs.version == 'support-v2' && format('support-project-v2-proof-{0}', matrix.part) || inputs.version == 'power-v3' && format('power-project-v3-proof-{0}', matrix.part) || inputs.version == 'power-v2' && format('power-project-v2-proof-{0}', matrix.part) || inputs.version == 'telecom-v2' && format('telecom-project-v2-proof-{0}', matrix.part) || inputs.version == 'security-v2' && format('security-project-v2-proof-{0}', matrix.part) || inputs.version == 'network-v2' && format('network-project-v2-proof-{0}', matrix.part) || inputs.version == 'fire-v2' && format('fire-project-v2-proof-{0}', matrix.part) || format('service-proof-{0}', matrix.service) }}
           path: frames
           retention-days: 3
       - name: Encode recoverable part
         if: inputs.mode == 'full' || inputs.mode == 'repair'
         run: |
           cp frames/render-info.json part-${{ matrix.part }}-info.json
-          if [ '${{ inputs.version }}' = fire-v2 ] || [ '${{ inputs.version }}' = network-v2 ] || [ '${{ inputs.version }}' = security-v2 ] || [ '${{ inputs.version }}' = telecom-v2 ] || [ '${{ inputs.version }}' = power-v2 ] || [ '${{ inputs.version }}' = support-v2 ] || [ '${{ inputs.version }}' = consulting-v2 ]; then
+          if [ '${{ inputs.version }}' = fire-v2 ] || [ '${{ inputs.version }}' = network-v2 ] || [ '${{ inputs.version }}' = security-v2 ] || [ '${{ inputs.version }}' = telecom-v2 ] || [ '${{ inputs.version }}' = power-v2 ] || [ '${{ inputs.version }}' = power-v3 ] || [ '${{ inputs.version }}' = support-v2 ] || [ '${{ inputs.version }}' = consulting-v2 ]; then
             ffmpeg -v error -framerate 60 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 120 -vf 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p' -c:v libx264 -preset medium -crf 18 -r 60 -g 120 -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1 -an -movflags +faststart part-${{ matrix.part }}.mp4
             exit 0
           fi
@@ -183,7 +188,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: inputs.mode == 'full' || inputs.mode == 'repair'
         with:
-          name: ${{ inputs.version == 'consulting-v2' && format('consulting-project-v2-part-{0}', matrix.part) || inputs.version == 'support-v2' && format('support-project-v2-part-{0}', matrix.part) || inputs.version == 'power-v2' && format('power-project-v2-part-{0}', matrix.part) || inputs.version == 'telecom-v2' && format('telecom-project-v2-part-{0}', matrix.part) || inputs.version == 'security-v2' && format('security-project-v2-part-{0}', matrix.part) || inputs.version == 'network-v2' && format('network-project-v2-part-{0}', matrix.part) || inputs.version == 'fire-v2' && format('fire-project-v2-part-{0}', matrix.part) || format('service-{0}-part-{1}', matrix.service, matrix.part) }}
+          name: ${{ inputs.version == 'consulting-v2' && format('consulting-project-v2-part-{0}', matrix.part) || inputs.version == 'support-v2' && format('support-project-v2-part-{0}', matrix.part) || inputs.version == 'power-v3' && format('power-project-v3-part-{0}', matrix.part) || inputs.version == 'power-v2' && format('power-project-v2-part-{0}', matrix.part) || inputs.version == 'telecom-v2' && format('telecom-project-v2-part-{0}', matrix.part) || inputs.version == 'security-v2' && format('security-project-v2-part-{0}', matrix.part) || inputs.version == 'network-v2' && format('network-project-v2-part-{0}', matrix.part) || inputs.version == 'fire-v2' && format('fire-project-v2-part-{0}', matrix.part) || format('service-{0}-part-{1}', matrix.service, matrix.part) }}
           path: |
             part-${{ matrix.part }}.mp4
             part-${{ matrix.part }}-info.json
@@ -207,7 +212,7 @@ jobs:
           sparse-checkout-cone-mode: false
       - uses: actions/download-artifact@v8
         with:
-          pattern: ${{ inputs.version == 'consulting-v2' && 'consulting-project-v2-part-*' || inputs.version == 'support-v2' && 'support-project-v2-part-*' || inputs.version == 'power-v2' && 'power-project-v2-part-*' || inputs.version == 'telecom-v2' && 'telecom-project-v2-part-*' || inputs.version == 'security-v2' && 'security-project-v2-part-*' || inputs.version == 'network-v2' && 'network-project-v2-part-*' || inputs.version == 'fire-v2' && 'fire-project-v2-part-*' || format('service-{0}-part-*', matrix.service) }}
+          pattern: ${{ inputs.version == 'consulting-v2' && 'consulting-project-v2-part-*' || inputs.version == 'support-v2' && 'support-project-v2-part-*' || inputs.version == 'power-v3' && 'power-project-v3-part-*' || inputs.version == 'power-v2' && 'power-project-v2-part-*' || inputs.version == 'telecom-v2' && 'telecom-project-v2-part-*' || inputs.version == 'security-v2' && 'security-project-v2-part-*' || inputs.version == 'network-v2' && 'network-project-v2-part-*' || inputs.version == 'fire-v2' && 'fire-project-v2-part-*' || format('service-{0}-part-*', matrix.service) }}
           run-id: ${{ inputs.source_run || github.run_id }}
           github-token: ${{ github.token }}
       - name: Restore only the recovered fragments
@@ -227,6 +232,7 @@ jobs:
             if [ "$VERSION" = security-v2 ]; then PATTERN='^security-project-v2-part-[0-9]+$'; fi
             if [ "$VERSION" = telecom-v2 ]; then PATTERN='^telecom-project-v2-part-[0-9]+$'; fi
             if [ "$VERSION" = power-v2 ]; then PATTERN='^power-project-v2-part-[0-9]+$'; fi
+            if [ "$VERSION" = power-v3 ]; then PATTERN='^power-project-v3-part-[0-9]+$'; fi
             if [ "$VERSION" = support-v2 ]; then PATTERN='^support-project-v2-part-[0-9]+$'; fi
             if [ "$VERSION" = consulting-v2 ]; then PATTERN='^consulting-project-v2-part-[0-9]+$'; fi
             NAMES=$(gh api "repos/$GH_REPO/actions/runs/$RUN/artifacts?per_page=100" --jq ".artifacts[].name | select(test(\"$PATTERN\"))")
@@ -243,11 +249,12 @@ jobs:
             echo "Package index refresh timed out; using runner cached signed indexes."
           fi
           sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq ffmpeg
-          if [ '${{ inputs.version }}' = network-v2 ] || [ '${{ inputs.version }}' = security-v2 ] || [ '${{ inputs.version }}' = telecom-v2 ] || [ '${{ inputs.version }}' = power-v2 ] || [ '${{ inputs.version }}' = support-v2 ] || [ '${{ inputs.version }}' = consulting-v2 ]; then
+          if [ '${{ inputs.version }}' = network-v2 ] || [ '${{ inputs.version }}' = security-v2 ] || [ '${{ inputs.version }}' = telecom-v2 ] || [ '${{ inputs.version }}' = power-v2 ] || [ '${{ inputs.version }}' = power-v3 ] || [ '${{ inputs.version }}' = support-v2 ] || [ '${{ inputs.version }}' = consulting-v2 ]; then
             SCENE=network-project-v2
             if [ '${{ inputs.version }}' = security-v2 ]; then SCENE=security-project-v2; fi
             if [ '${{ inputs.version }}' = telecom-v2 ]; then SCENE=telecom-project-v2; fi
             if [ '${{ inputs.version }}' = power-v2 ]; then SCENE=power-project-v2; fi
+            if [ '${{ inputs.version }}' = power-v3 ]; then SCENE=power-project-v3; fi
             if [ '${{ inputs.version }}' = support-v2 ]; then SCENE=support-project-v2; fi
             if [ '${{ inputs.version }}' = consulting-v2 ]; then SCENE=consulting-project-v2; fi
             python3 scripts/cine/assemble-technical-project-v2.py --scene "$SCENE"
@@ -293,6 +300,6 @@ jobs:
           sha256sum delivery/* > delivery/SHA256SUMS
       - uses: actions/upload-artifact@v7
         with:
-          name: ${{ inputs.version == 'consulting-v2' && 'consulting-project-v2-delivery' || inputs.version == 'support-v2' && 'support-project-v2-delivery' || inputs.version == 'power-v2' && 'power-project-v2-delivery' || inputs.version == 'telecom-v2' && 'telecom-project-v2-delivery' || inputs.version == 'security-v2' && 'security-project-v2-delivery' || inputs.version == 'network-v2' && 'network-project-v2-delivery' || inputs.version == 'fire-v2' && 'fire-project-v2-delivery' || format('service-cinema-{0}', matrix.service) }}
+          name: ${{ inputs.version == 'consulting-v2' && 'consulting-project-v2-delivery' || inputs.version == 'support-v2' && 'support-project-v2-delivery' || inputs.version == 'power-v3' && 'power-project-v3-delivery' || inputs.version == 'power-v2' && 'power-project-v2-delivery' || inputs.version == 'telecom-v2' && 'telecom-project-v2-delivery' || inputs.version == 'security-v2' && 'security-project-v2-delivery' || inputs.version == 'network-v2' && 'network-project-v2-delivery' || inputs.version == 'fire-v2' && 'fire-project-v2-delivery' || format('service-cinema-{0}', matrix.service) }}
           path: delivery
           retention-days: 5

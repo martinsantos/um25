@@ -199,13 +199,14 @@ def describe(s):
  return dict(service='108',scene='power-project-v2',boxes=len(s.boxes),meshes=len(s.meshes),parts=s.parts,frames=1440,fps=60,duration=24)
 
 if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('--start',type=int,default=0);p.add_argument('--end',type=int,default=0)
+ p=argparse.ArgumentParser();p.add_argument('--scene',choices=['power-project-v2','power-project-v3'],default='power-project-v2');p.add_argument('--start',type=int,default=0);p.add_argument('--end',type=int,default=0)
  p.add_argument('--samples',type=int,default=32);p.add_argument('--engine',choices=['cycles','eevee','workbench','baked','baked-detail'],default='baked')
  p.add_argument('--width',type=int,default=3840);p.add_argument('--output',default='frames');p.add_argument('--validate-only',action='store_true')
  args=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else None);args.proof_frames=None
  assert 0<=args.start<=args.end<1440 and args.width in [1920,3840] and 16<=args.samples<=128
- s=build();info=describe(s)
+ describe_scene=lambda model:dict(describe(model),scene=args.scene)
+ s=build();info=describe_scene(s)
  if args.validate_only:print(json.dumps(info))
- else:studio.render(args,s,dict(source=__file__,sources=[str(Path(__file__).with_name('render-network-project-v2.py')),str(Path(__file__).with_name('prepare-render-font.py')),__file__],describe=describe,camera=camera,animate=animate,bake_frame=900,
+ else:studio.render(args,s,dict(source=__file__,sources=[str(Path(__file__).with_name('render-network-project-v2.py')),str(Path(__file__).with_name('prepare-render-font.py')),__file__],describe=describe_scene,camera=camera,animate=animate,bake_frame=900,
   brand_font=True,normalized_font=True,text_depth=0,smooth_bake=True,packet_radius=.010,description='protection, contained energy storage, identified distribution and critical loads; continuous 24 second loop',
   lights=[('Distribution inspection',(-2.4,-.2,2.1),35,1.4,(1,1,1),(-2.1,1.15,.99)),('Battery inspection',(-.8,-.2,1.9),28,1.3,(1,1,1),(-.25,.7,.65))]))
