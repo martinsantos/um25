@@ -2,6 +2,11 @@ name: Blender service cinema
 on:
   workflow_dispatch:
     inputs:
+      version:
+        description: Authored delivery or bounded fire installation proof
+        type: choice
+        options: [v1, fire-v2]
+        default: v1
       mode:
         type: choice
         options: [proof, full, repair, assemble]
@@ -26,7 +31,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: blender-services-${{ github.ref }}-${{ inputs.mode || 'proof' }}-${{ inputs.mode == 'repair' && inputs.repairs || 'batch' }}
+  group: blender-services-${{ github.ref }}-${{ inputs.version || 'v1' }}-${{ inputs.mode || 'proof' }}-${{ inputs.mode == 'repair' && inputs.repairs || 'batch' }}
   cancel-in-progress: false
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -40,6 +45,7 @@ jobs:
     steps:
       - id: plan
         env:
+          VERSION: ${{ inputs.version || 'v1' }}
           MODE: ${{ inputs.mode || 'proof' }}
           SERVICES: ${{ inputs.services || 'all' }}
           REPAIRS: ${{ inputs.repairs }}
@@ -55,6 +61,9 @@ jobs:
               assert pairs and all(len(pair)==2 and pair[0] in codes and pair[1].isdigit() and 1<=int(pair[1])<=12 for pair in pairs)
               assert len({tuple(pair) for pair in pairs})==len(pairs)
               rows=[dict(service=code,part=int(part),start=(int(part)-1)*48,end=int(part)*48-1) for code,part in pairs]
+          if os.environ['VERSION']=='fire-v2':
+              assert os.environ['MODE']=='proof' and selected==['107'], 'Inspect the authored shots before rendering the film'
+              rows=[dict(service='107',part=i+1,start=f,end=f) for i,f in enumerate([0,460,960])]
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:
               out.write('matrix='+json.dumps({'include':rows})+'\n')
               out.write('services='+json.dumps(selected)+'\n')
@@ -74,6 +83,7 @@ jobs:
           persist-credentials: false
           sparse-checkout: |
             scripts/cine/render-service-cinema-v1.py
+            scripts/cine/render-fire-project-v2.py
             scripts/cine/check-service-composition.py
           sparse-checkout-cone-mode: false
       - name: Install verified official Blender
@@ -97,6 +107,11 @@ jobs:
           START: ${{ matrix.start }}
           END: ${{ matrix.end }}
         run: |
+          if [ '${{ inputs.version }}' = fire-v2 ]; then
+            python3 scripts/cine/render-fire-project-v2.py --validate-only
+            ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-fire-project-v2.py -- --engine cycles --samples 32 --width 3840 --start "$START" --end "$END" --output frames
+            exit 0
+          fi
           python3 scripts/cine/render-service-cinema-v1.py --service "$SERVICE" --validate-only
           python3 scripts/cine/check-service-composition.py scripts/cine/render-service-cinema-v1.py "$SERVICE"
           SAMPLES=48
@@ -107,7 +122,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always() && (inputs.mode || 'proof') == 'proof'
         with:
-          name: service-proof-${{ matrix.service }}
+          name: ${{ inputs.version == 'fire-v2' && format('fire-project-v2-proof-{0}', matrix.part) || format('service-proof-{0}', matrix.service) }}
           path: frames
           retention-days: 3
       - name: Encode recoverable part
