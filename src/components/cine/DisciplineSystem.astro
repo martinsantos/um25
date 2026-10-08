@@ -15,7 +15,7 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precis
  <Fragment set:html={markup} />
  <p class="discipline-system__key"><span aria-hidden="true"></span><span data-discipline-key>Un sistema. Todas sus capas.</span></p>
 </div>
-<script src="/cine/precision-systems-v4.js" type="module" async is:inline />
+<script src="/cine/precision-systems-v5.js" type="module" async is:inline />
 <style>
  @property --um-ds-door-angle{syntax:"<angle>";inherits:false;initial-value:0deg}
  .discipline-system{position:absolute;inset:0;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 700ms ease;isolation:isolate}
@@ -29,6 +29,7 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precis
  .discipline-system :global(.ds-node[data-current=true] .ds-cover){transform:translate(var(--ds-lift-x,0px),var(--ds-lift))}
  .discipline-system :global(.ds-door){--um-ds-door-angle:0deg;transform:matrix(calc(.8660254 * (cos(var(--um-ds-door-angle)) - sin(var(--um-ds-door-angle)))),calc(.5 * (cos(var(--um-ds-door-angle)) + sin(var(--um-ds-door-angle)))),0,1,0,0);transform-origin:0 0;transition:--um-ds-door-angle 2200ms cubic-bezier(.22,1,.36,1)}
  .discipline-system :global(.ds-node[data-current=true] .ds-door),.discipline-system[data-discipline-stage="3"] :global(.ds-door){--um-ds-door-angle:74deg}
+ .discipline-system :global([data-authored-interface] text){font-family:var(--um-font-body,'UM Sans',Arial,sans-serif)}
  .discipline-system :global(.ds-tag text){font-family:var(--um-font-body,'UM Sans',Arial,sans-serif)}
  .discipline-system :global(.ds-tag circle){transition:fill 600ms,stroke 600ms}
  .discipline-system :global(.ds-tag[data-current=true] circle){fill:#981b24;stroke:#f4b5b5}
@@ -49,6 +50,6 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precis
  .discipline-system :global(.ps-text){font-family:var(--um-font-body,Arial,sans-serif)}
  .discipline-system :global(.ps-layer){transition:none}
  .discipline-system :global(.pn-tag){font-family:var(--um-font-body,'UM Sans',Arial,sans-serif)}
- @media(max-width:600px){.discipline-system[data-discipline-service="101"] :global(.pn-tag){display:none}.discipline-system :global(.pn-project){transform:translate(500px,435px) scale(.69)}.discipline-system :global(.pn-tag){font-size:24px}.discipline-system :global(.pn-tag tspan:not(.pn-tag__number)){display:none}}
+ @media(max-width:600px){.discipline-system :global(.ds-tag){display:none}.discipline-system[data-discipline-service="101"] :global(.pn-tag){display:none}.discipline-system :global(.pn-project){transform:translate(500px,435px) scale(.69)}.discipline-system :global(.pn-tag){font-size:24px}.discipline-system :global(.pn-tag tspan:not(.pn-tag__number)){display:none}}
  @media(prefers-reduced-motion:reduce){.discipline-system,.discipline-system :global(.ds-node),.discipline-system :global(.ds-cover),.discipline-system :global(.ds-door){transition:none!important}.discipline-system :global(.pn-signal),.discipline-system :global(.ds-packet){animation:none!important;stroke-dasharray:none;stroke-width:1.6}}
 </style>

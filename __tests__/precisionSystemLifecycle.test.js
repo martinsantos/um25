@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {bindPrecisionSystem} from '../public/cine/precision-systems-v4.js';
+import {bindPrecisionSystem} from '../public/cine/precision-systems-v5.js';
 const settle=async()=>{for(let i=0;i<5;i++)await Promise.resolve();};
 let motion,small,hidden;
 function fixture(){

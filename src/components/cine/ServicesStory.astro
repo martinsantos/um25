@@ -12,11 +12,12 @@ import {EQUIPMENT_KITS,NETWORK_EQUIPMENT} from '../../data/cine/networkAssembly'
 interface Service {code:string;name:string;href:string}
 interface Props {services:Service[];project?:SectorProject;single?:boolean;sector?:boolean}
 const {services,project,single=false,sector=false}=Astro.props;
-const projectFiles=import.meta.glob<string>('../../assets/cine/isometric/site-*-v1.svg',{eager:true,query:'?raw',import:'default'});
+const projectFiles=import.meta.glob<string>('../../assets/cine/isometric/site-*-v2.svg',{eager:true,query:'?raw',import:'default'});
 const disciplineOnly=single&&services.length===1&&Boolean(DISCIPLINE_SYSTEMS[services[0].code]);
-const projectMarkup=project&&!disciplineOnly?projectFiles[`../../assets/cine/isometric/site-${project.scene}-v1.svg`]:undefined;
+const projectMarkup=project&&!disciplineOnly?projectFiles[`../../assets/cine/isometric/site-${project.scene}-v2.svg`]:undefined;
 const contextProject=sector&&Boolean(projectMarkup);
-const plan=(project?.chapters||SERVICE_NARRATIVE).map(chapter=>single&&DISCIPLINE_SYSTEMS[chapter.code]?{...chapter,scenes:operationScenes(chapter.code,undefined),overview:operationOverview(chapter.code)}:overviewChapter(chapter));
+const contextualPlan=(project?.chapters||SERVICE_NARRATIVE).map(chapter=>(single||!sector)&&DISCIPLINE_SYSTEMS[chapter.code]?{...chapter,scenes:operationScenes(chapter.code,undefined),overview:operationOverview(chapter.code)}:chapter);
+const plan=contextualPlan.map(chapter=>single?chapter:overviewChapter(chapter));
 const files=import.meta.glob<string>('../../assets/cine/isometric/*-*.svg',{eager:true,query:'?url',import:'default'});
 const url=(asset:string,view:string)=>files[`../../assets/cine/isometric/${asset}-${view}.svg`];
 const messages:Record<string,{title:string;summary:string;copy:string}>={
@@ -52,8 +53,8 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
   <div class="svc-story__theater" data-atlas-theater>
    {hasDiscipline&&<DisciplineSystem visible={!contextProject||first.code==='104'} code={first.code} codes={items.map(item=>item.code)} />}
    {projectMarkup&&<div class="svc-story__project" data-atlas-project data-project-floors={project?.scene==='building'?3:1} data-project-service={first.code} data-project-view="0" data-project-open="false" data-project-visible="false"><Fragment set:html={projectMarkup} /></div>}
-   {hasHardware&&<div data-atlas-network hidden={Boolean(project)}><NetworkJourney compact catalog guided /></div>}
-   <div class="svc-story__frame" hidden>{hasSupport&&<div class="svc-story__operations" data-atlas-operation="105" hidden><IsometricStage code="105" compact /></div>}{hasConsulting&&<div class="svc-story__operations" data-atlas-operation="106" hidden><IsometricStage code="106" compact /></div>}{hasSoftware&&<div class="svc-story__software" data-atlas-software hidden><SoftwareLayers compact guided /></div>}<img src={project?undefined:url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
+   {!hasDiscipline&&hasHardware&&<div data-atlas-network hidden={Boolean(project)}><NetworkJourney compact catalog guided /></div>}
+   <div class="svc-story__frame" hidden>{!hasDiscipline&&hasSupport&&<div class="svc-story__operations" data-atlas-operation="105" hidden><IsometricStage code="105" compact /></div>}{!hasDiscipline&&hasConsulting&&<div class="svc-story__operations" data-atlas-operation="106" hidden><IsometricStage code="106" compact /></div>}{!hasDiscipline&&hasSoftware&&<div class="svc-story__software" data-atlas-software hidden><SoftwareLayers compact guided /></div>}<img src={project||hasDiscipline?undefined:url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
   </div>
    <div class="svc-story__narration"><h4 class="svc-story__scene-title" data-atlas-scene-title>{narrative[0].scenes[0].title}</h4><p class="svc-story__illustration-copy" data-atlas-context>{narrative[0].scenes[0].copy}</p></div>
   </div>
@@ -66,15 +67,15 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
 
   </figure>
   <div class="svc-story__beat" aria-label="Etapas del recorrido"><span data-atlas-beat="system">Proyecto</span><span data-atlas-beat="object">Equipo</span><span data-atlas-beat="layers">Por dentro</span><span data-atlas-beat="detail">Conexión</span><span data-atlas-beat="result">Resultado</span></div>
-  <details class="svc-story__technical"><summary>Volver a una vista</summary>
+  {!hasDiscipline&&<details class="svc-story__technical"><summary>Volver a una vista</summary>
   <div class="svc-story__views" role="group" aria-label="Vistas del servicio">{phases.map((phase,i)=><button type="button" data-atlas-view={phase.id} aria-pressed={String(i===0)}><span aria-hidden="true">0{i+1}</span>{phase.name}</button>)}</div>
-  </details>
-  <div class="svc-story__exploration"><details class="svc-story__equipment" data-atlas-equipment><summary>Explorar otras piezas</summary><label><span>Equipo</span><select data-atlas-part aria-label="Equipo que querés explorar">{EQUIPMENT_KITS[first.code]?.parts.map(id=><option value={id} selected={id===EQUIPMENT_KITS[first.code].initial}>{NETWORK_EQUIPMENT.find(part=>part.id===id)?.name}</option>)}</select></label></details></div>
+  </details>}
+  {!hasDiscipline&&<div class="svc-story__exploration"><details class="svc-story__equipment" data-atlas-equipment><summary>Explorar otras piezas</summary><label><span>Equipo</span><select data-atlas-part aria-label="Equipo que querés explorar">{EQUIPMENT_KITS[first.code]?.parts.map(id=><option value={id} selected={id===EQUIPMENT_KITS[first.code].initial}>{NETWORK_EQUIPMENT.find(part=>part.id===id)?.name}</option>)}</select></label></details></div>}
   <p data-atlas-copy hidden>{first.message.copy}</p>
   <p class="svc-story__announcement" data-atlas-announce aria-live="polite" aria-atomic="true" />
  </div>
  <div class="svc-story__choice">
-  <p class="svc-story__choice-title">{project?project.name:"Ocho servicios. Una operación conectada."}</p>
+  <p class="svc-story__choice-title">{sector&&project?project.name:"Ocho servicios. Una operación conectada."}</p>
   <label class="svc-story__picker"><span>Servicio</span><select data-atlas-picker aria-label="Servicio que querés conocer">{items.map(s=><option value={s.code} selected={s===first}>{s.study.name}</option>)}</select></label>
   <ol class="svc-story__list" aria-label="Servicios disponibles">
    {items.map((s,i)=><li class="svc-story__item">
@@ -124,6 +125,7 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
  .svc-story__project[data-project-floors="1"][data-project-open=true][data-project-view="0"] :global(.sp-root){transform:translate(-20px,-112px) scale(1.08)}
  .svc-story__project[data-project-open=true][data-project-view="0"] :global(.sp-root){transform:translate(-20px,-12px) scale(1.04)}
  .svc-story__project:not([data-project-view="0"]) :global(.sp-root){transform:translate(-80px,340px) scale(.33)}
+ .svc-story__project :global(.sp-route path){stroke-width:1.2}
  .svc-story__project :global(.sp-route){opacity:.075;transition:opacity 800ms ease}.svc-story__project :global(.sp-pin){opacity:0;transition:opacity 600ms ease}.svc-story__project :global(.sp-leader){opacity:0;transition:opacity 900ms ease}.svc-story__project:not([data-project-view="0"]) :global(.sp-leader){opacity:.7}
  .svc-story__project[data-project-service="106"] :global(.sp-route){opacity:.7}
  .svc-story__project[data-project-service="101"] :global(.sp-route--101){opacity:.94}.svc-story__project[data-project-service="101"] :global(.sp-pin--101){opacity:1}

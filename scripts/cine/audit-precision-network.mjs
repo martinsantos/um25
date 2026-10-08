@@ -76,7 +76,7 @@ try{
  const reduced=await browser.newContext({viewport,reducedMotion:'reduce'}),quiet=await reduced.newPage();
  await quiet.goto(origin+route,{waitUntil:'domcontentloaded'});await delay(700);
  report.reduced=await quiet.locator('[data-service-atlas]').getAttribute('data-story-state');
- assert.equal(report.reduced,'paused');await quiet.locator('[data-atlas-theater]').screenshot({path:path.join(out,'precision-reduced.png')});await reduced.close();
+ assert.equal(errors.length,0);assert.equal(report.reduced,'paused');await quiet.locator('[data-atlas-theater]').screenshot({path:path.join(out,'precision-reduced.png')});await reduced.close();
 }catch(error){report.failure=error.stack;process.exitCode=1;}
 finally{fs.writeFileSync(path.join(out,'precision-report.json'),JSON.stringify(report,null,2));await context.close();await browser.close();}
 console.log(JSON.stringify(report,null,2));

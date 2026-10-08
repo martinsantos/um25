@@ -176,11 +176,11 @@ def render(args):
     scene=bpy.context.scene;scene.render.engine={'cycles':'CYCLES','eevee':'BLENDER_EEVEE_NEXT','workbench':'BLENDER_WORKBENCH'}[args.engine];
     if args.engine=='eevee' and hasattr(scene.eevee,'taa_render_samples'):scene.eevee.taa_render_samples=args.samples
     if args.engine=='workbench':
-        scene.display.shading.light='STUDIO';scene.display.shading.color_type='MATERIAL'
-        scene.display.shading.show_shadows=True;scene.display.shading.shadow_intensity=.22
+        scene.display.shading.light='FLAT';scene.display.shading.color_type='MATERIAL'
+        scene.display.shading.show_shadows=False
         scene.display.shading.show_cavity=False;scene.display.shading.show_specular_highlight=False
         scene.display.shading.show_object_outline=False;scene.display.shading.background_type='WORLD'
-        scene.display.render_aa='32'
+        scene.display.render_aa='8'
     scene.cycles.device='CPU';scene.cycles.samples=args.samples
     scene.cycles.use_denoising=True;scene.cycles.use_adaptive_sampling=True;scene.cycles.adaptive_threshold=.008
     scene.cycles.max_bounces=4;scene.render.threads_mode='FIXED';scene.render.threads=4
@@ -270,7 +270,7 @@ def render(args):
         info={'service':'104','scene':'software-system-v3','blender':bpy.app.version_string,'engine':scene.render.engine,
               'samples':args.samples,'frames':FRAMES,'fps':FPS,'resolution':[scene.render.resolution_x,scene.render.resolution_y],
               'camera':'recognizable product interface unfolds into rules, data and runtime; continuous 24 second loop',
-              'render_mode':'one persistent native animation render','timings':timings,'bounds':bounds}
+              'render_mode':'one persistent native animation render','antialiasing':scene.display.render_aa if args.engine=='workbench' else args.samples,'lighting':'flat product surfaces' if args.engine=='workbench' else 'area studio','timings':timings,'bounds':bounds}
         (out/'render-info.json').write_text(json.dumps(info));print(json.dumps(timings[-1]),flush=True)
     scene.frame_end=args.end;scene.frame_start=args.start;scene.render.filepath=str(out)+'/'
     bpy.app.handlers.frame_change_pre.append(update_frame)
