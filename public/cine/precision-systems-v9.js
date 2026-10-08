@@ -94,6 +94,10 @@ export function bindSoftwarePrecision(root){
     if(!reduced.matches&&typeof layer.animate==='function')animations.push(layer.animate([{transform:current[i]},{transform:target}],{duration:2400,easing:'cubic-bezier(.45,0,.2,1)',fill:'none'}));
    });
   }
+  // WebKit does not consistently match a selector outside an inline SVG's
+  // stylesheet. Explicitly suspend its inner CSS timelines with the story clock.
+  const innerPlaying=active&&owner.dataset.storyState==='playing'&&root.dataset.visible==='true'&&!document.hidden&&!reduced.matches;
+  drawing.querySelectorAll('.ps-detail,.ps-outcome,.ps-check,.ps-draw,.ps-flow').forEach(node=>{node.style.animationPlayState=innerPlaying?'running':'paused';});
   for(const animation of animations){
    if(reduced.matches){animation.finish();continue;}
    if(animation.playState==='finished')continue;
