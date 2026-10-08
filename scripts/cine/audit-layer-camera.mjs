@@ -42,7 +42,7 @@ try{
     assert(control.exposed,'The story pause control must receive pointer input');
     report.softwarePause={control,stable:false};save();
     await page.locator('[data-atlas-play]').click();
-    report.softwarePause.afterClick=await page.locator('[data-service-atlas]').getAttribute('data-story-state');save();
+    report.softwarePause.afterClick=await page.locator('[data-service-atlas]').getAttribute('data-story-state');report.softwarePause.action=await page.locator('[data-service-atlas]').getAttribute('data-playback-action');save();
     await page.waitForFunction(()=>document.querySelector('[data-service-atlas]').dataset.storyState==='paused',{},{timeout:3000});await page.waitForTimeout(150);
     const paused=await page.locator('.ps-drawing').evaluate(el=>el.getAnimations({subtree:true}).filter(a=>a.playState!=='finished').map(a=>({time:a.currentTime,state:a.playState})));
     await page.waitForTimeout(700);
