@@ -3,6 +3,10 @@ name: Cinema experience visual audit
 on:
   workflow_dispatch:
     inputs:
+      webkit_only:
+        description: 'Repeat complete WebKit layout coverage after a focused correction'
+        type: boolean
+        default: false
       camera_service:
         description: Narrow a mechanism audit to the equipment that changed
         type: choice
@@ -55,7 +59,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        profile: [desktop, mobile]
+        profile: ${{ fromJSON(inputs.webkit_only && '["desktop"]' || '["desktop","mobile"]') }}
         engine: ${{ fromJSON(inputs.layer_camera_only && '["Chrome","WebKit"]' || '["Chrome"]') }}
     steps:
       - uses: actions/checkout@v6
@@ -86,6 +90,7 @@ jobs:
           tail -30 "$RUNNER_TEMP/um-preview.log"
           exit 1
       - name: Capture native movie playback and automatic isometric sequences
+        if: ${{ !inputs.webkit_only }}
         run: |
           if [ '${{ inputs.layer_camera_only }}' = true ]; then
             node scripts/cine/audit-layer-camera.mjs

@@ -31,6 +31,22 @@ for(const width of [1440,1280,834,390,360]){
     if(response.status()!==200||errors.length)report.findings.push({width,route,status:response.status(),errors});
     await page.close();fs.writeFileSync(path.join(out,'webkit-report.json'),JSON.stringify(report,null,2));continue;
    }
+   // Sector pages now start in their contextual installation. They have no
+   // obsolete Object button: under reduced motion the complete first state
+   // must remain visible and stable without any gesture.
+   if(await story.getAttribute('data-context-project')==='true'&&await story.getAttribute('data-discipline-layout')==='true'){
+    const project=story.locator('[data-atlas-project][data-project-visible="true"]');
+    await project.waitFor({state:'visible',timeout:5000});await page.waitForTimeout(350);
+    const read=()=>story.evaluate(root=>{
+     const project=root.querySelector('[data-atlas-project]'),svg=project.querySelector('svg');
+     return {code:root.dataset.activeService,storyState:root.dataset.storyState,scene:root.dataset.storyScene,projectService:project.dataset.projectService,projectView:project.dataset.projectView,visible:getComputedStyle(project).visibility!=='hidden'&&Number(getComputedStyle(project).opacity)>0,geometry:svg.getBoundingClientRect().toJSON(),outline:root.querySelectorAll('[data-story-point]').length,width:innerWidth,scrollWidth:document.documentElement.scrollWidth};
+    });
+    const state=await read();await page.waitForTimeout(650);const after=await read();
+    report.pages.push({width,route,status:response.status(),state,after,errors,mode:'contextual-installation-reduced'});
+    if(response.status()!==200||errors.length||!state.visible||state.geometry.width<=0||state.geometry.height<=0||state.outline!==6||state.code!==state.projectService||state.projectView!=='0'||state.storyState!=='paused'||state.scrollWidth>width+2||JSON.stringify(state)!==JSON.stringify(after))report.findings.push({width,route,state,after,errors});
+    await page.screenshot({path:path.join(out,`webkit-${width}-${index}-project.png`)});
+    await page.close();fs.writeFileSync(path.join(out,'webkit-report.json'),JSON.stringify(report,null,2));continue;
+   }
    const technical=story.locator('.svc-story__technical');if(await technical.count())await technical.evaluate(node=>node.open=true);
    const inspectionStart=Date.now();
    await story.locator('[data-atlas-view="object"]').click();
