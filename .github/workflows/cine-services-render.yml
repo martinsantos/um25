@@ -28,7 +28,7 @@ on:
         default: ''
       engine:
         type: choice
-        options: [eevee, cycles, workbench]
+        options: [eevee, cycles, workbench, baked]
         default: cycles
 permissions:
   contents: read
@@ -57,7 +57,7 @@ jobs:
         run: |
           python3 - <<'PY'
           import json,os
-          assert os.environ['ENGINE'] in (['cycles','workbench'] if os.environ['VERSION']=='fire-v2' else ['eevee','cycles'])
+          assert os.environ['ENGINE'] in (['cycles','workbench','baked'] if os.environ['VERSION']=='fire-v2' else ['eevee','cycles'])
           assert os.environ['MODE']!='motion-proof' or os.environ['VERSION']=='fire-v2'
           codes=['101','102','103','105','106','107','108']
           selected=codes if os.environ['SERVICES']=='all' else os.environ['SERVICES'].split(',')
@@ -126,7 +126,7 @@ jobs:
           if [ '${{ inputs.version }}' = fire-v2 ]; then
             python3 scripts/cine/render-fire-project-v2.py --validate-only
             RENDER=(./blender-4.5.3-linux-x64/blender)
-            if [ "$ENGINE" = workbench ]; then RENDER=(xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender); fi
+            if [ "$ENGINE" != cycles ]; then RENDER=(xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender); fi
             "${RENDER[@]}" -b -t 4 --python-exit-code 1 --python scripts/cine/render-fire-project-v2.py -- --engine "$ENGINE" --samples 32 --width 3840 --start "$START" --end "$END" --output frames
             exit 0
           fi

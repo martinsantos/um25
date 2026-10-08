@@ -306,8 +306,8 @@ def render(args,s):
     from bpy_extras.object_utils import world_to_camera_view
     bpy.ops.wm.read_factory_settings(use_empty=True)
     scene=bpy.context.scene
-    scene.render.engine={'cycles':'CYCLES','workbench':'BLENDER_WORKBENCH'}[args.engine]
-    if args.engine=='workbench':
+    scene.render.engine={'cycles':'CYCLES','workbench':'BLENDER_WORKBENCH','baked':'CYCLES'}[args.engine]
+    if args.engine in ('workbench','baked'):
         scene.display.shading.light='STUDIO';scene.display.shading.color_type='MATERIAL';scene.display.render_aa='16'
         scene.display.shading.show_shadows=False;scene.display.shading.show_cavity=True;scene.display.shading.cavity_type='BOTH'
         scene.display.shading.curvature_ridge_factor=.55;scene.display.shading.curvature_valley_factor=.8
@@ -414,7 +414,7 @@ def render(args,s):
         return Vector(r['pts'][-1])
     out=Path(args.output);out.mkdir(parents=True,exist_ok=True);timings=[];extents=[]
     # One native animation render keeps mesh compilation and the draw engine alive.
-    started=[0.0]
+    started=[0.0];bake_info=None
     def update_frame(scene):
         frame=scene.frame_current
         t=frame/(FRAMES-1);size,angle,target=camera_pose(t);target=Vector(target)
@@ -454,8 +454,39 @@ def render(args,s):
         record={'frame':scene.frame_current,'seconds':round(time.time()-started[0],2)};timings.append(record);print(json.dumps(record),flush=True)
         info={**validate(s),'blender':bpy.app.version_string,'engine':scene.render.engine,'samples':args.samples,
               'resolution':[args.width,round(args.width*9/16)],'camera':'workplace to detector to supervised circuit to central; continuous 24 second loop',
-              'render_mode':'persistent native animation','bounds':extents,'timings':timings}
+              'render_mode':'persistent native animation','baked_lighting':bake_info,'bounds':extents,'timings':timings}
         (out/'render-info.json').write_text(json.dumps(info))
+    if args.engine=='baked':
+        # The lights and installation stay fixed while the camera moves. Bake
+        # their diffuse response once, at mesh precision, then keep native 4K
+        # animation without recalculating screen-space illumination per frame.
+        # Moving covers do not cast an immobile shadow onto the fixed assembly.
+        start=time.time();scene.frame_set(960);update_frame(scene)
+        for obj in scene.objects:
+            if obj.parent in parents.values() or obj in [item[0] for item in packets]:obj.visible_shadow=False
+        bake_objects=[]
+        for obj in list(scene.objects):
+            if obj.type!='MESH' or obj.hide_render:continue
+            bpy.ops.object.select_all(action='DESELECT');obj.select_set(True);bpy.context.view_layer.objects.active=obj
+            for modifier in list(obj.modifiers):bpy.ops.object.modifier_apply(modifier=modifier.name)
+            attr=obj.data.color_attributes.new(name='UM area-light response',type='FLOAT_COLOR',domain='CORNER')
+            obj.data.color_attributes.active_color_index=obj.data.color_attributes.find(attr.name)
+            obj.data.color_attributes.render_color_index=obj.data.color_attributes.find(attr.name)
+            bake_objects.append(obj)
+        # A diffuse technical finish keeps colors readable; no metallic lookup
+        # gets mistaken for a dark unlit material during the static bake.
+        for mat in mats.values():mat.node_tree.nodes['Principled BSDF'].inputs['Metallic'].default_value=0
+        bpy.ops.object.select_all(action='DESELECT')
+        for obj in bake_objects:obj.select_set(True)
+        bpy.context.view_layer.objects.active=bake_objects[0]
+        scene.render.engine='CYCLES';scene.cycles.samples=32
+        bpy.ops.object.bake(type='DIFFUSE',pass_filter={'COLOR','DIRECT','INDIRECT'},target='VERTEX_COLORS',use_clear=True,use_selected_to_active=False)
+        bake_info={'seconds':round(time.time()-start,2),'objects':len(bake_objects),'corners':sum(len(o.data.loops) for o in bake_objects),'source':'Cycles diffuse direct and indirect light'}
+        print(json.dumps({'lighting_bake':bake_info}),flush=True)
+        scene.render.engine='BLENDER_WORKBENCH'
+        scene.display.shading.light='FLAT';scene.display.shading.color_type='VERTEX'
+        scene.display.shading.show_shadows=False;scene.display.shading.show_cavity=False;scene.display.shading.show_specular_highlight=False
+        scene.display.render_aa='16'
     scene.render.filepath=str(out)+'/'
     bpy.app.handlers.frame_change_pre.append(update_frame)
     bpy.app.handlers.render_pre.append(begin_frame);bpy.app.handlers.render_post.append(finish_frame)
@@ -470,7 +501,7 @@ def render(args,s):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--start',type=int,default=0);p.add_argument('--end',type=int,default=0)
-    p.add_argument('--samples',type=int,default=32);p.add_argument('--engine',choices=['cycles','workbench'],default='cycles')
+    p.add_argument('--samples',type=int,default=32);p.add_argument('--engine',choices=['cycles','workbench','baked'],default='cycles')
     p.add_argument('--width',type=int,default=3840);p.add_argument('--output',default='frames');p.add_argument('--proof-frames');p.add_argument('--validate-only',action='store_true')
     args=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else None)
     assert 0<=args.start<=args.end<FRAMES and 16<=args.samples<=128 and args.width in [1920,3840]
