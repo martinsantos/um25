@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Authored delivery or bounded fire installation proof
+        description: Authored delivery and recoverable native fire installation cinema
         type: choice
         options: [v1, fire-v2]
         default: v1
@@ -62,17 +62,19 @@ jobs:
           codes=['101','102','103','105','106','107','108']
           selected=codes if os.environ['SERVICES']=='all' else os.environ['SERVICES'].split(',')
           assert selected and set(selected)<=set(codes) and len(selected)==len(set(selected))
-          rows=[dict(service=s,part=1,start=0,end=0) for s in selected] if os.environ['MODE']=='proof' else [dict(service=s,part=i+1,start=i*48,end=i*48+47) for s in selected for i in range(12)]
+          stride=120 if os.environ['VERSION']=='fire-v2' else 48
+          rows=[dict(service=s,part=1,start=0,end=0) for s in selected] if os.environ['MODE']=='proof' else [dict(service=s,part=i+1,start=i*stride,end=(i+1)*stride-1) for s in selected for i in range(12)]
           if os.environ['MODE']=='repair':
               pairs=[item.split(':') for item in os.environ['REPAIRS'].split(',')]
               assert pairs and all(len(pair)==2 and pair[0] in codes and pair[1].isdigit() and 1<=int(pair[1])<=12 for pair in pairs)
               assert len({tuple(pair) for pair in pairs})==len(pairs)
-              rows=[dict(service=code,part=int(part),start=(int(part)-1)*48,end=int(part)*48-1) for code,part in pairs]
+              rows=[dict(service=code,part=int(part),start=(int(part)-1)*stride,end=int(part)*stride-1) for code,part in pairs]
           if os.environ['VERSION']=='fire-v2':
-              assert os.environ['MODE'] in ['proof','motion-proof'] and selected==['107'], 'Inspect the authored shots before rendering the film'
+              assert selected==['107'] and all(row['service']=='107' for row in rows), 'The installation belongs only to fire detection'
               frames=[int(f) for f in os.environ['PROOF_FRAMES'].split(',')]
               assert 1<=len(frames)<=5 and len(set(frames))==len(frames) and all(0<=f<1440 for f in frames)
-              rows=[dict(service='107',part=i+1,start=f,end=f) for i,f in enumerate(frames)] if os.environ['MODE']=='proof' else [dict(service='107',part=4,start=790,end=801)]
+              if os.environ['MODE']=='proof':rows=[dict(service='107',part=i+1,start=f,end=f) for i,f in enumerate(frames)]
+              elif os.environ['MODE']=='motion-proof':rows=[dict(service='107',part=4,start=790,end=801)]
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:
               out.write('matrix='+json.dumps({'include':rows})+'\n')
               out.write('services='+json.dumps(selected)+'\n')
@@ -84,7 +86,7 @@ jobs:
     timeout-minutes: 65
     strategy:
       fail-fast: false
-      max-parallel: 84
+      max-parallel: 12
       matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v6
@@ -147,11 +149,15 @@ jobs:
         if: inputs.mode == 'full' || inputs.mode == 'repair'
         run: |
           cp frames/render-info.json part-${{ matrix.part }}-info.json
+          if [ '${{ inputs.version }}' = fire-v2 ]; then
+            ffmpeg -v error -framerate 60 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 120 -vf 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p' -c:v libx264 -preset medium -crf 18 -r 60 -g 120 -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1 -an -movflags +faststart part-${{ matrix.part }}.mp4
+            exit 0
+          fi
           ffmpeg -v error -framerate 24 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 48 -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r 24 -g 48 -an -movflags +faststart part-${{ matrix.part }}.mp4
       - uses: actions/upload-artifact@v7
         if: inputs.mode == 'full' || inputs.mode == 'repair'
         with:
-          name: service-${{ matrix.service }}-part-${{ matrix.part }}
+          name: ${{ inputs.version == 'fire-v2' && format('fire-project-v2-part-{0}', matrix.part) || format('service-{0}-part-{1}', matrix.service, matrix.part) }}
           path: |
             part-${{ matrix.part }}.mp4
             part-${{ matrix.part }}-info.json
@@ -166,9 +172,14 @@ jobs:
       matrix:
         service: ${{ fromJSON(needs.plan.outputs.services) }}
     steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts/cine/assemble-fire-project-v2.py
+          sparse-checkout-cone-mode: false
       - uses: actions/download-artifact@v8
         with:
-          pattern: service-${{ matrix.service }}-part-*
+          pattern: ${{ inputs.version == 'fire-v2' && 'fire-project-v2-part-*' || format('service-{0}-part-*', matrix.service) }}
           run-id: ${{ inputs.source_run || github.run_id }}
           github-token: ${{ github.token }}
       - name: Restore only the recovered fragments
@@ -177,11 +188,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           REPAIR_RUNS: ${{ inputs.repair_runs }}
+          VERSION: ${{ inputs.version }}
         run: |
           [[ "$REPAIR_RUNS" =~ ^[0-9]+(,[0-9]+)*$ ]]
           IFS=',' read -ra RUNS <<< "$REPAIR_RUNS"
           for RUN in "${RUNS[@]}"; do
-            NAMES=$(gh api "repos/$GH_REPO/actions/runs/$RUN/artifacts?per_page=100" --jq '.artifacts[].name | select(test("^service-[0-9]+-part-[0-9]+$"))')
+            PATTERN='^service-[0-9]+-part-[0-9]+$'
+            if [ "$VERSION" = fire-v2 ]; then PATTERN='^fire-project-v2-part-[0-9]+$'; fi
+            NAMES=$(gh api "repos/$GH_REPO/actions/runs/$RUN/artifacts?per_page=100" --jq ".artifacts[].name | select(test(\"$PATTERN\"))")
             test -n "$NAMES"
             while IFS= read -r NAME; do gh run download "$RUN" -n "$NAME" -D "$NAME"; done <<< "$NAMES"
           done
@@ -195,6 +209,10 @@ jobs:
             echo "Package index refresh timed out; using runner cached signed indexes."
           fi
           sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq ffmpeg
+          if [ '${{ inputs.version }}' = fire-v2 ]; then
+            python3 scripts/cine/assemble-fire-project-v2.py
+            exit 0
+          fi
           mkdir delivery
           for PART in $(seq 1 12); do printf "file 'service-%s-part-%s/part-%s.mp4'\n" "$SERVICE" "$PART" "$PART"; done > parts.txt
           SCENE=$(python3 -c "import json;print(json.load(open('service-${SERVICE}-part-1/part-1-info.json'))['scene'])")
@@ -231,6 +249,6 @@ jobs:
           sha256sum delivery/* > delivery/SHA256SUMS
       - uses: actions/upload-artifact@v7
         with:
-          name: service-cinema-${{ matrix.service }}
+          name: ${{ inputs.version == 'fire-v2' && 'fire-project-v2-delivery' || format('service-cinema-{0}', matrix.service) }}
           path: delivery
           retention-days: 5

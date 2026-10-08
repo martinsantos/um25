@@ -2,7 +2,7 @@
 Render exclusively on the disposable CI runner. Plain Python validates the model.
 The depicted layout explains a system; it is not a construction or coverage plan.
 """
-import argparse, importlib.util, json, math, sys, time
+import argparse, hashlib, importlib.util, json, math, sys, time
 from pathlib import Path
 spec=importlib.util.spec_from_file_location('service_geometry',Path(__file__).with_name('render-service-cinema-v1.py'))
 legacy=importlib.util.module_from_spec(spec);spec.loader.exec_module(legacy)
@@ -87,15 +87,21 @@ class Installation(legacy.Studio):
     def ceiling_section(self,x,y):
         # A 600 mm ceiling tile with an inspection aperture retains the mount.
         # Its straight cut edges and T rails identify actual ceiling structure.
-        n=64;vv=[]
+        n,steps=64,16;vv=[]
         for z in [2.797,2.814]:
-            for outer in [False,True]:
+            for ring in range(steps+1):
                 for j in range(n):
-                    a=j*math.tau/n;r=.3/max(abs(math.cos(a)),abs(math.sin(a))) if outer else .083
+                    a=j*math.tau/n;outer=.3/max(abs(math.cos(a)),abs(math.sin(a)))
+                    r=.083+(outer-.083)*ring/steps
                     vv.append((x+r*math.cos(a),y+r*math.sin(a),z))
-        ff=[]
+        side=(steps+1)*n;ff=[]
+        for ring in range(steps):
+            for j in range(n):
+                k=(j+1)%n;a=ring*n+j;b=ring*n+k;c=(ring+1)*n+k;d=(ring+1)*n+j
+                ff.extend([(a,d,c,b),(side+a,side+b,side+c,side+d)])
         for j in range(n):
-            k=(j+1)%n;ff.extend([(j,k,n+k,n+j),(2*n+j,3*n+j,3*n+k,2*n+k),(n+j,n+k,3*n+k,3*n+j),(j,2*n+j,2*n+k,k)])
+            k=(j+1)%n;a=steps*n+j;b=steps*n+k
+            ff.extend([(j,k,side+k,side+j),(a,side+a,side+b,b)])
         self.mesh(vv,ff,'paper')
         for dx in [-.30,.30]:
             self.box(x+dx,y,2.817,.012,.624,.025,'edge')
@@ -318,7 +324,7 @@ def render(args,s):
         scene.display.shading.studiolight_rotate_z=.5
         scene.display.shading.background_type='WORLD'
         scene.display.shading.show_object_outline=False
-    scene.cycles.device='CPU';scene.cycles.samples=args.samples;scene.cycles.use_denoising=True
+    scene.cycles.device='CPU';scene.cycles.seed=0;scene.cycles.use_animated_seed=False;scene.cycles.samples=args.samples;scene.cycles.use_denoising=True
     scene.cycles.use_adaptive_sampling=True;scene.cycles.adaptive_threshold=.012;scene.cycles.adaptive_min_samples=12;scene.cycles.max_bounces=4
     scene.eevee.taa_render_samples=args.samples;scene.eevee.use_raytracing=False
     scene.eevee.shadow_ray_count=3;scene.eevee.shadow_step_count=8
@@ -346,11 +352,12 @@ def render(args,s):
         if name in ('signal','packet'):
             p.inputs['Emission Color'].default_value=(*rgb,1);p.inputs['Emission Strength'].default_value=1.5 if name=='packet' else .28
         mats[name]=m
-    groups={};bounds=[];parents={}
+    groups={};smoothfaces={};bounds=[];parents={}
     for door in s.doors:
         obj=bpy.data.objects.new(door['name'],None);scene.collection.objects.link(obj);obj.location=door['pivot'];parents[door['name']]=obj
-    def meshpart(mat,group,vertices,faces):
+    def meshpart(mat,group,vertices,faces,smooth_side=False):
         vv,ff=groups.setdefault((mat,group),([],[]));offset=len(vv);vv.extend(vertices)
+        if smooth_side:smoothfaces.setdefault((mat,group),set()).update(range(len(ff)+2,len(ff)+len(faces)))
         ff.extend(tuple(offset+i for i in face) for face in faces)
         if not group:bounds.extend(vertices)
     for b in s.boxes:
@@ -365,14 +372,15 @@ def render(args,s):
                 xyz=(c['x']+u,c['y']+v,c['z']+depth) if c['axis']=='z' else (c['x']+u,c['y']-depth,c['z']+v) if c['axis']=='y' else (c['x']+depth,c['y']+u,c['z']+v)
                 vv.append(xyz)
         ff=[tuple(reversed(range(n))),tuple(n+j for j in range(n))]+[(j,(j+1)%n,(j+1)%n+n,j+n) for j in range(n)]
-        meshpart(c['mat'],c.get('group'),vv,ff)
+        meshpart(c['mat'],c.get('group'),vv,ff,smooth_side=True)
     for m in s.meshes:meshpart(m['mat'],m.get('group'),m['vertices'],m['faces'])
     for (mat,group),(vv,ff) in groups.items():
         mesh=bpy.data.meshes.new(mat);mesh.from_pydata(vv,[],ff);mesh.update()
+        for index in smoothfaces.get((mat,group),set()):mesh.polygons[index].use_smooth=True
         obj=bpy.data.objects.new(mat+' '+(group or 'equipment'),mesh);scene.collection.objects.link(obj);mesh.materials.append(mats[mat])
         if group:obj.parent=parents[group]
         bevel=obj.modifiers.new('Manufactured edges','BEVEL');bevel.width=.0008;bevel.segments=3
-        obj.modifiers.new('Weighted normals','WEIGHTED_NORMAL')
+        obj.modifiers.new('Weighted normals','WEIGHTED_NORMAL').keep_sharp=True
     linegroups={}
     for line in s.lines:linegroups.setdefault((line['mat'],line['radius'],line.get('group')),[]).append(line['pts'])
     for (mat,radius,group),paths in linegroups.items():
@@ -406,11 +414,12 @@ def render(args,s):
         obj=bpy.context.object;obj.data.materials.append(mats['packet']);packets.append((obj,r))
         for p in obj.data.polygons:p.use_smooth=True
     bpy.ops.mesh.primitive_plane_add(size=200,location=(0,0,-.05));bpy.context.object.data.materials.append(mats['floor']);bpy.context.object['flat_authored_color']=True
-    def area(name,at,power,size,color):
+    def area(name,at,power,size,color,target=(0,1.2,1.0)):
         d=bpy.data.lights.new(name,'AREA');d.energy=power;d.shape='DISK';d.size=size;d.color=color
         obj=bpy.data.objects.new(name,d);scene.collection.objects.link(obj);obj.location=at
-        obj.rotation_euler=(Vector((0,1.2,1.0))-obj.location).to_track_quat('-Z','Y').to_euler()
+        obj.rotation_euler=(Vector(target)-obj.location).to_track_quat('-Z','Y').to_euler()
     area('Warm key',(-4,-7,14),2100,11,(1,.97,.93));area('Cool rim',(4,9,11),1700,9,(.91,.95,1));area('Front fill',(7,-7,7),900,8,(1,1,1))
+    area('Optical chamber inspection',(-2.05,-.7,2.10),24,1.2,(1,1,1),(-2.05,.35,2.75))
     camera=bpy.data.cameras.new('Continuous service camera');camera.type='ORTHO';camera.clip_end=200
     cam=bpy.data.objects.new('Continuous service camera',camera);scene.collection.objects.link(cam);scene.camera=cam
     def travel(r,t):
@@ -465,7 +474,7 @@ def render(args,s):
     def finish_frame(scene):
         record={'frame':scene.frame_current,'seconds':round(time.time()-started[0],2)};timings.append(record);print(json.dumps(record),flush=True)
         info={**validate(s),'blender':bpy.app.version_string,'engine':scene.render.engine,'samples':args.samples,
-              'resolution':[args.width,round(args.width*9/16)],'camera':'workplace to detector to supervised circuit to central; continuous 24 second loop',
+              'resolution':[args.width,round(args.width*9/16)],'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'camera':'workplace to detector to supervised circuit to central; continuous 24 second loop',
               'render_mode':'persistent native animation','baked_lighting':bake_info,'bounds':extents,'timings':timings}
         (out/'render-info.json').write_text(json.dumps(info))
     if args.engine=='baked':
@@ -499,7 +508,7 @@ def render(args,s):
         bpy.ops.object.select_all(action='DESELECT')
         for obj in bake_objects:obj.select_set(True)
         bpy.context.view_layer.objects.active=bake_objects[0]
-        scene.render.engine='CYCLES';scene.cycles.samples=64
+        scene.render.engine='CYCLES';scene.cycles.samples=128
         bpy.ops.object.bake(type='DIFFUSE',pass_filter={'COLOR','DIRECT','INDIRECT'},target='VERTEX_COLORS',use_clear=True,use_selected_to_active=False)
         bake_info={'seconds':round(time.time()-start,2),'objects':len(bake_objects),'corners':sum(len(o.data.loops) for o in bake_objects),'source':'Cycles diffuse direct and indirect light'}
         print(json.dumps({'lighting_bake':bake_info}),flush=True)
