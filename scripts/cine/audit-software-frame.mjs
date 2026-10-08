@@ -13,7 +13,7 @@ fs.mkdirSync(out,{recursive:true});
 const allRoutes=['/software',...[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(match=>match[1])];
 const serviceCode=/^10[1-8]$/.test(process.env.FRAMING_SERVICE_CODE||'')?process.env.FRAMING_SERVICE_CODE:null;
 const fireOnly=process.env.FRAMING_FIRE_ONLY==='true'||serviceCode==='107',networkOnly=process.env.FRAMING_NETWORK_ONLY==='true'||serviceCode==='101';
-const routes=serviceCode?allRoutes.filter(route=>route.startsWith('/servicios/'+serviceCode+'/')):networkOnly?allRoutes.filter(route=>route.startsWith('/servicios/101/')):fireOnly?allRoutes.filter(route=>route.startsWith('/servicios/107/')):process.env.FRAMING_SOFTWARE_ONLY==='true'?allRoutes.filter(route=>route==='/software'||route.startsWith('/servicios/104/')):allRoutes;
+const routes=process.env.FRAMING_SOFTWARE_ONLY==='true'?allRoutes.filter(route=>route==='/software'||route.startsWith('/servicios/104/')):serviceCode?allRoutes.filter(route=>route.startsWith('/servicios/'+serviceCode+'/')):networkOnly?allRoutes.filter(route=>route.startsWith('/servicios/101/')):fireOnly?allRoutes.filter(route=>route.startsWith('/servicios/107/')):allRoutes;
 const registry=JSON.parse(fs.readFileSync('src/data/cine/site-movies-v1.json','utf8'));
 const controlsOnly=process.env.FRAMING_CONTROLS_ONLY==='true';
 const report={scope:controlsOnly?'mobile-cinema-controls':fireOnly?'fire-project-v2':networkOnly?'network-project-v2':serviceCode?'service-'+serviceCode:'service-film-framing',pages:[],findings:[]};
