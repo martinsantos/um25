@@ -42,13 +42,18 @@ for(const [engine,type] of (probe?[['WebKit',webkit]]:[['Chrome',chromium],['Web
      const motion=root.querySelector('[data-umc-motion]'),controlBox=box(motion);
      const hit=document.elementFromPoint(controlBox.x+controlBox.width/2,controlBox.y+controlBox.height/2);
      const control={...controlBox,exposed:hit===motion||motion.contains(hit)};
-     return {product:root.dataset.productComposition==='true',copy:box(root.querySelector('.umc-copy')),control,poster:box(poster),stage:box(stage),video:box(video),source:poster.currentSrc,mask:getComputedStyle(poster).maskImage,width:innerWidth,scrollWidth:document.documentElement.scrollWidth};
+     return {product:root.dataset.productComposition==='true',copy:box(root.querySelector('.umc-copy')),control,narration:root.querySelector('[data-umc-film-caption]')?box(root.querySelector('[data-umc-film-caption]')):null,readingStart:root.querySelector('.umc-back,.umc-eyebrow,h1')?.getBoundingClientRect().top,poster:box(poster),stage:box(stage),video:box(video),source:poster.currentSrc,mask:getComputedStyle(poster).maskImage,width:innerWidth,scrollWidth:document.documentElement.scrollWidth};
     });
     const row={engine,width,route,state,errors};report.pages.push(row);
     if(state.product){
      if(state.mask!=='none')report.findings.push({engine,width,route,message:'Product UI is erased by a mask'});
      if(width>820&&state.stage.x<state.copy.x+state.copy.width+16)report.findings.push({engine,width,route,message:'Product film overlaps its reading column',state});
      if(width<=820&&Math.abs(state.stage.width/state.stage.height-16/9)>.01)report.findings.push({engine,width,route,message:'Mobile product frame is cropped',state});
+    }
+    if(state.narration){
+     const c=state.narration;
+     if(width<=820&&(c.y<state.poster.y+state.poster.height+8||c.y+c.height>state.readingStart-8))report.findings.push({engine,width,route,message:'Narration overlaps film or reading copy',state});
+     if(width>820&&c.x<state.video.x-2)report.findings.push({engine,width,route,message:'Narration is detached from its film column',state});
     }
     if(width<=820&&(!state.control.exposed||state.control.y<0||state.control.y+state.control.height>840||state.control.width<44||state.control.height<44))report.findings.push({engine,width,route,message:'Motion control is obscured or undersized',control:state.control});
     const code=route.match(/^\/servicios\/(\d+)\//)?.[1]||'104';
@@ -102,11 +107,12 @@ if(fireOnly||networkOnly||serviceCode){
    const observations=[];
    for(const time of (fireOnly?[2,7.65,14.2,16,22.8]:networkOnly?[2,7.45,10.4,17.35,22.8]:[2,8.65,16,20.1,22.8])){
     await page.waitForFunction(time=>document.querySelector('.umc-video.is-on')?.currentTime>=time,time,{timeout:20000,polling:100});
-    observations.push(await page.locator('.umc-video.is-on').evaluate(v=>({time:v.currentTime,duration:v.duration,ready:v.readyState,paused:v.paused,quality:(q=>q?{total:q.totalVideoFrames,dropped:q.droppedVideoFrames,corrupted:q.corruptedVideoFrames}:null)(v.getVideoPlaybackQuality?.())})));
+    observations.push(await page.locator('.umc-video.is-on').evaluate(v=>({time:v.currentTime,duration:v.duration,ready:v.readyState,paused:v.paused,narration:document.querySelector('[data-film-text]')?.textContent,quality:(q=>q?{total:q.totalVideoFrames,dropped:q.droppedVideoFrames,corrupted:q.corruptedVideoFrames}:null)(v.getVideoPlaybackQuality?.())})));
     await page.screenshot({path:path.join(out,`${film}-autonomous-${engine}-${width}-${time}.png`)});
    }
    await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime<2,{},{timeout:6500,polling:100});
    report.autonomous.push({engine,width,observations,loop:true,errors});
+   if(observations.some(o=>o.narration)&&new Set(observations.map(o=>o.narration)).size<3)report.findings.push({engine,width,scope:'narration',message:'The film advances but its explanation does not'});
    if(fireOnly){
    // Continue the same visit into the explanation, with no selection clicks.
    await page.locator('[data-atlas-theater]').evaluate(el=>scrollTo(0,el.getBoundingClientRect().top+scrollY-100));

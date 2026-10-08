@@ -1,7 +1,7 @@
 import { bindHardware } from '../public/cine/cine-studies-v5.js';
 import { bindProductTour } from '../public/cine/product-tour-v5.js';
 import { bindServicesStory } from '../public/cine/services-story-v5.js';
-import { banner } from '../public/cine/cine-banner-v9.js';
+import { banner } from '../public/cine/cine-banner-v10.js';
 
 let observers, preferences, media, frames, nextFrame;
 const settle = async () => { await Promise.resolve(); await Promise.resolve(); };
@@ -150,4 +150,31 @@ test('a complete single movie restarts after ended and preserves an explicit pau
  root.querySelector('[data-umc-motion]').click();video.currentTime=24;video.dispatchEvent(new Event('ended'));await settle();
  expect(video.currentTime).toBe(24);expect(video.paused).toBe(true);
  cleanup();
+});
+
+
+test('movie narration follows decoded playback time without requiring a user selection',async()=>{
+ document.body.innerHTML='<div data-umc data-scenes="network-project-v2" data-annotations="none"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><p data-umc-film-caption><span data-film-number></span><span data-film-text></span></p><button data-umc-motion></button></div>';
+ const root=document.querySelector('[data-umc]'),video=root.querySelector('video');
+ root.dataset.movieChapters=JSON.stringify([{at:0,text:'Instalación'},{at:5.6,text:'Distribución'},{at:13.8,text:'Acceso'}]);
+ Object.defineProperty(video,'duration',{configurable:true,value:24});
+ const cleanup=banner(root);visible(root);await jest.advanceTimersByTimeAsync(600);await settle();
+ expect(root.querySelector('[data-film-text]').textContent).toBe('Instalación');
+ video.currentTime=14;video.dispatchEvent(new Event('timeupdate'));
+ expect(root.querySelector('[data-film-text]').textContent).toBe('Acceso');expect(root.querySelector('[data-film-number]').textContent).toBe('03');
+ hidden(true);video.currentTime=7;video.dispatchEvent(new Event('timeupdate'));expect(root.querySelector('[data-film-text]').textContent).toBe('Acceso');
+ hidden(false);await settle();expect(root.querySelector('[data-film-text]').textContent).toBe('Distribución');
+ cleanup();
+});
+
+test('only the visible movie is prepared before idle playback, and disposal cancels its queued start',async()=>{
+ document.body.innerHTML='<div data-umc data-scenes="network-project-v2" data-annotations="none"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div></div>';
+ let idle;window.requestIdleCallback=jest.fn(fn=>{idle=fn;return 41;});window.cancelIdleCallback=jest.fn();
+ try{
+  const root=document.querySelector('[data-umc]'),videos=root.querySelectorAll('video'),cleanup=banner(root);
+  expect(videos[0].hasAttribute('src')).toBe(false);visible(root);
+  expect(videos[0].getAttribute('src')).toContain('network-project-v2');expect(videos[0].paused).toBe(true);expect(videos[1].hasAttribute('src')).toBe(false);
+  await jest.advanceTimersByTimeAsync(600);expect(videos[0].paused).toBe(true);
+  cleanup();expect(window.cancelIdleCallback).toHaveBeenCalledWith(41);idle();await settle();expect(videos[0].paused).toBe(true);
+ }finally{window.requestIdleCallback=undefined;window.cancelIdleCallback=undefined;}
 });

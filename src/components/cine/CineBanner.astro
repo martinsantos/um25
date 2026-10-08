@@ -4,6 +4,7 @@
 // Las películas completas quedan en Blender; la exploración de servicios usa isométricos.
 import '../../styles/cine-banner.css';
 import { HOME_SCENES, cutCaption } from '../../data/cine/scenes';
+import { FILM_CHAPTERS } from '../../data/cine/filmChapters';
 
 interface Stat { label: string; value: string }
 interface Link { href: string; label: string }
@@ -44,9 +45,10 @@ const rail = chapters||HOME_SCENES.filter((s) => scenes.includes(s.scene));
 const firstTitle = rail.find(chapter=>chapter.scene===first)?.name||cutCaption(first);
 const disciplineComposition = /^(software|network|security|telecom|support|consulting|fire|power)-(system|project)-v\d+$/.test(first);
 const productComposition = /^(software-system-v[34]|(?:fire|network|security|telecom|power|support|consulting)-project-v2)$/.test(first);
+const filmChapters = FILM_CHAPTERS[first];
 const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-width:546px) and (max-aspect-ratio:651/1000)';
 ---
-<section class:list={['umc', `umc--${variant}`]} data-umc data-motion={motion} data-annotations={annotations?'tracked':'none'} data-framing={framing} data-composition={disciplineComposition?'discipline':undefined} data-product-composition={productComposition?'true':undefined} data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
+<section class:list={['umc', `umc--${variant}`]} data-umc data-motion={motion} data-annotations={annotations?'tracked':'none'} data-framing={framing} data-composition={disciplineComposition?'discipline':undefined} data-product-composition={productComposition?'true':undefined} data-movie-chapters={filmChapters?JSON.stringify(filmChapters):undefined} data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
   <div class="umc-stage" aria-hidden="true">
     <picture>
       {framing==='project'&&<source media={squarePosterMedia} type="image/avif" srcset={`/cine/media/cine-${first}-poster-sq.avif`} data-poster-square />}
@@ -79,7 +81,9 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
   </div>
 
   <div class="umc-foot">
-    {variant === 'home' ? (
+    {filmChapters ? (
+      <p class="umc-film-caption" data-umc-film-caption aria-live="off"><span data-film-number aria-hidden="true">01</span><span data-film-text>{filmChapters[0].text}</span></p>
+    ) : variant === 'home' ? (
       <div class="umc-rail" style={`--umc-scenes:${rail.length}`} role="group" aria-label="Escenas por sector">
         {rail.map((s, i) => (
           <button type="button" data-umc-scene={s.scene} data-name={s.name} aria-pressed={s.scene === first ? 'true' : 'false'}>
@@ -103,7 +107,7 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
     </div>}
   </div>
 </section>
-<script src="/cine/cine-banner-v9.js" type="module" async is:inline></script>
+<script src="/cine/cine-banner-v10.js" type="module" async is:inline></script>
 
 <style>
  .umc[data-framing="project"] :global(.umc-stage){left:0;right:0}
@@ -146,6 +150,15 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
  .umc[data-product-composition="true"] :global(.umc-poster),.umc[data-product-composition="true"] :global(.umc-video){mask-image:none}
  .umc[data-product-composition="true"]{--umc-ink:#090a0c}
  .umc[data-product-composition="true"] :global(.umc-grade){background:none}
+ /* Match the decoded native studio background, so the film has no rectangular seam. */
+ .umc[data-product-composition="true"][data-scene$="-project-v2"]{--umc-ink:#050505}
+ .umc-film-caption{display:flex;align-items:baseline;gap:12px;margin:0;flex:1;font-size:1rem;line-height:1.5;color:#bfc2c7}
+ .umc-film-caption [data-film-number]{color:#dc2626;font-variant-numeric:tabular-nums}
+ @media(min-width:821px){.umc-film-caption{margin-left:calc(42vw - var(--umc-gutter));padding-right:16px}}
+ @media(max-width:820px){
+  .umc-film-caption{position:absolute;top:calc(24px + min(100vw,600px) * 9 / 16 + 12px);left:20px;right:20px}
+  .umc[data-product-composition="true"][data-movie-chapters] :global(.umc-copy){padding-top:calc(min(100vw,600px) * 9 / 16 + 104px)}
+ }
  @media(min-width:821px){
   .umc[data-product-composition="true"] :global(.umc-stage){left:42%;right:0}
   .umc[data-product-composition="true"] :global(.umc-copy){width:min(520px,calc(42% - var(--umc-gutter) - 24px))}
