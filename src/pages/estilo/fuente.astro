@@ -1,5 +1,64 @@
 ---
-import UMSans from './um-sans.astro';
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+import '../../styles/font-service.css';
+const base = '/fonts/um-sans/v2.0.0';
+const weights = ['Thin', 'ExtraLight', 'Light', 'Regular', 'Medium', 'SemiBold', 'Bold', 'ExtraBold', 'Black'];
+const integration = `<link rel="stylesheet" href="https://www.ultimamilla.com.ar${base}/um-sans.css">`;
+const usage = `body {\n  font-family: var(--um-font-family);\n  font-kerning: normal;\n  font-synthesis: none;\n}\n.amount { font-variant-numeric: tabular-nums; }`;
 ---
 
-<UMSans publicRoute />
+<LayoutV4 title="UM Sans 2.0 | Fuente y plantillas de ULTIMA MILLA" description="La familia tipográfica de Última Milla: nueve pesos, cursivas, fuentes para web y documentos y plantillas de oferta con membrete.">
+  <div class="font-hub ums2 um-type" data-font-release="2.0.0">
+    <header class="font-cover">
+      <p class="font-eyebrow">Última Milla · Sistema tipográfico</p>
+      <h1>UM Sans 2.0</h1>
+      <p class="font-lead">Una voz propia. Clara para leer.<br />Firme para decir lo importante.</p>
+      <p class="font-intro">La misma familia para nuestros sitios, aplicaciones y propuestas. Nueve pesos, romanas y cursivas, con una escala de lectura y archivos para cada soporte.</p>
+      <div class="font-actions"><a class="font-button" href={`${base}/UMSans2-2.0.0.zip`} download>Descargar la familia</a><a class="font-button font-button-secondary" href="/estilo/fuentes/plantilla">Plantillas de oferta</a></div>
+      <dl class="font-facts"><div><dt>18</dt><dd>cortes estáticos</dd></div><div><dt>2</dt><dd>fuentes variables</dd></div><div><dt>100–900</dt><dd>rango de pesos</dd></div></dl>
+    </header>
+    <nav class="font-nav" aria-label="Contenido de UM Sans"><a href="#probar">Probar la fuente</a><a href="#lectura">Lectura y tamaños</a><a href="#integrar">Integrar</a><a href="#entrega">Entrega</a></nav>
+    <section id="probar" aria-labelledby="font-test-heading">
+      <p class="font-eyebrow">01 · La familia</p><h2 id="font-test-heading">El peso justo para cada voz.</h2>
+      <div class="font-controls"><label class="font-text-control">Texto de prueba<input id="font-text" type="text" value="Conectamos tecnología y personas." maxlength="160" /></label><label>Peso <output id="font-weight-value" for="font-weight">700</output><input id="font-weight" type="range" min="100" max="900" step="1" value="700" /></label><label>Tamaño <output id="font-size-value" for="font-size">48 px</output><input id="font-size" type="range" min="16" max="96" value="48" /></label><label class="font-italic-control"><input id="font-italic" type="checkbox" /> Cursiva</label></div>
+      <div class="font-live-wrap"><p id="font-live">Conectamos tecnología y personas.</p></div>
+      <div class="font-weight-grid">{weights.map((name, i) => <article><h3>{(i + 1) * 100} · {name}</h3><p style={`font-weight:${(i + 1) * 100}`}>Última Milla</p><p class="font-weight-italic" style={`font-weight:${(i + 1) * 100}`}>Claridad en cada palabra.</p></article>)}</div>
+    </section>
+    <section id="lectura" aria-labelledby="font-reading-heading">
+      <p class="font-eyebrow">02 · Composición</p><h2 id="font-reading-heading">El tamaño también comunica.</h2>
+      <div class="font-reading-layout"><article class="font-reading um-type-reading"><h3>Infor&shy;ma&shy;ción que se entiende</h3><p class="font-lead">Formas claras, espacio equilibrado y una lectura tranquila.</p><p>Una tipografía se reconoce en las palabras y se comprueba durante la lectura. La claridad necesita formas coherentes, espacios equilibrados y una jerarquía que permita recorrer el contenido sin esfuerzo.</p><p>En Última Milla diseñamos soluciones para organizaciones de Mendoza y de toda la Argentina. Cada proyecto reúne experiencia, atención al detalle y una pregunta concreta: ¿cómo podemos hacerlo mejor?</p><h3>Tec&shy;no&shy;lo&shy;gía con propósito</h3><p>La infraestructura, los datos y el software forman parte del mismo trabajo. Un servicio útil debe ser confiable, fácil de usar y capaz de crecer con las necesidades de las personas.</p></article>
+        <aside class="font-scale" aria-label="Escala de referencia"><h3>Una escala para usar</h3><dl><div><dt>Título</dt><dd>48 / 36 px · 1,15</dd></div><div><dt>Subtítulo</dt><dd>28 px · 1,25</dd></div><div><dt>Bajada</dt><dd>22 px · 1,5</dd></div><div><dt>Lectura</dt><dd>20 px · 1,65</dd></div><div><dt>Interfaz y guías</dt><dd>16 px · 1,5</dd></div></dl><p>Columna inicial de 31 em: unas 65 letras por línea en el texto de referencia. La medida se ajusta al contenido y a la pantalla.</p><p>Los títulos organizan. El cuerpo sostiene la lectura. Las guías conservan un tamaño legible.</p></aside>
+      </div>
+    </section>
+    <section id="integrar" aria-labelledby="font-integration-heading">
+      <p class="font-eyebrow">03 · Un origen común</p><h2 id="font-integration-heading">Una versión fija. Muchos usos.</h2>
+      <p class="font-intro">Cada servicio elige cuándo actualizar. La URL de 2.0.0 conserva sus archivos; una versión nueva tendrá otra dirección. UM Sans 1.2 sigue disponible para integraciones anteriores.</p>
+      <div class="font-integration-grid"><article><h3>Sitios y apli&shy;ca&shy;cio&shy;nes</h3><p>Incluir la hoja de estilos y asignar la familia al contenido. El CSS no modifica por sí solo los estilos de la aplicación.</p><pre><code>{integration}</code></pre><pre><code>{usage}</code></pre><a href={`${base}/manifest.json`}>Ver versión, archivos y checksums</a></article><article><h3>Word y docu&shy;men&shy;tos</h3><p>Instalar los archivos TTF del paquete para editar con los 18 cortes. Para compartir el resultado, exportar a PDF con las fuentes incrustadas.</p><p>Las plantillas incluyen membrete, títulos, bajadas, cuerpo, tablas y condiciones, con estilos coherentes para pantalla e impresión.</p><a href="/estilo/fuentes/plantilla">Abrir las plantillas de oferta</a></article></div>
+    </section>
+    <section id="entrega" aria-labelledby="font-delivery-heading">
+      <p class="font-eyebrow">04 · Entrega</p><h2 id="font-delivery-heading">Qué incluye esta versión.</h2>
+      <div class="font-delivery-grid"><article><h3>La familia original</h3><p>18 cortes OTF, TTF y WOFF2. Dos variables de peso, romana y cursiva. 150 glifos y 143 caracteres Unicode en cada corte.</p></article><article><h3>Español y datos</h3><p>Acentos, signos, monedas, cifras proporcionales y tabulares. El kit web incluye UM Sans 1.2 como respaldo para caracteres que todavía no pertenecen a la nueva familia.</p></article><article><h3>Alcance com&shy;pro&shy;ba&shy;do</h3><p>Archivos revisados contra OpenType y WOFF2; composición en Chromium y WebKit/Linux; exportación PDF con LibreOffice. La revisión visual y técnica no equivale a certificar todos los programas y plataformas.</p></article><article><h3>Uso y con&shy;ti&shy;nui&shy;dad</h3><p>Distribución para los sitios, aplicaciones y documentos de Última Milla. UM Sans 2 conserva sus derechos reservados; el respaldo 1.2 mantiene su licencia OFL.</p><a href={`${base}/LICENSE.txt`}>Condiciones de uso</a></article></div>
+      <p class="font-version">UM Sans 2.0.0 · Dibujo de la candidata 0.950 conservado. <a href="/estilo/um-sans">Consultar el sistema anterior 1.2</a>.</p>
+    </section>
+  </div>
+</LayoutV4>
+<script>
+  const text = document.querySelector<HTMLInputElement>('#font-text');
+  const weight = document.querySelector<HTMLInputElement>('#font-weight');
+  const size = document.querySelector<HTMLInputElement>('#font-size');
+  const italic = document.querySelector<HTMLInputElement>('#font-italic');
+  const sample = document.querySelector<HTMLElement>('#font-live');
+  const update = () => {
+    if (!text || !weight || !size || !italic || !sample) return;
+    sample.textContent = text.value || 'Conectamos tecnología y personas.';
+    sample.style.fontWeight = weight.value;
+    sample.style.fontSize = `${Number(size.value) / 16}rem`;
+    sample.style.fontStyle = italic.checked ? 'italic' : 'normal';
+    const weightValue = document.querySelector('#font-weight-value');
+    const sizeValue = document.querySelector('#font-size-value');
+    if (weightValue) weightValue.textContent = weight.value;
+    if (sizeValue) sizeValue.textContent = `${Math.round(parseFloat(getComputedStyle(sample).fontSize))} px`;
+  };
+  [text, weight, size, italic].forEach(input => input?.addEventListener('input', update));
+  window.addEventListener('resize', update);
+</script>

@@ -8,7 +8,13 @@ on:
       - 'docs/**'
       - '.gitignore'
       - 'LICENSE'
-  workflow_dispatch:  # Allow manual triggers
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: 'Deploy or run separately approved, audited storage maintenance'
+        type: choice
+        default: deploy
+        options: [deploy, storage-plan, storage-apply, uploads-audit]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -17,11 +23,40 @@ env:
   RELEASE_ID: ${{ github.run_id }}-${{ github.run_attempt }}
 
 jobs:
+  runtime-scope:
+    runs-on: ubuntu-latest
+    outputs:
+      required: ${{ steps.scope.outputs.required }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: scope
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          OPERATION: ${{ inputs.operation }}
+        run: |
+          required=true
+          if [[ "$EVENT" == workflow_dispatch && -n "$OPERATION" && "$OPERATION" != deploy ]]; then
+            required=false
+          elif [[ "$EVENT" == push ]] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            required=false
+            while IFS= read -r path; do
+              case "$path" in
+                .github/workflows/production-deploy.yml|.github/workflows/server-storage-maintenance.yml|scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py) ;;
+                *) required=true ;;
+              esac
+            done < <(git diff --name-only "$BEFORE" HEAD)
+          fi
+          echo "required=$required" >> "$GITHUB_OUTPUT"
   #===========================================================================
   # JOB 1: BUILD & TEST
   #===========================================================================
   build-and-test:
     name: Build & Test
+    needs: runtime-scope
+    if: needs.runtime-scope.outputs.required == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -61,7 +96,12 @@ jobs:
         continue-on-error: true  # Don't fail build if storage quota exceeded
         with:
           name: dist-build
-          path: dist/
+          path: |
+            dist/
+            !dist/client/cine/media/cine-v5-*
+            !dist/client/cine/cine-studies-v5.js
+            !dist/client/cine/services-story-v5.js
+            !dist/client/cine/software-layers-v5.js
           retention-days: 1
 
   #===========================================================================
@@ -69,6 +109,7 @@ jobs:
   #===========================================================================
   deploy-production:
     name: Deploy to Production
+    if: github.ref == 'refs/heads/master'
     needs: build-and-test
     runs-on: ubuntu-latest
     environment:
@@ -124,8 +165,38 @@ jobs:
           test -s /tmp/umsa-release-paths.txt
           while IFS= read -r path; do
             case "$path" in
+              # UM Sans 2: versioned binaries and document templates. Keep the
+              # 1.2 service and unrelated unpublished assets unchanged.
+              public/fonts/um-sans/v2.0.0/*|\
+              scripts/fonts/release_um_sans_2.py|\
+              scripts/fonts/audit_um_sans_2_service.mjs|\
+              scripts/typography/build_offer_templates.py|\
+              scripts/visual-contrast-audit.mjs|\
+              __tests__/umSansFontContract.test.js|\
+              __tests__/umSans2FontContract.test.js|\
+              __tests__/umSans2Release.test.js|\
+              __tests__/visualAuditRunnerContracts.test.js|\
+              docs/typography/UM-SANS-2-SERVICE.md|\
+              docs/typography/um-sans-2.0.0-standards.json|\
+              src/layouts/LayoutV4.astro|\
+              src/pages/estilo/fuente.astro|\
+              src/pages/estilo/um-sans.astro|\
+              src/pages/estilo/fuentes/plantilla.astro|\
+              src/pages/estilo/fuente/plantillas.astro|\
+              src/pages/estilo/fuente/planillas.astro|\
+              src/pages/estilo/fuente/planilla.astro|\
+              src/pages/planilla.astro|\
+              src/pages/fuente.astro|\
+              src/pages/estilos/index.astro|\
+              src/pages/estilos/fuente.astro|\
+              src/pages/estilos/fuente/plantilla.astro|\
+              src/pages/estilo/fuente/plantilla.astro|\
+              src/styles/font-service.css|src/styles/v4.css|\
+              src/styles/cine-hero.css) ;;
               .github/workflows/production-deploy.yml|.github/workflows/community-demo-integrity.yml|\
-              scripts/ops/deploy-scoped-dist.sh|\
+              .github/workflows/server-storage-maintenance.yml|\
+              scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|\
+              scripts/ops/deploy-scoped-dist.sh|scripts/ops/prune-inactive-umbot-deps.sh|scripts/ops/audit-directus-uploads.sh|\
               __tests__/runtimeConfigContracts.test.js|__tests__/nginxOps.test.ts|\
               docs/campaign-preview/PHOTO-SOURCES.md|docs/campaign-preview/README.md|\
               docs/campaign-preview/compose-email.mjs|docs/campaign-preview/comunidades-email.html|\
@@ -165,14 +236,20 @@ jobs:
               src/utils/blogTopicMap.ts|src/utils/getBlogData.ts) ;;
               # UM25 refactor: cine v4 (40 recorridos), páginas de producto
               # 104/105/106 y control visual.
-              public/cine/cine-banner-v4.js|public/cine/media/cine-*|\
-              __tests__/visualInformationHubContracts.test.js|\
-              scripts/cine/import-v4-media.mjs|\
+              public/cine/cine-banner-v4.js|public/cine/cine-banner-v5.js|public/cine/cine-studies-v5.js|public/cine/product-tour-v5.js|\
+              public/cine/services-story-v5.js|public/cine/software-layers-v5.js|\
+              public/cine/isometric-services-v6.js|public/cine/service-atlas-v6.js|public/cine/software-layers-v6.js|\
+              public/cine/hairline-v5.js|public/cine/LICENSE-hairline-v5.txt|public/cine/media/cine-*|\
+              __tests__/visualInformationHubContracts.test.js|__tests__/cineMotionLifecycle.test.js|\
+              docs/cine/v5-integration.md|docs/cine/storage-maintenance-20261004.md|\
+              scripts/cine/import-v4-media.mjs|scripts/cine/build-hairline-v5.mjs|scripts/cine/vendor/*|\
               src/components/cine/*.astro|\
               src/components/templates/SectorTemplateUM26.astro|\
               src/components/v4/NavbarV4.astro|\
               src/data/cine/scenes.ts|src/data/cine/v4-media.json|\
-              src/data/productPages.ts|\
+              src/data/productPages.ts|src/data/cine/hardware.ts|src/data/cine/isometric.ts|\
+              src/assets/cine/isometric/*|scripts/cine/build-isometric-v6.mjs|scripts/cine/isometric-models-v6.mjs|\
+              __tests__/isometricServices.test.js|__tests__/mobileOverflowContracts.test.js|docs/cine/isometric-v6.md|\
               src/pages/antecedentes/index.astro|\
               src/pages/certificaciones.astro|\
               src/pages/index.astro|\
@@ -182,6 +259,11 @@ jobs:
               *) echo "Unexpected release path: $path" >&2; exit 1 ;;
             esac
           done < /tmp/umsa-release-paths.txt
+          # Versioned font/template URLs may only be added, never overwritten.
+          if [[ -n "$(git diff --name-only --diff-filter=MRD "${GITHUB_SHA}^1" "$GITHUB_SHA" -- public/fonts/um-sans/v2.0.0)" ]]; then
+            echo 'Published UM Sans URLs are immutable; use a new release directory' >&2
+            exit 1
+          fi
           # The scoped overlay restores every already-published public asset, so a
           # modified file under public/cine would silently ship its old version.
           # Cinema assets may only be added; ship changes under a new name.
@@ -241,6 +323,11 @@ jobs:
           echo '--- git worktrees'
           git -C "$app" worktree list 2>/dev/null || true
           git -C "$app" worktree prune --dry-run -v 2>/dev/null || true
+          used_pct="$(df -Pk "$app" | awk 'NR==2 {gsub(/%/, "", $5); print $5}')"
+          if (( used_pct > 90 )); then
+            echo "Disk usage ${used_pct}% exceeds the architecture limit of 90%; nothing was uploaded" >&2
+            exit 1
+          fi
           avail_kb="$(df -Pk "$app" | awk 'NR==2 {print $4}')"
           echo "available_kb=$avail_kb need_kb=$need_kb"
           if (( avail_kb < need_kb )); then
@@ -254,7 +341,13 @@ jobs:
           set -euo pipefail
           STAGE="${DEPLOY_PATH}/backups/umsa-campaign-${RELEASE_ID}/incoming-dist"
           ssh root@23.105.176.45 "mkdir -p '$STAGE'"
-          rsync -az --checksum dist/ "root@23.105.176.45:$STAGE/"
+          # Keep superseded experiments in Git for provenance, outside the release.
+          rsync -az --checksum \
+            --exclude='/client/cine/media/cine-v5-*' \
+            --exclude='/client/cine/cine-studies-v5.js' \
+            --exclude='/client/cine/services-story-v5.js' \
+            --exclude='/client/cine/software-layers-v5.js' \
+            dist/ "root@23.105.176.45:$STAGE/"
 
       - name: Swap verified runtime with automatic origin rollback
         run: |
@@ -397,6 +490,14 @@ jobs:
       - name: SEO and GEO release audit
         run: node scripts/seo-audit.mjs --base-url https://www.ultimamilla.com.ar
 
+      - name: Apply scoped font CORS and cache headers
+        run: |
+          ssh root@23.105.176.45 'UMSANS_FONT_MODE=apply bash -s' \
+            < scripts/ops/apply-umsans-font-headers.sh
+
+      - name: Verify UM Sans service and offer downloads at public edge
+        run: node scripts/fonts/audit_um_sans_2_service.mjs https://www.ultimamilla.com.ar
+
       - name: GEO scoring release audit
         run: npm run geo:score -- --base-url https://www.ultimamilla.com.ar --min-score 90 --json
 
@@ -427,3 +528,37 @@ jobs:
           echo "Author: $AUTHOR"
           echo "Message: $COMMIT_MSG"
           echo "Status: ${{ job.status }}"
+
+  storage-maintenance:
+    name: Audited storage maintenance
+    if: github.event_name == 'workflow_dispatch' && inputs.operation != 'deploy'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v6
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 23.105.176.45 >> ~/.ssh/known_hosts
+      - name: Execute only the selected maintenance mode
+        env:
+          OPERATION: ${{ inputs.operation }}
+        run: |
+          set -euo pipefail
+          case "$OPERATION" in
+            storage-plan) script=scripts/ops/prune-inactive-umbot-deps.sh; mode=--plan ;;
+            storage-apply) script=scripts/ops/prune-inactive-umbot-deps.sh; mode=--apply ;;
+            uploads-audit) script=scripts/ops/audit-directus-uploads.sh; mode=--plan ;;
+            *) echo 'Unexpected maintenance operation' >&2; exit 2 ;;
+          esac
+          ssh root@23.105.176.45 "bash -s -- '$mode'" < "$script" | tee storage-report.txt
+      - name: Save maintenance receipt
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: storage-maintenance-${{ github.run_id }}
+          path: storage-report.txt
+          retention-days: 30

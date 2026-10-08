@@ -102,7 +102,7 @@ describe('UM Sans 2 Display quarantine', () => {
     expect(css).toMatch(/body main :where\(h2,[\s\S]*?font-family: var\(--um-font-body\) !important;/);
     expect(css).toContain('UMSans-Variable.woff2?v=1.2.0-production');
     expect(layout).not.toContain('UMSans2Display-Bold.woff2');
-    expect(layout).toContain('data-font-system="um-sans-editorial-1.2"');
+    expect(layout).toContain('data-font-system="um-sans-2.0.0"');
     expect(layout).not.toContain('/fonts/um-sans-2/');
   });
 
@@ -123,9 +123,9 @@ describe('UM Sans 2 Display quarantine', () => {
 
     expect(css).toContain('font-family: var(--um-font-body) !important;');
     expect(audit).toContain("tag === 'h1' ||");
-    expect(audit).toContain("measureFont('\"UM Sans\", monospace', 800");
-    expect(audit).toContain('/UM Sans 2(?: Display| Candidate)?/i.test(getComputedStyle(element).fontFamily)');
-    expect(audit).toContain('Blocked unapproved UM Sans 2 reference');
+    expect(audit).toContain("measureFont('\"UM Sans 2\", monospace', 800");
+    expect(audit).toContain('/UM Sans 2 (?:Display|Candidate|Dev|Manual)/i.test(getComputedStyle(element).fontFamily)');
+    expect(audit).toContain('Blocked experimental UM Sans 2 reference');
     expect(page).toContain('.ums2 :is(h2, h3)');
     expect(page).toContain('.ums2-context--marketing h3');
     expect(page).toContain('font-kerning: normal');

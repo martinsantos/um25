@@ -1,0 +1,28 @@
+---
+import LayoutV4 from '../../../layouts/LayoutV4.astro';
+import '../../../styles/font-service.css';
+const base = '/fonts/um-sans/v2.0.0/plantillas';
+const templates = [
+  { id: 'oferta-completa', title: 'Oferta completa', description: 'Objetivo, alcance, entregables, etapas, inversión y condiciones comerciales.' },
+  { id: 'resumen-comercial', title: 'Resumen comercial', description: 'Una propuesta breve para presentar el alcance y la inversión en una página.' },
+  { id: 'membrete', title: 'Documento con membrete', description: 'La base de marca para cartas, anexos, informes y comunicaciones.' },
+];
+const formats = ['PDF', 'DOCX', 'DOTX', 'ODT'];
+---
+<LayoutV4 title="Plantillas de oferta | UM Sans 2.0 | ULTIMA MILLA" description="Plantillas de oferta, resumen comercial, membrete y planilla económica con UM Sans 2.0. HTML editable, PDF, Word, ODT y Excel.">
+  <div class="font-hub ums2 um-type template-hub">
+    <header><p class="font-eyebrow"><a href="/estilo/fuente">UM Sans 2.0</a> · Documentos de marca</p><h1>Pro&shy;pues&shy;tas claras.<br />De prin&shy;ci&shy;pio a fin.</h1><p class="font-lead">Membrete, títulos, lectura y cifras.<br />Un mismo sistema en cada formato.</p><p class="font-intro">Elegí una base, completá los datos del cliente y desarrollá el alcance. Los estilos mantienen la jerarquía mientras trabajás; el PDF conserva la presentación al compartirla.</p><div class="font-actions"><a class="font-button" href={`${base}/Plantillas-UMSans2-2.0.0.zip`} download>Descargar todas las plantillas</a><a class="font-button font-button-secondary" href="/fonts/um-sans/v2.0.0/UMSans2-2.0.0.zip" download>Descargar la tipografía</a></div></header>
+    <section aria-labelledby="template-list-title"><p class="font-eyebrow">01 · Elegir una base</p><h2 id="template-list-title">Una es&shy;truc&shy;tu&shy;ra para cada pro&shy;pues&shy;ta.</h2><div class="template-grid">{templates.map(template => <article>
+      <a class="template-preview" href={`${base}/${template.id}.pdf`} aria-label={`Ver PDF: ${template.title}`}><img src={`${base}/${template.id}.webp`} width="595" height="842" alt={`Vista previa del membrete y la composición de ${template.title.toLowerCase()}`} loading="lazy" /></a>
+      <h3>{template.title}</h3><p>{template.description}</p><a class="template-open" href={`${base}/${template.id}.html`}>Abrir y editar en el navegador</a><ul aria-label={`Formatos de ${template.title}`}>{formats.map(format => <li><a href={`${base}/${template.id}.${format.toLowerCase()}`} download>{format}</a></li>)}</ul>
+    </article>)}</div></section>
+    <section aria-labelledby="template-economy-title"><p class="font-eyebrow">02 · Inversión</p><h2 id="template-economy-title">Cifras ordenadas. Totales com&shy;pro&shy;ba&shy;bles.</h2><div class="font-integration-grid"><article><p>La planilla económica incluye conceptos, cantidades, unidades, precios, importes, impuestos y total. Los campos numéricos validan valores positivos y las fórmulas calculan cada renglón.</p><a class="font-button" href={`${base}/oferta-economica.xlsx`} download>Descargar Excel</a></article><article><h3>Antes de emitir</h3><p>Revisá moneda, impuestos, validez, forma de pago, plazos y exclusiones. Los campos entre corchetes son datos a completar, no condiciones predefinidas de una oferta.</p></article></div></section>
+    <section aria-labelledby="template-use-title"><p class="font-eyebrow">03 · Usar y compartir</p><h2 id="template-use-title">Cada formato tiene su función.</h2><div class="font-delivery-grid"><article><h3>HTML editable</h3><p>Abrí la plantilla, editá sus campos y guardá el HTML o imprimí a PDF. Lleva la tipografía y el membrete incorporados para trabajar sin conexión.</p></article><article><h3>Word y ODT</h3><p>Instalá primero los TTF de UM Sans 2. DOCX y ODT son documentos editables; DOTX permite crear documentos nuevos desde una plantilla. Los estilos ordenan títulos, cuerpo y tablas.</p></article><article><h3>PDF</h3><p>Usá el PDF como referencia visual de tamaño A4. Para entregar una oferta, exportá el documento ya completado con las fuentes incrustadas.</p></article><article><h3>Una versión com&shy;par&shy;ti&shy;da</h3><p>Estas plantillas usan UM Sans 2.0.0. Los sitios y aplicaciones pueden convocar la misma versión desde el <a href="/estilo/fuente#integrar">servicio de tipografía</a>.</p></article></div></section>
+  </div>
+</LayoutV4>
+<style>
+  .template-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 40px; margin-top: 36px; }
+  .template-grid article { min-width: 0; }.template-preview { display: block; background: #eeefed; padding: 20px; border: 1px solid #d7d9dd; margin-bottom: 24px; }.template-preview img { display: block; width: 100%; height: auto; box-shadow: 0 3px 10px #00000018; }
+  .template-grid p { margin: 16px 0 20px; font-size: 1.125rem; }.template-open { display: inline-block; font-weight: 600; font-size: 1rem; }.template-grid ul { display: flex; gap: 10px 20px; flex-wrap: wrap; list-style: none; padding: 0; margin: 20px 0 0; font-size: 1rem; }.template-grid ul a { display: inline-block; padding-block: 8px; }
+  @media(max-width:800px) { .template-grid { grid-template-columns: 1fr; gap: 44px; }.template-preview { max-width: 420px; } }
+</style>

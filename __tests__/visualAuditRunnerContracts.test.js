@@ -136,7 +136,7 @@ describe('Visual audit runner contracts', () => {
     expect(visualAudit).toContain("element.classList.contains('um-display-emphasis')");
     expect(visualAudit).toContain("const maxWeight = tag === 'h1' ? 800 : 700");
     expect(visualAudit).toContain('fontWeight) > 800');
-    expect(visualAudit).toContain("measureFont('\"UM Sans\", monospace', 800");
+    expect(visualAudit).toContain("measureFont('\"UM Sans 2\", monospace', 800");
     expect(visualAudit).toContain("tag === 'h1' ||");
   });
 
