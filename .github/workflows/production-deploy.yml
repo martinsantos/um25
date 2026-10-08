@@ -38,7 +38,7 @@ jobs:
             required=false
             while IFS= read -r path; do
               case "$path" in
-                .github/workflows/production-deploy.yml|.github/workflows/server-storage-maintenance.yml|scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py) ;;
+                .github/workflows/production-deploy.yml|.github/workflows/server-storage-maintenance.yml|scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py) ;;
                 *) required=true ;;
               esac
             done < <(git diff --name-only "$BEFORE" HEAD)
@@ -186,6 +186,7 @@ jobs:
               .github/workflows/server-storage-maintenance.yml|\
               scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|\
               scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|\
+              scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|\
               scripts/ops/deploy-scoped-dist.sh|\
               __tests__/runtimeConfigContracts.test.js|__tests__/nginxOps.test.ts|\
               docs/campaign-preview/PHOTO-SOURCES.md|docs/campaign-preview/README.md|\
@@ -487,6 +488,16 @@ jobs:
 
       - name: Directus integration release audit
         run: node scripts/directus-release-audit.mjs --base-url https://www.ultimamilla.com.ar
+
+      - name: Compact identical rollback assets after successful release
+        run: |
+          set -euo pipefail
+          ssh root@23.105.176.45 'python3 -' \
+            < scripts/ops/compact-runtime-backups.py > /tmp/runtime-compaction-plan.json
+          plan_sha="$(python3 -c 'import json; print(json.load(open("/tmp/runtime-compaction-plan.json"))["plan_sha256"])')"
+          [[ "$plan_sha" =~ ^[0-9a-f]{64}$ ]]
+          ssh root@23.105.176.45 "python3 - --apply --expected-plan-sha $plan_sha" \
+            < scripts/ops/compact-runtime-backups.py
 
       - name: Restore previous runtime after failed checks
         if: failure() && steps.ssh_agent.outcome == 'success'

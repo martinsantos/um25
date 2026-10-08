@@ -7,13 +7,15 @@ on:
       - 'scripts/ops/test_cold_dependencies.py'
       - 'scripts/ops/deduplicate-directus-backups.py'
       - 'scripts/ops/test_directus_backup_dedup.py'
+      - 'scripts/ops/compact-runtime-backups.py'
+      - 'scripts/ops/test_runtime_compaction.py'
       - '.github/workflows/server-storage-maintenance.yml'
   workflow_dispatch:
     inputs:
       operation:
         description: 'Audited dependencies or duplicate Directus backups'
         type: choice
-        options: [dependencies, backups]
+        options: [dependencies, backups, runtime-backups]
         default: dependencies
         required: true
       mode:
@@ -68,6 +70,7 @@ jobs:
           case "$OPERATION" in
             dependencies) script=scripts/ops/prune-cold-dependencies.py ;;
             backups) script=scripts/ops/deduplicate-directus-backups.py ;;
+            runtime-backups) script=scripts/ops/compact-runtime-backups.py ;;
             *) exit 2 ;;
           esac
           if [[ "$MODE" == apply ]]; then
