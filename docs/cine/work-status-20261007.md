@@ -1,5 +1,18 @@
 # Candidata integrada · 8 de octubre de 2026
 
+## Estado actual · Software claro
+
+Preview `http://127.0.0.1:4326/software`, checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`, rama `feature/isometric-redes-review`, PR #266 draft. Software v7 importado en `23aeb972`; composición móvil corregida en `3c4a2ba7` y pósters sRGB en `a9cc73ee`. PID propio 44653: comprobar comando y cwd antes de reiniciar. El build sirve la película nueva, confirmado por HTTP.
+
+La interfaz de Software es clara, frontal, proporcionada y ocupa el ancho de su escenario. La solicitud recorre ficha, reglas, datos y operación sin clics. Se conserva la división entre película superior y explicación isométrica inferior. Nuevo gabinete eléctrico detallado en `98ca6e86`; apertura y siete estados revisados en cuatro perfiles de navegador. **Continúa la revisión artística: no hay igualdad con las referencias ni GO a producción.**
+
+Render Software `37762384241`: 24 s, 4K/60, 1.440 cuadros distintos; seis assets activos de 36.834.436 bytes con pósters revisados. Los 48 assets activos de las ocho disciplinas suman ahora 297.317.712 bytes. Software v5 ya no es la versión de la preview. Los renders rechazados se mantienen como evidencia histórica.
+
+`npm run check`: 71 suites / 593 pruebas aprobadas, repetido con el producto final `a9cc73ee`; lint, tipos, CSS y build aprobados. Gabinete `37763343190`: 28 estados y cuatro vistas reducidas, Chrome/WebKit escritorio/móvil, sin hallazgos. Software: servicio `37764129920` (diez composiciones y dos ciclos) y ambos accesos `37764705011` (veinte composiciones y dos ciclos), sin hallazgos. Color final y ambos accesos `37765683012`: intento 1 agotado instalando navegadores antes de abrir la web; intento 2 aprobado sin cambios de producto: veinte composiciones, color, dos ciclos automáticos y seis frases sincronizadas, cero hallazgos. Chrome 28/1.375 cuadros descartados, WebKit móvil 0/1.373; capturas inspeccionadas y archivadas. No quedan ejecuciones pendientes de esta corrección. Detalle, comparaciones y limitaciones en [reference-gate-20261008.md](reference-gate-20261008.md).
+
+## Historial de integración anterior · los estados siguientes no son los actuales
+
+
 **Revisión reabierta y resultado rechazado por calidad visual.** El estado de aceptación actual está en [reference-gate-20261008.md](reference-gate-20261008.md). Software v6 fue descartado y su render completo cancelado; v7 sólo tiene pruebas en curso. El registro de entrega siguiente describe la integración técnica anterior, no una aprobación de calidad.
 
 Estado a las 07:03 UTC. Checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`, rama `feature/isometric-redes-review`, PR #266 a develop, draft. Producto `9c2f3dee`. Preview `http://127.0.0.1:4326/` reconstruida en ese commit; PID propio 17070. Verificar proceso y cwd antes de reiniciar. No modificar el checkout principal ni desplegar.
