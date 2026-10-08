@@ -16,13 +16,19 @@ Rama `feature/isometric-redes-review`, PR #266 (draft), checkout `/Users/santosm
 
 Modelo propio de rack de 19 pulgadas, 24 puertos RJ45 con contactos, 12 adaptadores ópticos, placa del switch, organizadores, latiguillos, bandejas y radio con PCB circular, blindajes, antenas y componentes. Recorrido continuo: instalación, gabinete, switch, radio y regreso. 24 s, 1.440 cuadros nativos.
 
-Prueba `37719886220`: plano general y rack útiles, radio rechazada por su placa demasiado vacía. `37720542508` corrige la electrónica y el espacio de la tapa del switch; se revisaron sus dos PNG. La radio todavía mostraba un perfil duro, ranuras triangulares y un cable dominante. Se corrigen carcasa formada continua, ranuras estrechas en la zona cilíndrica y funda neutra con pulso rojo de señal. Prueba `37721305675` sobre `69231a92`: inspeccionada; perfil continuo y ranuras corregidas. Se habilita el render completo de Redes; aún falta ejecutarlo e importar su entrega.
+Prueba `37719886220`: plano general y rack útiles, radio rechazada por su placa demasiado vacía. `37720542508` corrige la electrónica y el espacio de la tapa del switch; se revisaron sus dos PNG. La radio todavía mostraba un perfil duro, ranuras triangulares y un cable dominante. Se corrigen carcasa formada continua, ranuras estrechas en la zona cilíndrica y funda neutra con pulso rojo de señal. Prueba `37721305675` sobre `69231a92`: inspeccionada; perfil continuo y ranuras corregidas. Render completo de Redes `37721892202`, fuente `6e16722f`, en curso; todavía no importado.
 
 Pipeline genérico de ensamblado/importación preparado para `fire-project-v2` y `network-project-v2`: valida hashes, 1.440 cuadros, 60 fps, color explícito, continuidad y mismo código fuente en los doce fragmentos. La película antigua de Redes sigue registrada hasta aprobar e importar la nueva. Las otras cinco películas de servicio conservan el acabado v1.
 
 ## Preparación de Seguridad v2
 
-Nueva escena `render-security-project-v2.py`: acceso a escala, lector, hoja articulada, cámara con óptica separable y sensor, grabador con cuatro discos y electrónica, consola que relaciona imagen/evento/respuesta. Recorrido y tres mecanismos propios. La ejecución completa sigue bloqueada en el workflow hasta inspeccionar cuatro planos nativos. No se ha modificado la película registrada del servicio 102.
+Nueva escena `render-security-project-v2.py`: acceso a escala, lector, hoja articulada, cámara con óptica separable y sensor, grabador con cuatro discos y electrónica, consola que relaciona imagen/evento/respuesta. Recorrido y tres mecanismos propios. La prueba `37721895406` completó cuatro planos. Se rechaza el espacio vacío de la instalación, el monitor esquemático y la tapa que tapa el controlador. Se corrigen ventanas, profundidad de la escena, plano/eventos detallados, ángulo de la óptica y desplazamiento de tapa. La ejecución completa sigue bloqueada hasta revisar la corrección. No se ha modificado la película registrada del servicio 102.
+
+## Telecomunicaciones v2 y últimos controles
+
+Modelo `render-telecom-project-v2.py`: dos sitios, parábolas de doble piel, alimentación y herrajes, montantes, óptica con bandejas y reservas de fibra. Dos alternativas de transporte con intervalos independientes; no se presentan en serie. Falta su primera prueba Blender. El workflow sólo permite proof/motion-proof para 102 y 103.
+
+`37721308823`: cuatro perfiles de las cinco isometrías terminaron correctamente. Falta completar la inspección de sus nuevas capturas. `37721311238`: Incendio tuvo cero hallazgos funcionales, pero el circuito dejaba el contexto demasiado oscuro. Se aumenta su legibilidad y se componen acercamientos propios de escritorio para las seis capas; pendiente revisión posterior.
 
 ## Límites de la revisión
 

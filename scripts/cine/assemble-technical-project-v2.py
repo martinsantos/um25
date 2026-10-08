@@ -1,8 +1,8 @@
 """Assemble a single reviewed technical installation from twelve native 4K/60 parts."""
 import argparse, hashlib, json, os, subprocess
 from pathlib import Path
-parser=argparse.ArgumentParser();parser.add_argument('--source',default='.');parser.add_argument('--output',default='delivery');parser.add_argument('--scene',choices=['fire-project-v2','network-project-v2','security-project-v2'],required=True);args=parser.parse_args()
-SCENE=args.scene;SERVICE={'fire-project-v2':'107','network-project-v2':'101','security-project-v2':'102'}[SCENE]
+parser=argparse.ArgumentParser();parser.add_argument('--source',default='.');parser.add_argument('--output',default='delivery');parser.add_argument('--scene',choices=['fire-project-v2','network-project-v2','security-project-v2','telecom-project-v2'],required=True);args=parser.parse_args()
+SCENE=args.scene;SERVICE={'fire-project-v2':'107','network-project-v2':'101','security-project-v2':'102','telecom-project-v2':'103'}[SCENE]
 source=Path(args.source).resolve();out=Path(args.output).resolve();out.mkdir(parents=True,exist_ok=True)
 def call(*args):subprocess.run([str(a) for a in args],check=True)
 def probe(file):return json.loads(subprocess.check_output(['ffprobe','-v','error','-count_frames','-show_streams','-show_format','-of','json',str(file)]))

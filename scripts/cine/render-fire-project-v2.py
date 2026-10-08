@@ -364,7 +364,7 @@ def render(args,s,story=None):
         obj=bpy.data.objects.new(door['name'],None);scene.collection.objects.link(obj);obj.location=door['pivot'];parents[door['name']]=obj
     def meshpart(mat,group,vertices,faces,smooth_side=False):
         vv,ff=groups.setdefault((mat,group),([],[]));offset=len(vv);vv.extend(vertices)
-        if smooth_side:smoothfaces.setdefault((mat,group),set()).update(range(len(ff)+2,len(ff)+len(faces)))
+        if smooth_side:smoothfaces.setdefault((mat,group),set()).update(range(len(ff)+(0 if smooth_side=='all' else 2),len(ff)+len(faces)))
         ff.extend(tuple(offset+i for i in face) for face in faces)
         if not group:bounds.extend(vertices)
     for b in s.boxes:
@@ -380,7 +380,7 @@ def render(args,s,story=None):
                 vv.append(xyz)
         ff=[tuple(reversed(range(n))),tuple(n+j for j in range(n))]+[(j,(j+1)%n,(j+1)%n+n,j+n) for j in range(n)]
         meshpart(c['mat'],c.get('group'),vv,ff,smooth_side=True)
-    for m in s.meshes:meshpart(m['mat'],m.get('group'),m['vertices'],m['faces'],smooth_side=m.get('smooth_side',False))
+    for m in s.meshes:meshpart(m['mat'],m.get('group'),m['vertices'],m['faces'],smooth_side='all' if m.get('smooth_all') else m.get('smooth_side',False))
     for (mat,group),(vv,ff) in groups.items():
         mesh=bpy.data.meshes.new(mat);mesh.from_pydata(vv,[],ff);mesh.update()
         for index in smoothfaces.get((mat,group),set()):mesh.polygons[index].use_smooth=True

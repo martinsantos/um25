@@ -5,7 +5,7 @@ on:
       version:
         description: Authored delivery and recoverable native fire installation cinema
         type: choice
-        options: [v1, fire-v2, network-v2, security-v2]
+        options: [v1, fire-v2, network-v2, security-v2, telecom-v2]
         default: v1
       mode:
         type: choice
@@ -57,22 +57,22 @@ jobs:
         run: |
           python3 - <<'PY'
           import json,os
-          assert os.environ['ENGINE'] in (['cycles','workbench','baked'] if os.environ['VERSION'] in ['fire-v2','network-v2','security-v2'] else ['eevee','cycles'])
-          assert os.environ['MODE']!='motion-proof' or os.environ['VERSION'] in ['fire-v2','network-v2','security-v2']
+          assert os.environ['ENGINE'] in (['cycles','workbench','baked'] if os.environ['VERSION'] in ['fire-v2','network-v2','security-v2','telecom-v2'] else ['eevee','cycles'])
+          assert os.environ['MODE']!='motion-proof' or os.environ['VERSION'] in ['fire-v2','network-v2','security-v2','telecom-v2']
           codes=['101','102','103','105','106','107','108']
           selected=codes if os.environ['SERVICES']=='all' else os.environ['SERVICES'].split(',')
           assert selected and set(selected)<=set(codes) and len(selected)==len(set(selected))
-          stride=120 if os.environ['VERSION'] in ['fire-v2','network-v2','security-v2'] else 48
+          stride=120 if os.environ['VERSION'] in ['fire-v2','network-v2','security-v2','telecom-v2'] else 48
           rows=[dict(service=s,part=1,start=0,end=0) for s in selected] if os.environ['MODE']=='proof' else [dict(service=s,part=i+1,start=i*stride,end=(i+1)*stride-1) for s in selected for i in range(12)]
           if os.environ['MODE']=='repair':
               pairs=[item.split(':') for item in os.environ['REPAIRS'].split(',')]
               assert pairs and all(len(pair)==2 and pair[0] in codes and pair[1].isdigit() and 1<=int(pair[1])<=12 for pair in pairs)
               assert len({tuple(pair) for pair in pairs})==len(pairs)
               rows=[dict(service=code,part=int(part),start=(int(part)-1)*stride,end=int(part)*stride-1) for code,part in pairs]
-          if os.environ['VERSION'] in ['fire-v2','network-v2','security-v2']:
-              code={'fire-v2':'107','network-v2':'101','security-v2':'102'}[os.environ['VERSION']]
+          if os.environ['VERSION'] in ['fire-v2','network-v2','security-v2','telecom-v2']:
+              code={'fire-v2':'107','network-v2':'101','security-v2':'102','telecom-v2':'103'}[os.environ['VERSION']]
               assert selected==[code] and all(row['service']==code for row in rows), 'The installation belongs to its authored discipline'
-              if code=='102':assert os.environ['MODE'] in ['proof','motion-proof'], 'Review security composition before enabling a full render'
+              if code in ['102','103']:assert os.environ['MODE'] in ['proof','motion-proof'], 'Review service composition before enabling a full render'
               frames=[int(f) for f in os.environ['PROOF_FRAMES'].split(',')]
               assert 1<=len(frames)<=5 and len(set(frames))==len(frames) and all(0<=f<1440 for f in frames)
               if os.environ['MODE']=='proof':rows=[dict(service=code,part=i+1,start=f,end=f) for i,f in enumerate(frames)]
@@ -99,6 +99,7 @@ jobs:
             scripts/cine/render-fire-project-v2.py
             scripts/cine/render-network-project-v2.py
             scripts/cine/render-security-project-v2.py
+            scripts/cine/render-telecom-project-v2.py
             scripts/cine/check-service-composition.py
           sparse-checkout-cone-mode: false
       - name: Install verified official Blender
@@ -129,10 +130,11 @@ jobs:
           START: ${{ matrix.start }}
           END: ${{ matrix.end }}
         run: |
-          if [ '${{ inputs.version }}' = fire-v2 ] || [ '${{ inputs.version }}' = network-v2 ] || [ '${{ inputs.version }}' = security-v2 ]; then
+          if [ '${{ inputs.version }}' = fire-v2 ] || [ '${{ inputs.version }}' = network-v2 ] || [ '${{ inputs.version }}' = security-v2 ] || [ '${{ inputs.version }}' = telecom-v2 ]; then
             AUTHOR='scripts/cine/render-fire-project-v2.py'
             if [ '${{ inputs.version }}' = network-v2 ]; then AUTHOR='scripts/cine/render-network-project-v2.py'; fi
             if [ '${{ inputs.version }}' = security-v2 ]; then AUTHOR='scripts/cine/render-security-project-v2.py'; fi
+            if [ '${{ inputs.version }}' = telecom-v2 ]; then AUTHOR='scripts/cine/render-telecom-project-v2.py'; fi
             python3 "$AUTHOR" --validate-only
             RENDER=(./blender-4.5.3-linux-x64/blender)
             if [ "$ENGINE" != cycles ]; then RENDER=(xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender); fi
@@ -149,14 +151,14 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always() && ((inputs.mode || 'proof') == 'proof' || inputs.mode == 'motion-proof')
         with:
-          name: ${{ inputs.version == 'security-v2' && format('security-project-v2-proof-{0}', matrix.part) || inputs.version == 'network-v2' && format('network-project-v2-proof-{0}', matrix.part) || inputs.version == 'fire-v2' && format('fire-project-v2-proof-{0}', matrix.part) || format('service-proof-{0}', matrix.service) }}
+          name: ${{ inputs.version == 'telecom-v2' && format('telecom-project-v2-proof-{0}', matrix.part) || inputs.version == 'security-v2' && format('security-project-v2-proof-{0}', matrix.part) || inputs.version == 'network-v2' && format('network-project-v2-proof-{0}', matrix.part) || inputs.version == 'fire-v2' && format('fire-project-v2-proof-{0}', matrix.part) || format('service-proof-{0}', matrix.service) }}
           path: frames
           retention-days: 3
       - name: Encode recoverable part
         if: inputs.mode == 'full' || inputs.mode == 'repair'
         run: |
           cp frames/render-info.json part-${{ matrix.part }}-info.json
-          if [ '${{ inputs.version }}' = fire-v2 ] || [ '${{ inputs.version }}' = network-v2 ] || [ '${{ inputs.version }}' = security-v2 ]; then
+          if [ '${{ inputs.version }}' = fire-v2 ] || [ '${{ inputs.version }}' = network-v2 ] || [ '${{ inputs.version }}' = security-v2 ] || [ '${{ inputs.version }}' = telecom-v2 ]; then
             ffmpeg -v error -framerate 60 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 120 -vf 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p' -c:v libx264 -preset medium -crf 18 -r 60 -g 120 -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1 -an -movflags +faststart part-${{ matrix.part }}.mp4
             exit 0
           fi
@@ -164,7 +166,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: inputs.mode == 'full' || inputs.mode == 'repair'
         with:
-          name: ${{ inputs.version == 'security-v2' && format('security-project-v2-part-{0}', matrix.part) || inputs.version == 'network-v2' && format('network-project-v2-part-{0}', matrix.part) || inputs.version == 'fire-v2' && format('fire-project-v2-part-{0}', matrix.part) || format('service-{0}-part-{1}', matrix.service, matrix.part) }}
+          name: ${{ inputs.version == 'telecom-v2' && format('telecom-project-v2-part-{0}', matrix.part) || inputs.version == 'security-v2' && format('security-project-v2-part-{0}', matrix.part) || inputs.version == 'network-v2' && format('network-project-v2-part-{0}', matrix.part) || inputs.version == 'fire-v2' && format('fire-project-v2-part-{0}', matrix.part) || format('service-{0}-part-{1}', matrix.service, matrix.part) }}
           path: |
             part-${{ matrix.part }}.mp4
             part-${{ matrix.part }}-info.json
@@ -188,7 +190,7 @@ jobs:
           sparse-checkout-cone-mode: false
       - uses: actions/download-artifact@v8
         with:
-          pattern: ${{ inputs.version == 'security-v2' && 'security-project-v2-part-*' || inputs.version == 'network-v2' && 'network-project-v2-part-*' || inputs.version == 'fire-v2' && 'fire-project-v2-part-*' || format('service-{0}-part-*', matrix.service) }}
+          pattern: ${{ inputs.version == 'telecom-v2' && 'telecom-project-v2-part-*' || inputs.version == 'security-v2' && 'security-project-v2-part-*' || inputs.version == 'network-v2' && 'network-project-v2-part-*' || inputs.version == 'fire-v2' && 'fire-project-v2-part-*' || format('service-{0}-part-*', matrix.service) }}
           run-id: ${{ inputs.source_run || github.run_id }}
           github-token: ${{ github.token }}
       - name: Restore only the recovered fragments
@@ -206,6 +208,7 @@ jobs:
             if [ "$VERSION" = fire-v2 ]; then PATTERN='^fire-project-v2-part-[0-9]+$'; fi
             if [ "$VERSION" = network-v2 ]; then PATTERN='^network-project-v2-part-[0-9]+$'; fi
             if [ "$VERSION" = security-v2 ]; then PATTERN='^security-project-v2-part-[0-9]+$'; fi
+            if [ "$VERSION" = telecom-v2 ]; then PATTERN='^telecom-project-v2-part-[0-9]+$'; fi
             NAMES=$(gh api "repos/$GH_REPO/actions/runs/$RUN/artifacts?per_page=100" --jq ".artifacts[].name | select(test(\"$PATTERN\"))")
             test -n "$NAMES"
             while IFS= read -r NAME; do gh run download "$RUN" -n "$NAME" -D "$NAME"; done <<< "$NAMES"
@@ -220,9 +223,10 @@ jobs:
             echo "Package index refresh timed out; using runner cached signed indexes."
           fi
           sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq ffmpeg
-          if [ '${{ inputs.version }}' = network-v2 ] || [ '${{ inputs.version }}' = security-v2 ]; then
+          if [ '${{ inputs.version }}' = network-v2 ] || [ '${{ inputs.version }}' = security-v2 ] || [ '${{ inputs.version }}' = telecom-v2 ]; then
             SCENE=network-project-v2
             if [ '${{ inputs.version }}' = security-v2 ]; then SCENE=security-project-v2; fi
+            if [ '${{ inputs.version }}' = telecom-v2 ]; then SCENE=telecom-project-v2; fi
             python3 scripts/cine/assemble-technical-project-v2.py --scene "$SCENE"
             exit 0
           fi
@@ -266,6 +270,6 @@ jobs:
           sha256sum delivery/* > delivery/SHA256SUMS
       - uses: actions/upload-artifact@v7
         with:
-          name: ${{ inputs.version == 'security-v2' && 'security-project-v2-delivery' || inputs.version == 'network-v2' && 'network-project-v2-delivery' || inputs.version == 'fire-v2' && 'fire-project-v2-delivery' || format('service-cinema-{0}', matrix.service) }}
+          name: ${{ inputs.version == 'telecom-v2' && 'telecom-project-v2-delivery' || inputs.version == 'security-v2' && 'security-project-v2-delivery' || inputs.version == 'network-v2' && 'network-project-v2-delivery' || inputs.version == 'fire-v2' && 'fire-project-v2-delivery' || format('service-cinema-{0}', matrix.service) }}
           path: delivery
           retention-days: 5

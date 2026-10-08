@@ -86,27 +86,50 @@ class Security(network.Network):
   self.box(x,y+.006,z-.15,.028,.025,.15,'edge');self.box(x,y-.01,z-.164,.22,.16,.010,'edge')
   self.text('OPERACION / ACCESOS',x-w/2+.026,y-.017,z+h-.041,.016,'paper',True)
   self.text('A01  /  VESTIBULO',x-w/2+.026,y-.017,z+h-.068,.010,'muted',True)
-  # The observed doorway is recognizable inside its monitoring view.
-  for dx in [-.22,-.02]:self.box(x+dx,y-.018,z+.116,.006,.001,.13,'edge')
-  self.box(x-.12,y-.018,z+.246,.206,.001,.006,'edge')
-  self.box(x-.105,y-.018,z+.123,.145,.001,.115,'muted')
-  self.line([(x-.25,y-.019,z+.098),(x+.015,y-.019,z+.098)],'trace',.0008)
-  for k,(label,detail) in enumerate([('C01','Captura disponible'),('NVR','Evento registrado'),('A01','Acceso autorizado')]):
-   zz=z+.246-k*.061
-   self.box(x+.065,y-.020,zz,.004,.001,.004,'signal')
-   self.text(label,x+.08,y-.020,zz-.001,.010,'paper',True)
-   self.text(detail,x+.08,y-.020,zz-.019,.008,'muted',True)
+  # An actual floor plan and event log replace the generic doorway thumbnail.
+  # Its fine partition, open leaf, sensor and field of view retain the site context.
+  left=x-.284;bottom=z+.100;yy=y-.019
+  self.text('PLANO / VESTIBULO',left,yy,z+.270,.008,'muted',True)
+  self.box(x-.120,yy,z+.174,.320,.001,.140,'black')
+  for a,b in [((left+.017,bottom+.019),(left+.277,bottom+.019)),((left+.017,bottom+.019),(left+.017,bottom+.129)),((left+.017,bottom+.129),(left+.061,bottom+.129)),((left+.123,bottom+.129),(left+.277,bottom+.129)),((left+.277,bottom+.129),(left+.277,bottom+.019))]:
+   self.line([(a[0],yy-.001,a[1]),(b[0],yy-.001,b[1])],'edge',.0006)
+  self.line([(left+.061,yy-.002,bottom+.129),(left+.089,yy-.002,bottom+.083)],'paper',.0007)
+  self.line([(left+.061+.054*math.sin(j*math.pi/24),yy-.002,bottom+.129-.054*math.cos(j*math.pi/24)) for j in range(13)],'muted',.00035)
+  # Camera and reader are distinct, with the observed approach visible on the plan.
+  self.box(left+.124,yy-.003,bottom+.121,.005,.001,.004,'red')
+  for a in [-.048,.018]:self.line([(left+.124,yy-.003,bottom+.121),(left+.124+a,yy-.003,bottom+.056)],'muted',.00035)
+  self.box(left+.131,yy-.003,bottom+.127,.003,.001,.005,'signal')
+  self.text('A01',left+.056,yy-.003,bottom+.138,.007,'paper',True)
+  self.text('C01',left+.134,yy-.003,bottom+.105,.006,'muted',True)
+  self.box(left+.218,yy-.003,bottom+.062,.042,.001,.023,'muted')
+  for j in range(4):self.line([(left+.197+j*.013,yy-.004,bottom+.049),(left+.202+j*.013,yy-.004,bottom+.049)],'edge',.00035)
+  self.text('Recepcion',left+.188,yy-.003,bottom+.035,.006,'muted',True)
+  self.text('EVENTOS RELACIONADOS',x+.07,yy,z+.270,.007,'muted',True)
+  for k,(label,detail,time) in enumerate([('C01 / Imagen','Captura disponible','10:42:06'),('NVR / Registro','Secuencia conservada','10:42:07'),('A01 / Acceso','Permiso verificado','10:42:08')]):
+   zz=z+.239-k*.057
+   self.box(x+.073,yy-.001,zz,.003,.001,.003,'signal')
+   self.text(label,x+.084,yy-.001,zz-.001,.008,'paper',True)
+   self.text(detail,x+.084,yy-.001,zz-.015,.006,'muted',True)
+   self.text(time,x+.084,yy-.001,zz-.027,.0055,'muted',True)
+   self.line([(x+.07,yy-.001,zz-.036),(x+.274,yy-.001,zz-.036)],'trace',.00035)
   self.box(x,y-.018,z+.061,.57,.001,.001,'trace')
   for j in range(60):self.box(x-.282+j*.0095,y-.019,z+.042,.001,.001,.009 if j%5 else .015,'muted')
   self.box(x-.061,y-.020,z+.041,.003,.001,.022,'red')
   self.text('IMAGEN  /  EVENTO  /  RESPUESTA',x-.282,y-.020,z+.020,.0085,'muted',True)
 
 def build():
- s=Security();s.box(0,0,0,6.6,4.6,.09,'concrete');s.box(0,0,.09,6.58,4.58,.014,'flooring')
- for x in range(-6,7):s.line([(x*.5,-2.29,.105),(x*.5,2.29,.105)],'joint',.001)
- for y in range(-4,5):s.line([(-3.29,y*.5,.105),(3.29,y*.5,.105)],'joint',.001)
+ s=Security();s.box(0,.35,0,6.6,3.9,.09,'concrete');s.box(0,.35,.09,6.58,3.88,.014,'flooring')
+ for x in range(-6,7):s.line([(x*.5,-1.59,.105),(x*.5,2.29,.105)],'joint',.001)
+ for y in range(-3,5):s.line([(-3.29,y*.5,.105),(3.29,y*.5,.105)],'joint',.001)
  # Front-open architectural section, with a real entrance and a separate control desk.
- for x,w in [(-2.92,.74),(.875,4.79)]:s.box(x,2.235,.105,w,.12,2.40,'paper')
+ s.box(-2.92,2.235,.105,.74,.12,2.40,'paper')
+ s.box(.875,2.235,.105,4.79,.12,.71,'paper');s.box(.875,2.235,2.36,4.79,.12,.145,'paper')
+ for left,right in [(-1.51,.055),(.075,1.64),(1.66,3.25)]:
+  mid=(left+right)/2;w=right-left
+  for xx in [left,right]:s.box(xx,2.20,.815,.024,.064,1.545,'edge')
+  for zz in [.815,2.335]:s.box(mid,2.20,zz,w,.064,.024,'edge')
+  s.box(mid,2.231,.844,w-.029,.009,1.490,'glass')
+  s.box(mid,2.14,.805,w+.028,.19,.024,'paper')
  for x in [-2.535,-1.455]:s.box(x,2.16,.105,.045,.15,2.14,'edge')
  s.box(-1.995,2.16,2.20,1.13,.15,.045,'edge')
  group='entrance-leaf';s.doors.append(dict(name=group,pivot=(-2.50,2.16,.115),kind='door'))
@@ -133,7 +156,7 @@ def build():
  s.seat(2.2,-.08,front=-1)
  for dx in [-.17,.17]:
   for dy in [-.16,.16]:s.box(2.2+dx,-.08+dy,.105,.025,.025,.35,'edge')
- s.route([(-1.4,2.08,2.52),(-1.4,2.16,2.62),(1.27,2.16,2.62),(1.27,2.16,.83),(1.27,.87,.83)],.16,.72)
+ s.route([(-1.30,2.085,2.39),(-1.30,2.16,2.39),(-1.4,2.16,2.62),(1.27,2.16,2.62),(1.27,2.16,.83),(1.27,.87,.83)],.16,.72)
  s.route([(-1.28,2.18,1.39),(-1.28,2.18,2.59),(1.31,2.18,2.59),(1.31,2.18,.83),(1.31,.86,.83)],.06,.61)
  s.route([(1.30,.87,.81),(1.30,1.04,.81),(2.26,1.04,.81),(2.26,1.04,1.19),(2.26,.85,1.19)],.58,.9)
  for x in [-1.0,-.15,.7,1.55]:s.box(x,2.14,2.58,.028,.038,.11,'edge')
@@ -142,7 +165,7 @@ def build():
 
 def camera(t):
  keys=[(0,12.8,-68,(0,.25,1.12),24,20),(.14,11.8,-64,(-.15,.45,1.18),24,20),
-       (.31,.92,-82,(-1.4,1.87,2.53),4,.75),(.45,.68,-78,(-1.4,1.84,2.52),4,.65),
+       (.31,.92,-62,(-1.4,1.87,2.53),4,.85),(.45,.76,-58,(-1.4,1.84,2.52),4,.75),
        (.62,1.25,-71,(1.27,.67,.87),5,3.4),(.72,1.21,-70,(1.29,.65,.89),5,3.3),
        (.84,1.18,-87,(2.24,.79,1.22),4,1.0),(1,12.8,-68,(0,.25,1.12),24,20)]
  if t<=0 or t>=1:k=keys[0];return k[1],math.radians(k[2]),k[3],k[4],k[5]
@@ -152,7 +175,8 @@ def camera(t):
 def animate(t,parents):
  parents['entrance-leaf'].rotation_euler[2]=-math.radians(55)*smooth((t-.08)/.12)*(1-smooth((t-.70)/.16))
  parents['optical-head'].location.y=-.09*smooth((t-.27)/.07)*(1-smooth((t-.46)/.075))
- parents['recorder-cover'].location.z=.105*smooth((t-.53)/.075)*(1-smooth((t-.73)/.075))
+ opening=smooth((t-.53)/.075)*(1-smooth((t-.73)/.075))
+ parents['recorder-cover'].location.z=.18*opening;parents['recorder-cover'].location.y=.08*opening
 
 def describe(s):
  assert camera(0)==camera(1)
