@@ -398,8 +398,11 @@ def render(args,s,story=None):
             if not group:bounds.extend(pts)
         obj=bpy.data.objects.new(mat+' conductors',curve);scene.collection.objects.link(obj);curve.materials.append(mats[mat])
         if group:obj.parent=parents[group]
+    font_file=Path(__file__).resolve().parents[2]/'public/fonts/um-sans/UMSans-Regular.ttf'
+    authored_font=bpy.data.fonts.load(str(font_file)) if story and story.get('brand_font') else None
     for label in s.texts:
         c=bpy.data.curves.new(label['value'],'FONT');c.body=label['value'];c.size=label['size'];c.extrude=.0005
+        if authored_font:c.font=authored_font
         obj=bpy.data.objects.new(label['value'],c);scene.collection.objects.link(obj);obj.location=label['at']
         if label['front']:obj.rotation_euler[0]=math.pi/2
         if label.get('group'):obj.parent=parents[label['group']]
@@ -490,7 +493,7 @@ def render(args,s,story=None):
         record={'frame':scene.frame_current,'seconds':round(time.time()-started[0],2)};timings.append(record);print(json.dumps(record),flush=True)
         info={**describe(s),'blender':bpy.app.version_string,'engine':scene.render.engine,'samples':args.samples,
               'resolution':[args.width,round(args.width*9/16)],'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()+(b''.join(Path(p).read_bytes() for p in story.get('sources',[story['source']])) if story else b'')).hexdigest(),'camera':story['description'] if story else 'workplace to detector to supervised circuit to central; continuous 24 second loop',
-              'render_mode':'persistent native animation','baked_lighting':bake_info,'bounds':extents,'timings':timings}
+              'render_mode':'persistent native animation','font_sha256':hashlib.sha256(font_file.read_bytes()).hexdigest() if authored_font else None,'baked_lighting':bake_info,'bounds':extents,'timings':timings}
         (out/'render-info.json').write_text(json.dumps(info))
     if args.engine=='baked':
         # The lights and installation stay fixed while the camera moves. Bake

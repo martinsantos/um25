@@ -100,6 +100,7 @@ jobs:
             scripts/cine/render-network-project-v2.py
             scripts/cine/render-security-project-v2.py
             scripts/cine/render-telecom-project-v2.py
+            public/fonts/um-sans/UMSans-Regular.ttf
             scripts/cine/check-service-composition.py
           sparse-checkout-cone-mode: false
       - name: Install verified official Blender

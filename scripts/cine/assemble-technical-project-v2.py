@@ -20,6 +20,7 @@ for i in range(1,13):
     validate_video(probe(movie)['streams'][0],3840,2160,120)
     infos.append(info);movies.append(movie)
 assert len({p['authoring_sha256'] for p in infos})==1,'Do not mix differently authored revisions'
+assert len({p.get('font_sha256') for p in infos})==1,'Do not mix font revisions'
 info=dict(infos[0],timings=[t for p in infos for t in p['timings']],bounds=[b for p in infos for b in p['bounds']])
 assert [t['frame'] for t in info['timings']]==list(range(1440))
 assert {b['frame'] for b in info['bounds']}=={0,1439},'Establishing and returning shots must retain the installation'

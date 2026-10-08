@@ -198,5 +198,5 @@ if __name__=='__main__':
  s=build();info=describe(s)
  if args.validate_only:print(json.dumps(info))
  else:studio.render(args,s,dict(source=__file__,sources=[str(Path(__file__).with_name('render-network-project-v2.py')),__file__],describe=describe,camera=camera,animate=animate,bake_frame=930,
-  packet_radius=.009,description='entrance, camera optics, recording hardware and contextual supervision; continuous 24 second loop',
+  brand_font=True,packet_radius=.009,description='entrance, camera optics, recording hardware and contextual supervision; continuous 24 second loop',
   lights=[('Lens inspection',(-1.6,.6,3.0),15,.8,(1,1,1),(-1.4,1.8,2.53)),('Recorder inspection',(1.0,-.2,2.4),28,1.3,(1,1,1),(1.27,.67,.84))]))
