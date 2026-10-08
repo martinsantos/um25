@@ -23,9 +23,9 @@ Las pausas explícitas, la salida del viewport, la pestaña oculta, movimiento r
 
 Los controles remotos ejecutan una copia del candidato en un runner descartable. WebKit en Linux no representa un iPhone físico. Las capturas previas siguen siendo evidencia del commit al que pertenecen.
 
-## Película de Software v3: prueba, no entrega
+## Película de Software v3: entrega e integración
 
-La preview conserva Software v2. La v3 propone una interfaz más fina, acercamientos compuestos por separado, apertura hacia reglas y datos y una confirmación que vuelve a la aplicación. Es una secuencia de 24 segundos y 1.440 cuadros nativos a 60 fps.
+La v3 reemplaza a v2 en el registro de Software. Ofrece una interfaz más fina, acercamientos compuestos por separado, apertura hacia reglas y datos y una confirmación que vuelve a la aplicación. Es una secuencia de 24 segundos y 1.440 cuadros nativos a 60 fps.
 
 - Prueba Cycles 4K: permitió detectar recorte del plano general y superficies grises. Rechazada como entrega; se corrigieron cámara y tratamiento del material.
 - Prueba Eevee 4K: un fotograma medido tomó 345,92 segundos en el runner. No se multiplicó ese costo por la película completa.
@@ -33,7 +33,7 @@ La preview conserva Software v2. La v3 propone una interfaz más fina, acercamie
 - El render conserva una operación de animación nativa en lugar de reiniciar un render de imagen por cuadro; evita reconstruir textos que no cambiaron y guarda tiempos y cuadros de prueba recuperables.
 - [Cinco planos 4K con color de superficie](https://github.com/martinsantos/um25/actions/runs/37706695771) y [muestra consecutiva 4K](https://github.com/martinsantos/um25/actions/runs/37706698727): completos tras recuperar dos instalaciones de dependencias que agotaron su tiempo. Se conservan los planos blancos, los contornos finos y la lectura de la aplicación. Se eliminó el conector exterior que atravesaba el contenido de los planos y se coordinó el cambio de estado con la versión del registro.
 
-La [secuencia v3 completa](https://github.com/martinsantos/um25/actions/runs/37708333902) está renderizando el candidato `d2b70934`. Todavía no se sustituyó el registro de medios. La muestra 4K consecutiva confirmó doce cuadros distintos a 60 fps y entre 3,86 y 6,63 segundos de render por cuadro. Las siete películas de las demás disciplinas siguen siendo las entregadas antes de esta reconstrucción. El cierre anterior de reproducción y encuadre no certifica que hayan alcanzado el acabado de las referencias.
+La [secuencia v3 completa](https://github.com/martinsantos/um25/actions/runs/37708333902) produjo once fragmentos; la instalación de dependencias falló en uno, recuperado en [37708941726](https://github.com/martinsantos/um25/actions/runs/37708941726). El [ensamblado 37709328708](https://github.com/martinsantos/um25/actions/runs/37709328708) confirmó 1.440 cuadros decodificables y distintos, 24 segundos, 60 fps, 3840 × 2160 y edición móvil 1920 × 1920. Se importaron seis assets nuevos, 58.415.629 bytes en total, con verificación SHA-256. La muestra 4K consecutiva confirmó doce cuadros distintos a 60 fps y entre 3,86 y 6,63 segundos de render por cuadro. Las siete películas de las demás disciplinas siguen siendo las entregadas antes de esta reconstrucción. El cierre anterior de reproducción y encuadre no certifica que hayan alcanzado el acabado de las referencias.
 
 ## Criterio de cierre
 
@@ -46,6 +46,6 @@ Producción, la campaña protegida y los binarios de UM Sans permanecen fuera de
 
 El candidato `d2b70934` reserva una franja real de 36 px para la leyenda inferior: el dibujo ya no pasa por detrás del texto en móvil. Las pantallas de Seguridad, Soporte, Consultoría y Energía muestran eventos, casos, dependencias, recuperación y cargas; no líneas que simulan contenido. La composición de Software v3 conserva todas las aristas de la interfaz y separa la columna editorial del área de película. Su derivado móvil conserva el fotograma completo.
 
-La evidencia de Chrome/WebKit de `fcb8c0e9` y los planos y cuadros consecutivos 4K se guardaron y verificaron por SHA-256 en `/Volumes/SDTERA/Codex UM25 audits/20261007/precision-d2b70934/`. El [control del candidato d2b70934](https://github.com/martinsantos/um25/actions/runs/37708336704) verificará la franja y los nuevos monitores en la página real.
+La evidencia de Chrome/WebKit de `fcb8c0e9` y los planos y cuadros consecutivos 4K se guardaron y verificaron por SHA-256 en `/Volumes/SDTERA/Codex UM25 audits/20261007/precision-d2b70934/`. El [control del candidato d2b70934](https://github.com/martinsantos/um25/actions/runs/37708336704) completó la revisión de la franja y los nuevos monitores en la página real; ambas capturas fueron descargadas y revisadas. No aparecieron errores ni desbordamientos.
 
 El guard del release scoped rechazaba 32 rutas ya presentes en la rama. Se añadieron de forma explícita; se verificaron las 371 rutas del candidato y el rechazo de configuración y versiones de runtime no revisadas. La guarda de inmutabilidad de `public/cine` se conserva y la comparación contra `origin/master` no contiene modificaciones de assets de cine previamente publicados. Esto prepara el release; no lo ejecuta.
