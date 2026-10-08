@@ -45,14 +45,14 @@ const heading = dot ? title.slice(0, -1) : title;
 const rail = chapters||HOME_SCENES.filter((s) => scenes.includes(s.scene));
 const firstTitle = rail.find(chapter=>chapter.scene===first)?.name||cutCaption(first);
 const disciplineComposition = /^(software|network|security|telecom|support|consulting|fire|power)-(system|project)-v\d+$/.test(first);
-const productComposition = /^(software-system-v[34567]|power-project-v3|(?:fire|network|security|telecom|power|support|consulting)-project-v2)$/.test(first);
+const productComposition = /^(software-system-v[345678]|power-project-v3|(?:fire|network|security|telecom|power|support|consulting)-project-v2)$/.test(first);
 const filmChapters = FILM_CHAPTERS[first];
 const firstMovie = Object.values(siteMovies.services).find(movie => movie.scene === first);
 const posterRevision = firstMovie && 'posterRevision' in firstMovie ? `-${firstMovie.posterRevision}` : '';
 const posterPath = (square: boolean, format: string) => `/cine/media/cine-${first}-poster${square ? '-sq' : ''}${posterRevision}.${format}`;
 const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-width:546px) and (max-aspect-ratio:651/1000)';
 ---
-<section class:list={['umc', `umc--${variant}`]} data-umc data-motion={motion} data-annotations={annotations?'tracked':'none'} data-framing={framing} data-composition={disciplineComposition?'discipline':undefined} data-software-cinema={first==='software-system-v7'?'true':undefined} data-product-composition={productComposition?'true':undefined} data-movie-chapters={filmChapters?JSON.stringify(filmChapters):undefined} data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
+<section class:list={['umc', `umc--${variant}`]} data-umc data-motion={motion} data-annotations={annotations?'tracked':'none'} data-framing={framing} data-composition={disciplineComposition?'discipline':undefined} data-software-cinema={['software-system-v7','software-system-v8'].includes(first)?'true':undefined} data-product-composition={productComposition?'true':undefined} data-movie-chapters={filmChapters?JSON.stringify(filmChapters):undefined} data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
   <div class="umc-stage" aria-hidden="true">
     <picture>
       {framing==='project'&&<source media={squarePosterMedia} type="image/avif" srcset={posterPath(true, 'avif')} data-poster-square />}
@@ -192,6 +192,7 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
   .umc[data-software-cinema="true"] :global(.umc-stats){grid-column:2;grid-row:5;margin:12px 0 0}
  }
  @media(max-width:820px){
+  .umc[data-scene="software-system-v8"] :global(.umc-stage){aspect-ratio:4/3}
   .umc[data-software-cinema="true"] :global(.umc-copy){margin-top:28px;margin-bottom:24px}
   .umc[data-software-cinema="true"] :global(.umc-film-caption){margin-top:16px}
   .umc[data-software-cinema="true"] :global(.umc-tools){margin:12px var(--umc-gutter)}

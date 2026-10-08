@@ -9,7 +9,7 @@ import sharp from 'sharp';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
 const registryFile=path.join(root,'src/data/cine/site-movies-v1.json');
 const registry=JSON.parse(fs.readFileSync(registryFile,'utf8')),movie=registry.services['104'];
-if(movie.scene!=='software-system-v7')throw Error('Review a new poster revision before using another film');
+if(!['software-system-v7','software-system-v8'].includes(movie.scene))throw Error('Review a new poster revision before using another film');
 const revision='srgb-v1',folder=path.join(root,'public/cine/media'),temp=fs.mkdtempSync(path.join(os.tmpdir(),'um-software-poster-'));
 const hash=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const assets=[],sources=[];

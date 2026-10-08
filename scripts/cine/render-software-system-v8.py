@@ -395,7 +395,8 @@ def render(args):
         for a,b,obj,spline in routes:
             ax,ay,az=placement(a,t);bx,by,bz=placement(b,t)
             if abs(ay-by)<.5:
-                pts=[(ax+2.76,ay,az),(ax+2.90,ay,az),(bx-2.90,by,bz),(bx-2.76,by,bz)]
+                direction=1 if bx>ax else -1
+                pts=[(ax+direction*2.76,ay,az),(ax+direction*2.90,ay,az),(bx-direction*2.90,by,bz),(bx-direction*2.76,by,bz)]
             elif abs(ax-bx)<.5:
                 pts=[(ax,ay-1.66,az),(ax,ay-1.85,az),(bx,by+1.85,bz),(bx,by+1.66,bz)]
             else:

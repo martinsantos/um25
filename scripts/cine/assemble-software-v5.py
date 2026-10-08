@@ -40,7 +40,15 @@ call('ffmpeg','-y','-v','error','-f','concat','-safe','0','-i',listing,'-c','cop
 # The mobile delivery preserves the complete frame. CSS removes the encoded
 # padding; it never crops away the application's navigation or action panel.
 background='0xD9E1E9' if info['scene']=='software-system-v8' else '0x11151C' if info['scene']=='software-system-v7' else '0x090A0C'
-call('ffmpeg','-y','-v','error','-i',wide,'-vf',f'scale=1920:1080:flags=lanczos:in_color_matrix=bt709:out_color_matrix=bt709:in_range=tv:out_range=tv,pad=1920:1920:0:420:color={background}','-c:v','libx264','-preset','medium','-crf','18','-pix_fmt','yuv420p','-color_range','tv','-colorspace','bt709','-color_primaries','bt709','-color_trc','iec61966-2-1','-an','-movflags','+faststart',square)
+mobile_filter=f'scale=1920:1080:flags=lanczos:in_color_matrix=bt709:out_color_matrix=bt709:in_range=tv:out_range=tv,pad=1920:1920:0:420:color={background}'
+if info['scene']=='software-system-v8':
+ # Same native frames and timing. A 4:3 optical crop enlarges the active
+ # component; the establishing and closing shots preserve the full product.
+ z="1+(1-cos(PI*clip((on/1439-.07)/.10,0,1)))*(1+cos(PI*clip((on/1439-.86)/.14,0,1)))/12"
+ mobile_filter=f"pad=3840:2880:0:360:color={background},zoompan=z='{z}':x='iw/2-iw/zoom/2':y='ih/2-ih/zoom/2':d=1:s=1920x1440:fps=60,pad=1920:1920:0:240:color={background}"
+ info['mobile_framing']={'visible_aspect':'4:3','maximum_zoom':4/3,'native_frames_preserved':1440,'establishing_shot':'complete product','focus':'centered component with original proportions'}
+ (out/'render-info.json').write_text(json.dumps(info))
+call('ffmpeg','-y','-v','error','-i',wide,'-vf',mobile_filter,'-c:v','libx264','-preset','medium','-crf','18','-pix_fmt','yuv420p','-color_range','tv','-colorspace','bt709','-color_primaries','bt709','-color_trc','iec61966-2-1','-an','-movflags','+faststart',square)
 for movie,label,size in [(wide,'',(3840,2160)),(square,'-square',(1920,1920))]:
  call('ffmpeg','-v','error','-i',movie,'-f','null','-')
  val=probe(movie);v=val['streams'][0]
