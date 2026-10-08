@@ -1,0 +1,75 @@
+name: Server Storage Maintenance
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/ops/prune-cold-dependencies.py'
+      - 'scripts/ops/test_cold_dependencies.py'
+      - '.github/workflows/server-storage-maintenance.yml'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'plan (read-only) or apply the reviewed dependency cleanup'
+        type: choice
+        options: [plan, apply]
+        default: plan
+        required: true
+      plan_sha:
+        description: 'Exact plan_sha256 from the read-only audit; required for apply'
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: server-storage-maintenance
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: python3 -m unittest discover -s scripts/ops -p 'test_cold_dependencies.py' -v
+  maintenance:
+    needs: test
+    if: github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/master' || inputs.mode == 'plan')
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v6
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Known host
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 23.105.176.45 >> ~/.ssh/known_hosts
+      - name: Audit or apply verified cleanup
+        env:
+          MODE: ${{ inputs.mode }}
+          PLAN_SHA: ${{ inputs.plan_sha }}
+        run: |
+          set -euo pipefail
+          args=''
+          if [[ "$MODE" == apply ]]; then
+            [[ "$PLAN_SHA" =~ ^[0-9a-f]{64}$ ]]
+            args="--apply --expected-plan-sha $PLAN_SHA"
+          fi
+          ssh root@23.105.176.45 "python3 - $args" \
+            < scripts/ops/prune-cold-dependencies.py | tee storage-maintenance.jsonl
+      - name: Confirm storage and live sites
+        if: always()
+        run: |
+          ssh root@23.105.176.45 'df -h /; pm2 list'
+          for url in https://www.ultimamilla.com.ar/ https://sgi.ultimamilla.com.ar/ \
+            https://www.umbot.com.ar/ https://viveroloscocos.com.ar/; do
+            curl -fLsS --max-time 30 "$url" -o /dev/null
+          done
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: storage-maintenance-receipt
+          path: storage-maintenance.jsonl
+          retention-days: 30
