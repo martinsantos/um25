@@ -74,6 +74,10 @@ for(const [engine,type] of (probe?[['WebKit',webkit]]:[['Chrome',chromium],['Web
     const center=b=>b.y+b.height/2;
     if(Math.abs(center(state.poster)-center(state.stage))>1||Math.abs(state.poster.y-state.video.y)>1||Math.abs(state.poster.height-state.video.height)>1||state.scrollWidth>width+2||errors.length)report.findings.push(row);
     await page.screenshot({path:path.join(out,`${engine}-${width}-${index}-poster.png`)});
+    if(expected==='software-system-v7'&&(width===1440||width===390)){
+     row.posterRed=await redSwatch(await page.locator('.umc-poster').screenshot());
+     if(!row.posterRed||Math.max(...row.posterRed.rgb.map((v,i)=>Math.abs(v-[220,38,38][i])))>6)report.findings.push({engine,width,route,message:'Poster changes the authored UM red before playback',swatch:row.posterRed});
+    }
     if(width===1440||width===390){
      await page.locator('[data-umc-motion]').click();
      // Clicking the mobile control scrolls it into view. Restore the same

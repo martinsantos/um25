@@ -446,26 +446,41 @@
           "sha256": "85c1c82c9ccd5177f122e9d3c1a78ca3f829c09eddb6047938e66cd028f8808f"
         },
         {
-          "file": "cine-software-system-v7-poster.jpg",
-          "bytes": 227227,
-          "sha256": "61a114f30c41672e0b499ef84b756115a82538fd1955098350b0aeab03933959"
+          "file": "cine-software-system-v7-poster-srgb-v1.jpg",
+          "bytes": 440406,
+          "sha256": "b6c9e5d75eb30ad77f6a290bd52b7d98a0cb9b4772318f96ceb8e1a5db898eb3"
         },
         {
-          "file": "cine-software-system-v7-poster.avif",
-          "bytes": 49548,
-          "sha256": "f12225a66176a83d943d9f2555a47454891047915ac4f783235b809c62182ef9"
+          "file": "cine-software-system-v7-poster-srgb-v1.avif",
+          "bytes": 50349,
+          "sha256": "fd8453e8eeb1eba2b777278828092ad22086b6c78decade51102804713b994ed"
         },
         {
-          "file": "cine-software-system-v7-poster-sq.jpg",
-          "bytes": 96045,
-          "sha256": "041413bc8b724eb88b14ac20607241f5c61b2fc9b3f6054d11db708ae71ebfb3"
+          "file": "cine-software-system-v7-poster-sq-srgb-v1.jpg",
+          "bytes": 142914,
+          "sha256": "229574dce5c8d55d432770fa4a3f687a1e147fef685eb05f092046fee246f3a3"
         },
         {
-          "file": "cine-software-system-v7-poster-sq.avif",
-          "bytes": 19697,
-          "sha256": "3e273a70aba95cace695105ad4d35a38f3d14e4f1af1b94b5b8dcae535fa8968"
+          "file": "cine-software-system-v7-poster-sq-srgb-v1.avif",
+          "bytes": 23839,
+          "sha256": "854389874f3511d421912eed95b6ea2af64b90d7bfb7bae4afc25880fb2d4820"
         }
-      ]
+      ],
+      "posterRevision": "srgb-v1",
+      "posterPreparation": {
+        "script": "scripts/cine/prepare-software-posters.mjs",
+        "sourceMovies": [
+          {
+            "file": "cine-software-system-v7.mp4",
+            "sha256": "a1166e14a35c0cf85f6571598199cee5eabc0a8be865799ecbc89a5278ffd237"
+          },
+          {
+            "file": "cine-software-system-v7-sq.mp4",
+            "sha256": "85c1c82c9ccd5177f122e9d3c1a78ca3f829c09eddb6047938e66cd028f8808f"
+          }
+        ],
+        "color": "BT.709 limited-range video decoded to sRGB; stills contain an sRGB ICC profile"
+      }
     },
     "105": {
       "scene": "support-project-v2",
