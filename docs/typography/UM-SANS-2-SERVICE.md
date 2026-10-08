@@ -42,6 +42,10 @@ Alias: `/estilo/fuente/plantillas`, `/estilo/fuente/planillas`,
 `/estilo/fuente/planilla` y `/planilla` redirigen al catálogo de plantillas,
 que incluye la planilla económica Excel.
 
+`/fuente` y `/estilos/fuente` redirigen al catálogo de la fuente.
+`/estilo/fuente/plantilla` y `/estilos/fuente/plantilla` redirigen a las
+plantillas. `/estilos` redirige a `/estilo`, que conserva su autenticación.
+
 ```html
 <link rel="stylesheet" href="https://www.ultimamilla.com.ar/fonts/um-sans/v2.0.0/um-sans.css">
 ```
