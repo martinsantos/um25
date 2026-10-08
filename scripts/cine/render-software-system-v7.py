@@ -14,16 +14,16 @@ def reveal(t):
 def placement(group,t):
     e=reveal(t)
     z=2.60
-    if group=='selection':return (-.70*e,3.80*e,z+.075+.43*ease((t-.12)/.10)*(1-ease((t-.35)/.10)))
+    if group=='selection':return (-.70*e,6.30*e,z+.075+.43*ease((t-.12)/.10)*(1-ease((t-.35)/.10)))
     if group=='detail':
         lift=0 if t<=0 or t>=1 else ease((t-.13)/.12)*(1-ease((t-.79)/.21))
-        return (-.70*e+1.7*lift,3.80*e-.7*lift,z+.055+1.7*e+.95*lift)
-    if group in ('shell','navigation','heading','metrics','records'):return (-.70*e,3.80*e,z+.028+1.7*e)
+        return (-.70*e+1.7*lift,6.30*e-.7*lift,z+.055+1.7*e+.95*lift)
+    if group in ('shell','navigation','heading','metrics','records'):return (-.70*e,6.30*e,z+(.028 if group=='shell' else .049)+1.7*e)
     return {'logic':(0,.0,1.63),'data':(0,-3.50*e,.76),'runtime':(0,-6.40*e,.12)}[group]
 
 def camera_pose(t):
     keys=[(0,16.8,-96,(0,0,2.65)),(.16,9.8,-94,(1.3,0,2.8)),
-          (.28,12.8,-90,(4.5,1.2,4.9)),(.43,13.8,-86,(0,0,1.63)),
+          (.28,12.8,-90,(4.5,3.4,4.9)),(.43,13.8,-86,(0,0,1.63)),
           (.49,13.6,-86,(.10,0,1.63)),(.58,13.6,-92,(0,-3.5,.76)),
           (.64,13.4,-92,(.1,-3.5,.76)),(.72,13.6,-96,(0,-6.4,.12)),
           (.79,13.6,-96,(.1,-6.4,.12)),(.90,25,-96,(0,0,2.2)),
@@ -35,6 +35,16 @@ def camera_pose(t):
     return mix(a[1],b[1]),math.radians(mix(a[2],b[2])),tuple(mix(x,y) for x,y in zip(a[3],b[3])),0
 
 def scale(group,t):return 1
+
+def operation(t):
+    # One event crosses the authored layers while the camera is looking at them.
+    # Reset inside the closing shot, never between two active layers.
+    active=.14<t<.97
+    rules=[ease((t-(.363+i*.029))/.027) if active else 0 for i in range(4)]
+    writes=[ease((t-(.536+i*.026))/.020) if active else 0 for i in range(3)]
+    release=[ease((t-(.670+i*.027))/.023) if active else 0 for i in range(4)]
+    return dict(rules=rules,writes=writes,release=release,confirmed=active and t>.592)
+
 FOCUS_WINDOWS={'detail':(.27,.29),'logic':(.43,.49),'data':(.58,.64),'runtime':(.72,.79)}
 WIDE_TIMES=(0,1)
 
@@ -161,7 +171,7 @@ def build():
     p.line('logic',[(-5.02,.99,.035),(5.04,.99,.035)],'trace',.002)
     for i,(name,sub,ms) in enumerate([('Validar entrada','Campos y alcance','12 ms'),('Evaluar permisos','Rol · equipo_redes','08 ms'),('Aplicar contrato','Solicitud · versión 04','21 ms'),('Registrar evento','Traza · 0248.04','04 ms')]):
         x=-4.96+i*2.55
-        p.rounded('logic',x+.11,.44,.04,.23,.23,.002,'active',.115);p.glyph('logic','check',x+.035,.394,'warm',.11)
+        p.rounded('logic',x+.11,.44,.04,.23,.23,.002,'selection',.115)
         p.text('logic',name,x+.32,.40,.04,.133,'white',True)
         p.text('logic',sub,x+.32,.09,.04,.111)
         p.text('logic',ms,x+.32,-.25,.04,.106,'muted')
@@ -185,7 +195,7 @@ def build():
     p.text('runtime','04 / ENTREGA Y OPERACIÓN',-5.04,.83,.04,.17,'white',True)
     p.pill('runtime','v1.4.0',3.11,.87,.69,'selection',size=.105);p.dot('runtime',4.13,.90,.025,'sage');p.text('runtime','Operativa',4.27,.861,.04,.11,'white')
     for i,(name,sub) in enumerate([('Verificar','Pruebas completas'),('Versionar','Cambio identificado'),('Publicar','Entorno aislado'),('Observar','Señales en contexto')]):
-        x=-4.97+i*2.59;p.glyph('runtime','check',x,-.02,'sage',.13);p.text('runtime',name,x+.29,-.02,.04,.145,'white',True);p.text('runtime',sub,x+.29,-.33,.04,.108)
+        x=-4.97+i*2.59;p.dot('runtime',x+.065,.038,.027,'trace');p.text('runtime',name,x+.29,-.02,.04,.145,'white',True);p.text('runtime',sub,x+.29,-.33,.04,.108)
         if i<3:p.line('runtime',[(x+1.72,-.026,.04),(x+2.37,-.026,.04)],'trace',.005)
     p.line('runtime',[(-4.99,-.72,.04),(5.05,-.72,.04)],'trace',.002)
     # Optical-thin inspection guides tie the product to its internal structure.
@@ -225,6 +235,11 @@ def validate():
             assert min(b[:2])>.035 and max(b[2:])<.965,(group,t,b)
             focus[group].append(b)
     assert scale('logic',.5)>.8
+    assert operation(0)==operation(1)
+    assert all(a<=b for a,b in zip(operation(.415)['rules'][1:],operation(.415)['rules'][:-1]))
+    assert all(v==1 for v in operation(.50)['rules'])
+    assert not operation(.58)['confirmed'] and operation(.61)['confirmed']
+    assert all(v==1 for v in operation(.79)['release'])
 
     print(json.dumps({'scene':'software-system-v7','frames':FRAMES,'bounds':extent,'components':len(p.boxes),'labels':len(p.texts),'focus_windows':FOCUS_WINDOWS,'wide_times':WIDE_TIMES}))
 
@@ -255,8 +270,21 @@ def render(args):
     for name,hexvalue in palette.items():
         rgb=[int(hexvalue[i:i+2],16)/255 for i in [1,3,5]];rgb=[v/12.92 if v<=.04045 else ((v+.055)/1.055)**2.4 for v in rgb]
         mat=bpy.data.materials.new(name);mat.diffuse_color=(*rgb,1);mat.use_nodes=True;n=mat.node_tree.nodes['Principled BSDF']
-        n.inputs['Base Color'].default_value=(*rgb,1);n.inputs['Roughness'].default_value=.72;n.inputs['Metallic'].default_value=0
-        if name in ['white','muted','red','paper','shell']:n.inputs['Emission Color'].default_value=(*rgb,1);n.inputs['Emission Strength'].default_value=.32 if name in ['paper','shell'] else .08
+        # A display emits its authored colour. Only the broad substrates receive
+        # a restrained diffuse term; glyphs never become embossed metal letters.
+        graphic=name in ('white','muted','warm','red','sage','bluegrey','trace','avatar','selection','active')
+        n.inputs['Base Color'].default_value=(*(0 if graphic else v*.18 for v in rgb),1)
+        n.inputs['Roughness'].default_value=1;n.inputs['Metallic'].default_value=0
+        n.inputs['Specular IOR Level'].default_value=0
+        n.inputs['Emission Color'].default_value=(*rgb,1)
+        n.inputs['Emission Strength'].default_value=1 if graphic else .82
+        if graphic:
+            light=mat.node_tree.nodes.new('ShaderNodeLightPath')
+            transparent=mat.node_tree.nodes.new('ShaderNodeBsdfTransparent')
+            mix=mat.node_tree.nodes.new('ShaderNodeMixShader')
+            mat.node_tree.links.new(light.outputs['Is Shadow Ray'],mix.inputs[0])
+            mat.node_tree.links.new(n.outputs[0],mix.inputs[1]);mat.node_tree.links.new(transparent.outputs[0],mix.inputs[2])
+            mat.node_tree.links.new(mix.outputs[0],mat.node_tree.nodes['Material Output'].inputs['Surface'])
         mats[name]=mat
     root=Path(__file__).resolve().parents[2]
     font_dir=Path(args.font_dir) if args.font_dir else root/'public/fonts/um-sans'
@@ -279,13 +307,32 @@ def render(args):
     labels={}
     for g,s,x,y,z,size,m,bold in p.texts:
         text=bpy.data.curves.new(s,'FONT');text.body=s;text.size=size;text.font=fonts[bold];text.extrude=0
-        obj=bpy.data.objects.new(s,text);scene.collection.objects.link(obj);obj.parent=parents[g];obj.location=(x,y,z);text.materials.append(mats[m]);labels[s]=text
+        obj=bpy.data.objects.new(s,text);scene.collection.objects.link(obj);obj.parent=parents[g];obj.location=(x,y,z);text.materials.append(mats[m]);labels.setdefault((g,s),[]).append(text)
     def curve(name,pts,mat,radius):
         data=bpy.data.curves.new(name,'CURVE');data.dimensions='3D';data.bevel_depth=radius;data.bevel_resolution=2
         spline=data.splines.new('POLY');spline.points.add(len(pts)-1)
         for v,xyz in zip(spline.points,pts):v.co=(*xyz,1)
         obj=bpy.data.objects.new(name,data);scene.collection.objects.link(obj);data.materials.append(mats[mat]);return obj,spline
     for g,pts,m,radius in p.lines:obj,_=curve('Interface connector',pts,m,radius);obj.parent=parents[g]
+    # Geometry stays attached to its product layer. Progress has a visible cause,
+    # small enough to read as interface behaviour instead of decorative light.
+    pulses=[];completion_marks=[]
+    for kind,group,count in [('rules','logic',4),('writes','data',3),('release','runtime',4)]:
+        for i in range(count):
+            if kind=='rules':
+                x=-4.96+i*2.55;pts=[(x+.12,-.54,.052),(min(5.04,x+2.67),-.54,.052)]
+                at=(x+.035,.394,.052);ink='warm'
+            elif kind=='writes':
+                pts=[(1.83,.32-i*.49,.052),(1.83,.32-(i+1)*.49,.052)]
+                at=(1.787,.28-i*.49,.052);ink='sage'
+            else:
+                x=-4.97+i*2.59;pts=[(x,-.72,.052),(min(5.05,x+2.59),-.72,.052)]
+                at=(x,-.02,.052);ink='sage'
+            obj,_=curve('Progress / '+kind+' / '+str(i),pts,ink,.006)
+            obj.parent=parents[group];pulses.append((kind,i,obj))
+            xx,yy,zz=at
+            mark,_=curve('Completed / '+kind+' / '+str(i),[(xx,yy+.044,zz),(xx+.033,yy+.011,zz),(xx+.099,yy+.088,zz)],ink,.005)
+            mark.parent=parents[group];completion_marks.append((kind,i,mark))
     bpy.ops.mesh.primitive_plane_add(size=200,location=(0,0,-.16));bpy.context.object.data.materials.append(mats['floor'])
     for name,xyz,energy,size,color in [('Key',(-4,1,15),1300,12,(1,1,1)),('Edge',(5,9,8),650,10,(1,1,1)),('Fill',(0,-10,12),750,12,(1,1,1))]:
         data=bpy.data.lights.new(name,'AREA');data.energy=energy;data.shape='DISK';data.size=size;data.color=color
@@ -303,14 +350,21 @@ def render(args):
             if name in ('logic','data','runtime'):
                 for child in obj.children:child.hide_render=reveal(t)<.01
         for child in parents['detail'].children:child.hide_render=not (.14<t<.97)
-        confirmed=.60<t<.96
-        states={'Actualizar solicitud':'Cambios guardados' if confirmed else 'Actualizar solicitud',
-                'En revisión':'Confirmada' if confirmed else 'En revisión',
-                '24':'23' if confirmed else '24','16':'17' if confirmed else '16',
-                'estado / validada':'estado / confirmada' if confirmed else 'estado / validada',
-                'version / 03':'version / 04' if confirmed else 'version / 03'}
+        event=operation(t);confirmed=event['confirmed']
+        states={('detail','Actualizar solicitud'):'Cambios guardados' if confirmed else 'Actualizar solicitud',
+                ('detail','En revisión'):'Confirmada' if confirmed else 'En revisión',
+                ('selection','En revisión'):'Confirmada' if confirmed else 'En revisión',
+                ('metrics','24'):'23' if confirmed else '24',('metrics','16'):'17' if confirmed else '16',
+                ('data','confirmada'):'confirmada' if confirmed else 'en revisión',
+                ('data','04'):'04' if confirmed else '03',
+                ('data','Solicitud 0248 · versión 04'):'Solicitud 0248 · versión 04' if confirmed else 'Solicitud 0248 · versión 03'}
         for key,value in states.items():
-            if key in labels and labels[key].body!=value:labels[key].body=value
+            for label in labels.get(key,[]):label.body=value
+        for kind,i,obj in pulses:
+            progress=event[kind][i];obj.data.bevel_factor_end=max(.0001,progress)
+            obj.hide_render=progress<.001 or reveal(t)<.01
+        for kind,i,obj in completion_marks:
+            obj.hide_render=event[kind][i]<.98 or reveal(t)<.01
         bpy.context.view_layer.update()
         projected_points=[world_to_camera_view(scene,cam,Vector(point)*scale(g,t)+parents[g].location) for g,coords in p.points.items() for point in coords]
         extent=[min(v.x for v in projected_points),min(v.y for v in projected_points),max(v.x for v in projected_points),max(v.y for v in projected_points)]
@@ -337,7 +391,7 @@ def render(args):
         info={'service':'104','scene':'software-system-v7','blender':bpy.app.version_string,'engine':scene.render.engine,
               'samples':args.samples,'frames':FRAMES,'fps':FPS,'resolution':[scene.render.resolution_x,scene.render.resolution_y],
               'camera':'one application: a selected record, its inspector, execution trace, relational history and release operation',
-              'render_mode':'one persistent native animation render','antialiasing':scene.display.render_aa if args.engine=='workbench' else args.samples,'lighting':'flat product surfaces' if args.engine=='workbench' else 'area studio','authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'font_sha256':{w:hashlib.sha256((font_dir/('UMSans-'+w+'.ttf')).read_bytes()).hexdigest() for w in ['Regular','SemiBold']},'timings':timings,'bounds':bounds,'focus_bounds':focus_bounds,'focus_windows':FOCUS_WINDOWS,'wide_times':WIDE_TIMES,'handler_errors':handler_errors}
+              'render_mode':'one persistent native animation render','antialiasing':scene.display.render_aa if args.engine=='workbench' else args.samples,'lighting':'flat product surfaces' if args.engine=='workbench' else 'emissive interface with soft substrate shadows','authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'font_sha256':{w:hashlib.sha256((font_dir/('UMSans-'+w+'.ttf')).read_bytes()).hexdigest() for w in ['Regular','SemiBold']},'timings':timings,'bounds':bounds,'focus_bounds':focus_bounds,'focus_windows':FOCUS_WINDOWS,'wide_times':WIDE_TIMES,'handler_errors':handler_errors}
         (out/'render-info.json').write_text(json.dumps(info));print(json.dumps(timings[-1]),flush=True)
     scene.frame_end=args.end;scene.frame_start=args.start;scene.render.filepath=str(out)+'/'
     bpy.app.handlers.frame_change_pre.append(update_frame)
