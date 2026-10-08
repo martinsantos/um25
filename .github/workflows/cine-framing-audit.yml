@@ -6,6 +6,10 @@ on:
         description: Verify only Software's new composition and native movie
         type: boolean
         default: false
+      network_only:
+        description: Verify the network installation and its autonomous native movie
+        type: boolean
+        default: false
       fire_only:
         description: Verify the fire installation, closeups and autonomous complete loop
         type: boolean
@@ -54,6 +58,7 @@ jobs:
         run: node scripts/cine/audit-software-frame.mjs
         env:
           PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
+          FRAMING_NETWORK_ONLY: ${{ inputs.network_only }}
           FRAMING_FIRE_ONLY: ${{ inputs.fire_only }}
           FRAMING_SOFTWARE_ONLY: ${{ inputs.software_only }}
           FRAMING_PROBE: ${{ inputs.probe }}

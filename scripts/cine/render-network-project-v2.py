@@ -13,7 +13,13 @@ class Network(studio.Installation):
  def cylinder(self,*args,**kwargs):
   super().cylinder(*args,**kwargs);self.cylinders[-1]['segments']=128 if self.cylinders[-1]['r']>=.025 else 32
  def route(self,pts,start=0,end=1):
-  pts=self.rounded_path(pts);self.line(pts,'red',.0028);self.routes.append(dict(pts=pts,start=start,end=end))
+  pts=self.rounded_path(pts);self.line(pts,'muted',.0028);self.routes.append(dict(pts=pts,start=start,end=end))
+ def formed_shell(self,x,y,z,profile,mat,group):
+  # Continuous manufactured profile; smooth only its side, retain planar caps.
+  n=128;vv=[(x+r*math.cos(j*math.tau/n),y+r*math.sin(j*math.tau/n),z+height) for height,r in profile for j in range(n)]
+  ff=[tuple(reversed(range(n))),tuple((len(profile)-1)*n+j for j in range(n))]
+  ff.extend((k*n+j,k*n+(j+1)%n,(k+1)*n+(j+1)%n,(k+1)*n+j) for k in range(len(profile)-1) for j in range(n))
+  self.mesh(vv,ff,mat,group);self.meshes[-1]['smooth_side']=True
  def port(self,x,y,z,label):
   self.box(x,y,z,.0148,.006,.0132,'edge')
   self.box(x,y-.0035,z+.002,.012,.001,.009,'black')
@@ -105,7 +111,7 @@ class Network(studio.Installation):
  def access_point(self,x,y,z):
   self.parts.append('mounted-radio-access-point')
   # Circular radio board and stamped mounting bracket, inspected from below.
-  self.box(x,y,z+.022,.25,.25,.003,'paper')
+  self.cylinder(x,y,z+.022,.092,.002,'edge')
   self.cylinder(x,y,z+.009,.085,.007,'edge')
   for j in range(3):
    a=j*math.tau/3;xx=x+.066*math.cos(a);yy=y+.066*math.sin(a)
@@ -151,11 +157,10 @@ class Network(studio.Installation):
   for k in range(8):self.box(x-.0042+k*.0012,y+.067,z-.029,.00045,.001,.004,'copper')
   self.parts.append('radio-board-and-antenna-traces')
   name='ap-radome';self.doors.append(dict(name=name,pivot=(0,0,0),kind='lift'))
-  self.cylinder(x,y,z-.067,.091,.029,'paper',top=.095,group=name)
-  self.cylinder(x,y,z-.038,.095,.012,'paper',group=name)
+  self.formed_shell(x,y,z,[(-.067,.087),(-.0668,.0895),(-.066,.0915),(-.064,.0932),(-.061,.0944),(-.057,.095),(-.028,.095),(-.026,.094),(-.025,.092)],'paper',name)
   for j in range(48):
    a=j*math.tau/48
-   self.line([(x+.094*math.cos(a),y+.094*math.sin(a),z-.048),(x+.094*math.cos(a),y+.094*math.sin(a),z-.036)],'ink',.00065,group=name)
+   self.line([(x+.0954*math.cos(a),y+.0954*math.sin(a),z-.035),(x+.0954*math.cos(a),y+.0954*math.sin(a),z-.029)],'ink',.00038,group=name)
   self.box(x,y-.045,z-.068,.030,.001,.001,'signal',name)
 
 def build():

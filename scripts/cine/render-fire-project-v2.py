@@ -380,7 +380,7 @@ def render(args,s,story=None):
                 vv.append(xyz)
         ff=[tuple(reversed(range(n))),tuple(n+j for j in range(n))]+[(j,(j+1)%n,(j+1)%n+n,j+n) for j in range(n)]
         meshpart(c['mat'],c.get('group'),vv,ff,smooth_side=True)
-    for m in s.meshes:meshpart(m['mat'],m.get('group'),m['vertices'],m['faces'])
+    for m in s.meshes:meshpart(m['mat'],m.get('group'),m['vertices'],m['faces'],smooth_side=m.get('smooth_side',False))
     for (mat,group),(vv,ff) in groups.items():
         mesh=bpy.data.meshes.new(mat);mesh.from_pydata(vv,[],ff);mesh.update()
         for index in smoothfaces.get((mat,group),set()):mesh.polygons[index].use_smooth=True

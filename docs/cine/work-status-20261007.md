@@ -1,18 +1,30 @@
-# Continuidad activa · revisión de precisión
+# Continuidad activa · 8 de octubre de 2026
 
-Interfaz integrada: `af2c9e6e`, PR #266 (draft), checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`, preview `http://127.0.0.1:4326/`. No cambiar el checkout principal ni desplegar a producción.
+Rama `feature/isometric-redes-review`, PR #266 (draft), checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`. Preview `http://127.0.0.1:4326/`, compilada hasta `512e78a9`. No editar el checkout principal ni desplegar. PID propio en `/private/tmp/um-eight-preview.pid`: verificar proceso y cwd antes de reiniciar.
 
-La preview incorpora la central isométrica de Incendio construida con las medidas de la película: 576 piezas de chapa/electrónica, 33 geometrías reutilizadas y 14.412 bytes gzip. Puerta con bisagra de 102°, PCB posterior visible al girar, conductores siempre unidos, detector separable y acercamientos automáticos en móvil. El respaldo está dentro del gabinete; no se presenta como otro objeto inconexo. El controlador nuevo es `fire-system-v1.js`. Las otras siete isometrías y Software v4 conservan las mejoras verificadas previamente.
+## Resultado integrado
 
-Último `npm run check`: **69 suites / 582 pruebas**, tipos, CSS, lint y build correctos. Log `/private/tmp/um-fire-precision-check.log`. Preview reconstruida; PID propio en `/private/tmp/um-eight-preview.pid` (verificar siempre proceso y cwd antes de reiniciar). Revisión visual actual **37716790081**, sobre `af2c9e6e`: pendiente de leer su resultado. Comprueba Chrome/WebKit, reproducción y siete estados autónomos de la isometría. No asumir éxito.
+- **Software v4:** 1.440 cuadros 4K/60, seis assets, 58.415.732 bytes. Auditoría `37712634510`: 20 composiciones, color y repetición en Chrome/WebKit, sin hallazgos.
+- **Incendio v2:** render `37716425530`, fuente `83cae61f`, importado en `d17d8c4c`. 1.440 cuadros distintos, 24 s, seis assets, 51.136.539 bytes. Auditoría integrada final `37719560859` sobre `512e78a9`: 10 layouts y dos ciclos autónomos con siete estados isométricos cada uno; cero hallazgos. Evidencia local `/private/tmp/um-fire-final-audit-37719560859/`.
+- **Isometría de Incendio:** central de 576 piezas, 33 geometrías compartidas y 14.391 bytes gzip. Puerta de 102°, electrónica posterior, conductores unidos, detector separable y baterías dentro del gabinete. Se corrigieron namespaces SVG al embeber, etiquetas superpuestas, encuadres móviles y dos cámaras que competían. El script `precision-systems-v6.js` reserva su cámara exterior sólo a Software.
+- **Cinco cámaras restantes:** Telecomunicaciones, Seguridad, Soporte, Consultoría y Energía incluyen el volumen cerrado y abierto al encuadrar. `37719182601`, fuente `86327d20`: Chrome/WebKit × escritorio/móvil, 140 estados y 20 vistas con movimiento reducido; cero hallazgos y errores. Evidencia `/private/tmp/um-camera-final-37719182601/`.
+- `351ebb2d`/`021ecbbf` atenúan las piezas no activas durante una explicación, manteniendo opaco el mecanismo actual. Esa mejora visual aún requiere capturas posteriores; no está en la preview compilada.
 
-Blender: render completo de Incendio **37716425530**, fuente `83cae61f`, 12 fragmentos de 120 cuadros, 4K/60 nativo, 24 s. Está en curso, todavía **no importado**. Las pruebas dirigidas comprobaron escena, electrónica, cable flexible y ángulo inferior del detector. La luz se calcula con Cycles a colores de vértice una vez y se conserva en el render nativo. Se corrigieron conductores blancos, bandas por geometría poco subdividida y caras invertidas. El último detector correcto está en `37715859677`; los cinco encuadres anteriores en `37715078018`. No incorporar las pruebas intermedias rechazadas.
+Último `npm run check` completo (`86327d20`): 70 suites / 586 pruebas, lint, tipos, CSS y build correctos. `512e78a9` recompiló y comprobó la corrección de máscara del banner de Incendio. Diez advertencias previas de lint.
 
-Cuando termine: ensamblado debe verificar 1.440 cuadros, resolución, perfil BT.709/sRGB explícito, continuidad y mismo hash de fuente en los 12 fragmentos. Importar con `scripts/cine/import-fire-project-v2.mjs`, reconstruir preview y volver a comprobar la nueva película integrada. `CineBanner` ya contempla su encuadre completo y columna de texto separada.
+## Trabajo activo: película de Redes v2
 
-Software v4: 1.440 cuadros 4K/60, seis assets y 58.415.732 bytes. `37712634510`: 20 composiciones, color y repetición correctos en Chrome/WebKit. Ocho isometrías previas: `37710968497` aprobado. `37710967875` quedó cancelado tras preparación WebKit muy lenta; no tratarlo como aprobado. Evidencia completa conservada con SHA-256 en SDTERA.
+Modelo propio de rack de 19 pulgadas, 24 puertos RJ45 con contactos, 12 adaptadores ópticos, placa del switch, organizadores, latiguillos, bandejas y radio con PCB circular, blindajes, antenas y componentes. Recorrido continuo: instalación, gabinete, switch, radio y regreso. 24 s, 1.440 cuadros nativos.
 
-La home conserva su película; arriba Blender, abajo explicación isométrica autónoma. Campaña de comunidades y binarios UM Sans preservados. Blender corre sólo en GitHub Actions. **Las otras seis películas de servicio conservan el acabado anterior**; Software está en v4 e Incendio aún en render. La aprobación funcional no demuestra equivalencia artística con Ryan, Solvaix o David Hill. No hay GO de producción.
+Prueba `37719886220`: plano general y rack útiles, radio rechazada por su placa demasiado vacía. `37720542508` corrige la electrónica y el espacio de la tapa del switch; se revisaron sus dos PNG. La radio todavía mostraba un perfil duro, ranuras triangulares y un cable dominante. Se corrigen carcasa formada continua, ranuras estrechas en la zona cilíndrica y funda neutra con pulso rojo de señal. Nueva prueba pendiente. **No habilitar render completo antes de inspeccionarla.**
+
+Pipeline genérico de ensamblado/importación preparado para `fire-project-v2` y `network-project-v2`: valida hashes, 1.440 cuadros, 60 fps, color explícito, continuidad y mismo código fuente en los doce fragmentos. La película antigua de Redes sigue registrada hasta aprobar e importar la nueva. Las otras cinco películas de servicio conservan el acabado v1.
+
+## Límites de la revisión
+
+Los runs `37716790081`, `37718185751` y `37718704585` detectaron defectos corregidos posteriormente; no son aprobaciones visuales. La revisión del navegador local está bloqueada por política; los controles reales se ejecutan en runners remotos descartables. WebKit Linux no equivale a un iPhone físico.
+
+La home conserva su película. Arriba Blender, abajo explicación isométrica autónoma. Campaña y binarios UM Sans protegidos. Render pesado sólo remoto. Evidencias durables bajo `/Volumes/SDTERA/Codex UM25 audits/20261007/`. Los controles funcionales no demuestran paridad artística con Ryan, Solvaix o David Hill. **No hay GO de producción.**
 
 ## Registro histórico de la entrega anterior
 

@@ -154,7 +154,7 @@ jobs:
         if: inputs.mode == 'full' || inputs.mode == 'repair'
         run: |
           cp frames/render-info.json part-${{ matrix.part }}-info.json
-          if [ '${{ inputs.version }}' = fire-v2 ]; then
+          if [ '${{ inputs.version }}' = fire-v2 ] || [ '${{ inputs.version }}' = network-v2 ]; then
             ffmpeg -v error -framerate 60 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 120 -vf 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p' -c:v libx264 -preset medium -crf 18 -r 60 -g 120 -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1 -an -movflags +faststart part-${{ matrix.part }}.mp4
             exit 0
           fi
@@ -162,7 +162,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: inputs.mode == 'full' || inputs.mode == 'repair'
         with:
-          name: ${{ inputs.version == 'fire-v2' && format('fire-project-v2-part-{0}', matrix.part) || format('service-{0}-part-{1}', matrix.service, matrix.part) }}
+          name: ${{ inputs.version == 'network-v2' && format('network-project-v2-part-{0}', matrix.part) || inputs.version == 'fire-v2' && format('fire-project-v2-part-{0}', matrix.part) || format('service-{0}-part-{1}', matrix.service, matrix.part) }}
           path: |
             part-${{ matrix.part }}.mp4
             part-${{ matrix.part }}-info.json
@@ -180,11 +180,13 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
-          sparse-checkout: scripts/cine/assemble-fire-project-v2.py
+          sparse-checkout: |
+            scripts/cine/assemble-fire-project-v2.py
+            scripts/cine/assemble-technical-project-v2.py
           sparse-checkout-cone-mode: false
       - uses: actions/download-artifact@v8
         with:
-          pattern: ${{ inputs.version == 'fire-v2' && 'fire-project-v2-part-*' || format('service-{0}-part-*', matrix.service) }}
+          pattern: ${{ inputs.version == 'network-v2' && 'network-project-v2-part-*' || inputs.version == 'fire-v2' && 'fire-project-v2-part-*' || format('service-{0}-part-*', matrix.service) }}
           run-id: ${{ inputs.source_run || github.run_id }}
           github-token: ${{ github.token }}
       - name: Restore only the recovered fragments
@@ -200,6 +202,7 @@ jobs:
           for RUN in "${RUNS[@]}"; do
             PATTERN='^service-[0-9]+-part-[0-9]+$'
             if [ "$VERSION" = fire-v2 ]; then PATTERN='^fire-project-v2-part-[0-9]+$'; fi
+            if [ "$VERSION" = network-v2 ]; then PATTERN='^network-project-v2-part-[0-9]+$'; fi
             NAMES=$(gh api "repos/$GH_REPO/actions/runs/$RUN/artifacts?per_page=100" --jq ".artifacts[].name | select(test(\"$PATTERN\"))")
             test -n "$NAMES"
             while IFS= read -r NAME; do gh run download "$RUN" -n "$NAME" -D "$NAME"; done <<< "$NAMES"
@@ -214,6 +217,10 @@ jobs:
             echo "Package index refresh timed out; using runner cached signed indexes."
           fi
           sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq ffmpeg
+          if [ '${{ inputs.version }}' = network-v2 ]; then
+            python3 scripts/cine/assemble-technical-project-v2.py --scene network-project-v2
+            exit 0
+          fi
           if [ '${{ inputs.version }}' = fire-v2 ]; then
             python3 scripts/cine/assemble-fire-project-v2.py
             exit 0
@@ -254,6 +261,6 @@ jobs:
           sha256sum delivery/* > delivery/SHA256SUMS
       - uses: actions/upload-artifact@v7
         with:
-          name: ${{ inputs.version == 'fire-v2' && 'fire-project-v2-delivery' || format('service-cinema-{0}', matrix.service) }}
+          name: ${{ inputs.version == 'network-v2' && 'network-project-v2-delivery' || inputs.version == 'fire-v2' && 'fire-project-v2-delivery' || format('service-cinema-{0}', matrix.service) }}
           path: delivery
           retention-days: 5

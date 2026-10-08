@@ -1,6 +1,6 @@
 # Revisión de precisión · 7 de octubre de 2026
 
-Candidato de interfaz y color: `74242c92`, rama `feature/isometric-redes-review`, PR #266 a develop. Trabajo en la preview `http://127.0.0.1:4326/`. La evaluación anterior encontró una diferencia sustancial de calidad frente a Ryan, Solvaix y David Hill. Esta iteración reconstruye partes de la propuesta; un control funcional verde no constituye aprobación artística ni autorización de release.
+Registro inicial de interfaz y color: `74242c92`, rama `feature/isometric-redes-review`, PR #266 a develop. Trabajo en la preview `http://127.0.0.1:4326/`. La evaluación anterior encontró una diferencia sustancial de calidad frente a Ryan, Solvaix y David Hill. Esta iteración reconstruye partes de la propuesta; un control funcional verde no constituye aprobación artística ni autorización de release.
 
 ## Cambios visibles
 
@@ -98,3 +98,16 @@ El ángulo superior ocultaba el mecanismo del detector. `089f1e81` dirige ese ac
 La prueba del detector `37713799416` falló instalando dependencias; `37714330070` recuperó el encuadre. La prueba de luz precalculada `37714555071` reveló curvas blancas; `37715078018` recuperó sus materiales y produjo cinco encuadres. `37715412939` mejoró superficies y luz del detector pero mostró las caras del soporte invertidas. Se corrigieron y se añadieron invariantes geométricas; `37715859677` se inspeccionó con la cara inferior visible, iluminación suave y carcasa sin facetado grueso. El render completo `37716425530`, a 4K/60 nativo, está en curso sobre `83cae61f`; aún no se ha importado.
 
 Evidencias verificadas por SHA-256 en SDTERA: `fire-five-shots-37715078018/` y `fire-detector-37715859677/`. Las pruebas que mostraron defectos no sustituyen las películas del sitio.
+
+
+## Revisión del 8 de octubre: entrega de Incendio y nuevas cámaras
+
+Incendio v2 ya está importado: `37716425530`, fuente `83cae61f`, 1.440 cuadros únicos, 4K/60 y 24 segundos. Los seis assets nuevos suman 51.136.539 bytes. Su revisión final integrada `37719560859` confirma diez composiciones, reproducción completa y repetición en Chrome/WebKit, además de catorce estados autónomos de la isometría, sin hallazgos.
+
+La primera auditoría de la central detectó una regresión real: elementos serializados con prefijo `ns0` no se dibujaban al insertar el SVG en HTML. Otra cámara genérica también modificaba el encuadre. Se corrigieron ambos problemas y se revisó la ubicación de detector, electrónica y respaldo en móvil. La máscara heredada de hardware oscurecía parte de la película aunque el DOM declaraba la composición nueva; se restringió su selector y se volvió a comprobar en ambos motores.
+
+Cinco cámaras de isometrías ahora calculan el encuadre sobre la pieza cerrada y completamente abierta. La primera prueba encontró incompatibilidad entre SVGMatrix y DOMMatrix: se sustituyó por composición afín explícita. `37719182601` inspeccionó 140 estados y 20 vistas de movimiento reducido, en cuatro perfiles Chrome/WebKit × escritorio/móvil, sin hallazgos ni errores. Se revisaron las capturas y se observó ruido de piezas vecinas: `351ebb2d`/`021ecbbf` atenúan el contexto durante el enfoque; falta su confirmación visual posterior.
+
+Redes v2 está en pruebas dirigidas. Se rehízo la radio tras rechazar un PCB vacío y se corrigió la tapa del switch para evitar intersección con el patch panel. Los planos de `37720542508` muestran el detalle, pero aún motivan correcciones de carcasa, ranuras y protagonismo del cable. Todavía no hay película nueva de Redes publicada en la preview.
+
+Estado completo y siguientes pasos en `work-status-20261007.md`. El candidato sigue en draft: las cinco películas restantes y la calidad global no se certifican por pasar pruebas de reproducción.
