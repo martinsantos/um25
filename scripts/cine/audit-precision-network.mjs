@@ -69,9 +69,14 @@ try{
  report.software=[];
  for(const stage of [-1,0,1,2,3,4,5,6]){
   await page.waitForFunction(stage=>Number(document.querySelector('[data-discipline-system]').dataset.disciplineStage)===stage,stage,{timeout:15000});await delay(2700);
-  const state=await page.locator('.ps-drawing').evaluate(el=>({stage:el.closest('[data-discipline-system]').dataset.disciplineStage,planes:[...el.querySelectorAll('.ps-layer')].map(layer=>({layer:layer.dataset.disciplineNode,transform:getComputedStyle(layer).transform})),width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
-  assert.equal(state.width,state.scrollWidth);report.software.push(state);
+  const state=await page.locator('.ps-drawing').evaluate(el=>{
+   const root=el.closest('[data-discipline-system]'),stage=Number(root.dataset.disciplineStage),svg=root.querySelector('svg'),active=el.querySelector('[data-discipline-node="'+stage+'"]');
+   return {stage,viewBox:svg.getAttribute('viewBox'),frame:svg.getBoundingClientRect().toJSON(),active:active?.getBoundingClientRect().toJSON(),planes:[...el.querySelectorAll('.ps-layer')].map(layer=>({layer:layer.dataset.disciplineNode,transform:getComputedStyle(layer).transform})),width:innerWidth,scrollWidth:document.documentElement.scrollWidth};
+  });
+  report.software.push(state);
   await page.locator('[data-atlas-theater]').screenshot({path:path.join(out,`precision-software-${stage}.png`),animations:'allow'});
+  assert.equal(state.width,state.scrollWidth);
+  if(state.active){const a=state.active,f=state.frame;assert(a.left>=f.left+2&&a.right<=f.right-2&&a.top>=f.top+2&&a.bottom<=f.bottom-2,'Software layer clipped: '+JSON.stringify(state));}
  }
  const reduced=await browser.newContext({viewport,reducedMotion:'reduce'}),quiet=await reduced.newPage();
  await quiet.goto(origin+route,{waitUntil:'domcontentloaded'});await delay(700);

@@ -18,15 +18,17 @@ try{
   }
   await context.close();
  }
- for(const [width,code,stage] of [[390,'101',3],[1440,'104',1]]){
+ for(const [width,code,stage] of [[390,'101',3],[1440,'104',1],[390,'104',3]]){
   const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'no-preference'}),page=await context.newPage();
   page.on('pageerror',e=>report.errors.push(e.message));
   await page.goto('http://127.0.0.1:4326'+routes.find(route=>route.startsWith('/servicios/'+code+'/')),{waitUntil:'domcontentloaded'});
   await page.locator('[data-atlas-theater]').evaluate(el=>scrollTo(0,el.getBoundingClientRect().top+scrollY-100));
   await page.waitForFunction(stage=>Number(document.querySelector('[data-discipline-system]').dataset.disciplineStage)===stage,stage,{timeout:45000});await page.waitForTimeout(2700);
-  const state=await page.locator('[data-discipline-system]').evaluate(el=>({stage:el.dataset.disciplineStage,framing:el.dataset.precisionFraming,door:el.querySelector('.pn-door')?.getAttribute('transform'),plane:getComputedStyle(el.querySelector('.ps-layer[data-discipline-node="1"]')||el).transform,width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
+  const state=await page.locator('[data-discipline-system]').evaluate(el=>({stage:el.dataset.disciplineStage,framing:el.dataset.precisionFraming,door:el.querySelector('.pn-door')?.getAttribute('transform'),plane:getComputedStyle(el.querySelector('.ps-layer[data-discipline-node="'+el.dataset.disciplineStage+'"]')||el).transform,frame:el.querySelector('svg').getBoundingClientRect().toJSON(),active:el.querySelector('.ps-layer[data-discipline-node="'+el.dataset.disciplineStage+'"]')?.getBoundingClientRect().toJSON(),width:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
   assert.equal(state.width,state.scrollWidth);if(code==='101')assert.equal(state.framing,'measured');else assert.notEqual(state.plane,'matrix(1, 0, 0, 1, 0, 0)');
-  report.motion.push({code,...state});await page.locator('[data-atlas-theater]').screenshot({path:path.join(out,`precision-webkit-motion-${code}.png`),animations:'allow'});
+  report.motion.push({code,...state});
+  if(code==='104'){const a=state.active,f=state.frame;assert(a&&a.left>=f.left+2&&a.right<=f.right-2&&a.top>=f.top+2&&a.bottom<=f.bottom-2,'Active software plane is clipped: '+JSON.stringify(state));}
+  await page.locator('[data-atlas-theater]').screenshot({path:path.join(out,`precision-webkit-motion-${width}-${code}.png`),animations:'allow'});
   await context.close();
  }
  assert.equal(report.errors.length,0);

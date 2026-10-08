@@ -1,4 +1,4 @@
-import {bindViewportDiscipline} from '../public/cine/discipline-runtime-v1.js';
+import {bindViewportDiscipline} from '../public/cine/discipline-runtime-v2.js';
 const settle=async()=>{for(let i=0;i<7;i++)await Promise.resolve();};
 let observers;
 beforeEach(()=>{
