@@ -23,6 +23,10 @@ on:
         description: Verify mobile motion controls across services without repeating duration tests
         type: boolean
         default: false
+      startup_probe:
+        description: Compare uninstrumented native playback, page work and renderer overhead
+        type: boolean
+        default: false
       probe:
         description: Diagnose native WebKit playback on two mobile routes
         type: boolean
@@ -50,7 +54,7 @@ jobs:
         run: |
           npm install --prefix "$RUNNER_TEMP/um-visual-runtime" --no-save --no-package-lock playwright@1.63.0
           "$RUNNER_TEMP/um-visual-runtime/node_modules/.bin/playwright" install chrome
-          "$RUNNER_TEMP/um-visual-runtime/node_modules/.bin/playwright" install --with-deps webkit
+          if [ "${{ inputs.startup_probe }}" != true ]; then "$RUNNER_TEMP/um-visual-runtime/node_modules/.bin/playwright" install --with-deps webkit; fi
       - name: Start isolated candidate
         run: |
           HOST=127.0.0.1 PORT=4326 NODE_ENV=production node dist/server/entry.mjs > "$RUNNER_TEMP/um-preview.log" 2>&1 &
@@ -60,7 +64,8 @@ jobs:
           done
           exit 1
       - name: Compare poster and native playback geometry
-        run: node scripts/cine/audit-software-frame.mjs
+        run: |
+          if [ "${{ inputs.startup_probe }}" = true ]; then node scripts/cine/audit-native-film-startup.mjs; else node scripts/cine/audit-software-frame.mjs; fi
         env:
           PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
           FRAMING_SERVICE_CODE: ${{ inputs.service_code }}

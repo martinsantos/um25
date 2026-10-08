@@ -86,9 +86,9 @@ class Consulting(network.Network):
   self.parts.append('evidence-linked-alternatives-and-execution-plan')
   w,d=1.17,1.00
   for k in range(3):self.box(x+k*.005,y-k*.005,z+k*.0012,w,d,.001,'paper')
-  left=x-w/2+.050;top=y+d/2-.078;zz=z+.0055
+  left=x-w/2+.050;top=y+d/2-.078;zz=z+.009
   self.text('DE LA EVIDENCIA AL PLAN',left,top,zz,.035,'ink')
-  self.text('ESTUDIO ILUSTRATIVO / ARQUITECTURA IT',left,top-.032,zz,.012,'muted')
+  self.text('ESTUDIO ILUSTRATIVO / ARQUITECTURA IT',left,top-.032,zz,.012,'trace')
   self.line([(left,top-.051,zz),(x+w/2-.045,top-.051,zz)],'ink',.0007)
   # A specific finding links evidence, affected operation and a proposed decision.
   self.text('01 / DEPENDENCIA IDENTIFICADA',left,top-.086,zz,.015,'red')
@@ -96,7 +96,7 @@ class Consulting(network.Network):
   for j,line in enumerate(['Evidencia: trazado y equipos relevados.','Impacto: puestos y aplicaciones relacionados.','Decision: evaluar una alternativa de continuidad.']):self.text(line,left,top-.153-j*.028,zz,.014,'ink')
   self.text('02 / CRITERIOS DE COMPARACION',left,top-.266,zz,.015,'red')
   columns=[left,left+.42,left+.67,left+.87]
-  for xx,label in zip(columns,['Criterio','Alternativa A','Alternativa B','Verificacion']):self.text(label,xx,top-.302,zz,.012,'muted')
+  for xx,label in zip(columns,['Criterio','Alternativa A','Alternativa B','Verificacion']):self.text(label,xx,top-.302,zz,.012,'trace')
   for j,(label,a,b,c) in enumerate([('Dependencias','Reutiliza','Separa','Mapa'),('Implementacion','En etapas','Con migracion','Secuencia'),('Continuidad','Acordada','Acordada','Prueba')]):
    yy=top-.338-j*.041
    self.line([(left,yy-.012,zz),(x+w/2-.045,yy-.012,zz)],'joint',.00035)
@@ -109,10 +109,10 @@ class Consulting(network.Network):
    self.text(detail,xx+.012,top-.604,zz+.0035,.008,'muted')
    if j<3:self.line([(xx+.231,top-.585,zz+.003),(xx+.260,top-.585,zz+.003)],'red',.001)
   self.text('ENTREGABLES / ALCANCE / RESPONSABLES',left,top-.690,zz,.015,'ink')
-  self.text('Cada etapa deja un resultado que se puede comprobar.',left,top-.724,zz,.014,'muted')
+  self.text('Cada etapa deja un resultado que se puede comprobar.',left,top-.724,zz,.014,'trace')
   self.line([(left,top-.770,zz),(x+w/2-.045,top-.770,zz)],'ink',.0006)
   self.text('ULTIMA MILLA / CONSULTORIA IT',left,top-.802,zz,.016,'ink')
-  self.text('01 / 01',x+w/2-.125,top-.802,zz,.011,'muted')
+  self.text('01 / 01',x+w/2-.125,top-.802,zz,.011,'trace')
 
 def build():
  s=Consulting();s.box(0,.15,0,4.1,2.7,.063,'concrete')
@@ -131,7 +131,7 @@ def build():
 
 def camera(t):
  keys=[(0,6.4,-68,(0,.22,.95),12,9),(.12,6.12,-64,(-.05,.22,.96),12,9),
-       (.32,2.55,-66,(-.79,.29,1.19),5,3.6),(.49,2.65,-60,(-.77,.29,1.27),5,3.8),
+       (.32,3.25,-66,(-.79,.29,1.38),5,3.6),(.49,3.35,-60,(-.77,.29,1.39),5,3.8),
        (.65,1.80,-88,(.98,.39,.793),1,5.2),(.83,1.76,-86,(1.0,.14,.793),1,5.2),
        (1,6.4,-68,(0,.22,.95),12,9)]
  if t<=0 or t>=1:k=keys[0];return k[1],math.radians(k[2]),k[3],k[4],k[5]
@@ -157,5 +157,5 @@ if __name__=='__main__':
  s=build();info=describe(s)
  if args.validate_only:print(json.dumps(info))
  else:studio.render(args,s,dict(source=__file__,sources=[str(Path(__file__).with_name('render-network-project-v2.py')),__file__],describe=describe,camera=camera,animate=animate,bake_frame=620,
-  brand_font=True,smooth_bake=True,packet_radius=.005,description='one measured study model reveals infrastructure dependencies, then links evidence to a verifiable implementation plan; continuous 24 second loop',
+  brand_font=True,text_depth=0,smooth_bake=True,packet_radius=.005,description='one measured study model reveals infrastructure dependencies, then links evidence to a verifiable implementation plan; continuous 24 second loop',
   lights=[('Drafting inspection',(0,-.4,3.0),70,2.4,(1,1,1),(0,.3,.85))]))
