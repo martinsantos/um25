@@ -22,7 +22,7 @@ name: Blender software architecture
         options: ['1920', '3840']
         default: '1920'
       motion_frames:
-        description: Native consecutive frames for a bounded render benchmark (12 to 120)
+        description: Native consecutive frames for a bounded render benchmark (2 to 120)
         type: number
         default: 120
       version:
@@ -103,7 +103,7 @@ jobs:
           rows=[dict(part=i+1,start=f,end=f,frames=1) for i,f in enumerate(proof_frames)] if os.environ['MODE']=='proof' else [dict(part=i+1,start=i*chunk,end=(i+1)*chunk-1,frames=chunk) for i in range(12)]
           if os.environ['MODE']=='motion-proof':
               assert os.environ['VERSION'] in ('v3','v5','v6','v7')
-              count=int(os.environ['MOTION_FRAMES']);assert 12<=count<=120
+              count=int(os.environ['MOTION_FRAMES']);assert 2<=count<=120
               start=300 if os.environ['VERSION']=='v7' else 690 if os.environ['VERSION']=='v6' else 600 if os.environ['VERSION']=='v5' else 300
               rows=[dict(part=1,start=start,end=start+count-1,frames=count)]
           if os.environ['MODE']=='repair':
@@ -119,7 +119,7 @@ jobs:
   render:
     needs: plan
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: ${{ inputs.mode == 'motion-proof' && 20 || inputs.mode == 'proof' && 20 || 90 }}
     strategy:
       fail-fast: false
       max-parallel: 12
