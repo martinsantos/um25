@@ -98,10 +98,16 @@ class Installation(legacy.Studio):
         for ring in range(steps):
             for j in range(n):
                 k=(j+1)%n;a=ring*n+j;b=ring*n+k;c=(ring+1)*n+k;d=(ring+1)*n+j
-                ff.extend([(a,d,c,b),(side+a,side+b,side+c,side+d)])
+                ff.extend([(a,b,c,d),(side+a,side+d,side+c,side+b)])
         for j in range(n):
             k=(j+1)%n;a=steps*n+j;b=steps*n+k
-            ff.extend([(j,k,side+k,side+j),(a,side+a,side+b,b)])
+            ff.extend([(j,side+j,side+k,k),(a,b,side+b,side+a)])
+        for face in ff:
+            a,b,c=[vv[i] for i in face[:3]]
+            ab=[b[i]-a[i] for i in range(3)];ac=[c[i]-a[i] for i in range(3)]
+            normal=(ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0])
+            if all(abs(vv[i][2]-2.797)<1e-8 for i in face):assert normal[2]<0
+            if all(abs(vv[i][2]-2.814)<1e-8 for i in face):assert normal[2]>0
         self.mesh(vv,ff,'paper')
         for dx in [-.30,.30]:
             self.box(x+dx,y,2.817,.012,.624,.025,'edge')
