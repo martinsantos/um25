@@ -3,6 +3,11 @@ name: Cinema experience visual audit
 on:
   workflow_dispatch:
     inputs:
+      camera_service:
+        description: Narrow a mechanism audit to the equipment that changed
+        type: choice
+        options: [all, "102", "103", "105", "106", "108"]
+        default: all
       layer_camera_only:
         description: 'All six layers, swept bounds and reduced motion in the five remaining disciplines'
         type: boolean
@@ -91,6 +96,7 @@ jobs:
           fi
         env:
           VISUAL_ENGINE: ${{ matrix.engine }}
+          CAMERA_SERVICE_CODE: ${{ inputs.camera_service }}
           VISUAL_WIDTH: ${{ matrix.profile == 'mobile' && '390' || '1440' }}
           PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
           VISUAL_AUDIT_SOFTWARE_ONLY: ${{ inputs.software_only && '1' || '0' }}
