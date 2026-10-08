@@ -69,6 +69,7 @@ jobs:
   #===========================================================================
   deploy-production:
     name: Deploy to Production
+    if: github.ref == 'refs/heads/master'
     needs: build-and-test
     runs-on: ubuntu-latest
     environment:
@@ -145,6 +146,11 @@ jobs:
               src/pages/estilo/fuente/planillas.astro|\
               src/pages/estilo/fuente/planilla.astro|\
               src/pages/planilla.astro|\
+              src/pages/fuente.astro|\
+              src/pages/estilos/index.astro|\
+              src/pages/estilos/fuente.astro|\
+              src/pages/estilos/fuente/plantilla.astro|\
+              src/pages/estilo/fuente/plantilla.astro|\
               src/styles/font-service.css|src/styles/v4.css|\
               src/styles/cine-hero.css) ;;
               .github/workflows/production-deploy.yml|.github/workflows/community-demo-integrity.yml|\

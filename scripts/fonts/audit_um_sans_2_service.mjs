@@ -45,10 +45,26 @@ for (const [route, marker] of [
   ['/estilo/fuente/planillas', 'Plantillas-UMSans2-2.0.0.zip'],
   ['/estilo/fuente/planilla', 'Plantillas-UMSans2-2.0.0.zip'],
   ['/planilla', 'Plantillas-UMSans2-2.0.0.zip'],
+  ['/fuente', 'data-font-release="2.0.0"'],
+  ['/estilos/fuente', 'data-font-release="2.0.0"'],
+  ['/estilos/fuente/plantilla', 'Plantillas-UMSans2-2.0.0.zip'],
+  ['/estilo/fuente/plantilla', 'Plantillas-UMSans2-2.0.0.zip'],
 ]) {
   const html = await (await get(route)).text();
   assert(html.includes(marker), `${route}: missing ${marker}`);
   assert(html.includes('data-font-system="um-sans-2.0.0"'), `${route}: old runtime`);
+}
+for (const [route, destination] of [
+  ['/fuente', '/estilo/fuente'],
+  ['/estilos/fuente', '/estilo/fuente'],
+  ['/estilos', '/estilo'],
+  ...['/planilla', '/estilo/fuente/plantilla', '/estilo/fuente/plantillas',
+    '/estilo/fuente/planilla', '/estilo/fuente/planillas', '/estilos/fuente/plantilla']
+    .map(route => [route, '/estilo/fuentes/plantilla']),
+]) {
+  const response = await fetch(base + route, { redirect: 'manual', signal: AbortSignal.timeout(30000) });
+  assert.equal(response.status, 301, `${route}: permanent redirect`);
+  assert.equal(new URL(response.headers.get('location'), base).pathname, destination, `${route}: destination`);
 }
 // Existing clients must still receive the exact 1.2 binary.
 const legacy = Buffer.from(await (await get('/fonts/um-sans/UMSans-Variable.woff2')).arrayBuffer());
