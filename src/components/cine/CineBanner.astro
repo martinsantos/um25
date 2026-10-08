@@ -44,7 +44,7 @@ const heading = dot ? title.slice(0, -1) : title;
 const rail = chapters||HOME_SCENES.filter((s) => scenes.includes(s.scene));
 const firstTitle = rail.find(chapter=>chapter.scene===first)?.name||cutCaption(first);
 const disciplineComposition = /^(software|network|security|telecom|support|consulting|fire|power)-(system|project)-v\d+$/.test(first);
-const productComposition = /^(software-system-v[345]|(?:fire|network|security|telecom|power|support|consulting)-project-v2)$/.test(first);
+const productComposition = /^(software-system-v[345]|power-project-v3|(?:fire|network|security|telecom|power|support|consulting)-project-v2)$/.test(first);
 const filmChapters = FILM_CHAPTERS[first];
 const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-width:546px) and (max-aspect-ratio:651/1000)';
 ---
@@ -153,7 +153,7 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
  .umc[data-product-composition="true"]{--umc-ink:#090a0c}
  .umc[data-product-composition="true"] :global(.umc-grade){background:none}
  /* Match the decoded native studio background, so the film has no rectangular seam. */
- .umc[data-product-composition="true"][data-scene$="-project-v2"]{--umc-ink:#050505}
+ .umc[data-product-composition="true"][data-scene$="-project-v2"],.umc[data-scene="power-project-v3"]{--umc-ink:#050505}
  .umc-film-caption{display:flex;align-items:baseline;gap:12px;margin:0;flex:1;font-size:1rem;line-height:1.5;color:#bfc2c7}
  .umc-film-caption [data-film-number]{color:#dc2626;font-variant-numeric:tabular-nums}
  @media(min-width:821px){.umc-film-caption{margin-left:calc(42vw - var(--umc-gutter));padding-right:16px}}

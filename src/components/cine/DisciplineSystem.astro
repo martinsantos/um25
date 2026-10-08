@@ -1,9 +1,11 @@
 ---
 import {DISCIPLINE_SYSTEMS} from '../../data/cine/disciplineSystems';
-import drawing from '../../assets/cine/isometric/discipline-systems-v3.svg?raw';
+import drawing from '../../assets/cine/isometric/discipline-systems-v4.svg?raw';
 import precisionNetwork from '../../assets/cine/isometric/discipline-101-v2.svg?raw';
 import precisionSoftware from '../../assets/cine/isometric/discipline-104-v2.svg?raw';
-import precisionPower from '../../assets/cine/isometric/discipline-108-v3.svg?raw';
+import precisionPower from '../../assets/cine/isometric/discipline-108-v4.svg?raw';
+import precisionSupport from '../../assets/cine/isometric/discipline-105-v3.svg?raw';
+import precisionConsulting from '../../assets/cine/isometric/discipline-106-v3.svg?raw';
 import precisionFire from '../../assets/cine/isometric/discipline-107-v2.svg?raw';
 interface Props {code?:string;codes?:string[];visible?:boolean}
 const {code='103',codes=[],visible=true}=Astro.props;
@@ -12,7 +14,7 @@ const precisionBody=precisionNetwork.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$
 const softwareBody=precisionSoftware.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
 const fireBody=precisionFire.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
 const combined=drawing.replace(/<g data-discipline-drawing="101"[\s\S]*?(?=<g data-discipline-drawing="102")/,precisionBody).replace(/<g data-discipline-drawing="104"[\s\S]*?(?=<g data-discipline-drawing="105")/,softwareBody).replace(/<g data-discipline-drawing="107"[\s\S]*?(?=<g data-discipline-drawing="108")/,fireBody);
-const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precisionSoftware:code==='108'?precisionPower:individual[`../../assets/cine/isometric/discipline-${code}-v2.svg`]):combined;
+const markup=codes.length===1?(code==='101'?precisionNetwork:code==='104'?precisionSoftware:code==='108'?precisionPower:code==='105'?precisionSupport:code==='106'?precisionConsulting:individual[`../../assets/cine/isometric/discipline-${code}-v2.svg`]):combined;
 ---
 <div class="discipline-system" data-discipline-system data-visible={String(visible&&Boolean(DISCIPLINE_SYSTEMS[code]))} data-discipline-service={code} data-discipline-stage="-1" role="img" aria-label="Capas conectadas del servicio, explicadas en el recorrido contiguo">
  <Fragment set:html={markup} />

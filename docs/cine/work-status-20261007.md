@@ -1,4 +1,43 @@
-# Continuidad activa · 8 de octubre de 2026
+# Candidata integrada · 8 de octubre de 2026
+
+Estado a las 06:26 UTC. Checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`, rama `feature/isometric-redes-review`, PR #266 a develop, draft. Preview `http://127.0.0.1:4326/` reconstruida en `56b82257`; PID propio 9672. Verificar proceso y cwd antes de reiniciar. No modificar el checkout principal ni desplegar.
+
+Las ocho disciplinas ya usan películas específicas de 24 segundos y 1.440 cuadros nativos 4K/60. Edición móvil, cuatro pósters, hashes, color y continuidad verificados al importar. No queda ninguna película v1 en servicios.
+
+| Servicio | Versión integrada | Render completo | Bytes de sus seis assets |
+| --- | --- | --- | ---: |
+| Redes 101 | network-project-v2 | 37721892202 | 55.136.530 |
+| Seguridad 102 | security-project-v2 | 37725150179 | 32.952.846 |
+| Telecomunicaciones 103 | telecom-project-v2 | 37725154508 | 22.544.283 |
+| Software 104 | software-system-v5 | 37732092147 | 44.666.046 |
+| Soporte 105 | support-project-v2 | 37732222296 | 26.838.088 |
+| Consultoría 106 | consulting-project-v2 | 37734092440 | 39.796.059 |
+| Incendio 107 | fire-project-v2 | 37716425530 | 51.136.539 |
+| Energía 108 | power-project-v2 | 37728931491 | 30.546.459 |
+
+## Verificación actual y siguiente acción
+
+- Software integrado `37733716485`: 20 composiciones Chrome/WebKit, ciclo móvil y color, cero hallazgos; capturas inspeccionadas. Foco de las seis capas `37736011734`: autonomía, encuadre completo, contexto atenuado y movimiento reducido correctos, capturas revisadas. El recorte que aparentaba afectar la capa activa pertenecía al contexto: no presentarlo como un recorte activo corregido.
+- Soporte integrado `37734884810`: 10 composiciones y dos ciclos completos, cinco frases ligadas al reloj del video, cero hallazgos. Chrome 10 cuadros descartados de 1.378; WebKit 0 de 1.371. Se inspeccionaron fotogramas nativos y capturas reales de escritorio y móvil.
+- Consultoría integrada `37736654589`: 10 composiciones y dos ciclos autónomos, cinco frases sincronizadas, cero hallazgos; reportes y capturas inspeccionados. Chrome 21/1.378 cuadros descartados, WebKit 0/1.374. El render rechazado `37728975470` no fue importado; el nuevo `37734092440` tiene plano general completo y 1.440 cuadros únicos.
+- Revisión completa `37735559008` de home, sectores y ocho servicios en ejecución. Fuente `9fe62961`; las únicas diferencias de producto posteriores son Consultoría v2 y el contraste de Software, con revisión dirigida propia.
+- `npm run check` en `9fe62961`: 71 suites / 592 pruebas, lint, tipos, CSS y build aprobados; 10 advertencias previas. Build de `56b82257` aprobado. No equivale a aprobación artística.
+
+## Refinamiento de iluminación activo
+
+Prueba de Energía `37736008661`, fuente `8e230d96`: plano general y UPS abierta inspeccionados, mejora visible de contacto bajo baterías y dentro del gabinete, sin el ruido de la prueba anterior. Se conservaron geometría, tipografía y 4K. 273–286 s de preparación y 10,8–12,1 s por fotograma en el runner. La prueba anterior `37735238602` se rechazó por ruido; Cycles y EEVEE completos se descartaron por 440 y 536 s/cuadro respectivamente.
+
+Render completo **power-project-v3 `37736980890`**, fuente `357bd155`, en curso. Debe descargarse, revisarse en movimiento, importarse con archivos nuevos y auditarse en la página antes de sustituir v2. El plan del workflow se comprobó: 12 partes / 1.440 cuadros; rechaza motores no revisados. No relanzar duplicados ni mezclar fuentes.
+
+La home mantiene su gran película. Los mecanismos se preparan antes de entrar en pantalla y conservan SVG estático si falla la descarga. Medición dirigida de arranque `37733323821`: página 4/1.408 cuadros descartados, repetición 5/1.408, video aislado 0/1.405. Es evidencia del runner, no garantía para todos los dispositivos.
+
+Evidencias con SHA256 verificado en `/Volumes/SDTERA/Codex UM25 audits/20261007/`. Render pesado únicamente en GitHub Actions; no Blender local. Campaña protegida y binarios UM Sans sin cambios. Los resultados funcionales no prueban igualdad artística con Ryan, Solvaix o Hill. **Sin GO de producción.**
+
+---
+
+## Historial anterior: no usar sus estados como pendientes actuales
+
+### Continuidad anterior · 8 de octubre de 2026
 
 Rama `feature/isometric-redes-review`, PR #266 (draft), checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`. Preview `http://127.0.0.1:4326/`, compilada hasta `251f9153`, con Redes, Seguridad, Telecomunicaciones y Energía v2, nueva isometría de baterías y preparación diferida de mecanismos. No editar el checkout principal ni desplegar. PID propio en `/private/tmp/um-eight-preview.pid`: verificar proceso y cwd antes de reiniciar.
 
