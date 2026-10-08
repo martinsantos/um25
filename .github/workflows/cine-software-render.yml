@@ -85,7 +85,6 @@ jobs:
           python3 - <<'PYPLAN'
           import json,os
           selected=[]
-          assert os.environ['VERSION']!='v5' or os.environ['MODE'] in ('proof','motion-proof'), 'Inspect native v5 proofs before a full render'
           assert os.environ['VERSION']!='v3' or os.environ['MODE'] in ('proof','motion-proof','full','assemble','repair')
           chunk=120 if os.environ['VERSION'] in ('v3','v5') else 48
           proof_frames=[0,360,720,1080,1439] if os.environ['VERSION'] in ('v3','v5') else [0,144,288,432,575]

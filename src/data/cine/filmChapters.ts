@@ -1,6 +1,13 @@
 /** Captions follow the native movie clock; they explain the installation in view. */
 export type FilmChapter = { at: number; text: string };
 export const FILM_CHAPTERS: Record<string, FilmChapter[]> = {
+  'software-system-v5': [
+    { at: 0, text: 'La aplicación empieza por el trabajo de las personas.' },
+    { at: 6.5, text: 'Cada acción tiene reglas, permisos y un resultado.' },
+    { at: 11.2, text: 'Interfaz, reglas, datos e infraestructura forman un sistema.' },
+    { at: 17.4, text: 'La información conserva su origen y su historial.' },
+    { at: 21, text: 'El resultado vuelve al equipo para continuar el trabajo.' },
+  ],
   'network-project-v2': [
     { at: 0, text: 'Del puesto de trabajo al núcleo de la red.' },
     { at: 5.6, text: 'Distribución identificada, con acceso para mantenerla.' },

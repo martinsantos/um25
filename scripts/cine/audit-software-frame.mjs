@@ -71,7 +71,7 @@ for(const [engine,type] of (probe?[['WebKit',webkit]]:[['Chrome',chromium],['Web
      const playing=await page.locator('.umc-video.is-on').boundingBox();row.playing=playing;
      if(Math.abs(playing.y-state.poster.y)>1||Math.abs(playing.height-state.poster.height)>1)report.findings.push({engine,width,route,poster:state.poster,playing});
      await page.screenshot({path:path.join(out,`${engine}-${width}-${index}-playing.png`)});
-     if(expected==='software-system-v4'){
+     if(['software-system-v4','software-system-v5'].includes(expected)){
       row.movieRed=await redSwatch(await page.locator('.umc-video.is-on').screenshot({animations:'allow'}));
       if(!row.movieRed||Math.max(...row.movieRed.rgb.map((v,i)=>Math.abs(v-[220,38,38][i])))>6)report.findings.push({engine,width,route,message:'Movie changes the authored UM red',swatch:row.movieRed});
      }
