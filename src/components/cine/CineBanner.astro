@@ -43,7 +43,7 @@ const heading = dot ? title.slice(0, -1) : title;
 const rail = chapters||HOME_SCENES.filter((s) => scenes.includes(s.scene));
 const firstTitle = rail.find(chapter=>chapter.scene===first)?.name||cutCaption(first);
 const disciplineComposition = /^(software|network|security|telecom|support|consulting|fire|power)-system-v\d+$/.test(first);
-const productComposition = first==='software-system-v3';
+const productComposition = /^software-system-v[34]$/.test(first);
 const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-width:546px) and (max-aspect-ratio:651/1000)';
 ---
 <section class:list={['umc', `umc--${variant}`]} data-umc data-motion={motion} data-annotations={annotations?'tracked':'none'} data-framing={framing} data-composition={disciplineComposition?'discipline':undefined} data-product-composition={productComposition?'true':undefined} data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
@@ -144,6 +144,7 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
  /* The product film uses the entire image, including its fine interface.
     Give it a separate column and preserve its edges through every close-up. */
  .umc[data-product-composition="true"] :global(.umc-poster),.umc[data-product-composition="true"] :global(.umc-video){mask-image:none}
+ .umc[data-product-composition="true"]{--umc-ink:#090a0c}
  .umc[data-product-composition="true"] :global(.umc-grade){background:none}
  @media(min-width:821px){
   .umc[data-product-composition="true"] :global(.umc-stage){left:42%;right:0}

@@ -1,5 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import sharp from 'sharp';
+async function redSwatch(buffer){
+ const {data,info}=await sharp(buffer).removeAlpha().raw().toBuffer({resolveWithObject:true});const bins=new Map();
+ for(let i=0;i<data.length;i+=info.channels){const [r,g,b]=[data[i],data[i+1],data[i+2]];if(r>160&&g<100&&b<100){const key=[r,g,b].join(',');bins.set(key,(bins.get(key)||0)+1);}}
+ const mode=[...bins].sort((a,b)=>b[1]-a[1])[0];return mode?{rgb:mode[0].split(',').map(Number),pixels:mode[1]}:null;
+}
 const {chromium,webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const out=process.env.VISUAL_AUDIT_DIR;
 if(!out||!path.isAbsolute(out))throw Error('Absolute artifact directory required');
@@ -58,6 +64,10 @@ for(const [engine,type] of (probe?[['WebKit',webkit]]:[['Chrome',chromium],['Web
      const playing=await page.locator('.umc-video.is-on').boundingBox();row.playing=playing;
      if(Math.abs(playing.y-state.poster.y)>1||Math.abs(playing.height-state.poster.height)>1)report.findings.push({engine,width,route,poster:state.poster,playing});
      await page.screenshot({path:path.join(out,`${engine}-${width}-${index}-playing.png`)});
+     if(expected==='software-system-v4'){
+      row.movieRed=await redSwatch(await page.locator('.umc-video.is-on').screenshot({animations:'allow'}));
+      if(!row.movieRed||Math.max(...row.movieRed.rgb.map((v,i)=>Math.abs(v-[220,38,38][i])))>6)report.findings.push({engine,width,route,message:'Movie changes the authored UM red',swatch:row.movieRed});
+     }
      if(!controlsOnly&&engine==='WebKit'&&width===390&&!traversedWebKit.has(expected)){
       await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime>=22,{},{timeout:35000,polling:250});
       const end=await page.locator('.umc-video.is-on').evaluate(v=>({time:v.currentTime,duration:v.duration,error:v.error?.code||null,src:v.currentSrc}));
