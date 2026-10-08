@@ -89,8 +89,28 @@ for(const [engine,type] of (probe?[['WebKit',webkit]]:[['Chrome',chromium],['Web
      if(Math.abs(playing.y-state.poster.y)>1||Math.abs(playing.height-state.poster.height)>1)report.findings.push({engine,width,route,poster:state.poster,playing});
      await page.screenshot({path:path.join(out,`${engine}-${width}-${index}-playing.png`)});
      if(['software-system-v4','software-system-v5','software-system-v6','software-system-v7','software-system-v8'].includes(expected)){
-      row.movieRed=await redSwatch(await page.locator('.umc-video.is-on').screenshot({animations:'allow'}));
+      const colorVideo=page.locator('.umc-video.is-on');
+      if(expected==='software-system-v8'){
+       // The red action leaves the frame during component inspection. Freeze a
+       // decoded overview frame for this color comparison; the independent
+       // autonomous audit below never seeks or pauses the film.
+       await colorVideo.evaluate(async video=>{
+        video.pause();
+        await new Promise((resolve,reject)=>{
+         const timeout=setTimeout(()=>{video.removeEventListener('seeked',ready);reject(Error('Color frame did not decode'));},8000);
+         function ready(){clearTimeout(timeout);resolve();}
+         if(Math.abs(video.currentTime-.75)<.001&&!video.seeking){ready();return;}
+         video.addEventListener('seeked',ready,{once:true});video.currentTime=.75;
+        });
+        await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+       });
+       row.colorFrame=await colorVideo.evaluate(video=>({time:video.currentTime,ready:video.readyState,paused:video.paused}));
+      }
+      const colorBuffer=await colorVideo.screenshot({animations:'allow'});
+      fs.writeFileSync(path.join(out,`${engine}-${width}-${index}-movie-color.png`),colorBuffer);
+      row.movieRed=await redSwatch(colorBuffer);
       if(!row.movieRed||Math.max(...row.movieRed.rgb.map((v,i)=>Math.abs(v-[220,38,38][i])))>6)report.findings.push({engine,width,route,message:'Movie changes the authored UM red',swatch:row.movieRed});
+      if(expected==='software-system-v8')await colorVideo.evaluate(video=>video.play());
      }
      if(!controlsOnly&&engine==='WebKit'&&width===390&&!traversedWebKit.has(expected)){
       await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime>=22,{},{timeout:35000,polling:250});
