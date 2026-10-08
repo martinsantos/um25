@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {bindFirePrecision} from '../public/cine/fire-system-v1.js';
+import {bindFirePrecision} from '../public/cine/fire-system-v2.js';
 const settle=async()=>{for(let i=0;i<5;i++)await Promise.resolve();};
 let reduced,small,hidden;
 function fixture(){

@@ -1,4 +1,4 @@
-import {composeAffine} from '../public/cine/discipline-camera-v1.js';
+import {composeAffine} from '../public/cine/discipline-camera-v2.js';
 
 test('a legacy SVG matrix can compose a moving cover without a DOMMatrix API conversion',()=>{
  const parent={a:2,b:0,c:0,d:2,e:30,f:50,multiply:()=>{throw Error('requires SVGMatrix');}};
