@@ -71,7 +71,7 @@ for(const [engine,type] of (probe?[['WebKit',webkit]]:[['Chrome',chromium],['Web
      const playing=await page.locator('.umc-video.is-on').boundingBox();row.playing=playing;
      if(Math.abs(playing.y-state.poster.y)>1||Math.abs(playing.height-state.poster.height)>1)report.findings.push({engine,width,route,poster:state.poster,playing});
      await page.screenshot({path:path.join(out,`${engine}-${width}-${index}-playing.png`)});
-     if(['software-system-v4','software-system-v5'].includes(expected)){
+     if(['software-system-v4','software-system-v5','software-system-v6'].includes(expected)){
       row.movieRed=await redSwatch(await page.locator('.umc-video.is-on').screenshot({animations:'allow'}));
       if(!row.movieRed||Math.max(...row.movieRed.rgb.map((v,i)=>Math.abs(v-[220,38,38][i])))>6)report.findings.push({engine,width,route,message:'Movie changes the authored UM red',swatch:row.movieRed});
      }
@@ -105,7 +105,7 @@ if(fireOnly||networkOnly||serviceCode){
    await page.goto('http://127.0.0.1:4326'+routes[0],{waitUntil:'load'});
    await page.waitForFunction(()=>document.querySelector('.umc-video.is-on')?.currentTime>.1,{},{timeout:20000});
    const observations=[];
-   for(const time of (fireOnly?[2,7.65,14.2,16,22.8]:networkOnly?[2,7.45,10.4,17.35,22.8]:[2,8.65,16,20.1,22.8])){
+   for(const time of (fireOnly?[2,7.65,14.2,16,22.8]:networkOnly?[2,7.45,10.4,17.35,22.8]:registry.services[serviceCode]?.scene==='software-system-v6'?[2,8.65,13.2,18.2,22.8]:[2,8.65,16,20.1,22.8])){
     await page.waitForFunction(time=>document.querySelector('.umc-video.is-on')?.currentTime>=time,time,{timeout:20000,polling:100});
     observations.push(await page.locator('.umc-video.is-on').evaluate(v=>({time:v.currentTime,duration:v.duration,ready:v.readyState,paused:v.paused,narration:document.querySelector('[data-film-text]')?.textContent,quality:(q=>q?{total:q.totalVideoFrames,dropped:q.droppedVideoFrames,corrupted:q.corruptedVideoFrames}:null)(v.getVideoPlaybackQuality?.())})));
     await page.screenshot({path:path.join(out,`${film}-autonomous-${engine}-${width}-${time}.png`)});

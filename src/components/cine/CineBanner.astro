@@ -44,7 +44,7 @@ const heading = dot ? title.slice(0, -1) : title;
 const rail = chapters||HOME_SCENES.filter((s) => scenes.includes(s.scene));
 const firstTitle = rail.find(chapter=>chapter.scene===first)?.name||cutCaption(first);
 const disciplineComposition = /^(software|network|security|telecom|support|consulting|fire|power)-(system|project)-v\d+$/.test(first);
-const productComposition = /^(software-system-v[345]|power-project-v3|(?:fire|network|security|telecom|power|support|consulting)-project-v2)$/.test(first);
+const productComposition = /^(software-system-v[3456]|power-project-v3|(?:fire|network|security|telecom|power|support|consulting)-project-v2)$/.test(first);
 const filmChapters = FILM_CHAPTERS[first];
 const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-width:546px) and (max-aspect-ratio:651/1000)';
 ---
