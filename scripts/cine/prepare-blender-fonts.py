@@ -18,7 +18,7 @@ def prepare(source, destination):
         name = f'UMSans-{weight}.ttf'
         path = source / name
         original_hash = hashlib.sha256(path.read_bytes()).hexdigest()
-        font = TTFont(path)
+        font = TTFont(path, recalcTimestamp=False)
         advances = {name: metrics[0] for name, metrics in font['hmtx'].metrics.items()}
         removeOverlaps(font, removeHinting=True)
         assert {name: metrics[0] for name, metrics in font['hmtx'].metrics.items()} == advances

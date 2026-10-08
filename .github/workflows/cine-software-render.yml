@@ -216,6 +216,7 @@ jobs:
           sparse-checkout: |-
             scripts/cine/recover-software-parts.py
             scripts/cine/assemble-software-v3.py
+            scripts/cine/assemble-software-v5.py
           sparse-checkout-cone-mode: false
       - name: Download each recovery slice into its named directory
         env:
@@ -258,6 +259,7 @@ jobs:
           sparse-checkout: |-
             scripts/cine/recover-software-parts.py
             scripts/cine/assemble-software-v3.py
+            scripts/cine/assemble-software-v5.py
           sparse-checkout-cone-mode: false
       - uses: actions/download-artifact@v8
         with:
@@ -285,6 +287,11 @@ jobs:
               echo "Package index refresh timed out; using runner cached signed indexes."
             fi
             sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq ffmpeg
+          fi
+          if [ "$VERSION" = v5 ]; then
+            python3 scripts/cine/recover-software-parts.py
+            python3 scripts/cine/assemble-software-v5.py
+            exit 0
           fi
           if [ "$VERSION" = v3 ]; then
             python3 scripts/cine/recover-software-parts.py

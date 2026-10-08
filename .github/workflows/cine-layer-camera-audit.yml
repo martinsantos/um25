@@ -1,6 +1,11 @@
 name: Discipline camera and mechanisms
 on:
   workflow_dispatch:
+    inputs:
+      service_code:
+        type: choice
+        options: [all, "102", "103", "105", "106", "108"]
+        default: all
 permissions:
   contents: read
 env:
@@ -47,6 +52,7 @@ jobs:
           PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
           VISUAL_ENGINE: ${{ matrix.engine }}
           VISUAL_WIDTH: ${{ matrix.width }}
+          CAMERA_SERVICE_CODE: ${{ inputs.service_code }}
           VISUAL_AUDIT_DIR: ${{ runner.temp }}/layer-camera
       - uses: actions/upload-artifact@v7
         if: always()

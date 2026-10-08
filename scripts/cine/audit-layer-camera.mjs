@@ -7,6 +7,7 @@ const root=process.env.VISUAL_AUDIT_DIR;assert(root&&path.isAbsolute(root));
 const out=path.join(root,engine);fs.mkdirSync(out,{recursive:true});
 const browser=await(engine==='Chrome'?chromium:webkit).launch(engine==='Chrome'?{channel:'chrome',headless:true}:{headless:true});
 const routes=[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(m=>m[1]);
+const codes=['102','103','105','106','108'].filter(code=>!process.env.CAMERA_SERVICE_CODE||process.env.CAMERA_SERVICE_CODE==='all'||process.env.CAMERA_SERVICE_CODE===code);assert(codes.length);
 const report={engine,width,states:[],reduced:[],errors:[],findings:[]};
 function save(){fs.writeFileSync(path.join(out,'layer-camera-report.json'),JSON.stringify(report,null,2));}
 async function measure(page,code,stage){
@@ -23,7 +24,7 @@ function inspect(code,state){
 }
 try{
  const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'no-preference'}),page=await context.newPage();page.on('pageerror',e=>report.errors.push(e.message));
- for(const code of ['102','103','105','106','108']){
+ for(const code of codes){
   await page.goto('http://127.0.0.1:4326'+routes.find(r=>r.startsWith('/servicios/'+code+'/')),{waitUntil:'domcontentloaded'});
   await page.locator('[data-atlas-theater]').evaluate(el=>scrollTo(0,el.getBoundingClientRect().top+scrollY-100));
   for(const stage of [0,1,2,3,4,5,6]){
@@ -35,7 +36,7 @@ try{
  }
  await context.close();
  const quiet=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'}),pageQuiet=await quiet.newPage();pageQuiet.on('pageerror',e=>report.errors.push(e.message));
- for(const code of ['102','103','105','106','108']){
+ for(const code of codes){
   await pageQuiet.goto('http://127.0.0.1:4326'+routes.find(r=>r.startsWith('/servicios/'+code+'/')),{waitUntil:'domcontentloaded'});
   await pageQuiet.locator('[data-atlas-theater]').scrollIntoViewIfNeeded();await pageQuiet.waitForTimeout(500);
   const state=await measure(pageQuiet,code,-1);report.reduced.push({code,...state});inspect(code,state);assert.equal(state.clock,'paused');
