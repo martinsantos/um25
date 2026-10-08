@@ -315,7 +315,8 @@ def validate(s):
     return dict(service='107',scene='fire-project-v2',boxes=len(s.boxes),meshes=len(s.meshes),parts=s.parts,frames=FRAMES,fps=FPS,duration=24)
 
 
-def render(args,s):
+def render(args,s,story=None):
+    describe=story['describe'] if story else validate
     import bpy
     from mathutils import Vector
     from bpy_extras.object_utils import world_to_camera_view
@@ -405,7 +406,7 @@ def render(args,s):
         c.materials.append(mats[label['mat']])
     # A flexible eight-conductor loom remains attached to the moving fascia.
     ribbon=[]
-    for i in range(8):
+    for i in range(0 if story else 8):
         # Constant topology permits vertex colors and continuous flexing, so a
         # moving conductor cannot fall back to Workbench's white curve color.
         mesh=bpy.data.meshes.new('Fascia conductor '+str(i));verts=[(0,0,0)]*(24*6)
@@ -425,7 +426,9 @@ def render(args,s):
         obj=bpy.data.objects.new(name,d);scene.collection.objects.link(obj);obj.location=at
         obj.rotation_euler=(Vector(target)-obj.location).to_track_quat('-Z','Y').to_euler()
     area('Warm key',(-4,-7,14),2100,11,(1,.97,.93));area('Cool rim',(4,9,11),1700,9,(.91,.95,1));area('Front fill',(7,-7,7),900,8,(1,1,1))
-    area('Optical chamber inspection',(-2.05,-.7,2.10),24,1.2,(1,1,1),(-2.05,.35,2.75))
+    if story:
+        for light in story.get('lights',[]):area(*light)
+    else:area('Optical chamber inspection',(-2.05,-.7,2.10),24,1.2,(1,1,1),(-2.05,.35,2.75))
     camera=bpy.data.cameras.new('Continuous service camera');camera.type='ORTHO';camera.clip_end=200
     cam=bpy.data.objects.new('Continuous service camera',camera);scene.collection.objects.link(cam);scene.camera=cam
     def travel(r,t):
@@ -439,9 +442,13 @@ def render(args,s):
     started=[0.0];bake_info=None
     def update_frame(scene):
         frame=scene.frame_current
-        t=frame/(FRAMES-1);size,angle,target=camera_pose(t);target=Vector(target)
-        inspection=smooth((t-.19)/.11)*(1-smooth((t-.36)/.11))
-        distance=24-20*inspection;elevation=22-22.9*inspection
+        t=frame/(FRAMES-1)
+        if story:size,angle,target,distance,elevation=story['camera'](t)
+        else:
+            size,angle,target=camera_pose(t)
+            inspection=smooth((t-.19)/.11)*(1-smooth((t-.36)/.11))
+            distance=24-20*inspection;elevation=22-22.9*inspection
+        target=Vector(target)
         cam.location=target+Vector((distance*math.cos(angle),distance*math.sin(angle),elevation));cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler()
         camera.ortho_scale=size;camera.shift_x=0;camera.shift_y=0
         for obj,r in packets:
@@ -450,10 +457,12 @@ def render(args,s):
             obj.location=travel(r,smooth(q))
             fade=max(.001,min(smooth(q/.08),smooth((1-q)/.08)))
             obj.scale=(fade,fade,fade)
-        for part in s.doors:
-            obj=parents[part['name']]
-            if part.get('kind')=='detector':obj.location.z=-.14*smooth((t-.23)/.06)*(1-smooth((t-.40)/.07))
-            else:obj.rotation_euler[2]=-math.radians(102)*smooth((t-.52)/.10)*(1-smooth((t-.79)/.13))
+        if story:story['animate'](t,parents)
+        else:
+            for part in s.doors:
+                obj=parents[part['name']]
+                if part.get('kind')=='detector':obj.location.z=-.14*smooth((t-.23)/.06)*(1-smooth((t-.40)/.07))
+                else:obj.rotation_euler[2]=-math.radians(102)*smooth((t-.52)/.10)*(1-smooth((t-.79)/.13))
         bpy.context.view_layer.update()
         for i,mesh in enumerate(ribbon):
             a=Vector((2.628+i*.0015,2.18+.001,1.22+.346))
@@ -479,8 +488,8 @@ def render(args,s):
     def begin_frame(scene):started[0]=time.time()
     def finish_frame(scene):
         record={'frame':scene.frame_current,'seconds':round(time.time()-started[0],2)};timings.append(record);print(json.dumps(record),flush=True)
-        info={**validate(s),'blender':bpy.app.version_string,'engine':scene.render.engine,'samples':args.samples,
-              'resolution':[args.width,round(args.width*9/16)],'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'camera':'workplace to detector to supervised circuit to central; continuous 24 second loop',
+        info={**describe(s),'blender':bpy.app.version_string,'engine':scene.render.engine,'samples':args.samples,
+              'resolution':[args.width,round(args.width*9/16)],'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()+(Path(story['source']).read_bytes() if story else b'')).hexdigest(),'camera':story['description'] if story else 'workplace to detector to supervised circuit to central; continuous 24 second loop',
               'render_mode':'persistent native animation','baked_lighting':bake_info,'bounds':extents,'timings':timings}
         (out/'render-info.json').write_text(json.dumps(info))
     if args.engine=='baked':
@@ -488,7 +497,7 @@ def render(args,s):
         # their diffuse response once, at mesh precision, then keep native 4K
         # animation without recalculating screen-space illumination per frame.
         # Moving covers do not cast an immobile shadow onto the fixed assembly.
-        start=time.time();scene.frame_set(960);update_frame(scene)
+        start=time.time();scene.frame_set(story.get('bake_frame',960) if story else 960);update_frame(scene)
         for obj in scene.objects:
             if obj.parent in parents.values() or obj in [item[0] for item in packets]:obj.visible_shadow=False
         bake_objects=[]

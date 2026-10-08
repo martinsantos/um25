@@ -5,7 +5,7 @@ on:
       version:
         description: Authored delivery and recoverable native fire installation cinema
         type: choice
-        options: [v1, fire-v2]
+        options: [v1, fire-v2, network-v2]
         default: v1
       mode:
         type: choice
@@ -15,7 +15,7 @@ on:
         description: 'Comma-separated service codes, or all'
         default: all
       proof_frames:
-        description: 'Fire v2 only; up to five exact native frame numbers for a targeted framing check'
+        description: 'Native v2 films; up to five exact native frame numbers for a targeted framing check'
         default: '0,460,960'
       repairs:
         description: 'Exact missing fragments, for example 102:11,107:3'
@@ -57,24 +57,26 @@ jobs:
         run: |
           python3 - <<'PY'
           import json,os
-          assert os.environ['ENGINE'] in (['cycles','workbench','baked'] if os.environ['VERSION']=='fire-v2' else ['eevee','cycles'])
-          assert os.environ['MODE']!='motion-proof' or os.environ['VERSION']=='fire-v2'
+          assert os.environ['ENGINE'] in (['cycles','workbench','baked'] if os.environ['VERSION'] in ['fire-v2','network-v2'] else ['eevee','cycles'])
+          assert os.environ['MODE']!='motion-proof' or os.environ['VERSION'] in ['fire-v2','network-v2']
           codes=['101','102','103','105','106','107','108']
           selected=codes if os.environ['SERVICES']=='all' else os.environ['SERVICES'].split(',')
           assert selected and set(selected)<=set(codes) and len(selected)==len(set(selected))
-          stride=120 if os.environ['VERSION']=='fire-v2' else 48
+          stride=120 if os.environ['VERSION'] in ['fire-v2','network-v2'] else 48
           rows=[dict(service=s,part=1,start=0,end=0) for s in selected] if os.environ['MODE']=='proof' else [dict(service=s,part=i+1,start=i*stride,end=(i+1)*stride-1) for s in selected for i in range(12)]
           if os.environ['MODE']=='repair':
               pairs=[item.split(':') for item in os.environ['REPAIRS'].split(',')]
               assert pairs and all(len(pair)==2 and pair[0] in codes and pair[1].isdigit() and 1<=int(pair[1])<=12 for pair in pairs)
               assert len({tuple(pair) for pair in pairs})==len(pairs)
               rows=[dict(service=code,part=int(part),start=(int(part)-1)*stride,end=int(part)*stride-1) for code,part in pairs]
-          if os.environ['VERSION']=='fire-v2':
-              assert selected==['107'] and all(row['service']=='107' for row in rows), 'The installation belongs only to fire detection'
+          if os.environ['VERSION'] in ['fire-v2','network-v2']:
+              code='107' if os.environ['VERSION']=='fire-v2' else '101'
+              assert selected==[code] and all(row['service']==code for row in rows), 'The installation belongs to its authored discipline'
+              if code=='101':assert os.environ['MODE'] in ['proof','motion-proof'], 'Review network composition before enabling a full render'
               frames=[int(f) for f in os.environ['PROOF_FRAMES'].split(',')]
               assert 1<=len(frames)<=5 and len(set(frames))==len(frames) and all(0<=f<1440 for f in frames)
-              if os.environ['MODE']=='proof':rows=[dict(service='107',part=i+1,start=f,end=f) for i,f in enumerate(frames)]
-              elif os.environ['MODE']=='motion-proof':rows=[dict(service='107',part=4,start=790,end=801)]
+              if os.environ['MODE']=='proof':rows=[dict(service=code,part=i+1,start=f,end=f) for i,f in enumerate(frames)]
+              elif os.environ['MODE']=='motion-proof':rows=[dict(service=code,part=4,start=790 if code=='107' else 580,end=801 if code=='107' else 591)]
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:
               out.write('matrix='+json.dumps({'include':rows})+'\n')
               out.write('services='+json.dumps(selected)+'\n')
@@ -95,6 +97,7 @@ jobs:
           sparse-checkout: |
             scripts/cine/render-service-cinema-v1.py
             scripts/cine/render-fire-project-v2.py
+            scripts/cine/render-network-project-v2.py
             scripts/cine/check-service-composition.py
           sparse-checkout-cone-mode: false
       - name: Install verified official Blender
@@ -125,11 +128,13 @@ jobs:
           START: ${{ matrix.start }}
           END: ${{ matrix.end }}
         run: |
-          if [ '${{ inputs.version }}' = fire-v2 ]; then
-            python3 scripts/cine/render-fire-project-v2.py --validate-only
+          if [ '${{ inputs.version }}' = fire-v2 ] || [ '${{ inputs.version }}' = network-v2 ]; then
+            AUTHOR='scripts/cine/render-fire-project-v2.py'
+            if [ '${{ inputs.version }}' = network-v2 ]; then AUTHOR='scripts/cine/render-network-project-v2.py'; fi
+            python3 "$AUTHOR" --validate-only
             RENDER=(./blender-4.5.3-linux-x64/blender)
             if [ "$ENGINE" != cycles ]; then RENDER=(xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender); fi
-            "${RENDER[@]}" -b -t 4 --python-exit-code 1 --python scripts/cine/render-fire-project-v2.py -- --engine "$ENGINE" --samples 32 --width 3840 --start "$START" --end "$END" --output frames
+            "${RENDER[@]}" -b -t 4 --python-exit-code 1 --python "$AUTHOR" -- --engine "$ENGINE" --samples 32 --width 3840 --start "$START" --end "$END" --output frames
             exit 0
           fi
           python3 scripts/cine/render-service-cinema-v1.py --service "$SERVICE" --validate-only
@@ -142,7 +147,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always() && ((inputs.mode || 'proof') == 'proof' || inputs.mode == 'motion-proof')
         with:
-          name: ${{ inputs.version == 'fire-v2' && format('fire-project-v2-proof-{0}', matrix.part) || format('service-proof-{0}', matrix.service) }}
+          name: ${{ inputs.version == 'network-v2' && format('network-project-v2-proof-{0}', matrix.part) || inputs.version == 'fire-v2' && format('fire-project-v2-proof-{0}', matrix.part) || format('service-proof-{0}', matrix.service) }}
           path: frames
           retention-days: 3
       - name: Encode recoverable part
