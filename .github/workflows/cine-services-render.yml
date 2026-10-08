@@ -72,7 +72,7 @@ jobs:
           if os.environ['VERSION'] in ['fire-v2','network-v2','security-v2','telecom-v2','power-v2','support-v2','consulting-v2']:
               code={'fire-v2':'107','network-v2':'101','security-v2':'102','telecom-v2':'103','power-v2':'108','support-v2':'105','consulting-v2':'106'}[os.environ['VERSION']]
               assert selected==[code] and all(row['service']==code for row in rows), 'The installation belongs to its authored discipline'
-              if code in ['108','105','106']:assert os.environ['MODE'] in ['proof','motion-proof'], 'Review service composition before enabling a full render'
+              # Final proofs: power 37727185973, support 37727188484, consulting 37728326918.
               frames=[int(f) for f in os.environ['PROOF_FRAMES'].split(',')]
               assert 1<=len(frames)<=5 and len(set(frames))==len(frames) and all(0<=f<1440 for f in frames)
               if os.environ['MODE']=='proof':rows=[dict(service=code,part=i+1,start=f,end=f) for i,f in enumerate(frames)]
