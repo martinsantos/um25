@@ -1,8 +1,10 @@
 # Continuidad activa · revisión de precisión
 
-Actualizado después del cierre histórico de v2. Candidato de interfaz `d2b70934` (guard de release en `3ba60ff3`), PR #266 (draft), checkout `/Users/santosma/Documents/Codex/um25-cine-integracion` y preview `http://127.0.0.1:4326/`.
+Actualizado después del cierre histórico de v2. Candidato de interfaz `fa74c436` (fuentes de prueba de Incendio en `399f24b6`), PR #266 (draft), checkout `/Users/santosma/Documents/Codex/um25-cine-integracion` y preview `http://127.0.0.1:4326/`.
 
-La comparación con las referencias rechazó el acabado anterior. Se reconstruyeron Redes y Software, se refinaron las otras seis disciplinas y sus interfaces, se corrigieron contexto, ritmo y acercamiento móvil y se retiró el catálogo antiguo del recorrido nuevo. Ver [revisión de precisión](precision-review-20261007.md) para cambios, evidencia y resultados pendientes. Software v3 ya se importó desde el ensamblado `37709328708`: 4K/60, 24 segundos, 1.440 cuadros verificados y seis assets nuevos (58.415.629 bytes). La nueva composición entra en `/software` y servicio 104. La verificación de reproducción integrada está pendiente; la revisión de isometrías `37708336704` está completa y aprobada. No tratar el cierre funcional anterior como aprobación visual o GO a producción.
+La comparación con las referencias rechazó el acabado anterior. Se reconstruyeron Redes y Software, se refinaron las otras seis disciplinas y sus interfaces, se corrigieron contexto, ritmo y acercamiento móvil y se retiró el catálogo antiguo del recorrido nuevo. Ver [revisión de precisión](precision-review-20261007.md) para cambios, evidencia y resultados pendientes. Software v3 ya se importó desde el ensamblado `37709328708`: 4K/60, 24 segundos, 1.440 cuadros verificados y seis assets nuevos (58.415.629 bytes). La nueva composición entra en `/software` y servicio 104. Chrome verificó reproducción completa y encuadre de Software v3; se corrigieron selectores de auditoría retirados, profundidad del gabinete y contexto de Software. La revisión de esa corrección está en `37710967875` y `37710968497`, y encuadre WebKit en `37710003097`; la revisión de isometrías `37708336704` está completa y aprobada. No tratar el cierre funcional anterior como aprobación visual o GO a producción.
+
+Prueba nueva de Incendio: `37711352258`, tres planos 4K, no entrega importada. No relanzar los renders antiguos. Último check local: 68 suites / 579 pruebas, lint, tipos, CSS y build correctos.
 
 ## Registro histórico de la entrega anterior
 

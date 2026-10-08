@@ -1,6 +1,6 @@
 # Revisión de precisión · 7 de octubre de 2026
 
-Candidato de interfaz: `d2b70934`, rama `feature/isometric-redes-review`, PR #266 a develop. Trabajo en la preview `http://127.0.0.1:4326/`. La evaluación anterior encontró una diferencia sustancial de calidad frente a Ryan, Solvaix y David Hill. Esta iteración reconstruye partes de la propuesta; un control funcional verde no constituye aprobación artística ni autorización de release.
+Candidato de interfaz: `fa74c436`, rama `feature/isometric-redes-review`, PR #266 a develop. Trabajo en la preview `http://127.0.0.1:4326/`. La evaluación anterior encontró una diferencia sustancial de calidad frente a Ryan, Solvaix y David Hill. Esta iteración reconstruye partes de la propuesta; un control funcional verde no constituye aprobación artística ni autorización de release.
 
 ## Cambios visibles
 
@@ -16,7 +16,7 @@ Las pausas explícitas, la salida del viewport, la pestaña oculta, movimiento r
 
 ## Verificación
 
-- `npm test -- --runInBand`: 68 suites y 578 pruebas aprobadas. Incluye continuidad de cables, pausa y reanudación en la misma posición, reducción de movimiento, disposición al navegar, recorrido completo, ritmo del índice y separación entre proyecto sectorial y pieza.
+- `npm test -- --runInBand`: 68 suites y 579 pruebas aprobadas. Incluye continuidad de cables, pausa y reanudación en la misma posición, reducción de movimiento, disposición al navegar, recorrido completo, ritmo del índice y separación entre proyecto sectorial y pieza.
 - Build, tipos, lint y contrato CSS locales. Lint conserva diez advertencias anteriores.
 - [Control visual 37705402194](https://github.com/martinsantos/um25/actions/runs/37705402194), commit `03fd9a41`: correcto en Chrome escritorio y móvil; recorridos completos a velocidad real de Redes y Software, las otras seis disciplinas, home, Bodegas y Constructoras; WebKit en los cinco anchos del contrato y movimiento de las piezas. La revisión humana de estas capturas detectó anotaciones móviles demasiado grandes, Software pequeño y diferencias de acabado en el contexto; se corrigieron en `fcb8c0e9`.
 - [Control visual del candidato fcb8c0e9](https://github.com/martinsantos/um25/actions/runs/37706692696): correcto en ambos navegadores y perfiles; evidencia descargada y revisada. Se ajustaron luego la franja de leyenda móvil y cinco pantallas de supervisión, relevamiento y energía que conservaban líneas genéricas.
@@ -49,3 +49,17 @@ El candidato `d2b70934` reserva una franja real de 36 px para la leyenda inferio
 La evidencia de Chrome/WebKit de `fcb8c0e9` y los planos y cuadros consecutivos 4K se guardaron y verificaron por SHA-256 en `/Volumes/SDTERA/Codex UM25 audits/20261007/precision-d2b70934/`. El [control del candidato d2b70934](https://github.com/martinsantos/um25/actions/runs/37708336704) completó la revisión de la franja y los nuevos monitores en la página real; ambas capturas fueron descargadas y revisadas. No aparecieron errores ni desbordamientos.
 
 El guard del release scoped rechazaba 32 rutas ya presentes en la rama. Se añadieron de forma explícita; se verificaron las 371 rutas del candidato y el rechazo de configuración y versiones de runtime no revisadas. La guarda de inmutabilidad de `public/cine` se conserva y la comparación contra `origin/master` no contiene modificaciones de assets de cine previamente publicados. Esto prepara el release; no lo ejecuta.
+
+## Profundidad y contexto posterior a la integración
+
+`fa74c436` conserva opacidad de las carcasas y dibuja el techo después de los equipos interiores. El énfasis deja de volver transparentes las superficies: se apoya en la apertura física, el recorrido y la anotación. Software declara su presentación como arquitectura de aplicación y evita la instalación genérica también en los servicios complementarios.
+
+El control `37710000335` del candidato `eff9ff29` confirmó reproducción completa de Software en Chrome: escritorio 1.843 cuadros presentados/decodificados según el contador del navegador, 41 descartados; móvil 1.815, seis descartados. Duración recorrida 23,98 y 23,48 s de 24 s, respectivamente. Es una medición del runner, no de dispositivos de usuarios. CLS observado 0 en ambas rutas. El control global falló porque todavía leía los botones retirados y buscaba el selector anterior de señales; se corrigió para comprobar el estado real, el contexto visible y ambas familias de señales. No se presenta ese run como aprobado. Sus capturas están verificadas en `/Volumes/SDTERA/Codex UM25 audits/20261007/software-v3-integrated-eff9ff29/`.
+
+La revisión corregida del candidato de interfaz está en `37710967875` y `37710968497`. El control separado de encuadre Chrome/WebKit `37710003097` sigue pendiente. `npm run check` pasó de nuevo: 68 suites / 579 pruebas.
+
+## Prueba de instalación de Incendio
+
+`399f24b6` añade un modelo independiente del entregado: recinto de 8 × 5,4 m, equipamiento a escala, detectores de 140 mm, circuitos montados, central con placa y borneras, baterías dentro del gabinete, puestos y mobiliario. Una cámara continua compone contexto, detector, circuito, central y regreso.
+
+El run `37711352258` produce tres planos 4K/Cycles (cuadros 0, 460 y 960) para inspección. No hay película nueva importada ni se habilita el render completo de esta versión antes de revisar los planos. El script es `scripts/cine/render-fire-project-v2.py`; Blender corre sólo en el runner remoto.
