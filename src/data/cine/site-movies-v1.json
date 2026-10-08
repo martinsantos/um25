@@ -327,49 +327,49 @@
       ]
     },
     "102": {
-      "scene": "security-system-v1",
+      "scene": "security-project-v2",
       "status": "ready",
-      "engine": "Blender 4.5.3 LTS / Cycles",
-      "samples": 24,
+      "engine": "Blender 4.5.3 LTS / Cycles baked diffuse",
+      "samples": 128,
       "duration": 24,
-      "fps": 24,
-      "frames": 576,
+      "fps": 60,
+      "frames": 1440,
       "resolution": [
-        1920,
-        1080
+        3840,
+        2160
       ],
-      "camera": "one continuous 24 second orbit; matching loop endpoints",
-      "run": "https://github.com/martinsantos/um25/actions/runs/37675998479",
+      "camera": "entrance, camera optics, recording hardware and contextual supervision; continuous 24 second loop",
+      "run": "https://github.com/martinsantos/um25/actions/runs/37725150179",
       "assets": [
         {
-          "file": "cine-security-system-v1.mp4",
-          "bytes": 6182995,
-          "sha256": "bb06201bb67007ad3de9afe2da954ef45d41121997a6d73bd9623a51a4ef2493"
+          "file": "cine-security-project-v2.mp4",
+          "bytes": 24643984,
+          "sha256": "eca9f275f284256370d20095d348a360286afc2b210ae1c92328dac6c08686df"
         },
         {
-          "file": "cine-security-system-v1-sq.mp4",
-          "bytes": 2477730,
-          "sha256": "4e0a54aaad73af2467dff0664d9cb1df56d82ac5a66d1e6529fb623d07eead46"
+          "file": "cine-security-project-v2-sq.mp4",
+          "bytes": 7978789,
+          "sha256": "b403a083aca57b8f2a6f2ff18ed000b41e104a6ee2d77fa134896f705c03a78d"
         },
         {
-          "file": "cine-security-system-v1-poster.jpg",
-          "bytes": 83845,
-          "sha256": "5da921c2046431ddbaf6ad009f62e7c3680ed7d39cc9939ddd71d9eb1666f345"
+          "file": "cine-security-project-v2-poster.jpg",
+          "bytes": 207817,
+          "sha256": "2abc1c8ebf25c3b16209f06f58aa23acfe6050be36f609ebdbdad4253f2f90d8"
         },
         {
-          "file": "cine-security-system-v1-poster.avif",
-          "bytes": 14966,
-          "sha256": "cd61e99bb88a4e5c50d769ff8002c1f334c1d67b6770dbe3784934f076b17776"
+          "file": "cine-security-project-v2-poster.avif",
+          "bytes": 27225,
+          "sha256": "c72e878c86a0c6e4103ad0a74fb4afa18f8383c4c442142c39ecc2e056ebf712"
         },
         {
-          "file": "cine-security-system-v1-poster-sq.jpg",
-          "bytes": 53478,
-          "sha256": "010eaa7cef2230babc54ffb03f09da2462e1e662bc4d14eb6946eea4a96c3cfd"
+          "file": "cine-security-project-v2-poster-sq.jpg",
+          "bytes": 84432,
+          "sha256": "c21e3317f9dadeddcf70e58db6dc6555e9e01748ea3a9e4cf427bf69354d721d"
         },
         {
-          "file": "cine-security-system-v1-poster-sq.avif",
-          "bytes": 10079,
-          "sha256": "84f0c67d23bd20562537f0b4f5a657fcff6d51e6c9fc35e4d9b8f8bab9a8dba9"
+          "file": "cine-security-project-v2-poster-sq.avif",
+          "bytes": 10599,
+          "sha256": "e3c45039088d2c63b7ceae7db54b1b20fff9098a69a0df7550ab72cfe4ee7679"
         }
       ]
     },
