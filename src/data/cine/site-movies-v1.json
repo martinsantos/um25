@@ -374,49 +374,49 @@
       ]
     },
     "103": {
-      "scene": "telecom-system-v1",
+      "scene": "telecom-project-v2",
       "status": "ready",
-      "engine": "Blender 4.5.3 LTS / Cycles",
-      "samples": 24,
+      "engine": "Blender 4.5.3 LTS / Cycles baked diffuse",
+      "samples": 128,
       "duration": 24,
-      "fps": 24,
-      "frames": 576,
+      "fps": 60,
+      "frames": 1440,
       "resolution": [
-        1920,
-        1080
+        3840,
+        2160
       ],
-      "camera": "one continuous 24 second orbit; matching loop endpoints",
-      "run": "https://github.com/martinsantos/um25/actions/runs/37675998479",
+      "camera": "two sites, aligned radio transport, a distinct optical alternative and measured terminations; continuous 24 second loop",
+      "run": "https://github.com/martinsantos/um25/actions/runs/37725154508",
       "assets": [
         {
-          "file": "cine-telecom-system-v1.mp4",
-          "bytes": 6286340,
-          "sha256": "00119e3318f26c3fa49e0906abf1f792e689f2fdd6f7ebff633c8e366f5e875f"
+          "file": "cine-telecom-project-v2.mp4",
+          "bytes": 16832277,
+          "sha256": "044120b93b1594dd87d32150b7c7178e47a765ddd0baaad8da65a78792c1f1ea"
         },
         {
-          "file": "cine-telecom-system-v1-sq.mp4",
-          "bytes": 2422130,
-          "sha256": "66c55a49289a9ed91c50207e52608c980a7e793fa28568ec8a31ff67c2c5821a"
+          "file": "cine-telecom-project-v2-sq.mp4",
+          "bytes": 5441537,
+          "sha256": "bd31bc29de9d1eedb45afa4a45c4e1d12cb5014247f250fa5f19d645a6ddd7ad"
         },
         {
-          "file": "cine-telecom-system-v1-poster.jpg",
-          "bytes": 78806,
-          "sha256": "966875480c6ef889718b649e63db5ea561c1b34fd9e98037bcdf1d9a3859115f"
+          "file": "cine-telecom-project-v2-poster.jpg",
+          "bytes": 163065,
+          "sha256": "8baeeb6027dd490931fe5106264728835f8c8d37a5bed00f037c37ee0ccfe378"
         },
         {
-          "file": "cine-telecom-system-v1-poster.avif",
-          "bytes": 15112,
-          "sha256": "11f9fd285f273dc2dd03e43f4425d26fd6ed8380cf8ae46e8fdf671683c33bcd"
+          "file": "cine-telecom-project-v2-poster.avif",
+          "bytes": 23907,
+          "sha256": "c8e1425c0a7e705740c212ae90defbe49e9fdb8ace80719ad8a03a4793c369c9"
         },
         {
-          "file": "cine-telecom-system-v1-poster-sq.jpg",
-          "bytes": 50393,
-          "sha256": "10bc5e8c400b127cc1368188a0917424a106b5cd2020653b0bd47a90f96bb806"
+          "file": "cine-telecom-project-v2-poster-sq.jpg",
+          "bytes": 71914,
+          "sha256": "a7d377435659123bacbab2c8249808323c1ebee6e3ac150664d6737192dd3019"
         },
         {
-          "file": "cine-telecom-system-v1-poster-sq.avif",
-          "bytes": 10249,
-          "sha256": "219a37b7c2b5b86345c2ee524cfe9129aabcf232c6fe4849be0ceff1eb5a3a1e"
+          "file": "cine-telecom-project-v2-poster-sq.avif",
+          "bytes": 11583,
+          "sha256": "9dbfa5fc671f27674ff2b1f3b218866a391b79ef3a994317ec80d8587cb2fed2"
         }
       ]
     },
