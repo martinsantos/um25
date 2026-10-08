@@ -4,7 +4,7 @@ on:
     inputs:
       service_code:
         type: choice
-        options: [all, "102", "103", "105", "106", "108"]
+        options: [all, "102", "103", "104", "105", "106", "108"]
         default: all
 permissions:
   contents: read

@@ -7,19 +7,19 @@ const root=process.env.VISUAL_AUDIT_DIR;assert(root&&path.isAbsolute(root));
 const out=path.join(root,engine);fs.mkdirSync(out,{recursive:true});
 const browser=await(engine==='Chrome'?chromium:webkit).launch(engine==='Chrome'?{channel:'chrome',headless:true}:{headless:true});
 const routes=[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(m=>m[1]);
-const codes=['102','103','105','106','108'].filter(code=>!process.env.CAMERA_SERVICE_CODE||process.env.CAMERA_SERVICE_CODE==='all'||process.env.CAMERA_SERVICE_CODE===code);assert(codes.length);
+const codes=['102','103','104','105','106','108'].filter(code=>!process.env.CAMERA_SERVICE_CODE||process.env.CAMERA_SERVICE_CODE==='all'||process.env.CAMERA_SERVICE_CODE===code);assert(codes.length);
 const report={engine,width,states:[],reduced:[],errors:[],findings:[]};
 function save(){fs.writeFileSync(path.join(out,'layer-camera-report.json'),JSON.stringify(report,null,2));}
 async function measure(page,code,stage){
  return page.locator('[data-discipline-system]').evaluate((root,{code,stage})=>{
   const frame=root.querySelector('svg').getBoundingClientRect(),drawing=root.querySelector(`[data-discipline-drawing="${code}"]`);
   const rect=b=>({left:b.left,right:b.right,top:b.top,bottom:b.bottom,width:b.width,height:b.height});
-  const nodes=stage===-1?[...drawing.querySelectorAll('.ds-cover,.ds-door')]:[...drawing.querySelectorAll(`[data-discipline-node="${stage}"]`)];
-  return {stage,view:root.querySelector('svg').getAttribute('viewBox'),frame:rect(frame),nodes:nodes.map(n=>rect(n.getBoundingClientRect())),width:innerWidth,scrollWidth:document.documentElement.scrollWidth,clock:root.closest('[data-service-atlas]').dataset.storyState,framing:root.dataset.layerCameraFraming};
+  const nodes=stage===-1?[...drawing.querySelectorAll(code==='104'?'.ps-layer':'.ds-cover,.ds-door')]:[...drawing.querySelectorAll(`[data-discipline-node="${stage}"]`)];
+  return {stage,view:root.querySelector('svg').getAttribute('viewBox'),frame:rect(frame),nodes:nodes.map(n=>rect(n.getBoundingClientRect())),width:innerWidth,scrollWidth:document.documentElement.scrollWidth,clock:root.closest('[data-service-atlas]').dataset.storyState,framing:code==='104'?(stage<0||stage===6?'overview':root.dataset.cameraFraming):root.dataset.layerCameraFraming};
  },{code,stage});
 }
 function inspect(code,state){
- if(state.width!==state.scrollWidth||state.framing!=='swept')report.findings.push({code,state,message:'Invalid viewport or missing measured camera'});
+ if(state.width!==state.scrollWidth||(code==='104'?!['measured','overview'].includes(state.framing):state.framing!=='swept'))report.findings.push({code,state,message:'Invalid viewport or missing measured camera'});
  for(const n of state.nodes){if(n.width>0&&n.height>0&&(n.left<state.frame.left+2||n.right>state.frame.right-2||n.top<state.frame.top+2||n.bottom>state.frame.bottom-2))report.findings.push({code,state,message:'The active component or opening cover leaves the drawing frame'});}
 }
 try{
