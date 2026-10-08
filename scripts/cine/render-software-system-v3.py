@@ -237,7 +237,8 @@ def render(args):
     camera=bpy.data.cameras.new('Interface into architecture');camera.type='ORTHO';camera.clip_end=200
     cam=bpy.data.objects.new('Interface into architecture',camera);scene.collection.objects.link(cam);scene.camera=cam
     out=Path(args.output);out.mkdir(parents=True,exist_ok=True);timings=[];bounds=[]
-    for frame in range(args.start,args.end+1):
+    def update_frame(scene):
+        frame=scene.frame_current
         t=frame/(FRAMES-1);size,angle,target,shift=camera_pose(t);target=Vector(target)
         cam.location=target+Vector((22*math.cos(angle),22*math.sin(angle),28));cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler();camera.ortho_scale=size;camera.shift_x=-shift
         for name,obj in parents.items():
@@ -259,9 +260,25 @@ def render(args):
         projected_points=[world_to_camera_view(scene,cam,Vector(point)*scale(g,t)+parents[g].location) for g,coords in p.points.items() for point in coords]
         extent=[min(v.x for v in projected_points),min(v.y for v in projected_points),max(v.x for v in projected_points),max(v.y for v in projected_points)]
         assert all(math.isfinite(v) for v in extent),(frame,extent)
-        scene.render.filepath=str(out/f'{frame:04d}.png');start=time.time();bpy.ops.render.render(write_still=True)
-        timings.append({'frame':frame,'seconds':round(time.time()-start,2)});bounds.append({'frame':frame,'bounds':extent});print(json.dumps(timings[-1]),flush=True)
-    (out/'render-info.json').write_text(json.dumps({'service':'104','scene':'software-system-v3','blender':bpy.app.version_string,'engine':scene.render.engine,'samples':args.samples,'frames':FRAMES,'fps':FPS,'resolution':[scene.render.resolution_x,scene.render.resolution_y],'camera':'recognizable product interface unfolds into rules, data and runtime; continuous 24 second loop','timings':timings,'bounds':bounds}))
+        bounds.append({'frame':frame,'bounds':extent})
+    # Keep one render operation alive for the sequence. Re-entering still render
+    # for every frame needlessly reinitializes the software GPU and draw engine.
+    started=[0.0]
+    def begin_frame(scene):started[0]=time.time()
+    def finish_frame(scene):
+        timings.append({'frame':scene.frame_current,'seconds':round(time.time()-started[0],2)})
+        info={'service':'104','scene':'software-system-v3','blender':bpy.app.version_string,'engine':scene.render.engine,
+              'samples':args.samples,'frames':FRAMES,'fps':FPS,'resolution':[scene.render.resolution_x,scene.render.resolution_y],
+              'camera':'recognizable product interface unfolds into rules, data and runtime; continuous 24 second loop',
+              'render_mode':'one persistent native animation render','timings':timings,'bounds':bounds}
+        (out/'render-info.json').write_text(json.dumps(info));print(json.dumps(timings[-1]),flush=True)
+    scene.frame_end=args.end;scene.frame_start=args.start;scene.render.filepath=str(out)+'/'
+    bpy.app.handlers.frame_change_pre.append(update_frame)
+    bpy.app.handlers.render_pre.append(begin_frame);bpy.app.handlers.render_post.append(finish_frame)
+    try:bpy.ops.render.render(animation=True)
+    finally:
+        bpy.app.handlers.frame_change_pre.remove(update_frame)
+        bpy.app.handlers.render_pre.remove(begin_frame);bpy.app.handlers.render_post.remove(finish_frame)
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--start',type=int,default=0);parser.add_argument('--end',type=int,default=FRAMES-1);parser.add_argument('--samples',type=int,default=48);parser.add_argument('--width',type=int,default=1920);parser.add_argument('--engine',choices=['cycles','eevee','workbench'],default='cycles');parser.add_argument('--output',default='frames');parser.add_argument('--validate-only',action='store_true');parser.add_argument('--font-dir')

@@ -12,6 +12,10 @@ name: Blender software architecture
           - repair
           - assemble
         default: proof
+      motion_frames:
+        description: Native consecutive frames for a bounded render benchmark (12 to 120)
+        type: number
+        default: 120
       version:
         description: Authored movie version
         type: choice
@@ -52,7 +56,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: blender-software-${{ github.ref }}-${{ inputs.version || 'v2' }}-${{ inputs.mode || 'proof' }}-${{ inputs.mode == 'repair' && inputs.repair_parts || 'batch' }}
+  group: blender-software-${{ github.ref }}-${{ inputs.version || 'v2' }}-${{ inputs.mode || 'proof' }}-${{ inputs.mode == 'repair' && inputs.repair_parts || inputs.mode == 'motion-proof' && inputs.motion_frames || 'batch' }}
   cancel-in-progress: false
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -70,6 +74,7 @@ jobs:
           MODE: ${{ inputs.mode || 'proof' }}
           REPAIR_PARTS: ${{ inputs.repair_parts }}
           REPAIR_SEGMENTS: ${{ inputs.repair_segments }}
+          MOTION_FRAMES: ${{ inputs.motion_frames || 120 }}
         run: |
           python3 - <<'PYPLAN'
           import json,os
@@ -79,7 +84,8 @@ jobs:
           rows=[dict(part=i+1,start=f,end=f,frames=1) for i,f in enumerate(proof_frames)] if os.environ['MODE']=='proof' else [dict(part=i+1,start=i*48,end=i*48+47,frames=48) for i in range(12)]
           if os.environ['MODE']=='motion-proof':
               assert os.environ['VERSION']=='v3'
-              rows=[dict(part=1,start=300,end=419,frames=120)]
+              count=int(os.environ['MOTION_FRAMES']);assert 12<=count<=120
+              rows=[dict(part=1,start=300,end=300+count-1,frames=count)]
           if os.environ['MODE']=='repair':
               selected=[int(n) for n in os.environ['REPAIR_PARTS'].split(',')]
               assert selected and len(selected)==len(set(selected)) and all(1<=n<=12 for n in selected)
@@ -158,6 +164,13 @@ jobs:
           name: software-proof-${{ matrix.part }}
           path: frames
           retention-days: 4
+      - name: Preserve bounded benchmark evidence
+        if: always() && inputs.mode == 'motion-proof'
+        uses: actions/upload-artifact@v7
+        with:
+          name: software-motion-frames-${{ matrix.part }}
+          path: frames
+          retention-days: 3
       - name: Encode recoverable part
         if: inputs.mode == 'full' || inputs.mode == 'repair' || inputs.mode == 'motion-proof'
         run: |
