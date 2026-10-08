@@ -14,6 +14,7 @@ def reveal(t):return ease((t-.07)/.12)*(1-ease((t-.86)/.14))
 CENTERS={'connection':(-2.25,1.10),'mapping':(3.68,1.10),'data':(-2.25,-2.48),'runtime':(3.68,-2.48)}
 FOCUS_WINDOWS={'connection':(.17,.26),'mapping':(.39,.46),'data':(.58,.64),'runtime':(.74,.80)}
 WIDE_TIMES=(0,1)
+FOCUS_CHILDREN={'connection':['endpoint'],'mapping':['contract'],'data':['record'],'runtime':[]}
 
 def placement(group,t):
     e=reveal(t)
@@ -261,8 +262,9 @@ def validate():
         b=projected(p,t);assert min(b[:2])>.025 and max(b[2:])<.975,('wide',t,b)
     for group,(start,end) in FOCUS_WINDOWS.items():
         for i in range(61):
-            t=start+(end-start)*i/60;b=projected(SimpleNamespace(points={group:p.points[group]}),t)
+            t=start+(end-start)*i/60;b=projected(SimpleNamespace(points={g:p.points[g] for g in [group]+FOCUS_CHILDREN[group]}),t)
             assert min(b[:2])>.035 and max(b[2:])<.965,(group,t,b)
+            assert b[0]>.135 and b[2]<.865,('mobile focus',group,t,b)
     print(json.dumps({'scene':'software-system-v8','frames':FRAMES,'bounds':extent,'labels':len(p.texts),'surfaces':len(p.meshes),'focus_windows':FOCUS_WINDOWS,'wide_times':WIDE_TIMES}))
 
 def render(args):
@@ -368,7 +370,7 @@ def render(args):
             obj.parent=parents[name];lifted.append((name,parent,obj,spline))
     activity=[]
     for ob in parents['runtime'].children:
-        if ob.type=='CURVE' and ob.data.type=='CURVE' and ob.data.bevel_depth>.0065:activity.append(ob)
+        if ob.type=='CURVE' and len(ob.data.splines)==1 and len(ob.data.splines[0].points)==100:activity.append(ob)
     bpy.ops.mesh.primitive_plane_add(size=200,location=(0,0,-.16));bpy.context.object.data.materials.append(mats['floor'])
     for name,xyz,energy,size,color in [('Key',(-4,1,15),1300,12,(1,1,1)),('Edge',(5,9,8),650,10,(1,1,1)),('Fill',(0,-10,12),750,12,(1,1,1))]:
         data=bpy.data.lights.new(name,'AREA');data.energy=energy;data.shape='DISK';data.size=size;data.color=color
@@ -423,7 +425,7 @@ def render(args):
         bounds.append({'frame':frame,'bounds':extent})
         for group,(start,end) in FOCUS_WINDOWS.items():
             if start<=t<=end:
-                vv=[world_to_camera_view(scene,cam,Vector(point)*scale(group,t)+parents[group].location) for point in p.points[group]]
+                vv=[world_to_camera_view(scene,cam,Vector(point)+parents[g].location) for g in [group]+FOCUS_CHILDREN[group] for point in p.points[g]]
                 b=[min(v.x for v in vv),min(v.y for v in vv),max(v.x for v in vv),max(v.y for v in vv)]
                 assert min(b[:2])>.03 and max(b[2:])<.97,('active plane',frame,group,b)
                 focus_bounds.append({'frame':frame,'group':group,'bounds':b})
