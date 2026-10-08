@@ -210,7 +210,7 @@ jobs:
               scripts/cine/build-precision-network.py|scripts/cine/build-precision-fire.py|scripts/cine/build-precision-software.py|scripts/cine/check-service-composition.py|\
               scripts/cine/import-service-cinema-v1.mjs|scripts/cine/import-software-cinema-v2.mjs|scripts/cine/import-software-cinema-v3.mjs|\
               scripts/cine/precision-diagram-content.py|scripts/cine/prepare-blender-fonts.py|scripts/cine/recover-software-parts.py|\
-              scripts/cine/refine-discipline-linework.py|scripts/cine/render-fire-project-v2.py|scripts/cine/render-network-project-v2.py|scripts/cine/render-security-project-v2.py|scripts/cine/render-telecom-project-v2.py|scripts/cine/render-service-cinema-v1.py|scripts/cine/render-software-system-v2.py|\
+              scripts/cine/refine-discipline-linework.py|scripts/cine/render-fire-project-v2.py|scripts/cine/render-network-project-v2.py|scripts/cine/render-security-project-v2.py|scripts/cine/render-telecom-project-v2.py|scripts/cine/render-power-project-v2.py|scripts/cine/render-service-cinema-v1.py|scripts/cine/render-software-system-v2.py|\
               scripts/cine/render-software-system-v3.py|scripts/cine/repack-software-color-v4.py|src/data/serviceSingleDemoSystem.ts) ;;
               *) echo "Unexpected release path: $path" >&2; exit 1 ;;
             esac
