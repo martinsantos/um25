@@ -1,7 +1,7 @@
 import { bindHardware } from '../public/cine/cine-studies-v5.js';
 import { bindProductTour } from '../public/cine/product-tour-v5.js';
 import { bindServicesStory } from '../public/cine/services-story-v5.js';
-import { banner } from '../public/cine/cine-banner-v10.js';
+import { banner } from '../public/cine/cine-banner-v11.js';
 
 let observers, preferences, media, frames, nextFrame;
 const settle = async () => { await Promise.resolve(); await Promise.resolve(); };
@@ -177,4 +177,18 @@ test('only the visible movie is prepared before idle playback, and disposal canc
   await jest.advanceTimersByTimeAsync(600);expect(videos[0].paused).toBe(true);
   cleanup();expect(window.cancelIdleCallback).toHaveBeenCalledWith(41);idle();await settle();expect(videos[0].paused).toBe(true);
  }finally{window.requestIdleCallback=undefined;window.cancelIdleCallback=undefined;}
+});
+
+
+test('a full-width software movie waits for the movie itself, then preserves manual pause',async()=>{
+ document.body.innerHTML='<section data-umc data-software-cinema="true" data-scenes="software-system-v7" data-annotations="none" data-framing="project" data-product-composition="true"><div class="umc-copy"><h1>Software</h1></div><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><button data-umc-motion></button></section>';
+ const root=document.querySelector('[data-umc]'),stage=root.querySelector('.umc-stage'),video=stage.querySelector('video');
+ const cleanup=banner(root);
+ visible(root);jest.advanceTimersByTime(1800);await settle();
+ expect(video.hasAttribute('src')).toBe(false);
+ visible(stage);await settle();expect(video.paused).toBe(false);
+ visible(stage,false);expect(video.paused).toBe(true);
+ visible(stage);await settle();expect(video.paused).toBe(false);
+ root.querySelector('[data-umc-motion]').click();visible(stage,false);visible(stage);await settle();
+ expect(video.paused).toBe(true);cleanup();
 });

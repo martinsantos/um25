@@ -32,7 +32,14 @@ def camera_pose(t):
     for left,right in zip(keys,keys[1:]):
         if left[0]<=t<=right[0]:a,b=left,right;break
     q=ease((t-a[0])/(b[0]-a[0]));mix=lambda x,y:x+(y-x)*q
-    return mix(a[1],b[1]),-math.pi/2,tuple(mix(x,y) for x,y in zip(a[3],b[3])),0
+    size=mix(a[1],b[1]);target=tuple(mix(x,y) for x,y in zip(a[3],b[3]))
+    # Follow the inspector while it opens. A static aim cropped its title as
+    # the application unfolded behind it, despite correct screen proportions.
+    follow=ease((t-.17)/.06)*(1-ease((t-.32)/.07))
+    dx,dy,dz=placement('detail',t)
+    detail=(3.5+dx-1.20,-1.14+dy,dz+.04)
+    target=tuple(value+(focus-value)*follow for value,focus in zip(target,detail))
+    return size,-math.pi/2,target,0
 
 def scale(group,t):return 1
 
@@ -45,7 +52,7 @@ def operation(t):
     release=[ease((t-(.670+i*.027))/.023) if active else 0 for i in range(4)]
     return dict(rules=rules,writes=writes,release=release,confirmed=active and t>.592)
 
-FOCUS_WINDOWS={'detail':(.27,.29),'logic':(.43,.49),'data':(.58,.64),'runtime':(.72,.79)}
+FOCUS_WINDOWS={'detail':(.23,.34),'logic':(.43,.49),'data':(.58,.64),'runtime':(.72,.79)}
 WIDE_TIMES=(0,1)
 
 class Product:
@@ -82,6 +89,7 @@ class Product:
             'clock':[[(.4,0),(0,.2),(0,.6),(.4,.8),(.8,.6),(.8,.2),(.4,0)],[(.4,.6),(.4,.3),(.62,.3)]],
             'check':[[(0,.4),(.3,.1),(.9,.8)]],
             'plus':[[(0,.4),(.8,.4)],[(.4,0),(.4,.8)]],
+            'close':[[(0,0),(.8,.8)],[(0,.8),(.8,0)]],
             'search':[[(.45,.08),(.05,.22),(.05,.62),(.45,.76),(.72,.5),(.62,.18),(.45,.08)],[(.65,.18),(.9,-.1)]]}
         circle=[(.4+.36*math.cos(i*math.tau/40),.4+.36*math.sin(i*math.tau/40)) for i in range(41)]
         if kind=='search':shapes[kind]=[circle,[(.66,.14),(.92,-.12)]]
@@ -151,7 +159,7 @@ def build():
     # The selected record opens into a floating, spatially related inspector.
     p.panel('detail',3.5,-1.14,3.8,4.75,'detail')
     p.text('detail','SOLICITUD / 0248',1.87,.94,.04,.107,'warm',True)
-    p.glyph('detail','plus',4.95,.90,'muted',.10)
+    p.glyph('detail','close',4.95,.90,'muted',.10)
     p.text('detail','Conectar la nueva sede',1.87,.58,.04,.215,'white',True)
     p.text('detail','El alcance se transforma en una entrega.',1.88,.28,.04,.108)
     p.line('detail',[(1.87,.04,.032),(5.12,.04,.032)],'trace',.002)
@@ -184,7 +192,7 @@ def build():
     p.text('data','03 / DATOS Y TRAZABILIDAD',-5.04,1.25,.04,.17,'white',True)
     p.text('data','Solicitud 0248 · versión 04',2.95,1.27,.04,.108,'warm')
     for x,label in [(-5.04,'CAMPO'),(-2.43,'VALOR'),(.14,'TIPO'),(1.7,'REGISTRO DEL CAMBIO')]:p.text('data',label,x,.71,.04,.093)
-    for i,(key,val,kind) in enumerate([('solicitud.id','0248','uuid'),('solicitud.estado','confirmada','enum'),('responsable.equipo','redes','relation'),('solicitud.version','04','integer')]):
+    for i,(key,val,kind) in enumerate([('solicitud.id','0248','string'),('solicitud.estado','confirmada','enum'),('responsable.equipo','redes','relation'),('solicitud.version','04','integer')]):
         y=.29-i*.33;p.text('data',key,-5.04,y,.04,.119,'white');p.text('data',val,-2.43,y,.04,.118,'warm' if i==1 else 'muted');p.text('data',kind,.14,y,.04,.098);p.line('data',[(-5.04,y-.12,.033),(1.20,y-.12,.033)],'trace',.0018)
     p.line('data',[(1.40,.79,.033),(1.40,-1.19,.033)],'trace',.002)
     for i,(time,label) in enumerate([('10:42:01','Solicitud recibida'),('10:42:01','Permisos verificados'),('10:42:02','Cambio confirmado')]):
