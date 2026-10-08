@@ -23,7 +23,7 @@ Las ocho disciplinas usan películas específicas de 24 segundos y 1.440 cuadros
 - El titular general del servicio y la narración contextual ya no duplican la misma frase en sectores.
 - La home mantiene su gran película. Los mecanismos se preparan al acercarse al viewport y conservan SVG estático si falla la descarga; pausa, movimiento reducido y suspensión fuera de pantalla permanecen operativos.
 
-No quedan renders ni auditorías visuales en ejecución de esta revisión. Todos los renders aceptados están incorporados en la preview; el render descartado no cuenta como entrega.
+Iteración de comparación reabierta por el usuario: Software v6 prepara acercamientos legibles de reglas, datos e infraestructura. V5 sigue en la preview hasta revisar seis planos nativos y un segmento continuo de v6. No considerar el paso anterior como aprobación artística final.
 
 ## Evidencia funcional y visual
 

@@ -8,7 +8,7 @@ def probe(file):return json.loads(subprocess.check_output(['ffprobe','-v','error
 infos=[];movies=[]
 for i in range(1,13):
  folder=source/f'software-part-{i}';movie=folder/f'part-{i}.mp4';info=json.loads((folder/f'part-{i}-info.json').read_text());expected=list(range((i-1)*120,i*120))
- assert info['scene']=='software-system-v5' and info['frames']==1440 and info['fps']==60 and info['resolution']==[3840,2160],info
+ assert info['scene'] in ('software-system-v5','software-system-v6') and info['frames']==1440 and info['fps']==60 and info['resolution']==[3840,2160],info
  assert len(info['authoring_sha256'])==64 and set(info['font_sha256'])=={'Regular','SemiBold'}
  assert info['engine']=='BLENDER_WORKBENCH' and info.get('lighting')=='flat product surfaces'
  assert [t['frame'] for t in info['timings']]==expected and [b['frame'] for b in info['bounds']]==expected,(i,'Missing native frames')
@@ -17,13 +17,20 @@ for i in range(1,13):
  assert (v['color_space'],v['color_primaries'],v['color_transfer'],v['color_range'])==('bt709','bt709','iec61966-2-1','tv')
  assert abs(float(v['duration'])-2)<.01
  infos.append(info);movies.append(movie)
+assert len({i['scene'] for i in infos})==1,'Do not mix authored movie versions'
 assert len({i['authoring_sha256'] for i in infos})==1,'Do not mix authored revisions'
 assert len({json.dumps(i['font_sha256'],sort_keys=True) for i in infos})==1,'Do not mix font revisions'
 info=dict(infos[0],timings=[t for p in infos for t in p['timings']],bounds=[b for p in infos for b in p['bounds']])
 assert [t['frame'] for t in info['timings']]==list(range(1440))
+if info['scene']=='software-system-v6':
+ assert all(not p.get('handler_errors') for p in infos)
+ info['focus_bounds']=[b for p in infos for b in p['focus_bounds']]
+ assert set(b['group'] for b in info['focus_bounds'])=={'detail','logic','data','runtime'}
+ for b in info['focus_bounds']:assert min(b['bounds'][:2])>.03 and max(b['bounds'][2:])<.97
 (out/'render-info.json').write_text(json.dumps(info))
+stem='cine-'+info['scene']
 listing=out/'concat.txt';listing.write_text(''.join(f"file '{p}'\n" for p in movies))
-wide=out/'cine-software-system-v5.mp4';square=out/'cine-software-system-v5-sq.mp4'
+wide=out/(stem+'.mp4');square=out/(stem+'-sq.mp4')
 call('ffmpeg','-y','-v','error','-f','concat','-safe','0','-i',listing,'-c','copy','-movflags','+faststart',wide)
 # The mobile delivery preserves the complete frame. CSS removes the encoded
 # padding; it never crops away the application's navigation or action panel.
@@ -35,9 +42,9 @@ for movie,label,size in [(wide,'',(3840,2160)),(square,'-square',(1920,1920))]:
  assert (v['color_space'],v['color_primaries'],v['color_transfer'],v['color_range'])==('bt709','bt709','iec61966-2-1','tv')
  assert abs(float(v['duration'])-24)<.01
  (out/f'validation{label}.json').write_text(json.dumps(val))
- stem='cine-software-system-v5-poster'+('-sq' if label else '')
- call('ffmpeg','-y','-v','error','-i',movie,'-frames:v','1','-q:v','2',out/(stem+'.jpg'))
- call('ffmpeg','-y','-v','error','-i',out/(stem+'.jpg'),'-c:v','libaom-av1','-still-picture','1','-crf','24',out/(stem+'.avif'))
+ poster='cine-'+info['scene']+'-poster'+('-sq' if label else '')
+ call('ffmpeg','-y','-v','error','-i',movie,'-frames:v','1','-q:v','2',out/(poster+'.jpg'))
+ call('ffmpeg','-y','-v','error','-i',out/(poster+'.jpg'),'-c:v','libaom-av1','-still-picture','1','-crf','24',out/(poster+'.avif'))
 call('ffmpeg','-y','-v','error','-i',wide,'-f','framemd5',out/'frame-integrity.txt')
 frames=[line.split(',')[-1].strip() for line in (out/'frame-integrity.txt').read_text().splitlines() if line and not line.startswith('#')]
 assert len(frames)==1440 and len(set(frames))>1296,('Unexpected frozen footage',len(set(frames)))
