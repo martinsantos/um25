@@ -10,6 +10,10 @@ smooth=studio.smooth
 
 class Network(studio.Installation):
  def __init__(self):super().__init__();self.code='101'
+ def cylinder(self,*args,**kwargs):
+  super().cylinder(*args,**kwargs);self.cylinders[-1]['segments']=128 if self.cylinders[-1]['r']>=.025 else 32
+ def route(self,pts,start=0,end=1):
+  pts=self.rounded_path(pts);self.line(pts,'red',.0028);self.routes.append(dict(pts=pts,start=start,end=end))
  def port(self,x,y,z,label):
   self.box(x,y,z,.0148,.006,.0132,'edge')
   self.box(x,y-.0035,z+.002,.012,.001,.009,'black')
@@ -54,7 +58,7 @@ class Network(studio.Installation):
     self.box(xx,front-.003,z+.010,.022,.005,.012,'edge')
     for side in [-1,1]:self.box(xx+side*.0058,front-.006,z+.012,.006,.002,.008,'blue')
     self.text(str(j+1).zfill(2),xx-.005,front-.007,z+.027,.0046,'paper',True)
-  self.text(kind+' / 01',x-.195,y+.122,z+h+.002,.008,'muted')
+  self.text(kind+' / 01',x-.195,y+.122,z+h+.002,.008,'muted',group='switch-cover' if kind=='SWITCH' else None)
   if kind=='SWITCH':
    self.pcb(x,y,z+.014)
    for j in range(24):self.box(x-.20+j*.017,y-.118,z+.004,.014,.022,.019,'black')
@@ -100,21 +104,51 @@ class Network(studio.Installation):
   self.text('UM / DISTRIBUCION',.19,-.014,h-.106,.011,'paper',True,group=name)
  def access_point(self,x,y,z):
   self.parts.append('mounted-radio-access-point')
-  # Fastened backplate, antenna board, RF shields, radome and service indicator.
-  self.box(x,y,z+.015,.32,.32,.003,'paper')
-  for dx in [-.115,.115]:
-   for dy in [-.115,.115]:self.screw(x+dx,y+dy,z+.019,False)
-  self.box(x,y,z,.156,.156,.006,'edge')
-  self.box(x,y,z-.010,.143,.143,.0016,'pcb')
-  for dx in [-.046,.046]:
-   for dy in [-.044,.044]:
-    self.box(x+dx,y+dy,z-.020,.033,.034,.009,'edge')
-    self.line([(x+dx-.014,y+dy,z-.021),(x+dx+.014,y+dy,z-.021)],'muted',.0004)
-  for j in range(8):
-   xx=x-.068+j*.019
-   self.box(xx,y+.069,z-.011,.013,.014,.001,'copper')
-  self.box(x,y,z-.025,.018,.018,.014,'black')
-  self.box(x,y+.046,z-.039,.033,.025,.024,'black')
+  # Circular radio board and stamped mounting bracket, inspected from below.
+  self.box(x,y,z+.022,.25,.25,.003,'paper')
+  self.cylinder(x,y,z+.009,.085,.007,'edge')
+  for j in range(3):
+   a=j*math.tau/3;xx=x+.066*math.cos(a);yy=y+.066*math.sin(a)
+   self.box(xx,yy,z+.015,.018,.022,.006,'edge');self.screw(xx,yy,z+.024,False)
+  self.cylinder(x,y,z-.014,.081,.0016,'pcb')
+  # Two RF shields with return folds, soldered perimeter and service markings.
+  for xx,yy,w,d in [(x-.039,y+.019,.033,.031),(x+.038,y+.027,.031,.025)]:
+   self.box(xx,yy,z-.026,w,d,.001,'edge')
+   for dx in [-w/2,w/2]:self.box(xx+dx,yy,z-.025,.001,d,.010,'edge')
+   for dy in [-d/2,d/2]:self.box(xx,yy+dy,z-.025,w,.001,.010,'edge')
+   for j in range(9):
+    self.line([(xx-w*.38+j*w*.095,yy-d*.28,z-.027),(xx-w*.38+j*w*.095,yy+d*.28,z-.027)],'muted',.00024)
+  for xx,yy,w in [(x-.006,y-.013,.024),(x+.033,y-.022,.016),(x-.035,y-.027,.012)]:
+   self.box(xx,yy,z-.024,w,w,.004,'ink')
+   for j in range(12):
+    for side in [-1,1]:
+     self.box(xx-w*.43+j*w*.86/11,yy+side*(w/2+.001),z-.022,.00065,.0028,.001,'edge')
+     self.box(xx+side*(w/2+.001),yy-w*.43+j*w*.86/11,z-.022,.0028,.00065,.001,'edge')
+   self.cylinder(xx-w*.30,yy-w*.30,z-.0243,.0008,.0002,'muted')
+  # Matching networks, decoupling components and controlled radio traces.
+  for row in range(7):
+   for col in range(13):
+    dx=-.060+col*.010;dy=-.061+row*.018
+    if dx*dx+dy*dy>.075**2 or (abs(dx)<.023 and abs(dy+.013)<.027):continue
+    if (abs(dx+.039)<.022 and abs(dy-.019)<.020) or (abs(dx-.038)<.02 and abs(dy-.027)<.019):continue
+    self.box(x+dx,y+dy,z-.017,.003,.0015,.0015,'ink')
+    for side in [-1,1]:self.box(x+dx+side*.0018,y+dy,z-.017,.00065,.0015,.0015,'copper')
+  for j in range(16):
+   dx=-.051+j*.0068
+   self.line([(x+dx,y-.055,z-.0148),(x+dx,y-.037+j*.0005,z-.0148),(x-.015+j*.0017,y-.037+j*.0005,z-.0148),(x-.015+j*.0017,y-.027,z-.0148)],'copper',.00022)
+  # Four printed antenna meanders follow the board perimeter.
+  for j in range(4):
+   a=j*math.pi/2+.25;pts=[]
+   for k in range(12):
+    q=a+k*.042;r=.072 if k%4<2 else .066
+    pts.append((x+r*math.cos(q),y+r*math.sin(q),z-.0149))
+   self.line(pts,'copper',.0008)
+  for j in range(28):
+   a=j*math.tau/28
+   self.cylinder(x+.078*math.cos(a),y+.078*math.sin(a),z-.015,.00085,.0003,'copper')
+  self.box(x,y+.054,z-.033,.017,.022,.018,'edge')
+  self.box(x,y+.066,z-.031,.012,.001,.009,'black')
+  for k in range(8):self.box(x-.0042+k*.0012,y+.067,z-.029,.00045,.001,.004,'copper')
   self.parts.append('radio-board-and-antenna-traces')
   name='ap-radome';self.doors.append(dict(name=name,pivot=(0,0,0),kind='lift'))
   self.cylinder(x,y,z-.067,.091,.029,'paper',top=.095,group=name)
@@ -167,7 +201,7 @@ def build():
         for dx in [-.021,.021]:s.port(x+dx,2.566,.415,1 if dx<0 else 2)
         s.route([(2.65,1.7,1.25),(2.65,2.43,1.25),(2.65,2.43,2.77),(x,2.43,2.77),(x,2.56,2.77),(x,2.56,.45)],.1,.9)
         s.line(s.rounded_path([(x,2.56,.415),(x,2.32,.30),(x,2.05,.40),(x,1.86,.92)],.08),'muted',.0028)
-    s.route([(2.66,1.7,1.01),(2.66,2.43,1.01),(2.66,2.43,2.78),(-2.05,2.43,2.78),(-2.05,.35,2.78)],.30,.88)
+    s.route([(2.66,1.7,1.01),(2.66,2.43,1.01),(2.66,2.43,2.78),(-2.05,2.43,2.78),(-2.05,.52,2.78),(-2.05,.417,2.78)],.30,.88)
     s.parts.extend(['24-port-patch-panel','24-port-managed-switch','optical-distribution','structured-cabling','labelled-outlets','protected-power'])
     return s
 
@@ -183,7 +217,7 @@ def camera(t):
 
 def animate(t,parents):
     parents['rack-door'].rotation_euler[2]=-math.radians(100)*smooth((t-.17)/.13)*(1-smooth((t-.83)/.14))
-    parents['switch-cover'].location.z=.15*smooth((t-.32)/.075)*(1-smooth((t-.46)/.08))
+    parents['switch-cover'].location.z=.105*smooth((t-.32)/.075)*(1-smooth((t-.46)/.08))
     parents['ap-radome'].location.z=-.095*smooth((t-.61)/.06)*(1-smooth((t-.79)/.085))
 
 def describe(s):
@@ -203,5 +237,5 @@ if __name__=='__main__':
     s=build();info=describe(s)
     if args.validate_only:print(json.dumps(info))
     else:studio.render(args,s,dict(source=__file__,describe=describe,camera=camera,animate=animate,bake_frame=610,
-        description='workplace, distribution cabinet, patching and switching, radio access; continuous 24 second loop',
+        packet_radius=.010,description='workplace, distribution cabinet, patching and switching, radio access; continuous 24 second loop',
         lights=[('Cabinet inspection',(2.3,.4,1.8),28,1.1,(1,1,1),(2.65,1.7,.9)),('Radio inspection',(-2.05,-.5,2.1),16,.8,(1,1,1),(-2.05,.35,2.75))]))

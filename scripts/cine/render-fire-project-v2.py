@@ -372,7 +372,7 @@ def render(args,s,story=None):
         meshpart(b['mat'],b['group'],[(x,y,z),(x+w,y,z),(x+w,y+d,z),(x,y+d,z),(x,y,z+h),(x+w,y,z+h),(x+w,y+d,z+h),(x,y+d,z+h)],
                  [(0,3,2,1),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)])
     for c in s.cylinders:
-        vv=[];n=48
+        vv=[];n=c.get('segments',48)
         for depth,r in [(0,c['r']),(c['h'],c['top'])]:
             for j in range(n):
                 a=j*math.tau/n;u,v=r*math.cos(a),r*math.sin(a)
@@ -417,7 +417,7 @@ def render(args,s,story=None):
         ribbon.append(mesh)
     packets=[]
     for r in s.routes:
-        bpy.ops.mesh.primitive_uv_sphere_add(segments=16,ring_count=8,radius=.018)
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=16,ring_count=8,radius=story.get('packet_radius',.018) if story else .018)
         obj=bpy.context.object;obj.data.materials.append(mats['packet']);packets.append((obj,r))
         for p in obj.data.polygons:p.use_smooth=True
     bpy.ops.mesh.primitive_plane_add(size=200,location=(0,0,-.05));bpy.context.object.data.materials.append(mats['floor']);bpy.context.object['flat_authored_color']=True
