@@ -183,13 +183,9 @@ jobs:
               src/styles/font-service.css|src/styles/v4.css|\
               src/styles/cine-hero.css) ;;
               .github/workflows/production-deploy.yml|.github/workflows/community-demo-integrity.yml|\
-<<<<<<< HEAD
-              scripts/ops/deploy-scoped-dist.sh|\
-=======
               .github/workflows/server-storage-maintenance.yml|\
               scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|\
-              scripts/ops/deploy-scoped-dist.sh|scripts/ops/prune-inactive-umbot-deps.sh|scripts/ops/audit-directus-uploads.sh|\
->>>>>>> 034357c5 (fix(ops): retain manual deploy and allow audited maintenance files)
+              scripts/ops/deploy-scoped-dist.sh|\
               __tests__/runtimeConfigContracts.test.js|__tests__/nginxOps.test.ts|\
               docs/campaign-preview/PHOTO-SOURCES.md|docs/campaign-preview/README.md|\
               docs/campaign-preview/compose-email.mjs|docs/campaign-preview/comunidades-email.html|\
