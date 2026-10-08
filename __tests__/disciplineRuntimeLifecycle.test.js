@@ -29,3 +29,11 @@ test('the latest story stage is used and moving mechanisms are disposed on navig
  node.dataset.disciplineStage='2';resolve([bind]);await settle();expect(seen).toEqual(['2']);
  document.dispatchEvent(new Event('astro:before-swap'));expect(cleanup).toHaveBeenCalledTimes(1);
 });
+
+test('a failed mechanism download reveals the illustration instead of leaving an empty stage',async()=>{
+ const warning=jest.spyOn(console,'warn').mockImplementation(()=>{}),node=root(),markup=node.innerHTML;
+ const load=jest.fn(async()=>{throw Error('offline');});
+ bindViewportDiscipline(node,load);observers[0].callback([{isIntersecting:true}]);await settle();
+ expect(node.dataset.disciplineRuntime).toBe('static');expect(node.innerHTML).toBe(markup);expect(observers[0].disconnect).toHaveBeenCalled();
+ observers[0].callback([{isIntersecting:true}]);await settle();expect(load).toHaveBeenCalledTimes(1);expect(warning).toHaveBeenCalledTimes(1);
+});

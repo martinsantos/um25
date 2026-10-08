@@ -13,7 +13,7 @@ export function bindViewportDiscipline(root,load=loadMechanisms){
  let pending=false,disposed=false,observer;
  const cleanups=[];
  async function start(){
-  if(pending||disposed||root.dataset.disciplineRuntime==='ready')return;
+  if(pending||disposed||['ready','static'].includes(root.dataset.disciplineRuntime))return;
   pending=true;root.dataset.disciplineRuntime='loading';
   try{
    const binders=await load(root);
@@ -21,7 +21,12 @@ export function bindViewportDiscipline(root,load=loadMechanisms){
    for(const bind of binders){const cleanup=bind(root);if(typeof cleanup==='function')cleanups.push(cleanup);}
    root.dataset.disciplineRuntime='ready';observer?.disconnect();
   }catch(error){
-   if(!disposed){root.dataset.disciplineRuntime='waiting';console.warn('No se pudo preparar el recorrido isométrico.',error);}
+   if(!disposed){
+    // Keep the authored illustration visible when a mechanism download fails.
+    // Returning to waiting would hide it behind offscreen paint containment.
+    root.dataset.disciplineRuntime='static';observer?.disconnect();
+    console.warn('No se pudo preparar el recorrido isométrico.',error);
+   }
   }finally{pending=false;}
  }
  const dispose=()=>{disposed=true;observer?.disconnect();for(const cleanup of cleanups)cleanup();document.removeEventListener('astro:before-swap',dispose);};
