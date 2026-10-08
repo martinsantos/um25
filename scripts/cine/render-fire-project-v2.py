@@ -322,7 +322,7 @@ def render(args,s,story=None):
     from bpy_extras.object_utils import world_to_camera_view
     bpy.ops.wm.read_factory_settings(use_empty=True)
     scene=bpy.context.scene
-    scene.render.engine={'cycles':'CYCLES','workbench':'BLENDER_WORKBENCH','baked':'CYCLES'}[args.engine]
+    scene.render.engine={'cycles':'CYCLES','eevee':'BLENDER_EEVEE_NEXT','workbench':'BLENDER_WORKBENCH','baked':'CYCLES'}[args.engine]
     if args.engine in ('workbench','baked'):
         scene.display.shading.light='STUDIO';scene.display.shading.color_type='MATERIAL';scene.display.render_aa='16'
         scene.display.shading.show_shadows=False;scene.display.shading.show_cavity=True;scene.display.shading.cavity_type='BOTH'

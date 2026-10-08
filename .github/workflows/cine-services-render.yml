@@ -57,7 +57,10 @@ jobs:
         run: |
           python3 - <<'PY'
           import json,os
-          assert os.environ['ENGINE'] in (['cycles','workbench','baked'] if os.environ['VERSION'] in ['fire-v2','network-v2','security-v2','telecom-v2','power-v2','support-v2','consulting-v2'] else ['eevee','cycles'])
+          assert os.environ['ENGINE'] in (['cycles','eevee','workbench','baked'] if os.environ['VERSION'] in ['fire-v2','network-v2','security-v2','telecom-v2','power-v2','support-v2','consulting-v2'] else ['eevee','cycles'])
+          # Bound the physical-lighting comparison to native single-frame proofs.
+          if os.environ['ENGINE']=='eevee' and os.environ['VERSION']!='v1':
+              assert os.environ['VERSION']=='power-v2' and os.environ['MODE']=='proof', 'Physical lighting requires visual review before full rendering'
           assert os.environ['MODE']!='motion-proof' or os.environ['VERSION'] in ['fire-v2','network-v2','security-v2','telecom-v2','power-v2','support-v2','consulting-v2']
           codes=['101','102','103','105','106','107','108']
           selected=codes if os.environ['SERVICES']=='all' else os.environ['SERVICES'].split(',')
