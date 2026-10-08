@@ -37,3 +37,14 @@ Antes de avanzar deben poder verificarse visualmente:
 5. Película y texto integrados sin ocultación ni reducción a una miniatura lateral.
 
 El siguiente render completo sólo tiene sentido después de que las pruebas de composición y movimiento soporten la comparación. Si la distancia sigue siendo clara, hay que cambiar el diseño y repetir la prueba; no reemplazar el juicio visual por garantías verbales o checks técnicos.
+
+
+## Dirección clara / verificación del 8 de octubre
+
+- `37760500046`: seis planos claros y frontales. La pantalla ya se separa del fondo y mantiene rectángulos reales. El plano 450 todavía recortaba arriba la ficha al empezar el traslado; no se aceptó ese encuadre.
+- `78604e7a` sigue el centro de la ficha durante su apertura. `37761998322` confirma en el plano 450 que caben borde superior, título, contenido y acción. La ventana validada de ficha pasó de 0,48 a 2,64 segundos.
+- `37761023184`: 120 cuadros nativos 4K/60 de la versión anterior de cámara, 500,52 segundos de render y cero errores de actualización. Es evidencia de continuidad y costo, no validación del seguimiento de ficha que se cambió después.
+- `37760112332` y `37761408471`: acabado Eevee claro comparado con el plano de color directo. La diferencia visible es leve; los dos cuadros consecutivos costaron 151,35 y 149,39 segundos. Se conserva el acabado gráfico de color directo para producir la candidata completa sin bajar resolución ni frecuencia. El resultado todavía necesita la comparación visual de su movimiento completo.
+- Reproductor v11: la película amplia espera a que entre su propio escenario en pantalla; no comienza sólo porque el título es visible. Conserva pausa explícita y movimiento reducido. 39 pruebas de ciclo de vida aprobadas; build aprobado.
+
+La dirección clara se mantiene. No recuperar pantalla negra ni cámara inclinada. La película completa siguiente será candidata para revisión integrada, no aprobación de paridad con las referencias.

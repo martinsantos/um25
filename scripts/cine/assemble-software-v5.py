@@ -11,7 +11,7 @@ for i in range(1,13):
  assert info['scene'] in ('software-system-v5','software-system-v6','software-system-v7') and info['frames']==1440 and info['fps']==60 and info['resolution']==[3840,2160],info
  assert len(info['authoring_sha256'])==64 and set(info['font_sha256'])=={'Regular','SemiBold'}
  if info['scene']=='software-system-v7':
-  assert info['engine']=='BLENDER_EEVEE_NEXT' and info.get('lighting')=='emissive interface with soft substrate shadows'
+  assert (info['engine'],info.get('lighting')) in [('BLENDER_EEVEE_NEXT','emissive interface with soft substrate shadows'),('BLENDER_WORKBENCH','flat product surfaces')]
  else:assert info['engine']=='BLENDER_WORKBENCH' and info.get('lighting')=='flat product surfaces'
  assert [t['frame'] for t in info['timings']]==expected and [b['frame'] for b in info['bounds']]==expected,(i,'Missing native frames')
  v=probe(movie)['streams'][0]

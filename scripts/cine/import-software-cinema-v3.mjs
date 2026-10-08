@@ -7,7 +7,7 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
 const folder=path.resolve(process.argv[2]||''),run=process.argv[3];assert(process.argv[2]);assert.match(run||'',/^\d+$/);
 const info=JSON.parse(fs.readFileSync(path.join(folder,'render-info.json'),'utf8'));
 assert(['software-system-v3','software-system-v4','software-system-v5','software-system-v6','software-system-v7'].includes(info.scene));assert.equal(info.service,'104');assert.equal(info.fps,60);assert.equal(info.frames,1440);
-if(info.scene==='software-system-v7'){assert.equal(info.engine,'BLENDER_EEVEE_NEXT');assert.equal(info.lighting,'emissive interface with soft substrate shadows');}
+if(info.scene==='software-system-v7'){assert(['BLENDER_EEVEE_NEXT','BLENDER_WORKBENCH'].includes(info.engine));assert.equal(info.lighting,info.engine==='BLENDER_EEVEE_NEXT'?'emissive interface with soft substrate shadows':'flat product surfaces');}
 else{assert.equal(info.engine,'BLENDER_WORKBENCH');assert.equal(info.lighting,'flat product surfaces');}assert.deepEqual(info.resolution,[3840,2160]);
 assert.deepEqual(info.timings.map(t=>t.frame),Array.from({length:1440},(_,i)=>i));assert.deepEqual(info.bounds.map(t=>t.frame),Array.from({length:1440},(_,i)=>i));
 for(const {bounds:b} of info.bounds)assert(b.length===4&&b.every(Number.isFinite));
