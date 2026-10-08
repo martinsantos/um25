@@ -489,7 +489,7 @@ def render(args,s,story=None):
     def finish_frame(scene):
         record={'frame':scene.frame_current,'seconds':round(time.time()-started[0],2)};timings.append(record);print(json.dumps(record),flush=True)
         info={**describe(s),'blender':bpy.app.version_string,'engine':scene.render.engine,'samples':args.samples,
-              'resolution':[args.width,round(args.width*9/16)],'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()+(Path(story['source']).read_bytes() if story else b'')).hexdigest(),'camera':story['description'] if story else 'workplace to detector to supervised circuit to central; continuous 24 second loop',
+              'resolution':[args.width,round(args.width*9/16)],'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()+(b''.join(Path(p).read_bytes() for p in story.get('sources',[story['source']])) if story else b'')).hexdigest(),'camera':story['description'] if story else 'workplace to detector to supervised circuit to central; continuous 24 second loop',
               'render_mode':'persistent native animation','baked_lighting':bake_info,'bounds':extents,'timings':timings}
         (out/'render-info.json').write_text(json.dumps(info))
     if args.engine=='baked':

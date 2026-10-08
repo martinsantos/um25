@@ -1,6 +1,6 @@
 # Continuidad activa · 8 de octubre de 2026
 
-Rama `feature/isometric-redes-review`, PR #266 (draft), checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`. Preview `http://127.0.0.1:4326/`, compilada hasta `512e78a9`. No editar el checkout principal ni desplegar. PID propio en `/private/tmp/um-eight-preview.pid`: verificar proceso y cwd antes de reiniciar.
+Rama `feature/isometric-redes-review`, PR #266 (draft), checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`. Preview `http://127.0.0.1:4326/`, compilada hasta `69231a92`. No editar el checkout principal ni desplegar. PID propio en `/private/tmp/um-eight-preview.pid`: verificar proceso y cwd antes de reiniciar.
 
 ## Resultado integrado
 
@@ -8,17 +8,21 @@ Rama `feature/isometric-redes-review`, PR #266 (draft), checkout `/Users/santosm
 - **Incendio v2:** render `37716425530`, fuente `83cae61f`, importado en `d17d8c4c`. 1.440 cuadros distintos, 24 s, seis assets, 51.136.539 bytes. Auditoría integrada final `37719560859` sobre `512e78a9`: 10 layouts y dos ciclos autónomos con siete estados isométricos cada uno; cero hallazgos. Evidencia local `/private/tmp/um-fire-final-audit-37719560859/`.
 - **Isometría de Incendio:** central de 576 piezas, 33 geometrías compartidas y 14.391 bytes gzip. Puerta de 102°, electrónica posterior, conductores unidos, detector separable y baterías dentro del gabinete. Se corrigieron namespaces SVG al embeber, etiquetas superpuestas, encuadres móviles y dos cámaras que competían. El script `precision-systems-v6.js` reserva su cámara exterior sólo a Software.
 - **Cinco cámaras restantes:** Telecomunicaciones, Seguridad, Soporte, Consultoría y Energía incluyen el volumen cerrado y abierto al encuadrar. `37719182601`, fuente `86327d20`: Chrome/WebKit × escritorio/móvil, 140 estados y 20 vistas con movimiento reducido; cero hallazgos y errores. Evidencia `/private/tmp/um-camera-final-37719182601/`.
-- `351ebb2d`/`021ecbbf` atenúan las piezas no activas durante una explicación, manteniendo opaco el mecanismo actual. Esa mejora visual aún requiere capturas posteriores; no está en la preview compilada.
+- `351ebb2d`/`021ecbbf` atenúan las piezas no activas durante una explicación, manteniendo opaco el mecanismo actual. La mejora está en la preview. Se está verificando visualmente en `37721308823` (cinco disciplinas) y `37721311238` (Incendio).
 
-Último `npm run check` completo (`86327d20`): 70 suites / 586 pruebas, lint, tipos, CSS y build correctos. `512e78a9` recompiló y comprobó la corrección de máscara del banner de Incendio. Diez advertencias previas de lint.
+Último `npm run check` completo (`69231a92`): 70 suites / 586 pruebas, lint, tipos, CSS y build correctos. `512e78a9` recompiló y comprobó la corrección de máscara del banner de Incendio. Diez advertencias previas de lint.
 
 ## Trabajo activo: película de Redes v2
 
 Modelo propio de rack de 19 pulgadas, 24 puertos RJ45 con contactos, 12 adaptadores ópticos, placa del switch, organizadores, latiguillos, bandejas y radio con PCB circular, blindajes, antenas y componentes. Recorrido continuo: instalación, gabinete, switch, radio y regreso. 24 s, 1.440 cuadros nativos.
 
-Prueba `37719886220`: plano general y rack útiles, radio rechazada por su placa demasiado vacía. `37720542508` corrige la electrónica y el espacio de la tapa del switch; se revisaron sus dos PNG. La radio todavía mostraba un perfil duro, ranuras triangulares y un cable dominante. Se corrigen carcasa formada continua, ranuras estrechas en la zona cilíndrica y funda neutra con pulso rojo de señal. Nueva prueba pendiente. **No habilitar render completo antes de inspeccionarla.**
+Prueba `37719886220`: plano general y rack útiles, radio rechazada por su placa demasiado vacía. `37720542508` corrige la electrónica y el espacio de la tapa del switch; se revisaron sus dos PNG. La radio todavía mostraba un perfil duro, ranuras triangulares y un cable dominante. Se corrigen carcasa formada continua, ranuras estrechas en la zona cilíndrica y funda neutra con pulso rojo de señal. Prueba `37721305675` sobre `69231a92`: inspeccionada; perfil continuo y ranuras corregidas. Se habilita el render completo de Redes; aún falta ejecutarlo e importar su entrega.
 
 Pipeline genérico de ensamblado/importación preparado para `fire-project-v2` y `network-project-v2`: valida hashes, 1.440 cuadros, 60 fps, color explícito, continuidad y mismo código fuente en los doce fragmentos. La película antigua de Redes sigue registrada hasta aprobar e importar la nueva. Las otras cinco películas de servicio conservan el acabado v1.
+
+## Preparación de Seguridad v2
+
+Nueva escena `render-security-project-v2.py`: acceso a escala, lector, hoja articulada, cámara con óptica separable y sensor, grabador con cuatro discos y electrónica, consola que relaciona imagen/evento/respuesta. Recorrido y tres mecanismos propios. La ejecución completa sigue bloqueada en el workflow hasta inspeccionar cuatro planos nativos. No se ha modificado la película registrada del servicio 102.
 
 ## Límites de la revisión
 
