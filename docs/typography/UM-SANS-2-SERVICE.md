@@ -38,8 +38,9 @@ los DOCX no incluyen fuentes incrustadas editables. Para entregar, exportar PDF.
 ## Integración
 
 Catálogo: `/estilo/fuente`. Plantillas: `/estilo/fuentes/plantilla`.
-Alias: `/estilo/fuente/plantillas` y `/estilo/fuente/planillas` redirigen al catálogo
-de plantillas, que incluye la planilla económica Excel.
+Alias: `/estilo/fuente/plantillas`, `/estilo/fuente/planillas`,
+`/estilo/fuente/planilla` y `/planilla` redirigen al catálogo de plantillas,
+que incluye la planilla económica Excel.
 
 ```html
 <link rel="stylesheet" href="https://www.ultimamilla.com.ar/fonts/um-sans/v2.0.0/um-sans.css">
