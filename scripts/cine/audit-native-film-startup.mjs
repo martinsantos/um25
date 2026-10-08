@@ -28,7 +28,7 @@ try{
     const v=document.querySelector('video.is-on,video[data-native-probe]');
     if(v&&v.currentTime>=next){
      const q=v.getVideoPlaybackQuality();
-     window.__filmAudit.frames.push({at:performance.now(),media:v.currentTime,total:q.totalVideoFrames,dropped:q.droppedVideoFrames,ready:v.readyState});next=Math.floor(v.currentTime)+1;
+     window.__filmAudit.frames.push({at:performance.now(),media:v.currentTime,total:q.totalVideoFrames,dropped:q.droppedVideoFrames,ready:v.readyState,stories:[...document.querySelectorAll('[data-service-atlas]')].map(root=>({state:root.dataset.storyState,scene:root.dataset.storyScene,top:Math.round(root.querySelector('[data-atlas-theater]')?.getBoundingClientRect().top||0)})),animations:document.getAnimations().filter(a=>a.playState==='running').length});next=Math.floor(v.currentTime)+1;
     }
     window.__filmAuditTimer=setTimeout(sample,80);
    }

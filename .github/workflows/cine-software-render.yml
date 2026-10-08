@@ -28,6 +28,7 @@ name: Blender software architecture
           - v1
           - v2
           - v3
+          - v5
         default: v2
       engine:
         description: 'Cycles baseline or Eevee proof on the disposable software GPU'
@@ -84,12 +85,13 @@ jobs:
           python3 - <<'PYPLAN'
           import json,os
           selected=[]
+          assert os.environ['VERSION']!='v5' or os.environ['MODE'] in ('proof','motion-proof'), 'Inspect native v5 proofs before a full render'
           assert os.environ['VERSION']!='v3' or os.environ['MODE'] in ('proof','motion-proof','full','assemble','repair')
-          chunk=120 if os.environ['VERSION']=='v3' else 48
-          proof_frames=[0,360,720,1080,1439] if os.environ['VERSION']=='v3' else [0,144,288,432,575]
+          chunk=120 if os.environ['VERSION'] in ('v3','v5') else 48
+          proof_frames=[0,360,720,1080,1439] if os.environ['VERSION'] in ('v3','v5') else [0,144,288,432,575]
           rows=[dict(part=i+1,start=f,end=f,frames=1) for i,f in enumerate(proof_frames)] if os.environ['MODE']=='proof' else [dict(part=i+1,start=i*chunk,end=(i+1)*chunk-1,frames=chunk) for i in range(12)]
           if os.environ['MODE']=='motion-proof':
-              assert os.environ['VERSION']=='v3'
+              assert os.environ['VERSION'] in ('v3','v5')
               count=int(os.environ['MOTION_FRAMES']);assert 12<=count<=120
               rows=[dict(part=1,start=300,end=300+count-1,frames=count)]
           if os.environ['MODE']=='repair':
@@ -118,6 +120,7 @@ jobs:
             scripts/cine/render-software-system-v1.py
             scripts/cine/render-software-system-v2.py
             scripts/cine/render-software-system-v3.py
+            scripts/cine/render-software-system-v5.py
             public/fonts/um-sans/UMSans-Regular.ttf
             public/fonts/um-sans/UMSans-SemiBold.ttf
             scripts/cine/prepare-blender-fonts.py
@@ -158,7 +161,7 @@ jobs:
           FONT_ARGS=()
           if [ "$VERSION" != v1 ]; then FONT_ARGS=(--font-dir /tmp/um-cine-fonts); fi
           QUALITY_ARGS=(--samples 24)
-          if [ "$VERSION" = v3 ]; then QUALITY_ARGS=(--samples 48 --width 3840 --engine '${{ inputs.engine || 'cycles' }}'); fi
+          if [ "$VERSION" = v3 ] || [ "$VERSION" = v5 ]; then QUALITY_ARGS=(--samples 48 --width 3840 --engine '${{ inputs.engine || 'cycles' }}'); fi
           if [ '${{ inputs.mode }}' = motion-proof ]; then QUALITY_ARGS=(--samples 32 --width '${{ inputs.motion_width || '1920' }}' --engine '${{ inputs.engine || 'cycles' }}'); fi
           RENDER=(./blender-4.5.3-linux-x64/blender)
           if [ '${{ inputs.engine }}' != cycles ]; then RENDER=(xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender); fi
@@ -183,8 +186,10 @@ jobs:
           KEY='${{ matrix.part }}${{ matrix.segment && format('-{0}', matrix.segment) || '' }}'
           cp frames/render-info.json part-$KEY-info.json
           FPS=24
-          if [ "$VERSION" = v3 ]; then FPS=60; fi
-          ffmpeg -v error -framerate "$FPS" -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v ${{ matrix.frames }} -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r "$FPS" -g 120 -an -movflags +faststart part-$KEY.mp4
+          if [ "$VERSION" = v3 ] || [ "$VERSION" = v5 ]; then FPS=60; fi
+          COLOR_ARGS=()
+          if [ "$VERSION" = v5 ]; then COLOR_ARGS=(-vf 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p' -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1); fi
+          ffmpeg -v error -framerate "$FPS" -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v ${{ matrix.frames }} "${COLOR_ARGS[@]}" -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r "$FPS" -g 120 -an -movflags +faststart part-$KEY.mp4
       - uses: actions/upload-artifact@v7
         if: inputs.mode == 'full' || inputs.mode == 'repair' || inputs.mode == 'motion-proof'
         with:
