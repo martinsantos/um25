@@ -609,49 +609,49 @@
       ]
     },
     "108": {
-      "scene": "power-system-v1",
+      "scene": "power-project-v2",
       "status": "ready",
-      "engine": "Blender 4.5.3 LTS / Cycles",
-      "samples": 24,
+      "engine": "Blender 4.5.3 LTS / Cycles baked diffuse",
+      "samples": 128,
       "duration": 24,
-      "fps": 24,
-      "frames": 576,
+      "fps": 60,
+      "frames": 1440,
       "resolution": [
-        1920,
-        1080
+        3840,
+        2160
       ],
-      "camera": "one continuous 24 second orbit; matching loop endpoints",
-      "run": "https://github.com/martinsantos/um25/actions/runs/37675998479",
+      "camera": "protection, contained energy storage, identified distribution and critical loads; continuous 24 second loop",
+      "run": "https://github.com/martinsantos/um25/actions/runs/37728931491",
       "assets": [
         {
-          "file": "cine-power-system-v1.mp4",
-          "bytes": 6664225,
-          "sha256": "aaa28f29e088043927da54274033d97282977c428c3a23fdd9b0c3adb8c0a6d7"
+          "file": "cine-power-project-v2.mp4",
+          "bytes": 22916206,
+          "sha256": "9e51587c523fb9bfe5f190d820d93376049622fbbff472ad154dc2eae34cbf10"
         },
         {
-          "file": "cine-power-system-v1-sq.mp4",
-          "bytes": 2618175,
-          "sha256": "701f7c52ada7359816bf64abcbf49d108565b793ac82247c064c84a89d8f2070"
+          "file": "cine-power-project-v2-sq.mp4",
+          "bytes": 7393748,
+          "sha256": "064d90a25e400c27466d8d19d27b07e8ca552c27b9c9fcf9c3c6af9c0f9f11d3"
         },
         {
-          "file": "cine-power-system-v1-poster.jpg",
-          "bytes": 88925,
-          "sha256": "bfbdb784b134e72501b4809a43201d41114258fcffd0c31b55791b6a1d5f9019"
+          "file": "cine-power-project-v2-poster.jpg",
+          "bytes": 151253,
+          "sha256": "a2b252c53856ac4cc6c2b559bb21422f6c4df326030fe715d629afd103c803a8"
         },
         {
-          "file": "cine-power-system-v1-poster.avif",
-          "bytes": 17496,
-          "sha256": "b31d19b94b1beaf43ac34ac9c6900f5c3175b3675dd6a59a516a0ff0a90e83a8"
+          "file": "cine-power-project-v2-poster.avif",
+          "bytes": 15787,
+          "sha256": "769d8c31354818c7192b5dd8cc50f2991dfc325311e561ea0429efbb58bc1c86"
         },
         {
-          "file": "cine-power-system-v1-poster-sq.jpg",
-          "bytes": 56096,
-          "sha256": "42a38a6366f1c7c2874dabdfeac188202adc7defe026b1fa5791df1965107f1d"
+          "file": "cine-power-project-v2-poster-sq.jpg",
+          "bytes": 62856,
+          "sha256": "122fad8011e1c8a2d6503526f01413174ad266ee16f0b834b90603f269d946b1"
         },
         {
-          "file": "cine-power-system-v1-poster-sq.avif",
-          "bytes": 11788,
-          "sha256": "985da4cd6cfa89b2945d48469c4a79618addbed2257581478a2fd38975dc6446"
+          "file": "cine-power-project-v2-poster-sq.avif",
+          "bytes": 6609,
+          "sha256": "781989bdf88da6c31fbab033735bea954a6586227206d50e92889c8f42ba1dda"
         }
       ]
     }

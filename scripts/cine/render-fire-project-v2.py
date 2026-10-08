@@ -445,8 +445,9 @@ def render(args,s,story=None):
         return Vector(r['pts'][-1])
     out=Path(args.output);out.mkdir(parents=True,exist_ok=True);timings=[];extents=[]
     # One native animation render keeps mesh compilation and the draw engine alive.
-    started=[0.0];bake_info=None
+    started=[0.0];bake_info=None;updated_frame=[None];handler_errors=[]
     def update_frame(scene):
+        updated_frame[0]=None
         frame=scene.frame_current
         t=frame/(FRAMES-1)
         if story:size,angle,target,distance,elevation=story['camera'](t)
@@ -491,8 +492,17 @@ def render(args,s,story=None):
             extent=[min(p.x for p in projected),min(p.y for p in projected),max(p.x for p in projected),max(p.y for p in projected)]
             assert extent[0]>.015 and extent[1]>.015 and extent[2]<.985 and extent[3]<.985,(s.code,frame,extent)
             extents.append({'frame':frame,'bounds':extent})
+        updated_frame[0]=frame
+    def checked_update(scene):
+        try:update_frame(scene)
+        except Exception as error:
+            handler_errors.append((scene.frame_current,str(error)))
+            raise
     def begin_frame(scene):started[0]=time.time()
     def finish_frame(scene):
+        if updated_frame[0]!=scene.frame_current:
+            handler_errors.append((scene.frame_current,'Incomplete frame preparation'))
+            return
         record={'frame':scene.frame_current,'seconds':round(time.time()-started[0],2)};timings.append(record);print(json.dumps(record),flush=True)
         info={**describe(s),'blender':bpy.app.version_string,'engine':scene.render.engine,'samples':args.samples,
               'resolution':[args.width,round(args.width*9/16)],'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()+(b''.join(Path(p).read_bytes() for p in story.get('sources',[story['source']])) if story else b'')).hexdigest(),'camera':story['description'] if story else 'workplace to detector to supervised circuit to central; continuous 24 second loop',
@@ -558,14 +568,15 @@ def render(args,s,story=None):
         scene.display.shading.show_shadows=False;scene.display.shading.show_cavity=False;scene.display.shading.show_specular_highlight=False
         scene.display.render_aa='16'
     scene.render.filepath=str(out)+'/'
-    bpy.app.handlers.frame_change_pre.append(update_frame)
+    bpy.app.handlers.frame_change_pre.append(checked_update)
     bpy.app.handlers.render_pre.append(begin_frame);bpy.app.handlers.render_post.append(finish_frame)
     try:
         segments=[(int(x),int(x)) for x in args.proof_frames.split(',')] if args.proof_frames else [(args.start,args.end)]
         for start,end in segments:
             scene.frame_start=start;scene.frame_end=end;bpy.ops.render.render(animation=True)
+        assert not handler_errors,handler_errors[:5]
     finally:
-        bpy.app.handlers.frame_change_pre.remove(update_frame)
+        bpy.app.handlers.frame_change_pre.remove(checked_update)
         bpy.app.handlers.render_pre.remove(begin_frame);bpy.app.handlers.render_post.remove(finish_frame)
 
 
