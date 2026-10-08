@@ -280,49 +280,49 @@
   },
   "services": {
     "101": {
-      "scene": "network-system-v1",
+      "scene": "network-project-v2",
       "status": "ready",
-      "engine": "Blender 4.5.3 LTS / Cycles",
-      "samples": 24,
+      "engine": "Blender 4.5.3 LTS / Cycles baked diffuse",
+      "samples": 128,
       "duration": 24,
-      "fps": 24,
-      "frames": 576,
+      "fps": 60,
+      "frames": 1440,
       "resolution": [
-        1920,
-        1080
+        3840,
+        2160
       ],
-      "camera": "one continuous 24 second orbit; matching loop endpoints",
-      "run": "https://github.com/martinsantos/um25/actions/runs/37675998479",
+      "camera": "workplace, distribution cabinet, patching and switching, radio access; continuous 24 second loop",
+      "run": "https://github.com/martinsantos/um25/actions/runs/37721892202",
       "assets": [
         {
-          "file": "cine-network-system-v1.mp4",
-          "bytes": 7527264,
-          "sha256": "865b16c5c246bb6f36d5f45614f09b891cfc66065c9dd232ddb63e565730b83d"
+          "file": "cine-network-project-v2.mp4",
+          "bytes": 41658377,
+          "sha256": "900c2a2f9858bd4623a1969fa5b1b396224dede82c33db31d2f7c4397c7d03e6"
         },
         {
-          "file": "cine-network-system-v1-sq.mp4",
-          "bytes": 3013657,
-          "sha256": "431ce5c1cae7771b5acaa91464cf89be939a5a51162d9472862d9b6d0a1dc069"
+          "file": "cine-network-project-v2-sq.mp4",
+          "bytes": 12973565,
+          "sha256": "7794cc2e85d21c953ba990ccff8da652e208c49547069d5764c2d257fe4ed31f"
         },
         {
-          "file": "cine-network-system-v1-poster.jpg",
-          "bytes": 96633,
-          "sha256": "10f1fb6cb81e9886622f3bdf8a7268ff4378c509b054c0700e98a52e5bf25101"
+          "file": "cine-network-project-v2-poster.jpg",
+          "bytes": 312483,
+          "sha256": "aa7a3f7650095d1f845dba478f8b41f5a01fe70397977379da5c4a8309a0485f"
         },
         {
-          "file": "cine-network-system-v1-poster.avif",
-          "bytes": 19892,
-          "sha256": "ff4d9c3dbcf3fef4e0c3eb0903475e708f670f1b76ad351eb80c2a04db370e56"
+          "file": "cine-network-project-v2-poster.avif",
+          "bytes": 48645,
+          "sha256": "0ca4a6b23f292cc6171174d90426dd643c8acc8357c6c5c36f090ed86531278e"
         },
         {
-          "file": "cine-network-system-v1-poster-sq.jpg",
-          "bytes": 60737,
-          "sha256": "d30abee8fad9ebf6156e8b103e79dd7b3d0a7dca74b0905e6659a09754941886"
+          "file": "cine-network-project-v2-poster-sq.jpg",
+          "bytes": 124652,
+          "sha256": "78d74cbda6443511b0d1f17cea0bbd814f02937feb794ead8a5f7659e4336f74"
         },
         {
-          "file": "cine-network-system-v1-poster-sq.avif",
-          "bytes": 12874,
-          "sha256": "216f980a2153248ee8a0f3ec6e9d33bed88a9475f0d97c409c33f8b39b46e5c6"
+          "file": "cine-network-project-v2-poster-sq.avif",
+          "bytes": 18808,
+          "sha256": "30eab0c5b7e252e9d2fbb0ea7e23fb41a021449e479d0955f7fcff916d9ad989"
         }
       ]
     },

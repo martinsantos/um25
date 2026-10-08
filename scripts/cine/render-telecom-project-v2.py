@@ -78,9 +78,13 @@ class Telecom(network.Network):
    for j in range(5):
     radius=.046+j*.004
     loop=[(xx+radius*math.cos(k*math.tau/96),cy+.048*math.sin(k*math.tau/96),zz+.009+j*.0003) for k in range(97)]
-    start=(cx-.193+(tray*6+j)*.032,cy-.158,cz+.093)
+    start=(cx-.193+(tray*6+j)*.032,cy-.132,cz+.093)
     end=(xx-.057+j*.023,cy-.055,zz+.013)
-    self.line(self.rounded_path([start,(start[0],cy-.085,zz+.009),loop[0]],.01)+loop[1:]+[end],'blue' if j%2 else 'copper',.00055)
+    # Patch leads terminate at the rear of the optical adapters. Their reserve
+    # rises behind the copper panel, never across either equipment face.
+    rear=cy+.173+j*.0014
+    path=[start,(start[0],rear,cz+.093),(start[0],rear,zz+.016),(xx+.069,rear,zz+.016),(xx+.069,cy+.044,zz+.016),loop[0]]
+    self.line(self.rounded_path(path,.01)+loop[1:]+[end],'blue' if j%2 else 'copper',.00055)
    for j in range(6):
     sx=xx-.057+j*.023
     for side in [-1,1]:self.box(sx+side*.004,cy-.055,zz+.009,.002,.028,.009,'edge')
@@ -94,7 +98,10 @@ class Telecom(network.Network):
 def build():
  s=Telecom();s.site(-3.05,'A',1);s.site(3.05,'B',-1)
  # The connection across air and the fiber option have different, legible paths.
- s.line([(-2.59,1.45,3.12),(2.59,1.45,3.12)],'trace',.0016)
+ # A dashed guide distinguishes radio propagation from the physical fiber.
+ for i in range(24):
+  a=-2.59+i*5.18/24;b=a+5.18/24*.46
+  s.line([(a,1.45,3.12),(b,1.45,3.12)],'trace',.0012)
  s.routes.append(dict(pts=[(-2.59,1.45,3.12),(2.59,1.45,3.12)],start=.18,end=.48))
  pts=s.rounded_path([(-3.243,.339,1.370),(-3.243,-.22,1.370),(-3.243,-.22,.05),(-3.05,-1.0,.05),(3.05,-1.0,.05),(2.857,-.22,.05),(2.857,-.22,1.370),(2.857,.339,1.370)],.12)
  s.line(pts,'blue',.004);s.routes.append(dict(pts=pts,start=.49,end=.90))

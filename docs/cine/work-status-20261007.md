@@ -1,40 +1,32 @@
 # Continuidad activa · 8 de octubre de 2026
 
-Rama `feature/isometric-redes-review`, PR #266 (draft), checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`. Preview `http://127.0.0.1:4326/`, compilada hasta `69231a92`. No editar el checkout principal ni desplegar. PID propio en `/private/tmp/um-eight-preview.pid`: verificar proceso y cwd antes de reiniciar.
+Rama `feature/isometric-redes-review`, PR #266 (draft), checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`. Preview `http://127.0.0.1:4326/`, compilada hasta `7d2de186` (Redes v2 pendiente de recompilar). No editar el checkout principal ni desplegar. PID propio en `/private/tmp/um-eight-preview.pid`: verificar proceso y cwd antes de reiniciar.
 
 ## Resultado integrado
 
 - **Software v4:** 1.440 cuadros 4K/60, seis assets, 58.415.732 bytes. Auditoría `37712634510`: 20 composiciones, color y repetición en Chrome/WebKit, sin hallazgos.
-- **Incendio v2:** render `37716425530`, fuente `83cae61f`, importado en `d17d8c4c`. 1.440 cuadros distintos, 24 s, seis assets, 51.136.539 bytes. Auditoría integrada final `37719560859` sobre `512e78a9`: 10 layouts y dos ciclos autónomos con siete estados isométricos cada uno; cero hallazgos. Evidencia local `/private/tmp/um-fire-final-audit-37719560859/`.
-- **Isometría de Incendio:** central de 576 piezas, 33 geometrías compartidas y 14.391 bytes gzip. Puerta de 102°, electrónica posterior, conductores unidos, detector separable y baterías dentro del gabinete. Se corrigieron namespaces SVG al embeber, etiquetas superpuestas, encuadres móviles y dos cámaras que competían. El script `precision-systems-v6.js` reserva su cámara exterior sólo a Software.
-- **Cinco cámaras restantes:** Telecomunicaciones, Seguridad, Soporte, Consultoría y Energía incluyen el volumen cerrado y abierto al encuadrar. `37719182601`, fuente `86327d20`: Chrome/WebKit × escritorio/móvil, 140 estados y 20 vistas con movimiento reducido; cero hallazgos y errores. Evidencia `/private/tmp/um-camera-final-37719182601/`.
-- `351ebb2d`/`021ecbbf` atenúan las piezas no activas durante una explicación, manteniendo opaco el mecanismo actual. La mejora está en la preview. Se está verificando visualmente en `37721308823` (cinco disciplinas) y `37721311238` (Incendio).
+- **Incendio v2:** render `37716425530`, fuente `83cae61f`, importado en `d17d8c4c`. 1.440 cuadros distintos, 24 s, seis assets, 51.136.539 bytes. Última auditoría `37722704881` sobre `e288360a`: 10 layouts y dos ciclos autónomos con siete estados isométricos cada uno; cero hallazgos. Capturas inspeccionadas. El circuito ahora mantiene contexto a .55 de opacidad y la cámara de escritorio ocupa mejor su escenario.
+- **Redes v2:** render `37721892202`, fuente `6e16722f`; importación verificada. 1.440 cuadros distintos, 24 s, 4K/60, seis assets, 55.136.530 bytes. Se inspeccionaron plano general, rack abierto y radio con PCB separada del radomo. Fuente, orden de cuadros, color y SHA256 validados antes de copiar. Falta auditoría de reproducción integrada.
+- **Isometría de Incendio:** central de 576 piezas, 33 geometrías compartidas y 14.391 bytes gzip. Puerta de 102°, electrónica posterior, conductores unidos, detector separable y baterías dentro del gabinete. Namespaces SVG, etiquetas y cámaras corregidos.
+- **Cinco cámaras restantes:** Telecomunicaciones, Seguridad, Soporte, Consultoría y Energía encuadran el volumen cerrado y abierto. Auditoría `37721308823`: Chrome/WebKit × escritorio/móvil, 140 estados y 20 vistas con movimiento reducido, cero hallazgos y errores. Capturas de las cinco disciplinas inspeccionadas. El mecanismo activo mantiene contraste; el contexto se atenúa. La cámara exterior de `precision-systems-v6.js` pertenece sólo a Software.
 
-Último `npm run check` completo (`69231a92`): 70 suites / 586 pruebas, lint, tipos, CSS y build correctos. `512e78a9` recompiló y comprobó la corrección de máscara del banner de Incendio. Diez advertencias previas de lint.
+Último `npm run check` completo (`7d2de186`): 70 suites / 586 pruebas, lint, tipos, CSS y build correctos. Diez advertencias previas de lint. No equivale a aprobación artística.
 
-## Trabajo activo: película de Redes v2
+## Películas en refinamiento
 
-Modelo propio de rack de 19 pulgadas, 24 puertos RJ45 con contactos, 12 adaptadores ópticos, placa del switch, organizadores, latiguillos, bandejas y radio con PCB circular, blindajes, antenas y componentes. Recorrido continuo: instalación, gabinete, switch, radio y regreso. 24 s, 1.440 cuadros nativos.
+**Seguridad v2:** acceso a escala, lector y hoja articulada, cámara con óptica separable y sensor, grabador de cuatro discos y electrónica, consola con plano y eventos relacionados. Las pruebas anteriores corrigieron encuadres, ventanas, tapa del NVR y superposición de UI. `37723441700` aprobó composición de óptica/monitor. `37723843785` confirma UM Sans existente sin alterar sus binarios. Se detecta sombreado facetado de la óptica: nueva prueba con suavizado de la iluminación antes del render completo. 102 todavía conserva v1 en el registro.
 
-Prueba `37719886220`: plano general y rack útiles, radio rechazada por su placa demasiado vacía. `37720542508` corrige la electrónica y el espacio de la tapa del switch; se revisaron sus dos PNG. La radio todavía mostraba un perfil duro, ranuras triangulares y un cable dominante. Se corrigen carcasa formada continua, ranuras estrechas en la zona cilíndrica y funda neutra con pulso rojo de señal. Prueba `37721305675` sobre `69231a92`: inspeccionada; perfil continuo y ranuras corregidas. Render completo de Redes `37721892202`, fuente `6e16722f`, en curso; todavía no importado.
+**Telecomunicaciones v2:** dos sitios, parábolas de doble piel, alimentación y herrajes, montantes, óptica con bandejas y reservas de fibra. Radio y fibra son alternativas distintas, no fases en serie. `37723445754` confirma la parábola lisa y la bandeja precisa, pero revela fibras cruzando el frente del panel. Corregido el recorrido interno por detrás del panel y guía de radio discontinua para que no parezca un cable físico; falta revisar esos dos planos. 103 todavía conserva v1. El workflow sólo permite proof/motion-proof para 102 y 103 hasta aceptar las correcciones.
 
-Pipeline genérico de ensamblado/importación preparado para `fire-project-v2` y `network-project-v2`: valida hashes, 1.440 cuadros, 60 fps, color explícito, continuidad y mismo código fuente en los doce fragmentos. La película antigua de Redes sigue registrada hasta aprobar e importar la nueva. Las otras cinco películas de servicio conservan el acabado v1.
+**Soporte 105, Consultoría 106 y Energía 108:** siguen con las películas v1. Sus modelos v2 todavía no están preparados. Deben narrar su disciplina, sin repetir una plantilla genérica ni reinterpretar edificios como software.
 
-## Preparación de Seguridad v2
+## Flujo de validación y límites
 
-Nueva escena `render-security-project-v2.py`: acceso a escala, lector, hoja articulada, cámara con óptica separable y sensor, grabador con cuatro discos y electrónica, consola que relaciona imagen/evento/respuesta. Recorrido y tres mecanismos propios. La prueba `37721895406` completó cuatro planos. Se rechaza el espacio vacío de la instalación, el monitor esquemático y la tapa que tapa el controlador. Se corrigen ventanas, profundidad de la escena, plano/eventos detallados, ángulo de la óptica y desplazamiento de tapa. La segunda prueba `37722697682` mejora la apertura y el plano general, pero revela el fondo de un panel de UI mal ubicado; se corrige y se refina la lente. Nueva prueba de 520 y 1200 pendiente; no render completo aún. No se ha modificado la película registrada del servicio 102.
+Render pesado sólo en GitHub Actions. El pipeline valida hashes, 1.440 cuadros nativos, 60 fps, color explícito, continuidad y la misma fuente en los doce fragmentos. No interpolación ni escalado artificial. No reusar fragmentos de otra fuente. Cada versión nueva usa archivos nuevos; los assets publicados son inmutables.
 
-## Telecomunicaciones v2 y últimos controles
+El navegador local está bloqueado por política; las auditorías reales se hacen en runners remotos descartables. WebKit Linux no equivale a un iPhone físico. Los runs `37716790081`, `37718185751` y `37718704585` encontraron defectos después corregidos; no son aprobaciones.
 
-Modelo `render-telecom-project-v2.py`: dos sitios, parábolas de doble piel, alimentación y herrajes, montantes, óptica con bandejas y reservas de fibra. Dos alternativas de transporte con intervalos independientes; no se presentan en serie. Prueba `37722701691` completa: se inspeccionaron los tres planos. Se corrigen ruido de sombreado en la parábola, bandejas de empalme demasiado genéricas y la llegada de fibra al panel óptico (antes caía sobre RJ45). Nueva prueba dirigida pendiente. El workflow sólo permite proof/motion-proof para 102 y 103.
-
-`37721308823`: cuatro perfiles de las cinco isometrías terminaron correctamente. Los 140 estados y 20 vistas reducidas tienen cero errores/hallazgos; se inspeccionaron capturas de las cinco disciplinas en móvil/escritorio. `37721311238`: Incendio tuvo cero hallazgos funcionales, pero el circuito dejaba el contexto demasiado oscuro. Se aumenta su legibilidad y se componen acercamientos propios de escritorio para las seis capas; pendiente revisión posterior.
-
-## Límites de la revisión
-
-Los runs `37716790081`, `37718185751` y `37718704585` detectaron defectos corregidos posteriormente; no son aprobaciones visuales. La revisión del navegador local está bloqueada por política; los controles reales se ejecutan en runners remotos descartables. WebKit Linux no equivale a un iPhone físico.
-
-La home conserva su película. Arriba Blender, abajo explicación isométrica autónoma. Campaña y binarios UM Sans protegidos. Render pesado sólo remoto. Evidencias durables bajo `/Volumes/SDTERA/Codex UM25 audits/20261007/`. Los controles funcionales no demuestran paridad artística con Ryan, Solvaix o David Hill. **No hay GO de producción.**
+La home conserva su película. Arriba Blender, abajo explicación isométrica autónoma. Campaña y binarios UM Sans protegidos. Evidencias durables bajo `/Volumes/SDTERA/Codex UM25 audits/20261007/`. Los controles funcionales no demuestran paridad artística con Ryan, Solvaix o David Hill. **No hay GO de producción.**
 
 ## Registro histórico de la entrega anterior
 
