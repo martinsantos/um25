@@ -121,7 +121,7 @@ def circuit_board(z):
         for y in (41,111):c+=screw(x,y,z+2,1.2,'top')
     return c
 
-def cabinet():
+def cabinet(exterior=False):
     c=''
     # Rear panel, seams and fasteners retain depth without pale slabs.
     c+=box(0,0,10,160,3,264,'seam')
@@ -149,7 +149,8 @@ def cabinet():
         for y in (13,111):
             c+=box(x,y,1,9,9,6,'seam')
             c+=line([(x,y+9,3),(x+9,y+9,3)],'fine',.5)
-    return group(c+roof,'pn-node pn-cabinet',2)
+    # Opaque roof is painted after internal units: hidden edges stay hidden.
+    return group(roof if exterior else c,'pn-node pn-cabinet',2)
 
 def cord(start,end,offset=0,cls=''):
     # Front service loop. Runtime recomputes endpoints when the switch slides.
@@ -182,6 +183,7 @@ def rack():
     organizer=box(14,125,202,132,10,7)
     for i in range(19):organizer+=line([(17+i*6.8,135,203),(17+i*6.8,135,209)],'fine',.6)
     c+=group(organizer,'pn-node',2)
+    c+=cabinet(exterior=True)
     cords=''
     for i,n in enumerate((0,1,3,4,6,7,9,10)):
         cords+=cord((21.8+n*9.1,129,220),(21.8+n*9.1,129,182),i%3*2, 'pn-cord--accent' if i in (0,4) else '')
@@ -320,7 +322,7 @@ def network():
 
 STYLE='''
 .pn-drawing{--pn-ink:#c4c7cc;stroke-linejoin:round;stroke-linecap:round}
-.pn-node{opacity:.92;transition:opacity 900ms ease}
+.pn-node{opacity:1}
 .pn-node[data-current=true]{opacity:1}
 .pn-floor{opacity:.32}.pn-project{opacity:0;transition:opacity 1000ms ease}.pn-inspection{transition:opacity 1000ms ease}
 .pn-engraving{font-family:Arial,sans-serif;fill:#81878e;stroke:none;letter-spacing:.15px}

@@ -14,7 +14,7 @@ interface Props {services:Service[];project?:SectorProject;single?:boolean;secto
 const {services,project,single=false,sector=false}=Astro.props;
 const projectFiles=import.meta.glob<string>('../../assets/cine/isometric/site-*-v2.svg',{eager:true,query:'?raw',import:'default'});
 const disciplineOnly=single&&services.length===1&&Boolean(DISCIPLINE_SYSTEMS[services[0].code]);
-const projectMarkup=project&&!disciplineOnly?projectFiles[`../../assets/cine/isometric/site-${project.scene}-v2.svg`]:undefined;
+const projectMarkup=project&&project.presentation!=='discipline'&&!disciplineOnly?projectFiles[`../../assets/cine/isometric/site-${project.scene}-v2.svg`]:undefined;
 const contextProject=sector&&Boolean(projectMarkup);
 const contextualPlan=(project?.chapters||SERVICE_NARRATIVE).map(chapter=>(single||!sector)&&DISCIPLINE_SYSTEMS[chapter.code]?{...chapter,scenes:operationScenes(chapter.code,undefined),overview:operationOverview(chapter.code)}:chapter);
 const plan=contextualPlan.map(chapter=>single?chapter:overviewChapter(chapter));

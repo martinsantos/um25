@@ -27,6 +27,9 @@ for(const width of [1440,1280,834,390,360]){
      if(hinge.a>=0||Math.abs(hinge.c)>.0001||Math.abs(hinge.d-1)>.0001)report.findings.push({width,route,hinge});
     }
 
+    report.pages.push({width,route,status:response.status(),state,errors,mode:'autonomous-discipline'});
+    if(response.status()!==200||errors.length)report.findings.push({width,route,status:response.status(),errors});
+    await page.close();fs.writeFileSync(path.join(out,'webkit-report.json'),JSON.stringify(report,null,2));continue;
    }
    const technical=story.locator('.svc-story__technical');if(await technical.count())await technical.evaluate(node=>node.open=true);
    const inspectionStart=Date.now();

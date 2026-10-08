@@ -159,3 +159,17 @@ test('software sector and service select the same ready software architecture, p
  });
  jest.dontMock('../src/data/cine/site-movies-v1.json');
 });
+
+
+test('Software uses the application architecture through every supporting service, without a generic building context',()=>{
+ const software=sectorProject('software','fachada');
+ expect(software.presentation).toBe('discipline');
+ expect(software.name).toBe('Arquitectura de una aplicación');
+ expect(software.chapters[0].code).toBe('104');
+ for(const chapter of software.chapters){
+  expect(chapter.scenes.map(scene=>scene.disciplineStage)).toEqual([-1,0,1,2,3,4,5,6]);
+  expect(chapter.overview).toHaveLength(6);
+ }
+ expect(sectorProject('constructoras','fachada').presentation).toBe('installation');
+ expect(sectorProject('bodegas','bodega').presentation).toBe('installation');
+});

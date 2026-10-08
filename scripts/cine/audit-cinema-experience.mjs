@@ -28,7 +28,7 @@ async function snapshot(page,name,locator){
  return file;
 }
 async function movieState(page){return page.locator('[data-umc]').evaluate(root=>({scene:root.dataset.scene,motion:root.dataset.motion,paused:root.classList.contains('is-paused'),videos:[...root.querySelectorAll('video')].map(v=>({on:v.classList.contains('is-on'),paused:v.paused,time:v.currentTime,duration:Number.isFinite(v.duration)?v.duration:null,ready:v.readyState,error:v.error?.code||null,src:v.currentSrc,h264:v.canPlayType('video/mp4; codecs="avc1.42E01E"')}))}));}
-async function storyState(page){return page.locator('[data-service-atlas]').evaluate(root=>({code:root.dataset.activeService,scene:Number(root.dataset.storyScene||0),state:root.dataset.storyState,view:root.querySelector('[data-atlas-view][aria-pressed="true"]')?.dataset.atlasView,title:root.querySelector('[data-atlas-scene-title]')?.textContent,projectOpen:root.querySelector('[data-atlas-project]')?.dataset.projectOpen,focused:document.activeElement?.getAttribute('data-atlas-service')}));}
+async function storyState(page){return page.locator('[data-service-atlas]').evaluate(root=>({code:root.dataset.activeService,scene:Number(root.dataset.storyScene||0),state:root.dataset.storyState,view:root.dataset.storyView||root.querySelector('[data-atlas-view][aria-pressed="true"]')?.dataset.atlasView,diagram:root.dataset.disciplineActive==='true',title:root.querySelector('[data-atlas-scene-title]')?.textContent,projectOpen:root.querySelector('[data-atlas-project]')?.dataset.projectOpen,focused:document.activeElement?.getAttribute('data-atlas-service')}));}
 for(const route of routes){
  const name=slug(route),row={route,shots:[],errors:[],httpErrors:[]};report.pages.push(row);
  console.log('AUDIT',profile,route);
@@ -144,9 +144,9 @@ for(const route of routes){
     const state=await storyState(story);row.timeline.push(state);
     const current=chapters.find(c=>c.code===state.code)?.scenes[state.scene];
     if(state.state==='complete')break;
-    if(state.view!=='system'){
+    {
      const activeDetail=await story.locator('[data-service-atlas]').evaluate(root=>{
-      const code=root.dataset.activeService,selector=root.dataset.disciplineActive==='true'?'[data-discipline-system]':['101','102','103','107','108'].includes(code)?'[data-atlas-network]':code==='104'?'[data-atlas-software]':'[data-atlas-operation="'+code+'"]';
+      const code=root.dataset.activeService,selector=root.dataset.disciplineActive==='true'?'[data-discipline-system]':root.dataset.contextProject==='true'&&root.dataset.storyView==='system'?'[data-atlas-project]':['101','102','103','107','108'].includes(code)?'[data-atlas-network]':code==='104'?'[data-atlas-software]':'[data-atlas-operation="'+code+'"]';
       const node=root.querySelector(selector);return {code,shown:!!node&&node.getBoundingClientRect().width>0&&getComputedStyle(node).visibility!=='hidden',gated:!!root.closest('details:not([open])')};
      });
      if(!activeDetail.shown||activeDetail.gated)finding(route,'Automatic phase leaves its explanatory drawing hidden',activeDetail);
@@ -155,7 +155,7 @@ for(const route of routes){
     const key=state.code+'-'+state.scene;
     if(!captured.has(key)&&(route==='/'||state.code===chapters[0].code)){
      captured.add(key);await delay(1550);
-     if(current?.flow?.phase===1&&state.view==='system'){
+     if(current?.flow?.phase===1&&state.view==='system'&&!state.diagram){
       const framing=await story.locator('[data-atlas-project]').evaluate(root=>{
        const focus=root.querySelector(`[data-project-focus="${root.dataset.projectService}"]`);if(!focus)return null;
        const x=Number(focus.dataset.x),y=Number(focus.dataset.y),w=Number(focus.dataset.width),h=Number(focus.dataset.height);
@@ -166,7 +166,7 @@ for(const route of routes){
       });
       if(framing){const {device,stage}=framing;if(device.left<stage.left-2||device.right>stage.right+2||device.top<stage.top-2||device.bottom>stage.bottom+2)finding(route,'The focused device is clipped by the stage',{code:state.code,...framing});}
      }
-     if(current?.flow?.phase===1&&state.view==='system'&&state.code!=='103'){
+     if(current?.flow?.phase===1&&state.view==='system'&&!state.diagram&&state.code!=='103'){
       const effect=await story.locator('[data-atlas-project]').evaluate(root=>({code:root.dataset.projectService,visible:[...root.querySelectorAll('.sp-effect')].filter(node=>Number(getComputedStyle(node).opacity)>.8).map(node=>node.getAttribute('class'))}));
       row.deviceEffects||=[];row.deviceEffects.push(effect);
       // Network delivery is visible in phase 2; other systems act in phase 1.
@@ -238,7 +238,7 @@ const firstChapter=JSON.parse(await live.locator('[data-atlas-narrative]').textC
 const samples=Math.ceil(firstChapter.scenes.reduce((total,scene)=>total+scene.duration,0)/2000)+2;
 for(let sample=0;sample<samples;sample++){
  await delay(2000);
- report.liveOperation.push(await live.locator('[data-service-atlas]').evaluate(root=>({door:(()=>{const node=root.querySelector('[data-discipline-drawing="101"] .ds-door');if(!node||root.dataset.activeService!=='101')return null;const matrix=new DOMMatrix(getComputedStyle(node).transform);return {c:matrix.c,d:matrix.d,angle:getComputedStyle(node).getPropertyValue('--um-ds-door-angle')};})(),code:root.dataset.activeService,phase:root.dataset.disciplineActive==='true'?'1':root.querySelector('[data-atlas-project]')?.dataset.operationPhase,state:root.dataset.storyState,signals:[...root.querySelectorAll(root.dataset.disciplineActive==='true'?'[data-discipline-drawing="'+root.dataset.activeService+'"] [data-discipline-route][data-current="true"] .ds-packet':'.sp-signal')].slice(0,2).map(node=>({offset:getComputedStyle(node).strokeDashoffset,animation:getComputedStyle(node).animationName,playState:getComputedStyle(node).animationPlayState}))})));
+ report.liveOperation.push(await live.locator('[data-service-atlas]').evaluate(root=>({door:(()=>{const node=root.querySelector('[data-discipline-drawing="101"] .pn-door, [data-discipline-drawing="101"] .ds-door');if(!node||root.dataset.activeService!=='101')return null;const matrix=new DOMMatrix(getComputedStyle(node).transform);return {c:matrix.c,d:matrix.d,angle:getComputedStyle(node).getPropertyValue('--um-ds-door-angle')};})(),code:root.dataset.activeService,phase:root.dataset.disciplineActive==='true'?'1':root.querySelector('[data-atlas-project]')?.dataset.operationPhase,state:root.dataset.storyState,signals:[...root.querySelectorAll(root.dataset.disciplineActive==='true'?'[data-discipline-drawing="'+root.dataset.activeService+'"] [data-discipline-route][data-current="true"] :is(.ds-packet,.pn-signal)':'.sp-signal')].slice(0,2).map(node=>({offset:getComputedStyle(node).strokeDashoffset,animation:getComputedStyle(node).animationName,playState:getComputedStyle(node).animationPlayState}))})));
 }
 const doors=report.liveOperation.flatMap(s=>s.door?[s.door]:[]);
 if(doors.some(door=>Math.abs(door.c)>.0001||Math.abs(door.d-1)>.0001))finding('/','Cabinet hinge changes its vertical axis during opening',doors);
