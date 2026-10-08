@@ -421,7 +421,7 @@
       ]
     },
     "104": {
-      "scene": "software-system-v7",
+      "scene": "software-system-v8",
       "status": "ready",
       "engine": "Blender 4.5.3 LTS / Workbench",
       "samples": 8,
@@ -432,38 +432,38 @@
         3840,
         2160
       ],
-      "camera": "front-facing rectilinear product: selected record, inspector, execution trace, relational history and release operation",
-      "run": "https://github.com/martinsantos/um25/actions/runs/37762384241",
+      "camera": "orthographic optical inspection: application components remain correctly proportioned; native depth and subpixel registration guides",
+      "run": "https://github.com/martinsantos/um25/actions/runs/37787831278",
       "assets": [
         {
-          "file": "cine-software-system-v7.mp4",
-          "bytes": 28253301,
-          "sha256": "a1166e14a35c0cf85f6571598199cee5eabc0a8be865799ecbc89a5278ffd237"
+          "file": "cine-software-system-v8.mp4",
+          "bytes": 52486760,
+          "sha256": "683cdda814a115a4805ad8d480e6549196b0101736ec6102c5d19617fba3aeba"
         },
         {
-          "file": "cine-software-system-v7-sq.mp4",
-          "bytes": 7923627,
-          "sha256": "85c1c82c9ccd5177f122e9d3c1a78ca3f829c09eddb6047938e66cd028f8808f"
+          "file": "cine-software-system-v8-sq.mp4",
+          "bytes": 16700118,
+          "sha256": "52955653923bec79d1120bbc95fdd278f6b8e5982c04b1daf8cb112a4d8538aa"
         },
         {
-          "file": "cine-software-system-v7-poster-srgb-v1.jpg",
-          "bytes": 440406,
-          "sha256": "b6c9e5d75eb30ad77f6a290bd52b7d98a0cb9b4772318f96ceb8e1a5db898eb3"
+          "file": "cine-software-system-v8-poster-srgb-v1.jpg",
+          "bytes": 637474,
+          "sha256": "cfb609b4afd1eb61939a5d7e329ceb1a5da72129a983ffc7403c7a64fd732113"
         },
         {
-          "file": "cine-software-system-v7-poster-srgb-v1.avif",
-          "bytes": 50349,
-          "sha256": "fd8453e8eeb1eba2b777278828092ad22086b6c78decade51102804713b994ed"
+          "file": "cine-software-system-v8-poster-srgb-v1.avif",
+          "bytes": 114004,
+          "sha256": "d47f1188cc353b9dc15800490335fd1d4b304f2148f7b56d79a0ba71368f9e39"
         },
         {
-          "file": "cine-software-system-v7-poster-sq-srgb-v1.jpg",
-          "bytes": 142914,
-          "sha256": "229574dce5c8d55d432770fa4a3f687a1e147fef685eb05f092046fee246f3a3"
+          "file": "cine-software-system-v8-poster-sq-srgb-v1.jpg",
+          "bytes": 238363,
+          "sha256": "444d5386969dce811521468c7f0da68d434945be396b3a7b280afeaedf78c418"
         },
         {
-          "file": "cine-software-system-v7-poster-sq-srgb-v1.avif",
-          "bytes": 23839,
-          "sha256": "854389874f3511d421912eed95b6ea2af64b90d7bfb7bae4afc25880fb2d4820"
+          "file": "cine-software-system-v8-poster-sq-srgb-v1.avif",
+          "bytes": 49325,
+          "sha256": "505e8af80607a335a58445f4ac2a7a5927da677f17c5271690636e43367a575c"
         }
       ],
       "posterRevision": "srgb-v1",
@@ -471,12 +471,12 @@
         "script": "scripts/cine/prepare-software-posters.mjs",
         "sourceMovies": [
           {
-            "file": "cine-software-system-v7.mp4",
-            "sha256": "a1166e14a35c0cf85f6571598199cee5eabc0a8be865799ecbc89a5278ffd237"
+            "file": "cine-software-system-v8.mp4",
+            "sha256": "683cdda814a115a4805ad8d480e6549196b0101736ec6102c5d19617fba3aeba"
           },
           {
-            "file": "cine-software-system-v7-sq.mp4",
-            "sha256": "85c1c82c9ccd5177f122e9d3c1a78ca3f829c09eddb6047938e66cd028f8808f"
+            "file": "cine-software-system-v8-sq.mp4",
+            "sha256": "52955653923bec79d1120bbc95fdd278f6b8e5982c04b1daf8cb112a4d8538aa"
           }
         ],
         "color": "BT.709 limited-range video decoded to sRGB; stills contain an sRGB ICC profile"
