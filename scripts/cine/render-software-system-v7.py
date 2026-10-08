@@ -17,15 +17,17 @@ def placement(group,t):
     if group=='selection':return (-.70*e,3.80*e,z+.075+.43*ease((t-.12)/.10)*(1-ease((t-.35)/.10)))
     if group=='detail':
         lift=0 if t<=0 or t>=1 else ease((t-.13)/.12)*(1-ease((t-.79)/.21))
-        return (-.70*e+1.7*lift,3.80*e-.7*lift,z+.055+1.7*e+.40*lift)
+        return (-.70*e+1.7*lift,3.80*e-.7*lift,z+.055+1.7*e+.95*lift)
     if group in ('shell','navigation','heading','metrics','records'):return (-.70*e,3.80*e,z+.028+1.7*e)
     return {'logic':(0,.0,1.63),'data':(0,-3.50*e,.76),'runtime':(0,-6.40*e,.12)}[group]
 
 def camera_pose(t):
-    keys=[(0,16.8,-106,(0,0,2.65)),(.16,13.5,-100,(1.0,-.15,2.8)),
-          (.31,18.5,-87,(.1,1.40,3.05)),(.47,20.9,-73,(0,-1.0,2.10)),
-          (.64,19.4,-80,(0,-4.0,1.5)),(.79,22.2,-95,(0,-2.2,1.9)),
-          (1,16.8,-106,(0,0,2.65))]
+    keys=[(0,16.8,-96,(0,0,2.65)),(.16,9.8,-94,(1.3,0,2.8)),
+          (.28,12.8,-90,(4.5,1.2,4.9)),(.43,13.8,-86,(0,0,1.63)),
+          (.49,13.6,-86,(.10,0,1.63)),(.58,13.6,-92,(0,-3.5,.76)),
+          (.64,13.4,-92,(.1,-3.5,.76)),(.72,13.6,-96,(0,-6.4,.12)),
+          (.79,13.6,-96,(.1,-6.4,.12)),(.90,25,-96,(0,0,2.2)),
+          (1,16.8,-96,(0,0,2.65))]
     a,b=keys[0],keys[-1]
     for left,right in zip(keys,keys[1:]):
         if left[0]<=t<=right[0]:a,b=left,right;break
@@ -33,7 +35,7 @@ def camera_pose(t):
     return mix(a[1],b[1]),math.radians(mix(a[2],b[2])),tuple(mix(x,y) for x,y in zip(a[3],b[3])),0
 
 def scale(group,t):return 1
-FOCUS_WINDOWS={'detail':(.26,.31),'logic':(.43,.49),'data':(.55,.64),'runtime':(.69,.73)}
+FOCUS_WINDOWS={'detail':(.27,.29),'logic':(.43,.49),'data':(.58,.64),'runtime':(.72,.79)}
 WIDE_TIMES=(0,1)
 
 class Product:
@@ -107,7 +109,8 @@ def build():
     p.text('heading','Proyectos  /  Nueva sede',-3.64,2.78,.04,.12)
     p.text('heading','Cada equipo, en contexto.',-3.64,2.31,.04,.32,'white',True)
     p.text('heading','Personas, decisiones y entregas conectadas.',-3.63,1.98,.04,.135)
-    p.pill('heading','Nueva solicitud',4.36,2.40,1.65,'red',size=.13)
+    p.rounded('heading',5.11,2.445,.027,1.76,.40,.010,'red',.06)
+    p.text('heading','Nueva solicitud',4.43,2.398,.047,.135,'white',True)
     # Quiet, deliberate metrics rather than oversized dashboard tiles.
     for i,(value,label,delta) in enumerate([('24','Solicitudes activas','06 requieren revisión'),('08','En ejecución','03 equipos trabajando'),('16','Entregas verificadas','Historial actualizado')]):
         x=-3.63+i*3.23
@@ -147,7 +150,9 @@ def build():
     p.text('detail','ALCANCE Y EVIDENCIA',1.88,-1.65,.04,.098)
     for i,label in enumerate(['Puestos y enlaces identificados','Dependencias verificadas','Plan de entrega documentado']):
         y=-1.97-i*.28;p.glyph('detail','check',1.90,y+.004,'sage',.11);p.text('detail',label,2.12,y,.04,.11,'white')
-    p.pill('detail','Actualizar solicitud',1.88,-3.05,3.23,'red',size=.128)
+    p.rounded('detail',4.12,-3.002,.027,1.98,.42,.010,'red',.06)
+    p.text('detail','Actualizar solicitud',3.30,-3.055,.047,.132,'white',True)
+    p.text('detail','Borrador guardado',1.89,-3.053,.04,.103)
     # Rules are an actual execution trace, with a contract and run results.
     p.panel('logic',0,0,10.8,3.36,'nav')
     p.text('logic','02 / REGLAS E INTEGRACIONES',-5.04,1.29,.04,.17,'white',True)
@@ -191,14 +196,16 @@ def build():
     return p
 
 def projected(p,t):
-    size,angle,target,shift=camera_pose(t);sn=28/math.hypot(28,22);cs=22/math.hypot(28,22)
+    size,angle,target,shift=camera_pose(t);sn=48/50;cs=14/50;distance=size*85/36
     xs=[];ys=[]
     for group,points in p.points.items():
         dx,dy,dz=placement(group,t)
         for x,y,z in points:
             s=scale(group,t);x=x*s+dx-target[0];y=y*s+dy-target[1];z=z*s+dz-target[2]
-            xs.append(.5+shift+(-math.sin(angle)*x+math.cos(angle)*y)/size)
-            ys.append(.5+(-math.cos(angle)*sn*x-math.sin(angle)*sn*y+cs*z)*16/9/size)
+            depth=cs*(math.cos(angle)*x+math.sin(angle)*y)+sn*z
+            perspective=distance/(distance-depth)
+            xs.append(.5+shift+(-math.sin(angle)*x+math.cos(angle)*y)/size*perspective)
+            ys.append(.5+(-math.cos(angle)*sn*x-math.sin(angle)*sn*y+cs*z)*16/9/size*perspective)
     return [min(xs),min(ys),max(xs),max(ys)]
 
 def validate():
@@ -283,13 +290,14 @@ def render(args):
     for name,xyz,energy,size,color in [('Key',(-4,1,15),1300,12,(1,1,1)),('Edge',(5,9,8),650,10,(1,1,1)),('Fill',(0,-10,12),750,12,(1,1,1))]:
         data=bpy.data.lights.new(name,'AREA');data.energy=energy;data.shape='DISK';data.size=size;data.color=color
         obj=bpy.data.objects.new(name,data);scene.collection.objects.link(obj);obj.location=xyz;obj.rotation_euler=(Vector((0,0,2))-obj.location).to_track_quat('-Z','Y').to_euler()
-    camera=bpy.data.cameras.new('Interface into architecture');camera.type='ORTHO';camera.clip_end=200
+    camera=bpy.data.cameras.new('Interface into architecture');camera.type='PERSP';camera.lens=85;camera.sensor_width=36;camera.sensor_fit='HORIZONTAL';camera.clip_end=200
     cam=bpy.data.objects.new('Interface into architecture',camera);scene.collection.objects.link(cam);scene.camera=cam
     out=Path(args.output);out.mkdir(parents=True,exist_ok=True);timings=[];bounds=[];focus_bounds=[];handler_errors=[]
     def update_frame(scene):
         frame=scene.frame_current
         t=frame/(FRAMES-1);size,angle,target,shift=camera_pose(t);target=Vector(target)
-        cam.location=target+Vector((22*math.cos(angle),22*math.sin(angle),28));cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler();camera.ortho_scale=size;camera.shift_x=-shift
+        distance=size*85/36
+        cam.location=target+Vector((14/50*math.cos(angle),14/50*math.sin(angle),48/50))*distance;cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler();camera.shift_x=-shift
         for name,obj in parents.items():
             obj.location=placement(name,t);obj.scale=(scale(name,t),)*3
             if name in ('logic','data','runtime'):

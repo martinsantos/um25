@@ -12,6 +12,10 @@ name: Blender software architecture
           - repair
           - assemble
         default: proof
+      proof_frame:
+        description: 'One targeted proof frame; -1 renders the authored shot list'
+        type: number
+        default: -1
       motion_width:
         description: Width of the bounded native motion proof
         type: choice
@@ -80,6 +84,7 @@ jobs:
         env:
           VERSION: ${{ inputs.version || 'v2' }}
           MODE: ${{ inputs.mode || 'proof' }}
+          PROOF_FRAME: ${{ inputs.proof_frame }}
           REPAIR_PARTS: ${{ inputs.repair_parts }}
           REPAIR_SEGMENTS: ${{ inputs.repair_segments }}
           MOTION_FRAMES: ${{ inputs.motion_frames || 120 }}
@@ -93,6 +98,8 @@ jobs:
           if os.environ['VERSION']=='v5':proof_frames=[734,1152]
           if os.environ['VERSION']=='v6':proof_frames=[0,288,575,877,1125,1295]
           if os.environ['VERSION']=='v7':proof_frames=[0,280,450,690,900,1200]
+          frame=int(os.environ.get('PROOF_FRAME') or '-1');assert -1<=frame<1440
+          if frame>=0:proof_frames=[frame]
           rows=[dict(part=i+1,start=f,end=f,frames=1) for i,f in enumerate(proof_frames)] if os.environ['MODE']=='proof' else [dict(part=i+1,start=i*chunk,end=(i+1)*chunk-1,frames=chunk) for i in range(12)]
           if os.environ['MODE']=='motion-proof':
               assert os.environ['VERSION'] in ('v3','v5','v6','v7')
@@ -135,7 +142,9 @@ jobs:
       - name: Install verified official Blender
         run: |
           MISSING=()
-          for PACKAGE in libgl1 libegl1 libxrender1 libxi6 ffmpeg xvfb libgl1-mesa-dri; do
+          PACKAGES=(libgl1 libegl1 libxrender1 libxi6 xvfb libgl1-mesa-dri)
+          if [ '${{ inputs.mode }}' != proof ]; then PACKAGES+=(ffmpeg); fi
+          for PACKAGE in "${PACKAGES[@]}"; do
             if [ "$(dpkg-query -W -f='${db:Status-Status}' "$PACKAGE" 2>/dev/null)" != installed ]; then MISSING+=("$PACKAGE"); fi
           done
           if [ "${#MISSING[@]}" -gt 0 ]; then
