@@ -13,8 +13,8 @@ def camera_pose(t):
     # Establish the place, understand one sensor, follow its cable, read the
     # panel's construction, then return to the installation. No disconnected cuts.
     keys=[(0,14.7,-66,(0,.15,1.1)),(.15,13.8,-61,(-.15,.40,1.3)),
-          (.32,2.25,-72,(-2.05,.35,2.58)),(.44,4.6,-71,(-1.4,1.3,2.65)),
-          (.62,2.85,-67,(2.67,2.16,1.67)),(.77,2.60,-64,(2.65,2.13,1.6)),
+          (.32,1.25,-72,(-2.05,.35,2.73)),(.44,4.6,-71,(-1.4,1.3,2.65)),
+          (.62,1.75,-73,(2.64,2.13,1.55)),(.77,1.65,-70,(2.62,2.13,1.56)),
           (1,14.7,-66,(0,.15,1.1))]
     if t<=0 or t>=1:return keys[0][1],math.radians(keys[0][2]),keys[0][3]
     a,b=keys[0],keys[-1]
@@ -24,7 +24,83 @@ def camera_pose(t):
     return mix(a[1],b[1]),math.radians(mix(a[2],b[2])),tuple(mix(x,y) for x,y in zip(a[3],b[3]))
 
 class Installation(legacy.Studio):
-    def __init__(self):super().__init__('107')
+    def __init__(self):
+        super().__init__('107');self.meshes=[]
+    def mesh(self,vertices,faces,mat,group=None):
+        self.meshes.append(dict(vertices=vertices,faces=faces,mat=mat,group=group))
+    def cylinder(self,*args,group=None,**kwargs):
+        super().cylinder(*args,**kwargs);self.cylinders[-1]['group']=group
+    def line(self,pts,mat='trace',radius=.001,group=None):
+        super().line(pts,mat,radius);self.lines[-1]['group']=group
+    def text(self,*args,group=None,**kwargs):
+        super().text(*args,**kwargs);self.texts[-1]['group']=group
+    def rounded_path(self,pts,radius=.04):
+        result=[pts[0]]
+        for a,b,c in zip(pts,pts[1:],pts[2:]):
+            ab,bc=math.dist(a,b),math.dist(b,c)
+            if not ab or not bc:continue
+            r=min(radius,ab*.24,bc*.24)
+            start=tuple(b[i]+(a[i]-b[i])*r/ab for i in range(3))
+            end=tuple(b[i]+(c[i]-b[i])*r/bc for i in range(3))
+            for j in range(7):
+                q=j/6;result.append(tuple((1-q)**2*start[i]+2*q*(1-q)*b[i]+q*q*end[i] for i in range(3)))
+        return result+[pts[-1]]
+    def route(self,pts,start=0,end=1):
+        pts=self.rounded_path(pts);self.line(pts,'red',.006)
+        self.routes.append(dict(pts=pts,start=start,end=end))
+    def seat(self,x,y,front=1):
+        # Curved seat perimeter and a shaped back replace the block furniture.
+        vertices=[];outline=[]
+        for cx,cy,a in [(.175,.155,0),(-.175,.155,90),(-.175,-.155,180),(.175,-.155,270)]:
+            for j in range(7):
+                q=math.radians(a+j*15);outline.append((x+cx+.04*math.cos(q),y+cy+.04*math.sin(q)))
+        for z in [.46,.495]:vertices.extend((xx,yy,z) for xx,yy in outline)
+        n=len(outline);self.mesh(vertices,[tuple(reversed(range(n))),tuple(range(n,2*n))]+[(j,(j+1)%n,(j+1)%n+n,j+n) for j in range(n)],'fabric')
+        vv=[]
+        for z in [.53,.87]:
+            for i in range(17):
+                xx=-.21+i*.42/16;yy=y-front*(.19+.05*(1-(xx/.21)**2))
+                vv.extend([(x+xx,yy,z),(x+xx,yy-front*.018,z)])
+        faces=[]
+        for i in range(16):
+            k=i*2;faces.extend([(k,k+2,k+36,k+34),(k+1,k+35,k+37,k+3),(k+34,k+36,k+37,k+35)])
+        faces.extend([(0,34,35,1),(32,33,67,66)])
+        self.mesh(vv,faces,'fabric')
+        for dx in [-.18,.18]:
+            self.line([(x+dx,y-front*.18,.47),(x+dx,y-front*.25,.56),(x+dx,y-front*.25,.74)],'edge',.009)
+    def chip(self,x,y,z,w=.028,h=.028,group=None):
+        self.box(x,y,z,w,.003,h,'ink',group)
+        count=12
+        for j in range(count):
+            dx=-w*.43+j*w*.86/(count-1);dz=h*.07+j*h*.86/(count-1)
+            for sign in [-1,1]:
+                self.box(x+sign*(w/2+.0016),y+.001,z+dz,.0032,.0012,.00065,'edge',group)
+                self.box(x+dx,y+.001,z+(h+.0016 if sign>0 else -.0016),.00065,.0012,.0032,'edge',group)
+        self.box(x-w*.31,y-.0018,z+h*.79,.0013,.0004,.0013,'muted',group)
+    def terminal(self,x,y,z,count=8,pitch=.009):
+        for j in range(count):
+            xx=x+j*pitch
+            self.box(xx,y,z,.008,.014,.012,'terminal')
+            self.cylinder(xx,y-.008,z+.007,.0022,.001,'edge','y')
+            self.line([(xx-.0014,y-.0095,z+.007),(xx+.0014,y-.0095,z+.007)],'ink',.00038)
+            self.box(xx,y-.0075,z+.0005,.004,.001,.0035,'black')
+    def ceiling_section(self,x,y):
+        # A continuous annular cutaway retains the detector's mounting support.
+        # The open inspection aperture makes the optical assembly visible above.
+        n=64;vv=[]
+        for z in [2.797,2.814]:
+            for radius in [.083,.23]:
+                for j in range(n):
+                    a=j*math.tau/n;vv.append((x+radius*math.cos(a),y+radius*math.sin(a),z))
+        ff=[]
+        for j in range(n):
+            k=(j+1)%n;ff.extend([(j,k,n+k,n+j),(2*n+j,3*n+j,3*n+k,2*n+k),(n+j,n+k,3*n+k,3*n+j),(j,2*n+j,2*n+k,k)])
+        self.mesh(vv,ff,'paper')
+        for dx in [-.20,.20]:
+            self.box(x+dx,y,2.817,.012,.50,.025,'edge')
+            self.line([(x+dx,y-.18,2.84),(x+dx,y-.18,3.08)],'edge',.0016)
+            self.line([(x+dx,y+.18,2.84),(x+dx,y+.18,3.08)],'edge',.0016)
+
     def screw(self,x,y,z,front=True):
         self.cylinder(x,y,z,.003,.002,'edge','y' if front else 'z')
         self.line([(x-.0018,y-.002,z),(x+.0018,y-.002,z)],'ink',.0005)
@@ -40,62 +116,125 @@ class Installation(legacy.Studio):
         for j in range(4):
             for k in range(13):self.box(x-.25+k*.025,y-.204+j*.026,.778,.019,.019,.002,'muted')
         self.cylinder(x+.17,y-.16,.77,.022,.012,'graphite')
-        # Chair, five actual feet and separate lumbar/back shell.
-        self.box(x,y-.86,.46,.46,.43,.05,'fabric');self.box(x,y-1.06,.51,.45,.045,.46,'fabric')
+        self.seat(x,y-.86)
         self.cylinder(x,y-.86,.11,.022,.35,'edge')
         for j in range(5):
             a=j*math.tau/5;xx=x+.29*math.cos(a);yy=y-.86+.29*math.sin(a)
             self.line([(x,y-.86,.12),(xx,yy,.075)],'edge',.012);self.cylinder(xx,yy,.025,.025,.037,'graphite')
     def detector(self,x,y,label):
-        # 140mm base: mounting plate, labyrinth, chamber and ventilated shell.
         self.parts.append('addressable-detector-'+label)
-        self.cylinder(x,y,2.78,.071,.010,'paper');self.cylinder(x,y,2.746,.061,.034,'paper',top=.065)
-        self.cylinder(x,y,2.738,.056,.008,'black')
-        self.cylinder(x,y,2.719,.051,.019,'paper',top=.056)
-        for j in range(32):
-            a=j*math.tau/32
-            self.line([(x+.060*math.cos(a),y+.060*math.sin(a),2.75),(x+.060*math.cos(a),y+.060*math.sin(a),2.767)],'ink',.0013)
-        for dx in [-.037,.037]:self.screw(x+dx,y,2.791,False)
-        self.cylinder(x+.034,y-.033,2.738,.004,.003,'red')
-        self.box(x,y+.10,2.775,.16,.034,.005,'paper');self.text(label,x-.065,y+.098,2.783,.017,'ink')
+        self.cylinder(x,y,2.787,.071,.010,'paper')
+        self.cylinder(x,y,2.777,.058,.009,'pcb')
+        self.cylinder(x,y,2.736,.030,.040,'black')
+        for j in range(24):
+            a=j*math.tau/24
+            self.line([(x+.032*math.cos(a),y+.032*math.sin(a),2.742),(x+.035*math.cos(a),y+.035*math.sin(a),2.771)],'graphite',.0015)
+        for dx in [-.027,.027]:
+            self.cylinder(x+dx,y,2.777,.003,.003,'edge')
+            self.box(x+dx,y+.027,2.787,.010,.005,.003,'ink')
+        for j in range(12):
+            a=j*math.tau/12
+            self.box(x+.045*math.cos(a),y+.045*math.sin(a),2.788,.003,.006,.0015,'copper')
+        name='detector-shell-'+label
+        self.doors.append(dict(name=name,pivot=(0,0,0),kind='detector'))
+        self.cylinder(x,y,2.697,.051,.019,'paper',top=.056,group=name)
+        self.cylinder(x,y,2.716,.056,.024,'paper',top=.061,group=name)
+        for j in range(40):
+            a=j*math.tau/40
+            self.line([(x+.058*math.cos(a),y+.058*math.sin(a),2.722),(x+.060*math.cos(a),y+.060*math.sin(a),2.737)],'ink',.0009,group=name)
+        self.cylinder(x+.034,y-.033,2.715,.003,.002,'red',group=name)
+        self.box(x,y+.145,2.816,.145,.024,.002,'paper')
+        self.text(label,x-.06,y+.141,2.819,.013,'ink')
     def central(self,x,y,z):
         self.parts.append('addressable-central')
-        w,h=.64,.91
-        # Folded metal enclosure, seals, PCB, terminal rails and mains section.
-        self.box(x,y+.058,z,w,.024,h,'paper')
-        for dx in [-w/2,w/2]:self.box(x+dx,y,z,.018,.15,h,'paper')
-        for zz in [z,z+h-.015]:self.box(x,y,zz,w,.15,.015,'paper')
-        self.box(x,y+.035,z+.33,.50,.012,.46,'pcb')
-        self.box(x-.04,y+.015,z+.50,.12,.014,.12,'ink')
-        for k in range(20):
-            xx=x-.24+k*.025
-            self.box(xx,y+.012,z+.735,.018,.035,.035,'terminal')
-            self.screw(xx,y-.008,z+.751)
-            self.line([(xx,y+.017,z+.728),(xx,y+.017,z+.685),(x+(k-10)*.006,y+.017,z+.61)],'copper',.001)
-        for k in range(8):
-            xx=x-.235+k*.063
-            self.box(xx,y+.015,z+.36,.044,.03,.048,'terminal');self.screw(xx,y-.002,z+.387)
-        for xx in [-.22,.22]:
-            for zz in [.35,.77]:self.screw(x+xx,y+.022,z+zz)
-        for j in range(5):self.cylinder(x+.18,y+.014,z+.43+j*.055,.012,.021,'graphite','y')
-        for xx in [x-.133,x+.133]:
-            self.box(xx,y-.006,z+.045,.228,.10,.205,'graphite')
-            self.box(xx,y-.006,z+.25,.225,.10,.009,'edge')
-            for dx in [-.068,.068]:self.box(xx+dx,y-.006,z+.26,.019,.019,.012,'red' if dx<0 else 'black')
-            self.text('12 V / RESERVA',xx-.098,y-.060,z+.17,.019,'paper',True)
-        self.line([(x-.20,y-.006,z+.272),(x-.25,y-.006,z+.31),(x-.20,y-.003,z+.36)],'red',.003)
-        self.line([(x+.20,y-.006,z+.272),(x+.25,y-.006,z+.31),(x+.20,y-.003,z+.36)],'black',.003)
-        self.line([(x-.065,y-.006,z+.272),(x+.065,y-.006,z+.272)],'copper',.003)
-        name='central-door';self.doors.append(dict(name=name,pivot=(x-w/2,y-.088,z)))
-        self.box(w/2,0,0,w,.014,h,'paper',name)
-        self.box(w/2,-.010,.47,.48,.005,.30,'graphite',name)
-        self.box(w/2,-.017,.56,.37,.003,.14,'screen',name)
-        for j in range(4):self.box(.17+j*.095,-.019,.50,.048,.003,.014,'muted',name)
-        for xx in [.20,.26,.32,.38,.44]:self.box(xx,-.011,.35,.035,.008,.035,'graphite',name)
-        # Labels live on the fixed enclosure rather than floating during opening.
-        self.text('CENTRAL / ZONAS 01–02',x-.26,y-.10,z+h+.022,.028,'paper',True)
-        for dy in [-.063,.063]:
-            for dz in [.02,h-.02]:self.screw(x+dy*4.3,y-.083,z+dz)
+        w,h=.52,.66
+        # Folded sheet, stiffened backplate and compressed door gasket.
+        self.box(x,y+.058,z,w,.002,h,'paper')
+        self.box(x,y+.046,z+.016,w-.030,.002,h-.032,'edge')
+        for dx in [-w/2,w/2]:
+            self.box(x+dx,y,z,.002,.12,h,'paper')
+            self.box(x+dx+(-.007 if dx>0 else .007),y-.060,z+.003,.014,.002,h-.006,'paper')
+        for zz in [z,z+h-.002]:self.box(x,y,zz,w,.12,.002,'paper')
+        self.line([(x-w/2+.007,y-.063,z+.009),(x-w/2+.007,y-.063,z+h-.009),(x+w/2-.007,y-.063,z+h-.009),(x+w/2-.007,y-.063,z+.009)],'black',.0025)
+        # Main loop board and separate PSU daughterboard, each on standoffs.
+        for xx,ww in [(x-.064,.31),(x+.171,.116)]:
+            for dx in [-ww/2+.009,ww/2-.009]:
+                for dz in [.205,.591]:
+                    self.cylinder(xx+dx,y+.043,z+dz,.003,.022,'copper','y')
+                    self.screw(xx+dx,y+.014,z+dz)
+            self.box(xx,y+.021,z+.197,ww,.0016,.40,'pcb')
+        self.chip(x-.075,y+.017,z+.383)
+        self.chip(x-.150,y+.017,z+.30,.018,.04)
+        self.chip(x+.005,y+.017,z+.454,.020,.024)
+        # Short orthogonal PCB buses rather than a decorative starburst.
+        for j in range(12):
+            xx=x-.170+j*.009
+            zz=z+.49+j*.003
+            self.line([(xx,y+.019,z+.575),(xx,y+.019,zz),(x-.11+j*.003,y+.019,zz),(x-.11+j*.003,y+.019,z+.427)],'copper',.00028)
+        for row in range(7):
+            for col in range(9):
+                xx=x-.198+col*.026;zz=z+.235+row*.046
+                if -.11 < xx-x < -.025 and .36 < zz-z < .45:continue
+                self.box(xx,y+.018,zz,.006,.0016,.003,'ink' if (row+col)%3 else 'copper')
+                for dx in [-.0036,.0036]:self.box(xx+dx,y+.018,zz,.0012,.0016,.003,'edge')
+        # Relay bank, optoisolators, current filtering and service header.
+        for j in range(4):
+            xx=x-.182+j*.053
+            self.box(xx,y+.008,z+.513,.038,.020,.027,'graphite')
+            self.text('R'+str(j+1),xx-.012,y-.003,z+.530,.005,'paper',True)
+        for j in range(5):
+            self.box(x-.195+j*.048,y+.013,z+.461,.018,.012,.011,'black')
+            self.cylinder(x-.195+j*.048,y+.016,z+.428,.004,.009,'graphite','y')
+        self.terminal(x-.195,y+.009,z+.567,26,.0088)
+        self.terminal(x-.19,y+.007,z+.210,20,.011)
+        for j in range(12):self.box(x-.086+j*.006,y+.006,z+.341,.002,.008,.005,'copper')
+        self.box(x-.052,y+.012,z+.337,.078,.015,.018,'black')
+        for xx in [x+.155,x+.198]:
+            self.cylinder(xx,y+.018,z+.36,.012,.026,'graphite','y')
+            self.cylinder(xx,y-.009,z+.36,.011,.001,'edge','y')
+        self.box(x+.174,y+.005,z+.454,.075,.030,.068,'graphite')
+        self.box(x+.174,y-.012,z+.464,.052,.004,.047,'copper')
+        for j in range(9):self.box(x+.137+j*.008,y+.006,z+.255,.003,.03,.062,'edge')
+        self.terminal(x+.130,y+.010,z+.56,10,.0088)
+        self.text('LOOP / CONTROL',x-.19,y+.018,z+.552,.006,'paper',True)
+        self.text('24 V / PSU',x+.12,y+.018,z+.540,.006,'paper',True)
+        # Two compact standby cells with recessed lids, spades and return cable.
+        for xx in [x-.115,x+.068]:
+            self.box(xx,y+.006,z+.024,.151,.065,.094,'graphite')
+            self.box(xx,y+.006,z+.119,.151,.065,.004,'black')
+            for dx in [-.052,.052]:
+                self.box(xx+dx,y-.014,z+.123,.010,.008,.007,'red' if dx<0 else 'black')
+                self.box(xx+dx,y-.014,z+.129,.005,.0008,.008,'edge')
+            self.text('12 V',xx-.058,y-.027,z+.083,.010,'paper',True)
+            self.text('STANDBY',xx-.058,y-.027,z+.061,.006,'muted',True)
+        for side,xx,mat in [(-1,x-.167,'red'),(1,x+.120,'black')]:
+            self.line(self.rounded_path([(xx,y-.014,z+.133),(xx+side*.029,y-.014,z+.153),(xx+side*.029,y+.001,z+.177),(xx,y+.001,z+.210)],.009),mat,.0015)
+        self.line(self.rounded_path([(x-.063,y-.014,z+.133),(x-.048,y-.025,z+.153),(x+.002,y-.025,z+.153),(x+.016,y-.014,z+.133)],.008),'black',.0015)
+        # Hinged fascia: seal, LCD, tactile controls, lock and its actual rear PCB.
+        name='central-door';self.doors.append(dict(name=name,pivot=(x-w/2,y-.064,z),kind='door'))
+        self.box(w/2,0,0,w,.002,h,'paper',name)
+        for xx in [.007,w-.007]:self.box(xx,.007,.01,.014,.014,h-.02,'paper',name)
+        self.box(w/2,-.003,.320,.356,.002,.225,'graphite',name)
+        self.box(w/2,-.006,.389,.277,.002,.123,'screen',name)
+        self.text('SISTEMA NORMAL',.140,-.0075,.482,.010,'paper',True,group=name)
+        self.text('02 zonas / supervisadas',.140,-.0075,.458,.007,'muted',True,group=name)
+        for j,label in enumerate(['Estado','Eventos','Prueba','Silenciar']):
+            self.box(.142+j*.078,-.008,.345,.048,.003,.020,'black',name)
+            self.text(label,.121+j*.078,-.010,.351,.005,'paper',True,group=name)
+        for j in range(4):self.cylinder(.148+j*.074,-.004,.291,.003,.003,'signal','y',group=name)
+        self.cylinder(.48,-.004,.245,.009,.005,'edge','y',group=name)
+        self.box(.48,-.010,.241,.001,.001,.009,'ink',name)
+        self.box(w/2,.013,.344,.316,.0016,.180,'pcb',name)
+        self.chip(w/2,.016,.405,.028,.028,group=name)
+        for j in range(12):
+            self.box(.135+j*.022,.016,.487,.005,.003,.008,'edge',name)
+            self.box(.135+j*.022,.016,.366,.009,.003,.004,'ink',name)
+        for dz in [.035,.59]:
+            self.cylinder(x-w/2,y-.064,z+dz,.0045,.027,'edge')
+            self.box(x-w/2+.01,y-.059,z+dz,.02,.009,.02,'edge')
+        # Fine identification on a high-contrast fixed plate.
+        self.box(x,y-.061,z+h-.040,.41,.001,.025,'paper')
+        self.text('DETECCION / CENTRAL 01',x-.195,y-.063,z+h-.032,.009,'ink',True)
 
 def build():
     s=Installation()
@@ -125,31 +264,31 @@ def build():
         for y in [-.90,-.31]:s.box(x,y,.107,.034,.034,.633,'edge')
     for x in [1.91,2.76]:
         for y in [-1.22,.04]:
-            s.box(x,y,.47,.43,.41,.045,'fabric');s.box(x,y+(.20 if y>-.6 else -.2),.515,.43,.035,.40,'fabric')
+            s.seat(x,y,front=-1 if y>-.6 else 1)
             for dx in [-.17,.17]:
                 for dy in [-.16,.16]:s.box(x+dx,y+dy,.107,.022,.022,.363,'edge')
-    # A narrow ceiling slice locates the detector; the rest is a deliberate cutaway.
+    # Architectural inspection sections retain the mount and hanging structure.
     for x in [-2.05,2.18]:
-        s.box(x-.355,.35,2.798,.35,.52,.013,'paper');s.box(x+.355,.35,2.798,.35,.52,.013,'paper')
-        for xx in [x-.54,x+.54]:s.box(xx,.35,2.80,.013,.58,.025,'edge')
+        s.ceiling_section(x,.35)
         s.detector(x,.35,'D-01' if x<0 else 'D-02')
     # Continuously supported conduit and junctions; the detector links return.
-    loop=[(2.68,2.18,2.13),(2.68,2.18,2.80),(2.68,2.40,2.80),(-2.05,2.40,2.80),(-2.05,.35,2.80),(2.18,.35,2.80),(2.18,2.30,2.80),(2.76,2.30,2.80),(2.76,2.18,2.13)]
-    s.line(loop,'red',.006)
-    s.routes.append(dict(pts=loop[4:]+loop[:5],start=.20,end=.69))
+    loop=[(2.68,2.18,1.88),(2.68,2.18,2.80),(2.68,2.40,2.80),(-2.05,2.40,2.80),(-2.05,.35,2.80),(2.18,.35,2.80),(2.18,2.30,2.80),(2.76,2.30,2.80),(2.76,2.18,1.88)]
+    loop=s.rounded_path(loop);s.line(loop,'red',.006)
+    s.routes.append(dict(pts=loop,start=.20,end=.69))
     for x in [-2.05,-.75,.75,2.18,2.68]:
         s.box(x,2.40,2.79,.026,.044,.020,'edge')
         s.line([(x,2.40,2.82),(x,2.40,2.93)],'edge',.002)
     for x in [-2.05,2.18]:
         s.box(x,.47,2.784,.055,.055,.033,'paper');s.screw(x,.47,2.82,False)
     s.central(2.68,2.18,1.22)
+    s.box(2.68,2.40,.107,.84,.35,2.30,'paper')
     # Manual call point and separate sounder are mounted beside the exit.
     s.box(3.65,-1.7,.107,.085,.085,2.15,'paper')
     s.box(3.65,-1.754,1.20,.09,.036,.09,'red');s.box(3.65,-1.775,1.225,.065,.003,.038,'paper')
     s.box(3.65,-1.754,2.03,.11,.04,.12,'red')
     for j in range(8):s.box(3.65,-1.778,2.05+j*.01,.073,.004,.003,'black')
     s.cylinder(3.65,-1.75,2.15,.037,.035,'paper')
-    s.route([(2.98,2.18,1.65),(3.65,2.18,1.65),(3.65,2.18,2.70),(3.65,-1.7,2.70),(3.65,-1.7,2.09)],.69,.94)
+    s.route([(2.88,2.18,1.84),(2.88,2.30,2.76),(3.65,2.30,2.76),(3.65,-1.7,2.76),(3.65,-1.7,2.09)],.69,.94)
     s.parts.extend(['two-zones','mounted-conduit','occupied-workplace','standby-supply','manual-call-point','notification'])
     return s
 
@@ -158,7 +297,7 @@ def validate(s):
     assert camera_pose(0)==camera_pose(1)
     for b in s.boxes:assert min(b[k] for k in ['w','d','h'])>0
     for route in s.routes:assert all(math.dist(a,b)>0 for a,b in zip(route['pts'],route['pts'][1:]))
-    return dict(service='107',scene='fire-project-v2',boxes=len(s.boxes),parts=s.parts,frames=FRAMES,fps=FPS,duration=24)
+    return dict(service='107',scene='fire-project-v2',boxes=len(s.boxes),meshes=len(s.meshes),parts=s.parts,frames=FRAMES,fps=FPS,duration=24)
 
 
 def render(args,s):
@@ -171,7 +310,10 @@ def render(args,s):
     if args.engine=='workbench':
         scene.display.shading.light='STUDIO';scene.display.shading.color_type='MATERIAL';scene.display.render_aa='16'
         scene.display.shading.show_shadows=True;scene.display.shading.show_cavity=True;scene.display.shading.cavity_type='BOTH'
-        scene.display.shading.curvature_ridge_factor=1.1;scene.display.shading.curvature_valley_factor=.7
+        scene.display.shading.curvature_ridge_factor=.55;scene.display.shading.curvature_valley_factor=.8
+        scene.display.shading.cavity_ridge_factor=.35;scene.display.shading.cavity_valley_factor=.8
+        scene.display.shading.studiolight_rotate_z=.5
+        scene.display.shading.background_type='WORLD'
         scene.display.shading.show_object_outline=False
     scene.cycles.device='CPU';scene.cycles.samples=args.samples;scene.cycles.use_denoising=True
     scene.cycles.use_adaptive_sampling=True;scene.cycles.adaptive_threshold=.012;scene.cycles.adaptive_min_samples=12;scene.cycles.max_bounces=4
@@ -181,7 +323,7 @@ def render(args,s):
     scene.render.resolution_x=args.width;scene.render.resolution_y=round(args.width*9/16);scene.render.resolution_percentage=100
     scene.render.image_settings.file_format='PNG';scene.render.image_settings.color_mode='RGB'
     scene.render.fps=FPS;scene.render.use_persistent_data=True;scene.view_settings.view_transform='AgX'
-    scene.world=bpy.data.worlds.new('UM graphite atelier');scene.world.use_nodes=True
+    scene.world=bpy.data.worlds.new('UM graphite atelier');scene.world.use_nodes=True;scene.world.color=(.006,.006,.007)
     scene.world.node_tree.nodes['Background'].inputs[0].default_value=(.045,.055,.070,1)
     scene.world.node_tree.nodes['Background'].inputs[1].default_value=.32
     palette=[('floor','#090A0C',.08,.5),('base','#121A26',.35,.4),('slate','#344252',.28,.45),
@@ -218,7 +360,8 @@ def render(args,s):
                 xyz=(c['x']+u,c['y']+v,c['z']+depth) if c['axis']=='z' else (c['x']+u,c['y']-depth,c['z']+v) if c['axis']=='y' else (c['x']+depth,c['y']+u,c['z']+v)
                 vv.append(xyz)
         ff=[tuple(reversed(range(n))),tuple(n+j for j in range(n))]+[(j,(j+1)%n,(j+1)%n+n,j+n) for j in range(n)]
-        meshpart(c['mat'],None,vv,ff)
+        meshpart(c['mat'],c.get('group'),vv,ff)
+    for m in s.meshes:meshpart(m['mat'],m.get('group'),m['vertices'],m['faces'])
     for (mat,group),(vv,ff) in groups.items():
         mesh=bpy.data.meshes.new(mat);mesh.from_pydata(vv,[],ff);mesh.update()
         obj=bpy.data.objects.new(mat+' '+(group or 'equipment'),mesh);scene.collection.objects.link(obj);mesh.materials.append(mats[mat])
@@ -226,18 +369,20 @@ def render(args,s):
         bevel=obj.modifiers.new('Manufactured edges','BEVEL');bevel.width=.0008;bevel.segments=3
         obj.modifiers.new('Weighted normals','WEIGHTED_NORMAL')
     linegroups={}
-    for line in s.lines:linegroups.setdefault((line['mat'],line['radius']),[]).append(line['pts'])
-    for (mat,radius),paths in linegroups.items():
+    for line in s.lines:linegroups.setdefault((line['mat'],line['radius'],line.get('group')),[]).append(line['pts'])
+    for (mat,radius,group),paths in linegroups.items():
         curve=bpy.data.curves.new(mat+' conductors','CURVE');curve.dimensions='3D';curve.bevel_depth=radius;curve.bevel_resolution=2
         for pts in paths:
             sp=curve.splines.new('POLY');sp.points.add(len(pts)-1)
             for p,xyz in zip(sp.points,pts):p.co=(*xyz,1)
-            bounds.extend(pts)
+            if not group:bounds.extend(pts)
         obj=bpy.data.objects.new(mat+' conductors',curve);scene.collection.objects.link(obj);curve.materials.append(mats[mat])
+        if group:obj.parent=parents[group]
     for label in s.texts:
         c=bpy.data.curves.new(label['value'],'FONT');c.body=label['value'];c.size=label['size'];c.extrude=.0005
         obj=bpy.data.objects.new(label['value'],c);scene.collection.objects.link(obj);obj.location=label['at']
         if label['front']:obj.rotation_euler[0]=math.pi/2
+        if label.get('group'):obj.parent=parents[label['group']]
         c.materials.append(mats[label['mat']])
     packets=[]
     for r in s.routes:
@@ -270,7 +415,10 @@ def render(args,s):
             obj.location=travel(r,smooth(q))
             fade=max(.001,min(smooth(q/.08),smooth((1-q)/.08)))
             obj.scale=(fade,fade,fade)
-        for obj in parents.values():obj.rotation_euler[2]=-math.radians(102)*smooth((t-.52)/.10)*(1-smooth((t-.79)/.13))
+        for part in s.doors:
+            obj=parents[part['name']]
+            if part.get('kind')=='detector':obj.location.z=-.14*smooth((t-.23)/.06)*(1-smooth((t-.40)/.07))
+            else:obj.rotation_euler[2]=-math.radians(102)*smooth((t-.52)/.10)*(1-smooth((t-.79)/.13))
         bpy.context.view_layer.update()
         allbounds=list(bounds)
         for (mat,group),(vv,_) in groups.items():

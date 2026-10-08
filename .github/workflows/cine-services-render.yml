@@ -25,13 +25,13 @@ on:
         default: ''
       engine:
         type: choice
-        options: [eevee, cycles]
+        options: [eevee, cycles, workbench]
         default: cycles
 permissions:
   contents: read
   actions: read
 concurrency:
-  group: blender-services-${{ github.ref }}-${{ inputs.version || 'v1' }}-${{ inputs.mode || 'proof' }}-${{ inputs.mode == 'repair' && inputs.repairs || 'batch' }}
+  group: blender-services-${{ github.ref }}-${{ inputs.version || 'v1' }}-${{ inputs.engine || 'cycles' }}-${{ inputs.mode || 'proof' }}-${{ inputs.mode == 'repair' && inputs.repairs || 'batch' }}
   cancel-in-progress: false
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -46,12 +46,14 @@ jobs:
       - id: plan
         env:
           VERSION: ${{ inputs.version || 'v1' }}
+          ENGINE: ${{ inputs.engine || 'cycles' }}
           MODE: ${{ inputs.mode || 'proof' }}
           SERVICES: ${{ inputs.services || 'all' }}
           REPAIRS: ${{ inputs.repairs }}
         run: |
           python3 - <<'PY'
           import json,os
+          assert os.environ['ENGINE'] in (['cycles','workbench'] if os.environ['VERSION']=='fire-v2' else ['eevee','cycles'])
           codes=['101','102','103','105','106','107','108']
           selected=codes if os.environ['SERVICES']=='all' else os.environ['SERVICES'].split(',')
           assert selected and set(selected)<=set(codes) and len(selected)==len(set(selected))
@@ -89,10 +91,14 @@ jobs:
       - name: Install verified official Blender
         timeout-minutes: 20
         run: |
-          if ! sudo timeout 120 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update -qq; then
-            echo "Package index refresh timed out; using runner cached signed indexes."
+          MISSING=()
+          for PACKAGE in libgl1 libegl1 libxrender1 libxi6 xvfb ffmpeg; do
+            if ! dpkg-query -W -f='${Status}' "$PACKAGE" 2>/dev/null | grep -q '^install ok installed$'; then MISSING+=("$PACKAGE"); fi
+          done
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            sudo timeout 90 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 update -qq || true
+            sudo timeout 180 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 install -y -qq "${MISSING[@]}"
           fi
-          sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq libgl1 libegl1 libxrender1 libxi6 xvfb ffmpeg
           curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender-4.5.3-linux-x64.tar.xz
           curl --retry 3 --connect-timeout 15 --max-time 60 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256 -o blender.sha256
           awk '$2 == "blender-4.5.3-linux-x64.tar.xz" {print}' blender.sha256 > blender-selected.sha256
@@ -109,7 +115,9 @@ jobs:
         run: |
           if [ '${{ inputs.version }}' = fire-v2 ]; then
             python3 scripts/cine/render-fire-project-v2.py --validate-only
-            ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-fire-project-v2.py -- --engine cycles --samples 32 --width 3840 --start "$START" --end "$END" --output frames
+            RENDER=(./blender-4.5.3-linux-x64/blender)
+            if [ "$ENGINE" = workbench ]; then RENDER=(xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender); fi
+            "${RENDER[@]}" -b -t 4 --python-exit-code 1 --python scripts/cine/render-fire-project-v2.py -- --engine "$ENGINE" --samples 32 --width 3840 --start "$START" --end "$END" --output frames
             exit 0
           fi
           python3 scripts/cine/render-service-cinema-v1.py --service "$SERVICE" --validate-only
