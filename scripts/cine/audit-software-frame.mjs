@@ -4,7 +4,8 @@ const {chromium,webkit}=await import(process.env.PLAYWRIGHT_MODULE||'playwright'
 const out=process.env.VISUAL_AUDIT_DIR;
 if(!out||!path.isAbsolute(out))throw Error('Absolute artifact directory required');
 fs.mkdirSync(out,{recursive:true});
-const routes=['/software',...[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(match=>match[1])];
+const allRoutes=['/software',...[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(match=>match[1])];
+const routes=process.env.FRAMING_SOFTWARE_ONLY==='true'?allRoutes.filter(route=>route==='/software'||route.startsWith('/servicios/104/')):allRoutes;
 const registry=JSON.parse(fs.readFileSync('src/data/cine/site-movies-v1.json','utf8'));
 const controlsOnly=process.env.FRAMING_CONTROLS_ONLY==='true';
 const report={scope:controlsOnly?'mobile-cinema-controls':'all-eight-service-films',pages:[],findings:[]};
@@ -33,9 +34,14 @@ for(const [engine,type] of (probe?[['WebKit',webkit]]:[['Chrome',chromium],['Web
      const motion=root.querySelector('[data-umc-motion]'),controlBox=box(motion);
      const hit=document.elementFromPoint(controlBox.x+controlBox.width/2,controlBox.y+controlBox.height/2);
      const control={...controlBox,exposed:hit===motion||motion.contains(hit)};
-     return {control,poster:box(poster),stage:box(stage),video:box(video),source:poster.currentSrc,mask:getComputedStyle(poster).maskImage,width:innerWidth,scrollWidth:document.documentElement.scrollWidth};
+     return {product:root.dataset.productComposition==='true',copy:box(root.querySelector('.umc-copy')),control,poster:box(poster),stage:box(stage),video:box(video),source:poster.currentSrc,mask:getComputedStyle(poster).maskImage,width:innerWidth,scrollWidth:document.documentElement.scrollWidth};
     });
     const row={engine,width,route,state,errors};report.pages.push(row);
+    if(state.product){
+     if(state.mask!=='none')report.findings.push({engine,width,route,message:'Product UI is erased by a mask'});
+     if(width>820&&state.stage.x<state.copy.x+state.copy.width+16)report.findings.push({engine,width,route,message:'Product film overlaps its reading column',state});
+     if(width<=820&&Math.abs(state.stage.width/state.stage.height-16/9)>.01)report.findings.push({engine,width,route,message:'Mobile product frame is cropped',state});
+    }
     if(width<=820&&(!state.control.exposed||state.control.y<0||state.control.y+state.control.height>840||state.control.width<44||state.control.height<44))report.findings.push({engine,width,route,message:'Motion control is obscured or undersized',control:state.control});
     const code=route.match(/^\/servicios\/(\d+)\//)?.[1]||'104';
     const expected=registry.services?.[code]?.scene;

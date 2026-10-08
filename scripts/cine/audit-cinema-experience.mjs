@@ -68,6 +68,7 @@ for(const route of routes){
    if(!played)finding(route,'Movie does not play automatically with native H.264',row.movie);
    if(full&&route!=='/'){
     const times=row.movie.flatMap(state=>state.videos.filter(video=>video.on&&!video.error).map(video=>video.time));
+    row.movieQuality=await page.locator('.umc-video.is-on').evaluate(v=>{const q=v.getVideoPlaybackQuality?.();return q?{decoded:q.totalVideoFrames,dropped:q.droppedVideoFrames}:null;});
     row.movieTraversal={duration:nativeDuration,lastDecodedTime:Math.max(...times),distinctTimes:new Set(times.map(time=>Math.floor(time*10))).size};
     if(nativeDuration>0&&(row.movieTraversal.lastDecodedTime<nativeDuration*.85||row.movieTraversal.distinctTimes<8))finding(route,'The movie does not traverse its complete native duration',row.movieTraversal);
     row.shots.push(await snapshot(page,name+'-hero-playing'));
