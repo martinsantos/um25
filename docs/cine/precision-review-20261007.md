@@ -1,6 +1,6 @@
 # Revisión de precisión · 7 de octubre de 2026
 
-Candidato de interfaz: `fcb8c0e9`, rama `feature/isometric-redes-review`, PR #266 a develop. Trabajo en la preview `http://127.0.0.1:4326/`. La evaluación anterior encontró una diferencia sustancial de calidad frente a Ryan, Solvaix y David Hill. Esta iteración reconstruye partes de la propuesta; un control funcional verde no constituye aprobación artística ni autorización de release.
+Candidato de interfaz: `d2b70934`, rama `feature/isometric-redes-review`, PR #266 a develop. Trabajo en la preview `http://127.0.0.1:4326/`. La evaluación anterior encontró una diferencia sustancial de calidad frente a Ryan, Solvaix y David Hill. Esta iteración reconstruye partes de la propuesta; un control funcional verde no constituye aprobación artística ni autorización de release.
 
 ## Cambios visibles
 
@@ -33,10 +33,19 @@ La preview conserva Software v2. La v3 propone una interfaz más fina, acercamie
 - El render conserva una operación de animación nativa en lugar de reiniciar un render de imagen por cuadro; evita reconstruir textos que no cambiaron y guarda tiempos y cuadros de prueba recuperables.
 - [Cinco planos 4K con color de superficie](https://github.com/martinsantos/um25/actions/runs/37706695771) y [muestra consecutiva 4K](https://github.com/martinsantos/um25/actions/runs/37706698727): completos tras recuperar dos instalaciones de dependencias que agotaron su tiempo. Se conservan los planos blancos, los contornos finos y la lectura de la aplicación. Se eliminó el conector exterior que atravesaba el contenido de los planos y se coordinó el cambio de estado con la versión del registro.
 
-No se ha lanzado una película v3 completa ni sustituido su registro de medios. Las siete películas de las demás disciplinas siguen siendo las entregadas antes de esta reconstrucción. El cierre anterior de reproducción y encuadre no certifica que hayan alcanzado el acabado de las referencias.
+La [secuencia v3 completa](https://github.com/martinsantos/um25/actions/runs/37708333902) está renderizando el candidato `d2b70934`. Todavía no se sustituyó el registro de medios. La muestra 4K consecutiva confirmó doce cuadros distintos a 60 fps y entre 3,86 y 6,63 segundos de render por cuadro. Las siete películas de las demás disciplinas siguen siendo las entregadas antes de esta reconstrucción. El cierre anterior de reproducción y encuadre no certifica que hayan alcanzado el acabado de las referencias.
 
 ## Criterio de cierre
 
 Comparar el resultado a tamaño de uso con [Ryan](https://x.com/wheresryan22/status/2106439475551154186), [Solvaix](https://x.com/Solvaix/status/2106830508797706560) y [David Hill](https://x.com/iamdavidhill/status/2107616166713655476): el acercamiento debe revelar construcción útil; los recorridos deben conservar conexiones; cada cambio de plano debe aportar información; los textos y estados deben contar la misma acción. Verificar inicio, tramo medio, frenado y unión del ciclo. La igualdad de tecnología o de resolución no demuestra igualdad visual.
 
 Producción, la campaña protegida y los binarios de UM Sans permanecen fuera de esta iteración. El PR conserva estado draft.
+
+
+## Revisión posterior de la composición
+
+El candidato `d2b70934` reserva una franja real de 36 px para la leyenda inferior: el dibujo ya no pasa por detrás del texto en móvil. Las pantallas de Seguridad, Soporte, Consultoría y Energía muestran eventos, casos, dependencias, recuperación y cargas; no líneas que simulan contenido. La composición de Software v3 conserva todas las aristas de la interfaz y separa la columna editorial del área de película. Su derivado móvil conserva el fotograma completo.
+
+La evidencia de Chrome/WebKit de `fcb8c0e9` y los planos y cuadros consecutivos 4K se guardaron y verificaron por SHA-256 en `/Volumes/SDTERA/Codex UM25 audits/20261007/precision-d2b70934/`. El [control del candidato d2b70934](https://github.com/martinsantos/um25/actions/runs/37708336704) verificará la franja y los nuevos monitores en la página real.
+
+El guard del release scoped rechazaba 32 rutas ya presentes en la rama. Se añadieron de forma explícita; se verificaron las 371 rutas del candidato y el rechazo de configuración y versiones de runtime no revisadas. La guarda de inmutabilidad de `public/cine` se conserva y la comparación contra `origin/master` no contiene modificaciones de assets de cine previamente publicados. Esto prepara el release; no lo ejecuta.
