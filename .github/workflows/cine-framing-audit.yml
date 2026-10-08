@@ -1,0 +1,85 @@
+name: Cinema poster and playback framing
+on:
+  workflow_dispatch:
+    inputs:
+      service_code:
+        description: Native playback and framing for one service
+        type: choice
+        options: [all, "101", "102", "103", "104", "105", "106", "107", "108"]
+        default: all
+      software_only:
+        description: Verify only Software's new composition and native movie
+        type: boolean
+        default: false
+      network_only:
+        description: Verify the network installation and its autonomous native movie
+        type: boolean
+        default: false
+      fire_only:
+        description: Verify the fire installation, closeups and autonomous complete loop
+        type: boolean
+        default: false
+      controls_only:
+        description: Verify mobile motion controls across services without repeating duration tests
+        type: boolean
+        default: false
+      startup_probe:
+        description: Compare uninstrumented native playback, page work and renderer overhead
+        type: boolean
+        default: false
+      probe:
+        description: Diagnose native WebKit playback on two mobile routes
+        type: boolean
+        default: false
+permissions:
+  contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  ASTRO_TELEMETRY_DISABLED: '1'
+jobs:
+  framing:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.x'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          NODE_OPTIONS: --max-old-space-size=2048
+      - name: Prepare native Chrome and WebKit
+        run: |
+          npm install --prefix "$RUNNER_TEMP/um-visual-runtime" --no-save --no-package-lock playwright@1.63.0
+          "$RUNNER_TEMP/um-visual-runtime/node_modules/.bin/playwright" install chrome
+          if [ "${{ inputs.startup_probe }}" != true ]; then "$RUNNER_TEMP/um-visual-runtime/node_modules/.bin/playwright" install --with-deps webkit; fi
+      - name: Start isolated candidate
+        run: |
+          HOST=127.0.0.1 PORT=4326 NODE_ENV=production node dist/server/entry.mjs > "$RUNNER_TEMP/um-preview.log" 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -fsS --max-time 2 http://127.0.0.1:4326/ -o /dev/null; then exit 0; fi
+            sleep 2
+          done
+          exit 1
+      - name: Compare poster and native playback geometry
+        run: |
+          if [ "${{ inputs.startup_probe }}" = true ]; then node scripts/cine/audit-native-film-startup.mjs; else node scripts/cine/audit-software-frame.mjs; fi
+        env:
+          PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
+          FRAMING_SERVICE_CODE: ${{ inputs.service_code }}
+          FRAMING_NETWORK_ONLY: ${{ inputs.network_only }}
+          FRAMING_FIRE_ONLY: ${{ inputs.fire_only }}
+          FRAMING_SOFTWARE_ONLY: ${{ inputs.software_only }}
+          FRAMING_PROBE: ${{ inputs.probe }}
+          FRAMING_CONTROLS_ONLY: ${{ inputs.controls_only }}
+          VISUAL_AUDIT_DIR: ${{ runner.temp }}/software-framing
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: software-framing-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/software-framing/
+            ${{ runner.temp }}/um-preview.log
+          retention-days: 3

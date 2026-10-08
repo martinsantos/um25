@@ -1,0 +1,362 @@
+name: Blender software architecture
+'on':
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Inspect five native proof frames before full rendering
+        type: choice
+        options:
+          - proof
+          - motion-proof
+          - full
+          - repair
+          - assemble
+        default: proof
+      proof_frame:
+        description: 'One targeted proof frame; -1 renders the authored shot list'
+        type: number
+        default: -1
+      motion_width:
+        description: Width of the bounded native motion proof
+        type: choice
+        options: ['1920', '3840']
+        default: '1920'
+      motion_frames:
+        description: Native consecutive frames for a bounded render benchmark (2 to 120)
+        type: number
+        default: 120
+      version:
+        description: Authored movie version
+        type: choice
+        options:
+          - v1
+          - v2
+          - v3
+          - v5
+          - v6
+          - v7
+          - v8
+        default: v2
+      engine:
+        description: 'Cycles baseline or Eevee proof on the disposable software GPU'
+        type: choice
+        options:
+          - cycles
+          - eevee
+          - workbench
+        default: cycles
+      repair_parts:
+        description: Comma-separated missing part numbers (1–12)
+        type: string
+        default: ''
+      repair_segments:
+        description: Recovery slices (1–4); empty renders all slices of each selected part
+        type: string
+        default: ''
+      slice_source_run:
+        description: Previous sliced recovery with completed artifacts to preserve
+        type: string
+        default: ''
+      source_run:
+        description: Original full render run for assembly
+        type: string
+        default: ''
+      repair_runs:
+        description: Comma-separated recovery run IDs for assembly
+        type: string
+        default: ''
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: blender-software-${{ github.ref }}-${{ inputs.version || 'v2' }}-${{ inputs.mode || 'proof' }}-${{ inputs.engine || 'cycles' }}-${{ inputs.mode == 'repair' && inputs.repair_parts || inputs.mode == 'motion-proof' && inputs.motion_frames || 'batch' }}
+  cancel-in-progress: false
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  VERSION: ${{ inputs.version || 'v2' }}
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      recovery: ${{ steps.plan.outputs.recovery }}
+    steps:
+      - id: plan
+        env:
+          VERSION: ${{ inputs.version || 'v2' }}
+          MODE: ${{ inputs.mode || 'proof' }}
+          PROOF_FRAME: ${{ inputs.proof_frame }}
+          REPAIR_PARTS: ${{ inputs.repair_parts }}
+          REPAIR_SEGMENTS: ${{ inputs.repair_segments }}
+          MOTION_FRAMES: ${{ inputs.motion_frames || 120 }}
+        run: |
+          python3 - <<'PYPLAN'
+          import json,os
+          selected=[]
+          assert os.environ['VERSION']!='v3' or os.environ['MODE'] in ('proof','motion-proof','full','assemble','repair')
+          chunk=120 if os.environ['VERSION'] in ('v3','v5','v6','v7','v8') else 48
+          proof_frames=[0,360,720,1080,1439] if os.environ['VERSION'] in ('v3','v5','v6','v7','v8') else [0,144,288,432,575]
+          if os.environ['VERSION']=='v5':proof_frames=[734,1152]
+          if os.environ['VERSION']=='v6':proof_frames=[0,288,575,877,1125,1295]
+          if os.environ['VERSION']=='v7':proof_frames=[0,280,450,690,900,1200]
+          if os.environ['VERSION']=='v8':proof_frames=[0,280,600,870,1120,1330]
+          frame=int(os.environ.get('PROOF_FRAME') or '-1');assert -1<=frame<1440
+          if frame>=0:proof_frames=[frame]
+          rows=[dict(part=i+1,start=f,end=f,frames=1) for i,f in enumerate(proof_frames)] if os.environ['MODE']=='proof' else [dict(part=i+1,start=i*chunk,end=(i+1)*chunk-1,frames=chunk) for i in range(12)]
+          if os.environ['MODE']=='motion-proof':
+              assert os.environ['VERSION'] in ('v3','v5','v6','v7','v8')
+              count=int(os.environ['MOTION_FRAMES']);assert 2<=count<=120
+              start=180 if os.environ['VERSION']=='v8' else 300 if os.environ['VERSION']=='v7' else 690 if os.environ['VERSION']=='v6' else 600 if os.environ['VERSION']=='v5' else 300
+              rows=[dict(part=1,start=start,end=start+count-1,frames=count)]
+          if os.environ['MODE']=='repair':
+              selected=[int(n) for n in os.environ['REPAIR_PARTS'].split(',')]
+              assert selected and len(selected)==len(set(selected)) and all(1<=n<=12 for n in selected)
+              segments=[int(n) for n in os.environ.get('REPAIR_SEGMENTS','').split(',') if n] or [1,2,3,4]
+              assert len(segments)==len(set(segments)) and all(1<=n<=4 for n in segments)
+              rows=[dict(part=n,segment=k,start=(n-1)*chunk+(k-1)*(chunk//4),end=(n-1)*chunk+k*(chunk//4)-1,frames=chunk//4) for n in selected for k in segments]
+          if os.environ['MODE']=='assemble':rows=[]
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('matrix='+json.dumps({'include':rows})+'\n')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('recovery='+json.dumps({'part':selected})+'\n')
+          PYPLAN
+  render:
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: ${{ inputs.mode == 'motion-proof' && 20 || inputs.mode == 'proof' && 20 || 90 }}
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          sparse-checkout: |-
+            scripts/cine/render-software-system-v1.py
+            scripts/cine/render-software-system-v2.py
+            scripts/cine/render-software-system-v3.py
+            scripts/cine/render-software-system-v5.py
+            scripts/cine/render-software-system-v6.py
+            scripts/cine/render-software-system-v7.py
+            scripts/cine/render-software-system-v8.py
+            public/fonts/um-sans/UMSans-Regular.ttf
+            public/fonts/um-sans/UMSans-SemiBold.ttf
+            scripts/cine/prepare-blender-fonts.py
+          sparse-checkout-cone-mode: false
+      - name: Install verified official Blender
+        run: |
+          MISSING=()
+          PACKAGES=(libgl1 libegl1 libxrender1 libxi6 xvfb libgl1-mesa-dri)
+          if [ '${{ inputs.mode }}' != proof ]; then PACKAGES+=(ffmpeg); fi
+          for PACKAGE in "${PACKAGES[@]}"; do
+            if [ "$(dpkg-query -W -f='${db:Status-Status}' "$PACKAGE" 2>/dev/null)" != installed ]; then MISSING+=("$PACKAGE"); fi
+          done
+          if [ "${#MISSING[@]}" -gt 0 ]; then
+            echo "Missing render dependencies: ${MISSING[*]}"
+            if ! sudo timeout 120 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update -qq; then
+              echo "Package index refresh timed out; using runner cached signed indexes."
+            fi
+            sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq "${MISSING[@]}"
+          else
+            echo "Render dependencies already installed; no package upgrades required."
+          fi
+          curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender-4.5.3-linux-x64.tar.xz
+          curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256 -o blender.sha256
+          awk '$2 == "blender-4.5.3-linux-x64.tar.xz" {print}' blender.sha256 > blender-selected.sha256
+          test -s blender-selected.sha256
+          sha256sum -c blender-selected.sha256
+          tar -xf blender-4.5.3-linux-x64.tar.xz
+        timeout-minutes: 20
+      - uses: actions/setup-python@v6
+        if: (inputs.version || 'v2') != 'v1'
+        with:
+          python-version: '3.12'
+      - name: Prepare render-only type contours
+        if: (inputs.version || 'v2') != 'v1'
+        run: |
+          python -m pip install --disable-pip-version-check fonttools==4.58.0 skia-pathops==0.8.0.post2
+          python scripts/cine/prepare-blender-fonts.py public/fonts/um-sans /tmp/um-cine-fonts
+      - name: Render the software architecture
+        run: |
+          FONT_ARGS=()
+          if [ "$VERSION" != v1 ]; then FONT_ARGS=(--font-dir /tmp/um-cine-fonts); fi
+          QUALITY_ARGS=(--samples 24)
+          if [ "$VERSION" = v3 ] || [ "$VERSION" = v5 ] || [ "$VERSION" = v6 ] || [ "$VERSION" = v7 ] || [ "$VERSION" = v8 ]; then QUALITY_ARGS=(--samples 48 --width 3840 --engine '${{ inputs.engine || 'cycles' }}'); fi
+          if [ '${{ inputs.mode }}' = motion-proof ]; then QUALITY_ARGS=(--samples 32 --width '${{ inputs.motion_width || '1920' }}' --engine '${{ inputs.engine || 'cycles' }}'); fi
+          RENDER=(./blender-4.5.3-linux-x64/blender)
+          if [ '${{ inputs.engine }}' != cycles ]; then RENDER=(xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender); fi
+          python3 scripts/cine/render-software-system-$VERSION.py --validate-only
+          "${RENDER[@]}" -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-$VERSION.py -- "${QUALITY_ARGS[@]}" --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames "${FONT_ARGS[@]}"
+      - uses: actions/upload-artifact@v7
+        if: (inputs.mode || 'proof') == 'proof'
+        with:
+          name: software-proof-${{ matrix.part }}
+          path: frames
+          retention-days: 4
+      - name: Preserve bounded benchmark evidence
+        if: always() && inputs.mode == 'motion-proof'
+        uses: actions/upload-artifact@v7
+        with:
+          name: software-motion-frames-${{ matrix.part }}
+          path: frames
+          retention-days: 3
+      - name: Encode recoverable part
+        if: inputs.mode == 'full' || inputs.mode == 'repair' || inputs.mode == 'motion-proof'
+        run: |
+          KEY='${{ matrix.part }}${{ matrix.segment && format('-{0}', matrix.segment) || '' }}'
+          cp frames/render-info.json part-$KEY-info.json
+          FPS=24
+          if [ "$VERSION" = v3 ] || [ "$VERSION" = v5 ] || [ "$VERSION" = v6 ] || [ "$VERSION" = v7 ] || [ "$VERSION" = v8 ]; then FPS=60; fi
+          COLOR_ARGS=()
+          if [ "$VERSION" = v5 ] || [ "$VERSION" = v6 ] || [ "$VERSION" = v7 ] || [ "$VERSION" = v8 ]; then COLOR_ARGS=(-vf 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p' -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1); fi
+          ffmpeg -v error -framerate "$FPS" -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v ${{ matrix.frames }} "${COLOR_ARGS[@]}" -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r "$FPS" -g 120 -an -movflags +faststart part-$KEY.mp4
+      - uses: actions/upload-artifact@v7
+        if: inputs.mode == 'full' || inputs.mode == 'repair' || inputs.mode == 'motion-proof'
+        with:
+          name: software-part-${{ matrix.part }}${{ matrix.segment && format('-{0}', matrix.segment) || '' }}
+          path: |
+            part-${{ matrix.part }}${{ matrix.segment && format('-{0}', matrix.segment) || '' }}.mp4
+            part-${{ matrix.part }}${{ matrix.segment && format('-{0}', matrix.segment) || '' }}-info.json
+          retention-days: 4
+    if: inputs.mode != 'assemble'
+  recover-parts:
+    needs:
+      - plan
+      - render
+    if: inputs.mode == 'repair'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.recovery) }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          sparse-checkout: |-
+            scripts/cine/recover-software-parts.py
+            scripts/cine/assemble-software-v3.py
+            scripts/cine/assemble-software-v5.py
+          sparse-checkout-cone-mode: false
+      - name: Download each recovery slice into its named directory
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PART: ${{ matrix.part }}
+          PREVIOUS: ${{ inputs.slice_source_run }}
+        run: |
+          for RUN in "$PREVIOUS" "$GITHUB_RUN_ID"; do
+            [ -n "$RUN" ] || continue
+            NAMES=$(gh api "repos/$GH_REPO/actions/runs/$RUN/artifacts?per_page=100" --jq '.artifacts[].name | select(test("^software-part-[0-9]+-[1-4]$"))')
+            test -n "$NAMES"
+            while IFS= read -r NAME; do
+              [[ "$NAME" == "software-part-$PART-"* ]] || continue
+              gh run download "$RUN" -n "$NAME" -D "$NAME"
+            done <<< "$NAMES"
+          done
+      - name: Join verified short recovery slices
+        env:
+          REPAIR_PARTS: ${{ matrix.part }}
+        run: |
+          sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq ffmpeg
+          python3 scripts/cine/recover-software-parts.py --parts "$REPAIR_PARTS" --output recovered
+      - uses: actions/upload-artifact@v7
+        with:
+          name: software-part-${{ matrix.part }}
+          path: recovered/software-part-${{ matrix.part }}
+          retention-days: 4
+  assemble:
+    needs:
+      - plan
+      - render
+    if: always() && needs.plan.result == 'success' && ((inputs.mode == 'full' && needs.render.result == 'success') || inputs.mode == 'assemble')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          sparse-checkout: |-
+            scripts/cine/recover-software-parts.py
+            scripts/cine/assemble-software-v3.py
+            scripts/cine/assemble-software-v5.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: software-part-*
+          run-id: ${{ inputs.source_run || github.run_id }}
+          github-token: ${{ github.token }}
+      - name: Restore only recovered software fragments
+        if: inputs.mode == 'assemble' && inputs.repair_runs != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          REPAIR_RUNS: ${{ inputs.repair_runs }}
+        run: |
+          [[ "$REPAIR_RUNS" =~ ^[0-9]+(,[0-9]+)*$ ]]
+          IFS=',' read -ra RUNS <<< "$REPAIR_RUNS"
+          for RUN in "${RUNS[@]}"; do
+            NAMES=$(gh api "repos/$GH_REPO/actions/runs/$RUN/artifacts?per_page=100" --jq '.artifacts[].name | select(test("^software-part-[0-9]+(-[1-4])?$"))')
+            test -n "$NAMES"
+            while IFS= read -r NAME; do gh run download "$RUN" -n "$NAME" -D "$NAME"; done <<< "$NAMES"
+          done
+      - name: Assemble and verify cinema
+        run: |
+          if ! command -v ffmpeg >/dev/null; then
+            if ! sudo timeout 120 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update -qq; then
+              echo "Package index refresh timed out; using runner cached signed indexes."
+            fi
+            sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq ffmpeg
+          fi
+          if [ "$VERSION" = v5 ] || [ "$VERSION" = v6 ] || [ "$VERSION" = v7 ] || [ "$VERSION" = v8 ]; then
+            python3 scripts/cine/recover-software-parts.py
+            python3 scripts/cine/assemble-software-v5.py
+            exit 0
+          fi
+          if [ "$VERSION" = v3 ]; then
+            python3 scripts/cine/recover-software-parts.py
+            python3 scripts/cine/assemble-software-v3.py
+            exit 0
+          fi
+          python3 scripts/cine/recover-software-parts.py
+          mkdir delivery
+          for PART in $(seq 1 12); do printf "file 'software-part-%s/part-%s.mp4'\n" "$PART" "$PART"; done > parts.txt
+          ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-software-system-$VERSION.mp4
+          ffmpeg -v error -i delivery/cine-software-system-$VERSION.mp4 -vf 'crop=1520:1080:400:0,pad=1520:1520:0:220:color=0x0B1019,scale=1080:1080' -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-software-system-$VERSION-sq.mp4
+          ffmpeg -v error -i delivery/cine-software-system-$VERSION.mp4 -frames:v 1 -q:v 2 delivery/cine-software-system-$VERSION-poster.jpg
+          ffmpeg -v error -i delivery/cine-software-system-$VERSION-sq.mp4 -frames:v 1 -q:v 2 delivery/cine-software-system-$VERSION-poster-sq.jpg
+          for SUFFIX in poster poster-sq; do ffmpeg -v error -i delivery/cine-software-system-$VERSION-$SUFFIX.jpg -c:v libaom-av1 -still-picture 1 -crf 24 delivery/cine-software-system-$VERSION-$SUFFIX.avif; done
+          ffmpeg -v error -i delivery/cine-software-system-$VERSION.mp4 -f null -
+          ffmpeg -v error -i delivery/cine-software-system-$VERSION-sq.mp4 -f null -
+          ffprobe -v error -count_frames -show_streams -show_format -of json delivery/cine-software-system-$VERSION.mp4 > delivery/validation.json
+          python3 - <<'PYVERIFY'
+          import json
+          from pathlib import Path
+          v=json.loads(Path('delivery/validation.json').read_text())['streams'][0]
+          assert (v['width'],v['height'],v['nb_read_frames'],v['avg_frame_rate'])==(1920,1080,'576','24/1'),v
+          assert abs(float(v['duration'])-24)<.01,v
+          assert sum(p.stat().st_size for p in Path('delivery').iterdir())<40_000_000
+          PYVERIFY
+          python3 - <<'PYINFO'
+          import json
+          from pathlib import Path
+          parts=[json.loads(Path(f'software-part-{i}/part-{i}-info.json').read_text()) for i in range(1,13)]
+          info=parts[0]
+          assert all(p['scene']==info['scene'] and p['samples']==info['samples'] and p['engine']==info['engine'] for p in parts)
+          info['timings']=[t for p in parts for t in p['timings']]
+          info['bounds']=[b for p in parts for b in p['bounds']]
+          assert [t['frame'] for t in info['timings']]==list(range(576))
+          Path('delivery/render-info.json').write_text(json.dumps(info))
+          PYINFO
+          ffprobe -v error -count_frames -show_streams -show_format -of json delivery/cine-software-system-$VERSION-sq.mp4 > delivery/validation-square.json
+          ffmpeg -v error -i delivery/cine-software-system-$VERSION.mp4 -f framemd5 delivery/frame-integrity.txt
+          python3 - <<'PYFRAMES'
+          from pathlib import Path
+          frames=[line.split(',')[-1].strip() for line in Path('delivery/frame-integrity.txt').read_text().splitlines() if line and not line.startswith('#')]
+          assert len(frames)==576 and len(set(frames))>=570, 'Movie contains frozen or duplicated frames'
+          PYFRAMES
+          sha256sum delivery/* > delivery/SHA256SUMS
+      - uses: actions/upload-artifact@v7
+        with:
+          name: software-cinema-${{ inputs.version }}
+          path: delivery
+          retention-days: 5

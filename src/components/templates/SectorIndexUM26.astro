@@ -2,6 +2,9 @@
 import { sectorCaseLabel } from '../../data/sectorCaseCounts';
 import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import CineBanner from '../cine/CineBanner.astro';
+import SectorAtlas from '../cine/SectorAtlas.astro';
+import {cinemaChapters} from '../../data/cine/projectCinema';
+const chapters=cinemaChapters();
 interface SectorIndexItem {
   slug: string;
   label: string;
@@ -36,9 +39,6 @@ const activeSectors = sectorFilter
   ? sectors.filter((sector) => sector.slug === sectorFilter)
   : sectors;
 const allSectors = activeSectors.length ? activeSectors : sectors;
-const feature = allSectors[0];
-const rest = allSectors.slice(1);
-const leadImage = feature?.image || sectors[0]?.image || '/img/sectores/aeropuertos.webp';
 const countLabel = (sector: SectorIndexItem) => sectorCaseLabel(sector.slug);
 const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id || !sectorFilter);
 ---
@@ -46,7 +46,9 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
 <div class="sectors-demo" aria-labelledby="sectors-demo-title">
   <CineBanner
     variant="sector"
-    scenes={['aeropuerto', 'bodega', 'fachada', 'hospital', 'planta']}
+    scenes={chapters.map(chapter=>chapter.scene)}
+    annotations={false}
+    framing="project"
     titleId="sectors-demo-title"
     kicker="Sectores"
     title="Infraestructura por sector."
@@ -67,47 +69,8 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
   </section>
 
 
-  {feature && (
-    <section class="sectors-demo-shell">
-      <a href={`/${feature.slug}`} class="sectors-demo-feature">
-        <img src={feature.image} alt={feature.imageAlt} width="1600" height="900" loading="eager" decoding="async" />
-        <div class="sectors-demo-feature__shade" aria-hidden="true"></div>
-        <div class="sectors-demo-feature__body">
-          <h2>{feature.label}</h2>
-          <span>{feature.operatingNeed}</span>
-        </div>
-        {countLabel(feature) && (
-          <div class="sectors-demo-feature__count">
-            <span>Casos</span>
-            <strong>{countLabel(feature)}</strong>
-          </div>
-        )}
-        <i aria-hidden="true"></i>
-      </a>
-    </section>
-  )}
-
-  <section class="sectors-demo-shell sectors-demo-grid" aria-label="Mapa de sectores">
-    {rest.map((sector, index) => (
-      <a
-        href={`/${sector.slug}`}
-        class:list={['sectors-demo-card', { 'sectors-demo-card--wide': index === 0 || index === 4 }]}
-      >
-        <img src={sector.image} alt={sector.imageAlt} width="1200" height="900" loading="lazy" decoding="async" />
-        <div class="sectors-demo-card__shade" aria-hidden="true"></div>
-        {countLabel(sector) && (
-          <div class="sectors-demo-card__count">
-            <span>Casos</span>
-            <strong>{countLabel(sector)}</strong>
-          </div>
-        )}
-        <div class="sectors-demo-card__body">
-          <h2>{sector.label}</h2>
-          <span>{sector.operatingNeed || sector.summary}</span>
-        </div>
-        <i aria-hidden="true"></i>
-      </a>
-    ))}
+  <section class="sectors-demo-shell sectors-demo-atlas" aria-label="Recorrido por los nueve sectores">
+    <SectorAtlas sectors={allSectors.map(sector=>({name:sector.label,href:`/${sector.slug}`,count:countLabel(sector),text:sector.operatingNeed||sector.summary}))} />
   </section>
 
   <section class="sectors-demo-shell sectors-demo-closing">
@@ -123,6 +86,8 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
 </div>
 
 <style>
+  .sectors-demo-atlas{padding-block:48px}
+
   .sectors-demo {
     min-height: 100vh;
     background: #0a0a0b;

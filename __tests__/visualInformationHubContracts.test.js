@@ -263,10 +263,10 @@ describe('Information hub visual contracts', () => {
     // cada unidad es su color de sistema y un único enlace real al servicio.
     const home = read('src/pages/index.astro');
     const story = read('src/components/cine/ServicesStory.astro');
-    const itemTemplate = story.slice(story.indexOf('<ol class="svc-story__list"'), story.indexOf('</ol>'));
+    const itemTemplate = story.slice(story.indexOf('<ol class="svc-story__list"'), story.indexOf('</ol>',story.indexOf('<ol class="svc-story__list"')));
 
     expect(home).toContain("import ServicesStory from '../components/cine/ServicesStory.astro'");
-    expect(home).toContain('<ServicesStory services={services} />');
+    expect(home).toContain('<ServicesStory services={services} project={integralProject} />');
     expect(home).not.toContain('<i aria-hidden="true"></i>');
     expect(home).not.toMatch(/\.um-service-unit__head i\s*\{/);
     expect(itemTemplate).not.toMatch(/<i\b/);
@@ -311,15 +311,16 @@ describe('Information hub visual contracts', () => {
     expect(coverage).not.toMatch(/outline:\s*(none|0)/);
   });
 
-  test('sector service cards expose real link interaction states', () => {
-    expect(sectorUM26).toContain('class="um-click-surface sector26-service-card"');
-    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</em>');
-    expect(sectorUM26).toMatch(/\.sector26-service-card,[\s\S]*--um-click-hover-bg:[\s\S]*#171719;/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover,[\s\S]*a\.sector26-service-card:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.22\);/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover strong,[\s\S]*a\.sector26-service-card:focus-visible strong\s*\{[\s\S]*color:\s*#fff !important;/);
-    expect(sectorUM26).toMatch(/\.sector26-service-card em\s*\{[\s\S]*text-decoration:\s*underline;/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover em::after,[\s\S]*a\.sector26-service-card:focus-visible em::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
+  test('sector chapters keep selected, hover and keyboard focus states with a real detail link', () => {
+    const story = read('src/components/cine/ServicesStory.astro');
+    expect(sectorUM26).toContain('<SectorJourney ');
+    expect(story).toContain('data-atlas-service={s.code}');
+    expect(story).toContain('aria-pressed={String(i===0)}');
+    expect(story).toContain('button:focus-visible');
+    expect(story).toContain('outline:2px solid #fff');
+    expect(story).toContain('button[aria-pressed=true]');
+    expect(story).toContain('href={first.href} data-atlas-link');
+    expect(story).toContain('text-underline-offset:7px');
   });
 
   test('sector evidence links expose active hover and focus states', () => {
@@ -874,6 +875,30 @@ describe('mega-menú de escritorio', () => {
     mega.dispatchEvent(new MouseEvent('mouseleave'));
     expect(mega.classList.contains('is-open')).toBe(false);
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    document.body.innerHTML = '';
+  });
+
+  test('moving hover and focus between menus keeps the newly opened panel visible', () => {
+    const navbar = read('src/components/v4/NavbarV4.astro');
+    const typescript = require('typescript');
+    const start = navbar.indexOf('    const megas =');
+    const end = navbar.indexOf('    const root = document.documentElement;', start);
+    const compiled = typescript.transpileModule(navbar.slice(start, end), {
+      compilerOptions: {target: typescript.ScriptTarget.ES2020}
+    }).outputText;
+    document.body.innerHTML = ['servicios','sectores'].map(group => `<div class="um-ops-mega" data-group="${group}"><button class="um-ops-mega__toggle" aria-expanded="false">${group}</button><div class="um-ops-mega__panel"></div></div>`).join('');
+    new Function('matchMedia', compiled)(() => ({matches:true}));
+    const [services,sectors] = document.querySelectorAll('.um-ops-mega');
+    services.dispatchEvent(new MouseEvent('mouseenter'));services.querySelector('button').focus();
+    sectors.dispatchEvent(new MouseEvent('mouseenter'));sectors.querySelector('button').focus();
+    expect(services.classList.contains('is-open')).toBe(false);
+    expect(services.querySelector('button').getAttribute('aria-expanded')).toBe('false');
+    expect(sectors.classList.contains('is-open')).toBe(true);
+    expect(sectors.querySelector('button').getAttribute('aria-expanded')).toBe('true');
+    sectors.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape',bubbles:true}));
+    expect(sectors.classList.contains('is-open')).toBe(false);
+    services.dispatchEvent(new MouseEvent('mouseenter'));services.querySelector('button').focus();
+    expect(services.classList.contains('is-open')).toBe(true);
     document.body.innerHTML = '';
   });
 

@@ -1,7 +1,7 @@
 import { bindHardware } from '../public/cine/cine-studies-v5.js';
 import { bindProductTour } from '../public/cine/product-tour-v5.js';
 import { bindServicesStory } from '../public/cine/services-story-v5.js';
-import { banner } from '../public/cine/cine-banner-v5.js';
+import { banner } from '../public/cine/cine-banner-v11.js';
 
 let observers, preferences, media, frames, nextFrame;
 const settle = async () => { await Promise.resolve(); await Promise.resolve(); };
@@ -85,4 +85,110 @@ test('hero RAF stops offscreen and track identity follows variant cuts rather th
   visible(root);await settle();expect(root.querySelector('video').getAttribute('src')).toContain('fachada-redes');expect(fetch).toHaveBeenCalledWith('/cine/media/cine-fachada-redes-ar.json');expect(frames.size).toBe(1);
   visible(root,false);expect(frames.size).toBe(0);expect(root.querySelector('video').paused).toBe(true);
   visible(root);await settle();expect(frames.size).toBe(1);cleanup();expect(frames.size).toBe(0);
+});
+
+test('the cinematic hero starts without waiting for unrelated window load and binds after Astro swaps',async()=>{
+ document.body.innerHTML='<div data-umc data-scenes="fachada"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><button data-umc-motion></button></div>';
+ Object.defineProperty(document,'readyState',{configurable:true,value:'loading'});
+ const root=document.querySelector('[data-umc]');banner(root);visible(root);jest.advanceTimersByTime(600);await settle();
+ expect(root.querySelector('video').paused).toBe(false);expect(root.dataset.cinematic).toBe('quiet');
+ document.dispatchEvent(new Event('astro:before-swap'));expect(root.dataset.bound).toBeUndefined();expect(frames.size).toBe(0);
+ document.dispatchEvent(new Event('astro:page-load'));expect(root.dataset.bound).toBe('true');
+});
+
+
+test('a moving equipment label hides before crossing hero copy even between label selection intervals',async()=>{
+ document.body.innerHTML='<div data-umc data-scenes="bodega-label-test"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><div class="umc-copy"><h1>Operación</h1><a href="/contacto">Contactar</a></div></div>';
+ const root=document.querySelector('[data-umc]'),stage=root.querySelector('.umc-stage'),video=stage.querySelector('video');
+ Object.defineProperty(root,'clientWidth',{configurable:true,value:1000});Object.defineProperty(stage,'clientWidth',{configurable:true,value:1000});Object.defineProperty(stage,'clientHeight',{configurable:true,value:600});
+ const sceneRect={left:0,top:0,right:1000,bottom:600,width:1000,height:600};
+ jest.spyOn(root,'getBoundingClientRect').mockReturnValue(sceneRect);jest.spyOn(stage,'getBoundingClientRect').mockReturnValue(sceneRect);
+ jest.spyOn(root.querySelector('.umc-copy'),'getBoundingClientRect').mockReturnValue({left:0,top:200,right:600,bottom:550,width:600,height:350});
+ fetch.mockResolvedValue({ok:true,json:()=>Promise.resolve({frames:2,fps:24,order:'linear',assets:[{id:'camera',system:'CCTV',name:'Cámara IP'}],track:{camera:[[.92,.6,true],[.72,.6,true]]}})});
+ banner(root);root.querySelectorAll('.umc-tag__card').forEach(card=>{Object.defineProperty(card,'offsetWidth',{configurable:true,value:260});Object.defineProperty(card,'offsetHeight',{configurable:true,value:80});});
+ visible(root);jest.advanceTimersByTime(600);for(let i=0;i<4;i++)await settle();
+ const tick=now=>{const pending=[...frames.values()];frames.clear();pending.forEach(fn=>fn(now));};
+ tick(2000);const label=root.querySelector('.umc-tag.is-on');expect(label).not.toBeNull();expect(label.classList.contains('is-obscured')).toBe(false);
+ video.currentTime=1/24;tick(2100);expect(label.classList.contains('is-obscured')).toBe(true);expect(root.querySelectorAll('.umc-tag.is-on')).toHaveLength(1);
+});
+
+
+test('a still sector hero mounts no media, track fetch, animation clock or observer',async()=>{
+ document.body.innerHTML='<div data-umc data-motion="still" data-scenes="fachada"><img class="umc-poster"></div>';
+ banner(document.querySelector('[data-umc]'));await jest.advanceTimersByTimeAsync(30000);
+ expect(observers).toHaveLength(0);expect(fetch).not.toHaveBeenCalled();expect(frames.size).toBe(0);expect(jest.getTimerCount()).toBe(0);
+});
+
+
+test('a single unannotated project movie plays natively without track fetches, overlay tags or a JS frame loop',async()=>{
+ document.body.innerHTML='<div data-umc data-scenes="fachada-proyecto-v1" data-annotations="none"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><button data-umc-motion></button></div>';
+ const root=document.querySelector('[data-umc]');const cleanup=banner(root);visible(root);await jest.advanceTimersByTimeAsync(600);await settle();
+ expect(root.querySelector('video').paused).toBe(false);expect(root.querySelectorAll('.umc-tag')).toHaveLength(0);expect(fetch).not.toHaveBeenCalled();expect(frames.size).toBe(0);
+ visible(root,false);expect(root.querySelector('video').paused).toBe(true);cleanup();
+});
+
+
+test.each(['software','network','security','telecom','support','consulting','fire','power'].flatMap(scene=>[834,820,390].map(width=>[scene,width])))('%s cinema at %spx preserves the intended banner framing',async(scene,width)=>{
+ const file='cine-'+scene+'-system-v1'+(width<=820?'-sq':'')+'.mp4';
+ const previous=window.innerWidth;Object.defineProperty(window,'innerWidth',{configurable:true,value:width});
+ document.body.innerHTML='<div data-umc data-scenes="'+scene+'-system-v1" data-composition="discipline" data-annotations="none"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><button data-umc-motion></button></div>';
+ const root=document.querySelector('[data-umc]'),stage=root.querySelector('.umc-stage');
+ Object.defineProperty(stage,'clientWidth',{configurable:true,value:width>820?width*.75:Math.min(width,600)});Object.defineProperty(stage,'clientHeight',{configurable:true,value:width>820?756:Math.min(width,600)*27/38});
+ const cleanup=banner(root);
+ try{visible(root);await jest.advanceTimersByTimeAsync(600);await settle();expect(root.querySelector('video').getAttribute('src')).toBe('/cine/media/'+file);}
+ finally{cleanup();Object.defineProperty(window,'innerWidth',{configurable:true,value:previous});}
+});
+
+test('a complete single movie restarts after ended and preserves an explicit pause',async()=>{
+ document.body.innerHTML='<div data-umc data-scenes="network-system-v1" data-annotations="none"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><button data-umc-motion></button></div>';
+ const root=document.querySelector('[data-umc]'),video=root.querySelector('video');
+ const cleanup=banner(root);visible(root);await jest.advanceTimersByTimeAsync(600);await settle();
+ expect(video.loop).toBe(false);
+ video.currentTime=23.9;video.dispatchEvent(new Event('timeupdate'));expect(video.currentTime).toBe(23.9);
+ video.currentTime=24;video.pause();video.dispatchEvent(new Event('ended'));await settle();
+ expect(video.currentTime).toBe(0);expect(video.paused).toBe(false);
+ root.querySelector('[data-umc-motion]').click();video.currentTime=24;video.dispatchEvent(new Event('ended'));await settle();
+ expect(video.currentTime).toBe(24);expect(video.paused).toBe(true);
+ cleanup();
+});
+
+
+test('movie narration follows decoded playback time without requiring a user selection',async()=>{
+ document.body.innerHTML='<div data-umc data-scenes="network-project-v2" data-annotations="none"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><p data-umc-film-caption><span data-film-number></span><span data-film-text></span></p><button data-umc-motion></button></div>';
+ const root=document.querySelector('[data-umc]'),video=root.querySelector('video');
+ root.dataset.movieChapters=JSON.stringify([{at:0,text:'Instalación'},{at:5.6,text:'Distribución'},{at:13.8,text:'Acceso'}]);
+ Object.defineProperty(video,'duration',{configurable:true,value:24});
+ const cleanup=banner(root);visible(root);await jest.advanceTimersByTimeAsync(600);await settle();
+ expect(root.querySelector('[data-film-text]').textContent).toBe('Instalación');
+ video.currentTime=14;video.dispatchEvent(new Event('timeupdate'));
+ expect(root.querySelector('[data-film-text]').textContent).toBe('Acceso');expect(root.querySelector('[data-film-number]').textContent).toBe('03');
+ hidden(true);video.currentTime=7;video.dispatchEvent(new Event('timeupdate'));expect(root.querySelector('[data-film-text]').textContent).toBe('Acceso');
+ hidden(false);await settle();expect(root.querySelector('[data-film-text]').textContent).toBe('Distribución');
+ cleanup();
+});
+
+test('only the visible movie is prepared before idle playback, and disposal cancels its queued start',async()=>{
+ document.body.innerHTML='<div data-umc data-scenes="network-project-v2" data-annotations="none"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div></div>';
+ let idle;window.requestIdleCallback=jest.fn(fn=>{idle=fn;return 41;});window.cancelIdleCallback=jest.fn();
+ try{
+  const root=document.querySelector('[data-umc]'),videos=root.querySelectorAll('video'),cleanup=banner(root);
+  expect(videos[0].hasAttribute('src')).toBe(false);visible(root);
+  expect(videos[0].getAttribute('src')).toContain('network-project-v2');expect(videos[0].paused).toBe(true);expect(videos[1].hasAttribute('src')).toBe(false);
+  await jest.advanceTimersByTimeAsync(600);expect(videos[0].paused).toBe(true);
+  cleanup();expect(window.cancelIdleCallback).toHaveBeenCalledWith(41);idle();await settle();expect(videos[0].paused).toBe(true);
+ }finally{window.requestIdleCallback=undefined;window.cancelIdleCallback=undefined;}
+});
+
+
+test('a full-width software movie waits for the movie itself, then preserves manual pause',async()=>{
+ document.body.innerHTML='<section data-umc data-software-cinema="true" data-scenes="software-system-v7" data-annotations="none" data-framing="project" data-product-composition="true"><div class="umc-copy"><h1>Software</h1></div><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><button data-umc-motion></button></section>';
+ const root=document.querySelector('[data-umc]'),stage=root.querySelector('.umc-stage'),video=stage.querySelector('video');
+ const cleanup=banner(root);
+ visible(root);jest.advanceTimersByTime(1800);await settle();
+ expect(video.hasAttribute('src')).toBe(false);
+ visible(stage);await settle();expect(video.paused).toBe(false);
+ visible(stage,false);expect(video.paused).toBe(true);
+ visible(stage);await settle();expect(video.paused).toBe(false);
+ root.querySelector('[data-umc-motion]').click();visible(stage,false);visible(stage);await settle();
+ expect(video.paused).toBe(true);cleanup();
 });

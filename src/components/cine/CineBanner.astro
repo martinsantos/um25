@@ -1,15 +1,21 @@
 ---
-// Banner cine: plano Cycles pre-renderizado (vuelo imposible por la escena, con cortes
-// "pop" entre edificio y esqueleto de sistemas) y etiquetas que siguen a los equipos.
+// Banner cine: recorrido pre-renderizado con empalmes suaves y etiquetas de equipos.
 // Portada: encadena las escenas. Sector o servicio: una escena en bucle.
 // Las películas completas quedan en Blender; la exploración de servicios usa isométricos.
 import '../../styles/cine-banner.css';
 import { HOME_SCENES, cutCaption } from '../../data/cine/scenes';
+import { FILM_CHAPTERS } from '../../data/cine/filmChapters';
+import siteMovies from '../../data/cine/site-movies-v1.json';
 
 interface Stat { label: string; value: string }
 interface Link { href: string; label: string }
+interface CinemaChapter {scene:string;name:string;text:string}
 interface Props {
   variant?: 'home' | 'sector';
+  chapters?:CinemaChapter[];
+  motion?: 'auto' | 'still';
+  annotations?: boolean;
+  framing?: 'cover' | 'project';
   /** Escenas base o claves v4 "<escena>-<servicio>" (mismos archivos, con sufijo). */
   scenes?: string[];
   systems?: string[];
@@ -28,7 +34,7 @@ interface Props {
   start?: number;
 }
 const {
-  variant = 'home', scenes = HOME_SCENES.map((s) => s.scene), systems = [], kicker,
+  variant = 'home', chapters, motion = 'auto', annotations = true, framing = 'cover', scenes = HOME_SCENES.map((s) => s.scene), systems = [], kicker,
   title, lead, primary, secondary, stats = [], back, titleId = 'umcTitle', variants = {}, start = 0,
 } = Astro.props;
 const startIndex = Math.min(Math.max(Math.floor(start), 0), scenes.length - 1);
@@ -36,17 +42,27 @@ const first = scenes[startIndex];
 const variantsAttr = Object.entries(variants).filter(([, v]) => v.length).map(([s, v]) => `${s}:${v.join('|')}`).join(';') || undefined;
 const dot = title.endsWith('.');
 const heading = dot ? title.slice(0, -1) : title;
-const rail = HOME_SCENES.filter((s) => scenes.includes(s.scene));
-const firstTitle = cutCaption(first);
+const rail = chapters||HOME_SCENES.filter((s) => scenes.includes(s.scene));
+const firstTitle = rail.find(chapter=>chapter.scene===first)?.name||cutCaption(first);
+const disciplineComposition = /^(software|network|security|telecom|support|consulting|fire|power)-(system|project)-v\d+$/.test(first);
+const productComposition = /^(software-system-v[345678]|power-project-v3|(?:fire|network|security|telecom|power|support|consulting)-project-v2)$/.test(first);
+const softwareCinema = ['software-system-v7','software-system-v8'].includes(first);
+const filmChapters = FILM_CHAPTERS[first];
+const firstMovie = Object.values(siteMovies.services).find(movie => movie.scene === first);
+const posterRevision = firstMovie && 'posterRevision' in firstMovie ? `-${firstMovie.posterRevision}` : '';
+const posterPath = (square: boolean, format: string) => `/cine/media/cine-${first}-poster${square ? '-sq' : ''}${posterRevision}.${format}`;
+const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-width:546px) and (max-aspect-ratio:651/1000)';
 ---
-<section class:list={['umc', `umc--${variant}`]} data-umc data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
+<section class:list={['umc', `umc--${variant}`]} data-umc data-motion={motion} data-annotations={annotations?'tracked':'none'} data-framing={framing} data-composition={disciplineComposition?'discipline':undefined} data-software-cinema={softwareCinema?'true':undefined} data-product-composition={productComposition?'true':undefined} data-movie-chapters={filmChapters?JSON.stringify(filmChapters):undefined} data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
   <div class="umc-stage" aria-hidden="true">
     <picture>
-      <source type="image/avif" srcset={`/cine/media/cine-${first}-poster.avif`} />
-      <img class="umc-poster" src={`/cine/media/cine-${first}-poster.jpg`} alt="" width="1920" height="1080" fetchpriority="high" decoding="async" />
+      {framing==='project'&&<source media={squarePosterMedia} type="image/avif" srcset={posterPath(true, 'avif')} data-poster-square />}
+      {framing==='project'&&<source media={squarePosterMedia} type="image/jpeg" srcset={posterPath(true, 'jpg')} data-poster-square />}
+      <source type="image/avif" srcset={posterPath(false, 'avif')} />
+      <img class="umc-poster" src={posterPath(false, 'jpg')} alt="" width="1920" height="1080" fetchpriority="high" decoding="async" />
     </picture>
-    <video class="umc-video" muted playsinline preload="none" disablepictureinpicture></video>
-    <video class="umc-video" muted playsinline preload="none" disablepictureinpicture></video>
+    {motion!=='still'&&<video class="umc-video" muted playsinline preload="none" disablepictureinpicture></video>}
+    {motion!=='still'&&<video class="umc-video" muted playsinline preload="none" disablepictureinpicture></video>}
     <div class="umc-grade"></div>
     <div class="umc-ar"></div>
   </div>
@@ -56,13 +72,13 @@ const firstTitle = cutCaption(first);
     {kicker && <p class="umc-eyebrow">{kicker}</p>}
     <h1 id={titleId}>{heading}{dot && <span class="umc-dot">.</span>}</h1>
     {lead && <p class="umc-lead">{lead}</p>}
-    {(primary || secondary) && (
+    {!softwareCinema && (primary || secondary) && (
       <div class="umc-cta">
         {primary && <a class="umc-btn" href={primary.href}>{primary.label}<span aria-hidden="true">↗</span></a>}
         {secondary && <a class="umc-btn umc-btn--ghost" href={secondary.href}>{secondary.label}</a>}
       </div>
     )}
-    {stats.length > 0 && (
+    {!softwareCinema && stats.length > 0 && (
       <dl class="umc-stats">
         {stats.map((s) => <div><dt>{s.label}</dt><dd>{s.value}</dd></div>)}
       </dl>
@@ -70,10 +86,12 @@ const firstTitle = cutCaption(first);
   </div>
 
   <div class="umc-foot">
-    {variant === 'home' ? (
-      <div class="umc-rail" role="group" aria-label="Escenas por sector">
+    {filmChapters ? (
+      <p class="umc-film-caption" data-umc-film-caption aria-live="off"><span data-film-number aria-hidden="true">01</span><span data-film-text>{filmChapters[0].text}</span></p>
+    ) : variant === 'home' ? (
+      <div class="umc-rail" style={`--umc-scenes:${rail.length}`} role="group" aria-label="Escenas por sector">
         {rail.map((s, i) => (
-          <button type="button" data-umc-scene={s.scene} aria-pressed={s.scene === first ? 'true' : 'false'}>
+          <button type="button" data-umc-scene={s.scene} data-name={s.name} aria-pressed={s.scene === first ? 'true' : 'false'}>
             <span class="umc-rail__n">{String(i + 1).padStart(2, '0')}</span>
             <span class="umc-rail__t">{s.name}<small>{s.text}</small></span>
             <i class="umc-rail__bar"><b></b></i>
@@ -85,13 +103,112 @@ const firstTitle = cutCaption(first);
     ) : (
       <span class="umc-caption" aria-hidden="true"></span>
     )}
-    <div class="umc-tools">
+    {motion!=='still'&&<div class="umc-tools">
 
       <button class="umc-tool umc-tool--icon" type="button" data-umc-motion aria-label="Pausar el recorrido">
         <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>
         <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5v14l12-7L7 5Z"/></svg>
       </button>
-    </div>
+    </div>}
   </div>
+  {softwareCinema && <div class="umc-summary">
+    {(primary || secondary) && <div class="umc-cta">
+      {primary && <a class="umc-btn" href={primary.href}>{primary.label}<span aria-hidden="true">↗</span></a>}
+      {secondary && <a class="umc-btn umc-btn--ghost" href={secondary.href}>{secondary.label}</a>}
+    </div>}
+    {stats.length > 0 && <dl class="umc-stats">
+      {stats.map((s) => <div><dt>{s.label}</dt><dd>{s.value}</dd></div>)}
+    </dl>}
+  </div>}
 </section>
-<script src="/cine/cine-banner-v5.js" type="module" is:inline></script>
+<script src="/cine/cine-banner-v11.js" type="module" async is:inline></script>
+
+<style>
+ .umc[data-framing="project"] :global(.umc-stage){left:0;right:0}
+ .umc[data-framing="project"] :global(.umc-poster),.umc[data-framing="project"] :global(.umc-video){object-fit:contain;object-position:center center}
+ /* Each discipline film reserves the left column for reading. Its complete
+    system remains visible beside the copy instead of behind it. */
+ @media(min-width:821px){
+  .umc[data-composition="discipline"] :global(.umc-stage){left:25%;right:0}
+  .umc[data-composition="discipline"] :global(.umc-copy){width:min(520px,42%)}
+  .umc[data-composition="discipline"] :global(.umc-poster),.umc[data-composition="discipline"] :global(.umc-video){top:0;bottom:0;height:auto;aspect-ratio:16/9;margin-block:auto;mask-image:linear-gradient(180deg,transparent,#000 14%,#000 86%,transparent)}
+  .umc[data-composition="discipline"] :global(.umc-grade){background:linear-gradient(90deg,var(--umc-ink),transparent 20%),linear-gradient(0deg,var(--umc-ink),transparent 26%),linear-gradient(180deg,rgba(7,8,10,.3),transparent 18%)}
+ }
+ /* A narrow side-by-side composition needs a smaller heading role so the
+    model and its explanation keep comparable visual weight. */
+ @media(min-width:821px) and (max-width:1100px){
+  .umc[data-composition="discipline"]{--um-world-h1:2.5rem}
+ }
+ @media(max-width:820px){
+  /* Remove only the padding encoded around the mobile frame. Every
+     equipment layer remain in view, at their original resolution. */
+  .umc[data-composition="discipline"] :global(.umc-stage){top:24px;left:50%;right:auto;width:min(100%,600px);height:auto;aspect-ratio:38/27;transform:translateX(-50%)}
+  .umc[data-composition="discipline"] :global(.umc-poster),.umc[data-composition="discipline"] :global(.umc-video){object-fit:cover;mask-image:linear-gradient(180deg,transparent,#000 19%,#000 81%,transparent)}
+  .umc[data-composition="discipline"] :global(.umc-grade){background:none}
+  .umc[data-composition="discipline"] :global(.umc-copy){padding-top:calc(min(100vw,600px) * 27 / 38 + 24px)}
+  /* Keep the motion control beside the movie, above the fixed mobile dock. */
+  .umc[data-composition="discipline"] :global(.umc-tools){position:absolute;top:12px;right:var(--umc-gutter)}
+  .umc[data-composition="discipline"] :global(.umc-eyebrow){margin-bottom:14px}
+  .umc[data-composition="discipline"] :global(.umc-lead){margin-top:16px}
+  .umc[data-composition="discipline"] :global(.umc-cta){margin-top:24px}
+  .umc--sector :global(.umc-stats){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+  .umc--sector :global(.umc-stats div){padding:16px 0 0;margin-right:0}
+  .umc--sector :global(.umc-stats dt){letter-spacing:0;text-transform:none}
+ }
+ /* Upright equipment reaches closer to the frame edges than the software
+    surfaces. Keep the mast tops and cabinet feet inside the opaque region. */
+ .umc[data-composition="discipline"]:not([data-scene^="software-system-v"]):not([data-product-composition="true"]) :global(.umc-poster),
+ .umc[data-composition="discipline"]:not([data-scene^="software-system-v"]):not([data-product-composition="true"]) :global(.umc-video){mask-image:linear-gradient(180deg,transparent,#000 6%,#000 94%,transparent)}
+ /* Detailed product and installation films use the entire authored frame.
+    Give it a separate column and preserve its edges through every close-up. */
+ .umc[data-product-composition="true"] :global(.umc-poster),.umc[data-product-composition="true"] :global(.umc-video){mask-image:none}
+ /* The poster is the first native frame. Blending two 4K layers delays decoding. */
+ .umc[data-product-composition="true"] :global(.umc-poster),.umc[data-product-composition="true"] :global(.umc-video){transition:none}
+ .umc[data-product-composition="true"]{--umc-ink:#090a0c}
+ .umc[data-product-composition="true"] :global(.umc-grade){background:none}
+ /* Match the decoded native studio background, so the film has no rectangular seam. */
+ .umc[data-product-composition="true"][data-scene$="-project-v2"],.umc[data-scene="power-project-v3"]{--umc-ink:#050505}
+ .umc-film-caption{display:flex;align-items:baseline;gap:12px;margin:0;flex:1;font-size:1rem;line-height:1.5;color:#bfc2c7}
+ .umc-film-caption [data-film-number]{color:#dc2626;font-variant-numeric:tabular-nums}
+ @media(min-width:821px){.umc-film-caption{margin-left:calc(42vw - var(--umc-gutter));padding-right:16px}}
+ @media(max-width:820px){
+  .umc-film-caption{position:absolute;top:calc(24px + min(100vw,600px) * 9 / 16 + 12px);left:20px;right:20px}
+  .umc[data-product-composition="true"][data-movie-chapters]:not([data-software-cinema="true"]) :global(.umc-copy){padding-top:calc(min(100vw,600px) * 9 / 16 + 104px)}
+ }
+ @media(min-width:821px){
+  .umc[data-product-composition="true"] :global(.umc-stage){left:42%;right:0}
+  .umc[data-product-composition="true"] :global(.umc-copy){width:min(520px,calc(42% - var(--umc-gutter) - 24px))}
+ }
+ @media(max-width:820px){
+  .umc[data-product-composition="true"] :global(.umc-stage){aspect-ratio:16/9}
+  .umc[data-product-composition="true"] :global(.umc-copy){padding-top:calc(min(100vw,600px) * 9 / 16 + 40px)}
+ }
+ /* Software is inspected at the scale of a product film, with its reading
+    above the frame. No headline masks the interface or reduces it to a sticker. */
+ .umc[data-software-cinema="true"]{--umc-ink:#11151c;min-height:0;grid-template-rows:auto auto auto auto;padding-bottom:28px}
+ .umc[data-software-cinema="true"] :global(.umc-copy){grid-row:1;grid-column:1;width:calc(100% - var(--umc-gutter)*2);margin:48px var(--umc-gutter) 28px;padding-top:0}
+ .umc[data-software-cinema="true"] :global(.umc-stage){position:relative;grid-row:2;grid-column:1;inset:auto;z-index:0;transform:none;justify-self:center;width:min(100%,1440px);height:auto;aspect-ratio:16/9}
+ .umc[data-software-cinema="true"] :global(.umc-poster),.umc[data-software-cinema="true"] :global(.umc-video){inset:0;height:100%;margin:0}
+ .umc[data-software-cinema="true"] :global(.umc-summary){grid-row:4;grid-column:1;margin:28px var(--umc-gutter) 0;display:grid;grid-template-columns:1.15fr 1fr;gap:56px;align-items:center}
+ .umc[data-software-cinema="true"] :global(.umc-summary .umc-cta){margin:0}
+ .umc[data-software-cinema="true"] :global(.umc-summary .umc-stats){margin:0}
+ .umc[data-software-cinema="true"] :global(.umc-foot){display:contents}
+ .umc[data-software-cinema="true"] :global(.umc-tools){position:relative;inset:auto;grid-row:2;grid-column:1;z-index:2;align-self:start;justify-self:end;margin:20px var(--umc-gutter)}
+ .umc[data-software-cinema="true"] :global(.umc-film-caption){position:static;grid-row:3;grid-column:1;margin:18px var(--umc-gutter) 0;padding:0;max-width:80ch}
+ @media(min-width:821px){
+  .umc[data-software-cinema="true"] :global(.umc-stage){width:min(100%,1440px,max(920px,calc((100svh - 290px)*16/9)))}
+  .umc[data-software-cinema="true"] :global(.umc-copy){display:grid;grid-template-columns:1.15fr 1fr;column-gap:56px;row-gap:14px}
+  .umc[data-software-cinema="true"] :global(.umc-back){grid-column:1;grid-row:1;margin:0}
+  .umc[data-software-cinema="true"] :global(.umc-eyebrow){grid-column:1;grid-row:2;margin:0}
+  .umc[data-software-cinema="true"] :global(h1){grid-column:1;grid-row:3;font-size:clamp(2.75rem,4.2vw,4.25rem);line-height:1.04;max-width:20ch}
+  .umc[data-software-cinema="true"] :global(.umc-lead){grid-column:2;grid-row:3;margin:0;max-width:48ch}
+ }
+ @media(max-width:820px){
+  .umc[data-software-cinema="true"] :global(.umc-summary){display:block;margin-top:24px}
+  .umc[data-software-cinema="true"] :global(.umc-summary .umc-stats){margin-top:28px}
+  .umc[data-scene="software-system-v8"] :global(.umc-stage){aspect-ratio:4/3}
+  .umc[data-software-cinema="true"] :global(.umc-copy){margin-top:28px;margin-bottom:24px}
+  .umc[data-software-cinema="true"] :global(.umc-film-caption){margin-top:16px}
+  .umc[data-software-cinema="true"] :global(.umc-tools){margin:12px var(--umc-gutter)}
+ }
+</style>

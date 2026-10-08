@@ -1,0 +1,142 @@
+name: Cinema experience visual audit
+
+on:
+  workflow_dispatch:
+    inputs:
+      webkit_only:
+        description: 'Repeat complete WebKit layout coverage after a focused correction'
+        type: boolean
+        default: false
+      camera_service:
+        description: Narrow a mechanism audit to the equipment that changed
+        type: choice
+        options: [all, "102", "103", "105", "106", "108"]
+        default: all
+      layer_camera_only:
+        description: 'All six layers, swept bounds and reduced motion in the five remaining disciplines'
+        type: boolean
+        default: false
+      precision_only:
+        description: 'Native-speed precision cabinet, autonomous layers, pause and reduced motion'
+        type: boolean
+        default: false
+      refinement_only:
+        description: 'Software framing and first-use equipment context in Networks and Power'
+        type: boolean
+        default: false
+      software_only:
+        description: 'Software narrative after removing the building payload'
+        type: boolean
+        default: false
+      discipline_only:
+        description: 'Home, Bodegas and all eight system narratives'
+        type: boolean
+        default: false
+      strict:
+        description: 'Fail on experience findings after collecting evidence'
+        type: boolean
+        default: true
+      pilot_only:
+        description: 'Only Bodegas and its service movie after a versioned media import'
+        type: boolean
+        default: false
+      home_only:
+        description: 'Only home for a focused navigation regression check'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  ASTRO_TELEMETRY_DISABLED: '1'
+
+jobs:
+  visual:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: ${{ fromJSON(inputs.webkit_only && '["desktop"]' || '["desktop","mobile"]') }}
+        engine: ${{ fromJSON(inputs.layer_camera_only && '["Chrome","WebKit"]' || '["Chrome"]') }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.x'
+          cache: npm
+      - run: npm ci
+      - name: Build an isolated copy of the candidate
+        run: npm run build
+        env:
+          NODE_OPTIONS: --max-old-space-size=2048
+      - name: Install the audit browser on the disposable runner
+        run: |
+          npm install --prefix "$RUNNER_TEMP/um-visual-runtime" --no-save --no-package-lock playwright@1.63.0
+          if [ '${{ matrix.engine }}' = WebKit ]; then
+            "$RUNNER_TEMP/um-visual-runtime/node_modules/.bin/playwright" install --with-deps webkit
+          else
+            "$RUNNER_TEMP/um-visual-runtime/node_modules/.bin/playwright" install chrome
+          fi
+      - name: Start isolated loopback preview
+        run: |
+          HOST=127.0.0.1 PORT=4326 NODE_ENV=production node dist/server/entry.mjs > "$RUNNER_TEMP/um-preview.log" 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -fsS --max-time 2 http://127.0.0.1:4326/ -o /dev/null; then exit 0; fi
+            sleep 2
+          done
+          tail -30 "$RUNNER_TEMP/um-preview.log"
+          exit 1
+      - name: Capture native movie playback and automatic isometric sequences
+        if: ${{ !inputs.webkit_only }}
+        run: |
+          if [ '${{ inputs.layer_camera_only }}' = true ]; then
+            node scripts/cine/audit-layer-camera.mjs
+          elif [ '${{ inputs.precision_only }}' = true ]; then
+            node scripts/cine/audit-precision-network.mjs
+          else
+            node scripts/cine/audit-cinema-experience.mjs
+          fi
+        env:
+          VISUAL_ENGINE: ${{ matrix.engine }}
+          CAMERA_SERVICE_CODE: ${{ inputs.camera_service }}
+          VISUAL_WIDTH: ${{ matrix.profile == 'mobile' && '390' || '1440' }}
+          PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
+          VISUAL_AUDIT_SOFTWARE_ONLY: ${{ inputs.software_only && '1' || '0' }}
+          VISUAL_AUDIT_REFINEMENT_ONLY: ${{ inputs.refinement_only && '1' || '0' }}
+          VISUAL_AUDIT_DISCIPLINE_ONLY: ${{ inputs.discipline_only && '1' || '0' }}
+          VISUAL_AUDIT_PROFILE: ${{ matrix.profile }}
+          VISUAL_AUDIT_PILOT_ONLY: ${{ inputs.pilot_only && '1' || '0' }}
+          VISUAL_AUDIT_HOME_ONLY: ${{ inputs.home_only && '1' || '0' }}
+          VISUAL_AUDIT_DIR: ${{ runner.temp }}/um-visual-${{ matrix.profile }}
+          VISUAL_AUDIT_STRICT: ${{ (github.event_name == 'push' || inputs.strict) && '1' || '0' }}
+      - name: Verify SVG layout in WebKit at every contract width
+        if: matrix.profile == 'desktop' && !inputs.layer_camera_only
+        run: |
+          "$RUNNER_TEMP/um-visual-runtime/node_modules/.bin/playwright" install --with-deps webkit
+          if [ '${{ inputs.layer_camera_only }}' = true ]; then
+            node scripts/cine/audit-layer-camera.mjs
+          elif [ '${{ inputs.precision_only }}' = true ]; then
+            node scripts/cine/audit-precision-webkit.mjs
+          else
+            node scripts/cine/audit-webkit-layout.mjs
+          fi
+        env:
+          VISUAL_AUDIT_REFINEMENT_ONLY: ${{ inputs.refinement_only && '1' || '0' }}
+          VISUAL_AUDIT_HOME_ONLY: ${{ inputs.home_only && '1' || '0' }}
+          VISUAL_AUDIT_SOFTWARE_ONLY: ${{ inputs.software_only && '1' || '0' }}
+          VISUAL_ENGINE: WebKit
+          VISUAL_WIDTH: ${{ matrix.profile == 'mobile' && '390' || '1440' }}
+          PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
+          VISUAL_AUDIT_DIR: ${{ runner.temp }}/um-visual-${{ matrix.profile }}
+      - name: Save screenshots and observations
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ inputs.layer_camera_only && format('cinema-camera-{0}', matrix.engine) || 'cinema-experience' }}-${{ matrix.profile }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/um-visual-${{ matrix.profile }}/
+            ${{ runner.temp }}/um-preview.log
+          retention-days: 3

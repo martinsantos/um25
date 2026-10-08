@@ -14,14 +14,12 @@ import JournalBand from '../components/cine/JournalBand.astro';
 import SnapRail from '../components/cine/SnapRail.astro';
 import CapabilityLedger from '../components/cine/CapabilityLedger.astro';
 import { NAV_SERVICES } from '../data/navigation';
-import { HOME_SCENES, V4_CUTS } from '../data/cine/scenes';
+import { HOME_SCENES } from '../data/cine/scenes';
+import {sectorProject} from '../data/cine/sectorNarrative';
 
-// Hero variable: cada visita arranca en otra escena y cada escena elige al azar uno de
-// sus recorridos v4 (servicio dentro de la escena). SSR: cambia en cada carga.
-const heroVariants = Object.fromEntries(
-  HOME_SCENES.map((s) => [s.scene, Object.keys(V4_CUTS).filter((k) => k.startsWith(`${s.scene}-`))]),
-);
-const heroStart = Math.floor(Math.random() * HOME_SCENES.length);
+// La portada conserva los vuelos completos de Blender; los servicios cuentan
+// su recorrido con el proyecto isométrico bajo el hero.
+const integralProject=sectorProject('integral','fachada');
 
 const heroLead = 'Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.';
 
@@ -94,8 +92,10 @@ const hubs = [
       lead={heroLead}
       primary={{ href: '/antecedentes', label: 'Ver evidencia operativa' }}
       secondary={{ href: '/sectores', label: 'Entrar por sector' }}
-      variants={heroVariants}
-      start={heroStart}
+      scenes={HOME_SCENES.map(chapter=>chapter.scene)}
+      chapters={HOME_SCENES}
+      annotations={false}
+      framing="cover"
     />
 
     <section class="um26-stats" aria-label="Indicadores ULTIMA MILLA">
@@ -124,12 +124,12 @@ const hubs = [
         <div class="um26-section__head" data-reveal>
           <div>
             <p class="um26-kicker"><span></span>Servicios</p>
-            <h2>Ocho frentes de servicio IT.</h2>
+            <h2>La tecnología, trabajando en conjunto.</h2>
           </div>
-          <p>Un mismo equipo releva, instala y sostiene cada sistema, de la obra a la operación diaria.</p>
+          <p>Conectamos sitios, protegemos instalaciones y desarrollamos sistemas. Seguí las decisiones y las capas que hacen funcionar cada servicio, desde el primer enlace hasta la operación diaria.</p>
         </div>
 
-        <ServicesStory services={services} />
+        <ServicesStory services={services} project={integralProject} />
 
         <a class="um26-text-link" href="/servicios">Ver los ocho servicios</a>
       </div>
@@ -142,7 +142,7 @@ const hubs = [
             <p class="um26-kicker"><span></span>Sectores</p>
             <h2>Infraestructura IT por sector.</h2>
           </div>
-          <p>Entrá por su sector y revisá casos comparables antes de contratar.</p>
+          <p>Cada entorno exige decisiones distintas. El recorrido muestra dónde se aplica nuestra ingeniería; los proyectos documentan cómo.</p>
         </div>
 
         <SectorAtlas sectors={sectors} />
@@ -221,7 +221,7 @@ const hubs = [
           <div>
             <p class="um26-kicker"><span></span>Contacto rápido</p>
             <h2>Ordenemos su infraestructura y su continuidad operativa.</h2>
-            <p>Respondemos en el día con un relevamiento técnico y una propuesta verificable. Sin compromiso inicial.</p>
+            <p>Contanos qué necesita funcionar, dónde y con qué alcance. A partir de esa información definimos el siguiente paso técnico.</p>
           </div>
           <div>
             <a class="um26-btn um26-btn--red" href="/contacto" data-contact-open>Escribinos</a>
@@ -420,7 +420,7 @@ const hubs = [
       border: 1px solid rgba(255, 255, 255, 0.14);
       background: rgba(10, 10, 11, 0.72);
       backdrop-filter: blur(8px);
-      color: rgba(255, 255, 255, 0.45);
+      color: #c4c7cc;
       font-family: var(--um-font-mono);
       font-size: 1rem;
       letter-spacing: 0.18em;
@@ -607,7 +607,7 @@ const hubs = [
       gap: 8px;
       align-items: center;
       margin: 40px 0 0;
-      color: rgba(255, 255, 255, 0.45);
+      color: #c4c7cc;
       font-family: var(--um-font-mono);
       font-size: 1rem;
       text-transform: uppercase;
@@ -691,7 +691,7 @@ const hubs = [
     .um26-stats span {
       display: block;
       margin-top: 10px;
-      color: #71717a;
+      color: #c4c7cc;
       font-family: var(--um-font-body);
       font-size: 16px;
       letter-spacing: 0.04em;
@@ -763,7 +763,7 @@ const hubs = [
     .um26-section__head > p {
       max-width: 430px;
       margin: 0;
-      color: #a1a1aa;
+      color: #c4c7cc;
       font-size: var(--um-copy-description);
       line-height: 1.65;
     }
@@ -853,8 +853,8 @@ const hubs = [
       margin: 0;
       color: #fff;
       font-family: var(--um-font-display);
-      font-size: clamp(1.25rem, 1.7vw, 1.7rem);
-      font-weight: 700;
+      font-size: var(--um-world-h3, 1.25rem);
+      font-weight: var(--um-display-weight, 600);
       letter-spacing: var(--um-display-tracking);
       line-height: 1.02;
       transition: color 0.18s ease;
@@ -867,7 +867,7 @@ const hubs = [
     .um26-media-card p {
       min-width: 0;
       margin: 8px 0 0;
-      color: #a1a1aa;
+      color: #c4c7cc;
       font-size: var(--um-copy-description);
       line-height: 1.5;
     }
@@ -902,7 +902,7 @@ const hubs = [
       padding: 0 calc(12px - 0.1em) 0 12px;
       border-radius: 4px;
       background: rgba(10, 10, 11, 0.62);
-      color: rgba(255, 255, 255, 0.72);
+      color: #c4c7cc;
       font: 600 0.8125rem/1 var(--um-font-body, 'UM Sans', sans-serif);
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -1004,7 +1004,7 @@ const hubs = [
       align-items: center;
       gap: 10px;
       margin: 0 0 22px;
-      color: #71717a;
+      color: #c4c7cc;
       font-family: var(--um-font-editorial);
       font-size: 1rem;
       letter-spacing: 0.18em;
@@ -1027,7 +1027,7 @@ const hubs = [
 
     .um26-hub-grid em {
       margin-top: 12px;
-      color: #71717a;
+      color: #c4c7cc;
       font-style: normal;
       font-family: var(--um-font-editorial);
       font-size: 1rem;
@@ -1037,7 +1037,7 @@ const hubs = [
 
     .um26-hub-grid small {
       margin-top: 28px;
-      color: #3f3f46;
+      color: #c4c7cc;
       font-family: var(--um-font-editorial);
       font-size: 1rem;
     }
@@ -1092,7 +1092,7 @@ const hubs = [
     .um26-contact p:not(.um26-kicker) {
       max-width: 520px;
       margin: 22px 0 0;
-      color: #a1a1aa;
+      color: #c4c7cc;
       line-height: 1.6;
     }
 
@@ -1122,8 +1122,8 @@ const hubs = [
 
     .um26-contact__panel > div:last-child > span {
       text-align: center;
-      color: #a1a1aa;
-      font-size: 0.95rem;
+      color: #c4c7cc;
+      font-size: 1rem;
     }
 
     @media (max-width: 1100px) {
@@ -1352,3 +1352,4 @@ const hubs = [
   </style>
 
 </LayoutV4>
+

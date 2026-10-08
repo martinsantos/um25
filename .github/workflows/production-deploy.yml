@@ -177,10 +177,10 @@ jobs:
               src/utils/blogTopicMap.ts|src/utils/getBlogData.ts) ;;
               # UM25 refactor: cine v4 (40 recorridos), páginas de producto
               # 104/105/106 y control visual.
-              public/cine/cine-banner-v4.js|public/cine/cine-banner-v5.js|public/cine/cine-studies-v5.js|public/cine/product-tour-v5.js|\
+              public/cine/cine-banner-v4.js|public/cine/cine-banner-v5.js|public/cine/cine-banner-v6.js|public/cine/cine-banner-v7.js|public/cine/cine-banner-v8.js|public/cine/sector-atlas-v2.js|public/cine/sector-atlas-v3.js|public/cine/cine-studies-v5.js|public/cine/product-tour-v5.js|\
               public/cine/services-story-v5.js|public/cine/software-layers-v5.js|\
-              public/cine/isometric-services-v6.js|public/cine/service-atlas-v6.js|public/cine/software-layers-v6.js|\
-              public/cine/hairline-v5.js|public/cine/LICENSE-hairline-v5.txt|public/cine/media/cine-*|\
+              public/cine/isometric-services-v6.js|public/cine/isometric-services-v7.js|public/cine/service-atlas-v6.js|public/cine/service-atlas-v7.js|public/cine/service-atlas-v8.js|public/cine/service-atlas-v9.js|public/cine/service-atlas-v10.js|public/cine/service-atlas-v11.js|public/cine/service-atlas-v12.js|public/cine/service-atlas-v13.js|public/cine/service-atlas-v14.js|public/cine/service-atlas-v15.js|public/cine/service-atlas-v16.js|public/cine/request-sequence-v1.js|public/cine/request-sequence-v2.js|public/cine/request-sequence-v3.js|public/cine/request-sequence-v4.js|public/cine/operation-geometry-v2.js|public/cine/operation-geometry-v1.js|public/cine/service-atlas-v17.js|public/cine/service-atlas-v18.js|public/cine/service-atlas-v19.js|public/cine/network-journey-v7.js|public/cine/network-rack-v8.js|public/cine/network-rack-v9.js|public/cine/network-rack-v10.js|public/cine/network-rack-v11.js|public/cine/network-rack-v12.js|public/cine/network-rack-v13.js|public/cine/software-layers-v6.js|public/cine/software-layers-v7.js|public/cine/software-layers-v8.js|public/cine/software-layers-v9.js|\
+              public/cine/hairline-v5.js|public/cine/hairline-v7.js|public/cine/LICENSE-hairline-v5.txt|public/cine/media/cine-*|\
               __tests__/visualInformationHubContracts.test.js|__tests__/cineMotionLifecycle.test.js|\
               docs/cine/v5-integration.md|docs/cine/storage-maintenance-20261004.md|\
               scripts/cine/import-v4-media.mjs|scripts/cine/build-hairline-v5.mjs|scripts/cine/vendor/*|\
@@ -188,15 +188,30 @@ jobs:
               src/components/templates/SectorTemplateUM26.astro|\
               src/components/v4/NavbarV4.astro|\
               src/data/cine/scenes.ts|src/data/cine/v4-media.json|\
-              src/data/productPages.ts|src/data/cine/hardware.ts|src/data/cine/isometric.ts|\
-              src/assets/cine/isometric/*|scripts/cine/build-isometric-v6.mjs|scripts/cine/isometric-models-v6.mjs|\
-              __tests__/isometricServices.test.js|__tests__/mobileOverflowContracts.test.js|docs/cine/isometric-v6.md|\
+              src/data/productPages.ts|src/data/cine/hardware.ts|src/data/cine/isometric.ts|src/data/cine/networkAssembly.ts|src/data/cine/serviceNarrative.ts|src/data/cine/sectorNarrative.ts|src/data/cine/site-movies-v1.json|src/data/cine/projectCinema.ts|src/data/cine/filmChapters.ts|\
+              __tests__/requestSequence.test.js|docs/cine/causal-operation-20261006.md|docs/cine/narrative-direction-20261007.md|docs/cine/continuous-operation-20261006.md|docs/cine/experience-refinement-20261006.md|\
+              scripts/cine/audit-webkit-layout.mjs|scripts/cine/build-request-operation-v1.py|scripts/cine/build-request-operation-v2.py|scripts/cine/build-request-operation-v3.py|\
+              src/components/templates/SectorIndexUM26.astro|src/data/cine/operationGeometry.json|src/data/cine/operationNarrative.ts|src/data/cine/disciplineSystems.ts|src/data/cine/requestSequence.ts|\
+              src/assets/cine/isometric/*|scripts/cine/build-isometric-v6.mjs|scripts/cine/isometric-models-v6.mjs|scripts/cine/build-operation-isometrics-v7.mjs|scripts/cine/build-site-project-v1.mjs|scripts/cine/build-discipline-systems.py|scripts/cine/render-site-project-v1.py|scripts/cine/render-site-project-v2.py|scripts/cine/render-software-system-v1.py|.github/workflows/cine-software-render.yml|scripts/cine/check-sector-preview.mjs|scripts/cine/check-integrated-preview.mjs|scripts/cine/audit-cinema-experience.mjs|.github/workflows/cine-experience-audit.yml|scripts/cine/import-site-cinema.mjs|scripts/cine/import-project-cinema-v3.mjs|scripts/cine/import-project-cinema-v4.mjs|scripts/cine/import-software-cinema-v1.mjs|.github/workflows/cine-project-render.yml|\
+              __tests__/isometricServices.test.js|__tests__/isometricNarrative.test.js|__tests__/serviceAtlasAutoplay.test.js|__tests__/sectorProjectJourney.test.js|__tests__/sectorAtlasAutoplay.test.js|__tests__/visualInformationHubContracts.test.js|__tests__/networkJourney.test.js|scripts/cine/build-network-journey-v7.mjs|scripts/cine/build-network-rack-v8.mjs|scripts/cine/build-network-rack-v9.mjs|scripts/cine/build-network-rack-v10.mjs|scripts/cine/share-svg-primitives.js|scripts/cine/build-software-preview.mjs|scripts/cine/build-software-hairline-v7.mjs|__tests__/isometricPerformance.test.js|__tests__/disciplineSystems.test.js|__tests__/mobileOverflowContracts.test.js|docs/cine/isometric-v6.md|\
               src/pages/antecedentes/index.astro|\
               src/pages/certificaciones.astro|\
               src/pages/index.astro|\
               src/pages/servicios/'[id]'/ficha.astro|\
               src/pages/servicios/index.astro|\
               src/styles/cine-banner.css) ;;
+              # Reviewed precision diagrams, native cinema and their evidence.
+              .github/workflows/cine-framing-audit.yml|.github/workflows/cine-layer-camera-audit.yml|.github/workflows/cine-services-render.yml|__tests__/precisionSystemLifecycle.test.js|__tests__/fireSystemLifecycle.test.js|__tests__/disciplineCameraGeometry.test.js|__tests__/disciplineRuntimeLifecycle.test.js|\
+              docs/cine/precision-review-20261007.md|docs/cine/seven-service-cinema-20261007.md|docs/cine/software-product-direction-20261007.md|\
+              docs/cine/work-status-20261007.md|docs/cine/reference-gate-20261008.md|public/cine/cine-banner-v9.js|public/cine/cine-banner-v10.js|public/cine/cine-banner-v11.js|public/cine/precision-systems-v1.js|\
+              public/cine/precision-systems-v2.js|public/cine/precision-systems-v3.js|public/cine/precision-systems-v4.js|\
+              public/cine/precision-systems-v5.js|public/cine/precision-systems-v6.js|public/cine/precision-systems-v7.js|public/cine/precision-systems-v8.js|public/cine/fire-system-v2.js|public/cine/discipline-camera-v2.js|public/cine/discipline-camera-v3.js|public/cine/discipline-runtime-v3.js|public/cine/discipline-runtime-v1.js|public/cine/discipline-runtime-v2.js|public/cine/fire-system-v1.js|public/cine/discipline-camera-v1.js|public/cine/service-atlas-v20.js|scripts/cine/assemble-software-v3.py|scripts/cine/assemble-fire-project-v2.py|scripts/cine/assemble-technical-project-v2.py|scripts/cine/import-technical-project-v2.mjs|scripts/cine/import-fire-project-v2.mjs|\
+              scripts/cine/audit-precision-network.mjs|scripts/cine/audit-precision-webkit.mjs|scripts/cine/audit-software-frame.mjs|scripts/cine/audit-native-film-startup.mjs|scripts/cine/audit-layer-camera.mjs|\
+              scripts/cine/build-precision-network.py|scripts/cine/build-precision-fire.py|scripts/cine/build-precision-software.py|scripts/cine/check-service-composition.py|\
+              scripts/cine/import-service-cinema-v1.mjs|scripts/cine/import-software-cinema-v2.mjs|scripts/cine/import-software-cinema-v3.mjs|\
+              scripts/cine/precision-diagram-content.py|scripts/cine/prepare-blender-fonts.py|scripts/cine/recover-software-parts.py|\
+              scripts/cine/refine-discipline-linework.py|scripts/cine/refine-discipline-introductions.py|scripts/cine/refine-optic-termination.py|scripts/cine/render-fire-project-v2.py|scripts/cine/render-network-project-v2.py|scripts/cine/render-security-project-v2.py|scripts/cine/render-telecom-project-v2.py|scripts/cine/render-power-project-v2.py|scripts/cine/render-support-project-v2.py|scripts/cine/render-consulting-project-v2.py|scripts/cine/prepare-render-font.py|scripts/cine/prepare-software-posters.mjs|scripts/cine/render-service-cinema-v1.py|scripts/cine/render-software-system-v2.py|\
+              scripts/cine/render-software-system-v3.py|scripts/cine/render-software-system-v5.py|scripts/cine/render-software-system-v6.py|scripts/cine/render-software-system-v7.py|scripts/cine/render-software-system-v8.py|scripts/cine/assemble-software-v5.py|scripts/cine/refine-power-isometry.py|scripts/cine/refine-power-distribution.py|scripts/cine/repack-software-color-v4.py|src/data/serviceSingleDemoSystem.ts) ;;
               *) echo "Unexpected release path: $path" >&2; exit 1 ;;
             esac
           done < /tmp/umsa-release-paths.txt

@@ -96,7 +96,12 @@ const SERVICE_LABEL_BY_SLUG: Record<string, string> = {
 
 /** Rótulo del plano: "Hospital" para una escena base, "Hospital · Software a medida" para un recorrido v4.
  *  Mismo texto que escribe el reproductor (/cine/cine-banner-v4.js) en cada corte. */
+const DISCIPLINE_TITLES: Record<string,string> = {
+  network:'Redes', security:'Seguridad electrónica', telecom:'Telecomunicaciones', software:'Software a medida',
+  support:'Soporte 24/7', consulting:'Consultoría IT', fire:'Detección de incendios', power:'Energía para IT',
+};
 export const cutCaption = (key: string): string => {
+  if (/^[a-z]+-(system|project)-v\d+$/.test(key)) return DISCIPLINE_TITLES[key.split('-')[0]] || 'Infraestructura IT';
   const service = SERVICE_LABEL_BY_SLUG[key.split('-')[1] || ''];
   return SCENE_TITLES[baseScene(key)] + (service ? ` · ${service}` : '');
 };

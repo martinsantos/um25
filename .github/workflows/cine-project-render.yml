@@ -1,0 +1,197 @@
+name: Blender project cinema
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Proof three views, or render completed movies'
+        type: choice
+        options: [proof, full, deliver, repair]
+        default: proof
+      projects:
+        description: 'Remaining projects reuse the already delivered building movie'
+        type: choice
+        options: [remaining, clinic, terminal, plant, winery, mine, software]
+        default: remaining
+      renderer:
+        description: 'v2: continuous approach, restrained technical lighting and selective circuits'
+        type: choice
+        options: [v1, v2]
+        default: v1
+      source_run:
+        description: 'For deliver mode: existing render run containing this project’s 18 parts'
+        type: string
+        required: false
+      part:
+        description: 'For repair mode: one missing part (1–24 for software; 1–18 for sites)'
+        type: number
+        default: 1
+      repair_run:
+        description: 'For deliver mode: optional run containing recovered parts'
+        type: string
+        required: false
+
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ${{ (inputs.mode == 'deliver' || inputs.mode == 'repair') && format('blender-project-{0}-{1}-{2}-{3}', inputs.mode, github.ref, inputs.projects, inputs.part) || format('blender-project-chunks-{0}', github.ref) }}
+  cancel-in-progress: true
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      scenes: ${{ steps.plan.outputs.scenes }}
+    steps:
+      - id: plan
+        env:
+          MODE: ${{ inputs.mode }}
+          PROJECTS: ${{ inputs.projects }}
+          SOURCE_RUN: ${{ inputs.source_run }}
+          REPAIR_PART: ${{ inputs.part }}
+        run: |
+          python3 - <<'PY'
+          import json,os
+          scenes=['clinic','terminal','plant','winery','mine'] if os.environ['PROJECTS']=='remaining' else [os.environ['PROJECTS']]
+          if os.environ['MODE']=='deliver': assert os.environ['SOURCE_RUN'].isdigit()
+          rows=[]
+          for scene in scenes:
+              parts=24 if scene=='software' else 18
+              if os.environ['MODE']=='repair':
+                  part=int(os.environ['REPAIR_PART']);assert 1<=part<=parts and len(scenes)==1
+                  rows.append(dict(scene=scene,part=part,start=(part-1)*24,end=part*24-1,frames=24))
+              elif os.environ['MODE']=='proof':
+                  rows.extend(dict(scene=scene,part=i+1,start=f,end=f,frames=1) for i,f in enumerate([0,144,288]))
+              else:
+                  rows.extend(dict(scene=scene,part=i+1,start=i*24,end=i*24+23,frames=24) for i in range(parts))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+              out.write('matrix='+json.dumps({'include':rows})+'\n')
+              out.write('scenes='+json.dumps(scenes)+'\n')
+          PY
+  render:
+    if: inputs.mode != 'deliver'
+    name: ${{ matrix.scene }} · part ${{ matrix.part }}
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 18
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Install verified official Blender
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libgl1 libegl1 libxrender1 libxi6 ffmpeg
+          curl -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender-4.5.3-linux-x64.tar.xz
+          curl -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256 -o blender.sha256
+          awk '$2 == "blender-4.5.3-linux-x64.tar.xz" {print}' blender.sha256 > blender-selected.sha256
+          test -s blender-selected.sha256
+          sha256sum -c blender-selected.sha256
+          tar -xf blender-4.5.3-linux-x64.tar.xz
+      - name: Render native Full HD with the measured Cycles settings
+        env:
+          RENDERER: ${{ inputs.renderer || 'v1' }}
+        run: |
+          SAMPLES=8
+          if [[ "$RENDERER" == "v2" ]]; then SAMPLES=16; fi
+          if [[ "${{ matrix.scene }}" == "software" ]]; then
+            python3 scripts/cine/render-software-system-v1.py --validate-only
+            ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-v1.py -- --samples 24 --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
+            exit 0
+          fi
+          python3 "scripts/cine/render-site-project-${RENDERER}.py" --validate-only --scene ${{ matrix.scene }}
+          ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python "scripts/cine/render-site-project-${RENDERER}.py" -- --scene ${{ matrix.scene }} --samples "$SAMPLES" --start ${{ matrix.start }} --end ${{ matrix.end }} --output frames
+      - uses: actions/upload-artifact@v7
+        if: inputs.mode == 'proof'
+        with:
+          name: site-${{ matrix.scene }}-proof-${{ matrix.part }}
+          path: frames
+          retention-days: 1
+      - name: Encode recoverable part
+        if: inputs.mode == 'full' || inputs.mode == 'repair'
+        run: |
+          cp frames/render-info.json part-${{ matrix.part }}-info.json
+          ffmpeg -v error -framerate 24 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v ${{ matrix.frames }} -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -r 24 -g 48 -an -movflags +faststart part-${{ matrix.part }}.mp4
+      - uses: actions/upload-artifact@v7
+        if: inputs.mode == 'full' || inputs.mode == 'repair'
+        with:
+          name: site-${{ matrix.scene }}-part-${{ matrix.part }}
+          path: |
+            part-${{ matrix.part }}.mp4
+            part-${{ matrix.part }}-info.json
+          retention-days: 1
+  assemble:
+    name: Deliver ${{ matrix.scene }} cinema
+    if: always() && (inputs.mode == 'full' || inputs.mode == 'deliver') && (inputs.mode == 'deliver' || needs.render.result == 'success')
+    needs: [plan, render]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        scene: ${{ fromJSON(needs.plan.outputs.scenes) }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: site-${{ matrix.scene }}-part-*
+          run-id: ${{ inputs.mode == 'deliver' && inputs.source_run || github.run_id }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v8
+        if: inputs.mode == 'deliver' && inputs.repair_run != ''
+        with:
+          pattern: site-${{ matrix.scene }}-part-*
+          run-id: ${{ inputs.repair_run }}
+          github-token: ${{ github.token }}
+      - name: Join, crop and decode every frame
+        env:
+          PROJECT_SCENE: ${{ matrix.scene }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          mkdir delivery
+          # A single recovered artifact is extracted into the workspace root.
+          PARTS=18
+          if [[ "$PROJECT_SCENE" == "software" ]]; then PARTS=24; fi
+          for PART in $(seq 1 "$PARTS"); do
+            TARGET="site-$PROJECT_SCENE-part-$PART"
+            if test ! -f "$TARGET/part-$PART.mp4" && test -f "part-$PART.mp4"; then
+              mkdir -p "$TARGET"
+              mv "part-$PART.mp4" "part-$PART-info.json" "$TARGET/"
+            fi
+            test -s "$TARGET/part-$PART.mp4"
+          done
+          for PART in $(seq 1 "$PARTS"); do printf "file 'site-%s-part-%s/part-%s.mp4'\n" "$PROJECT_SCENE" "$PART" "$PART"; done > parts.txt
+          ffmpeg -v error -f concat -safe 0 -i parts.txt -c copy -movflags +faststart delivery/cine-project-v3.mp4
+          CROP=730
+          FILTER="crop=1080:1080:$CROP:0"
+          if [[ "$PROJECT_SCENE" == "software" ]]; then FILTER='crop=1520:1080:400:0,pad=1520:1520:0:220:color=0x0B1019,scale=1080:1080'; fi
+          ffmpeg -v error -i delivery/cine-project-v3.mp4 -vf "$FILTER" -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -an -movflags +faststart delivery/cine-project-v3-sq.mp4
+          ffmpeg -v error -i delivery/cine-project-v3.mp4 -frames:v 1 -q:v 2 delivery/cine-project-v3.poster.jpg
+          ffmpeg -v error -i delivery/cine-project-v3.poster.jpg -c:v libaom-av1 -still-picture 1 -crf 24 delivery/cine-project-v3.poster.avif
+          ffmpeg -v error -i delivery/cine-project-v3.mp4 -f null -
+          ffmpeg -v error -i delivery/cine-project-v3-sq.mp4 -f null -
+          ffprobe -v error -count_frames -show_streams -show_format -of json delivery/cine-project-v3.mp4 > delivery/validation.json
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          frames,duration=(576,24) if os.environ['PROJECT_SCENE']=='software' else (432,18)
+          v=json.loads(Path('delivery/validation.json').read_text())['streams'][0]
+          assert (v['width'],v['height'],v['nb_read_frames'],v['avg_frame_rate']) == (1920,1080,str(frames),'24/1'),v
+          assert abs(float(v['duration'])-duration)<.01,v
+          assert sum(p.stat().st_size for p in Path('delivery').iterdir())<40_000_000
+          PY
+          cp site-$PROJECT_SCENE-part-1/part-1-info.json delivery/render-info.json
+          sha256sum delivery/* > delivery/SHA256SUMS
+      - uses: actions/upload-artifact@v7
+        with:
+          name: site-${{ matrix.scene }}-cinema-v3
+          path: delivery
+          retention-days: 1

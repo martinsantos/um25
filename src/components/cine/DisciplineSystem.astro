@@ -1,0 +1,71 @@
+---
+import {DISCIPLINE_SYSTEMS} from '../../data/cine/disciplineSystems';
+import drawing from '../../assets/cine/isometric/discipline-systems-v6.svg?raw';
+import precisionNetwork from '../../assets/cine/isometric/discipline-101-v2.svg?raw';
+import precisionSoftware from '../../assets/cine/isometric/discipline-104-v2.svg?raw';
+import precisionPower from '../../assets/cine/isometric/discipline-108-v5.svg?raw';
+import precisionTelecom from '../../assets/cine/isometric/discipline-103-v3.svg?raw';
+import precisionSupport from '../../assets/cine/isometric/discipline-105-v3.svg?raw';
+import precisionConsulting from '../../assets/cine/isometric/discipline-106-v3.svg?raw';
+import precisionFire from '../../assets/cine/isometric/discipline-107-v2.svg?raw';
+interface Props {code?:string;codes?:string[];visible?:boolean}
+const {code='103',codes=[],visible=true}=Astro.props;
+const individual=import.meta.glob<string>('../../assets/cine/isometric/discipline-*-v2.svg',{eager:true,query:'?raw',import:'default'});
+const precisionBody=precisionNetwork.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
+const softwareBody=precisionSoftware.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
+const fireBody=precisionFire.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
+const combined=drawing.replace(/<g data-discipline-drawing="101"[\s\S]*?(?=<g data-discipline-drawing="102")/,precisionBody).replace(/<g data-discipline-drawing="104"[\s\S]*?(?=<g data-discipline-drawing="105")/,softwareBody).replace(/<g data-discipline-drawing="107"[\s\S]*?(?=<g data-discipline-drawing="108")/,fireBody);
+const markup=codes.length===1?(code==='101'?precisionNetwork:code==='103'?precisionTelecom:code==='104'?precisionSoftware:code==='108'?precisionPower:code==='105'?precisionSupport:code==='106'?precisionConsulting:individual[`../../assets/cine/isometric/discipline-${code}-v2.svg`]):combined;
+---
+<div class="discipline-system" data-discipline-system data-visible={String(visible&&Boolean(DISCIPLINE_SYSTEMS[code]))} data-discipline-service={code} data-discipline-stage="-1" role="img" aria-label="Capas conectadas del servicio, explicadas en el recorrido contiguo">
+ <Fragment set:html={markup} />
+ <p class="discipline-system__key"><span aria-hidden="true"></span><span data-discipline-key>Un sistema. Todas sus capas.</span></p>
+</div>
+<script src="/cine/discipline-runtime-v3.js" type="module" async is:inline />
+<style>
+ @property --um-ds-door-angle{syntax:"<angle>";inherits:false;initial-value:0deg}
+ .discipline-system{position:absolute;inset:0;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 700ms ease;isolation:isolate}
+ .discipline-system[data-visible=true]{visibility:visible;opacity:1}
+ /* Reserve the full stage while deferring the offscreen SVG paint. The loader
+    exposes it 300 px before arrival, before any mechanism is prepared. */
+ .discipline-system[data-discipline-runtime="waiting"]{content-visibility:hidden}
+ .discipline-system :global(.ds-svg){display:block;width:100%;height:calc(100% - 36px);overflow:hidden}
+ .discipline-system :global(.ds-drawing){display:none}
+ .discipline-system[data-discipline-service="101"] :global([data-discipline-drawing="101"]),.discipline-system[data-discipline-service="102"] :global([data-discipline-drawing="102"]),.discipline-system[data-discipline-service="103"] :global([data-discipline-drawing="103"]),.discipline-system[data-discipline-service="104"] :global([data-discipline-drawing="104"]),.discipline-system[data-discipline-service="105"] :global([data-discipline-drawing="105"]),.discipline-system[data-discipline-service="106"] :global([data-discipline-drawing="106"]),.discipline-system[data-discipline-service="107"] :global([data-discipline-drawing="107"]),.discipline-system[data-discipline-service="108"] :global([data-discipline-drawing="108"]){display:block}
+ .discipline-system :global(.ds-node){opacity:1;transition:opacity 600ms ease}
+ .discipline-system[data-layer-camera=true] :global(.ds-node:not([data-current=true])),.discipline-system[data-layer-camera=true] :global([data-discipline-route]:not([data-current=true])){opacity:.18}
+ .discipline-system :global(.pf-drawing [data-pf-focus]){transition:opacity 600ms ease}
+ .discipline-system :global(.pf-drawing[data-focused=true] [data-pf-focus]:not([data-current=true])){opacity:.18}
+ .discipline-system[data-discipline-stage="2"] :global(.pf-drawing[data-focused=true] [data-pf-focus]){opacity:.55}
+ .discipline-system[data-discipline-stage="5"] :global(.pf-drawing[data-focused=true] .pf-panel){opacity:1}
+ .discipline-system :global(.ds-node[data-current=true]),.discipline-system[data-discipline-stage="-1"] :global(.ds-node),.discipline-system[data-discipline-stage="6"] :global(.ds-node){opacity:1}
+ .discipline-system :global(.ds-cover){transition:transform 1800ms cubic-bezier(.22,1,.36,1)}
+ .discipline-system :global(.ds-node[data-current=true] .ds-cover){transform:translate(var(--ds-lift-x,0px),var(--ds-lift))}
+ .discipline-system :global(.ds-door){--um-ds-door-angle:0deg;transform:matrix(calc(.8660254 * (cos(var(--um-ds-door-angle)) - sin(var(--um-ds-door-angle)))),calc(.5 * (cos(var(--um-ds-door-angle)) + sin(var(--um-ds-door-angle)))),0,1,0,0);transform-origin:0 0;transition:--um-ds-door-angle 2200ms cubic-bezier(.22,1,.36,1)}
+ .discipline-system :global(.ds-node[data-current=true] .ds-door),.discipline-system[data-discipline-stage="3"] :global(.ds-door){--um-ds-door-angle:74deg}
+ .discipline-system :global([data-authored-interface] text){font-family:var(--um-font-body,'UM Sans',Arial,sans-serif)}
+ .discipline-system[data-layer-camera=true] :global(.ds-tag){opacity:0}
+ .discipline-system :global(.ds-tag text){font-family:var(--um-font-body,'UM Sans',Arial,sans-serif)}
+ .discipline-system :global(.ds-tag circle){transition:fill 600ms,stroke 600ms}
+ .discipline-system :global(.ds-tag[data-current=true] circle){fill:#981b24;stroke:#f4b5b5}
+ .discipline-system :global(.ds-packet){opacity:0;animation:discipline-signal 4200ms linear infinite}
+ .discipline-system :global([data-current=true]>.ds-packet){opacity:1}
+ .discipline-system :global([data-current=true]>.ds-route){stroke:#e0a4a7}
+ .discipline-system__key{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:10px;margin:0;min-height:30px;background:#090909;font-size:1rem;line-height:1.5;color:#c4c7cc}
+ .discipline-system__key>span:first-child{width:20px;height:2px;background:#dc2626;flex-shrink:0}
+ @keyframes discipline-signal{to{stroke-dashoffset:-100}}
+ .discipline-system :global(.pn-link[data-current=true] .pn-signal){animation:discipline-signal 5s linear infinite}
+ .discipline-system :global(.pn-link:not([data-current=true]) .pn-signal){animation:none}
+ .discipline-system[data-discipline-stage="-1"] :global(.pn-node),.discipline-system[data-discipline-stage="6"] :global(.pn-node){opacity:1}
+ .discipline-system[data-discipline-stage="-1"] :global(.pn-project),.discipline-system[data-discipline-stage="1"] :global(.pn-project),.discipline-system[data-discipline-stage="6"] :global(.pn-project){opacity:1}
+ .discipline-system[data-discipline-stage="-1"] :global(.pn-inspection),.discipline-system[data-discipline-stage="1"] :global(.pn-inspection),.discipline-system[data-discipline-stage="6"] :global(.pn-inspection){opacity:0}
+ .discipline-system[data-discipline-stage="1"] :global(.pn-project .pn-node){opacity:1}
+ .discipline-system :global(.pf-drawing[data-focused=true] .pf-tag){visibility:hidden}
+ .discipline-system :global(.pf-label),.discipline-system :global(.pf-engraving),.discipline-system :global(.pf-tag){font-family:var(--um-font-body,Arial,sans-serif)}
+ .discipline-system :global(.ps-text){font-family:var(--um-font-body,Arial,sans-serif)}
+ .discipline-system :global(.ps-layer){transition:opacity 650ms ease}
+ .discipline-system[data-discipline-service="104"]:not([data-discipline-stage="-1"]):not([data-discipline-stage="6"]) :global(.ps-layer:not([data-current=true])){opacity:.22}
+ .discipline-system :global(.pn-tag){font-family:var(--um-font-body,'UM Sans',Arial,sans-serif)}
+ @media(max-width:600px){.discipline-system :global(.ds-tag){display:none}.discipline-system[data-discipline-service="101"] :global(.pn-tag){display:none}.discipline-system :global(.pn-project){transform:translate(500px,435px) scale(.69)}.discipline-system :global(.pn-tag){font-size:24px}.discipline-system :global(.pn-tag tspan:not(.pn-tag__number)){display:none}}
+ @media(prefers-reduced-motion:reduce){.discipline-system :global(.pf-drawing [data-pf-focus]),.discipline-system,.discipline-system :global(.ps-layer),.discipline-system :global(.ds-node),.discipline-system :global(.ds-cover),.discipline-system :global(.ds-door){transition:none!important}.discipline-system :global(.pn-signal),.discipline-system :global(.ds-packet){animation:none!important;stroke-dasharray:none;stroke-width:1.6}}
+</style>
