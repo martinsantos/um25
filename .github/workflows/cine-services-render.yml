@@ -9,7 +9,7 @@ on:
         default: v1
       mode:
         type: choice
-        options: [proof, full, repair, assemble]
+        options: [proof, motion-proof, full, repair, assemble]
         default: proof
       services:
         description: 'Comma-separated service codes, or all'
@@ -54,6 +54,7 @@ jobs:
           python3 - <<'PY'
           import json,os
           assert os.environ['ENGINE'] in (['cycles','workbench'] if os.environ['VERSION']=='fire-v2' else ['eevee','cycles'])
+          assert os.environ['MODE']!='motion-proof' or os.environ['VERSION']=='fire-v2'
           codes=['101','102','103','105','106','107','108']
           selected=codes if os.environ['SERVICES']=='all' else os.environ['SERVICES'].split(',')
           assert selected and set(selected)<=set(codes) and len(selected)==len(set(selected))
@@ -64,8 +65,8 @@ jobs:
               assert len({tuple(pair) for pair in pairs})==len(pairs)
               rows=[dict(service=code,part=int(part),start=(int(part)-1)*48,end=int(part)*48-1) for code,part in pairs]
           if os.environ['VERSION']=='fire-v2':
-              assert os.environ['MODE']=='proof' and selected==['107'], 'Inspect the authored shots before rendering the film'
-              rows=[dict(service='107',part=i+1,start=f,end=f) for i,f in enumerate([0,460,960])]
+              assert os.environ['MODE'] in ['proof','motion-proof'] and selected==['107'], 'Inspect the authored shots before rendering the film'
+              rows=[dict(service='107',part=i+1,start=f,end=f) for i,f in enumerate([0,460,960])] if os.environ['MODE']=='proof' else [dict(service='107',part=4,start=960,end=971)]
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:
               out.write('matrix='+json.dumps({'include':rows})+'\n')
               out.write('services='+json.dumps(selected)+'\n')
@@ -128,7 +129,7 @@ jobs:
           if [ "$MODE" = proof ]; then EXTRA=(--proof-frames 0,144,288); fi
           xvfb-run -a ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-service-cinema-v1.py -- --service "$SERVICE" --engine "$ENGINE" --samples "$SAMPLES" --start "$START" --end "$END" --output frames "${EXTRA[@]}"
       - uses: actions/upload-artifact@v7
-        if: always() && (inputs.mode || 'proof') == 'proof'
+        if: always() && ((inputs.mode || 'proof') == 'proof' || inputs.mode == 'motion-proof')
         with:
           name: ${{ inputs.version == 'fire-v2' && format('fire-project-v2-proof-{0}', matrix.part) || format('service-proof-{0}', matrix.service) }}
           path: frames

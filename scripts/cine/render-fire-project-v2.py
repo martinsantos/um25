@@ -309,7 +309,7 @@ def render(args,s):
     scene.render.engine={'cycles':'CYCLES','workbench':'BLENDER_WORKBENCH'}[args.engine]
     if args.engine=='workbench':
         scene.display.shading.light='STUDIO';scene.display.shading.color_type='MATERIAL';scene.display.render_aa='16'
-        scene.display.shading.show_shadows=True;scene.display.shading.show_cavity=True;scene.display.shading.cavity_type='BOTH'
+        scene.display.shading.show_shadows=False;scene.display.shading.show_cavity=True;scene.display.shading.cavity_type='BOTH'
         scene.display.shading.curvature_ridge_factor=.55;scene.display.shading.curvature_valley_factor=.8
         scene.display.shading.cavity_ridge_factor=.35;scene.display.shading.cavity_valley_factor=.8
         scene.display.shading.studiolight_rotate_z=.5
@@ -322,7 +322,9 @@ def render(args,s):
     scene.render.threads_mode='FIXED';scene.render.threads=4
     scene.render.resolution_x=args.width;scene.render.resolution_y=round(args.width*9/16);scene.render.resolution_percentage=100
     scene.render.image_settings.file_format='PNG';scene.render.image_settings.color_mode='RGB'
-    scene.render.fps=FPS;scene.render.use_persistent_data=True;scene.view_settings.view_transform='AgX'
+    scene.render.fps=FPS;scene.render.use_persistent_data=True
+    scene.view_settings.view_transform='Standard' if args.engine=='workbench' else 'AgX'
+    scene.view_settings.exposure=.35 if args.engine=='workbench' else 0
     scene.world=bpy.data.worlds.new('UM graphite atelier');scene.world.use_nodes=True;scene.world.color=(.006,.006,.007)
     scene.world.node_tree.nodes['Background'].inputs[0].default_value=(.045,.055,.070,1)
     scene.world.node_tree.nodes['Background'].inputs[1].default_value=.32
@@ -384,6 +386,13 @@ def render(args,s):
         if label['front']:obj.rotation_euler[0]=math.pi/2
         if label.get('group'):obj.parent=parents[label['group']]
         c.materials.append(mats[label['mat']])
+    # A flexible eight-conductor loom remains attached to the moving fascia.
+    ribbon=[]
+    for i in range(8):
+        c=bpy.data.curves.new('Fascia ribbon '+str(i),'CURVE');c.dimensions='3D';c.bevel_depth=.0006;c.bevel_resolution=2
+        sp=c.splines.new('POLY');sp.points.add(23)
+        obj=bpy.data.objects.new('Fascia ribbon '+str(i),c);scene.collection.objects.link(obj);c.materials.append(mats['red' if i==0 else 'muted'])
+        ribbon.append(sp)
     packets=[]
     for r in s.routes:
         bpy.ops.mesh.primitive_uv_sphere_add(segments=16,ring_count=8,radius=.018)
@@ -404,8 +413,10 @@ def render(args,s):
             dist-=length
         return Vector(r['pts'][-1])
     out=Path(args.output);out.mkdir(parents=True,exist_ok=True);timings=[];extents=[]
-    frames=[int(x) for x in args.proof_frames.split(',')] if args.proof_frames else range(args.start,args.end+1)
-    for frame in frames:
+    # One native animation render keeps mesh compilation and the draw engine alive.
+    started=[0.0]
+    def update_frame(scene):
+        frame=scene.frame_current
         t=frame/(FRAMES-1);size,angle,target=camera_pose(t);target=Vector(target)
         cam.location=target+Vector((24*math.cos(angle),24*math.sin(angle),22));cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler()
         camera.ortho_scale=size;camera.shift_x=0;camera.shift_y=0
@@ -420,20 +431,39 @@ def render(args,s):
             if part.get('kind')=='detector':obj.location.z=-.14*smooth((t-.23)/.06)*(1-smooth((t-.40)/.07))
             else:obj.rotation_euler[2]=-math.radians(102)*smooth((t-.52)/.10)*(1-smooth((t-.79)/.13))
         bpy.context.view_layer.update()
-        allbounds=list(bounds)
-        for (mat,group),(vv,_) in groups.items():
-            if group:allbounds.extend(tuple(parents[group].matrix_world@Vector(p)) for p in vv)
-        projected=[world_to_camera_view(scene,cam,Vector(p)) for p in allbounds]
-        extent=[min(p.x for p in projected),min(p.y for p in projected),max(p.x for p in projected),max(p.y for p in projected)]
-        # Leftmost 400px are encoded breathing room; mobile preserves every object.
-        if frame in (0,FRAMES-1):assert extent[0]>.015 and extent[1]>.015 and extent[2]<.985 and extent[3]<.985,(s.code,frame,extent)
-        scene.render.filepath=str(out/f'{frame:04d}.png');start=time.time();bpy.ops.render.render(write_still=True)
-        record={'frame':frame,'seconds':round(time.time()-start,2)};timings.append(record)
-        extents.append({'frame':frame,'bounds':extent});print(json.dumps(record),flush=True)
-    info={**validate(s),'blender':bpy.app.version_string,'engine':scene.render.engine,'samples':args.samples,
-          'resolution':[args.width,round(args.width*9/16)],'camera':'workplace to detector to supervised circuit to central; continuous 24 second loop',
-          'bounds':extents,'timings':timings}
-    (out/'render-info.json').write_text(json.dumps(info))
+        for i,sp in enumerate(ribbon):
+            a=Vector((2.628+i*.0015,2.18+.001,1.22+.346))
+            d=parents['central-door'].matrix_world@Vector((.17+i*.0015,.018,.380))
+            b=a+Vector((-.045,-.09,-.06));c=d+Vector((-.05,.065,-.06))
+            for j,v in enumerate(sp.points):
+                q=j/(len(sp.points)-1);v.co=(*((1-q)**3*a+3*(1-q)**2*q*b+3*(1-q)*q*q*c+q**3*d),1)
+        # Full model extent is checked only on establishing endpoints. Each shot's
+        # framing proof is inspected separately rather than clipping the closeups.
+        if frame in (0,FRAMES-1):
+            allbounds=list(bounds)
+            for (mat,group),(vv,_) in groups.items():
+                if group:allbounds.extend(tuple(parents[group].matrix_world@Vector(p)) for p in vv)
+            projected=[world_to_camera_view(scene,cam,Vector(p)) for p in allbounds]
+            extent=[min(p.x for p in projected),min(p.y for p in projected),max(p.x for p in projected),max(p.y for p in projected)]
+            assert extent[0]>.015 and extent[1]>.015 and extent[2]<.985 and extent[3]<.985,(s.code,frame,extent)
+            extents.append({'frame':frame,'bounds':extent})
+    def begin_frame(scene):started[0]=time.time()
+    def finish_frame(scene):
+        record={'frame':scene.frame_current,'seconds':round(time.time()-started[0],2)};timings.append(record);print(json.dumps(record),flush=True)
+        info={**validate(s),'blender':bpy.app.version_string,'engine':scene.render.engine,'samples':args.samples,
+              'resolution':[args.width,round(args.width*9/16)],'camera':'workplace to detector to supervised circuit to central; continuous 24 second loop',
+              'render_mode':'persistent native animation','bounds':extents,'timings':timings}
+        (out/'render-info.json').write_text(json.dumps(info))
+    scene.render.filepath=str(out)+'/'
+    bpy.app.handlers.frame_change_pre.append(update_frame)
+    bpy.app.handlers.render_pre.append(begin_frame);bpy.app.handlers.render_post.append(finish_frame)
+    try:
+        segments=[(int(x),int(x)) for x in args.proof_frames.split(',')] if args.proof_frames else [(args.start,args.end)]
+        for start,end in segments:
+            scene.frame_start=start;scene.frame_end=end;bpy.ops.render.render(animation=True)
+    finally:
+        bpy.app.handlers.frame_change_pre.remove(update_frame)
+        bpy.app.handlers.render_pre.remove(begin_frame);bpy.app.handlers.render_post.remove(finish_frame)
 
 
 if __name__=='__main__':
