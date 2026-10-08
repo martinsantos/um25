@@ -11,6 +11,10 @@ Referencias a contrastar a igual tamaño visible y en movimiento:
 
 Los archivos originales de referencia están en `/private/tmp/um-ryan-reference.mp4`, `/private/tmp/um-solvaix-reference.mp4` y `/private/tmp/um-david-hill-reference-4k.mp4`. No concluir calidad a partir de miniaturas, resolución nominal, cantidad de piezas, número de tests o ausencia de errores.
 
+## Nueva revisión en curso
+
+El usuario también rechazó la entrega clara v7: «mejor pero inaceptable, no se ve, ni se compara al efecto de referencia». No está artísticamente aceptada. La revisión v8 construye una aplicación de integraciones con cuatro componentes funcionales, inspección volumétrica y acercamientos mayores. Se comprueba primero con planos nativos y un tramo corto remoto. No hay reemplazo de la preview ni render completo autorizado por una supuesta paridad todavía.
+
 ## Antecedentes de la iteración · conservados como historial
 
 - **Software v6:** sólo cambiaba el recorrido por paneles que conservaban la dirección visual rechazada. La primera prueba además tapaba el título de Datos con Reglas. La segunda separó esas placas, pero no resolvió el problema artístico. El render completo `37755185534` fue cancelado; no importar ni continuar esa película.

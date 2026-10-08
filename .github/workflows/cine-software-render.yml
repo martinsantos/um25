@@ -35,6 +35,7 @@ name: Blender software architecture
           - v5
           - v6
           - v7
+          - v8
         default: v2
       engine:
         description: 'Cycles baseline or Eevee proof on the disposable software GPU'
@@ -93,18 +94,19 @@ jobs:
           import json,os
           selected=[]
           assert os.environ['VERSION']!='v3' or os.environ['MODE'] in ('proof','motion-proof','full','assemble','repair')
-          chunk=120 if os.environ['VERSION'] in ('v3','v5','v6','v7') else 48
-          proof_frames=[0,360,720,1080,1439] if os.environ['VERSION'] in ('v3','v5','v6','v7') else [0,144,288,432,575]
+          chunk=120 if os.environ['VERSION'] in ('v3','v5','v6','v7','v8') else 48
+          proof_frames=[0,360,720,1080,1439] if os.environ['VERSION'] in ('v3','v5','v6','v7','v8') else [0,144,288,432,575]
           if os.environ['VERSION']=='v5':proof_frames=[734,1152]
           if os.environ['VERSION']=='v6':proof_frames=[0,288,575,877,1125,1295]
           if os.environ['VERSION']=='v7':proof_frames=[0,280,450,690,900,1200]
+          if os.environ['VERSION']=='v8':proof_frames=[0,280,600,870,1120,1330]
           frame=int(os.environ.get('PROOF_FRAME') or '-1');assert -1<=frame<1440
           if frame>=0:proof_frames=[frame]
           rows=[dict(part=i+1,start=f,end=f,frames=1) for i,f in enumerate(proof_frames)] if os.environ['MODE']=='proof' else [dict(part=i+1,start=i*chunk,end=(i+1)*chunk-1,frames=chunk) for i in range(12)]
           if os.environ['MODE']=='motion-proof':
-              assert os.environ['VERSION'] in ('v3','v5','v6','v7')
+              assert os.environ['VERSION'] in ('v3','v5','v6','v7','v8')
               count=int(os.environ['MOTION_FRAMES']);assert 2<=count<=120
-              start=300 if os.environ['VERSION']=='v7' else 690 if os.environ['VERSION']=='v6' else 600 if os.environ['VERSION']=='v5' else 300
+              start=180 if os.environ['VERSION']=='v8' else 300 if os.environ['VERSION']=='v7' else 690 if os.environ['VERSION']=='v6' else 600 if os.environ['VERSION']=='v5' else 300
               rows=[dict(part=1,start=start,end=start+count-1,frames=count)]
           if os.environ['MODE']=='repair':
               selected=[int(n) for n in os.environ['REPAIR_PARTS'].split(',')]
@@ -135,6 +137,7 @@ jobs:
             scripts/cine/render-software-system-v5.py
             scripts/cine/render-software-system-v6.py
             scripts/cine/render-software-system-v7.py
+            scripts/cine/render-software-system-v8.py
             public/fonts/um-sans/UMSans-Regular.ttf
             public/fonts/um-sans/UMSans-SemiBold.ttf
             scripts/cine/prepare-blender-fonts.py
@@ -177,7 +180,7 @@ jobs:
           FONT_ARGS=()
           if [ "$VERSION" != v1 ]; then FONT_ARGS=(--font-dir /tmp/um-cine-fonts); fi
           QUALITY_ARGS=(--samples 24)
-          if [ "$VERSION" = v3 ] || [ "$VERSION" = v5 ] || [ "$VERSION" = v6 ] || [ "$VERSION" = v7 ]; then QUALITY_ARGS=(--samples 48 --width 3840 --engine '${{ inputs.engine || 'cycles' }}'); fi
+          if [ "$VERSION" = v3 ] || [ "$VERSION" = v5 ] || [ "$VERSION" = v6 ] || [ "$VERSION" = v7 ] || [ "$VERSION" = v8 ]; then QUALITY_ARGS=(--samples 48 --width 3840 --engine '${{ inputs.engine || 'cycles' }}'); fi
           if [ '${{ inputs.mode }}' = motion-proof ]; then QUALITY_ARGS=(--samples 32 --width '${{ inputs.motion_width || '1920' }}' --engine '${{ inputs.engine || 'cycles' }}'); fi
           RENDER=(./blender-4.5.3-linux-x64/blender)
           if [ '${{ inputs.engine }}' != cycles ]; then RENDER=(xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender); fi
@@ -202,9 +205,9 @@ jobs:
           KEY='${{ matrix.part }}${{ matrix.segment && format('-{0}', matrix.segment) || '' }}'
           cp frames/render-info.json part-$KEY-info.json
           FPS=24
-          if [ "$VERSION" = v3 ] || [ "$VERSION" = v5 ] || [ "$VERSION" = v6 ] || [ "$VERSION" = v7 ]; then FPS=60; fi
+          if [ "$VERSION" = v3 ] || [ "$VERSION" = v5 ] || [ "$VERSION" = v6 ] || [ "$VERSION" = v7 ] || [ "$VERSION" = v8 ]; then FPS=60; fi
           COLOR_ARGS=()
-          if [ "$VERSION" = v5 ] || [ "$VERSION" = v6 ] || [ "$VERSION" = v7 ]; then COLOR_ARGS=(-vf 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p' -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1); fi
+          if [ "$VERSION" = v5 ] || [ "$VERSION" = v6 ] || [ "$VERSION" = v7 ] || [ "$VERSION" = v8 ]; then COLOR_ARGS=(-vf 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p' -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1); fi
           ffmpeg -v error -framerate "$FPS" -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v ${{ matrix.frames }} "${COLOR_ARGS[@]}" -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r "$FPS" -g 120 -an -movflags +faststart part-$KEY.mp4
       - uses: actions/upload-artifact@v7
         if: inputs.mode == 'full' || inputs.mode == 'repair' || inputs.mode == 'motion-proof'
@@ -304,7 +307,7 @@ jobs:
             fi
             sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq ffmpeg
           fi
-          if [ "$VERSION" = v5 ] || [ "$VERSION" = v6 ] || [ "$VERSION" = v7 ]; then
+          if [ "$VERSION" = v5 ] || [ "$VERSION" = v6 ] || [ "$VERSION" = v7 ] || [ "$VERSION" = v8 ]; then
             python3 scripts/cine/recover-software-parts.py
             python3 scripts/cine/assemble-software-v5.py
             exit 0
