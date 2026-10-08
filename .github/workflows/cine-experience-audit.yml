@@ -3,6 +3,10 @@ name: Cinema experience visual audit
 on:
   workflow_dispatch:
     inputs:
+      layer_camera_only:
+        description: 'All six layers, swept bounds and reduced motion in the five remaining disciplines'
+        type: boolean
+        default: false
       precision_only:
         description: 'Native-speed precision cabinet, autonomous layers, pause and reduced motion'
         type: boolean
@@ -73,12 +77,16 @@ jobs:
           exit 1
       - name: Capture native movie playback and automatic isometric sequences
         run: |
-          if [ '${{ inputs.precision_only }}' = true ]; then
+          if [ '${{ inputs.layer_camera_only }}' = true ]; then
+            node scripts/cine/audit-layer-camera.mjs
+          elif [ '${{ inputs.precision_only }}' = true ]; then
             node scripts/cine/audit-precision-network.mjs
           else
             node scripts/cine/audit-cinema-experience.mjs
           fi
         env:
+          VISUAL_ENGINE: Chrome
+          VISUAL_WIDTH: ${{ matrix.profile == 'mobile' && '390' || '1440' }}
           PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
           VISUAL_AUDIT_SOFTWARE_ONLY: ${{ inputs.software_only && '1' || '0' }}
           VISUAL_AUDIT_REFINEMENT_ONLY: ${{ inputs.refinement_only && '1' || '0' }}
@@ -89,10 +97,12 @@ jobs:
           VISUAL_AUDIT_DIR: ${{ runner.temp }}/um-visual-${{ matrix.profile }}
           VISUAL_AUDIT_STRICT: ${{ (github.event_name == 'push' || inputs.strict) && '1' || '0' }}
       - name: Verify SVG layout in WebKit at every contract width
-        if: matrix.profile == 'desktop'
+        if: matrix.profile == 'desktop' || inputs.layer_camera_only
         run: |
           "$RUNNER_TEMP/um-visual-runtime/node_modules/.bin/playwright" install --with-deps webkit
-          if [ '${{ inputs.precision_only }}' = true ]; then
+          if [ '${{ inputs.layer_camera_only }}' = true ]; then
+            node scripts/cine/audit-layer-camera.mjs
+          elif [ '${{ inputs.precision_only }}' = true ]; then
             node scripts/cine/audit-precision-webkit.mjs
           else
             node scripts/cine/audit-webkit-layout.mjs
@@ -101,6 +111,8 @@ jobs:
           VISUAL_AUDIT_REFINEMENT_ONLY: ${{ inputs.refinement_only && '1' || '0' }}
           VISUAL_AUDIT_HOME_ONLY: ${{ inputs.home_only && '1' || '0' }}
           VISUAL_AUDIT_SOFTWARE_ONLY: ${{ inputs.software_only && '1' || '0' }}
+          VISUAL_ENGINE: WebKit
+          VISUAL_WIDTH: ${{ matrix.profile == 'mobile' && '390' || '1440' }}
           PLAYWRIGHT_MODULE: file://${{ runner.temp }}/um-visual-runtime/node_modules/playwright/index.mjs
           VISUAL_AUDIT_DIR: ${{ runner.temp }}/um-visual-${{ matrix.profile }}
       - name: Save screenshots and observations
