@@ -32,7 +32,7 @@ for mobile in [False,True]:
   if mobile:d*=1.08-.14*film.E((t-.14)/.08)*(1-film.E((t-.84)/.08))
   ax,ay,roll=map(math.radians,angles);n=unit((math.tan(ax),math.tan(ay),1));r=unit((n[2],0,-n[0]));up=cross(n,r);rr=tuple(math.cos(roll)*r[i]+math.sin(roll)*up[i] for i in range(3));uu=tuple(-math.sin(roll)*r[i]+math.cos(roll)*up[i] for i in range(3))
   for g,s,x,y,z,size,m,bold in p.texts:
-   if film.family(g) not in ('access','contract','data') or film.prominence(g,t)<.999:continue
+   if film.family(g) not in ('access','contract','data') or film.prominence(g,t)<.65:continue
    shift=film.placement(g,t);points=[]
    for dx,dy in [(0,-.2*size),(width[bold](s)*size,-.2*size),(0,.8*size),(width[bold](s)*size,.8*size)]:
     v=tuple(a+b-c for a,b,c in zip((x+dx,y+dy,z),shift,target));depth=d-dot(v,n);px=.5+dot(v,rr)/(depth*.75);py=.5-dot(v,uu)/(depth*.75/(1 if mobile else 16/9));points.append((px,py))

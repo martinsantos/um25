@@ -71,7 +71,10 @@ def camera(t):
  for a,b in zip(keys,keys[1:]):
   if a[0]<=t<=b[0]:
    q=E((t-a[0])/(b[0]-a[0]));mix=lambda x,y:x+(y-x)*q
-   return mix(a[1],b[1]),tuple(mix(x,y) for x,y in zip(a[2],b[2])),tuple(mix(x,y) for x,y in zip(a[3],b[3]))
+   # Give the lateral handover breathing room: reveal the connecting
+   # space before entering the next mechanism, instead of panning at macro scale.
+   raw=(t-a[0])/(b[0]-a[0]);pullback=(6.2 if a[0]==.345 else 9.4 if a[0]==.585 else 0)*math.sin(math.pi*raw)**2
+   return mix(a[1],b[1])+pullback,tuple(mix(x,y) for x,y in zip(a[2],b[2])),tuple(mix(x,y) for x,y in zip(a[3],b[3]))
  raise ValueError(t)
 
 def rect(p,g,bounds,z,m='signal',r=.0045):
