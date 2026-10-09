@@ -11,6 +11,12 @@ Referencias a contrastar a igual tamaño visible y en movimiento:
 
 Los archivos originales de referencia están en `/private/tmp/um-ryan-reference.mp4`, `/private/tmp/um-solvaix-reference.mp4` y `/private/tmp/um-david-hill-reference-4k.mp4`. No concluir calidad a partir de miniaturas, resolución nominal, cantidad de piezas, número de tests o ausencia de errores.
 
+## Prueba aislada del 9 de octubre · Software v9
+
+Registro completo en [software-v9-proof.md](software-v9-proof.md). Una orden de trabajo sustituye las cuatro tarjetas de v8 en la composición experimental. Se corrigieron superficies que tapaban texto, materiales sobreexpuestos y sombras tipográficas. Se produjo y examinó una transición autónoma de aprobación y registro de un segundo, 60 cuadros nativos 4K; no se ha validado la película completa. Cinco cuadros de comparación y el fragmento están archivados con sus motivos de descarte y SHA256. El render completo v9 está bloqueado en el workflow.
+
+**No hay paridad visual acreditada ni integración de v9.** La vista reducida provocó un diagnóstico erróneo de glifos incompletos en el clip; los recortes de fuente y video a escala real lo descartaron. No conservar esa sospecha como defecto confirmado. El sitio sigue en el estado integrado descrito abajo.
+
 ## Comparación actual · sistema causal v4 (`c7e2df8d`)
 
 | Criterio | Cambio verificado | Diferencia que permanece |

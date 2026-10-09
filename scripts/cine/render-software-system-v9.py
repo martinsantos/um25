@@ -231,8 +231,8 @@ def render(args):
     'MS solicitó revisión de la orden 0248':'MS aprobó la orden 0248' if approved else 'MS solicitó revisión de la orden 0248'}
    def color(ob,name):
     if ob.data.materials[0]!=mats[name]:ob.data.materials[0]=mats[name]
-   # Rebuilding unchanged font curves every frame invalidates Workbench's
-   # glyph cache and showed missing characters in the consecutive-frame proof.
+   # Keep unchanged font geometry intact; replace labels only when their state
+   # changes. A reduced preview is not sufficient evidence of glyph loss.
    for group,original,ob in native_texts:
     desired=replacements.get(original,original)
     if ob.data.body!=desired:ob.data.body=desired

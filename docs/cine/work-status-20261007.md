@@ -1,5 +1,11 @@
 # Candidata integrada · revisión del 8 de octubre de 2026
 
+## Trabajo del 9 de octubre · prueba aislada Software v9
+
+Se cambió la producción a composición única → descarte visual → prueba breve de movimiento. El workflow impide películas completas v9. Fuente `scripts/cine/render-software-system-v9.py`; registro y evidencia en [software-v9-proof.md](software-v9-proof.md). Cinco cuadros de comparación producidos remotamente, dos descartes técnicos explícitos y una composición detallada elegida para probar movimiento. La prueba de un segundo 4K/60 corresponde a `457ec288`, run `37915936623`; ver su resultado actualizado en el registro.
+
+La preview integrada sigue con banner v8 e isometría v4. Este experimento no se importó, no modifica UM Sans ni campaña y no tiene GO de producción. Ningún Blender se ejecutó en el Mac.
+
 ## Estado actual · 8 de octubre · sistema causal de Software
 
 Producto `c7e2df8d`, rama `feature/isometric-redes-review`, PR #266 draft a develop. Preview `http://127.0.0.1:4326/software#sistemas`, checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`, PID propio 61165. El PID se guarda en `/private/tmp/um-eight-preview.pid`; verificar comando y cwd antes de reiniciar. La compilación de esta versión está completa.
