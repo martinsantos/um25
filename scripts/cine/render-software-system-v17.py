@@ -289,7 +289,9 @@ def render(args):
  def glyph_material(group,name,region='content'):
   key=(group,name,region)
   if key in glyph_mats:return glyph_mats[key][0]
-  mat=bpy.data.materials.new('/'.join(key));mat.use_nodes=True;mat.surface_render_method='BLENDED';mat.use_transparency_overlap=False
+  # Glyphs and fine strokes use depth-tested coverage. Unlike sorted glass,
+  # their visibility must not depend on a label's left-aligned origin.
+  mat=bpy.data.materials.new('/'.join(key));mat.use_nodes=True;mat.surface_render_method='DITHERED';mat.use_transparency_overlap=False
   nodes=mat.node_tree.nodes;nodes.clear();out=nodes.new('ShaderNodeOutputMaterial');em=nodes.new('ShaderNodeEmission');em.inputs[0].default_value=(*linear(COLORS[name]),1)
   tr=nodes.new('ShaderNodeBsdfTransparent');mix=nodes.new('ShaderNodeMixShader');mix.inputs[0].default_value=1
   mat.node_tree.links.new(tr.outputs[0],mix.inputs[1]);mat.node_tree.links.new(em.outputs[0],mix.inputs[2]);mat.node_tree.links.new(mix.outputs[0],out.inputs['Surface'])

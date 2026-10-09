@@ -28,7 +28,7 @@ jobs:
           python3 - <<'PYPLAN'
           import os,json
           frame=int(os.environ['FRAME']);assert -1<=frame<1200
-          frames=[492,630,930] if frame<0 else [frame]
+          frames=[300,492,630,930] if frame<0 else [frame]
           matrix={'include':[dict(frame=f,end=f,width=w,composition=c) for c,w in [('wide',3840),('mobile',2160)] for f in frames]}
           if os.environ['MODE']=='motion-proof':matrix={'include':[dict(frame=450,end=473,width=1920,composition='wide')]}
           if os.environ['MODE']=='sequence-proof':matrix={'include':[dict(frame=i*30,end=i*30+29,width=w,composition=c) for i in range(40) for c,w in [('wide',3840),('mobile',2160)]]}
@@ -69,7 +69,7 @@ jobs:
           done
           if [ "${#MISSING[@]}" -gt 0 ]; then
             sudo timeout 120 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update -qq || true
-            sudo timeout 180 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq "${MISSING[@]}"
+            sudo timeout 300 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq --no-install-recommends "${MISSING[@]}"
           fi
           ffmpeg -version | head -1
           curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender.tar.xz
