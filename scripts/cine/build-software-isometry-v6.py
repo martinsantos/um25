@@ -136,7 +136,7 @@ for x,y,z,title,rows in [
  (686,-45,20,'proyectos',[('PK / id','P-104'),('nombre','Nueva sede'),('sede','Mendoza')]),
  (760,-45,32,'órdenes',[('PK / id','0248'),('FK / proyecto','P-104'),('versión','3')]),
  (760,23,20,'eventos',[('PK / seq','000187'),('FK / orden','0248'),('acción','approval')])]:
- data+=box(x,y,z-2,66,58,2,'#edf5fa')+plane(x,y,z,table_face(title,rows))
+ data+=f'<g data-sw-table="{title}">'+box(x,y,z-2,66,58,2,'#edf5fa')+plane(x,y,z,table_face(title,rows))+'</g>'
  for xx,yy in [(x,y),(x+66,y+58)]:data+=route([(xx,yy,12),(xx,yy,z)],'#8eaabd',.4,'stroke-dasharray="1 2"')
 data+=route([(752,-20,20),(756,-20,20),(756,-20,32),(760,-20,32)],'#68899d',.75)
 data+=route([(793,13,32),(793,19,32),(793,19,20),(793,23,20)],'#68899d',.75)

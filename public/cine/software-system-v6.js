@@ -46,7 +46,8 @@ export function bindSoftwareSystem(root){
   const component=components.find(n=>Number(n.dataset.disciplineNode)===stage);
   if(reduced.matches||!component||typeof component.getBBox!=='function')return [...base];
   const screen=svg.getBoundingClientRect(),aspect=screen.width/screen.height||1200/650;
-  const focusElement=screen.width<600&&stage===0?drawer:component.querySelector('.sw-machine')||component;
+  const dataFocus=stage===3&&detail>=0?(detail===0?drawing.querySelector('[data-sw-table="órdenes"]'):record):null;
+  const focusElement=screen.width<600?(stage===0?drawer:dataFocus||component.querySelector('.sw-machine')||component):component.querySelector('.sw-machine')||component;
   const b=focusElement.getBBox();if(!b.width||!b.height)return [...base];
   // Include the final swept positions of gates, drawer and release, not just
   // resting bounds. A close-up still keeps its surrounding connections visible.
@@ -59,7 +60,7 @@ export function bindSoftwareSystem(root){
    b.x=left;b.y=top;b.width=right-left;b.height=bottom-top;}
   }
   const pad=stage===1?(screen.width<600?14:24):stage===4?40:22;
-  const w=Math.max(screen.width<600?(stage===0||stage===1?240:300):550,b.width+pad*2,(b.height+pad*2)*aspect);
+  const w=Math.max(screen.width<600?(stage===3?190:stage===0||stage===1?240:300):550,b.width+pad*2,(b.height+pad*2)*aspect);
   const h=w/aspect;
   root.dataset.cameraFraming='measured';
   return [b.x+b.width/2-w/2,b.y+b.height/2-h/2,w,h];
@@ -103,7 +104,8 @@ export function bindSoftwareSystem(root){
  function tick(now){
   frame=0;if(!running())return;
   if(last!==null){const dt=Math.min(80,Math.max(0,now-last));elapsed+=dt;cameraElapsed+=dt;}last=now;
-  const nextDetail=stage===1&&svg.getBoundingClientRect().width<600?Math.max(0,Math.min(2,Math.floor((elapsed-1400)/2200))):-1;
+  const mobile=svg.getBoundingClientRect().width<600;
+  const nextDetail=mobile&&stage===1?Math.max(0,Math.min(2,Math.floor((elapsed-1400)/2200))):mobile&&stage===3?(elapsed<4000?0:1):-1;
   if(nextDetail!==detail){detail=nextDetail;from=[...current];target=focus();cameraElapsed=0;}
   render();if(elapsed<8000||cameraElapsed<2200)frame=requestAnimationFrame(tick);
  }
