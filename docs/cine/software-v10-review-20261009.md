@@ -26,9 +26,23 @@ V10 añade profundidad registrada, transparencia y una relación causal que v9 a
 
 - Cuadros nativos iniciales: run 37922361840.
 - Comparación de pasadas y movimiento consecutivo: run 37923020997.
-- Secuencia completa: run 37923814181; verificar su conclusión y su entrega antes de integrar.
+- Secuencia: run 37923814181 produjo 46 fragmentos; dos fallaron instalando dependencias. Recuperación 37925201295 exitosa para wide:5 y wide:6.
+- Ensamblado 37949889021 exitoso: verificó las 48 partes, hashes de escena/compositor/geometría/fuentes, cobertura exacta y decodificación completa.
 - 33 pruebas de recorrido, pausa, reanudación, selección aislada de preview y estados de software pasaron.
 - ESLint, typecheck y build pasaron para el código de integración y la nueva isometría.
 - Selección de candidato: `UM_SOFTWARE_REVIEW=v10`. Registro de producción sin promoción.
 
-La revisión final de los 720 cuadros de cada composición y de la reproducción integrada se registra al concluir el render. No se hizo despliegue a producción.
+## Revisión integrada final
+
+- Entrega importada mediante `import-software-v10-candidate.mjs`, con manifiesto SHA256 verificado. 720 cuadros / 12 segundos en cada composición; escritorio 3840 × 2160 y móvil 2160 × 2160.
+- Build final y 33 pruebas pasaron. Preview reiniciada con `UM_SOFTWARE_REVIEW=v10` en `http://127.0.0.1:4326/software`.
+- Navegador nativo: fuentes v10 confirmadas, ciclo completo de 0 a 12 segundos reproducido sin clics en ambos tamaños y reproducción del siguiente ciclo. Sin errores de consola observados. Móvil sin desborde horizontal.
+- Cuadros revisados visualmente: inicio, separación a 4 segundos, composición móvil a 5,5 segundos, retorno y cierre. La validación de todos los cuadros es técnica; no equivale a inspección visual individual de 1.440 imágenes.
+- Isometría inferior: soporte opaco continuo bajo los campos de reglas, para evitar interferencia de letras entre hojas; márgenes y canales conservan transparencia. Avance autónomo observado dentro de la página.
+- Evidencia local: `/Volumes/SDTERA/Codex UM25 audits/20261009/software-v10/delivery`; capturas integradas en el directorio `screenshots` hermano.
+
+### Diferencias que todavía impiden declarar paridad
+
+La película conserva menos variedad de planos y detalle contextual que Hill. La comunicación ahora es visible pero sigue concentrada en una franja; no constituye todavía una arquitectura completa de servicios. El reinicio del bucle vuelve de una orden aprobada a una pendiente: la cámara cierra en el mismo encuadre, pero el estado de la interfaz cambia. Las isometrías siguen usando volúmenes simplificados frente a Ryan y el texto dentro del render es pequeño en móvil; la explicación exterior sostiene su lectura. Esta entrega mejora el candidato visible, pero no satisface todavía la exigencia de calidad indistinguible.
+
+No se hizo despliegue a producción.
