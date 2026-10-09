@@ -8,6 +8,7 @@ name: Blender software architecture
         options:
           - proof
           - motion-proof
+          - sequence-proof
           - full
           - repair
           - assemble
@@ -95,21 +96,24 @@ jobs:
           import json,os
           selected=[]
           assert os.environ['VERSION']!='v3' or os.environ['MODE'] in ('proof','motion-proof','full','assemble','repair')
-          assert os.environ['VERSION']!='v9' or os.environ['MODE'] in ('proof','motion-proof'), 'v9 is an unpublished art-direction proof'
+          assert os.environ['VERSION']!='v9' or os.environ['MODE'] in ('proof','motion-proof','sequence-proof'), 'v9 is an unpublished art-direction proof'
           chunk=120 if os.environ['VERSION'] in ('v3','v5','v6','v7','v8','v9') else 48
           proof_frames=[0,360,720,1080,1439] if os.environ['VERSION'] in ('v3','v5','v6','v7','v8','v9') else [0,144,288,432,575]
           if os.environ['VERSION']=='v5':proof_frames=[734,1152]
           if os.environ['VERSION']=='v6':proof_frames=[0,288,575,877,1125,1295]
           if os.environ['VERSION']=='v7':proof_frames=[0,280,450,690,900,1200]
           if os.environ['VERSION']=='v8':proof_frames=[0,280,600,870,1120,1330]
-          if os.environ['VERSION']=='v9':proof_frames=[0,180,359]
-          frame=int(os.environ.get('PROOF_FRAME') or '-1');assert -1<=frame<(360 if os.environ['VERSION']=='v9' else 1440)
+          if os.environ['VERSION']=='v9':proof_frames=[0,300,480,719]
+          frame=int(os.environ.get('PROOF_FRAME') or '-1');assert -1<=frame<(720 if os.environ['VERSION']=='v9' else 1440)
           if frame>=0:proof_frames=[frame]
           rows=[dict(part=i+1,start=f,end=f,frames=1) for i,f in enumerate(proof_frames)] if os.environ['MODE']=='proof' else [dict(part=i+1,start=i*chunk,end=(i+1)*chunk-1,frames=chunk) for i in range(12)]
+          if os.environ['MODE']=='sequence-proof':
+              assert os.environ['VERSION']=='v9'
+              rows=[dict(part=i+1,start=i*120,end=(i+1)*120-1,frames=120) for i in range(6)]
           if os.environ['MODE']=='motion-proof':
               assert os.environ['VERSION'] in ('v3','v5','v6','v7','v8','v9')
               count=int(os.environ['MOTION_FRAMES']);assert 2<=count<=120
-              start=240 if os.environ['VERSION']=='v9' else 180 if os.environ['VERSION']=='v8' else 300 if os.environ['VERSION']=='v7' else 690 if os.environ['VERSION']=='v6' else 600 if os.environ['VERSION']=='v5' else 300
+              start=420 if os.environ['VERSION']=='v9' else 180 if os.environ['VERSION']=='v8' else 300 if os.environ['VERSION']=='v7' else 690 if os.environ['VERSION']=='v6' else 600 if os.environ['VERSION']=='v5' else 300
               rows=[dict(part=1,start=start,end=start+count-1,frames=count)]
           if os.environ['MODE']=='repair':
               selected=[int(n) for n in os.environ['REPAIR_PARTS'].split(',')]
@@ -205,7 +209,7 @@ jobs:
           path: frames
           retention-days: 3
       - name: Encode recoverable part
-        if: inputs.mode == 'full' || inputs.mode == 'repair' || inputs.mode == 'motion-proof'
+        if: inputs.mode == 'full' || inputs.mode == 'repair' || inputs.mode == 'motion-proof' || inputs.mode == 'sequence-proof'
         run: |
           KEY='${{ matrix.part }}${{ matrix.segment && format('-{0}', matrix.segment) || '' }}'
           cp frames/render-info.json part-$KEY-info.json
@@ -215,7 +219,7 @@ jobs:
           if [ "$VERSION" = v5 ] || [ "$VERSION" = v6 ] || [ "$VERSION" = v7 ] || [ "$VERSION" = v8 ] || [ "$VERSION" = v9 ]; then COLOR_ARGS=(-vf 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p' -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1); fi
           ffmpeg -v error -framerate "$FPS" -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v ${{ matrix.frames }} "${COLOR_ARGS[@]}" -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r "$FPS" -g 120 -an -movflags +faststart part-$KEY.mp4
       - uses: actions/upload-artifact@v7
-        if: inputs.mode == 'full' || inputs.mode == 'repair' || inputs.mode == 'motion-proof'
+        if: inputs.mode == 'full' || inputs.mode == 'repair' || inputs.mode == 'motion-proof' || inputs.mode == 'sequence-proof'
         with:
           name: software-part-${{ matrix.part }}${{ matrix.segment && format('-{0}', matrix.segment) || '' }}
           path: |
@@ -365,3 +369,28 @@ jobs:
           name: software-cinema-${{ inputs.version }}
           path: delivery
           retention-days: 5
+
+  assemble-sequence-proof:
+    needs: render
+    if: inputs.mode == 'sequence-proof'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts/cine/assemble-software-v9.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: software-part-*
+          path: parts
+      - name: Verify and assemble the complete candidate
+        run: |
+          sudo timeout 600 apt-get -o Acquire::Retries=1 install -y -qq ffmpeg
+          python3 scripts/cine/assemble-software-v9.py --source parts --output delivery
+      - uses: actions/upload-artifact@v7
+        with:
+          name: software-v9-sequence-candidate
+          path: delivery
+          retention-days: 7

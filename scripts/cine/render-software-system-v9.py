@@ -1,4 +1,4 @@
-"""One six-second art-direction proof. Never import automatically into the site.
+"""Twelve-second complete art-direction candidate. Never publish automatically.
 Actual UI hierarchy, shallow registered depth, restrained camera and studio shadows.
 Blender runs only on a disposable remote worker; --validate-only is pure Python.
 """
@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 spec=importlib.util.spec_from_file_location('geometry',Path(__file__).with_name('render-software-system-v8.py'))
 geometry=importlib.util.module_from_spec(spec);spec.loader.exec_module(geometry)
-FPS=60;FRAMES=360
+FPS=60;FRAMES=720
 PALETTE={'canvas':'#F3F5F6','nav':'#EBEEF0','paper':'#FFFFFF','edge':'#C9D0D4','ink':'#20282E','muted':'#68757F','quiet':'#929EA7','line':'#DDE3E7','red':'#DC2626','rose':'#FAEBEA','green':'#267B65','mint':'#EAF4EF','slate':'#526C82','bluewash':'#EEF3F6','floor':'#181D22'}
 E=geometry.ease
 class UI(geometry.Product):
@@ -108,20 +108,21 @@ def build():
  return p
 
 def narrative(t):
- checks=sum(t>=threshold for threshold in (.30,.39,.48))
- return checks,checks==3,t>=.72
+ checks=sum(t>=threshold for threshold in (.34,.41,.48))
+ return checks,checks==3,t>=.63
 
 def pose(group,t):
  # Register controls to their real positions. A single continuous inspection,
  # not a succession of cards thrown toward the viewer.
- opening=E((t-.12)/.55)
+ opening=E((t-.10)/.34)
+ closing=1-E((t-.80)/.17)
  z={'selection':.12,'inspector':.20,'access':.58,'history':.32,'action':.20,'annotation':.62}.get(group,0)*opening
- if group=='access':z-=.24*E((t-.77)/.14)
- if group=='history':z+=.18*E((t-.72)/.13)
- return (0,0,z)
+ if group=='access':z-=.24*E((t-.66)/.12)
+ if group=='history':z+=.18*E((t-.63)/.12)
+ return (0,0,z*closing)
 
 def camera_pose(t):
- q=E((t-.02)/.57);size=19.4-9.8*q;target=(-.05+4.15*q,.02-1.62*q,.20+.06*q)
+ q=E((t-.10)/.34)*(1-E((t-.80)/.17));size=19.4-9.8*q;target=(-.05+4.15*q,.02-1.62*q,.20+.06*q)
  angles=(8+3*q,-12-12*q,-1.8-.9*q)
  return size,target,angles
 
@@ -244,14 +245,14 @@ def render(args):
  def begin(scene):started[0]=time.time()
  def finish(scene):
   timings.append({'frame':scene.frame_current,'seconds':round(time.time()-started[0],2)})
-  (out/'render-info.json').write_text(json.dumps({'scene':'software-system-v9-art-direction-proof','frames':FRAMES,'fps':FPS,'resolution':[args.width,round(args.width*9/16)],'engine':args.engine,'publishable':False,'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'timings':timings,'handler_errors':errors}))
+  (out/'render-info.json').write_text(json.dumps({'scene':'software-system-v9-art-direction-proof','frames':FRAMES,'fps':FPS,'resolution':[args.width,round(args.width*9/16)],'engine':args.engine,'publishable':False,'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'geometry_sha256':hashlib.sha256(Path(geometry.__file__).read_bytes()).hexdigest(),'font_sha256':{str(k):hashlib.sha256(Path(v.filepath).read_bytes()).hexdigest() for k,v in fonts.items()},'timings':timings,'handler_errors':errors}))
  scene.frame_start=args.start;scene.frame_end=args.end;scene.render.filepath=str(out)+'/'
  bpy.app.handlers.frame_change_pre.append(update);bpy.app.handlers.render_pre.append(begin);bpy.app.handlers.render_post.append(finish)
  try:bpy.ops.render.render(animation=True);assert not errors;assert len(timings)==args.end-args.start+1
  finally:bpy.app.handlers.frame_change_pre.remove(update);bpy.app.handlers.render_pre.remove(begin);bpy.app.handlers.render_post.remove(finish)
 
 if __name__=='__main__':
- parser=argparse.ArgumentParser();parser.add_argument('--start',type=int,default=0);parser.add_argument('--end',type=int,default=359);parser.add_argument('--samples',type=int,default=48);parser.add_argument('--width',type=int,default=3840);parser.add_argument('--engine',choices=['cycles','eevee','workbench'],default='cycles');parser.add_argument('--font-dir');parser.add_argument('--output',default='frames');parser.add_argument('--validate-only',action='store_true')
+ parser=argparse.ArgumentParser();parser.add_argument('--start',type=int,default=0);parser.add_argument('--end',type=int,default=FRAMES-1);parser.add_argument('--samples',type=int,default=48);parser.add_argument('--width',type=int,default=3840);parser.add_argument('--engine',choices=['cycles','eevee','workbench'],default='cycles');parser.add_argument('--font-dir');parser.add_argument('--output',default='frames');parser.add_argument('--validate-only',action='store_true')
  args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else None);assert 0<=args.start<=args.end<FRAMES
  validate()
  if not args.validate_only:render(args)
