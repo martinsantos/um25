@@ -14,7 +14,7 @@ COLORS={
  'green':'#6FE4CB','signal':'#63DCCB','rose':'#512F39','mint':'#214A4C',
  'paper':'#426F83','canvas':'#375D70','nav':'#2D4C5D','bluewash':'#42677E',
  'glass':'#5D94A5','trace':'#60DDC8','registration':'#648D9E','white':'#F4F8F9',
- 'amber':'#F5CA83','violet':'#B2AFF6'}
+ 'amber':'#F5CA83','violet':'#B2AFF6','fieldpaper':'#263F4B','fieldnav':'#192E38'}
 # The background is absent from most of the layout: small translucent regions
 # give the communication paths room to be seen, rather than tinting a white slab.
 ALPHA={'paper':.20,'canvas':.08,'nav':.10,'bluewash':.13,'glass':.065,'edge':.0}
@@ -151,9 +151,9 @@ def build():
  p.label(g,'MODELO DE DOMINIO',-1.69,-.51,.100,'quiet',True)
  for i,(key,value,dest) in enumerate([('project.code','P-104','proyecto.id'),('actor.role','Responsable','permiso.rol'),('order.id','0248','orden.id')]):
   y=-.86-i*.48
-  p.rounded(g,-3.24,y-.04,.024,2.02,.40,.003,'paper',.035)
+  p.rounded(g,-3.24,y-.04,.024,2.02,.40,.003,'fieldpaper',.035)
   p.label(g,key,-4.13,y+.01,.110,'muted');p.label(g,value,-4.13,y-.16,.130,'ink',True)
-  p.rounded(g,-.37,y-.04,.024,2.30,.40,.003,'nav',.035)
+  p.rounded(g,-.37,y-.04,.024,2.30,.40,.003,'fieldnav',.035)
   p.icon(f'contract-check-{i}','check',-1.43,y-.10,'green',.11);p.label(g,dest,-1.20,y-.09,.133,'ink')
   p.line(g,[(-2.21,y-.06,.040),(-1.63,y-.06,.040)],'signal',.003)
   p.disc(g,-2.20,y-.06,.018,'signal');p.disc(g,-1.63,y-.06,.018,'signal')
@@ -280,7 +280,7 @@ def render(args):
  def surface_material(group,name):
   key=(group,name)
   if key in surface_mats:return surface_mats[key][0]
-  mat=bpy.data.materials.new('surface/'+group+'/'+name);mat.use_nodes=True;mat.surface_render_method='BLENDED';mat.use_transparency_overlap=False
+  mat=bpy.data.materials.new('surface/'+group+'/'+name);mat.use_nodes=True;mat.surface_render_method='BLENDED' if name in ALPHA else 'DITHERED';mat.use_transparency_overlap=False
   nodes=mat.node_tree.nodes;nodes.clear();out=nodes.new('ShaderNodeOutputMaterial');em=nodes.new('ShaderNodeEmission');em.inputs[0].default_value=(*linear(COLORS[name]),1)
   tr=nodes.new('ShaderNodeBsdfTransparent');mix=nodes.new('ShaderNodeMixShader');mix.inputs[0].default_value=ALPHA.get(name,1)
   mat.node_tree.links.new(tr.outputs[0],mix.inputs[1]);mat.node_tree.links.new(em.outputs[0],mix.inputs[2]);mat.node_tree.links.new(mix.outputs[0],out.inputs['Surface'])
