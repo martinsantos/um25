@@ -2,7 +2,7 @@
 Actual UI hierarchy, shallow registered depth, restrained camera and studio shadows.
 Blender runs only on a disposable remote worker; --validate-only is pure Python.
 """
-import argparse,hashlib,importlib.util,json,math,sys,time
+import argparse,hashlib,importlib.util,json,math,subprocess,sys,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 spec=importlib.util.spec_from_file_location('geometry',Path(__file__).with_name('render-software-system-v8.py'))
@@ -306,9 +306,35 @@ def render(args):
   timings.append({'frame':scene.frame_current,'seconds':round(time.time()-started[0],2)})
   (out/'render-info.json').write_text(json.dumps({'scene':'software-system-v10-art-direction-proof','frames':FRAMES,'fps':FPS,'resolution':[args.width,round(args.width/ASPECT)],'composition':'mobile' if ASPECT==1 else 'wide','engine':args.engine,'publishable':False,'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'geometry_sha256':hashlib.sha256(Path(geometry.__file__).read_bytes()).hexdigest(),'font_sha256':{str(k):hashlib.sha256(Path(v.filepath).read_bytes()).hexdigest() for k,v in fonts.items()},'timings':timings,'handler_errors':errors}))
  scene.frame_start=args.start;scene.frame_end=args.end;scene.render.filepath=str(out)+'/'
- bpy.app.handlers.frame_change_pre.append(update);bpy.app.handlers.render_pre.append(begin);bpy.app.handlers.render_post.append(finish)
- try:bpy.ops.render.render(animation=True);assert not errors;assert len(timings)==args.end-args.start+1
- finally:bpy.app.handlers.frame_change_pre.remove(update);bpy.app.handlers.render_pre.remove(begin);bpy.app.handlers.render_post.remove(finish)
+ if args.engine=='workbench':
+  # Native Blender passes keep precise translucent surfaces without the
+  # excessive transparent framebuffer cost of software EEVEE at 5K.
+  # Base / inspection membrane / opaque glyphs are authored in one scene.
+  scene.render.image_settings.color_mode='RGBA'
+  renderables=[ob for ob in scene.objects if ob.type in ('MESH','CURVE','FONT')]
+  glass=[ob for ob in renderables if ob.data.materials and ob.data.materials[0]==mats['glass']]
+  def depth(ob):
+   if ob.type=='MESH':return min(v.co.z for v in ob.data.vertices)
+   if ob.type=='FONT':return ob.location.z
+   return min(v.co.z for sp in ob.data.splines for v in sp.points)
+  foreground=[ob for ob in renderables if ob.parent==parents['access'] and ob not in glass and depth(ob)>=0]
+  for frame in range(args.start,args.end+1):
+   scene.frame_set(frame);update(scene);start=time.time();visibility={ob:ob.hide_render for ob in renderables}
+   for layer in ('base','glass','front'):
+    scene.render.film_transparent=layer!='base';scene.display.shading.show_shadows=layer=='base'
+    for ob in renderables:
+     selected=ob not in glass+foreground if layer=='base' else ob in glass if layer=='glass' else ob in foreground
+     ob.hide_render=visibility[ob] or not selected
+    scene.render.filepath=str(out/f'layer-{layer}.png');bpy.ops.render.render(write_still=True)
+   opacity=1-.86*reveal(frame/(FRAMES-1))
+   subprocess.run(['python3',str(ROOT/'scripts/cine/composite-software-layers.py'),str(out),str(frame),str(opacity)],check=True)
+   for ob in renderables:ob.hide_render=visibility[ob]
+   started[0]=start;finish(scene)
+  assert len(timings)==args.end-args.start+1
+ else:
+  bpy.app.handlers.frame_change_pre.append(update);bpy.app.handlers.render_pre.append(begin);bpy.app.handlers.render_post.append(finish)
+  try:bpy.ops.render.render(animation=True);assert not errors;assert len(timings)==args.end-args.start+1
+  finally:bpy.app.handlers.frame_change_pre.remove(update);bpy.app.handlers.render_pre.remove(begin);bpy.app.handlers.render_post.remove(finish)
 
 if __name__=='__main__':
  parser=argparse.ArgumentParser();parser.add_argument('--start',type=int,default=0);parser.add_argument('--end',type=int,default=FRAMES-1);parser.add_argument('--samples',type=int,default=48);parser.add_argument('--width',type=int,default=3840);parser.add_argument('--engine',choices=['cycles','eevee','workbench'],default='cycles');parser.add_argument('--composition',choices=['wide','mobile'],default='wide');parser.add_argument('--font-dir');parser.add_argument('--output',default='frames');parser.add_argument('--validate-only',action='store_true')
