@@ -1,9 +1,9 @@
 import fs from 'node:fs';
-import {softwarePose,bindSoftwareSystem} from '../public/cine/software-system-v6.js';
+import {softwarePose,bindSoftwareSystem} from '../public/cine/software-system-v7.js';
 let reduced=false;
 const settle=async()=>{for(let i=0;i<5;i++)await Promise.resolve();};
 function fixture(stage=0){
- const drawing=fs.readFileSync('src/assets/cine/isometric/discipline-104-v6.svg','utf8');
+ const drawing=fs.readFileSync('src/assets/cine/isometric/discipline-104-v7.svg','utf8');
  document.body.innerHTML=`<section data-service-atlas data-story-state="playing"><div data-discipline-system data-visible="true" data-discipline-service="104" data-discipline-stage="${stage}">${drawing}</div></section>`;
  const root=document.querySelector('[data-discipline-system]');bindSoftwareSystem(root);return root;
 }

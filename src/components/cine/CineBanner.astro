@@ -46,7 +46,7 @@ const rail = chapters||HOME_SCENES.filter((s) => scenes.includes(s.scene));
 const firstTitle = rail.find(chapter=>chapter.scene===first)?.name||cutCaption(first);
 const disciplineComposition = /^(software|network|security|telecom|support|consulting|fire|power)-(system|project)-v\d+$/.test(first);
 const productComposition = /^(software-system-v(?:[3456789]|10|11|12)|power-project-v3|(?:fire|network|security|telecom|power|support|consulting)-project-v2)$/.test(first);
-const softwareCinema = ['software-system-v7','software-system-v8','software-system-v9','software-system-v10','software-system-v11','software-system-v12'].includes(first);
+const softwareCinema = ['software-system-v7','software-system-v8','software-system-v9','software-system-v10','software-system-v11','software-system-v12','software-system-v13'].includes(first);
 const filmChapters = FILM_CHAPTERS[first];
 const firstMovie = Object.values(siteMovies.services).find(movie => movie.scene === first);
 const posterRevision = firstMovie && 'posterRevision' in firstMovie ? `-${firstMovie.posterRevision}` : '';
@@ -187,6 +187,7 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
     above the frame. No headline masks the interface or reduces it to a sticker. */
  .umc[data-software-cinema="true"]{--umc-ink:#11151c;min-height:0;grid-template-rows:auto auto auto auto;padding-bottom:28px}
  .umc[data-scene="software-system-v9"],.umc[data-scene="software-system-v10"],.umc[data-scene="software-system-v11"]{--umc-ink:#141a1f}
+ .umc[data-scene="software-system-v13"]{--umc-ink:#101b20}
  .umc[data-scene="software-system-v12"]{--umc-ink:#0d1a23}
  .umc[data-software-cinema="true"] :global(.umc-copy){grid-row:1;grid-column:1;width:calc(100% - var(--umc-gutter)*2);margin:48px var(--umc-gutter) 28px;padding-top:0}
  .umc[data-software-cinema="true"] :global(.umc-stage){position:relative;grid-row:2;grid-column:1;inset:auto;z-index:0;transform:none;justify-self:center;width:min(100%,1440px);height:auto;aspect-ratio:16/9}
@@ -209,7 +210,7 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
   .umc[data-software-cinema="true"] :global(.umc-summary){display:block;margin-top:24px}
   .umc[data-software-cinema="true"] :global(.umc-summary .umc-stats){margin-top:28px}
   .umc[data-scene="software-system-v8"] :global(.umc-stage){aspect-ratio:4/3}
-  .umc[data-scene="software-system-v10"] :global(.umc-stage),.umc[data-scene="software-system-v11"] :global(.umc-stage),.umc[data-scene="software-system-v12"] :global(.umc-stage){aspect-ratio:1}
+  .umc[data-scene="software-system-v10"] :global(.umc-stage),.umc[data-scene="software-system-v11"] :global(.umc-stage),.umc[data-scene="software-system-v12"] :global(.umc-stage),.umc[data-scene="software-system-v13"] :global(.umc-stage){aspect-ratio:1}
   .umc[data-software-cinema="true"] :global(.umc-copy){margin-top:28px;margin-bottom:24px}
   .umc[data-software-cinema="true"] :global(.umc-film-caption){margin-top:16px}
   .umc[data-software-cinema="true"] :global(.umc-tools){margin:12px var(--umc-gutter)}
