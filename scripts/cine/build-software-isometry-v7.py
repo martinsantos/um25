@@ -124,15 +124,15 @@ api+=label(3,700,530,'Un contrato compartido','Tres campos · un mismo significa
 # Persistence is a relation between records, never a stack of generic books.
 data=box(680,-52,10,151,140,2,fill='#d4e5f0')
 def table_face(title,rows,w=66):
- c=rect(0,0,w,58,'#f4f8fb','#afc4d2',1.5)+rect(0,0,w,16,'#d9e8f2','none',1.5)+txt(5,11,title,7,INK,600)
+ c=rect(0,0,w,58,'#f4f8fb','#afc4d2',1.5)+rect(0,0,w,16,'#d9e8f2','none',1.5)+txt(5,11,title,9,INK,600)
  for i,(key,val) in enumerate(rows):
-  y=25+i*12;c+=txt(5,y,key,5,MUTED,500)+txt(w-5,y,val,5.3,INK,500,'text-anchor="end"')
+  y=25+i*12;c+=txt(5,y,key,7.2,MUTED,500)+txt(w-5,y,val,8.5,INK,500,'text-anchor="end"')
   if i<2:c+=line([(5,y+4),(w-5,y+4)],'#d7e1e9',.3)
  return c
 for x,y,z,title,rows in [
- (686,-45,20,'proyectos',[('PK / id','P-104'),('nombre','Nueva sede'),('sede','Mendoza')]),
- (760,-45,32,'órdenes',[('PK / id','0248'),('FK / proyecto','P-104'),('versión','3')]),
- (760,23,20,'eventos',[('PK / seq','000187'),('FK / orden','0248'),('acción','approval')])]:
+ (686,-45,20,'proyectos',[('id','P-104'),('obra','Sede'),('sede','MZA')]),
+ (760,-45,32,'órdenes',[('id','0248'),('proy.','P-104'),('versión','3')]),
+ (760,23,20,'eventos',[('seq','187'),('orden','0248'),('evento','OK')])]:
  data+=f'<g data-sw-table="{title}">'+box(x,y,z-2,66,58,2,'#edf5fa')+plane(x,y,z,table_face(title,rows))+'</g>'
  for xx,yy in [(x,y),(x+66,y+58)]:data+=route([(xx,yy,12),(xx,yy,z)],'#8eaabd',.4,'stroke-dasharray="1 2"')
 data+=route([(752,-20,20),(756,-20,20),(756,-20,32),(760,-20,32)],'#68899d',.75)

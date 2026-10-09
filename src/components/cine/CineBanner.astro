@@ -45,7 +45,7 @@ const heading = dot ? title.slice(0, -1) : title;
 const rail = chapters||HOME_SCENES.filter((s) => scenes.includes(s.scene));
 const firstTitle = rail.find(chapter=>chapter.scene===first)?.name||cutCaption(first);
 const disciplineComposition = /^(software|network|security|telecom|support|consulting|fire|power)-(system|project)-v\d+$/.test(first);
-const productComposition = /^(software-system-v(?:[3456789]|10|11|12)|power-project-v3|(?:fire|network|security|telecom|power|support|consulting)-project-v2)$/.test(first);
+const productComposition = /^(software-system-v(?:[3456789]|10|11|12|13)|power-project-v3|(?:fire|network|security|telecom|power|support|consulting)-project-v2)$/.test(first);
 const softwareCinema = ['software-system-v7','software-system-v8','software-system-v9','software-system-v10','software-system-v11','software-system-v12','software-system-v13'].includes(first);
 const filmChapters = FILM_CHAPTERS[first];
 const firstMovie = Object.values(siteMovies.services).find(movie => movie.scene === first);
