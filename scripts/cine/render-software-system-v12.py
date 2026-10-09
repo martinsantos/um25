@@ -199,7 +199,10 @@ def render(args):
  out=Path(args.output);out.mkdir(parents=True,exist_ok=True);times=[]
  for frame in range(args.start,args.end+1):
   t=frame/(FRAMES-1);d,target,angles=camera(t)
-  if args.composition=='mobile':d*=.93;target=(3.6,target[1],target[2])
+  if args.composition=='mobile':
+   # Dedicated optical framing, not a crop or non-uniform scale of the desktop.
+   focus=E((t-.03)/.16)*(1-E((t-.82)/.18));back=E((t-.49)/.14)*(1-E((t-.80)/.12))
+   d=17.5-3.0*focus+5.5*back;target=(4.15-3.7*back,-1.45,1.8-1.4*back)
   ax,ay,roll=map(math.radians,angles);n=Vector((math.tan(ax),math.tan(ay),1)).normalized();r=Vector((n.z,0,-n.x)).normalized();u=n.cross(r);rr=math.cos(roll)*r+math.sin(roll)*u;uu=-math.sin(roll)*r+math.cos(roll)*u
   cam.location=Vector(target)+n*d;cam.rotation_euler=Matrix((rr,uu,n)).transposed().to_euler()
   for g,ob in parents.items():ob.location=placement(g,t)
@@ -230,7 +233,7 @@ def render(args):
     packet_sp.points[0].co=(*point,1);packet_sp.points[1].co=(*(point+v*.22),1);break
    travel-=length
   scene.frame_set(frame);scene.render.filepath=str(out/f'{frame:04d}.png');start=time.time();bpy.ops.render.render(write_still=True);times.append({'frame':frame,'seconds':round(time.time()-start,2)})
-  (out/'render-info.json').write_text(json.dumps({'version':'v12','publishable':False,'projection':'perspective','fps':FPS,'frames':FRAMES,'resolution':[args.width,scene.render.resolution_y],'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'timings':times}))
+  (out/'render-info.json').write_text(json.dumps({'version':'v12','publishable':False,'projection':'perspective','composition':args.composition,'engine':'eevee','samples':args.samples,'geometry_sha256':hashlib.sha256(Path(ui.geometry.__file__).read_bytes()).hexdigest(),'ui_sha256':hashlib.sha256(Path(ui.__file__).read_bytes()).hexdigest(),'fps':FPS,'frames':FRAMES,'resolution':[args.width,scene.render.resolution_y],'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'timings':times}))
 
 if __name__=='__main__':
  parser=argparse.ArgumentParser();parser.add_argument('--start',type=int,default=0);parser.add_argument('--end',type=int,default=0);parser.add_argument('--samples',type=int,default=32);parser.add_argument('--width',type=int,default=3840);parser.add_argument('--composition',choices=['wide','mobile'],default='wide');parser.add_argument('--font-dir');parser.add_argument('--output',default='frames');parser.add_argument('--validate-only',action='store_true')
