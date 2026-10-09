@@ -104,7 +104,6 @@ def build():
  # Fine engineering annotations correspond to actual nested regions.
  for group,bounds in [('selection',(-5.27,1.17,.80,1.68)),('access',(1.60,-1.86,6.96,-.49)),('history',(1.61,-3.49,6.95,-1.95))]:
   p.boundary(group,*bounds)
- p.label('access','<policy scope="P-104">',1.64,-.42,.103,'red',z=.05)
  return p
 
 def narrative(t):
@@ -239,8 +238,10 @@ def render(args):
     if ob.data.body!=desired:ob.data.body=desired
     if group=='access' and original in ('01','02','03'):color(ob,'green' if int(original)<=checks else 'quiet')
     if original=='En revisión':color(ob,'green' if approved else 'red')
+    if original=='Verificado':color(ob,'green' if permitted else 'muted')
    for group,material,ob in native_marks:
     if material=='red' and group in ('selection','history','action'):color(ob,'green' if approved else 'red')
+    if group=='access' and material=='green':color(ob,'green' if permitted else 'quiet')
   except Exception as e:errors.append(repr(e));raise
  def begin(scene):started[0]=time.time()
  def finish(scene):

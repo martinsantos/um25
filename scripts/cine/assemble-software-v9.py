@@ -17,14 +17,14 @@ def video(path, dimensions, frames):
 
 def assemble(source,out):
  out.mkdir(parents=True,exist_ok=True);infos=[];movies=[]
- for i in range(1,7):
+ for i in range(1,13):
   folder=source/f'software-part-{i}';movie=folder/f'part-{i}.mp4'
   info=json.loads((folder/f'part-{i}-info.json').read_text())
   assert info['scene']=='software-system-v9-art-direction-proof'
   assert (info['frames'],info['fps'],info['resolution'],info['engine'])==(720,60,[3840,2160],'workbench')
   assert info['publishable'] is False and not info['handler_errors']
-  assert [row['frame'] for row in info['timings']]==list(range((i-1)*120,i*120))
-  video(movie,(3840,2160),120);infos.append(info);movies.append(movie.resolve())
+  assert [row['frame'] for row in info['timings']]==list(range((i-1)*60,i*60))
+  video(movie,(3840,2160),60);infos.append(info);movies.append(movie.resolve())
  for key in ['authoring_sha256','geometry_sha256','font_sha256']:
   assert len({json.dumps(info[key],sort_keys=True) for info in infos})==1,('Mixed render source',key)
  info=dict(infos[0],timings=[row for item in infos for row in item['timings']])

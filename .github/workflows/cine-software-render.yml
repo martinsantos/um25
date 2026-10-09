@@ -109,7 +109,7 @@ jobs:
           rows=[dict(part=i+1,start=f,end=f,frames=1) for i,f in enumerate(proof_frames)] if os.environ['MODE']=='proof' else [dict(part=i+1,start=i*chunk,end=(i+1)*chunk-1,frames=chunk) for i in range(12)]
           if os.environ['MODE']=='sequence-proof':
               assert os.environ['VERSION']=='v9'
-              rows=[dict(part=i+1,start=i*120,end=(i+1)*120-1,frames=120) for i in range(6)]
+              rows=[dict(part=i+1,start=i*60,end=(i+1)*60-1,frames=60) for i in range(12)]
           if os.environ['MODE']=='motion-proof':
               assert os.environ['VERSION'] in ('v3','v5','v6','v7','v8','v9')
               count=int(os.environ['MOTION_FRAMES']);assert 2<=count<=120
