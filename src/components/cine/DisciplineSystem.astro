@@ -68,6 +68,8 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='103'?precis
  .discipline-system :global(.ps-layer){transition:opacity 650ms ease}
  .discipline-system :global(.ps-surface),.discipline-system :global(.ps-context){transition:opacity 650ms ease}
  .discipline-system :global(.ps-context){opacity:0}
+ /* Let the lens return before revealing every sheet in the final assembly. */
+ .discipline-system[data-discipline-service="104"][data-discipline-stage="6"][data-software-overview-ready="false"] :global(.ps-layer:not([data-discipline-node="5"]) .ps-surface){opacity:0}
  .discipline-system[data-discipline-service="104"]:not([data-discipline-stage="-1"]):not([data-discipline-stage="6"]) :global(.ps-layer:not([data-current=true]) .ps-surface){opacity:0}
  .discipline-system[data-discipline-service="104"]:not([data-discipline-stage="-1"]):not([data-discipline-stage="6"]) :global(.ps-layer:not([data-current=true]) .ps-context){opacity:.19}
  .discipline-system[data-discipline-service="104"]:not([data-discipline-stage="-1"]):not([data-discipline-stage="6"]) :global(.ps-drawing>.pn-tag){opacity:0}

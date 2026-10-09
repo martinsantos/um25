@@ -138,7 +138,7 @@ export function bindDisciplineCamera(root){
  function tick(now){
   frame=0;if(!running())return;if(last)elapsed+=now-last;last=now;
   const t=Math.min(1,elapsed/2200),e=(1-Math.cos(Math.PI*t))/2;current=from.map((v,i)=>v+(target[i]-v)*e);render();
-  if(t<1)frame=requestAnimationFrame(tick);
+  if(t<1)frame=requestAnimationFrame(tick);else root.dataset.softwareOverviewReady='true';
  }
  function update(){
   base=overview();
@@ -146,6 +146,7 @@ export function bindDisciplineCamera(root){
   const code=root.dataset.disciplineService,stage=Number(root.dataset.disciplineStage),nextKey=[code,stage,aspect.toFixed(3),reduced.matches].join(':');
   if(key!==nextKey){
    const changed=key.split(':')[0]!==code;key=nextKey;target=[...base];
+   root.dataset.softwareOverviewReady=active()&&stage===6?'false':'true';
    if(changed){current=[...base];if(code==='104')svg.setAttribute('viewBox',base.join(' '));}
    if(active()&&!reduced.matches&&stage>=0&&stage<6){
     const drawing=root.querySelector('[data-discipline-drawing="'+code+'"]');
@@ -178,8 +179,9 @@ export function bindDisciplineCamera(root){
   }
   cancelAnimationFrame(frame);frame=0;last=0;
   if(!active())return;
-  if(reduced.matches){current=[...target];render();return;}
-  if(running()&&current.some((v,i)=>Math.abs(v-target[i])>.001))frame=requestAnimationFrame(tick);
+  if(reduced.matches){current=[...target];root.dataset.softwareOverviewReady='true';render();return;}
+  if(current.every((v,i)=>Math.abs(v-target[i])<=.001))root.dataset.softwareOverviewReady='true';
+  else if(running())frame=requestAnimationFrame(tick);
  }
  const observer=new MutationObserver(update);observer.observe(root,{attributes:true,attributeFilter:['data-discipline-stage','data-discipline-service','data-visible']});observer.observe(owner,{attributes:true,attributeFilter:['data-story-state']});
  window.addEventListener('resize',update);small.addEventListener('change',update);reduced.addEventListener('change',update);document.addEventListener('visibilitychange',update);

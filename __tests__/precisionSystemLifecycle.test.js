@@ -63,3 +63,21 @@ test('the software lens leaves all other discipline cameras alone',async()=>{
   expect(svg.getAttribute('viewBox')).toBe('12 24 450 600');dispose();
  }
 });
+
+
+test('the final software assembly waits for its camera, including a pause during the return',async()=>{
+ document.body.innerHTML='<section data-service-atlas data-story-state="playing"><div data-discipline-system data-visible="true" data-discipline-service="104" data-discipline-stage="5"><svg viewBox="0 0 1000 650"><g data-discipline-drawing="104"><g data-discipline-node="5"></g></g></svg></div></section>';
+ const root=document.querySelector('[data-discipline-system]'),owner=root.parentElement,svg=root.querySelector('svg'),layer=root.querySelector('[data-discipline-node]');
+ svg.getBoundingClientRect=()=>({width:600,height:400});
+ svg.getScreenCTM=()=>({inverse:()=>({multiply:matrix=>({...matrix})})});
+ layer.parentElement.getScreenCTM=()=>({a:1,b:0,c:0,d:1,e:0,f:0});
+ layer.getBBox=()=>({x:200,y:100,width:400,height:200});
+ bindDisciplineCamera(root);await jest.advanceTimersByTimeAsync(2400);
+ root.dataset.disciplineStage='6';await settle();await jest.advanceTimersByTimeAsync(700);
+ expect(root.dataset.softwareOverviewReady).toBe('false');
+ owner.dataset.storyState='paused';await settle();const paused=svg.getAttribute('viewBox');
+ await jest.advanceTimersByTimeAsync(5000);
+ expect(svg.getAttribute('viewBox')).toBe(paused);expect(root.dataset.softwareOverviewReady).toBe('false');
+ owner.dataset.storyState='playing';await settle();await jest.advanceTimersByTimeAsync(2600);
+ expect(svg.getAttribute('viewBox')).toBe('0 0 1000 650');expect(root.dataset.softwareOverviewReady).toBe('true');
+});
