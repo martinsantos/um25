@@ -124,7 +124,7 @@ def render(args):
  from mathutils import Matrix,Vector
  bpy.ops.wm.read_factory_settings(use_empty=True);scene=bpy.context.scene
  scene.render.engine='BLENDER_EEVEE_NEXT';scene.eevee.taa_render_samples=args.samples
- scene.render.threads_mode='FIXED';scene.render.threads=4
+ scene.render.threads_mode='FIXED';scene.render.threads=4;scene.render.use_persistent_data=True
  scene.render.resolution_x=args.width;scene.render.resolution_y=round(args.width/(1 if args.composition=='mobile' else 16/9));scene.render.resolution_percentage=100
  scene.render.image_settings.file_format='PNG';scene.render.image_settings.color_mode='RGB';scene.render.fps=FPS
  scene.view_settings.view_transform='Standard';scene.view_settings.look='None'
@@ -197,7 +197,8 @@ def render(args):
  camera_data=bpy.data.cameras.new('Crossed POV');camera_data.type='PERSP';camera_data.lens=48;camera_data.sensor_width=36;camera_data.sensor_fit='HORIZONTAL';camera_data.clip_start=.1;camera_data.clip_end=200
  cam=bpy.data.objects.new('Crossed POV',camera_data);scene.collection.objects.link(cam);scene.camera=cam
  out=Path(args.output);out.mkdir(parents=True,exist_ok=True);times=[]
- for frame in range(args.start,args.end+1):
+ def update(scene):
+  frame=scene.frame_current
   t=frame/(FRAMES-1);d,target,angles=camera(t)
   if args.composition=='mobile':
    # Dedicated optical framing, not a crop or non-uniform scale of the desktop.
@@ -232,8 +233,19 @@ def render(args):
     a,b=Vector(pts[index]),Vector(pts[index+1]);v=(b-a).normalized();point=a+v*travel
     packet_sp.points[0].co=(*point,1);packet_sp.points[1].co=(*(point+v*.22),1);break
    travel-=length
-  scene.frame_set(frame);scene.render.filepath=str(out/f'{frame:04d}.png');start=time.time();bpy.ops.render.render(write_still=True);times.append({'frame':frame,'seconds':round(time.time()-start,2)})
+ started=[0]
+ def begin(scene):started[0]=time.time()
+ def finish(scene):
+  times.append({'frame':scene.frame_current,'seconds':round(time.time()-started[0],2)})
   (out/'render-info.json').write_text(json.dumps({'version':'v12','publishable':False,'projection':'perspective','composition':args.composition,'engine':'eevee','samples':args.samples,'geometry_sha256':hashlib.sha256(Path(ui.geometry.__file__).read_bytes()).hexdigest(),'ui_sha256':hashlib.sha256(Path(ui.__file__).read_bytes()).hexdigest(),'fps':FPS,'frames':FRAMES,'resolution':[args.width,scene.render.resolution_y],'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'timings':times}))
+
+ scene.frame_start=args.start;scene.frame_end=args.end;scene.render.filepath=str(out)+'/'
+ bpy.app.handlers.frame_change_pre.append(update);bpy.app.handlers.render_pre.append(begin);bpy.app.handlers.render_post.append(finish)
+ try:
+  bpy.ops.render.render(animation=True)
+  assert [x['frame'] for x in times]==list(range(args.start,args.end+1))
+ finally:
+  bpy.app.handlers.frame_change_pre.remove(update);bpy.app.handlers.render_pre.remove(begin);bpy.app.handlers.render_post.remove(finish)
 
 if __name__=='__main__':
  parser=argparse.ArgumentParser();parser.add_argument('--start',type=int,default=0);parser.add_argument('--end',type=int,default=0);parser.add_argument('--samples',type=int,default=32);parser.add_argument('--width',type=int,default=3840);parser.add_argument('--composition',choices=['wide','mobile'],default='wide');parser.add_argument('--font-dir');parser.add_argument('--output',default='frames');parser.add_argument('--validate-only',action='store_true')
