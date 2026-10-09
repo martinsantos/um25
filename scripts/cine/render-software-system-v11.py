@@ -121,7 +121,7 @@ def build():
   p.boundary(group,*bounds)
  # Contract inspection: a real payload, its mapping and an explicit response.
  g='integration';cx=18
- p.surface(g,cx,0,12,7.7,'paper',.08,.035,.08)
+ p.surface(g,cx,0,12,7.7,'paper',-.055,.035,.08)
  p.label(g,'02 / INTEGRACIONES',cx-5.5,3.24,.17,'slate',True)
  p.label(g,'Un contrato. El mismo significado.',cx-5.5,2.68,.36,'ink',True)
  p.label(g,'ORDEN 0248  /  PROYECTO P-104',cx-5.5,2.24,.15,'quiet')
@@ -133,10 +133,12 @@ def build():
   y=.42-i*.98
   p.surface(g,cx-3.10,y,4.75,.77,'bluewash',.14,.008,.035)
   p.label(g,key,cx-5.22,y+.11,.16,'slate',True,z=.19);p.label(g,value,cx-5.22,y-.20,.20,'ink',z=.19)
-  p.surface(g,cx+3.05,y,4.88,.77,'canvas',.14,.008,.035)
-  p.label(g,target,cx+.83,y+.11,.16,'slate',True,z=.19);p.label(g,result,cx+.83,y-.20,.20,'ink',z=.19)
-  p.line(g,[(cx-.7,y,.18),(cx+.60,y,.18)],'signal',.010)
-  p.icon(g,'arrow',cx+.35,y-.065,'signal',.15,z=.20)
+  gg=f'mapping-{i}'
+  p.surface(gg,cx+3.05,y,4.88,.77,'canvas',.14,.008,.035)
+  p.label(gg,target,cx+.83,y+.11,.16,'slate',True,z=.19);p.label(gg,result,cx+.83,y-.20,.20,'ink',z=.19)
+  p.line(g,[(cx-.7,y,.18),(cx+.60,y,.18)],'line',.006)
+  p.icon(gg,'arrow',cx+.35,y-.065,'signal',.15,z=.20)
+  for xx,yy in [(cx+.61,y-.395),(cx+5.49,y+.395)]:p.line(gg,[(xx,yy,.17),(xx,yy,.19)],'signal',.005)
   p.disc(g,cx-.68,y,.025,'signal',.20)
  p.rule(g,cx-5.45,cx+5.45,-2.22)
  p.tag(g,'202 / Aceptada',cx-5.45,-2.68,1.92,'mint','green',z=.18)
@@ -144,19 +146,19 @@ def build():
  p.label(g,'request / 0248-A   ·   schema / v3   ·   validación / 3 campos',cx-5.45,-3.24,.16,'slate',z=.20)
  # Relational storage: keys, relationships, transaction and append-only history.
  g='storage';cx=18;cy=-10
- p.surface(g,cx,cy,12,7.7,'paper',.08,.035,.08)
+ p.surface(g,cx,cy,12,7.7,'paper',-.055,.035,.08)
  p.label(g,'03 / DATOS Y TRAZABILIDAD',cx-5.5,cy+3.24,.17,'slate',True)
  p.label(g,'Guardar no alcanza. Hay que poder explicar.',cx-5.5,cy+2.68,.32,'ink',True)
  p.label(g,'La orden conserva su proyecto, responsable y registro de cambios.',cx-5.5,cy+2.20,.17,'muted')
  tables=[(-3.4,1.0,'proyectos',[('PK  id','P-104'),('nombre','Nueva sede'),('sede','Guaymallén')]),(2.6,1.0,'órdenes',[('PK  id','0248'),('FK  proyecto_id','P-104'),('estado','Aprobada')]),(2.6,-1.65,'eventos',[('PK  secuencia','000187'),('FK  orden_id','0248'),('acción','approval.accepted')])]
  for tx,ty,title,rows in tables:
-  x=cx+tx;y=cy+ty
-  p.surface(g,x,y,4.7,2.06,'bluewash',.16,.016,.04)
-  p.label(g,title,x-2.1,y+.68,.23,'ink',True,z=.22)
-  p.rule(g,x-2.1,x+2.1,y+.45,'edge',.22)
+  x=cx+tx;y=cy+ty;gg='table-'+title
+  p.surface(gg,x,y,4.7,2.06,'bluewash',.16,.016,.04)
+  p.label(gg,title,x-2.1,y+.68,.23,'ink',True,z=.22)
+  p.rule(gg,x-2.1,x+2.1,y+.45,'edge',.22)
   for i,(key,value) in enumerate(rows):
    yy=y+.11-i*.36
-   p.label(g,key,x-2.1,yy,.135,'slate',z=.22);p.label(g,value,x+.23,yy,.15,'ink',i==0,z=.22)
+   p.label(gg,key,x-2.1,yy,.135,'slate',z=.22);p.label(gg,value,x+.23,yy,.15,'ink',i==0,z=.22)
  p.line(g,[(cx-1.05,cy+1.10,.24),(cx-.48,cy+1.10,.24),(cx-.48,cy+.80,.24),(cx+.25,cy+.80,.24)],'signal',.012)
  p.line(g,[(cx+2.6,cy-.03,.24),(cx+2.6,cy-.58,.24)],'signal',.012)
  p.surface(g,cx-3.4,cy-1.65,4.7,2.06,'canvas',.16,.016,.04)
@@ -167,16 +169,19 @@ def build():
  p.label(g,'La respuesta vuelve después de confirmar el registro.',cx-4.23,cy-3.32,.16,'muted',z=.22)
  # Runtime is an actual topology, with release path distinct from requests.
  g='runtime';cx=0;cy=-10
- p.surface(g,cx,cy,12,7.7,'paper',.08,.035,.08)
+ p.surface(g,cx,cy,12,7.7,'paper',-.055,.035,.08)
  p.label(g,'04 / OPERACIÓN Y EVOLUCIÓN',cx-5.5,cy+3.24,.17,'slate',True)
  p.label(g,'El producto sigue funcionando detrás.',cx-5.5,cy+2.68,.34,'ink',True)
  p.label(g,'Ejemplo de arquitectura · la capacidad se define con cada proyecto.',cx-5.5,cy+2.20,.16,'muted')
  # Two independently labelled processes receive traffic through one router.
  def service(x,y,w,title,sub):
-  p.surface(g,x,y,w,1.10,'bluewash',.20,.025,.045)
-  p.label(g,title,x-w/2+.18,y+.16,.20,'ink',True,z=.27)
-  p.label(g,sub,x-w/2+.18,y-.19,.137,'slate',z=.27)
-  p.disc(g,x+w/2-.20,y+.25,.035,'green',.27)
+  gg='process-'+title
+  p.surface(gg,x,y,w,1.10,'bluewash',.20,.025,.045)
+  p.label(gg,title,x-w/2+.18,y+.16,.20,'ink',True,z=.27)
+  p.label(gg,sub,x-w/2+.18,y-.19,.137,'slate',z=.27)
+  p.disc(gg,x+w/2-.20,y+.25,.035,'green',.27)
+  for i in range(7):p.rounded(gg,x-w/2+.18+i*.14,y-.37,.272,.10,.065,.001,'line',.006)
+  p.label(gg,'0248-A',x+w/2-.85,y-.41,.10,'slate',z=.28)
  service(cx-4.14,cy+.65,2.45,'Entrada','HTTPS / sesión')
  service(cx-.62,cy+1.18,2.85,'app-01','v1.8.3 / disponible')
  service(cx-.62,cy-.50,2.85,'app-02','v1.8.3 / disponible')
@@ -196,37 +201,43 @@ def build():
  return p
 
 def narrative(t):
- checks=sum(t>=threshold for threshold in (.11,.15,.19))
- return checks,checks==3,t>=.90
+ # Inspect an already completed operation, so the loop never undoes approval.
+ checks=3 if t<.035 or t>.22 else sum(t>=threshold for threshold in (.11,.15,.19))
+ return checks,checks==3,True
 
 def reveal(t):return E((t-.035)/.065)*(1-E((t-.22)/.05))
 
 def pose(group,t):
  q=reveal(t)
+ if group.startswith('mapping-'):
+  i=int(group[-1]);lift=E((t-(.31+i*.025))/.035)*(1-E((t-.455)/.025))
+  return (0,0,.72*lift)
+ if group.startswith('table-'):
+  i=['proyectos','órdenes','eventos'].index(group[6:]);lift=E((t-(.53+i*.025))/.035)*(1-E((t-.665)/.025))
+  return (0,0,(.35+i*.17)*lift)
+ if group.startswith('process-'):
+  return (0,0,.40*E((t-.74)/.045)*(1-E((t-.85)/.025)))
  return {'selection':(-.16*q,0,.13*q),'inspector':(0,0,.05*q),
   'access':(1.34*q,1.53*q,1.15*q),'policy':(0,0,.22*q-.50*(1-E((q-.08)/.40))),
   'history':(.18*q,-.68*q,.40*q),'action':(.18*q,-.68*q,.40*q)}.get(group,(0,0,0))
 
 def camera_pose(t):
- # Four authored inspection shots connected by measured travel. Each destination
- # exposes a different mechanism, with a hold before departing.
- keys=[(0,17.8,(.7,0,.2),(7,-12,-1)),
-  (.10,12.2,(4.5,-.6,.7),(14,-25,-2)),
-  (.22,12.2,(4.5,-.6,.7),(14,-25,-2)),
-  (.32,14.8,(18,0,.2),(10,-18,1)),
-  (.44,14.8,(18,0,.2),(10,-18,1)),
-  (.54,14.8,(18,-10,.2),(8,-19,-1)),
-  (.65,14.8,(18,-10,.2),(8,-19,-1)),
-  (.75,14.8,(0,-10,.2),(10,-18,1)),
-  (.84,14.8,(0,-10,.2),(10,-18,1)),
-  (.95,17.8,(.7,0,.2),(7,-12,-1)),
-  (1,17.8,(.7,0,.2),(7,-12,-1))]
+ # Deliberate editorial cuts avoid racing across empty space. Each shot makes
+ # one inspection, with a slow local camera move and a legible dwell.
+ if t<.24:
+  q=E(t/.15);size=17.8+(12.2-17.8)*q;target=(.7+3.8*q,-.6*q,.2+.5*q);angles=(7+7*q,-12-13*q,-1-q)
+ elif t<.46:
+  q=E((t-.24)/.22);size=15.0-.3*q;target=(18,-.10*q,.2+.12*q);angles=(14+3*q,-24-4*q,1-q)
+ elif t<.68:
+  q=E((t-.46)/.22);size=15.2-.3*q;target=(18,-10-.10*q,.2+.12*q);angles=(15+2*q,-25-3*q,-1)
+ elif t<.88:
+  q=E((t-.68)/.20);size=14.9-.3*q;target=(0,-10,.3);angles=(14+3*q,-24-3*q,1-q)
+ else:
+  q=E((t-.88)/.10);size=12.2+5.6*q;target=(4.5-3.8*q,-.6+.6*q,.7-.5*q);angles=(14-7*q,-25+13*q,-2+q)
  if ASPECT==1:
-  keys=[(t,10.6 if t<.25 else 13.4 if t<.9 else 10.6,(4.4,y,z) if t<.25 or t>.9 else (x,y,z),angles) for t,size,(x,y,z),angles in keys]
- for a,b in zip(keys,keys[1:]):
-  if a[0]<=t<=b[0]:break
- q=E((t-a[0])/(b[0]-a[0]));mix=lambda x,y:x+(y-x)*q
- return mix(a[1],b[1]),tuple(mix(x,y) for x,y in zip(a[2],b[2])),tuple(mix(x,y) for x,y in zip(a[3],b[3]))
+  size=10.8 if t<.24 or t>=.88 else 13.5
+  if t<.24 or t>=.88:target=(4.5,target[1],target[2])
+ return size,target,angles
 
 def basis(t):
  size,target,angles=camera_pose(t);ax,ay,roll=map(math.radians,angles)
@@ -238,6 +249,11 @@ def basis(t):
 def validate():
  p=build();assert all(m in PALETTE for _,m,_,_ in p.meshes)
  assert {'integration','storage','runtime','policy','access'}<=p.points.keys()
+ for g,label,x,y,z,size,material,bold in p.texts:
+  for group,mat,verts,faces in p.meshes:
+   if group!=g:continue
+   xs,ys,zs=zip(*verts)
+   if min(xs)<=x<=max(xs) and min(ys)<=y<=max(ys):assert z>max(zs),(label,'covered by',mat,z,max(zs))
  assert all(math.isfinite(v) for points in p.points.values() for point in points for v in point)
  for frame in range(FRAMES):
   size,target,r,u,n=basis(frame/(FRAMES-1));assert size>0 and all(math.isfinite(v) for v in target)
@@ -320,6 +336,18 @@ def render(args):
  for g,corners in [('selection',[(-5.27,1.17),(.80,1.17),(.80,1.68),(-5.27,1.68)]),('access',[(1.60,-1.86),(6.96,-1.86),(6.96,-.49),(1.60,-.49)])]:
   for x,y in corners:
    ob,s=curve('Registered control',[(x,y,.022),(x,y,.023)],'red',.002);registration.append((g,ob,s))
+ connectors=[]
+ for i in range(3):
+  y=.42-i*.98;g=f'mapping-{i}'
+  ob,sp=curve('Mapped field '+str(i),[(17.30,y,.19),(18.60,y,.19)],'signal',.008)
+  connectors.append((g,ob,sp,[(17.30,y,.19),(18.60,y,.19)]))
+  for x in [18.62,23.49]:
+   ob,sp=curve('Field registration',[(x,y-.39,.16),(x,y-.39,.17)],'slate',.003)
+   connectors.append((g,ob,sp,[(x,y-.39,.16),(x,y-.39,.17)]))
+ for g,x,y,z in [('table-proyectos',14.6,-9,.24),('table-órdenes',20.6,-9,.24),('table-eventos',20.6,-11.65,.24)]:
+  for xx in [x-2.35,x+2.35]:
+   ob,sp=curve('Data registration',[(xx,y+1.03,.14),(xx,y+1.03,z)],'slate',.003)
+   connectors.append((g,ob,sp,[(xx,y+1.03,.14),(xx,y+1.03,z)]))
  bpy.ops.mesh.primitive_plane_add(size=200,location=(0,0,-.25));bpy.context.object.data.materials.append(mats['floor'])
  for name,pos,power,size in [('Key',(-5,3,14),1000,11),('Fill',(7,-5,10),350,9)]:
   data=bpy.data.lights.new(name,'AREA');data.use_shadow=name=='Key';data.energy=power;data.size=size;ob=bpy.data.objects.new(name,data);scene.collection.objects.link(ob);ob.location=pos;ob.rotation_euler=(Vector((0,0,0))-ob.location).to_track_quat('-Z','Y').to_euler()
@@ -329,6 +357,9 @@ def render(args):
   try:
    t=scene.frame_current/(FRAMES-1);size,target,r,u,n=basis(t);camdata.ortho_scale=size;cam.location=Vector(target)+Vector(n)*50;cam.rotation_euler=Matrix((r,u,n)).transposed().to_euler()
    for g,ob in parents.items():ob.location=pose(g,t)
+   for g,ob,sp,points in connectors:
+    x,y,z=pose(g,t);sp.points[1].co=(*[a+b for a,b in zip(points[1],(x,y,z))],1)
+    ob.hide_render=z<.01
    for g,ob,s in registration:s.points[1].co.x=s.points[0].co.x+pose(g,t)[0];s.points[1].co.y=s.points[0].co.y+pose(g,t)[1];s.points[1].co.z=.024+pose(g,t)[2];ob.hide_render=pose(g,t)[2]<.01
    parents['policy'].hide_render=False
    for ob in parents['policy'].children:ob.hide_render=reveal(t)<.12
