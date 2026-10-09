@@ -130,7 +130,7 @@ def reveal(t):return E((t-.16)/.23)*(1-E((t-.76)/.17))
 def pose(group,t):
  q=reveal(t)
  return {'selection':(-.16*q,0,.13*q),'inspector':(0,0,.05*q),
-  'access':(1.34*q,1.53*q,1.15*q),'policy':(0,0,.22*q),
+  'access':(1.34*q,1.53*q,1.15*q),'policy':(0,0,.22*q-.50*(1-E((q-.08)/.40))),
   'history':(.18*q,-.68*q,.40*q),'action':(.18*q,-.68*q,.40*q)}.get(group,(0,0,0))
 
 def camera_pose(t):
@@ -240,19 +240,24 @@ def render(args):
   ob,_=curve('Authored detail',pts,m,r,parents[g]);native_marks.append((g,m,ob))
  # A communication path behind the transparent inspection surface. The same
  # request advances in order; no particle fireworks or unrelated network mesh.
- transmission=[]
- for i,(x,label) in enumerate([(2.15,'Identidad'),(3.74,'Permisos'),(5.33,'Datos'),(6.92,'Auditoría')]):
-  a=Vector((x,-1.01,-.16));b=Vector((x+1.35,-1.01,-.16))
+ transmission=[];service_labels=[]
+ for i,(x,label) in enumerate([(2.00,'Identidad'),(3.57,'Permisos'),(5.14,'Datos'),(6.71,'Auditoría')]):
+  xx=x+.06
+  node,sp=curve(label+' service',[(xx,-1.02,-.15),(xx+.28,-1.02,-.15)],'slate',.013,parents['access'])
+  transmission.append((i,node,sp))
   if i<3:
-   ob,sp=curve('Service communication', [a,b], 'slate',.006,parents['access']);transmission.append((i,ob,sp))
- signal,signal_spline=curve('Order 0248 in transit',[(2.15,-1.01,-.158),(2.35,-1.01,-.158)],'signal',.017,parents['access'])
+   ob,sp=curve(label+' communication',[(xx+.28,-1.02,-.15),(xx+1.35,-1.02,-.15)],'slate',.0045,parents['access']);transmission.append((i,ob,sp))
+  c=bpy.data.curves.new(label+' / underneath','FONT');c.body=label;c.size=.085;c.font=fonts[False];c.materials.append(mats['slate'])
+  ob=bpy.data.objects.new(c.name,c);scene.collection.objects.link(ob);ob.parent=parents['access'];ob.location=(xx,-1.14,-.15);ob.visible_shadow=False
+  service_labels.append(ob)
+ signal,signal_spline=curve('Order 0248 in transit',[(2.06,-1.02,-.148),(2.25,-1.02,-.148)],'signal',.019,parents['access'])
  registration=[]
  for g,corners in [('selection',[(-5.27,1.17),(.80,1.17),(.80,1.68),(-5.27,1.68)]),('access',[(1.60,-1.86),(6.96,-1.86),(6.96,-.49),(1.60,-.49)])]:
   for x,y in corners:
    ob,s=curve('Registered control',[(x,y,.022),(x,y,.023)],'red',.002);registration.append((g,ob,s))
  bpy.ops.mesh.primitive_plane_add(size=200,location=(0,0,-.25));bpy.context.object.data.materials.append(mats['floor'])
  for name,pos,power,size in [('Key',(-5,3,14),1000,11),('Fill',(7,-5,10),350,9)]:
-  data=bpy.data.lights.new(name,'AREA');data.energy=power;data.size=size;ob=bpy.data.objects.new(name,data);scene.collection.objects.link(ob);ob.location=pos;ob.rotation_euler=(Vector((0,0,0))-ob.location).to_track_quat('-Z','Y').to_euler()
+  data=bpy.data.lights.new(name,'AREA');data.use_shadow=name=='Key';data.energy=power;data.size=size;ob=bpy.data.objects.new(name,data);scene.collection.objects.link(ob);ob.location=pos;ob.rotation_euler=(Vector((0,0,0))-ob.location).to_track_quat('-Z','Y').to_euler()
  camdata=bpy.data.cameras.new('One deliberate inspection');camdata.type='ORTHO';camdata.sensor_fit='HORIZONTAL';cam=bpy.data.objects.new('One deliberate inspection',camdata);scene.collection.objects.link(cam);scene.camera=cam
  out=Path(args.output);out.mkdir(parents=True,exist_ok=True);timings=[];errors=[];started=[0]
  def update(scene):
@@ -264,10 +269,11 @@ def render(args):
    for ob in parents['policy'].children:ob.hide_render=reveal(t)<.12
    q=reveal(t)
    mats['glass'].node_tree.nodes['Inspection opacity'].inputs[0].default_value=1-.86*q
-   travel=max(0,min(1,(t-.30)/.30));x=2.15+4.77*travel
+   travel=max(0,min(1,(t-.30)/.30));x=2.06+4.71*travel
    signal_spline.points[0].co.x=x;signal_spline.points[1].co.x=x+.18
    signal.hide_render=q<.15 or travel>=1
    for i,ob,sp in transmission:ob.hide_render=q<.15
+   for ob in service_labels:ob.hide_render=q<.15
    checks,permitted,approved=narrative(t)
    replacements={
     'Permiso efectivo':'Permiso efectivo' if permitted else 'Verificando acceso',
@@ -288,6 +294,9 @@ def render(args):
     if group=='access' and original in ('01','02','03'):color(ob,'green' if int(original)<=checks else 'quiet')
     if original=='En revisión':color(ob,'green' if approved else 'red')
     if original=='Verificado':color(ob,'green' if permitted else 'muted')
+    if group=='policy' and original in ('Autenticada','Responsable','Coincide'):color(ob,'green' if ('Autenticada','Responsable','Coincide').index(original)<checks else 'muted')
+   policy_checks=[ob for group,material,ob in native_marks if group=='policy' and material=='green' and ob.type=='CURVE']
+   for i,ob in enumerate(policy_checks):color(ob,'green' if i<checks else 'quiet')
    for group,material,ob in native_marks:
     if material=='red' and group in ('selection','history','action'):color(ob,'green' if approved else 'red')
     if group=='access' and material=='green':color(ob,'green' if permitted else 'quiet')

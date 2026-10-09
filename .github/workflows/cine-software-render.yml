@@ -82,7 +82,7 @@ jobs:
     if: inputs.version == 'v10'
     uses: ./.github/workflows/cine-software-v10.yml
     with:
-      mode: ${{ inputs.mode == 'sequence-proof' && 'sequence' || 'proof' }}
+      mode: ${{ inputs.mode == 'sequence-proof' && 'sequence' || inputs.mode == 'motion-proof' && 'benchmark' || 'proof' }}
       engine: ${{ inputs.engine }}
   plan:
     if: inputs.version != 'v10'
