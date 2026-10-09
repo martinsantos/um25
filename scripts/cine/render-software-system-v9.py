@@ -27,7 +27,7 @@ class UI(geometry.Product):
  def avatar(self,g,name,x,y,ink='slate'):
   self.disc(g,x,y,.13,'bluewash');self.label(g,name,x-.077,y-.045,.105,ink)
  def boundary(self,g,x1,y1,x2,y2):
-  self.line(g,[(x1,y1,.045),(x2,y1,.045),(x2,y2,.045),(x1,y2,.045),(x1,y1,.045)],'red',.003)
+  self.line(g,[(x1,y1,.045),(x2,y1,.045),(x2,y2,.045),(x1,y2,.045),(x1,y1,.045)],'red',.0045)
   for x,y in [(x1,y1),(x2,y1),(x2,y2),(x1,y2)]:self.disc(g,x,y,.015,'red',.046)
 
 def build():
@@ -86,10 +86,15 @@ def build():
  p.rule(g,1.64,6.90,.41)
  p.label(g,'Una aprobación, con contexto.',1.65,.04,.168,'ink',True)
  p.label(g,'Revisamos el alcance y registramos quién autoriza el cambio.',1.65,-.22,.128,'muted')
- g='access';p.surface(g,4.28,-1.03,5.28,.96,'bluewash',.024,.010,.035)
- p.icon(g,'check',1.83,-.94,'green',.19);p.label(g,'Permiso efectivo',2.16,-.88,.15,'ink',True)
- p.label(g,'MS puede aprobar órdenes del proyecto P-104.',2.16,-1.15,.125,'muted')
- p.tag(g,'Verificado',5.75,-.93,.90,'mint','green');p.label(g,'Identidad',1.82,-1.67,.105,'quiet');p.label(g,'Rol / responsable',3.66,-1.67,.105,'quiet');p.label(g,'Alcance / P-104',5.56,-1.67,.105,'quiet')
+ g='access';p.surface(g,4.28,-1.18,5.28,1.34,'bluewash',.024,.010,.035)
+ p.icon(g,'check',1.83,-.80,'green',.19);p.label(g,'Permiso efectivo',2.16,-.74,.15,'ink',True)
+ p.label(g,'MS puede aprobar esta orden porque cumple las tres condiciones.',1.83,-1.01,.121,'muted')
+ p.tag(g,'Verificado',5.75,-.78,.90,'mint','green')
+ p.rule(g,1.82,6.74,-1.19,'edge',.044)
+ for x,n,title,value in [(1.83,'01','Identidad','MS · sesión validada'),(3.57,'02','Rol','Responsable'),(5.22,'03','Alcance','Proyecto P-104')]:
+  p.label(g,n,x,-1.43,.105,'green',True);p.label(g,title,x+.26,-1.43,.112,'muted')
+  p.label(g,value,x,-1.68,.128,'ink',True)
+ p.vline(g,3.34,-1.40,-1.71,'edge',.044);p.vline(g,5.00,-1.40,-1.71,'edge',.044)
  g='history';p.rule(g,1.65,6.91,-1.93);p.label(g,'TRAZABILIDAD',1.65,-2.25,.103,'quiet',True)
  p.vline(g,1.85,-2.54,-3.40)
  for i,(title,sub) in enumerate([('Revisión solicitada','MS · hoy, 10:42'),('Alcance actualizado','Equipo de Redes · hoy, 10:31')]):
@@ -97,7 +102,7 @@ def build():
  g='action';p.rule(g,1.65,6.91,-3.64);p.label(g,'Todo cambio queda registrado.',1.66,-4.06,.118,'muted')
  p.rounded(g,6.00,-4.02,.028,1.82,.44,.005,'red',.035);p.label(g,'Aprobar orden',5.37,-4.065,.148,'paper',True)
  # Fine engineering annotations correspond to actual nested regions.
- for group,bounds in [('selection',(-5.27,1.17,.80,1.68)),('access',(1.60,-1.76,6.96,-.49)),('history',(1.61,-3.49,6.95,-1.95))]:
+ for group,bounds in [('selection',(-5.27,1.17,.80,1.68)),('access',(1.60,-1.86,6.96,-.49)),('history',(1.61,-3.49,6.95,-1.95))]:
   p.boundary(group,*bounds)
  p.label('access','<policy scope="P-104">',1.64,-.42,.103,'red',z=.05)
  return p
@@ -110,8 +115,8 @@ def pose(group,t):
  return (0,0,z)
 
 def camera_pose(t):
- q=E((t-.02)/.74);size=19.4-9.8*q;target=(-.05+4.15*q,.02-1.62*q,.20+.06*q)
- angles=(8-3*q,-12-5*q,-1.8+1.1*q)
+ q=E((t-.02)/.57);size=19.4-9.8*q;target=(-.05+4.15*q,.02-1.62*q,.20+.06*q)
+ angles=(8+3*q,-12-12*q,-1.8-.9*q)
  return size,target,angles
 
 def basis(t):
@@ -193,7 +198,7 @@ def render(args):
   ob=bpy.data.objects.new(name,c);scene.collection.objects.link(ob);c.materials.append(mats[material]);ob.parent=parent;ob.visible_shadow=False;ob.display.show_shadows=False;return ob,s
  for g,pts,m,r in product.lines:curve('Authored detail',pts,m,r,parents[g])
  registration=[]
- for g,corners in [('selection',[(-5.27,1.17),(.80,1.17),(.80,1.68),(-5.27,1.68)]),('access',[(1.60,-1.76),(6.96,-1.76),(6.96,-.49),(1.60,-.49)])]:
+ for g,corners in [('selection',[(-5.27,1.17),(.80,1.17),(.80,1.68),(-5.27,1.68)]),('access',[(1.60,-1.86),(6.96,-1.86),(6.96,-.49),(1.60,-.49)])]:
   for x,y in corners:
    ob,s=curve('Registered control',[(x,y,.022),(x,y,.023)],'red',.002);registration.append((g,ob,s))
  bpy.ops.mesh.primitive_plane_add(size=200,location=(0,0,-.25));bpy.context.object.data.materials.append(mats['floor'])
