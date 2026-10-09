@@ -254,22 +254,26 @@ def render(args):
   mat.node_tree.links.new(tr.outputs[0],mix.inputs[1]);mat.node_tree.links.new(em.outputs[0],mix.inputs[2]);mat.node_tree.links.new(mix.outputs[0],out.inputs['Surface'])
   glyph_mats[key]=(mat,mix);return mat
  fonts={b:bpy.data.fonts.load(str(Path(args.font_dir)/f'UMSans-{w}.ttf')) for b,w in [(False,'Regular'),(True,'SemiBold')]}
- p=build();parents={}
+ p=build();parents={};visibility=[]
  for g in p.points:
   ob=bpy.data.objects.new(g,None);scene.collection.objects.link(ob);parents[g]=ob
  # Separate transparent surfaces, so EEVEE sorts them correctly by depth.
  for index,(g,m,verts,faces) in enumerate(p.meshes):
   mesh=bpy.data.meshes.new(f'{g}/{m}/{index}');mesh.from_pydata(verts,[],faces);mesh.update();ob=bpy.data.objects.new(mesh.name,mesh);scene.collection.objects.link(ob);mesh.materials.append(surface_material(g,m));ob.parent=parents[g]
+  if m not in ALPHA:visibility.append((ob,g))
  for g,x,y,z,w,d,h,m in p.boxes:
   bpy.ops.mesh.primitive_cube_add(size=1,location=(x,y,z+h/2));ob=bpy.context.object;ob.scale=(w,d,h);ob.data.materials.append(surface_material(g,m));ob.parent=parents[g]
+  if m not in ALPHA:visibility.append((ob,g))
  for g,s,x,y,z,size,m,bold in p.texts:
-  c=bpy.data.curves.new(s,'FONT');c.body=s;c.size=size;c.font=fonts[bold];c.extrude=0;c.materials.append(glyph_material(g,m,'properties' if g=='inspector' and -.3<y<2.3 else 'content'));ob=bpy.data.objects.new(s,c);scene.collection.objects.link(ob);ob.location=(x,y,z);ob.parent=parents[g]
+  c=bpy.data.curves.new(s,'FONT');c.body=s;c.size=size;c.font=fonts[bold];c.extrude=0;c.materials.append(glyph_material(g,m,'properties' if g=='inspector' and -.3<y<2.3 else 'content'));ob=bpy.data.objects.new(s,c);scene.collection.objects.link(ob);ob.location=(x,y,z);ob.parent=parents[g];visibility.append((ob,g))
  def line(name,pts,m,r,parent=None):
   c=bpy.data.curves.new(name,'CURVE');c.dimensions='3D';c.bevel_depth=r;c.bevel_resolution=2
   sp=c.splines.new('POLY');sp.points.add(len(pts)-1)
   for point,co in zip(sp.points,pts):point.co=(*co,1)
   c.materials.append(glyph_material(parent.name if parent else 'connections',m,'edge'));ob=bpy.data.objects.new(name,c);scene.collection.objects.link(ob);ob.parent=parent;return ob,sp
- for g,pts,m,r in p.lines:line('Fine geometry',pts,m,r,parents[g])
+ for g,pts,m,r in p.lines:
+  ob,sp=line('Fine geometry',pts,m,r,parents[g])
+  if '-check-' in g or g=='data-commit':visibility.append((ob,g))
  links=[]
  for g,(*b,m) in REGIONS.items():
   x1,y1,x2,y2=b
@@ -296,9 +300,10 @@ def render(args):
   ax,ay,roll=map(math.radians,angles);n=Vector((math.tan(ax),math.tan(ay),1)).normalized();r=Vector((n.z,0,-n.x)).normalized();u=n.cross(r);rr=math.cos(roll)*r+math.sin(roll)*u;uu=-math.sin(roll)*r+math.cos(roll)*u
   cam.location=Vector(target)+n*d;cam.rotation_euler=Matrix((rr,uu,n)).transposed().to_euler()
   for g,ob in parents.items():ob.location=placement(g,t)
+  for ob,g in visibility:ob.hide_render=prominence(g,t)<.025
   for (group,name),(mat,mix) in surface_mats.items():
    # Structural glass stays transparent; content islands gain quiet contrast.
-   opacity=ALPHA.get(name,1)*(.16+.84*focus(group,t)) if '-' not in group else ALPHA.get(name,1)*prominence(group,t)
+   opacity=ALPHA[name]*(.11+.89*focus(group,t)) if name in ALPHA and '-' not in group else ALPHA.get(name,1)*prominence(group,t)
    if family(group)=='access':opacity*=E((t-.10)/.07)
    mix.inputs[0].default_value=opacity
   for (group,name,region),(mat,mix) in glyph_mats.items():
@@ -308,7 +313,8 @@ def render(args):
     opacity=E(progress/.15)*(1-E((progress-.8)/.2))
    elif group=='packet':opacity=E((t-.27)/.06)*(1-E((t-.78)/.05))
    elif group=='connections':opacity=.08+.55*E((t-.28)/.08)*(1-E((t-.80)/.08))
-   elif region=='edge':opacity=.085+.915*focus(group,t)
+   elif region=='edge':
+    opacity=prominence(group,t) if '-check-' in group or group=='data-commit' else .045+.955*focus(group,t) if group.endswith('-depth') else .018+.982*focus(group,t)
    if family(group)=='access':opacity*=E((t-.10)/.07)
    mix.inputs[0].default_value=max(0,opacity)
   for i,sp in enumerate(mapping_signals):
@@ -320,7 +326,9 @@ def render(args):
   pts=[(6.96+ax,-2.88+ay,az+.06),(7.65,-3.85,-.7),(-4.75+cx,-3.85,cz+.03),(-4.75+cx,-3.45,cz+.03),(6.12+dx,-3.45,dz+.03)]
   for point,co in zip(route_sp.points,pts):point.co=(*co,1)
   # A calm, single request. No random activity or reverse transaction.
-  phase=max(0,min(.9999,(t-.28)/.49));lengths=[(Vector(b)-Vector(a)).length for a,b in zip(pts,pts[1:])];travel=phase*sum(lengths)
+  lengths=[(Vector(b)-Vector(a)).length for a,b in zip(pts,pts[1:])]
+  arrival=sum(lengths[:3]);travel=arrival*E((t-.28)/.15)+lengths[3]*E((t-.58)/.12)
+  travel=min(travel,sum(lengths)-.0001)
   for index,length in enumerate(lengths):
    if travel<=length:
     a,b=Vector(pts[index]),Vector(pts[index+1]);v=(b-a).normalized();point=a+v*travel
