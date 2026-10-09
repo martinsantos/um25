@@ -46,6 +46,10 @@ def focus(group,t):
 
 def prominence(group,t):
  f=focus(group,t)
+ # Glass returns before typography: the returning product must never print
+ # its labels through the still-readable transaction plane.
+ if family(group) not in ('access','contract','data'):f=(1-E((t-.105)/.045))+E((t-.89)/.05)
+ if family(group)=='access':f=E((t-.155)/.05)*(1-E((t-.355)/.075))
  if group.startswith('access-check-'):f*=E((t-(.17+.028*int(group[-1])))/.026)
  if group.startswith('contract-check-'):f*=E((t-(.455+.038*int(group[-1])))/.027)
  if group=='data-commit':f*=E((t-.725)/.03)
@@ -193,6 +197,9 @@ def validate():
   t=i/(FRAMES-1)
   assert max(focus(g,t) for g in ['base','access','contract','data'])>=.49
   assert sum(focus(g,t) for g in ['access','contract','data'])<=1.001
+ for i in range(FRAMES):
+  t=i/(FRAMES-1)
+  if prominence('base',t)>.025:assert max(prominence(g,t) for g in ['access','contract','data'])<.025
  assert prominence('access-check-2',.20)<.001
  assert prominence('access-check-2',.29)>.99
  assert prominence('contract-check-2',.50)<.001
