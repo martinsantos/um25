@@ -5,6 +5,9 @@ on:
       proof_frame:
         type: string
         default: '-1'
+      repair_parts:
+        type: string
+        default: ""
       mode:
         type: string
         default: proof
@@ -20,6 +23,7 @@ jobs:
         env:
           FRAME: ${{ inputs.proof_frame }}
           MODE: ${{ inputs.mode }}
+          REPAIR: ${{ inputs.repair_parts }}
         run: |
           python3 - <<'PYPLAN'
           import os,json
@@ -28,6 +32,11 @@ jobs:
           matrix={'include':[dict(frame=f,end=f,width=w,composition=c) for c,w in [('wide',3840),('mobile',2160)] for f in frames]}
           if os.environ['MODE']=='motion-proof':matrix={'include':[dict(frame=430,end=437,width=3840,composition='wide')]}
           if os.environ['MODE']=='sequence-proof':matrix={'include':[dict(frame=i*30,end=i*30+29,width=w,composition=c) for i in range(32) for c,w in [('wide',3840),('mobile',2160)]]}
+          if os.environ['MODE']=='repair':
+            parts=[part.split(':') for part in os.environ['REPAIR'].split(',')]
+            assert 0<len(parts)<=8
+            assert all(c in ('wide','mobile') and f.isdigit() and int(f)%30==0 and 0<=int(f)<960 for c,f in parts)
+            matrix={'include':[dict(frame=int(f),end=int(f)+29,width=3840 if c=='wide' else 2160,composition=c) for c,f in parts]}
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('matrix='+json.dumps(matrix)+'\n')
           PYPLAN
   render:
@@ -74,7 +83,7 @@ jobs:
         run: |
           xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-v13.py -- --samples 8 --width ${{ matrix.width }} --composition ${{ matrix.composition }} --start ${{ matrix.frame }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames
       - name: Encode bounded motion proof
-        if: inputs.mode == 'motion-proof' || inputs.mode == 'sequence-proof'
+        if: inputs.mode == 'motion-proof' || inputs.mode == 'sequence-proof' || inputs.mode == 'repair'
         run: |
           COUNT=$((${{ matrix.end }} - ${{ matrix.frame }} + 1))
           mkdir delivery
@@ -83,5 +92,5 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: v13-spatial-${{ matrix.composition }}-${{ matrix.frame }}
-          path: ${{ (inputs.mode == 'motion-proof' || inputs.mode == 'sequence-proof') && 'delivery' || 'frames' }}
+          path: ${{ (inputs.mode == 'motion-proof' || inputs.mode == 'sequence-proof' || inputs.mode == 'repair') && 'delivery' || 'frames' }}
           retention-days: 4

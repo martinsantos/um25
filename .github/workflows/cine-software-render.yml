@@ -104,6 +104,7 @@ jobs:
     uses: ./.github/workflows/cine-software-v13.yml
     with:
       mode: ${{ inputs.mode }}
+      repair_parts: ${{ inputs.repair_parts }}
       proof_frame: ${{ format('{0}', inputs.proof_frame) }}
   v12-spatial:
     if: inputs.version == 'v12'
