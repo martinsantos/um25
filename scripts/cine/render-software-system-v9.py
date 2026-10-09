@@ -172,7 +172,7 @@ def render(args):
    mat.node_tree.links.new(n.outputs[0],mix.inputs[1]);mat.node_tree.links.new(emission.outputs[0],mix.inputs[2]);mat.node_tree.links.new(mix.outputs[0],mat.node_tree.nodes['Material Output'].inputs['Surface'])
   mats[name]=mat
  if args.engine=='workbench':
-  scene.display.shading.light='FLAT';scene.display.shading.color_type='MATERIAL';scene.display.shading.show_shadows=True;scene.display.shading.show_cavity=False;scene.display.render_aa='8'
+  scene.display.shading.light='FLAT';scene.display.shading.color_type='MATERIAL';scene.display.shading.show_shadows=True;scene.display.shading.show_cavity=False;scene.display.render_aa='8';scene.display.shading.shadow_intensity=.12;scene.display.light_direction=(.2,-.25,1)
  font_dir=Path(args.font_dir) if args.font_dir else ROOT/'public/fonts/um-sans';fonts={bold:bpy.data.fonts.load(str(font_dir/f'UMSans-{weight}.ttf')) for bold,weight in [(False,'Regular'),(True,'SemiBold')]}
  product=build();parents={};combined={}
  for g in product.points:
@@ -183,14 +183,14 @@ def render(args):
   vv,ff=combined.setdefault((g,m),([],[]));offset=len(vv);vv.extend([(x+a*w/2,y+b*d/2,z+c*h) for c in [0,1] for b in [-1,1] for a in [-1,1]])
   ff.extend(tuple(offset+i for i in f) for f in [(0,2,3,1),(4,5,7,6),(0,1,5,4),(2,6,7,3),(0,4,6,2),(1,3,7,5)])
  for (g,m),(vv,ff) in combined.items():
-  mesh=bpy.data.meshes.new(g+' / '+m);mesh.from_pydata(vv,[],ff);mesh.update();ob=bpy.data.objects.new(mesh.name,mesh);scene.collection.objects.link(ob);ob.parent=parents[g];mesh.materials.append(mats[m])
+  mesh=bpy.data.meshes.new(g+' / '+m);mesh.from_pydata(vv,[],ff);mesh.update();ob=bpy.data.objects.new(mesh.name,mesh);scene.collection.objects.link(ob);ob.parent=parents[g];mesh.materials.append(mats[m]);ob.display.show_shadows=m in ('edge','paper','canvas','nav')
   bevel=ob.modifiers.new('Fine edge','BEVEL');bevel.width=.001;bevel.segments=2
  for g,s,x,y,z,size,m,bold in product.texts:
-  c=bpy.data.curves.new(s,'FONT');c.body=s;c.size=size;c.font=fonts[bold];c.extrude=0;ob=bpy.data.objects.new(s,c);scene.collection.objects.link(ob);ob.parent=parents[g];ob.location=(x,y,z);ob.visible_shadow=False;c.materials.append(mats[m])
+  c=bpy.data.curves.new(s,'FONT');c.body=s;c.size=size;c.font=fonts[bold];c.extrude=0;ob=bpy.data.objects.new(s,c);scene.collection.objects.link(ob);ob.parent=parents[g];ob.location=(x,y,z);ob.visible_shadow=False;ob.display.show_shadows=False;c.materials.append(mats[m])
  def curve(name,pts,material,radius,parent=None):
   c=bpy.data.curves.new(name,'CURVE');c.dimensions='3D';c.bevel_depth=radius;c.bevel_resolution=2;s=c.splines.new('POLY');s.points.add(len(pts)-1)
   for point,xyz in zip(s.points,pts):point.co=(*xyz,1)
-  ob=bpy.data.objects.new(name,c);scene.collection.objects.link(ob);c.materials.append(mats[material]);ob.parent=parent;ob.visible_shadow=False;return ob,s
+  ob=bpy.data.objects.new(name,c);scene.collection.objects.link(ob);c.materials.append(mats[material]);ob.parent=parent;ob.visible_shadow=False;ob.display.show_shadows=False;return ob,s
  for g,pts,m,r in product.lines:curve('Authored detail',pts,m,r,parents[g])
  registration=[]
  for g,corners in [('selection',[(-5.27,1.17),(.80,1.17),(.80,1.68),(-5.27,1.68)]),('access',[(1.60,-1.76),(6.96,-1.76),(6.96,-.49),(1.60,-.49)])]:
