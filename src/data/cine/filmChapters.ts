@@ -5,7 +5,7 @@ export const FILM_CHAPTERS: Record<string, FilmChapter[]> = {
     {at:0,text:'Una herramienta reúne el trabajo, sus responsables y su contexto.'},
     {at:2.2,text:'Cada aprobación verifica identidad, rol y alcance.'},
     {at:6.4,text:'Conectamos los campos sin perder su significado.'},
-    {at:9.6,text:'Cada cambio confirma su estado y conserva su historia.'},
+    {at:10,text:'Cada cambio confirma su estado y conserva su historia.'},
     {at:13.8,text:'Una operación completa, de la interfaz al registro.'},
   ],
   'software-system-v13': [

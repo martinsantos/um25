@@ -29,7 +29,7 @@ def assemble(source,out):
   (out/f'render-info{suffix}.json').write_text(json.dumps(dict(infos[0],timings=[r for info in infos for r in info['timings']])))
   poster=out/f'cine-software-system-v14-poster{suffix}.jpg';run('ffmpeg','-y','-v','error','-threads','2','-i',movie,'-frames:v','1','-q:v','2',poster)
   run('node','--input-type=module','-e',"import sharp from 'sharp';sharp.cache(false);sharp.concurrency(2);await sharp(process.argv[1]).avif({quality:74,effort:3,chromaSubsampling:'4:4:4'}).toFile(process.argv[2]);",poster,poster.with_suffix('.avif'))
-  for sec in [0,3.5,7.15,10.4,13.5,15.98]:run('ffmpeg','-y','-v','error','-threads','2','-ss',sec,'-i',movie,'-frames:v','1',out/f'review{suffix}-{sec}.png')
+  for sec in [0,3.5,6.25,7.15,9.2,10.16,10.4,13.5,14.5,15.98]:run('ffmpeg','-y','-v','error','-threads','2','-ss',sec,'-i',movie,'-frames:v','1',out/f'review{suffix}-{sec}.png')
  assets=list(out.glob('cine-*'));assert sum(p.stat().st_size for p in assets)<120_000_000
  (out/'SHA256SUMS').write_text(''.join(sha(p)+'  '+p.name+'\n' for p in sorted(out.iterdir()) if p.name!='SHA256SUMS'))
  print(json.dumps({'frames':960,'fps':60,'compositions':2,'publishable':False,'bytes':sum(p.stat().st_size for p in assets)}))
