@@ -1,6 +1,14 @@
 /** Captions follow the native movie clock; they explain the installation in view. */
 export type FilmChapter = { at: number; text: string };
 export const FILM_CHAPTERS: Record<string, FilmChapter[]> = {
+  'software-system-v11': [
+    { at: 0, text: 'Una orden reúne el trabajo, sus responsables y su contexto.' },
+    { at: 1.2, text: 'Detrás de la interfaz, identidad, rol y alcance verifican el acceso.' },
+    { at: 3.84, text: 'La integración traduce los campos y conserva el mismo identificador.' },
+    { at: 7.36, text: 'Proyecto, orden y evento quedan relacionados en una transacción.' },
+    { at: 10.88, text: 'La infraestructura sostiene la operación y permite publicar cambios controlados.' },
+    { at: 14.08, text: 'Todas las capas devuelven un resultado claro al equipo.' },
+  ],
   'software-system-v10': [
     { at: 0, text: 'Una herramienta diseñada alrededor del trabajo de tu equipo.' },
     { at: 2, text: 'Abrimos la interfaz para mostrar las reglas que sostienen cada acción.' },
