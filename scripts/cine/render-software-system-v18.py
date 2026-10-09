@@ -1,7 +1,7 @@
 """Spatial software study: registered translucent planes, crossed perspective.
 Native Blender proof on remote workers only. No automatic publication.
 """
-import argparse, hashlib, importlib.util, json, math, sys, time
+import argparse, hashlib, importlib.util, json, math, re, sys, time, xml.etree.ElementTree as ET
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 spec=importlib.util.spec_from_file_location('ui',Path(__file__).with_name('render-software-system-v11.py'))
@@ -14,7 +14,7 @@ COLORS={
  'green':'#6FE4CB','signal':'#63DCCB','rose':'#512F39','mint':'#214A4C',
  'paper':'#426F83','canvas':'#375D70','nav':'#2D4C5D','bluewash':'#42677E',
  'glass':'#5D94A5','trace':'#60DDC8','registration':'#648D9E','white':'#F4F8F9',
- 'amber':'#F5CA83','violet':'#B2AFF6','fieldpaper':'#263F4B','fieldnav':'#192E38'}
+ 'amber':'#F5CA83','violet':'#B2AFF6','fieldpaper':'#263F4B','fieldnav':'#192E38','brand':'#DC2626','mapland':'#293F45','mapblock':'#42565D','mappark':'#2C665C','maproad':'#A2B7BD'}
 # The background is absent from most of the layout: small translucent regions
 # give the communication paths room to be seen, rather than tinting a white slab.
 ALPHA={'paper':.20,'canvas':.08,'nav':.10,'bluewash':.13,'glass':.065,'edge':.0}
@@ -27,6 +27,10 @@ REGIONS={
 
 def family(group):
  return group.split('-')[0] if group.startswith(('access-','contract-','data-')) else group
+
+def annotation_progress(group,t):
+ start={'access':.174,'contract':.412,'data':.670}.get(family(group),.025)
+ return E((t-start)/.040)
 
 def exposure(t):return .30+.70*E((t-.025)/.15)*(1-E((t-.84)/.16))
 def placement(group,t):
@@ -99,10 +103,13 @@ def build():
   if item[0] in keep:p.box(*item)
  for g,s,x,y,z,size,m,bold in source.texts:
   if g not in keep:continue
+  if g=='base' and (s in ['UM','Operaciones','/  Mendoza']):continue
+  if g=='inspector' and -.32<y<2.30:continue
   s={'En revisión':'Aprobada','Aprobar orden':'Orden aprobada','Revisión solicitada':'Aprobación registrada','MS solicitó revisión de la orden 0248':'MS aprobó la orden 0248'}.get(s,s)
   p.text(g,s,x,y,z,size,'floor' if m=='paper' else m,bold)
  for g,points,m,r in source.lines:
   if g in keep:
+   if g=='inspector' and all(-.32<q[1]<2.30 for q in points):continue
    # Replace thick highlighted rectangles with consistently fine geometry.
    p.line(g,points,'signal' if m=='red' else m,min(r,.004))
  p.rounded('list',-2.26,-.27,-.018,6.34,8.31,.002,'canvas',.035)
@@ -113,7 +120,15 @@ def build():
  # The glass envelope is almost empty. Its rear edge is visible *through*
  # the lifted inspector, registering the software's layers in real depth.
  p.label('base','ÚLTIMA MILLA / INGENIERÍA DE SOFTWARE',-7.95,5.25,.13,'quiet',True)
- p.label('base','Una acción. Todas las capas conectadas.',-7.95,5.60,.23,'ink')
+ p.label('base','Tu operación, conectada.',-7.95,5.70,.48,'ink',True)
+ p.label('base','OPERACIONES',-4.44,4.40,.13,'quiet',True)
+ p.label('base','VISTA DEMOSTRATIVA',4.95,5.29,.115,'quiet')
+ # A product includes recognizable visual information, not only table rows.
+ p.label('inspector','VISTA DEL PROYECTO',1.66,2.03,.110,'quiet',True)
+ p.label('inspector','CONTEXTO TERRITORIAL',4.53,2.03,.110,'quiet',True)
+ site_map(p,'inspector',4.51,.13,2.37,1.67,.073)
+ p.label('inspector','Nueva sede · modelo de proyecto',1.66,-.11,.111,'muted')
+ p.label('inspector','P-104 / Ubicación de ejemplo',4.53,-.11,.105,'quiet')
  # The permission is an exploded mechanism, not a flat status panel.
  # Each condition has its own glass carrier and depth. Its connector joins
  # the next condition behind the readable surface.
@@ -129,8 +144,8 @@ def build():
  p.label(g,'IDENTIDAD',2.22,-.48,.092,'quiet',True,z=z+.03)
  p.label(g,'Sesión activa',2.22,-.68,.105,'green',z=z+.03)
  p.rule(g,1.75,3.02,-.98,'line',z=z+.02)
- p.label(g,'Cuenta corporativa',1.75,-1.24,.128,'ink',True,z=z+.03)
- for yy,label,value in [(-1.57,'Directorio','UM / equipo'),(-2.00,'Verificación','Sesión + MFA'),(-2.43,'Contexto','Proyecto P-104')]:
+ p.label(g,'ESPACIO CORPORATIVO',1.75,-1.08,.082,'quiet',True,z=z+.03)
+ for yy,label,value in [(-1.70,'Directorio','Equipo de operaciones'),(-2.08,'Verificación','Sesión + MFA'),(-2.43,'Contexto','Proyecto P-104')]:
   p.label(g,label,1.75,yy,.09,'quiet',z=z+.03)
   p.label(g,value,1.75,yy-.18,.119,'muted',z=z+.03)
  p.icon('access-check-0','check',2.90,-.82,'green',.16,z=z+.03)
@@ -149,11 +164,11 @@ def build():
  g='access-node-2';z=-.23
  p.rounded(g,5.14,-2.18,z-.018,3.30,1.20,.010,'glass',.035)
  rect(p,g,(3.49,-2.78,6.79,-1.58),z,'registration',.0023)
- p.label(g,'ALCANCE / RECURSO',3.68,-1.80,.098,'quiet',True,z=z+.03)
- p.label(g,'P-104 · Nueva sede',3.68,-2.08,.158,'ink',True,z=z+.03)
- p.line(g,[(3.76,-2.24,z+.02),(3.76,-2.53,z+.02),(4.02,-2.53,z+.02)],'registration',.002)
- p.label(g,'Orden 0248',4.13,-2.57,.126,'muted',z=z+.03)
- p.tag('access-check-2','Coincide',5.64,-2.55,.84,'mint','green',z=z+.03)
+ site_map(p,g,3.54,-2.72,1.42,1.06,z+.035)
+ p.label(g,'PROYECTO / P-104',5.12,-1.86,.090,'quiet',True,z=z+.03)
+ p.label(g,'Nueva sede',5.12,-2.12,.157,'ink',True,z=z+.03)
+ p.label(g,'Ubicación de ejemplo',5.12,-2.33,.077,'quiet',z=z+.03)
+ p.tag('access-check-2','Alcance verificado',5.12,-2.56,1.45,'mint','green',z=z+.03)
  # A reserved inter-column channel links identity to role, then the role
  # descends into scope. Every endpoint belongs to the visible mechanism.
  p.line('access',[(3.22,-1.16,.48),(3.35,-1.16,.48),(3.35,-.90,.13),(3.49,-.90,.13)],'signal',.003)
@@ -251,7 +266,77 @@ def build():
  # Sparse registration ticks, tied to actual boundaries. No decorative grid.
  for x in [-5.43,.91,1.26,7.30]:
   p.line('base',[(x,-5.02,-.012),(x,-5.24,-.012)],'registration',.002)
+ # Measurement overlays share the exact geometry of the inspected surface.
+ for g,bounds,z,caption in [
+  ('access',(1.56,-2.78,3.22,-.205),.54,'<identity>'),
+  ('access',(3.49,-1.435,6.79,-.205),.19,'<permissions>'),
+  ('contract',(-4.54,-3.02,1.24,.78),.075,'<request>'),
+  ('data',(1.265,-3.00,6.015,.80),.075,'<transaction>')]:
+  x1,y1,x2,y2=bounds
+  # Dimension line stops short of the label, leaving typography its own space.
+  yy=y2+.115
+  for xx in [x1,x2]:p.line(g,[(xx,yy-.055,z),(xx,yy+.055,z)],'signal',.0045)
+  p.line(g,[(x1,yy,z),(x2,yy,z)],'signal',.0037)
+  # Solid label carriers are deliberately stronger than the technical rails.
+  width=min(x2-x1,1.42)
+  p.rounded(g,x1+width/2,y1-.16,z,width,.23,.005,'signal',.043)
+  p.label(g,caption,x1+.075,y1-.19,.125,'floor',True,z=z+.015)
  return p
+
+def site_map(p,g,x,y,w,h,z):
+ # A deliberately illustrative site locator. It never claims customer geography.
+ p.rounded(g,x+w/2,y+h/2,z-.009,w,h,.003,'mapland',.025)
+ for col in range(7):
+  for row in range(4):
+   bx=x+w*(.065+col*.13);by=y+h*(.08+row*.22)
+   if col in (1,2) and row in (1,2):continue
+   p.rounded(g,bx,by,z,.082*w,.14*h,.003,'mapblock',.008)
+ p.rounded(g,x+w*.265,y+h*.42,z+.001,w*.22,h*.37,.002,'mappark',.06)
+ for i in range(6):
+  xx=x+w*(.13+i*.13)
+  p.line(g,[(xx,y+.025*h,z+.005),(xx,y+.95*h,z+.005)],'maproad',.0018)
+ for i in range(4):
+  yy=y+h*(.17+i*.22)
+  p.line(g,[(x+.03*w,yy,z+.005),(x+.94*w,yy,z+.005)],'maproad',.0018)
+ # An arterial road cuts across the grid; a route connects the selected site.
+ points=[(x+w*u,y+h*v,z+.014) for u,v in [(0,.23),(.19,.23),(.47,.42),(.69,.68),(1,.78)]]
+ p.line(g,points,'quiet',.011)
+ route=[(x+w*u,y+h*v,z+.021) for u,v in [(.15,.83),(.52,.83),(.52,.61),(.65,.61)]]
+ p.line(g,route,'signal',.008)
+ px,py=x+w*.65,y+h*.61
+ p.disc(g,px,py,.065*w,'mint',z=z+.029)
+ p.disc(g,px,py,.027*w,'green',z=z+.038)
+ p.line(g,[(px,py+.02,z+.04),(px,py+.14*h,z+.15)],'signal',.007)
+ p.disc(g,px,py+.14*h,.035*w,'white',z=z+.155)
+ # North marker and distance ruler give the map a recognizable visual grammar.
+ p.label(g,'N',x+w*.89,y+h*.84,.066,'muted',True,z=z+.022)
+ p.line(g,[(x+.70*w,y+.08*h,z+.020),(x+.91*w,y+.08*h,z+.020)],'white',.003)
+
+def logo_contours():
+ # Preserve the official SVG outlines, including counters, without approximating
+ # the brand with a different typeface. Q curves are sampled for Blender fills.
+ result=[]
+ for el in ET.parse(ROOT/'public/images/logo-dark.svg').getroot():
+  if not el.tag.endswith('path'):continue
+  tr=[float(v) for v in re.findall(r'-?\d+(?:\.\d+)?',el.attrib['transform'])]
+  tx,ty,sx,sy=tr;tokens=re.findall(r'[A-Z]|-?\d+(?:\.\d+)?',el.attrib['d']);i=0;cur=(0,0);paths=[];pts=[];cmd=None
+  while i<len(tokens):
+   if tokens[i].isalpha():cmd=tokens[i];i+=1
+   if cmd=='Z':
+    if pts:paths.append(pts);pts=[]
+    cmd=None;continue
+   n={'M':2,'L':2,'H':1,'V':1,'Q':4}[cmd];v=list(map(float,tokens[i:i+n]));i+=n
+   if cmd in ('M','L'):cur=tuple(v);pts.append(cur);cmd='L'
+   elif cmd=='H':cur=(v[0],cur[1]);pts.append(cur)
+   elif cmd=='V':cur=(cur[0],v[0]);pts.append(cur)
+   elif cmd=='Q':
+    a=cur;b=v[:2];c=v[2:]
+    for k in range(1,13):
+     t=k/12;pts.append(tuple((1-t)**2*a[j]+2*(1-t)*t*b[j]+t*t*c[j] for j in range(2)))
+    cur=tuple(c)
+  if pts:paths.append(pts)
+  result.append((el.attrib['fill'],[[(tx+sx*x,100-(ty+sy*y)) for x,y in path] for path in paths]))
+ return result
 
 def validate():
  p=build();assert 'integration' not in p.points and 'runtime' not in p.points
@@ -334,7 +419,7 @@ def render(args):
   mat.node_tree.links.new(em.outputs[0],out.inputs['Surface'])
   glyph_mats[key]=(mat,em);return mat
  fonts={b:bpy.data.fonts.load(str(Path(args.font_dir)/f'UMSans-{w}.ttf')) for b,w in [(False,'Regular'),(True,'SemiBold')]}
- p=build();parents={};visibility=[];stroke_visibility=[]
+ p=build();parents={};visibility=[];stroke_visibility=[];dimension_lines=[];reveal_text=[];image_visibility=[]
  for g in p.points:
   ob=bpy.data.objects.new(g,None);scene.collection.objects.link(ob);parents[g]=ob
  # Separate transparent surfaces, so EEVEE sorts them correctly by depth.
@@ -348,6 +433,7 @@ def render(args):
   if m not in ALPHA:visibility.append((ob,g))
  for g,s,x,y,z,size,m,bold in p.texts:
   c=bpy.data.curves.new(s,'FONT');c.body=s;c.size=size;c.font=fonts[bold];c.extrude=0;c.materials.append(glyph_material(g,m,'properties' if g=='inspector' and -.3<y<2.3 else 'content'));ob=bpy.data.objects.new(s,c);scene.collection.objects.link(ob);ob.location=(x,y,z);ob.parent=parents[g];visibility.append((ob,g))
+  if s.startswith('<'):reveal_text.append((c,s,g))
  def line(name,pts,m,r,parent=None):
   c=bpy.data.curves.new(name,'CURVE');c.dimensions='3D';c.bevel_depth=r;c.bevel_resolution=2
   sp=c.splines.new('POLY');sp.points.add(len(pts)-1)
@@ -357,6 +443,35 @@ def render(args):
  for g,pts,m,r in p.lines:
   ob,sp=line('Fine geometry',pts,m,r,parents[g])
   if '-check-' in g or g=='data-commit':visibility.append((ob,g))
+  if family(g) in ('access','contract','data') and m=='signal' and (r in (.0037,.0045) or (len(pts)==5 and pts[0]==pts[-1])):dimension_lines.append((ob.data,g))
+ # Original vector logo, with actual white contours and brand-red punctuation.
+ for g,x,y,w,z in [('base',-7.66,4.16,2.94,.07),('access-node-0',1.75,-1.41,1.28,.54)]:
+  for color,paths in logo_contours():
+   c=bpy.data.curves.new('Official ULTIMA MILLA wordmark','CURVE');c.dimensions='2D';c.fill_mode='BOTH';c.resolution_u=12
+   for points in paths:
+    sp=c.splines.new('POLY');sp.points.add(len(points)-1);sp.use_cyclic_u=True
+    for point,(xx,yy) in zip(sp.points,points):point.co=(xx*w/620,yy*w/620,0,1)
+   c.materials.append(glyph_material(g,'brand' if color=='#DC2626' else 'white'))
+   ob=bpy.data.objects.new(c.name,c);scene.collection.objects.link(ob);ob.parent=parents[g];ob.location=(x,y,z);visibility.append((ob,g))
+ # Existing architectural image is product context, explicitly labelled as a
+ # demonstration. It is not presented as photographic evidence of a customer.
+ g='inspector';x,y,w,h,z=1.66,.13,2.64,1.67,.075
+ mesh=bpy.data.meshes.new('Project image');mesh.from_pydata([(x,y,z),(x+w,y,z),(x+w,y+h,z),(x,y+h,z)],[],[(0,1,2,3)]);mesh.update()
+ uv=mesh.uv_layers.new(name='Image UV');coords=[(0,0),(1,0),(1,1),(0,1)]
+ # Centre-crop to the content well; the original raster is preserved.
+ ratio=(1600/900)/(w/h);span=1/ratio
+ for poly in mesh.polygons:
+  for li in poly.loop_indices:
+   u,v=coords[mesh.loops[li].vertex_index];uv.data[li].uv=(.5+(u-.5)*span,v)
+ mat=bpy.data.materials.new('Architectural project image');mat.use_nodes=True;nodes=mat.node_tree.nodes;nodes.clear()
+ outnode=nodes.new('ShaderNodeOutputMaterial');em=nodes.new('ShaderNodeEmission');tex=nodes.new('ShaderNodeTexImage');tex.image=bpy.data.images.load(str(ROOT/'public/cine/media/story-fachada.jpg'))
+ mat.node_tree.links.new(tex.outputs['Color'],em.inputs[0]);mat.node_tree.links.new(em.outputs[0],outnode.inputs['Surface']);mesh.materials.append(mat)
+ ob=bpy.data.objects.new('Project image',mesh);scene.collection.objects.link(ob);ob.parent=parents[g];visibility.append((ob,g));image_visibility.append((em,g))
+ # Inspection labels display the measured width/height in the product's 100px
+ # coordinate system. Their values settle with the drawing of each bound.
+ dimension_text=[]
+ for g,x,y,z,w,h in [('access',3.49,-.08,.23,3.30,1.23),('contract',-4.54,.93,.09,5.78,3.80),('data',1.265,.95,.09,4.75,3.80)]:
+  c=bpy.data.curves.new('Measured layout','FONT');c.size=.12;c.font=fonts[True];c.materials.append(glyph_material(g,'signal'));ob=bpy.data.objects.new(c.name,c);scene.collection.objects.link(ob);ob.location=(x,y,z);ob.parent=parents[g];visibility.append((ob,g));dimension_text.append((c,g,w,h))
  links=[]
  for g,(*b,m) in REGIONS.items():
   x1,y1,x2,y2=b
@@ -383,6 +498,11 @@ def render(args):
   ax,ay,roll=map(math.radians,angles);n=Vector((math.tan(ax),math.tan(ay),1)).normalized();r=Vector((n.z,0,-n.x)).normalized();u=n.cross(r);rr=math.cos(roll)*r+math.sin(roll)*u;uu=-math.sin(roll)*r+math.cos(roll)*u
   cam.location=Vector(target)+n*d;cam.rotation_euler=Matrix((rr,uu,n)).transposed().to_euler()
   for g,ob in parents.items():ob.location=placement(g,t)
+  for curve,g in dimension_lines:curve.bevel_factor_end=annotation_progress(g,t)
+  for curve,text,g in reveal_text:curve.body=text[:round(len(text)*annotation_progress(g,t))]
+  for curve,g,w,h in dimension_text:
+   q=annotation_progress(g,t);curve.body=f'{round(w*100*q)} × {round(h*100*q)}' if q>.02 else ''
+  for em,g in image_visibility:em.inputs[1].default_value=prominence(g,t)
   for ob,g in visibility:ob.hide_render=prominence(g,t)<.025
   for (group,name),(mat,mix) in surface_mats.items():
    # Structural glass stays transparent; content islands gain quiet contrast.
@@ -431,7 +551,7 @@ def render(args):
  def begin(scene):started[0]=time.time()
  def finish(scene):
   times.append({'frame':scene.frame_current,'seconds':round(time.time()-started[0],2)})
-  (out/'render-info.json').write_text(json.dumps({'version':'v18','publishable':False,'projection':'perspective','composition':args.composition,'engine':'eevee','samples':args.samples,'geometry_sha256':hashlib.sha256(Path(ui.geometry.__file__).read_bytes()).hexdigest(),'ui_sha256':hashlib.sha256(Path(ui.__file__).read_bytes()).hexdigest(),'fps':FPS,'frames':FRAMES,'resolution':[args.width,scene.render.resolution_y],'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'timings':times}))
+  (out/'render-info.json').write_text(json.dumps({'version':'v18','publishable':False,'projection':'perspective','composition':args.composition,'engine':'eevee','samples':args.samples,'geometry_sha256':hashlib.sha256(Path(ui.geometry.__file__).read_bytes()).hexdigest(),'ui_sha256':hashlib.sha256(Path(ui.__file__).read_bytes()).hexdigest(),'fps':FPS,'frames':FRAMES,'resolution':[args.width,scene.render.resolution_y],'asset_sha256':{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['public/images/logo-dark.svg','public/cine/media/story-fachada.jpg']},'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'timings':times}))
 
  scene.frame_start=args.start;scene.frame_end=args.end;scene.render.filepath=str(out)+'/'
  bpy.app.handlers.frame_change_pre.append(update);bpy.app.handlers.render_pre.append(begin);bpy.app.handlers.render_post.append(finish)

@@ -21,6 +21,7 @@ def assemble(source,out):
    assert [info['version'],info['publishable'],info['composition'],info['resolution'],info['frames'],info['fps'],info['samples']]==['v18',False,comp,[w,h],1200,60,8]
    assert [r['frame'] for r in info['timings']]==list(range(start,start+30))
    for key,value in sources.items():assert info[key]==value,('Mixed or stale source',key)
+   for name in ['public/images/logo-dark.svg','public/cine/media/story-fachada.jpg']:assert info['asset_sha256'][name]==sha(ROOT/name),('Stale visual asset',name)
    movie=folder/'movie.mp4';verify(movie,w,h,30);movies.append(movie.resolve());infos.append(info)
   listing=out/f'concat{suffix}.txt';listing.write_text(''.join(f"file '{p}'\n" for p in movies))
   movie=out/f'cine-software-system-v18{suffix}.mp4';run('ffmpeg','-y','-v','error','-f','concat','-safe','0','-i',listing,'-c','copy','-movflags','+faststart',movie)

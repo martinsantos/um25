@@ -28,9 +28,9 @@ jobs:
           python3 - <<'PYPLAN'
           import os,json
           frame=int(os.environ['FRAME']);assert -1<=frame<1200
-          frames=[300,492,630,763,812,930] if frame<0 else [frame]
+          frames=[60,240,300,540,840,1110] if frame<0 else [frame]
           matrix={'include':[dict(frame=f,end=f,width=w,composition=c) for c,w in [('wide',3840),('mobile',2160)] for f in frames]}
-          if os.environ['MODE']=='motion-proof':matrix={'include':[dict(frame=480,end=503,width=1920,composition='wide'),dict(frame=740,end=763,width=1920,composition='wide')]}
+          if os.environ['MODE']=='motion-proof':matrix={'include':[dict(frame=210,end=257,width=1920,composition='wide'),dict(frame=510,end=557,width=1920,composition='wide')]}
           if os.environ['MODE']=='sequence-proof':matrix={'include':[dict(frame=i*30,end=i*30+29,width=w,composition=c) for i in range(40) for c,w in [('wide',3840),('mobile',2160)]]}
           if os.environ['MODE']=='repair':
             parts=[part.split(':') for part in os.environ['REPAIR'].split(',')]
@@ -57,6 +57,8 @@ jobs:
             scripts/cine/render-software-system-v8.py
             scripts/cine/prepare-blender-fonts.py
             public/fonts/um-sans
+            public/images/logo-dark.svg
+            public/cine/media/story-fachada.jpg
           sparse-checkout-cone-mode: false
       - uses: actions/setup-python@v6
         with:

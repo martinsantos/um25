@@ -17,6 +17,7 @@ assert.deepEqual(info.timings.map(t=>t.frame),Array.from({length:1200},(_,i)=>i)
 assert.equal(info.authoring_sha256,sha(path.join(root,'scripts/cine/render-software-system-v18.py')));
 assert.equal(info.ui_sha256,sha(path.join(root,'scripts/cine/render-software-system-v11.py')));
 assert.equal(info.geometry_sha256,sha(path.join(root,'scripts/cine/render-software-system-v8.py')));
+for(const name of ['public/images/logo-dark.svg','public/cine/media/story-fachada.jpg'])assert.equal(info.asset_sha256[name],sha(path.join(root,name)));
 for(const [suffix,width,height] of [['',3840,2160],['-sq',2160,2160]]){
  const v=JSON.parse(fs.readFileSync(path.join(folder,`validation${suffix}.json`))).streams.find(s=>s.codec_type==='video');
  assert.deepEqual([v.codec_name,v.width,v.height,v.nb_read_frames,v.avg_frame_rate,v.pix_fmt],['h264',width,height,'1200','60/1','yuv420p']);
