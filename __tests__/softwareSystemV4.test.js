@@ -24,6 +24,9 @@ test('an operational request never travels through the release pipeline',()=>{
 });
 test('all three permissions open in order before the request leaves access control',()=>{
  const early=softwarePose(1,2300);expect(early.gates[0]).toBeGreaterThan(early.gates[1]);expect(early.gates[2]).toBe(0);expect(early.routes[1]).toBe(0);
+ for(const ms of [3400,3700,4000,4100])expect(softwarePose(1,ms).routes[1]).toBe(0);
+ expect(softwarePose(2,4200).routes[2]).toBe(0);
+ expect(softwarePose(2,4200).mappings).toEqual([1,1,1]);
  const released=softwarePose(1,5000);expect(released.gates).toEqual([1,1,1]);expect(released.routes[1]).toBeGreaterThan(0);
 });
 test('the data response changes the same request in the original UI',async()=>{

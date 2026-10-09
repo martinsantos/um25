@@ -11,7 +11,7 @@ export function softwarePose(stage,elapsed,reduced=false){
   gates:[0,1,2].map(i=>at(1,1500+i*750,1100)),
   mappings:[0,1,2].map(i=>at(2,1800+i*650,1100)),
   record:at(3,1600,1500),release:at(4,2000,2600),
-  routes:[0,1,2,3,4,5].map(n=>at(n,n===1?3500:n===3?3300:2300,n===3?3100:3000)),
+  routes:[0,1,2,3,4,5].map(n=>at(n,[2700,4200,4300,3300,2300,2300][n],[2600,2400,2600,3100,3000,3000][n])),
   health:at(5,1700,1800)
  };
 }
@@ -70,8 +70,9 @@ export function bindSoftwareSystem(root){
    node.setAttribute('opacity',String(stage===i&&t>0&&t<1?Math.min(1,t*12,(1-t)*12):0));
   });
   const confirmed=reduced.matches||stage===6||stage>3||(stage===3&&pose.routes[3]===1);
-  drawing.querySelector('[data-sw-ui-state]').textContent=confirmed?'Asignada':'Por asignar';
-  drawing.querySelector('[data-sw-submit]').textContent=confirmed?'Asignada ✓':'Asignar solicitud';
+  for(const [selector,value] of [['[data-sw-ui-state]',confirmed?'Asignada':'Por asignar'],['[data-sw-submit]',confirmed?'Asignada ✓':'Asignar solicitud']]){
+   const label=drawing.querySelector(selector);if(label.textContent!==value)label.textContent=value;
+  }
   drawing.querySelector('[data-sw-submit-bg]').setAttribute('fill',confirmed?'#247d69':'#dc2626');
   health.forEach(n=>n.setAttribute('r',String(2+pose.health*.7)));
   components.forEach(n=>{

@@ -1,6 +1,20 @@
 # Candidata integrada · revisión del 8 de octubre de 2026
 
-## Estado actual · Software v8 / isometría refinada
+## Estado actual · 8 de octubre · sistema causal de Software
+
+Producto `c7e2df8d`, rama `feature/isometric-redes-review`, PR #266 draft a develop. Preview `http://127.0.0.1:4326/software#sistemas`, checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`, PID propio 61165. El PID se guarda en `/private/tmp/um-eight-preview.pid`; verificar comando y cwd antes de reiniciar. La compilación de esta versión está completa.
+
+La isometría v4 reemplaza las seis placas repetidas por un sistema en un espacio común: aplicación con solicitud 0248, tres controles de acceso, contrato API, archivo indexado, publicación de versiones y operación con dos réplicas. Una solicitud cruza las primeras cuatro partes y vuelve a la interfaz como «Asignada». La versión 1.8.3 sigue un camino separado de publicación; una solicitud de usuario no atraviesa el despliegue. Datos y métricas son ilustrativos.
+
+El mecanismo sigue el reloj de `service-atlas-v21`: no requiere clics, respeta pausa, salida de pantalla, cambio de servicio y movimiento reducido. La cámara mide la geometría y su recorrido completo; los rótulos interiores quedan para la vista general, porque en móvil reducían innecesariamente el tamaño de cada acercamiento. Durante el capítulo explica el texto de la página. Corregido el doble escalado del SVG observado en la primera inspección nativa.
+
+Validación local: `npm run check` pasó con 72 suites / 600 tests, lint, tipos, CSS y build. Después de corregir escala/encuadre, pasaron las cinco regresiones específicas y el build final. Inspección nativa en escritorio y 390×844: avance automático, respuesta visible y transición de Software a Redes conservando la cámara de Redes. Auditoría remota de `c7e2df8d`: https://github.com/martinsantos/um25/actions/runs/37874552573 — aprobada en Chrome/WebKit × escritorio/móvil: 28 estados, 24 transiciones, cuatro vistas reducidas, pausa estable y solicitud confirmada en los cuatro perfiles; cero errores/hallazgos. El ajuste posterior del tiempo de salida espera a que terminen permisos y mapeo y evita reescribir texto sin cambios; pasó las cinco regresiones específicas y está servido en la preview. Las grabaciones son anteriores a ese ajuste temporal, no de un render nuevo. Evidencia: `/Volumes/SDTERA/Codex UM25 audits/20261008/software-system-v4/`, 44 archivos verificados con SHA256.
+
+**No es una entrega aprobada artísticamente ni un GO de producción.** La mejora concreta es causal y espacial. Persisten formas y materiales demasiado uniformes, detalle interno simplificado y movimiento menos sutil que las referencias. El banner Blender v8 permanece sin cambios y conserva la brecha ya identificada frente a Hill. Tampoco se rehicieron los otros siete servicios en este paso. Durante la inspección se vio además que los casos de Software incluyen mantenimiento de incendio: `sectoresHelpers.ts` busca palabras genéricas como «sistema»; pendiente corregir relevancia sin alterar otros sectores.
+
+Fuentes: `scripts/cine/build-software-isometry-v4.py`, `src/assets/cine/isometric/discipline-104-v4.svg`, `public/cine/software-system-v4.js`, `public/cine/discipline-runtime-v5.js`, `DisciplineSystem.astro`, `disciplineSystems.ts`. Se conservaron los assets públicos ya publicados, las fuentes UM Sans, la campaña y producción. No se ejecutó Blender local ni un render nuevo.
+
+## Revisión anterior · seis placas de Software v3
 
 Preview `http://127.0.0.1:4326/software#sistemas`, checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`, rama `feature/isometric-redes-review`, PR #266 draft a develop. Producto actual: `582ab349`, incluido el ajuste de altura, contornos y regreso al conjunto. Preview PID propio 27383 al cerrar la reconstrucción. PID propio en `/private/tmp/um-eight-preview.pid`: comprobar comando y cwd antes de reiniciar. No modificar el checkout principal ni producción.
 

@@ -11,7 +11,20 @@ Referencias a contrastar a igual tamaño visible y en movimiento:
 
 Los archivos originales de referencia están en `/private/tmp/um-ryan-reference.mp4`, `/private/tmp/um-solvaix-reference.mp4` y `/private/tmp/um-david-hill-reference-4k.mp4`. No concluir calidad a partir de miniaturas, resolución nominal, cantidad de piezas, número de tests o ausencia de errores.
 
-## Revisión actual · detalle e integración de Software
+## Comparación actual · sistema causal v4 (`c7e2df8d`)
+
+| Criterio | Cambio verificado | Diferencia que permanece |
+| --- | --- | --- |
+| Relación entre piezas / Solvaix | Los componentes conservan su posición y una solicitud recorre conexiones con consecuencias visibles. El despliegue tiene otra ruta. | La composición conserva formas simplificadas y menor densidad de relaciones espaciales. |
+| Mecanismos / Ryan | Tres verificaciones abren pasos separados; un registro se conserva y confirma la acción. | Membranas, archivo y réplicas aún tienen poca variedad constructiva y material. |
+| Interfaz / Hill | La tarea y su confirmación aparecen en la misma aplicación; acercamientos medidos, sin repetir seis pantallas. | La interfaz sigue siendo más genérica y menos rica. El banner v8 no se modificó y sigue por debajo. |
+| Narración autónoma | No hace falta seleccionar piezas: acción, permisos, contrato, registro, publicación y operación avanzan solos. | Explicar correctamente la secuencia no basta para igualar el acabado de las referencias. |
+
+Revisión nativa en escritorio y móvil. Se corrigió un doble ajuste de escala y se sacaron los rótulos del cálculo del acercamiento: el texto de la página explica y la geometría ocupa el escenario. La respuesta final modifica la solicitud 0248 a «Asignada». Los tests comprueban que no se mezcla el camino de una solicitud con la publicación de una versión y que pausa/reanudación no salta el resultado. Estado de auditoría y continuación: [work-status-20261007.md](work-status-20261007.md).
+
+**Veredicto: mejora estructural demostrable; paridad visual no alcanzada. No extender una afirmación de calidad indistinguible a esta versión ni al banner.**
+
+## Revisión anterior · detalle e integración de Software v3
 
 La revisión `582ab349` conserva el banner v8 y rehace la explicación inferior. El resultado se contrasta con las capturas nativas de Ryan (48 s), Solvaix (12 s) y Hill (4 s), además del recorrido real en navegador. Las comparaciones anteriores y los fallos históricos quedan más abajo; no representan el estado actual.
 
