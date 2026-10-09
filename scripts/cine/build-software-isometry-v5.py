@@ -65,6 +65,7 @@ for j,(name,keys) in enumerate([
  ('Alcance',[('proyecto','P-104'),('recurso','Orden 0248'),('resultado','Coincide')])]):
  x=359+j*3;y=180+j*5;z=30+j*26
  face=rect(0,0,112,103,'#d7edf7','#8eaebf',3,'fill-opacity=".22"')
+ face+=rect(4,4,104,77,'#f2f8fc','none',2)
  face+=rect(4,4,104,18,'#f2f8fc','#dae8f0',2,'fill-opacity="1"')
  face+=txt(10,16,f'0{j+1}',5.7,RED,600)+txt(24,16,name,8.0,INK,600)
  for k,(key,value) in enumerate(keys):
