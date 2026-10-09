@@ -15,7 +15,7 @@ La v12 conserva una aplicación original de ejemplo, pero elimina el tablero con
 - `37961687052`: seis pruebas nativas: planos general, permiso y reverso; 3840 × 2160 y 2160 × 2160. El móvil tiene encuadre propio.
 - `37960973464`: ensayo inicial, ocho cuadros a 24 muestras: ~53 s/cuadro después del primero.
 - `37961852844`: ocho cuadros nativos a ocho muestras, manteniendo la escena durante la animación: ~18,4 s/cuadro después del primero. Comparación del mismo cuadro 624 a 24 y ocho muestras: SSIM 0,999709. Esta comparación sólo controla el cambio de antialiasing; no mide equivalencia estética con una referencia.
-- Secuencia candidata: `37963354136`, 960 cuadros por composición, 60 fps, sin interpolación de movimiento ni escalado de salida. Revisión completa pendiente al escribir este apartado.
+- Secuencia candidata: `37963354136`, 960 cuadros por composición, 60 fps, sin interpolación de movimiento ni escalado de salida. Secuencia completa verificada tras recuperar cuatro fragmentos cuyo entorno no se había preparado correctamente.
 
 ## Isometría
 
@@ -37,3 +37,16 @@ Se revisó la isometría dentro de `/software`, además de los planos aislados. 
 En un viewport de 390 × 844 se encontró un problema real: el umbral anterior iniciaba el reloj con apenas parte del escenario a la vista, mientras todavía se leía la introducción. `service-atlas-v22.js` exige que el 60 % del escenario de Software esté visible, descontando las barras fijas superior e inferior. Se verificó en navegador que conserva el estado inicial al leer la introducción y comienza automáticamente al bajar hasta el dibujo. Fuera de pantalla conserva el tiempo pendiente. El cambio sólo afecta al escenario de Software.
 
 Validación: 58 pruebas de relato/autonomía/sectores y 13 pruebas de mecanismos/geometría/ciclo de vida aprobadas; build Astro correcto. El archivo público nuevo evita sustituir el controlador v21 en el deploy scoped.
+
+
+## Secuencia completa integrada
+
+El run `37963354136` finalizó correctamente. Los 64 fragmentos corresponden al mismo autor y geometría, comprobados por SHA-256. Se ensamblaron sin interpolar ni reescalar: 960 cuadros a 60 fps, 16 segundos; 3840 × 2160 en escritorio y 2160 × 2160 en móvil. Se decodificaron ambas películas completas, se controló su duración y se generaron posters JPEG/AVIF. Los seis assets pesan 66.058.329 bytes en total. Se conservan las entregas y sus comprobaciones en `/Volumes/SDTERA/Codex UM25 audits/20261009/software-v12/delivery`.
+
+Se importaron con `import-software-v12-candidate.mjs`, se ejecutó un nuevo build y se activó `UM_SOFTWARE_REVIEW=v12` en la preview local. El registro de producción sigue intacto. En navegador real se comprobó la reproducción de la secuencia y su vuelta automática al inicio, con los textos ligados al tiempo de la película. La captura rectangular del navegador de revisión notifica el escenario como fuera de vista y pausa el controlador: se distinguió ese efecto de la herramienta mediante un diagnóstico temporal, retirado después de la comprobación; no se modificó el reproductor por ese motivo.
+
+En móvil, el capítulo de datos acerca primero la tabla de órdenes y después el registro confirmado. Conserva el resto del sistema como contexto. Se volvieron a ejecutar las 13 pruebas de mecanismos/ciclo de vida después de ese ajuste y el build final pasó.
+
+### Comparación cualitativa con las referencias
+
+La nueva candidata corrige los puntos precisos observados por el usuario: ya no depende de una plancha blanca continua; la cámara cruza el eje en perspectiva real; las capas son translúcidas y conservan anclajes a su origen; las conexiones se ven detrás. La isometría utiliza la misma familia de superficies y bordes. La comparación no se presenta como una certificación de calidad indistinguible: los controles de cuadros, código y reproducción acreditan esos cambios concretos. No validan por sí solos una equivalencia estética global, ni la calidad del resto de las disciplinas. Esta entrega permanece como preview, no como aprobación de producción.
