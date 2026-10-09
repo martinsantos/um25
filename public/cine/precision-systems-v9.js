@@ -138,7 +138,8 @@ export function bindDisciplineCamera(root){
   if(t<1)frame=requestAnimationFrame(tick);
  }
  function update(){
-  const code=root.dataset.disciplineService,stage=Number(root.dataset.disciplineStage),nextKey=[code,stage,small.matches,reduced.matches].join(':');
+  const box=svg.getBoundingClientRect(),aspect=box.width>0&&box.height>0?box.width/box.height:(small.matches?1.085:1000/650);
+  const code=root.dataset.disciplineService,stage=Number(root.dataset.disciplineStage),nextKey=[code,stage,aspect.toFixed(3),reduced.matches].join(':');
   if(key!==nextKey){
    const changed=key.split(':')[0]!==code;key=nextKey;target=[...base];
    if(changed){current=[...base];if(code==='104')svg.setAttribute('viewBox',base.join(' '));}
@@ -158,7 +159,7 @@ export function bindDisciplineCamera(root){
      }
      if(points.length){
       const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);const x=Math.min(...xs),y=Math.min(...ys),w=Math.max(...xs)-x,h=Math.max(...ys)-y;
-      const padding=48,aspect=small.matches?1.085:1000/650;
+      const padding=40;
       const width=Math.max(340,w+padding,(h+padding)*aspect),height=width/aspect;
       target=[x+w/2-width/2,y+h/2-height/2,width,height];root.dataset.cameraFraming='measured';
      }
@@ -172,7 +173,7 @@ export function bindDisciplineCamera(root){
   if(running()&&current.some((v,i)=>Math.abs(v-target[i])>.001))frame=requestAnimationFrame(tick);
  }
  const observer=new MutationObserver(update);observer.observe(root,{attributes:true,attributeFilter:['data-discipline-stage','data-discipline-service','data-visible']});observer.observe(owner,{attributes:true,attributeFilter:['data-story-state']});
- small.addEventListener('change',update);reduced.addEventListener('change',update);document.addEventListener('visibilitychange',update);
- const dispose=()=>{disposed=true;cancelAnimationFrame(frame);observer.disconnect();small.removeEventListener('change',update);reduced.removeEventListener('change',update);document.removeEventListener('visibilitychange',update);};
+ window.addEventListener('resize',update);small.addEventListener('change',update);reduced.addEventListener('change',update);document.addEventListener('visibilitychange',update);
+ const dispose=()=>{disposed=true;cancelAnimationFrame(frame);observer.disconnect();window.removeEventListener('resize',update);small.removeEventListener('change',update);reduced.removeEventListener('change',update);document.removeEventListener('visibilitychange',update);};
  document.addEventListener('astro:before-swap',dispose,{once:true});update();return dispose;
 }

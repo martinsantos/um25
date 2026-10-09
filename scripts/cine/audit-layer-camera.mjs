@@ -43,14 +43,15 @@ try{
     report.softwarePause={control,stable:false};save();
     await page.locator('[data-atlas-play]').click();
     report.softwarePause.afterClick=await page.locator('[data-service-atlas]').getAttribute('data-story-state');report.softwarePause.action=await page.locator('[data-service-atlas]').getAttribute('data-playback-action');save();
+    if(report.softwarePause.afterClick!=='paused'){report.findings.push({code,message:'Pointer click did not pause the story',control:report.softwarePause});save();continue;}
     await page.waitForFunction(()=>document.querySelector('[data-service-atlas]').dataset.storyState==='paused',{},{timeout:3000});await page.waitForTimeout(150);
     const paused=await page.locator('.ps-drawing').evaluate(el=>el.getAnimations({subtree:true}).filter(a=>a.playState!=='finished').map(a=>({time:a.currentTime,state:a.playState})));
     await page.waitForTimeout(700);
     const after=await page.locator('.ps-drawing').evaluate(el=>el.getAnimations({subtree:true}).filter(a=>a.playState!=='finished').map(a=>({time:a.currentTime,state:a.playState})));
-    report.softwarePause={owner:await page.locator('[data-service-atlas]').getAttribute('data-story-state'),before:paused,after,styles:await page.locator('.ps-flow').first().evaluate(n=>({inline:n.style.animationPlayState,computed:getComputedStyle(n).animationPlayState})),stable:false};save();
+    report.softwarePause={...report.softwarePause,owner:await page.locator('[data-service-atlas]').getAttribute('data-story-state'),before:paused,after,styles:await page.locator('.ps-flow').first().evaluate(n=>({inline:n.style.animationPlayState,computed:getComputedStyle(n).animationPlayState})),stable:false};save();
     assert(paused.length>0,'The integration must animate its information flow');
     assert.deepEqual(after,paused,'Pause must stop inner software states as well as the camera');
-    assert(after.every(a=>a.state==='paused'));report.softwarePause={animations:after.length,stable:true};
+    assert(after.every(a=>a.state==='paused'));report.softwarePause={...report.softwarePause,animations:after.length,stable:true};
     await page.locator('[data-atlas-play]').click();
     await page.locator('[data-atlas-theater]').evaluate(el=>scrollTo({top:el.getBoundingClientRect().top+scrollY-100,behavior:'instant'}));
    }

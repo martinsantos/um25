@@ -17,14 +17,14 @@ const disciplineOnly=single&&services.length===1&&Boolean(DISCIPLINE_SYSTEMS[ser
 const projectMarkup=project&&project.presentation!=='discipline'&&!disciplineOnly?projectFiles[`../../assets/cine/isometric/site-${project.scene}-v2.svg`]:undefined;
 const contextProject=sector&&Boolean(projectMarkup);
 const contextualPlan=(project?.chapters||SERVICE_NARRATIVE).map(chapter=>(single||!sector)&&DISCIPLINE_SYSTEMS[chapter.code]?{...chapter,scenes:operationScenes(chapter.code,undefined),overview:operationOverview(chapter.code)}:chapter);
-const plan=contextualPlan.map(chapter=>single?chapter:overviewChapter(chapter));
+const plan=contextualPlan.map(chapter=>single||(project?.presentation==='discipline'&&chapter.code==='104')?chapter:overviewChapter(chapter));
 const files=import.meta.glob<string>('../../assets/cine/isometric/*-*.svg',{eager:true,query:'?url',import:'default'});
 const url=(asset:string,view:string)=>files[`../../assets/cine/isometric/${asset}-${view}.svg`];
 const messages:Record<string,{title:string;summary:string;copy:string}>={
  '101':{title:'Una red que conecta toda tu operación.',summary:'Cableado, fibra y Wi-Fi para comunicar puestos y sistemas.',copy:'Diseñamos e instalamos la red que une puestos, equipos y aplicaciones. Entregamos los puntos identificados y probados para que puedas operarla y mantenerla.'},
  '102':{title:'Ver lo que pasa. Controlar quién entra.',summary:'Video, grabación y control de accesos en el mismo proyecto.',copy:'Definimos la cobertura de las cámaras y los permisos de acceso para tu sitio. Integramos la red, la grabación y el control para que la información llegue a quien debe actuar.'},
  '103':{title:'Tus sitios conectados, aunque estén lejos.',summary:'Fibra y radioenlaces según el recorrido y la operación.',copy:'Evaluamos los extremos y diseñamos el enlace que comunica tus sedes. Integramos fibra, radio y equipos de red según la distancia, el ambiente y la capacidad necesaria.'},
- '104':{title:'Software que sigue la forma de trabajar de tu equipo.',summary:'Aplicaciones e integraciones para tus procesos.',copy:'Convertimos procesos y datos en herramientas propias. Roles, registros y acciones claras permiten que cada persona encuentre su tarea y la información que necesita.'},
+ '104':{title:'Software, capa por capa.',summary:'Aplicaciones e integraciones para tus procesos.',copy:'Convertimos procesos y datos en herramientas propias. Roles, registros y acciones claras permiten que cada persona encuentre su tarea y la información que necesita.'},
  '105':{title:'Una respuesta organizada cuando algo falla.',summary:'Mesa de ayuda, seguimiento y mantenimiento IT.',copy:'Recibimos incidentes, definimos prioridades y seguimos cada caso hasta su resolución. El mantenimiento y la documentación ayudan a sostener la operación diaria.'},
  '106':{title:'Decisiones de tecnología con un plan claro.',summary:'Relevamiento, arquitectura y prioridades verificables.',copy:'Relevamos tu infraestructura y los riesgos de la operación. Ordenamos las decisiones en un plan con alcance, prioridades y documentación para evaluar cada inversión.'},
  '107':{title:'Detección temprana para activar la respuesta.',summary:'Dispositivos, central y puesta en marcha del sistema.',copy:'Diseñamos la detección según el riesgo y el lugar. Instalamos, probamos y documentamos los dispositivos y la central para que alarmas y fallas tengan una respuesta prevista.'},
@@ -46,7 +46,7 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
  <script type="application/json" data-atlas-narrative set:html={JSON.stringify(narrative)} is:inline />
  <div class="svc-story__stage">
   <div class="svc-story__masthead"><span data-atlas-code>{first.study.name}</span><div class="svc-story__playback"><span class="svc-story__counter" data-atlas-counter>01 / {String(items.length).padStart(2,'0')}</span><span data-atlas-status>Recorrido automático</span><button type="button" data-atlas-play aria-pressed="false" hidden>Pausar</button></div></div>
-  <header class="svc-story__heading"><h3 data-atlas-title>{first.message.title}</h3></header>
+  <header class="svc-story__heading" hidden={single&&first.code==='104'}><h3 data-atlas-title>{first.message.title}</h3></header>
   <figure class="svc-story__explanation">
   <div class="svc-story__visual">
   <div class="svc-story__location"><span data-atlas-scale>En el proyecto</span><span data-atlas-part-name hidden /></div>
@@ -226,6 +226,13 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
  .svc-story[data-discipline-layout=true] .svc-story__outline li::before{display:none}
  .svc-story[data-discipline-layout=true] .svc-story__link{margin-top:20px}
  @media(max-width:600px){.svc-story[data-discipline-layout=true] .svc-story__theater{height:330px}.svc-story[data-discipline-layout=true] .svc-story__narration{display:block;min-height:190px}.svc-story[data-discipline-layout=true] .svc-story__outline{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}}
+ /* Software explains a live operation: narration and drawing share one stage. */
+ .svc-story[data-active-service="104"] .svc-story__heading,.svc-story[data-active-service="104"] .svc-story__location{display:none}
+ .svc-story[data-active-service="104"] .svc-story__visual{display:flex;flex-direction:column}
+ .svc-story[data-active-service="104"] .svc-story__narration{order:-1;min-height:108px;border-top:0;padding:24px 0 8px;align-items:start}
+ .svc-story[data-active-service="104"] .svc-story__scene-title{font-size:1.25rem;line-height:1.35;max-width:30ch}
+ .svc-story[data-active-service="104"] .svc-story__theater{height:clamp(420px,43vw,540px)}
+ @media(max-width:600px){.svc-story[data-active-service="104"] .svc-story__narration{min-height:182px;padding:20px 0 0}.svc-story[data-active-service="104"] .svc-story__theater{height:320px}}
  .svc-story[data-active-service="104"] .svc-story__project{display:none}
  .svc-story[data-active-service="104"] .svc-story__software{margin-left:0;width:100%}
  .svc-story[data-active-service="104"] .svc-story__software :global(.sl__canvas){transform:none}

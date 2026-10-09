@@ -56,7 +56,13 @@ export function bindServiceAtlas(root) {
     root.dataset.storyState=ended?'complete':!intent?'paused':inspecting?'exploring':timer!==null?'playing':'waiting';
     root.dataset.storyScene=String(sceneIndex);
     if(project)project.dataset.projectVisible=String(inView&&!document.hidden&&!disposed);
-    if(play){play.hidden=false;play.setAttribute('aria-pressed',String(intent&&!ended&&!inspecting));play.textContent=ended?'Volver a ver':!intent?'Reproducir':inspecting?'Continuar':'Pausar';}
+    if(play){
+      play.hidden=false;play.setAttribute('aria-pressed',String(intent&&!ended&&!inspecting));
+      const label=ended?'Volver a ver':!intent?'Reproducir':inspecting?'Continuar':'Pausar';
+      // Focus schedules the clock between pointerdown and click. Keep the same
+      // text node so WebKit can deliver the click to its original target.
+      if(play.textContent!==label)play.textContent=label;
+    }
     if(status)status.textContent=ended?'Un equipo, del proyecto a la operación.':!intent?'Explorá a tu ritmo.':inspecting?'Explorá. La historia continúa sola.':!inView||document.hidden?'El recorrido sigue cuando lo ves.':'Recorrido automático';
     if(counter)counter.textContent=`${String(chapterIndex+1).padStart(2,'0')} / ${String(chapters.length).padStart(2,'0')}`;
     track.forEach((node,index)=>{node.dataset.state=index<chapterIndex?'seen':index===chapterIndex?'current':'next';});

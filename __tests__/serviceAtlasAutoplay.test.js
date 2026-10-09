@@ -224,3 +224,12 @@ test('the index reaches all eight services in under three minutes, preserving co
   expect(c.overview).toHaveLength(6);expect(operationScenes(c.code).map(s=>s.disciplineStage)).toEqual([-1,0,1,2,3,4,5,6]);
  }
 });
+
+test('focusing playback preserves its pointer target until the click changes playback',async()=>{
+ const root=fixture();bindServiceAtlas(root);see();await settle();
+ const play=root.querySelector('[data-atlas-play]'),label=play.firstChild;
+ play.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));play.focus();
+ expect(play.firstChild).toBe(label);
+ play.dispatchEvent(new MouseEvent('mouseup',{bubbles:true}));play.click();
+ expect(root.dataset.storyState).toBe('paused');expect(play.textContent).toBe('Reproducir');
+});

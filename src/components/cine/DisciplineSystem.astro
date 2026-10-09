@@ -30,6 +30,8 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='103'?precis
     exposes it 300 px before arrival, before any mechanism is prepared. */
  .discipline-system[data-discipline-runtime="waiting"]{content-visibility:hidden}
  .discipline-system :global(.ds-svg){display:block;width:100%;height:calc(100% - 36px);overflow:hidden}
+ .discipline-system[data-discipline-service="104"] :global(.ds-svg){height:100%}
+ .discipline-system[data-discipline-service="104"] .discipline-system__key{display:none}
  .discipline-system :global(.ds-drawing){display:none}
  .discipline-system[data-discipline-service="101"] :global([data-discipline-drawing="101"]),.discipline-system[data-discipline-service="102"] :global([data-discipline-drawing="102"]),.discipline-system[data-discipline-service="103"] :global([data-discipline-drawing="103"]),.discipline-system[data-discipline-service="104"] :global([data-discipline-drawing="104"]),.discipline-system[data-discipline-service="105"] :global([data-discipline-drawing="105"]),.discipline-system[data-discipline-service="106"] :global([data-discipline-drawing="106"]),.discipline-system[data-discipline-service="107"] :global([data-discipline-drawing="107"]),.discipline-system[data-discipline-service="108"] :global([data-discipline-drawing="108"]){display:block}
  .discipline-system :global(.ds-node){opacity:1;transition:opacity 600ms ease}
@@ -64,7 +66,7 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='103'?precis
  .discipline-system :global(.pf-label),.discipline-system :global(.pf-engraving),.discipline-system :global(.pf-tag){font-family:var(--um-font-body,Arial,sans-serif)}
  .discipline-system :global(.ps-text){font-family:var(--um-font-body,Arial,sans-serif)}
  .discipline-system :global(.ps-layer){transition:opacity 650ms ease}
- .discipline-system[data-discipline-service="104"]:not([data-discipline-stage="-1"]):not([data-discipline-stage="6"]) :global(.ps-layer:not([data-current=true])){opacity:.10}
+ .discipline-system[data-discipline-service="104"]:not([data-discipline-stage="-1"]):not([data-discipline-stage="6"]) :global(.ps-layer:not([data-current=true])){opacity:.025}
  .discipline-system[data-discipline-service="104"]:not([data-discipline-stage="-1"]):not([data-discipline-stage="6"]) :global(.ps-drawing>.pn-tag){opacity:0}
  .discipline-system :global(.pn-tag){font-family:var(--um-font-body,'UM Sans',Arial,sans-serif)}
  @media(max-width:600px){.discipline-system :global(.ds-tag){display:none}.discipline-system[data-discipline-service="101"] :global(.pn-tag){display:none}.discipline-system :global(.pn-project){transform:translate(500px,435px) scale(.69)}.discipline-system :global(.pn-tag){font-size:24px}.discipline-system :global(.pn-tag tspan:not(.pn-tag__number)){display:none}}

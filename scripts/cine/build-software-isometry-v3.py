@@ -6,7 +6,7 @@ from html import escape
 from math import sqrt
 ROOT=Path(__file__).resolve().parents[2]
 A=sqrt(3)/2
-INK='#233647';MUTED='#687c8c';EDGE='#c6d1d9';RED='#c52a36';BLUE='#35698c';GREEN='#237c69'
+INK='#233647';MUTED='#687c8c';EDGE='#c6d1d9';RED='#dc2626';BLUE='#35698c';GREEN='#237c69'
 def rect(x,y,w,h,fill='#fff',stroke=EDGE,sw=.55,r=3,extra=''):
  return f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="{fill}" stroke="{stroke}" stroke-width="{sw}" {extra}/>'
 def text(x,y,s,size=9,fill=INK,weight=400,extra=''):
@@ -23,19 +23,23 @@ def footer(label,right):return line('M20 210H364')+text(20,225,label,7.2,MUTED)+
 def icon(x,y,kind,color=BLUE):
  d={'grid':'M0 0h10v10H0ZM5 0v10M0 5h10','folder':'M0 2V0h4l2 2h5v8H0Z','list':'M3 0h9M3 5h9M3 10h9M0 0h.1M0 5h.1M0 10h.1','api':'M3 0L0 5l3 5M9 0l3 5-3 5M7-1L5 11','shield':'M0 0l5-2 5 2v5c0 4-5 6-5 6S0 9 0 5ZM3 4l2 2 3-4','db':'M0 1C0-2 12-2 12 1S0 4 0 1V9c0 3 12 3 12 0V1M0 5c0 3 12 3 12 0','pulse':'M0 5h3l2-5 3 10 2-5h3'}[kind]
  return f'<g transform="translate({x} {y})">{line(d,color,.8)}</g>'
+def sparkline(x,y,w=30,h=8,color=BLUE):
+ points=[.65,.5,.7,.42,.53,.24,.36,.18,.27,.1]
+ d=' '.join(('M' if i==0 else 'L')+f'{x+i*w/9:.2f} {y+v*h:.2f}' for i,v in enumerate(points))
+ return line(d,color,.7)+line(f'M{x} {y+h+2}h{w}',EDGE,.35)
 def raised(x,y,w,h,body,depth=5):
  # A module moves along the same vertical axis as the whole architectural layer.
  # Its front and side returns expose native depth without an arbitrary skew.
  front=f'M{x} {y+h}H{x+w}L{x+w-depth} {y+h-depth}H{x-depth}Z'
  side=f'M{x+w} {y}V{y+h}L{x+w-depth} {y+h-depth}V{y-depth}Z'
- c=rect(x+.5,y+1,w,h,'#d5e0e7','none',0,4)
+ c=rect(x+.5,y+1,w,h,'#d5e0e7','none',0,4,extra='filter="url(#ps-contact-shadow)"')
  c+=f'<path d="{front}" fill="#b9cbd7" stroke="#91a8b8" stroke-width=".4"/><path d="{side}" fill="#d4e0e8" stroke="#a6bdca" stroke-width=".4"/>'
- return c+f'<g transform="translate({-depth} {-depth})">{rect(x,y,w,h,"#fff","#aebfcb",.55,4)}{body}</g>'
+ return c+f'<g transform="translate({-depth} {-depth})">{rect(x,y,w,h,"url(#ps-module-surface)","#b7c7d2",.45,4)}{body}</g>'
 def cardshell(x,y,w,h,title,sub,kind='api'):
  body=rect(x+9,y+9,25,25,'#edf3f7','none',0,6)+icon(x+16,y+16,kind)+text(x+43,y+20,title,10,INK,600)+text(x+43,y+33,sub,7.3,MUTED)
  return raised(x,y,w,h,body,4)
 def interface():
- c=rect(0,0,384,236,'#fbfcfd',EDGE,.55,8)+rect(1,1,382,27,'#edf2f5','none',0,7)+line('M0 28H384')
+ c=rect(0,0,384,236,'url(#ps-sheet-surface)',EDGE,.55,8)+rect(1,1,382,27,'#edf2f5','none',0,7)+line('M0 28H384')
  c+=text(14,19,'UM',11,RED,600)+text(42,18,'Workspace',9,INK,600)+text(111,18,'/  Operaciones',8,MUTED)
  c+=rect(258,7,82,14,'#fff','none',0,5)+icon(263,10,'list',MUTED)+text(280,17,'Buscar',7,MUTED)+dot(362,14,7,'#dce6ed')+text(358,17,'MS',6.2,BLUE,600)
  c+=rect(1,29,68,206,'#edf2f5','none',0,0)+text(12,44,'ESPACIO',6.8,MUTED,600)
@@ -43,9 +47,10 @@ def interface():
   y=62+24*i
   if i==1:c+=rect(6,y-12,58,21,'#f5e6e8','none',0,4)
   c+=f'<g transform="translate(12 {y-7}) scale(.65)">{icon(0,0,glyph,RED if i==1 else MUTED)}</g>'+text(25,y,name,7.5,RED if i==1 else MUTED,500)
+ c+=line('M9 174H61','#d6e0e7',.5)+dot(16,187,6,'#d6e3ed')+text(12,189,'UM',5.8,BLUE,600)+text(26,187,'Tu equipo',7,INK,500)+text(26,197,'5 miembros',6,MUTED)+icon(13,214,'shield',MUTED)+text(27,222,'Acceso seguro',6.2,MUTED)
  c+=text(82,52,'Solicitudes del equipo',16,INK,600)+text(83,66,'Cada tarea tiene un contexto y un responsable.',8,MUTED)
  for i,(v,label) in enumerate([('24','Activas'),('08','En curso'),('16','Resueltas')]):
-  x=83+i*96;c+=raised(x,78,88,42,text(x+9,101,v,19,INK,500)+text(x+38,99,label,7.8,MUTED)+line(f'M{x+38} 109h31','#dbe6ee',1.5),3)
+  x=83+i*96;c+=raised(x,78,88,42,text(x+9,101,v,19,INK,500)+text(x+38,99,label,7.8,MUTED)+sparkline(x+39,105,30,6,BLUE if i<2 else GREEN),3)
  c+=text(83,138,'RECIENTES',7.5,MUTED,600)+text(365,138,'Ver todas →',7.5,BLUE,extra='text-anchor="end"')
  for i,(title,team,status) in enumerate([('0248 · Nueva sede','Redes','Asignada'),('0247 · Portal interno','Producto','En curso'),('0246 · Integración ERP','Datos','Resuelta')]):
   y=157+i*22
@@ -55,7 +60,7 @@ def interface():
  # a decorative rectangle. Its controls retain their own precise hierarchy.
  drawer=text(233,147,'0248 · Nueva sede',9.8,INK,600)+text(233,162,'RESPONSABLE',6.4,MUTED,600)
  drawer+=dot(239,175,7,'#e4edf3')+text(235,178,'MS',6.3,BLUE,600)+text(251,178,'Equipo de Redes',8.4,INK,500)
- drawer+=line('M233 190h124','#dce6ec',.5)+text(233,204,'Estado',7.5,MUTED)+pill(286,193,'Asignada',68)
+ drawer+=line('M233 190h124','#dce6ec',.5)+text(233,204,'Estado',7.5,MUTED)+pill(286,193,'Asignada',68)+line('M349 143l5 5m0-5-5 5',MUTED,.7)
  drawer+=rect(233,213,125,16,'#f5e7e9','none',0,4)+text(295,224,'Cambio registrado ✓',7.8,RED,500,'text-anchor="middle"')
  c+=f'<g class="ps-detail">{raised(225,133,142,101,drawer,7)}</g>'
  return c
@@ -125,11 +130,16 @@ def plane(z,body):return f'<g transform="translate(0 {-z}) matrix({A} .5 {-A} .5
 def surface(z,body,n):
  c=plane(z-4,rect(2,2,380,232,'#748896','#748896',.55,8))
  c+=plane(z-1.5,rect(0,0,384,236,'#d3dee5','#8297a6',.6,8))
- c+=plane(z,rect(0,0,384,236,'#fbfcfd','#d9e3e9',.55,8)+body)
- # Engraved datum ticks are confined to the physical edge, not every text field.
- c+=plane(z, rect(373,109,7,25,'#e7eff4','#9eb4c3',.45,1)+''.join(line(f'M374 {113+i*3}h4','#8199aa',.45) for i in range(6)))
+ c+=plane(z,rect(0,0,384,236,'url(#ps-sheet-surface)','#d9e3e9',.55,8)+body)
+ # One consistent layer index marks the sheet edge without inventing hardware.
+ c+=plane(z,rect(373,111,7,22,'#e5edf3','none',0,2)+text(376.5,125,str(n+1),5.5,BLUE,500,'text-anchor="middle"'))
  c+=plane(z, line('M5 25V9q0-4 4-4h16M359 5h16q4 0 4 4v16M5 211v16q0 4 4 4h16','#a2b4c0',.65))
  return c
+defs="""<defs>
+ <linearGradient id="ps-sheet-surface" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffffff"/><stop offset=".58" stop-color="#f7fafc"/><stop offset="1" stop-color="#eaf1f6"/></linearGradient>
+ <linearGradient id="ps-module-surface" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#f8fbfd"/></linearGradient>
+ <filter id="ps-contact-shadow" x="-15%" y="-30%" width="140%" height="170%" color-interpolation-filters="sRGB"><feDropShadow dx="1" dy="2" stdDeviation="1.6" flood-color="#536d81" flood-opacity=".24"/></filter>
+</defs>"""
 surfaces=[interface(),rules(),integrations(),data(),delivery(),infrastructure()]
 body=''
 for i in reversed(range(6)):
@@ -142,7 +152,7 @@ style='''
 .ps-drawing text{font-family:var(--um-font-body,'UM Sans',Arial,sans-serif);stroke:none;letter-spacing:0}
 .ps-layer{opacity:1}
 .ps-layer .ps-outcome{opacity:.12}
-.ps-layer .ps-detail{opacity:.10;transform:translate(0px,10px)}
+.ps-layer .ps-detail{opacity:0;transform:translate(0px,10px)}
 .ps-layer .ps-check{stroke-dasharray:16;stroke-dashoffset:16}
 .ps-layer .ps-draw{stroke-dasharray:100;stroke-dashoffset:100}
 .ps-layer[data-current=true] .ps-detail{animation:ps-detail 1400ms cubic-bezier(.22,1,.36,1) 2200ms both}
@@ -157,6 +167,6 @@ style='''
 @keyframes ps-flow{to{stroke-dashoffset:-100}}
 @media(prefers-reduced-motion:reduce){.ps-drawing *{animation:none!important}.ps-layer .ps-outcome,.ps-layer .ps-detail{opacity:1;transform:none}.ps-layer .ps-check,.ps-layer .ps-draw{stroke-dashoffset:0}}
 '''
-svg=f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 650" class="ds-svg ps-svg" aria-hidden="true"><style>{style}</style><g class="ds-drawing ps-drawing" data-discipline-drawing="104" data-software-detail="3"><g transform="translate(446 263)">{body}</g>{labels}</g></svg>'
+svg=f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 650" class="ds-svg ps-svg" aria-hidden="true">{defs}<style>{style}</style><g class="ds-drawing ps-drawing" data-discipline-drawing="104" data-software-detail="3"><g transform="translate(446 263)">{body}</g>{labels}</g></svg>'
 (ROOT/'src/assets/cine/isometric/discipline-104-v3.svg').write_text(svg)
 print('Software v3:',len(svg),'bytes; six designed layers')

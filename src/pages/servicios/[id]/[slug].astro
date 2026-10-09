@@ -553,9 +553,9 @@ const fichaItems = [
             <header class="svc-head">
               <div>
                 <p class="svc-kicker">El sistema</p>
-                <h2 id="svc-render-title">{DISCIPLINE_SYSTEMS[String(id)]?.premise||hardwareStudy.title}</h2>
+                <h2 id="svc-render-title">{String(id)==='104'?'Tu software, por dentro.':DISCIPLINE_SYSTEMS[String(id)]?.premise||hardwareStudy.title}</h2>
               </div>
-              <p class="svc-head__lead">{DISCIPLINE_SYSTEMS[String(id)]?'Cada capa se explica en relación con las demás. El recorrido avanza por sí solo y muestra qué diseñamos, qué integramos y qué verificamos.':hardwareStudy.views[0].description}</p>
+              <p class="svc-head__lead">{String(id)==='104'?'Desde la interfaz hasta la operación: diseñamos cada capa para que una tarea llegue a destino, con sus reglas, sus datos y su historia.':DISCIPLINE_SYSTEMS[String(id)]?'Cada capa se explica en relación con las demás. El recorrido avanza por sí solo y muestra qué diseñamos, qué integramos y qué verificamos.':hardwareStudy.views[0].description}</p>
             </header>
             <div class="svc-project-story"><ServicesStory services={projectServices} project={project} single /></div>
             <details class="svc-stage-demo">
@@ -582,7 +582,7 @@ const fichaItems = [
           <header class="svc-head">
             <div>
               <p class="svc-kicker">Sistema y equipamiento</p>
-              <h2 id="svc-render-title">{DISCIPLINE_SYSTEMS[String(id)]?.premise||hardwareStudy.title}</h2>
+              <h2 id="svc-render-title">{String(id)==='104'?'Tu software, por dentro.':DISCIPLINE_SYSTEMS[String(id)]?.premise||hardwareStudy.title}</h2>
             </div>
             <p class="svc-head__lead">Del sistema completo al detalle que lo hace funcionar. El recorrido muestra las decisiones, conexiones y pruebas que resolvemos para cada proyecto.</p>
           </header>
