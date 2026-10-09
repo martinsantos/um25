@@ -14,7 +14,7 @@ COLORS={
  'green':'#6FE4CB','signal':'#63DCCB','rose':'#512F39','mint':'#214A4C',
  'paper':'#426F83','canvas':'#375D70','nav':'#2D4C5D','bluewash':'#42677E',
  'glass':'#5D94A5','trace':'#60DDC8','registration':'#648D9E','white':'#F4F8F9',
- 'amber':'#F5CA83','violet':'#B2AFF6','fieldpaper':'#263F4B','fieldnav':'#192E38','brand':'#DC2626','mapland':'#293F45','mapblock':'#42565D','mappark':'#2C665C','maproad':'#A2B7BD','annotation':'#267F7B','typewash':'#67445E','typeline':'#E9A3D2'}
+ 'amber':'#F5CA83','violet':'#B2AFF6','fieldpaper':'#263F4B','fieldnav':'#192E38','brand':'#DC2626','mapland':'#293F45','mapblock':'#42565D','mappark':'#2C665C','maproad':'#A2B7BD','annotation':'#267F7B','typewash':'#67445E','typeline':'#E9A3D2','mapwater':'#426779'}
 # The background is absent from most of the layout: small translucent regions
 # give the communication paths room to be seen, rather than tinting a white slab.
 ALPHA={'paper':.20,'canvas':.08,'nav':.10,'bluewash':.13,'glass':.065,'edge':.0}
@@ -268,9 +268,9 @@ def build():
   p.line('base',[(x,-5.02,-.012),(x,-5.24,-.012)],'registration',.002)
  # Typography inspection connects its label to the actual title baseline.
  p.line('access',[(1.56,.09,.54),(4.27,.09,.54)],'typeline',.0037)
- p.line('access',[(4.27,.09,.54),(4.74,.36,.54),(5.01,.36,.54)],'typeline',.0037)
- p.rounded('access',5.96,.395,.54,1.87,.23,.004,'typewash',.035)
- p.label('access','UM Sans · 25 / 600',5.11,.35,.110,'white',z=.55)
+ p.line('access',[(4.27,.09,.54),(4.74,.16,.54),(5.01,.16,.54)],'typeline',.0037)
+ p.rounded('access',5.80,.195,.54,1.53,.23,.004,'typewash',.035)
+ p.label('access','UM Sans · 25 / 600',5.11,.15,.110,'white',z=.55)
  # Measurement overlays share the exact geometry of the inspected surface.
  for g,bounds,z,caption in [
   ('access',(1.56,-2.78,3.22,-.205),.54,'<identity>'),
@@ -304,9 +304,13 @@ def site_map(p,g,x,y,w,h,z):
  # Park walkways make the green region legible, even in the smaller viewport.
  for k in [-1,0,1]:
   p.line(g,[(x+w*.28,y+h*(.30+k*.012),z+.006),(x+w*.46,y+h*(.65+k*.012),z+.006)],'quiet',.0014)
- water=[(x+w*(.81-.19*math.sin(v*3.4)),y+h*v,z+.007) for v in [i/40 for i in range(41)]]
- p.line(g,water,'paper',.030*w)
- p.line(g,water,'registration',.018*w)
+ water=[(x+w*(.81-.19*math.sin(v*3.4)),y+h*v,z+.006) for v in [.045+.9*i/40 for i in range(41)]]
+ # A flat map feature must stay on its plane; a bevelled curve turns a river
+ # into a raised cable and protrudes beyond the viewport.
+ for i,(a,b) in enumerate(zip(water,water[1:])):
+  dx,dy=b[0]-a[0],b[1]-a[1];length=math.hypot(dx,dy);nx,ny=-dy/length*w*.014,dx/length*w*.014
+  verts=[(a[0]+nx,a[1]+ny,a[2]),(a[0]-nx,a[1]-ny,a[2]),(b[0]-nx,b[1]-ny,b[2]),(b[0]+nx,b[1]+ny,b[2])]
+  p.meshes.append((g,'mapwater',verts,[(0,1,2,3)]));p.points.setdefault(g,[]).extend(verts)
  for i in range(8):
   xx=x+w*(.103+i*.105)
   p.line(g,[(xx,y+.025*h,z+.005),(xx,y+.94*h,z+.005)],'maproad',.0018)
