@@ -1,5 +1,9 @@
 # Candidata integrada · revisión del 8 de octubre de 2026
 
+## Criterio de la siguiente iteración
+
+El usuario pregunta si ésta es la dirección correcta con poca intensidad. Se conserva la base clara y autónoma, pero se rechaza escalar el lenguaje completo de v9. Próximo ensayo: una acción revela reglas y registro dentro del mismo producto. Ver [dirección y descarte](production-direction-20261009.md). El ensayo todavía no fue renderizado; no confundir definición con ejecución.
+
 ## Estado actual · 9 de octubre · Software v9 integrado para revisión
 
 Preview `http://127.0.0.1:4326/software`, checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`, rama `feature/isometric-redes-review`, PR #266 draft. La preview se inició con `UM_SOFTWARE_REVIEW=v9`; PID propio 2003, guardado en `/private/tmp/um-eight-preview.pid`. Verificar comando y cwd antes de reiniciarlo. Sin esa variable, el registro sigue seleccionando v8.
