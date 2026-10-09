@@ -114,8 +114,8 @@ def build():
  # The permission is an exploded mechanism, not a flat status panel.
  # Each condition has its own glass carrier and depth. Its connector joins
  # the next condition behind the readable surface.
- p.label('access','IDENTIDAD / ROL / ALCANCE',1.56,.38,.118,'quiet',True)
- p.label('access','Una acción autorizada.',1.56,.02,.250,'ink',True)
+ p.label('access','IDENTIDAD / ROL / ALCANCE',1.56,.49,.118,'quiet',True,z=.49)
+ p.label('access','Una acción autorizada.',1.56,.13,.250,'ink',True,z=.49)
  specs=[
   ('01','Identidad','MS · cuenta corporativa','Sesión autenticada',.0,.0,.44),
   ('02','Rol','Responsable del proyecto','operaciones.approve',.15,-.92,.16),
@@ -203,7 +203,7 @@ def build():
  p.lines=[(g,[(x,y,z+field_z(g,x,y)) for x,y,z in pts],m,r) for g,pts,m,r in p.lines]
  for i in range(3):
   y=-.86-i*.48
-  for x,z in [(-4.25,.34),(.89,-.14)]:
+  for x,z in [(-4.25,.34)]:
    p.line('contract',[(x,y-.26,z),(x,y-.26,z-.15),(x+.12,y-.26,z-.15)],'registration',.002)
  # The durable record has an indexed rear stack. Only the active face carries
  # readable copy; the rear pages reveal exact edges and registration holes.
@@ -211,8 +211,6 @@ def build():
   z=-.23*layer;dx=.13*layer;dy=.08*layer
   bounds=(1.265+dx,-3.00+dy,6.015+dx,.80+dy)
   rect(p,'data-depth',bounds,z,'registration',.002)
-  for y in [-.15,-.95,-1.75,-2.55]:
-   p.line('data-depth',[(1.46+dx,y,z),(1.64+dx,y,z)],'registration',.002)
  p.label('data','REGISTRO 03 / VERSIÓN 3',1.50,-3.22,.100,'quiet',True)
  # Sparse registration ticks, tied to actual boundaries. No decorative grid.
  for x in [-5.43,.91,1.26,7.30]:
