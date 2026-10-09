@@ -269,13 +269,14 @@ def render(args):
    for ob in parents['policy'].children:ob.hide_render=reveal(t)<.12
    q=reveal(t)
    mats['glass'].node_tree.nodes['Inspection opacity'].inputs[0].default_value=1-.86*q
-   travel=max(0,min(1,(t-.30)/.30));x=2.06+4.71*travel
+   travel=max(0,min(1,(t-.30)/.40));x=2.06+4.71*travel
    signal_spline.points[0].co.x=x;signal_spline.points[1].co.x=x+.18
    signal.hide_render=q<.15 or travel>=1
    for i,ob,sp in transmission:ob.hide_render=q<.15
    for ob in service_labels:ob.hide_render=q<.15
    checks,permitted,approved=narrative(t)
    replacements={
+    'Puede aprobar esta orden':'Puede aprobar esta orden' if permitted else 'Evaluando las tres condiciones',
     'Permiso efectivo':'Permiso efectivo' if permitted else 'Verificando acceso',
     'Verificado':'Verificado' if permitted else 'Verificando',
     'MS puede aprobar esta orden porque cumple las tres condiciones.':'MS puede aprobar esta orden porque cumple las tres condiciones.' if permitted else 'Comprobamos identidad, rol y alcance del proyecto.',
@@ -299,12 +300,13 @@ def render(args):
    for i,ob in enumerate(policy_checks):color(ob,'green' if i<checks else 'quiet')
    for group,material,ob in native_marks:
     if material=='red' and group in ('selection','history','action'):color(ob,'green' if approved else 'red')
+    if group=='inspector' and material=='rose':color(ob,'mint' if approved else 'rose')
     if group=='access' and material=='green':color(ob,'green' if permitted else 'quiet')
   except Exception as e:errors.append(repr(e));raise
  def begin(scene):started[0]=time.time()
  def finish(scene):
   timings.append({'frame':scene.frame_current,'seconds':round(time.time()-started[0],2)})
-  (out/'render-info.json').write_text(json.dumps({'scene':'software-system-v10-art-direction-proof','frames':FRAMES,'fps':FPS,'resolution':[args.width,round(args.width/ASPECT)],'composition':'mobile' if ASPECT==1 else 'wide','engine':args.engine,'publishable':False,'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'geometry_sha256':hashlib.sha256(Path(geometry.__file__).read_bytes()).hexdigest(),'font_sha256':{str(k):hashlib.sha256(Path(v.filepath).read_bytes()).hexdigest() for k,v in fonts.items()},'timings':timings,'handler_errors':errors}))
+  (out/'render-info.json').write_text(json.dumps({'scene':'software-system-v10-art-direction-proof','frames':FRAMES,'fps':FPS,'resolution':[args.width,round(args.width/ASPECT)],'composition':'mobile' if ASPECT==1 else 'wide','engine':args.engine,'publishable':False,'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'compositor_sha256':hashlib.sha256((ROOT/'scripts/cine/composite-software-layers.py').read_bytes()).hexdigest(),'geometry_sha256':hashlib.sha256(Path(geometry.__file__).read_bytes()).hexdigest(),'font_sha256':{str(k):hashlib.sha256(Path(v.filepath).read_bytes()).hexdigest() for k,v in fonts.items()},'timings':timings,'handler_errors':errors}))
  scene.frame_start=args.start;scene.frame_end=args.end;scene.render.filepath=str(out)+'/'
  if args.engine=='workbench':
   # Native Blender passes keep precise translucent surfaces without the

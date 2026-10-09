@@ -174,14 +174,14 @@ test('Software stays within application layers throughout its automatic story',(
  expect(sectorProject('bodegas','bodega').presentation).toBe('installation');
 });
 
-test('the explicit review flag selects v9 only for Software and leaves the release registry intact',()=>{
+test.each(['v9','v10'])('the %s review flag affects only Software and leaves the release registry intact',version=>{
  const originalEnv=process.env;
  try{
   process.env={...originalEnv,UM_SOFTWARE_REVIEW:''};
   const {sectorMovie,serviceMovie}=require('../src/data/cine/projectCinema');
   const release=serviceMovie('104'),building=sectorMovie('constructoras'),network=serviceMovie('101');
-  process.env.UM_SOFTWARE_REVIEW='v9';
-  expect(serviceMovie('104').scene).toBe('software-system-v9');
+  process.env.UM_SOFTWARE_REVIEW=version;
+  expect(serviceMovie('104').scene).toBe('software-system-'+version);
   expect(sectorMovie('software')).toBe(serviceMovie('104'));
   expect(sectorMovie('constructoras')).toBe(building);
   expect(serviceMovie('101')).toBe(network);

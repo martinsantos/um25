@@ -10,11 +10,12 @@ const folder=path.resolve(process.argv[2]);
 const sha=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const info=JSON.parse(fs.readFileSync(path.join(folder,'render-info.json')));
 assert.equal(info.scene,'software-system-v10-art-direction-proof');
-assert.equal(info.publishable,false);assert.equal(info.engine,'eevee');
+assert.equal(info.publishable,false);assert.equal(info.engine,'workbench');
 assert.deepEqual([info.frames,info.fps,info.resolution],[720,60,[5120,2880]]);
 assert.deepEqual(info.handler_errors,[]);
 assert.deepEqual(info.timings.map(t=>t.frame),Array.from({length:720},(_,i)=>i));
 assert.equal(info.authoring_sha256,sha(path.join(root,'scripts/cine/render-software-system-v10.py')));
+assert.equal(info.compositor_sha256,sha(path.join(root,'scripts/cine/composite-software-layers.py')));
 assert.equal(info.geometry_sha256,sha(path.join(root,'scripts/cine/render-software-system-v8.py')));
 for(const [suffix,width,height] of [['',5120,2880],['-sq',2160,2160]]){
  const v=JSON.parse(fs.readFileSync(path.join(folder,`validation${suffix}.json`))).streams.find(s=>s.codec_type==='video');

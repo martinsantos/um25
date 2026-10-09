@@ -33,7 +33,7 @@ def assemble(source,out):
   run('ffmpeg','-v','error','-threads','2','-i',movie,'-frames:v','1','-q:v','2',poster)
   run('ffmpeg','-v','error','-i',poster,'-c:v','libaom-av1','-cpu-used','6','-still-picture','1','-crf','24',poster.with_suffix('.avif'))
   for second in [0,3,4,5.5,7,8.5,10,11.9]:run('ffmpeg','-v','error','-threads','2','-ss',second,'-i',movie,'-frames:v','1',out/f'review{suffix}-{second}.png')
- for key in ['authoring_sha256','geometry_sha256','font_sha256','engine']:
+ for key in ['authoring_sha256','geometry_sha256','compositor_sha256','font_sha256','engine']:
   assert len({json.dumps(i[key],sort_keys=True) for i in all_infos})==1,('Mixed source',key)
  assets=list(out.glob('cine-*'));assert sum(p.stat().st_size for p in assets)<120_000_000
  (out/'SHA256SUMS').write_text(''.join(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n' for p in sorted(out.iterdir()) if p.name!='SHA256SUMS'))

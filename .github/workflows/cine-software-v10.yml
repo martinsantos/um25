@@ -21,7 +21,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: software-v10-${{ github.ref }}-${{ inputs.mode }}
+  group: software-v10-${{ github.ref }}-${{ inputs.mode }}-${{ inputs.engine }}
   cancel-in-progress: false
 jobs:
   plan:
@@ -96,3 +96,28 @@ jobs:
           name: v10-${{ matrix.composition }}-${{ matrix.part }}
           path: part
           retention-days: 4
+
+  assemble:
+    needs: render
+    if: inputs.mode == 'sequence'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts/cine/assemble-software-v10.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: v10-*
+          path: parts
+      - name: Assemble and verify native compositions
+        run: |
+          sudo timeout 600 apt-get install -y -qq ffmpeg
+          python3 scripts/cine/assemble-software-v10.py --source parts --output delivery
+      - uses: actions/upload-artifact@v7
+        with:
+          name: software-v10-sequence-candidate
+          path: delivery
+          retention-days: 7
