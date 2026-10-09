@@ -229,12 +229,17 @@ def render(args):
     'Revisión solicitada':'Aprobación registrada' if approved else 'Revisión solicitada',
     'MS · hoy, 10:42':'MS · hoy, 10:43 · orden 0248' if approved else 'MS · hoy, 10:42',
     'MS solicitó revisión de la orden 0248':'MS aprobó la orden 0248' if approved else 'MS solicitó revisión de la orden 0248'}
+   def color(ob,name):
+    if ob.data.materials[0]!=mats[name]:ob.data.materials[0]=mats[name]
+   # Rebuilding unchanged font curves every frame invalidates Workbench's
+   # glyph cache and showed missing characters in the consecutive-frame proof.
    for group,original,ob in native_texts:
-    ob.data.body=replacements.get(original,original)
-    if group=='access' and original in ('01','02','03'):ob.data.materials[0]=mats['green' if int(original)<=checks else 'quiet']
-    if original=='En revisión':ob.data.materials[0]=mats['green' if approved else 'red']
+    desired=replacements.get(original,original)
+    if ob.data.body!=desired:ob.data.body=desired
+    if group=='access' and original in ('01','02','03'):color(ob,'green' if int(original)<=checks else 'quiet')
+    if original=='En revisión':color(ob,'green' if approved else 'red')
    for group,material,ob in native_marks:
-    if material=='red' and group in ('selection','history','action'):ob.data.materials[0]=mats['green' if approved else 'red']
+    if material=='red' and group in ('selection','history','action'):color(ob,'green' if approved else 'red')
   except Exception as e:errors.append(repr(e));raise
  def begin(scene):started[0]=time.time()
  def finish(scene):
