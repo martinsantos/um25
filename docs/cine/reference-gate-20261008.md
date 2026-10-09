@@ -11,9 +11,25 @@ Referencias a contrastar a igual tamaño visible y en movimiento:
 
 Los archivos originales de referencia están en `/private/tmp/um-ryan-reference.mp4`, `/private/tmp/um-solvaix-reference.mp4` y `/private/tmp/um-david-hill-reference-4k.mp4`. No concluir calidad a partir de miniaturas, resolución nominal, cantidad de piezas, número de tests o ausencia de errores.
 
-## Nueva revisión en curso
+## Revisión actual · detalle e integración de Software
 
-El usuario también rechazó la entrega clara v7: «mejor pero inaceptable, no se ve, ni se compara al efecto de referencia». No está artísticamente aceptada. La revisión v8 construye una aplicación de integraciones con cuatro componentes funcionales, inspección volumétrica y acercamientos mayores. Se revisaron planos nativos y un tramo corto remoto, se completó el render y se integró como candidata. La sustitución de la preview no implica aprobación artística; consultar la entrega v8 al final de este documento.
+La revisión `582ab349` conserva el banner v8 y rehace la explicación inferior. El resultado se contrasta con las capturas nativas de Ryan (48 s), Solvaix (12 s) y Hill (4 s), además del recorrido real en navegador. Las comparaciones anteriores y los fallos históricos quedan más abajo; no representan el estado actual.
+
+| Antes | Ahora | Motivo |
+| --- | --- | --- |
+| La landing resumía Software en tres momentos y omitía capas | Introducción, seis capas y cierre automático completos | Explicar la arquitectura propia antes de recorrer sus servicios de apoyo. |
+| Bloques de despliegue/operación casi vacíos | Pruebas, artefacto, réplicas, contrato API, respuesta y recuperación | Cada objeto muestra una función técnica reconocible. |
+| Relaciones de datos incompletas | Personas → solicitud 0248 → proyecto, con claves y evento asociado | Seguir una misma operación a través de las capas. |
+| Interfaces fantasma superpuestas al plano activo | Contornos finos de contexto y una superficie legible | Conservar la ubicación sin acumular manchas y texto ilegible. |
+| La cámara sólo encuadraba la pose final | Reserva la siguiente capa antes de que entre | Evitar el recorte al cambiar de capítulo, no sólo en la captura final. |
+| El escenario excedía el alto útil de portátil | Alto ligado al viewport, con prioridad correcta de estilos | Leer texto y pieza completa a la vez. |
+| Un clic WebKit se perdía al enfocar el botón | La etiqueta sólo se escribe cuando cambia | Preservar el objetivo del clic y pausar de verdad. |
+
+Los planos tienen detalle vectorial, superficies claras y un proceso continuo. Todavía no igualan la riqueza de mecanismos y uniones de Ryan, la integración espacial de Solvaix ni la variedad óptica y de jerarquías de Hill. La simple inclinación o multiplicación de paneles no acredita paridad. No hay aceptación artística ni autorización de release derivada de esta revisión.
+
+Validación: `npm run check` aprobado, 71 suites / 594 pruebas. Auditoría `37868726344` aprobada en los cuatro perfiles, incluida pausa real. Auditoría `37869625630` detectó recortes transitorios; corrección en `bf74ac88` y repetición continua `37870534794` aprobada en Chrome/WebKit, escritorio/móvil, con grabación del recorrido. Acabado/altura `6f4172cf`: auditoría `37871120424` aprobada en los cuatro perfiles. 28 estados, 24 transiciones y cuatro vistas reducidas; ninguna capa activa se recorta durante sus transiciones, pausa estable y cero errores JavaScript. Cierre posterior `582ab349`: revelado del conjunto al llegar la cámara, con regresión que pausa durante el regreso; 32 pruebas enfocadas y build aprobados. La verificación nativa confirma que el escenario completo entra junto a la narración en 1280×720 y 390×844.
+
+Evidencia: `/Volumes/SDTERA/Codex UM25 audits/20261008/software-isometry-final/`, con grabación por perfil, capturas, reportes y `SHA256.json`. El cierre posterior `582ab349` está cubierto por la regresión enfocada y build, no por esas grabaciones anteriores.
 
 ## Antecedentes de la iteración · conservados como historial
 
@@ -96,3 +112,25 @@ El banner también se corrige: botones y estadísticas pasan después de la pel�
 - Recuperación del fork: el hilo **UMSA HOME PRODU (3)** reportó dos errores de compactación remota con desconexión de stream. No hay causa de transporte detallada ni evidencia de pérdida del código/assets. Estado recuperado desde Git y HTTP, sin reiniciar el render. Mantener el PR draft y producción intacta.
 
 Archivo v8 verificado: `/Volumes/SDTERA/Codex UM25 audits/20261008/software-v8/SHA256.json`, 74 archivos / 80.979.295 bytes de entrega y primera auditoría. No se borraron originales.
+
+
+## Isometría de Software · revisión de detalle
+
+El usuario mantiene el rechazo por acabado burdo y low-fi. Se contrastó el dibujo anterior integrado con los fotogramas nativos de Ryan, Solvaix y Hill. El problema anterior era una pila de planos oscuros con microtexto, poca profundidad interna y el mismo desplazamiento por cada capa. El contraste o la resolución por sí solos no podían resolverlo.
+
+| Antes | Después | Por qué |
+| --- | --- | --- |
+| `discipline-104-v2.svg`, superficies oscuras con controles casi coplanares | `discipline-104-v3.svg`, sustratos claros y módulos con retornos frontal/lateral | Separar las piezas y hacer reconocible la interfaz dentro de una misma proyección de 30°. |
+| La lente sólo ampliaba en móvil (`small.matches`) | `precision-systems-v9.js`, encuadre medido de la capa activa también en escritorio | El detalle necesita tamaño visible suficiente para poder examinarse. |
+| Los seis niveles se distinguían principalmente por su título | Solicitud 0248, permisos, contratos, relaciones, publicación y salud, cada uno con estados propios | Relacionar la representación con el servicio que se explica. |
+| La auditoría medía animaciones después de un clic sin verificar el estado del relato | Botón expuesto bajo la navegación, comprobación del reloj y control explícito de los timelines | Distinguir una interacción que no activó la pausa de una animación que ignora una pausa efectiva. |
+
+Implementación `b3a99e9c`, `64cf7ac8`, `71f052fb`. Seis capas, controles y módulos vectoriales; detalle de una solicitud que pertenece a la selección, métrica, contratos, tablas, publicación y operación. Runtime v4 prepara los mecanismos; SVG individual de 50.792 bytes / 6.105 gzip. No traducir tamaño o recuento de geometría a calidad artística.
+
+Comparación honesta: Ryan conserva mayor precisión en piezas y uniones; Solvaix comunica más claramente cómo las capas se reúnen en un proyecto; Hill presenta jerarquías internas y una inspección óptica más ricas. Esta corrección trabaja profundidad, contraste, legibilidad y estados causales. Sigue abierta la riqueza de algunas superficies, la lectura del conjunto al volver del acercamiento y la sutileza del movimiento. No hay calidad indistinguible demostrada.
+
+`npm run check` antes de la última mejora de módulos: 71 suites / 593 pruebas, lint/tipos/CSS/build aprobados. Ocho pruebas de ciclo de vida volvieron a pasar con la corrección de pausa; build final aprobado. Primera auditoría `37795707948`: Chrome escritorio/móvil, siete estados y una vista reducida por perfil, sin hallazgos de geometría. WebKit falló al verificar la pausa; no se contó como aprobado. `37809340652` volvió a detectar el avance y `37810757675` demostró que el clic no había dejado el relato en pausa. `f1aa898f` añade control directo de timelines; `4327b0bf` expone el botón en el viewport, comprueba el estado del reloj y guarda sus coordenadas. Auditoría `37812006557`: Chrome completa siete estados y movimiento reducido; WebKit confirma botón expuesto y aún registra playing después del clic. `59835b2e` añade recepción directa de la acción en el botón, con limpieza en navegación. Revisión `37813605007` pendiente. No presentar el primer diagnóstico CSS como causa confirmada.
+
+Preview reconstruida desde `59835b2e`, PID propio 12523. Ambos accesos responden 200, conservan Software Blender v8 y sirven `data-software-detail="3"` y runtime v4. Comprobar PID/comando/cwd antes de reiniciar. Control final del banner `37792551419`: veinte composiciones, dos ciclos autónomos, cero hallazgos; no acredita por sí solo calidad artística.
+
+`npm run check` del producto `59835b2e`: 71 suites / 593 pruebas, lint/tipos/CSS/build aprobados; diez advertencias previas. La modificación compartida del botón conserva la validación de los recorridos de los demás servicios.
