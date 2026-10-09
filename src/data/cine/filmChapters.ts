@@ -1,6 +1,13 @@
 /** Captions follow the native movie clock; they explain the installation in view. */
 export type FilmChapter = { at: number; text: string };
 export const FILM_CHAPTERS: Record<string, FilmChapter[]> = {
+  'software-system-v18': [
+    {at:0,text:'Una herramienta reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.6,text:'Identidad, rol y alcance autorizan la misma operación.'},
+    {at:7.8,text:'Cada campo llega a su destino y se valida.'},
+    {at:12.6,text:'El cambio se confirma y conserva su historia.'},
+    {at:17.2,text:'La operación vuelve al equipo como información confiable.'},
+  ],
   'software-system-v17': [
     {at:0,text:'Una herramienta reúne el trabajo, sus responsables y su contexto.'},
     {at:2.6,text:'Identidad, rol y alcance autorizan la misma operación.'},

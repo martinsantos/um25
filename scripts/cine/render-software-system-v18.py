@@ -401,8 +401,11 @@ def render(args):
    if family(group)=='access':opacity*=E((t-.10)/.07)
    floor=linear(COLORS['floor']);ink=linear(COLORS[name]);q=max(0,min(1,opacity))
    em.inputs[0].default_value=(*(a+(b-a)*q for a,b in zip(floor,ink)),1)
+   mat['visible_intensity']=q
   for ob,group in stroke_visibility:
-   if group!='connections':ob.hide_render=(prominence(group,t) if '-check-' in group or group=='data-commit' else focus(group,t))<.025
+   # Pulses override their curve material after construction. Their actual
+   # material, not the parent panel's focus, determines whether they exist.
+   ob.hide_render=ob.data.materials[0].get('visible_intensity',1)<.025
   for i,sp in enumerate(mapping_signals):
    q=E((t-(.428+.038*i))/.027);x=-2.21+.58*q;y=-.92-i*.48
    z=.405-.48*q
