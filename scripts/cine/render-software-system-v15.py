@@ -153,7 +153,7 @@ def build():
  p.rule(g,-4.27,.97,-2.20)
  p.tag('contract-check-2','202 Aceptada',-4.27,-2.61,1.43,'mint','green')
  p.label(g,'0248-A',-2.56,-2.61,.135,'ink',True)
- p.label(g,'3 campos validados',-1.22,-2.61,.119,'muted')
+ p.label('contract-check-2','3 campos validados',-1.22,-2.61,.119,'muted')
  g='data'
  p.rounded(g,3.64,-1.10,0,4.75,3.80,.006,'glass',.055)
  rect(p,g,(1.265,-3.00,6.015,.80),.017,'signal',.007)
