@@ -159,7 +159,7 @@ for j,(title,sub) in enumerate([('Pruebas','12 / 12'),('Artefacto','1.8.3'),('Pu
   for i,(n,fill) in enumerate([('canary','#c6dce9'),('10 %','#a6c9dc'),('100 %','#8cbbd1')]):card+=rect(6,39+i*11,57,8,fill,'none',1)+txt(9,45+i*11,n,5.2,INK)
  delivery+=box(x,-20,18+j*3,69,83,1.5,'#e5eff5')+plane(x,-20,19.5+j*3,card)
  if j<2:delivery+=route([(x+69,21,20+j*3),(x+74,21,23+j*3)],'#93b4c8',.8)
-release=box(128,-8,33,34,29,1.5,'#fff')+plane(128,-8,34.5,txt(17,13,'1.8.3',7,INK,600,'text-anchor="middle"')+txt(17,22,'release',5.3,MUTED,500,'text-anchor="middle"'))
+release=box(270,14,33,34,29,1.5,'#fff')+plane(270,14,34.5,txt(17,13,'1.8.3',7,INK,600,'text-anchor="middle"')+txt(17,22,'release',5.3,MUTED,500,'text-anchor="middle"'))
 delivery+=f'<g data-sw-release="true">{release}</g>'+label(5,361,70,'Publicar con control','Pruebas → versión → despliegue')
 # Runtime: processes, request queues, trace registers, an explicit inlet.
 infra=box(300,-55,9,156,126,2,'#c4d6e1')
