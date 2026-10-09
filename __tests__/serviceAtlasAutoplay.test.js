@@ -1,4 +1,4 @@
-import {bindServiceAtlas} from '../public/cine/service-atlas-v21.js';
+import {bindServiceAtlas} from '../public/cine/service-atlas-v22.js';
 import {operationScenes,operationOverview,overviewChapter} from '../src/data/cine/operationNarrative';
 import {SERVICE_NARRATIVE} from '../src/data/cine/serviceNarrative';
 import {EQUIPMENT_KITS,NETWORK_EQUIPMENT} from '../src/data/cine/networkAssembly';
@@ -232,4 +232,14 @@ test('focusing playback preserves its pointer target until the click changes pla
  expect(play.firstChild).toBe(label);
  play.dispatchEvent(new MouseEvent('mouseup',{bubbles:true}));play.click();
  expect(root.dataset.storyState).toBe('paused');expect(play.textContent).toBe('Reproducir');
+});
+
+
+test('software waits for a readable stage and resumes its unplayed time after a partial scroll',async()=>{
+ const root=fixture();root.classList.add('svc-story--software');bindServiceAtlas(root);
+ expect(window.IntersectionObserver.mock.calls[0][1].rootMargin).toBe('-72px 0px -64px 0px');
+ see(.4);await jest.advanceTimersByTimeAsync(30000);expect(root.dataset.storyScene).toBe('0');expect(root.dataset.storyState).toBe('waiting');
+ see(.8);await settle();await jest.advanceTimersByTimeAsync(1000);
+ see(.4);await jest.advanceTimersByTimeAsync(30000);expect(root.dataset.storyScene).toBe('0');
+ see(.8);await jest.advanceTimersByTimeAsync(1600);expect(root.dataset.storyScene).toBe('1');
 });
