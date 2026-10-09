@@ -23,7 +23,7 @@ function inspect(code,state){
  for(const n of state.nodes){if(n.width>0&&n.height>0&&(n.left<state.frame.left+2||n.right>state.frame.right-2||n.top<state.frame.top+2||n.bottom>state.frame.bottom-2))report.findings.push({code,state,message:'The active component or opening cover leaves the drawing frame'});}
 }
 try{
- const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'no-preference'}),page=await context.newPage();page.on('pageerror',e=>report.errors.push(e.message));
+ const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'no-preference',...(codes.length===1&&codes[0]==='104'?{recordVideo:{dir:out,size:{width,height:900}}}:{})}),page=await context.newPage();page.on('pageerror',e=>report.errors.push(e.message));
  for(const code of codes){
   await page.goto('http://127.0.0.1:4326'+routes.find(r=>r.startsWith('/servicios/'+code+'/')),{waitUntil:'domcontentloaded'});
   await page.locator('[data-atlas-theater]').evaluate(el=>scrollTo(0,el.getBoundingClientRect().top+scrollY-100));
@@ -74,6 +74,7 @@ try{
   }
  }
  await context.close();
+ if(page.video()){const recording=path.join(out,'software-autonomous.webm');await page.video().saveAs(recording);await page.video().delete();report.recording=path.basename(recording);save();}
  const quiet=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'}),pageQuiet=await quiet.newPage();pageQuiet.on('pageerror',e=>report.errors.push(e.message));
  for(const code of codes){
   await pageQuiet.goto('http://127.0.0.1:4326'+routes.find(r=>r.startsWith('/servicios/'+code+'/')),{waitUntil:'domcontentloaded'});

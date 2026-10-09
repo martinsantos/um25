@@ -70,7 +70,7 @@ def rules():
  c+=cardshell(20,63,215,45,'Solicitud 0248','Proyecto · Nueva sede','folder')+pill(154,77,'Validada',69)
  c+=text(21,125,'CONDICIONES DEL PROCESO',7.5,MUTED,600)
  for i,(label,detail) in enumerate([('Identidad verificada','Equipo de Redes'),('Permiso de aprobación','Responsable de proyecto'),('Datos consistentes','Alcance + fecha + sede')]):
-  y=143+i*20;c+=rect(20,y-11,215,18,'#f2f6f8','none',0,3)+text(29,y,label,8.6,INK,500)+check(216,y-4,f'class="ps-check" style="animation-delay:{2200+i*750}ms"')
+  y=138+i*23;c+=rect(20,y-10,215,22,'#f2f6f8','none',0,3)+text(29,y,label,8.2,INK,500)+text(29,y+8,detail,6.3,MUTED)+check(216,y-3,f'class="ps-check" style="animation-delay:{2200+i*750}ms"')
  gate=rect(255,65,108,128,'#eef3f7','none',0,3)+icon(267,77,'shield')+text(287,85,'Transición',10,INK,600)
  for y,title,fill in [(109,'Recibida','#fff'),(142,'Validada','#fff'),(175,'Asignada','#e8f3ed')]:
   gate+=rect(264,y-13,90,24,fill)+text(309,y+2,title,10,GREEN if y==175 else INK,500,'text-anchor="middle"')
@@ -91,38 +91,54 @@ def integrations():
  return c+footer('Contratos versionados · validación · reintentos','POST /proyectos · v3')
 
 def data():
- c=header(4,'Datos y trazabilidad','Relaciones claras. Cada cambio deja una historia.')
- for x,title,rows in [(20,'solicitudes',[('PK','id','0248'),('FK','proyecto','P-104'),('FK','responsable','MS'),('','estado','Asignada')]),(218,'personas',[('PK','id','MS'),('','equipo','Redes'),('','rol','Responsable'),('','activo','Sí')])]:
-  w=146;module=rect(x,62,w,24,'#edf3f7',EDGE,.55,3)+icon(x+9,68,'db')+text(x+29,78,title,10,INK,600)
+ c=header(4,'Datos y trazabilidad','Una solicitud conserva quién la hizo, para qué y cuándo.')
+ schemas=[(18,83,92,'personas',[('PK','id','MS'),('','equipo','Redes'),('','rol','Resp.')]),(126,63,136,'solicitudes',[('PK','id','0248'),('FK','persona','MS'),('FK','proyecto','P-104'),('','estado','Asignada'),('','versión','3')]),(278,83,88,'proyectos',[('PK','id','P-104'),('','sede','MZA'),('','activo','Sí')])]
+ for x,y,w,title,rows in schemas:
+  module=rect(x,y,w,23,'#eaf1f6',EDGE,.4,3)+icon(x+8,y+7,'db')+text(x+27,y+16,title,9,INK,600)
   for i,(key,label,value) in enumerate(rows):
-   y=101+i*19;module+=line(f'M{x} {y+7}h{w}',EDGE,.4)+text(x+8,y,key,6.8,BLUE,600)+text(x+27,y,label,8.4,MUTED)+text(x+w-9,y,value,8.4,INK,500,'text-anchor="end"')
-  c+=raised(x,62,w,113,module,7)
- c+=line('M159 132h31V94h21',BLUE,.9)+dot(159,132,2,BLUE)+line('M204 89v10M207 89v10',BLUE,.7)
- c+=rect(20,187,344,19,'#e8f3ed','none',0,4)+dot(29,196,2)+text(39,200,'10:42:08  ·  MS asignó la solicitud 0248 al equipo de Redes',8,GREEN,500,'class="ps-outcome"')
- return c+footer('Integridad referencial · auditoría · historial','Evento #00248')
+   yy=y+36+i*16
+   module+=line(f'M{x+7} {yy+5}h{w-14}',EDGE,.35)+text(x+7,yy,key,5.6,BLUE,600)+text(x+23,yy,label,7.3,MUTED)+text(x+w-7,yy,value,7.3,INK,500,'text-anchor="end"')
+  c+=raised(x,y,w,31+len(rows)*16,module,6)
+ c+=line('M104 113h10v2h6',BLUE,.9)+line('M256 131h9v-18h7',BLUE,.9)
+ c+=dot(104,113,1.7,BLUE)+dot(272,113,1.7,BLUE)
+ c+=line('M116 111v8M118 111v8M258 127v8M260 127v8',BLUE,.6)
+ c+=rect(20,188,344,18,'#e8f3ed','none',0,4)+dot(29,197,2)+text(39,200,'10:42:08  ·  MS asignó 0248 al proyecto P-104 · versión 3',7.8,GREEN,500,'class="ps-outcome"')
+ return c+footer('Claves · relaciones · control de cambios','Evento #00248')
 
 def delivery():
- c=header(5,'Despliegue controlado','Cada versión se prueba, se publica y se puede recuperar.')
+ c=header(5,'Despliegue controlado','Del cambio revisado a una versión que se puede recuperar.')
  c+=pill(20,63,'release / 1.8.3',100,BLUE,'#eaf1f7')+text(364,75,'main · a7c3f2',8,MUTED,extra='text-anchor="end"')
- c+=line('M49 115H335','#d6e0e6',1.5)+line('M49 115H335',GREEN,1.5,'class="ps-draw" pathLength="100"')
- for i,(title,detail) in enumerate([('Verificar','Pruebas'),('Construir','Artefacto'),('Publicar','Versión'),('Observar','Salud')]):
-  x=20+i*91;c+=raised(x,94,71,61,dot(x+35,115,8,'#e8f3ed')+check(x+31,115,f'class="ps-check" style="animation-delay:{2200+i*650}ms"')+text(x+35,140,title,9.5,INK,600,'text-anchor="middle"'),4)+text(x+35,168,detail,8,MUTED,extra='text-anchor="middle"')
- c+=rect(20,181,344,24,'#edf3f7','none',0,4)+text(30,197,'✓',11,GREEN,600)+text(46,197,'Versión saludable',9,GREEN,500)+text(355,197,'Volver a 1.8.2 ↶',8,BLUE,extra='text-anchor="end"')
- return c+footer('Desarrollo → validación → producción','Sin perder el camino de vuelta')
+ c+=line('M49 111H335','#d6e0e6',1.5)+line('M49 111H335',GREEN,1.5,'class="ps-draw" pathLength="100"')
+ steps=[('Verificar','12 / 12 pruebas','Reglas + API','shield'),('Construir','app:1.8.3','Artefacto firmado','folder'),('Publicar','3 / 3 réplicas','Rollout gradual','grid'),('Observar','42 ms · 200 OK','Salud verificada','pulse')]
+ for i,(title,detail,sub,kind) in enumerate(steps):
+  x=20+i*91
+  module=rect(x+7,94,57,16,'#eef3f7','none',0,3)+icon(x+12,97,kind)+text(x+34,105,f'0{i+1}',6.5,MUTED,600)
+  module+=dot(x+57,102,3,'#d8e8de')+text(x+8,125,title,9.5,INK,600)+text(x+8,139,detail,6.9,INK,500)+text(x+8,150,sub,6,MUTED)
+  module+=line(f'M{x+8} 156h55',EDGE,.45)+check(x+8,166,f'class="ps-check" style="animation-delay:{2200+i*650}ms"')+text(x+23,169,'Comprobado',6.4,GREEN)
+  c+=raised(x,89,71,87,module,4)
+ c+=rect(20,186,344,20,'#edf3f7','none',0,4)+dot(31,196,2)+text(40,200,'1.8.3 en producción',8.5,GREEN,500)+text(355,200,'Recuperar 1.8.2 ↶',8,BLUE,extra='text-anchor="end"')
+ return c+footer('Versiones verificables · publicación gradual','Cada cambio tiene trazabilidad')
 
 def infrastructure():
- c=header(6,'Operación y continuidad','La experiencia depende de todo lo que la sostiene.')
- for i,(title,meta) in enumerate([('Aplicación','2 réplicas'),('API','42 ms'),('Datos','Copia verificada')]):
-  x=20+i*119;module=icon(x+10,75,'grid' if i==0 else 'api' if i==1 else 'db')+text(x+29,85,title,10,INK,600)+text(x+10,107,meta,9,MUTED)
-  for j in range(9):module+=rect(x+10+j*9,120,5,11,'#bed5ca' if j<7 else '#e1e9e5','none',0,1)
+ c=header(6,'Operación y continuidad','Recursos observables. Un camino de recuperación probado.')
+ for i,(title,meta) in enumerate([('Aplicación','2 réplicas activas'),('API','Contrato v3'),('Datos','Primaria + réplica')]):
+  x=20+i*119
+  module=icon(x+10,75,'grid' if i==0 else 'api' if i==1 else 'db')+text(x+29,85,title,10,INK,600)+text(x+10,101,meta,7.5,MUTED)
   module+=dot(x+91,77,2.2)+line(f'M{x+10} 92h85','#e3ebf0',.5)
-  c+=raised(x,64,106,79,module,8)
+  if i==0:
+   for j,name in enumerate(['app-01','app-02']):
+    yy=110+j*13;module+=rect(x+10,yy,85,11,'#eef4f7','none',0,2)+dot(x+16,yy+5.5,1.4)+text(x+22,yy+8,name,6.6,INK,500)+text(x+89,yy+8,'Healthy',6.2,GREEN,extra='text-anchor="end"')
+  elif i==1:
+   module+=text(x+10,118,'GET /proyectos',7.1,INK,500)+pill(x+10,124,'200 OK · 42 ms',83,GREEN,'#e8f3ed')
+  else:
+   module+=text(x+10,117,'PostgreSQL',7.1,INK,500)+text(x+10,132,'Snapshot',6.8,MUTED)+text(x+93,132,'02:00 ✓',7,GREEN,500,'text-anchor="end"')
+  c+=raised(x,64,106,82,module,8)
   if i<2:c+=line(f'M{x+98} 95h21',BLUE,.7)+dot(x+98,95,1.5,BLUE)
- c+=rect(20,154,220,50,'#f2f6f8','none',0,4)+text(29,168,'RESPUESTA / ÚLTIMOS MINUTOS',6.7,MUTED,600)
- c+=line('M29 194H229M29 180H229',EDGE,.45)
- c+=line('M30 190l12-2 11 1 9-6 11 3 9-2 12 4 10-9 12 4 10-1 12-6 12 7 9-2 12 5 11-9 13 4 11-1 13 2',GREEN,1,'class="ps-draw" pathLength="100"')
- c+=rect(250,154,114,50,'#e8f3ed','none',0,4)+text(261,171,'RESPALDO',7,GREEN,600)+text(261,190,'Verificado',12,GREEN,600,'class="ps-outcome"')
- return c+footer('Métricas · alertas · respaldo · recuperación','La operación sigue')
+ c+=rect(20,158,220,47,'#f2f6f8','none',0,4)+text(29,171,'TIEMPO DE RESPUESTA',6.7,MUTED,600)+text(230,171,'42 ms',7,GREEN,500,'text-anchor="end"')
+ c+=line('M29 196H229M29 181H229',EDGE,.4)
+ c+=line('M30 192l12-2 11 1 9-6 11 3 9-2 12 4 10-9 12 4 10-1 12-6 12 7 9-2 12 5 11-9 13 4 11-1 13 2',GREEN,1,'class="ps-draw" pathLength="100"')
+ c+=rect(250,158,114,47,'#e8f3ed','none',0,4)+icon(261,170,'shield',GREEN)+text(280,176,'Respaldo',8,GREEN,600)+text(261,192,'Recuperación probada',7.5,GREEN,500,'class="ps-outcome"')
+ return c+footer('Cómputo · red · datos · observación','Métricas y estados ilustrativos')
 
 # A thin laminated substrate, with a folded edge and a softer lower return.
 # The content is on a true 30-degree plane; there is no arbitrary perspective skew.

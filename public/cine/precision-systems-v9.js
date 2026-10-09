@@ -136,7 +136,7 @@ export function bindDisciplineCamera(root){
  function running(){return !disposed&&active()&&owner.dataset.storyState==='playing'&&root.dataset.visible==='true'&&!document.hidden;}
  function render(){if(active())svg.setAttribute('viewBox',current.join(' '));}
  function tick(now){
-  frame=0;if(!running())return;if(last)elapsed+=Math.min(64,now-last);last=now;
+  frame=0;if(!running())return;if(last)elapsed+=now-last;last=now;
   const t=Math.min(1,elapsed/2200),e=(1-Math.cos(Math.PI*t))/2;current=from.map((v,i)=>v+(target[i]-v)*e);render();
   if(t<1)frame=requestAnimationFrame(tick);
  }
@@ -148,17 +148,22 @@ export function bindDisciplineCamera(root){
    const changed=key.split(':')[0]!==code;key=nextKey;target=[...base];
    if(changed){current=[...base];if(code==='104')svg.setAttribute('viewBox',base.join(' '));}
    if(active()&&!reduced.matches&&stage>=0&&stage<6){
-    const nodes=[...root.querySelectorAll('[data-discipline-drawing="'+code+'"] [data-discipline-node="'+stage+'"]')];
+    const drawing=root.querySelector('[data-discipline-drawing="'+code+'"]');
+    const nodes=[...drawing.querySelectorAll('[data-discipline-node="'+stage+'"]')].map(node=>({node,offset:SOFTWARE_WITHDRAW}));
+    // Reserve the next sheet in its resting pose before it becomes active.
+    // Both endpoints of the incoming movement then lie inside the lens, so a
+    // continuous pan never reveals a clipped sheet at the start of a chapter.
+    if(stage<5)for(const node of drawing.querySelectorAll('[data-discipline-node="'+(stage+1)+'"]'))nodes.push({node,offset:[0,0]});
     if(nodes.length&&svg.getScreenCTM){
      const points=[];const screen=svg.getScreenCTM();
-     if(screen)for(const node of nodes){
+     if(screen)for(const {node,offset} of nodes){
       // Measure the final pose in its stationary parent's coordinates. A
       // getScreenCTM/getComputedStyle pair can sample different animation poses,
       // shifting the lens twice while the plane is sliding out.
       const parent=node.parentElement?.getScreenCTM?.();
       if(!node.getBBox||!parent)continue;
       const b=node.getBBox(),m=screen.inverse().multiply(parent);
-      m.e+=m.a*SOFTWARE_WITHDRAW[0]+m.c*SOFTWARE_WITHDRAW[1];m.f+=m.b*SOFTWARE_WITHDRAW[0]+m.d*SOFTWARE_WITHDRAW[1];
+      m.e+=m.a*offset[0]+m.c*offset[1];m.f+=m.b*offset[0]+m.d*offset[1];
       for(const [x,y] of [[b.x,b.y],[b.x+b.width,b.y],[b.x,b.y+b.height],[b.x+b.width,b.y+b.height]])points.push([m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
      }
      if(points.length){
