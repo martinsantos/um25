@@ -322,7 +322,7 @@ def render(args):
    if ob.type=='MESH':return min(v.co.z for v in ob.data.vertices)
    if ob.type=='FONT':return ob.location.z
    return min(v.co.z for sp in ob.data.splines for v in sp.points)
-  foreground=[ob for ob in renderables if ob.parent==parents['access'] and ob not in glass and depth(ob)>=0]
+  foreground=[ob for ob in renderables if ob.parent==parents['access'] and ob!=carrier and ob not in glass and depth(ob)>=0]
   for frame in range(args.start,args.end+1):
    scene.frame_set(frame);update(scene);start=time.time();visibility={ob:ob.hide_render for ob in renderables}
    for layer in ('base','glass','front'):
