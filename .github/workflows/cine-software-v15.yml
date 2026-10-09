@@ -1,0 +1,96 @@
+name: Software v15 spatial proof
+on:
+  workflow_call:
+    inputs:
+      proof_frame:
+        type: string
+        default: '-1'
+      repair_parts:
+        type: string
+        default: ""
+      mode:
+        type: string
+        default: proof
+permissions:
+  contents: read
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - id: plan
+        env:
+          FRAME: ${{ inputs.proof_frame }}
+          MODE: ${{ inputs.mode }}
+          REPAIR: ${{ inputs.repair_parts }}
+        run: |
+          python3 - <<'PYPLAN'
+          import os,json
+          frame=int(os.environ['FRAME']);assert -1<=frame<1200
+          frames=[0,300,456,564,756,870,1008,1199] if frame<0 else [frame]
+          matrix={'include':[dict(frame=f,end=f,width=w,composition=c) for c,w in [('wide',3840),('mobile',2160)] for f in frames]}
+          if os.environ['MODE']=='motion-proof':matrix={'include':[dict(frame=430,end=437,width=3840,composition='wide')]}
+          if os.environ['MODE']=='sequence-proof':matrix={'include':[dict(frame=i*30,end=i*30+29,width=w,composition=c) for i in range(40) for c,w in [('wide',3840),('mobile',2160)]]}
+          if os.environ['MODE']=='repair':
+            parts=[part.split(':') for part in os.environ['REPAIR'].split(',')]
+            assert 0<len(parts)<=8
+            assert all(c in ('wide','mobile') and f.isdigit() and int(f)%30==0 and 0<=int(f)<1200 for c,f in parts)
+            matrix={'include':[dict(frame=int(f),end=int(f)+29,width=3840 if c=='wide' else 2160,composition=c) for c,f in parts]}
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('matrix='+json.dumps(matrix)+'\n')
+          PYPLAN
+  render:
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      max-parallel: 20
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/cine/render-software-system-v15.py
+            scripts/cine/render-software-system-v11.py
+            scripts/cine/render-software-system-v8.py
+            scripts/cine/prepare-blender-fonts.py
+            public/fonts/um-sans
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Prepare remote studio
+        run: |
+          MISSING=()
+          for PACKAGE in libgl1 libegl1 libxrender1 libxi6 xvfb libgl1-mesa-dri ffmpeg; do
+            if [ "$(dpkg-query -W -f='${db:Status-Status}' "$PACKAGE" 2>/dev/null)" != installed ]; then MISSING+=("$PACKAGE"); fi
+          done
+          if [ "${#MISSING[@]}" -gt 0 ]; then
+            sudo timeout 120 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update -qq || true
+            sudo timeout 180 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq "${MISSING[@]}"
+          fi
+          curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender.tar.xz
+          curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256 -o blender.sha256
+          awk '$2 == "blender-4.5.3-linux-x64.tar.xz" {print $1 "  blender.tar.xz"}' blender.sha256 > selected.sha256
+          test -s selected.sha256
+          sha256sum -c selected.sha256
+          tar -xf blender.tar.xz
+          python -m pip install --disable-pip-version-check fonttools==4.58.0 skia-pathops==0.8.0.post2 pillow==11.2.1 numpy==2.2.6
+          python scripts/cine/prepare-blender-fonts.py public/fonts/um-sans /tmp/um-fonts
+      - name: Render spatial proof
+        run: |
+          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-v15.py -- --samples 8 --width ${{ matrix.width }} --composition ${{ matrix.composition }} --start ${{ matrix.frame }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames
+      - name: Encode bounded motion proof
+        if: inputs.mode == 'motion-proof' || inputs.mode == 'sequence-proof' || inputs.mode == 'repair'
+        run: |
+          COUNT=$((${{ matrix.end }} - ${{ matrix.frame }} + 1))
+          mkdir delivery
+          cp frames/render-info.json delivery/info.json
+          ffmpeg -v error -framerate 60 -start_number ${{ matrix.frame }} -i frames/%04d.png -frames:v "$COUNT" -vf 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p' -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1 -c:v libx264 -preset medium -crf 17 -an -movflags +faststart delivery/movie.mp4
+      - uses: actions/upload-artifact@v7
+        with:
+          name: v15-spatial-${{ matrix.composition }}-${{ matrix.frame }}
+          path: ${{ (inputs.mode == 'motion-proof' || inputs.mode == 'sequence-proof' || inputs.mode == 'repair') && 'delivery' || 'frames' }}
+          retention-days: 4

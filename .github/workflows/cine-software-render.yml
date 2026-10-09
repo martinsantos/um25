@@ -43,6 +43,7 @@ name: Blender software architecture
           - v12
           - v13
           - v14
+          - v15
         default: v2
       engine:
         description: 'Cycles baseline or Eevee proof on the disposable software GPU'
@@ -100,6 +101,13 @@ jobs:
       repair_parts: ${{ inputs.repair_parts }}
       source_run: ${{ inputs.source_run }}
       repair_runs: ${{ inputs.repair_runs }}
+  v15-spatial:
+    if: inputs.version == 'v15'
+    uses: ./.github/workflows/cine-software-v15.yml
+    with:
+      mode: ${{ inputs.mode }}
+      repair_parts: ${{ inputs.repair_parts }}
+      proof_frame: ${{ format('{0}', inputs.proof_frame) }}
   v14-spatial:
     if: inputs.version == 'v14'
     uses: ./.github/workflows/cine-software-v14.yml
@@ -121,7 +129,7 @@ jobs:
       proof_frame: ${{ format('{0}', inputs.proof_frame) }}
       mode: ${{ inputs.mode }}
   plan:
-    if: inputs.version != 'v10' && inputs.version != 'v11' && inputs.version != 'v12' && inputs.version != 'v13' && inputs.version != 'v14'
+    if: inputs.version != 'v10' && inputs.version != 'v11' && inputs.version != 'v12' && inputs.version != 'v13' && inputs.version != 'v14' && inputs.version != 'v15'
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
@@ -416,7 +424,7 @@ jobs:
 
   assemble-sequence-proof:
     needs: render
-    if: inputs.mode == 'sequence-proof' && inputs.version != 'v10' && inputs.version != 'v11' && inputs.version != 'v12' && inputs.version != 'v13' && inputs.version != 'v14'
+    if: inputs.mode == 'sequence-proof' && inputs.version != 'v10' && inputs.version != 'v11' && inputs.version != 'v12' && inputs.version != 'v13' && inputs.version != 'v14' && inputs.version != 'v15'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
