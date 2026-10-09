@@ -1,0 +1,89 @@
+name: Software v10 studio
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        options: [proof, sequence]
+        default: proof
+      engine:
+        type: choice
+        options: [eevee, workbench]
+        default: eevee
+permissions:
+  contents: read
+concurrency:
+  group: software-v10-${{ github.ref }}-${{ inputs.mode }}
+  cancel-in-progress: false
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - id: plan
+        env:
+          MODE: ${{ inputs.mode }}
+        run: |
+          python3 - <<'PYPLAN'
+          import os,json
+          rows=[]
+          for composition,width in [('wide',5120),('mobile',2160)]:
+              for i,(start,end) in enumerate([(0,0),(330,330),(510,510)] if os.environ['MODE']=='proof' else [(i*60,i*60+59) for i in range(12)]):
+                  rows.append(dict(composition=composition,width=width,part=i+1,start=start,end=end))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('matrix='+json.dumps({'include':rows})+'\n')
+          PYPLAN
+  render:
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      max-parallel: 12
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/cine/render-software-system-v10.py
+            scripts/cine/render-software-system-v8.py
+            scripts/cine/prepare-blender-fonts.py
+            public/fonts/um-sans
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Prepare remote studio
+        run: |
+          sudo timeout 120 apt-get update -qq
+          sudo timeout 600 apt-get install -y -qq libgl1 libegl1 libxrender1 libxi6 xvfb libgl1-mesa-dri ffmpeg
+          curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender.tar.xz
+          curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256 -o blender.sha256
+          awk '$2 == "blender-4.5.3-linux-x64.tar.xz" {print $1 "  blender.tar.xz"}' blender.sha256 > selected.sha256
+          test -s selected.sha256
+          sha256sum -c selected.sha256
+          tar -xf blender.tar.xz
+          python -m pip install --disable-pip-version-check fonttools==4.58.0 skia-pathops==0.8.0.post2
+          python scripts/cine/prepare-blender-fonts.py public/fonts/um-sans /tmp/um-fonts
+      - name: Render native composition
+        run: |
+          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-v10.py -- --engine '${{ inputs.engine }}' --samples 16 --width ${{ matrix.width }} --composition ${{ matrix.composition }} --start ${{ matrix.start }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames
+      - name: Encode native frames
+        if: inputs.mode == 'sequence'
+        run: |
+          mkdir part
+          cp frames/render-info.json part/info.json
+          ffmpeg -v error -framerate 60 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 60 -vf 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p' -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1 -c:v libx264 -preset medium -crf 17 -g 120 -an -movflags +faststart part/movie.mp4
+      - uses: actions/upload-artifact@v7
+        if: inputs.mode == 'proof'
+        with:
+          name: v10-${{ matrix.composition }}-${{ matrix.part }}
+          path: frames
+          retention-days: 4
+      - uses: actions/upload-artifact@v7
+        if: inputs.mode == 'sequence'
+        with:
+          name: v10-${{ matrix.composition }}-${{ matrix.part }}
+          path: part
+          retention-days: 4
