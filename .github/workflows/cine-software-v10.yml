@@ -36,8 +36,8 @@ jobs:
           python3 - <<'PYPLAN'
           import os,json
           rows=[]
-          for composition,width in [('wide',5120),('mobile',2160)]:
-              for i,(start,end) in enumerate([(0,0),(330,330),(510,510)] if os.environ['MODE']=='proof' else [(330,333)] if os.environ['MODE']=='benchmark' else [(i*60,i*60+59) for i in range(12)]):
+          for composition,width in [('wide',3840 if os.environ['MODE']=='sequence' else 5120),('mobile',2160)]:
+              for i,(start,end) in enumerate([(0,0),(330,330),(510,510)] if os.environ['MODE']=='proof' else [(330,333)] if os.environ['MODE']=='benchmark' else [(i*30,i*30+29) for i in range(24)]):
                   rows.append(dict(composition=composition,width=width,part=i+1,start=start,end=end))
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('matrix='+json.dumps({'include':rows})+'\n')
           PYPLAN
@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     strategy:
-      max-parallel: 12
+      max-parallel: 20
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
     steps:
@@ -83,7 +83,7 @@ jobs:
         run: |
           mkdir part
           cp frames/render-info.json part/info.json
-          ffmpeg -v error -framerate 60 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 60 -vf 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p' -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1 -c:v libx264 -preset medium -crf 17 -g 120 -an -movflags +faststart part/movie.mp4
+          ffmpeg -v error -framerate 60 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 30 -vf 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p' -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1 -c:v libx264 -preset medium -crf 17 -g 120 -an -movflags +faststart part/movie.mp4
       - uses: actions/upload-artifact@v7
         if: inputs.mode != 'sequence'
         with:

@@ -13,14 +13,14 @@ def verify(path,width,height,frames):
 
 def assemble(source,out):
  out.mkdir(parents=True,exist_ok=True);all_infos=[]
- for composition,suffix,w,h in [('wide','',5120,2880),('mobile','-sq',2160,2160)]:
+ for composition,suffix,w,h in [('wide','',3840,2160),('mobile','-sq',2160,2160)]:
   infos=[];movies=[]
-  for part in range(1,13):
+  for part in range(1,25):
    folder=source/f'v10-{composition}-{part}';info=json.loads((folder/'info.json').read_text());movie=folder/'movie.mp4'
    assert (info['scene'],info['frames'],info['fps'],info['resolution'],info['composition'])==('software-system-v10-art-direction-proof',720,60,[w,h],composition)
    assert info['publishable'] is False and not info['handler_errors']
-   assert [x['frame'] for x in info['timings']]==list(range((part-1)*60,part*60))
-   verify(movie,w,h,60);infos.append(info);movies.append(movie.resolve())
+   assert [x['frame'] for x in info['timings']]==list(range((part-1)*30,part*30))
+   verify(movie,w,h,30);infos.append(info);movies.append(movie.resolve())
   all_infos.extend(infos)
   info=dict(infos[0],timings=[x for item in infos for x in item['timings']])
   (out/f'render-info{suffix}.json').write_text(json.dumps(info))

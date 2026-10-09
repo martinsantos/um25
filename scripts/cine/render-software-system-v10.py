@@ -240,15 +240,17 @@ def render(args):
   ob,_=curve('Authored detail',pts,m,r,parents[g]);native_marks.append((g,m,ob))
  # A communication path behind the transparent inspection surface. The same
  # request advances in order; no particle fireworks or unrelated network mesh.
+ bpy.ops.mesh.primitive_plane_add(size=1,location=(4.28,-1.01,-.20))
+ carrier=bpy.context.object;carrier.name='Service bus behind inspection';carrier.scale=(5.08,.34,1);carrier.parent=parents['access'];carrier.data.materials.append(mats['bluewash']);carrier.display.show_shadows=False
  transmission=[];service_labels=[]
- for i,(x,label) in enumerate([(2.00,'Identidad'),(3.57,'Permisos'),(5.14,'Datos'),(6.71,'Auditoría')]):
+ for i,(x,label) in enumerate([(2.00,'Identidad'),(3.23,'Permisos'),(4.46,'Datos'),(5.69,'Auditoría')]):
   xx=x+.06
   node,sp=curve(label+' service',[(xx,-1.02,-.15),(xx+.28,-1.02,-.15)],'slate',.013,parents['access'])
   transmission.append((i,node,sp))
   if i<3:
-   ob,sp=curve(label+' communication',[(xx+.28,-1.02,-.15),(xx+1.35,-1.02,-.15)],'slate',.0045,parents['access']);transmission.append((i,ob,sp))
-  c=bpy.data.curves.new(label+' / underneath','FONT');c.body=label;c.size=.085;c.font=fonts[False];c.materials.append(mats['slate'])
-  ob=bpy.data.objects.new(c.name,c);scene.collection.objects.link(ob);ob.parent=parents['access'];ob.location=(xx,-1.14,-.15);ob.visible_shadow=False
+   ob,sp=curve(label+' communication',[(xx+.28,-1.02,-.15),(xx+1.20,-1.02,-.15)],'slate',.0045,parents['access']);transmission.append((i,ob,sp))
+  c=bpy.data.curves.new(label+' / underneath','FONT');c.body=label;c.size=.105;c.font=fonts[False];c.materials.append(mats['slate'])
+  ob=bpy.data.objects.new(c.name,c);scene.collection.objects.link(ob);ob.parent=parents['access'];ob.location=(xx,-.94,-.15);ob.visible_shadow=False
   service_labels.append(ob)
  signal,signal_spline=curve('Order 0248 in transit',[(2.06,-1.02,-.148),(2.25,-1.02,-.148)],'signal',.019,parents['access'])
  registration=[]
@@ -269,10 +271,11 @@ def render(args):
    for ob in parents['policy'].children:ob.hide_render=reveal(t)<.12
    q=reveal(t)
    mats['glass'].node_tree.nodes['Inspection opacity'].inputs[0].default_value=1-.86*q
-   travel=max(0,min(1,(t-.30)/.40));x=2.06+4.71*travel
+   travel=max(0,min(1,(t-.30)/.40));x=2.06+3.69*travel
    signal_spline.points[0].co.x=x;signal_spline.points[1].co.x=x+.18
    signal.hide_render=q<.15 or travel>=1
    for i,ob,sp in transmission:ob.hide_render=q<.15
+   carrier.hide_render=q<.15
    for ob in service_labels:ob.hide_render=q<.15
    checks,permitted,approved=narrative(t)
    replacements={
