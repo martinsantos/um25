@@ -30,10 +30,10 @@ test('all three permissions open in order before the request leaves access contr
  const released=softwarePose(1,5000);expect(released.gates).toEqual([1,1,1]);expect(released.routes[1]).toBeGreaterThan(0);
 });
 test('the data response changes the same request in the original UI',async()=>{
- const root=fixture(3);expect(root.querySelector('[data-sw-ui-state]').textContent).toBe('En revisión');
+ const root=fixture(3);expect(root.querySelector('[data-sw-ui-state]').textContent).toBe('En revisión');expect(root.querySelector('[data-sw-record-state]').textContent).toBe('En revisión');
  await jest.advanceTimersByTimeAsync(7000);
  expect(root.querySelector('[data-sw-ui-state]').textContent).toBe('Aprobada');
- expect(root.querySelector('[data-sw-submit]').textContent).toBe('Aprobada ✓');
+ expect(root.querySelector('[data-sw-submit]').textContent).toBe('Aprobada ✓');expect(root.querySelector('[data-sw-record-state]').textContent).toBe('Aprobada');
 });
 test('pause freezes the full mechanism and resumes without skipping the result',async()=>{
  const root=fixture(1),drawing=root.querySelector('.sw-system');await jest.advanceTimersByTimeAsync(2800);

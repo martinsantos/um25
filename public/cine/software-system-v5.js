@@ -70,7 +70,7 @@ export function bindSoftwareSystem(root){
    node.setAttribute('opacity',String(stage===i&&t>0&&t<1?Math.min(1,t*12,(1-t)*12):0));
   });
   const confirmed=reduced.matches||stage===6||stage>3||(stage===3&&pose.routes[3]===1);
-  for(const [selector,value] of [['[data-sw-ui-state]',confirmed?'Aprobada':'En revisión'],['[data-sw-submit]',confirmed?'Aprobada ✓':'Aprobar orden']]){
+  for(const [selector,value] of [['[data-sw-record-state]',confirmed?'Aprobada':'En revisión'],['[data-sw-ui-state]',confirmed?'Aprobada':'En revisión'],['[data-sw-submit]',confirmed?'Aprobada ✓':'Aprobar orden']]){
    const label=drawing.querySelector(selector);if(label.textContent!==value)label.textContent=value;
   }
   drawing.querySelector('[data-sw-submit-bg]').setAttribute('fill',confirmed?'#247d69':'#dc2626');

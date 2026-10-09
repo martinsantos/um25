@@ -65,11 +65,11 @@ for j,(name,keys) in enumerate([
  ('Alcance',[('proyecto','P-104'),('recurso','Orden 0248'),('resultado','Coincide')])]):
  x=359+j*3;y=180+j*5;z=30+j*26
  face=rect(0,0,112,103,'#d7edf7','#8eaebf',3,'fill-opacity=".22"')
- face+=rect(4,4,104,18,'#f2f8fc','#dae8f0',2,'fill-opacity=".96"')
+ face+=rect(4,4,104,18,'#f2f8fc','#dae8f0',2,'fill-opacity="1"')
  face+=txt(10,16,f'0{j+1}',5.7,RED,600)+txt(24,16,name,8.0,INK,600)
  for k,(key,value) in enumerate(keys):
   yy=34+k*18
-  face+=rect(5,yy-9,102,15,'#f3f8fb','none',1,'fill-opacity=".82"')
+  face+=rect(5,yy-9,102,15,'#f3f8fb','none',1,'fill-opacity="1"')
   face+=txt(10,yy,key,5.5,MUTED)+txt(103,yy,value,6.1,INK,500,'text-anchor="end"')
   face+=line([(10,yy+5),(103,yy+5)],'#a9c1cf',.32)
  face+=line([(12,89),(99,89)],'#86aabc',.55)+circle(12,89,1.8,RED)+circle(99,89,1.8,GREEN)
@@ -102,7 +102,7 @@ for j in range(7):
  data+=route([(700,y+5,31),(776,y+5,31),(776,y+5,88)],'#a8becb',.5)
  data+=wall(700,y+5,82,txt(2,0,f'0{j+1}',6.5,MUTED,500))
  for k in range(9):data+=route([(713+k*6,y+5,38),(713+k*6,y+5,69)],'#c5d6e0',.45)
-write=box(700,51,26,80,50,4,'#fff')+plane(700,51,30,txt(7,12,'0248 / P-104',7,INK,600)+line([(7,18),(73,18)],EDGE,.45)+txt(7,29,'Aprobada',7,GREEN,600)+txt(7,41,'MS · versión 3',6,MUTED))
+write=box(700,51,26,80,50,4,'#fff')+plane(700,51,30,txt(7,12,'0248 / P-104',7,INK,600)+line([(7,18),(73,18)],EDGE,.45)+txt(7,29,'En revisión',7,MUTED,600,'data-sw-record-state="true"')+txt(7,41,'MS · versión 3',6,MUTED))
 data+=f'<g data-sw-record="true">{write}</g>'
 data+=label(4,928,561,'Una historia preservada','Registro · relación · evento')
 # Delivery is a separate control path. The release does not process a request.
