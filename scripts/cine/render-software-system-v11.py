@@ -122,17 +122,20 @@ def build():
  # Contract inspection: a real payload, its mapping and an explicit response.
  g='integration';cx=18
  p.surface(g,cx,0,12,7.7,'paper',-.055,.035,.08)
- p.label(g,'02 / INTEGRACIONES',cx-5.5,3.24,.17,'slate',True)
- p.label(g,'Un contrato. El mismo significado.',cx-5.5,2.68,.36,'ink',True)
+ p.label(g,'INTEGRACIONES  /  CONTRATOS  /  APROBACIÓN',cx-5.5,3.24,.17,'slate',True)
+ p.label(g,'Contratos de integración',cx-5.5,2.68,.36,'ink',True)
  p.label(g,'ORDEN 0248  /  PROYECTO P-104',cx-5.5,2.24,.15,'quiet')
  p.rule(g,cx-5.5,cx+5.5,1.96)
  p.tag(g,'POST',cx-5.5,1.50,.84,'mint','green');p.label(g,'/v3/orders/0248/approval',cx-4.42,1.50,.21,'ink',True)
- p.label(g,'SOLICITUD',cx-5.45,.98,.14,'slate',True);p.label(g,'MODELO DEL PRODUCTO',cx+.55,.98,.14,'slate',True)
- fields=[('project.code','P-104','proyecto.id','P-104'),('owner.email','equipo@umsa','responsable','Equipo de Redes'),('site.address','Nueva sede','sede','Guaymallén')]
+ p.surface(g,cx-3.10,-.58,4.75,3.23,'bluewash',.12,.009,.035)
+ p.label(g,'BODY / JSON',cx-5.20,.83,.125,'slate',True,z=.19)
+ p.label(g,'{',cx-5.22,.58,.16,'slate',z=.19);p.label(g,'}',cx-5.22,-2.03,.16,'slate',z=.19)
+ fields=[('project.code','P-104','proyecto.id','P-104'),('owner.email','redes@umsa.example','responsable.email','redes@umsa.example'),('site.address','Guaymallén','sede.domicilio','Guaymallén')]
  for i,(key,value,target,result) in enumerate(fields):
   y=.42-i*.98
-  p.surface(g,cx-3.10,y,4.75,.77,'bluewash',.14,.008,.035)
-  p.label(g,key,cx-5.22,y+.11,.16,'slate',True,z=.19);p.label(g,value,cx-5.22,y-.20,.20,'ink',z=.19)
+  p.label(g,str(i+2),cx-5.22,y-.02,.11,'quiet',z=.19)
+  p.label(g,'"'+key+'":',cx-4.86,y+.08,.15,'slate',True,z=.19)
+  p.label(g,'"'+value+'"'+(',' if i<2 else ''),cx-4.66,y-.20,.16,'ink',z=.19)
   gg=f'mapping-{i}'
   p.surface(gg,cx+3.05,y,4.88,.77,'canvas',.14,.008,.035)
   p.label(gg,target,cx+.83,y+.11,.16,'slate',True,z=.19);p.label(gg,result,cx+.83,y-.20,.20,'ink',z=.19)
@@ -147,8 +150,8 @@ def build():
  # Relational storage: keys, relationships, transaction and append-only history.
  g='storage';cx=18;cy=-10
  p.surface(g,cx,cy,12,7.7,'paper',-.055,.035,.08)
- p.label(g,'03 / DATOS Y TRAZABILIDAD',cx-5.5,cy+3.24,.17,'slate',True)
- p.label(g,'Guardar no alcanza. Hay que poder explicar.',cx-5.5,cy+2.68,.32,'ink',True)
+ p.label(g,'PERSISTENCIA  /  NUEVA SEDE  /  ORDEN 0248',cx-5.5,cy+3.24,.17,'slate',True)
+ p.label(g,'Modelo de datos',cx-5.5,cy+2.68,.32,'ink',True)
  p.label(g,'La orden conserva su proyecto, responsable y registro de cambios.',cx-5.5,cy+2.20,.17,'muted')
  tables=[(-3.4,1.0,'proyectos',[('PK  id','P-104'),('nombre','Nueva sede'),('sede','Guaymallén')]),(2.6,1.0,'órdenes',[('PK  id','0248'),('FK  proyecto_id','P-104'),('estado','Aprobada')]),(2.6,-1.65,'eventos',[('PK  secuencia','000187'),('FK  orden_id','0248'),('acción','approval.accepted')])]
  for tx,ty,title,rows in tables:
@@ -170,8 +173,8 @@ def build():
  # Runtime is an actual topology, with release path distinct from requests.
  g='runtime';cx=0;cy=-10
  p.surface(g,cx,cy,12,7.7,'paper',-.055,.035,.08)
- p.label(g,'04 / OPERACIÓN Y EVOLUCIÓN',cx-5.5,cy+3.24,.17,'slate',True)
- p.label(g,'El producto sigue funcionando detrás.',cx-5.5,cy+2.68,.34,'ink',True)
+ p.label(g,'OPERACIÓN  /  PRODUCCIÓN  /  NUEVA SEDE',cx-5.5,cy+3.24,.17,'slate',True)
+ p.label(g,'Entorno de producción',cx-5.5,cy+2.68,.34,'ink',True)
  p.label(g,'Ejemplo de arquitectura · la capacidad se define con cada proyecto.',cx-5.5,cy+2.20,.16,'muted')
  # Two independently labelled processes receive traffic through one router.
  def service(x,y,w,title,sub):
@@ -195,6 +198,29 @@ def build():
   if i<2:p.icon(g,'arrow',x+3.07,cy-2.03,'slate',.24,z=.22)
  p.label(g,'OBSERVACIÓN',cx-5.48,cy-3.14,.14,'slate',True,z=.22)
  p.label(g,'Registros · métricas · alertas · recuperación',cx-3.55,cy-3.14,.17,'ink',z=.22)
+ # Consistent product chrome, denser than a presentation slide and outside
+ # the lifted inspection regions. These are application views of one project.
+ for group,cx,cy,active in [('integration',18,0,2),('storage',18,-10,3),('runtime',0,-10,4)]:
+  p.surface(group,cx-.88,cy,14.0,9.02,'nav',-.12,.016,.085)
+  p.surface(group,cx-.88,cy+4.18,13.94,.57,'paper',-.09,.008,.055)
+  p.label(group,'UM',cx-7.53,cy+4.12,.19,'red',True)
+  p.label(group,'Operaciones',cx-6.93,cy+4.12,.16,'ink',True)
+  p.label(group,'/ Nueva sede',cx-5.43,cy+4.12,.145,'slate')
+  p.surface(group,cx+1.03,cy+4.19,3.88,.31,'canvas',-.04,.002,.025)
+  p.label(group,'Buscar en el proyecto',cx-.73,cy+4.13,.11,'quiet')
+  p.disc(group,cx+4.59,cy+4.20,.026,'green');p.label(group,'Producción',cx+4.73,cy+4.15,.11,'muted')
+  for i,name in enumerate(['Resumen','Órdenes','Contratos','Datos','Operación']):
+   yy=cy+3.30-i*.57
+   if i==active:p.rounded(group,cx-6.9,yy+.04,-.055,1.49,.42,.002,'paper',.025)
+   p.icon(group,'grid' if i!=4 else 'pulse',cx-7.47,yy+.015,'red' if i==active else 'slate',.12,z=.012)
+   p.label(group,name,cx-7.18,yy,.13,'ink' if i==active else 'slate',i==active)
+  p.rule(group,cx-7.5,cx-6.3,cy-.02)
+  p.label(group,'PROYECTO',cx-7.48,cy-.36,.095,'quiet',True)
+  p.label(group,'P-104',cx-7.48,cy-.70,.15,'ink',True)
+  p.label(group,'Nueva sede',cx-7.48,cy-.96,.12,'slate')
+  p.avatar(group,'MS',cx-7.29,cy-3.77);p.label(group,'Equipo UM',cx-7.02,cy-3.76,.12,'ink')
+  p.label(group,'CONTEXTO / 0248-A',cx-5.5,cy-4.17,.11,'slate')
+  p.label(group,'v3  ·  cambios registrados  ·  acceso verificado',cx-.40,cy-4.17,.12,'muted')
  # Registered routes join the same four sheets. No unrelated ornamental mesh.
  for points in [[(7.9,0,.02),(11.9,0,.12)],[(18,-3.85,.12),(18,-6.15,.12)],[(12,-10,.12),(6,-10,.12)],[(0,-6.15,.12),(0,-4.86,.02)]]:
   p.line('architecture',points,'signal',.012)
@@ -227,15 +253,15 @@ def camera_pose(t):
  if t<.24:
   q=E(t/.15);size=17.8+(12.2-17.8)*q;target=(.7+3.8*q,-.6*q,.2+.5*q);angles=(7+7*q,-12-13*q,-1-q)
  elif t<.46:
-  q=E((t-.24)/.22);size=15.0-.3*q;target=(18,-.10*q,.2+.12*q);angles=(14+3*q,-24-4*q,1-q)
+  q=E((t-.24)/.22);size=16.2-.3*q;target=(17.25,-.10*q,.2+.12*q);angles=(14+3*q,-24-4*q,1-q)
  elif t<.68:
-  q=E((t-.46)/.22);size=15.2-.3*q;target=(18,-10-.10*q,.2+.12*q);angles=(15+2*q,-25-3*q,-1)
+  q=E((t-.46)/.22);size=16.4-.3*q;target=(17.25,-10-.10*q,.2+.12*q);angles=(15+2*q,-25-3*q,-1)
  elif t<.88:
-  q=E((t-.68)/.20);size=14.9-.3*q;target=(0,-10,.3);angles=(14+3*q,-24-3*q,1-q)
+  q=E((t-.68)/.20);size=16.1-.3*q;target=(-.75,-10,.3);angles=(14+3*q,-24-3*q,1-q)
  else:
   q=E((t-.88)/.10);size=12.2+5.6*q;target=(4.5-3.8*q,-.6+.6*q,.7-.5*q);angles=(14-7*q,-25+13*q,-2+q)
  if ASPECT==1:
-  size=10.8 if t<.24 or t>=.88 else 13.5
+  size=10.8 if t<.24 or t>=.88 else 14.9
   if t<.24 or t>=.88:target=(4.5,target[1],target[2])
  return size,target,angles
 
