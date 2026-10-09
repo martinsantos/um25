@@ -1,9 +1,9 @@
 import fs from 'node:fs';
-import {softwarePose,bindSoftwareSystem} from '../public/cine/software-system-v5.js';
+import {softwarePose,bindSoftwareSystem} from '../public/cine/software-system-v6.js';
 let reduced=false;
 const settle=async()=>{for(let i=0;i<5;i++)await Promise.resolve();};
 function fixture(stage=0){
- const drawing=fs.readFileSync('src/assets/cine/isometric/discipline-104-v5.svg','utf8');
+ const drawing=fs.readFileSync('src/assets/cine/isometric/discipline-104-v6.svg','utf8');
  document.body.innerHTML=`<section data-service-atlas data-story-state="playing"><div data-discipline-system data-visible="true" data-discipline-service="104" data-discipline-stage="${stage}">${drawing}</div></section>`;
  const root=document.querySelector('[data-discipline-system]');bindSoftwareSystem(root);return root;
 }
@@ -49,4 +49,20 @@ test('switching service stops rendering and reduced motion shows a complete stat
  expect(root.querySelector('[data-sw-ui-state]').textContent).toBe('Aprobada');
  expect(root.querySelector('.sw-viewport').getAttribute('viewBox')).toBe('0 0 1200 650');
  const quiet=root.innerHTML;await jest.advanceTimersByTimeAsync(2000);expect(root.innerHTML).toBe(quiet);
+});
+
+test('permission sheets keep their substrate anchors while their endpoints follow the opening',async()=>{
+ const root=fixture(1);const ties=[...root.querySelectorAll('[data-sw-registration]')];
+ const before=ties.map(n=>n.getAttribute('points').split(' '));
+ await jest.advanceTimersByTimeAsync(4800);
+ const after=ties.map(n=>n.getAttribute('points').split(' '));
+ expect(after).toHaveLength(6);
+ for(let i=0;i<ties.length;i++){expect(after[i][0]).toBe(before[i][0]);expect(after[i][1]).not.toBe(before[i][1]);}
+});
+
+test('the permission inspection closes before the next layer is explained',()=>{
+ expect(softwarePose(1,7000).gateSpread).toEqual([1,1,1]);
+ expect(softwarePose(2,1200).gateSpread).toEqual([0,0,0]);
+ expect(softwarePose(4,7000).gateSpread).toEqual([0,0,0]);
+ expect(softwarePose(4,7000).gates).toEqual([1,1,1]);
 });

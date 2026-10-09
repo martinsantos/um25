@@ -19,12 +19,12 @@ export const DISCIPLINE_SYSTEMS:Record<string,DisciplineSystem>={
   {name:'Respaldo y pruebas',title:'El sistema se verifica también ante una falla.',copy:'Revisamos alimentación y respaldo, probamos alarmas y fallas y entregamos la documentación de puesta en marcha. El alcance se define para cada instalación.',decision:'Autonomía, pruebas y documentación.'},
  ]},
  '104':{name:'Software a medida',premise:'Una solicitud. Un sistema que responde.',result:'La acción vuelve a tu equipo como información clara, registrada y disponible.',layers:[
-  {name:'Producto · UX/UI',title:'Todo empieza con una acción comprensible.',copy:'En este ejemplo, una persona aprueba la orden 0248 de su proyecto. Diseñamos el recorrido, la interfaz y el primer producto para que la tarea sea clara desde el inicio.',decision:'Del proceso real a una interfaz útil.'},
-  {name:'Reglas de negocio',title:'La solicitud avanza cuando cumple las reglas.',copy:'El sistema verifica quién actúa, qué permiso tiene y a qué proyecto puede acceder. Cada validación abre el siguiente paso del proceso.',decision:'Identidad, rol y alcance.'},
-  {name:'Integraciones',title:'El mismo dato cruza de un sistema al otro.',copy:'La integración conserva el proyecto, la sede y el responsable. Diseñamos contratos, validaciones y tratamiento de errores para conectar la aplicación con los sistemas existentes.',decision:'Campos relacionados, responsabilidades claras.'},
-  {name:'Datos',title:'El cambio queda registrado y vuelve a la interfaz.',copy:'La solicitud se vincula con su proyecto y conserva quién la actualizó. El registro y su historial permiten confirmar el resultado y reconstruir lo que ocurrió.',decision:'Guardar, relacionar, confirmar.'},
-  {name:'Despliegue',title:'Evolucionar el producto tiene su propio recorrido.',copy:'Las solicitudes usan la aplicación; las nuevas versiones pasan por pruebas y publicación controlada. Preparamos el despliegue y la recuperación de la versión anterior.',decision:'Pruebas → artefacto → publicación.'},
-  {name:'Infraestructura',title:'La operación se sostiene detrás de cada acción.',copy:'Cómputo, red, almacenamiento y observación mantienen el sistema disponible. Definimos réplicas, respaldo y recuperación según las necesidades de cada proyecto.',decision:'Disponibilidad, visibilidad y continuidad.'},
+  {name:'Producto · UX/UI',title:'Una tarea clara para tu equipo.',copy:'Diseñamos la interfaz alrededor de la tarea: revisar la orden 0248 y aprobarla con su contexto.',decision:'Del proceso real a una interfaz útil.'},
+  {name:'Reglas de negocio',title:'Cada acción tiene sus permisos.',copy:'La solicitud avanza al verificar identidad, rol y alcance. Cada lámina muestra una de esas reglas.',decision:'Identidad, rol y alcance.'},
+  {name:'Integraciones',title:'Conectamos tus sistemas.',copy:'El contrato relaciona los campos de ambos sistemas. Proyecto, sede y responsable conservan su significado.',decision:'Campos relacionados, responsabilidades claras.'},
+  {name:'Datos',title:'El resultado queda registrado.',copy:'La orden conserva su proyecto y su historial. Confirmamos el registro antes de responder al equipo.',decision:'Guardar, relacionar, confirmar.'},
+  {name:'Despliegue',title:'Cada versión pasa por controles.',copy:'Probamos, versionamos y publicamos los cambios. Preparamos también la recuperación de la versión anterior.',decision:'Pruebas → artefacto → publicación.'},
+  {name:'Infraestructura',title:'Sostenemos la operación.',copy:'Conectamos aplicación, datos y observación. El respaldo y la recuperación se dimensionan para tu proyecto.',decision:'Disponibilidad, visibilidad y continuidad.'},
  ]},
  "101":{
   "name": "Infraestructura de redes",
