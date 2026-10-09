@@ -45,7 +45,7 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
 {first && <div class:list={["svc-story",{"svc-story--project":Boolean(projectMarkup),"svc-story--single":single,"svc-story--software":first.code==='104'}]} data-service-atlas data-context-project={String(contextProject)} data-discipline-layout={String(hasDiscipline)} data-discipline-active={String(Boolean(DISCIPLINE_SYSTEMS[first.code])&&(!contextProject||first.code==='104'))} data-story-loop={String(Boolean(project)||items.length>1)} data-active-service={first.code} data-story-state="waiting" data-story-view="system">
  <script type="application/json" data-atlas-narrative set:html={JSON.stringify(narrative)} is:inline />
  <div class="svc-story__stage">
-  <div class="svc-story__masthead"><span data-atlas-code>{first.study.name}</span><div class="svc-story__playback"><span class="svc-story__counter" data-atlas-counter>01 / {String(items.length).padStart(2,'0')}</span><span data-atlas-status>Recorrido automático</span><button type="button" data-atlas-play aria-pressed="false" hidden>Pausar</button></div></div>
+  <div class="svc-story__masthead"><span data-atlas-code>{first.study.name}</span><div class="svc-story__playback"><span class="svc-story__counter" data-atlas-counter hidden={items.length===1}>01 / {String(items.length).padStart(2,'0')}</span><span data-atlas-status>Recorrido automático</span><button type="button" data-atlas-play aria-pressed="false" hidden>Pausar</button></div></div>
   <header class="svc-story__heading" hidden={single&&first.code==='104'}><h3 data-atlas-title>{first.message.title}</h3></header>
   <figure class="svc-story__explanation">
   <div class="svc-story__visual">

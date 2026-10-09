@@ -1,10 +1,16 @@
 # Candidata integrada · revisión del 8 de octubre de 2026
 
-## Trabajo del 9 de octubre · prueba aislada Software v9
+## Estado actual · 9 de octubre · Software v9 integrado para revisión
 
-Se cambió la producción a composición única → descarte visual → prueba breve de movimiento. El workflow impide películas completas v9. Fuente `scripts/cine/render-software-system-v9.py`; registro y evidencia en [software-v9-proof.md](software-v9-proof.md). Cinco cuadros de comparación producidos remotamente, dos descartes técnicos explícitos y una composición detallada elegida para probar movimiento. La prueba de un segundo 4K/60 corresponde a `457ec288`, run `37915936623`; ver su resultado actualizado en el registro.
+Preview `http://127.0.0.1:4326/software`, checkout `/Users/santosma/Documents/Codex/um25-cine-integracion`, rama `feature/isometric-redes-review`, PR #266 draft. La preview se inició con `UM_SOFTWARE_REVIEW=v9`; PID propio 2003, guardado en `/private/tmp/um-eight-preview.pid`. Verificar comando y cwd antes de reiniciarlo. Sin esa variable, el registro sigue seleccionando v8.
 
-La preview integrada sigue con banner v8 e isometría v4. Este experimento no se importó, no modifica UM Sans ni campaña y no tiene GO de producción. Ningún Blender se ejecutó en el Mac.
+Película Blender v9 completa, 12 s / 720 cuadros nativos / 4K / 60 fps, producida exclusivamente en runners remotos. Run corregido `37919482652`; el montaje anterior `37918580630` se descartó por una anotación superpuesta. Incorporada a las rutas Software y servicio 104 mediante importador que verifica fuente, hashes y cobertura de cuadros. Reproducción automática y subtítulos sincronizados revisados en navegador nativo, escritorio y 390 × 844. Evidencia y veredicto en [software-v9-proof.md](software-v9-proof.md).
+
+Corregidas dos incoherencias de integración: el recorrido Software ahora conserva sólo las capas de una aplicación; sus casos ya no se seleccionan por las palabras genéricas «sistema»/«desarrollo». Se ocultó el contador de un único servicio. Isometría v4 sigue activa, con avance automático comprobado.
+
+32 pruebas relevantes, lint, tipos y compilación aprobados. No hay paridad visual acreditada con Hill/Ryan ni GO de producción. Falta riqueza de secuencia, detalle de isometrías y una composición móvil donde la interfaz interna pueda leerse a mayor escala. No se tocaron campaña, UM Sans ni producción.
+
+## Historial de revisión
 
 ## Estado actual · 8 de octubre · sistema causal de Software
 

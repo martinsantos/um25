@@ -1,6 +1,6 @@
 # Software v9 · prueba de dirección visual
 
-Experimento aislado. El sitio conserva banner v8 e isometría v4. No hay aceptación visual ni autorización de publicación derivada de esta prueba.
+Candidato integrado en la preview local mediante `UM_SOFTWARE_REVIEW=v9`. El registro de producción conserva v8. No hay aceptación artística ni autorización de publicación derivada de esta prueba. Las pruebas aisladas anteriores se conservan como historial.
 
 ## Qué cambia en la producción
 
@@ -9,7 +9,7 @@ Experimento aislado. El sitio conserva banner v8 e isometría v4. No hay aceptac
 3. Verificar una prueba corta en movimiento: continuidad, legibilidad durante el recorrido y correspondencia entre la superficie y sus regiones elevadas.
 4. Diseñar los siguientes planos solamente cuando el primero soporte esa comparación. Revisar la secuencia en la integración, en escritorio y móvil, antes de reemplazar la película.
 
-El workflow impide `full`, `repair` y `assemble` para v9. Todas las pruebas Blender se ejecutan en runners desechables de GitHub Actions; no hay render Blender local.
+El workflow impide `full`, `repair` y `assemble` para v9; admite la secuencia de revisión completa con `sequence-proof`. Todas las pruebas Blender se ejecutan en runners desechables de GitHub Actions; no hay render Blender local.
 
 ## Criterios observables de descarte
 
@@ -59,3 +59,17 @@ La integración se selecciona exclusivamente con `UM_SOFTWARE_REVIEW=v9`. El imp
 La revisión del DOM también encontró que la sección Software terminaba explicando detección de incendios. Se restringe su recorrido a las capas de la aplicación y se oculta el selector redundante de servicios. Los sectores físicos conservan su propio repertorio. Se retira la palabra genérica «sistema» y «desarrollo» del filtro de casos de Software: un sistema de incendio no acredita desarrollo de aplicaciones.
 
 El nuevo recorrido tiene una cámara que vuelve al encuadre inicial; el estado de la orden vuelve a «En revisión» al comenzar el siguiente ciclo. No se afirma que sea un bucle visual idéntico entre extremos. La aceptación artística sigue pendiente de la revisión de la secuencia integrada.
+
+
+### Resultado de la continuación
+
+- Primer montaje `37918580630` descartado: la anotación XML elevada cruzaba la explicación de permisos. Se canceló antes de integrarlo.
+- Corrección `31af1c92`, run `37919482652`: 12 tramos de 60 cuadros, 720 cuadros nativos / 12 s / 3840 × 2160 / 60 fps, composición móvil que conserva proporciones. Secuencia montada y decodificada completa, sin errores de Blender. No se interpolaron cuadros.
+- Nueva captura a 5,4 s confirma que desapareció la anotación cruzada. El indicador de acceso sólo se vuelve verde al completar identidad, rol y alcance. Revisados encuadre general, permisos, aprobación y retorno.
+- Seis assets nuevos importados con hashes y metadatos verificados, sin reemplazar medios publicados. Candidata visible en `/software` y `/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp` de la preview local. Activación: `UM_SOFTWARE_REVIEW=v9`; el registro de producción sigue en v8.
+- En navegador nativo: reproducción automática y texto sincronizado en escritorio y 390 × 844, misma película en ambas rutas. La isometría avanza por sus capas sin clics; ya no cambia a disciplinas físicas. Se comprobó el retorno a una nueva pasada y la conservación del detalle activo. No es una nueva auditoría remota multibrowser.
+- Validación: 32 pruebas relevantes, ESLint de los componentes modificados, tipos y compilación final aprobados. La retirada de «sistema»/«desarrollo» de los criterios genéricos excluye los casos de mantenimiento de incendio que antes aparecían en Software; no se cambiaron los registros de casos.
+
+**Comparación artística:** la interfaz contiene jerarquía, controles, registros y estados concretos; los textos ya no se deforman ni cruzan en los cuadros revisados. El movimiento es un acercamiento continuo con confirmación y retorno, más legible que v8. Sigue por debajo de Hill en riqueza de secuencia y encadenamiento espacial. En móvil la tipografía interna no funciona como texto de lectura: el relato legible lo entrega la leyenda externa. La isometría v4 conserva la brecha de detalle y materiales frente a Ryan. No hay equivalencia artística acreditada ni GO de producción.
+
+Evidencia: `/Volumes/SDTERA/Codex UM25 audits/20261009/software-v9-sequence/`. El video completo y los pósters están versionados bajo `public/cine/media/cine-software-system-v9*`; la carpeta de evidencia conserva cuadros clave, capturas de integración y hashes.
