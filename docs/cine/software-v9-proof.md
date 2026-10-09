@@ -49,3 +49,13 @@ La vista reducida del clip sugirió letras incompletas. La revisión de PNG orig
 El criterio de revisión incluye desde ahora confirmar a escala real cualquier supuesto defecto de contornos antes de cambiar generación o codificación. Los pares de recortes quedan junto a la evidencia. Los PNG temporales de los 60 cuadros permanecen en `/private/tmp/um-v9-motion-native`: la protección local bloqueó su eliminación y exige borrado manual. Los tres estados revisados, el clip y sus metadatos ya están archivados y verificados.
 
 **Veredicto de esta ronda:** proceso de descarte aplicado y documentado; plano más legible, detallado y causal que v8. No es una película final, no está integrado y no demuestra calidad indistinguible de Hill. No hay GO de producción. Las isometrías no cambiaron en esta ronda.
+
+## Continuación: secuencia completa e integración (9 de octubre)
+
+La detención después de un segundo de prueba no cumplía la revisión solicitada. Se extiende la composición a 12 segundos / 720 cuadros nativos: establecimiento, acercamiento, comprobación de tres permisos, aprobación, historial y retorno al conjunto. El modo `sequence-proof` verifica y ensambla seis tramos remotos de 120 cuadros. No interpola cuadros ni renderiza Blender en el Mac. Run: https://github.com/martinsantos/um25/actions/runs/37918580630.
+
+La integración se selecciona exclusivamente con `UM_SOFTWARE_REVIEW=v9`. El importador verifica cobertura de cuadros, hashes de fuente y medios, resolución, cadencia y metadatos, sin cambiar el registro de películas de producción. Esto permite revisar la composición en las rutas reales de Software y del servicio 104 antes de promoverla.
+
+La revisión del DOM también encontró que la sección Software terminaba explicando detección de incendios. Se restringe su recorrido a las capas de la aplicación y se oculta el selector redundante de servicios. Los sectores físicos conservan su propio repertorio. Se retira la palabra genérica «sistema» y «desarrollo» del filtro de casos de Software: un sistema de incendio no acredita desarrollo de aplicaciones.
+
+El nuevo recorrido tiene una cámara que vuelve al encuadre inicial; el estado de la orden vuelve a «En revisión» al comenzar el siguiente ciclo. No se afirma que sea un bucle visual idéntico entre extremos. La aceptación artística sigue pendiente de la revisión de la secuencia integrada.

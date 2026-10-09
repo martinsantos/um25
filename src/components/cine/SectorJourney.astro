@@ -10,7 +10,7 @@ const services=NAV_SERVICES.filter(service=>project.chapters.some(chapter=>chapt
 ---
 <section class="sector-journey" id="sistemas" aria-labelledby="sector-journey-title">
  <header class="sector-journey__head"><div><p class="sector-journey__kicker"><span />Del proyecto a la operación</p><h2 id="sector-journey-title">{project.headline}</h2></div><p>{project.lead}</p></header>
- <ServicesStory services={services} project={project} sector />
+ <ServicesStory services={services} project={project} single={slug==='software'} sector />
 </section>
 <style>
  .sector-journey{width:min(var(--um-container-wide,1400px),calc(100% - var(--um-page-gutter,24px)*2));margin:0 auto;padding:clamp(24px,3vw,40px) 0 0;color:#fff;scroll-margin-top:88px}

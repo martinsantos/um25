@@ -1,6 +1,13 @@
 /** Captions follow the native movie clock; they explain the installation in view. */
 export type FilmChapter = { at: number; text: string };
 export const FILM_CHAPTERS: Record<string, FilmChapter[]> = {
+  'software-system-v9': [
+    { at: 0, text: 'Una herramienta diseñada alrededor del trabajo del equipo.' },
+    { at: 1.2, text: 'Cada orden reúne proyecto, responsables y alcance.' },
+    { at: 4, text: 'La aprobación verifica identidad, rol y permisos sobre ese proyecto.' },
+    { at: 7.55, text: 'La decisión queda registrada y vuelve al equipo.' },
+    { at: 9.6, text: 'Interfaz, reglas y trazabilidad forman parte del mismo producto.' },
+  ],
   'software-system-v8': [
     { at: 0, text: 'Diseñamos software alrededor de tu operación.' },
     { at: 3.1, text: 'Conectamos tus sistemas con acceso seguro y controles claros.' },

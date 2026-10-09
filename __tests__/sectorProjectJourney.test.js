@@ -161,15 +161,31 @@ test('software sector and service select the same ready software architecture, p
 });
 
 
-test('Software uses the application architecture through every supporting service, without a generic building context',()=>{
+test('Software stays within application layers throughout its automatic story',()=>{
  const software=sectorProject('software','fachada');
  expect(software.presentation).toBe('discipline');
  expect(software.name).toBe('Arquitectura de una aplicación');
- expect(software.chapters[0].code).toBe('104');
+ expect(software.chapters.map(chapter=>chapter.code)).toEqual(['104']);
  for(const chapter of software.chapters){
   expect(chapter.scenes.map(scene=>scene.disciplineStage)).toEqual([-1,0,1,2,3,4,5,6]);
   expect(chapter.overview).toHaveLength(6);
  }
  expect(sectorProject('constructoras','fachada').presentation).toBe('installation');
  expect(sectorProject('bodegas','bodega').presentation).toBe('installation');
+});
+
+test('the explicit review flag selects v9 only for Software and leaves the release registry intact',()=>{
+ const originalEnv=process.env;
+ try{
+  process.env={...originalEnv,UM_SOFTWARE_REVIEW:''};
+  const {sectorMovie,serviceMovie}=require('../src/data/cine/projectCinema');
+  const release=serviceMovie('104'),building=sectorMovie('constructoras'),network=serviceMovie('101');
+  process.env.UM_SOFTWARE_REVIEW='v9';
+  expect(serviceMovie('104').scene).toBe('software-system-v9');
+  expect(sectorMovie('software')).toBe(serviceMovie('104'));
+  expect(sectorMovie('constructoras')).toBe(building);
+  expect(serviceMovie('101')).toBe(network);
+  process.env.UM_SOFTWARE_REVIEW='';
+  expect(serviceMovie('104')).toBe(release);
+ }finally{process.env=originalEnv;}
 });

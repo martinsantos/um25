@@ -40,7 +40,7 @@ const sectorOrders:Record<string,string[]>={
  industria:['101','103','108','104','102','107','105','106'],
  gobiernosectorpublico:['104','101','102','105','103','106','108','107'],
  'seguridad-electronica':['102','101','103','108','107','105','106','104'],
- software:['104','101','105','106','103','102','108','107'],
+ software:['104'],
 };
 export function sectorProject(slug:string,scene:Scene,codes?:string[]):SectorProject{
  const type=siteSceneForSector(slug,scene);
