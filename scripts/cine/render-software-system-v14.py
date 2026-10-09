@@ -36,10 +36,10 @@ def placement(group,t):
 def prominence(group,t):
  # Continuous background suppression: chapter crossfades cannot reveal the
  # whole product halfway through a handover. Text exits before the next arrives.
- base=(1-E((t-.12)/.06))+E((t-.90)/.06)
- if group=='access':return .0003+.9997*((1-E((t-.34)/.045))+E((t-.92)/.04))
- if group=='contract':return .0003+.9997*E((t-.39)/.045)*(1-E((t-.56)/.045))
- if group=='data':return .0003+.9997*E((t-.63)/.04)*(1-E((t-.80)/.045))
+ base=(1-E((t-.12)/.06))+E((t-.835)/.075)
+ if group=='access':return .0003+.9997*((1-E((t-.36)/.035))+E((t-.855)/.055))
+ if group=='contract':return .0003+.9997*E((t-.395)/.035)*(1-E((t-.595)/.030))
+ if group=='data':return .0003+.9997*E((t-.626)/.029)*(1-E((t-.80)/.030))
  return .0003+.9997*base
 
 def camera(t):
@@ -153,7 +153,7 @@ def validate():
   d,target,angles=camera(t);assert d>10 and all(math.isfinite(x) for x in (*target,*angles))
  assert camera(0)==camera(1)
  # Guard the actual failure intervals, including every transition frame.
- assert max(prominence('base',i/959) for i in range(180,863))<.001
+ assert max(prominence('base',i/959) for i in range(180,801))<.001
  for i in range(FRAMES):
   t=i/959
   assert not (prominence('contract',t)>.05 and prominence('data',t)>.05)
@@ -248,7 +248,7 @@ def render(args):
  def update(scene):
   frame=scene.frame_current
   t=frame/(FRAMES-1);d,target,angles=camera(t)
-  if args.composition=='mobile':d*=1.08
+  if args.composition=='mobile':d*=1.08-.30*E((t-.14)/.08)*(1-E((t-.82)/.08))
   ax,ay,roll=map(math.radians,angles);n=Vector((math.tan(ax),math.tan(ay),1)).normalized();r=Vector((n.z,0,-n.x)).normalized();u=n.cross(r);rr=math.cos(roll)*r+math.sin(roll)*u;uu=-math.sin(roll)*r+math.cos(roll)*u
   cam.location=Vector(target)+n*d;cam.rotation_euler=Matrix((rr,uu,n)).transposed().to_euler()
   for g,ob in parents.items():ob.location=placement(g,t)
@@ -259,12 +259,12 @@ def render(args):
    opacity=prominence(group,t)
    if group=='packet':opacity=E((t-.27)/.06)*(1-E((t-.78)/.05))
    elif group=='connections':opacity=.08+.55*E((t-.28)/.08)*(1-E((t-.80)/.08))
-   elif region=='edge':opacity=.022+.978*prominence(group,t)
+   elif region=='edge':opacity=.007+.993*prominence(group,t)
    mix.inputs[0].default_value=max(0,opacity)
   for g,sp,(x,y) in links:
    dx,dy,dz=placement(g,t);sp.points[1].co=(x+dx,y+dy,.061+dz,1)
   ax,ay,az=placement('access',t);cx,cy,cz=placement('contract',t);dx,dy,dz=placement('data',t)
-  pts=[(6.96+ax,-1.86+ay,az+.06),(7.65,-3.05,-.7),(-4.75+cx,-3.05,cz+.03),(-4.75+cx,-2.6,cz+.03),(6.12+dx,-2.6,dz+.03)]
+  pts=[(6.96+ax,-1.86+ay,az+.06),(7.65,-3.85,-.7),(-4.75+cx,-3.85,cz+.03),(-4.75+cx,-3.45,cz+.03),(6.12+dx,-3.45,dz+.03)]
   for point,co in zip(route_sp.points,pts):point.co=(*co,1)
   # A calm, single request. No random activity or reverse transaction.
   phase=max(0,min(.9999,(t-.28)/.49));lengths=[(Vector(b)-Vector(a)).length for a,b in zip(pts,pts[1:])];travel=phase*sum(lengths)
