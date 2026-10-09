@@ -291,7 +291,7 @@ def render(args):
   if key in glyph_mats:return glyph_mats[key][0]
   # Glyphs and fine strokes use depth-tested coverage. Unlike sorted glass,
   # their visibility must not depend on a label's left-aligned origin.
-  mat=bpy.data.materials.new('/'.join(key));mat.use_nodes=True;mat.surface_render_method='DITHERED';mat.use_transparency_overlap=False
+  mat=bpy.data.materials.new('/'.join(key));mat.use_nodes=True;mat.surface_render_method='BLENDED' if region=='edge' else 'DITHERED';mat.use_transparency_overlap=False
   nodes=mat.node_tree.nodes;nodes.clear();out=nodes.new('ShaderNodeOutputMaterial');em=nodes.new('ShaderNodeEmission');em.inputs[0].default_value=(*linear(COLORS[name]),1)
   tr=nodes.new('ShaderNodeBsdfTransparent');mix=nodes.new('ShaderNodeMixShader');mix.inputs[0].default_value=1
   mat.node_tree.links.new(tr.outputs[0],mix.inputs[1]);mat.node_tree.links.new(em.outputs[0],mix.inputs[2]);mat.node_tree.links.new(mix.outputs[0],out.inputs['Surface'])
@@ -314,8 +314,9 @@ def render(args):
  def line(name,pts,m,r,parent=None):
   c=bpy.data.curves.new(name,'CURVE');c.dimensions='3D';c.bevel_depth=r;c.bevel_resolution=2
   sp=c.splines.new('POLY');sp.points.add(len(pts)-1)
-  for point,co in zip(sp.points,pts):point.co=(*co,1)
-  c.materials.append(glyph_material(parent.name if parent else 'connections',m,'edge'));ob=bpy.data.objects.new(name,c);scene.collection.objects.link(ob);ob.parent=parent;return ob,sp
+  center=Vector(tuple((min(p[i] for p in pts)+max(p[i] for p in pts))/2 for i in range(3))) if name=='Fine geometry' else Vector((0,0,0))
+  for point,co in zip(sp.points,pts):point.co=(*tuple(Vector(co)-center),1)
+  c.materials.append(glyph_material(parent.name if parent else 'connections',m,'edge'));ob=bpy.data.objects.new(name,c);scene.collection.objects.link(ob);ob.parent=parent;ob.location=center;return ob,sp
  for g,pts,m,r in p.lines:
   ob,sp=line('Fine geometry',pts,m,r,parents[g])
   if '-check-' in g or g=='data-commit':visibility.append((ob,g))
