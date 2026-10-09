@@ -70,7 +70,7 @@ def rules():
  c+=cardshell(20,63,215,45,'Solicitud 0248','Proyecto · Nueva sede','folder')+pill(154,77,'Validada',69)
  c+=text(21,125,'CONDICIONES DEL PROCESO',7.5,MUTED,600)
  for i,(label,detail) in enumerate([('Identidad verificada','Equipo de Redes'),('Permiso de aprobación','Responsable de proyecto'),('Datos consistentes','Alcance + fecha + sede')]):
-  y=143+i*20;c+=rect(20,y-11,215,18,'#f2f6f8','none',0,3)+text(29,y,label,8.6,INK,500)+check(216,y-4,'class="ps-check"')
+  y=143+i*20;c+=rect(20,y-11,215,18,'#f2f6f8','none',0,3)+text(29,y,label,8.6,INK,500)+check(216,y-4,f'class="ps-check" style="animation-delay:{2200+i*750}ms"')
  gate=rect(255,65,108,128,'#eef3f7','none',0,3)+icon(267,77,'shield')+text(287,85,'Transición',10,INK,600)
  for y,title,fill in [(109,'Recibida','#fff'),(142,'Validada','#fff'),(175,'Asignada','#e8f3ed')]:
   gate+=rect(264,y-13,90,24,fill)+text(309,y+2,title,10,GREEN if y==175 else INK,500,'text-anchor="middle"')
@@ -106,7 +106,7 @@ def delivery():
  c+=pill(20,63,'release / 1.8.3',100,BLUE,'#eaf1f7')+text(364,75,'main · a7c3f2',8,MUTED,extra='text-anchor="end"')
  c+=line('M49 115H335','#d6e0e6',1.5)+line('M49 115H335',GREEN,1.5,'class="ps-draw" pathLength="100"')
  for i,(title,detail) in enumerate([('Verificar','Pruebas'),('Construir','Artefacto'),('Publicar','Versión'),('Observar','Salud')]):
-  x=20+i*91;c+=raised(x,94,71,61,dot(x+35,115,8,'#e8f3ed')+check(x+31,115,'class="ps-check"')+text(x+35,140,title,9.5,INK,600,'text-anchor="middle"'),4)+text(x+35,168,detail,8,MUTED,extra='text-anchor="middle"')
+  x=20+i*91;c+=raised(x,94,71,61,dot(x+35,115,8,'#e8f3ed')+check(x+31,115,f'class="ps-check" style="animation-delay:{2200+i*650}ms"')+text(x+35,140,title,9.5,INK,600,'text-anchor="middle"'),4)+text(x+35,168,detail,8,MUTED,extra='text-anchor="middle"')
  c+=rect(20,181,344,24,'#edf3f7','none',0,4)+text(30,197,'✓',11,GREEN,600)+text(46,197,'Versión saludable',9,GREEN,500)+text(355,197,'Volver a 1.8.2 ↶',8,BLUE,extra='text-anchor="end"')
  return c+footer('Desarrollo → validación → producción','Sin perder el camino de vuelta')
 

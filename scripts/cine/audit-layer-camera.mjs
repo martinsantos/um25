@@ -8,7 +8,7 @@ const out=path.join(root,engine);fs.mkdirSync(out,{recursive:true});
 const browser=await(engine==='Chrome'?chromium:webkit).launch(engine==='Chrome'?{channel:'chrome',headless:true}:{headless:true});
 const routes=[...fs.readFileSync('src/data/navigation.ts','utf8').matchAll(/href: '(\/servicios\/\d+\/[^']+)'/g)].map(m=>m[1]);
 const codes=['102','103','104','105','106','108'].filter(code=>!process.env.CAMERA_SERVICE_CODE||process.env.CAMERA_SERVICE_CODE==='all'||process.env.CAMERA_SERVICE_CODE===code);assert(codes.length);
-const report={engine,width,states:[],reduced:[],errors:[],findings:[]};
+const report={engine,width,states:[],transitions:[],reduced:[],errors:[],findings:[]};
 function save(){fs.writeFileSync(path.join(out,'layer-camera-report.json'),JSON.stringify(report,null,2));}
 async function measure(page,code,stage){
  return page.locator('[data-discipline-system]').evaluate((root,{code,stage})=>{
@@ -29,7 +29,23 @@ try{
   await page.locator('[data-atlas-theater]').evaluate(el=>scrollTo(0,el.getBoundingClientRect().top+scrollY-100));
   for(const stage of [0,1,2,3,4,5,6]){
    await page.waitForFunction(stage=>Number(document.querySelector('[data-discipline-system]').dataset.disciplineStage)===stage,stage,{timeout:16000});
-   await page.waitForTimeout(2700);
+   if(code==='104'&&stage<6){
+    const transition=await page.locator('[data-discipline-system]').evaluate(async(root,stage)=>{
+     const started=performance.now();let samples=0,worst=0,worstAt=0;
+     do{
+      const frame=root.querySelector('svg').getBoundingClientRect();
+      const node=root.querySelector('.ps-layer[data-discipline-node="'+stage+'"]');
+      const b=node.getBoundingClientRect();
+      const outside=Math.max(0,frame.left-b.left,b.right-frame.right,frame.top-b.top,b.bottom-frame.bottom);
+      if(outside>worst){worst=outside;worstAt=performance.now()-started;}
+      samples++;await new Promise(resolve=>setTimeout(resolve,60));
+     }while(performance.now()-started<2450);
+     return {stage,samples,worstOverflow:worst,worstAt};
+    },stage);
+    report.transitions.push(transition);
+    if(transition.worstOverflow>2)report.findings.push({code,transition,message:'Active layer is cropped during its transition'});
+    await page.waitForTimeout(1500);
+   }else await page.waitForTimeout(4000);
    const state=await measure(page,code,stage);report.states.push({code,...state});inspect(code,state);
    await page.locator('[data-atlas-theater]').screenshot({path:path.join(out,`${code}-${stage}.png`),animations:'allow'});save();
    if(code==='104'&&stage===2){

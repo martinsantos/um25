@@ -42,7 +42,7 @@ const hasSupport=items.some(s=>s.code==='105');
 const hasConsulting=items.some(s=>s.code==='106');
 const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Telecomunicaciones','104':'Software','105':'Soporte 24/7','106':'Consultoría','107':'Incendios','108':'Energía IT'};
 ---
-{first && <div class:list={["svc-story",{"svc-story--project":Boolean(projectMarkup),"svc-story--single":single}]} data-service-atlas data-context-project={String(contextProject)} data-discipline-layout={String(hasDiscipline)} data-discipline-active={String(Boolean(DISCIPLINE_SYSTEMS[first.code])&&(!contextProject||first.code==='104'))} data-story-loop={String(Boolean(project)||items.length>1)} data-active-service={first.code} data-story-state="waiting" data-story-view="system">
+{first && <div class:list={["svc-story",{"svc-story--project":Boolean(projectMarkup),"svc-story--single":single,"svc-story--software":first.code==='104'}]} data-service-atlas data-context-project={String(contextProject)} data-discipline-layout={String(hasDiscipline)} data-discipline-active={String(Boolean(DISCIPLINE_SYSTEMS[first.code])&&(!contextProject||first.code==='104'))} data-story-loop={String(Boolean(project)||items.length>1)} data-active-service={first.code} data-story-state="waiting" data-story-view="system">
  <script type="application/json" data-atlas-narrative set:html={JSON.stringify(narrative)} is:inline />
  <div class="svc-story__stage">
   <div class="svc-story__masthead"><span data-atlas-code>{first.study.name}</span><div class="svc-story__playback"><span class="svc-story__counter" data-atlas-counter>01 / {String(items.length).padStart(2,'0')}</span><span data-atlas-status>Recorrido automático</span><button type="button" data-atlas-play aria-pressed="false" hidden>Pausar</button></div></div>
@@ -56,7 +56,7 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
    {!hasDiscipline&&hasHardware&&<div data-atlas-network hidden={Boolean(project)}><NetworkJourney compact catalog guided /></div>}
    <div class="svc-story__frame" hidden>{!hasDiscipline&&hasSupport&&<div class="svc-story__operations" data-atlas-operation="105" hidden><IsometricStage code="105" compact /></div>}{!hasDiscipline&&hasConsulting&&<div class="svc-story__operations" data-atlas-operation="106" hidden><IsometricStage code="106" compact /></div>}{!hasDiscipline&&hasSoftware&&<div class="svc-story__software" data-atlas-software hidden><SoftwareLayers compact guided /></div>}<img src={project||hasDiscipline?undefined:url(first.study.asset,'object')} alt={first.study.object} width="1040" height="755" loading="lazy" decoding="async" data-atlas-image /></div>
   </div>
-   <div class="svc-story__narration"><h4 class="svc-story__scene-title" data-atlas-scene-title>{narrative[0].scenes[0].title}</h4><p class="svc-story__illustration-copy" data-atlas-context>{narrative[0].scenes[0].copy}</p></div>
+   <div class="svc-story__narration"><h3 class="svc-story__scene-title" data-atlas-scene-title>{narrative[0].scenes[0].title}</h3><p class="svc-story__illustration-copy" data-atlas-context>{narrative[0].scenes[0].copy}</p></div>
   </div>
   <figcaption class="svc-story__reading">
    <p class="svc-story__reading-label" data-atlas-reading-label>Cómo lo resolvemos</p>
@@ -227,12 +227,12 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
  .svc-story[data-discipline-layout=true] .svc-story__link{margin-top:20px}
  @media(max-width:600px){.svc-story[data-discipline-layout=true] .svc-story__theater{height:330px}.svc-story[data-discipline-layout=true] .svc-story__narration{display:block;min-height:190px}.svc-story[data-discipline-layout=true] .svc-story__outline{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}}
  /* Software explains a live operation: narration and drawing share one stage. */
- .svc-story[data-active-service="104"] .svc-story__heading,.svc-story[data-active-service="104"] .svc-story__location{display:none}
- .svc-story[data-active-service="104"] .svc-story__visual{display:flex;flex-direction:column}
- .svc-story[data-active-service="104"] .svc-story__narration{order:-1;min-height:108px;border-top:0;padding:24px 0 8px;align-items:start}
- .svc-story[data-active-service="104"] .svc-story__scene-title{font-size:1.25rem;line-height:1.35;max-width:30ch}
- .svc-story[data-active-service="104"] .svc-story__theater{height:clamp(420px,43vw,540px)}
- @media(max-width:600px){.svc-story[data-active-service="104"] .svc-story__narration{min-height:182px;padding:20px 0 0}.svc-story[data-active-service="104"] .svc-story__theater{height:320px}}
+ .svc-story--software .svc-story__heading,.svc-story--software .svc-story__location{display:none}
+ .svc-story--software .svc-story__visual{display:flex;flex-direction:column}
+ .svc-story--software .svc-story__narration{order:-1;min-height:108px;border-top:0;padding:24px 0 8px;align-items:start}
+ .svc-story--software .svc-story__scene-title{font-size:1.25rem;line-height:1.35;max-width:30ch}
+ .svc-story--software .svc-story__theater{height:clamp(420px,43vw,540px)}
+ @media(max-width:600px){.svc-story--software .svc-story__narration{min-height:182px;padding:20px 0 0}.svc-story--software .svc-story__theater{height:320px}}
  .svc-story[data-active-service="104"] .svc-story__project{display:none}
  .svc-story[data-active-service="104"] .svc-story__software{margin-left:0;width:100%}
  .svc-story[data-active-service="104"] .svc-story__software :global(.sl__canvas){transform:none}

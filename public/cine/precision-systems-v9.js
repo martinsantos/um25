@@ -1,6 +1,7 @@
 // Physical motion for the authored SVG. It follows the existing story clock;
 // it never asks a visitor to click and never runs a second narration timer.
 const SQRT3_2=Math.sqrt(3)/2;
+const SOFTWARE_WITHDRAW=[-Math.sqrt(3)*56,56];
 const project=([x,y,z])=>[SQRT3_2*(x-y),(x+y)/2-z];
 const ease=t=>t<.5?16*t**5:1-((-2*t+2)**5)/2;
 export function bindPrecisionSystem(root){
@@ -89,9 +90,9 @@ export function bindSoftwarePrecision(root){
    const current=layers.map(layer=>getComputedStyle(layer).transform);
    animations.forEach(a=>a.cancel());animations=[];
    layers.forEach((layer,i)=>{
-    const target=Number(layer.dataset.disciplineNode)===stage?'translate(-183px,106px)':'translate(0px,0px)';
+    const target=Number(layer.dataset.disciplineNode)===stage?`translate(${SOFTWARE_WITHDRAW[0]}px,${SOFTWARE_WITHDRAW[1]}px)`:'translate(0px,0px)';
     layer.style.transform=target;
-    if(!reduced.matches&&typeof layer.animate==='function')animations.push(layer.animate([{transform:current[i]},{transform:target}],{duration:2400,easing:'cubic-bezier(.45,0,.2,1)',fill:'none'}));
+    if(!reduced.matches&&typeof layer.animate==='function')animations.push(layer.animate([{transform:current[i]},{transform:target}],{duration:2200,easing:'cubic-bezier(.45,0,.55,1)',fill:'none'}));
    });
   }
   // WebKit does not consistently match a selector outside an inline SVG's
@@ -127,17 +128,20 @@ export function bindDisciplineCamera(root){
  if(root.dataset.cameraBound)return;root.dataset.cameraBound='true';
  const owner=root.closest('[data-service-atlas]'),svg=root.querySelector('svg');
  if(!owner||!svg)return;
- const base=[0,0,1000,650],small=matchMedia('(max-width:600px)'),reduced=matchMedia('(prefers-reduced-motion: reduce)');
+ const small=matchMedia('(max-width:600px)'),reduced=matchMedia('(prefers-reduced-motion: reduce)');
+ const overview=()=>small.matches?[200,18,610,560]:[0,0,1000,650];
+ let base=overview();
  let current=[...base],from=[...base],target=[...base],frame=0,last=0,elapsed=0,key='',disposed=false;
  function active(){return root.dataset.disciplineService==='104';}
  function running(){return !disposed&&active()&&owner.dataset.storyState==='playing'&&root.dataset.visible==='true'&&!document.hidden;}
  function render(){if(active())svg.setAttribute('viewBox',current.join(' '));}
  function tick(now){
   frame=0;if(!running())return;if(last)elapsed+=Math.min(64,now-last);last=now;
-  const t=Math.min(1,elapsed/2200),e=ease(t);current=from.map((v,i)=>v+(target[i]-v)*e);render();
+  const t=Math.min(1,elapsed/2200),e=(1-Math.cos(Math.PI*t))/2;current=from.map((v,i)=>v+(target[i]-v)*e);render();
   if(t<1)frame=requestAnimationFrame(tick);
  }
  function update(){
+  base=overview();
   const box=svg.getBoundingClientRect(),aspect=box.width>0&&box.height>0?box.width/box.height:(small.matches?1.085:1000/650);
   const code=root.dataset.disciplineService,stage=Number(root.dataset.disciplineStage),nextKey=[code,stage,aspect.toFixed(3),reduced.matches].join(':');
   if(key!==nextKey){
@@ -154,7 +158,7 @@ export function bindDisciplineCamera(root){
       const parent=node.parentElement?.getScreenCTM?.();
       if(!node.getBBox||!parent)continue;
       const b=node.getBBox(),m=screen.inverse().multiply(parent);
-      m.e+=m.a*(-183)+m.c*106;m.f+=m.b*(-183)+m.d*106;
+      m.e+=m.a*SOFTWARE_WITHDRAW[0]+m.c*SOFTWARE_WITHDRAW[1];m.f+=m.b*SOFTWARE_WITHDRAW[0]+m.d*SOFTWARE_WITHDRAW[1];
       for(const [x,y] of [[b.x,b.y],[b.x+b.width,b.y],[b.x,b.y+b.height],[b.x+b.width,b.y+b.height]])points.push([m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
      }
      if(points.length){
