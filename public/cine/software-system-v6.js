@@ -57,8 +57,8 @@ export function bindSoftwareSystem(root){
    const right=Math.max(b.x+b.width,...swept.map(q=>q.x+q.width)),bottom=Math.max(b.y+b.height,...swept.map(q=>q.y+q.height));
    b.x=left;b.y=top;b.width=right-left;b.height=bottom-top;}
   }
-  const pad=stage===1?24:stage===4?40:22;
-  const w=Math.max(screen.width<600?300:550,b.width+pad*2,(b.height+pad*2)*aspect);
+  const pad=stage===1?(screen.width<600?14:24):stage===4?40:22;
+  const w=Math.max(screen.width<600?(stage===0||stage===1?240:300):550,b.width+pad*2,(b.height+pad*2)*aspect);
   const h=w/aspect;
   root.dataset.cameraFraming='measured';
   return [b.x+b.width/2-w/2,b.y+b.height/2-h/2,w,h];

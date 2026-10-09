@@ -55,7 +55,11 @@ ui+=f'<g data-sw-drawer="true">{box(170,305,92,143,118,2)}{plane(170,305,94,d)}<
 ui+=label(1,92,444,'Una acción clara','Orden 0248 · aprobar la orden')
 # Authorization is software: three optically thin, registered policy sheets.
 # Translucent surfaces reveal the same request bus beneath them.
-gate=box(355,175,14,120,122,3,fill='#b5cbd8')
+gate=plane(355,175,17,rect(0,0,120,122,'#39657b','#749aaf',2,'fill-opacity=".22"'))
+gate+=route([(355,175,17),(475,175,17),(475,297,17),(355,297,17),(355,175,17)],'#78bfb7',.55)
+# One request remains visible below every membrane, including the content area.
+gate+=route([(364,287,18),(384,257,18),(423,229,18),(466,187,18)],'#df7975',1.0)
+for xx,yy in [(384,257),(423,229)]:gate+=plane(xx,yy,18,circle(0,0,2,'#f1b6a7'))
 for k in range(4):
  gate+=route([(362+k*29,182,18),(362+k*29,286,18)],'#6c96ad',.5)
 for yy in [193,232,278]:gate+=route([(361,yy,18),(469,yy,18)],'#9ab9ca',.5)
@@ -64,17 +68,17 @@ for j,(name,keys) in enumerate([
  ('Permiso',[('acción','Aprobar'),('rol','Responsable'),('política','Permitir')]),
  ('Alcance',[('proyecto','P-104'),('recurso','Orden 0248'),('resultado','Coincide')])]):
  x=359+j*3;y=180+j*5;z=30+j*26
- face=rect(0,0,112,103,'#d7edf7','#8eaebf',3,'fill-opacity=".22"')
- face+=rect(4,4,104,77,'#f2f8fc','none',2)
- face+=rect(4,4,104,18,'#f2f8fc','#dae8f0',2,'fill-opacity="1"')
- face+=txt(10,16,f'0{j+1}',5.7,RED,600)+txt(24,16,name,8.0,INK,600)
+ face=rect(0,0,112,103,'#345d73','#80b5c8',1.5,'fill-opacity=".40"')
+ face+=rect(4,4,104,77,'#345d73','none',1,'fill-opacity=".12"')
+ face+=rect(4,4,104,18,'#284858','#80b5c8',1,'fill-opacity=".78"')
+ face+=txt(10,16,f'0{j+1}',6.3,'#f0a697',600)+txt(24,16,name,9.4,'#edf5f8',600)
  for k,(key,value) in enumerate(keys):
   yy=34+k*18
-  face+=rect(5,yy-9,102,15,'#f3f8fb','none',1,'fill-opacity="1"')
-  face+=txt(10,yy,key,5.5,MUTED)+txt(103,yy,value,6.1,INK,500,'text-anchor="end"')
+  face+=rect(5,yy-9,102,15,'#193441','none',1,'fill-opacity=".22"')
+  face+=txt(10,yy,key,6.6,'#a9c4d1')+txt(103,yy,value,8.0,'#edf5f8',500,'text-anchor="end"')
   face+=line([(10,yy+5),(103,yy+5)],'#a9c1cf',.32)
  face+=line([(12,89),(99,89)],'#86aabc',.55)+circle(12,89,1.8,RED)+circle(99,89,1.8,GREEN)
- face+=txt(55,98,'CONTEXTO / 0248',4.5,MUTED,500,'text-anchor="middle"')
+ face+=txt(55,98,'CONTEXTO / 0248',4.5,'#9bbdca',500,'text-anchor="middle"')
  panel=plane(x,y,z,face)
  panel+=route([(x,y,z),(x+112,y,z),(x+112,y+103,z)],'#dceef8',.7)
  q=p(x+107,y+8,z+1);panel+=circle(*q,1.7,'#b0c5cf',f'data-sw-check="{j}"')
