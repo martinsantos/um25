@@ -138,6 +138,7 @@ def build():
   p.label(g,'"'+value+'"'+(',' if i<2 else ''),cx-4.66,y-.20,.16,'ink',z=.19)
   gg=f'mapping-{i}'
   p.surface(gg,cx+3.05,y,4.88,.77,'canvas',.14,.008,.035)
+  p.line(gg,[(cx+.61,y-.385,.155),(cx+5.49,y-.385,.155),(cx+5.49,y+.385,.155),(cx+.61,y+.385,.155),(cx+.61,y-.385,.155)],'slate',.0025)
   p.label(gg,target,cx+.83,y+.11,.16,'slate',True,z=.19);p.label(gg,result,cx+.83,y-.20,.20,'ink',z=.19)
   p.line(g,[(cx-.7,y,.18),(cx+.60,y,.18)],'line',.006)
   p.icon(gg,'arrow',cx+.35,y-.065,'signal',.15,z=.20)
@@ -152,11 +153,12 @@ def build():
  p.surface(g,cx,cy,12,7.7,'paper',-.055,.035,.08)
  p.label(g,'PERSISTENCIA  /  NUEVA SEDE  /  ORDEN 0248',cx-5.5,cy+3.24,.17,'slate',True)
  p.label(g,'Modelo de datos',cx-5.5,cy+2.68,.32,'ink',True)
- p.label(g,'La orden conserva su proyecto, responsable y registro de cambios.',cx-5.5,cy+2.20,.17,'muted')
- tables=[(-3.4,1.0,'proyectos',[('PK  id','P-104'),('nombre','Nueva sede'),('sede','Guaymallén')]),(2.6,1.0,'órdenes',[('PK  id','0248'),('FK  proyecto_id','P-104'),('estado','Aprobada')]),(2.6,-1.65,'eventos',[('PK  secuencia','000187'),('FK  orden_id','0248'),('acción','approval.accepted')])]
+ p.label(g,'PROYECTO  →  ORDEN  →  EVENTO',cx-5.5,cy+2.20,.13,'slate')
+ tables=[(-3.4,.65,'proyectos',[('PK  id','P-104'),('nombre','Nueva sede'),('sede','Guaymallén')]),(2.6,.65,'órdenes',[('PK  id','0248'),('FK  proyecto_id','P-104'),('estado','Aprobada')]),(2.6,-1.65,'eventos',[('PK  secuencia','000187'),('FK  orden_id','0248'),('acción','approval.accepted')])]
  for tx,ty,title,rows in tables:
   x=cx+tx;y=cy+ty;gg='table-'+title
   p.surface(gg,x,y,4.7,2.06,'bluewash',.16,.016,.04)
+  p.line(gg,[(x-2.35,y-1.03,.18),(x+2.35,y-1.03,.18),(x+2.35,y+1.03,.18),(x-2.35,y+1.03,.18),(x-2.35,y-1.03,.18)],'slate',.0025)
   p.label(gg,title,x-2.1,y+.68,.23,'ink',True,z=.22)
   p.rule(gg,x-2.1,x+2.1,y+.45,'edge',.22)
   for i,(key,value) in enumerate(rows):
@@ -180,6 +182,7 @@ def build():
  def service(x,y,w,title,sub):
   gg='process-'+title
   p.surface(gg,x,y,w,1.10,'bluewash',.20,.025,.045)
+  p.line(gg,[(x-w/2,y-.55,.23),(x+w/2,y-.55,.23),(x+w/2,y+.55,.23),(x-w/2,y+.55,.23),(x-w/2,y-.55,.23)],'slate',.0025)
   p.label(gg,title,x-w/2+.18,y+.16,.20,'ink',True,z=.27)
   p.label(gg,sub,x-w/2+.18,y-.19,.137,'slate',z=.27)
   p.disc(gg,x+w/2-.20,y+.25,.035,'green',.27)
@@ -253,11 +256,11 @@ def camera_pose(t):
  if t<.24:
   q=E(t/.15);size=17.8+(12.2-17.8)*q;target=(.7+3.8*q,-.6*q,.2+.5*q);angles=(7+7*q,-12-13*q,-1-q)
  elif t<.46:
-  q=E((t-.24)/.22);size=16.2-.3*q;target=(17.25,-.10*q,.2+.12*q);angles=(14+3*q,-24-4*q,1-q)
+  q=E((t-.24)/.22);size=18.3-.25*q;target=(17.25,-.10*q,.2+.12*q);angles=(14+3*q,-24-4*q,1-q)
  elif t<.68:
-  q=E((t-.46)/.22);size=16.4-.3*q;target=(17.25,-10-.10*q,.2+.12*q);angles=(15+2*q,-25-3*q,-1)
+  q=E((t-.46)/.22);size=18.3-.25*q;target=(17.25,-10-.10*q,.2+.12*q);angles=(15+2*q,-25-3*q,-1)
  elif t<.88:
-  q=E((t-.68)/.20);size=16.1-.3*q;target=(-.75,-10,.3);angles=(14+3*q,-24-3*q,1-q)
+  q=E((t-.68)/.20);size=18.3-.25*q;target=(-.75,-10,.3);angles=(14+3*q,-24-3*q,1-q)
  else:
   q=E((t-.88)/.10);size=12.2+5.6*q;target=(4.5-3.8*q,-.6+.6*q,.7-.5*q);angles=(14-7*q,-25+13*q,-2+q)
  if ASPECT==1:
@@ -327,7 +330,7 @@ def render(args):
  for g in product.points:
   ob=bpy.data.objects.new(g,None);scene.collection.objects.link(ob);parents[g]=ob
  for g,m,verts,faces in product.meshes:
-  if g=='access' and m in ('paper','edge') and max(v[2] for v in verts)<.04:m='glass'
+  if (g=='access' and m in ('paper','edge') and max(v[2] for v in verts)<.04) or (g.startswith(('mapping-','table-','process-')) and m in ('canvas','bluewash','edge')):m='glass'
   vv,ff=combined.setdefault((g,m),([],[]));offset=len(vv);vv.extend(verts);ff.extend(tuple(offset+i for i in f) for f in faces)
  for g,x,y,z,w,d,h,m in product.boxes:
   vv,ff=combined.setdefault((g,m),([],[]));offset=len(vv);vv.extend([(x+a*w/2,y+b*d/2,z+c*h) for c in [0,1] for b in [-1,1] for a in [-1,1]])
@@ -370,7 +373,7 @@ def render(args):
   for x in [18.62,23.49]:
    ob,sp=curve('Field registration',[(x,y-.39,.16),(x,y-.39,.17)],'slate',.003)
    connectors.append((g,ob,sp,[(x,y-.39,.16),(x,y-.39,.17)]))
- for g,x,y,z in [('table-proyectos',14.6,-9,.24),('table-órdenes',20.6,-9,.24),('table-eventos',20.6,-11.65,.24)]:
+ for g,x,y,z in [('table-proyectos',14.6,-9.35,.24),('table-órdenes',20.6,-9.35,.24),('table-eventos',20.6,-11.65,.24)]:
   for xx in [x-2.35,x+2.35]:
    ob,sp=curve('Data registration',[(xx,y+1.03,.14),(xx,y+1.03,z)],'slate',.003)
    connectors.append((g,ob,sp,[(xx,y+1.03,.14),(xx,y+1.03,z)]))
@@ -391,7 +394,7 @@ def render(args):
    for ob in parents['policy'].children:ob.hide_render=reveal(t)<.12
    q=reveal(t)
    mats['glass'].node_tree.nodes['Inspection opacity'].inputs[0].default_value=1-.86*q
-   travel=max(0,min(1,(t-.30)/.40));x=2.06+3.69*travel
+   travel=max(0,min(1,(t-.07)/.13));x=2.06+3.69*travel
    signal_spline.points[0].co.x=x;signal_spline.points[1].co.x=x+.18
    signal.hide_render=q<.15 or travel>=1
    for i,ob,sp in transmission:ob.hide_render=q<.15
@@ -442,7 +445,8 @@ def render(args):
    if ob.type=='MESH':return min(v.co.z for v in ob.data.vertices)
    if ob.type=='FONT':return ob.location.z
    return min(v.co.z for sp in ob.data.splines for v in sp.points)
-  foreground=[ob for ob in renderables if ob.parent==parents['access'] and ob!=carrier and ob not in glass and depth(ob)>=0]
+  inspection_parents={parents[g] for g in parents if g=='access' or g.startswith(('mapping-','table-','process-'))}
+  foreground=[ob for ob in renderables if ob.parent in inspection_parents and ob!=carrier and ob not in glass and depth(ob)>=0]
   for frame in range(args.start,args.end+1):
    scene.frame_set(frame);update(scene);start=time.time();visibility={ob:ob.hide_render for ob in renderables}
    for layer in ('base','glass','front'):
@@ -451,7 +455,9 @@ def render(args):
      selected=ob not in glass+foreground if layer=='base' else ob in glass if layer=='glass' else ob in foreground
      ob.hide_render=visibility[ob] or not selected
     scene.render.filepath=str(out/f'layer-{layer}.png');bpy.ops.render.render(write_still=True)
-   opacity=1-.86*reveal(frame/(FRAMES-1))
+   t=frame/(FRAMES-1)
+   raised=max([reveal(t)]+[min(1,pose(g,t)[2]/.35) for g in parents if g.startswith(('mapping-','table-','process-'))])
+   opacity=1-.72*raised
    subprocess.run(['python3',str(ROOT/'scripts/cine/composite-software-layers.py'),str(out),str(frame),str(opacity)],check=True)
    for ob in renderables:ob.hide_render=visibility[ob]
    started[0]=start;finish(scene)
