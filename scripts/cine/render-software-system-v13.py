@@ -39,14 +39,14 @@ def prominence(group,t):
  contract=E((t-.35)/.07)*(1-E((t-.57)/.07))
  data=E((t-.57)/.07)*(1-E((t-.80)/.07))
  detail=max(access,contract,data)
- if group=='access':return .001+.999*access
+ if group=='access':return 1-.999*max(contract,data)
  if group=='contract':return .001+.999*contract
  if group=='data':return .001+.999*data
  return 1-.999*detail
 
 def camera(t):
  # Deliberate reading intervals; the crossed POV happens during the handover.
- keys=[(0,26,(1.7,-.5,1),(18,-25,-5)),
+ keys=[(0,34,(.5,0,1),(18,-25,-5)),
        (.12,23,(3.3,-.8,1.8),(20,-23,-4)),
        (.22,11,(4.5,-2.5,3.0),(15,-20,-3)),
        (.34,10.8,(4.6,-2.5,3.0),(12,-18,-2)),
@@ -54,8 +54,8 @@ def camera(t):
        (.56,11.8,(-2.1,-1.2,-.6),(-13,-20,4)),
        (.66,11,(3.9,-1.2,-1.1),(-17,-20,4)),
        (.79,10.8,(3.9,-1.2,-1.1),(-18,-18,3)),
-       (.91,26,(1.7,-.5,1),(18,-25,-5)),
-       (1,26,(1.7,-.5,1),(18,-25,-5))]
+       (.91,34,(.5,0,1),(18,-25,-5)),
+       (1,34,(.5,0,1),(18,-25,-5))]
  for a,b in zip(keys,keys[1:]):
   if a[0]<=t<=b[0]:
    q=E((t-a[0])/(b[0]-a[0]));mix=lambda x,y:x+(y-x)*q
