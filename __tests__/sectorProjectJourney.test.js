@@ -174,7 +174,7 @@ test('Software stays within application layers throughout its automatic story',(
  expect(sectorProject('bodegas','bodega').presentation).toBe('installation');
 });
 
-test.each(['v9','v10','v14','v15','v16'])('the %s review flag affects only Software and leaves the release registry intact',version=>{
+test.each(['v9','v10','v14','v15','v17'])('the %s review flag affects only Software and leaves the release registry intact',version=>{
  const originalEnv=process.env;
  try{
   process.env={...originalEnv,UM_SOFTWARE_REVIEW:''};
