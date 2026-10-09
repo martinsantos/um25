@@ -29,7 +29,13 @@ def node(n,body):
  return f'<g class="sw-component" data-discipline-node="{n}" data-sw-focus="{n}"><g class="sw-machine">{shape}</g><g class="sw-label">{label}</g>' 
 def port(x,y,z):return plane(x,y,z,rect(0,0,6,12,'#5a7488','#8fa5b6',1)+rect(1.5,2,3,8,'#a9cbd6','none',.5))
 # A miniature product, with a real selected task and an accessible detail panel.
-ui=box(0,210,74,332,206,6)
+ui=''
+# Registered rear perimeter makes the interface's thickness and separation
+# visible from every automatic close-up, in the same 30-degree projection.
+ui+=route([(0,210,54),(332,210,54),(332,416,54),(0,416,54),(0,210,54)],'#617f92',.5,'stroke-dasharray="3 4"')
+for xx,yy in [(0,210),(332,210),(332,416),(0,416)]:
+ ui+=route([(xx,yy,54),(xx,yy,80)],'#8bb8c6',.5)
+ui+=box(0,210,74,332,206,6)
 c=rect(0,0,332,206,'url(#sw-porcelain)','#e4ecf1',5)
 c+=rect(0,0,332,25,'#edf2f6','none',5)+txt(13,17,'UM',10,RED,600)+txt(40,17,'Operaciones',8.5,INK,600)+txt(130,17,'/ Nueva sede',8,MUTED)
 c+=rect(247,7,53,11,'#fff','none',3)+txt(253,15,'Buscar…',6,MUTED)+circle(316,12,5,'#c5d6e1')
@@ -48,10 +54,13 @@ for i,(title,team,state) in enumerate([('0248 · Nueva sede','Redes','En revisi�
  y=148+i*20
  if i==0:c+=rect(65,y-11,255,18,'#e5eef5','none',2)+rect(65,y-11,2,18,RED,'none',0)
  c+=txt(72,y,title,7.4,INK,500)+txt(201,y,team,6.5,MUTED)+txt(275,y,state,6.1,GREEN if i==2 else MUTED,400,'data-sw-ui-state="true"' if i==0 else '')
-ui+=plane(0,210,80,c)
+ui+=plane(0,210,80,'<g data-sw-app-surface="true">'+c+'</g>')
 # A task detail rises just 12px from its own selected row; the underlying app stays visible.
-d=rect(0,0,143,118,'#fff','#bed0db',4)+txt(10,17,'0248 / Nueva sede',10,INK,600)+line([(10,25),(133,25)],EDGE,.4)+txt(10,39,'RESPONSABLE',5.8,MUTED,600)+circle(18,53,6,'#e0ebf1')+txt(30,56,'Equipo de Redes',8,INK,500)+txt(10,75,'Proyecto',7,MUTED)+txt(133,75,'P-104',7,INK,500,'text-anchor="end"')+txt(10,90,'Permiso',7,MUTED)+txt(133,90,'Responsable',7,INK,500,'text-anchor="end"')+rect(10,99,123,13,'#dc2626','none',3,'data-sw-submit-bg="true"')+txt(71,108,'Aprobar orden',6.8,'#fff',500,'text-anchor="middle" data-sw-submit="true"')
-ui+=f'<g data-sw-drawer="true">{box(170,305,92,143,118,2)}{plane(170,305,94,d)}</g>'
+d=rect(0,0,143,118,'#fff','#bed0db',4)+rect(6,4,131,19,'#193441','none',2,'fill-opacity=".92"')+rect(6,29,131,34,'#193441','none',2,'fill-opacity=".82"')+rect(6,66,131,28,'#193441','none',2,'fill-opacity=".82"')+txt(10,17,'0248 / Nueva sede',10,INK,600)+line([(10,25),(133,25)],EDGE,.4)+txt(10,39,'RESPONSABLE',5.8,MUTED,600)+circle(18,53,6,'#e0ebf1')+txt(30,56,'Equipo de Redes',8,INK,500)+txt(10,75,'Proyecto',7,MUTED)+txt(133,75,'P-104',7,INK,500,'text-anchor="end"')+txt(10,90,'Permiso',7,MUTED)+txt(133,90,'Responsable',7,INK,500,'text-anchor="end"')+rect(10,99,123,13,'#dc2626','none',3,'data-sw-submit-bg="true"')+txt(71,108,'Aprobar orden',6.8,'#fff',500,'text-anchor="middle" data-sw-submit="true"')
+ui+=f'<g data-sw-drawer="true">{box(170,305,112,143,118,2)}{plane(170,305,114,d)}</g>'
+for xx,yy in [(170,305),(313,423)]:
+ base=p(xx,yy,80);tip=p(xx,yy,114)
+ ui+=line([base,tip],'#a7cdd7',.55,f'data-sw-drawer-tie="true" data-base="{base[0]},{base[1]}" data-tip="{tip[0]},{tip[1]}"')
 ui+=label(1,92,444,'Una acción clara','Orden 0248 · aprobar la orden')
 # Authorization is software: three optically thin, registered policy sheets.
 # Translucent surfaces reveal the same request bus beneath them.
@@ -69,6 +78,7 @@ for j,(name,keys) in enumerate([
  ('Alcance',[('proyecto','P-104'),('recurso','Orden 0248'),('resultado','Coincide')])]):
  x=359+j*3;y=180+j*5;z=30+j*26
  face=rect(0,0,112,103,'#345d73','#80b5c8',1.5,'fill-opacity=".40"')
+ face+=f'<g data-sw-gate-content="{j}">'
  face+=rect(4,4,104,77,'#345d73','none',1,'fill-opacity=".12"')
  face+=rect(4,4,104,18,'#284858','#80b5c8',1,'fill-opacity=".78"')
  face+=txt(10,16,f'0{j+1}',6.3,'#f0a697',600)+txt(24,16,name,9.4,'#edf5f8',600)
@@ -79,6 +89,7 @@ for j,(name,keys) in enumerate([
   face+=line([(10,yy+5),(103,yy+5)],'#a9c1cf',.32)
  face+=line([(12,89),(99,89)],'#86aabc',.55)+circle(12,89,1.8,RED)+circle(99,89,1.8,GREEN)
  face+=txt(55,98,'CONTEXTO / 0248',4.5,'#9bbdca',500,'text-anchor="middle"')
+ face+='</g>'
  panel=plane(x,y,z,face)
  panel+=route([(x,y,z),(x+112,y,z),(x+112,y+103,z)],'#dceef8',.7)
  q=p(x+107,y+8,z+1);panel+=circle(*q,1.7,'#b0c5cf',f'data-sw-check="{j}"')
@@ -110,8 +121,8 @@ under=rect(0,0,159,125,'#accfe4','#a0c2d4',2,'fill-opacity=".09"')
 for j in range(3):
  under+=line([(11,65+j*15),(147,65+j*15)],'#93bed1',.45)
  under+=circle(78,65+j*15,1.5,RED)
-api+=plane(503,62,33,under)
-for xx,yy in [(503,62),(662,62),(662,187),(503,187)]:api+=route([(xx,yy,22),(xx,yy,33)],'#8ba7bb',.4)
+api+=plane(503,62,49,under)
+for xx,yy in [(503,62),(662,62),(662,187),(503,187)]:api+=route([(xx,yy,22),(xx,yy,49)],'#8ba7bb',.4)
 api+=label(3,700,530,'Un contrato compartido','Tres campos · un mismo significado')
 # Persistence is a relation between records, never a stack of generic books.
 data=box(680,-52,10,151,140,2,fill='#d4e5f0')
@@ -198,5 +209,28 @@ svg=f'''<svg xmlns="http://www.w3.org/2000/svg" class="ds-svg" viewBox="0 0 1000
 <style>.sw-system text{{font-family:var(--um-font-body,'UM Sans',Arial,sans-serif);stroke:none;letter-spacing:0}}.sw-system .sw-component{{opacity:1}}.sw-system[data-enhanced=true] [data-sw-drawer]{{opacity:0}}.sw-system .sw-label{{pointer-events:none}}</style>
 <svg class="sw-viewport" x="0" y="0" width="1000" height="650" viewBox="0 0 1200 650" overflow="hidden">{body}</svg>
 </g></svg>'''
+import xml.etree.ElementTree as ET
+ET.register_namespace('', 'http://www.w3.org/2000/svg')
+xml=ET.fromstring(svg)
+for el in xml.iter():
+ tag=el.tag.rsplit('}',1)[-1];fill=el.get('fill','').lower();stroke=el.get('stroke','').lower()
+ if fill.startswith('#') and len(fill)==4:fill='#'+''.join(c*2 for c in fill[1:])
+ if tag=='text':
+  if fill==INK:el.set('fill','#e7f0f5')
+  elif fill==MUTED:el.set('fill','#a8bfcd')
+  elif fill==GREEN:el.set('fill','#70cdb8')
+  elif fill==RED:el.set('fill','#ef867d')
+ elif fill==GREEN and tag=='circle':el.set('fill','#70cdb8')
+ elif fill.startswith('#') and len(fill)==7:
+  r,g,b=(int(fill[i:i+2],16) for i in (1,3,5))
+  if min(r,g,b)>=155 and max(r,g,b)-min(r,g,b)<90:
+   el.set('fill','#355e73' if min(r,g,b)<220 else '#294b60')
+   el.set('fill-opacity',str(min(.58,float(el.get('fill-opacity','1')))))
+ if stroke.startswith('#') and len(stroke)==7:
+  r,g,b=(int(stroke[i:i+2],16) for i in (1,3,5))
+  if min(r,g,b)>135 and max(r,g,b)-min(r,g,b)<85:el.set('stroke','#749baa')
+ if tag=='stop':
+  el.set('stop-color','#355e73' if el.get('offset')=='1' else '#436d80');el.set('stop-opacity','.35')
+svg=ET.tostring(xml,encoding='unicode')
 (ROOT/'src/assets/cine/isometric/discipline-104-v6.svg').write_text(svg)
 print(f'Authored {len(svg):,} bytes; six distinct components, separate request/release paths.')

@@ -32,11 +32,12 @@ export function bindSoftwareSystem(root){
  const svg=root.querySelector('svg'),viewport=drawing.querySelector('.sw-viewport');
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  const components=[...drawing.querySelectorAll('.sw-component')];
+ const appSurface=drawing.querySelector('[data-sw-app-surface]');
  const drawer=drawing.querySelector('[data-sw-drawer]'),record=drawing.querySelector('[data-sw-record]'),release=drawing.querySelector('[data-sw-release]');
  const gates=[...drawing.querySelectorAll('[data-sw-gate]')],checks=[...drawing.querySelectorAll('[data-sw-check]')],mappings=[...drawing.querySelectorAll('[data-sw-mapping]')];
  const traces=[...drawing.querySelectorAll('[data-sw-trace]')],health=[...drawing.querySelectorAll('[data-sw-health]')];
  const tokens=[...drawing.querySelectorAll('[data-sw-token]')].map(node=>({node,points:node.dataset.points.split(';').map(p=>p.split(',').map(Number))}));
- const ties=[...drawing.querySelectorAll('[data-sw-registration]')];
+ const ties=[...drawing.querySelectorAll('[data-sw-registration]')],drawerTies=[...drawing.querySelectorAll('[data-sw-drawer-tie]')];
  const base=[0,0,1200,650];
  let stage=null,previousStage=-1,elapsed=0,last=null,frame=0,disposed=false,current=[...base],from=[...base],target=[...base],cameraElapsed=0,detail=-1;
  const active=()=>root.dataset.disciplineService==='104';
@@ -68,10 +69,13 @@ export function bindSoftwareSystem(root){
   drawing.dataset.operationState=stage===6?'complete':stage===-1?'overview':String(stage);
   drawing.dataset.operationTime=String(Math.round(elapsed));
   drawer.style.opacity=String(pose.drawer);
+  if(appSurface)appSurface.style.opacity=String(1-.82*pose.drawer);
   drawer.setAttribute('transform',`translate(0 ${12*(1-pose.drawer)})`);
+  drawerTies.forEach(n=>{const base=n.dataset.base.split(',').map(Number),tip=n.dataset.tip.split(',').map(Number);n.setAttribute('points',`${base.join(',')} ${tip[0]},${tip[1]+12*(1-pose.drawer)}`);n.setAttribute('opacity',String(pose.drawer));});
   gates.forEach((n,i)=>n.setAttribute('transform',`translate(${[-60,0,60][i]*pose.gateSpread[i]} ${[15,-50,-115][i]*pose.gateSpread[i]})`));
   ties.forEach(n=>{const i=Number(n.dataset.swRegistration),base=n.dataset.base.split(',').map(Number),tip=n.dataset.tip.split(',').map(Number);n.setAttribute('points',`${base.join(',')} ${tip[0]+[-60,0,60][i]*pose.gateSpread[i]},${tip[1]+[15,-50,-115][i]*pose.gateSpread[i]}`);});
-  checks.forEach((n,i)=>n.setAttribute('fill',pose.gates[i]>.95?'#247d69':'#a4bac7'));
+  gates.forEach((n,i)=>{const content=n.querySelector('[data-sw-gate-content]');if(content)content.setAttribute('opacity',String(i===2?1:.10+.90*pose.gateSpread[i]));});
+  checks.forEach((n,i)=>n.setAttribute('fill',pose.gates[i]>.95?'#70cdb8':'#a4bac7'));
   mappings.forEach((n,i)=>n.setAttribute('opacity',String(.15+.85*pose.mappings[i])));
   record.setAttribute('transform',`translate(${-19*pose.record} ${11*pose.record})`);
   release.setAttribute('transform',`translate(${50*pose.release} ${29*pose.release-10*Math.sin(Math.PI*pose.release)})`);
