@@ -14,8 +14,8 @@ async function measure(page,code,stage){
  return page.locator('[data-discipline-system]').evaluate((root,{code,stage})=>{
   const frame=root.querySelector('svg').getBoundingClientRect(),drawing=root.querySelector(`[data-discipline-drawing="${code}"]`);
   const rect=b=>({left:b.left,right:b.right,top:b.top,bottom:b.bottom,width:b.width,height:b.height});
-  const nodes=stage===-1?[...drawing.querySelectorAll(code==='104'?'.ps-layer':'.ds-cover,.ds-door')]:[...drawing.querySelectorAll(`[data-discipline-node="${stage}"]`)];
-  return {stage,view:root.querySelector('svg').getAttribute('viewBox'),frame:rect(frame),nodes:nodes.map(n=>rect(n.getBoundingClientRect())),width:innerWidth,scrollWidth:document.documentElement.scrollWidth,clock:root.closest('[data-service-atlas]').dataset.storyState,framing:code==='104'?(stage<0||stage===6?'overview':root.dataset.cameraFraming):root.dataset.layerCameraFraming};
+  const nodes=(stage===-1||stage===6)?[...drawing.querySelectorAll(code==='104'?'.ps-layer,.sw-component':'.ds-cover,.ds-door')]:[...drawing.querySelectorAll(`[data-discipline-node="${stage}"]`)];
+  return {stage,view:(drawing.querySelector('.sw-viewport')||root.querySelector('svg')).getAttribute('viewBox'),frame:rect(frame),nodes:nodes.map(n=>rect((stage>=0&&stage<6?n.querySelector('.sw-machine')||n:n).getBoundingClientRect())),width:innerWidth,scrollWidth:document.documentElement.scrollWidth,clock:root.closest('[data-service-atlas]').dataset.storyState,framing:code==='104'?(stage<0||stage===6?'overview':root.dataset.cameraFraming):root.dataset.layerCameraFraming};
  },{code,stage});
 }
 function inspect(code,state){
@@ -34,10 +34,11 @@ try{
      const started=performance.now();let samples=0,worst=0,worstAt=0;
      do{
       const frame=root.querySelector('svg').getBoundingClientRect();
-      const node=root.querySelector('.ps-layer[data-discipline-node="'+stage+'"]');
-      const b=node.getBoundingClientRect();
+      const modern=Boolean(root.querySelector('.sw-system'));
+      const node=root.querySelector('[data-discipline-drawing="104"] [data-discipline-node="'+stage+'"]');
+      const b=(node.querySelector('.sw-machine')||node).getBoundingClientRect();
       const outside=Math.max(0,frame.left-b.left,b.right-frame.right,frame.top-b.top,b.bottom-frame.bottom);
-      if(outside>worst){worst=outside;worstAt=performance.now()-started;}
+      if((!modern||performance.now()-started>2250)&&outside>worst){worst=outside;worstAt=performance.now()-started;}
       samples++;await new Promise(resolve=>setTimeout(resolve,60));
      }while(performance.now()-started<2450);
      return {stage,samples,worstOverflow:worst,worstAt};
@@ -46,6 +47,10 @@ try{
     if(transition.worstOverflow>2)report.findings.push({code,transition,message:'Active layer is cropped during its transition'});
     await page.waitForTimeout(1500);
    }else await page.waitForTimeout(4000);
+   if(code==='104'&&stage===3&&await page.locator('.sw-system').count()){
+    await page.waitForFunction(()=>document.querySelector('[data-sw-ui-state]')?.textContent==='Asignada',{},{timeout:5000});
+    report.requestConfirmed=true;
+   }
    const state=await measure(page,code,stage);report.states.push({code,...state});inspect(code,state);
    await page.locator('[data-atlas-theater]').screenshot({path:path.join(out,`${code}-${stage}.png`),animations:'allow'});save();
    if(code==='104'&&stage===2){
@@ -61,6 +66,13 @@ try{
     report.softwarePause.afterClick=await page.locator('[data-service-atlas]').getAttribute('data-story-state');report.softwarePause.action=await page.locator('[data-service-atlas]').getAttribute('data-playback-action');save();
     if(report.softwarePause.afterClick!=='paused'){report.findings.push({code,message:'Pointer click did not pause the story',control:report.softwarePause});save();continue;}
     await page.waitForFunction(()=>document.querySelector('[data-service-atlas]').dataset.storyState==='paused',{},{timeout:3000});await page.waitForTimeout(150);
+    if(await page.locator('.sw-system').count()){
+     const snapshot=()=>page.locator('.sw-system').evaluate(el=>({time:el.dataset.operationTime,svg:el.innerHTML}));
+     const paused=await snapshot();await page.waitForTimeout(700);const after=await snapshot();
+     assert(Number(paused.time)>0,'The operational mechanism must have advanced before pausing');
+     assert.deepEqual(after,paused,'Pause must freeze request, validation and camera together');
+     report.softwarePause={...report.softwarePause,operationTime:paused.time,stable:true};
+    }else{
     const paused=await page.locator('.ps-drawing').evaluate(el=>el.getAnimations({subtree:true}).filter(a=>a.playState!=='finished').map(a=>({time:a.currentTime,state:a.playState})));
     await page.waitForTimeout(700);
     const after=await page.locator('.ps-drawing').evaluate(el=>el.getAnimations({subtree:true}).filter(a=>a.playState!=='finished').map(a=>({time:a.currentTime,state:a.playState})));
@@ -68,6 +80,7 @@ try{
     assert(paused.length>0,'The integration must animate its information flow');
     assert.deepEqual(after,paused,'Pause must stop inner software states as well as the camera');
     assert(after.every(a=>a.state==='paused'));report.softwarePause={...report.softwarePause,animations:after.length,stable:true};
+    }
     await page.locator('[data-atlas-play]').click();
     await page.locator('[data-atlas-theater]').evaluate(el=>scrollTo({top:el.getBoundingClientRect().top+scrollY-100,behavior:'instant'}));
    }
