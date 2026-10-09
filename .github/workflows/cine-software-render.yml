@@ -82,9 +82,11 @@ jobs:
     if: inputs.version == 'v10'
     uses: ./.github/workflows/cine-software-v10.yml
     with:
-      mode: ${{ inputs.mode == 'sequence-proof' && 'sequence' || inputs.mode == 'motion-proof' && 'benchmark' || inputs.mode == 'repair' && 'repair' || 'proof' }}
+      mode: ${{ inputs.mode == 'sequence-proof' && 'sequence' || inputs.mode == 'motion-proof' && 'benchmark' || inputs.mode == 'repair' && 'repair' || inputs.mode == 'assemble' && 'assemble' || 'proof' }}
       engine: ${{ inputs.engine }}
       repair_parts: ${{ inputs.repair_parts }}
+      source_run: ${{ inputs.source_run }}
+      repair_runs: ${{ inputs.repair_runs }}
   plan:
     if: inputs.version != 'v10'
     runs-on: ubuntu-24.04

@@ -2,6 +2,12 @@ name: Software v10 studio
 on:
   workflow_call:
     inputs:
+      source_run:
+        type: string
+        default: ''
+      repair_runs:
+        type: string
+        default: ''
       repair_parts:
         type: string
         default: ''
@@ -13,12 +19,18 @@ on:
         required: true
   workflow_dispatch:
     inputs:
+      source_run:
+        type: string
+        default: ''
+      repair_runs:
+        type: string
+        default: ''
       repair_parts:
         type: string
         default: ''
       mode:
         type: choice
-        options: [proof, benchmark, sequence, repair]
+        options: [proof, benchmark, sequence, repair, assemble]
         default: proof
       engine:
         type: choice
@@ -26,6 +38,7 @@ on:
         default: eevee
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: software-v10-${{ github.ref }}-${{ inputs.mode }}-${{ inputs.engine }}
   cancel-in-progress: false
@@ -49,9 +62,11 @@ jobs:
           if os.environ['MODE']=='repair':
               selected=os.environ['REPAIR_PARTS'].split(',');assert selected and all(x.split(':')[0] in ('wide','mobile') and 1<=int(x.split(':')[1])<=24 for x in selected)
               rows=[row for row in rows if f"{row['composition']}:{row['part']}" in selected];assert len(rows)==len(set(selected))
+          if os.environ['MODE']=='assemble':rows=[]
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('matrix='+json.dumps({'include':rows})+'\n')
           PYPLAN
   render:
+    if: inputs.mode != 'assemble'
     needs: plan
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -115,7 +130,7 @@ jobs:
 
   assemble:
     needs: render
-    if: inputs.mode == 'sequence'
+    if: always() && ((inputs.mode == 'sequence' && needs.render.result == 'success') || inputs.mode == 'assemble')
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -128,6 +143,26 @@ jobs:
         with:
           pattern: v10-*
           path: parts
+          run-id: ${{ inputs.source_run || github.run_id }}
+          github-token: ${{ github.token }}
+      - name: Restore recovered fragments
+        if: inputs.repair_runs != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          REPAIR_RUNS: ${{ inputs.repair_runs }}
+        run: |
+          python3 - <<'PYRECOVER'
+          import os,re,json,subprocess
+          from pathlib import Path
+          for run in os.environ['REPAIR_RUNS'].split(','):
+              assert re.fullmatch(r'[0-9]+',run)
+              data=json.loads(subprocess.check_output(['gh','api',f"repos/{os.environ['GH_REPO']}/actions/runs/{run}/artifacts?per_page=100"]))
+              for item in data['artifacts']:
+                  name=item['name']
+                  if re.fullmatch(r'v10-(wide|mobile)-(?:[1-9]|1\d|2[0-4])',name):
+                      subprocess.run(['gh','run','download',run,'-n',name,'-D',str(Path('parts')/name)],check=True)
+          PYRECOVER
       - name: Assemble and verify native compositions
         run: |
           sudo timeout 600 apt-get install -y -qq ffmpeg
