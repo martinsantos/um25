@@ -144,6 +144,15 @@ def render(args):
    mat.node_tree.links.new(tr.outputs[0],mix.inputs[1]);mat.node_tree.links.new(em.outputs[0],mix.inputs[2]);mat.node_tree.links.new(mix.outputs[0],output.inputs['Surface'])
   else:mat.node_tree.links.new(em.outputs[0],output.inputs['Surface'])
   mats[name]=mat
+ surface_mats={}
+ def surface_material(group,name):
+  key=(group,name)
+  if key in surface_mats:return surface_mats[key][0]
+  mat=bpy.data.materials.new('surface/'+group+'/'+name);mat.use_nodes=True;mat.surface_render_method='BLENDED';mat.use_transparency_overlap=False
+  nodes=mat.node_tree.nodes;nodes.clear();out=nodes.new('ShaderNodeOutputMaterial');em=nodes.new('ShaderNodeEmission');em.inputs[0].default_value=(*linear(COLORS[name]),1)
+  tr=nodes.new('ShaderNodeBsdfTransparent');mix=nodes.new('ShaderNodeMixShader');mix.inputs[0].default_value=ALPHA.get(name,1)
+  mat.node_tree.links.new(tr.outputs[0],mix.inputs[1]);mat.node_tree.links.new(em.outputs[0],mix.inputs[2]);mat.node_tree.links.new(mix.outputs[0],out.inputs['Surface'])
+  surface_mats[key]=(mat,mix);return mat
  glyph_mats={}
  def glyph_material(group,name,region='content'):
   key=(group,name,region)
@@ -159,9 +168,9 @@ def render(args):
   ob=bpy.data.objects.new(g,None);scene.collection.objects.link(ob);parents[g]=ob
  # Separate transparent surfaces, so EEVEE sorts them correctly by depth.
  for index,(g,m,verts,faces) in enumerate(p.meshes):
-  mesh=bpy.data.meshes.new(f'{g}/{m}/{index}');mesh.from_pydata(verts,[],faces);mesh.update();ob=bpy.data.objects.new(mesh.name,mesh);scene.collection.objects.link(ob);mesh.materials.append(mats[m]);ob.parent=parents[g]
+  mesh=bpy.data.meshes.new(f'{g}/{m}/{index}');mesh.from_pydata(verts,[],faces);mesh.update();ob=bpy.data.objects.new(mesh.name,mesh);scene.collection.objects.link(ob);mesh.materials.append(surface_material(g,m));ob.parent=parents[g]
  for g,x,y,z,w,d,h,m in p.boxes:
-  bpy.ops.mesh.primitive_cube_add(size=1,location=(x,y,z+h/2));ob=bpy.context.object;ob.scale=(w,d,h);ob.data.materials.append(mats[m]);ob.parent=parents[g]
+  bpy.ops.mesh.primitive_cube_add(size=1,location=(x,y,z+h/2));ob=bpy.context.object;ob.scale=(w,d,h);ob.data.materials.append(surface_material(g,m));ob.parent=parents[g]
  for g,s,x,y,z,size,m,bold in p.texts:
   c=bpy.data.curves.new(s,'FONT');c.body=s;c.size=size;c.font=fonts[bold];c.extrude=0;c.materials.append(glyph_material(g,m,'properties' if g=='inspector' and -.3<y<2.3 else 'content'));ob=bpy.data.objects.new(s,c);scene.collection.objects.link(ob);ob.location=(x,y,z);ob.parent=parents[g]
  def line(name,pts,m,r,parent=None):
@@ -196,15 +205,18 @@ def render(args):
   for g,ob in parents.items():ob.location=placement(g,t)
   inspected=E((t-.08)/.10)*(1-E((t-.50)/.10))
   infrastructure=E((t-.50)/.10)*(1-E((t-.82)/.10))
+  for (group,name),(mat,mix) in surface_mats.items():
+   strength=1 if group in ('contract','data') else 1-.84*infrastructure
+   mix.inputs[0].default_value=ALPHA.get(name,1)*strength
   for (group,name,region),(mat,mix) in glyph_mats.items():
    opacity=1
    if group=='packet':opacity=E(t/.035)*(1-E((t-.93)/.045))
-   elif group in ('contract','data'):opacity=.08+.92*infrastructure
-   elif group=='inspector' and region=='properties':opacity=1-.78*inspected-.85*infrastructure
-   elif group=='history':opacity=1-.82*inspected-.82*infrastructure
-   elif group in ('base','list','selection','inspector','action'):opacity=1-.82*infrastructure
-   elif group=='access':opacity=1-.84*infrastructure
-   mix.inputs[0].default_value=max(0 if group=='packet' else .06,opacity)
+   elif group in ('contract','data'):opacity=.015+.985*infrastructure
+   elif group=='inspector' and region=='properties':opacity=1-.84*inspected-.985*infrastructure
+   elif group=='history':opacity=1-.985*inspected-.985*infrastructure
+   elif group in ('base','list','selection','inspector','action'):opacity=1-.985*infrastructure
+   elif group=='access':opacity=1-.985*infrastructure
+   mix.inputs[0].default_value=max(0 if group=='packet' else .015,opacity)
   for g,sp,(x,y) in links:
    dx,dy,dz=placement(g,t);sp.points[1].co=(x+dx,y+dy,.061+dz,1)
   ax,ay,az=placement('access',t);cx,cy,cz=placement('contract',t);dx,dy,dz=placement('data',t)
