@@ -14,14 +14,14 @@ class UI(geometry.Product):
  def surface(self,g,x,y,w,h,m='paper',z=0,depth=.012,r=.065):
   self.rounded(g,x,y,z,w,h,depth,'edge',r)
   self.rounded(g,x,y,z+depth,w-.012,h-.012,.002,m,max(.01,r-.006))
- def label(self,g,s,x,y,size=.15,m='ink',bold=False,z=.027):self.text(g,s,x,y,z,size,m,bold)
+ def label(self,g,s,x,y,size=.15,m='ink',bold=False,z=.051):self.text(g,s,x,y,z,size,m,bold)
  def rule(self,g,x1,x2,y,m='line',z=.024):self.line(g,[(x1,y,z),(x2,y,z)],m,.002)
  def vline(self,g,x,y1,y2,m='line',z=.024):self.line(g,[(x,y1,z),(x,y2,z)],m,.002)
- def disc(self,g,x,y,r=.022,m='green',z=.030):self.rounded(g,x,y,z,2*r,2*r,.001,m,r)
+ def disc(self,g,x,y,r=.022,m='green',z=.041):self.rounded(g,x,y,z,2*r,2*r,.001,m,r)
  def tag(self,g,s,x,y,w,m='mint',ink='green',z=.028):
   self.rounded(g,x+w/2,y+.035,z,w,.245,.002,m,.045)
   self.label(g,s,x+.075,y-.006,.112,ink,z=z+.005)
- def icon(self,g,kind,x,y,m='muted',size=.15,z=.029):
+ def icon(self,g,kind,x,y,m='muted',size=.15,z=.049):
   shapes={'check':[(0,.4),(.3,.1),(.9,.8)],'chevron':[(0,.6),(.4,.2),(.8,.6)],'plus':[(0,.4),(.8,.4),(.4,.4),(.4,0),(.4,.8)],'grid':[(0,0),(.8,0),(.8,.8),(0,.8),(0,0)],'pulse':[(0,.3),(.2,.3),(.4,.8),(.6,0),(.75,.3),(1,.3)],'arrow':[(0,.4),(1,.4),(.65,.8),(1,.4),(.65,0)]}
   self.line(g,[(x+a*size,y+b*size,z) for a,b in shapes[kind]],m,.003)
  def avatar(self,g,name,x,y,ink='slate'):
@@ -99,8 +99,7 @@ def build():
  # Fine engineering annotations correspond to actual nested regions.
  for group,bounds in [('selection',(-5.27,1.17,.80,1.68)),('access',(1.60,-1.76,6.96,-.49)),('history',(1.61,-3.49,6.95,-1.95))]:
   p.boundary(group,*bounds)
- p.label('annotation','<request id="0248">',-5.23,1.79,.101,'red',z=.048)
- p.label('annotation','<policy scope="P-104">',1.64,-.42,.103,'red',z=.05)
+ p.label('access','<policy scope="P-104">',1.64,-.42,.103,'red',z=.05)
  return p
 
 def pose(group,t):
@@ -111,7 +110,7 @@ def pose(group,t):
  return (0,0,z)
 
 def camera_pose(t):
- q=E(t);size=19.4-5.7*q;target=(-.05+2.10*q,.02-.36*q,.20+.06*q)
+ q=E((t-.02)/.74);size=19.4-9.8*q;target=(-.05+4.15*q,.02-1.62*q,.20+.06*q)
  angles=(8-3*q,-12-5*q,-1.8+1.1*q)
  return size,target,angles
 
@@ -154,7 +153,15 @@ def render(args):
   mat=bpy.data.materials.new(name);mat.diffuse_color=(*rgb,1);mat.use_nodes=True;n=mat.node_tree.nodes['Principled BSDF']
   graphic=name in ['ink','muted','quiet','red','green','slate','line','rose','mint','bluewash']
   n.inputs['Base Color'].default_value=(*rgb,1);n.inputs['Roughness'].default_value=.76;n.inputs['Specular IOR Level'].default_value=.12
-  if graphic:n.inputs['Emission Color'].default_value=(*rgb,1);n.inputs['Emission Strength'].default_value=.75
+  if graphic:
+   # Screen graphics are ink, not little illuminated sculptures.
+   emission=mat.node_tree.nodes.new('ShaderNodeEmission');emission.inputs[0].default_value=(*rgb,1)
+   mat.node_tree.links.new(emission.outputs[0],mat.node_tree.nodes['Material Output'].inputs['Surface'])
+  elif name!='floor':
+   # Keep studio contact shadows subtle without turning white UI gray.
+   emission=mat.node_tree.nodes.new('ShaderNodeEmission');emission.inputs[0].default_value=(*rgb,1)
+   mix=mat.node_tree.nodes.new('ShaderNodeMixShader');mix.inputs[0].default_value=.65
+   mat.node_tree.links.new(n.outputs[0],mix.inputs[1]);mat.node_tree.links.new(emission.outputs[0],mix.inputs[2]);mat.node_tree.links.new(mix.outputs[0],mat.node_tree.nodes['Material Output'].inputs['Surface'])
   mats[name]=mat
  if args.engine=='workbench':
   scene.display.shading.light='STUDIO';scene.display.shading.color_type='MATERIAL';scene.display.shading.show_shadows=True;scene.display.shading.show_cavity=False;scene.display.render_aa='8'
@@ -171,11 +178,11 @@ def render(args):
   mesh=bpy.data.meshes.new(g+' / '+m);mesh.from_pydata(vv,[],ff);mesh.update();ob=bpy.data.objects.new(mesh.name,mesh);scene.collection.objects.link(ob);ob.parent=parents[g];mesh.materials.append(mats[m])
   bevel=ob.modifiers.new('Fine edge','BEVEL');bevel.width=.001;bevel.segments=2
  for g,s,x,y,z,size,m,bold in product.texts:
-  c=bpy.data.curves.new(s,'FONT');c.body=s;c.size=size;c.font=fonts[bold];c.extrude=0;ob=bpy.data.objects.new(s,c);scene.collection.objects.link(ob);ob.parent=parents[g];ob.location=(x,y,z);c.materials.append(mats[m])
+  c=bpy.data.curves.new(s,'FONT');c.body=s;c.size=size;c.font=fonts[bold];c.extrude=0;ob=bpy.data.objects.new(s,c);scene.collection.objects.link(ob);ob.parent=parents[g];ob.location=(x,y,z);ob.visible_shadow=False;c.materials.append(mats[m])
  def curve(name,pts,material,radius,parent=None):
   c=bpy.data.curves.new(name,'CURVE');c.dimensions='3D';c.bevel_depth=radius;c.bevel_resolution=2;s=c.splines.new('POLY');s.points.add(len(pts)-1)
   for point,xyz in zip(s.points,pts):point.co=(*xyz,1)
-  ob=bpy.data.objects.new(name,c);scene.collection.objects.link(ob);c.materials.append(mats[material]);ob.parent=parent;return ob,s
+  ob=bpy.data.objects.new(name,c);scene.collection.objects.link(ob);c.materials.append(mats[material]);ob.parent=parent;ob.visible_shadow=False;return ob,s
  for g,pts,m,r in product.lines:curve('Authored detail',pts,m,r,parents[g])
  registration=[]
  for g,corners in [('selection',[(-5.27,1.17),(.80,1.17),(.80,1.68),(-5.27,1.68)]),('access',[(1.60,-1.76),(6.96,-1.76),(6.96,-.49),(1.60,-.49)])]:

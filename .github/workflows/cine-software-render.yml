@@ -185,6 +185,7 @@ jobs:
           if [ "$VERSION" != v1 ]; then FONT_ARGS=(--font-dir /tmp/um-cine-fonts); fi
           QUALITY_ARGS=(--samples 24)
           if [ "$VERSION" = v3 ] || [ "$VERSION" = v5 ] || [ "$VERSION" = v6 ] || [ "$VERSION" = v7 ] || [ "$VERSION" = v8 ] || [ "$VERSION" = v9 ]; then QUALITY_ARGS=(--samples 48 --width 3840 --engine '${{ inputs.engine || 'cycles' }}'); fi
+          if [ "$VERSION" = v9 ]; then QUALITY_ARGS=(--samples 16 --width 3840 --engine '${{ inputs.engine || 'cycles' }}'); fi
           if [ '${{ inputs.mode }}' = motion-proof ]; then QUALITY_ARGS=(--samples 32 --width '${{ inputs.motion_width || '1920' }}' --engine '${{ inputs.engine || 'cycles' }}'); fi
           RENDER=(./blender-4.5.3-linux-x64/blender)
           if [ '${{ inputs.engine }}' != cycles ]; then RENDER=(xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender); fi
