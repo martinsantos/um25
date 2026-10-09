@@ -18,7 +18,7 @@ class UI(geometry.Product):
  def rule(self,g,x1,x2,y,m='line',z=.024):self.line(g,[(x1,y,z),(x2,y,z)],m,.002)
  def vline(self,g,x,y1,y2,m='line',z=.024):self.line(g,[(x,y1,z),(x,y2,z)],m,.002)
  def disc(self,g,x,y,r=.022,m='green',z=.041):self.rounded(g,x,y,z,2*r,2*r,.001,m,r)
- def tag(self,g,s,x,y,w,m='mint',ink='green',z=.028):
+ def tag(self,g,s,x,y,w,m='mint',ink='green',z=.060):
   self.rounded(g,x+w/2,y+.035,z,w,.245,.002,m,.045)
   self.label(g,s,x+.075,y-.006,.112,ink,z=z+.005)
  def icon(self,g,kind,x,y,m='muted',size=.15,z=.049):
@@ -125,6 +125,14 @@ def validate():
  p=build();assert all(m in PALETTE for _,m,_,_ in p.meshes)
  assert {'Puesta en marcha','Permiso efectivo','TRAZABILIDAD','Aprobar orden'} <= {t[1] for t in p.texts}
  assert all(math.isfinite(v) for points in p.points.values() for point in points for v in point)
+ # Regression from the rejected native frame: an opaque control must never
+ # cover the baseline of its own label. This is visibility, not an art score.
+ for g,label,x,y,z,size,material,bold in p.texts:
+  for group,mat,verts,faces in p.meshes:
+   if group!=g:continue
+   xs,ys,zs=zip(*verts)
+   if min(xs)<=x<=max(xs) and min(ys)<=y<=max(ys):
+    assert z>max(zs),(label,'covered by',mat,z,max(zs))
  for frame in range(FRAMES):
   t=frame/(FRAMES-1);size,target,r,u,_=basis(t)
   assert size>0 and all(math.isfinite(v) for v in target)
@@ -164,7 +172,7 @@ def render(args):
    mat.node_tree.links.new(n.outputs[0],mix.inputs[1]);mat.node_tree.links.new(emission.outputs[0],mix.inputs[2]);mat.node_tree.links.new(mix.outputs[0],mat.node_tree.nodes['Material Output'].inputs['Surface'])
   mats[name]=mat
  if args.engine=='workbench':
-  scene.display.shading.light='STUDIO';scene.display.shading.color_type='MATERIAL';scene.display.shading.show_shadows=True;scene.display.shading.show_cavity=False;scene.display.render_aa='8'
+  scene.display.shading.light='FLAT';scene.display.shading.color_type='MATERIAL';scene.display.shading.show_shadows=True;scene.display.shading.show_cavity=False;scene.display.render_aa='8'
  font_dir=Path(args.font_dir) if args.font_dir else ROOT/'public/fonts/um-sans';fonts={bold:bpy.data.fonts.load(str(font_dir/f'UMSans-{weight}.ttf')) for bold,weight in [(False,'Regular'),(True,'SemiBold')]}
  product=build();parents={};combined={}
  for g in product.points:
