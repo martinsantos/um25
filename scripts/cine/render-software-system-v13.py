@@ -39,10 +39,10 @@ def prominence(group,t):
  contract=E((t-.35)/.07)*(1-E((t-.57)/.07))
  data=E((t-.57)/.07)*(1-E((t-.80)/.07))
  detail=max(access,contract,data)
- if group=='access':return .12+.88*access
- if group=='contract':return .05+.95*contract
- if group=='data':return .05+.95*data
- return 1-.94*detail
+ if group=='access':return .001+.999*access
+ if group=='contract':return .001+.999*contract
+ if group=='data':return .001+.999*data
+ return 1-.999*detail
 
 def camera(t):
  # Deliberate reading intervals; the crossed POV happens during the handover.
@@ -218,7 +218,7 @@ def render(args):
    opacity=prominence(group,t)
    if group=='packet':opacity=E((t-.27)/.06)*(1-E((t-.78)/.05))
    elif group=='connections':opacity=.08+.55*E((t-.28)/.08)*(1-E((t-.80)/.08))
-   elif region=='edge':opacity=.035+.965*prominence(group,t)
+   elif region=='edge':opacity=.006+.994*prominence(group,t)
    mix.inputs[0].default_value=max(0,opacity)
   for g,sp,(x,y) in links:
    dx,dy,dz=placement(g,t);sp.points[1].co=(x+dx,y+dy,.061+dz,1)
