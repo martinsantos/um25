@@ -58,7 +58,7 @@ jobs:
             scripts/cine/prepare-blender-fonts.py
             public/fonts/um-sans
             public/images/logo-dark.svg
-            public/cine/media/story-fachada.jpg
+            public/cine/media/empresa-mendoza.jpg
           sparse-checkout-cone-mode: false
       - uses: actions/setup-python@v6
         with:

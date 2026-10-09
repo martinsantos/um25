@@ -14,7 +14,7 @@ COLORS={
  'green':'#6FE4CB','signal':'#63DCCB','rose':'#512F39','mint':'#214A4C',
  'paper':'#426F83','canvas':'#375D70','nav':'#2D4C5D','bluewash':'#42677E',
  'glass':'#5D94A5','trace':'#60DDC8','registration':'#648D9E','white':'#F4F8F9',
- 'amber':'#F5CA83','violet':'#B2AFF6','fieldpaper':'#263F4B','fieldnav':'#192E38','brand':'#DC2626','mapland':'#293F45','mapblock':'#42565D','mappark':'#2C665C','maproad':'#A2B7BD'}
+ 'amber':'#F5CA83','violet':'#B2AFF6','fieldpaper':'#263F4B','fieldnav':'#192E38','brand':'#DC2626','mapland':'#293F45','mapblock':'#42565D','mappark':'#2C665C','maproad':'#A2B7BD','annotation':'#267F7B','typewash':'#67445E','typeline':'#E9A3D2'}
 # The background is absent from most of the layout: small translucent regions
 # give the communication paths room to be seen, rather than tinting a white slab.
 ALPHA={'paper':.20,'canvas':.08,'nav':.10,'bluewash':.13,'glass':.065,'edge':.0}
@@ -266,6 +266,11 @@ def build():
  # Sparse registration ticks, tied to actual boundaries. No decorative grid.
  for x in [-5.43,.91,1.26,7.30]:
   p.line('base',[(x,-5.02,-.012),(x,-5.24,-.012)],'registration',.002)
+ # Typography inspection connects its label to the actual title baseline.
+ p.line('access',[(1.56,.09,.54),(4.27,.09,.54)],'typeline',.0037)
+ p.line('access',[(4.27,.09,.54),(4.74,.36,.54),(5.01,.36,.54)],'typeline',.0037)
+ p.rounded('access',5.96,.395,.54,1.87,.23,.004,'typewash',.035)
+ p.label('access','UM Sans · 25 / 600',5.11,.35,.110,'white',z=.55)
  # Measurement overlays share the exact geometry of the inspected surface.
  for g,bounds,z,caption in [
   ('access',(1.56,-2.78,3.22,-.205),.54,'<identity>'),
@@ -278,26 +283,38 @@ def build():
   for xx in [x1,x2]:p.line(g,[(xx,yy-.055,z),(xx,yy+.055,z)],'signal',.0045)
   p.line(g,[(x1,yy,z),(x2,yy,z)],'signal',.0037)
   # Solid label carriers are deliberately stronger than the technical rails.
-  width=min(x2-x1,1.42)
-  p.rounded(g,x1+width/2,y1-.16,z,width,.23,.005,'signal',.043)
-  p.label(g,caption,x1+.075,y1-.19,.125,'floor',True,z=z+.015)
+  width=min(x2-x1,len(caption)*.071+.18)
+  p.rounded(g,x1+width/2,y1-.16,z,width,.23,.005,'annotation',.043)
+  p.label(g,caption,x1+.075,y1-.19,.125,'white',True,z=z+.015)
  return p
 
 def site_map(p,g,x,y,w,h,z):
  # A deliberately illustrative site locator. It never claims customer geography.
  p.rounded(g,x+w/2,y+h/2,z-.009,w,h,.003,'mapland',.025)
- for col in range(7):
-  for row in range(4):
-   bx=x+w*(.065+col*.13);by=y+h*(.08+row*.22)
-   if col in (1,2) and row in (1,2):continue
-   p.rounded(g,bx,by,z,.082*w,.14*h,.003,'mapblock',.008)
- p.rounded(g,x+w*.265,y+h*.42,z+.001,w*.22,h*.37,.002,'mappark',.06)
+ # Mixed parcels, curved watercourse, a park and a junction read as a city,
+ # without claiming that this demonstration is surveyed geographic data.
+ for col in range(9):
+  for row in range(6):
+   u=.055+col*.105;v=.065+row*.15
+   if .25<u<.49 and .24<v<.70:continue
+   if abs(u-(.81-.19*math.sin(v*3.4)))<.06:continue
+   bw=w*(.060+.012*((row+col)%3));bh=h*(.088+.017*((col*3+row)%2))
+   p.rounded(g,x+w*u,y+h*v,z,bw,bh,.003,'mapblock',.005)
+ p.rounded(g,x+w*.37,y+h*.47,z+.001,w*.23,h*.44,.002,'mappark',.035)
+ # Park walkways make the green region legible, even in the smaller viewport.
+ for k in [-1,0,1]:
+  p.line(g,[(x+w*.28,y+h*(.30+k*.012),z+.006),(x+w*.46,y+h*(.65+k*.012),z+.006)],'quiet',.0014)
+ water=[(x+w*(.81-.19*math.sin(v*3.4)),y+h*v,z+.007) for v in [i/40 for i in range(41)]]
+ p.line(g,water,'paper',.030*w)
+ p.line(g,water,'registration',.018*w)
+ for i in range(8):
+  xx=x+w*(.103+i*.105)
+  p.line(g,[(xx,y+.025*h,z+.005),(xx,y+.94*h,z+.005)],'maproad',.0018)
  for i in range(6):
-  xx=x+w*(.13+i*.13)
-  p.line(g,[(xx,y+.025*h,z+.005),(xx,y+.95*h,z+.005)],'maproad',.0018)
- for i in range(4):
-  yy=y+h*(.17+i*.22)
-  p.line(g,[(x+.03*w,yy,z+.005),(x+.94*w,yy,z+.005)],'maproad',.0018)
+  yy=y+h*(.14+i*.15)
+  p.line(g,[(x+.025*w,yy,z+.005),(x+.96*w,yy,z+.005)],'maproad',.0018)
+ for cx,cy in [(.16,.46),(.55,.77)]:
+  p.line(g,[(x+w*(cx+.035*math.cos(i*math.tau/32)),y+h*(cy+.052*math.sin(i*math.tau/32)),z+.013) for i in range(33)],'maproad',.004)
  # An arterial road cuts across the grid; a route connects the selected site.
  points=[(x+w*u,y+h*v,z+.014) for u,v in [(0,.23),(.19,.23),(.47,.42),(.69,.68),(1,.78)]]
  p.line(g,points,'quiet',.011)
@@ -433,7 +450,7 @@ def render(args):
   if m not in ALPHA:visibility.append((ob,g))
  for g,s,x,y,z,size,m,bold in p.texts:
   c=bpy.data.curves.new(s,'FONT');c.body=s;c.size=size;c.font=fonts[bold];c.extrude=0;c.materials.append(glyph_material(g,m,'properties' if g=='inspector' and -.3<y<2.3 else 'content'));ob=bpy.data.objects.new(s,c);scene.collection.objects.link(ob);ob.location=(x,y,z);ob.parent=parents[g];visibility.append((ob,g))
-  if s.startswith('<'):reveal_text.append((c,s,g))
+  if s.startswith('<') or s.startswith('UM Sans ·'):reveal_text.append((c,s,g))
  def line(name,pts,m,r,parent=None):
   c=bpy.data.curves.new(name,'CURVE');c.dimensions='3D';c.bevel_depth=r;c.bevel_resolution=2
   sp=c.splines.new('POLY');sp.points.add(len(pts)-1)
@@ -443,7 +460,7 @@ def render(args):
  for g,pts,m,r in p.lines:
   ob,sp=line('Fine geometry',pts,m,r,parents[g])
   if '-check-' in g or g=='data-commit':visibility.append((ob,g))
-  if family(g) in ('access','contract','data') and m=='signal' and (r in (.0037,.0045) or (len(pts)==5 and pts[0]==pts[-1])):dimension_lines.append((ob.data,g))
+  if family(g) in ('access','contract','data') and m in ('signal','typeline') and (r in (.0037,.0045) or (len(pts)==5 and pts[0]==pts[-1])):dimension_lines.append((ob.data,g))
  # Original vector logo, with actual white contours and brand-red punctuation.
  for g,x,y,w,z in [('base',-7.66,4.16,2.94,.07),('access-node-0',1.75,-1.41,1.28,.54)]:
   for color,paths in logo_contours():
@@ -459,12 +476,12 @@ def render(args):
  mesh=bpy.data.meshes.new('Project image');mesh.from_pydata([(x,y,z),(x+w,y,z),(x+w,y+h,z),(x,y+h,z)],[],[(0,1,2,3)]);mesh.update()
  uv=mesh.uv_layers.new(name='Image UV');coords=[(0,0),(1,0),(1,1),(0,1)]
  # Centre-crop to the content well; the original raster is preserved.
- ratio=(1600/900)/(w/h);span=1/ratio
+ ratio=(1200/864)/(w/h);uspan=min(1,1/ratio);vspan=min(1,ratio)
  for poly in mesh.polygons:
   for li in poly.loop_indices:
-   u,v=coords[mesh.loops[li].vertex_index];uv.data[li].uv=(.5+(u-.5)*span,v)
+   u,v=coords[mesh.loops[li].vertex_index];uv.data[li].uv=(.5+(u-.5)*uspan,.5+(v-.5)*vspan)
  mat=bpy.data.materials.new('Architectural project image');mat.use_nodes=True;nodes=mat.node_tree.nodes;nodes.clear()
- outnode=nodes.new('ShaderNodeOutputMaterial');em=nodes.new('ShaderNodeEmission');tex=nodes.new('ShaderNodeTexImage');tex.image=bpy.data.images.load(str(ROOT/'public/cine/media/story-fachada.jpg'))
+ outnode=nodes.new('ShaderNodeOutputMaterial');em=nodes.new('ShaderNodeEmission');tex=nodes.new('ShaderNodeTexImage');tex.image=bpy.data.images.load(str(ROOT/'public/cine/media/empresa-mendoza.jpg'))
  mat.node_tree.links.new(tex.outputs['Color'],em.inputs[0]);mat.node_tree.links.new(em.outputs[0],outnode.inputs['Surface']);mesh.materials.append(mat)
  ob=bpy.data.objects.new('Project image',mesh);scene.collection.objects.link(ob);ob.parent=parents[g];visibility.append((ob,g));image_visibility.append((em,g))
  # Inspection labels display the measured width/height in the product's 100px
@@ -551,7 +568,7 @@ def render(args):
  def begin(scene):started[0]=time.time()
  def finish(scene):
   times.append({'frame':scene.frame_current,'seconds':round(time.time()-started[0],2)})
-  (out/'render-info.json').write_text(json.dumps({'version':'v18','publishable':False,'projection':'perspective','composition':args.composition,'engine':'eevee','samples':args.samples,'geometry_sha256':hashlib.sha256(Path(ui.geometry.__file__).read_bytes()).hexdigest(),'ui_sha256':hashlib.sha256(Path(ui.__file__).read_bytes()).hexdigest(),'fps':FPS,'frames':FRAMES,'resolution':[args.width,scene.render.resolution_y],'asset_sha256':{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['public/images/logo-dark.svg','public/cine/media/story-fachada.jpg']},'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'timings':times}))
+  (out/'render-info.json').write_text(json.dumps({'version':'v18','publishable':False,'projection':'perspective','composition':args.composition,'engine':'eevee','samples':args.samples,'geometry_sha256':hashlib.sha256(Path(ui.geometry.__file__).read_bytes()).hexdigest(),'ui_sha256':hashlib.sha256(Path(ui.__file__).read_bytes()).hexdigest(),'fps':FPS,'frames':FRAMES,'resolution':[args.width,scene.render.resolution_y],'asset_sha256':{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['public/images/logo-dark.svg','public/cine/media/empresa-mendoza.jpg']},'authoring_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'timings':times}))
 
  scene.frame_start=args.start;scene.frame_end=args.end;scene.render.filepath=str(out)+'/'
  bpy.app.handlers.frame_change_pre.append(update);bpy.app.handlers.render_pre.append(begin);bpy.app.handlers.render_post.append(finish)
