@@ -227,12 +227,12 @@ const tabNames:Record<string,string>={'101':'Redes','102':'Seguridad','103':'Tel
  .svc-story[data-discipline-layout=true] .svc-story__link{margin-top:20px}
  @media(max-width:600px){.svc-story[data-discipline-layout=true] .svc-story__theater{height:330px}.svc-story[data-discipline-layout=true] .svc-story__narration{display:block;min-height:190px}.svc-story[data-discipline-layout=true] .svc-story__outline{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}}
  /* Software explains a live operation: narration and drawing share one stage. */
- .svc-story--software .svc-story__heading,.svc-story--software .svc-story__location{display:none}
- .svc-story--software .svc-story__visual{display:flex;flex-direction:column}
- .svc-story--software .svc-story__narration{order:-1;min-height:108px;border-top:0;padding:24px 0 8px;align-items:start}
- .svc-story--software .svc-story__scene-title{font-size:1.25rem;line-height:1.35;max-width:30ch}
- .svc-story--software .svc-story__theater{height:clamp(420px,43vw,540px)}
- @media(max-width:600px){.svc-story--software .svc-story__narration{min-height:182px;padding:20px 0 0}.svc-story--software .svc-story__theater{height:320px}}
+ .svc-story.svc-story--software .svc-story__heading,.svc-story.svc-story--software .svc-story__location{display:none}
+ .svc-story.svc-story--software .svc-story__visual{display:flex;flex-direction:column}
+ .svc-story.svc-story--software .svc-story__narration{order:-1;min-height:108px;border-top:0;padding:24px 0 8px;align-items:start}
+ .svc-story.svc-story--software .svc-story__scene-title{font-size:1.25rem;line-height:1.35;max-width:30ch}
+ .svc-story.svc-story--software .svc-story__theater{height:clamp(320px,calc(100svh - 280px),540px)}
+ @media(max-width:600px){.svc-story.svc-story--software .svc-story__narration{min-height:182px;padding:20px 0 0}.svc-story.svc-story--software .svc-story__theater{height:320px}}
  .svc-story[data-active-service="104"] .svc-story__project{display:none}
  .svc-story[data-active-service="104"] .svc-story__software{margin-left:0;width:100%}
  .svc-story[data-active-service="104"] .svc-story__software :global(.sl__canvas){transform:none}

@@ -150,7 +150,10 @@ def surface(z,body,n):
  # One consistent layer index marks the sheet edge without inventing hardware.
  c+=plane(z,rect(373,111,7,22,'#e5edf3','none',0,2)+text(376.5,125,str(n+1),5.5,BLUE,500,'text-anchor="middle"'))
  c+=plane(z, line('M5 25V9q0-4 4-4h16M359 5h16q4 0 4 4v16M5 211v16q0 4 4 4h16','#a2b4c0',.65))
- return c
+ # Preserve the architectural position without ghosting five opaque interfaces
+ # across the active one. Thin outlines retain the assembly's depth and order.
+ context=plane(z,rect(0,0,384,236,'none','#708594',.65,8)+line('M5 25V9q0-4 4-4h16M359 5h16q4 0 4 4v16','#a9bdca',.7))
+ return f'<g class="ps-surface">{c}</g><g class="ps-context">{context}</g>'
 defs="""<defs>
  <linearGradient id="ps-sheet-surface" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffffff"/><stop offset=".58" stop-color="#f7fafc"/><stop offset="1" stop-color="#eaf1f6"/></linearGradient>
  <linearGradient id="ps-module-surface" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#f8fbfd"/></linearGradient>
