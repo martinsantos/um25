@@ -1,24 +1,24 @@
-.font-hub { --font-red: #b91c1c; --font-muted: #50545b; --um-font-body: var(--um-font-family); --um-font-display: var(--um-font-family); --um-font-impact: var(--um-font-family); --um-font-editorial: var(--um-font-family); --um-font-ui: var(--um-font-family); --skin-text: #17191c; --skin-muted: #50545b; color: #17191c; background: #fff; padding: 64px max(20px,calc((100vw - 1180px)/2)); font-size: 1.25rem; line-height: 1.65; overflow-wrap: anywhere; }
+.font-hub { --font-red: #dc2626; --font-muted: #444; --um-font-body: var(--um-font-family); --um-font-display: var(--um-font-family); --um-font-impact: var(--um-font-family); --um-font-editorial: var(--um-font-family); --um-font-ui: var(--um-font-family); --skin-text: #17191c; --skin-muted: #444; color: #17191c; background: #fff; padding: 64px max(24px,calc((100vw - 1180px)/2)); font-size: 1.5rem; font-size-adjust: none; line-height: 1.6; overflow-wrap: anywhere; }
 .font-hub h1,.font-hub h2,.font-hub h3,.font-hub p,.font-hub dl { margin: 0; font-family: inherit; color: inherit; letter-spacing: normal; }
-.font-hub h1 { font-size: 3rem; line-height: 1.15; font-weight: 700; margin: 20px 0 24px; }
-.font-hub h2,.font-hub .font-reading h3 { font-size: 1.75rem; line-height: 1.25; font-weight: 600; }
-.font-hub h3 { font-size: 1.375rem; line-height: 1.35; font-weight: 600; }
-.font-hub :is(h1,h2,h3) { overflow-wrap: anywhere; hyphens: auto; text-wrap: wrap; }
+.font-hub h1 { font-size: clamp(2.5rem,4.5vw,4rem); line-height: 1.12; font-weight: 700; margin: 20px 0 28px; }
+.font-hub h2,.font-hub .font-reading h3 { font-size: 2.25rem; line-height: 1.25; font-weight: 600; }
+.font-hub h3 { font-size: 1.75rem; line-height: 1.35; font-weight: 600; }
+.font-hub :is(h1,h2,h3) { overflow-wrap: break-word; hyphens: none; text-wrap: balance; }
 .font-hub a { color: var(--font-red); text-decoration: underline; text-underline-offset: .2em; }
 .font-hub a:focus-visible,.font-hub input:focus-visible { outline: 3px solid #1a56c0; outline-offset: 4px; }
-.font-hub .font-eyebrow { font-size: 1.125rem; line-height: 1.5; font-weight: 500; margin-bottom: 12px; }
-.font-hub .font-lead { font-size: 1.375rem; line-height: 1.5; }
-.font-hub .font-intro { max-width: 44rem; margin-top: 24px; }
+.font-hub .font-eyebrow { font-size: 1.25rem; line-height: 1.5; font-weight: 500; margin-bottom: 12px; }
+.font-hub .font-lead { max-width: 38em; font-size: 1.75rem; line-height: 1.5; }
+.font-hub .font-intro { max-width: 38em; margin-top: 24px; }
 .font-hub .font-actions { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 32px; }
-.font-hub .font-button { padding: 12px 24px; background: var(--font-red); color: white; border: 2px solid var(--font-red); text-decoration: none; font-size: 1rem; font-weight: 600; border-radius: 4px; }
+.font-hub .font-button { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 12px 22px; background: var(--font-red); color: white; border: 2px solid var(--font-red); text-decoration: none; font-size: 1.25rem; line-height: 1.4; font-weight: 600; border-radius: 4px; }
 .font-hub .font-button-secondary { background: white; color: var(--font-red); }
 .font-hub .font-facts { display: flex; gap: 48px; flex-wrap: wrap; margin-top: 44px; }
 .font-facts dt { font-size: 2rem; font-weight: 600; line-height: 1.2; }
-.font-facts dd { font-size: 1rem; margin-top: 8px; color: var(--font-muted); }
-.font-nav { display: flex; flex-wrap: wrap; gap: 14px 28px; border-block: 1px solid #d7d9dd; padding: 20px 0; margin-top: 48px; font-size: 1rem; font-weight: 500; }
+.font-facts dd { font-size: 1.25rem; margin-top: 8px; color: var(--font-muted); }
+.font-nav { display: flex; flex-wrap: wrap; gap: 14px 28px; border-block: 1px solid #d7d9dd; padding: 20px 0; margin-top: 48px; font-size: 1.25rem; font-weight: 500; }
 .font-hub section { padding-top: 64px; scroll-margin-top: 100px; }
 .font-hub section + section { margin-top: 64px; border-top: 1px solid #d7d9dd; }
-.font-controls { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 20px; align-items: center; padding: 28px 0; font-size: 1rem; }
+.font-controls { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 20px; align-items: center; padding: 28px 0; font-size: 1.25rem; }
 .font-controls label { display: grid; gap: 8px; min-width: 0; }
 .font-controls input { min-width: 0; max-width: 100%; font: inherit; accent-color: var(--font-red); }
 .font-controls input[type=text] { width: 100%; border: 1px solid #777; border-radius: 4px; padding: 10px; }
@@ -27,24 +27,24 @@
 .font-live-wrap { padding: 32px 0 48px; border-bottom: 1px solid #d7d9dd; }
 .font-hub #font-live { font-size: 3rem; line-height: 1.25; font-weight: 700; overflow-wrap: anywhere; }
 .font-weight-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 40px 24px; margin-top: 36px; }
-.font-weight-grid h3 { font-size: 1rem; color: var(--font-muted); }
+.font-weight-grid h3 { font-size: 1.25rem; color: var(--font-muted); }
 .font-weight-grid p { font-size: 2rem; line-height: 1.3; margin-top: 16px; }
 .font-weight-grid .font-weight-italic { font-size: 1.25rem; line-height: 1.5; font-style: italic; }
 .font-reading-layout { display: grid; grid-template-columns: minmax(0,620px) minmax(220px,1fr); gap: 64px; margin-top: 40px; }
 .font-hub .font-reading p { margin-top: 1.5em; }
 .font-hub .font-reading h3:not(:first-child) { margin-top: 2em; }
-.font-scale { padding: 28px; background: #f4f4f2; align-self: start; font-size: 1rem; }
+.font-scale { padding: 28px; background: #f4f4f2; align-self: start; font-size: 1.25rem; }
 .font-hub .font-scale dl { margin-top: 24px; }
 .font-scale dl div { display: flex; justify-content: space-between; gap: 16px; border-bottom: 1px solid #d7d9dd; padding: 12px 0; flex-wrap: wrap; }
 .font-hub .font-scale p { margin-top: 24px; }
 .font-integration-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 36px; }
 .font-integration-grid article { min-width: 0; }
 .font-hub .font-integration-grid p { margin-block: 20px; }
-.font-hub pre { background: #f4f4f2; padding: 20px; margin-block: 20px; font-size: 1rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.font-hub pre { background: #f4f4f2; padding: 20px; margin-block: 20px; font-size: 1.125rem; white-space: pre-wrap; overflow-wrap: anywhere; }
 .font-hub code { font: inherit; }
 .font-delivery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 36px 48px; margin-top: 36px; }
 .font-hub .font-delivery-grid p { margin-top: 16px; }
-.font-hub .font-version { margin-top: 40px; font-size: 1rem; color: var(--font-muted); }
+.font-hub .font-version { margin-top: 40px; font-size: 1.125rem; color: var(--font-muted); }
 @media(max-width:760px) {
   body:has(.font-hub) .um-ops-logo { min-width: 0; max-width: calc(100vw - 148px); }
   body:has(.font-hub) .um-ops-logo svg { width: 100%; height: auto; }
@@ -52,7 +52,10 @@
   body:has(.font-hub) .um-tabbar { grid-template-columns: repeat(auto-fit,minmax(min(100%,5rem),1fr)); }
   body:has(.font-hub) .um-tabbar__item span { max-width: 100%; text-align: center; line-height: 1.2; }
   body:has(.font-hub)[data-skin] { padding-bottom: calc(5.5rem + env(safe-area-inset-bottom,0px)); }
-  .font-hub { padding-top: 40px; }.font-hub h1 { font-size: 2.25rem; }
+  .font-hub { padding: 36px 20px; font-size: 1.375rem; }.font-hub h1 { font-size: 2.5rem; }
+  .font-hub h2 { font-size: 2rem; }.font-hub h3 { font-size: 1.625rem; }
+  .font-hub .font-lead { font-size: 1.5rem; }.font-hub .font-eyebrow { font-size: 1.125rem; }
+  .font-hub .font-actions { flex-direction: column; align-items: stretch; }
   .font-controls { grid-template-columns: 1fr 1fr; }.font-text-control { grid-column: 1/-1; }
   .font-weight-grid,.font-reading-layout,.font-integration-grid,.font-delivery-grid { grid-template-columns: minmax(0,1fr); }
   .font-weight-grid { gap: 28px; }.font-reading-layout { gap: 36px; }.font-hub .font-facts { gap: 24px; }

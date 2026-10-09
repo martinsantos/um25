@@ -1,28 +1,66 @@
 ---
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
-import '../../../styles/font-service.css';
-const base = '/fonts/um-sans/v2.0.0/plantillas';
+import '../../../styles/brand-resources.css';
+import reading from '../../../data/brand-template-reading.json';
+const base = '/downloads/plantillas-um-sans/2026.10.09-r3';
 const templates = [
-  { id: 'oferta-completa', title: 'Oferta completa', description: 'Objetivo, alcance, entregables, etapas, inversión y condiciones comerciales.' },
-  { id: 'resumen-comercial', title: 'Resumen comercial', description: 'Una propuesta breve para presentar el alcance y la inversión en una página.' },
-  { id: 'membrete', title: 'Documento con membrete', description: 'La base de marca para cartas, anexos, informes y comunicaciones.' },
+  { id: 'oferta-completa', sample: 'ejemplo-licitacion', number: '01', title: 'Oferta completa', pages: 'Word · A4', description: 'Una propuesta de principio a fin: alcance, solución técnica, entregables, inversión y condiciones.', details: ['Numeración automática en tres niveles', 'Títulos y cifras con tamaños proporcionales', 'Tablas preparadas para continuar en otra página'], primary: 'DOCX', action: 'Descargar plantilla Word', formats: ['DOTX','ODT','HTML','PDF'] },
+  { id: 'resumen-comercial', number: '02', title: 'Resumen comercial', pages: '1 página · A4', description: 'El alcance, la inversión y las condiciones esenciales en una presentación breve.', details: ['Jerarquía clara para leer de un vistazo', 'Espacio para identificar al cliente y al proyecto', 'Tabla de inversión y total'], primary: 'DOCX', action: 'Descargar Word', formats: ['DOTX','ODT','HTML','PDF'] },
+  { id: 'membrete', number: '03', title: 'Carta con membrete', pages: '1 página · A4', description: 'Una base de correspondencia para comunicar una decisión, presentar una solicitud o acompañar documentación.', details: ['Destinatario, fecha y referencia', 'Cuerpo de carta con espacio para desarrollar', 'Cierre y firma'], primary: 'DOCX', action: 'Descargar Word', formats: ['DOTX','ODT','HTML','PDF'] },
+  { id: 'oferta-economica', sample: 'ejemplo-economico', number: '04', title: 'Planilla económica', pages: 'Excel · Impresión A4', description: 'Cantidades, precios e importes en una misma grilla. El detalle alimenta el subtotal y el total de la oferta.', details: ['15 renglones con cálculo de importes', 'Validación de cantidades y precios', 'Control de datos incompletos antes del total'], primary: 'XLSX', action: 'Descargar plantilla Excel', formats: ['PDF'] },
+  { id: 'presupuesto-interno', number: '05', title: 'Presupuesto interno', pages: 'Excel · Cuatro hojas', description: 'Cómputo por renglón y sector, materiales, mano de obra, márgenes y comparación de proveedores.', details: ['Resultado, Costeo, Parámetros y Proveedores', 'Costos USD / ARS y tarifas DH / HH', 'Imprevistos, bonificación e IVA sobre el neto'], primary: 'XLSX', action: 'Descargar libro de presupuesto', formats: ['PDF'] },
 ];
-const formats = ['PDF', 'DOCX', 'DOTX', 'ODT'];
 ---
-<LayoutV4 title="Plantillas de oferta | UM Sans 2.0 | ULTIMA MILLA" description="Plantillas de oferta, resumen comercial, membrete y planilla económica con UM Sans 2.0. HTML editable, PDF, Word, ODT y Excel.">
-  <div class="font-hub ums2 um-type template-hub">
-    <header><p class="font-eyebrow"><a href="/estilo/fuente">UM Sans 2.0</a> · Documentos de marca</p><h1>Pro&shy;pues&shy;tas claras.<br />De prin&shy;ci&shy;pio a fin.</h1><p class="font-lead">Membrete, títulos, lectura y cifras.<br />Un mismo sistema en cada formato.</p><p class="font-intro">Elegí una base, completá los datos del cliente y desarrollá el alcance. Los estilos mantienen la jerarquía mientras trabajás; el PDF conserva la presentación al compartirla.</p><div class="font-actions"><a class="font-button" href={`${base}/Plantillas-UMSans2-2.0.0.zip`} download>Descargar todas las plantillas</a><a class="font-button font-button-secondary" href="/fonts/um-sans/v2.0.0/UMSans2-2.0.0.zip" download>Descargar la tipografía</a></div></header>
-    <section aria-labelledby="template-list-title"><p class="font-eyebrow">01 · Elegir una base</p><h2 id="template-list-title">Una es&shy;truc&shy;tu&shy;ra para cada pro&shy;pues&shy;ta.</h2><div class="template-grid">{templates.map(template => <article>
-      <a class="template-preview" href={`${base}/${template.id}.pdf`} aria-label={`Ver PDF: ${template.title}`}><img src={`${base}/${template.id}.webp`} width="595" height="842" alt={`Vista previa del membrete y la composición de ${template.title.toLowerCase()}`} loading="lazy" /></a>
-      <h3>{template.title}</h3><p>{template.description}</p><a class="template-open" href={`${base}/${template.id}.html`}>Abrir y editar en el navegador</a><ul aria-label={`Formatos de ${template.title}`}>{formats.map(format => <li><a href={`${base}/${template.id}.${format.toLowerCase()}`} download>{format}</a></li>)}</ul>
-    </article>)}</div></section>
-    <section aria-labelledby="template-economy-title"><p class="font-eyebrow">02 · Inversión</p><h2 id="template-economy-title">Cifras ordenadas. Totales com&shy;pro&shy;ba&shy;bles.</h2><div class="font-integration-grid"><article><p>La planilla económica incluye conceptos, cantidades, unidades, precios, importes, impuestos y total. Los campos numéricos validan valores positivos y las fórmulas calculan cada renglón.</p><a class="font-button" href={`${base}/oferta-economica.xlsx`} download>Descargar Excel</a></article><article><h3>Antes de emitir</h3><p>Revisá moneda, impuestos, validez, forma de pago, plazos y exclusiones. Los campos entre corchetes son datos a completar, no condiciones predefinidas de una oferta.</p></article></div></section>
-    <section aria-labelledby="template-use-title"><p class="font-eyebrow">03 · Usar y compartir</p><h2 id="template-use-title">Cada formato tiene su función.</h2><div class="font-delivery-grid"><article><h3>HTML editable</h3><p>Abrí la plantilla, editá sus campos y guardá el HTML o imprimí a PDF. Lleva la tipografía y el membrete incorporados para trabajar sin conexión.</p></article><article><h3>Word y ODT</h3><p>Instalá primero los TTF de UM Sans 2. DOCX y ODT son documentos editables; DOTX permite crear documentos nuevos desde una plantilla. Los estilos ordenan títulos, cuerpo y tablas.</p></article><article><h3>PDF</h3><p>Usá el PDF como referencia visual de tamaño A4. Para entregar una oferta, exportá el documento ya completado con las fuentes incrustadas.</p></article><article><h3>Una versión com&shy;par&shy;ti&shy;da</h3><p>Estas plantillas usan UM Sans 2.0.0. Los sitios y aplicaciones pueden convocar la misma versión desde el <a href="/estilo/fuente#integrar">servicio de tipografía</a>.</p></article></div></section>
+<LayoutV4 title="RECURSOS MARCA UMSA" description="Plantillas de propuesta, resumen, carta y planilla económica. UM Sans 2, marca oficial y vistas previas de los archivos reales.">
+  <div id="um-resources" class="resource-library">
+    <header class="rl-cover rl-shell">
+      <a class="rl-back" href="/estilo/fuente">← UM Sans 2</a>
+      <h1>RECURSOS MARCA UMSA</h1>
+      <div class="rl-cover-bottom"><p>Plantillas para licitaciones, propuestas y comunicaciones.</p><div><a class="rl-button" href={base+'/Plantillas-UMSans2-2026.10.09-r3.zip'} download>Descargar todo ↗</a><a class="rl-text-link" href="/fonts/um-sans/v2.0.0/UMSans2-2.0.0.zip" download>Fuentes UM Sans 2</a></div></div>
+    </header>
+    <nav class="rl-index rl-shell" aria-label="Elegir plantilla">{templates.map(t=><a href={'#'+t.id}><span>{t.number}</span>{t.title}</a>)}</nav>
+    <div class="rl-collection">
+      {templates.map(t=><section class="rl-item rl-shell" id={t.id} aria-labelledby={t.id+'-title'}>
+        <div class="rl-info">
+        <div class="rl-copy">
+          <p class="rl-eyebrow">{t.number} / {t.pages}</p>
+          <h2 id={t.id+'-title'}>{t.title}</h2>
+          {t.id==='oferta-economica'&&<span id="template-economy-title" class="rl-anchor" />}
+          <p class="rl-description">{t.description}</p>
+          <ul>{t.details.map(detail=><li>{detail}</li>)}</ul>
+        </div>
+        <div class="rl-actions">
+          <a class="rl-button" href={base+'/'+t.id+'.'+t.primary.toLowerCase()} download>{t.action} ↗</a>
+          <details class="rl-download-options"><summary>{'sample' in t?'Otros formatos y ejemplo':'Otros formatos'}</summary>
+          <div class="rl-formats" aria-label={'Otros formatos de '+t.title}>{t.formats.map(format=><a href={base+'/'+t.id+'.'+format.toLowerCase()} download={format==='HTML'||format==='PDF'?undefined:true}>{format==='HTML'?'Editar en navegador':format==='PDF'?'Ver PDF':format}</a>)}</div>
+          {'sample' in t && <div class="rl-example-downloads"><span>Ejemplo completado</span><a href={base+'/'+t.sample+'.'+t.primary.toLowerCase()} download>{t.primary==='XLSX'?'Excel':'Word'} ↗</a><a href={base+'/'+t.sample+'.pdf'}>PDF ↗</a></div>}
+          </details>
+        </div>
+        </div>
+        <div class="rl-paper-column">
+          {'sample' in t && <div class="rl-reading-modes" role="group" aria-label={'Contenido de '+t.title}><button type="button" data-reading-choice="example" aria-pressed="true">Ejemplo</button><button type="button" data-reading-choice="blank" aria-pressed="false">Plantilla vacía</button></div>}
+          <div class="rl-reading-bar"><span data-reading-label>{'sample' in t?'Ejemplo ficticio':'Vista de lectura'}</span><button type="button" data-resource-preview={base+'/'+('sample' in t?t.sample:t.id)+'.svg'} data-preview-title={t.title} data-preview-pdf={base+'/'+('sample' in t?t.sample:t.id)+'.pdf'} data-blank-preview={base+'/'+t.id} data-example-preview={'sample' in t?base+'/'+t.sample:undefined} aria-label={'Ver composición A4 de '+t.title}>Ver hoja A4 ↗</button></div>
+          <div class="rl-reading-frame" role="region" aria-label={'Documento completo de '+t.title}>
+            <div class="rl-reading">
+              <div class="rl-reading-brand"><img src="/images/brand-document.svg" width="607" height="54" alt="ultimamilla.com.ar" /></div>
+              <div class="rl-reading-body" data-reading-mode="blank" hidden={'sample' in t} set:html={reading[t.id as keyof typeof reading]} />
+              {'sample' in t && <div class="rl-reading-body" data-reading-mode="example" set:html={reading[t.sample as keyof typeof reading]} />}
+              <p class="doc-footer">ULTIMA MILLA S.A. · ultimamilla.com.ar</p>
+            </div>
+          </div>
+          <p class="rl-caption">Documento completo, adaptado a tu pantalla. «Ver hoja A4» muestra la composición de impresión.</p>
+        </div>
+      </section>)}
+    </div>
+    <section class="rl-use"><div class="rl-shell">
+      <p class="rl-eyebrow">ANTES DE EMPEZAR</p><h2>Prepará tu documento.</h2>
+      <div class="rl-use-grid"><article><span>01</span><h3>Instalá la familia.</h3><p>El paquete incluye los cuatro TTF necesarios para editar Word y Excel con UM Sans 2.</p></article><article><span>02</span><h3>Usá los estilos.</h3><p>En Word, aplicá Título 1, 2 o 3. La numeración y las sangrías se ajustan juntas.</p></article><article><span>03</span><h3>Revisá la entrega.</h3><p>Completá los campos, comprobá los importes y exportá el documento final a PDF.</p></article></div>
+    </div></section>
+    <dialog id="resource-viewer" aria-labelledby="resource-viewer-title"><div class="rl-dialog-head"><strong id="resource-viewer-title">Vista previa</strong><a id="resource-viewer-pdf" href="#">Ver PDF completo ↗</a><button type="button" id="resource-viewer-zoom" aria-pressed="false">Ampliar</button><button type="button" id="resource-viewer-close" aria-label="Cerrar vista previa">Cerrar ×</button></div><div class="rl-dialog-paper"><img id="resource-viewer-image" width="595" height="842" alt="" /></div></dialog>
   </div>
 </LayoutV4>
-<style>
-  .template-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 40px; margin-top: 36px; }
-  .template-grid article { min-width: 0; }.template-preview { display: block; background: #eeefed; padding: 20px; border: 1px solid #d7d9dd; margin-bottom: 24px; }.template-preview img { display: block; width: 100%; height: auto; box-shadow: 0 3px 10px #00000018; }
-  .template-grid p { margin: 16px 0 20px; font-size: 1.125rem; }.template-open { display: inline-block; font-weight: 600; font-size: 1rem; }.template-grid ul { display: flex; gap: 10px 20px; flex-wrap: wrap; list-style: none; padding: 0; margin: 20px 0 0; font-size: 1rem; }.template-grid ul a { display: inline-block; padding-block: 8px; }
-  @media(max-width:800px) { .template-grid { grid-template-columns: 1fr; gap: 44px; }.template-preview { max-width: 420px; } }
-</style>
+<script>
+  import { initResourcePreviews } from '../../../scripts/resourcePreviews';
+  initResourcePreviews();
+  document.addEventListener('astro:page-load', initResourcePreviews);
+</script>
