@@ -36,12 +36,12 @@ def placement(group,t):
 def camera(t):
  # True perspective, consistent focal length. The lens crosses the x axis
  # while the viewer follows the *same* order through the transparent layout.
- keys=[(0,27,(.4,0,1),(22,-32,-9)),
+ keys=[(0,35,(1.0,-1.0,1),(22,-32,-9)),
        (.22,23,(1.8,-.6,1.6),(31,-30,-7)),
        (.45,18,(4.1,-1.1,2.2),(24,-39,-4)),
        (.65,23,(.7,-1.0,1.1),(-18,-35,5)),
        (.83,26,(.4,-.3,.8),(-24,-28,8)),
-       (1,27,(.4,0,1),(22,-32,-9))]
+       (1,35,(1.0,-1.0,1),(22,-32,-9))]
  for a,b in zip(keys,keys[1:]):
   if a[0]<=t<=b[0]:
    q=E((t-a[0])/(b[0]-a[0]));mix=lambda x,y:x+(y-x)*q
@@ -183,7 +183,8 @@ def render(args):
  # An actual path from approval to contract to commit. These segments use
  # geometry behind the glass, so occlusion and parallax survive camera moves.
  route,route_sp=line('Approval / contract / commit',[(0,0,0)]*5,'red',.0055)
- packet,packet_sp=line('0248-A / request',[(0,0,0)]*2,'amber',.023)
+ packet,packet_sp=line('0248-A / request',[(0,0,0)]*2,'amber',.016)
+ packet.data.materials[0]=glyph_material('packet','amber')
  camera_data=bpy.data.cameras.new('Crossed POV');camera_data.type='PERSP';camera_data.lens=48;camera_data.sensor_width=36;camera_data.sensor_fit='HORIZONTAL';camera_data.clip_start=.1;camera_data.clip_end=200
  cam=bpy.data.objects.new('Crossed POV',camera_data);scene.collection.objects.link(cam);scene.camera=cam
  out=Path(args.output);out.mkdir(parents=True,exist_ok=True);times=[]
@@ -197,11 +198,13 @@ def render(args):
   infrastructure=E((t-.50)/.10)*(1-E((t-.82)/.10))
   for (group,name,region),(mat,mix) in glyph_mats.items():
    opacity=1
-   if group in ('contract','data'):opacity=.08+.92*infrastructure
+   if group=='packet':opacity=E(t/.035)*(1-E((t-.93)/.045))
+   elif group in ('contract','data'):opacity=.08+.92*infrastructure
    elif group=='inspector' and region=='properties':opacity=1-.78*inspected-.85*infrastructure
-   elif group in ('base','list','selection','inspector','history','action'):opacity=1-.82*infrastructure
+   elif group=='history':opacity=1-.82*inspected-.82*infrastructure
+   elif group in ('base','list','selection','inspector','action'):opacity=1-.82*infrastructure
    elif group=='access':opacity=1-.84*infrastructure
-   mix.inputs[0].default_value=max(.06,opacity)
+   mix.inputs[0].default_value=max(0 if group=='packet' else .06,opacity)
   for g,sp,(x,y) in links:
    dx,dy,dz=placement(g,t);sp.points[1].co=(x+dx,y+dy,.061+dz,1)
   ax,ay,az=placement('access',t);cx,cy,cz=placement('contract',t);dx,dy,dz=placement('data',t)

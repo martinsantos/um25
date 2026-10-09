@@ -5,6 +5,9 @@ on:
       proof_frame:
         type: string
         default: '-1'
+      mode:
+        type: string
+        default: proof
 permissions:
   contents: read
 jobs:
@@ -16,12 +19,14 @@ jobs:
       - id: plan
         env:
           FRAME: ${{ inputs.proof_frame }}
+          MODE: ${{ inputs.mode }}
         run: |
           python3 - <<'PYPLAN'
           import os,json
           frame=int(os.environ['FRAME']);assert -1<=frame<960
-          frames=[210,430,624] if frame<0 else [frame]
-          matrix={'include':[dict(frame=f,width=3840,composition='wide') for f in frames]}
+          frames=[0,430,624] if frame<0 else [frame]
+          matrix={'include':[dict(frame=f,end=f,width=3840,composition='wide') for f in frames]}
+          if os.environ['MODE']=='motion-proof':matrix={'include':[dict(frame=430,end=437,width=3840,composition='wide')]}
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('matrix='+json.dumps(matrix)+'\n')
           PYPLAN
   render:
@@ -66,7 +71,11 @@ jobs:
           python scripts/cine/prepare-blender-fonts.py public/fonts/um-sans /tmp/um-fonts
       - name: Render spatial proof
         run: |
-          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-v12.py -- --samples 24 --width ${{ matrix.width }} --composition ${{ matrix.composition }} --start ${{ matrix.frame }} --end ${{ matrix.frame }} --font-dir /tmp/um-fonts --output frames
+          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-v12.py -- --samples 24 --width ${{ matrix.width }} --composition ${{ matrix.composition }} --start ${{ matrix.frame }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames
+      - name: Encode bounded motion proof
+        if: inputs.mode == 'motion-proof'
+        run: |
+          ffmpeg -v error -framerate 60 -start_number ${{ matrix.frame }} -i frames/%04d.png -frames:v 8 -vf 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p' -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1 -c:v libx264 -preset medium -crf 17 -an -movflags +faststart frames/motion.mp4
       - uses: actions/upload-artifact@v7
         with:
           name: v12-spatial-${{ matrix.composition }}-${{ matrix.frame }}
