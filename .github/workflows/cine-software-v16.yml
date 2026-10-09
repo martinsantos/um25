@@ -64,13 +64,14 @@ jobs:
       - name: Prepare remote studio
         run: |
           MISSING=()
-          for PACKAGE in libgl1 libegl1 libxrender1 libxi6 xvfb libgl1-mesa-dri; do
+          for PACKAGE in ffmpeg libgl1 libegl1 libxrender1 libxi6 xvfb libgl1-mesa-dri; do
             if [ "$(dpkg-query -W -f='${db:Status-Status}' "$PACKAGE" 2>/dev/null)" != installed ]; then MISSING+=("$PACKAGE"); fi
           done
           if [ "${#MISSING[@]}" -gt 0 ]; then
             sudo timeout 120 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update -qq || true
             sudo timeout 180 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq "${MISSING[@]}"
           fi
+          ffmpeg -version | head -1
           curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender.tar.xz
           curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256 -o blender.sha256
           awk '$2 == "blender-4.5.3-linux-x64.tar.xz" {print $1 "  blender.tar.xz"}' blender.sha256 > selected.sha256
