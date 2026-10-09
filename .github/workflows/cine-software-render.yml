@@ -45,6 +45,7 @@ name: Blender software architecture
           - v14
           - v15
           - v16
+          - v17
         default: v2
       engine:
         description: 'Cycles baseline or Eevee proof on the disposable software GPU'
@@ -102,6 +103,13 @@ jobs:
       repair_parts: ${{ inputs.repair_parts }}
       source_run: ${{ inputs.source_run }}
       repair_runs: ${{ inputs.repair_runs }}
+  v17-spatial:
+    if: inputs.version == 'v17'
+    uses: ./.github/workflows/cine-software-v17.yml
+    with:
+      mode: ${{ inputs.mode }}
+      repair_parts: ${{ inputs.repair_parts }}
+      proof_frame: ${{ format('{0}', inputs.proof_frame) }}
   v16-spatial:
     if: inputs.version == 'v16'
     uses: ./.github/workflows/cine-software-v16.yml
@@ -137,7 +145,7 @@ jobs:
       proof_frame: ${{ format('{0}', inputs.proof_frame) }}
       mode: ${{ inputs.mode }}
   plan:
-    if: inputs.version != 'v16' && inputs.version != 'v10' && inputs.version != 'v11' && inputs.version != 'v12' && inputs.version != 'v13' && inputs.version != 'v14' && inputs.version != 'v15'
+    if: inputs.version != 'v17' && inputs.version != 'v16' && inputs.version != 'v10' && inputs.version != 'v11' && inputs.version != 'v12' && inputs.version != 'v13' && inputs.version != 'v14' && inputs.version != 'v15'
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
