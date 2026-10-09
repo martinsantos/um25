@@ -69,7 +69,7 @@ def build():
  for g,s,x,y,z,size,m,bold in source.texts:
   if g not in keep:continue
   s={'En revisión':'Aprobada','Aprobar orden':'Orden aprobada','Revisión solicitada':'Aprobación registrada','MS solicitó revisión de la orden 0248':'MS aprobó la orden 0248'}.get(s,s)
-  p.text(g,s,x,y,z,size,m,bold)
+  p.text(g,s,x,y,z,size,'floor' if m=='paper' else m,bold)
  for g,points,m,r in source.lines:
   if g in keep:
    # Replace thick highlighted rectangles with consistently fine geometry.
@@ -109,6 +109,12 @@ def validate():
  for t in [i/(FRAMES-1) for i in range(FRAMES)]:
   d,target,angles=camera(t);assert d>10 and all(math.isfinite(x) for x in (*target,*angles))
  assert camera(0)==camera(1)
+ assert all(m not in ALPHA for g,s,x,y,z,size,m,bold in p.texts), 'Glyphs must remain opaque'
+ # Each interpolation finishes with zero velocity, including the loop join.
+ for t in [.22,.45,.65,.83]:
+  a=camera(t-1e-6);b=camera(t+1e-6)
+  assert abs(a[0]-b[0])<1e-4 and max(abs(x-y) for x,y in zip(a[2],b[2]))<1e-4
+ assert not any(g=='base' and max(v[0] for v in vv)-min(v[0] for v in vv)>15 and max(v[1] for v in vv)-min(v[1] for v in vv)>9 for g,m,vv,ff in p.meshes), 'No continuous enclosing board'
  assert placement('access',.4)[2]-placement('inspector',.4)[2]>1.5
  assert camera(.22)[2][0]*camera(.65)[2][0]<0
  print(json.dumps({'version':'v12','publishable':False,'labels':len(p.texts),'surfaces':len(p.meshes),'perspective':True,'crosses_axis':True}))

@@ -3,8 +3,8 @@ on:
   workflow_call:
     inputs:
       proof_frame:
-        type: number
-        default: -1
+        type: string
+        default: '-1'
 permissions:
   contents: read
 jobs:

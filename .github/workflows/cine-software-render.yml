@@ -102,7 +102,7 @@ jobs:
     if: inputs.version == 'v12'
     uses: ./.github/workflows/cine-software-v12.yml
     with:
-      proof_frame: ${{ inputs.proof_frame }}
+      proof_frame: ${{ format('{0}', inputs.proof_frame) }}
   plan:
     if: inputs.version != 'v10' && inputs.version != 'v11' && inputs.version != 'v12'
     runs-on: ubuntu-24.04
