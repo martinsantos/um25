@@ -130,7 +130,8 @@ def build():
   p.label(g,value,x+1.43,y-.13,.171,'ink',True,z=z+.028)
   p.label(g,detail,x+1.43,y-.40,.125,'muted',z=z+.028)
   p.icon(f'access-check-{i}','check',x+4.44,y-.29,'green',.18,z=z+.03)
-  p.line('access',[(x+4.92,y-.27,z),(7.10,y-.27,z),(7.10,y-.73,z-.28)],'registration',.0025)
+  end=(x+.15+4.92,y-.92-.27,z-.28) if i<2 else (6.96,-2.88,.06)
+  p.line('access',[(x+4.92,y-.27,z),(7.10,y-.27,z),(7.10,end[1],end[2]),end],'registration',.0025)
   p.disc(g,x+4.92,y-.27,.025,'signal',z=z+.015)
  p.tag('access-check-2','Puede aprobar',5.24,-3.05,1.50,'mint','green',z=-.09)
  p.label('access','0248-A',1.85,-3.05,.124,'muted',True,z=-.09)
@@ -210,7 +211,9 @@ def build():
  for layer in range(1,4):
   z=-.23*layer;dx=.13*layer;dy=.08*layer
   bounds=(1.265+dx,-3.00+dy,6.015+dx,.80+dy)
-  rect(p,'data-depth',bounds,z,'registration',.002)
+  x1,y1,x2,y2=bounds
+  # Open binding keeps rear edges out of the active face's text column.
+  p.line('data-depth',[(x1,y2,z),(x2,y2,z),(x2,y1,z),(x1,y1,z)],'registration',.002)
  p.label('data','REGISTRO 03 / VERSIÓN 3',1.50,-3.22,.100,'quiet',True)
  # Sparse registration ticks, tied to actual boundaries. No decorative grid.
  for x in [-5.43,.91,1.26,7.30]:
