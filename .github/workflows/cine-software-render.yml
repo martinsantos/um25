@@ -39,6 +39,7 @@ name: Blender software architecture
           - v8
           - v9
           - v10
+          - v11
         default: v2
       engine:
         description: 'Cycles baseline or Eevee proof on the disposable software GPU'
@@ -87,8 +88,17 @@ jobs:
       repair_parts: ${{ inputs.repair_parts }}
       source_run: ${{ inputs.source_run }}
       repair_runs: ${{ inputs.repair_runs }}
+  v11-studio:
+    if: inputs.version == 'v11'
+    uses: ./.github/workflows/cine-software-v11.yml
+    with:
+      mode: ${{ inputs.mode == 'sequence-proof' && 'sequence' || inputs.mode == 'motion-proof' && 'benchmark' || inputs.mode == 'repair' && 'repair' || inputs.mode == 'assemble' && 'assemble' || 'proof' }}
+      engine: ${{ inputs.engine }}
+      repair_parts: ${{ inputs.repair_parts }}
+      source_run: ${{ inputs.source_run }}
+      repair_runs: ${{ inputs.repair_runs }}
   plan:
-    if: inputs.version != 'v10'
+    if: inputs.version != 'v10' && inputs.version != 'v11'
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
@@ -383,7 +393,7 @@ jobs:
 
   assemble-sequence-proof:
     needs: render
-    if: inputs.mode == 'sequence-proof' && inputs.version != 'v10'
+    if: inputs.mode == 'sequence-proof' && inputs.version != 'v10' && inputs.version != 'v11'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:

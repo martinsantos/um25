@@ -1,0 +1,174 @@
+name: Software v11 studio
+on:
+  workflow_call:
+    inputs:
+      source_run:
+        type: string
+        default: ''
+      repair_runs:
+        type: string
+        default: ''
+      repair_parts:
+        type: string
+        default: ''
+      mode:
+        type: string
+        required: true
+      engine:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      source_run:
+        type: string
+        default: ''
+      repair_runs:
+        type: string
+        default: ''
+      repair_parts:
+        type: string
+        default: ''
+      mode:
+        type: choice
+        options: [proof, benchmark, sequence, repair, assemble]
+        default: proof
+      engine:
+        type: choice
+        options: [eevee, workbench]
+        default: eevee
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: software-v11-${{ github.ref }}-${{ inputs.mode }}-${{ inputs.engine }}
+  cancel-in-progress: false
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - id: plan
+        env:
+          MODE: ${{ inputs.mode }}
+          REPAIR_PARTS: ${{ inputs.repair_parts }}
+        run: |
+          python3 - <<'PYPLAN'
+          import os,json
+          rows=[]
+          for composition,width in [('wide',3840 if os.environ['MODE'] in ('sequence','repair') else 5120),('mobile',2160)]:
+              for i,(start,end) in enumerate([(144,144),(360,360),(552,552),(744,744)] if os.environ['MODE']=='proof' else [(360,363)] if os.environ['MODE']=='benchmark' else [(i*30,i*30+29) for i in range(32)]):
+                  rows.append(dict(composition=composition,width=width,part=i+1,start=start,end=end))
+          if os.environ['MODE']=='repair':
+              selected=os.environ['REPAIR_PARTS'].split(',');assert selected and all(x.split(':')[0] in ('wide','mobile') and 1<=int(x.split(':')[1])<=32 for x in selected)
+              rows=[row for row in rows if f"{row['composition']}:{row['part']}" in selected];assert len(rows)==len(set(selected))
+          if os.environ['MODE']=='assemble':rows=[]
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('matrix='+json.dumps({'include':rows})+'\n')
+          PYPLAN
+  render:
+    if: inputs.mode != 'assemble'
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      max-parallel: 20
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/cine/render-software-system-v11.py
+            scripts/cine/render-software-system-v8.py
+            scripts/cine/composite-software-layers.py
+            scripts/cine/prepare-blender-fonts.py
+            public/fonts/um-sans
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Prepare remote studio
+        run: |
+          MISSING=()
+          for PACKAGE in libgl1 libegl1 libxrender1 libxi6 xvfb libgl1-mesa-dri ffmpeg; do
+            if [ "$(dpkg-query -W -f='${db:Status-Status}' "$PACKAGE" 2>/dev/null)" != installed ]; then MISSING+=("$PACKAGE"); fi
+          done
+          if [ "${#MISSING[@]}" -gt 0 ]; then
+            sudo timeout 120 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update -qq || true
+            sudo timeout 600 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y -qq "${MISSING[@]}"
+          fi
+          curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender.tar.xz
+          curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256 -o blender.sha256
+          awk '$2 == "blender-4.5.3-linux-x64.tar.xz" {print $1 "  blender.tar.xz"}' blender.sha256 > selected.sha256
+          test -s selected.sha256
+          sha256sum -c selected.sha256
+          tar -xf blender.tar.xz
+          python -m pip install --disable-pip-version-check fonttools==4.58.0 skia-pathops==0.8.0.post2 pillow==11.2.1 numpy==2.2.6
+          python scripts/cine/prepare-blender-fonts.py public/fonts/um-sans /tmp/um-fonts
+      - name: Render native composition
+        run: |
+          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-v11.py -- --engine '${{ inputs.engine }}' --samples 16 --width ${{ matrix.width }} --composition ${{ matrix.composition }} --start ${{ matrix.start }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames
+      - name: Encode native frames
+        if: inputs.mode == 'sequence' || inputs.mode == 'repair'
+        run: |
+          mkdir part
+          cp frames/render-info.json part/info.json
+          ffmpeg -v error -framerate 60 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v 30 -vf 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p' -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1 -c:v libx264 -preset medium -crf 17 -g 120 -an -movflags +faststart part/movie.mp4
+      - uses: actions/upload-artifact@v7
+        if: inputs.mode != 'sequence' && inputs.mode != 'repair'
+        with:
+          name: v11-${{ matrix.composition }}-${{ matrix.part }}
+          path: frames
+          retention-days: 4
+      - uses: actions/upload-artifact@v7
+        if: inputs.mode == 'sequence' || inputs.mode == 'repair'
+        with:
+          name: v11-${{ matrix.composition }}-${{ matrix.part }}
+          path: part
+          retention-days: 4
+
+  assemble:
+    needs: render
+    if: always() && ((inputs.mode == 'sequence' && needs.render.result == 'success') || inputs.mode == 'assemble')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts/cine/assemble-software-v11.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: v11-*
+          path: parts
+          run-id: ${{ inputs.source_run || github.run_id }}
+          github-token: ${{ github.token }}
+      - name: Restore recovered fragments
+        if: inputs.repair_runs != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          REPAIR_RUNS: ${{ inputs.repair_runs }}
+        run: |
+          python3 - <<'PYRECOVER'
+          import os,re,json,subprocess
+          from pathlib import Path
+          for run in os.environ['REPAIR_RUNS'].split(','):
+              assert re.fullmatch(r'[0-9]+',run)
+              data=json.loads(subprocess.check_output(['gh','api',f"repos/{os.environ['GH_REPO']}/actions/runs/{run}/artifacts?per_page=100"]))
+              for item in data['artifacts']:
+                  name=item['name']
+                  if re.fullmatch(r'v11-(wide|mobile)-(?:[1-9]|1\d|[12]\d|3[0-2])',name):
+                      subprocess.run(['gh','run','download',run,'-n',name,'-D',str(Path('parts')/name)],check=True)
+          PYRECOVER
+      - name: Assemble and verify native compositions
+        run: |
+          sudo timeout 600 apt-get install -y -qq ffmpeg
+          python3 scripts/cine/assemble-software-v11.py --source parts --output delivery
+      - uses: actions/upload-artifact@v7
+        with:
+          name: software-v11-sequence-candidate
+          path: delivery
+          retention-days: 7
