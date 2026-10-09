@@ -1,9 +1,9 @@
 import fs from 'node:fs';
-import {softwarePose,bindSoftwareSystem} from '../public/cine/software-system-v4.js';
+import {softwarePose,bindSoftwareSystem} from '../public/cine/software-system-v5.js';
 let reduced=false;
 const settle=async()=>{for(let i=0;i<5;i++)await Promise.resolve();};
 function fixture(stage=0){
- const drawing=fs.readFileSync('src/assets/cine/isometric/discipline-104-v4.svg','utf8');
+ const drawing=fs.readFileSync('src/assets/cine/isometric/discipline-104-v5.svg','utf8');
  document.body.innerHTML=`<section data-service-atlas data-story-state="playing"><div data-discipline-system data-visible="true" data-discipline-service="104" data-discipline-stage="${stage}">${drawing}</div></section>`;
  const root=document.querySelector('[data-discipline-system]');bindSoftwareSystem(root);return root;
 }
@@ -30,10 +30,10 @@ test('all three permissions open in order before the request leaves access contr
  const released=softwarePose(1,5000);expect(released.gates).toEqual([1,1,1]);expect(released.routes[1]).toBeGreaterThan(0);
 });
 test('the data response changes the same request in the original UI',async()=>{
- const root=fixture(3);expect(root.querySelector('[data-sw-ui-state]').textContent).toBe('Por asignar');
+ const root=fixture(3);expect(root.querySelector('[data-sw-ui-state]').textContent).toBe('En revisión');
  await jest.advanceTimersByTimeAsync(7000);
- expect(root.querySelector('[data-sw-ui-state]').textContent).toBe('Asignada');
- expect(root.querySelector('[data-sw-submit]').textContent).toBe('Asignada ✓');
+ expect(root.querySelector('[data-sw-ui-state]').textContent).toBe('Aprobada');
+ expect(root.querySelector('[data-sw-submit]').textContent).toBe('Aprobada ✓');
 });
 test('pause freezes the full mechanism and resumes without skipping the result',async()=>{
  const root=fixture(1),drawing=root.querySelector('.sw-system');await jest.advanceTimersByTimeAsync(2800);
@@ -46,7 +46,7 @@ test('switching service stops rendering and reduced motion shows a complete stat
  const root=fixture(2);await jest.advanceTimersByTimeAsync(900);root.dataset.disciplineService='101';await settle();const before=root.querySelector('.sw-system').innerHTML;
  await jest.advanceTimersByTimeAsync(3000);expect(root.querySelector('.sw-system').innerHTML).toBe(before);
  reduced=true;root.dataset.disciplineService='104';await settle();
- expect(root.querySelector('[data-sw-ui-state]').textContent).toBe('Asignada');
+ expect(root.querySelector('[data-sw-ui-state]').textContent).toBe('Aprobada');
  expect(root.querySelector('.sw-viewport').getAttribute('viewBox')).toBe('0 0 1200 650');
  const quiet=root.innerHTML;await jest.advanceTimersByTimeAsync(2000);expect(root.innerHTML).toBe(quiet);
 });

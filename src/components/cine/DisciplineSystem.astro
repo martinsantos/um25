@@ -2,7 +2,7 @@
 import {DISCIPLINE_SYSTEMS} from '../../data/cine/disciplineSystems';
 import drawing from '../../assets/cine/isometric/discipline-systems-v6.svg?raw';
 import precisionNetwork from '../../assets/cine/isometric/discipline-101-v2.svg?raw';
-import precisionSoftware from '../../assets/cine/isometric/discipline-104-v4.svg?raw';
+import precisionSoftware from '../../assets/cine/isometric/discipline-104-v5.svg?raw';
 import precisionPower from '../../assets/cine/isometric/discipline-108-v5.svg?raw';
 import precisionTelecom from '../../assets/cine/isometric/discipline-103-v3.svg?raw';
 import precisionSupport from '../../assets/cine/isometric/discipline-105-v3.svg?raw';
@@ -21,7 +21,7 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='103'?precis
  <Fragment set:html={markup} />
  <p class="discipline-system__key"><span aria-hidden="true"></span><span data-discipline-key>Un sistema. Todas sus capas.</span></p>
 </div>
-<script src="/cine/discipline-runtime-v5.js" type="module" async is:inline />
+<script src="/cine/discipline-runtime-v6.js" type="module" async is:inline />
 <style>
  @property --um-ds-door-angle{syntax:"<angle>";inherits:false;initial-value:0deg}
  .discipline-system{position:absolute;inset:0;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 700ms ease;isolation:isolate}
