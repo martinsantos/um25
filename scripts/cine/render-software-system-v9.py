@@ -107,11 +107,17 @@ def build():
  p.label('access','<policy scope="P-104">',1.64,-.42,.103,'red',z=.05)
  return p
 
+def narrative(t):
+ checks=sum(t>=threshold for threshold in (.30,.39,.48))
+ return checks,checks==3,t>=.72
+
 def pose(group,t):
  # Register controls to their real positions. A single continuous inspection,
  # not a succession of cards thrown toward the viewer.
  opening=E((t-.12)/.55)
  z={'selection':.12,'inspector':.20,'access':.58,'history':.32,'action':.20,'annotation':.62}.get(group,0)*opening
+ if group=='access':z-=.24*E((t-.77)/.14)
+ if group=='history':z+=.18*E((t-.72)/.13)
  return (0,0,z)
 
 def camera_pose(t):
@@ -127,6 +133,7 @@ def basis(t):
  return size,target,tuple(c*x+s*y for x,y in zip(r,u)),tuple(-s*x+c*y for x,y in zip(r,u)),n
 
 def validate():
+ assert narrative(.29)==(0,False,False) and narrative(.49)==(3,True,False) and narrative(.73)==(3,True,True)
  p=build();assert all(m in PALETTE for _,m,_,_ in p.meshes)
  assert {'Puesta en marcha','Permiso efectivo','TRAZABILIDAD','Aprobar orden'} <= {t[1] for t in p.texts}
  assert all(math.isfinite(v) for points in p.points.values() for point in points for v in point)
@@ -179,7 +186,7 @@ def render(args):
  if args.engine=='workbench':
   scene.display.shading.light='FLAT';scene.display.shading.color_type='MATERIAL';scene.display.shading.show_shadows=True;scene.display.shading.show_cavity=False;scene.display.render_aa='8';scene.display.shading.shadow_intensity=.12;scene.display.light_direction=(.2,-.25,1)
  font_dir=Path(args.font_dir) if args.font_dir else ROOT/'public/fonts/um-sans';fonts={bold:bpy.data.fonts.load(str(font_dir/f'UMSans-{weight}.ttf')) for bold,weight in [(False,'Regular'),(True,'SemiBold')]}
- product=build();parents={};combined={}
+ product=build();parents={};combined={};native_texts=[];native_marks=[]
  for g in product.points:
   ob=bpy.data.objects.new(g,None);scene.collection.objects.link(ob);parents[g]=ob
  for g,m,verts,faces in product.meshes:
@@ -188,15 +195,16 @@ def render(args):
   vv,ff=combined.setdefault((g,m),([],[]));offset=len(vv);vv.extend([(x+a*w/2,y+b*d/2,z+c*h) for c in [0,1] for b in [-1,1] for a in [-1,1]])
   ff.extend(tuple(offset+i for i in f) for f in [(0,2,3,1),(4,5,7,6),(0,1,5,4),(2,6,7,3),(0,4,6,2),(1,3,7,5)])
  for (g,m),(vv,ff) in combined.items():
-  mesh=bpy.data.meshes.new(g+' / '+m);mesh.from_pydata(vv,[],ff);mesh.update();ob=bpy.data.objects.new(mesh.name,mesh);scene.collection.objects.link(ob);ob.parent=parents[g];mesh.materials.append(mats[m]);ob.display.show_shadows=m in ('edge','paper','canvas','nav')
+  mesh=bpy.data.meshes.new(g+' / '+m);mesh.from_pydata(vv,[],ff);mesh.update();ob=bpy.data.objects.new(mesh.name,mesh);scene.collection.objects.link(ob);ob.parent=parents[g];mesh.materials.append(mats[m]);ob.display.show_shadows=m in ('edge','paper','canvas','nav');native_marks.append((g,m,ob))
   bevel=ob.modifiers.new('Fine edge','BEVEL');bevel.width=.001;bevel.segments=2
  for g,s,x,y,z,size,m,bold in product.texts:
-  c=bpy.data.curves.new(s,'FONT');c.body=s;c.size=size;c.font=fonts[bold];c.extrude=0;ob=bpy.data.objects.new(s,c);scene.collection.objects.link(ob);ob.parent=parents[g];ob.location=(x,y,z);ob.visible_shadow=False;ob.display.show_shadows=False;c.materials.append(mats[m])
+  c=bpy.data.curves.new(s,'FONT');c.body=s;c.size=size;c.font=fonts[bold];c.extrude=0;ob=bpy.data.objects.new(s,c);scene.collection.objects.link(ob);ob.parent=parents[g];ob.location=(x,y,z);ob.visible_shadow=False;ob.display.show_shadows=False;c.materials.append(mats[m]);native_texts.append((g,s,ob))
  def curve(name,pts,material,radius,parent=None):
   c=bpy.data.curves.new(name,'CURVE');c.dimensions='3D';c.bevel_depth=radius;c.bevel_resolution=2;s=c.splines.new('POLY');s.points.add(len(pts)-1)
   for point,xyz in zip(s.points,pts):point.co=(*xyz,1)
   ob=bpy.data.objects.new(name,c);scene.collection.objects.link(ob);c.materials.append(mats[material]);ob.parent=parent;ob.visible_shadow=False;ob.display.show_shadows=False;return ob,s
- for g,pts,m,r in product.lines:curve('Authored detail',pts,m,r,parents[g])
+ for g,pts,m,r in product.lines:
+  ob,_=curve('Authored detail',pts,m,r,parents[g]);native_marks.append((g,m,ob))
  registration=[]
  for g,corners in [('selection',[(-5.27,1.17),(.80,1.17),(.80,1.68),(-5.27,1.68)]),('access',[(1.60,-1.86),(6.96,-1.86),(6.96,-.49),(1.60,-.49)])]:
   for x,y in corners:
@@ -211,6 +219,22 @@ def render(args):
    t=scene.frame_current/(FRAMES-1);size,target,r,u,n=basis(t);camdata.ortho_scale=size;cam.location=Vector(target)+Vector(n)*50;cam.rotation_euler=Matrix((r,u,n)).transposed().to_euler()
    for g,ob in parents.items():ob.location=pose(g,t)
    for g,ob,s in registration:s.points[1].co.z=.024+pose(g,t)[2];ob.hide_render=pose(g,t)[2]<.01
+   checks,permitted,approved=narrative(t)
+   replacements={
+    'Permiso efectivo':'Permiso efectivo' if permitted else 'Verificando acceso',
+    'Verificado':'Verificado' if permitted else 'Verificando',
+    'MS puede aprobar esta orden porque cumple las tres condiciones.':'MS puede aprobar esta orden porque cumple las tres condiciones.' if permitted else 'Comprobamos identidad, rol y alcance del proyecto.',
+    'En revisión':'Aprobada' if approved else 'En revisión',
+    'Aprobar orden':'Orden aprobada' if approved else 'Aprobar orden',
+    'Revisión solicitada':'Aprobación registrada' if approved else 'Revisión solicitada',
+    'MS · hoy, 10:42':'MS · hoy, 10:43 · orden 0248' if approved else 'MS · hoy, 10:42',
+    'MS solicitó revisión de la orden 0248':'MS aprobó la orden 0248' if approved else 'MS solicitó revisión de la orden 0248'}
+   for group,original,ob in native_texts:
+    ob.data.body=replacements.get(original,original)
+    if group=='access' and original in ('01','02','03'):ob.data.materials[0]=mats['green' if int(original)<=checks else 'quiet']
+    if original=='En revisión':ob.data.materials[0]=mats['green' if approved else 'red']
+   for group,material,ob in native_marks:
+    if material=='red' and group in ('selection','history','action'):ob.data.materials[0]=mats['green' if approved else 'red']
   except Exception as e:errors.append(repr(e));raise
  def begin(scene):started[0]=time.time()
  def finish(scene):

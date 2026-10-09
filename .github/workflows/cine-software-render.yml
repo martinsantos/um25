@@ -109,7 +109,7 @@ jobs:
           if os.environ['MODE']=='motion-proof':
               assert os.environ['VERSION'] in ('v3','v5','v6','v7','v8','v9')
               count=int(os.environ['MOTION_FRAMES']);assert 2<=count<=120
-              start=120 if os.environ['VERSION']=='v9' else 180 if os.environ['VERSION']=='v8' else 300 if os.environ['VERSION']=='v7' else 690 if os.environ['VERSION']=='v6' else 600 if os.environ['VERSION']=='v5' else 300
+              start=240 if os.environ['VERSION']=='v9' else 180 if os.environ['VERSION']=='v8' else 300 if os.environ['VERSION']=='v7' else 690 if os.environ['VERSION']=='v6' else 600 if os.environ['VERSION']=='v5' else 300
               rows=[dict(part=1,start=start,end=start+count-1,frames=count)]
           if os.environ['MODE']=='repair':
               selected=[int(n) for n in os.environ['REPAIR_PARTS'].split(',')]
