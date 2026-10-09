@@ -1,5 +1,13 @@
 name: Software v10 studio
 on:
+  workflow_call:
+    inputs:
+      mode:
+        type: string
+        required: true
+      engine:
+        type: string
+        required: true
   workflow_dispatch:
     inputs:
       mode:

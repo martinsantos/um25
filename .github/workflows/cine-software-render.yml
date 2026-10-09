@@ -38,6 +38,7 @@ name: Blender software architecture
           - v7
           - v8
           - v9
+          - v10
         default: v2
       engine:
         description: 'Cycles baseline or Eevee proof on the disposable software GPU'
@@ -77,7 +78,14 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   VERSION: ${{ inputs.version || 'v2' }}
 jobs:
+  v10-studio:
+    if: inputs.version == 'v10'
+    uses: ./.github/workflows/cine-software-v10.yml
+    with:
+      mode: ${{ inputs.mode == 'sequence-proof' && 'sequence' || 'proof' }}
+      engine: ${{ inputs.engine }}
   plan:
+    if: inputs.version != 'v10'
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
@@ -372,7 +380,7 @@ jobs:
 
   assemble-sequence-proof:
     needs: render
-    if: inputs.mode == 'sequence-proof'
+    if: inputs.mode == 'sequence-proof' && inputs.version != 'v10'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
