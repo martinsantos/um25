@@ -29,7 +29,7 @@ def exposure(t):return .30+.70*E((t-.025)/.15)*(1-E((t-.82)/.18))
 def placement(group,t):
  q=exposure(t)
  return {'list':(-.22*q,.18*q,.64*q), 'selection':(-.22*q,.18*q,.68*q),
- 'inspector':(.50*q,.08*q,1.56*q), 'access':(1.10*q,.75*q,3.26*q),
+ 'inspector':(.50*q,.08*q,1.56*q), 'access':(.20*q,-1.45*q,3.26*q),
  'history':(.55*q,-.27*q,2.20*q),'action':(.55*q,-.27*q,2.20*q),
  'contract':(-.8*q,0,-1.10), 'data':(.3*q,0,-1.70)}.get(group,(0,0,0))
 
@@ -39,7 +39,7 @@ def camera(t):
  keys=[(0,27,(.4,0,1),(22,-32,-9)),
        (.22,23,(1.8,-.6,1.6),(31,-30,-7)),
        (.45,18,(4.1,-1.1,2.2),(24,-39,-4)),
-       (.65,21,(.7,-1.0,1.1),(-18,-35,5)),
+       (.65,23,(.7,-1.0,1.1),(-18,-35,5)),
        (.83,26,(.4,-.3,.8),(-24,-28,8)),
        (1,27,(.4,0,1),(22,-32,-9))]
  for a,b in zip(keys,keys[1:]):
@@ -144,6 +144,15 @@ def render(args):
    mat.node_tree.links.new(tr.outputs[0],mix.inputs[1]);mat.node_tree.links.new(em.outputs[0],mix.inputs[2]);mat.node_tree.links.new(mix.outputs[0],output.inputs['Surface'])
   else:mat.node_tree.links.new(em.outputs[0],output.inputs['Surface'])
   mats[name]=mat
+ glyph_mats={}
+ def glyph_material(group,name,region='content'):
+  key=(group,name,region)
+  if key in glyph_mats:return glyph_mats[key][0]
+  mat=bpy.data.materials.new('/'.join(key));mat.use_nodes=True;mat.surface_render_method='BLENDED';mat.use_transparency_overlap=False
+  nodes=mat.node_tree.nodes;nodes.clear();out=nodes.new('ShaderNodeOutputMaterial');em=nodes.new('ShaderNodeEmission');em.inputs[0].default_value=(*linear(COLORS[name]),1)
+  tr=nodes.new('ShaderNodeBsdfTransparent');mix=nodes.new('ShaderNodeMixShader');mix.inputs[0].default_value=1
+  mat.node_tree.links.new(tr.outputs[0],mix.inputs[1]);mat.node_tree.links.new(em.outputs[0],mix.inputs[2]);mat.node_tree.links.new(mix.outputs[0],out.inputs['Surface'])
+  glyph_mats[key]=(mat,mix);return mat
  fonts={b:bpy.data.fonts.load(str(Path(args.font_dir)/f'UMSans-{w}.ttf')) for b,w in [(False,'Regular'),(True,'SemiBold')]}
  p=build();parents={}
  for g in p.points:
@@ -154,7 +163,7 @@ def render(args):
  for g,x,y,z,w,d,h,m in p.boxes:
   bpy.ops.mesh.primitive_cube_add(size=1,location=(x,y,z+h/2));ob=bpy.context.object;ob.scale=(w,d,h);ob.data.materials.append(mats[m]);ob.parent=parents[g]
  for g,s,x,y,z,size,m,bold in p.texts:
-  c=bpy.data.curves.new(s,'FONT');c.body=s;c.size=size;c.font=fonts[bold];c.extrude=0;c.materials.append(mats[m]);ob=bpy.data.objects.new(s,c);scene.collection.objects.link(ob);ob.location=(x,y,z);ob.parent=parents[g]
+  c=bpy.data.curves.new(s,'FONT');c.body=s;c.size=size;c.font=fonts[bold];c.extrude=0;c.materials.append(glyph_material(g,m,'properties' if g=='inspector' and -.3<y<2.3 else 'content'));ob=bpy.data.objects.new(s,c);scene.collection.objects.link(ob);ob.location=(x,y,z);ob.parent=parents[g]
  def line(name,pts,m,r,parent=None):
   c=bpy.data.curves.new(name,'CURVE');c.dimensions='3D';c.bevel_depth=r;c.bevel_resolution=2
   sp=c.splines.new('POLY');sp.points.add(len(pts)-1)
@@ -184,6 +193,15 @@ def render(args):
   ax,ay,roll=map(math.radians,angles);n=Vector((math.tan(ax),math.tan(ay),1)).normalized();r=Vector((n.z,0,-n.x)).normalized();u=n.cross(r);rr=math.cos(roll)*r+math.sin(roll)*u;uu=-math.sin(roll)*r+math.cos(roll)*u
   cam.location=Vector(target)+n*d;cam.rotation_euler=Matrix((rr,uu,n)).transposed().to_euler()
   for g,ob in parents.items():ob.location=placement(g,t)
+  inspected=E((t-.08)/.10)*(1-E((t-.50)/.10))
+  infrastructure=E((t-.50)/.10)*(1-E((t-.82)/.10))
+  for (group,name,region),(mat,mix) in glyph_mats.items():
+   opacity=1
+   if group in ('contract','data'):opacity=.08+.92*infrastructure
+   elif group=='inspector' and region=='properties':opacity=1-.78*inspected-.85*infrastructure
+   elif group in ('base','list','selection','inspector','history','action'):opacity=1-.82*infrastructure
+   elif group=='access':opacity=1-.84*infrastructure
+   mix.inputs[0].default_value=max(.06,opacity)
   for g,sp,(x,y) in links:
    dx,dy,dz=placement(g,t);sp.points[1].co=(x+dx,y+dy,.061+dz,1)
   ax,ay,az=placement('access',t);cx,cy,cz=placement('contract',t);dx,dy,dz=placement('data',t)
