@@ -291,7 +291,7 @@ def render(args):
   if key in glyph_mats:return glyph_mats[key][0]
   # Glyphs and fine strokes use depth-tested coverage. Unlike sorted glass,
   # their visibility must not depend on a label's left-aligned origin.
-  mat=bpy.data.materials.new('/'.join(key));mat.use_nodes=True;mat.surface_render_method='BLENDED' if region=='edge' else 'DITHERED';mat.use_transparency_overlap=False
+  mat=bpy.data.materials.new('/'.join(key));mat.use_nodes=True;mat.surface_render_method='DITHERED';mat.use_transparency_overlap=False
   nodes=mat.node_tree.nodes;nodes.clear();out=nodes.new('ShaderNodeOutputMaterial');em=nodes.new('ShaderNodeEmission');em.inputs[0].default_value=(*linear(COLORS[name]),1)
   tr=nodes.new('ShaderNodeBsdfTransparent');mix=nodes.new('ShaderNodeMixShader');mix.inputs[0].default_value=1
   mat.node_tree.links.new(tr.outputs[0],mix.inputs[1]);mat.node_tree.links.new(em.outputs[0],mix.inputs[2]);mat.node_tree.links.new(mix.outputs[0],out.inputs['Surface'])
@@ -360,7 +360,7 @@ def render(args):
    elif group=='packet':opacity=E((t-.27)/.06)*(1-E((t-.78)/.05))
    elif group=='connections':opacity=.08+.55*E((t-.28)/.08)*(1-E((t-.80)/.08))
    elif region=='edge':
-    opacity=prominence(group,t) if '-check-' in group or group=='data-commit' else .045+.955*focus(group,t) if group.endswith('-depth') else .018+.982*focus(group,t)
+    opacity=prominence(group,t) if '-check-' in group or group=='data-commit' else focus(group,t)
    if family(group)=='access':opacity*=E((t-.10)/.07)
    mix.inputs[0].default_value=max(0,opacity)
   for i,sp in enumerate(mapping_signals):
