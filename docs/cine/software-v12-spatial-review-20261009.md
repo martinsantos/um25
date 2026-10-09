@@ -28,3 +28,12 @@ La representación sigue siendo vectorial. No se redujo resolución ni se agrega
 Referencias: [Hill](https://x.com/iamdavidhill/status/2107616166713655476), [Ryan](https://x.com/wheresryan22/status/2106439475551154186), [Solvaix](https://x.com/Solvaix/status/2106830508797706560). La comparación de este trabajo se concentra en Software y, para el banner, en Hill. No acredita que el resto de los sectores alcance a Solvaix, ni que todas las isometrías alcancen la riqueza mecánica de Ryan.
 
 El registro de medios de producción no se modifica. `UM_SOFTWARE_REVIEW=v12` sólo debe usarse después de importar los dos encuadres completos verificados. Las pruebas parciales son de revisión interna y no se presentan como la película terminada.
+
+
+## Integración y autonomía verificadas
+
+Se revisó la isometría dentro de `/software`, además de los planos aislados. La versión conserva seis mecanismos propios y sus conexiones; el rótulo de publicación ya no es atravesado por la pieza de release. El recorrido progresa sin clics y acompaña cada mecanismo con su explicación.
+
+En un viewport de 390 × 844 se encontró un problema real: el umbral anterior iniciaba el reloj con apenas parte del escenario a la vista, mientras todavía se leía la introducción. `service-atlas-v22.js` exige que el 60 % del escenario de Software esté visible, descontando las barras fijas superior e inferior. Se verificó en navegador que conserva el estado inicial al leer la introducción y comienza automáticamente al bajar hasta el dibujo. Fuera de pantalla conserva el tiempo pendiente. El cambio sólo afecta al escenario de Software.
+
+Validación: 58 pruebas de relato/autonomía/sectores y 13 pruebas de mecanismos/geometría/ciclo de vida aprobadas; build Astro correcto. El archivo público nuevo evita sustituir el controlador v21 en el deploy scoped.

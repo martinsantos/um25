@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[2]
 def run(*args):subprocess.run([str(a) for a in args],check=True)
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 def verify(path,w,h,count):
- data=json.loads(subprocess.check_output(['ffprobe','-v','error','-count_frames','-show_streams','-of','json',str(path)]));v=next(s for s in data['streams'] if s['codec_type']=='video')
+ data=json.loads(subprocess.check_output(['ffprobe','-v','error','-threads','2','-count_frames','-show_streams','-of','json',str(path)]));v=next(s for s in data['streams'] if s['codec_type']=='video')
  assert [v['codec_name'],v['width'],v['height'],v['nb_read_frames'],v['avg_frame_rate'],v['pix_fmt']]==['h264',w,h,str(count),'60/1','yuv420p']
  assert abs(float(v['duration'])-count/60)<.01
  assert [v['color_space'],v['color_primaries'],v['color_transfer'],v['color_range']]==['bt709','bt709','iec61966-2-1','tv']
@@ -27,9 +27,9 @@ def assemble(source,out):
   run('ffmpeg','-v','error','-threads','2','-i',movie,'-f','null','-')
   (out/f'validation{suffix}.json').write_text(json.dumps(verify(movie,w,h,960)))
   (out/f'render-info{suffix}.json').write_text(json.dumps(dict(infos[0],timings=[r for info in infos for r in info['timings']])))
-  poster=out/f'cine-software-system-v12-poster{suffix}.jpg';run('ffmpeg','-v','error','-i',movie,'-frames:v','1','-q:v','2',poster)
-  run('ffmpeg','-v','error','-i',poster,'-c:v','libaom-av1','-cpu-used','6','-still-picture','1','-crf','24',poster.with_suffix('.avif'))
-  for sec in [0,3.5,7.15,10.4,13.5,15.98]:run('ffmpeg','-v','error','-ss',sec,'-i',movie,'-frames:v','1',out/f'review{suffix}-{sec}.png')
+  poster=out/f'cine-software-system-v12-poster{suffix}.jpg';run('ffmpeg','-v','error','-threads','2','-i',movie,'-frames:v','1','-q:v','2',poster)
+  run('ffmpeg','-v','error','-i',poster,'-c:v','libaom-av1','-threads','2','-cpu-used','6','-still-picture','1','-crf','24',poster.with_suffix('.avif'))
+  for sec in [0,3.5,7.15,10.4,13.5,15.98]:run('ffmpeg','-v','error','-threads','2','-ss',sec,'-i',movie,'-frames:v','1',out/f'review{suffix}-{sec}.png')
  assets=list(out.glob('cine-*'));assert sum(p.stat().st_size for p in assets)<120_000_000
  (out/'SHA256SUMS').write_text(''.join(sha(p)+'  '+p.name+'\n' for p in sorted(out.iterdir()) if p.name!='SHA256SUMS'))
  print(json.dumps({'frames':960,'fps':60,'compositions':2,'publishable':False,'bytes':sum(p.stat().st_size for p in assets)}))
