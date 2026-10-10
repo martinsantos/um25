@@ -1,4 +1,29 @@
-# Plantillas y presentación — revisión visual r3
+# Plantillas y presentación — revisión r4
+
+## Imágenes y punto final — 10 de octubre
+
+- La oferta completa incorpora una imagen de producto centrada en el flujo de texto y un comentario opcional. Todos los modelos Word contienen los estilos Imagen centrada y Comentario de imagen, disponibles también en DOTX y ODT.
+- Se agrega Imágenes en documentos con PNG transparente, fotografía sobre blanco y un bloque sin comentario. Las imágenes públicas del sitio son referencias de composición; no identifican modelos de una oferta. No hay marcos, fondos añadidos, sombras ni recortes del producto.
+- El aire solicitado se aplica con 18 pt antes de la imagen, 6 pt entre imagen y comentario y 24 pt después del comentario. En la lectura web: 32 px antes, 12 px entre imagen y pie y 48 px después del bloque. El comentario usa 10,5 pt en los documentos y 18 px en la web.
+- Las imágenes mantienen proporción y centro dentro de los márgenes; el párrafo de imagen conserva su comentario en la misma página. Se comprueba también un salto forzado con contenido añadido. La plantilla vacía conserva tres páginas, el ejemplo cuatro y los bloques de imágenes dos.
+- Todos los niveles de títulos terminan en punto: 4., 4.1. y 4.1.1. Continúan siendo automáticos, dentro de la línea izquierda del cuerpo y con un espacio corto.
+- Los HTML incorporan la imagen; permiten reemplazarla, editar el comentario y guardar una copia. La impresión limita la altura para imágenes verticales. La vista de lectura reutiliza los archivos públicos existentes, cuyos bytes se comprobaron en la web.
+- Se revisan las 16 páginas de Word, las exportaciones ODT y el PDF nativo de Google Docs. Google mantiene las imágenes centradas y sus comentarios, pero usa Arial; no se declara la misma tipografía de los PDF oficiales. Las copias adaptadas mantienen los tabulados cortos al importar.
+- La entrega r4 contiene 50 archivos y un ZIP de aproximadamente 49,9 MB, con manifiesto SHA-256. Los XLSX y PDF económicos siguen idénticos a r3, sin imágenes de producto.
+
+## Corrección de tabulados y línea izquierda — 10 de octubre
+
+- Todos los números comienzan en la misma línea izquierda que el cuerpo y las tablas, dentro del bloque. Un espacio tipográfico de 0,25 em separa cifra y título. Se conserva numeración automática, tamaños proporcionales y estilos de tres niveles.
+- Se descartan los tabulados amplios y la variante con números colgados fuera del cuerpo, siguiendo la indicación final del usuario. HTML y lectura web usan el ancho natural del número y una separación de 0,25 em.
+- Ritmo de lectura: 8 pt entre párrafos normales; antes de títulos 24/18/16 pt por nivel, después 6 pt. Entre títulos consecutivos se reduce el espacio previo a 8 pt.
+- Se revisan números de dos cifras y 10.12.1, los títulos largos y el paginado completo. Word, DOTX, ODT, PDF, SVG y HTML se actualizan en el paquete nuevo 2026.10.10-r4.
+- Los tres XLSX y sus PDF mantienen exactamente sus bytes aprobados de r3. Las fuentes publicadas son inmutables.
+- La conversión nativa a Google sustituye UM Sans 2 por Arial y aplica tabulados predeterminados cuando el Word usa un espacio. Las copias de comparación se adaptan para mantener los números dentro del bloque y un espacio corto; requieren revisar los tabulados al cambiar la cantidad de cifras de una numeración. No se declara identidad tipográfica con el PDF original.
+- El usuario autorizó publicar con las comprobaciones de LibreOffice y PDF, sin esperar al visor integrado. Microsoft Office nativo sigue sin comprobación directa.
+- El primer despliegue de r3 se revirtió correctamente porque el auditor exigía el enlace del ZIP histórico 2.0.0. El auditor verifica ahora el paquete vigente, manifiesto y cada archivo, manteniendo los controles de fuentes y descargas anteriores.
+
+## Historial de revisión r3
+
 
 Estado: revisión local; no publicada. Ruta: `/estilo/fuentes/plantilla`.
 

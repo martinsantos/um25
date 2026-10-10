@@ -1,4 +1,4 @@
-# Plantillas UM Sans 2 — revisión 2026.10.09-r3
+# Plantillas UM Sans 2 — revisión 2026.10.10-r4
 
 Fuentes de generación de los DOCX/DOTX, HTML, XLSX y vistas previas de esta revisión. La familia publicada en `public/fonts/um-sans/v2.0.0` es una entrada inmutable. El logotipo conserva los trazos de `public/images/logo-light.svg`; se ajusta su viewport al contorno visible.
 
@@ -59,4 +59,12 @@ El presupuesto vacío imprime cuatro páginas: Resultado y Parámetros en A4 apa
 
 El espaciador numérico nativo de Excel reserva el margen derecho también en Calc, donde la sangría de algunas celdas numéricas se ignora. El control final con datos conserva los formatos de importe, cantidad y porcentaje; los ocho importes de cierre comparten el mismo borde dentro de 0,05 pt. El cambio no modifica valores ni fórmulas.
 
-`package-review.py` escribe únicamente el directorio local `public/downloads/plantillas-um-sans/2026.10.09-r3`. No despliega ni modifica la fuente tipográfica. Para otra entrega, usar una versión nueva y actualizar sus enlaces; no sobrescribir un paquete publicado.
+`package-review.py` escribe únicamente el directorio local `public/downloads/plantillas-um-sans/2026.10.10-r4`. No despliega ni modifica la fuente tipográfica. Para otra entrega, usar una versión nueva y actualizar sus enlaces; no sobrescribir un paquete publicado.
+
+Todos los números comienzan en la línea izquierda del cuerpo, dentro del bloque. Un espacio tipográfico (0,25 em) separa número y título, sin tabulados de ancho fijo. La numeración multinivel sigue siendo automática. HTML y lectura web usan columnas de ancho natural y separación de 0,25 em.
+
+Ritmo: párrafo normal 8 pt después; títulos 24/18/16 pt antes y 6 pt después; títulos consecutivos 8 pt antes. Esta diferencia conserva aire entre secciones y proximidad entre cada título y su contenido.
+
+La numeración termina en punto en todos los niveles: 1., 1.1., 1.1.1. Los cuatro modelos Word incluyen Imagen centrada y Comentario de imagen (10,5 pt). La oferta completa incorpora un bloque de imagen y el archivo imagenes-documento presenta PNG transparente, fotografía sobre blanco y una variante sin comentario. Las imágenes permanecen en línea, con proporción original y sin marco, y el comentario se mantiene en su página. Los productos de referencia son imágenes públicas del sitio; no identifican modelos de una oferta. HTML incorpora las imágenes y permite reemplazarlas y guardar la copia. Las vistas web reutilizan los mismos archivos públicos, sin duplicar el contenido binario en el HTML de la página. Excel no incorpora imágenes de producto.
+
+Aire de las imágenes: 18 pt antes, 6 pt entre imagen y comentario y 24 pt después del comentario. En lectura web, 32 px antes y 48 px después del bloque, con 12 px entre imagen y comentario. El contenido siguiente conserva una separación mayor que la continuidad de párrafos.

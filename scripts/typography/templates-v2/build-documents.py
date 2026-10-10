@@ -5,6 +5,8 @@ from docx import Document
 from docx.shared import Pt, Mm, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK, WD_TAB_ALIGNMENT
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_CELL_VERTICAL_ALIGNMENT
+from docx.enum.style import WD_STYLE_TYPE
+from PIL import Image
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
@@ -15,7 +17,7 @@ OUT=ROOT/'entrega'
 BASE=REPO/'public/fonts/um-sans/v2.0.0'
 FONT='UM Sans 2'
 SIZES=[16,13,12]
-TABS=[12,17,23]
+TABS=[0,0,0]
 NS={'w':'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
 
 def el(tag,**attrs):
@@ -45,17 +47,17 @@ def numbering(d):
     for i,(size,tab) in enumerate(zip(SIZES,TABS)):
         lv=el('lvl',ilvl=i);lv.append(el('start',val=1));lv.append(el('numFmt',val='decimal'))
         lv.append(el('pStyle',val=f'Heading{i+1}'))
-        lv.append(el('lvlText',val='.'.join('%'+str(j+1) for j in range(i+1))))
-        lv.append(el('suff',val='tab'));lv.append(el('lvlJc',val='left'))
+        lv.append(el('lvlText',val='.'.join('%'+str(j+1) for j in range(i+1))+'.'))
+        lv.append(el('suff',val='space'));lv.append(el('lvlJc',val='left'))
         if i:lv.append(el('lvlRestart',val=i))
-        p=el('pPr');tabs=el('tabs');tabs.append(el('tab',val='num',pos=round(tab*1440/25.4)));p.append(tabs)
-        p.append(el('ind',left=round(tab*1440/25.4),hanging=round(tab*1440/25.4)));lv.append(p)
+        p=el('pPr')
+        p.append(el('ind',left=round(tab*1440/25.4),hanging=0));lv.append(p)
         r=el('rPr');r.append(el('rFonts',ascii=FONT,hAnsi=FONT,cs=FONT,eastAsia=FONT));r.append(el('sz',val=size*2));r.append(el('b'));r.append(el('color',val='000000'));lv.append(r);a.append(lv)
     n.append(a);num=el('num',numId=42);num.append(el('abstractNumId',val=42));n.append(num)
     for i in range(3):
         st=d.styles[f'Heading {i+1}'];np=el('numPr');np.append(el('ilvl',val=i));np.append(el('numId',val=42));st.element.get_or_add_pPr().append(np)
-        st.paragraph_format.left_indent=Mm(TABS[i]);st.paragraph_format.first_line_indent=Mm(-TABS[i])
-        st.paragraph_format.tab_stops.add_tab_stop(Mm(TABS[i]))
+        st.paragraph_format.left_indent=Mm(TABS[i]);st.paragraph_format.first_line_indent=Pt(0)
+        st.paragraph_format.tab_stops.clear_all()
         st.next_paragraph_style=d.styles['Normal']
 
 def new_doc(title,subtitle,proof=False,letter=False):
@@ -67,9 +69,19 @@ def new_doc(title,subtitle,proof=False,letter=False):
         st=d.styles[name];face(st,size,bold,'666666' if name in ['Caption','Footer','Subtitle'] else '000000')
         pf=st.paragraph_format;pf.line_spacing=1.2;pf.space_after=Pt(8);pf.space_before=Pt(0);pf.widow_control=True
         if name.startswith('Heading'):
-            pf.keep_with_next=True;pf.keep_together=True;pf.space_before=Pt(20 if name=='Heading 1' else 12);pf.space_after=Pt(7)
+            pf.keep_with_next=True;pf.keep_together=True;pf.space_before=Pt({'Heading 1':24,'Heading 2':18,'Heading 3':16}[name]);pf.space_after=Pt(6)
         if name=='Title':pf.line_spacing=1.08;pf.keep_with_next=True;pf.space_after=Pt(12)
         if name in ['Header','Footer']:pf.space_after=Pt(0);pf.line_spacing=1;pf.tab_stops.clear_all()
+    # Image and comment are a reusable flow block, with no floating wrap or frame.
+    for name,size,color in [('Imagen centrada',12,'000000'),('Comentario de imagen',10.5,'333333')]:
+        st=d.styles.add_style(name,WD_STYLE_TYPE.PARAGRAPH);st.base_style=d.styles['Normal']
+        face(st,size,color=color);pf=st.paragraph_format
+        pf.alignment=WD_ALIGN_PARAGRAPH.CENTER;pf.keep_together=True;pf.widow_control=True
+        pf.left_indent=Mm(0);pf.right_indent=Mm(0);pf.first_line_indent=Pt(0)
+        pf.line_spacing=1.15 if name=='Comentario de imagen' else 1
+        pf.space_before=Pt(0 if name=='Comentario de imagen' else 18)
+        pf.space_after=Pt(24 if name=='Comentario de imagen' else 6)
+        pf.keep_with_next=name=='Imagen centrada';st.next_paragraph_style=d.styles['Normal']
     numbering(d)
     h=s.header.paragraphs[0];h.style='Header';h.alignment=WD_ALIGN_PARAGRAPH.LEFT if letter else WD_ALIGN_PARAGRAPH.RIGHT
     h.add_run().add_picture(str(ROOT/'logo.png'),width=Mm(54))
@@ -107,8 +119,28 @@ def new_doc(title,subtitle,proof=False,letter=False):
     return d
 
 def heading(d,text,level=1,newpage=False):
+    previous_heading=bool(d.paragraphs and d.paragraphs[-1].style.name.startswith('Heading'))
     p=d.add_paragraph(text,style=f'Heading {level}')
+    if previous_heading and not newpage:p.paragraph_format.space_before=Pt(8)
     if newpage:p.paragraph_format.page_break_before=True
+    return p
+
+def figure(d,path,description,comment=None,width_mm=108,max_height_mm=100):
+    """Inline image, aspect locked, optional adjacent comment kept on the same page."""
+    with Image.open(path) as im:width,height=im.size
+    width_mm=min(width_mm,165,max_height_mm*width/height)
+    p=d.add_paragraph(style='Imagen centrada')
+    p.paragraph_format.keep_with_next=bool(comment)
+    p.paragraph_format.space_after=Pt(4 if comment else 18)
+    picture=p.add_run().add_picture(str(path),width=Mm(width_mm))
+    picture._inline.docPr.set('descr',description)
+    picture._inline.docPr.set('title',path.name)
+    if comment:
+        c=d.add_paragraph(style='Comentario de imagen')
+        c.paragraph_format.left_indent=Mm(12.5);c.paragraph_format.right_indent=Mm(12.5)
+        label,sep,body=comment.partition(' — ')
+        c.add_run(label).bold=bool(sep)
+        if sep:c.add_run('. '+body)
     return p
 
 def table(d,rows,widths,aligns=None):
@@ -174,12 +206,13 @@ def full(proof=False):
     heading(d,'Supuestos y exclusiones',2);d.add_paragraph('[Indicar dependencias y prestaciones no incluidas, sin contradecir el pliego.]')
     heading(d,'Solución técnica y plan de trabajo',newpage=True)
     heading(d,'Arquitectura y especificaciones',2);d.add_paragraph('[Describir la solución, sus componentes y las especificaciones ofrecidas.]')
+    figure(d,REPO/'public/images/services/productos/infraestructura/1.2.png','Ilustración de un panel de conexiones de red sobre fondo transparente','[Producto o componente] — [Comentario opcional de la imagen. Eliminar este párrafo si no corresponde.]')
     heading(d,'Requisitos de instalación y puesta en servicio',3);d.add_paragraph('[Detallar las condiciones necesarias y las verificaciones previas a la puesta en servicio.]')
     heading(d,'Entregables y aceptación',2)
     table(d,[['Entregable','Evidencia de aceptación'],['[Entregable 1]','[Documento, prueba o resultado verificable]'],['[Entregable 2]','[Documento, prueba o resultado verificable]']],[62,103])
     heading(d,'Cronograma y responsables',2)
     table(d,[['Etapa','Plazo','Responsable'],['[Etapa 1]','[Plazo]','[Responsable]'],['[Etapa 2]','[Plazo]','[Responsable]']],[74,31,60])
-    heading(d,'Oferta económica')
+    heading(d,'Oferta económica',newpage=True)
     d.add_paragraph('Moneda: [Completar]    Tratamiento de impuestos: [Completar]')
     table(d,[['Ítem','Concepto','Cant.','Unitario','Importe'],['1','[Servicio o suministro]','[Cant.]','[Precio]','[Importe]'],['2','[Servicio o suministro]','[Cant.]','[Precio]','[Importe]']],[13,64,18,35,35],[WD_ALIGN_PARAGRAPH.CENTER,WD_ALIGN_PARAGRAPH.LEFT,WD_ALIGN_PARAGRAPH.RIGHT,WD_ALIGN_PARAGRAPH.RIGHT,WD_ALIGN_PARAGRAPH.RIGHT])
     p=d.add_paragraph('Subtotal: [Importe]\nImpuestos: [Importe]\nTotal de la oferta: [Moneda e importe]');p.alignment=WD_ALIGN_PARAGRAPH.RIGHT
@@ -200,7 +233,7 @@ def full(proof=False):
                     heading(d,'Especificación complementaria '+str(j),2)
                     if j==12:
                         heading(d,'Condiciones de interoperabilidad y validación técnica de los servicios que forman parte de la contratación',3)
-                        d.add_paragraph('Esta segunda línea debe conservar la sangría del título y quedar separada del número 10.12.1.')
+                        d.add_paragraph('La continuación del título conserva la línea izquierda del bloque, con el número dentro del texto y una separación corta.')
     return d
 
 def main():
@@ -220,6 +253,17 @@ def main():
     p=d.add_paragraph('[Nombre y apellido]');p.paragraph_format.space_before=Pt(28);p.paragraph_format.space_after=Pt(2);p.runs[0].bold=True
     d.add_paragraph('[Cargo]\nULTIMA MILLA S.A.\n[Datos de contacto]');save(d,'membrete')
     save(full(True),'prueba-licitacion',False)
-    (ROOT/'especificacion.json').write_text(json.dumps({'font':FONT,'body_pt':12,'heading_pt':SIZES,'number_pt':SIZES,'hanging_tab_mm':TABS,'logo_width_mm':54,'page_mm':[210,297],'margins_mm':[31,20,24,25]},indent=2))
+    d=new_doc('Imágenes en propuestas y documentos','Bloques preparados para reemplazar la imagen y su comentario',proof=True)
+    heading(d,'Producto con fondo transparente')
+    d.add_paragraph('Reemplazá la imagen conservando su proporción y la alineación centrada. La transparencia queda sobre el blanco del documento, sin borde ni fondo añadido.')
+    figure(d,REPO/'public/images/services/productos/infraestructura/1.2.png','Panel de conexiones de referencia con fondo transparente','Producto de referencia — Ilustración del sitio para comprobar la composición. No identifica una marca, modelo ni prestación ofrecida.',width_mm=125)
+    heading(d,'Fotografía sobre fondo blanco',newpage=True)
+    d.add_paragraph('La fotografía se integra al blanco de la hoja. El comentario queda inmediatamente debajo y se conserva en la misma página al exportar a PDF.')
+    figure(d,REPO/'public/images/services/productos/infraestructura/1.8.jpg','Distribuidor de fibra de referencia sobre blanco','Comentario opcional — Escribí aquí el nombre del producto, su ubicación o una observación técnica. Si no hace falta, eliminá este párrafo.',width_mm=125)
+    heading(d,'Imagen sin comentario')
+    figure(d,REPO/'public/images/services/productos/infraestructura/1.8.jpg','Ejemplo centrado sin comentario',width_mm=75,max_height_mm=50)
+    d.add_paragraph('Los estilos Imagen centrada y Comentario de imagen están incluidos en todas las variantes Word. Mantené las imágenes en línea con el texto y usá fuentes de buena resolución. Para cambiar el tamaño, conservá la proporción.')
+    save(d,'imagenes-documento')
+    (ROOT/'especificacion.json').write_text(json.dumps({'font':FONT,'body_pt':12,'heading_pt':SIZES,'number_pt':SIZES,'heading_indent_mm':TABS,'number_suffix':'space','number_terminal_period':True,'image_max_width_mm':165,'image_max_height_mm':100,'image_caption_pt':10.5,'image_inline':True,'number_alignment':'left','number_title_gap_em':0.25,'logo_width_mm':54,'page_mm':[210,297],'margins_mm':[31,20,24,25]},indent=2))
 
 if __name__=='__main__':main()

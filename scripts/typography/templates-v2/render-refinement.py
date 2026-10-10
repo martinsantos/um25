@@ -12,9 +12,9 @@ lo=str(runtime/'dependencies/bin/override/soffice')
 profile='-env:UserInstallation='+(root/'lo-profile').as_uri()
 examples_only='--examples-only' in sys.argv
 costing_only='--costing-only' in sys.argv
-for name in ([] if costing_only else ['ejemplo-licitacion'] if examples_only else ['oferta-completa','resumen-comercial','membrete','prueba-licitacion','ejemplo-licitacion']):
+for name in ([] if costing_only else ['ejemplo-licitacion'] if examples_only else ['oferta-completa','resumen-comercial','membrete','prueba-licitacion','ejemplo-licitacion','imagenes-documento']):
     subprocess.run([sys.executable,str(renderer),str(root/'entrega'/f'{name}.docx'),'--output_dir',str(root/'qa/r2'/name),'--emit_pdf'],env=env,check=True)
-for name in ([] if examples_only or costing_only else ['oferta-completa','resumen-comercial','membrete']):
+for name in ([] if examples_only or costing_only else ['oferta-completa','resumen-comercial','membrete','imagenes-documento']):
     subprocess.run([lo,profile,'--headless','--convert-to','odt','--outdir',str(root/'entrega'),str(root/'entrega'/f'{name}.docx')],env=env,check=True)
 out=root/'qa/r2/excel-print';out.mkdir(parents=True,exist_ok=True)
 files=[root/'entrega/presupuesto-interno.xlsx'] if costing_only else [root/'entrega/oferta-economica.xlsx',root/'entrega/ejemplo-economico.xlsx',root/'entrega/presupuesto-interno.xlsx']+([] if examples_only else [root/'qa/prueba-economica.xlsx'])
