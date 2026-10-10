@@ -706,7 +706,7 @@ def render(args):
  def update(scene):
   frame=scene.frame_current
   t=frame/(FRAMES-1);d,target,angles=camera(t)
-  if args.composition=='mobile':d*=1.03-.12*E((t-.14)/.08)*(1-E((t-.84)/.08))
+  if args.composition=='mobile':d*=1.08-.14*E((t-.14)/.08)*(1-E((t-.84)/.08))
   ax,ay,roll=map(math.radians,angles);n=Vector((math.tan(ax),math.tan(ay),1)).normalized();r=Vector((n.z,0,-n.x)).normalized();u=n.cross(r);rr=math.cos(roll)*r+math.sin(roll)*u;uu=-math.sin(roll)*r+math.cos(roll)*u
   cam.location=Vector(target)+n*d;cam.rotation_euler=Matrix((rr,uu,n)).transposed().to_euler()
   for g,ob in parents.items():

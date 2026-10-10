@@ -29,7 +29,7 @@ p=film.build();fail=[];mins={}
 for mobile in [False,True]:
  for frame in range(1200):
   t=frame/1199;d,target,angles=film.camera(t)
-  if mobile:d*=1.03-.12*film.E((t-.14)/.08)*(1-film.E((t-.84)/.08))
+  if mobile:d*=1.08-.14*film.E((t-.14)/.08)*(1-film.E((t-.84)/.08))
   ax,ay,roll=map(math.radians,angles);n=unit((math.tan(ax),math.tan(ay),1));r=unit((n[2],0,-n[0]));up=cross(n,r);rr=tuple(math.cos(roll)*r[i]+math.sin(roll)*up[i] for i in range(3));uu=tuple(-math.sin(roll)*r[i]+math.cos(roll)*up[i] for i in range(3))
   for g,s,x,y,z,size,m,bold in p.texts:
    if film.family(g) not in ('access','contract','data') or film.prominence(g,t)<.65:continue
