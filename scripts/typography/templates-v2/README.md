@@ -1,4 +1,4 @@
-# Plantillas UM Sans 2 — revisión 2026.10.10-r5
+# Plantillas UM Sans 2 — revisión 2026.10.10-r6
 
 Fuentes de generación de los DOCX/DOTX, HTML, XLSX y vistas previas de esta revisión. La familia publicada en `public/fonts/um-sans/v2.0.0` es una entrada inmutable. El logotipo conserva los trazos de `public/images/logo-light.svg`; se ajusta su viewport al contorno visible.
 
@@ -35,8 +35,10 @@ python3 render-refinement.py
 python3 compact-odt-fonts.py
 python3 align-native-brand.py
 python3 render-refinement.py --costing-only
+python3 render-refinement.py --economic-only
 python3 build-html.py
 python3 verify-release.py
+python3 verify-composition.py
 python3 package-review.py
 python3 build-reading-previews.py
 ```
@@ -59,7 +61,7 @@ El presupuesto vacío imprime cuatro páginas: Resultado y Parámetros en A4 apa
 
 El espaciador numérico nativo de Excel reserva el margen derecho también en Calc, donde la sangría de algunas celdas numéricas se ignora. El control final con datos conserva los formatos de importe, cantidad y porcentaje; los ocho importes de cierre comparten el mismo borde dentro de 0,05 pt. El cambio no modifica valores ni fórmulas.
 
-`package-review.py` escribe únicamente el directorio local `public/downloads/plantillas-um-sans/2026.10.10-r5`. No despliega ni modifica la fuente tipográfica. Para otra entrega, usar una versión nueva y actualizar sus enlaces; no sobrescribir un paquete publicado.
+`package-review.py` escribe únicamente el directorio local `public/downloads/plantillas-um-sans/2026.10.10-r6`. No despliega ni modifica la fuente tipográfica. Para otra entrega, usar una versión nueva y actualizar sus enlaces; no sobrescribir un paquete publicado.
 
 Todos los números comienzan en la línea izquierda del cuerpo, dentro del bloque. Un espacio tipográfico (0,25 em) separa número y título, sin tabulados de ancho fijo. La numeración multinivel sigue siendo automática. HTML y lectura web usan columnas de ancho natural y separación de 0,25 em.
 
@@ -70,3 +72,7 @@ La numeración termina en punto en todos los niveles: 1., 1.1., 1.1.1. Los cuatr
 Aire de las imágenes: 18 pt antes, 6 pt entre imagen y comentario y 24 pt después del comentario. En lectura web, 32 px antes y 48 px después del bloque, con 12 px entre imagen y comentario. El contenido siguiente conserva una separación mayor que la continuidad de párrafos.
 
 Las cabeceras de tabla usan gris claro #F0F0F0 con texto negro y bordes #D9D9D9. Word y la impresión HTML usan 7 pt de relleno vertical y 8 pt horizontal, con letra de 10,5 pt. La lectura web usa 16 px de relleno. Excel amplía las cabeceras a 34/36 pt, conserva las sangrías nativas y permite crecer a las filas de detalle. Comprobar el texto largo en Calc y el paginado final antes de empaquetar.
+
+Los datos de destinatario y proyecto usan una sangría francesa de 30 mm: al continuar en otra línea, el valor conserva su columna. Las columnas de cantidades e importes tienen más ancho, y sus cabeceras comparten alineación con los valores. La lectura web conserva los números en una línea y admite desplazamiento horizontal. La prueba económica con cantidades grandes comprueba el cálculo nativo y que los importes no aparezcan como ###; puede ocupar más de una página cuando crecen las descripciones.
+
+El ejemplo económico oculta únicamente sus renglones vacíos (17–28); conserva las fórmulas y la posibilidad de volver a mostrarlos. La plantilla vacía muestra sus 15 renglones. Cliente y proyecto admiten varias líneas con altura automática. `verify-composition.py` comprueba la continuidad real de nombres, cantidades de seis cifras, importes de doce cifras, cabeceras y una imagen vertical en el PDF, usando el documento generado.

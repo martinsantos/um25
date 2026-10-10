@@ -8,7 +8,7 @@ ROOT=Path(os.environ.get("UM_TEMPLATE_WORK",Path(tempfile.gettempdir())/"um-sans
 REPO=Path(os.environ.get("UM_TEMPLATE_REPO",Path(__file__).resolve().parents[3]))
 S='http://schemas.openxmlformats.org/spreadsheetml/2006/main'
 def tag(n):return '{'+S+'}'+n
-for p in [ROOT/'entrega/oferta-economica.xlsx',ROOT/'qa/prueba-economica.xlsx',ROOT/'entrega/ejemplo-economico.xlsx']:
+for p in [ROOT/'entrega/oferta-economica.xlsx',ROOT/'qa/prueba-economica.xlsx',ROOT/'qa/prueba-economica-grandes.xlsx',ROOT/'entrega/ejemplo-economico.xlsx']:
     if not p.exists():continue
     with zipfile.ZipFile(p) as z:files={n:z.read(n) for n in z.namelist()}
     sh=E.fromstring(files['xl/worksheets/sheet1.xml'])
@@ -31,7 +31,10 @@ for p in [ROOT/'entrega/oferta-economica.xlsx',ROOT/'qa/prueba-economica.xlsx',R
     sheet_format=sh.find(tag('sheetFormatPr'))
     sheet_format.set('defaultRowHeight','24');sheet_format.set('customHeight','1')
     for row in sh.findall('.//'+tag('row')):
-        if 14<=int(row.get('r'))<=28:row.set('customHeight','0')
+        if p.stem=='ejemplo-economico' and 17<=int(row.get('r'))<=28:row.set('hidden','1')
+        if int(row.get('r')) in [8,11] or 14<=int(row.get('r'))<=28:
+            if row.get('ht')=='0':row.set('hidden','1')
+            else:row.set('customHeight','0')
     # A small native inset keeps descriptions away from the cell rule.
     # SpreadsheetML indent is not exposed by the Artifact Tool format API.
     styles=E.fromstring(files['xl/styles.xml']);xfs=styles.find(tag('cellXfs'));insets={}
