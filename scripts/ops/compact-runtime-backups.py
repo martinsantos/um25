@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Use XFS copy-on-write clones for identical public assets in runtime backups."""
+"""Use XFS copy-on-write clones in retained and failed runtime copies."""
 import argparse
 import hashlib
 import json
@@ -33,27 +33,29 @@ def select(source, backups):
     for release in sorted(backups.iterdir()):
         if release.is_symlink() or not re.fullmatch(r'umsa-campaign-[0-9]+-[0-9]+', release.name):
             continue
-        root = release / 'previous-dist/client'
-        if root.resolve() != root or not root.is_dir():
-            continue
-        for path in sorted(root.rglob('*')):
-            if path.is_symlink() or not path.is_file() or path.resolve() != path:
+        # Rollback leaves failed-dist; incoming-dist can still be staging.
+        for name in ('previous-dist', 'failed-dist'):
+            root = release / name / 'client'
+            if root.resolve() != root or not root.is_dir():
                 continue
-            original = source / path.relative_to(root)
-            if not original.is_file() or original.is_symlink() or original.resolve() != original:
-                continue
-            before, current = signature(path), signature(original)
-            if before[1] < 65536 or before[1] != current[1] or before[0] == current[0]:
-                continue
-            if path.stat().st_dev != original.stat().st_dev:
-                continue
-            if str(original) not in cached:
-                cached[str(original)] = sha(original)
-            digest = cached[str(original)]
-            if sha(path) != digest or signature(path) != before or signature(original) != current:
-                continue
-            targets.append({'path': str(path), 'source': str(original), 'sha256': digest,
-                            'target_signature': before, 'source_signature': current})
+            for path in sorted(root.rglob('*')):
+                if path.is_symlink() or not path.is_file() or path.resolve() != path:
+                    continue
+                original = source / path.relative_to(root)
+                if not original.is_file() or original.is_symlink() or original.resolve() != original:
+                    continue
+                before, current = signature(path), signature(original)
+                if before[1] < 65536 or before[1] != current[1] or before[0] == current[0]:
+                    continue
+                if path.stat().st_dev != original.stat().st_dev:
+                    continue
+                if str(original) not in cached:
+                    cached[str(original)] = sha(original)
+                digest = cached[str(original)]
+                if sha(path) != digest or signature(path) != before or signature(original) != current:
+                    continue
+                targets.append({'path': str(path), 'source': str(original), 'sha256': digest,
+                                'target_signature': before, 'source_signature': current})
     return targets
 
 
