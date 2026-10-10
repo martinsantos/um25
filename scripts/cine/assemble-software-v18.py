@@ -15,6 +15,7 @@ def assemble(source,out):
  out.mkdir(parents=True,exist_ok=True)
  sources={'authoring_sha256':sha(ROOT/'scripts/cine/render-software-system-v18.py'),'ui_sha256':sha(ROOT/'scripts/cine/render-software-system-v11.py'),'geometry_sha256':sha(ROOT/'scripts/cine/render-software-system-v8.py')}
  patch=sha(ROOT/'scripts/cine/render-software-system-v18-return.py')
+ balance=sha(ROOT/'scripts/cine/render-software-system-v18-return-balanced.py')
  for comp,w,h,suffix in [('wide',3840,2160,''),('mobile',2160,2160,'-sq')]:
   infos=[];movies=[]
   for start in range(0,1200,30):
@@ -26,12 +27,13 @@ def assemble(source,out):
    if 930<=start<1140:
     assert info.get('patch_sha256')==patch and info.get('patch_scope')==[930,1139], 'Return correction is required'
    elif 'patch_sha256' in info:assert info['patch_sha256']==patch
+   if 1020<=start<1140:assert info.get('return_balance_sha256')==balance and info.get('return_balance_scope')==[1020,1139], 'Continuous return is required'
    movie=folder/'movie.mp4';verify(movie,w,h,30);movies.append(movie.resolve());infos.append(info)
   listing=out/f'concat{suffix}.txt';listing.write_text(''.join(f"file '{p}'\n" for p in movies))
   movie=out/f'cine-software-system-v18{suffix}.mp4';run('ffmpeg','-y','-v','error','-f','concat','-safe','0','-i',listing,'-c','copy','-movflags','+faststart',movie)
   run('ffmpeg','-y','-v','error','-threads','2','-i',movie,'-f','null','-')
   (out/f'validation{suffix}.json').write_text(json.dumps(verify(movie,w,h,1200)))
-  (out/f'render-info{suffix}.json').write_text(json.dumps(dict(infos[0],return_patch_sha256=patch,return_patch_scope=[930,1139],timings=[r for info in infos for r in info['timings']])))
+  (out/f'render-info{suffix}.json').write_text(json.dumps(dict(infos[0],return_patch_sha256=patch,return_patch_scope=[930,1139],return_balance_sha256=balance,return_balance_scope=[1020,1139],timings=[r for info in infos for r in info['timings']])))
   poster=out/f'cine-software-system-v18-poster{suffix}.jpg';run('ffmpeg','-y','-v','error','-threads','2','-i',movie,'-frames:v','1','-q:v','2',poster)
   run('node','--input-type=module','-e',"import sharp from 'sharp';sharp.cache(false);sharp.concurrency(2);await sharp(process.argv[1]).avif({quality:74,effort:3,chromaSubsampling:'4:4:4'}).toFile(process.argv[2]);",poster,poster.with_suffix('.avif'))
   for sec in [0,4.5,7.6,9.4,12.6,14.5,15.5,16.8,18.2,19.98]:run('ffmpeg','-y','-v','error','-threads','2','-ss',sec,'-i',movie,'-frames:v','1',out/f'review{suffix}-{sec}.png')
