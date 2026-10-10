@@ -26,6 +26,15 @@ for kind in ['oferta-completa','membrete','resumen-comercial','prueba-licitacion
         margin_mm=25 if side=='left' else 190
         assert abs(brand_edge(p,side)-margin_mm*72/25.4)<0.2,(path,i,brand_edge(p,side))
         assert all(c['x0']>69 and c['x1']<540 for c in p.chars if not c['text'].isspace()),(path,i,'visible text beyond margin')
+    for page in d.pages:
+        words=page.extract_words(extra_attrs=['size','fontname'])
+        for index,word in enumerate(words[:-1]):
+            if re.fullmatch(r'\d+(?:\.\d+){0,2}',word['text']) and word['fontname'].endswith('Bold') and word['size']>=11.9 and abs(word['x0']-25*72/25.4)<0.1:
+                title=words[index+1]
+                if abs(word['top']-title['top'])<2:
+                    assert abs(title['x0']-word['x1']-word['size']*0.25)<0.1,(kind,word['text'],'number-title gap')
+                    assert abs(word['x0']-25*72/25.4)<0.1,(kind,word['text'],'number within body line')
+                    assert abs(title['size']-word['size'])<0.1,(kind,word['text'],'number-title size')
     report.append({'document':kind,'pages':len(d.pages),'fonts':'UM Sans 2 only','logoAlignment':side,'logoTolerancePt':0.2})
     if kind=='ejemplo-licitacion':
         assert len(d.pages)==4

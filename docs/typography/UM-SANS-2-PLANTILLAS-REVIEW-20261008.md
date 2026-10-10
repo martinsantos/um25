@@ -1,4 +1,18 @@
-# Plantillas y presentación — revisión visual r3
+# Plantillas y presentación — revisión r4
+
+## Corrección de tabulados y línea izquierda — 10 de octubre
+
+- Todos los números comienzan en la misma línea izquierda que el cuerpo y las tablas, dentro del bloque. Un espacio tipográfico de 0,25 em separa cifra y título. Se conserva numeración automática, tamaños proporcionales y estilos de tres niveles.
+- Se descartan los tabulados amplios y la variante con números colgados fuera del cuerpo, siguiendo la indicación final del usuario. HTML y lectura web usan el ancho natural del número y una separación de 0,25 em.
+- Ritmo de lectura: 8 pt entre párrafos normales; antes de títulos 24/18/16 pt por nivel, después 6 pt. Entre títulos consecutivos se reduce el espacio previo a 8 pt.
+- Se revisan números de dos cifras y 10.12.1, los títulos largos y el paginado completo. Word, DOTX, ODT, PDF, SVG y HTML se actualizan en el paquete nuevo 2026.10.10-r4.
+- Los tres XLSX y sus PDF mantienen exactamente sus bytes aprobados de r3. Las fuentes publicadas son inmutables.
+- La conversión nativa a Google sustituye UM Sans 2 por Arial y aplica tabulados predeterminados cuando el Word usa un espacio. Las copias de comparación se adaptan para mantener los números dentro del bloque y un espacio corto; requieren revisar los tabulados al cambiar la cantidad de cifras de una numeración. No se declara identidad tipográfica con el PDF original.
+- El usuario autorizó publicar con las comprobaciones de LibreOffice y PDF, sin esperar al visor integrado. Microsoft Office nativo sigue sin comprobación directa.
+- El primer despliegue de r3 se revirtió correctamente porque el auditor exigía el enlace del ZIP histórico 2.0.0. El auditor verifica ahora el paquete vigente, manifiesto y cada archivo, manteniendo los controles de fuentes y descargas anteriores.
+
+## Historial de revisión r3
+
 
 Estado: revisión local; no publicada. Ruta: `/estilo/fuentes/plantilla`.
 

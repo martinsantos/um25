@@ -15,7 +15,7 @@ OUT=ROOT/'entrega'
 BASE=REPO/'public/fonts/um-sans/v2.0.0'
 FONT='UM Sans 2'
 SIZES=[16,13,12]
-TABS=[12,17,23]
+TABS=[0,0,0]
 NS={'w':'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
 
 def el(tag,**attrs):
@@ -46,16 +46,16 @@ def numbering(d):
         lv=el('lvl',ilvl=i);lv.append(el('start',val=1));lv.append(el('numFmt',val='decimal'))
         lv.append(el('pStyle',val=f'Heading{i+1}'))
         lv.append(el('lvlText',val='.'.join('%'+str(j+1) for j in range(i+1))))
-        lv.append(el('suff',val='tab'));lv.append(el('lvlJc',val='left'))
+        lv.append(el('suff',val='space'));lv.append(el('lvlJc',val='left'))
         if i:lv.append(el('lvlRestart',val=i))
-        p=el('pPr');tabs=el('tabs');tabs.append(el('tab',val='num',pos=round(tab*1440/25.4)));p.append(tabs)
-        p.append(el('ind',left=round(tab*1440/25.4),hanging=round(tab*1440/25.4)));lv.append(p)
+        p=el('pPr')
+        p.append(el('ind',left=round(tab*1440/25.4),hanging=0));lv.append(p)
         r=el('rPr');r.append(el('rFonts',ascii=FONT,hAnsi=FONT,cs=FONT,eastAsia=FONT));r.append(el('sz',val=size*2));r.append(el('b'));r.append(el('color',val='000000'));lv.append(r);a.append(lv)
     n.append(a);num=el('num',numId=42);num.append(el('abstractNumId',val=42));n.append(num)
     for i in range(3):
         st=d.styles[f'Heading {i+1}'];np=el('numPr');np.append(el('ilvl',val=i));np.append(el('numId',val=42));st.element.get_or_add_pPr().append(np)
-        st.paragraph_format.left_indent=Mm(TABS[i]);st.paragraph_format.first_line_indent=Mm(-TABS[i])
-        st.paragraph_format.tab_stops.add_tab_stop(Mm(TABS[i]))
+        st.paragraph_format.left_indent=Mm(TABS[i]);st.paragraph_format.first_line_indent=Pt(0)
+        st.paragraph_format.tab_stops.clear_all()
         st.next_paragraph_style=d.styles['Normal']
 
 def new_doc(title,subtitle,proof=False,letter=False):
@@ -67,7 +67,7 @@ def new_doc(title,subtitle,proof=False,letter=False):
         st=d.styles[name];face(st,size,bold,'666666' if name in ['Caption','Footer','Subtitle'] else '000000')
         pf=st.paragraph_format;pf.line_spacing=1.2;pf.space_after=Pt(8);pf.space_before=Pt(0);pf.widow_control=True
         if name.startswith('Heading'):
-            pf.keep_with_next=True;pf.keep_together=True;pf.space_before=Pt(20 if name=='Heading 1' else 12);pf.space_after=Pt(7)
+            pf.keep_with_next=True;pf.keep_together=True;pf.space_before=Pt({'Heading 1':24,'Heading 2':18,'Heading 3':16}[name]);pf.space_after=Pt(6)
         if name=='Title':pf.line_spacing=1.08;pf.keep_with_next=True;pf.space_after=Pt(12)
         if name in ['Header','Footer']:pf.space_after=Pt(0);pf.line_spacing=1;pf.tab_stops.clear_all()
     numbering(d)
@@ -107,7 +107,9 @@ def new_doc(title,subtitle,proof=False,letter=False):
     return d
 
 def heading(d,text,level=1,newpage=False):
+    previous_heading=bool(d.paragraphs and d.paragraphs[-1].style.name.startswith('Heading'))
     p=d.add_paragraph(text,style=f'Heading {level}')
+    if previous_heading and not newpage:p.paragraph_format.space_before=Pt(8)
     if newpage:p.paragraph_format.page_break_before=True
     return p
 
@@ -200,7 +202,7 @@ def full(proof=False):
                     heading(d,'Especificación complementaria '+str(j),2)
                     if j==12:
                         heading(d,'Condiciones de interoperabilidad y validación técnica de los servicios que forman parte de la contratación',3)
-                        d.add_paragraph('Esta segunda línea debe conservar la sangría del título y quedar separada del número 10.12.1.')
+                        d.add_paragraph('La continuación del título conserva la línea izquierda del bloque, con el número dentro del texto y una separación corta.')
     return d
 
 def main():
@@ -220,6 +222,6 @@ def main():
     p=d.add_paragraph('[Nombre y apellido]');p.paragraph_format.space_before=Pt(28);p.paragraph_format.space_after=Pt(2);p.runs[0].bold=True
     d.add_paragraph('[Cargo]\nULTIMA MILLA S.A.\n[Datos de contacto]');save(d,'membrete')
     save(full(True),'prueba-licitacion',False)
-    (ROOT/'especificacion.json').write_text(json.dumps({'font':FONT,'body_pt':12,'heading_pt':SIZES,'number_pt':SIZES,'hanging_tab_mm':TABS,'logo_width_mm':54,'page_mm':[210,297],'margins_mm':[31,20,24,25]},indent=2))
+    (ROOT/'especificacion.json').write_text(json.dumps({'font':FONT,'body_pt':12,'heading_pt':SIZES,'number_pt':SIZES,'heading_indent_mm':TABS,'number_suffix':'space','number_alignment':'left','number_title_gap_em':0.25,'logo_width_mm':54,'page_mm':[210,297],'margins_mm':[31,20,24,25]},indent=2))
 
 if __name__=='__main__':main()

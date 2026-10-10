@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 const base = (process.argv[2] || 'https://www.ultimamilla.com.ar').replace(/\/$/, '');
 const prefix = '/fonts/um-sans/v2.0.0';
 const root = path.resolve('public' + prefix);
-const resourceVersion = '2026.10.09-r3';
+const resourceVersion = '2026.10.10-r4';
 const resourcePrefix = `/downloads/plantillas-um-sans/${resourceVersion}`;
 const resourceRoot = path.resolve('public' + resourcePrefix);
 const resourcePackage = `Plantillas-UMSans2-${resourceVersion}.zip`;

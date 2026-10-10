@@ -2,7 +2,7 @@
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import '../../../styles/brand-resources.css';
 import reading from '../../../data/brand-template-reading.json';
-const base = '/downloads/plantillas-um-sans/2026.10.09-r3';
+const base = '/downloads/plantillas-um-sans/2026.10.10-r4';
 const templates = [
   { id: 'oferta-completa', sample: 'ejemplo-licitacion', number: '01', title: 'Oferta completa', pages: 'Word · A4', description: 'Una propuesta de principio a fin: alcance, solución técnica, entregables, inversión y condiciones.', details: ['Numeración automática en tres niveles', 'Títulos y cifras con tamaños proporcionales', 'Tablas preparadas para continuar en otra página'], primary: 'DOCX', action: 'Descargar plantilla Word', formats: ['DOTX','ODT','HTML','PDF'] },
   { id: 'resumen-comercial', number: '02', title: 'Resumen comercial', pages: '1 página · A4', description: 'El alcance, la inversión y las condiciones esenciales en una presentación breve.', details: ['Jerarquía clara para leer de un vistazo', 'Espacio para identificar al cliente y al proyecto', 'Tabla de inversión y total'], primary: 'DOCX', action: 'Descargar Word', formats: ['DOTX','ODT','HTML','PDF'] },
@@ -16,7 +16,7 @@ const templates = [
     <header class="rl-cover rl-shell">
       <a class="rl-back" href="/estilo/fuente">← UM Sans 2</a>
       <h1>RECURSOS MARCA UMSA</h1>
-      <div class="rl-cover-bottom"><p>Plantillas para licitaciones, propuestas y comunicaciones.</p><div><a class="rl-button" href={base+'/Plantillas-UMSans2-2026.10.09-r3.zip'} download>Descargar todo ↗</a><a class="rl-text-link" href="/fonts/um-sans/v2.0.0/UMSans2-2.0.0.zip" download>Fuentes UM Sans 2</a></div></div>
+      <div class="rl-cover-bottom"><p>Plantillas para licitaciones, propuestas y comunicaciones.</p><div><a class="rl-button" href={base+'/Plantillas-UMSans2-2026.10.10-r4.zip'} download>Descargar todo ↗</a><a class="rl-text-link" href="/fonts/um-sans/v2.0.0/UMSans2-2.0.0.zip" download>Fuentes UM Sans 2</a></div></div>
     </header>
     <nav class="rl-index rl-shell" aria-label="Elegir plantilla">{templates.map(t=><a href={'#'+t.id}><span>{t.number}</span>{t.title}</a>)}</nav>
     <div class="rl-collection">
