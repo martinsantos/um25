@@ -13,7 +13,7 @@ original=film.prominence
 def prominence(group,t):
  family=film.family(group)
  if 1020<=t*1199<1140 and family in ('list','selection'):
-  return .0003+.9997*film.E((t-.85)/.04)
+  return .0003+.9997*film.E((t-1020/1199)/.027)
  if not 120<=t*1199<300:return original(group,t)
  if family=='access':
   f=film.E((t-.125)/.080)*(1-film.E((t-.355)/.075))
