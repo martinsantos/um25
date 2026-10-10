@@ -33,36 +33,43 @@ def annotation_progress(group,t):
  return E((t-start)/.040)
 
 def exposure(t):return .30+.70*E((t-.025)/.15)*(1-E((t-.84)/.16))
-def return_lift(t):return 6*E((t-.78)/.03)*(1-E((t-.89)/.05))
+def return_lift(t):return 6*E((t-.78)/.03)*(1-E((t-.855)/.045))
 def placement(group,t):
  q=exposure(t);group=family(group)
- return {'list':(-.22*q,.18*q,.64*q), 'selection':(-.22*q,.18*q,.68*q),
+ result={'list':(-.22*q,.18*q,.64*q), 'selection':(-.22*q,.18*q,.68*q),
  'inspector':(.50*q,.08*q,1.56*q), 'access':(.20*q,-.55*q,3.26*q),
  'summary':(.50*q,.08*q,1.56*q),
  'history':(.55*q,-.27*q,2.20*q),'action':(.55*q,-.27*q,2.20*q),
  'contract':(.65*q,0,-1.10), 'data':(.70*q,0,-1.70+return_lift(t))}.get(group,(0,0,0))
+ # The outgoing list clears the identity silhouette laterally rather than
+ # printing its right border through the incoming identity plane.
+ if group in ('list','selection'):
+  shift=1.55*E((t-.115)/.045)*(1-E((t-.72)/.06))
+  return (result[0]-shift,result[1],result[2])
+ return result
 
 def focus(group,t):
  group=family(group)
  if 120<=t*1199<300 and group in ('base','inspector','summary','history','action'):return 1-E((t-.10)/.03)
- if 1020<=t*1199<1140 and group not in ('access','contract','data'):
-  return E((t-1020/1199)/.027) if group in ('list','selection') else E((t-.89)/.05)
+ if 972<=t*1199<1140 and group not in ('access','contract','data'):
+  return E((t-.82)/.045) if group in ('list','selection') else E((t-.855)/.045)
  if group=='access':return E((t-.115)/.075)*(1-E((t-.355)/.075))
  if group=='contract':return E((t-.355)/.075)*(1-E((t-.605)/.075))
- if group=='data':return E((t-.605)/.075)*(1-E((t-.825)/.065))
+ if group=='data':return E((t-.605)/.075)*(1-E((t-.805)/.050))
  return (1-E((t-.115)/.075))+E((t-.85)/.05)
 
 def prominence(group,t):
  f=focus(group,t)
  # Glass returns before typography: the returning product must never print
  # its labels through the still-readable transaction plane.
- if family(group) not in ('access','contract','data'):f=(1-E((t-.105)/.045))+E((t-.89)/.05)
+ if family(group) not in ('access','contract','data'):f=(1-E((t-.105)/.045))+E((t-.855)/.045)
  if family(group)=='access':f=E((t-.125)/.065)*(1-E((t-.355)/.075))
  if 120<=t*1199<300 and family(group) not in ('access','contract','data'):
   start,duration=(.10,.03) if family(group) in ('base','inspector','summary','history','action') else (.12,.085)
   f=1-E((t-start)/duration)
- if 1020<=t*1199<1140 and family(group) in ('list','selection'):f=E((t-1020/1199)/.027)
+ if 972<=t*1199<1140 and family(group) in ('list','selection'):f=E((t-.82)/.045)
  if group=='data-pending':f*=1-E((t-.725)/.03)
+ if group.endswith('-annotation'):f*=annotation_progress(group,t)
  if group.startswith('access-check-'):f*=E((t-(.17+.028*int(group[-1])))/.026)
  if group.startswith('contract-check-'):f*=E((t-(.455+.038*int(group[-1])))/.027)
  if group=='data-commit':f*=E((t-.725)/.03)
@@ -291,7 +298,7 @@ def build_base():
  # Typography inspection connects its label to the actual title baseline.
  p.line('access',[(1.56,.09,.54),(4.27,.09,.54)],'typeline',.0037)
  p.line('access',[(4.27,.09,.54),(4.74,.16,.54),(5.01,.16,.54)],'typeline',.0037)
- p.rounded('access',5.88,.195,.54,1.75,.26,.004,'typewash',.035)
+ p.rounded('access-annotation',5.88,.195,.54,1.75,.26,.004,'typewash',.035)
  p.label('access','UM Sans · 25 / 600',5.11,.15,.125,'white',z=.55)
  # Measurement overlays share the exact geometry of the inspected surface.
  for g,bounds,z,caption in [
@@ -306,7 +313,7 @@ def build_base():
   p.line(g,[(x1,yy,z),(x2,yy,z)],'signal',.0037)
   # Solid label carriers are deliberately stronger than the technical rails.
   width=min(x2-x1,len(caption)*.085+.22)
-  p.rounded(g,x1+width/2,y1-.16,z,width,.29,.005,'annotation',.043)
+  p.rounded(g+'-annotation',x1+width/2,y1-.16,z,width,.29,.005,'annotation',.043)
   p.label(g,caption,x1+.075,y1-.20,.148,'white',True,z=z+.015)
  return p
 
@@ -386,7 +393,7 @@ def build():
  # Compact dimension chips sit outside content; their numbers count as the
  # corresponding rail draws, in the same spatial plane.
  for g,x,y,z,w in [('access',3.49,-.08,.23,.85),('contract',-4.54,.93,.09,.85),('data',1.265,.95,.09,.85)]:
-  p.rounded(g,x+w/2-.025,y+.048,z-.013,w,.245,.004,'annotation',.043)
+  p.rounded(g+'-annotation',x+w/2-.025,y+.048,z-.013,w,.245,.004,'annotation',.043)
  p.texts=[item for item in p.texts if not(item[0]=='contract' and item[1] in ('ERP','API','CRM') and item[3]<-2.5)]
  return p
 
