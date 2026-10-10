@@ -42,13 +42,18 @@ for p in proof.pages:
 for p in (ROOT/'qa/r2/excel-print').glob('*.pdf'):
     d=pdfplumber.open(p)
     if p.stem=='presupuesto-interno':
-        assert len(d.pages)==6
+        assert len(d.pages)==4
         for pg in d.pages:
             assert not pg.images
             paths=[c for c in pg.curves if c['bottom']<85]
-            if paths:
-                line=next(l for l in pg.lines if l['top']<100 and l['x1']-l['x0']>400)
-                assert abs(max(c['x1'] for c in paths)-line['x1'])<0.2,(p,'SVG alignment')
+            assert len(paths)>=18,(p,'missing page brand')
+            line=next(l for l in pg.lines if l['top']<100 and l['x1']-l['x0']>400)
+            assert abs(max(c['x1'] for c in paths)-line['x1'])<0.2,(p,'SVG alignment')
+            fonts={c['fontname'].split('+')[-1] for c in pg.chars}
+            assert fonts<= {'UMSans2-Bold','UMSans2-Regular'},fonts
+            assert max(c['size'] for c in pg.chars)>=19.95,(p,'unintended print scaling')
+        assert all('Cantidad' in d.pages[i].extract_text() for i in [1,3]),(p,'broken quantity heading')
+        report.append({'document':p.name,'pageCount':4,'printSizes':['A4','A3','A4','A3'],'bodyPt':12,'logoMatchesRule':True})
         continue
     assert len(d.pages)==1
     fonts={c['fontname'].split('+')[-1] for pg in d.pages for c in pg.chars}

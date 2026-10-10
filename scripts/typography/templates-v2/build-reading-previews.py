@@ -45,7 +45,7 @@ def cv(c):
     if isinstance(value,(int,float)):value=f'{value:,.2f}'.replace(',','_').replace('.',',').replace('_','.')
     return escape(str(value))
 body=''.join(f'<tr><td>{cv("A"+str(r))}</td><td>{cv("D"+str(r))}</td><td>{cv("F"+str(r))}</td></tr>' for r in range(14,18))
-totals=''.join(f'<p>{cv("B"+str(r))}<span>{cv("F"+str(r))}</span></p>' for r in [20,21,22,23,24,25,27,28])
+totals=''.join(f'<p>{cv("A"+str(r))}<span>{cv("F"+str(r))}</span></p>' for r in [20,21,22,23,24,25,27,28])
 result['presupuesto-interno']=f'''<h3 class="doc-title">Resultado del presupuesto</h3><p class="meta">Libro vacío para uso interno · cuatro hojas de trabajo</p><div class="table-wrap" tabindex="0" role="region" aria-label="Resultado del presupuesto"><table><thead><tr><th>Tipo de costo</th><th>Costo USD</th><th>Venta USD</th></tr></thead><tbody>{body}</tbody></table></div><div class="doc-sheet-totals">{totals}</div><h4 class="doc-sheet-conditions">Cómo completar el libro</h4><p>En Parámetros se definen cotización, tarifas, márgenes, ajustes y datos de la oferta. Costeo reúne los componentes por renglón o código y sector o piso. Proveedores permite comparar dos precios y elegir una alternativa.</p><p>Los campos están vacíos para completar cada licitación. El resultado se calcula a partir del detalle; los márgenes se aplican sobre la venta. El costo interno y la oferta al cliente requieren documentos diferentes.</p>'''
 book.close()
 out=REPO/'src/data/brand-template-reading.json';out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')

@@ -78,7 +78,11 @@ DH y HH usan la tarifa de Parámetros cuando el costo unitario está vacío y
 la moneda es USD. Un costo manual tiene prioridad. En Proveedores, comparar
 precios en la misma moneda y elegir A o B; trasladar el precio elegido al
 Costeo con su código. No se transfieren precios automáticamente entre esas
-hojas. El resumen imprime en A4 apaisada y las tablas internas en A3 apaisada.
+hojas. Resultado y Parámetros imprimen en A4 apaisada; Costeo y Proveedores
+en A3 apaisada. El libro vacío imprime cuatro páginas, una por hoja, con
+cuerpo de 12 puntos sin reducir la escala. Los encabezados y las dos primeras
+columnas permanecen visibles al desplazarse. Para textos que ocupen más de
+una línea, ajustar el alto de la fila antes de imprimir.
 Este libro contiene costos internos: entregar al cliente sólo la oferta.
 
 MARCA EN EXCEL

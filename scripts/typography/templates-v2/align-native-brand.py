@@ -11,11 +11,14 @@ file=ROOT/'entrega/presupuesto-interno.xlsx'
 S='http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing'
 def tag(n):return '{'+S+'}'+n
 with pdfplumber.open(ROOT/'qa/r2/excel-print/presupuesto-interno.pdf') as pdf:
-    offsets=[]
+    offsets=[];seen=set()
     for page in pdf.pages:
         curves=[c for c in page.curves if c['bottom']<85]
         lines=[l for l in page.lines if l['top']<100 and l['x1']-l['x0']>400]
         if not curves:continue
+        title=page.extract_text().splitlines()[0]
+        if title in seen:continue
+        seen.add(title)
         assert len(curves)>=18 and lines,'missing brand or table rule'
         edge=max(c['x1'] for c in curves);width=edge-min(c['x0'] for c in curves)
         offsets.append((lines[0]['x1']-edge)/width*204*9525)

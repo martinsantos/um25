@@ -2,6 +2,15 @@
 
 Estado: revisión local; no publicada. Ruta: `/estilo/fuentes/plantilla`.
 
+## Corrección del presupuesto tras revisión del usuario
+
+- Se revisaron los XLSX y PDF concretos descargados por el usuario. La composición anterior tenía totales desplazados respecto de la tabla, datos de oferta estrechos, una hoja de Parámetros que desperdiciaba el A3 y tablas partidas en páginas de continuación casi vacías.
+- Resultado usa una sola grilla desde el encabezado hasta los totales, con iguales márgenes interiores. Cliente/proyecto y proveedores tienen campos amplios; los títulos de columna se alinean con su contenido y Cantidad permanece completa.
+- El libro vacío imprime cuatro páginas: Resultado y Parámetros en A4 apaisada; Costeo y Proveedores en A3 apaisada. Se conserva UM Sans 2 de 12 pt en el cuerpo, 11 pt en encabezados y 20 pt en títulos, sin reducción de escala.
+- Costeo y Proveedores conservan 30 filas. El encabezado completo se repite si se amplía la impresión, y se fijan las primeras trece filas y las dos columnas iniciales para trabajar con la grilla. Los textos extensos requieren ajustar el alto de su fila antes de imprimir.
+- La revisión con datos ficticios incluye un proyecto de dos líneas, fechas, código `0001`, moneda ARS, porcentajes y selección de proveedor. La entrega restaura todos los campos vacíos salvo la jornada base de 8 horas. Los cálculos originales se conservan.
+- Se actualizan XLSX, PDF, SVG de impresión, vista web derivada, manifiesto y ZIP del borrador r3. La publicación sigue pendiente del control del visor del usuario.
+
 ## Planillas reales y revisión r3 — 9 de octubre
 
 - Se reformatearon copias privadas de las dos referencias reales con UM Sans 2 de 12 pt, columnas y filas ajustadas, cabeceras y fuentes de datos diferenciadas. Se conservaron constantes, texto exacto de fórmulas, valores almacenados, nombres de rango, validaciones y demás partes de los archivos; cambió el formato y la marca histórica de impresión. Los archivos originales del disco externo no se modificaron ni se incluyen en el sitio.
