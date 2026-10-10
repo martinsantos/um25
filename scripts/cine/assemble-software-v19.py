@@ -15,19 +15,21 @@ def assemble(source,out):
  out.mkdir(parents=True,exist_ok=True)
  sources={'authoring_sha256':sha(ROOT/'scripts/cine/render-software-system-v19.py'),'ui_sha256':sha(ROOT/'scripts/cine/render-software-system-v11.py'),'geometry_sha256':sha(ROOT/'scripts/cine/render-software-system-v8.py')}
  for comp,w,h,suffix in [('wide',3840,2160,''),('mobile',2160,2160,'-sq')]:
-  infos=[];movies=[]
+  infos=[];movies=[];handover_sha=sha(ROOT/'scripts/cine/render-software-system-v19-handover.py')
   for start in range(0,1200,60):
    folder=source/f'v19-spatial-{comp}-{start}';info=json.loads((folder/'info.json').read_text())
    assert [info['version'],info['publishable'],info['composition'],info['resolution'],info['frames'],info['fps'],info['samples']]==['v19',False,comp,[w,h],1200,60,8]
    assert [r['frame'] for r in info['timings']]==list(range(start,start+60))
    for key,value in sources.items():assert info[key]==value,('Mixed or stale source',key)
+   if start in (120,180,240,1020,1080):assert [info.get('handover_sha256'),info.get('handover_ranges')]==[handover_sha,[[120,299],[1020,1139]]], 'Missing handover repair'
+   else:assert 'handover_sha256' not in info, 'Unexpected repair scope'
    for name in ['public/images/logo-dark.svg','public/cine/media/empresa-mendoza.jpg']:assert info['asset_sha256'][name]==sha(ROOT/name),('Stale visual asset',name)
    movie=folder/'movie.mp4';verify(movie,w,h,60);movies.append(movie.resolve());infos.append(info)
   listing=out/f'concat{suffix}.txt';listing.write_text(''.join(f"file '{p}'\n" for p in movies))
   movie=out/f'cine-software-system-v19{suffix}.mp4';run('ffmpeg','-y','-v','error','-f','concat','-safe','0','-i',listing,'-c','copy','-movflags','+faststart',movie)
   run('ffmpeg','-y','-v','error','-threads','2','-i',movie,'-f','null','-')
   (out/f'validation{suffix}.json').write_text(json.dumps(verify(movie,w,h,1200)))
-  (out/f'render-info{suffix}.json').write_text(json.dumps(dict(infos[0],timings=[r for info in infos for r in info['timings']])))
+  (out/f'render-info{suffix}.json').write_text(json.dumps(dict(infos[0],handover_sha256=handover_sha,handover_ranges=[[120,299],[1020,1139]],timings=[r for info in infos for r in info['timings']])))
   poster=out/f'cine-software-system-v19-poster{suffix}.jpg';run('ffmpeg','-y','-v','error','-threads','2','-i',movie,'-frames:v','1','-q:v','2',poster)
   run('node','--input-type=module','-e',"import sharp from 'sharp';sharp.cache(false);sharp.concurrency(2);await sharp(process.argv[1]).avif({quality:74,effort:3,chromaSubsampling:'4:4:4'}).toFile(process.argv[2]);",poster,poster.with_suffix('.avif'))
   for sec in [0,4.5,7.6,9.4,12.6,14.5,15.5,16.8,18.2,19.98]:run('ffmpeg','-y','-v','error','-threads','2','-ss',sec,'-i',movie,'-frames:v','1',out/f'review{suffix}-{sec}.png')
