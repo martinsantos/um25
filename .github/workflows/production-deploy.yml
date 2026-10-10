@@ -91,6 +91,11 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Test and package private DGE demo
+        run: |
+          node --test work/dge-demo/tests/astro-adapter.test.mjs
+          node scripts/ops/package-dge-private.mjs
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
         continue-on-error: true  # Don't fail build if storage quota exceeded
@@ -143,6 +148,7 @@ jobs:
         run: |
           npm ci --include=dev
           npm run build
+          node scripts/ops/package-dge-private.mjs
 
       - name: Setup SSH key
         id: ssh_agent
@@ -218,6 +224,9 @@ jobs:
               public/sw.js|\
               public/software/gestion-de-comunidades-profesionales/demo/*|\
               work/um-comunidades-demo/*|\
+              work/dge-demo/*|src/lib/dge-demo/*.mjs|\
+              src/pages/ofertas/dge/'[...path].ts'|\
+              scripts/ops/package-dge-private.mjs|\
               src/pages/software/gestion-de-comunidades-profesionales.astro|\
               src/pages/software/gestion-de-comunidades-profesionales/demo/index.astro|\
               __tests__/blogEditorialScoringContracts.test.js|\
@@ -292,6 +301,23 @@ jobs:
       # Each scoped release keeps the runtime it replaced (~1 GB). Only the newest
       # folder is a rollback target; keep the two newest and prune older ones so
       # the disk does not fill up release after release.
+      # DGE activation is read-only and occurs BEFORE the existing pruning step.
+      # A small free-space reserve is not an exception to the server's 90% policy.
+      - name: DGE capacity and access preflight
+        run: |
+          set -euo pipefail
+          test -f dist/server/dge-private/client/index.html
+          ssh root@23.105.176.45 'bash -s' <<'EOF'
+          set -euo pipefail
+          usage_pct="$(df -P /root/fumbling-field | awk 'NR==2 {gsub(/%/, "", $5); print $5}')"
+          [[ "$usage_pct" =~ ^[0-9]+$ ]]
+          if (( usage_pct > 90 )); then
+            echo 'DGE blocked: disk exceeds policy; no pruning or upload performed' >&2
+            exit 1
+          fi
+          test -r /root/fumbling-field/private-config/dge-demo.credentials.json
+          EOF
+
       - name: Prune old scoped release folders
         run: |
           set -euo pipefail
