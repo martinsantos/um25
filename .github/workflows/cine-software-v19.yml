@@ -36,7 +36,7 @@ jobs:
             parts=[part.split(':') for part in os.environ['REPAIR'].split(',')]
             assert 0<len(parts)<=8
             assert all(c in ('wide','mobile') and f.isdigit() and int(f)%60==0 and 0<=int(f)<1200 for c,f in parts)
-            matrix={'include':[dict(frame=int(f),end=int(f)+59,width=3840 if c=='wide' else 2160,composition=c) for c,f in parts]}
+            matrix={'include':[dict(frame=int(f)+offset,end=int(f)+offset+29,width=3840 if c=='wide' else 2160,composition=c) for c,f in parts for offset in (0,30)]}
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('matrix='+json.dumps(matrix)+'\n')
           PYPLAN
   render:

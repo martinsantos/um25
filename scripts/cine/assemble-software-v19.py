@@ -16,15 +16,17 @@ def assemble(source,out):
  sources={'authoring_sha256':sha(ROOT/'scripts/cine/render-software-system-v19.py'),'ui_sha256':sha(ROOT/'scripts/cine/render-software-system-v11.py'),'geometry_sha256':sha(ROOT/'scripts/cine/render-software-system-v8.py')}
  for comp,w,h,suffix in [('wide',3840,2160,''),('mobile',2160,2160,'-sq')]:
   infos=[];movies=[];handover_sha=sha(ROOT/'scripts/cine/render-software-system-v19-handover.py')
-  for start in range(0,1200,60):
+  repair_starts=(120,180,240,1020,1080)
+  segments=[(start+offset,30 if start in repair_starts else 60) for start in range(0,1200,60) for offset in ((0,30) if start in repair_starts else (0,))]
+  for start,count in segments:
    folder=source/f'v19-spatial-{comp}-{start}';info=json.loads((folder/'info.json').read_text())
    assert [info['version'],info['publishable'],info['composition'],info['resolution'],info['frames'],info['fps'],info['samples']]==['v19',False,comp,[w,h],1200,60,8]
-   assert [r['frame'] for r in info['timings']]==list(range(start,start+60))
+   assert [r['frame'] for r in info['timings']]==list(range(start,start+count))
    for key,value in sources.items():assert info[key]==value,('Mixed or stale source',key)
-   if start in (120,180,240,1020,1080):assert [info.get('handover_sha256'),info.get('handover_ranges')]==[handover_sha,[[120,299],[1020,1139]]], 'Missing handover repair'
+   if start//60*60 in repair_starts:assert [info.get('handover_sha256'),info.get('handover_ranges')]==[handover_sha,[[120,299],[1020,1139]]], 'Missing handover repair'
    else:assert 'handover_sha256' not in info, 'Unexpected repair scope'
    for name in ['public/images/logo-dark.svg','public/cine/media/empresa-mendoza.jpg']:assert info['asset_sha256'][name]==sha(ROOT/name),('Stale visual asset',name)
-   movie=folder/'movie.mp4';verify(movie,w,h,60);movies.append(movie.resolve());infos.append(info)
+   movie=folder/'movie.mp4';verify(movie,w,h,count);movies.append(movie.resolve());infos.append(info)
   listing=out/f'concat{suffix}.txt';listing.write_text(''.join(f"file '{p}'\n" for p in movies))
   movie=out/f'cine-software-system-v19{suffix}.mp4';run('ffmpeg','-y','-v','error','-f','concat','-safe','0','-i',listing,'-c','copy','-movflags','+faststart',movie)
   run('ffmpeg','-y','-v','error','-threads','2','-i',movie,'-f','null','-')
