@@ -33,6 +33,43 @@ class RuntimeCompactionTest(unittest.TestCase):
         selected = compaction.select(self.source, self.backups)
         self.assertEqual([Path(t['path']).name for t in selected], ['asset.bin'])
 
+    def test_identical_failed_runtime_assets_are_compacted(self):
+        failed = self.backup.parents[1] / 'failed-dist/client'
+        failed.mkdir(parents=True)
+        path = failed / 'asset.bin'
+        path.write_bytes(self.data)
+        path.chmod(0o640)
+        before = path.stat()
+        unique = failed / 'unique.bin'
+        unique.write_bytes(b'keep failed runtime content' * 5000)
+        selected = compaction.select(self.source, self.backups)
+        self.assertEqual({Path(t['path']) for t in selected},
+                         {self.backup / 'asset.bin', path})
+        target = next(t for t in selected if Path(t['path']) == path)
+        compaction.compact(target, copier=shutil.copyfile)
+        self.assertEqual(path.read_bytes(), self.data)
+        self.assertEqual(path.stat().st_mode, before.st_mode)
+        self.assertEqual(path.stat().st_mtime_ns, before.st_mtime_ns)
+        self.assertEqual((self.source / 'asset.bin').read_bytes(), self.data)
+        self.assertEqual(unique.read_bytes(), b'keep failed runtime content' * 5000)
+
+    def test_staging_runtime_is_never_selected(self):
+        incoming = self.backup.parents[1] / 'incoming-dist/client'
+        incoming.mkdir(parents=True)
+        (incoming / 'asset.bin').write_bytes(self.data)
+        selected = compaction.select(self.source, self.backups)
+        self.assertEqual([Path(t['path']) for t in selected],
+                         [self.backup / 'asset.bin'])
+
+    def test_symlinked_failed_runtime_is_never_selected(self):
+        outside = self.root / 'outside'
+        (outside / 'client').mkdir(parents=True)
+        (outside / 'client/asset.bin').write_bytes(self.data)
+        (self.backup.parents[1] / 'failed-dist').symlink_to(outside)
+        selected = compaction.select(self.source, self.backups)
+        self.assertEqual([Path(t['path']) for t in selected],
+                         [self.backup / 'asset.bin'])
+
     def test_atomic_replacement_preserves_content_and_permissions(self):
         path = self.backup / 'asset.bin'
         path.chmod(0o640)
