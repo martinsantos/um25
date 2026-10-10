@@ -113,6 +113,7 @@ def new_doc(title,subtitle,proof=False,letter=False):
     for label,text in [('Destinatario','[Organismo o cliente]'),('Proyecto','[Nombre del proyecto]'),('Fecha','[DD/MM/AAAA]')]:
         if letter and label=='Proyecto':continue
         p=d.add_paragraph();p.paragraph_format.space_after=Pt(5)
+        p.paragraph_format.left_indent=Mm(30);p.paragraph_format.first_line_indent=Mm(-30)
         p.paragraph_format.tab_stops.add_tab_stop(Mm(30))
         label_run=p.add_run(label+'\t');label_run.font.size=Pt(10);label_run.font.color.rgb=RGBColor.from_string('666666')
         p.add_run(text)
@@ -160,7 +161,8 @@ def table(d,rows,widths,aligns=None):
             c.width=Mm(w);c.vertical_alignment=WD_CELL_VERTICAL_ALIGNMENT.CENTER
             c._tc.get_or_add_tcPr().append(el('shd',fill='F0F0F0' if ri==0 else ('F5F5F5' if ri%2==0 else 'FFFFFF')))
             p=c.paragraphs[0];p.paragraph_format.space_after=Pt(0);p.paragraph_format.line_spacing=1.2
-            p.alignment=(aligns[ci] if aligns and ri>0 else WD_ALIGN_PARAGRAPH.LEFT)
+            p.alignment=(aligns[ci] if aligns else WD_ALIGN_PARAGRAPH.LEFT)
+            if ri==0:p.paragraph_format.keep_with_next=True
             r=p.add_run(text);r.font.size=Pt(10.5);r.bold=(ri==0);r.font.color.rgb=RGBColor.from_string('000000' if ri==0 else '333333')
     p=d.add_paragraph();p.paragraph_format.space_after=Pt(0);p.paragraph_format.space_before=Pt(0);p.paragraph_format.line_spacing=Pt(3);p.add_run().font.size=Pt(3)
     return t
@@ -213,7 +215,7 @@ def full(proof=False):
     table(d,[['Etapa','Plazo','Responsable'],['[Etapa 1]','[Plazo]','[Responsable]'],['[Etapa 2]','[Plazo]','[Responsable]']],[74,31,60])
     heading(d,'Oferta económica',newpage=True)
     d.add_paragraph('Moneda: [Completar]    Tratamiento de impuestos: [Completar]')
-    table(d,[['Ítem','Concepto','Cant.','Unitario','Importe'],['1','[Servicio o suministro]','[Cant.]','[Precio]','[Importe]'],['2','[Servicio o suministro]','[Cant.]','[Precio]','[Importe]']],[16,61,18,35,35],[WD_ALIGN_PARAGRAPH.CENTER,WD_ALIGN_PARAGRAPH.LEFT,WD_ALIGN_PARAGRAPH.RIGHT,WD_ALIGN_PARAGRAPH.RIGHT,WD_ALIGN_PARAGRAPH.RIGHT])
+    table(d,[['Ítem','Concepto','Cant.','Unitario','Importe'],['1','[Servicio o suministro]','[Cant.]','[Precio]','[Importe]'],['2','[Servicio o suministro]','[Cant.]','[Precio]','[Importe]']],[16,39,26,42,42],[WD_ALIGN_PARAGRAPH.CENTER,WD_ALIGN_PARAGRAPH.LEFT,WD_ALIGN_PARAGRAPH.RIGHT,WD_ALIGN_PARAGRAPH.RIGHT,WD_ALIGN_PARAGRAPH.RIGHT])
     p=d.add_paragraph('Subtotal: [Importe]\nImpuestos: [Importe]\nTotal de la oferta: [Moneda e importe]');p.alignment=WD_ALIGN_PARAGRAPH.RIGHT
     d.add_paragraph('[Adjuntar el detalle de la planilla económica y verificar que coincida con los totales de esta propuesta.]')
     heading(d,'Condiciones comerciales y documentación')
@@ -240,7 +242,7 @@ def main():
     save(full(),'oferta-completa')
     d=new_doc('Propuesta comercial','[Nombre del proyecto o servicio]')
     heading(d,'Objetivo y alcance');d.add_paragraph('[Resultado esperado, prestaciones incluidas y criterio de entrega.]')
-    heading(d,'Inversión');table(d,[['Concepto','Importe'],['[Servicio o suministro]','[Moneda e importe]'],['Total con impuestos','[Moneda e importe]']],[120,45])
+    heading(d,'Inversión');table(d,[['Concepto','Importe'],['[Servicio o suministro]','[Moneda e importe]'],['Total con impuestos','[Moneda e importe]']],[111,54],[WD_ALIGN_PARAGRAPH.LEFT,WD_ALIGN_PARAGRAPH.RIGHT])
     heading(d,'Condiciones comerciales');d.add_paragraph('[Moneda, impuestos, validez, forma de pago y plazo de entrega.]')
     save(d,'resumen-comercial')
     d=new_doc('Asunto de la comunicación','[Referencia del documento]',letter=True)
