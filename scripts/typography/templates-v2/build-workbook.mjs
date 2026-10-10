@@ -14,8 +14,8 @@ const merge=(a,v)=>{s.mergeCells(a);if(v!==undefined)set(a.split(':')[0],v);};
 const fmt=(a,v)=>s.getRange(a).format=v;
 fmt('A1:F38',{font:{name:'UM Sans 2',size:11,color:'#333333'},verticalAlignment:'center',fill:'#FFFFFF'});
 for(const [i,w] of [42,240,54,48,116,124].entries())s.getRange(`${String.fromCharCode(65+i)}1:${String.fromCharCode(65+i)}38`).format.columnWidth=(w-5)/7;
-const heights={1:9,2:25,3:8,4:8,5:30,6:8,7:12,8:22,9:5,10:12,11:22,12:10,13:28,29:8,30:20,31:20,32:26,33:8,34:14,35:24,36:24,37:8,38:12};
-for(let r=1;r<=38;r++)s.getRange(`A${r}:F${r}`).format.rowHeight=heights[r]??26;
+const heights={1:9,2:25,3:8,4:8,5:30,6:8,7:12,8:22,9:5,10:12,11:22,12:10,13:34,29:8,30:20,31:20,32:26,33:8,34:14,35:24,36:24,37:8,38:12};
+for(let r=1;r<=38;r++)s.getRange(`A${r}:F${r}`).format.rowHeight=heights[r]??22;
 merge('A2:D2','[Referencia de la oferta]');fmt('A2:D2',{font:{size:9,color:'#666666'}});
 const logo=await fs.readFile(`${root}/logo-screen.png`);
 const bounds=JSON.parse(await fs.readFile(`${root}/logo-bounds.json`,'utf8'));
@@ -27,7 +27,7 @@ for(const [a,t] of [['A7:B7','Cliente'],['C7:F7','Licitación o expediente'],['A
 for(const [a,t] of [['A8:B8','[Organización]'],['C8:F8','[Referencia]'],['A11:B11','[Proyecto]'],['C11:D11',null],['E11:F11',null]]){merge(a,t);fmt(a,{fill:'#F5F5F5',borders:{bottom:{style:'thin',color:'#DDDDDD'}}});}
 s.getRange('C11').setNumberFormat('dd/mm/yyyy');s.getRange('E11').dataValidation={rule:{type:'list',values:['ARS','USD','EUR']}};
 s.getRange('A13:F13').values=[['Ítem','Descripción','Cant.','Un.','Precio unitario','Importe']];
-fmt('A13:F13',{fill:'#000000',font:{size:10,bold:true,color:'#FFFFFF'},wrapText:true,horizontalAlignment:'center',borders:{insideVertical:{style:'thin',color:'#FFFFFF'}}});
+fmt('A13:F13',{fill:'#F0F0F0',font:{size:10,bold:true,color:'#000000'},wrapText:true,horizontalAlignment:'center',borders:{top:{style:'thin',color:'#D9D9D9'},bottom:{style:'thin',color:'#D9D9D9'},insideVertical:{style:'thin',color:'#D9D9D9'}}});
 fmt('B13',{horizontalAlignment:'left'});
 for(let r=14;r<=28;r++){
   set(`A${r}`,r-13);
