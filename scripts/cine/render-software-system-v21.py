@@ -426,6 +426,8 @@ def enrich_controls(p):
    for yy in [y-.055,y-.096]:p.line(g,[(x-.035,yy,z+.003),(x+.035,yy,z+.003)],m,.005)
   # A small dropdown glyph belongs to the enum selector, not every field.
   if i==1:p.line(g,[(-2.48,y+.055,.595),(-2.46,y+.032,.595),(-2.44,y+.055,.595)],'muted',.003)
+ # Headings belong to the same raised planes as their fields.
+ p.texts=[(g,txt,x,y,.60 if g=='contract' and txt=='SOLICITUD' else z,size,m,bold) for g,txt,x,y,z,size,m,bold in p.texts]
  # A role's small team is represented by overlapping profile discs, with depth.
  g='access-node-1'
  for i,(x,m) in enumerate([(5.53,'amber'),(5.75,'violet'),(5.97,'signal')]):
@@ -456,6 +458,9 @@ def enrich_controls(p):
   # Time text is kept in front of the new capsule.
   p.texts=[(g,t,x,yy,max(z,.048) if g==gg and t.startswith('10:42:') else z,sz,m,b) for g,t,x,yy,z,sz,m,b in p.texts]
   p.line(gg,[(1.62,y+.06,.05),(1.62,y-.29,.05)],'signal',.004)
+ # An opaque ID capsule keeps rear registration edges out of its glyphs.
+ p.rounded('data',5.27,-2.875,.039,.66,.235,.003,'fieldnav',.03)
+ p.texts=[(g,txt,x,y,.052 if g=='data' and txt=='0248-A' else z,size,m,bold) for g,txt,x,y,z,size,m,bold in p.texts]
  # Quiet illuminated lips define depth without a glow washing over the type.
  for g,b,z in [('contract',(-4.54,-3.02,1.24,.78),.023),('data',(1.265,-3.,6.015,.8),.023)]:
   x1,y1,x2,y2=b
