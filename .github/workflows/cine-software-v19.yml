@@ -87,7 +87,27 @@ jobs:
           python scripts/cine/prepare-blender-fonts.py public/fonts/um-sans /tmp/um-fonts
       - name: Render spatial proof
         run: |
-          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-v19.py -- --samples 8 --width ${{ matrix.width }} --composition ${{ matrix.composition }} --start ${{ matrix.frame }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames
+          ulimit -c 0
+          STATUS=0
+          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-v19.py -- --samples 8 --width ${{ matrix.width }} --composition ${{ matrix.composition }} --start ${{ matrix.frame }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames || STATUS=$?
+          # Mesa can fault during Blender teardown after every output is saved.
+          # Accept that one exit code only with a complete, decodable native set.
+          if [ "$STATUS" != 0 ] && [ "$STATUS" != 139 ]; then exit "$STATUS"; fi
+          python3 - <<'PYCHECK'
+          import json
+          from pathlib import Path
+          from PIL import Image
+          start,end,width=${{ matrix.frame }},${{ matrix.end }},${{ matrix.width }}
+          height=width if '${{ matrix.composition }}'=='mobile' else round(width*9/16)
+          info=json.loads(Path('frames/render-info.json').read_text())
+          assert [t['frame'] for t in info['timings']]==list(range(start,end+1))
+          assert info['resolution']==[width,height]
+          for frame in range(start,end+1):
+            with Image.open(f'frames/{frame:04d}.png') as image:
+              assert image.size==(width,height)
+              image.load()
+          PYCHECK
+          if [ "$STATUS" = 139 ]; then echo '::warning::Blender teardown fault; all native frames and metadata independently verified.'; fi
       - name: Encode bounded motion proof
         if: inputs.mode == 'motion-proof' || inputs.mode == 'sequence-proof' || inputs.mode == 'repair'
         run: |

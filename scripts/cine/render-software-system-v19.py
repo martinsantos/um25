@@ -601,7 +601,7 @@ def render(args):
    elif group=='packet':opacity=E((t-.27)/.06)*(1-E((t-.78)/.05))
    elif group=='connections':opacity=.08+.55*E((t-.28)/.08)*(1-E((t-.80)/.08))
    elif region=='edge':
-    opacity=prominence(group,t) if '-check-' in group or group=='data-commit' else focus(group,t)
+    opacity=prominence(group,t) if '-check-' in group or group=='data-commit' or group.startswith('data-event-') else focus(group,t)
    if family(group)=='access':opacity*=E((t-.10)/.07)
    floor=linear(COLORS['floor']);ink=linear(COLORS[name]);q=max(0,min(1,opacity))
    em.inputs[0].default_value=(*(a+(b-a)*q for a,b in zip(floor,ink)),1)
