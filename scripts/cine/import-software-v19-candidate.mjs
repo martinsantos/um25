@@ -15,6 +15,8 @@ assert.deepEqual([info.frames,info.fps,info.resolution],[1200,60,[3840,2160]]);
 
 assert.deepEqual(info.timings.map(t=>t.frame),Array.from({length:1200},(_,i)=>i));
 assert.equal(info.authoring_sha256,sha(path.join(root,'scripts/cine/render-software-system-v19.py')));
+assert.equal(info.legend_sha256,sha(path.join(root,'scripts/cine/render-software-system-v19-legend.py')));
+assert.deepEqual(info.legend_scope,[900,1079]);
 assert.equal(info.handover_sha256,sha(path.join(root,'scripts/cine/render-software-system-v19-handover.py')));
 assert.deepEqual(info.handover_ranges,[[120,299],[1020,1139]]);
 assert.equal(info.ui_sha256,sha(path.join(root,'scripts/cine/render-software-system-v11.py')));

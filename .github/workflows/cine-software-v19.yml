@@ -54,6 +54,7 @@ jobs:
           sparse-checkout: |
             scripts/cine/render-software-system-v19.py
             scripts/cine/render-software-system-v19-handover.py
+            scripts/cine/render-software-system-v19-legend.py
             scripts/cine/render-software-system-v11.py
             scripts/cine/render-software-system-v8.py
             scripts/cine/prepare-blender-fonts.py
@@ -92,6 +93,7 @@ jobs:
           STATUS=0
           AUTHOR=scripts/cine/render-software-system-v19.py
           if [ "${{ inputs.mode }}" = proof ] || [ "${{ inputs.mode }}" = repair ]; then AUTHOR=scripts/cine/render-software-system-v19-handover.py; fi
+          if [ "$AUTHOR" != scripts/cine/render-software-system-v19.py ] && [ "${{ matrix.frame }}" -ge 900 ] && [ "${{ matrix.frame }}" -lt 1080 ]; then AUTHOR=scripts/cine/render-software-system-v19-legend.py; fi
           xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python "$AUTHOR" -- --samples 8 --width ${{ matrix.width }} --composition ${{ matrix.composition }} --start ${{ matrix.frame }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames || STATUS=$?
           # Mesa can fault during Blender teardown after every output is saved.
           # Accept that one exit code only with a complete, decodable native set.
