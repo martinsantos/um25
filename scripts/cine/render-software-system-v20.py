@@ -553,7 +553,7 @@ def render(args):
   mat.node_tree.links.new(em.outputs[0],out.inputs['Surface'])
   glyph_mats[key]=(mat,em);return mat
  fonts={b:bpy.data.fonts.load(str(Path(args.font_dir)/f'UMSans-{w}.ttf')) for b,w in [(False,'Regular'),(True,'SemiBold')]}
- p=build();parents={};visibility=[];stroke_visibility=[];dimension_lines=[];reveal_text=[];image_visibility=[]
+ p=build();parents={};visibility=[];glass_visibility=[];stroke_visibility=[];dimension_lines=[];reveal_text=[];image_visibility=[]
  for g in p.points:
   ob=bpy.data.objects.new(g,None);scene.collection.objects.link(ob);parents[g]=ob
  # Batch coplanar opaque details by parent/material; retain independent glass
@@ -568,9 +568,11 @@ def render(args):
   local=[tuple(Vector(v)-center) for v in verts]
   mesh=bpy.data.meshes.new(f'{g}/{m}/{index}');mesh.from_pydata(local,[],faces);mesh.update();ob=bpy.data.objects.new(mesh.name,mesh);scene.collection.objects.link(ob);mesh.materials.append(surface_material(g,m));ob.parent=parents[g];ob.location=center
   if m not in ALPHA:visibility.append((ob,g))
+  else:glass_visibility.append((ob,g))
  for g,x,y,z,w,d,h,m in p.boxes:
   bpy.ops.mesh.primitive_cube_add(size=1,location=(x,y,z+h/2));ob=bpy.context.object;ob.scale=(w,d,h);ob.data.materials.append(surface_material(g,m));ob.parent=parents[g]
   if m not in ALPHA:visibility.append((ob,g))
+  else:glass_visibility.append((ob,g))
  for g,s,x,y,z,size,m,bold in p.texts:
   c=bpy.data.curves.new(s,'FONT');c.body=s;c.size=size;c.font=fonts[bold];c.extrude=0;c.materials.append(glyph_material(g,m,'properties' if g=='inspector' and -.3<y<2.3 else 'content'));ob=bpy.data.objects.new(s,c);scene.collection.objects.link(ob);ob.location=(x,y,z);ob.parent=parents[g];visibility.append((ob,g))
   if s.startswith('<') or s.startswith('UM Sans ·'):reveal_text.append((c,s,g))
@@ -646,6 +648,9 @@ def render(args):
    q=annotation_progress(g,t);curve.body=f'{round(w*100*q)} × {round(h*100*q)}' if q>.02 else ''
   for em,g in image_visibility:em.inputs[1].default_value=prominence(g,t)
   for ob,g in visibility:ob.hide_render=prominence(g,t)<.025
+  # Fully dormant transparent planes add fill cost and a barely visible wash.
+  # Keep every entering/exiting surface; cull only settled inactive families.
+  for ob,g in glass_visibility:ob.hide_render=prominence(g,t)<.00031 and focus(g,t)<.00001
   for (group,name),(mat,mix) in surface_mats.items():
    # Structural glass stays transparent; content islands gain quiet contrast.
    opacity=ALPHA[name]*(.008+.992*focus(group,t)) if name in ALPHA and '-' not in group else ALPHA.get(name,1)*prominence(group,t)
