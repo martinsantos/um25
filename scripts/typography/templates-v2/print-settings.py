@@ -27,6 +27,11 @@ for p in [ROOT/'entrega/oferta-economica.xlsx',ROOT/'qa/prueba-economica.xlsx',R
     for e in [margins,setup,footer]:sh.insert(idx,e);idx+=1
     for dv in sh.findall('.//'+tag('dataValidation')):
         dv.set('allowBlank','1');dv.set('showErrorMessage','1');dv.set('errorStyle','stop');dv.set('errorTitle','Revisar el valor');dv.set('error','Ingresar un valor permitido. Los importes y cantidades deben ser mayores o iguales que cero.')
+    # A minimum height keeps empty rows spacious while wrapped text can grow.
+    sheet_format=sh.find(tag('sheetFormatPr'))
+    sheet_format.set('defaultRowHeight','24');sheet_format.set('customHeight','1')
+    for row in sh.findall('.//'+tag('row')):
+        if 14<=int(row.get('r'))<=28:row.set('customHeight','0')
     # A small native inset keeps descriptions away from the cell rule.
     # SpreadsheetML indent is not exposed by the Artifact Tool format API.
     styles=E.fromstring(files['xl/styles.xml']);xfs=styles.find(tag('cellXfs'));insets={}

@@ -37,7 +37,7 @@ for p in [BASE/'UMSans2-Regular.ttf',BASE/'UMSans2-Bold.ttf',BASE/'UMSans2-Regul
     shutil.copy2(p,fonts/p.name)
 for p in BASE.glob('*LICENSE*'):shutil.copy2(p,fonts/p.name)
 for p in BASE.glob('*OFL*'):shutil.copy2(p,fonts/p.name)
-guide='''PLANTILLAS ULTIMA MILLA — REVISIÓN 2026.10.10-r4
+guide='''PLANTILLAS ULTIMA MILLA — REVISIÓN 2026.10.10-r5
 
 1. Instalar las cuatro fuentes TTF incluidas antes de abrir Excel o editar Word.
    Word también lleva las fuentes incrustadas. El PDF ya incorpora la tipografía.
@@ -46,15 +46,18 @@ guide='''PLANTILLAS ULTIMA MILLA — REVISIÓN 2026.10.10-r4
    La numeración 1., 1.1. y 1.1.1. es automática. No escribir números, tabulados
    ni espacios para simular sangrías. Al cambiar de nivel, aplicar el estilo.
 4. Los números y el texto tienen el mismo tamaño: 16, 13 y 12 puntos.
-   El cuerpo es de 12 puntos. Las tablas usan 10 puntos.
+   El cuerpo es de 12 puntos. Las tablas usan 10,5 puntos, cabecera gris claro con texto negro y relleno
+   interior de 7 puntos en vertical y 8 puntos en horizontal.
    La cifra comienza en la misma línea izquierda del cuerpo, dentro del bloque.
    Un espacio tipográfico separa número y título, sin saltos de tabulación.
 5. En Excel, completar descripción, cantidad y precio unitario. La unidad es
    opcional. Los precios se calculan a dos decimales. Un renglón incompleto
    muestra «Completar» y evita un total parcial que parezca definitivo.
    Ingresar el importe total de impuestos; usar 0 cuando no corresponda.
-6. Al agregar contenido extenso en Excel, ajustar el alto de la fila. La
-   impresión admite páginas adicionales y repite el encabezado de la tabla.
+6. Las filas de detalle admiten alto automático para texto de varias líneas.
+   La impresión admite páginas adicionales y repite el encabezado de la tabla.
+   Después de pegar datos, comprobar que no se haya reemplazado el formato;
+   si la aplicación no actualiza el alto, usar Autoajustar alto de fila.
 7. Reemplazar los campos entre corchetes. Comprobar moneda, impuestos,
    condiciones, anexos y totales antes de exportar la oferta a PDF.
 8. La edición y la impresión del HTML se verificaron en Google Chrome.
@@ -97,8 +100,8 @@ Costeo con su código. No se transfieren precios automáticamente entre esas
 hojas. Resultado y Parámetros imprimen en A4 apaisada; Costeo y Proveedores
 en A3 apaisada. El libro vacío imprime cuatro páginas, una por hoja, con
 cuerpo de 12 puntos sin reducir la escala. Los encabezados y las dos primeras
-columnas permanecen visibles al desplazarse. Para textos que ocupen más de
-una línea, ajustar el alto de la fila antes de imprimir.
+columnas permanecen visibles al desplazarse. Las filas de detalle admiten alto automático para texto de varias líneas.
+Si se pega formato externo, volver a autoajustar el alto antes de imprimir.
 Este libro contiene costos internos: entregar al cliente sólo la oferta.
 
 MARCA EN EXCEL
@@ -110,11 +113,11 @@ requieren control directo adicional; no impiden esta entrega autorizada.
 '''
 (OUT/'LEEME.txt').write_text(guide)
 files=[p for p in OUT.rglob('*') if p.is_file() and p.suffix in ['.docx','.dotx','.odt','.html','.pdf','.svg','.webp','.xlsx','.ttf','.txt']]
-manifest={'version':'2026.10.10-r4','fontVersion':'2.0.0','status':'validada-libreoffice-pdf','files':[{'path':str(p.relative_to(OUT)),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(files)]}
+manifest={'version':'2026.10.10-r5','fontVersion':'2.0.0','status':'validada-libreoffice-pdf','files':[{'path':str(p.relative_to(OUT)),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(files)]}
 (OUT/'manifest.json').write_text(json.dumps(manifest,indent=2))
-with zipfile.ZipFile(OUT/'Plantillas-UMSans2-2026.10.10-r4.zip','w',zipfile.ZIP_DEFLATED) as z:
+with zipfile.ZipFile(OUT/'Plantillas-UMSans2-2026.10.10-r5.zip','w',zipfile.ZIP_DEFLATED) as z:
     for p in files+[OUT/'manifest.json']:z.write(p,p.relative_to(OUT))
-dest=REPO/'public/downloads/plantillas-um-sans/2026.10.10-r4';dest.mkdir(parents=True,exist_ok=True)
-for p in files+[OUT/'manifest.json',OUT/'Plantillas-UMSans2-2026.10.10-r4.zip']:
+dest=REPO/'public/downloads/plantillas-um-sans/2026.10.10-r5';dest.mkdir(parents=True,exist_ok=True)
+for p in files+[OUT/'manifest.json',OUT/'Plantillas-UMSans2-2026.10.10-r5.zip']:
     target=dest/p.relative_to(OUT);target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(p,target)
-print('Paquete local:',len(files),'archivos;',round((OUT/'Plantillas-UMSans2-2026.10.10-r4.zip').stat().st_size/1024/1024,2),'MB')
+print('Paquete local:',len(files),'archivos;',round((OUT/'Plantillas-UMSans2-2026.10.10-r5.zip').stat().st_size/1024/1024,2),'MB')
