@@ -52,6 +52,7 @@ jobs:
         with:
           persist-credentials: false
           sparse-checkout: |
+            scripts/cine/render-software-system-v18-return.py
             scripts/cine/render-software-system-v18.py
             scripts/cine/render-software-system-v11.py
             scripts/cine/render-software-system-v8.py
@@ -87,7 +88,7 @@ jobs:
           python scripts/cine/prepare-blender-fonts.py public/fonts/um-sans /tmp/um-fonts
       - name: Render spatial proof
         run: |
-          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-v18.py -- --samples 8 --width ${{ matrix.width }} --composition ${{ matrix.composition }} --start ${{ matrix.frame }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames
+          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-v18-return.py -- --samples 8 --width ${{ matrix.width }} --composition ${{ matrix.composition }} --start ${{ matrix.frame }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames
       - name: Encode bounded motion proof
         if: inputs.mode == 'motion-proof' || inputs.mode == 'sequence-proof' || inputs.mode == 'repair'
         run: |

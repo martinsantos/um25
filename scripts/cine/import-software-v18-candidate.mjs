@@ -10,6 +10,8 @@ const folder=path.resolve(process.argv[2]);
 const sha=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const info=JSON.parse(fs.readFileSync(path.join(folder,'render-info.json')));
 assert.equal(info.version,'v18');
+assert.equal(info.return_patch_sha256,sha(path.join(root,'scripts/cine/render-software-system-v18-return.py')));
+assert.deepEqual(info.return_patch_scope,[930,1139]);
 assert.equal(info.publishable,false);assert.equal(info.engine,'eevee');assert.equal(info.samples,8);
 assert.deepEqual([info.frames,info.fps,info.resolution],[1200,60,[3840,2160]]);
 
