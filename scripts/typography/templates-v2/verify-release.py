@@ -93,12 +93,17 @@ for p in (ROOT/'qa/r2/excel-print').glob('*.pdf'):
         assert all('Cantidad' in d.pages[i].extract_text() for i in [1,3]),(p,'broken quantity heading')
         report.append({'document':p.name,'pageCount':4,'printSizes':['A4','A3','A4','A3'],'bodyPt':12,'logoMatchesRule':True})
         continue
-    assert len(d.pages)==1
+    assert len(d.pages)>=1 if p.stem.startswith('prueba-economica') else len(d.pages)==1
+    if p.stem=='prueba-economica-grandes':
+        text='\n'.join(pg.extract_text() or '' for pg in d.pages)
+        assert '###' not in text,(p,'clipped quantity or amount')
+        for amount in ['1.219.325.825,94','12.345.669.876,54','12.345.678.900,00','25.910.674.602,48']:
+            assert amount in text,(p,'missing complete amount',amount)
     fonts={c['fontname'].split('+')[-1] for pg in d.pages for c in pg.chars}
     assert fonts<= {'UMSans2-Bold','UMSans2-Regular'},fonts
     line=next(l for l in d.pages[0].lines if l['top']<100 and l['x1']-l['x0']>400)
     assert abs(brand_edge(d.pages[0])-line['x1'])<0.2,(p,brand_edge(d.pages[0]),line['x1'])
-    report.append({'document':p.name,'fonts':'UM Sans 2 only','pageCount':1,'logoMatchesRule':True})
+    report.append({'document':p.name,'fonts':'UM Sans 2 only','pageCount':len(d.pages),'logoMatchesRule':True})
 recalc=ROOT/'qa/r2/recalculated/prueba-economica.xlsx'
 if recalc.exists():
     s=load_workbook(recalc,data_only=True,read_only=True).active
