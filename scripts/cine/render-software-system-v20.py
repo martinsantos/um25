@@ -355,10 +355,10 @@ def build():
  # boundaries communicate the same mapping as the travelling request.
  for i in range(3):
   y=-.86-i*.48
-  for x1,x2 in [(-4.25,-2.23),(-1.52,.78)]:
+  for x1,x2,z in [(-4.25,-2.23,.375),(-1.52,.78,-.105)]:
    for x,direction in [(x1,1),(x2,-1)]:
-    p.line('contract',[(x,y+.10,.035),(x,y+.16,.035),(x+direction*.09,y+.16,.035)],'registration',.002)
-  p.rounded('contract',-2.54,y+.034,.037,.34,.145,.002,'mint',.028)
+    p.line('contract',[(x,y+.10,z),(x,y+.16,z),(x+direction*.09,y+.16,z)],'registration',.002)
+  p.rounded('contract',-2.56,y+.034,.377,.38,.145,.002,'mint',.028)
  # Hand-built connector symbols are functional (records, exchange, people),
  # rather than the same monogram inside three squares.
  for x,kind,m in [(-4.20,'records','amber'),(-2.53,'exchange','signal'),(-.85,'people','violet')]:
@@ -385,7 +385,7 @@ def build():
  p.disc('access-toggle',6.315,-1.225,.047,'green',z=.20)
  # Compact dimension chips sit outside content; their numbers count as the
  # corresponding rail draws, in the same spatial plane.
- for g,x,y,z,w in [('access',3.49,-.08,.23,1.16),('contract',-4.54,.93,.09,1.16),('data',1.265,.95,.09,1.16)]:
+ for g,x,y,z,w in [('access',3.49,-.08,.23,.85),('contract',-4.54,.93,.09,.85),('data',1.265,.95,.09,.85)]:
   p.rounded(g,x+w/2-.025,y+.048,z-.013,w,.245,.004,'annotation',.043)
  p.texts=[item for item in p.texts if not(item[0]=='contract' and item[1] in ('ERP','API','CRM') and item[3]<-2.5)]
  return p
@@ -604,7 +604,7 @@ def render(args):
  # coordinate system. Their values settle with the drawing of each bound.
  dimension_text=[]
  for g,x,y,z,w,h in [('access',3.49,-.08,.23,3.30,1.23),('contract',-4.54,.93,.09,5.78,3.80),('data',1.265,.95,.09,4.75,3.80)]:
-  c=bpy.data.curves.new('Measured layout','FONT');c.size=.15;c.font=fonts[True];c.materials.append(glyph_material(g,'signal'));ob=bpy.data.objects.new(c.name,c);scene.collection.objects.link(ob);ob.location=(x,y,z);ob.parent=parents[g];visibility.append((ob,g));dimension_text.append((c,g,w,h))
+  c=bpy.data.curves.new('Measured layout','FONT');c.size=.15;c.font=fonts[True];c.materials.append(glyph_material(g,'white'));ob=bpy.data.objects.new(c.name,c);scene.collection.objects.link(ob);ob.location=(x,y,z);ob.parent=parents[g];visibility.append((ob,g));dimension_text.append((c,g,w,h))
  links=[]
  for g,(*b,m) in REGIONS.items():
   x1,y1,x2,y2=b
