@@ -30,6 +30,30 @@ Blender se ejecuta exclusivamente en workers remotos. No se inicia Blender ni se
 - Auditoría geométrica: 168 combinaciones texto/composición visibles se mantienen dentro del cuadro en las 1.200 posiciones. No certifica oclusión ni acabado artístico por sí sola.
 - 74 pruebas relevantes correctas, typecheck correcto. Lint completo: cero errores y diez advertencias preexistentes.
 
-## Cierre pendiente de la secuencia
+## Revisión temporal y correcciones acotadas
 
-La candidata no se declara equivalente ni se publica por haber superado pruebas técnicas. Falta completar la revisión temporal de la película ensamblada y comprobar su integración en navegador antes de cerrar esta entrega.
+La primera mitad ensamblada descubrió un intervalo de estructura vacía al entrar en permisos. La primera corrección recuperó el texto del listado, pero se rechazó porque el inspector posterior seguía demasiado visible. La corrección definitiva conserva el listado y retira antes superficies y contornos del inspector.
+
+En el regreso, la revisión encontró planos que aparecían antes que sus textos. Ahora el listado mantiene el hilo y los demás paneles regresan junto con su contenido. La procedencia de estas correcciones queda separada del autor base inmutable: adaptador `render-software-system-v19-handover.py`, revisión visual `df71e30e`, rangos 120–299 y 1020–1139. Fuera de esos intervalos no cambia la trayectoria ni el contenido.
+
+Pruebas nativas de los relevos: `38021623571`, `38021824008`, `38021898110`; selección final de ambos cruces en escritorio y móvil: `38022049936`. La validación verifica que el relevo conserve contenido legible y que el inspector deje de competir con los permisos. Una prueba con un umbral de contraste fallido se canceló antes de aceptar su resultado.
+
+Los renders definitivos de los relevos son `38022470651` y `38022472297`. Usan fragmentos de 30 fotogramas para reducir la espera aprovechando los workers disponibles, sin bajar resolución ni interpolar imágenes. Las primeras tandas de corrección, `38022333196` y `38022335946`, se cancelaron al iniciar el cálculo para sustituirlas por esta distribución. El ensamblador requiere el hash exacto del adaptador y su rango en cada fragmento afectado; rechaza fuentes mezcladas.
+
+La inspección del registro completo a 15,9 s detectó bordes posteriores atravesando la leyenda de integridad. El adaptador `render-software-system-v19-legend.py` incorpora un portador opaco delante de esos bordes y detrás de los glifos; pertenece al mismo evento de confirmación. Se verifica que esté ausente antes del evento y fuera del tramo corregido. Prueba nativa: `38023284369`. Renders: `38023483528`, rangos 900–1079. El portador deja visibles las capas alrededor sin imprimir sus bordes a través del texto.
+
+## Entrega integrada y comprobación final
+
+La secuencia final se ensambla con 54 fragmentos de procedencia verificada. Los seis activos nuevos suman 54.781.083 bytes; ambas películas tienen 1.200 fotogramas, 20 segundos y 60 fps nativos. La decodificación completa, las dimensiones y los hashes pasan. Los fotogramas primero y último tienen SSIM 0,993832; este dato sólo comprueba continuidad de imagen, no calidad artística.
+
+Build de producción local con `UM_SOFTWARE_REVIEW=v19` correcto. `/software` y el servicio 104 responden 200 y seleccionan v19; ambas películas admiten peticiones Range 206. La previsualización integrada se reinicia con esa versión en el puerto 4326.
+
+Chrome, 1.440 × 1.000 y 390 × 844: reproducción sin clic, pausa/reanudación y selección del vídeo nativo correspondiente verificadas. En móvil, después de la reanudación el reloj vuelve de 12,54 s a 2,56 s y la leyenda regresa al capítulo 01 sin intervención. No hay desbordamiento horizontal ni errores de consola capturados. Se revisan los relevos de 3 s y 17,8 s y el registro corregido a 15,9 s en el archivo ensamblado, junto al original de Hill. La inspección por capturas y estados temporales no equivale a una evaluación perceptual continua de todos los fotogramas ni a medir rendimiento en dispositivos físicos y redes móviles.
+
+Evidencia integrada: [escritorio](software-v19-evidence/desktop.png) y [móvil](software-v19-evidence/mobile.png).
+
+## Dictamen visual
+
+Hay una mejora verificable en la continuidad del contenido, la separación de planos, la legibilidad de las leyendas y la función de cada mecanismo. Los defectos detectados durante esta revisión se corrigieron y los tramos resultantes se incorporaron a la película completa; no quedan como propuestas.
+
+No se declara calidad indistinguible respecto de Hill. La referencia todavía presenta más variedad de controles y acentos, un protagonista mayor en algunos cruces y más luminosidad localizada. La v19 conserva intervalos de transición con un conjunto más pequeño y oscuro. La comparación de esta entrega corresponde al render de Software, no certifica equivalencia del resto de las isometrías con Ryan ni de los sectores con Solvaix. El PR continúa draft y no se despliega a producción.
