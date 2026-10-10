@@ -55,4 +55,6 @@ Antes de empaquetar, inspeccionar todas las páginas renderizadas en `qa/r2`, in
 
 `compact-odt-fonts.py` conserva los cuatro TTF de UM Sans 2 en ODT y evita empaquetar fuentes del sistema que LibreOffice incrusta como alternativas. Tras compactar, comprobar la impresión de los tres ODT y la identidad del texto y el paginado con los PDF de Word.
 
+El presupuesto vacío imprime cuatro páginas: Resultado y Parámetros en A4 apaisada, Costeo y Proveedores en A3 apaisada, sin reducir el cuerpo de 12 pt. Sus filas de trabajo tienen 18 pt de alto y conservan 30 componentes; textos de varias líneas requieren ampliar el alto. Las tablas fijan las primeras dos columnas y trece filas, y repiten la cabecera completa en impresión. Los campos de oferta y proveedores admiten nombres extensos. `embed-vector-brand.py --costing-only` permite actualizar la marca de este libro sin reescribir los otros documentos.
+
 `package-review.py` escribe únicamente el directorio local `public/downloads/plantillas-um-sans/2026.10.09-r3`. No despliega ni modifica la fuente tipográfica. Para otra entrega, usar una versión nueva y actualizar sus enlaces; no sobrescribir un paquete publicado.

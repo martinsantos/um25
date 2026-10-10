@@ -5,7 +5,7 @@ The DrawingML extension is not exposed by the document/spreadsheet authoring API
 """
 from pathlib import Path, PurePosixPath
 from lxml import etree as E
-import os, tempfile, zipfile
+import os, tempfile, zipfile, sys
 ROOT=Path(os.environ.get('UM_TEMPLATE_WORK',Path(tempfile.gettempdir())/'um-sans-template-build'))
 A='http://schemas.openxmlformats.org/drawingml/2006/main'
 R='http://schemas.openxmlformats.org/officeDocument/2006/relationships'
@@ -16,6 +16,7 @@ URI='{96DAC541-7B7A-43D3-8B79-37D633B846F1}'
 logo=(ROOT/'logo.svg').read_bytes()
 for file in sorted((ROOT/'entrega').iterdir()):
     if file.suffix not in ['.docx','.dotx','.xlsx']:continue
+    if '--costing-only' in sys.argv and file.name!='presupuesto-interno.xlsx':continue
     with zipfile.ZipFile(file) as z:parts={n:z.read(n) for n in z.namelist()}
     prefix='xl' if file.suffix=='.xlsx' else 'word'
     parts[prefix+'/media/um-brand.svg']=logo
