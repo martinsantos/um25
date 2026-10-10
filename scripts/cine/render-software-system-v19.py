@@ -70,7 +70,7 @@ CAMERA_KEYS=[(0,29,(.5,0,1),(18,-25,-5)),
  (.392,15.7,(1.55,-1.4,1.2),(2,-22,1)),
  (.44,10.8,(-.9,-1.12,-.6),(-10,-22,3)),
  (.585,10.6,(-.9,-1.12,-.6),(-13,-20,4)),
- (.637,16.3,(1.75,-1.1,-.7),(-15,-22,4)),
+ (.637,17.8,(1.75,-1.1,-.7),(-15,-22,4)),
  (.69,11.6,(4.35,-1.10,-1.1),(-17,-20,4)),
  (.815,11.4,(4.35,-1.10,-1.1),(-18,-18,3)),
  (.94,29,(.5,0,1),(18,-25,-5)),
@@ -323,9 +323,8 @@ def build():
  # Policy context is visible behind the permission matrix, registered in depth.
  g='access-node-1'
  for x,letter,col in [(5.53,'O','amber'),(5.75,'T','violet'),(5.97,'R','signal')]:
-  p.disc(g,x,-.10,.10,'fieldpaper',z=.22)
-  p.label(g,letter,x-.036,-.134,.095,col,True,z=.23)
- p.label(g,'Equipo autorizado',3.69,-.12,.092,'quiet',z=.16)
+  p.disc(g,x,-.43,.10,'fieldpaper',z=.22)
+  p.label(g,letter,x-.036,-.464,.095,col,True,z=.23)
  # A transaction is a compact audit ledger with event identity and integrity.
  for attr in ['meshes','texts','lines','boxes']:
   setattr(p,attr,[item for item in getattr(p,attr) if not item[0].startswith('data-event-')])
