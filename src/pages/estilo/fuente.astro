@@ -1,64 +1,116 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
-import '../../styles/font-service.css';
+import '../../styles/font-specimen.css';
 const base = '/fonts/um-sans/v2.0.0';
+const templates = '/downloads/plantillas-um-sans/2026.10.08-r2';
 const weights = ['Thin', 'ExtraLight', 'Light', 'Regular', 'Medium', 'SemiBold', 'Bold', 'ExtraBold', 'Black'];
-const integration = `<link rel="stylesheet" href="https://www.ultimamilla.com.ar${base}/um-sans.css">`;
-const usage = `body {\n  font-family: var(--um-font-family);\n  font-kerning: normal;\n  font-synthesis: none;\n}\n.amount { font-variant-numeric: tabular-nums; }`;
+const sections = [['familia','Familia'],['probar','Laboratorio'],['aplicaciones','Aplicaciones'],['numerales','Cifras'],['lectura','Lectura'],['repertorio','Caracteres'],['detalles','Detalles'],['escala','Escala'],['recursos','Plantillas'],['integrar','Integración'],['entrega','Descargas']];
+const glyphGroups = [
+  {id:'mayusculas',label:'Mayúsculas',chars:'ABCDEFGHIJKLMNOPQRSTUVWXYZ'},
+  {id:'minusculas',label:'Minúsculas',chars:'abcdefghijklmnopqrstuvwxyz'},
+  {id:'espanol',label:'Español',chars:'ÁÉÍÓÚÜÑáéíóúüñ¿¡'},
+  {id:'cifras',label:'Cifras',chars:'0123456789'},
+  {id:'signos',label:'Signos',chars:'!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~£¥©«®°±·»×÷ı‐‑–—‘’“”•…€™−'},
+];
+const roles = [
+  ['Impacto','700','64 / 44 px','Voz propia.','display'],
+  ['Título','600','40 / 32 px','Claridad en cada decisión.','heading'],
+  ['Subtítulo','600','28 / 26 px','La precisión está en los detalles.','subheading'],
+  ['Bajada','400','24 / 22 px','Una familia para conectar toda la comunicación.','lead'],
+  ['Cuerpo','400','22 / 20 px','Cada proyecto empieza por comprender el sitio, sus necesidades y su contexto.','body'],
+  ['Interfaz','500','18 px','Proyecto · Cliente · Estado · Fecha','ui'],
+];
+const integration = '<link rel="stylesheet" href="https://www.ultimamilla.com.ar' + base + '/um-sans.css">';
+const usage = 'body {\n  font-family: var(--um-font-family);\n  font-kerning: normal;\n  font-synthesis: none;\n}\n\n.lectura {\n  font-size: clamp(1.25rem, 1.125rem + .4vw, 1.375rem);\n  line-height: 1.62;\n  max-width: 65ch;\n}\n\n.importe {\n  font-variant-numeric: tabular-nums;\n}';
 ---
-
-<LayoutV4 title="UM Sans 2.0 | Fuente y plantillas de ULTIMA MILLA" description="La familia tipográfica de Última Milla: nueve pesos, cursivas, fuentes para web y documentos y plantillas de oferta con membrete.">
-  <div class="font-hub ums2 um-type" data-font-release="2.0.0">
-    <header class="font-cover">
-      <p class="font-eyebrow">Última Milla · Sistema tipográfico</p>
-      <h1>UM Sans 2.0</h1>
-      <p class="font-lead">Una voz propia. Clara para leer.<br />Firme para decir lo importante.</p>
-      <p class="font-intro">La misma familia para nuestros sitios, aplicaciones y propuestas. Nueve pesos, romanas y cursivas, con una escala de lectura y archivos para cada soporte.</p>
-      <div class="font-actions"><a class="font-button" href={`${base}/UMSans2-2.0.0.zip`} download>Descargar la familia</a><a class="font-button font-button-secondary" href="/estilo/fuentes/plantilla">Plantillas de oferta</a></div>
-      <dl class="font-facts"><div><dt>18</dt><dd>cortes estáticos</dd></div><div><dt>2</dt><dd>fuentes variables</dd></div><div><dt>100–900</dt><dd>rango de pesos</dd></div></dl>
+<LayoutV4 title="UM Sans 2 | Specimen y sistema tipográfico de ULTIMA MILLA" description="Explorá UM Sans 2: nueve pesos, cursivas, fuente variable, caracteres, cifras, escala de lectura, aplicaciones y recursos de marca.">
+  <div id="um-specimen" class="um-specimen" data-font-release="2.0.0">
+    <header class="sp-cover sp-dark">
+      <div class="sp-shell">
+        <div class="sp-coverline"><span>ULTIMA MILLA · SISTEMA TIPOGRÁFICO</span><span>SPECIMEN / 2.0.0</span><a href={base+'/UMSans2-2.0.0.zip'} download>Descargar familia ↗</a></div>
+        <h1>UM Sans <span>2</span><span class="sp-period" aria-hidden="true">.</span></h1>
+        <div class="sp-cover-bottom"><p class="sp-cover-phrase">Una voz propia.<br /><em>Muchas formas de decir.</em></p><div><p>Del primer título a la última cifra. Una familia para escribir, ordenar y reconocer todo lo que hacemos.</p><div class="sp-actions"><a class="sp-button sp-button-red" href="#probar">Probá tu texto</a><a class="sp-link" href="#aplicaciones">Verla en acción ↘</a></div></div></div>
+        <dl class="sp-facts"><div><dt>Pesos</dt><dd>100–900</dd></div><div><dt>Cortes</dt><dd>18 estilos</dd></div><div><dt>Variables</dt><dd>Romana + cursiva</dd></div><div><dt>Para usar en</dt><dd>Web + documentos</dd></div></dl>
+      </div>
     </header>
-    <nav class="font-nav" aria-label="Contenido de UM Sans"><a href="#probar">Probar la fuente</a><a href="#lectura">Lectura y tamaños</a><a href="#integrar">Integrar</a><a href="#entrega">Entrega</a></nav>
-    <section id="probar" aria-labelledby="font-test-heading">
-      <p class="font-eyebrow">01 · La familia</p><h2 id="font-test-heading">El peso justo para cada voz.</h2>
-      <div class="font-controls"><label class="font-text-control">Texto de prueba<input id="font-text" type="text" value="Conectamos tecnología y personas." maxlength="160" /></label><label>Peso <output id="font-weight-value" for="font-weight">700</output><input id="font-weight" type="range" min="100" max="900" step="1" value="700" /></label><label>Tamaño <output id="font-size-value" for="font-size">48 px</output><input id="font-size" type="range" min="16" max="96" value="48" /></label><label class="font-italic-control"><input id="font-italic" type="checkbox" /> Cursiva</label></div>
-      <div class="font-live-wrap"><p id="font-live">Conectamos tecnología y personas.</p></div>
-      <div class="font-weight-grid">{weights.map((name, i) => <article><h3>{(i + 1) * 100} · {name}</h3><p style={`font-weight:${(i + 1) * 100}`}>Última Milla</p><p class="font-weight-italic" style={`font-weight:${(i + 1) * 100}`}>Claridad en cada palabra.</p></article>)}</div>
+    <nav class="sp-index" aria-label="Índice del specimen"><div class="sp-shell">{sections.map(([id,label],i)=><a href={'#'+id}><span>{String(i+1).padStart(2,'0')}</span>{label}</a>)}</div></nav>
+    <section id="familia" class="sp-section sp-shell">
+      <div class="sp-section-head"><div><p class="sp-kicker">01 / La familia</p><h2>Del susurro<br />al acento.</h2></div><p>Nueve pesos. Dos inclinaciones. El mismo dibujo acompaña una frase liviana, un título firme o una página de lectura.</p></div>
+      <div class="sp-family-head"><span>Peso / corte</span><span>Romana</span><span>Cursiva</span></div>
+      <div class="sp-family">{weights.map((name,i)=><article class="sp-weight" style={'--sample-weight:'+(i+1)*100}><div class="sp-weight-label"><span>{(i+1)*100}</span><h3>{name}</h3><a href={base+'/UMSans2-'+name+'.ttf'} download aria-label={'Descargar '+name+' TTF'}>TTF ↗</a></div><p class="sp-weight-roman">Última milla.</p><p class="sp-weight-italic">Voz propia.</p></article>)}</div>
+      <p class="sp-note">La variable recorre todos los pesos intermedios, de 100 a 900. Cada cursiva usa su archivo propio.</p>
     </section>
-    <section id="lectura" aria-labelledby="font-reading-heading">
-      <p class="font-eyebrow">02 · Composición</p><h2 id="font-reading-heading">El tamaño también comunica.</h2>
-      <div class="font-reading-layout"><article class="font-reading um-type-reading"><h3>Infor&shy;ma&shy;ción que se entiende</h3><p class="font-lead">Formas claras, espacio equilibrado y una lectura tranquila.</p><p>Una tipografía se reconoce en las palabras y se comprueba durante la lectura. La claridad necesita formas coherentes, espacios equilibrados y una jerarquía que permita recorrer el contenido sin esfuerzo.</p><p>En Última Milla diseñamos soluciones para organizaciones de Mendoza y de toda la Argentina. Cada proyecto reúne experiencia, atención al detalle y una pregunta concreta: ¿cómo podemos hacerlo mejor?</p><h3>Tec&shy;no&shy;lo&shy;gía con propósito</h3><p>La infraestructura, los datos y el software forman parte del mismo trabajo. Un servicio útil debe ser confiable, fácil de usar y capaz de crecer con las necesidades de las personas.</p></article>
-        <aside class="font-scale" aria-label="Escala de referencia"><h3>Una escala para usar</h3><dl><div><dt>Título</dt><dd>48 / 36 px · 1,15</dd></div><div><dt>Subtítulo</dt><dd>28 px · 1,25</dd></div><div><dt>Bajada</dt><dd>22 px · 1,5</dd></div><div><dt>Lectura</dt><dd>20 px · 1,65</dd></div><div><dt>Interfaz y guías</dt><dd>16 px · 1,5</dd></div></dl><p>Columna inicial de 31 em: unas 65 letras por línea en el texto de referencia. La medida se ajusta al contenido y a la pantalla.</p><p>Los títulos organizan. El cuerpo sostiene la lectura. Las guías conservan un tamaño legible.</p></aside>
+    <section id="probar" class="sp-section sp-dark sp-lab" data-theme="dark">
+      <div class="sp-shell">
+        <div class="sp-section-head"><div><p class="sp-kicker">02 / Laboratorio</p><h2>Ahora, tus palabras.</h2></div><p>Escribí una frase y encontrá su tono. Probá peso, tamaño, interlineado y espaciado en tiempo real.</p></div>
+        <label class="sp-text-input" for="font-text">Texto de prueba<input id="font-text" type="text" value="Conectamos tecnología y personas." maxlength="240" /></label>
+        <div class="sp-lab-controls">
+          <label>Peso <output id="font-weight-value" for="font-weight">600</output><input id="font-weight" type="range" min="100" max="900" value="600" /></label>
+          <label>Tamaño <output id="font-size-value" for="font-size">64 px</output><input id="font-size" type="range" min="16" max="128" value="64" /></label>
+          <label>Interlineado <output id="font-leading-value" for="font-leading">1,2</output><input id="font-leading" type="range" min="1" max="2" step="0.05" value="1.2" /></label>
+          <label>Espaciado <output id="font-spacing-value" for="font-spacing">0 em</output><input id="font-spacing" type="range" min="0" max="0.12" step="0.01" value="0" /></label>
+        </div>
+        <div class="sp-lab-options"><label class="sp-check"><input id="font-italic" type="checkbox" /> Cursiva</label><div class="sp-toggle" role="group" aria-label="Fondo de la muestra"><button type="button" data-sample-theme="dark" aria-pressed="true">Oscuro</button><button type="button" data-sample-theme="light" aria-pressed="false">Claro</button></div><button type="button" class="sp-reset" id="font-reset">Restablecer</button></div>
+        <div class="sp-live-wrap"><p id="font-live">Conectamos tecnología y personas.</p></div>
+        <p class="sp-note">Muestra editable de la fuente variable. En tamaños grandes, el texto se distribuye en más líneas.</p>
       </div>
     </section>
-    <section id="integrar" aria-labelledby="font-integration-heading">
-      <p class="font-eyebrow">03 · Un origen común</p><h2 id="font-integration-heading">Una versión fija. Muchos usos.</h2>
-      <p class="font-intro">Cada servicio elige cuándo actualizar. La URL de 2.0.0 conserva sus archivos; una versión nueva tendrá otra dirección. UM Sans 1.2 sigue disponible para integraciones anteriores.</p>
-      <div class="font-integration-grid"><article><h3>Sitios y apli&shy;ca&shy;cio&shy;nes</h3><p>Incluir la hoja de estilos y asignar la familia al contenido. El CSS no modifica por sí solo los estilos de la aplicación.</p><pre><code>{integration}</code></pre><pre><code>{usage}</code></pre><a href={`${base}/manifest.json`}>Ver versión, archivos y checksums</a></article><article><h3>Word y docu&shy;men&shy;tos</h3><p>Instalar los archivos TTF del paquete para editar con los 18 cortes. Para compartir el resultado, exportar a PDF con las fuentes incrustadas.</p><p>Las plantillas incluyen membrete, títulos, bajadas, cuerpo, tablas y condiciones, con estilos coherentes para pantalla e impresión.</p><a href="/estilo/fuentes/plantilla">Abrir las plantillas de oferta</a></article></div>
+    <section id="aplicaciones" class="sp-section sp-paper"><div class="sp-shell">
+      <div class="sp-section-head"><div><p class="sp-kicker">03 / En contexto</p><h2>Una familia.<br />Todo un lenguaje.</h2></div><p>Campaña, informe, interfaz y voz editorial. La identidad se sostiene cuando cambian el soporte y la intención.</p></div>
+      <div class="sp-compositions">
+        <article class="sp-campaign"><p class="sp-example-label">01 / Campaña · Bold 700</p><h3>Conectar.<br />Resolver.<br /><em>Continuar.</em></h3><p>Tecnología que acompaña<br />a quienes hacen.</p><span class="sp-campaign-sign">ULTIMA MILLA <span aria-hidden="true">↗</span></span></article>
+        <article class="sp-editorial"><p class="sp-example-label">02 / Informe · Regular 400 + SemiBold 600</p><span class="sp-editorial-number">026</span><h3>Todo empieza por entender.</h3><p>Relevar un sitio es escuchar cómo trabaja. Dónde circula la información, qué necesita cada equipo y qué debe seguir funcionando.</p><p>La solución toma forma cuando esas preguntas encuentran una respuesta clara.</p><div class="sp-editorial-footer"><span>Informe técnico</span><span>01 — 04</span></div></article>
+        <article class="sp-interface"><p class="sp-example-label">03 / Interfaz · Medium 500</p><div class="sp-ui-title"><h3>Mesa de trabajo</h3><span class="sp-status">En curso</span></div><dl><div><dt>Proyecto</dt><dd>Red del edificio</dd></div><div><dt>Etapa</dt><dd>Documentación</dd></div><div><dt>Referencia</dt><dd>UM-026 / 014</dd></div></dl><label>Nota del equipo<input value="Plano y memoria listos para revisar" readonly /></label><p class="sp-ui-action">Revisión técnica <span aria-hidden="true">↗</span></p></article>
+        <blockquote class="sp-quote"><p>“La claridad también<br />es una forma<br />de cuidar.”</p><footer>04 / Voz editorial · Regular Italic 400</footer></blockquote>
+      </div><p class="sp-note">Composiciones de muestra. Los datos ilustran el uso tipográfico.</p>
+    </div></section>
+    <section id="numerales" class="sp-section sp-dark"><div class="sp-shell">
+      <div class="sp-section-head"><div><p class="sp-kicker">04 / Números con carácter</p><h2>Precisión que<br />se puede leer.</h2></div><p>Fechas, importes y códigos también hablan con la misma voz. Las cifras tabulares mantienen el ancho de cada columna.</p></div>
+      <p class="sp-big-numbers" aria-label="Cifras del cero al nueve">01234<br class="sp-mobile-break" />56789</p>
+      <div class="sp-number-options"><p>Compará los anchos:</p><div class="sp-toggle" role="group" aria-label="Tipo de cifras"><button type="button" data-figures="tabular-nums" aria-pressed="true">Tabulares</button><button type="button" data-figures="proportional-nums" aria-pressed="false">Proporcionales</button></div></div>
+      <div class="sp-number-proof" id="number-proof"><div><span>Patrones de ancho</span><p>111.111,11<br />888.888,88<br />202.026,20</p></div><div><span>Importes y signos</span><p>$ 12.480,00<br />€ 1.250,50<br />−15,25 %</p></div><div><span>Fechas y referencias</span><p>08 / 10 / 2026<br />UM-026 / 014<br />24:00 · 07:30</p></div></div>
+      <div class="sp-table-wrap"><table><caption>Ejemplo de presupuesto · datos de muestra</caption><thead><tr><th>Concepto</th><th>Cantidad</th><th>Unitario</th><th>Importe</th></tr></thead><tbody><tr><td>Relevamiento</td><td>1</td><td>150,00</td><td>150,00</td></tr><tr><td>Punto de red</td><td>12</td><td>85,50</td><td>1.026,00</td></tr><tr><td>Documentación</td><td>1</td><td>120,00</td><td>120,00</td></tr></tbody><tfoot><tr><th colspan="3">Total de ejemplo</th><td>1.296,00</td></tr></tfoot></table></div>
+    </div></section>
+    <section id="lectura" class="sp-section sp-shell"><div class="sp-reading-layout">
+      <div class="sp-reading-aside"><p class="sp-kicker">05 / Cuerpo de lectura</p><h2>El texto<br />tiene lugar.</h2><p>22 px en escritorio, 20 px en móvil. Interlineado de 1,62 y una columna con espacio para leer.</p><div class="sp-toggle" role="group" aria-label="Tamaño del ejemplo de lectura"><button type="button" data-reading-size="20" aria-pressed="false">20 px</button><button type="button" data-reading-size="22" aria-pressed="true">22 px</button><button type="button" data-reading-size="24" aria-pressed="false">24 px</button></div><p class="sp-note" id="reading-size-note">La muestra sigue la escala de la pantalla.</p></div>
+      <article id="reading-sample" class="sp-reading"><p class="sp-reading-intro">La tecnología se vuelve útil cuando alguien puede entenderla.</p><p>Un proyecto empieza mucho antes de la instalación. Empieza por mirar el lugar, conversar con las personas y reconocer qué necesita seguir funcionando. Cada decisión encuentra sentido en ese contexto.</p><h3>Escribir también es ordenar.</h3><p>Un título orienta. Un párrafo explica. Una cifra permite comparar. Cuando esas piezas conviven con una jerarquía clara, la información deja de exigir esfuerzo y empieza a acompañar la lectura.</p><p>La misma atención que ponemos en una conexión está en una propuesta: alcance definido, condiciones legibles y documentación que se puede volver a consultar.</p><blockquote>“Lo que se entiende bien,<br />se puede usar mejor.”</blockquote><p>Desde Mendoza, para cada sitio donde trabajamos: palabras claras, datos precisos y una identidad reconocible de principio a fin.</p></article>
+    </div></section>
+    <section id="repertorio" class="sp-section sp-paper"><div class="sp-shell">
+      <div class="sp-section-head"><div><p class="sp-kicker">06 / Repertorio</p><h2>Cada signo<br />cuenta.</h2></div><p>150 glifos y 143 caracteres Unicode en el repertorio propio. Seleccioná un carácter para ver su dibujo y su código.</p></div>
+      <div class="sp-glyph-filters" role="group" aria-label="Filtrar caracteres"><button type="button" data-glyph-filter="all" aria-pressed="true">Todos</button>{glyphGroups.map(g=><button type="button" data-glyph-filter={g.id} aria-pressed="false">{g.label}</button>)}</div>
+      <div class="sp-glyph-layout"><div class="sp-glyph-grid">{glyphGroups.map(g=>Array.from(g.chars).map(char=><button type="button" data-glyph={char} data-group={g.id} aria-label={'Ver carácter '+char} aria-pressed={char==='A'?'true':'false'}>{char}</button>))}</div><aside class="sp-glyph-inspector" aria-live="polite" aria-atomic="true"><p id="glyph-large">A</p><div><strong id="glyph-code">U+0041</strong><span id="glyph-character">A · Mayúsculas</span></div><span class="sp-note">UM Sans 2 · Regular 400</span></aside></div>
+      <p class="sp-note">La fuente también incluye espacios y marcas combinantes. El kit web usa el respaldo UM Sans 1.2 para signos adicionales, como º, ª, ½ o →. <a href={base+'/manifest.json'}>Consultar el repertorio completo ↗</a></p>
+    </div></section>
+    <section id="detalles" class="sp-section sp-shell">
+      <div class="sp-section-head"><div><p class="sp-kicker">07 / Entre las letras</p><h2>Detalles que<br />hacen al conjunto.</h2></div><p>Espaciado entre pares, tildes y formas que se distinguen. Estas muestras usan las funciones presentes en los archivos 2.0.0.</p></div>
+      <div class="sp-kerning-head"><span>Espaciado de pares · kern</span><label class="sp-check"><input id="kerning-enabled" type="checkbox" checked /> Activar kerning</label></div><p class="sp-kerning-sample" id="kerning-sample">AVATAR · TÉCNICA<br />VAYAMOS · TOPO</p>
+      <div class="sp-detail-grid"><article><span>Diacríticos · ccmp + mark</span><p>ÁÉÍÓÚ<br /><em>áéíóú ñü</em></p><div>¿Qué conexión necesitás?<br />¡Última Milla está aquí!</div></article><article><span>Formas bajo la lupa</span><p>Il1 · O0<br /><em>rn m · cl d</em></p><div>Letras, cifras y pares cercanos, en palabras y en identificadores.</div></article></div>
+      <dl class="sp-feature-list"><div><dt>kern</dt><dd>Ajuste de espacio entre pares.</dd></div><div><dt>ccmp + mark</dt><dd>Composición y posición de diacríticos.</dd></div><div><dt>tnum + pnum</dt><dd>Cifras de ancho fijo o proporcional.</dd></div></dl>
     </section>
-    <section id="entrega" aria-labelledby="font-delivery-heading">
-      <p class="font-eyebrow">04 · Entrega</p><h2 id="font-delivery-heading">Qué incluye esta versión.</h2>
-      <div class="font-delivery-grid"><article><h3>La familia original</h3><p>18 cortes OTF, TTF y WOFF2. Dos variables de peso, romana y cursiva. 150 glifos y 143 caracteres Unicode en cada corte.</p></article><article><h3>Español y datos</h3><p>Acentos, signos, monedas, cifras proporcionales y tabulares. El kit web incluye UM Sans 1.2 como respaldo para caracteres que todavía no pertenecen a la nueva familia.</p></article><article><h3>Alcance com&shy;pro&shy;ba&shy;do</h3><p>Archivos revisados contra OpenType y WOFF2; composición en Chromium y WebKit/Linux; exportación PDF con LibreOffice. La revisión visual y técnica no equivale a certificar todos los programas y plataformas.</p></article><article><h3>Uso y con&shy;ti&shy;nui&shy;dad</h3><p>Distribución para los sitios, aplicaciones y documentos de Última Milla. UM Sans 2 conserva sus derechos reservados; el respaldo 1.2 mantiene su licencia OFL.</p><a href={`${base}/LICENSE.txt`}>Condiciones de uso</a></article></div>
-      <p class="font-version">UM Sans 2.0.0 · Dibujo de la candidata 0.950 conservado. <a href="/estilo/um-sans">Consultar el sistema anterior 1.2</a>.</p>
+    <section id="escala" class="sp-section sp-paper"><div class="sp-shell">
+      <div class="sp-section-head"><div><p class="sp-kicker">08 / Sistema de estilos</p><h2>La jerarquía<br />se construye.</h2></div><p>Una escala de referencia para ordenar títulos, lectura y controles. El cuerpo conserva su tamaño cuando la pantalla se achica.</p></div>
+      <div class="sp-scale">{roles.map(([name,weight,size,sample,role])=><article><div><h3>{name}</h3><span>{size}</span><span>Peso {weight}</span></div><p class={'sp-role sp-role-'+role} style={'--role-weight:'+weight}>{sample}</p></article>)}</div>
+      <p class="sp-note">Las parejas indican escritorio / móvil. Los tamaños impresos responden al papel: cuerpo de 12 pt y títulos de 16, 13 y 12 pt en las plantillas de licitación.</p>
+    </div></section>
+    <section id="recursos" class="sp-section sp-shell">
+      <div class="sp-section-head"><div><p class="sp-kicker">09 / Recursos marca UMSA</p><h2>Del specimen<br />a tu propuesta.</h2></div><p>La misma familia en membretes, licitaciones y planillas. Abrí una base, completá los datos y conservá sus estilos.</p></div>
+      <div class="sp-resource-grid"><a href="/estilo/fuentes/plantilla#oferta-completa"><div class="sp-document-preview"><img src={templates+'/oferta-completa.svg'} width="595" height="842" alt="Primera página real de la oferta completa, con marca alineada a la derecha, títulos numerados y tablas" loading="lazy" /></div><span>Oferta completa <b aria-hidden="true">↗</b></span><small>Word · PDF · ODT · HTML</small></a><a href="/estilo/fuentes/plantilla#oferta-economica"><div class="sp-document-preview"><img src={templates+'/oferta-economica.svg'} width="595" height="842" alt="Hoja real de Excel con marca, renglones de cotización y totales" loading="lazy" /></div><span>Planilla económica <b aria-hidden="true">↗</b></span><small>Excel · Fórmulas · Impresión A4</small></a></div>
+      <div class="sp-actions"><a class="sp-button sp-button-red" href="/estilo/fuentes/plantilla">Abrir RECURSOS MARCA UMSA ↗</a></div>
+    </section>
+    <section id="integrar" class="sp-section sp-dark"><div class="sp-shell">
+      <div class="sp-section-head"><div><p class="sp-kicker">10 / Integración</p><h2>La misma voz.<br />En cada soporte.</h2></div><p>Usá la hoja de estilos del servicio central en la web y los archivos instalables en tus documentos.</p></div>
+      <div class="sp-integration-grid"><article><h3>En la web</h3><p>Agregá el enlace y aplicá la familia a los textos. La versión tiene una dirección fija.</p><div class="sp-code"><button type="button" data-copy="integration-code">Copiar HTML</button><pre><code id="integration-code">{integration}</code></pre></div><div class="sp-code"><button type="button" data-copy="usage-code">Copiar CSS</button><pre><code id="usage-code">{usage}</code></pre></div><p id="copy-status" class="sp-note" role="status" aria-live="polite"></p></article><article><h3>En tus documentos</h3><ol class="sp-install"><li><span>01</span><p>Descargá la familia e instalá los TTF u OTF que vayas a usar.</p></li><li><span>02</span><p>Elegí UM Sans 2 y aplicá los estilos de título, cuerpo y tabla de la plantilla.</p></li><li><span>03</span><p>Exportá a PDF con las fuentes incrustadas y revisá la composición antes de compartir.</p></li></ol><a class="sp-link" href={base+'/LICENSE.txt'}>Condiciones de uso ↗</a><p class="sp-note">La distribución declara incrustación para vista previa e impresión. Instalá los archivos para editar en aplicaciones de escritorio.</p></article></div>
+    </div></section>
+    <section id="entrega" class="sp-section sp-shell">
+      <div class="sp-section-head"><div><p class="sp-kicker">11 / La entrega</p><h2>Todo, a mano.</h2></div><p>18 cortes estáticos en TTF, OTF y WOFF2; dos variables en TTF y WOFF2. En total, 58 archivos de fuente.</p></div>
+      <div class="sp-download-banner"><div><span>UM SANS 2.0.0</span><h3>La familia completa.</h3><p>Romanas, cursivas, variables, CSS, licencia y manifiesto.</p></div><a class="sp-button sp-button-red" href={base+'/UMSans2-2.0.0.zip'} download>Descargar ZIP ↗</a></div>
+      <details class="sp-download-details"><summary>Elegir un corte o formato</summary><div class="sp-table-wrap"><table><thead><tr><th>Corte</th><th>Romana</th><th>Cursiva</th></tr></thead><tbody>{weights.map((name,i)=><tr><th>{(i+1)*100} · {name}</th><td>{['ttf','otf','woff2'].map(ext=><a href={base+'/UMSans2-'+name+'.'+ext} download aria-label={name+' romana '+ext}>{ext.toUpperCase()}</a>)}</td><td>{['ttf','otf','woff2'].map(ext=><a href={base+'/UMSans2-'+name+'Italic.'+ext} download aria-label={name+' cursiva '+ext}>{ext.toUpperCase()}</a>)}</td></tr>)}<tr><th>Variable · 100–900</th><td>{['ttf','woff2'].map(ext=><a href={base+'/UMSans2-Variable.'+ext} download>{ext.toUpperCase()}</a>)}</td><td>{['ttf','woff2'].map(ext=><a href={base+'/UMSans2-VariableItalic.'+ext} download>{ext.toUpperCase()}</a>)}</td></tr></tbody></table></div></details>
+      <div class="sp-colophon"><p>UM Sans 2.0.0 · Dibujo de la candidata 0.950.<br />Una familia de ULTIMA MILLA.</p><div><a href={base+'/manifest.json'}>Archivos y verificación ↗</a><a href={base+'/LICENSE.txt'}>Licencia ↗</a><a href="/estilo/um-sans">Consultar el specimen 1.2 ↗</a></div></div>
     </section>
   </div>
 </LayoutV4>
 <script>
-  const text = document.querySelector<HTMLInputElement>('#font-text');
-  const weight = document.querySelector<HTMLInputElement>('#font-weight');
-  const size = document.querySelector<HTMLInputElement>('#font-size');
-  const italic = document.querySelector<HTMLInputElement>('#font-italic');
-  const sample = document.querySelector<HTMLElement>('#font-live');
-  const update = () => {
-    if (!text || !weight || !size || !italic || !sample) return;
-    sample.textContent = text.value || 'Conectamos tecnología y personas.';
-    sample.style.fontWeight = weight.value;
-    sample.style.fontSize = `${Number(size.value) / 16}rem`;
-    sample.style.fontStyle = italic.checked ? 'italic' : 'normal';
-    const weightValue = document.querySelector('#font-weight-value');
-    const sizeValue = document.querySelector('#font-size-value');
-    if (weightValue) weightValue.textContent = weight.value;
-    if (sizeValue) sizeValue.textContent = `${Math.round(parseFloat(getComputedStyle(sample).fontSize))} px`;
-  };
-  [text, weight, size, italic].forEach(input => input?.addEventListener('input', update));
-  window.addEventListener('resize', update);
+  import { initFontSpecimen } from '../../scripts/fontSpecimen';
+  initFontSpecimen();
+  document.addEventListener('astro:page-load', initFontSpecimen);
 </script>
