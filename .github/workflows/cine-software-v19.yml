@@ -28,7 +28,7 @@ jobs:
           python3 - <<'PYPLAN'
           import os,json
           frame=int(os.environ['FRAME']);assert -1<=frame<1200
-          frames=[300,570,870,1092] if frame<0 else [frame]
+          frames=[180,1068] if frame<0 else [frame]
           matrix={'include':[dict(frame=f,end=f,width=w,composition=c) for c,w in [('wide',3840),('mobile',2160)] for f in frames]}
           if os.environ['MODE']=='motion-proof':matrix={'include':[dict(frame=414,end=437,width=3840,composition='wide'),dict(frame=732,end=755,width=2160,composition='mobile')]}
           if os.environ['MODE']=='sequence-proof':matrix={'include':[dict(frame=i*60,end=i*60+59,width=w,composition=c) for i in range(20) for c,w in [('wide',3840),('mobile',2160)]]}

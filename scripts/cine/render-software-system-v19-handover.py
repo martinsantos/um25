@@ -12,8 +12,10 @@ original=film.prominence
 original_focus=film.focus
 
 def focus(group,t):
- if 120<=t*1199<300 and film.family(group) in ('inspector','summary','history','action'):
+ if 120<=t*1199<300 and film.family(group) in ('base','inspector','summary','history','action'):
   return 1-film.E((t-.10)/.03)
+ if 1020<=t*1199<1140 and film.family(group) not in ('access','contract','data'):
+  return film.E((t-1020/1199)/.027) if film.family(group) in ('list','selection') else film.E((t-.89)/.05)
  return original_focus(group,t)
 
 def prominence(group,t):
@@ -35,6 +37,7 @@ def validate():
  for frame in range(1200):
   t=frame/1199
   if not (120<=frame<300 or 1020<=frame<1140):
+   assert all(focus(g,t)==original_focus(g,t) for g in ['base','list','inspector','summary','history','action','access','contract','data'])
    assert all(prominence(g,t)==original(g,t) for g in ['base','list','inspector','summary','history','action','access','access-check-2','contract','data'])
   if .11<t<.20:
    assert max(prominence('list',t),prominence('access',t))>.4, 'Readable context must survive the handover'
