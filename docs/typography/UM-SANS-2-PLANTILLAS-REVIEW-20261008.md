@@ -1,5 +1,16 @@
 # Plantillas y presentación — revisión r4
 
+## Imágenes y punto final — 10 de octubre
+
+- La oferta completa incorpora una imagen de producto centrada en el flujo de texto y un comentario opcional. Todos los modelos Word contienen los estilos Imagen centrada y Comentario de imagen, disponibles también en DOTX y ODT.
+- Se agrega Imágenes en documentos con PNG transparente, fotografía sobre blanco y un bloque sin comentario. Las imágenes públicas del sitio son referencias de composición; no identifican modelos de una oferta. No hay marcos, fondos añadidos, sombras ni recortes del producto.
+- El aire solicitado se aplica con 18 pt antes de la imagen, 6 pt entre imagen y comentario y 24 pt después del comentario. En la lectura web: 32 px antes, 12 px entre imagen y pie y 48 px después del bloque. El comentario usa 10,5 pt en los documentos y 18 px en la web.
+- Las imágenes mantienen proporción y centro dentro de los márgenes; el párrafo de imagen conserva su comentario en la misma página. Se comprueba también un salto forzado con contenido añadido. La plantilla vacía conserva tres páginas, el ejemplo cuatro y los bloques de imágenes dos.
+- Todos los niveles de títulos terminan en punto: 4., 4.1. y 4.1.1. Continúan siendo automáticos, dentro de la línea izquierda del cuerpo y con un espacio corto.
+- Los HTML incorporan la imagen; permiten reemplazarla, editar el comentario y guardar una copia. La impresión limita la altura para imágenes verticales. La vista de lectura reutiliza los archivos públicos existentes, cuyos bytes se comprobaron en la web.
+- Se revisan las 16 páginas de Word, las exportaciones ODT y el PDF nativo de Google Docs. Google mantiene las imágenes centradas y sus comentarios, pero usa Arial; no se declara la misma tipografía de los PDF oficiales. Las copias adaptadas mantienen los tabulados cortos al importar.
+- La entrega r4 contiene 50 archivos y un ZIP de aproximadamente 49,9 MB, con manifiesto SHA-256. Los XLSX y PDF económicos siguen idénticos a r3, sin imágenes de producto.
+
 ## Corrección de tabulados y línea izquierda — 10 de octubre
 
 - Todos los números comienzan en la misma línea izquierda que el cuerpo y las tablas, dentro del bloque. Un espacio tipográfico de 0,25 em separa cifra y título. Se conserva numeración automática, tamaños proporcionales y estilos de tres niveles.

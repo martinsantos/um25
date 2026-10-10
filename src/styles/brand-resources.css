@@ -61,7 +61,7 @@ body:has(#um-resources) .um-tabbar { display:none !important; }
 #um-resources .rl-reading .doc-level-1 { font-size:24px !important; margin-top:40px; counter-increment:doc-section; counter-set:doc-subsection 0 doc-detail 0; }
 #um-resources .rl-reading .doc-level-2 { font-size:22px !important; margin-top:32px; counter-increment:doc-subsection; counter-set:doc-detail 0; }
 #um-resources .rl-reading .doc-level-3 { font-size:20px !important; margin-top:28px; counter-increment:doc-detail; }
-.doc-level-1::before { content:counter(doc-section); }.doc-level-2::before { content:counter(doc-section) '.' counter(doc-subsection); }.doc-level-3::before { content:counter(doc-section) '.' counter(doc-subsection) '.' counter(doc-detail); }
+.doc-level-1::before { content:counter(doc-section) '.'; }.doc-level-2::before { content:counter(doc-section) '.' counter(doc-subsection) '.'; }.doc-level-3::before { content:counter(doc-section) '.' counter(doc-subsection) '.' counter(doc-detail) '.'; }
 .rl-reading .table-wrap { overflow-x:auto; margin-block:20px 24px; }
 .rl-reading table { width:100%; min-width:560px; border-collapse:collapse; font-size:18px; line-height:1.4; font-variant-numeric:tabular-nums; }
 .rl-reading th, .rl-reading td { padding:12px; border-bottom:1px solid #ddd; color:#17191c; }
@@ -121,3 +121,7 @@ body:has(#um-resources) .um-tabbar { display:none !important; }
 @media(max-width:760px) { #resource-viewer[data-zoom="reading"] .rl-dialog-paper img { min-width:740px; } }
 
 #um-resources .rl-reading .doc-heading + .doc-heading { margin-top:12px; }
+
+.rl-reading .document-figure { margin:32px 0 48px; padding:0; border:0; background:none; box-shadow:none; break-inside:avoid; }
+.rl-reading .document-figure img { display:block; width:var(--figure-width,80%); max-width:100%; max-height:100mm; height:auto; margin:0 auto; border:0; border-radius:0; background:none; box-shadow:none; object-fit:contain; }
+#um-resources .rl-reading .document-figure figcaption { max-width:85%; margin:12px auto 0; color:#333; font-size:18px; line-height:1.4; text-align:center; }
