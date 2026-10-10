@@ -68,7 +68,7 @@ def prominence(group,t):
   start,duration=(.10,.03) if family(group) in ('base','inspector','summary','history','action') else (.12,.085)
   f=1-E((t-start)/duration)
  if 972<=t*1199<1140 and family(group) in ('list','selection'):f=E((t-.82)/.045)
- if group=='data-pending':f*=1-E((t-.725)/.03)
+ if group=='data-pending':f*=1-E((t-.718)/.010)
  if group.endswith('-annotation'):f*=annotation_progress(group,t)
  if group.startswith('access-check-'):f*=E((t-(.17+.028*int(group[-1])))/.026)
  if group.startswith('contract-check-'):f*=E((t-(.455+.038*int(group[-1])))/.027)
@@ -488,6 +488,11 @@ def validate():
  assert prominence('contract-check-2',.58)>.99
  assert prominence('data-commit',.70)<.001
  assert prominence('data-commit',.78)>.99
+ for frame in range(FRAMES):
+  t=frame/(FRAMES-1)
+  if prominence('data-pending',t)>.025:assert prominence('data-commit',t)<.025, 'Pending and confirmed words cannot overlap'
+ assert prominence('access-annotation',.15)<.001
+ assert prominence('access-annotation',.23)>.99
 
  assert all(m not in ALPHA for g,s,x,y,z,size,m,bold in p.texts), 'Glyphs must remain opaque'
  # Continuous camera velocity; the loop join settles to zero.
