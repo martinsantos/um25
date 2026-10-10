@@ -7,6 +7,10 @@ import assert from 'node:assert/strict';
 const base = (process.argv[2] || 'https://www.ultimamilla.com.ar').replace(/\/$/, '');
 const prefix = '/fonts/um-sans/v2.0.0';
 const root = path.resolve('public' + prefix);
+const resourceVersion = '2026.10.09-r3';
+const resourcePrefix = `/downloads/plantillas-um-sans/${resourceVersion}`;
+const resourceRoot = path.resolve('public' + resourcePrefix);
+const resourcePackage = `Plantillas-UMSans2-${resourceVersion}.zip`;
 const requireCors = !process.argv.includes('--local');
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 async function get(url) {
@@ -17,14 +21,14 @@ async function get(url) {
   assert.equal(response.status, 200, `${url}: HTTP ${response.status}`);
   return response;
 }
-async function verify(file) {
-  const response = await get(`${prefix}/${file}`);
+async function verify(file, urlPrefix = prefix, localRoot = root) {
+  const response = await get(`${urlPrefix}/${file}`);
   if (requireCors && /\.(woff2|css)$/.test(file)) {
     assert.equal(response.headers.get('access-control-allow-origin'), '*', `${file}: CORS`);
     assert.match(response.headers.get('cache-control') || '', /max-age=2592000/, `${file}: cache`);
   }
   const actual = Buffer.from(await response.arrayBuffer());
-  assert.equal(hash(actual), hash(await fs.readFile(path.join(root, file))), `${file}: changed bytes`);
+  assert.equal(hash(actual), hash(await fs.readFile(path.join(localRoot, file))), `${file}: changed bytes`);
 }
 const manifest = JSON.parse(await fs.readFile(path.join(root, 'manifest.json'), 'utf8'));
 const templates = JSON.parse(await fs.readFile(path.join(root, 'plantillas/manifest.json'), 'utf8'));
@@ -36,19 +40,38 @@ const files = [
   ...templates.files.map(file => `plantillas/${file.file}`),
 ];
 for (let index = 0; index < files.length; index += 6) {
-  await Promise.all(files.slice(index, index + 6).map(verify));
+  await Promise.all(files.slice(index, index + 6).map(file => verify(file)));
+}
+// The font release and earlier template downloads remain immutable. The
+// catalogue now serves the separately versioned, corrected document package.
+const resources = JSON.parse(await fs.readFile(path.join(resourceRoot, 'manifest.json'), 'utf8'));
+assert.equal(resources.version, resourceVersion, 'resource manifest: version');
+assert.equal(resources.fontVersion, manifest.version, 'resource manifest: font version');
+for (const file of resources.files) {
+  assert.match(file.path, /^[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*\.[a-zA-Z0-9]+$/, 'resource manifest: path');
+  const bytes = await fs.readFile(path.join(resourceRoot, file.path));
+  assert.equal(bytes.length, file.bytes, `${file.path}: manifest size`);
+  assert.equal(hash(bytes), file.sha256, `${file.path}: manifest hash`);
+}
+for (const file of ['oferta-completa.docx', 'resumen-comercial.docx', 'membrete.docx',
+  'oferta-economica.xlsx', 'presupuesto-interno.xlsx', 'presupuesto-interno.pdf']) {
+  assert(resources.files.some(entry => entry.path === file), `${file}: missing from resource manifest`);
+}
+const resourceFiles = ['manifest.json', resourcePackage, ...resources.files.map(file => file.path)];
+for (let index = 0; index < resourceFiles.length; index += 6) {
+  await Promise.all(resourceFiles.slice(index, index + 6).map(file => verify(file, resourcePrefix, resourceRoot)));
 }
 for (const [route, marker] of [
   ['/estilo/fuente', 'data-font-release="2.0.0"'],
-  ['/estilo/fuentes/plantilla', 'Plantillas-UMSans2-2.0.0.zip'],
-  ['/estilo/fuente/plantillas', 'Plantillas-UMSans2-2.0.0.zip'],
-  ['/estilo/fuente/planillas', 'Plantillas-UMSans2-2.0.0.zip'],
-  ['/estilo/fuente/planilla', 'Plantillas-UMSans2-2.0.0.zip'],
-  ['/planilla', 'Plantillas-UMSans2-2.0.0.zip'],
+  ['/estilo/fuentes/plantilla', `${resourcePrefix}/${resourcePackage}`],
+  ['/estilo/fuente/plantillas', `${resourcePrefix}/${resourcePackage}`],
+  ['/estilo/fuente/planillas', `${resourcePrefix}/${resourcePackage}`],
+  ['/estilo/fuente/planilla', `${resourcePrefix}/${resourcePackage}`],
+  ['/planilla', `${resourcePrefix}/${resourcePackage}`],
   ['/fuente', 'data-font-release="2.0.0"'],
   ['/estilos/fuente', 'data-font-release="2.0.0"'],
-  ['/estilos/fuente/plantilla', 'Plantillas-UMSans2-2.0.0.zip'],
-  ['/estilo/fuente/plantilla', 'Plantillas-UMSans2-2.0.0.zip'],
+  ['/estilos/fuente/plantilla', `${resourcePrefix}/${resourcePackage}`],
+  ['/estilo/fuente/plantilla', `${resourcePrefix}/${resourcePackage}`],
 ]) {
   const html = await (await get(route)).text();
   assert(html.includes(marker), `${route}: missing ${marker}`);
@@ -69,4 +92,4 @@ for (const [route, destination] of [
 // Existing clients must still receive the exact 1.2 binary.
 const legacy = Buffer.from(await (await get('/fonts/um-sans/UMSans-Variable.woff2')).arrayBuffer());
 assert.equal(hash(legacy), hash(await fs.readFile(path.resolve('public/fonts/um-sans/UMSans-Variable.woff2'))));
-console.log(JSON.stringify({ base, version: manifest.version, verifiedFiles: files.length, corsChecked: requireCors, legacyUnchanged: true }));
+console.log(JSON.stringify({ base, version: manifest.version, resourceVersion, verifiedFiles: files.length + resourceFiles.length, corsChecked: requireCors, legacyUnchanged: true }));
