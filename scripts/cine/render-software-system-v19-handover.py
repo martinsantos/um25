@@ -9,6 +9,12 @@ from pathlib import Path
 spec=importlib.util.spec_from_file_location('film',Path(__file__).with_name('render-software-system-v19.py'))
 film=importlib.util.module_from_spec(spec);spec.loader.exec_module(film)
 original=film.prominence
+original_focus=film.focus
+
+def focus(group,t):
+ if 120<=t*1199<300 and film.family(group) in ('inspector','summary','history','action'):
+  return 1-film.E((t-.10)/.03)
+ return original_focus(group,t)
 
 def prominence(group,t):
  family=film.family(group)
@@ -25,7 +31,7 @@ def prominence(group,t):
  return original(group,t)
 
 def validate():
- film.prominence=original;film.validate();film.prominence=prominence
+ film.prominence=original;film.focus=original_focus;film.validate();film.prominence=prominence;film.focus=focus
  for frame in range(1200):
   t=frame/1199
   if not (120<=frame<300 or 1020<=frame<1140):
