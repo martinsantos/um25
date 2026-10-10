@@ -8,9 +8,13 @@ from html import escape
 REPO=Path(os.environ.get('UM_TEMPLATE_REPO',Path(__file__).resolve().parents[3]))
 BASE=REPO/'public/downloads/plantillas-um-sans/2026.10.10-r4'
 result={}
-for kind in ['oferta-completa','resumen-comercial','membrete','ejemplo-licitacion']:
+for kind in ['oferta-completa','resumen-comercial','membrete','ejemplo-licitacion','imagenes-documento']:
     doc=html.parse(str(BASE/(kind+'.html')))
     main=doc.xpath('//main')[0]
+    for button in main.xpath('.//button[@class="figure-replace"]'):button.getparent().remove(button)
+    for img in main.xpath('.//figure/img'):
+        assert img.get('data-asset'),'Missing public image source'
+        img.set('src',img.attrib.pop('data-asset'));img.set('loading','lazy');img.set('decoding','async')
     for node in main.iter():
         node.attrib.pop('contenteditable',None)
         if node.tag=='h1':node.tag='h3';node.set('class','doc-title')
@@ -49,4 +53,4 @@ totals=''.join(f'<p>{cv("A"+str(r))}<span>{cv("F"+str(r))}</span></p>' for r in 
 result['presupuesto-interno']=f'''<h3 class="doc-title">Resultado del presupuesto</h3><p class="meta">Libro vacío para uso interno · cuatro hojas de trabajo</p><div class="table-wrap" tabindex="0" role="region" aria-label="Resultado del presupuesto"><table><thead><tr><th>Tipo de costo</th><th>Costo USD</th><th>Venta USD</th></tr></thead><tbody>{body}</tbody></table></div><div class="doc-sheet-totals">{totals}</div><h4 class="doc-sheet-conditions">Cómo completar el libro</h4><p>En Parámetros se definen cotización, tarifas, márgenes, ajustes y datos de la oferta. Costeo reúne los componentes por renglón o código y sector o piso. Proveedores permite comparar dos precios y elegir una alternativa.</p><p>Los campos están vacíos para completar cada licitación. El resultado se calcula a partir del detalle; los márgenes se aplican sobre la venta. El costo interno y la oferta al cliente requieren documentos diferentes.</p>'''
 book.close()
 out=REPO/'src/data/brand-template-reading.json';out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
-print('Seven readable previews generated from delivered HTML and XLSX.')
+print('Eight readable previews generated from delivered HTML and XLSX.')
