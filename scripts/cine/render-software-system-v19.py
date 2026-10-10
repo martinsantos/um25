@@ -316,10 +316,6 @@ def build():
   p.label(g,{'ERP':'Gestión','API':'Contrato v3','CRM':'Equipo'}[word],x+.48,-2.49,.115,'muted',z=.065)
  p.line(g,[(-3.72,-2.74,.04),(-3.72,-2.82,.04),(-.42,-2.82,.04),(-.42,-2.74,.04)],'registration',.003)
  p.label(g,'INTEGRACIÓN DEL PROYECTO',-4.24,-2.96,.092,'quiet',True)
- # Small controls use recognizable silhouettes rather than identical squares.
- g='access-node-0'
- p.line(g,[(2.98,-1.22,.54),(3.07,-1.26,.54),(3.06,-1.38,.54),(2.98,-1.44,.54),(2.90,-1.38,.54),(2.89,-1.26,.54),(2.98,-1.22,.54)],'signal',.006)
- p.icon(g,'check',2.925,-1.36,'ink',.10,z=.545)
  # Policy context is visible behind the permission matrix, registered in depth.
  g='access-node-1'
  for x,letter,col in [(5.53,'O','amber'),(5.75,'T','violet'),(5.97,'R','signal')]:
@@ -339,7 +335,8 @@ def build():
  p.tag('data','SHA',4.76,-.02,.49,'fieldpaper','violet')
  p.label('data','7c4f…a218',5.28,-.024,.095,'quiet')
  # An operational legend supplies visual texture without random measurements.
- p.label('data','✓ Integridad del registro',1.50,-2.92,.104,'green')
+ p.icon('data-event-2','check',1.50,-2.92,'green',.10)
+ p.label('data-event-2','Integridad del registro',1.66,-2.92,.104,'green')
  p.label('data','0248-A',5.00,-2.92,.107,'quiet',True)
  return p
 
@@ -590,7 +587,7 @@ def render(args):
   for ob,g in visibility:ob.hide_render=prominence(g,t)<.025
   for (group,name),(mat,mix) in surface_mats.items():
    # Structural glass stays transparent; content islands gain quiet contrast.
-   opacity=ALPHA[name]*(.11+.89*focus(group,t)) if name in ALPHA and '-' not in group else ALPHA.get(name,1)*prominence(group,t)
+   opacity=ALPHA[name]*(.025+.975*focus(group,t)) if name in ALPHA and '-' not in group else ALPHA.get(name,1)*prominence(group,t)
    if family(group)=='access':opacity*=E((t-.10)/.07)
    if name in ALPHA:mix.inputs[0].default_value=opacity
    else:
