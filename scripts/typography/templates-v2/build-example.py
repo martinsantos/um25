@@ -27,6 +27,15 @@ def write(p,value):
     rpr=p.find('.//'+q('rPr'))
     for n in list(p):
         if n.tag!=q('pPr'):p.remove(n)
+    style=p.find('.//'+q('pStyle'))
+    if style is not None and style.get(q('val'))=='Comentariodeimagen':
+        label,sep,comment=value.partition('. ')
+        for part,bold in [(label+('. ' if sep else ''),True),(comment,False)]:
+            if not part:continue
+            r=E.SubElement(p,q('r'));rp=E.SubElement(r,q('rPr'))
+            if bold:E.SubElement(rp,q('b'))
+            E.SubElement(r,q('t'),{'{http://www.w3.org/XML/1998/namespace}space':'preserve'}).text=part
+        return
     r=E.SubElement(p,q('r'))
     if rpr is not None:r.append(deepcopy(rpr))
     import re
@@ -50,6 +59,7 @@ replace={
  '[Indicar dependencias y prestaciones no incluidas, sin contradecir el pliego.]':'El centro facilitará acceso a las salas técnicas, energía y los puntos de conexión existentes. Las obras civiles, los enlaces del proveedor de internet y los equipos de usuario quedan fuera del alcance de este ejemplo.',
  '[Describir la solución, sus componentes y las especificaciones ofrecidas.]':'Los equipos de acceso se conectarán al núcleo existente. La configuración separará la operación de la administración y registrará los puertos, las direcciones y los parámetros acordados. El plano final reflejará la instalación ejecutada.',
  '[Detallar las condiciones necesarias y las verificaciones previas a la puesta en servicio.]':'Antes de intervenir se comprobarán alimentación, espacio de montaje y disponibilidad de los enlaces. La puesta en servicio se realizará en una ventana acordada, con una copia de la configuración previa y una secuencia de retorno.',
+ '[Producto o componente]. [Comentario opcional de la imagen. Eliminar este párrafo si no corresponde.]':'Panel de conexiones. Imagen de referencia para los enlaces de acceso del ejemplo. No identifica un modelo ni una prestación ofrecida.',
  'Moneda: [Completar]    Tratamiento de impuestos: [Completar]':'Moneda: USD    Impuestos simulados del ejemplo: USD 210,00',
  'Subtotal: [Importe]\nImpuestos: [Importe]\nTotal de la oferta: [Moneda e importe]':f'Subtotal: USD {money(subtotal)}\nImpuestos del ejemplo: USD {money(DATA["tax"])}\nTotal de la oferta: USD {money(total)}',
  '[Adjuntar el detalle de la planilla económica y verificar que coincida con los totales de esta propuesta.]':'La planilla económica adjunta contiene los mismos tres renglones y totales. Todos los importes son ficticios y sirven para comprobar la composición y el cálculo de las plantillas.',

@@ -11,13 +11,14 @@ REPO=Path(os.environ.get("UM_TEMPLATE_REPO",Path(__file__).resolve().parents[3])
 report=[]
 def brand_edge(page,side='right'):
     key='x0' if side=='left' else 'x1'
-    if page.images:
-        return page.images[0][key]
+    images=[im for im in page.images if im['bottom']<70]
+    if images:
+        return images[0][key]
     paths=[c for c in page.curves if c['top']<70 and c['bottom']<70]
     assert len(paths)>=18,'missing vector brand paths'
     return (min if side=='left' else max)(c[key] for c in paths)
 
-for kind in ['oferta-completa','membrete','resumen-comercial','prueba-licitacion','ejemplo-licitacion']:
+for kind in ['oferta-completa','membrete','resumen-comercial','prueba-licitacion','ejemplo-licitacion','imagenes-documento']:
     path=ROOT/'qa/r2'/kind/(kind+'.pdf');d=pdfplumber.open(path)
     for i,p in enumerate(d.pages):
         fonts={c['fontname'].split('+')[-1] for c in p.chars}
@@ -26,19 +27,56 @@ for kind in ['oferta-completa','membrete','resumen-comercial','prueba-licitacion
         margin_mm=25 if side=='left' else 190
         assert abs(brand_edge(p,side)-margin_mm*72/25.4)<0.2,(path,i,brand_edge(p,side))
         assert all(c['x0']>69 and c['x1']<540 for c in p.chars if not c['text'].isspace()),(path,i,'visible text beyond margin')
+    for page in d.pages:
+        words=page.extract_words(extra_attrs=['size','fontname'])
+        for index,word in enumerate(words[:-1]):
+            if re.fullmatch(r'\d+(?:\.\d+){0,2}\.',word['text']) and word['fontname'].endswith('Bold') and word['size']>=11.9 and abs(word['x0']-25*72/25.4)<0.1:
+                title=words[index+1]
+                if abs(word['top']-title['top'])<2:
+                    assert abs(title['x0']-word['x1']-word['size']*0.25)<0.1,(kind,word['text'],'number-title gap')
+                    assert abs(word['x0']-25*72/25.4)<0.1,(kind,word['text'],'number within body line')
+                    assert abs(title['size']-word['size'])<0.1,(kind,word['text'],'number-title size')
     report.append({'document':kind,'pages':len(d.pages),'fonts':'UM Sans 2 only','logoAlignment':side,'logoTolerancePt':0.2})
     if kind=='ejemplo-licitacion':
-        assert len(d.pages)==4
-        assert '2.501,12' in d.pages[2].extract_text() and '5.504,12' in d.pages[2].extract_text(),'Economic table and total must share a page'
+        economic=[p for p in d.pages if '2.501,12' in p.extract_text()]
+        assert len(economic)==1 and '5.504,12' in economic[0].extract_text(),'Economic table and total must share a page'
 proof=pdfplumber.open(ROOT/'qa/r2/prueba-licitacion/prueba-licitacion.pdf')
 text='\n'.join(p.extract_text() for p in proof.pages)
-assert '10.12.1' in text and '12 Anexo 7' in text
+assert '10.12.1' in text and '12. Anexo 7' in text
 for p in proof.pages:
     for word in p.extract_words(extra_attrs=['size','fontname']):
-        if word['text'] in ['1','2','3','4','5','10','12'] and word['size']>12 and abs(word['x0']-25*72/25.4)<1:
+        if word['text'] in ['1.','2.','3.','4.','5.','10.','12.'] and word['size']>12 and abs(word['x0']-25*72/25.4)<1:
             assert abs(word['size']-16)<0.1,word
-        if word['text']=='10.12':assert abs(word['size']-13)<0.1
-        if word['text']=='10.12.1':assert abs(word['size']-12)<0.1
+        if word['text']=='10.12.':assert abs(word['size']-13)<0.1
+        if word['text']=='10.12.1.':assert abs(word['size']-12)<0.1
+# Check the actual exported image geometry and adjacency, not just XML intentions.
+for kind,expected in [('oferta-completa',1),('ejemplo-licitacion',1),('imagenes-documento',3)]:
+    doc=Document(ROOT/'entrega'/f'{kind}.docx')
+    image_paragraphs=[p for p in doc.paragraphs if p._p.xpath('.//w:drawing')]
+    assert len(image_paragraphs)==expected,(kind,'missing image block')
+    for para in image_paragraphs:
+        assert para._p.xpath('.//wp:inline') and not para._p.xpath('.//wp:anchor'),(kind,'floating image')
+        assert (para.alignment if para.alignment is not None else para.style.paragraph_format.alignment)==1 and not para._p.xpath('.//w:pBdr'),(kind,'image alignment or frame')
+        inline=para._p.xpath('.//wp:inline')[0]
+        assert inline.docPr.get('descr'),(kind,'missing image description')
+        assert inline.extent.cx/36000<=165.01 and inline.extent.cy/36000<=100.01,(kind,'image outside page bounds')
+    with pdfplumber.open(ROOT/'qa/r2'/kind/(kind+'.pdf')) as pdf:
+        images=[(page,img) for page in pdf.pages for img in page.images if img['top']>70]
+        assert len(images)==expected,(kind,'missing exported product image')
+        for page,img in images:
+            assert abs((img['x0']+img['x1'])/2-107.5*72/25.4)<0.2,(kind,'image not centered in body')
+            assert img['x0']>=25*72/25.4-0.2 and img['x1']<=190*72/25.4+0.2,(kind,'image exceeds margins')
+            assert img['bottom']<=273*72/25.4,(kind,'image overlaps footer')
+        captions=[p for p in doc.paragraphs if p.style.name=='Comentario de imagen']
+        for caption in captions:
+            marker=caption.text[:25]
+            matches=[(page,page.search(marker,regex=False)) for page in pdf.pages]
+            matches=[(page,match[0]) for page,match in matches if match]
+            assert len(matches)==1,(kind,'caption lost during export')
+            page,match=matches[0]
+            preceding=[img for pg,img in images if pg.page_number==page.page_number and img['bottom']<=match['top']]
+            assert preceding and 0<match['top']-preceding[-1]['bottom']<20,(kind,'caption detached from image')
+        report.append({'document':kind,'images':expected,'imagesCentered':True,'captionSamePage':True,'noFrame':True})
 for p in (ROOT/'qa/r2/excel-print').glob('*.pdf'):
     d=pdfplumber.open(p)
     if p.stem=='presupuesto-interno':
