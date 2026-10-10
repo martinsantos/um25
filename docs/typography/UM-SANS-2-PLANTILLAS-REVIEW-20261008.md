@@ -72,6 +72,8 @@ Evidencia y capturas: `/private/tmp/um-plantillas-revision-20261008/qa/r2` y `qa
 
 ## Límites
 
+Control final del 10 de octubre: se revisaron las cuatro hojas del XLSX guardado, las cuatro páginas vacías y las cuatro páginas con datos ficticios. Se corrigió el margen numérico que Calc ignoraba en ciertas celdas; importes, subtotales y totales de Resultado comparten el borde dentro de 0,05 pt. El PDF conserva cuerpo de 12 pt, títulos de 20 pt y marca vectorial completa alineada a la regla. Las 233 fórmulas coinciden con el XLSX aportado por el usuario. El control se conserva en `qa/r4/final-control.py` y `qa/r4/control-*.png`, fuera del paquete público.
+
 La impresión y el cálculo de Office se comprobaron mediante LibreOffice; Microsoft Word y Microsoft Excel no están instalados en esta Mac. No se certifica su interacción nativa de teclado. Chrome se probó con anchos móviles, no en Safari/iOS ni dispositivos físicos.
 
 La publicación sigue feature → PR develop → PR master → GitHub Actions. Ninguna operación de esta revisión escribió en producción.

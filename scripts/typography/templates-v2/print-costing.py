@@ -21,7 +21,21 @@ for file in [ROOT/'entrega/presupuesto-interno.xlsx',ROOT/'qa/costeo-prueba.xlsx
     heading_fmt=max([int(f.get('numFmtId')) for f in fmts]+[163])+1
     E.SubElement(fmts,tag('numFmt'),numFmtId=str(heading_fmt),formatCode='General;General;General;@_W')
     fmts.set('count',str(len(fmts)))
-    xfs=styles.find(tag('cellXfs'));aliases={}
+    xfs=styles.find(tag('cellXfs'));aliases={};padded_formats={}
+    def padded_format(fmt_id):
+        # Calc ignores right indent on some numeric cells. Excel's underscore
+        # spacer preserves the numeric value and reserves a consistent inset.
+        if fmt_id not in padded_formats:
+            original=next((f.get('formatCode') for f in fmts if int(f.get('numFmtId'))==fmt_id),None)
+            if original is None:original={0:'General',1:'0',2:'0.00',9:'0%',10:'0.00%'}.get(fmt_id)
+            if original is None:raise ValueError(f'Unsupported padded numeric format {fmt_id}')
+            sections=original.split(';')
+            sections=[section+'_W' for section in sections]
+            if len(sections)<4:sections+=['@_W'] if len(sections)==3 else []
+            new_id=max(int(f.get('numFmtId')) for f in fmts)+1
+            E.SubElement(fmts,tag('numFmt'),numFmtId=str(new_id),formatCode=';'.join(sections))
+            padded_formats[fmt_id]=new_id
+        return padded_formats[fmt_id]
     def aligned(cell,horizontal,indent=1,nowrap=False):
         key=(int(cell.get('s','0')),horizontal,indent,nowrap)
         if key not in aliases:
@@ -31,6 +45,9 @@ for file in [ROOT/'entrega/presupuesto-interno.xlsx',ROOT/'qa/costeo-prueba.xlsx
             if nowrap:
                 a.set('wrapText','0');a.set('indent','0')
                 xf.set('numFmtId',str(heading_fmt));xf.set('applyNumberFormat','1')
+            elif horizontal=='right':
+                a.set('indent','0')
+                xf.set('numFmtId',str(padded_format(int(xf.get('numFmtId','0')))));xf.set('applyNumberFormat','1')
             xf.set('applyAlignment','1');aliases[key]=len(xfs);xfs.append(xf)
         cell.set('s',str(aliases[key]))
     w=E.fromstring(parts['xl/workbook.xml']);names=w.find(tag('definedNames'))
@@ -74,6 +91,7 @@ for file in [ROOT/'entrega/presupuesto-interno.xlsx',ROOT/'qa/costeo-prueba.xlsx
     w.remove(names);at=next((j for j,e in enumerate(w) if E.QName(e).localname in ['calcPr','extLst']),len(w));w.insert(at,names)
     parts['xl/workbook.xml']=E.tostring(w,xml_declaration=True,encoding='UTF-8',standalone=True)
     xfs.set('count',str(len(xfs)))
+    fmts.set('count',str(len(fmts)))
     parts['xl/styles.xml']=E.tostring(styles,xml_declaration=True,encoding='UTF-8',standalone=True)
     with zipfile.ZipFile(file,'w',zipfile.ZIP_DEFLATED) as z:
         for n,data in parts.items():z.writestr(n,data)
