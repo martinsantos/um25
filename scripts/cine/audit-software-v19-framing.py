@@ -1,8 +1,10 @@
 """Check native camera framing with real font advances, without running Blender."""
-import struct,math,importlib.util,json
+import struct,math,importlib.util,json,sys
 from pathlib import Path
 root=Path(__file__).resolve().parents[2]
 spec=importlib.util.spec_from_file_location('film',root/'scripts/cine/render-software-system-v19.py');film=importlib.util.module_from_spec(spec);spec.loader.exec_module(film);film.validate()
+if '--handover' in sys.argv:
+ spec=importlib.util.spec_from_file_location('patch',root/'scripts/cine/render-software-system-v19-handover.py');patch=importlib.util.module_from_spec(spec);spec.loader.exec_module(patch);patch.validate();film=patch.film
 def font_metrics(name):
  b=(root/'public/fonts/um-sans'/name).read_bytes();u=lambda p:struct.unpack_from('>H',b,p)[0];n=u(4);tabs={}
  for i in range(n):

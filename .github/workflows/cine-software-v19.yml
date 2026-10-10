@@ -53,6 +53,7 @@ jobs:
           persist-credentials: false
           sparse-checkout: |
             scripts/cine/render-software-system-v19.py
+            scripts/cine/render-software-system-v19-handover.py
             scripts/cine/render-software-system-v11.py
             scripts/cine/render-software-system-v8.py
             scripts/cine/prepare-blender-fonts.py
@@ -89,7 +90,9 @@ jobs:
         run: |
           ulimit -c 0
           STATUS=0
-          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-software-system-v19.py -- --samples 8 --width ${{ matrix.width }} --composition ${{ matrix.composition }} --start ${{ matrix.frame }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames || STATUS=$?
+          AUTHOR=scripts/cine/render-software-system-v19.py
+          if [ "${{ inputs.mode }}" = proof ] || [ "${{ inputs.mode }}" = repair ]; then AUTHOR=scripts/cine/render-software-system-v19-handover.py; fi
+          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python "$AUTHOR" -- --samples 8 --width ${{ matrix.width }} --composition ${{ matrix.composition }} --start ${{ matrix.frame }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames || STATUS=$?
           # Mesa can fault during Blender teardown after every output is saved.
           # Accept that one exit code only with a complete, decodable native set.
           if [ "$STATUS" != 0 ] && [ "$STATUS" != 139 ]; then exit "$STATUS"; fi
