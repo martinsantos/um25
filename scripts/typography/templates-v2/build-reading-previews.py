@@ -6,7 +6,7 @@ import os, json
 from html import escape
 
 REPO=Path(os.environ.get('UM_TEMPLATE_REPO',Path(__file__).resolve().parents[3]))
-BASE=REPO/'public/downloads/plantillas-um-sans/2026.10.09-r3'
+BASE=REPO/'public/downloads/plantillas-um-sans/2026.10.10-r4'
 result={}
 for kind in ['oferta-completa','resumen-comercial','membrete','ejemplo-licitacion']:
     doc=html.parse(str(BASE/(kind+'.html')))

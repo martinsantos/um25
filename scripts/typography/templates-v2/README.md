@@ -1,4 +1,4 @@
-# Plantillas UM Sans 2 — revisión 2026.10.09-r3
+# Plantillas UM Sans 2 — revisión 2026.10.10-r4
 
 Fuentes de generación de los DOCX/DOTX, HTML, XLSX y vistas previas de esta revisión. La familia publicada en `public/fonts/um-sans/v2.0.0` es una entrada inmutable. El logotipo conserva los trazos de `public/images/logo-light.svg`; se ajusta su viewport al contorno visible.
 
@@ -59,4 +59,8 @@ El presupuesto vacío imprime cuatro páginas: Resultado y Parámetros en A4 apa
 
 El espaciador numérico nativo de Excel reserva el margen derecho también en Calc, donde la sangría de algunas celdas numéricas se ignora. El control final con datos conserva los formatos de importe, cantidad y porcentaje; los ocho importes de cierre comparten el mismo borde dentro de 0,05 pt. El cambio no modifica valores ni fórmulas.
 
-`package-review.py` escribe únicamente el directorio local `public/downloads/plantillas-um-sans/2026.10.09-r3`. No despliega ni modifica la fuente tipográfica. Para otra entrega, usar una versión nueva y actualizar sus enlaces; no sobrescribir un paquete publicado.
+`package-review.py` escribe únicamente el directorio local `public/downloads/plantillas-um-sans/2026.10.10-r4`. No despliega ni modifica la fuente tipográfica. Para otra entrega, usar una versión nueva y actualizar sus enlaces; no sobrescribir un paquete publicado.
+
+Todos los números comienzan en la línea izquierda del cuerpo, dentro del bloque. Un espacio tipográfico (0,25 em) separa número y título, sin tabulados de ancho fijo. La numeración multinivel sigue siendo automática. HTML y lectura web usan columnas de ancho natural y separación de 0,25 em.
+
+Ritmo: párrafo normal 8 pt después; títulos 24/18/16 pt antes y 6 pt después; títulos consecutivos 8 pt antes. Esta diferencia conserva aire entre secciones y proximidad entre cada título y su contenido.
