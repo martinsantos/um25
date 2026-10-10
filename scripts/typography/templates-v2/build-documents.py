@@ -131,7 +131,7 @@ def figure(d,path,description,comment=None,width_mm=108,max_height_mm=100):
     width_mm=min(width_mm,165,max_height_mm*width/height)
     p=d.add_paragraph(style='Imagen centrada')
     p.paragraph_format.keep_with_next=bool(comment)
-    p.paragraph_format.space_after=Pt(4 if comment else 18)
+    p.paragraph_format.space_after=Pt(6 if comment else 24)
     picture=p.add_run().add_picture(str(path),width=Mm(width_mm))
     picture._inline.docPr.set('descr',description)
     picture._inline.docPr.set('title',path.name)
@@ -148,21 +148,20 @@ def table(d,rows,widths,aligns=None):
     for c,w in zip(t.columns,widths):c.width=Mm(w)
     pr=t._tbl.tblPr
     borders=el('tblBorders')
-    for edge in ['top','bottom','insideH']:borders.append(el(edge,val='single',sz=4,color='DDDDDD'))
-    for edge in ['left','right','insideV']:borders.append(el(edge,val='nil'))
-    pr.append(borders);pr.append(el('tblInd',w=120,type='dxa'))
+    for edge in ['top','bottom','insideH','left','right','insideV']:borders.append(el(edge,val='single',sz=4,color='D9D9D9'))
+    pr.append(borders);pr.append(el('tblInd',w=160,type='dxa'))
     margins=el('tblCellMar')
-    for edge,v in [('top',100),('bottom',100),('left',120),('right',120)]:margins.append(el(edge,w=v,type='dxa'))
+    for edge,v in [('top',140),('bottom',140),('left',160),('right',160)]:margins.append(el(edge,w=v,type='dxa'))
     pr.append(margins)
     for ri,row in enumerate(rows):
         rr=t.add_row();rr._tr.get_or_add_trPr().append(el('cantSplit'))
         if ri==0:rr._tr.get_or_add_trPr().append(el('tblHeader'))
         for ci,(c,text,w) in enumerate(zip(rr.cells,row,widths)):
             c.width=Mm(w);c.vertical_alignment=WD_CELL_VERTICAL_ALIGNMENT.CENTER
-            c._tc.get_or_add_tcPr().append(el('shd',fill='000000' if ri==0 else ('F5F5F5' if ri%2==0 else 'FFFFFF')))
-            p=c.paragraphs[0];p.paragraph_format.space_after=Pt(0);p.paragraph_format.line_spacing=1.12
+            c._tc.get_or_add_tcPr().append(el('shd',fill='F0F0F0' if ri==0 else ('F5F5F5' if ri%2==0 else 'FFFFFF')))
+            p=c.paragraphs[0];p.paragraph_format.space_after=Pt(0);p.paragraph_format.line_spacing=1.2
             p.alignment=(aligns[ci] if aligns and ri>0 else WD_ALIGN_PARAGRAPH.LEFT)
-            r=p.add_run(text);r.font.size=Pt(10);r.bold=(ri==0);r.font.color.rgb=RGBColor.from_string('FFFFFF' if ri==0 else '333333')
+            r=p.add_run(text);r.font.size=Pt(10.5);r.bold=(ri==0);r.font.color.rgb=RGBColor.from_string('000000' if ri==0 else '333333')
     p=d.add_paragraph();p.paragraph_format.space_after=Pt(0);p.paragraph_format.space_before=Pt(0);p.paragraph_format.line_spacing=Pt(3);p.add_run().font.size=Pt(3)
     return t
 
@@ -206,7 +205,7 @@ def full(proof=False):
     heading(d,'Supuestos y exclusiones',2);d.add_paragraph('[Indicar dependencias y prestaciones no incluidas, sin contradecir el pliego.]')
     heading(d,'Solución técnica y plan de trabajo',newpage=True)
     heading(d,'Arquitectura y especificaciones',2);d.add_paragraph('[Describir la solución, sus componentes y las especificaciones ofrecidas.]')
-    figure(d,REPO/'public/images/services/productos/infraestructura/1.2.png','Ilustración de un panel de conexiones de red sobre fondo transparente','[Producto o componente] — [Comentario opcional de la imagen. Eliminar este párrafo si no corresponde.]')
+    figure(d,REPO/'public/images/services/productos/infraestructura/1.2.png','Ilustración de un panel de conexiones de red sobre fondo transparente','[Producto o componente] — [Comentario opcional de la imagen. Eliminar este párrafo si no corresponde.]',width_mm=82)
     heading(d,'Requisitos de instalación y puesta en servicio',3);d.add_paragraph('[Detallar las condiciones necesarias y las verificaciones previas a la puesta en servicio.]')
     heading(d,'Entregables y aceptación',2)
     table(d,[['Entregable','Evidencia de aceptación'],['[Entregable 1]','[Documento, prueba o resultado verificable]'],['[Entregable 2]','[Documento, prueba o resultado verificable]']],[62,103])
@@ -214,7 +213,7 @@ def full(proof=False):
     table(d,[['Etapa','Plazo','Responsable'],['[Etapa 1]','[Plazo]','[Responsable]'],['[Etapa 2]','[Plazo]','[Responsable]']],[74,31,60])
     heading(d,'Oferta económica',newpage=True)
     d.add_paragraph('Moneda: [Completar]    Tratamiento de impuestos: [Completar]')
-    table(d,[['Ítem','Concepto','Cant.','Unitario','Importe'],['1','[Servicio o suministro]','[Cant.]','[Precio]','[Importe]'],['2','[Servicio o suministro]','[Cant.]','[Precio]','[Importe]']],[13,64,18,35,35],[WD_ALIGN_PARAGRAPH.CENTER,WD_ALIGN_PARAGRAPH.LEFT,WD_ALIGN_PARAGRAPH.RIGHT,WD_ALIGN_PARAGRAPH.RIGHT,WD_ALIGN_PARAGRAPH.RIGHT])
+    table(d,[['Ítem','Concepto','Cant.','Unitario','Importe'],['1','[Servicio o suministro]','[Cant.]','[Precio]','[Importe]'],['2','[Servicio o suministro]','[Cant.]','[Precio]','[Importe]']],[16,61,18,35,35],[WD_ALIGN_PARAGRAPH.CENTER,WD_ALIGN_PARAGRAPH.LEFT,WD_ALIGN_PARAGRAPH.RIGHT,WD_ALIGN_PARAGRAPH.RIGHT,WD_ALIGN_PARAGRAPH.RIGHT])
     p=d.add_paragraph('Subtotal: [Importe]\nImpuestos: [Importe]\nTotal de la oferta: [Moneda e importe]');p.alignment=WD_ALIGN_PARAGRAPH.RIGHT
     d.add_paragraph('[Adjuntar el detalle de la planilla económica y verificar que coincida con los totales de esta propuesta.]')
     heading(d,'Condiciones comerciales y documentación')

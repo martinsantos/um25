@@ -26,12 +26,12 @@ function base(s,widths,rows,title){
   merge(s,`A5:${last}5`,title);s.getRange(`A5:${last}5`).format={font:{size:20,bold:true,color:'#000000'},rowHeight:30};
 }
 function input(s,range){s.getRange(range).format={fill:'#F5F5F5',font:{color:'#1A56C0'},borders:{bottom:{style:'thin',color:'#DDDDDD'}}};}
-function header(s,range){s.getRange(range).format={fill:'#000000',font:{size:11,bold:true,color:'#FFFFFF'},wrapText:true,rowHeight:32,horizontalAlignment:'left',borders:{insideVertical:{style:'thin',color:'#FFFFFF'}}};}
-function rows(s,last){for(let r=14;r<=43;r++)s.getRange(`A${r}:${last}${r}`).format={rowHeight:18,fill:r%2?'#F5F5F5':'#FFFFFF',borders:{bottom:{style:'thin',color:'#DDDDDD'}}};s.freezePanes.freezeRows(13);}
+function header(s,range){s.getRange(range).format={fill:'#F0F0F0',font:{size:11,bold:true,color:'#000000'},wrapText:true,rowHeight:36,horizontalAlignment:'left',borders:{top:{style:'thin',color:'#D9D9D9'},bottom:{style:'thin',color:'#D9D9D9'},insideVertical:{style:'thin',color:'#D9D9D9'}}};}
+function rows(s,last){for(let r=14;r<=43;r++)s.getRange(`A${r}:${last}${r}`).format={rowHeight:19,fill:r%2?'#F5F5F5':'#FFFFFF',borders:{bottom:{style:'thin',color:'#DDDDDD'}}};s.freezePanes.freezeRows(13);}
 base(result,widthsTo([170,215,115,120,120,170],1060),39,'Resultado del presupuesto');result.tabColor='#000000';
-base(cost,widthsTo([95,105,135,270,60,85,60,115,105,75,115,140],1530),48,'Cómputo y costeo');
+base(cost,widthsTo([95,105,135,270,60,85,60,115,105,75,115,140],1500),48,'Cómputo y costeo');
 base(p,widthsTo([295,185,25,175,110,120],1060),34,'Parámetros del presupuesto');p.tabColor='#666666';
-base(compare,widthsTo([90,270,60,85,60,105,105,95,85,120,130,155],1530),49,'Comparación de proveedores');
+base(compare,widthsTo([90,270,60,85,60,105,105,95,85,120,130,155],1500),49,'Comparación de proveedores');
 merge(result,'A7:B7','Cliente');merge(result,'C7:F7','Referencia / licitación');
 merge(result,'A8:B8','');merge(result,'C8:F8','');
 merge(result,'A10:B10','Proyecto');merge(result,'C10:D10','Fecha');merge(result,'E10:F10','Moneda de cálculo');
@@ -117,7 +117,7 @@ for(let r=14;r<=43;r++){
 for(const [r,currency] of [[46,'USD'],[47,'ARS']]){merge(compare,`A${r}:J${r}`,'Total elegido '+currency);compare.getRange(`K${r}`).formulas=[[`=IF(COUNTIF(K14:K43,"Completar")>0,"Completar",IF(COUNT(K14:K43)=0,"",SUMIF(E14:E43,"${currency}",K14:K43)))`]];compare.getRange(`K${r}`).setNumberFormat(money);compare.getRange(`A${r}:L${r}`).format={fill:'#000000',font:{bold:true,color:'#FFFFFF'},rowHeight:24,borders:{top:{style:'thin',color:'#DC2626'}}};}
 for(const col of ['D','F','G'])compare.getRange(`${col}14:${col}43`).format.font={color:'#1A56C0'};
 for(const s of [cost,compare]){
-  for(const r of [6,9,12,44,45])s.getRange(`A${r}:L${r}`).format.rowHeight=5;
+  for(const r of [6,9,12,44,45])s.getRange(`A${r}:L${r}`).format.rowHeight=r>=44?3:5;
   for(const [r,h] of [[7,14],[8,24],[10,13],[11,13]])s.getRange(`A${r}:L${r}`).format.rowHeight=h;
 }
 for(const s of [cost,compare])s.getRange('I14:L43').conditionalFormats.add('containsText',{text:'Completar',format:{font:{bold:true,color:'#DC2626'}}});
@@ -140,7 +140,7 @@ for(const [c,v] of [['B8',demoDate],['B26','Cliente ficticio - prueba visual'],[
 cost.getRange('A14:H14').values=[['0001','Planta baja','Materiales','Patch panel Cat. 6, 24 puertos','un',2,'ARS',100000]];
 compare.getRange('A14:G14').values=[['MAT-0001','Patch panel Cat. 6, 24 puertos','un',2,'USD',100,90]];
 set(compare,'A8','Proveedor de prueba A');set(compare,'F8','Proveedor de prueba B');set(compare,'L14','Disponible / 7 días');
-const resultHeights={6:8,7:16,8:32,9:8,10:16,11:32,12:10,13:32,18:6,19:6,26:6,29:6,30:6,31:12,32:12,33:5,34:12,35:12,36:6,37:6,38:12,39:12};
+const resultHeights={6:8,7:16,8:32,9:8,10:16,11:32,12:10,13:36,18:6,19:6,26:6,29:6,30:6,31:12,32:12,33:5,34:12,35:12,36:6,37:6,38:12,39:12};
 for(let r=6;r<=39;r++)result.getRange(`A${r}:F${r}`).format.rowHeight=resultHeights[r]??24;
 for(let r=6;r<=34;r++)p.getRange(`A${r}:F${r}`).format.rowHeight=[6,9,23,24,30,31].includes(r)?5:r>=32?12:[10,15,19,25].includes(r)?22:r>=26?22:18;
 await(await SpreadsheetFile.exportXlsx(w)).save(root+'/qa/costeo-prueba.xlsx');

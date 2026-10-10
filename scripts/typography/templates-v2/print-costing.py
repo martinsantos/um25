@@ -70,17 +70,24 @@ for file in [ROOT/'entrega/presupuesto-interno.xlsx',ROOT/'qa/costeo-prueba.xlsx
                 else:aligned(c,'right' if column in numeric else 'center' if column in centered else 'left',0 if column in centered else 1,nowrap=row==13 and column in numeric)
             elif name=='Proveedores' and row in [7,8,46,47]:aligned(c,'right' if column=='K' else 'left')
         if name in ['Costeo','Proveedores']:
+            # Keep the blank A3 sheets at their intended four-page print layout.
+            # Wrapped populated rows grow automatically beyond these minimums.
+            sheet_format=tree.find(tag('sheetFormatPr'))
+            sheet_format.set('defaultRowHeight','19' if name=='Costeo' else '18')
+            sheet_format.set('customHeight','1')
+            for row in tree.findall('.//'+tag('row')):
+                if 14<=int(row.get('r'))<=43:row.set('customHeight','0')
             pane=tree.find('.//'+tag('pane'))
             if pane is not None:
                 pane.set('xSplit','2');pane.set('ySplit','13');pane.set('topLeftCell','C14');pane.set('activePane','bottomRight')
         if pr is None:pr=E.Element(tag('sheetPr'));tree.insert(0,pr)
         setup=pr.find(tag('pageSetUpPr'))
         if setup is None:setup=E.SubElement(pr,tag('pageSetUpPr'))
-        setup.set('fitToPage','1')
+        setup.set('fitToPage','0' if name in ['Costeo','Proveedores'] else '1')
         for kind in ['pageMargins','pageSetup','headerFooter']:
             for old in tree.findall(tag(kind)):tree.remove(old)
         at=next((j for j,e in enumerate(tree) if E.QName(e).localname in ['drawing','legacyDrawing','extLst']),len(tree))
-        nodes=[E.Element(tag('pageMargins'),left='0.4',right='0.4',top='0.35',bottom='0.4',header='0.15',footer='0.2'),E.Element(tag('pageSetup'),paperSize=paper,orientation='landscape',fitToWidth='1',fitToHeight='0')]
+        nodes=[E.Element(tag('pageMargins'),left='0.4',right='0.4',top='0.35',bottom='0.4',header='0.15',footer='0.2'),E.Element(tag('pageSetup'),paperSize=paper,orientation='landscape',fitToWidth='1',fitToHeight='0',scale='100')]
         footer=E.Element(tag('headerFooter'));E.SubElement(footer,tag('oddFooter')).text='&L&"UM Sans 2,Regular"&9ULTIMA MILLA S.A. · Uso interno&R&"UM Sans 2,Regular"&9&P / &N';nodes.append(footer)
         for node in nodes:tree.insert(at,node);at+=1
         for dv in tree.findall('.//'+tag('dataValidation')):
