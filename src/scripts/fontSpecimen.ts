@@ -76,7 +76,8 @@ export function initFontSpecimen() {
       node('copy-status').textContent = 'Código seleccionado. Usá Copiar en tu navegador.';
     }
   }));
-  const indexLinks = [...root.querySelectorAll<HTMLAnchorElement>('.sp-index a')];
+  const indexLinks = [...root.querySelectorAll<HTMLAnchorElement>('.sp-index nav a')];
+  indexLinks.forEach(link => link.addEventListener('click', () => { root.querySelector<HTMLDetailsElement>('#sp-contents')!.open = false; }));
   const sections = [...root.querySelectorAll<HTMLElement>('section[id]')];
   let currentSection = '';
   const observer = new IntersectionObserver(() => {
@@ -86,11 +87,6 @@ export function initFontSpecimen() {
     indexLinks.forEach(link => {
       if (link.hash === '#' + visible.id) {
         link.setAttribute('aria-current', 'location');
-        const rail = link.parentElement!;
-        const bounds = rail.getBoundingClientRect(), item = link.getBoundingClientRect();
-        if (item.left < bounds.left || item.right > bounds.right) {
-          rail.scrollTo({ left: rail.scrollLeft + item.left - bounds.left - 16, behavior: 'instant' });
-        }
       } else link.removeAttribute('aria-current');
     });
   }, { rootMargin: '-130px 0px -55% 0px' });

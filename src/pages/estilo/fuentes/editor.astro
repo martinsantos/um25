@@ -1,0 +1,36 @@
+---
+import LayoutV4 from '../../../layouts/LayoutV4.astro';
+import ResourceNavigation from '../../../components/brand/ResourceNavigation.astro';
+import { brandTemplates, editorLink, templateLibrary } from '../../../data/brandTemplates';
+import '../../../styles/template-editor.css';
+---
+<LayoutV4 title="Editor de plantillas y PDFs | RECURSOS MARCA UMSA" description="Editá tus documentos de marca UMSA, cambiá de plantilla y conservá tus PDFs para descargar.">
+  <div id="um-template-editor">
+    <ResourceNavigation current="editor" />
+    <header class="te-cover te-shell"><div><p class="te-eyebrow">RECURSOS MARCA UMSA</p><h1>Tu mesa de documentos.</h1><p>Elegí una plantilla, completá el contenido y prepará tu PDF.</p></div><a class="te-back" id="te-library-link" href={templateLibrary}>Ver plantillas y formatos ↗</a></header>
+    <div class="te-workspace te-shell">
+      <aside class="te-sidebar">
+        <nav aria-label="Plantillas del editor"><p class="te-eyebrow">DOCUMENTOS</p>{brandTemplates.map(t => <a href={editorLink(t.id)} data-editor-choice={t.id}><span>{t.title}</span><small>{t.purpose}</small></a>)}</nav>
+        <button type="button" class="te-archive-button" id="te-show-pdfs">Mis PDFs <span id="te-pdf-count">0</span></button>
+        <p class="te-local-note">Tus borradores y PDFs quedan guardados en este navegador.</p>
+      </aside>
+      <section class="te-main" aria-label="Documento de trabajo">
+        <div class="te-mobile-select"><label for="te-template-select">Elegir plantilla</label><select id="te-template-select">{brandTemplates.map(t => <option value={t.id}>{t.title}</option>)}</select></div>
+        <div class="te-document-head"><div><h2 id="te-document-title">Oferta completa</h2><p id="te-document-purpose">Propuesta técnica y comercial</p></div><label id="te-variant-label" for="te-variant">Empezar desde<select id="te-variant"><option value="blank">Plantilla vacía</option><option value="example">Ejemplo ficticio</option></select></label></div>
+        <div class="te-actions"><button type="button" id="te-generate-pdf" class="te-primary" disabled>Generar PDF</button><button type="button" id="te-save-html" disabled>Descargar editable</button><a id="te-google-link" href={brandTemplates[0].googleUrl} target="_blank" rel="noopener noreferrer">Abrir en Google Docs ↗</a><button type="button" id="te-print" disabled>Imprimir</button></div>
+        <p id="te-status" class="te-status" role="status" aria-live="polite">Cargando documento…</p>
+        <div class="te-insert" id="te-insert"><span>Agregar al documento</span><button type="button" data-add-block="p">Párrafo</button><button type="button" data-add-block="h2">Título</button><button type="button" data-add-block="h3">Subtítulo</button><button type="button" data-add-block="figure">Imagen</button><button type="button" data-add-block="table">Tabla</button></div>
+        <p class="te-edit-hint" id="te-edit-hint">Hacé clic en un texto para editarlo. Los bloques nuevos se agregan después del que estés editando.</p>
+        <div id="te-sheet-entry" class="te-sheet-entry" hidden><h3>Trabajá con todas las fórmulas.</h3><p id="te-sheet-description"></p><a class="te-primary" id="te-sheet-google" target="_blank" rel="noopener noreferrer" href={brandTemplates[5].googleUrl}>Crear mi copia en Google Sheets ↗</a><p>Desde Google Sheets podés editar y exportar a PDF. Después agregá ese PDF a tu bandeja con «Agregar PDF».</p><div><a id="te-sheet-download" href="#" download>Descargar Excel ↗</a><a id="te-sheet-pdf" href="#" target="_blank" rel="noopener noreferrer">Ver PDF de la plantilla ↗</a></div></div>
+        <iframe id="te-document" title="Documento editable" sandbox="allow-same-origin" hidden></iframe>
+        <div class="te-recovery"><label>Recuperar un editable descargado<input id="te-import-html" type="file" accept=".html,text/html" /></label><button type="button" id="te-reset-document">Empezar una copia nueva</button></div>
+      </section>
+    </div>
+    <dialog id="te-pdfs" aria-labelledby="te-pdfs-title"><div class="te-pdfs-head"><div><p class="te-eyebrow">TU BANDEJA</p><h2 id="te-pdfs-title">Mis PDFs</h2></div><button type="button" id="te-close-pdfs" aria-label="Cerrar Mis PDFs">Cerrar ×</button></div><p>Los archivos quedan en este navegador. Descargalos para conservar una copia fuera de él.</p><label class="te-pdf-import">Agregar PDF<input id="te-import-pdf" type="file" accept="application/pdf,.pdf" multiple /></label><div id="te-pdf-list" class="te-pdf-list"><p>Todavía no generaste ningún PDF.</p></div></dialog>
+  </div>
+</LayoutV4>
+<script>
+  import { initTemplateEditor } from '../../../scripts/templateEditor';
+  initTemplateEditor();
+  document.addEventListener('astro:page-load', initTemplateEditor);
+</script>
