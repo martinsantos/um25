@@ -91,7 +91,6 @@ jobs:
           ulimit -c 0
           STATUS=0
           AUTHOR=scripts/cine/render-software-system-v25.py
-            scripts/cine/render-software-system-v23.py
           xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python "$AUTHOR" -- --samples 8 --width ${{ matrix.width }} --composition ${{ matrix.composition }} --start ${{ matrix.frame }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames || STATUS=$?
           # Mesa can fault during Blender teardown after every output is saved.
           # Accept that one exit code only with a complete, decodable native set.
