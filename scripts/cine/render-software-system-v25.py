@@ -11,21 +11,24 @@ E=base.E;ROOT=base.ROOT;family=base.family
 old_build,old_focus,old_place,old_prominence=base.build,base.focus,base.placement,base.prominence
 base.COLORS.update(cobalt='#477FFF',coral='#FA927A',lilac='#CBB1FF',gold='#E9C17A',teal='#62CCB7',tileblue='#253F6B',tilegold='#5C4631',tileviolet='#493E65',tilemint='#254F4E')
 EXTRA={'access-team':(.235,.032),'contract-adapters':(.435,.035),'contract-response':(.505,.035),'data-index':(.695,.035),'data-receipt':(.745,.035)}
+def gate(g,t):
+ if g not in EXTRA:return 1
+ start,duration=EXTRA[g]
+ return E((t-start)/duration)*(1-E((t-{'access':.325,'contract':.575,'data':.792}[family(g)])/.035))
 def focus(g,t):
- if t>=.8 and family(g)=='data':return E((t-.605)/.075)*(1-E((t-.850)/.030))
- return old_focus(g,t)
+ value=E((t-.605)/.075)*(1-E((t-.850)/.030)) if t>=.8 and family(g)=='data' else old_focus(g,t)
+ return value*gate(g,t)
 base.focus=focus
 def prominence(g,t):
  value=old_prominence(g,t)
- if g in EXTRA:
-  start,duration=EXTRA[g];value=.0003+(value-.0003)*E((t-start)/duration)*(1-E((t-{'access':.325,'contract':.575,'data':.792}[family(g)])/.035))
+ if g in EXTRA and family(g)=='access':value=.0003+(value-.0003)*gate(g,t)
  return value
 base.prominence=prominence
 def placement(g,t):
  x,y,z=old_place(g,t)
  if g in EXTRA:
   start,duration=EXTRA[g];q=E((t-start)/duration)
-  y-=.14*(1-q);z+=.32*(1-q)
+  y+=({'access-team':.18,'contract-adapters':.20,'data-index':.16}.get(g,0))-.14*(1-q);z+=.32*(1-q)
  return x,y,z
 base.placement=placement
 # Widen only the mechanism shots: their detached planes remain contextual,
@@ -140,7 +143,23 @@ def validate():
  assert all(g in p.points for g in EXTRA)
  assert all(base.family(g) in ('access','contract','data') for g in EXTRA)
 def render(args):
- base.render(args)
+ import bpy
+ from bpy.app.handlers import persistent
+ @persistent
+ def route_visibility(scene):
+  # The long inter-layer route is relevant only while the operation travels.
+  # Keeping it drawn at rest crossed the connector and index headings.
+  t=scene.frame_current/1199
+  travelling=(.295<t<.435) or (.585<t<.710)
+  for name in ['Approval / contract / commit','0248-A / request']:
+   ob=bpy.data.objects.get(name)
+   if ob:
+    ob.hide_render=not travelling
+    if name=='Approval / contract / commit':ob.data.bevel_depth=.0028
+ bpy.app.handlers.render_pre.append(route_visibility)
+ try:base.render(args)
+ finally:
+  if route_visibility in bpy.app.handlers.render_pre:bpy.app.handlers.render_pre.remove(route_visibility)
  info=Path(args.output)/'render-info.json';data=json.loads(info.read_text())
  data.update(version='v25',base_authoring_sha256=BASE_SHA,authoring_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),source_run=os.environ.get('GITHUB_RUN_ID'))
  info.write_text(json.dumps(data))

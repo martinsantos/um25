@@ -1,6 +1,15 @@
 /** Captions follow the native movie clock; they explain the installation in view. */
 export type FilmChapter = { at: number; text: string };
 export const FILM_CHAPTERS: Record<string, FilmChapter[]> = {
+  'software-system-v25': [
+    {at:0,text:'Una orden reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.6,text:'Antes de aprobar, verificamos quién actúa y qué puede hacer en ese proyecto.'},
+    {at:7.8,text:'Las integraciones validan cada dato y lo conectan con su destino.'},
+    {at:12.6,text:'La aprobación conserva el proyecto, la versión y el historial del cambio.'},
+    {at:17.2,text:'El equipo recibe la orden aprobada y puede seguir trabajando.'},
+  ],
+
+
   'software-system-v24': [
     {at:0,text:'Una orden reúne el trabajo, sus responsables y su contexto.'},
     {at:2.6,text:'Antes de aprobar, verificamos quién actúa y qué puede hacer en ese proyecto.'},
