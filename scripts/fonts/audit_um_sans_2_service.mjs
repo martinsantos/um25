@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
@@ -7,7 +8,7 @@ import assert from 'node:assert/strict';
 const base = (process.argv[2] || 'https://www.ultimamilla.com.ar').replace(/\/$/, '');
 const prefix = '/fonts/um-sans/v2.0.0';
 const root = path.resolve('public' + prefix);
-const resourceVersion = '2026.10.10-r6';
+const resourceVersion = '2026.10.10-r7';
 const resourcePrefix = `/downloads/plantillas-um-sans/${resourceVersion}`;
 const resourceRoot = path.resolve('public' + resourcePrefix);
 const resourcePackage = `Plantillas-UMSans2-${resourceVersion}.zip`;
@@ -57,6 +58,9 @@ for (const file of ['oferta-completa.docx', 'resumen-comercial.docx', 'membrete.
   'oferta-economica.xlsx', 'presupuesto-interno.xlsx', 'presupuesto-interno.pdf']) {
   assert(resources.files.some(entry => entry.path === file), `${file}: missing from resource manifest`);
 }
+const costingXml = execFileSync('unzip', ['-p', path.join(resourceRoot, 'presupuesto-interno.xlsx'), 'xl/workbook.xml'], { encoding: 'utf8' });
+const costingSheets = Array.from(costingXml.matchAll(/<sheet\b[^>]*\bname="([^"]+)"/g), match => match[1]);
+assert.deepEqual(costingSheets, ['0-GUIA', '1-PARAMETRIZACION', '3-CUADRO DE RESULTADO', '2-DIMENSIONAMIENTO', '6-OFERTA', 'materiales', 'PD', 'Hoja1'], 'costing template: original eight sheets');
 const resourceFiles = ['manifest.json', resourcePackage, ...resources.files.map(file => file.path)];
 for (let index = 0; index < resourceFiles.length; index += 6) {
   await Promise.all(resourceFiles.slice(index, index + 6).map(file => verify(file, resourcePrefix, resourceRoot)));
