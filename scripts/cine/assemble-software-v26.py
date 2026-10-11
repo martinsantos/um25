@@ -16,22 +16,24 @@ def verify(path,w,h,count,decode=True):
  assert [v['color_space'],v['color_primaries'],v['color_transfer'],v['color_range']]==['bt709','bt709','iec61966-2-1','tv']
  return data
 
-def assemble(source,out):
+def assemble(source,repair,out):
  out.mkdir(parents=True,exist_ok=True)
  sources={'v25_authoring_sha256':sha(ROOT/'scripts/cine/render-software-system-v25.py'),'renderer_sha256':sha(ROOT/'scripts/cine/render-software-scene-v26.py'),'base_authoring_sha256':sha(ROOT/'scripts/cine/render-software-system-v23.py'),'authoring_sha256':sha(ROOT/'scripts/cine/render-software-system-v26.py'),'ui_sha256':sha(ROOT/'scripts/cine/render-software-system-v11.py'),'geometry_sha256':sha(ROOT/'scripts/cine/render-software-system-v8.py')}
  for comp,w,h,suffix in [('wide',3840,2160,''),('mobile',2160,2160,'-sq')]:
   infos=[];movies=[];segments=[(start,30) for start in range(0,1200,30)]
   for start,count in segments:
-   folder=source/f'v26-spatial-{comp}-{start}';info=json.loads((folder/'info.json').read_text())
-   assert [info['version'],info['publishable'],info['composition'],info['resolution'],info['frames'],info['fps'],info['samples']]==['v26',False,comp,[w,h],1200,60,8]
+   patched=comp=='wide' and 510<=start<720
+   folder=(repair if patched else source)/f'v26-spatial-{comp}-{start}';info=json.loads((folder/'info.json').read_text())
+   assert [info['version'],info['publishable'],info['composition'],info['resolution'],info['frames'],info['fps'],info['samples']]==['v26-payload-repair' if patched else 'v26',False,comp,[w,h],1200,60,8]
    assert [r['frame'] for r in info['timings']]==list(range(start,start+count))
-   for key,value in sources.items():assert info[key]==value,('Mixed or stale source',key)
+   for key,value in sources.items():assert info[key]==(sha(ROOT/'scripts/cine/render-software-v26-payload-repair.py') if patched and key=='authoring_sha256' else value),('Mixed or stale source',key)
+   if patched:assert info['v26_authoring_sha256']==sources['authoring_sha256']
    for name in ['public/images/logo-dark.svg','public/cine/media/empresa-mendoza.jpg']:assert info['asset_sha256'][name]==sha(ROOT/name),('Stale visual asset',name)
    movie=folder/'movie.mp4';verify(movie,w,h,count,decode=False);movies.append(movie.resolve());infos.append(info)
   listing=out/f'concat{suffix}.txt';listing.write_text(''.join(f"file '{p}'\n" for p in movies))
   movie=out/f'cine-software-system-v26{suffix}.mp4';run('ffmpeg','-y','-v','error','-f','concat','-safe','0','-i',listing,'-c','copy','-movflags','+faststart',movie)
   (out/f'validation{suffix}.json').write_text(json.dumps(verify(movie,w,h,1200)))
-  (out/f'render-info{suffix}.json').write_text(json.dumps(dict(infos[0],source_provenance=[dict(start=i['timings'][0]['frame'],end=i['timings'][-1]['frame'],source_run=i['source_run'],authoring_sha256=i['authoring_sha256']) for i in infos],timings=[r for info in infos for r in info['timings']])))
+  (out/f'render-info{suffix}.json').write_text(json.dumps(dict(infos[0],repair_authoring_sha256=sha(ROOT/'scripts/cine/render-software-v26-payload-repair.py'),source_provenance=[dict(start=i['timings'][0]['frame'],end=i['timings'][-1]['frame'],source_run=i['source_run'],authoring_sha256=i['authoring_sha256']) for i in infos],timings=[r for info in infos for r in info['timings']])))
   poster=out/f'cine-software-system-v26-poster{suffix}.jpg';run('ffmpeg','-y','-v','error','-threads','2','-i',movie,'-frames:v','1','-q:v','2',poster)
   run('node','--input-type=module','-e',"import sharp from 'sharp';sharp.cache(false);sharp.concurrency(2);await sharp(process.argv[1]).avif({quality:74,effort:3,chromaSubsampling:'4:4:4'}).toFile(process.argv[2]);",poster,poster.with_suffix('.avif'))
   for sec in [0,4.5,7.6,9.4,12.6,14.5,15.5,16.8,18.2,19.98]:run('ffmpeg','-y','-v','error','-threads','2','-ss',sec,'-i',movie,'-frames:v','1',out/f'review{suffix}-{sec}.png')
@@ -39,4 +41,4 @@ def assemble(source,out):
  (out/'SHA256SUMS').write_text(''.join(sha(p)+'  '+p.name+'\n' for p in sorted(out.iterdir()) if p.name!='SHA256SUMS'))
  print(json.dumps({'frames':1200,'fps':60,'compositions':2,'publishable':False,'bytes':sum(p.stat().st_size for p in assets)}))
 if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);p.add_argument('--output',type=Path,required=True);args=p.parse_args();assemble(args.source,args.output)
+ p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);p.add_argument('--repair',type=Path,required=True);p.add_argument('--output',type=Path,required=True);args=p.parse_args();assemble(args.source,args.repair,args.output)

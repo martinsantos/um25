@@ -18,7 +18,8 @@ assert.deepEqual(info.timings.map(t=>t.frame),Array.from({length:1200},(_,i)=>i)
 assert.equal(info.authoring_sha256,sha(path.join(root,'scripts/cine/render-software-system-v26.py')));
 assert.equal(info.base_authoring_sha256,sha(path.join(root,'scripts/cine/render-software-system-v23.py')));
 assert.equal(info.source_provenance.length,40);
-info.source_provenance.forEach((p,i)=>{assert.deepEqual([p.start,p.end],[i*30,i*30+29]);assert.equal(p.authoring_sha256,info.authoring_sha256);});
+info.source_provenance.forEach((p,i)=>{assert.deepEqual([p.start,p.end],[i*30,i*30+29]);assert.equal(p.authoring_sha256,suffix===''&&p.start>=510&&p.start<720?info.repair_authoring_sha256:info.authoring_sha256);});
+assert.equal(info.repair_authoring_sha256,sha(path.join(root,'scripts/cine/render-software-v26-payload-repair.py')));
 assert.equal(info.renderer_sha256,sha(path.join(root,'scripts/cine/render-software-scene-v26.py')));
 assert.equal(info.v25_authoring_sha256,sha(path.join(root,'scripts/cine/render-software-system-v25.py')));
 assert.equal(info.ui_sha256,sha(path.join(root,'scripts/cine/render-software-system-v11.py')));
