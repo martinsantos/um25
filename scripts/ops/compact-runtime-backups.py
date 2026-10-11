@@ -14,6 +14,8 @@ from pathlib import Path
 
 SOURCE = Path('/root/fumbling-field/dist/client')
 BACKUPS = Path('/root/fumbling-field/backups')
+UPLOADS_SOURCE = Path('/root/fumbling-field/uploads')
+UPLOADS_BACKUP = Path('/root/backups/uploads-pre-restore-1769594862')
 
 
 def sha(path):
@@ -153,6 +155,34 @@ def archive_main(args):
         print(json.dumps(dedupe_archive_ranges(plan)), flush=True)
 
 
+def select_files(source, root, cached=None):
+    if source.is_symlink() or source.resolve() != source or not source.is_dir():
+        return []
+    if root.is_symlink() or root.resolve() != root or not root.is_dir():
+        return []
+    cached = {} if cached is None else cached
+    targets = []
+    for path in sorted(root.rglob('*')):
+        if path.is_symlink() or not path.is_file() or path.resolve() != path:
+            continue
+        original = source / path.relative_to(root)
+        if not original.is_file() or original.is_symlink() or original.resolve() != original:
+            continue
+        before, current = signature(path), signature(original)
+        if before[1] < 65536 or before[1] != current[1] or before[0] == current[0]:
+            continue
+        if path.stat().st_dev != original.stat().st_dev:
+            continue
+        if str(original) not in cached:
+            cached[str(original)] = sha(original)
+        digest = cached[str(original)]
+        if sha(path) != digest or signature(path) != before or signature(original) != current:
+            continue
+        targets.append({'path': str(path), 'source': str(original), 'sha256': digest,
+                        'target_signature': before, 'source_signature': current})
+    return targets
+
+
 def select(source, backups):
     targets = []
     cached = {}
@@ -161,27 +191,7 @@ def select(source, backups):
             continue
         # Rollback leaves failed-dist; incoming-dist can still be staging.
         for name in ('previous-dist', 'failed-dist'):
-            root = release / name / 'client'
-            if root.resolve() != root or not root.is_dir():
-                continue
-            for path in sorted(root.rglob('*')):
-                if path.is_symlink() or not path.is_file() or path.resolve() != path:
-                    continue
-                original = source / path.relative_to(root)
-                if not original.is_file() or original.is_symlink() or original.resolve() != original:
-                    continue
-                before, current = signature(path), signature(original)
-                if before[1] < 65536 or before[1] != current[1] or before[0] == current[0]:
-                    continue
-                if path.stat().st_dev != original.stat().st_dev:
-                    continue
-                if str(original) not in cached:
-                    cached[str(original)] = sha(original)
-                digest = cached[str(original)]
-                if sha(path) != digest or signature(path) != before or signature(original) != current:
-                    continue
-                targets.append({'path': str(path), 'source': str(original), 'sha256': digest,
-                                'target_signature': before, 'source_signature': current})
+            targets.extend(select_files(source, release / name / 'client', cached))
     return targets
 
 
@@ -219,13 +229,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--apply', action='store_true')
     parser.add_argument('--archive-ranges', action='store_true')
+    parser.add_argument('--uploads-backup', action='store_true')
     parser.add_argument('--expected-plan-sha', default='')
     args = parser.parse_args()
     if args.archive_ranges:
         archive_main(args)
         return
-    targets = select(SOURCE, BACKUPS)
-    plan = {'source_inode': SOURCE.stat().st_ino, 'targets': targets}
+    source = UPLOADS_SOURCE if args.uploads_backup else SOURCE
+    targets = select_files(source, UPLOADS_BACKUP) if args.uploads_backup else select(source, BACKUPS)
+    plan = {'source_inode': source.stat().st_ino, 'targets': targets}
     digest = hashlib.sha256(json.dumps(plan, sort_keys=True).encode()).hexdigest()
     print(json.dumps({'plan_sha256': digest, 'target_count': len(targets),
                       'bytes_identical': sum(t['target_signature'][1] for t in targets), 'plan': plan}), flush=True)
@@ -235,7 +247,7 @@ def main():
         raise RuntimeError('Plan changed; no backup modified')
     before = shutil.disk_usage(BACKUPS).free
     for target in targets:
-        if SOURCE.stat().st_ino != plan['source_inode']:
+        if source.stat().st_ino != plan['source_inode']:
             raise RuntimeError('Runtime changed; retry after deployment')
         compact(target)
     print(json.dumps({'compacted_files': len(targets), 'bytes_reclaimed': shutil.disk_usage(BACKUPS).free - before,
