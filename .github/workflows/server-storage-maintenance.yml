@@ -5,6 +5,8 @@ on:
     paths:
       - 'scripts/ops/prune-cold-dependencies.py'
       - 'scripts/ops/test_cold_dependencies.py'
+      - 'scripts/ops/prune-package-caches.py'
+      - 'scripts/ops/test_package_caches.py'
       - 'scripts/ops/deduplicate-directus-backups.py'
       - 'scripts/ops/test_directus_backup_dedup.py'
       - 'scripts/ops/compact-runtime-backups.py'
@@ -13,9 +15,9 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: 'Audited dependencies or duplicate Directus backups'
+        description: 'Audited dependencies, reproducible package caches or duplicate backups'
         type: choice
-        options: [dependencies, backups, runtime-backups, archive-blocks]
+        options: [dependencies, caches, backups, runtime-backups, archive-blocks]
         default: dependencies
         required: true
       mode:
@@ -70,6 +72,7 @@ jobs:
           scope=''
           case "$OPERATION" in
             dependencies) script=scripts/ops/prune-cold-dependencies.py ;;
+            caches) script=scripts/ops/prune-package-caches.py ;;
             backups) script=scripts/ops/deduplicate-directus-backups.py ;;
             runtime-backups) script=scripts/ops/compact-runtime-backups.py ;;
             archive-blocks) script=scripts/ops/compact-runtime-backups.py; scope=--archive-ranges ;;
