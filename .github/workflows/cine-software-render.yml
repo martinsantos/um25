@@ -52,6 +52,7 @@ name: Blender software architecture
           - v21
           - v22
           - v23
+          - v24
         default: v2
       engine:
         description: 'Cycles baseline or Eevee proof on the disposable software GPU'
@@ -109,6 +110,13 @@ jobs:
       repair_parts: ${{ inputs.repair_parts }}
       source_run: ${{ inputs.source_run }}
       repair_runs: ${{ inputs.repair_runs }}
+  v24-spatial:
+    if: inputs.version == 'v24'
+    uses: ./.github/workflows/cine-software-v24.yml
+    with:
+      mode: ${{ inputs.mode }}
+      proof_frame: ${{ inputs.proof_frame || '-1' }}
+      repair_parts: ${{ inputs.repair_parts }}
   v23-spatial:
     if: inputs.version == 'v23'
     uses: ./.github/workflows/cine-software-v23.yml

@@ -23,4 +23,13 @@ Validación prevista: rangos y hashes de las dos películas completas, decodific
 
 ## Estado
 
-Fuente: 6580b988. Prueba remota: 38144355483. 196 combinaciones de textos/composición dentro del encuadre y sin intersecciones de texto visibles en el recorrido completo. La prueba nativa y la secuencia completa siguen en curso. La preview permanece en v22 hasta completar e inspeccionar v23.
+Fuente final del render: `feb08d50fc135ae7eee829e575a137882d713490`. Pruebas nativas: 38144355483 y 38144896792. Render completo: [38146133734](https://github.com/martinsantos/um25/actions/runs/38146133734), completado correctamente. Las dos películas completas están integradas con la bandera v23. 61.292.074 bytes, 20 segundos y 1.200 fotogramas por composición; build correcto.
+
+La inspección nativa corrigió una etiqueta de protocolo oculta, líneas traseras que cruzaban el pie del registro y el margen izquierdo de la composición móvil. La auditoría final recorre 1.200 posiciones en dos composiciones: 190 combinaciones de texto/composición dentro del encuadre, sin intersecciones de límites de texto. Esto complementa la revisión visual; no certifica equivalencia artística.
+
+La integración preparada amplía el banner de escritorio y coloca el capítulo antes del render. Se reserva su altura para que el cambio automático del texto no desplace la película. Sigue pendiente verificar ese comportamiento con el archivo completo en navegador.
+
+
+## Hallazgo de la película completa
+
+La comparación temporal y la revisión móvil detectaron un vacío excesivo alrededor de 17,1 segundos: el registro desaparecía antes de que la interfaz recuperara presencia. La candidata v24 corrige ese relevo conservando visibles los datos hasta la entrada del producto. Se reutilizan los primeros 960 fotogramas, inalterados, con su fuente v23 registrada; se vuelven a renderizar los últimos 240 por composición. La v23 no se declara equivalente a Hill ni lista para producción.

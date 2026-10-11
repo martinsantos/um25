@@ -4,9 +4,14 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 def run(*args):subprocess.run([str(a) for a in args],check=True)
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
-def verify(path,w,h,count):
- data=json.loads(subprocess.check_output(['ffprobe','-v','error','-threads','2','-count_frames','-show_streams','-of','json',str(path)]));v=next(s for s in data['streams'] if s['codec_type']=='video')
- assert [v['codec_name'],v['width'],v['height'],v['nb_read_frames'],v['avg_frame_rate'],v['pix_fmt']]==['h264',w,h,str(count),'60/1','yuv420p']
+def verify(path,w,h,count,decode=True):
+ # Scan packet counts for fragments; decode each assembled film once. A full
+ # native decode remains mandatory, without repeating it three times on Mac.
+ result=subprocess.run(['ffprobe','-v','error','-threads','2','-count_frames' if decode else '-count_packets','-show_streams','-of','json',str(path)],check=True,capture_output=True,text=True)
+ assert not result.stderr.strip(),result.stderr
+ data=json.loads(result.stdout);v=next(s for s in data['streams'] if s['codec_type']=='video')
+ counter='nb_read_frames' if decode else 'nb_read_packets'
+ assert [v['codec_name'],v['width'],v['height'],v[counter],v['avg_frame_rate'],v['pix_fmt']]==['h264',w,h,str(count),'60/1','yuv420p']
  assert abs(float(v['duration'])-count/60)<.01
  assert [v['color_space'],v['color_primaries'],v['color_transfer'],v['color_range']]==['bt709','bt709','iec61966-2-1','tv']
  return data
@@ -22,10 +27,9 @@ def assemble(source,out):
    assert [r['frame'] for r in info['timings']]==list(range(start,start+count))
    for key,value in sources.items():assert info[key]==value,('Mixed or stale source',key)
    for name in ['public/images/logo-dark.svg','public/cine/media/empresa-mendoza.jpg']:assert info['asset_sha256'][name]==sha(ROOT/name),('Stale visual asset',name)
-   movie=folder/'movie.mp4';verify(movie,w,h,count);movies.append(movie.resolve());infos.append(info)
+   movie=folder/'movie.mp4';verify(movie,w,h,count,decode=False);movies.append(movie.resolve());infos.append(info)
   listing=out/f'concat{suffix}.txt';listing.write_text(''.join(f"file '{p}'\n" for p in movies))
   movie=out/f'cine-software-system-v23{suffix}.mp4';run('ffmpeg','-y','-v','error','-f','concat','-safe','0','-i',listing,'-c','copy','-movflags','+faststart',movie)
-  run('ffmpeg','-y','-v','error','-threads','2','-i',movie,'-f','null','-')
   (out/f'validation{suffix}.json').write_text(json.dumps(verify(movie,w,h,1200)))
   (out/f'render-info{suffix}.json').write_text(json.dumps(dict(infos[0],timings=[r for info in infos for r in info['timings']])))
   poster=out/f'cine-software-system-v23-poster{suffix}.jpg';run('ffmpeg','-y','-v','error','-threads','2','-i',movie,'-frames:v','1','-q:v','2',poster)

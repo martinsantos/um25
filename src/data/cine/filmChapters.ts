@@ -1,12 +1,20 @@
 /** Captions follow the native movie clock; they explain the installation in view. */
 export type FilmChapter = { at: number; text: string };
 export const FILM_CHAPTERS: Record<string, FilmChapter[]> = {
+  'software-system-v24': [
+    {at:0,text:'Una orden reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.6,text:'Antes de aprobar, verificamos quién actúa y qué puede hacer en ese proyecto.'},
+    {at:7.8,text:'Las integraciones validan cada dato y lo conectan con su destino.'},
+    {at:12.6,text:'La aprobación conserva el proyecto, la versión y el historial del cambio.'},
+    {at:17.2,text:'El equipo recibe la orden aprobada y puede seguir trabajando.'},
+  ],
+
   'software-system-v23': [
-    {at:0,text:'Una herramienta reúne el trabajo, sus responsables y su contexto.'},
-    {at:2.6,text:'La identidad, los permisos del rol y el proyecto autorizan la operación.'},
-    {at:7.8,text:'Cada campo llega a su destino y se valida.'},
-    {at:12.6,text:'Proyecto, orden y versión quedan relacionados en un registro verificable.'},
-    {at:17.2,text:'La operación vuelve al equipo como información confiable.'},
+    {at:0,text:'Una orden reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.6,text:'Antes de aprobar, verificamos quién actúa y qué puede hacer en ese proyecto.'},
+    {at:7.8,text:'Las integraciones validan cada dato y lo conectan con su destino.'},
+    {at:12.6,text:'La aprobación conserva el proyecto, la versión y el historial del cambio.'},
+    {at:17.2,text:'El equipo recibe la orden aprobada y puede seguir trabajando.'},
   ],
 
   'software-system-v22': [
