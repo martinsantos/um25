@@ -22,18 +22,19 @@ def assemble(source,repair,out):
  for comp,w,h,suffix in [('wide',3840,2160,''),('mobile',2160,2160,'-sq')]:
   infos=[];movies=[];segments=[(start,30) for start in range(0,1200,30)]
   for start,count in segments:
-   patched=start in (690,720)
+   patched=start in (690,720,840)
+   repair_script="render-software-v25-index-repair.py" if start==840 else "render-software-v25-route-repair.py"
    folder=(repair if patched else source)/f'v25-spatial-{comp}-{start}';info=json.loads((folder/'info.json').read_text())
-   assert [info['version'],info['publishable'],info['composition'],info['resolution'],info['frames'],info['fps'],info['samples']]==['v25-repair' if patched else 'v25',False,comp,[w,h],1200,60,8]
+   assert [info['version'],info['publishable'],info['composition'],info['resolution'],info['frames'],info['fps'],info['samples']]==['v25-repair-index' if start==840 else 'v25-repair' if patched else 'v25',False,comp,[w,h],1200,60,8]
    assert [r['frame'] for r in info['timings']]==list(range(start,start+count))
-   for key,value in sources.items():assert info[key]==(sha(ROOT/'scripts/cine/render-software-v25-route-repair.py') if patched and key=='authoring_sha256' else value),('Mixed or stale source',key)
+   for key,value in sources.items():assert info[key]==(sha(ROOT/'scripts/cine'/repair_script) if patched and key=='authoring_sha256' else value),('Mixed or stale source',key)
    if patched:assert info['v25_authoring_sha256']==sources['authoring_sha256']
    for name in ['public/images/logo-dark.svg','public/cine/media/empresa-mendoza.jpg']:assert info['asset_sha256'][name]==sha(ROOT/name),('Stale visual asset',name)
    movie=folder/'movie.mp4';verify(movie,w,h,count,decode=False);movies.append(movie.resolve());infos.append(info)
   listing=out/f'concat{suffix}.txt';listing.write_text(''.join(f"file '{p}'\n" for p in movies))
   movie=out/f'cine-software-system-v25{suffix}.mp4';run('ffmpeg','-y','-v','error','-f','concat','-safe','0','-i',listing,'-c','copy','-movflags','+faststart',movie)
   (out/f'validation{suffix}.json').write_text(json.dumps(verify(movie,w,h,1200)))
-  (out/f'render-info{suffix}.json').write_text(json.dumps(dict(infos[0],repair_authoring_sha256=sha(ROOT/'scripts/cine/render-software-v25-route-repair.py'),source_provenance=[dict(start=i['timings'][0]['frame'],end=i['timings'][-1]['frame'],source_run=i['source_run'],authoring_sha256=i['authoring_sha256']) for i in infos],timings=[r for info in infos for r in info['timings']])))
+  (out/f'render-info{suffix}.json').write_text(json.dumps(dict(infos[0],repair_index_authoring_sha256=sha(ROOT/'scripts/cine/render-software-v25-index-repair.py'),repair_authoring_sha256=sha(ROOT/'scripts/cine/render-software-v25-route-repair.py'),source_provenance=[dict(version=i['version'],start=i['timings'][0]['frame'],end=i['timings'][-1]['frame'],source_run=i['source_run'],authoring_sha256=i['authoring_sha256']) for i in infos],timings=[r for info in infos for r in info['timings']])))
   poster=out/f'cine-software-system-v25-poster{suffix}.jpg';run('ffmpeg','-y','-v','error','-threads','2','-i',movie,'-frames:v','1','-q:v','2',poster)
   run('node','--input-type=module','-e',"import sharp from 'sharp';sharp.cache(false);sharp.concurrency(2);await sharp(process.argv[1]).avif({quality:74,effort:3,chromaSubsampling:'4:4:4'}).toFile(process.argv[2]);",poster,poster.with_suffix('.avif'))
   for sec in [0,4.5,7.6,9.4,12.6,14.5,15.5,16.8,18.2,19.98]:run('ffmpeg','-y','-v','error','-threads','2','-ss',sec,'-i',movie,'-frames:v','1',out/f'review{suffix}-{sec}.png')

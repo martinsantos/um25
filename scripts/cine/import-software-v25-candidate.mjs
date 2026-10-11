@@ -17,8 +17,9 @@ assert.deepEqual(info.timings.map(t=>t.frame),Array.from({length:1200},(_,i)=>i)
 assert.equal(info.authoring_sha256,sha(path.join(root,'scripts/cine/render-software-system-v25.py')));
 assert.equal(info.base_authoring_sha256,sha(path.join(root,'scripts/cine/render-software-system-v23.py')));
 assert.equal(info.repair_authoring_sha256,sha(path.join(root,'scripts/cine/render-software-v25-route-repair.py')));
+assert.equal(info.repair_index_authoring_sha256,sha(path.join(root,'scripts/cine/render-software-v25-index-repair.py')));
 assert.equal(info.source_provenance.length,40);
-info.source_provenance.forEach((p,i)=>{assert.deepEqual([p.start,p.end],[i*30,i*30+29]);assert.equal(p.authoring_sha256,[690,720].includes(p.start)?info.repair_authoring_sha256:info.authoring_sha256);});
+info.source_provenance.forEach((p,i)=>{assert.deepEqual([p.start,p.end],[i*30,i*30+29]);assert.equal(p.authoring_sha256,p.start===840?info.repair_index_authoring_sha256:[690,720].includes(p.start)?info.repair_authoring_sha256:info.authoring_sha256);});
 assert.equal(info.ui_sha256,sha(path.join(root,'scripts/cine/render-software-system-v11.py')));
 assert.equal(info.geometry_sha256,sha(path.join(root,'scripts/cine/render-software-system-v8.py')));
 for(const name of ['public/images/logo-dark.svg','public/cine/media/empresa-mendoza.jpg'])assert.equal(info.asset_sha256[name],sha(path.join(root,name)));

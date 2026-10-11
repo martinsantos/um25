@@ -35,7 +35,7 @@ jobs:
           if os.environ['MODE']=='repair':
             parts=[part.split(':') for part in os.environ['REPAIR'].split(',')]
             assert 0<len(parts)<=8
-            assert all(c in ('wide','mobile') and f.isdigit() and int(f)%30==0 and 690<=int(f)<750 and 0<=int(f)<1200 for c,f in parts)
+            assert all(c in ('wide','mobile') and f.isdigit() and int(f) in (690,720,840) and 0<=int(f)<1200 for c,f in parts)
             matrix={'include':[dict(frame=int(f),end=int(f)+29,width=3840 if c=='wide' else 2160,composition=c) for c,f in parts]}
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('matrix='+json.dumps(matrix)+'\n')
           PYPLAN
@@ -54,6 +54,7 @@ jobs:
           sparse-checkout: |
             scripts/cine/render-software-system-v25.py
             scripts/cine/render-software-v25-route-repair.py
+            scripts/cine/render-software-v25-index-repair.py
             scripts/cine/render-software-system-v23.py
             scripts/cine/render-software-system-v11.py
             scripts/cine/render-software-system-v8.py
@@ -92,7 +93,10 @@ jobs:
           ulimit -c 0
           STATUS=0
           AUTHOR=scripts/cine/render-software-system-v25.py
-          if [ "${{ inputs.mode }}" = repair ]; then AUTHOR=scripts/cine/render-software-v25-route-repair.py; fi
+          if [ "${{ inputs.mode }}" = repair ]; then
+            AUTHOR=scripts/cine/render-software-v25-route-repair.py
+            if [ "${{ matrix.frame }}" = 840 ]; then AUTHOR=scripts/cine/render-software-v25-index-repair.py; fi
+          fi
           xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python "$AUTHOR" -- --samples 8 --width ${{ matrix.width }} --composition ${{ matrix.composition }} --start ${{ matrix.frame }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames || STATUS=$?
           # Mesa can fault during Blender teardown after every output is saved.
           # Accept that one exit code only with a complete, decodable native set.
