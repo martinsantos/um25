@@ -10,6 +10,7 @@ export const SERVICE_PROJECTS:Record<string,SiteScene>={'101':'building','102':'
 // An explicit local preview flag selects the candidate without promoting it
 // into the production media registry. Start the preview only after asset import.
 const softwareReviews:Record<string,ProjectMovie>={
+ v23:{scene:'software-system-v23',status:'ready',duration:20,assets:[]},
  v22:{scene:'software-system-v22',status:'ready',duration:20,assets:[]},
  v21:{scene:'software-system-v21',status:'ready',duration:20,assets:[]},
  v20:{scene:'software-system-v20',status:'ready',duration:20,assets:[]},

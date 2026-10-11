@@ -14,7 +14,7 @@ def inside(A,B):
 for mobile in [False,True]:
  for frame in range(1200):
   t=frame/1199;d,target,angles=f.camera(t)
-  if mobile:d*=1.08-.14*f.E((t-.14)/.08)*(1-f.E((t-.84)/.08))
+  if mobile:d*=f.mobile_scale(t)
   ax,ay,roll=map(math.radians,angles);n=a.unit((math.tan(ax),math.tan(ay),1));r=a.unit((n[2],0,-n[0]));u=a.cross(n,r);rr=tuple(math.cos(roll)*r[i]+math.sin(roll)*u[i] for i in range(3));uu=tuple(-math.sin(roll)*r[i]+math.cos(roll)*u[i] for i in range(3));active=[]
   for g,s,x,y,z,sz,m,bold in a.p.texts:
    if f.prominence(g,t)<.65:continue

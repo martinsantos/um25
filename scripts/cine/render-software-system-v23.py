@@ -111,6 +111,13 @@ def camera(t):
  angles=tuple(cubic_track(t,[k[3][axis] for k in CAMERA_KEYS]) for axis in range(3))
  return d,target,angles
 
+def mobile_scale(t):
+ # Mobile moves closer during readable holds and opens before each handover.
+ # It is a sibling camera composition, not a centre crop of the wide movie.
+ base=1.08-.14*E((t-.14)/.08)*(1-E((t-.84)/.08))
+ close=sum(amount*E((t-a)/.035)*(1-E((t-b)/.035)) for a,b,amount in [(.22,.31,.15),(.44,.56,.07),(.69,.78,.15)])
+ return base-close
+
 def rect(p,g,bounds,z,m='signal',r=.0045):
  x1,y1,x2,y2=bounds
  p.line(g,[(x1,y1,z),(x2,y1,z),(x2,y2,z),(x1,y2,z),(x1,y1,z)],m,r)
@@ -592,13 +599,12 @@ def refine_architecture(p):
  p.line(g,[(-4.18,.333,.057),(-3.55,.333,.057)],'signal',.004)
  p.label(g,'REST',-.72,.46,.082,'quiet',True,z=.055)
  p.label(g,'JSON',-.25,.46,.082,'quiet',True,z=.055)
- p.label(g,'v3',.43,.46,.09,'green',True,z=.055)
+ p.label(g,'v3',.43,.46,.09,'green',True,z=.095)
  # Schema chips + named ports make routing inspectable without crossing copy.
  for i,(value,label) in enumerate([('P-104','1 proyecto'),('resp.','1 rol'),('0248','1 orden')]):
   y=-.86-i*.48
   p.rounded(g,-2.205,y-.065,.58,.070,.070,.004,'signal',.012)
   p.rounded(g,-1.605,y-.065,-.185,.070,.070,.004,'signal',.012)
-  p.label(g,label,-.10,y+.13,.065,'quiet',z=-.16)
  # A footer carries the same request identity and the outcome, with a trace
  # split into authored stages, not fabricated performance measurements.
  p.texts=[v for v in p.texts if not(v[0]==g and v[1]=='INTEGRACIÓN DEL PROYECTO')]
@@ -668,7 +674,8 @@ def refine_architecture(p):
   if i<2:p.line(gg,[(1.58,y-.205,.08),(1.58,y-.31,.08)],'registration',.0025)
  p.icon('data-event-2','check',1.52,-2.885,'green',.10,z=.065)
  p.label('data-event-2','Integridad verificada',1.70,-2.892,.094,'green',z=.064)
- p.label(g,'0248-A',5.03,-2.892,.103,'quiet',True,z=.065)
+ p.rounded(g,5.34,-2.865,.081,.74,.23,.003,'fieldnav',.025)
+ p.label(g,'0248-A',5.03,-2.892,.103,'quiet',True,z=.096)
  p.label(g,'<transaction>',1.340,-3.20,.148,'white',True,z=.09)
  # Layer seams are sparse and exact. They establish depth without a chunky
  # bevel or a full-sheet tint across the readable typography.
@@ -925,7 +932,7 @@ def render(args):
  def update(scene):
   frame=scene.frame_current
   t=frame/(FRAMES-1);d,target,angles=camera(t)
-  if args.composition=='mobile':d*=1.08-.14*E((t-.14)/.08)*(1-E((t-.84)/.08))
+  if args.composition=='mobile':d*=mobile_scale(t)
   ax,ay,roll=map(math.radians,angles);n=Vector((math.tan(ax),math.tan(ay),1)).normalized();r=Vector((n.z,0,-n.x)).normalized();u=n.cross(r);rr=math.cos(roll)*r+math.sin(roll)*u;uu=-math.sin(roll)*r+math.cos(roll)*u
   cam.location=Vector(target)+n*d;cam.rotation_euler=Matrix((rr,uu,n)).transposed().to_euler()
   for g,ob in parents.items():
