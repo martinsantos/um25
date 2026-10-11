@@ -1,5 +1,6 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
+import ResourceNavigation from '../../components/brand/ResourceNavigation.astro';
 import '../../styles/font-specimen.css';
 const base = '/fonts/um-sans/v2.0.0';
 const templates = '/downloads/plantillas-um-sans/2026.10.10-r7';
@@ -25,6 +26,7 @@ const usage = 'body {\n  font-family: var(--um-font-family);\n  font-kerning: no
 ---
 <LayoutV4 title="UM Sans 2 | Specimen y sistema tipográfico de ULTIMA MILLA" description="Explorá UM Sans 2: nueve pesos, cursivas, fuente variable, caracteres, cifras, escala de lectura, aplicaciones y recursos de marca.">
   <div id="um-specimen" class="um-specimen" data-font-release="2.0.0">
+    <ResourceNavigation current="fuente" />
     <header class="sp-cover sp-dark">
       <div class="sp-shell">
         <div class="sp-coverline"><span>ULTIMA MILLA · SISTEMA TIPOGRÁFICO</span><span>SPECIMEN / 2.0.0</span><a href={base+'/UMSans2-2.0.0.zip'} download>Descargar familia ↗</a></div>
@@ -33,7 +35,7 @@ const usage = 'body {\n  font-family: var(--um-font-family);\n  font-kerning: no
         <dl class="sp-facts"><div><dt>Pesos</dt><dd>100–900</dd></div><div><dt>Cortes</dt><dd>18 estilos</dd></div><div><dt>Variables</dt><dd>Romana + cursiva</dd></div><div><dt>Para usar en</dt><dd>Web + documentos</dd></div></dl>
       </div>
     </header>
-    <nav class="sp-index" aria-label="Índice del specimen"><div class="sp-shell">{sections.map(([id,label],i)=><a href={'#'+id}><span>{String(i+1).padStart(2,'0')}</span>{label}</a>)}</div></nav>
+    <div class="sp-index"><div class="sp-shell sp-index-bar"><details id="sp-contents"><summary>Índice de UM Sans 2</summary><nav aria-label="Índice de UM Sans 2">{sections.map(([id,label],i)=><a href={'#'+id}><span>{String(i+1).padStart(2,'0')}</span>{label}</a>)}</nav></details><a href="/estilo/fuentes/plantilla">Plantillas ↗</a><a href="/estilo/fuentes/editor">Editor y PDFs ↗</a></div></div>
     <section id="familia" class="sp-section sp-shell">
       <div class="sp-section-head"><div><p class="sp-kicker">01 / La familia</p><h2>Del susurro<br />al acento.</h2></div><p>Nueve pesos. Dos inclinaciones. El mismo dibujo acompaña una frase liviana, un título firme o una página de lectura.</p></div>
       <div class="sp-family-head"><span>Peso / corte</span><span>Romana</span><span>Cursiva</span></div>

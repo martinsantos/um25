@@ -1,27 +1,24 @@
 ---
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
+import ResourceNavigation from '../../../components/brand/ResourceNavigation.astro';
+import { brandTemplates, editorLink, templateBase } from '../../../data/brandTemplates';
 import '../../../styles/brand-resources.css';
 import reading from '../../../data/brand-template-reading.json';
-const base = '/downloads/plantillas-um-sans/2026.10.10-r7';
-const templates = [
-  { id: 'oferta-completa', sample: 'ejemplo-licitacion', number: '01', title: 'Oferta completa', pages: 'Word · A4', description: 'Una propuesta de principio a fin: alcance, solución técnica, entregables, inversión y condiciones.', details: ['Numeración automática en tres niveles', 'Títulos y cifras con tamaños proporcionales', 'Imágenes centradas con comentario opcional'], primary: 'DOCX', action: 'Descargar plantilla Word', formats: ['DOTX','ODT','HTML','PDF'] },
-  { id: 'resumen-comercial', number: '02', title: 'Resumen comercial', pages: '1 página · A4', description: 'El alcance, la inversión y las condiciones esenciales en una presentación breve.', details: ['Jerarquía clara para leer de un vistazo', 'Espacio para identificar al cliente y al proyecto', 'Tabla de inversión y total'], primary: 'DOCX', action: 'Descargar Word', formats: ['DOTX','ODT','HTML','PDF'] },
-  { id: 'membrete', number: '03', title: 'Carta con membrete', pages: '1 página · A4', description: 'Una base de correspondencia para comunicar una decisión, presentar una solicitud o acompañar documentación.', details: ['Destinatario, fecha y referencia', 'Cuerpo de carta con espacio para desarrollar', 'Cierre y firma'], primary: 'DOCX', action: 'Descargar Word', formats: ['DOTX','ODT','HTML','PDF'] },
-  { id: 'imagenes-documento', number: '04', title: 'Imágenes en documentos', pages: 'Word · A4', description: 'Productos sobre fondo transparente o blanco, centrados y con un comentario opcional debajo. Ejemplos para copiar a cualquier documento.', details: ['Imagen y comentario en la misma página', 'Proporción original, sin marcos ni fondos añadidos', 'Bloque con o sin comentario'], primary: 'DOCX', action: 'Descargar bloques de imágenes', formats: ['DOTX','ODT','HTML','PDF'] },
-  { id: 'oferta-economica', sample: 'ejemplo-economico', number: '05', title: 'Planilla económica', pages: 'Excel · Impresión A4', description: 'Cantidades, precios e importes en una misma grilla. El detalle alimenta el subtotal y el total de la oferta.', details: ['15 renglones con cálculo de importes', 'Validación de cantidades y precios', 'Control de datos incompletos antes del total'], primary: 'XLSX', action: 'Descargar plantilla Excel', formats: ['PDF'] },
-  { id: 'presupuesto-interno', number: '06', title: 'Cotizador interno', pages: 'Excel · Ocho hojas', description: 'El libro de PC-2505-ALT, preparado para cada nueva cotización: parámetros, materiales y detalle de costos en PD.', details: ['Las ocho hojas del libro original', 'Componentes, cantidades, costos y márgenes', 'Resultado y oferta vinculados al detalle'], primary: 'XLSX', action: 'Descargar cotizador de ocho hojas', formats: ['PDF'] },
-];
+const base = templateBase;
+const templates = brandTemplates;
 ---
 <LayoutV4 title="RECURSOS MARCA UMSA" description="Plantillas de propuesta, resumen, carta y planilla económica. UM Sans 2, marca oficial y vistas previas de los archivos reales.">
   <div id="um-resources" class="resource-library">
+    <ResourceNavigation current="plantillas" />
     <header class="rl-cover rl-shell">
-      <a class="rl-back" href="/estilo/fuente">← UM Sans 2</a>
       <h1>RECURSOS MARCA UMSA</h1>
       <div class="rl-cover-bottom"><p>Plantillas para licitaciones, propuestas y comunicaciones.</p><div><a class="rl-button" href={base+'/Plantillas-UMSans2-2026.10.10-r7.zip'} download>Descargar todo ↗</a><a class="rl-text-link" href="/fonts/um-sans/v2.0.0/UMSans2-2.0.0.zip" download>Fuentes UM Sans 2</a></div></div>
     </header>
-    <nav class="rl-index rl-shell" aria-label="Elegir plantilla">{templates.map(t=><a href={'#'+t.id}><span>{t.number}</span>{t.title}</a>)}</nav>
+    <div class="rl-workspace rl-shell">
+    <aside class="rl-sidebar"><nav class="rl-index" aria-label="Elegir plantilla"><p class="rl-eyebrow">ÍNDICE DE PLANTILLAS</p>{templates.map(t=><a href={'#'+t.id}><span>{t.title}</span><small>{t.purpose}</small></a>)}</nav><a class="rl-editor-entry" href={editorLink('oferta-completa')}>Ir al editor y Mis PDFs ↗</a></aside>
+    <div class="rl-main"><div class="rl-mobile-select"><label for="rl-template-select">Elegir plantilla</label><select id="rl-template-select">{templates.map(t=><option value={t.id}>{t.title} · {t.purpose}</option>)}</select></div>
     <div class="rl-collection">
-      {templates.map(t=><section class="rl-item rl-shell" id={t.id} aria-labelledby={t.id+'-title'}>
+      {templates.map(t=><section class="rl-item" id={t.id} aria-labelledby={t.id+'-title'}>
         <div class="rl-info">
         <div class="rl-copy">
           <p class="rl-eyebrow">{t.number} / {t.pages}</p>
@@ -31,9 +28,10 @@ const templates = [
           <ul>{t.details.map(detail=><li>{detail}</li>)}</ul>
         </div>
         <div class="rl-actions">
-          <a class="rl-button" href={base+'/'+t.id+'.'+t.primary.toLowerCase()} download>{t.action} ↗</a>
+          <div class="rl-main-actions"><a class="rl-button" data-local-editor={t.primary==='DOCX'?t.id:undefined} href={t.primary==='DOCX'?editorLink(t.id):t.googleUrl} target={t.primary==='XLSX'?'_blank':undefined} rel={t.primary==='XLSX'?'noopener noreferrer':undefined}>{t.primary==='DOCX'?'Editar en navegador':'Editar en Google Sheets'} ↗</a><a class="rl-download-link" href={base+'/'+t.id+'.'+t.primary.toLowerCase()} download>{t.action} ↗</a></div>
+          {t.primary==='DOCX'?<a class="rl-google-link" href={t.googleUrl} data-google-template={t.googleUrl} data-google-example={'googleSampleUrl' in t?t.googleSampleUrl:undefined} target="_blank" rel="noopener noreferrer">Abrir en Google {t.primary==='XLSX'?'Sheets':'Docs'} ↗</a>:<a class="rl-google-link" href={editorLink(t.id)}>Editor y Mis PDFs ↗</a>}<p class="rl-google-note">Creá tu copia para editar con tu cuenta de Google.</p>
           <details class="rl-download-options"><summary>{'sample' in t?'Otros formatos y ejemplo':'Otros formatos'}</summary>
-          <div class="rl-formats" aria-label={'Otros formatos de '+t.title}>{t.formats.map(format=><a href={base+'/'+t.id+'.'+format.toLowerCase()} download={format==='HTML'||format==='PDF'?undefined:true}>{format==='HTML'?'Editar en navegador':format==='PDF'?'Ver PDF':format}</a>)}</div>
+          <div class="rl-formats" aria-label={'Otros formatos de '+t.title}>{t.formats.map(format=><a href={base+'/'+t.id+'.'+format.toLowerCase()} download={format==='HTML'||format==='PDF'?undefined:true}>{format==='HTML'?'HTML independiente':format==='PDF'?'Ver PDF':format}</a>)}</div>
           {'sample' in t && <div class="rl-example-downloads"><span>Ejemplo completado</span><a href={base+'/'+t.sample+'.'+t.primary.toLowerCase()} download>{t.primary==='XLSX'?'Excel':'Word'} ↗</a><a href={base+'/'+t.sample+'.pdf'}>PDF ↗</a></div>}
           </details>
         </div>
@@ -52,7 +50,7 @@ const templates = [
           <p class="rl-caption">{t.id==='presupuesto-interno'?'Elegí cualquiera de las ocho hojas. La vista muestra las tablas del XLSX; el PDF conserva la impresión del libro.':'Documento completo, adaptado a tu pantalla. «Ver hoja A4» muestra la composición de impresión.'}</p>
         </div>
       </section>)}
-    </div>
+    </div></div></div>
     <section class="rl-use"><div class="rl-shell">
       <p class="rl-eyebrow">ANTES DE EMPEZAR</p><h2>Prepará tu documento.</h2>
       <div class="rl-use-grid"><article><span>01</span><h3>Instalá la familia.</h3><p>El paquete incluye los cuatro TTF necesarios para editar Word y Excel con UM Sans 2.</p></article><article><span>02</span><h3>Usá los estilos.</h3><p>En Word, aplicá Título 1, 2 o 3. La numeración y las sangrías se ajustan juntas.</p></article><article><span>03</span><h3>Revisá la entrega.</h3><p>Completá los campos, comprobá los importes y exportá el documento final a PDF.</p></article></div>

@@ -1,3 +1,5 @@
+import { editorLink, findTemplate } from '../data/brandTemplates';
+
 export function initResourcePreviews() {
   const root = document.querySelector<HTMLElement>('#um-resources');
   if (!root || root.dataset.previewsReady) return;
@@ -5,21 +7,28 @@ export function initResourcePreviews() {
   const controller = new AbortController();
   const sections = Array.from(root.querySelectorAll<HTMLElement>('.rl-item'));
   const navigation = Array.from(root.querySelectorAll<HTMLAnchorElement>('.rl-index a'));
+  const selector = root.querySelector<HTMLSelectElement>('#rl-template-select')!;
   const selectDocument = (id: string) => {
     const selected = sections.find(section => section.id === (id === 'template-economy-title' ? 'oferta-economica' : id)) || sections[0];
     sections.forEach(section => { section.hidden = section !== selected; });
+    selector.value = selected.id;
     navigation.forEach(link => {
       if (link.hash === '#' + selected.id) link.setAttribute('aria-current', 'true');
       else link.removeAttribute('aria-current');
     });
   };
   navigation.forEach(link => link.addEventListener('click', () => selectDocument(link.hash.slice(1))));
+  selector.addEventListener('change', () => { location.hash = selector.value; selectDocument(selector.value); });
   window.addEventListener('hashchange', () => selectDocument(location.hash.slice(1)), { signal: controller.signal });
   document.addEventListener('astro:before-swap', () => controller.abort(), { once: true });
   selectDocument(location.hash.slice(1));
   const setReadingMode = (button: HTMLButtonElement) => {
       const section = button.closest<HTMLElement>('.rl-item')!;
       const mode = button.dataset.readingChoice!;
+      const editor = section.querySelector<HTMLAnchorElement>('[data-local-editor]');
+      if (editor) editor.href = editorLink(findTemplate(section.id).id, mode === 'example');
+      const google = section.querySelector<HTMLAnchorElement>('[data-google-template]');
+      if (google) google.href = mode === 'example' && google.dataset.googleExample ? google.dataset.googleExample : google.dataset.googleTemplate!;
       section.querySelectorAll<HTMLElement>('[data-reading-mode]').forEach(body => { body.hidden = body.dataset.readingMode !== mode; });
       section.querySelectorAll<HTMLButtonElement>('[data-reading-choice]').forEach(choice => choice.setAttribute('aria-pressed', String(choice === button)));
       const preview = section.querySelector<HTMLButtonElement>('[data-resource-preview]')!;

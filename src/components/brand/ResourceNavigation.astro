@@ -1,0 +1,12 @@
+---
+import '../../styles/resource-navigation.css';
+const { current } = Astro.props;
+const links = [
+  ['fuente', '/estilo/fuente', 'UM Sans 2', 'Explorar la tipografía'],
+  ['plantillas', '/estilo/fuentes/plantilla', 'Plantillas', 'Elegir y descargar'],
+  ['editor', '/estilo/fuentes/editor', 'Editor y PDFs', 'Escribir y preparar la entrega'],
+];
+---
+<nav class="brand-resource-nav" aria-label="Recursos de marca">
+  {links.map(([id, href, label, description]) => <a href={href} aria-current={current === id ? 'page' : undefined}><span>{label}</span><small>{description}</small></a>)}
+</nav>
