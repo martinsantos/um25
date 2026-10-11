@@ -11,7 +11,7 @@ def camera(t):
  d,target,angles=film.original_camera(t);x,y,z=target
  # Wait until the outgoing access plate has cleared before approaching the
  # contract. This preserves its right edge throughout the square transition.
- for amount,a,b,c,end,dx,dy in [(3.05,.13,.205,.235,.315,0,.62),(3.75,.398,.450,.485,.545,-.47,.82),(3.25,.625,.700,.728,.775,-.38,.87)]:
+ for amount,a,b,c,end,dx,dy in [(3.05,.13,.205,.235,.315,0,.62),(3.0,.398,.450,.485,.545,-.47,.82),(3.25,.625,.700,.728,.775,-.38,.87)]:
   q=E((t-a)/(b-a))*(1-E((t-c)/(end-c)));d-=amount*q;x+=dx*q;y+=dy*q
  return d,(x,y,z),angles
 

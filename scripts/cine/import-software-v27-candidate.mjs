@@ -10,16 +10,19 @@ const folder=path.resolve(process.argv[2]);
 const sha=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 for(const [suffix,width,height] of [['',3840,2160],['-sq',2160,2160]]){
 const info=JSON.parse(fs.readFileSync(path.join(folder,`render-info${suffix}.json`)));
-const version=suffix?'v26':'v27',step=suffix?30:60;
+const version=suffix?'v27-mobile':'v27',step=60;
+const author=suffix?'render-software-v27-mobile.py':'render-software-system-v27.py';
 assert.equal(info.version,version);assert.equal(info.delivery_version,'v27');
 assert.equal(info.publishable,false);assert.equal(info.engine,'eevee');assert.equal(info.samples,8);
 assert.deepEqual([info.frames,info.fps,info.resolution],[1200,60,[width,height]]);
 
 assert.deepEqual(info.timings.map(t=>t.frame),Array.from({length:1200},(_,i)=>i));
-assert.equal(info.authoring_sha256,sha(path.join(root,`scripts/cine/render-software-system-${version}.py`)));
+assert.equal(info.authoring_sha256,sha(path.join(root,'scripts/cine/'+author)));
 assert.equal(info.base_authoring_sha256,sha(path.join(root,'scripts/cine/render-software-system-v23.py')));
 assert.equal(info.source_provenance.length,1200/step);
 info.source_provenance.forEach((p,i)=>{assert.deepEqual([p.start,p.end],[i*step,i*step+step-1]);assert.equal(p.authoring_sha256,info.authoring_sha256);});
+assert.equal(info.v26_authoring_sha256,sha(path.join(root,'scripts/cine/render-software-system-v26.py')));
+if(suffix)assert.equal(info.v27_authoring_sha256,sha(path.join(root,'scripts/cine/render-software-system-v27.py')));
 assert.equal(info.renderer_sha256,sha(path.join(root,'scripts/cine/render-software-scene-v26.py')));
 assert.equal(info.v25_authoring_sha256,sha(path.join(root,'scripts/cine/render-software-system-v25.py')));
 assert.equal(info.ui_sha256,sha(path.join(root,'scripts/cine/render-software-system-v11.py')));
@@ -29,9 +32,6 @@ for(const name of ['public/images/logo-dark.svg','public/cine/media/empresa-mend
  assert.deepEqual([v.codec_name,v.width,v.height,v.nb_read_frames,v.avg_frame_rate,v.pix_fmt],['h264',width,height,'1200','60/1','yuv420p']);
  assert(Math.abs(Number(v.duration)-20)<.01);
 }
-const parity=JSON.parse(fs.readFileSync(path.join(folder,'mobile-parity.json')));
-assert.equal(parity.identical,true);assert.equal(parity.frames,1200);
-for(const v of ['v26','v27'])assert.equal(parity[`${v}_authoring_sha256`],sha(path.join(root,`scripts/cine/render-software-system-${v}.py`)));
 const hashes=new Map();
 for(const line of fs.readFileSync(path.join(folder,'SHA256SUMS'),'utf8').trim().split('\n')){
  const match=line.match(/^([a-f0-9]{64})  (.+)$/);assert(match);const [,hash,name]=match;
