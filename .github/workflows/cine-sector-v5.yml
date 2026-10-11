@@ -34,7 +34,7 @@ jobs:
           rows=[]
           for scene in scenes:
             for composition,width in [('wide',3840),('mobile',2160)]:
-              if mode=='proof':ranges=[(f,f) for f in ([365,800] if composition=='wide' else [800])]
+              if mode=='proof':ranges=[(365,368),(800,800)] if composition=='wide' else [(800,800)]
               elif mode=='repair':
                 part=int(os.environ['PART']);assert 1<=part<=9;ranges=[((part-1)*120,part*120-1)]
               else:ranges=[(i*120,i*120+119) for i in range(9)]
@@ -89,7 +89,7 @@ jobs:
         run: |
           ulimit -c 0
           STATUS=0
-          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-sector-project-v5.py -- --scene ${{ matrix.scene }} --composition ${{ matrix.composition }} --width ${{ matrix.width }} --samples 8 --start ${{ matrix.start }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames || STATUS=$?
+          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-sector-project-v5.py -- --scene ${{ matrix.scene }} --composition ${{ matrix.composition }} --width ${{ matrix.width }} --samples 16 --start ${{ matrix.start }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames || STATUS=$?
           if [ "$STATUS" != 0 ] && [ "$STATUS" != 139 ]; then exit "$STATUS"; fi
           python3 - <<'PYCHECK'
           import json
