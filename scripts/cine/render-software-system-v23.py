@@ -115,7 +115,7 @@ def mobile_scale(t):
  # Mobile moves closer during readable holds and opens before each handover.
  # It is a sibling camera composition, not a centre crop of the wide movie.
  base=1.08-.14*E((t-.14)/.08)*(1-E((t-.84)/.08))
- close=sum(amount*E((t-a)/.035)*(1-E((t-b)/.035)) for a,b,amount in [(.22,.31,.15),(.44,.56,.07),(.69,.78,.15)])
+ close=sum(amount*E((t-a)/.035)*(1-E((t-b)/.035)) for a,b,amount in [(.22,.31,.15),(.44,.56,.035),(.69,.78,.15)])
  return base-close
 
 def rect(p,g,bounds,z,m='signal',r=.0045):
@@ -672,8 +672,9 @@ def refine_architecture(p):
   p.disc(gg,4.872,y+.025,.020,col,z=.075)
   p.label(gg,['01','02','03'][i],5.42,y-.143,.074,col,True,z=.068)
   if i<2:p.line(gg,[(1.58,y-.205,.08),(1.58,y-.31,.08)],'registration',.0025)
- p.icon('data-event-2','check',1.52,-2.885,'green',.10,z=.065)
- p.label('data-event-2','Integridad verificada',1.70,-2.892,.094,'green',z=.064)
+ p.rounded('data-event-2',2.39,-2.865,.081,1.91,.23,.003,'fieldnav',.025)
+ p.icon('data-event-2','check',1.52,-2.885,'green',.10,z=.096)
+ p.label('data-event-2','Integridad verificada',1.70,-2.892,.094,'green',z=.096)
  p.rounded(g,5.34,-2.865,.081,.74,.23,.003,'fieldnav',.025)
  p.label(g,'0248-A',5.03,-2.892,.103,'quiet',True,z=.096)
  p.label(g,'<transaction>',1.340,-3.20,.148,'white',True,z=.09)
