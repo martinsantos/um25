@@ -9,8 +9,8 @@ on:
         type: string
         default: all
       part:
-        type: number
-        default: 1
+        type: string
+        default: '1'
 permissions:
   contents: read
 jobs:

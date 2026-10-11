@@ -47,7 +47,7 @@ jobs:
     with:
       mode: ${{ inputs.mode }}
       projects: ${{ inputs.projects }}
-      part: ${{ inputs.part }}
+      part: ${{ format('{0}', inputs.part) }}
   plan:
     if: inputs.renderer != 'v5'
     runs-on: ubuntu-24.04

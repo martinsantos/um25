@@ -8,7 +8,7 @@ NAMES={'building':'Edificio conectado','clinic':'Atención conectada','terminal'
 # Two different operational subjects per sector; neither defaults to the rack.
 FOCUS={'building':[(215,86,36),(300,163,83)],'clinic':[(239,83,26),(217,244,35)],'terminal':[(236,61,36),(390,273,45)],'plant':[(205,110,42),(420,269,44)],'winery':[(194,105,58),(320,283,36)],'mine':[(310,319,94),(264,65,38)]}
 COLORS={'101':'#62CDBF','102':'#AE9EDB','107':'#F18478','108':'#E3BA70','103':'#81B9F0'}
-LEVELS={'108':26,'101':57,'102':89,'107':121,'103':57}
+LEVELS={'108':95,'101':195,'102':295,'107':395,'103':195}
 
 def smooth(x):
  x=max(0,min(1,x));return x*x*x*(x*(x*6-15)+10)
@@ -17,7 +17,7 @@ def envelope(t,a,b,c,d):return smooth((t-a)/(b-a))*(1-smooth((t-c)/(d-c)))
 def camera_pose(frame,scene,wide=28,composition='wide'):
  t=frame/(FRAMES-1);a,b=FOCUS[scene];center=(300,170,50)
  # The overhead layer view opens a third spatial relationship, then returns.
- keys=[(0,center,wide,1.05),(.13,center,wide,1.05),(.34,a,15 if composition=='wide' else 11.5,.88),(.53,b,17 if composition=='wide' else 13,.92),(.72,(300,170,115),wide*1.06,1.1),(.87,(300,170,115),wide*1.06,1.1),(1,center,wide,1.05)]
+ keys=[(0,center,wide,1.05),(.13,center,wide,1.05),(.34,a,15 if composition=='wide' else 11.5,.88),(.53,b,17 if composition=='wide' else 13,.92),(.72,(300,170,220),wide*1.12,1.1),(.87,(300,170,220),wide*1.12,1.1),(1,center,wide,1.05)]
  for left,right in zip(keys,keys[1:]):
   if t<=right[0]:
    u=smooth((t-left[0])/(right[0]-left[0]));return tuple(mix(x,y,u)*S for x,y in zip(left[1],right[1])),mix(left[2],right[2],u),mix(left[3],right[3],u)
