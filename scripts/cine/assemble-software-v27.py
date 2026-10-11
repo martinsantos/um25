@@ -33,7 +33,7 @@ def assemble(wide,mobile,out,composition):
   run('node','--input-type=module','-e',"import sharp from 'sharp';sharp.cache(false);sharp.concurrency(2);await sharp(process.argv[1]).avif({quality:74,effort:3,chromaSubsampling:'4:4:4'}).toFile(process.argv[2]);",poster,poster.with_suffix('.avif'))
   for sec in [0,4,6.4,7.6,9,11.3,12.6,14.5,15.8,16.8,18.2,19.98]:run('ffmpeg','-y','-v','error','-threads','2','-ss',sec,'-i',movie,'-frames:v','1',out/f'review{suffix}-{sec}.png')
  assets=list(out.glob('cine-*'));assert sum(p.stat().st_size for p in assets)<120_000_000
- (out/'SHA256SUMS').write_text(''.join(sha(p)+'  '+p.name+'\n' for p in sorted(out.iterdir()) if p.name!='SHA256SUMS'))
+ (out/'SHA256SUMS').write_text(''.join(sha(p)+'  '+p.name+'\n' for p in sorted(out.iterdir()) if p.is_file() and not p.name.startswith('.') and p.name!='SHA256SUMS'))
  print(json.dumps({'version':'v27','frames':1200,'fps':60,'compositions':len(list(out.glob('render-info*.json'))),'publishable':False,'bytes':sum(p.stat().st_size for p in assets)}))
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--wide-source',type=Path,required=True);p.add_argument('--mobile-source',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--composition',choices=['wide','mobile','both'],default='both');a=p.parse_args();assemble(a.wide_source,a.mobile_source,a.output,a.composition)
