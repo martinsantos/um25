@@ -1,7 +1,7 @@
 import { bindHardware } from '../public/cine/cine-studies-v5.js';
 import { bindProductTour } from '../public/cine/product-tour-v5.js';
 import { bindServicesStory } from '../public/cine/services-story-v5.js';
-import { banner } from '../public/cine/cine-banner-v11.js';
+import { banner } from '../public/cine/cine-banner-v12.js';
 
 let observers, preferences, media, frames, nextFrame;
 const settle = async () => { await Promise.resolve(); await Promise.resolve(); };
@@ -191,4 +191,20 @@ test('a full-width software movie waits for the movie itself, then preserves man
  visible(stage);await settle();expect(video.paused).toBe(false);
  root.querySelector('[data-umc-motion]').click();visible(stage,false);visible(stage);await settle();
  expect(video.paused).toBe(true);cleanup();
+});
+
+
+test('software preserves its opening while only a glimpse is visible, then advances automatically',async()=>{
+ document.body.innerHTML='<section data-umc data-software-cinema="true" data-scenes="software-system-v25" data-annotations="none"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><button data-umc-motion></button></section>';
+ const root=document.querySelector('[data-umc]'),stage=root.querySelector('.umc-stage'),video=stage.querySelector('video');
+ const cleanup=banner(root),observer=observers.find(o=>o.targets.has(stage));
+ observer.callback([{target:stage,isIntersecting:true,intersectionRatio:.43}]);
+ await jest.advanceTimersByTimeAsync(3000);await settle();expect(video.hasAttribute('src')).toBe(false);expect(video.currentTime).toBe(0);
+ const motion=root.querySelector('[data-umc-motion]');expect(motion.getAttribute('aria-label')).toBe('Pausar el recorrido');
+ motion.click();expect(motion.getAttribute('aria-label')).toBe('Reanudar el recorrido');
+ observer.callback([{target:stage,isIntersecting:true,intersectionRatio:.75}]);await settle();expect(video.paused).toBe(true);
+ motion.click();await settle();expect(video.paused).toBe(false);
+ observer.callback([{target:stage,isIntersecting:true,intersectionRatio:.75}]);await settle();expect(video.paused).toBe(false);
+ video.currentTime=8;observer.callback([{target:stage,isIntersecting:true,intersectionRatio:.3}]);expect(video.paused).toBe(true);
+ observer.callback([{target:stage,isIntersecting:true,intersectionRatio:.9}]);await settle();expect(video.paused).toBe(false);expect(video.currentTime).toBe(8);cleanup();
 });
