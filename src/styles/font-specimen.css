@@ -153,7 +153,7 @@
 .sp-role { font-weight: var(--role-weight); line-height: 1.2; }
 .sp-role-display { font-size: 4rem; }.sp-role-heading { font-size: 2.5rem; }.sp-role-subheading { font-size: 1.75rem; }
 .sp-role-lead { font-size: 1.5rem; line-height: 1.5; }.sp-role-body { font-size: 1.375rem; line-height: 1.62; }.sp-role-ui { font-size: 1.125rem; line-height: 1.5; }
-.sp-resource-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.sp-resource-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 32px; }
 .sp-resource-grid > a { display: flex; flex-direction: column; text-decoration: none; min-width: 0; }
 .sp-resource-grid > a > span { display: flex; justify-content: space-between; gap: 16px; margin-top: 22px; font-size: 1.75rem; font-weight: 600; }
 .sp-resource-grid small { font-size: 1.125rem; color: var(--sp-muted); margin-top: 6px; }

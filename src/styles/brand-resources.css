@@ -81,7 +81,20 @@ body:has(#um-resources) .um-tabbar { display:none !important; }
 #oferta-economica .rl-copy { padding-top:0; }#oferta-economica .rl-copy ul { display:none; }
 #oferta-economica .rl-paper-column { grid-column:1 / -1; grid-row:2; }
 #oferta-economica .doc-sheet-totals { max-width:480px; margin-left:auto; }
-#presupuesto-interno :is(th,td):nth-child(n+2) { text-align:right; }
+#presupuesto-interno .rl-info { grid-column:1 / -1; position:static; display:grid; grid-template-columns:1.3fr 1fr; gap:48px; }
+#presupuesto-interno .rl-paper-column { grid-column:1 / -1; grid-row:2; }
+.doc-workbook-nav { display:flex; flex-wrap:wrap; gap:8px; margin:24px 0; }
+.doc-workbook-nav button { min-height:44px; padding:10px 16px; border:1px solid #d9d9d9; background:#fff; color:#17191c; font:inherit; font-size:16px; cursor:pointer; }
+.doc-workbook-nav button[aria-pressed="true"] { border-color:#dc2626; background:#f0f0f0; font-weight:600; }
+.doc-workbook-nav button:focus-visible { outline:2px solid #dc2626; outline-offset:3px; }
+#um-resources .rl-reading .doc-workbook-title { font-size:22px !important; margin:24px 0 16px; }
+.rl-reading .doc-workbook-detail { min-width:1800px; }
+.rl-reading .doc-workbook-detail th:nth-child(n+8) { text-align:right; }
+.rl-reading .doc-workbook-section { font-weight:600; }
+.rl-reading .doc-workbook-section td { background:#f0f0f0; border-bottom-color:#dc2626; }
+.rl-reading .doc-workbook-detail :is(th,td):nth-child(3) { min-width:330px; }
+.rl-reading .doc-workbook-detail :is(th,td):nth-child(4) { min-width:200px; }
+@media(max-width:1000px) { #presupuesto-interno .rl-info { display:block; } }
 .doc-table-hint { display:none; }
 #um-resources .doc-sheet-totals p { display:flex; justify-content:space-between; gap:16px; margin:0; padding:12px; border-bottom:1px solid #ddd; }
 #um-resources .doc-sheet-totals p:last-child { border-top:2px solid #dc2626; background:#000; color:#fff !important; }
