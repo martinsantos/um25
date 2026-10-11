@@ -293,7 +293,6 @@ def build_base():
   x1,y1,x2,y2=bounds
   # Open binding keeps rear edges out of the active face's text column.
   p.line('data-depth',[(x1,y2,z),(x2,y2,z),(x2,y1,z),(x1,y1,z)],'registration',.002)
- p.label('data','REGISTRO 03 / VERSIÓN 3',1.50,-3.22,.100,'quiet',True)
  # Sparse registration ticks, tied to actual boundaries. No decorative grid.
  for x in [-5.43,.91,1.26,7.30]:
   p.line('base',[(x,-5.02,-.012),(x,-5.24,-.012)],'registration',.002)
