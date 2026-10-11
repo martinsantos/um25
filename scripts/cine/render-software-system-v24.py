@@ -13,7 +13,7 @@ def focus(group,t):
  if t<.8 or base.family(group)!='data':return original_focus(group,t)
  # Keep the record visible while the incoming product is still distant.
  # It fades only when the product's content has begun to re-enter the frame.
- return base.E((t-.605)/.075)*(1-base.E((t-.855)/.035))
+ return base.E((t-.605)/.075)*(1-base.E((t-.850)/.030))
 base.focus=focus
 for name in ['camera','mobile_scale','placement','prominence','family','build','validate','E','ROOT']:
  globals()[name]=getattr(base,name)
