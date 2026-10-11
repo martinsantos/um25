@@ -1,4 +1,15 @@
-# Plantillas y presentación — revisión r4
+# Plantillas y presentación — revisión r7
+
+## Cotizador original de ocho hojas — r7, 10 de octubre
+
+- El catálogo estaba mostrando un presupuesto genérico de cuatro hojas. Se recupera la versión UM Sans 2 de PC-2505-ALT y se conservan sus ocho nombres, orden, tablas, categorías, celdas y relaciones. PD vuelve a ser el detalle de materiales, cantidades, costos y márgenes. Dimensionamiento permanece libre como en la referencia.
+- El usuario eligió publicar una plantilla vacía. Se retiran las cantidades, costos, tarifas, cotización y márgenes históricos; las dos fórmulas que contenían importes de aquella licitación pasan a ser entradas. Las demás fórmulas mantienen su patrón; los porcentajes sin base y el cálculo por puesto no dividen por cero al abrir el libro vacío. No se cambió el orden de aplicación de márgenes, ajustes o impuestos.
+- La guía se corrige para enumerar las hojas que existen. Las cabeceras son grises, con texto negro. El XLSX abre en PD y conserva filas agrupadas, nombres, celdas combinadas y encabezados repetidos. Se añade espacio interior de lectura sin mover las tablas.
+- El PDF se genera con Calc y tipografía UM Sans 2 incrustada, a 12 pt sin reducción de escala. Las tablas de trabajo imprimen en A3; las compactas en A4. La marca oficial se incorpora como trazos vectoriales alineados al extremo derecho de la regla. La imagen de cabecera del XLSX conserva una alternativa de alta resolución; Calc no interpreta esa cabecera VML, por lo que el PDF usa el arte vectorial original.
+- La web muestra las ocho hojas seleccionables y abre PD por defecto. Las tablas se extraen del XLSX entregado; los anchos permiten lectura y desplazamiento horizontal. La oferta económica de 15 renglones continúa como recurso independiente. La página de la fuente enlaza ambos modelos y utiliza las vistas vigentes.
+- El paquete nuevo es 2026.10.10-r7. Los Word, ODT, HTML, ejemplos económicos y fuentes conservan los bytes de r6. No se sobrescriben descargas anteriores ni se publica el archivo con datos reales.
+- Control: apertura y recálculo nativo en Calc, plantilla vacía sin errores y cuatro casos de cambios de precio, cantidad cero y tipo de cambio. Google Sheets conserva las ocho hojas; su motor usa Arial como alternativa. Microsoft Office nativo sigue sin instalación disponible: no se declara una comprobación directa de Word o Excel.
+
 
 ## Imágenes y punto final — 10 de octubre
 
