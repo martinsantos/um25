@@ -17,7 +17,7 @@ on:
       operation:
         description: 'Audited dependencies, reproducible package caches or duplicate backups'
         type: choice
-        options: [dependencies, caches, backups, runtime-backups, archive-blocks]
+        options: [dependencies, caches, backups, runtime-backups, archive-blocks, uploads-backup]
         default: dependencies
         required: true
       mode:
@@ -75,6 +75,7 @@ jobs:
             caches) script=scripts/ops/prune-package-caches.py ;;
             backups) script=scripts/ops/deduplicate-directus-backups.py ;;
             runtime-backups) script=scripts/ops/compact-runtime-backups.py ;;
+            uploads-backup) script=scripts/ops/compact-runtime-backups.py; scope=--uploads-backup ;;
             archive-blocks) script=scripts/ops/compact-runtime-backups.py; scope=--archive-ranges ;;
             *) exit 2 ;;
           esac
