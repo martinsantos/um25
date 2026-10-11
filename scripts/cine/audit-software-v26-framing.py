@@ -28,6 +28,8 @@ def cross(a,b):return (a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[
 p=film.build();fail=[];mins={}
 for mobile in [False,True]:
  film.MOBILE=mobile;p=film.build()
+ # Blender adds measured labels at render time; include their actual bounds.
+ p.texts.extend([(g,txt,x,y,z,.15,'white',True) for g,txt,x,y,z in [('access','330 × 123',3.49,-.08,.23),('contract','578 × 380',-4.54,.93,.09),('data','475 × 380',1.265,.95,.09)]])
  for frame in range(1200):
   t=frame/1199;d,target,angles=film.camera(t)
   if mobile:d*=film.mobile_scale(t)

@@ -45,8 +45,8 @@ const heading = dot ? title.slice(0, -1) : title;
 const rail = chapters||HOME_SCENES.filter((s) => scenes.includes(s.scene));
 const firstTitle = rail.find(chapter=>chapter.scene===first)?.name||cutCaption(first);
 const disciplineComposition = /^(software|network|security|telecom|support|consulting|fire|power)-(system|project)-v\d+$/.test(first);
-const productComposition = /^(software-system-v(?:[3456789]|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25)|power-project-v3|(?:fire|network|security|telecom|power|support|consulting)-project-v2)$/.test(first);
-const softwareCinema = ['software-system-v7','software-system-v8','software-system-v9','software-system-v10','software-system-v11','software-system-v12','software-system-v13','software-system-v14','software-system-v15','software-system-v16','software-system-v17','software-system-v18','software-system-v19','software-system-v20','software-system-v21','software-system-v22','software-system-v23','software-system-v24','software-system-v25'].includes(first);
+const productComposition = /^(software-system-v(?:[3456789]|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26)|power-project-v3|(?:fire|network|security|telecom|power|support|consulting)-project-v2)$/.test(first);
+const softwareCinema = ['software-system-v7','software-system-v8','software-system-v9','software-system-v10','software-system-v11','software-system-v12','software-system-v13','software-system-v14','software-system-v15','software-system-v16','software-system-v17','software-system-v18','software-system-v19','software-system-v20','software-system-v21','software-system-v22','software-system-v23','software-system-v24','software-system-v25','software-system-v26'].includes(first);
 const filmChapters = FILM_CHAPTERS[first];
 const firstMovie = Object.values(siteMovies.services).find(movie => movie.scene === first);
 const posterRevision = firstMovie && 'posterRevision' in firstMovie ? `-${firstMovie.posterRevision}` : '';
@@ -121,7 +121,7 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
     </dl>}
   </div>}
 </section>
-<script src={first==='software-system-v25'?'/cine/cine-banner-v12.js':'/cine/cine-banner-v11.js'} type="module" async is:inline></script>
+<script src={['software-system-v25','software-system-v26'].includes(first)?'/cine/cine-banner-v12.js':'/cine/cine-banner-v11.js'} type="module" async is:inline></script>
 
 <style>
  .umc[data-framing="project"] :global(.umc-stage){left:0;right:0}
@@ -188,7 +188,7 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
  .umc[data-software-cinema="true"]{--umc-ink:#11151c;min-height:0;grid-template-rows:auto auto auto auto;padding-bottom:28px}
  .umc[data-scene="software-system-v9"],.umc[data-scene="software-system-v10"],.umc[data-scene="software-system-v11"]{--umc-ink:#141a1f}
  .umc[data-scene="software-system-v13"],.umc[data-scene="software-system-v14"],.umc[data-scene="software-system-v15"],.umc[data-scene="software-system-v16"],.umc[data-scene="software-system-v17"],.umc[data-scene="software-system-v18"]{--umc-ink:#101b20}
- .umc[data-scene="software-system-v19"],.umc[data-scene="software-system-v20"],.umc[data-scene="software-system-v21"],.umc[data-scene="software-system-v22"],.umc:is([data-scene="software-system-v23"],[data-scene="software-system-v24"],[data-scene="software-system-v25"]){--umc-ink:#11171d}
+ .umc[data-scene="software-system-v19"],.umc[data-scene="software-system-v20"],.umc[data-scene="software-system-v21"],.umc[data-scene="software-system-v22"],.umc:is([data-scene="software-system-v23"],[data-scene="software-system-v24"],[data-scene="software-system-v25"],[data-scene="software-system-v26"]){--umc-ink:#11171d}
  .umc[data-scene="software-system-v12"]{--umc-ink:#0d1a23}
  .umc[data-software-cinema="true"] :global(.umc-copy){grid-row:1;grid-column:1;width:calc(100% - var(--umc-gutter)*2);margin:48px var(--umc-gutter) 28px;padding-top:0}
  .umc[data-software-cinema="true"] :global(.umc-stage){position:relative;grid-row:2;grid-column:1;inset:auto;z-index:0;transform:none;justify-self:center;width:min(100%,1440px);height:auto;aspect-ratio:16/9}
@@ -200,12 +200,12 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
  .umc[data-software-cinema="true"] :global(.umc-tools){position:relative;inset:auto;grid-row:2;grid-column:1;z-index:2;align-self:start;justify-self:end;margin:20px var(--umc-gutter)}
  .umc[data-software-cinema="true"] :global(.umc-film-caption){position:static;grid-row:3;grid-column:1;margin:18px var(--umc-gutter) 0;padding:0;max-width:80ch}
  /* The explanation precedes the film so it is visible when each layer enters. */
- .umc:is([data-scene="software-system-v23"],[data-scene="software-system-v24"],[data-scene="software-system-v25"]) :global(.umc-film-caption){grid-row:2;margin:0 var(--umc-gutter) 12px;min-height:3em}
- .umc:is([data-scene="software-system-v23"],[data-scene="software-system-v24"],[data-scene="software-system-v25"]) :global(.umc-stage),.umc:is([data-scene="software-system-v23"],[data-scene="software-system-v24"],[data-scene="software-system-v25"]) :global(.umc-tools){grid-row:3}
+ .umc:is([data-scene="software-system-v23"],[data-scene="software-system-v24"],[data-scene="software-system-v25"],[data-scene="software-system-v26"]) :global(.umc-film-caption){grid-row:2;margin:0 var(--umc-gutter) 12px;min-height:3em}
+ .umc:is([data-scene="software-system-v23"],[data-scene="software-system-v24"],[data-scene="software-system-v25"],[data-scene="software-system-v26"]) :global(.umc-stage),.umc:is([data-scene="software-system-v23"],[data-scene="software-system-v24"],[data-scene="software-system-v25"],[data-scene="software-system-v26"]) :global(.umc-tools){grid-row:3}
  @media(min-width:821px){
   .umc[data-software-cinema="true"] :global(.umc-stage){width:min(100%,1440px,max(920px,calc((100svh - 290px)*16/9)))}
   /* The architecture film needs enough screen area for its named controls. */
-  .umc:is([data-scene="software-system-v23"],[data-scene="software-system-v24"],[data-scene="software-system-v25"]) :global(.umc-stage){width:min(100%,1440px,calc((100svh - 150px)*16/9))}
+  .umc:is([data-scene="software-system-v23"],[data-scene="software-system-v24"],[data-scene="software-system-v25"],[data-scene="software-system-v26"]) :global(.umc-stage){width:min(100%,1440px,calc((100svh - 150px)*16/9))}
   .umc[data-software-cinema="true"] :global(.umc-copy){display:grid;grid-template-columns:1.15fr 1fr;column-gap:56px;row-gap:14px}
   .umc[data-software-cinema="true"] :global(.umc-back){grid-column:1;grid-row:1;margin:0}
   .umc[data-software-cinema="true"] :global(.umc-eyebrow){grid-column:1;grid-row:2;margin:0}
@@ -216,10 +216,10 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
   .umc[data-software-cinema="true"] :global(.umc-summary){display:block;margin-top:24px}
   .umc[data-software-cinema="true"] :global(.umc-summary .umc-stats){margin-top:28px}
   .umc[data-scene="software-system-v8"] :global(.umc-stage){aspect-ratio:4/3}
-  .umc[data-scene="software-system-v10"] :global(.umc-stage),.umc[data-scene="software-system-v11"] :global(.umc-stage),.umc[data-scene="software-system-v12"] :global(.umc-stage),.umc[data-scene="software-system-v13"] :global(.umc-stage),.umc[data-scene="software-system-v14"] :global(.umc-stage),.umc[data-scene="software-system-v15"] :global(.umc-stage),.umc[data-scene="software-system-v16"] :global(.umc-stage),.umc[data-scene="software-system-v17"] :global(.umc-stage),.umc[data-scene="software-system-v18"] :global(.umc-stage),.umc[data-scene="software-system-v19"] :global(.umc-stage),.umc[data-scene="software-system-v20"] :global(.umc-stage),.umc[data-scene="software-system-v21"] :global(.umc-stage),.umc[data-scene="software-system-v22"] :global(.umc-stage),.umc:is([data-scene="software-system-v23"],[data-scene="software-system-v24"],[data-scene="software-system-v25"]) :global(.umc-stage){aspect-ratio:1}
+  .umc[data-scene="software-system-v10"] :global(.umc-stage),.umc[data-scene="software-system-v11"] :global(.umc-stage),.umc[data-scene="software-system-v12"] :global(.umc-stage),.umc[data-scene="software-system-v13"] :global(.umc-stage),.umc[data-scene="software-system-v14"] :global(.umc-stage),.umc[data-scene="software-system-v15"] :global(.umc-stage),.umc[data-scene="software-system-v16"] :global(.umc-stage),.umc[data-scene="software-system-v17"] :global(.umc-stage),.umc[data-scene="software-system-v18"] :global(.umc-stage),.umc[data-scene="software-system-v19"] :global(.umc-stage),.umc[data-scene="software-system-v20"] :global(.umc-stage),.umc[data-scene="software-system-v21"] :global(.umc-stage),.umc[data-scene="software-system-v22"] :global(.umc-stage),.umc:is([data-scene="software-system-v23"],[data-scene="software-system-v24"],[data-scene="software-system-v25"],[data-scene="software-system-v26"]) :global(.umc-stage){aspect-ratio:1}
   .umc[data-software-cinema="true"] :global(.umc-copy){margin-top:28px;margin-bottom:24px}
   .umc[data-software-cinema="true"] :global(.umc-film-caption){margin-top:16px}
-  .umc:is([data-scene="software-system-v23"],[data-scene="software-system-v24"],[data-scene="software-system-v25"]) :global(.umc-film-caption){margin-top:0;min-height:4.5em}
+  .umc:is([data-scene="software-system-v23"],[data-scene="software-system-v24"],[data-scene="software-system-v25"],[data-scene="software-system-v26"]) :global(.umc-film-caption){margin-top:0;min-height:4.5em}
   .umc[data-software-cinema="true"] :global(.umc-tools){margin:12px var(--umc-gutter)}
  }
 </style>

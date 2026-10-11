@@ -15,7 +15,7 @@ base.COLORS.update(copper='#EDA67D',sky='#80BDED',softshadow='#05080A',deepglass
 base.ALPHA.update(softshadow=.10,deepglass=.095)
 # Preserve camera velocity and the loop. Main mechanisms gain area; supporting
 # components fill the existing lateral space instead of pushing the camera back.
-base.CAMERA_KEYS=[(t,d-({0:2,1:2,.94:2,.22:.35,.345:.35,.44:.25,.585:.25,.69:.20,.815:.20}.get(t,0)),target,angles) for t,d,target,angles in base.CAMERA_KEYS]
+base.CAMERA_KEYS=[(t,d-({.22:.35,.345:.35,.44:.25,.585:.25,.69:-.65,.815:-.65}.get(t,0)),target,angles) for t,d,target,angles in base.CAMERA_KEYS]
 def gate(g,t):
  if g not in EXTRA:return 1
  a,b=EXTRA[g];return E((t-a)/.035)*(1-E((t-b)/.040))
