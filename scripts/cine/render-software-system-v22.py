@@ -14,10 +14,10 @@ COLORS={
  'green':'#6FE4CB','signal':'#63DCCB','rose':'#512F39','mint':'#214A4C',
  'paper':'#77828C','canvas':'#424C58','nav':'#38434E','bluewash':'#526071',
  'glass':'#657D80','trace':'#60DDC8','registration':'#648D9E','white':'#F4F8F9',
- 'amber':'#F5CA83','violet':'#B2AFF6','fieldpaper':'#303A40','fieldnav':'#1D252B','shadow':'#10151A','bevel':'#56626A','brand':'#DC2626','mapland':'#293F45','mapblock':'#42565D','mappark':'#2C665C','maproad':'#A2B7BD','annotation':'#089F92','typewash':'#67445E','typeline':'#E9A3D2','mapwater':'#426779'}
+ 'amber':'#F5CA83','violet':'#B2AFF6','fieldpaper':'#303A40','fieldnav':'#1D252B','shadow':'#05080A','bevel':'#56626A','brand':'#DC2626','mapland':'#293F45','mapblock':'#42565D','mappark':'#2C665C','maproad':'#A2B7BD','annotation':'#089F92','typewash':'#67445E','typeline':'#E9A3D2','mapwater':'#426779'}
 # The background is absent from most of the layout: small translucent regions
 # give the communication paths room to be seen, rather than tinting a white slab.
-ALPHA={'paper':.12,'canvas':.10,'nav':.14,'bluewash':.18,'glass':.075,'edge':.0}
+ALPHA={'paper':.12,'canvas':.10,'nav':.14,'bluewash':.18,'glass':.055,'shadow':.24,'edge':.0}
 REGIONS={
  'list':(-5.43,-4.44,.91,3.88,'signal'),
  'inspector':(1.26,-4.37,7.30,4.03,'signal'),
@@ -469,6 +469,9 @@ def enrich_controls(p):
 
 
 def refine_product(p):
+ # The raised request heading projects over the old header divider. Keeping
+ # that line would cut through its baseline at the crossed camera angle.
+ p.lines=[(g,pts,m,r) for g,pts,m,r in p.lines if not(g=='contract' and len(pts)==2 and all(abs(v[1]+.22)<.001 for v in pts))]
  # Treat every control as a product object: a raised face, a quiet contact
  # shadow and an exact edge. Do not increase transparency over typography.
  # This is deliberately bounded to content wells, not an all-over bevel.
@@ -476,9 +479,9 @@ def refine_product(p):
  for g,m,vv,ff in original:
   if m not in ('fieldpaper','fieldnav'):continue
   xs,ys,zs=zip(*vv);w=max(xs)-min(xs);h=max(ys)-min(ys)
-  if w<.35 or h<.30:continue
+  if w<.35 or h<.30 or w/h<1.35:continue
   x=(min(xs)+max(xs))/2;y=(min(ys)+max(ys))/2;z=min(zs)
-  p.rounded(g,x+.025,y-.036,z-.021,w+.032,h+.030,.003,'shadow',.035)
+  p.rounded(g,x+.009,y-.012,z-.006,w+.010,h+.012,.002,'shadow',.035)
   p.line(g,[(min(xs)+.05,max(ys)-.012,max(zs)+.003),(max(xs)-.05,max(ys)-.012,max(zs)+.003)],'bevel',.0025)
  # Recognizable avatars and status pills make the working list a product,
  # not eight identical lines. Team, identifier and task remain independently
@@ -535,7 +538,7 @@ def refine_product(p):
  # from ordinary text. Each appears with its causal event, not all at once.
  for i in range(3):
   g=f'data-event-{i}';y=-1.81-i*.37
-  p.rounded(g,3.715,y-.054,.017,4.01,.322,.002,'fieldnav' if i%2==0 else 'shadow',.033)
+  p.rounded(g,3.715,y-.054,.017,4.01,.322,.002,'fieldnav' if i%2==0 else 'fieldpaper',.033)
   p.rounded(g,4.635,y+.024,.047,.24,.18,.003,'fieldpaper',.028)
   p.label(g,['01','02','03'][i],4.556,y-.005,.082,'quiet',True,z=.056)
  # A three-slot transaction receipt binds the same project, order and version
@@ -712,7 +715,7 @@ def render(args):
   mat.node_tree.links.new(em.outputs[0],out.inputs['Surface'])
   glyph_mats[key]=(mat,em);return mat
  fonts={b:bpy.data.fonts.load(str(Path(args.font_dir)/f'UMSans-{w}.ttf')) for b,w in [(False,'Regular'),(True,'SemiBold')]}
- p=build();parents={};visibility=[];glass_visibility=[];stroke_visibility=[];dimension_lines=[];reveal_text=[];image_visibility=[]
+ p=build();parents={};visibility=[];glass_visibility=[];stroke_visibility=[];dimension_lines=[];reveal_text=[];image_visibility=[];operation_labels=[]
  for g in p.points:
   ob=bpy.data.objects.new(g,None);scene.collection.objects.link(ob);parents[g]=ob
  # Batch coplanar opaque details by parent/material; retain independent glass
@@ -735,6 +738,8 @@ def render(args):
  for g,s,x,y,z,size,m,bold in p.texts:
   c=bpy.data.curves.new(s,'FONT');c.body=s;c.size=size;c.font=fonts[bold];c.extrude=0;c.materials.append(glyph_material(g,m,'properties' if g=='inspector' and -.3<y<2.3 else 'content'));ob=bpy.data.objects.new(s,c);scene.collection.objects.link(ob);ob.location=(x,y,z);ob.parent=parents[g];visibility.append((ob,g))
   if s.startswith('<') or s.startswith('UM Sans ·'):reveal_text.append((c,s,g))
+  initial={'Aprobada':'En revisión','Orden aprobada':'Aprobar orden','Aprobación registrada':'Revisión solicitada','MS aprobó la orden 0248':'MS solicitó revisión de la orden 0248'}
+  if family(g) not in ('data','access','contract') and s in initial:operation_labels.append((c,initial[s],s))
  def line(name,pts,m,r,parent=None):
   c=bpy.data.curves.new(name,'CURVE');c.dimensions='3D';c.bevel_depth=r;c.bevel_resolution=2
   sp=c.splines.new('POLY');sp.points.add(len(pts)-1)
@@ -801,6 +806,7 @@ def render(args):
   for g,ob in parents.items():
    ob.location=placement(g,t)
    if g=='access-toggle':ob.location.x+=.15*E((t-.198)/.026)
+  for curve,before,after in operation_labels:curve.body=after if t>=.82 else before
   for curve,g in dimension_lines:curve.bevel_factor_end=annotation_progress(g,t)
   for curve,text,g in reveal_text:curve.body=text[:round(len(text)*annotation_progress(g,t))]
   for curve,g,w,h in dimension_text:
