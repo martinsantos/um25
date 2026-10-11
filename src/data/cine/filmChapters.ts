@@ -1,7 +1,7 @@
 /** Captions follow the native movie clock; they explain the installation in view. */
 export type FilmChapter = { at: number; text: string };
 export const FILM_CHAPTERS: Record<string, FilmChapter[]> = {
-  'software-system-v26': [
+  'software-system-v27': [
     {at:0,text:'Una orden reúne el trabajo, sus responsables y su contexto.'},
     {at:2.6,text:'Antes de aprobar, verificamos quién actúa y qué puede hacer en ese proyecto.'},
     {at:7.8,text:'Las integraciones validan cada dato y lo conectan con su destino.'},
