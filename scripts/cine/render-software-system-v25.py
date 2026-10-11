@@ -146,7 +146,7 @@ def render(args):
  import bpy
  from bpy.app.handlers import persistent
  @persistent
- def route_visibility(scene):
+ def route_visibility(scene, depsgraph=None):
   # The long inter-layer route is relevant only while the operation travels.
   # Keeping it drawn at rest crossed the connector and index headings.
   t=scene.frame_current/1199
@@ -156,10 +156,10 @@ def render(args):
    if ob:
     ob.hide_render=not travelling
     if name=='Approval / contract / commit':ob.data.bevel_depth=.0028
- bpy.app.handlers.render_pre.append(route_visibility)
+ bpy.app.handlers.frame_change_post.append(route_visibility)
  try:base.render(args)
  finally:
-  if route_visibility in bpy.app.handlers.render_pre:bpy.app.handlers.render_pre.remove(route_visibility)
+  if route_visibility in bpy.app.handlers.frame_change_post:bpy.app.handlers.frame_change_post.remove(route_visibility)
  info=Path(args.output)/'render-info.json';data=json.loads(info.read_text())
  data.update(version='v25',base_authoring_sha256=BASE_SHA,authoring_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),source_run=os.environ.get('GITHUB_RUN_ID'))
  info.write_text(json.dumps(data))
