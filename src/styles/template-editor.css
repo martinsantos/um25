@@ -43,7 +43,7 @@ body:has(#um-template-editor) .um-tabbar { display:none !important; }
 #um-template-editor .te-edit-hint { font-size:16px; margin-bottom:20px; color:var(--te-muted); }
 #te-document { display:block; border:1px solid var(--te-line); width:100%; min-height:500px; background:#fff; }
 .te-recovery { display:flex; flex-wrap:wrap; gap:16px 32px; justify-content:space-between; align-items:center; padding-top:24px; font-size:16px; }
-.te-recovery label { display:flex; flex-direction:column; gap:8px; }
+.te-recovery label { min-width:0; max-width:100%; display:flex; flex-direction:column; gap:8px; }
 .te-recovery input { max-width:100%; font-size:16px !important; }
 .te-sheet-entry { padding:32px; margin-top:20px; border:1px solid var(--te-line); background:#f5f5f5; }
 #um-template-editor .te-sheet-entry p { margin-top:20px; max-width:60ch; }
