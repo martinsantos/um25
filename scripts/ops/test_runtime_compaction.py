@@ -85,6 +85,27 @@ class RuntimeCompactionTest(unittest.TestCase):
         self.assertEqual(path.stat().st_mtime_ns, before.st_mtime_ns)
         self.assertEqual((self.source / 'asset.bin').read_bytes(), self.data)
 
+    def test_upload_backup_preserves_unique_files_source_and_metadata(self):
+        old = self.root / 'uploads-pre-restore'
+        old.mkdir()
+        path = old / 'asset.bin'
+        path.write_bytes(self.data)
+        path.chmod(0o640)
+        unique = old / 'unique.bin'
+        unique.write_bytes(b'preserve unique upload' * 6000)
+        before = path.stat()
+        targets = compaction.select_files(self.source, old)
+        self.assertEqual([Path(t['path']) for t in targets], [path])
+        compaction.compact(targets[0], copier=shutil.copyfile)
+        self.assertEqual(path.read_bytes(), self.data)
+        self.assertEqual(path.stat().st_mode, before.st_mode)
+        self.assertEqual(path.stat().st_mtime_ns, before.st_mtime_ns)
+        self.assertEqual(unique.read_bytes(), b'preserve unique upload' * 6000)
+        self.assertEqual((self.source / 'asset.bin').read_bytes(), self.data)
+        linked = self.root / 'linked-uploads'
+        linked.symlink_to(old)
+        self.assertEqual(compaction.select_files(self.source, linked), [])
+
     def test_changed_backup_aborts_without_replacement(self):
         target = compaction.select(self.source, self.backups)[0]
         path = self.backup / 'asset.bin'
