@@ -27,7 +27,7 @@ Fuente final del render: `feb08d50fc135ae7eee829e575a137882d713490`. Pruebas nat
 
 La inspección nativa corrigió una etiqueta de protocolo oculta, líneas traseras que cruzaban el pie del registro y el margen izquierdo de la composición móvil. La auditoría final recorre 1.200 posiciones en dos composiciones: 190 combinaciones de texto/composición dentro del encuadre, sin intersecciones de límites de texto. Esto complementa la revisión visual; no certifica equivalencia artística.
 
-La integración preparada amplía el banner de escritorio y coloca el capítulo antes del render. Se reserva su altura para que el cambio automático del texto no desplace la película. Sigue pendiente verificar ese comportamiento con el archivo completo en navegador.
+La integración preparada amplía el banner de escritorio y coloca el capítulo antes del render. Se reserva su altura para que el cambio automático del texto no desplace la película. La revisión del archivo completo en navegador verificó esa integración y permitió detectar el hallazgo de cierre descrito abajo.
 
 
 ## Hallazgo de la película completa
