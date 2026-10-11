@@ -11,12 +11,12 @@ on:
       projects:
         description: 'Remaining projects reuse the already delivered building movie'
         type: choice
-        options: [remaining, clinic, terminal, plant, winery, mine, software]
+        options: [all, building, remaining, clinic, terminal, plant, winery, mine, software]
         default: remaining
       renderer:
         description: 'v2: continuous approach, restrained technical lighting and selective circuits'
         type: choice
-        options: [v1, v2]
+        options: [v1, v2, v5]
         default: v1
       source_run:
         description: 'For deliver mode: existing render run containing this project’s 18 parts'
@@ -41,7 +41,15 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  sector-v5:
+    if: inputs.renderer == 'v5'
+    uses: ./.github/workflows/cine-sector-v5.yml
+    with:
+      mode: ${{ inputs.mode }}
+      projects: ${{ inputs.projects }}
+      part: ${{ inputs.part }}
   plan:
+    if: inputs.renderer != 'v5'
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
@@ -73,7 +81,7 @@ jobs:
               out.write('scenes='+json.dumps(scenes)+'\n')
           PY
   render:
-    if: inputs.mode != 'deliver'
+    if: inputs.renderer != 'v5' && inputs.mode != 'deliver'
     name: ${{ matrix.scene }} · part ${{ matrix.part }}
     needs: plan
     runs-on: ubuntu-24.04
@@ -130,7 +138,7 @@ jobs:
           retention-days: 1
   assemble:
     name: Deliver ${{ matrix.scene }} cinema
-    if: always() && (inputs.mode == 'full' || inputs.mode == 'deliver') && (inputs.mode == 'deliver' || needs.render.result == 'success')
+    if: always() && inputs.renderer != 'v5' && (inputs.mode == 'full' || inputs.mode == 'deliver') && (inputs.mode == 'deliver' || needs.render.result == 'success')
     needs: [plan, render]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
