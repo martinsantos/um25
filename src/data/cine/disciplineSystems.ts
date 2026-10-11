@@ -18,12 +18,12 @@ export const DISCIPLINE_SYSTEMS:Record<string,DisciplineSystem>={
   {name:'Aviso',title:'La información se convierte en una advertencia.',copy:'Los dispositivos de señalización se integran con las salidas previstas por el proyecto. Definimos qué se activa y cómo se reconoce cada situación.',decision:'Señalización y acciones previstas.'},
   {name:'Respaldo y pruebas',title:'El sistema se verifica también ante una falla.',copy:'Revisamos alimentación y respaldo, probamos alarmas y fallas y entregamos la documentación de puesta en marcha. El alcance se define para cada instalación.',decision:'Autonomía, pruebas y documentación.'},
  ]},
- '104':{name:'Software a medida',premise:'Una solicitud. Un sistema que responde.',result:'La acción vuelve a tu equipo como información clara, registrada y disponible.',layers:[
+ '104':{name:'Software a medida',premise:'Una solicitud. Un sistema que responde.',result:'La orden vuelve aprobada.',layers:[
   {name:'Producto · UX/UI',title:'Una tarea clara para tu equipo.',copy:'Diseñamos la interfaz alrededor de la tarea: revisar la orden 0248 y aprobarla con su contexto.',decision:'Del proceso real a una interfaz útil.'},
   {name:'Reglas de negocio',title:'Cada acción tiene sus permisos.',copy:'La solicitud avanza al verificar identidad, rol y alcance. Cada lámina muestra una de esas reglas.',decision:'Identidad, rol y alcance.'},
-  {name:'Integraciones',title:'Conectamos tus sistemas.',copy:'El contrato relaciona los campos de ambos sistemas. Proyecto, sede y responsable conservan su significado.',decision:'Campos relacionados, responsabilidades claras.'},
+  {name:'Integraciones',title:'Un contrato conecta los sistemas.',copy:'El contrato relaciona los campos de ambos sistemas. Proyecto, sede y responsable conservan su significado.',decision:'Campos relacionados, responsabilidades claras.'},
   {name:'Datos',title:'El resultado queda registrado.',copy:'La orden conserva su proyecto y su historial. Confirmamos el registro antes de responder al equipo.',decision:'Guardar, relacionar, confirmar.'},
-  {name:'Despliegue',title:'Cada versión pasa por controles.',copy:'Probamos, versionamos y publicamos los cambios. Preparamos también la recuperación de la versión anterior.',decision:'Pruebas → artefacto → publicación.'},
+  {name:'Despliegue',title:'La aplicación también tiene un ciclo de entrega.',copy:'Probamos, versionamos y publicamos los cambios. Preparamos también la recuperación de la versión anterior.',decision:'Pruebas → artefacto → publicación.'},
   {name:'Infraestructura',title:'Sostenemos la operación.',copy:'Conectamos aplicación, datos y observación. El respaldo y la recuperación se dimensionan para tu proyecto.',decision:'Disponibilidad, visibilidad y continuidad.'},
  ]},
  "101":{

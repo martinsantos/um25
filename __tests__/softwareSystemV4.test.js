@@ -1,10 +1,10 @@
 import fs from 'node:fs';
-import {softwarePose,bindSoftwareSystem} from '../public/cine/software-system-v7.js';
+import {softwarePose,softwareNarration,bindSoftwareSystem} from '../public/cine/software-system-v8.js';
 let reduced=false;
 const settle=async()=>{for(let i=0;i<5;i++)await Promise.resolve();};
 function fixture(stage=0){
  const drawing=fs.readFileSync('src/assets/cine/isometric/discipline-104-v7.svg','utf8');
- document.body.innerHTML=`<section data-service-atlas data-story-state="playing"><div data-discipline-system data-visible="true" data-discipline-service="104" data-discipline-stage="${stage}">${drawing}</div></section>`;
+ document.body.innerHTML=`<section data-service-atlas data-story-state="playing"><div data-discipline-system data-visible="true" data-discipline-service="104" data-discipline-stage="${stage}">${drawing}</div><p data-atlas-context></p><span data-software-chapter></span></section>`;
  const root=document.querySelector('[data-discipline-system]');bindSoftwareSystem(root);return root;
 }
 beforeEach(()=>{
@@ -23,10 +23,10 @@ test('an operational request never travels through the release pipeline',()=>{
  expect(delivery.routes[4]).toBe(1);
 });
 test('all three permissions open in order before the request leaves access control',()=>{
- const early=softwarePose(1,2300);expect(early.gates[0]).toBeGreaterThan(early.gates[1]);expect(early.gates[2]).toBe(0);expect(early.routes[1]).toBe(0);
- for(const ms of [3400,3700,4000,4100])expect(softwarePose(1,ms).routes[1]).toBe(0);
- expect(softwarePose(2,4200).routes[2]).toBe(0);
- expect(softwarePose(2,4200).mappings).toEqual([1,1,1]);
+ const early=softwarePose(1,700);expect(early.gates[0]).toBeGreaterThan(early.gates[1]);expect(early.gates[2]).toBe(0);expect(early.routes[1]).toBe(0);
+ for(const ms of [1200,1800,2400,2800])expect(softwarePose(1,ms).routes[1]).toBe(0);
+ expect(softwarePose(2,2400).routes[2]).toBe(0);
+ expect(softwarePose(2,2400).mappings).toEqual([1,1,1]);
  const released=softwarePose(1,5000);expect(released.gates).toEqual([1,1,1]);expect(released.routes[1]).toBeGreaterThan(0);
 });
 test('the data response changes the same request in the original UI',async()=>{
@@ -65,4 +65,26 @@ test('the permission inspection closes before the next layer is explained',()=>{
  expect(softwarePose(2,1200).gateSpread).toEqual([0,0,0]);
  expect(softwarePose(4,7000).gateSpread).toEqual([0,0,0]);
  expect(softwarePose(4,7000).gates).toEqual([1,1,1]);
+});
+
+
+test('the first mechanism starts immediately and each response follows its prerequisite',()=>{
+ expect(softwarePose(0,250).drawer).toBeGreaterThan(0);
+ expect(softwarePose(0,1100).routes[0]).toBe(0);
+ expect(softwarePose(1,2900).gates).toEqual([1,1,1]);
+ expect(softwarePose(2,2650).mappings).toEqual([1,1,1]);
+ expect(softwarePose(3,1800).record).toBe(1);
+ expect(softwareNarration(3,3700)).not.toContain('aprobada');
+ expect(softwareNarration(3,3800)).toContain('aprobada');
+ expect(softwareNarration(4,0)).toContain('entregamos mejoras');
+});
+
+test('a delayed animation frame preserves real narrative time instead of slowing the mechanism',async()=>{
+ let next;
+ global.requestAnimationFrame=fn=>{next=fn;return 1;};
+ global.cancelAnimationFrame=()=>{};
+ const root=fixture(1);await settle();next(0);next(500);
+ expect(Number(root.querySelector('.sw-system').dataset.operationTime)).toBe(500);
+ next(1900);
+ expect(root.parentElement.querySelector('[data-atlas-context]').textContent).toContain('rol');
 });

@@ -31,9 +31,9 @@ export function operationScenes(code:string,context:[string,string]|undefined,pa
   const operation=operations[code];
   const flow=(phase:number)=>({phase,nodes:operation.nodes,reverse:operation.reverse});
   return [
-   {view:'system',disciplineStage:-1,open:true,duration:5500,title:context?.[0]||discipline.premise,copy:context?.[1]||operation.steps[0][1],flow:flow(0)},
-   ...discipline.layers.map((layer,i):ServiceScene=>({view:'layers',disciplineStage:i,open:true,duration:8000,title:layer.title,copy:layer.copy,flow:flow(1)})),
-   {view:'system',disciplineStage:6,open:true,duration:6500,title:discipline.result,copy:operation.steps[2][1],flow:flow(2)},
+   {view:'system',disciplineStage:-1,open:true,duration:code==='104'?900:5500,title:context?.[0]||discipline.premise,copy:context?.[1]||operation.steps[0][1],flow:flow(0)},
+   ...discipline.layers.map((layer,i):ServiceScene=>({view:'layers',disciplineStage:i,open:true,duration:code==='104'?[4800,6200,5900,5600,5600,5200][i]:8000,title:layer.title,copy:layer.copy,flow:flow(1)})),
+   {view:'system',disciplineStage:6,open:true,duration:code==='104'?3600:6500,title:discipline.result,copy:code==='104'?'Tu equipo recibe el resultado. Resolvemos las seis capas que lo hacen posible.':operation.steps[2][1],flow:flow(2)},
   ];
  }
  const operation=operationFor(code,part);

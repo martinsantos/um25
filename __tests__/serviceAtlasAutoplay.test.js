@@ -243,3 +243,11 @@ test('software waits for a readable stage and resumes its unplayed time after a 
  see(.4);await jest.advanceTimersByTimeAsync(30000);expect(root.dataset.storyScene).toBe('0');
  see(.8);await jest.advanceTimersByTimeAsync(1600);expect(root.dataset.storyScene).toBe('1');
 });
+
+test('the dedicated software story reaches its first action in under a second and explains all layers in under forty seconds',()=>{
+ const scenes=operationScenes('104');
+ expect(scenes[0].duration).toBeLessThan(1000);
+ expect(scenes.map(scene=>scene.disciplineStage)).toEqual([-1,0,1,2,3,4,5,6]);
+ expect(scenes.reduce((sum,scene)=>sum+scene.duration,0)).toBeLessThan(40000);
+ expect(scenes.slice(1,-1).every(scene=>scene.duration>=4500)).toBe(true);
+});
