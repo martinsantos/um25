@@ -35,6 +35,14 @@ class PackageCachesTest(unittest.TestCase):
         self.assertEqual(self.selected(busy=True), [])
         self.assertEqual(len(self.selected()), 1)
 
+    def test_prisma_override_protects_cache_before_engine_is_loaded(self):
+        env = b'PRISMA_QUERY_ENGINE_LIBRARY=' + os.fsencode(self.cache / 'payload')
+        env += b'\0PRISMA_SCHEMA_ENGINE_BINARY=downloads/payload'
+        env += b'\0DATABASE_URL=private-configuration\0UNRELATED=/ignored'
+        protected = caches.engine_override_paths(env, self.base)
+        self.assertEqual(protected, {self.cache / 'payload'})
+        self.assertEqual(self.selected(protected), [])
+
     def test_preserves_recent_symlink_mount_and_special_content(self):
         os.utime(self.cache, None)
         self.assertEqual(self.selected(), [])

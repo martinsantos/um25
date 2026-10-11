@@ -10,13 +10,21 @@ import subprocess
 import time
 from pathlib import Path
 
-CACHES = ('/root/.npm/_cacache', '/root/.npm/_npx', '/root/.cache/pip', '/var/cache/dnf')
-INSTALLERS = {'npm', 'npx', 'pip', 'pip3', 'dnf', 'yum'}
+CACHES = ('/root/.npm/_cacache', '/root/.npm/_npx', '/root/.cache/pip', '/root/.cache/prisma', '/var/cache/dnf')
+INSTALLERS = {'npm', 'npx', 'pip', 'pip3', 'dnf', 'yum', 'prisma'}
 MIN_AGE = 3600
 
 
 def within(path, parent):
     return path == parent or parent in path.parents
+
+
+def engine_override_paths(environment, working_directory):
+    keys = {b'PRISMA_QUERY_ENGINE_BINARY', b'PRISMA_QUERY_ENGINE_LIBRARY', b'PRISMA_SCHEMA_ENGINE_BINARY'}
+    paths = {Path(os.fsdecode(value)) for entry in environment.split(b'\0')
+            for key, separator, value in [entry.partition(b'=')]
+            if separator and key in keys and value}
+    return {p if p.is_absolute() else (working_directory / p).resolve() for p in paths}
 
 
 def inspect_protection():
@@ -34,6 +42,11 @@ def inspect_protection():
             process_paths = set()
             tokens = (proc / 'cmdline').read_bytes().split(b'\0')
             busy |= any(os.fsdecode(t).rsplit('/', 1)[-1] in INSTALLERS for t in tokens)
+            busy |= b'generate' in tokens and any(b'/prisma/' in t for t in tokens)
+            try:
+                process_paths.update(engine_override_paths((proc / 'environ').read_bytes(), (proc / 'cwd').resolve(strict=True)))
+            except (FileNotFoundError, ProcessLookupError):
+                pass
             for token in tokens:
                 if token.startswith(b'/'):
                     process_paths.add(Path(os.fsdecode(token)))
