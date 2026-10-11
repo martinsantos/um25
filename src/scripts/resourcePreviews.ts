@@ -42,7 +42,23 @@ export function initResourcePreviews() {
     });
   });
   restoreReadingMode();
-  window.addEventListener('popstate', () => { selectDocument(location.hash.slice(1)); restoreReadingMode(); }, { signal: controller.signal });
+  const restoreWorkbookSheet = () => {
+    const selected = new URL(location.href).searchParams.get('hoja') || 'PD';
+    root.querySelectorAll<HTMLElement>('[data-workbook]').forEach(workbook => {
+      const panels = Array.from(workbook.querySelectorAll<HTMLElement>('[data-workbook-sheet]'));
+      const active = panels.find(panel => panel.dataset.workbookSheet === selected) || panels.find(panel => panel.dataset.workbookSheet === 'PD')!;
+      panels.forEach(panel => { panel.hidden = panel !== active; });
+      workbook.querySelectorAll<HTMLButtonElement>('[data-workbook-choice]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.workbookChoice === active.dataset.workbookSheet)));
+    });
+  };
+  root.querySelectorAll<HTMLButtonElement>('[data-workbook-choice]').forEach(button => button.addEventListener('click', () => {
+    const url = new URL(location.href);
+    url.searchParams.set('hoja', button.dataset.workbookChoice!);
+    history.pushState(null, '', url);
+    restoreWorkbookSheet();
+  }));
+  restoreWorkbookSheet();
+  window.addEventListener('popstate', () => { selectDocument(location.hash.slice(1)); restoreReadingMode(); restoreWorkbookSheet(); }, { signal: controller.signal });
   const dialog = root.querySelector<HTMLDialogElement>('#resource-viewer')!;
   const image = root.querySelector<HTMLImageElement>('#resource-viewer-image')!;
   const title = root.querySelector<HTMLElement>('#resource-viewer-title')!;
