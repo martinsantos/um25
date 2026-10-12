@@ -235,7 +235,7 @@ def render(args):
  from bpy_extras.object_utils import world_to_camera_view
  p,palette=author(args.scene)
  bpy.ops.wm.read_factory_settings(use_empty=True);scene=bpy.context.scene
- scene.render.engine='BLENDER_EEVEE_NEXT';scene.eevee.taa_render_samples=args.samples;scene.eevee.use_raytracing=False;scene.eevee.use_shadows=False
+ scene.render.engine='CYCLES';scene.cycles.device='CPU';scene.cycles.samples=args.samples;scene.cycles.max_bounces=0;scene.cycles.transparent_max_bounces=16;scene.cycles.use_denoising=False
  scene.render.resolution_x=args.width;scene.render.resolution_y=args.width if args.composition=='mobile' else round(args.width*9/16)
  scene.render.resolution_percentage=100;scene.render.fps=FPS;scene.render.threads_mode='FIXED';scene.render.threads=4
  scene.render.image_settings.file_format='PNG';scene.render.image_settings.color_mode='RGB';scene.render.use_persistent_data=True

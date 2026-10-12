@@ -89,7 +89,7 @@ jobs:
         run: |
           ulimit -c 0
           STATUS=0
-          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-sector-project-v5.py -- --scene ${{ matrix.scene }} --composition ${{ matrix.composition }} --width ${{ matrix.width }} --samples 16 --start ${{ matrix.start }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames || STATUS=$?
+          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-sector-project-v5.py -- --scene ${{ matrix.scene }} --composition ${{ matrix.composition }} --width ${{ matrix.width }} --samples 8 --start ${{ matrix.start }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames || STATUS=$?
           if [ "$STATUS" != 0 ] && [ "$STATUS" != 139 ]; then exit "$STATUS"; fi
           python3 - <<'PYCHECK'
           import json
