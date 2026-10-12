@@ -35,7 +35,11 @@ def author(scene_id):
  if scene_id not in ['building','clinic']:
   p['boxes']=[b for b in p['boxes'] if not b['id'].startswith('partition-')]
  if scene_id=='mine':
-  p['boxes']=[b for b in p['boxes'] if not b['id'].startswith(('column-','tray-','shaft-'))]
+  p['boxes']=[b for b in p['boxes'] if not b['id'].startswith(('column-','tray-','shaft-','wifi-','data-outlet-'))]
+  for b in p['boxes']:
+   if b['id'].startswith('mast-'):b['service']=None
+  for c in p['cylinders']:
+   if c['id'].startswith('radio-reflector-'):c['service']='103'
   p['lines']=[l for l in p['lines'] if l.get('service') or not any(q[2]==94 for q in l['points'])]
  palette={**data['palette'],'body':'#263544','side':'#526579','metal':'#8EA5B7','top':'#BFCED8','edge':'#9EB6C6','slab':'#31495C','screen':'#162B3A','white':'#DDE7EC','glass':'#7698AE','red':'#CF5B52'}
  palette.update({'route-'+k:v for k,v in COLORS.items()})
@@ -58,12 +62,12 @@ def author(scene_id):
   for dx in [-1.5,1.5]:box(id+'-port'+str(dx),x+dx,y+2.4,z+2,1,.3,1.8,'route-'+code,code)
  def label(text,at):p['labels'].append(dict(text=text,at=at))
  # Exact mounting: the distribution trunk follows the physical tray.
- for x in range(32,555,16):
+ for x in ([] if scene_id=='mine' else range(32,555,16)):
   line([[x,158,81],[x,172,81]],'metal',.9)
- for y in [158,172]:line([[25,y,81],[558,y,81]],'edge',1.2)
- for x in range(45,550,82):
+ for y in ([] if scene_id=='mine' else [158,172]):line([[25,y,81],[558,y,81]],'edge',1.2)
+ for x in ([] if scene_id=='mine' else range(45,550,82)):
   line([[x,159,81],[x,159,101]],'side',.65);line([[x,172,81],[x,172,101]],'side',.65)
- for z in range(10,101,9):line([[545,238,z],[565,238,z]],'edge',.7)
+ for z in ([] if scene_id=='mine' else range(10,101,9)):line([[545,238,z],[565,238,z]],'edge',.7)
  # Articulate the wall construction without an opaque enclosing facade.
  for x in ([164,337] if scene_id in ['building','clinic'] else []):
   for y in range(8,121,18):
@@ -80,23 +84,25 @@ def author(scene_id):
  else:endpoints=[(184+65*i,52,42) for i in range(3)]+[(62,55+93*i,32) for i in range(3)]
  for i,(x,y,z) in enumerate(endpoints):
   yy=160 if y<165 else 170
-  route('101',[[540,278,60],[540,165,60],[540,165,85],[x,165,85],[x,y,85],[x,y,z]])
+  route('101',[[540,278,60],[540,146,8],[x,146,8],[x,y,8],[x,y,z]] if scene_id=='mine' else [[540,278,60],[540,165,60],[540,165,85],[x,165,85],[x,y,85],[x,y,z]])
   device('network-terminal-'+str(i),x,y,z,'101')
-  route('108',[[481,265,27],[562,265,27],[562,176,27],[562,176,78],[x,176,78],[x,y+5,78],[x,y+5,max(14,z-10)]])
+  route('108',[[481,265,27],[562,265,6],[562,157,6],[x,157,6],[x,y+5,6],[x,y+5,max(14,z-10)]] if scene_id=='mine' else [[481,265,27],[562,265,27],[562,176,27],[562,176,78],[x,176,78],[x,y+5,78],[x,y+5,max(14,z-10)]])
   box('power-socket',x,y+5,max(14,z-10),4,2,5,'white','108')
  # A physically closed, supervised detection loop returns to its panel.
  loop=[[512,306,46],[575,306,94],[575,230,94],[42,230,94],[42,80,94],[575,80,94],[575,296,94],[512,296,46]]
+ if scene_id=='mine':loop=[[512,306,46],[512,296,9],[62,296,9],[62,45,9],[72,45,9],[72,296,9],[512,296,46]]
  route('107',loop)
- for x,y in [(x,y) for x in [74,248,422] for y in [80,230]]:
-  route('107',[[x,y,94],[x,y+4,94]])
-  cyl('detector-rim',x,y+4,94,4.5,1,'white',service='107');cyl('detector-core',x,y+4,95,3,1,'metal',service='107')
+ for x,y in ([(62,y) for y in [51,144,237]] if scene_id=='mine' else [(x,y) for x in [74,248,422] for y in [80,230]]):
+  h=45 if scene_id=='mine' else 94
+  route('107',[[x,y,9 if scene_id=='mine' else 94],[x,y+4,h]])
+  cyl('detector-rim',x,y+4,h,4.5,1,'white',service='107');cyl('detector-core',x,y+4,h+1,3,1,'metal',service='107')
   for a in range(8):
-   q=a*math.pi/4;box('detector-slot',x+3.8*math.cos(q),y+4+3.8*math.sin(q),94.5,.45,.8,.7,'body','107')
+   q=a*math.pi/4;box('detector-slot',x+3.8*math.cos(q),y+4+3.8*math.sin(q),h+.5,.45,.8,.7,'body','107')
  for x in [20,374]:
   route('102',[[540,278,66],[557,278,66],[557,307,91],[x,307,91],[x,321,91],[x,321,82]])
   cyl('camera-lens',x,331,83,2.2,1,'screen','y',service='102');cyl('camera-lens-ring',x,332,83,2.6,.3,'metal','y',service='102')
  # Wireless and wall outlets have their own real branch off the tray.
- for x in [74,248,422]:
+ for x in ([] if scene_id=='mine' else [74,248,422]):
   route('101',[[540,165,85],[x,165,85],[x,142,85],[x,142,91]])
   route('101',[[540,165,85],[x,165,85],[x,119,85],[x,119,19]])
  # Physical construction details specific to the operation in view.
@@ -189,8 +195,8 @@ def author(scene_id):
   for x in [183,371]:
    for z in range(12,125,13):
     line([[x-6,315,z],[x+6,315,z+13],[x-6,315,z+13]],'metal',.8)
-   for radius in [4,8,11]:line([[x+radius*math.cos(a*math.pi/32),326,115+radius*math.sin(a*math.pi/32)] for a in range(65)],'edge',.45)
-   line([[x,328,115],[x,334,115]],'body',1)
+   for radius in [4,8,11]:line([[x+radius*math.cos(a*math.pi/32),326,115+radius*math.sin(a*math.pi/32)] for a in range(65)],'edge',.45,'103')
+   line([[x,328,115],[x,334,115]],'body',1,'103')
    route('103',[[x,319,104],[x,319,9],[x,295,9],[540,295,9],[540,278,50]])
   # Radio propagation is a dotted line of sight, visually distinct from conduits.
   for x in range(187,368,8):line([[x,326,115],[x+3,326,115]],'route-103',.55,'103')
@@ -236,7 +242,7 @@ def render(args):
   rgb=[int(color[i:i+2],16)/255 for i in (1,3,5)];rgb=[v/12.92 if v<=.04045 else ((v+.055)/1.055)**2.4 for v in rgb]
   n.inputs['Base Color'].default_value=(*rgb,1);n.inputs['Roughness'].default_value=.42;n.inputs['Metallic'].default_value=.25 if name in ['metal','top'] else .02
   n.inputs['Alpha'].default_value=alpha;n.inputs['Emission Color'].default_value=(*rgb,1);n.inputs['Emission Strength'].default_value=emission
-  if alpha<1:m.surface_render_method='DITHERED';m.use_transparency_overlap=False
+  if alpha<1:m.surface_render_method='BLENDED';m.use_transparency_overlap=False
   mats[name]=m;return m
  for name,color in palette.items():mat(name,color,.10 if name=='glass' else 1,.3 if name.startswith('route-') else 0)
  mat('ink','#EAF1F5',emission=.6);mat('floor','#142235');mat('ghost','#5B809B',alpha=.15)
@@ -288,6 +294,11 @@ def render(args):
    for a,b in zip(sp.points,points):a.co=(*[v*S for v in b],1)
   o=bpy.data.objects.new(name,c);scene.collection.objects.link(o);c.materials.append(material);o.parent=parent;return o
  for (name,radius,key),paths in lines.items():curves(name,paths,radius,mats[name],roots[key])
+ # Thin registered footprints make each engineering layer readable as a whole.
+ outlines=[]
+ for code in ['108','101','102','107']:
+  m=mat('outline-'+code,COLORS[code],alpha=.25,emission=.2)
+  obj=curves('footprint-'+code,[[[15,5,85],[585,5,85],[585,333,85],[15,333,85],[15,5,85]]],.004,m,roots[code]);outlines.append(obj)
  # Registration lines show which expanded layer belongs to the same building.
  guides=[]
  for code in ['108','101','102','107']:
@@ -299,14 +310,14 @@ def render(args):
   o=text(label['text'],label['at'],.17);o.rotation_euler=(0,0,math.pi)
  # No unrelated plumbing/HVAC claims: show only the systems UM delivers.
  layer_labels=[]
- for code,name in [('108','ENERGÍA / RESPALDO'),('101','RED / DATOS'),('102','SEGURIDAD'),('107','DETECCIÓN')]:layer_labels.append((code,text(name,(618,205,85))))
+ for code,name in [('108','01  ENERGÍA'),('101','02  RED / DATOS'),('102','03  SEGURIDAD'),('107','04  DETECCIÓN')]:layer_labels.append((code,text(name,(618,205,85))))
  bpy.ops.mesh.primitive_plane_add(size=200,location=(7.5,4.2,-.3));bpy.context.object.data.materials.append(mats['floor'])
  def light(name,at,power,size):
   d=bpy.data.lights.new(name,'AREA');d.energy=power;d.shape='DISK';d.size=size;o=bpy.data.objects.new(name,d);scene.collection.objects.link(o);o.location=at;o.rotation_euler=(Vector((7.5,4,2))-o.location).to_track_quat('-Z','Y').to_euler()
  light('Key',(1,-6,18),3400,12);light('Rim',(-5,12,13),2900,10);light('Fill',(18,15,15),2400,15)
  camera=bpy.data.cameras.new('Sector director');camera.type='ORTHO';camera.clip_end=300;cam=bpy.data.objects.new('Sector director',camera);scene.collection.objects.link(cam);scene.camera=cam
  def set_camera(frame,wide):
-  target,size,elev=camera_pose(frame,args.scene,wide,args.composition);target=Vector(target);angle=math.radians(45+6*math.sin(2*math.pi*frame/(FRAMES-1)))
+  target,size,elev=camera_pose(frame,args.scene,wide,args.composition);target=Vector(target);angle=math.radians({'building':55,'clinic':58,'terminal':68,'plant':34,'winery':42,'mine':30}[args.scene]+6*math.sin(2*math.pi*frame/(FRAMES-1)))
   cam.location=target+Vector((45*math.cos(angle),45*math.sin(angle),32*elev));cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler();camera.ortho_scale=size;camera.shift_x=0
  corners=[Vector((x*S,y*S,z*S)) for b in p['boxes'] for x in [b['x']-b['w']/2,b['x']+b['w']/2] for y in [b['y']-b['d']/2,b['y']+b['d']/2] for z in [b['z'],b['z']+b['h']]]
  wide=24 if args.composition=='mobile' else 31
@@ -319,6 +330,7 @@ def render(args):
  for frame in range(args.start,args.end+1):
   t=frame/(FRAMES-1);spread=envelope(t,.55,.72,.86,1)
   for code in COLORS:roots[code].location.z=LEVELS[code]*S*spread
+  for obj in outlines:obj.hide_render=spread<.05;obj.data.bevel_depth=.004*spread
   for code,obj in guides:
    obj.hide_render=spread<.05
    for sp in obj.data.splines:sp.points[1].co.z=(85+LEVELS[code]*spread)*S
