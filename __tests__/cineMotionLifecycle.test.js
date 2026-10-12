@@ -2,6 +2,7 @@ import { bindHardware } from '../public/cine/cine-studies-v5.js';
 import { bindProductTour } from '../public/cine/product-tour-v5.js';
 import { bindServicesStory } from '../public/cine/services-story-v5.js';
 import { banner } from '../public/cine/cine-banner-v12.js';
+import { banner as architecturalBanner } from '../public/cine/cine-banner-v13.js';
 
 let observers, preferences, media, frames, nextFrame;
 const settle = async () => { await Promise.resolve(); await Promise.resolve(); };
@@ -207,4 +208,34 @@ test('software preserves its opening while only a glimpse is visible, then advan
  observer.callback([{target:stage,isIntersecting:true,intersectionRatio:.75}]);await settle();expect(video.paused).toBe(false);
  video.currentTime=8;observer.callback([{target:stage,isIntersecting:true,intersectionRatio:.3}]);expect(video.paused).toBe(true);
  observer.callback([{target:stage,isIntersecting:true,intersectionRatio:.9}]);await settle();expect(video.paused).toBe(false);expect(video.currentTime).toBe(8);cleanup();
+});
+
+
+test('architectural movies preserve the opening until their own stage enters view and pause outside it',async()=>{
+ document.body.innerHTML='<section data-umc data-architectural-cinema="true" data-scenes="hospital-proyecto-v5" data-annotations="none"><div class="umc-copy"><h1>Salud</h1></div><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div><button data-umc-motion></button></section>';
+ const root=document.querySelector('[data-umc]'),stage=root.querySelector('.umc-stage'),video=stage.querySelector('video'),cleanup=architecturalBanner(root);
+ visible(root);await jest.advanceTimersByTimeAsync(3000);expect(video.hasAttribute('src')).toBe(false);
+ const observer=observers.find(o=>o.targets.has(stage));observer.callback([{target:stage,isIntersecting:true,intersectionRatio:.75}]);await settle();expect(video.paused).toBe(false);
+ video.currentTime=9;visible(stage,false);expect(video.paused).toBe(true);visible(stage);await settle();expect(video.currentTime).toBe(9);expect(video.paused).toBe(false);
+ root.querySelector('[data-umc-motion]').click();visible(stage,false);visible(stage);await settle();expect(video.paused).toBe(true);cleanup();
+});
+
+
+test.each([390,1440])('architectural home at %spx plays all six complete sectors automatically and loops without a click',async(width)=>{
+ const previous=window.innerWidth;Object.defineProperty(window,'innerWidth',{configurable:true,value:width});
+ const scenes=['bodega','aeropuerto','fachada','hospital','planta','mineria'].map(s=>s+'-proyecto-v5');
+ document.body.innerHTML=`<section data-umc data-architectural-cinema="true" data-composition="discipline" data-scenes="${scenes.join(',')}" data-annotations="none"><div class="umc-stage"><video class="umc-video"></video><video class="umc-video"></video><img class="umc-poster"><div class="umc-ar"></div></div>${scenes.map(s=>`<button data-umc-scene data-name="${s}"><b></b></button>`).join('')}<button data-umc-motion></button></section>`;
+ const root=document.querySelector('[data-umc]'),stage=root.querySelector('.umc-stage'),cleanup=architecturalBanner(root);
+ try{
+  visible(stage);await jest.advanceTimersByTimeAsync(600);await settle();
+  for(let index=0;index<12;index++){
+   const video=root.querySelector('video.is-on'),scene=scenes[index%6];
+   expect(video.paused).toBe(false);expect(video.getAttribute('src')).toBe(`/cine/media/cine-${scene}${width<=820?'-sq':''}.mp4`);
+   expect(root.dataset.scene).toBe(scene);expect(root.querySelectorAll('[data-umc-scene][aria-pressed="true"]')).toHaveLength(1);
+   Object.defineProperty(video,'duration',{configurable:true,value:18});video.currentTime=17.9;video.dispatchEvent(new Event('timeupdate'));await settle();
+   expect(root.querySelector('video.is-on')).toBe(video);
+   video.currentTime=18;video.pause();video.dispatchEvent(new Event('ended'));await settle();
+  }
+  expect(root.dataset.scene).toBe(scenes[0]);expect(fetch).not.toHaveBeenCalled();expect(frames.size).toBe(0);
+ }finally{cleanup();Object.defineProperty(window,'innerWidth',{configurable:true,value:previous});}
 });

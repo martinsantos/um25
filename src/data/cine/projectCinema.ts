@@ -1,9 +1,10 @@
 import registry from './site-movies-v1.json';
+import sectorReview from './sector-movies-v5.json';
 import {siteSceneForSector,type SiteScene} from './sectorNarrative';
 import {sectorBySlug,type Scene} from './scenes';
 interface ProjectMovie {scene:string;status:string;duration?:number;assets:{file:string;bytes:number;sha256:string}[]}
 const stored=registry as typeof registry & {projects?:Partial<Record<SiteScene,ProjectMovie>>;services?:Record<string,ProjectMovie>};
-export const PROJECT_CINEMA:Partial<Record<SiteScene,ProjectMovie>>={building:stored.constructoras,...stored.projects};
+export const PROJECT_CINEMA:Partial<Record<SiteScene,ProjectMovie>>={building:stored.constructoras,...stored.projects,...(process.env.UM_SECTOR_REVIEW==='v5'?sectorReview:{})};
 export const PROJECT_SCENE_KEYS:Record<SiteScene,string>={building:'fachada-proyecto-v2',clinic:'hospital-proyecto-v3',terminal:'aeropuerto-proyecto-v3',plant:'planta-proyecto-v3',winery:'bodega-proyecto-v4',mine:'mineria-proyecto-v3'};
 export function sectorMovie(slug:string){if(slug==='software')return serviceMovie('104');const sector=sectorBySlug(slug);return PROJECT_CINEMA[siteSceneForSector(slug,sector?.scene||'fachada')];}
 export const SERVICE_PROJECTS:Record<string,SiteScene>={'101':'building','102':'terminal','103':'mine','104':'building','105':'terminal','106':'building','107':'winery','108':'clinic'};

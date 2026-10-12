@@ -209,3 +209,51 @@ export const FILM_CHAPTERS: Record<string, FilmChapter[]> = {
 
 // Lighting refinement preserves the authored camera and narration timing.
 FILM_CHAPTERS['power-project-v3'] = FILM_CHAPTERS['power-project-v2'];
+
+FILM_CHAPTERS['fachada-proyecto-v5'] = [
+    {at:0,text:'Cada puesto forma parte de la infraestructura del edificio.'},
+    {at:2.8,text:'Datos y alimentación llegan hasta el lugar de trabajo.'},
+    {at:6.6,text:'Las bandejas ordenan la distribución y dejan acceso para mantenerla.'},
+    {at:10.8,text:'Abrimos las capas: energía, datos, seguridad y detección.'},
+    {at:15.6,text:'Cada sistema vuelve a su lugar dentro de una misma obra.'}
+];
+
+FILM_CHAPTERS['hospital-proyecto-v5'] = [
+    {at:0,text:'La infraestructura acompaña cada espacio de atención.'},
+    {at:2.8,text:'La conectividad llega a los equipos y puestos clínicos.'},
+    {at:6.6,text:'El puesto de enfermería reúne las comunicaciones del área.'},
+    {at:10.8,text:'Abrimos las capas: energía, datos, seguridad y detección.'},
+    {at:15.6,text:'Cada sistema vuelve a su lugar dentro de una misma obra.'}
+];
+
+FILM_CHAPTERS['aeropuerto-proyecto-v5'] = [
+    {at:0,text:'Una terminal conecta personas, equipaje y operación.'},
+    {at:2.8,text:'Los puestos de atención comparten una red identificada.'},
+    {at:6.6,text:'Accesos y videovigilancia se integran al control de la terminal.'},
+    {at:10.8,text:'Abrimos las capas: energía, datos, seguridad y detección.'},
+    {at:15.6,text:'Cada sistema vuelve a su lugar dentro de una misma obra.'}
+];
+
+FILM_CHAPTERS['planta-proyecto-v5'] = [
+    {at:0,text:'La infraestructura técnica acompaña el proceso productivo.'},
+    {at:2.8,text:'Conectamos los equipos de cada celda de trabajo.'},
+    {at:6.6,text:'El tablero organiza alimentación, protecciones y control.'},
+    {at:10.8,text:'Abrimos las capas: energía, datos, seguridad y detección.'},
+    {at:15.6,text:'Cada sistema vuelve a su lugar dentro de una misma obra.'}
+];
+
+FILM_CHAPTERS['bodega-proyecto-v5'] = [
+    {at:0,text:'La información acompaña el proceso, del tanque al fraccionamiento.'},
+    {at:2.8,text:'Instrumentación y red conectan cada etapa de elaboración.'},
+    {at:6.6,text:'La línea de fraccionamiento se integra a la misma infraestructura.'},
+    {at:10.8,text:'Abrimos las capas: energía, datos, seguridad y detección.'},
+    {at:15.6,text:'Cada sistema vuelve a su lugar dentro de una misma obra.'}
+];
+
+FILM_CHAPTERS['mineria-proyecto-v5'] = [
+    {at:0,text:'Conectamos los puntos de una operación distribuida.'},
+    {at:2.8,text:'El radioenlace une sitios con línea de vista.'},
+    {at:6.6,text:'La red lleva las comunicaciones hasta el puesto de despacho.'},
+    {at:10.8,text:'Abrimos las capas: energía, datos, seguridad y detección.'},
+    {at:15.6,text:'Cada sistema vuelve a su lugar dentro de una misma obra.'}
+];
