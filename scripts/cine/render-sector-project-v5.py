@@ -14,10 +14,10 @@ def smooth(x):
  x=max(0,min(1,x));return x*x*x*(x*(x*6-15)+10)
 def mix(a,b,t):return a+(b-a)*t
 def envelope(t,a,b,c,d):return smooth((t-a)/(b-a))*(1-smooth((t-c)/(d-c)))
-def camera_pose(frame,scene,wide=28,composition='wide'):
- t=frame/(FRAMES-1);a,b=FOCUS[scene];center=(300,170,50)
+def camera_pose(frame,scene,wide=28,composition='wide',expanded=None):
+ t=frame/(FRAMES-1);a,b=FOCUS[scene];center=(300,170,50);expanded=expanded or wide*1.12
  # The overhead layer view opens a third spatial relationship, then returns.
- keys=[(0,center,wide,1.05),(.13,center,wide,1.05),(.34,a,15 if composition=='wide' else 11.5,.88),(.53,b,17 if composition=='wide' else 13,.92),(.72,(300,170,220),wide*1.12,1.1),(.87,(300,170,220),wide*1.12,1.1),(1,center,wide,1.05)]
+ keys=[(0,center,wide,1.05),(.13,center,wide,1.05),(.34,a,15 if composition=='wide' else 11.5,.88),(.53,b,17 if composition=='wide' else 13,.92),(.72,(300,170,220),expanded,1.1),(.87,(300,170,220),expanded,1.1),(1,center,wide,1.05)]
  for left,right in zip(keys,keys[1:]):
   if t<=right[0]:
    u=smooth((t-left[0])/(right[0]-left[0]));return tuple(mix(x,y,u)*S for x,y in zip(left[1],right[1])),mix(left[2],right[2],u),mix(left[3],right[3],u)
@@ -39,7 +39,8 @@ def author(scene_id):
   for b in p['boxes']:
    if b['id'].startswith('mast-'):b['service']=None
   for c in p['cylinders']:
-   if c['id'].startswith('radio-reflector-'):c['service']='103'
+   if c['id'].startswith('radio-reflector-'):
+    c.update(service='103',axis='x',y=319,x=c['x']+(4 if c['x']<300 else -7))
   p['lines']=[l for l in p['lines'] if l.get('service') or not any(q[2]==94 for q in l['points'])]
  palette={**data['palette'],'body':'#263544','side':'#526579','metal':'#8EA5B7','top':'#BFCED8','edge':'#9EB6C6','slab':'#31495C','screen':'#162B3A','white':'#DDE7EC','glass':'#7698AE','red':'#CF5B52','contact':'#152C3D'}
  palette.update({'route-'+k:v for k,v in COLORS.items()})
@@ -195,11 +196,11 @@ def author(scene_id):
   for x in [183,371]:
    for z in range(12,125,13):
     line([[x-6,315,z],[x+6,315,z+13],[x-6,315,z+13]],'metal',.8)
-   for radius in [4,8,11]:line([[x+radius*math.cos(a*math.pi/32),326,115+radius*math.sin(a*math.pi/32)] for a in range(65)],'edge',.45,'103')
-   line([[x,328,115],[x,334,115]],'body',1,'103')
+   for radius in [4,8,11]:line([[x+(7 if x<300 else -7),319+radius*math.cos(a*math.pi/32),115+radius*math.sin(a*math.pi/32)] for a in range(65)],'edge',.45,'103')
+   line([[x,319,115],[x+(12 if x<300 else -12),319,115]],'body',1,'103')
    route('103',[[x,319,104],[x,319,9],[x,295,9],[540,295,9],[540,278,50]])
   # Radio propagation is a dotted line of sight, visually distinct from conduits.
-  for x in range(187,368,8):line([[x,326,115],[x+3,326,115]],'route-103',.55,'103')
+  for x in range(187,368,8):line([[x,319,115],[x+3,319,115]],'route-103',.55,'103')
   for i in range(3):
    x,y=62,51+i*93
    for j in range(8):line([[x-25,y+34.5,6+j*2],[x-5,y+34.5,6+j*2]],'side',.6)
@@ -234,7 +235,7 @@ def render(args):
  from bpy_extras.object_utils import world_to_camera_view
  p,palette=author(args.scene)
  bpy.ops.wm.read_factory_settings(use_empty=True);scene=bpy.context.scene
- scene.render.engine='BLENDER_EEVEE_NEXT';scene.eevee.taa_render_samples=args.samples;scene.eevee.use_raytracing=False;scene.eevee.shadow_step_count=2
+ scene.render.engine='BLENDER_EEVEE_NEXT';scene.eevee.taa_render_samples=args.samples;scene.eevee.use_raytracing=False;scene.eevee.use_shadows=False
  scene.render.resolution_x=args.width;scene.render.resolution_y=args.width if args.composition=='mobile' else round(args.width*9/16)
  scene.render.resolution_percentage=100;scene.render.fps=FPS;scene.render.threads_mode='FIXED';scene.render.threads=4
  scene.render.image_settings.file_format='PNG';scene.render.image_settings.color_mode='RGB';scene.render.use_persistent_data=True
@@ -281,7 +282,7 @@ def render(args):
   for rr,t in [(c['r'],0),(c['topR'],c['h'])]:
    for i in range(n):
     a=2*math.pi*i/n;dx,dq=rr*math.cos(a),rr*math.sin(a)
-    xyz=(c['x']+dx,c['y']+t,c['z']+dq) if c.get('axis')=='y' else (c['x']+dx,c['y']+dq,c['z']+t)
+    xyz=(c['x']+t,c['y']+dx,c['z']+dq) if c.get('axis')=='x' else (c['x']+dx,c['y']+t,c['z']+dq) if c.get('axis')=='y' else (c['x']+dx,c['y']+dq,c['z']+t)
     verts.append(tuple(v*S for v in xyz))
   faces.append(tuple(off+i for i in reversed(range(n))));faces.append(tuple(off+n+i for i in range(n)))
   smooth_faces.setdefault(group,[]).extend(range(len(faces),len(faces)+n))
@@ -328,10 +329,11 @@ def render(args):
  bpy.ops.mesh.primitive_plane_add(size=200,location=(7.5,4.2,-.3));bpy.context.object.data.materials.append(mats['floor'])
  def light(name,at,power,size):
   d=bpy.data.lights.new(name,'AREA');d.energy=power;d.shape='DISK';d.size=size;d.use_shadow=name=='Key';d.use_shadow_jitter=False;d.shadow_filter_radius=2;d.shadow_maximum_resolution=.01;o=bpy.data.objects.new(name,d);scene.collection.objects.link(o);o.location=at;o.rotation_euler=(Vector((7.5,4,2))-o.location).to_track_quat('-Z','Y').to_euler()
- light('Key',(1,-6,18),3400,12);light('Rim',(-5,12,13),2900,10);light('Fill',(18,15,15),2400,15)
+ # Directional shading is carried by normals; no redundant light/shadow passes.
  camera=bpy.data.cameras.new('Sector director');camera.type='ORTHO';camera.clip_end=300;cam=bpy.data.objects.new('Sector director',camera);scene.collection.objects.link(cam);scene.camera=cam
+ expanded_scale=35
  def set_camera(frame,wide):
-  target,size,elev=camera_pose(frame,args.scene,wide,args.composition);target=Vector(target);angle=math.radians({'building':55,'clinic':58,'terminal':68,'plant':34,'winery':42,'mine':30}[args.scene]+6*math.sin(2*math.pi*frame/(FRAMES-1)))
+  target,size,elev=camera_pose(frame,args.scene,wide,args.composition,expanded_scale);target=Vector(target);angle=math.radians({'building':55,'clinic':58,'terminal':68,'plant':34,'winery':42,'mine':30}[args.scene]+6*math.sin(2*math.pi*frame/(FRAMES-1)))
   cam.location=target+Vector((45*math.cos(angle),45*math.sin(angle),32*elev));cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler();camera.ortho_scale=size;camera.shift_x=0
  corners=[Vector((x*S,y*S,z*S)) for b in p['boxes'] for x in [b['x']-b['w']/2,b['x']+b['w']/2] for y in [b['y']-b['d']/2,b['y']+b['d']/2] for z in [b['z'],b['z']+b['h']]]
  wide=24 if args.composition=='mobile' else 31
@@ -340,6 +342,23 @@ def render(args):
   if min(bounds[:2])>.045 and max(bounds[2:])<.955:break
   wide*=1.035
  else:raise ValueError(bounds)
+ # Fit the complete expanded installation, including footprint corners and
+ # vertical drops. Opening bounds alone cannot guarantee a safe exploded view.
+ expanded_corners=[]
+ for b in p['boxes']:
+  dz=LEVELS.get(b.get('service'),0)
+  expanded_corners.extend(Vector((x*S,y*S,(z+dz)*S)) for x in [b['x']-b['w']/2,b['x']+b['w']/2] for y in [b['y']-b['d']/2,b['y']+b['d']/2] for z in [b['z'],b['z']+b['h']])
+ for code in ['108','101','102','107']:
+  expanded_corners.extend(Vector((x*S,y*S,(85+LEVELS[code])*S)) for x in [15,585] for y in [5,333])
+ expanded_scale=wide*1.12
+ for attempt in range(40):
+  expanded_bounds=[]
+  for check_frame in [780,840,910]:
+   set_camera(check_frame,wide);bpy.context.view_layer.update();q=[world_to_camera_view(scene,cam,v) for v in expanded_corners]
+   expanded_bounds.append([min(v.x for v in q),min(v.y for v in q),max(v.x for v in q),max(v.y for v in q)])
+  if all(min(b[:2])>.065 and max(b[2:])<.935 for b in expanded_bounds):break
+  expanded_scale*=1.04
+ else:raise ValueError(expanded_bounds)
  out=Path(args.output);out.mkdir(parents=True,exist_ok=True);timings=[]
  for frame in range(args.start,args.end+1):
   t=frame/(FRAMES-1);spread=envelope(t,.55,.72,.86,1)
@@ -355,13 +374,13 @@ def render(args):
    obj.rotation_euler=cam.rotation_euler
    # Align annotations in the screen margin, outside the registered geometry.
    right=cam.rotation_euler.to_matrix() @ Vector((1,0,0));up=cam.rotation_euler.to_matrix() @ Vector((0,1,0))
-   target,_,_=camera_pose(frame,args.scene,wide,args.composition);center=Vector(target)
+   target,_,_=camera_pose(frame,args.scene,wide,args.composition,expanded_scale);center=Vector(target)
    layer=Vector((300*S,170*S,(85+LEVELS[code]*spread)*S));vertical=(layer-center).dot(up)
    obj.location=center+right*(camera.ortho_scale*.32)+up*vertical
    obj.data.size=camera.ortho_scale*(.011 if args.composition=='wide' else .014)
 
   scene.render.filepath=str(out/f'{frame:04d}.png');start=time.time();bpy.ops.render.render(write_still=True);seconds=round(time.time()-start,3);timings.append({'frame':frame,'seconds':seconds});print(json.dumps(timings[-1]),flush=True)
- info={'version':'v5','scene':args.scene,'composition':args.composition,'fps':FPS,'frames':FRAMES,'start':args.start,'end':args.end,'resolution':[scene.render.resolution_x,scene.render.resolution_y],'samples':args.samples,'shading':'directional-normal-light','engine':scene.render.engine,'source_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'geometry_sha256':hashlib.sha256((ROOT/'src/assets/cine/isometric/site-projects-v1.json').read_bytes()).hexdigest(),'focus':FOCUS[args.scene],'wide_bounds':bounds,'wide_scale':wide,'boxes':len(p['boxes']),'circuits':len(p['routes']),'timings':timings}
+ info={'version':'v5','scene':args.scene,'composition':args.composition,'fps':FPS,'frames':FRAMES,'start':args.start,'end':args.end,'resolution':[scene.render.resolution_x,scene.render.resolution_y],'samples':args.samples,'shading':'directional-normal-light','engine':scene.render.engine,'source_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'geometry_sha256':hashlib.sha256((ROOT/'src/assets/cine/isometric/site-projects-v1.json').read_bytes()).hexdigest(),'focus':FOCUS[args.scene],'wide_bounds':bounds,'wide_scale':wide,'expanded_scale':expanded_scale,'expanded_bounds':expanded_bounds,'boxes':len(p['boxes']),'circuits':len(p['routes']),'timings':timings}
  (out/'render-info.json').write_text(json.dumps(info))
 
 if __name__=='__main__':
