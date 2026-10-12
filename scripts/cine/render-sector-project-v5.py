@@ -292,6 +292,7 @@ def render(args):
   for idx in smooth_faces.get((name,key),[]):mesh.polygons[idx].use_smooth=True
   if name not in ['glass','contact']:
    bevel=obj.modifiers.new('Fine manufactured edges','BEVEL');bevel.width=.035 if name=='white' else .012;bevel.segments=2
+   bpy.context.view_layer.objects.active=obj;obj.select_set(True);bpy.ops.object.modifier_apply(modifier=bevel.name);obj.select_set(False)
  lines={}
  for l in p['lines']:
   key=l.get('service') if l.get('service') in COLORS else 'architecture'
