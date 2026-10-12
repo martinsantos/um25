@@ -230,7 +230,7 @@ def render(args):
  from bpy_extras.object_utils import world_to_camera_view
  p,palette=author(args.scene)
  bpy.ops.wm.read_factory_settings(use_empty=True);scene=bpy.context.scene
- scene.render.engine='BLENDER_EEVEE_NEXT';scene.eevee.taa_render_samples=args.samples;scene.eevee.use_raytracing=False
+ scene.render.engine='BLENDER_EEVEE_NEXT';scene.eevee.taa_render_samples=args.samples;scene.eevee.use_raytracing=False;scene.eevee.shadow_step_count=2
  scene.render.resolution_x=args.width;scene.render.resolution_y=args.width if args.composition=='mobile' else round(args.width*9/16)
  scene.render.resolution_percentage=100;scene.render.fps=FPS;scene.render.threads_mode='FIXED';scene.render.threads=4
  scene.render.image_settings.file_format='PNG';scene.render.image_settings.color_mode='RGB';scene.render.use_persistent_data=True
@@ -313,7 +313,7 @@ def render(args):
  for code,name in [('108','01  ENERGÍA'),('101','02  RED / DATOS'),('102','03  SEGURIDAD'),('107','04  DETECCIÓN')]:layer_labels.append((code,text(name,(618,205,85))))
  bpy.ops.mesh.primitive_plane_add(size=200,location=(7.5,4.2,-.3));bpy.context.object.data.materials.append(mats['floor'])
  def light(name,at,power,size):
-  d=bpy.data.lights.new(name,'AREA');d.energy=power;d.shape='DISK';d.size=size;o=bpy.data.objects.new(name,d);scene.collection.objects.link(o);o.location=at;o.rotation_euler=(Vector((7.5,4,2))-o.location).to_track_quat('-Z','Y').to_euler()
+  d=bpy.data.lights.new(name,'AREA');d.energy=power;d.shape='DISK';d.size=size;d.use_shadow=name=='Key';d.use_shadow_jitter=False;d.shadow_filter_radius=2;d.shadow_maximum_resolution=.01;o=bpy.data.objects.new(name,d);scene.collection.objects.link(o);o.location=at;o.rotation_euler=(Vector((7.5,4,2))-o.location).to_track_quat('-Z','Y').to_euler()
  light('Key',(1,-6,18),3400,12);light('Rim',(-5,12,13),2900,10);light('Fill',(18,15,15),2400,15)
  camera=bpy.data.cameras.new('Sector director');camera.type='ORTHO';camera.clip_end=300;cam=bpy.data.objects.new('Sector director',camera);scene.collection.objects.link(cam);scene.camera=cam
  def set_camera(frame,wide):
