@@ -41,7 +41,7 @@ def author(scene_id):
   for c in p['cylinders']:
    if c['id'].startswith('radio-reflector-'):c['service']='103'
   p['lines']=[l for l in p['lines'] if l.get('service') or not any(q[2]==94 for q in l['points'])]
- palette={**data['palette'],'body':'#263544','side':'#526579','metal':'#8EA5B7','top':'#BFCED8','edge':'#9EB6C6','slab':'#31495C','screen':'#162B3A','white':'#DDE7EC','glass':'#7698AE','red':'#CF5B52'}
+ palette={**data['palette'],'body':'#263544','side':'#526579','metal':'#8EA5B7','top':'#BFCED8','edge':'#9EB6C6','slab':'#31495C','screen':'#162B3A','white':'#DDE7EC','glass':'#7698AE','red':'#CF5B52','contact':'#152C3D'}
  palette.update({'route-'+k:v for k,v in COLORS.items()})
  def box(id,x,y,z,w,d,h,mat='metal',service=None):
   p['boxes'].append(dict(id=id,x=x,y=y,z=z,w=w,d=d,h=h,material=mat,service=service))
@@ -208,6 +208,10 @@ def author(scene_id):
   for i in range(5):
    y=184+i*15;line([[390,y,.2],[424,y-6,.2],[463,y+4,.2],[511,y-1,.2]],'side',.35)
   label('RADIOENLACE',(267,335,2));label('DESPACHO',(268,8,2))
+ # Small contact footprints ground equipment without a noisy studio shadow wash.
+ for b in list(p['boxes']):
+  if b['id'].startswith(('bed-base','process-0','process-1','rack','cabinet')) and b['w']>25 and b['d']>15:
+   box('contact-footprint',b['x'],b['y'],.035,b['w']*.94,b['d']*.94,.01,'contact')
  # All surfaces and traces remain authored in the same physical coordinate system.
  return p,palette
 
@@ -238,11 +242,21 @@ def render(args):
  scene.world.node_tree.nodes['Background'].inputs[0].default_value=(.07,.105,.16,1);scene.world.node_tree.nodes['Background'].inputs[1].default_value=.5
  mats={}
  def mat(name,color,alpha=1,emission=0):
-  m=bpy.data.materials.new(name);m.use_nodes=True;n=m.node_tree.nodes.get('Principled BSDF')
+  m=bpy.data.materials.new(name);m.use_nodes=True;nodes=m.node_tree.nodes;nodes.clear();links=m.node_tree.links
   rgb=[int(color[i:i+2],16)/255 for i in (1,3,5)];rgb=[v/12.92 if v<=.04045 else ((v+.055)/1.055)**2.4 for v in rgb]
-  n.inputs['Base Color'].default_value=(*rgb,1);n.inputs['Roughness'].default_value=.42;n.inputs['Metallic'].default_value=.25 if name in ['metal','top'] else .02
-  n.inputs['Alpha'].default_value=alpha;n.inputs['Emission Color'].default_value=(*rgb,1);n.inputs['Emission Strength'].default_value=emission
-  if alpha<1:m.surface_render_method='BLENDED';m.use_transparency_overlap=False
+  out=nodes.new('ShaderNodeOutputMaterial');em=nodes.new('ShaderNodeEmission');em.inputs[0].default_value=(*rgb,1)
+  # Deterministic directional drafting light: retains bevels and cylinder normals
+  # while avoiding costly stochastic area-light shadows on CPU-only runners.
+  if not emission and name not in ['contact','floor','glass']:
+   geo=nodes.new('ShaderNodeNewGeometry');dot=nodes.new('ShaderNodeVectorMath');dot.operation='DOT_PRODUCT';dot.inputs[1].default_value=(-.28,-.45,.85)
+   links.new(geo.outputs['Normal'],dot.inputs[0]);shade=nodes.new('ShaderNodeMath');shade.operation='MULTIPLY_ADD';shade.inputs[1].default_value=.44;shade.inputs[2].default_value=.68
+   links.new(dot.outputs['Value'],shade.inputs[0]);links.new(shade.outputs[0],em.inputs[1])
+  else:em.inputs[1].default_value=1
+  if alpha<1:
+   m.surface_render_method='BLENDED';m.use_transparency_overlap=False
+   transparent=nodes.new('ShaderNodeBsdfTransparent');mixnode=nodes.new('ShaderNodeMixShader');mixnode.inputs[0].default_value=alpha
+   links.new(transparent.outputs[0],mixnode.inputs[1]);links.new(em.outputs[0],mixnode.inputs[2]);links.new(mixnode.outputs[0],out.inputs['Surface'])
+  else:links.new(em.outputs[0],out.inputs['Surface'])
   mats[name]=m;return m
  for name,color in palette.items():mat(name,color,.10 if name=='glass' else 1,.3 if name.startswith('route-') else 0)
  mat('ink','#EAF1F5',emission=.6);mat('floor','#142235');mat('ghost','#5B809B',alpha=.15)
@@ -275,7 +289,7 @@ def render(args):
  for (name,key),(verts,faces) in groups.items():
   mesh=bpy.data.meshes.new(name+key);mesh.from_pydata(verts,[],faces);mesh.update();obj=bpy.data.objects.new(name+key,mesh);scene.collection.objects.link(obj);obj.parent=roots[key];mesh.materials.append(mats[name])
   for idx in smooth_faces.get((name,key),[]):mesh.polygons[idx].use_smooth=True
-  if name not in ['glass']:
+  if name not in ['glass','contact']:
    bevel=obj.modifiers.new('Fine manufactured edges','BEVEL');bevel.width=.035 if name=='white' else .012;bevel.segments=2
  lines={}
  for l in p['lines']:
@@ -347,7 +361,7 @@ def render(args):
    obj.data.size=camera.ortho_scale*(.011 if args.composition=='wide' else .014)
 
   scene.render.filepath=str(out/f'{frame:04d}.png');start=time.time();bpy.ops.render.render(write_still=True);seconds=round(time.time()-start,3);timings.append({'frame':frame,'seconds':seconds});print(json.dumps(timings[-1]),flush=True)
- info={'version':'v5','scene':args.scene,'composition':args.composition,'fps':FPS,'frames':FRAMES,'start':args.start,'end':args.end,'resolution':[scene.render.resolution_x,scene.render.resolution_y],'samples':args.samples,'engine':scene.render.engine,'source_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'geometry_sha256':hashlib.sha256((ROOT/'src/assets/cine/isometric/site-projects-v1.json').read_bytes()).hexdigest(),'focus':FOCUS[args.scene],'wide_bounds':bounds,'wide_scale':wide,'boxes':len(p['boxes']),'circuits':len(p['routes']),'timings':timings}
+ info={'version':'v5','scene':args.scene,'composition':args.composition,'fps':FPS,'frames':FRAMES,'start':args.start,'end':args.end,'resolution':[scene.render.resolution_x,scene.render.resolution_y],'samples':args.samples,'shading':'directional-normal-light','engine':scene.render.engine,'source_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'geometry_sha256':hashlib.sha256((ROOT/'src/assets/cine/isometric/site-projects-v1.json').read_bytes()).hexdigest(),'focus':FOCUS[args.scene],'wide_bounds':bounds,'wide_scale':wide,'boxes':len(p['boxes']),'circuits':len(p['routes']),'timings':timings}
  (out/'render-info.json').write_text(json.dumps(info))
 
 if __name__=='__main__':
