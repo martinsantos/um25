@@ -282,7 +282,7 @@ def volume_target(name, paths, mounts, now=None):
     if not installed:
         raise RuntimeError('Volume has no reproducible dependency inventory')
     for item in path.iterdir():
-        if item.name in ('.package-lock.json', '.bin', '.astro'):
+        if item.name in ('.package-lock.json', '.bin', '.astro', '.vite'):
             continue
         if item.is_dir() and not any(item.iterdir()):
             continue  # npm leaves empty scopes after uninstalling optional packages.
