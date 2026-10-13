@@ -1,4 +1,4 @@
-export const templateBase = '/downloads/plantillas-um-sans/2026.10.10-r7';
+export const templateBase = '/downloads/plantillas-um-sans/2026.10.13-r8';
 export const templateLibrary = '/estilo/fuentes/plantilla';
 export const templateEditor = '/estilo/fuentes/editor';
 

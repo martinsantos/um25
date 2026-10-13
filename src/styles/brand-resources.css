@@ -68,7 +68,7 @@ body:has(#um-resources) .um-tabbar { display:none !important; }
 #um-resources .rl-reading .doc-level-2 { font-size:22px !important; margin-top:32px; counter-increment:doc-subsection; counter-set:doc-detail 0; }
 #um-resources .rl-reading .doc-level-3 { font-size:20px !important; margin-top:28px; counter-increment:doc-detail; }
 .doc-level-1::before { content:counter(doc-section) '.'; }.doc-level-2::before { content:counter(doc-section) '.' counter(doc-subsection) '.'; }.doc-level-3::before { content:counter(doc-section) '.' counter(doc-subsection) '.' counter(doc-detail) '.'; }
-.rl-reading .table-wrap { overflow-x:auto; margin-block:20px 24px; }
+.rl-reading .table-wrap { overflow-x:auto; margin-block:20px 32px; }
 .rl-reading table { width:100%; min-width:560px; border-collapse:collapse; font-size:18px; line-height:1.4; font-variant-numeric:tabular-nums; }
 .rl-reading th, .rl-reading td { padding:16px; border:1px solid #d9d9d9; color:#17191c; }
 .rl-reading th { background:#f0f0f0; color:#000; font-weight:600; text-align:left; }
@@ -152,3 +152,7 @@ body:has(#um-resources) .um-tabbar { display:none !important; }
 
 @media(max-width:1000px) { .rl-item { scroll-margin-top:252px; } }
 @media(max-width:800px) { .rl-item { scroll-margin-top:228px; } }
+
+/* Structured blocks keep more separation than continuous body paragraphs. */
+#um-resources .rl-reading > :is(ul,ol) { margin:16px 0 32px; padding-left:1.4em; }
+#um-resources .rl-reading > :is(ul,ol) > li + li { margin-top:6px; }
