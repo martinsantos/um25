@@ -38,7 +38,7 @@ jobs:
             required=false
             while IFS= read -r path; do
               case "$path" in
-                .github/workflows/production-deploy.yml|.github/workflows/server-storage-maintenance.yml|scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py) ;;
+                .github/workflows/production-deploy.yml|.github/workflows/server-storage-maintenance.yml|scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|scripts/ops/compact-vivero-snapshots.py|scripts/ops/test_vivero_compaction.py|scripts/ops/clean-audited-storage.py|scripts/ops/test_audited_storage.py) ;;
                 *) required=true ;;
               esac
             done < <(git diff --name-only "$BEFORE" HEAD)
@@ -205,7 +205,7 @@ jobs:
               .github/workflows/server-storage-maintenance.yml|\
               scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|\
               scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|\
-              scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|\
+              scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|scripts/ops/compact-vivero-snapshots.py|scripts/ops/test_vivero_compaction.py|scripts/ops/clean-audited-storage.py|scripts/ops/test_audited_storage.py|\
               scripts/ops/deploy-scoped-dist.sh|\
               __tests__/runtimeConfigContracts.test.js|__tests__/nginxOps.test.ts|\
               docs/campaign-preview/PHOTO-SOURCES.md|docs/campaign-preview/README.md|\
