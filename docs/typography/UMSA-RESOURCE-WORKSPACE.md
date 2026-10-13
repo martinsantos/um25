@@ -13,3 +13,7 @@ Los destinos de Google se definen en `src/data/brandTemplates.ts`: seis plantill
 La entrega r7 de archivos se conserva sin cambios. El cambio de navegación y editor se integra primero a develop y se promueve por PR a master con GitHub Actions. No se crea un control periódico: el usuario lo canceló expresamente.
 
 Verificación: lint, TypeScript, contrato CSS, pruebas de sanitización/guardado/paginación y suite del repositorio; vistas de escritorio y móvil; PDF de cada plantilla de documento, imágenes transparentes y comentario seguido por texto; enlaces de Google y sus permisos leídos nuevamente después del cambio.
+
+La entrega local `2026.10.13-r8` amplía el aire después de tablas y listas en Word/ODT/PDF, HTML, lectura web y exportación del editor. El espaciado de continuidad de párrafos permanece menor. Los borradores ya guardados reciben el ajuste mediante CSS. Las copias nativas de Google conservan la revisión r7; el enlace sigue abriendo una copia editable. Los XLSX son idénticos a r7.
+
+Validación r8: TypeScript, lint de los archivos modificados, contrato CSS, 61 suites/455 pruebas, compilación Astro de producción y vista local compilada; 16 páginas Word/PDF inspeccionadas y prueba tabla → párrafo sin contacto con el borde.

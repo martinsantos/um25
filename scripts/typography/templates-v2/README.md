@@ -76,3 +76,11 @@ Las cabeceras de tabla usan gris claro #F0F0F0 con texto negro y bordes #D9D9D9.
 Los datos de destinatario y proyecto usan una sangría francesa de 30 mm: al continuar en otra línea, el valor conserva su columna. Las columnas de cantidades e importes tienen más ancho, y sus cabeceras comparten alineación con los valores. La lectura web conserva los números en una línea y admite desplazamiento horizontal. La prueba económica con cantidades grandes comprueba el cálculo nativo y que los importes no aparezcan como ###; puede ocupar más de una página cuando crecen las descripciones.
 
 El ejemplo económico oculta únicamente sus renglones vacíos (17–28); conserva las fórmulas y la posibilidad de volver a mostrarlos. La plantilla vacía muestra sus 15 renglones. Cliente y proyecto admiten varias líneas con altura automática. `verify-composition.py` comprueba la continuidad real de nombres, cantidades de seis cifras, importes de doce cifras, cabeceras y una imagen vertical en el PDF, usando el documento generado.
+
+## Espaciado de flujo — 2026.10.13-r8
+
+`refresh-flow-spacing.py <entrega-r7> <destino-nuevo>` deriva DOCX/DOTX y HTML sin regenerar fuentes, imágenes ni fórmulas Excel. Reimprimir los documentos y ODT, compactar las fuentes ODT, regenerar las vistas y recalcular manifiesto/ZIP antes de publicar. El cotizador de ocho hojas conserva exactamente el archivo r7.
+
+Después de tablas: separador nativo de 16 pt, margen de 16 pt en impresión HTML y 20 pt en el PDF del editor. Lectura web y edición: 32 px en el contenedor exterior de tabla, incluso en borradores anteriores. Listas: 16 pt/32 px al terminar; el párrafo normal conserva 8 pt. Las imágenes y sus comentarios mantienen el aire aprobado. Las tablas cortas permanecen completas y el cambio de sección después de una tabla puede fluir para evitar páginas vacías.
+
+Control: 16 páginas inspeccionadas entre las seis variantes DOCX, sin páginas vacías ni filas aisladas. La prueba tabla → párrafo mide 19,06 pt de separación visible en LibreOffice/PDF. Oferta completa: 3 páginas; ejemplo: 4; prueba extensa: 5; membrete y resumen: 1; imágenes: 2.

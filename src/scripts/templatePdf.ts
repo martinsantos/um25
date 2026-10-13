@@ -66,7 +66,7 @@ export function tableContent(table: HTMLTableElement): Content {
   return {
     table: { headerRows: table.tHead ? table.tHead.rows.length : 1, dontBreakRows: true, widths: widths.length === columnCount && total > 0 ? widths.map(width => usableWidth * width / total) : Array.from({ length: columnCount }, () => '*'), body },
     layout: { hLineWidth: () => 0.4, vLineWidth: () => 0.4, hLineColor: () => '#d9d9d9', vLineColor: () => '#d9d9d9', paddingLeft: () => 8, paddingRight: () => 8, paddingTop: () => 7, paddingBottom: () => 7 },
-    fontSize: 10.5, lineHeight: 1.15, margin: [0, 10, 0, 16],
+    fontSize: 10.5, lineHeight: 1.15, margin: [0, 10, 0, 20],
   };
 }
 
@@ -128,7 +128,7 @@ export async function documentContent(main: HTMLElement): Promise<Content[]> {
       else result.push({ text: inlineText(block), fontSize: block.classList.contains('meta') ? 10 : block.classList.contains('subtitle') ? 13 : 12, color: block.classList.contains('meta') ? '#555555' : '#17191c', alignment: block.classList.contains('align-right') ? 'right' : 'left', margin: [0, parseFloat((block as HTMLElement).style.marginTop) || 0, 0, 8] });
     } else if (tag === 'UL' || tag === 'OL') {
       const items = Array.from(block.children).map(child => ({ text: inlineText(child) }));
-      result.push(tag === 'UL' ? { ul: items, margin: [0, 0, 0, 8] } : { ol: items, margin: [0, 0, 0, 8] });
+      result.push(tag === 'UL' ? { ul: items, margin: [0, 0, 0, 16] } : { ol: items, margin: [0, 0, 0, 16] });
     }
   }
   return result;
