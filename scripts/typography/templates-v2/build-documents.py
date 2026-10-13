@@ -121,7 +121,13 @@ def new_doc(title,subtitle,proof=False,letter=False):
 
 def heading(d,text,level=1,newpage=False):
     previous_heading=bool(d.paragraphs and d.paragraphs[-1].style.name.startswith('Heading'))
-    p=d.add_paragraph(text,style=f'Heading {level}')
+    previous=d.element.body[-2] if len(d.element.body)>1 else None
+    if newpage and previous is not None and previous.tag==qn('w:p') and not ''.join(previous.itertext()).strip() and previous.getprevious() is not None and previous.getprevious().tag==qn('w:tbl'):
+        p=d.paragraphs[-1];p.text=text;p.style=f'Heading {level}'
+        p.paragraph_format.space_before=None;p.paragraph_format.space_after=None;p.paragraph_format.line_spacing=None
+        if len(previous.getprevious().findall(qn('w:tr')))<=8:
+            p.paragraph_format.space_before=Pt(16+{1:24,2:18,3:16}[level]);newpage=False
+    else:p=d.add_paragraph(text,style=f'Heading {level}')
     if previous_heading and not newpage:p.paragraph_format.space_before=Pt(8)
     if newpage:p.paragraph_format.page_break_before=True
     return p
@@ -145,6 +151,7 @@ def figure(d,path,description,comment=None,width_mm=108,max_height_mm=100):
     return p
 
 def table(d,rows,widths,aligns=None):
+    if len(rows)<=8 and d.paragraphs and d.paragraphs[-1].style.name=='Caption':d.paragraphs[-1].paragraph_format.keep_with_next=True
     t=d.add_table(rows=0,cols=len(widths));t.alignment=WD_TABLE_ALIGNMENT.LEFT;t.autofit=False
     for c,w in zip(t.columns,widths):c.width=Mm(w)
     pr=t._tbl.tblPr
@@ -162,9 +169,10 @@ def table(d,rows,widths,aligns=None):
             c._tc.get_or_add_tcPr().append(el('shd',fill='F0F0F0' if ri==0 else ('F5F5F5' if ri%2==0 else 'FFFFFF')))
             p=c.paragraphs[0];p.paragraph_format.space_after=Pt(0);p.paragraph_format.line_spacing=1.2
             p.alignment=(aligns[ci] if aligns else WD_ALIGN_PARAGRAPH.LEFT)
-            if ri==0:p.paragraph_format.keep_with_next=True
+            if ri==0 or (len(rows)<=8 and ri<len(rows)-1):p.paragraph_format.keep_with_next=True
             r=p.add_run(text);r.font.size=Pt(10.5);r.bold=(ri==0);r.font.color.rgb=RGBColor.from_string('000000' if ri==0 else '333333')
-    p=d.add_paragraph();p.paragraph_format.space_after=Pt(0);p.paragraph_format.space_before=Pt(0);p.paragraph_format.line_spacing=Pt(3);p.add_run().font.size=Pt(3)
+    # A structured block needs more separation than the 8 pt body paragraph gap.
+    p=d.add_paragraph();p.paragraph_format.space_after=Pt(0);p.paragraph_format.space_before=Pt(0);p.paragraph_format.line_spacing=Pt(16);p.paragraph_format.keep_with_next=True;p.add_run().font.size=Pt(1)
     return t
 
 def embed_fonts(path):
