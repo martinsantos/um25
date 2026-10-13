@@ -138,5 +138,12 @@ class DependencyVolumeTest(unittest.TestCase):
         os.utime(self.path,(time.time()-10*86400,)*2)
         self.assertEqual(self.select()['kind'],'volume')
 
+    def test_generated_astro_and_vite_caches_are_reproducible(self):
+        for name in ('.astro','.vite'):
+            (self.path/name).mkdir()
+            (self.path/name/'cache.json').write_text('{"generated":true}')
+        os.utime(self.path,(time.time()-10*86400,)*2)
+        self.assertEqual(self.select()['kind'],'volume')
+
 if __name__ == '__main__':
     unittest.main()
