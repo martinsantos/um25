@@ -11,13 +11,17 @@ on:
       - 'scripts/ops/test_directus_backup_dedup.py'
       - 'scripts/ops/compact-runtime-backups.py'
       - 'scripts/ops/test_runtime_compaction.py'
+      - 'scripts/ops/compact-vivero-snapshots.py'
+      - 'scripts/ops/test_vivero_compaction.py'
+      - 'scripts/ops/clean-audited-storage.py'
+      - 'scripts/ops/test_audited_storage.py'
       - '.github/workflows/server-storage-maintenance.yml'
   workflow_dispatch:
     inputs:
       operation:
         description: 'Audited dependencies, reproducible package caches or duplicate backups'
         type: choice
-        options: [dependencies, caches, backups, runtime-backups, archive-blocks, uploads-backup]
+        options: [dependencies, caches, backups, runtime-backups, archive-blocks, uploads-backup, vivero-snapshots, volume-dependencies, temporary-archives]
         default: dependencies
         required: true
       mode:
@@ -77,13 +81,15 @@ jobs:
             runtime-backups) script=scripts/ops/compact-runtime-backups.py ;;
             uploads-backup) script=scripts/ops/compact-runtime-backups.py; scope=--uploads-backup ;;
             archive-blocks) script=scripts/ops/compact-runtime-backups.py; scope=--archive-ranges ;;
+            vivero-snapshots) script=scripts/ops/compact-vivero-snapshots.py ;;
+            volume-dependencies|temporary-archives) script=scripts/ops/clean-audited-storage.py; scope="--operation $OPERATION" ;;
             *) exit 2 ;;
           esac
           if [[ "$MODE" == apply ]]; then
             [[ "$PLAN_SHA" =~ ^[0-9a-f]{64}$ ]]
             args="--apply --expected-plan-sha $PLAN_SHA"
           fi
-          ssh root@23.105.176.45 "python3 - $scope $args" \
+          ssh root@23.105.176.45 "ionice -c3 nice -n 19 python3 - $scope $args" \
             < "$script" | tee storage-maintenance.jsonl
       - name: Confirm storage and live sites
         if: always()
