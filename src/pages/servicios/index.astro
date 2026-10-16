@@ -3,6 +3,9 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
 import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
 import CineBanner from '../../components/cine/CineBanner.astro';
 import ServicesStory from '../../components/cine/ServicesStory.astro';
+import MiniIso from '../../components/cine/MiniIso.astro';
+// Scene and layer that best explain each service in its 3D thumbnail.
+const SERVICE_ISO: Record<string,[string,string]> = {'101':['constructoras','da'],'102':['aeropuertos','se'],'103':['mineria','da'],'104':['salud','da'],'105':['industria','all'],'106':['constructoras','all'],'107':['bodegas','de'],'108':['industria','en']};
 import {NAV_SERVICES} from '../../data/navigation';
 import {sectorProject} from '../../data/cine/sectorNarrative';
 import {cinemaChapters} from '../../data/cine/projectCinema';
@@ -160,6 +163,7 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
             class={`services-demo-media services-demo-media--${service.code}`}
           >
             <img src={service.image} alt={ISOMETRIC_STUDIES[service.code].object} width="1040" height="755" loading="lazy" decoding="async" />
+            {SERVICE_ISO[service.code] && <MiniIso sector={SERVICE_ISO[service.code][0]} layer={SERVICE_ISO[service.code][1]} class="services-demo-iso" />}
             <span>SRV.{service.code}</span>
             <em>{service.sectors} sectores</em>
           </div>
@@ -395,6 +399,17 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
       color: #fff;
       text-decoration: none;
       background-color: #0f0f11;
+    }
+
+    .services-demo-media :global(.services-demo-iso) {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: transparent;
+    }
+
+    .services-demo-media:has(:global(.mini-iso.is-ready)) img {
+      opacity: 0;
     }
 
     .services-demo-media img {

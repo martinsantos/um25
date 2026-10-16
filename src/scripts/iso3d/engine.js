@@ -10,18 +10,15 @@ import {OutputPass} from 'three/examples/jsm/postprocessing/OutputPass.js';
 
 export const COLORS={en:0xE2B04A,da:0x3FC7B8,se:0x8B7CF6,de:0xF07A5A,red:0xDC2626};
 
-export function mountIso(host,build){
- const canvasHost=host.querySelector('[data-iso-canvas]'),tagHost=host.querySelector('[data-iso-tags]');
- const cap=host.querySelector('[data-iso-caption]'),steps=host.querySelector('[data-iso-steps]'),pp=host.querySelector('[data-iso-play]');
- const legend=[...host.querySelectorAll('[data-iso-layer]')];
- const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
- const compact=matchMedia('(max-width: 760px), (pointer: coarse)').matches;
-
- const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+export function createRenderer(){
+ const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});
  renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;
  renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.setClearColor(0x000000,0);
- canvasHost.appendChild(renderer.domElement);
+ return renderer;
+}
+
+export function createScene(renderer,build,{compact=false,tagHost=null}={}){
  const scene=new THREE.Scene();
  const pmrem=new THREE.PMREMGenerator(renderer);scene.environment=pmrem.fromScene(new RoomEnvironment(),.04).texture;
  const cam=new THREE.OrthographicCamera(-1,1,1,-1,-100,200);
@@ -53,7 +50,7 @@ export function mountIso(host,build){
  function rod(a,b,r,mat,parent=world){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),len=A.distanceTo(B);const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,10),mat);m.position.copy(A).add(B).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize());m.castShadow=true;parent.add(m);return m}
  function lamp(k,w,h,d,x,y,z,parent=world){const o=box(w,h,d,led(COLORS[k]),x,y,z,{parent,shadow:false,round:false});LAYER[k].push(o);return o}
  function zone(x0,x1,z0,z1,color){const m=new THREE.Mesh(new THREE.PlaneGeometry(x1-x0,z1-z0),std(color,.55));m.rotation.x=-Math.PI/2;m.position.set((x0+x1)/2,.005,(z0+z1)/2);m.receiveShadow=true;world.add(m);return m}
- function tag(p,label,color,only){const el=document.createElement('span');el.className='iso3d__tag';el.style.setProperty('--c',color);el.textContent=label;tagHost.appendChild(el);TAGS.push({p:new THREE.Vector3(...p),el,only})}
+ function tag(p,label,color,only){if(!tagHost)return;const el=document.createElement('span');el.className='iso3d__tag';el.style.setProperty('--c',color);el.textContent=label;tagHost.appendChild(el);TAGS.push({p:new THREE.Vector3(...p),el,only})}
  function flowMat(c){return new THREE.ShaderMaterial({transparent:true,depthWrite:false,
   uniforms:{t:{value:0},c:{value:new THREE.Color(c)},len:{value:10},a:{value:0},base:{value:.42}},
   vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
@@ -69,18 +66,38 @@ export function mountIso(host,build){
  }
  const kit={THREE,M,COLORS,box,cyl,rod,lamp,zone,tag,flow,shell,led,world,services,LAYER,anim,RoundedBoxGeometry};
  const def=build(kit);
- const CH=def.chapters,frame3d=def.frame||{w:24,d:14};
  // furniture-scale casters only: long walls, trays and frames stay clean
  {const sz=new THREE.Vector3();world.traverse(o=>{if(!o.isMesh||o.material.isShaderMaterial)return;o.geometry.computeBoundingBox();o.geometry.boundingBox.getSize(sz);if(Math.max(sz.x,sz.z)>3)o.castShadow=false})}
+ // Applies a layer focus: null = overview, 'all' = every layer, or one of en/da/se/de.
+ function setLayers(k,ease=1,time=0){for(const key in flows){const on=k==='all'||k===key||k===null;for(const f of flows[key]){f.material.uniforms.t.value=time;f.material.uniforms.a.value+=((on?(k===null?.28:1):.04)-f.material.uniforms.a.value)*ease}}
+  for(const key in LAYER){const on=k===null||k==='all'||k===key;for(const o of LAYER[key])o.visible=on}}
+ return {scene,cam,world,services,TAGS,anim,setLayers,def,frame3d:def.frame||{w:24,d:14},pmrem};
+}
+
+export function frameCamera(cam,frame3d,w,h,{caption=true,lift=0}={}){
+ const a=w/h,span=frame3d.w/24;
+ const fit=(a<1?13.2/Math.max(a,.5):a<1.2?13.8:a<1.4?12.4:10.4)*span*(caption?1:.92);
+ const sh=caption&&a>1.2?fit*a*.3:0,sv=!caption?0:a<1?fit*.2:a<1.2?fit*.16:0;
+ Object.assign(cam,{left:-fit*a-sh,right:fit*a-sh,top:fit+sv,bottom:-fit+sv});
+ const r=40,ang=Math.PI/4,el=.62;cam.position.set(Math.sin(ang)*r*Math.cos(el),Math.sin(el)*r,Math.cos(ang)*r*Math.cos(el));cam.lookAt(0,lift*.35,frame3d.look??-1.2);cam.updateProjectionMatrix();
+}
+
+export function mountIso(host,build){
+ const canvasHost=host.querySelector('[data-iso-canvas]'),tagHost=host.querySelector('[data-iso-tags]');
+ const cap=host.querySelector('[data-iso-caption]'),steps=host.querySelector('[data-iso-steps]'),pp=host.querySelector('[data-iso-play]');
+ const legend=[...host.querySelectorAll('[data-iso-layer]')];
+ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const compact=matchMedia('(max-width: 760px), (pointer: coarse)').matches;
+ const renderer=createRenderer();canvasHost.appendChild(renderer.domElement);
+ const {scene,cam,services,TAGS,anim,setLayers,def,frame3d,pmrem}=createScene(renderer,build,{compact,tagHost});
+ const CH=def.chapters;
 
  const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,cam));
  if(!compact){const ao=new GTAOPass(scene,cam,1,1);ao.updateGtaoMaterial({radius:.45,distanceExponent:1.4,thickness:1.2,scale:1.1,samples:16});ao.blendIntensity=.85;composer.addPass(ao)}
  composer.addPass(new OutputPass());
 
- let fit=1;
  function resize(){const w=canvasHost.clientWidth,h=canvasHost.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);composer.setPixelRatio(Math.min(devicePixelRatio,2));composer.setSize(w,h);
-  const a=w/h,span=frame3d.w/24;fit=(a<1?13.2/Math.max(a,.5):a<1.2?13.8:a<1.4?12.4:10.4)*span;
-  const sh=a>1.2?fit*a*.3:0,sv=a<1?fit*.2:a<1.2?fit*.16:0;Object.assign(cam,{left:-fit*a-sh,right:fit*a-sh,top:fit+sv,bottom:-fit+sv});cam.updateProjectionMatrix()}
+  frameCamera(cam,frame3d,w,h)}
  const ro=new ResizeObserver(resize);ro.observe(canvasHost);resize();
 
  CH.forEach(()=>steps.appendChild(document.createElement('i')));
@@ -96,10 +113,8 @@ export function mountIso(host,build){
  function frame(){raf=requestAnimationFrame(frame);if(!visible||document.hidden)return;
   const dt=Math.min(clock.getDelta(),.05);if(!paused){time+=dt;ct+=dt;if(ct>CH[ci].d)setChapter((ci+1)%CH.length)}
   const k=CH[ci].k,ease=1-Math.pow(.001,dt);lift+=(liftT-lift)*ease*.9;services.position.y=lift;
-  for(const key in flows){const on=k==='all'||k===key||k===null;for(const f of flows[key]){f.material.uniforms.t.value=time;f.material.uniforms.a.value+=((on?(k===null?.28:1):.04)-f.material.uniforms.a.value)*ease}}
-  for(const key in LAYER){const on=k===null||k==='all'||k===key;for(const o of LAYER[key])o.visible=on}
-  for(const f of anim)f(time,dt,paused);
-  const r=40,ang=Math.PI/4,el=.62;cam.position.set(Math.sin(ang)*r*Math.cos(el),Math.sin(el)*r,Math.cos(ang)*r*Math.cos(el));cam.lookAt(0,lift*.35,frame3d.look??-1.2);cam.updateProjectionMatrix();
+  setLayers(k,ease,time);for(const f of anim)f(time,dt,paused);
+  frameCamera(cam,frame3d,canvasHost.clientWidth,canvasHost.clientHeight,{lift});
   steps.querySelectorAll('i').forEach((s,i)=>s.style.setProperty('--p',i<ci?1:i===ci?Math.min(1,ct/CH[ci].d):0));
   const w=canvasHost.clientWidth,h=canvasHost.clientHeight;
   for(const t of TAGS){const on=t.only.includes(k);if(on){v.copy(t.p);if(t.p.y>2.5)v.y+=lift;v.project(cam);t.el.style.left=(canvasHost.offsetLeft+(v.x+1)/2*w)+'px';t.el.style.top=(canvasHost.offsetTop+(1-v.y)/2*h)+'px'}t.el.classList.toggle('is-on',on)}

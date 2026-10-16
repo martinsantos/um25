@@ -4,10 +4,13 @@
 // (o recibe foco), la escena cambia con un fundido; el clic entra al sector.
 import { sectorBySlug } from '../../data/cine/scenes';
 import {sectorMovie} from '../../data/cine/projectCinema';
+import MiniIso from './MiniIso.astro';
+// Thumbnail scene and layer per sector; sectors without a scene of their own borrow the closest one.
+const ISO_SECTORS:Record<string,[string,string]>={salud:['salud','none'],constructoras:['constructoras','none'],aeropuertos:['aeropuertos','none'],industria:['industria','none'],bodegas:['bodegas','none'],mineria:['mineria','none'],gobiernosectorpublico:['constructoras','all'],gobierno:['constructoras','all'],'seguridad-electronica':['aeropuertos','se'],software:['salud','da']};
 interface Sector { name: string; href: string; count?: string | number | null; text: string }
 interface Props { sectors: Sector[] }
 const { sectors } = Astro.props;
-const items=sectors.map(s=>{const slug=s.href.replace(/^\//,'').split('/')[0],movie=sectorMovie(slug);return {...s,scene:movie?.scene||sectorBySlug(slug)?.scene||'fachada'};});
+const items=sectors.map(s=>{const slug=s.href.replace(/^\//,'').split('/')[0],movie=sectorMovie(slug);return {...s,slug,scene:movie?.scene||sectorBySlug(slug)?.scene||'fachada'};});
 const first=items[0]?.scene||'aeropuerto';
 const scenes=[...new Set(items.map(s=>s.scene))];
 ---
@@ -27,6 +30,7 @@ const scenes=[...new Set(items.map(s=>s.scene))];
     {items.map((s, i) => (
       <li>
         <a href={s.href} data-scene={s.scene} data-title={s.name} class:list={[{ 'is-active': i === 0 }]}>
+          {ISO_SECTORS[s.slug]?<MiniIso sector={ISO_SECTORS[s.slug][0]} layer={ISO_SECTORS[s.slug][1]} class="um-atlas__thumb" />:<span class="um-atlas__thumb" aria-hidden="true"></span>}
           <span class="um-atlas__name"><span class="um-atlas__title">{s.name}{s.count&&<span class="um-atlas__count">{s.count} proyectos</span>}</span><small>{s.text}</small></span>
           <span class="um-atlas__go" aria-hidden="true">→</span>
         </a>
@@ -46,7 +50,8 @@ const scenes=[...new Set(items.map(s=>s.scene))];
   .um-atlas__now i{width:8px;height:8px;flex-shrink:0;background:var(--um-red,#DC2626)}
   .um-atlas__motion{position:absolute;right:14px;bottom:14px;padding:8px 12px;border-radius:4px;border:1px solid #ffffff40;background:rgba(16,17,19,.8);color:#fff;font:600 16px/1.5 var(--um-font-editorial,sans-serif);cursor:pointer}
   .um-atlas__list{list-style:none;margin:0;padding:0;border-top:1px solid #ffffff1c}
-  .um-atlas__list a{display:grid;grid-template-columns:minmax(0,1fr) 20px;gap:14px;align-items:center;padding:14px 8px 14px 12px;border-bottom:1px solid #ffffff1c;color:#fff;text-decoration:none;position:relative;transition:background .3s ease}
+  .um-atlas__list a{display:grid;grid-template-columns:88px minmax(0,1fr) 20px;gap:14px;align-items:center;padding:14px 8px 14px 12px;border-bottom:1px solid #ffffff1c;color:#fff;text-decoration:none;position:relative;transition:background .3s ease}
+  .um-atlas__list :global(.um-atlas__thumb){display:block;width:88px;aspect-ratio:4/3;border:1px solid #ffffff14;background:#0b0e12}
   .um-atlas__list a::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:2px;background:var(--um-red,#DC2626);transform:scaleY(0);transition:transform .3s ease}
   .um-atlas__list a.is-active,.um-atlas__list a:hover{background:#ffffff08}
   .um-atlas__list a.is-active::before{transform:scaleY(1)}

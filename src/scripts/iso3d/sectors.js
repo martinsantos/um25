@@ -2,7 +2,9 @@
 const chapters=(intro,en,da,se,de,all)=>[
  {k:null,t:intro[0],p:intro[1],d:6.5},{k:'en',t:en[0],p:en[1],d:6},{k:'da',t:da[0],p:da[1],d:6},
  {k:'se',t:se[0],p:se[1],d:6},{k:'de',t:de[0],p:de[1],d:6},{k:'all',t:all[0],p:all[1],d:7}];
-const ALL=['Un sistema. Cuatro capas.','Diseñadas, instaladas y mantenidas por un mismo equipo, con mediciones y documentación.'];
+import {ISO3D_TEXT,ISO3D_ALL} from '../../data/cine/iso3dText.js';
+const ALL=ISO3D_ALL;
+const layerText=key=>{const t=ISO3D_TEXT[key];return [t.intro,t.en,t.da,t.se,t.de,ALL]};
 const TY=2.62;
 
 // Technical room with rack + UPS, returns feed points for flows.
@@ -96,12 +98,7 @@ function salud(k){
  const feed=techRoom(k,{x:(-W/2+18.4+W/2)/2,z:-4.6+.4,D});
  ceiling(k,{x0:-11.4,x1:11,z:-.6,aps:rooms.map(x=>[x,-4.2]),dets:rooms.map(x=>[x-1.2,-3]),cams:[[-11.4,-.9],[0,-.9],[10.6,6.4]],feed});
  data(k,feed,-.6,rooms.map(x=>[x+.85,2.1,-5.6]).concat([[-1.5,1.1,3.2]]));energy(k,feed,-.6,rooms.map(x=>[x-.3,1.45,-6.75]));
- return {chapters:chapters(
-  ['Una sala que no puede detenerse.','Cuatro habitaciones, un puesto de enfermería y la sala técnica que las sostiene.'],
-  ['Energía estabilizada en cada cabecera.','La UPS alimenta tableros y tomas de cabecera: los monitores no se apagan ante un corte.'],
-  ['Cada monitor, en la red clínica.','Desde el rack, la bandeja lleva datos a monitores, enfermería y puntos Wi‑Fi de cada habitación.'],
-  ['Accesos y cámaras, sin puntos ciegos.','Control de acceso en la sala técnica y cámaras en circulación, registradas en el mismo sistema.'],
-  ['Detección temprana en cada ambiente.','Detectores conectados a la central: una alarma se ubica por habitación, no por piso.'],ALL)};
+ return {chapters:chapters(...layerText('salud'))};
 }
 
 // ---------------------------------------------------------------- Constructoras (office floor)
@@ -123,12 +120,7 @@ function constructoras(k){
  ceiling(k,{x0:-11.4,x1:11,z:-.15,aps:[[-9,-3],[-3,-3],[-9,3],[-3,3],[4.2,-4.4]],dets:[[-7.5,-4.5],[-1.5,-4.5],[-7.5,4.5],[3,-3]],cams:[[-11.2,-.4],[1.2,-.4],[10.6,5.8]],feed});
  data(k,feed,-.15,[[-9,.9,-4.6],[-3,.9,-4.6],[-9,.9,2.2],[-3,.9,2.2],[mx,1.1,mz-1.95]]);
  energy(k,feed,-.15,fb.map(([x,,z])=>[x,.05,z]));
- return {chapters:chapters(
-  ['Una planta lista para trabajar desde el primer día.','Puestos, sala de reuniones y el núcleo técnico que conecta todo el piso.'],
-  ['Energía ordenada bajo el piso.','Cajas de piso con tomas estabilizadas: cada puesto se conecta sin cables a la vista.'],
-  ['Cada puesto, cada sala, en la red.','Cableado estructurado certificado y Wi‑Fi diseñado por densidad de usuarios.'],
-  ['Accesos y cámaras del piso.','Control de acceso al núcleo técnico y cámaras en circulaciones, en un único registro.'],
-  ['Detección por sector.','Detectores direccionables: una alarma indica el puesto, no sólo el piso.'],ALL)};
+ return {chapters:chapters(...layerText('constructoras'))};
 }
 
 // ---------------------------------------------------------------- Aeropuertos (terminal)
@@ -154,12 +146,7 @@ function aeropuertos(k){
  const feed=techRoom(k,{x:9.8,z:-4.4,D});
  ceiling(k,{x0:-11.4,x1:11,z:-.9,aps:[[-8,-2.2],[-3,-2.2],[2,-2.2],[3,4.8]],dets:[[-9,1],[-4,1],[1,1],[5,5]],cams:[[-11,-1.2],[-3.4,1.2],[2.4,1.2],[10.6,5.8]],feed});
  data(k,feed,-.9,[[-9.5,1.9,-4.1],[-5.1,1.9,-4.1],[-0.7,1.9,-4.1],[6.8,1.6,-6.7]]);energy(k,feed,-.9,[[-4,.35,-5.2],[-9.5,1.05,-3.6],[-0.7,1.05,-3.6]]);
- return {chapters:chapters(
-  ['Una terminal que opera en tiempo real.','Check‑in, equipaje, controles de acceso y la sala técnica que los coordina.'],
-  ['Energía continua para mostradores y cintas.','Circuitos estabilizados para puestos, cintas de equipaje y pantallas.'],
-  ['Cada mostrador y cada pantalla, en línea.','Red para check‑in, información de vuelos y Wi‑Fi de alta densidad en la sala.'],
-  ['Accesos controlados y video.','Molinetes y cámaras integrados: cada paso queda registrado.'],
-  ['Detección en todo el hall.','Detectores conectados por zona: la evacuación se activa donde corresponde.'],ALL),frame:{w:24,d:14,look:-1}};
+ return {chapters:chapters(...layerText('aeropuertos')),frame:{w:24,d:14,look:-1}};
 }
 
 // ---------------------------------------------------------------- Industria (plant)
@@ -185,12 +172,7 @@ function industria(k){
  const feed=techRoom(k,{x:10.9,z:-5,D});
  ceiling(k,{x0:-12.4,x1:12,z:-1.6,aps:[[-6.8,-1.6],[2,-1.6],[2,4.6]],dets:cells.map(([x,z])=>[x,z+(z<0?1:-1)]),cams:[[-12,-1.9],[0,-1.9],[11.6,6.6]],feed});
  data(k,feed,-1.6,cells.map(([x,z])=>[x+1.2,1.3,z+1.35]));energy(k,feed,-1.6,cells.map(([x,z])=>[x,1.6,z]).concat([[-2.4,.6,-.5]]));
- return {chapters:chapters(
-  ['Una planta que no se detiene.','Celdas productivas, línea de transporte, tablero y sala técnica conectados.'],
-  ['Energía protegida para cada celda.','Tableros y protecciones dimensionados: un corte en una celda no detiene la línea.'],
-  ['Cada máquina, en la red de planta.','PLC y paneles de operador conectados al rack, con datos de producción en tiempo real.'],
-  ['Accesos y video en la nave.','Control de acceso a la sala técnica y cámaras sobre la línea y los pasillos.'],
-  ['Detección sobre cada celda.','Detectores por sector de la nave, vinculados a la central y a la parada segura.'],ALL),frame:{w:26,d:15,look:-1}};
+ return {chapters:chapters(...layerText('industria')),frame:{w:26,d:15,look:-1}};
 }
 
 // ---------------------------------------------------------------- Bodegas (winery)
@@ -215,12 +197,7 @@ function bodegas(k){
  const feed=techRoom(k,{x:10.9,z:-5,D});
  ceiling(k,{x0:-12.4,x1:12,z:.6,aps:[[-7,2.6],[3,1.6]],dets:[[-9,3.4],[-3,3.4],[6,1.4]],cams:[[-12,.3],[0,.3],[11.6,6.6]],feed});
  data(k,feed,.6,tanks.map(([x,z])=>[x+.6,1.8,z+.75]).concat([[5.2,.9,3.2]]));energy(k,feed,.6,[[5.2,.9,3.2],[2.2,1.8,4.6],[7.6,1.8,4.6]].concat(tanks.slice(5).map(([x,z])=>[x,.9,z+.95])));
- return {chapters:chapters(
-  ['Una bodega medida tanque por tanque.','Tanques, pasarela, línea de fraccionamiento y la sala técnica que los supervisa.'],
-  ['Energía para frío y fraccionamiento.','Circuitos protegidos para el control de temperatura y la línea de envasado.'],
-  ['Cada tanque, en línea.','Sensores de temperatura y nivel conectados: la enología ve cada tanque en tiempo real.'],
-  ['Accesos y video en la nave.','Control de acceso a depósito y sala técnica, con cámaras en la línea y los pasillos.'],
-  ['Alertas antes de un desvío.','Sensores por tanque y detección en la nave: un desvío se ve antes de ser un problema.'],ALL),frame:{w:26,d:15,look:-1}};
+ return {chapters:chapters(...layerText('bodegas')),frame:{w:26,d:15,look:-1}};
 }
 
 // ---------------------------------------------------------------- Minería (field camp)
@@ -256,12 +233,7 @@ function mineria(k){
   cyl(.12,.08,M.white,x,2.85,z,{seg:16});lamp('de',.05,.02,.05,x,2.92,z,world);flow('de',[fd.rk,[7.4,.2,4.6],[7.4,.2,-.8],[x-.4,.2,-.8],[x-.4,.2,z],[x-.4,2.85,z]],.042)});
  for(const [x,z] of [[-12,6.4],[12.4,-1.8]]){cyl(.05,4,M.alu,x,0,z,{seg:8});const c=new THREE.Mesh(new THREE.SphereGeometry(.2,16,10,0,Math.PI*2,0,Math.PI/2),M.dark);c.rotation.x=Math.PI;c.position.set(x,4,z);world.add(c);lamp('se',.06,.04,.06,x,3.95,z,world);flow('se',[fd.rk,[7.4,.26,4.6],[7.4,.26,z],[x,.26,z],[x,4,z]],.042)}
  flow('se',[fd.rk,[7.4,.26,6.8],[-.8,.26,6.8],[-.8,1.2,7.5]],.042);flow('en',[fd.up,[6,.14,4.6],[8,.14,4.6],[8,1.2,4.6]]);
- return {chapters:chapters(
-  ['Un campamento conectado en medio del cerro.','Módulos, generación, enlaces de radio y acceso, operados como un único sistema.'],
-  ['Energía generada en sitio.','Generación y tableros distribuyen energía a módulos y al shelter de comunicaciones.'],
-  ['Enlaces con línea de vista.','Radioenlaces entre mástiles y fibra en zanja llevan datos a cada módulo.'],
-  ['Perímetro controlado.','Acceso vehicular y cámaras en mástiles cubren el perímetro del campamento.'],
-  ['Detección en cada módulo.','Detectores en módulos y shelter, monitoreados a distancia.'],ALL),frame:{w:28,d:16,look:0}};
+ return {chapters:chapters(...layerText('mineria')),frame:{w:28,d:16,look:0}};
 }
 
 export const SECTORS={salud,constructoras,aeropuertos,industria,bodegas,mineria};
