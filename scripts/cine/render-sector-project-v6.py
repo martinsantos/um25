@@ -240,7 +240,7 @@ def render(args):
  p,palette=author(args.scene)
  bpy.ops.wm.read_factory_settings(use_empty=True);scene=bpy.context.scene
  scene.render.engine='CYCLES';scene.cycles.device='CPU';scene.cycles.samples=args.samples;scene.cycles.use_adaptive_sampling=True;scene.cycles.adaptive_threshold=.045;scene.cycles.adaptive_min_samples=12
- scene.cycles.max_bounces=4;scene.cycles.diffuse_bounces=1;scene.cycles.glossy_bounces=1;scene.cycles.transmission_bounces=2;scene.cycles.use_fast_gi=True;scene.cycles.ao_bounces_render=1;scene.cycles.transparent_max_bounces=16;scene.cycles.caustics_reflective=False;scene.cycles.caustics_refractive=False;scene.cycles.sample_clamp_indirect=4
+ scene.cycles.max_bounces=4;scene.cycles.diffuse_bounces=1;scene.cycles.glossy_bounces=1;scene.cycles.transmission_bounces=2;scene.cycles.use_fast_gi=True;scene.cycles.ao_bounces_render=1;scene.cycles.transparent_max_bounces=8;scene.cycles.caustics_reflective=False;scene.cycles.caustics_refractive=False;scene.cycles.sample_clamp_indirect=4
  scene.cycles.use_denoising=True;scene.cycles.denoiser='OPENIMAGEDENOISE';scene.cycles.denoising_input_passes='RGB_ALBEDO_NORMAL';scene.cycles.denoising_prefilter='ACCURATE'
  scene.render.film_transparent=True
  scene.render.resolution_x=args.width;scene.render.resolution_y=args.width if args.composition=='mobile' else round(args.width*9/16)
@@ -255,20 +255,26 @@ def render(args):
  def lin(color):
   rgb=[int(color[i:i+2],16)/255 for i in (1,3,5)];return [v/12.92 if v<=.04045 else ((v+.055)/1.055)**2.4 for v in rgb]
  # name: (metallic, roughness, extra). Colors stay the v5 palette; physics changes.
+ ALBEDO={'white':'#E9EEF2','top':'#C9D3DB','side':'#9AA9B6','slab':'#7F8F9C','body':'#2B333C','edge':'#B7C3CD','metal':'#C3CDD6','screen':'#0e1a24'}
  SURF={'metal':(1,.24,{}),'edge':(.7,.34,{}),'body':(0,.42,{'Coat Weight':.15}),'side':(0,.62,{}),'top':(0,.48,{}),'white':(0,.38,{'Coat Weight':.25,'Coat Roughness':.2}),
-       'slab':(0,.78,{}),'screen':(0,.12,{}),'glass':(0,.03,{'Transmission Weight':1,'IOR':1.45})}
+       'slab':(0,.78,{}),'screen':(0,.12,{}),}
  def mat(name,color,alpha=1,emission=0):
   m=bpy.data.materials.new(name);m.use_nodes=True;nodes=m.node_tree.nodes;nodes.clear();links=m.node_tree.links
   rgb=lin(color);out=nodes.new('ShaderNodeOutputMaterial')
+  if name=='glass':
+   tr=nodes.new('ShaderNodeBsdfTransparent');gl=nodes.new('ShaderNodeBsdfGlossy');gl.inputs['Roughness'].default_value=.06;gl.inputs['Color'].default_value=(*lin('#cfe3ee'),1)
+   mx=nodes.new('ShaderNodeMixShader');mx.inputs[0].default_value=.14;links.new(tr.outputs[0],mx.inputs[1]);links.new(gl.outputs[0],mx.inputs[2]);links.new(mx.outputs[0],out.inputs['Surface'])
+   m.surface_render_method='BLENDED';mats[name]=m;return m
   if name=='contact':
    links.new(nodes.new('ShaderNodeBsdfTransparent').outputs[0],out.inputs['Surface']);mats[name]=m;return m
   if emission or name in ('red','ink') or name.startswith('route-') or name.startswith('outline-') or name=='ghost':
    em=nodes.new('ShaderNodeEmission');em.inputs[0].default_value=(*rgb,1)
    em.inputs[1].default_value=3.2 if name.startswith('route-') else 4 if name=='red' else 1.1 if name=='ink' else max(.6,emission*3)
    shader=em.outputs[0]
-   if not name.startswith('route-'):m.cycles.emission_sampling='NONE'
+   m.cycles.emission_sampling='NONE'
   else:
    b=nodes.new('ShaderNodeBsdfPrincipled');metal,rough,extra=SURF.get(name,(0,.5,{}))
+   if name in ALBEDO:rgb=lin(ALBEDO[name])
    b.inputs['Base Color'].default_value=(*rgb,1);b.inputs['Metallic'].default_value=metal;b.inputs['Roughness'].default_value=rough
    for k,v in extra.items():b.inputs[k].default_value=v
    if name=='screen':
