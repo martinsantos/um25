@@ -1,3 +1,5 @@
+> Estado actualizado del 16/10/2026: ver [memoria de traspaso](handoff-20261016/MEMORIA-UM25.md). Tres sectores ensamblados, integración visual final pendiente y 28 tramos sin copia local; los artefactos remotos originales ya no se listan.
+
 # Architectural sector films v5 — local review
 
 ## Scope

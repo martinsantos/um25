@@ -147,7 +147,9 @@ test('the winery narrative brings software and support into the sector without c
 
 
 test('software sector and service select the same ready software architecture, preserving other sector films',()=>{
- jest.isolateModules(()=>{
+ const originalEnv=process.env;
+ process.env={...originalEnv,UM_SOFTWARE_REVIEW:'',UM_SECTOR_REVIEW:''};
+ try{jest.isolateModules(()=>{
   jest.doMock('../src/data/cine/site-movies-v1.json',()=>({
    constructoras:{scene:'building-test',status:'ready',assets:[]},
    services:{'104':{scene:'software-system-test',status:'ready',assets:[]}}
@@ -156,7 +158,7 @@ test('software sector and service select the same ready software architecture, p
   expect(sectorMovie('software').scene).toBe('software-system-test');
   expect(sectorMovie('software')).toBe(serviceMovie('104'));
   expect(sectorMovie('constructoras').scene).toBe('building-test');
- });
+ });}finally{process.env=originalEnv;}
  jest.dontMock('../src/data/cine/site-movies-v1.json');
 });
 
@@ -188,4 +190,14 @@ test.each(['v9','v10','v14','v15','v17','v18','v19','v20','v21','v22','v23','v24
   process.env.UM_SOFTWARE_REVIEW='';
   expect(serviceMovie('104')).toBe(release);
  }finally{process.env=originalEnv;}
+});
+
+test('released defaults select sector v5 tours where delivered and Software v27',()=>{
+ const originalEnv=process.env;
+ process.env={...originalEnv};delete process.env.UM_SOFTWARE_REVIEW;delete process.env.UM_SECTOR_REVIEW;
+ try{jest.isolateModules(()=>{
+  const {sectorMovie}=require('../src/data/cine/projectCinema');
+  expect(sectorMovie('software').scene).toBe('software-system-v27');
+  expect(sectorMovie('constructoras').scene).toBe('fachada-proyecto-v5');
+ });}finally{process.env=originalEnv;}
 });
