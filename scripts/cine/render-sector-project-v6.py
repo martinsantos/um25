@@ -255,7 +255,7 @@ def render(args):
  def lin(color):
   rgb=[int(color[i:i+2],16)/255 for i in (1,3,5)];return [v/12.92 if v<=.04045 else ((v+.055)/1.055)**2.4 for v in rgb]
  # name: (metallic, roughness, extra). Colors stay the v5 palette; physics changes.
- ALBEDO={'white':'#E9EEF2','top':'#C9D3DB','side':'#9AA9B6','slab':'#7F8F9C','body':'#2B333C','edge':'#B7C3CD','metal':'#C3CDD6','screen':'#0e1a24'}
+ ALBEDO={'white':'#E9EEF2','top':'#C9D3DB','side':'#8A9AA8','slab':'#4C5B68','body':'#2B333C','edge':'#B7C3CD','metal':'#C3CDD6','screen':'#0e1a24'}
  SURF={'metal':(1,.24,{}),'edge':(.7,.34,{}),'body':(0,.42,{'Coat Weight':.15}),'side':(0,.62,{}),'top':(0,.48,{}),'white':(0,.38,{'Coat Weight':.25,'Coat Roughness':.2}),
        'slab':(0,.78,{}),'screen':(0,.12,{}),}
  def mat(name,color,alpha=1,emission=0):
@@ -362,9 +362,9 @@ def render(args):
  bpy.ops.mesh.primitive_plane_add(size=200,location=(7.5,4.2,-.3));floor_obj=bpy.context.object;floor_obj.data.materials.append(mats['floor']);floor_obj.is_shadow_catcher=True
  # Soft key from the v5 drafting direction, a broad overhead fill and a cool world.
  import mathutils
- key=bpy.data.lights.new('Key','SUN');key.energy=3.2;key.angle=math.radians(11);key_o=bpy.data.objects.new('Key',key);scene.collection.objects.link(key_o)
+ key=bpy.data.lights.new('Key','SUN');key.energy=2.4;key.angle=math.radians(11);key_o=bpy.data.objects.new('Key',key);scene.collection.objects.link(key_o)
  key_o.rotation_euler=mathutils.Vector((-.28,-.45,.85)).normalized().to_track_quat('Z','Y').to_euler()
- fill=bpy.data.lights.new('Fill','AREA');fill.energy=1800;fill.size=24;fill_o=bpy.data.objects.new('Fill',fill);scene.collection.objects.link(fill_o);fill_o.location=(7.5,4.2,22)
+ fill=bpy.data.lights.new('Fill','AREA');fill.energy=1250;fill.size=24;fill_o=bpy.data.objects.new('Fill',fill);scene.collection.objects.link(fill_o);fill_o.location=(7.5,4.2,22)
  rim=bpy.data.lights.new('Rim','SUN');rim.energy=1.1;rim.angle=math.radians(25);rim.use_shadow=False;rim_o=bpy.data.objects.new('Rim',rim);scene.collection.objects.link(rim_o)
  rim_o.rotation_euler=mathutils.Vector((.5,.6,.45)).normalized().to_track_quat('Z','Y').to_euler()
  scene.world.node_tree.nodes['Background'].inputs[0].default_value=(*lin('#9fb6c9'),1);scene.world.node_tree.nodes['Background'].inputs[1].default_value=1.1
@@ -435,6 +435,6 @@ def render(args):
 
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--scene',choices=SCENES,required=True);p.add_argument('--composition',choices=['wide','mobile'],default='wide');p.add_argument('--width',type=int,default=3840);p.add_argument('--start',type=int,default=0);p.add_argument('--end',type=int,default=FRAMES-1);p.add_argument('--samples',type=int,default=8);p.add_argument('--font-dir',default='/tmp/um-fonts');p.add_argument('--output',default='frames');p.add_argument('--validate-only',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else None)
- assert 0<=a.start<=a.end<FRAMES;assert a.width in [1080,1920,2160,3840];validate(a.scene)
+ assert 0<=a.start<=a.end<FRAMES;assert a.width in [1080,1600,1920,2160,3840];validate(a.scene)
  if a.validate_only:print(json.dumps({'valid':True,'scene':a.scene,'frames':FRAMES}))
  else:render(a)

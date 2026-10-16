@@ -47,6 +47,7 @@ jobs:
     with:
       scenes: ${{ inputs.projects == 'all' && 'clinic,winery' || inputs.projects }}
       frames: ${{ inputs.source_run || '60,504,756' }}
+      width: ${{ inputs.repair_run || '1920' }}
   sector-v5:
     if: inputs.renderer == 'v5'
     uses: ./.github/workflows/cine-sector-v5.yml
