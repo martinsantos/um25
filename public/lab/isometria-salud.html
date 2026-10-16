@@ -256,9 +256,9 @@ function frame(){requestAnimationFrame(frame);if(!visible||document.hidden)retur
  lift+=(liftT-lift)*ease*.9;zoom+=(zoomT-zoom)*ease*.6;
  services.position.y=lift;
  for(const key in flows){const on=k==='all'||k===key||k===null;for(const f of flows[key]){f.material.uniforms.t.value=time;f.material.uniforms.a.value+=((on?(k===null?.55:1):.06)-f.material.uniforms.a.value)*ease}}
- for(const key in LAYER_OBJ){const on=k===null||k==='all'||k===key;for(const o of LAYER_OBJ[key])o.visible=on||Math.sin(time*6)>.6}
+ for(const key in LAYER_OBJ){const on=k===null||k==='all'||k===key;for(const o of LAYER_OBJ[key])o.visible=on}
  // slow isometric drift
- const ang=Math.PI/4+Math.sin(time*.12)*.09,el=.62;const r=40;
+ const ang=Math.PI/4,el=.62;const r=40;
  cam.position.set(Math.sin(ang)*r*Math.cos(el),Math.sin(el)*r,Math.cos(ang)*r*Math.cos(el));cam.lookAt(0,lift*.35,-1.2);cam.zoom=zoom;cam.updateProjectionMatrix();
  drawEcg(paused?0:dt);
  steps.querySelectorAll('i').forEach((s,i)=>s.style.setProperty('--p',i<ci?1:i===ci?Math.min(1,ct/CHAPTERS[ci].d):0));
