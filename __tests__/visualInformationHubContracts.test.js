@@ -258,40 +258,27 @@ describe('Information hub visual contracts', () => {
   });
 
   test('home service index avoids floating red dash markers in each service unit', () => {
-    // Rediseño 2026-09: el índice de servicios de la home es ServicesStory. Se
-    // mantiene: ningún servicio lleva un guion rojo flotante propio; el acento de
-    // cada unidad es su color de sistema y un único enlace real al servicio.
+    // Rediseño 2026-10: los servicios son filas-enlace completas, sin marcadores
+    // rojos sueltos; el rojo queda para la barra de los casos.
     const home = read('src/pages/index.astro');
-    const story = read('src/components/cine/ServicesStory.astro');
-    const itemTemplate = story.slice(story.indexOf('<ol class="svc-story__list"'), story.indexOf('</ol>',story.indexOf('<ol class="svc-story__list"')));
-
-    expect(home).toContain("import ServicesStory from '../components/cine/ServicesStory.astro'");
-    expect(home).toContain('<ServicesStory services={services} project={integralProject} />');
+    const rows = home.slice(home.indexOf('<ol class="hsvc">'), home.indexOf('</ol>', home.indexOf('<ol class="hsvc">')));
+    expect(rows).toContain('<li><a href={spec.href}>');
+    expect(rows).not.toMatch(/<i\b/);
     expect(home).not.toContain('<i aria-hidden="true"></i>');
-    expect(home).not.toMatch(/\.um-service-unit__head i\s*\{/);
-    expect(itemTemplate).not.toMatch(/<i\b/);
-    expect(itemTemplate).toContain('data-atlas-service={s.code}');
-    expect(story).toContain('href={first.href} data-atlas-link');
     expect(home).toContain('class="um26-card-bar" aria-hidden="true"');
     expect(home).toMatch(/\.um26-card-bar\s*\{[\s\S]*background:\s*#dc2626;/);
   });
 
   test('home numeric summary is actionable instead of dead dashboard text', () => {
+    // Rediseño 2026-10: las cifras viven en el hero y cada una enlaza a su evidencia.
     const home = read('src/pages/index.astro');
-
+    const hero = read('src/components/cine/HomeHero.astro');
     expect(home).toContain("href: '/nosotros'");
     expect(home).toContain("href: '/antecedentes'");
     expect(home).toContain("href: '/sectores'");
-    expect(home).toContain("href: '/servicios-it-empresas-argentina'");
-    expect(home).toContain("href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it'");
-    expect(home).toContain('{stats.map(({ value, label, href, aria }) => (');
-    expect(home).toContain('<a href={href} aria-label={aria}>');
-    expect(home).toMatch(/\.um26-stats__grid a:hover,[\s\S]*\.um26-stats__grid a:focus-visible\s*\{/);
-    expect(home).toMatch(/\.um26-stats__grid a:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.5\);/);
-    expect(home).toMatch(/\.um26-stats__inner\s*\{[\s\S]*padding-block:\s*0;/);
-    expect(home).toMatch(/\.um26-stats__grid a\s*\{[\s\S]*display:\s*flex;[\s\S]*min-height:\s*138px;/);
-    expect(home).toMatch(/\.um26-stats__grid a:hover,[\s\S]*box-shadow:\s*inset 0 -3px 0 #dc2626;/);
-    expect(home).not.toMatch(/\.um26-stats__grid div\s*\{/);
+    expect(home).toContain('stats={stats.slice(0, 3)}');
+    expect(hero).toContain('{s.href ? <a href={s.href}>{s.value}</a> : s.value}');
+    expect(hero).toMatch(/\.hhero a:focus-visible\s*\{[\s\S]*outline:\s*2px solid #DC2626/);
   });
 
   test('home GEO hub cards are full-cell links with visible action states', () => {
@@ -415,17 +402,13 @@ describe('Information hub visual contracts', () => {
   });
 
   test('home service visual loads reliably for full-page visual QA', () => {
-    // Rediseño 2026-09: la primera pantalla es CineBanner (póster con prioridad
-    // alta); las imágenes de servicios están bajo el pliegue y reservan su tamaño.
+    // Rediseño 2026-10: la primera pantalla es texto en papel con un lienzo 3D que se
+    // monta después; las imágenes de casos reservan su tamaño y cargan diferidas.
     const home = read('src/pages/index.astro');
-    const banner = read('src/components/cine/CineBanner.astro');
-    const story = read('src/components/cine/ServicesStory.astro');
-
-    expect(home).toContain('<CineBanner');
-    expect(banner).toMatch(/<img class="umc-poster"[^>]*width="1920" height="1080" fetchpriority="high" decoding="async"/);
-    // Un único SVG isométrico reserva su tamaño y carga diferido.
-    expect(story).toMatch(/<img[^>]*width="1040" height="755" loading="lazy" decoding="async" data-atlas-image/);
-    expect(story).not.toMatch(/<video|<iframe/);
+    const hero = read('src/components/cine/HomeHero.astro');
+    expect(home).toContain('<HomeHero');
+    expect(hero).toContain("await import('../../scripts/senal/objects.js')");
+    expect(hero).not.toMatch(/<video|<iframe/);
     expect(home).toContain('width="1200"');
     expect(home).toContain('height="900"');
     expect(home).toContain('decoding="async"');

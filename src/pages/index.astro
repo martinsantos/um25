@@ -5,6 +5,8 @@ import { getAntecedentesCatalogCount } from '../utils/verifiedProof';
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import EmailLink from '../components/common/EmailLink.astro';
 import CineBanner from '../components/cine/CineBanner.astro';
+import HomeHero from '../components/cine/HomeHero.astro';
+import { SERVICE_SPEC_LIST } from '../data/serviceSpecs';
 import ServicesStory from '../components/cine/ServicesStory.astro';
 import SectorAtlas from '../components/cine/SectorAtlas.astro';
 import CoverageMap from '../components/cine/CoverageMap.astro';
@@ -85,39 +87,8 @@ const hubs = [
   image="/cine/media/cine-bodega-poster.jpg"
 >
   <div class="um26-home">
-    <CineBanner
-      variant="home"
-      kicker="Más de 22 años de servicios IT · Mendoza, Argentina"
-      title="Servicios IT para operaciones que no pueden detenerse."
-      lead={heroLead}
-      primary={{ href: '/antecedentes', label: 'Ver evidencia operativa' }}
-      secondary={{ href: '/sectores', label: 'Entrar por sector' }}
-      scenes={HOME_SCENES.map(chapter=>chapter.scene)}
-      chapters={HOME_SCENES}
-      annotations={false}
-      framing="cover"
-    />
+    <HomeHero title="Servicios IT para operaciones que no pueden detenerse." lead={heroLead} stats={stats.slice(0, 3)} />
 
-    <section class="um26-stats" aria-label="Indicadores ULTIMA MILLA">
-      <div class="um26-shell um26-stats__inner">
-        <div class="um26-stats__grid">
-          {stats.map(({ value, label, href, aria }) => (
-            <a href={href} aria-label={aria}>
-              <strong>
-                {value.endsWith('+') ? (
-                  <>{value.slice(0, -1)}<b>+</b></>
-                ) : value.endsWith('%') ? (
-                  <>{value.slice(0, -1)}<b>%</b></>
-                ) : (
-                  value
-                )}
-              </strong>
-              <span>{label}</span>
-            </a>
-          ))}
-        </div>
-      </div>
-    </section>
 
     <section class="um26-section" id="servicios-it">
       <div class="um26-shell">
@@ -126,10 +97,14 @@ const hubs = [
             <p class="um26-kicker"><span></span>Servicios</p>
             <h2>La tecnología, trabajando en conjunto.</h2>
           </div>
-          <p>Conectamos sitios, protegemos instalaciones y desarrollamos sistemas. Seguí las decisiones y las capas que hacen funcionar cada servicio, desde el primer enlace hasta la operación diaria.</p>
+          <p>Ocho servicios resueltos por un mismo equipo: diseño, instalación, documentación y soporte, sin intermediarios.</p>
         </div>
 
-        <ServicesStory services={services} project={integralProject} />
+        <ol class="hsvc">
+          {SERVICE_SPEC_LIST.map((spec, i) => (
+            <li><a href={spec.href}><span class="hsvc__n">{String(i + 1).padStart(2, '0')}</span><span class="hsvc__name">{spec.name}</span><span class="hsvc__promise">{spec.promise}</span><span class="hsvc__go" aria-hidden="true">→</span></a></li>
+          ))}
+        </ol>
 
         <a class="um26-text-link" href="/servicios">Ver los ocho servicios</a>
       </div>
@@ -1349,7 +1324,16 @@ const hubs = [
         margin-top: 16px;
       }
     }
-  </style>
+    .hsvc{list-style:none;margin:clamp(28px,3vw,44px) 0 0;padding:0;border-top:1px solid rgba(255,255,255,.14)}
+  .hsvc a{display:grid;grid-template-columns:48px minmax(200px,1fr) minmax(0,1.6fr) 24px;gap:24px;align-items:baseline;padding:22px 4px;border-bottom:1px solid rgba(255,255,255,.14);color:#fff;text-decoration:none;transition:background .3s}
+  .hsvc a:hover{background:rgba(255,255,255,.04)}
+  .hsvc__n{font-size:13px;color:rgba(255,255,255,.45);font-variant-numeric:tabular-nums}
+  .hsvc__name{font-size:20px;font-weight:700}
+  .hsvc__promise{font-size:17px;color:rgba(255,255,255,.72)}
+  .hsvc__go{color:rgba(255,255,255,.4);transition:transform .3s,color .3s}
+  .hsvc a:hover .hsvc__go{color:#fff;transform:translateX(4px)}
+  @media (max-width:820px){.hsvc a{grid-template-columns:32px 1fr;gap:4px 12px}.hsvc__promise{grid-column:2;font-size:15px}.hsvc__go{display:none}}
+</style>
 
 </LayoutV4>
 
