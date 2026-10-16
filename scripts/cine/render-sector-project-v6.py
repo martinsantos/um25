@@ -255,7 +255,7 @@ def render(args):
  def lin(color):
   rgb=[int(color[i:i+2],16)/255 for i in (1,3,5)];return [v/12.92 if v<=.04045 else ((v+.055)/1.055)**2.4 for v in rgb]
  # name: (metallic, roughness, extra). Colors stay the v5 palette; physics changes.
- SURF={'metal':(1,.3,{}),'edge':(.7,.34,{}),'body':(0,.42,{'Coat Weight':.15}),'side':(0,.62,{}),'top':(0,.48,{}),'white':(0,.38,{'Coat Weight':.25,'Coat Roughness':.2}),
+ SURF={'metal':(1,.24,{}),'edge':(.7,.34,{}),'body':(0,.42,{'Coat Weight':.15}),'side':(0,.62,{}),'top':(0,.48,{}),'white':(0,.38,{'Coat Weight':.25,'Coat Roughness':.2}),
        'slab':(0,.78,{}),'screen':(0,.12,{}),'glass':(0,.03,{'Transmission Weight':1,'IOR':1.45})}
  def mat(name,color,alpha=1,emission=0):
   m=bpy.data.materials.new(name);m.use_nodes=True;nodes=m.node_tree.nodes;nodes.clear();links=m.node_tree.links
@@ -361,7 +361,7 @@ def render(args):
  fill=bpy.data.lights.new('Fill','AREA');fill.energy=1800;fill.size=24;fill_o=bpy.data.objects.new('Fill',fill);scene.collection.objects.link(fill_o);fill_o.location=(7.5,4.2,22)
  rim=bpy.data.lights.new('Rim','SUN');rim.energy=1.1;rim.angle=math.radians(25);rim.use_shadow=False;rim_o=bpy.data.objects.new('Rim',rim);scene.collection.objects.link(rim_o)
  rim_o.rotation_euler=mathutils.Vector((.5,.6,.45)).normalized().to_track_quat('Z','Y').to_euler()
- scene.world.node_tree.nodes['Background'].inputs[0].default_value=(*lin('#6d8aa3'),1);scene.world.node_tree.nodes['Background'].inputs[1].default_value=.55
+ scene.world.node_tree.nodes['Background'].inputs[0].default_value=(*lin('#9fb6c9'),1);scene.world.node_tree.nodes['Background'].inputs[1].default_value=1.1
  # Compositor: soft glow on emitters, then the exact site background under the alpha.
  scene.use_nodes=True;tree=scene.node_tree;tree.nodes.clear()
  rl=tree.nodes.new('CompositorNodeRLayers');glare=tree.nodes.new('CompositorNodeGlare');glare.glare_type='FOG_GLOW';glare.quality='HIGH'
