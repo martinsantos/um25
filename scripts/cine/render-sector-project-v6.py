@@ -373,8 +373,8 @@ def render(args):
  steel=bpy.data.materials.new('brushed steel');steel.use_nodes=True;sn=steel.node_tree.nodes;sb=sn['Principled BSDF']
  sb.inputs['Base Color'].default_value=(*lin('#D2D8DD'),1);sb.inputs['Metallic'].default_value=1
  # Vertical brushing: noise stretched along z drives roughness.
- tc=sn.new('ShaderNodeTexCoord');mp=sn.new('ShaderNodeMapping');mp.inputs['Scale'].default_value=(60,60,1.5);nz=sn.new('ShaderNodeTexNoise');nz.inputs['Scale'].default_value=8;nz.inputs['Detail'].default_value=6
- mr=sn.new('ShaderNodeMapRange');mr.inputs['To Min'].default_value=.16;mr.inputs['To Max'].default_value=.34
+ tc=sn.new('ShaderNodeTexCoord');mp=sn.new('ShaderNodeMapping');mp.inputs['Scale'].default_value=(90,90,1);nz=sn.new('ShaderNodeTexNoise');nz.inputs['Scale'].default_value=10;nz.inputs['Detail'].default_value=2
+ mr=sn.new('ShaderNodeMapRange');mr.inputs['To Min'].default_value=.2;mr.inputs['To Max'].default_value=.26
  sl=steel.node_tree.links;sl.new(tc.outputs['Object'],mp.inputs['Vector']);sl.new(mp.outputs['Vector'],nz.inputs['Vector']);sl.new(nz.outputs['Fac'],mr.inputs['Value']);sl.new(mr.outputs['Result'],sb.inputs['Roughness'])
  jacket=pmat('cooling jacket','#9AA6AF',.42,1);rubber=pmat('rubber','#1E2328',.7)
  sight=bpy.data.materials.new('sight glass');sight.use_nodes=True;sgn=sight.node_tree.nodes;sgb=sgn['Principled BSDF'];sgb.inputs['Base Color'].default_value=(*lin('#7a1f2b'),1);sgb.inputs['Roughness'].default_value=.08;sgb.inputs['Coat Weight'].default_value=1
