@@ -8,144 +8,105 @@
 <style>
 @font-face{font-family:'UM Sans';src:url('/fonts/um-sans/UMSans-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
 @font-face{font-family:'UM Sans';src:url('/fonts/um-sans/UMSans-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
-:root{--bg:#14232f;--ink:#0a0f14;--line:rgba(255,255,255,.14);--mute:rgba(255,255,255,.66);--red:#DC2626;--en:#E2B04A;--da:#3FC7B8;--se:#8B7CF6;--de:#F07A5A;--g:clamp(16px,3.2vw,32px)}
+:root{--bg:#14232f;--ink:#0a0f14;--line:rgba(255,255,255,.14);--mute:rgba(255,255,255,.62);--red:#DC2626;--g:clamp(20px,4vw,64px)}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--ink);color:#fff;font-family:'UM Sans',Arial,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-a{color:inherit}
-button{font:inherit;color:inherit}
+a{color:inherit}button{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible{outline:2px solid var(--red);outline-offset:3px}
 
-/* header — same axis as the real site */
-.nav{position:fixed;inset:0 0 auto;z-index:20;display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 var(--g);background:linear-gradient(180deg,rgba(10,15,20,.85),rgba(10,15,20,0))}
-.logo{font-weight:700;letter-spacing:-.02em;font-size:20px;text-decoration:none}
-.logo i{color:var(--red);font-style:normal}
-.nav ul{display:flex;gap:28px;list-style:none;margin:0;padding:0;font-size:14px;color:var(--mute)}
-.nav ul a{text-decoration:none}
-.nav .cta{padding:10px 16px;background:var(--red);color:#fff;text-decoration:none;font-size:14px;font-weight:700}
+.nav{position:fixed;inset:0 0 auto;z-index:20;display:flex;align-items:center;justify-content:space-between;height:68px;padding:0 var(--g)}
+.logo{font-weight:700;letter-spacing:-.02em;font-size:20px;text-decoration:none}.logo i{color:var(--red);font-style:normal}
+.nav ul{display:flex;gap:32px;list-style:none;margin:0;padding:0;font-size:14px;color:var(--mute)}.nav ul a{text-decoration:none}
+.nav .cta{padding:11px 18px;border:1px solid rgba(255,255,255,.3);text-decoration:none;font-size:14px}
 
-/* the film is the page */
-.film{position:relative;height:720vh}
+/* The film carries the story; the text says one thing per moment. */
+.film{position:relative;height:760vh}
 .film__pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--bg)}
-.film__video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.film__scrim{position:absolute;inset:0;pointer-events:none;background:
- linear-gradient(90deg,rgba(10,15,20,.9) 0%,rgba(10,15,20,.6) 26%,rgba(10,15,20,0) 50%),
- linear-gradient(270deg,rgba(10,15,20,.82) 0%,rgba(10,15,20,.45) 18%,rgba(10,15,20,0) 32%),
- linear-gradient(0deg,rgba(10,15,20,.75) 0%,rgba(10,15,20,0) 34%)}
+.film__video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:translateX(17vw) scale(.92);transform-origin:right center}
+.film__scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,var(--bg) 0%,var(--bg) var(--s1,14%),rgba(20,35,47,.7) var(--s2,30%),rgba(20,35,47,0) var(--s3,46%));transition:--s1 .8s}
 
-.cap{position:absolute;left:var(--g);bottom:clamp(88px,12vh,128px);width:min(460px,calc(100% - 2*var(--g)))}
-.cap__eyebrow{display:flex;align-items:center;gap:12px;margin:0;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
-.cap__eyebrow b{width:28px;height:2px;background:var(--red)}
-.cap h1,.cap h2{margin:14px 0 0;font-weight:700;letter-spacing:-.02em;line-height:1.02}
-.cap h1{font-size:clamp(56px,8vw,112px)}
-.cap h2{font-size:clamp(30px,3.4vw,48px);line-height:1.08}
-.cap p{margin:16px 0 0;font-size:clamp(16px,1.25vw,19px);line-height:1.55;color:rgba(255,255,255,.82)}
-.cap__in{transition:opacity .5s ease,transform .7s cubic-bezier(.2,.7,.1,1)}
-.cap.is-swap .cap__in{opacity:0;transform:translateY(10px)}
-.cap__layers{margin:22px 0 0;padding:0;list-style:none;border-top:1px solid var(--line)}
-.cap__layers li{border-bottom:1px solid var(--line)}
-.cap__layers button{display:grid;grid-template-columns:10px 120px 1fr 14px;align-items:center;gap:12px;width:100%;padding:12px 4px;border:0;background:none;text-align:left;cursor:pointer;color:rgba(255,255,255,.55);transition:color .3s,background .3s}
-.cap__layers button:hover{background:rgba(255,255,255,.05);color:#fff}
-.cap__layers b{width:8px;height:8px;border-radius:50%;background:var(--c);transition:transform .3s}
-.cap__layers em{font-style:normal;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
-.cap__layers span{font-size:16px}
-.cap__layers i{font-style:normal;opacity:0;transition:opacity .3s}
-.cap__layers li.on button{color:#fff}
-.cap__layers li.on b{transform:scale(1.5);box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 22%,transparent)}
-.cap__layers li.on i,.cap__layers button:hover i{opacity:1}
+.story{position:absolute;left:var(--g);top:50%;transform:translateY(-50%);width:min(600px,calc(100% - 2*var(--g)))}
+.story__in{transition:opacity .6s ease,transform .8s cubic-bezier(.2,.7,.1,1)}
+.story.is-swap .story__in{opacity:0;transform:translateY(14px)}
+.kicker{display:flex;align-items:center;gap:14px;margin:0;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
+.kicker b{width:32px;height:2px;background:var(--red)}
+.story h1,.story h2{margin:20px 0 0;font-weight:700;letter-spacing:-.025em;line-height:1.02;max-width:13ch;font-size:clamp(42px,5vw,80px)}
+.story p.lead{margin:22px 0 0;max-width:38ch;font-size:clamp(17px,1.35vw,21px);line-height:1.55;color:rgba(255,255,255,.8)}
+.stats{display:flex;gap:clamp(28px,3.4vw,56px);margin:40px 0 0;padding:0}
+.stats div{display:flex;flex-direction:column-reverse;gap:6px}
+.stats dt{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.stats dd{margin:0;font-size:clamp(30px,2.8vw,44px);font-weight:700;letter-spacing:-.02em}
+.proof-line{display:grid;grid-template-columns:76px 1fr;gap:18px;align-items:center;margin:34px 0 0;padding:18px 0 0;border-top:1px solid var(--line);max-width:470px;text-decoration:none}
+.proof-line.no-img{grid-template-columns:1fr}
+.proof-line img{width:76px;height:57px;object-fit:cover;display:block}
+.proof-line small{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.proof-line strong{display:block;margin-top:5px;font-size:17px;line-height:1.3}
+.proof-line span span{display:block;margin-top:3px;font-size:14px;color:var(--mute)}
+.proof-line:hover strong{text-decoration:underline;text-underline-offset:4px}
+.more{display:inline-flex;align-items:center;gap:10px;margin:28px 0 0;padding:0 0 5px;border:0;border-bottom:2px solid var(--red);background:none;font-size:16px;font-weight:700;cursor:pointer}
+.more span{transition:transform .3s}.more:hover span{transform:translateX(4px)}
+.go{display:inline-block;margin:34px 0 0;padding:18px 26px;background:var(--red);font-weight:700;text-decoration:none}
+.layers{margin:30px 0 0;padding:0;list-style:none;max-width:480px}
+.layers li{border-top:1px solid var(--line)}.layers li:last-child{border-bottom:1px solid var(--line)}
+.layers button{display:grid;grid-template-columns:12px 1fr auto;align-items:baseline;gap:16px;width:100%;padding:16px 2px;border:0;background:none;text-align:left;cursor:pointer;color:rgba(255,255,255,.48);transition:color .35s}
+.layers b{width:9px;height:9px;border-radius:50%;background:var(--c);align-self:center;transition:transform .35s}
+.layers strong{font-size:20px;font-weight:700}
+.layers em{font-style:normal;font-size:14px;color:var(--mute)}
+.layers li.on button,.layers button:hover{color:#fff}
+.layers li.on b{transform:scale(1.5);box-shadow:0 0 0 5px color-mix(in srgb,var(--c) 22%,transparent)}
 
-/* service index: the film knows which services are on screen */
-.index-wrap{transition:opacity .45s ease}
-.index-wrap.is-away{opacity:0;pointer-events:none}
-.index{position:absolute;right:var(--g);top:50%;transform:translateY(-50%);width:272px;margin:0;padding:0;list-style:none}
-.index li+li{margin-top:2px}
-.index button{display:grid;grid-template-columns:10px 1fr auto;align-items:center;gap:12px;width:100%;padding:10px 12px;border:0;background:transparent;text-align:left;cursor:pointer;color:rgba(255,255,255,.5);transition:color .35s,background .35s}
-.index button:hover{color:#fff;background:rgba(255,255,255,.06)}
-.index button i{width:6px;height:6px;border-radius:50%;background:currentColor;transition:transform .35s,background .35s}
-.index button span{font-size:15px;letter-spacing:.01em;white-space:nowrap}
-.index button small{font-size:11px;letter-spacing:.12em;color:rgba(255,255,255,.35)}
-.index li.on button{color:#fff}
-.index li.on button i{background:var(--c);transform:scale(1.6);box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 22%,transparent)}
-.index__label{position:absolute;right:calc(var(--g) + 12px);top:calc(50% - 196px);margin:0;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.45)}
-button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.progress{position:absolute;left:var(--g);right:var(--g);bottom:32px;height:1px;background:rgba(255,255,255,.14)}
+.progress i{position:absolute;inset:0;background:#fff;transform-origin:left;transform:scaleX(var(--p,0))}
+.hint{position:absolute;left:var(--g);bottom:52px;margin:0;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);transition:opacity .4s}
 
-/* chapter rail */
-.rail{position:absolute;left:var(--g);right:var(--g);bottom:28px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.rail button{position:relative;padding:14px 0 0;border:0;background:none;text-align:left;font-size:12px;letter-spacing:.06em;color:rgba(255,255,255,.5);cursor:pointer}
-.rail button::before,.rail button::after{content:'';position:absolute;left:0;right:0;top:0;height:2px}
-.rail button::before{background:rgba(255,255,255,.16)}
-.rail button::after{background:#fff;transform-origin:left;transform:scaleX(var(--p,0))}
-.rail button.on{color:#fff}
-
-/* service sheet: the skeleton of the service, over the film */
-.sheet{position:fixed;top:0;right:0;bottom:0;z-index:30;width:min(480px,100%);background:rgba(10,15,20,.94);backdrop-filter:blur(14px);border-left:1px solid var(--line);transform:translateX(100%);transition:transform .55s cubic-bezier(.2,.7,.1,1);overflow:auto;overscroll-behavior:contain}
+/* service sheet: the detail, only for whoever asks */
+.sheet{position:fixed;top:0;right:0;bottom:0;z-index:30;width:min(500px,100%);background:#0c1218;border-left:1px solid var(--line);transform:translateX(100%);transition:transform .6s cubic-bezier(.2,.7,.1,1);overflow:auto;overscroll-behavior:contain}
 .sheet.open{transform:none}
-.sheet__in{padding:88px 36px 40px}
-.sheet__close{position:absolute;top:18px;right:18px;width:40px;height:40px;border:1px solid var(--line);background:none;cursor:pointer;font-size:18px}
-.sheet__kicker{display:flex;align-items:center;gap:10px;margin:0;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
-.sheet__kicker b{width:8px;height:8px;border-radius:50%;background:var(--c)}
-.sheet h3{margin:12px 0 0;font-size:34px;line-height:1.05;letter-spacing:-.02em}
-.sheet__promise{margin:12px 0 0;font-size:17px;line-height:1.5;color:rgba(255,255,255,.82)}
-.sheet h4{margin:30px 0 12px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:400}
-.sheet ol{margin:0;padding:0;list-style:none;counter-reset:s}
-.sheet ol li{position:relative;padding:12px 0 12px 34px;border-top:1px solid var(--line);font-size:15px;line-height:1.45;counter-increment:s}
-.sheet ol li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:13px;font-size:12px;color:rgba(255,255,255,.4)}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
-.chips li{padding:6px 10px;border:1px solid var(--line);font-size:13px}
-.facts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:28px 0 0;padding:18px 0 0;border-top:1px solid var(--line)}
-.facts dt{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5)}
-.facts dd{margin:6px 0 0;font-size:14px;line-height:1.45}
-.cases{display:grid;gap:10px}
-.cases a{display:grid;grid-template-columns:88px 1fr;gap:14px;align-items:center;text-decoration:none;padding:8px;border:1px solid var(--line);transition:border-color .3s}
-.cases a:hover{border-color:rgba(255,255,255,.4)}
-.cases img{width:88px;height:66px;object-fit:cover;display:block;background:#1b2630}
-.cases strong{display:block;font-size:14px;line-height:1.35}
-.cases small{display:block;margin-top:4px;font-size:12px;color:var(--mute)}
-.sheet__links{display:flex;gap:18px;margin:30px 0 0}
-.sheet__links a{font-weight:700;text-decoration:none;border-bottom:2px solid var(--red);padding-bottom:3px}
-.veil{position:fixed;inset:0;z-index:25;background:rgba(5,8,11,.35);opacity:0;pointer-events:none;transition:opacity .4s}
-.veil.on{opacity:1;pointer-events:auto}
+.sheet__in{padding:96px 44px 48px}
+.sheet__close{position:absolute;top:20px;right:20px;width:44px;height:44px;border:1px solid var(--line);background:none;cursor:pointer;font-size:18px}
+.sheet .kicker b{background:var(--c)}
+.sheet h3{margin:16px 0 0;font-size:40px;line-height:1.04;letter-spacing:-.02em}
+.sheet .lead{margin:14px 0 0;font-size:18px;line-height:1.5;color:rgba(255,255,255,.8)}
+.sheet h4{margin:36px 0 12px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);font-weight:400}
+.sheet ol{margin:0;padding:0;list-style:none}
+.sheet ol li{padding:13px 0;border-top:1px solid var(--line);font-size:16px;line-height:1.45}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}.chips li{padding:7px 11px;border:1px solid var(--line);font-size:13px;color:rgba(255,255,255,.85)}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:32px 0 0;padding:20px 0 0;border-top:1px solid var(--line)}
+.facts dt{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}.facts dd{margin:6px 0 0;font-size:15px;line-height:1.45}
+.cases{display:grid;gap:12px}.cases a{display:grid;grid-template-columns:96px 1fr;gap:16px;align-items:center;text-decoration:none}
+.cases img,.cases i{width:96px;height:72px;object-fit:cover;display:block;background:#1b2630}
+.cases strong{display:block;font-size:15px;line-height:1.35}.cases small{display:block;margin-top:4px;font-size:12px;color:var(--mute)}
+.veil{position:fixed;inset:0;z-index:25;background:rgba(5,8,11,.4);opacity:0;pointer-events:none;transition:opacity .45s}.veil.on{opacity:1;pointer-events:auto}
 
-/* after the film */
-.after{padding:clamp(72px,10vw,140px) var(--g);max-width:1400px;margin:0 auto}
-.after__eyebrow{display:flex;align-items:center;gap:12px;margin:0;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
-.after__eyebrow b{width:28px;height:2px;background:var(--red)}
-.after h2{margin:14px 0 0;max-width:20ch;font-size:clamp(32px,3.6vw,52px);line-height:1.06;letter-spacing:-.02em}
-.proof{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,1.6vw,24px);margin-top:40px}
-.proof a{text-decoration:none;display:block}
-.proof img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#1b2630}
-.proof p{margin:14px 0 0;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
-.proof strong{display:block;margin-top:6px;font-size:19px;line-height:1.3}
-.close{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-top:clamp(64px,8vw,120px);padding-top:40px;border-top:1px solid var(--line)}
-.close h2{max-width:18ch}
-.close a{flex:none;padding:16px 22px;background:var(--red);color:#fff;font-weight:700;text-decoration:none}
+.after{padding:clamp(88px,11vw,160px) var(--g);max-width:1480px;margin:0 auto}
+.after h2{margin:20px 0 0;max-width:18ch;font-size:clamp(34px,3.8vw,58px);line-height:1.05;letter-spacing:-.02em}
+.proof{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.8vw,28px);margin-top:48px}
+.proof a{text-decoration:none}.proof img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#1b2630;transition:filter .4s}.proof a:hover img{filter:brightness(1.08)}
+.proof small{display:block;margin-top:16px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.proof strong{display:block;margin-top:6px;font-size:20px;line-height:1.3}
+.proof .all{display:flex;flex-direction:column;justify-content:flex-end;aspect-ratio:4/3;padding:28px;border:1px solid var(--line)}
+.proof .all b{font-size:clamp(48px,5vw,72px);letter-spacing:-.03em;line-height:1}
+.proof .all strong{font-size:18px}.proof .all:hover{border-color:rgba(255,255,255,.4)}
 
-/* phones: square film on top, caption below, index as a strip */
 @media (max-width:820px){
  .nav ul{display:none}
- .film{height:640vh}
+ .film{height:680vh}
  .film__pin{display:flex;flex-direction:column}
- .film__video{position:relative;inset:auto;height:auto;aspect-ratio:1/1;flex:none;margin-top:56px}
- .film__scrim{background:linear-gradient(0deg,var(--bg) 0%,rgba(20,35,47,0) 22%);height:calc(100vw + 56px)}
- .cap{position:relative;left:auto;bottom:auto;width:auto;margin:4px var(--g) 0}
- .cap h1{font-size:52px}.cap h2{font-size:28px}.cap p{font-size:15px;margin-top:10px}
- .index{position:absolute;left:0;right:0;top:auto;bottom:62px;transform:none;width:auto;display:flex;gap:4px;overflow-x:auto;padding:0 var(--g);scrollbar-width:none}
- .index::-webkit-scrollbar{display:none}
- .index__label{display:none}
- .index li{flex:none}
- .index li+li{margin-top:0}
- .index button{grid-template-columns:8px auto;padding:9px 12px;border:1px solid var(--line)}
- .index button small{display:none}
- .rail{bottom:18px}.rail button{font-size:0;padding-top:8px}
- .cap__layers{margin-top:14px}
- .cap__layers button{grid-template-columns:8px 84px 1fr 12px;gap:10px;padding:8px 2px}
- .cap__layers em{font-size:11px}
- .cap__layers span{font-size:14px;white-space:nowrap}
- .cap:has(.cap__layers) .cap__in>p:not(.cap__eyebrow){display:none}
- .sheet{top:auto;height:86svh;width:100%;border-left:0;border-top:1px solid var(--line);transform:translateY(100%)}
- .sheet__in{padding:64px 20px 32px}
+ .film__video{position:relative;inset:auto;height:auto;aspect-ratio:1/1;flex:none;margin-top:60px;transform:none}
+ .film__scrim{background:linear-gradient(0deg,var(--bg) 0%,rgba(20,35,47,0) 20%);height:calc(100vw + 60px)}
+ .story{position:relative;left:auto;top:auto;transform:none;width:auto;margin:0 var(--g)}
+ .story h1,.story h2{font-size:34px;margin-top:12px;max-width:none}
+ .story p.lead{font-size:16px;margin-top:12px}
+ .stats{margin-top:20px}.stats dd{font-size:26px}
+ .proof-line{margin-top:18px;padding-top:12px}.more{margin-top:16px}.go{margin-top:18px}
+ .layers{margin-top:16px}.layers button{padding:10px 2px}.layers strong{font-size:16px}
+ .story:has(.layers) p.lead{display:none}
+ .hint{display:none}.progress{bottom:20px}
+ .sheet{top:auto;height:88svh;width:100%;border-left:0;border-top:1px solid var(--line);transform:translateY(100%)}
+ .sheet__in{padding:72px 22px 36px}.sheet h3{font-size:32px}
  .proof{grid-template-columns:1fr}
- .close{flex-direction:column;align-items:flex-start}
 }
-@media (prefers-reduced-motion:reduce){.cap__in,.sheet,.veil{transition:none}}
+@media (prefers-reduced-motion:reduce){.story__in,.sheet,.veil{transition:none}}
 </style>
 </head>
 <body>
@@ -156,27 +117,20 @@ button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 </header>
 
 <main>
-<section class="film" id="film" aria-label="Recorrido por una sala de internación">
+<section class="film" id="film" aria-label="Historia: infraestructura para hospitales">
   <div class="film__pin">
     <video class="film__video" id="video" muted playsinline preload="auto" aria-hidden="true"></video>
     <div class="film__scrim"></div>
-    <div class="cap" id="cap" aria-live="polite"><div class="cap__in" id="capIn"></div></div>
-    <nav class="index-wrap" id="indexWrap" aria-label="Servicios en esta escena">
-      <p class="index__label">Servicios en salud</p>
-      <ol class="index" id="index"></ol>
-    </nav>
-    <div class="rail" id="rail" role="tablist" aria-label="Capítulos"></div>
+    <div class="story" id="story" aria-live="polite"><div class="story__in" id="storyIn"></div></div>
+    <p class="hint" id="hint">Deslizá para recorrer</p>
+    <div class="progress" aria-hidden="true"><i id="bar"></i></div>
   </div>
 </section>
 
 <section class="after">
-  <p class="after__eyebrow"><b></b>Antecedentes en salud</p>
-  <h2>Hospitales que ya funcionan sobre esta infraestructura.</h2>
+  <p class="kicker"><b></b>Antecedentes en salud</p>
+  <h2>Hospitales que ya funcionan sobre lo que instalamos.</h2>
   <div class="proof" id="proof"></div>
-  <div class="close">
-    <h2>Contanos cómo es tu edificio.</h2>
-    <a href="/contacto">Solicitar relevamiento</a>
-  </div>
 </section>
 </main>
 
@@ -185,84 +139,63 @@ button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 
 <script type="module">
 const C={en:'#E2B04A',da:'#3FC7B8',se:'#8B7CF6',de:'#F07A5A',all:'#ffffff'};
-const LAYER={en:'Energía',da:'Datos',se:'Seguridad',de:'Detección',all:'Todas las capas'};
-// Film clock (s): five chapters authored in the Blender tour.
-const CH=[
- {t:0,end:2.8,name:'La sala',eyebrow:'Salud',h1:'Salud',p:'Redes, seguridad, soporte y energía para edificios sanitarios que no pueden detenerse.'},
- {t:2.8,end:6.6,name:'Cada cama',eyebrow:'01 · La red llega a la cama',h2:'Cada monitor, conectado a la red clínica.',p:'Cableado certificado y Wi‑Fi por habitación: los equipos de cabecera reportan sin cortes.'},
- {t:6.6,end:10.8,name:'Enfermería',eyebrow:'02 · El puesto de enfermería',h2:'Enfermería ve cada habitación desde un solo lugar.',p:'Sistemas, llamadores y comunicaciones del área convergen en el puesto.'},
- {t:10.8,end:15.6,name:'Las capas',eyebrow:'03 · Abrimos la obra',h2:'Cuatro capas, un mismo equipo.',p:'Energía, datos, seguridad y detección: cada una diseñada, instalada y documentada.',layers:true},
- {t:15.6,end:18,name:'Operación',eyebrow:'04 · En operación',h2:'Y después, la sostenemos 24/7.',p:'Mesa de ayuda, mantenimiento con SLA y auditorías para que siga funcionando.'},
+const LAYER={en:'Energía',da:'Datos',se:'Seguridad',de:'Detección',all:'Operación'};
+const IMG={'3072':'3072-infraestructura-hospitalaria-rack-y-patch-panel-hospital-a-italo-perrupato-principal.webp','3069':'3069-instalacion-electrica-para-data-center-principal.webp'};
+const img=id=>IMG[id]?`/images/antecedentes/generated/lote_001/${IMG[id]}`:'';
+// One message per moment of the film: what is at stake, what we do, who proves it.
+const STORY=[
+ {t:0,kicker:'Salud',h1:'En un hospital, la red no puede caerse.',lead:'Diseñamos, instalamos y sostenemos la infraestructura de edificios sanitarios que funcionan las 24 horas.',stats:[['51','Proyectos en salud'],['24/7','Soporte'],['22','Años']]},
+ {t:2.8,kicker:'En cada cabecera',h2:'Cada monitor reporta. Siempre.',lead:'Llevamos cableado certificado y Wi‑Fi hasta cada cama, para que los equipos clínicos no pierdan la conexión.',proof:{id:'3072',title:'Hospital Italo Perrupato',what:'Rack y patch panel certificados · 2025',href:'/antecedentes/3072/infraestructura-hospitalaria-rack-y-patch-panel-hospital-a-italo-perrupato'},more:'101'},
+ {t:6.6,scrim:['40%','52%','66%'],kicker:'En el puesto de enfermería',h2:'Todo el piso, visible desde un solo puesto.',lead:'Llamadores, comunicaciones y sistemas del área llegan al lugar donde se toman las decisiones.',proof:{id:'',title:'FUESMEN · Escuela de Medicina Nuclear',what:'Redes de datos y fibra óptica · 2025',href:'/antecedentes/3075/implementacion-de-redes-de-datos-y-fibra-optica-fuesmen-fundacion-escuela-medicina-nuclear-3'},more:'103'},
+ {t:10.8,kicker:'Detrás de la pared',h2:'Cuatro sistemas que nadie ve, y de los que todo depende.',lead:'Los diseñamos, instalamos y documentamos como uno solo.',layers:[['en','108',10.8,12],['da','101',12,13.2],['se','102',13.2,14.4],['de','107',14.4,16]]},
+ {t:15.6,kicker:'Después de la obra',h2:'Y a las tres de la mañana, alguien atiende.',lead:'Mesa de ayuda 24/7, mantenimiento con SLA y la documentación de todo lo instalado.',go:true},
 ];
-// When each service is on screen (film seconds) and the layer it belongs to.
-const AT={'101':[2.8,6.6,'da',3.8],'103':[3.6,6.6,'da',5],'104':[6.6,10.8,'da',8.2],'102':[6.6,10.8,'se',9.4],'108':[10.8,12,'en',11.3],'107':[14.4,15.6,'de',14.9],'105':[15.6,18,'all',16.4],'106':[15.6,18,'all',17.2]};
-const LAYER_WINDOWS=[['en',10.8,12,'108'],['da',12,13.2,'101'],['se',13.2,14.4,'102'],['de',14.4,15.6,'107']];
-const IMG={'3072':'3072-infraestructura-hospitalaria-rack-y-patch-panel-hospital-a-italo-perrupato-principal.webp','3069':'3069-instalacion-electrica-para-data-center-principal.webp','3071':'3071-mantenimiento-critico-de-sistemas-de-deteccion-cela-sa-junio-2025-principal.webp'};
-const imgFor=h=>{const id=(h.match(/antecedentes\/(\d+)/)||[])[1];return IMG[id]?`/images/antecedentes/generated/lote_001/${IMG[id]}`:''};
-
 const services=await fetch('/lab/sector-salud.json').then(r=>r.json());
-const order=['101','103','104','102','108','107','105','106'];
-services.sort((a,b)=>order.indexOf(a.code)-order.indexOf(b.code));
+const svc=code=>services.find(s=>s.code===code);
 
 const video=document.getElementById('video'),film=document.getElementById('film');
-const phone=matchMedia('(max-width: 820px)').matches;
-video.src=phone?'/lab/scrub/salud-sq-1080.mp4':'/lab/scrub/salud-1920.mp4';
+const phoneFilm=matchMedia('(max-width: 820px)').matches;video.poster=phoneFilm?'/cine/media/cine-hospital-proyecto-v5-poster-sq.jpg':'/cine/media/cine-hospital-proyecto-v5-poster.jpg';video.src=phoneFilm?'/lab/scrub/salud-sq-1080.mp4':'/lab/scrub/salud-1920.mp4';
 let D=18;video.addEventListener('loadedmetadata',()=>{D=video.duration||18});
 
-// ---- build index + rail
-const index=document.getElementById('index'),indexWrap=document.getElementById('indexWrap');
-for(const s of services){const a=AT[s.code];if(!a)continue;const li=document.createElement('li');li.dataset.code=s.code;li.style.setProperty('--c',C[a[2]]);
- li.innerHTML=`<button type="button"><i></i><span>${s.name}</span><small>${s.code}</small></button>`;li.querySelector('button').onclick=()=>openSheet(s.code,true);index.appendChild(li)}
-const rail=document.getElementById('rail');
-CH.forEach((c,i)=>{const b=document.createElement('button');b.type='button';b.textContent=c.name;b.onclick=()=>seekTo(c.t+.05);rail.appendChild(b)});
+const story=document.getElementById('story'),storyIn=document.getElementById('storyIn');
+function render(i){const s=STORY[i];let h=`<p class="kicker"><b></b>${s.kicker}</p>`+(s.h1?`<h1>${s.h1}</h1>`:`<h2>${s.h2}</h2>`)+`<p class="lead">${s.lead}</p>`;
+ if(s.stats)h+=`<dl class="stats">${s.stats.map(([v,l])=>`<div><dt>${l}</dt><dd>${v}</dd></div>`).join('')}</dl>`;
+ if(s.layers)h+=`<ul class="layers">${s.layers.map(([k,code])=>`<li data-k="${k}" style="--c:${C[k]}"><button type="button" data-open="${code}"><b></b><strong>${LAYER[k]}</strong><em>${svc(code)?.name||''} →</em></button></li>`).join('')}</ul>`;
+ if(s.proof){const p=s.proof,src=img(p.id);h+=`<a class="proof-line${src?'':' no-img'}" href="${p.href}">${src?`<img src="${src}" alt="">`:''}<span><small>Lo hicimos en</small><strong>${p.title}</strong><span>${p.what}</span></span></a>`}
+ if(s.more)h+=`<div><button type="button" class="more" data-open="${s.more}">Cómo lo hacemos <span>→</span></button></div>`;
+ if(s.go)h+=`<div><a class="go" href="/contacto">Solicitar relevamiento</a></div>`;
+ storyIn.innerHTML=h}
+const scrimEl=document.querySelector('.film__scrim');
+let cur=-1;function setStory(i){if(i===cur)return;const sc=STORY[i].scrim||['14%','30%','46%'];['--s1','--s2','--s3'].forEach((k,j)=>scrimEl.style.setProperty(k,sc[j]));const first=cur<0;cur=i;if(first){render(i);return}story.classList.add('is-swap');setTimeout(()=>{render(i);story.classList.remove('is-swap')},300)}
+storyIn.addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(b)openSheet(b.dataset.open)});
 
-// ---- caption
-const cap=document.getElementById('cap'),capIn=document.getElementById('capIn');let capIdx=-1;
-function renderCap(i){const c=CH[i];
- const layers=c.layers?`<ul class="cap__layers">${LAYER_WINDOWS.map(([k,,,code])=>`<li data-k="${k}" style="--c:${C[k]}"><button type="button" data-open="${code}"><b></b><em>${LAYER[k]}</em><span>${services.find(x=>x.code===code)?.name||''}</span><i>→</i></button></li>`).join('')}</ul>`:'';
- capIn.innerHTML=`<p class="cap__eyebrow"><b></b>${c.eyebrow}</p>${c.h1?`<h1>${c.h1}</h1>`:`<h2>${c.h2}</h2>`}<p>${c.p}</p>${layers}`}
-capIn.addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(b)openSheet(b.dataset.open,false)});
-function setCap(i){if(i===capIdx)return;capIdx=i;cap.classList.add('is-swap');setTimeout(()=>{renderCap(i);cap.classList.remove('is-swap')},capIdx<0?0:260)}
-renderCap(0);capIdx=0;
-
-// ---- scroll ↔ film clock
 const progress=()=>{const r=film.getBoundingClientRect(),span=film.offsetHeight-innerHeight;return Math.min(1,Math.max(0,-r.top/span))};
-const timeAt=p=>p*D;
-function seekTo(t,smooth=true){const span=film.offsetHeight-innerHeight;scrollTo({top:film.offsetTop+span*(t/D),behavior:smooth&&!matchMedia('(prefers-reduced-motion: reduce)').matches?'smooth':'auto'})}
-let shown=0,target=0;
-const freeze=new URLSearchParams(location.search).get('t');if(freeze!==null){film.style.height='100vh';shown=+freeze}
-function tick(){target=freeze!==null?+freeze:timeAt(progress());shown+=(target-shown)*.18;if(Math.abs(target-shown)<.004)shown=target;
+const freeze=new URLSearchParams(location.search).get('t');if(freeze!==null)film.style.height='100vh';
+let shown=freeze!==null?+freeze:0;const bar=document.getElementById('bar'),hint=document.getElementById('hint');
+function tick(){const target=freeze!==null?+freeze:progress()*D;shown+=(target-shown)*.16;if(Math.abs(target-shown)<.004)shown=target;
  if(video.readyState>=1&&!video.seeking&&Math.abs(video.currentTime-shown)>1/45)video.currentTime=shown;
- const t=shown,ci=Math.max(0,CH.findLastIndex(c=>t>=c.t-.001));setCap(ci);indexWrap.classList.toggle('is-away',!!CH[ci].layers);
- rail.querySelectorAll('button').forEach((b,i)=>{const c=CH[i];b.style.setProperty('--p',Math.min(1,Math.max(0,(t-c.t)/(c.end-c.t))));b.classList.toggle('on',i===ci)});
- index.querySelectorAll('li').forEach(li=>{const [a,b]=AT[li.dataset.code];li.classList.toggle('on',t>=a&&t<b)});
- cap.querySelectorAll('.cap__layers li').forEach(li=>{const w=LAYER_WINDOWS.find(([k])=>k===li.dataset.k);li.classList.toggle('on',t>=w[1]&&t<w[2]+(w[0]==='de'?.5:0))});
+ const t=shown,i=Math.max(0,STORY.findLastIndex(s=>t>=s.t-.001));setStory(i);
+ bar.style.setProperty('--p',t/D);hint.style.opacity=t<.4?1:0;
+ storyIn.querySelectorAll('.layers li').forEach(li=>{const L=STORY[3].layers.find(([k])=>k===li.dataset.k);li.classList.toggle('on',t>=L[2]&&t<L[3])});
  requestAnimationFrame(tick)}
 requestAnimationFrame(tick);
 
-// ---- sheet: the service skeleton, tied to its moment in the film
 const sheet=document.getElementById('sheet'),sheetIn=document.getElementById('sheetIn'),veil=document.getElementById('veil');
-function openSheet(code,travel){const s=services.find(x=>x.code===code),a=AT[code];if(!s)return;
- if(travel)seekTo(a[3]);
- sheet.style.setProperty('--c',C[a[2]]);
- const cases=s.cases.length?`<h4>Antecedentes en salud</h4><div class="cases">${s.cases.map(c=>`<a href="${c.h}"><img src="${imgFor(c.h)}" alt="" loading="lazy"><span><strong>${c.t}</strong><small>${c.m}</small></span></a>`).join('')}</div>`:'';
- sheetIn.innerHTML=`<p class="sheet__kicker"><b></b>${LAYER[a[2]]} · Servicio ${s.code}</p><h3 id="sheetTitle">${s.name}</h3><p class="sheet__promise">${s.promise}</p>
- <h4>Qué hacemos</h4><ol>${s.scope.map(x=>`<li>${x}</li>`).join('')}</ol>
- <h4>Equipos</h4><ul class="chips">${s.equipment.map(x=>`<li>${x}</li>`).join('')}</ul>
- <dl class="facts"><div><dt>Entregable clave</dt><dd>${s.deliverable}</dd></div><div><dt>Norma de referencia</dt><dd>${s.standard}</dd></div></dl>
- ${cases}<p class="sheet__links"><a href="/servicios/${s.code}/x?sector=salud">Ver el servicio</a><a href="/antecedentes?sector=salud">Todos los antecedentes</a></p>`;
- sheet.classList.add('open');sheet.setAttribute('aria-hidden','false');veil.classList.add('on');if(travel!==null)sheet.querySelector('.sheet__close').focus({preventScroll:true,focusVisible:false})}
-function closeSheet(){sheet.classList.remove('open');sheet.setAttribute('aria-hidden','true');veil.classList.remove('on')}
+const LAYER_OF={'101':'da','103':'da','104':'da','102':'se','108':'en','107':'de','105':'all','106':'all'};
+function openSheet(code,quiet){const s=svc(code);if(!s)return;sheet.style.setProperty('--c',C[LAYER_OF[code]]);
+ const cases=s.cases.length?`<h4>Lo hicimos en</h4><div class="cases">${s.cases.slice(0,3).map(c=>{const id=(c.h.match(/antecedentes\/(\d+)/)||[])[1];return `<a href="${c.h}">${img(id)?`<img src="${img(id)}" alt="">`:'<i></i>'}<span><strong>${c.t}</strong><small>${c.m}</small></span></a>`}).join('')}</div>`:'';
+ sheetIn.innerHTML=`<p class="kicker"><b></b>${LAYER[LAYER_OF[code]]}</p><h3 id="sheetTitle">${s.name}</h3><p class="lead">${s.promise}</p>
+ <h4>Qué hacemos</h4><ol>${s.scope.map(x=>`<li>${x}</li>`).join('')}</ol><h4>Con qué</h4><ul class="chips">${s.equipment.map(x=>`<li>${x}</li>`).join('')}</ul>
+ <dl class="facts"><div><dt>Lo que entregamos</dt><dd>${s.deliverable}</dd></div><div><dt>Bajo norma</dt><dd>${s.standard}</dd></div></dl>${cases}`;
+ sheet.classList.add('open');sheet.setAttribute('aria-hidden','false');veil.classList.add('on');if(!quiet)sheet.querySelector('.sheet__close').focus({preventScroll:true})}
+const closeSheet=()=>{sheet.classList.remove('open');sheet.setAttribute('aria-hidden','true');veil.classList.remove('on')};
 document.getElementById('sheetClose').onclick=closeSheet;veil.onclick=closeSheet;addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
 
-// ---- proof after the film
-const proof=document.getElementById('proof');const seen=new Set();
-for(const s of services)for(const c of s.cases){const img=imgFor(c.h);if(!img||seen.has(img))continue;seen.add(img);
- proof.insertAdjacentHTML('beforeend',`<a href="${c.h}"><img src="${img}" alt="" loading="lazy"><p>${c.m} · ${s.name}</p><strong>${c.t}</strong></a>`)}
-
-// review helpers: ?t=seconds jumps to a moment, ?open=code opens a service
-const q=new URLSearchParams(location.search);
-if(q.has('open'))setTimeout(()=>openSheet(q.get('open'),null),300);
+const proofEl=document.getElementById('proof');
+[['3072','Hospital Italo Perrupato','Rack y patch panel · 2025','/antecedentes/3072/infraestructura-hospitalaria-rack-y-patch-panel-hospital-a-italo-perrupato'],['3069','Hospital Italo Perrupato','Instalación eléctrica para data center · 2025','/antecedentes/3069/instalacion-electrica-para-data-center']]
+ .forEach(([id,t,w,h])=>proofEl.insertAdjacentHTML('beforeend',`<a href="${h}"><img src="${img(id)}" alt="" loading="lazy"><small>${w}</small><strong>${t}</strong></a>`));
+proofEl.insertAdjacentHTML('beforeend',`<a class="all" href="/antecedentes?sector=salud"><b>51</b><strong>proyectos en salud. Ver todos →</strong></a>`);
+const q=new URLSearchParams(location.search);if(q.has('open'))setTimeout(()=>openSheet(q.get('open'),true),300);
 </script>
 </body>
 </html>
