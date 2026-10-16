@@ -64,14 +64,15 @@ export function createScene(renderer,build,{compact=false,tagHost=null}={}){
   if(walls){box(W,H,.22,M.wall,0,0,-D/2+.11,{shadow:false,edges:true,round:false});box(.22,H,D,M.wall,-W/2+.11,0,0,{shadow:false,edges:true,round:false});
    if(windows)for(let x=-W/2+2.4;x<W/2-1.5;x+=4.6){box(2.2,1.3,.05,M.glass,x,1.1,-D/2+.24,{shadow:false,round:false});box(2.3,.06,.12,M.alu,x,2.42,-D/2+.25)}}
  }
- const kit={THREE,M,COLORS,box,cyl,rod,lamp,zone,tag,flow,shell,led,world,services,LAYER,anim,RoundedBoxGeometry};
+ const points={};
+ const kit={THREE,M,COLORS,box,cyl,rod,lamp,zone,tag,flow,shell,led,world,services,LAYER,anim,RoundedBoxGeometry,points};
  const def=build(kit);
  // furniture-scale casters only: long walls, trays and frames stay clean
  {const sz=new THREE.Vector3();world.traverse(o=>{if(!o.isMesh||o.material.isShaderMaterial)return;o.geometry.computeBoundingBox();o.geometry.boundingBox.getSize(sz);if(Math.max(sz.x,sz.z)>3)o.castShadow=false})}
  // Applies a layer focus: null = overview, 'all' = every layer, or one of en/da/se/de.
  function setLayers(k,ease=1,time=0){for(const key in flows){const on=k==='all'||k===key||k===null;for(const f of flows[key]){f.material.uniforms.t.value=time;f.material.uniforms.a.value+=((on?(k===null?.28:1):.04)-f.material.uniforms.a.value)*ease}}
   for(const key in LAYER){const on=k===null||k==='all'||k===key;for(const o of LAYER[key])o.visible=on}}
- return {scene,cam,world,services,TAGS,anim,setLayers,def,frame3d:def.frame||{w:24,d:14},pmrem};
+ return {scene,cam,world,services,TAGS,anim,setLayers,def,frame3d:def.frame||{w:24,d:14},pmrem,points};
 }
 
 export function frameCamera(cam,frame3d,w,h,{caption=true,lift=0}={}){
@@ -121,4 +122,38 @@ export function mountIso(host,build){
   composer.render()}
  frame();
  return ()=>{cancelAnimationFrame(raf);io.disconnect();ro.disconnect();renderer.dispose();pmrem.dispose();scene.traverse(o=>{o.geometry?.dispose();if(o.material&&!Array.isArray(o.material))o.material.dispose()});renderer.domElement.remove();tagHost.replaceChildren();steps.replaceChildren()};
+}
+
+// Stage mode: the page drives the scene. set({layer,point,lift}) focuses a layer,
+// opens the skeleton and moves the camera to the equipment that explains a service.
+export function mountStage(host,build){
+ const canvasHost=host.querySelector('[data-iso-canvas]'),tagHost=host.querySelector('[data-iso-tags]');
+ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const compact=matchMedia('(max-width: 760px), (pointer: coarse)').matches;
+ const renderer=createRenderer();canvasHost.appendChild(renderer.domElement);
+ const {scene,cam,services,TAGS,anim,setLayers,frame3d,pmrem,points}=createScene(renderer,build,{compact,tagHost});
+ const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,cam));
+ if(!compact){const ao=new GTAOPass(scene,cam,1,1);ao.updateGtaoMaterial({radius:.45,distanceExponent:1.4,thickness:1.2,scale:1.1,samples:16});ao.blendIntensity=.85;composer.addPass(ao)}
+ composer.addPass(new OutputPass());
+ const resize=()=>{const w=canvasHost.clientWidth,h=canvasHost.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);composer.setPixelRatio(Math.min(devicePixelRatio,2));composer.setSize(w,h)};
+ const ro=new ResizeObserver(resize);ro.observe(canvasHost);resize();
+ const state={layer:null,point:null,lift:0,zoom:1},cur={lift:0,zoom:1,target:new THREE.Vector3(0,0,frame3d.look??-1.2)};
+ const goal=new THREE.Vector3(),dir=new THREE.Vector3(Math.sin(Math.PI/4)*Math.cos(.62),Math.sin(.62),Math.cos(Math.PI/4)*Math.cos(.62));
+ let visible=false,time=0,raf=0;const clock=new THREE.Clock(),v=new THREE.Vector3();
+ const io=new IntersectionObserver(([e])=>{visible=e.isIntersecting;clock.getDelta()},{threshold:.05});io.observe(host);
+ function frame(){raf=requestAnimationFrame(frame);if(!visible||document.hidden)return;
+  const dt=Math.min(clock.getDelta(),.05);time+=reduce?0:dt;const ease=reduce?1:1-Math.pow(.002,dt);
+  cur.lift+=(state.lift-cur.lift)*ease;services.position.y=cur.lift;cur.zoom+=(state.zoom-cur.zoom)*ease;
+  const p=state.point&&points[state.point];goal.set(...(p||[0,0,frame3d.look??-1.2]));if(p&&p[1]>2.5)goal.y+=cur.lift;cur.target.lerp(goal,ease);
+  setLayers(state.layer,ease,time);for(const f of anim)f(time,dt,reduce);
+  const w=canvasHost.clientWidth,h=canvasHost.clientHeight;frameCamera(cam,frame3d,w,h,{caption:false});
+  cam.position.copy(cur.target).addScaledVector(dir,40);cam.lookAt(cur.target);cam.zoom=cur.zoom;cam.updateProjectionMatrix();
+  for(const t of TAGS){const on=t.only.includes(state.layer);if(on){v.copy(t.p);if(t.p.y>2.5)v.y+=cur.lift;v.project(cam);t.el.style.left=(canvasHost.offsetLeft+(v.x+1)/2*w)+'px';t.el.style.top=(canvasHost.offsetTop+(1-v.y)/2*h)+'px'}t.el.classList.toggle('is-on',on)}
+  composer.render()}
+ frame();
+ return {
+  set({layer=null,point=null}={}){state.layer=layer;state.point=point;state.lift=layer&&layer!=='all'?1.1:layer==='all'?.6:0;state.zoom=point?1.85:1},
+  points,
+  dispose(){cancelAnimationFrame(raf);io.disconnect();ro.disconnect();renderer.dispose();pmrem.dispose();renderer.domElement.remove();tagHost.replaceChildren()}
+ };
 }

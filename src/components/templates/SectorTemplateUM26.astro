@@ -4,6 +4,9 @@ import { cleanCmsText } from '../../data/serviceSummaries';
 import SectorJourney from '../cine/SectorJourney.astro';
 import CineBanner from '../cine/CineBanner.astro';
 import SectorLayers from '../cine/SectorLayers.astro';
+import StoryStage from '../cine/StoryStage.astro';
+import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
+import { SERVICE_STAGE, STAGE_SECTORS, caseService } from '../../data/cine/stageMap';
 import SnapRail from '../cine/SnapRail.astro';
 import { sectorBySlug } from '../../data/cine/scenes';
 import {sectorMovie} from '../../data/cine/projectCinema';
@@ -38,6 +41,18 @@ const sectorAntecedentesHref = sectorSlug
   : '/antecedentes';
 const caseHref = (item: any) => `/antecedentes/${item.id}/${item.slug || ''}`;
 const leadCase = antecedentes[0];
+// Stage test: sectors listed here read their services on the 3D stage.
+const STAGE_TEST = STAGE_SECTORS;
+const buildStageItems = () => STAGE_TEST.includes(sectorSlug)
+  ? SERVICE_SPEC_LIST.filter((spec) => spec.sectorSlugs.includes(sectorDataSlug)).map((spec) => {
+      const focus = SERVICE_STAGE[spec.code];
+      const cases = antecedentes.filter((item: any) => caseService(item) === spec.code).slice(0, 3)
+        .map((item: any) => ({ title: formatCaseName(item.Cliente || item.Titulo, 'Proyecto'), href: caseHref(item), meta: [areaLabel(item.Area), item.Fecha ? String(item.Fecha).slice(0, 4) : ''].filter(Boolean).join(' · ') }));
+      return { key: spec.code, label: spec.name, kicker: `Servicio ${spec.code}`, promise: spec.promise, sector: sectorSlug, layer: focus.layer, point: focus.point, film: focus.film,
+        scope: spec.scope.slice(0, 4), equipment: spec.equipment, deliverable: spec.keyDeliverable, standard: spec.keyStandard, cases,
+        links: [{ label: `Ver ${spec.name}`, href: `${spec.href}?sector=${sectorSlug}` }, { label: 'Antecedentes del sector', href: sectorAntecedentesHref }] };
+    })
+  : [];
 const evidenceCases = antecedentes.slice(0, 6);
 const serviceItems = (serviciosRelacionados || []).slice(0, 8);
 const criteriaItems = (valueProps || []).slice(0, 6);
@@ -110,6 +125,7 @@ const areaLabel = (area: unknown) => {
   const parts = String(area || sectorName).split(/\s*&\s*/).map((p) => p.trim()).filter(Boolean);
   return parts.filter((p) => !parts.some((q) => q !== p && p.toLowerCase().includes(q.toLowerCase()))).join(' y ');
 };
+const stageItems = buildStageItems();
 ---
 
 <div class="um26-sector">
@@ -129,8 +145,12 @@ const areaLabel = (area: unknown) => {
     back={{ href: '/sectores', label: '← Todos los sectores' }}
   />
 
-  <SectorJourney slug={sectorDataSlug} scene={cineScene} />
-  <SectorLayers sector={sectorSlug} />
+  {stageItems.length ? (
+    <StoryStage id="escenario" kicker="Servicios en el sector" title={`Qué resolvemos en ${sectorName.toLowerCase()}, capa por capa.`} lead="Recorré los servicios: la maqueta muestra dónde actúa cada uno. Abrí uno para ver su esqueleto, los equipos y los antecedentes del sector." items={stageItems} />
+  ) : (<>
+    <SectorJourney slug={sectorDataSlug} scene={cineScene} />
+    <SectorLayers sector={sectorSlug} />
+  </>)}
 
   {criteriaItems.length > 0 && (
     <section class="sector26-criteria">

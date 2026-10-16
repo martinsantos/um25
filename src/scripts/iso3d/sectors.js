@@ -17,6 +17,7 @@ function techRoom(k,{x,z,w=3.6,d=4.2,D}){
  const ups=box(.7,1.2,.9,M.dark,x+.7,0,z-.4);lamp('en',.3,.06,.02,0,-.3,.46,ups);
  lamp('se',.12,.2,.05,x+w/2-1.3,1.1,z+d/2+.06);
  tag([x-.6,2.4,z-.4],'Rack','#3FC7B8',['da','all']);tag([x+.7,1.5,z-.4],'UPS','#E2B04A',['en','all']);
+ k.points.rack=[x-.6,1.2,z-.4];k.points.ups=[x+.7,.7,z-.4];k.points.door=[x+w/2-1.3,1.2,z+d/2];
  return {rk:[x-.6,2.1,z-.4],up:[x+.7,1.2,z-.4],door:[x+w/2-1.3,1.2,z+d/2+.06]};
 }
 // Ceiling services: tray, access points, detectors and cameras along a corridor.
@@ -33,6 +34,7 @@ function ceiling(k,{x0,x1,z,aps,dets,cams,feed}){
  flow('se',[[feed.rk[0],TY+.25,z-.25],[feed.door[0],TY+.25,z-.25],[feed.door[0],TY+.25,feed.door[2]],feed.door],.042);
  flow('da',[feed.rk,[feed.rk[0],TY+.05,feed.rk[2]],[feed.rk[0],TY+.05,z]]);
  flow('en',[feed.up,[feed.up[0],TY+.12,feed.up[2]],[feed.up[0],TY+.12,z+.15]]);
+ if(aps[0])k.points.ap=[aps[0][0],TY,aps[0][1]];if(dets[0])k.points.det=[dets[0][0],TY,dets[0][1]];if(cams[0])k.points.cam=[cams[0][0],TY,cams[0][1]];
  if(aps[0])tag([aps[0][0],TY+.6,aps[0][1]],'Wi‑Fi','#3FC7B8',['da']);
  if(dets[0])tag([dets[0][0],TY+.6,dets[0][1]],'Detector','#F07A5A',['de']);
  if(cams[0])tag([cams[0][0],TY+.6,cams[0][1]],'Cámara','#8B7CF6',['se']);
@@ -93,6 +95,7 @@ function salud(k){
  box(.7,1.05,2.2,M.counter,-2.6,0,.95,{parent:ns});box(.7,1.05,2.2,M.counter,2.6,0,.95,{parent:ns});
  for(const x of[-1.4,0,1.4]){box(.7,.44,.05,M.dark,x,1.25,.45,{parent:ns});box(.08,.2,.08,M.alu,x,1.05,.45,{parent:ns});box(.5,.08,.5,M.chair,x,.48,1.2,{parent:ns});cyl(.03,.45,M.dark,x,0,1.2,{parent:ns,seg:8})}
  tag([-1.5,1.9,3.2],'Enfermería','#ffffff',[null,'da']);
+ k.points.screen=[rooms[1]+.85,1.9,-6.25];k.points.nurse=[-1.5,1.1,3.2];
  for(let i=0;i<4;i++){box(.55,.08,.55,M.chair,-10.5+i*.7,.45,5.6);box(.55,.5,.07,M.chair,-10.5+i*.7,.5,5.9)}
  cyl(.28,.5,M.white,-6.6,0,5.8);const leaf=new THREE.Mesh(new THREE.IcosahedronGeometry(.55,1),new THREE.MeshStandardMaterial({color:0x5f8f6a,roughness:.9,flatShading:true}));leaf.position.set(-6.6,1.05,5.8);leaf.castShadow=true;world.add(leaf);
  const feed=techRoom(k,{x:(-W/2+18.4+W/2)/2,z:-4.6+.4,D});

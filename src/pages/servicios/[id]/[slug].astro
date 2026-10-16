@@ -24,6 +24,9 @@ import SystemsMap from '../../../components/cine/SystemsMap.astro';
 import DeliveryProcess from '../../../components/cine/DeliveryProcess.astro';
 import ProductMoments from '../../../components/cine/ProductMoments.astro';
 import ServiceSpecSheet from '../../../components/cine/ServiceSpecSheet.astro';
+import StoryStage from '../../../components/cine/StoryStage.astro';
+import { SERVICE_STAGE, STAGE_SECTORS, caseService, caseSector } from '../../../data/cine/stageMap';
+import { ISO3D_TEXT } from '../../../data/cine/iso3dText.js';
 import ShareButton from '../../../components/common/ShareButton.astro';
 import { getServiceSpec } from '../../../data/serviceSpecs';
 import SnapRail from '../../../components/cine/SnapRail.astro';
@@ -423,6 +426,20 @@ const serviceCases = (() => {
   }));
 })();
 const antecedentesTotal = getAntecedentesCatalogCount();
+// Stage test: services listed here show their layer on every sector scene.
+const SERVICE_STAGE_TEST = ['102'];
+const SECTOR_NAMES: Record<string, string> = { salud: 'Salud', constructoras: 'Constructoras', aeropuertos: 'Aeropuertos', industria: 'Industria', bodegas: 'Bodegas', mineria: 'Minería' };
+const buildServiceStage = () => {
+  const code = String(id), focus = SERVICE_STAGE[code];
+  if (!SERVICE_STAGE_TEST.includes(code) || !focus || !serviceSpec) return [];
+  return STAGE_SECTORS.filter((slug) => serviceSpec.sectorSlugs.includes(slug)).map((slug) => {
+    const text = (ISO3D_TEXT as Record<string, any>)[slug]?.[focus.layer === 'all' ? 'intro' : focus.layer] || ['', ''];
+    const cases = snapshotCases.filter((r) => caseSector(r.Area) === slug && caseService(r) === code).slice(0, 3)
+      .map((r) => ({ title: smartCase(cleanCmsText(r.Cliente || '')) || cleanCmsText(r.Titulo || ''), href: `/antecedentes/${r.id}/${generateSlug(r.Titulo || '')}`, meta: [cleanCmsText(r.Titulo || '').slice(0, 70), String(r.Fecha || '').slice(0, 4)].filter(Boolean).join(' · ') }));
+    return { key: slug, label: SECTOR_NAMES[slug], kicker: text[0], promise: text[1], sector: slug, layer: focus.layer, point: focus.point,
+      equipment: serviceSpec.equipment, cases, links: [{ label: `Ver ${SECTOR_NAMES[slug]}`, href: `/${slug}#escenario` }, { label: 'Antecedentes', href: `/antecedentes?sector=${slug}` }] };
+  });
+};
 
 // ── Soluciones incluidas (acordeón compacto, sin copy de folleto) ──────
 const productTechLine = (producto: any) => {
@@ -454,6 +471,7 @@ const projectServices=NAV_SERVICES.filter(service=>service.code===String(id));
 const product = productPage(String(id));
 const isProductPage = Boolean(product);
 const serviceSpec = getServiceSpec(id);
+const serviceStageItems = buildServiceStage();
 const fichaPrintHref = serviceSpec ? `/servicios/${id}/ficha` : null;
 const serviceSummaryText = cleanCmsText(plainTextFromHtml(serviceBodySource)) ||
   'Alcance técnico definido bajo relevamiento de sitio y criterios operativos verificables.';
@@ -758,6 +776,7 @@ const fichaItems = [
 
     <!-- Guías y análisis del blog para este servicio (mapa temático) -->
     <!-- 4b · Ficha técnica completa -->
+    {serviceStageItems.length > 0 && <StoryStage id="escenario-servicio" kicker="El servicio en cada sector" title={`Dónde actúa ${serviceShortName} en cada operación.`} lead="Recorré los sectores: la maqueta de cada uno muestra la capa de este servicio y el equipo que instalamos. Abrí uno para ver los antecedentes en ese sector." items={serviceStageItems} />}
     {serviceSpec && (
       <section class="svc-section" id="ficha-tecnica" aria-labelledby="svc-spec-title">
         <div class="svc-wrap">
