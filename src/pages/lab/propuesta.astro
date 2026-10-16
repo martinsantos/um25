@@ -3,6 +3,8 @@
 // (Blender films: where and how we do it). Not linked; review only.
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import HomeHero from '../../components/cine/HomeHero.astro';
+import CineBanner from '../../components/cine/CineBanner.astro';
+import { HOME_SCENES, V4_CUTS } from '../../data/cine/scenes';
 import SectorRail from '../../components/cine/SectorRail.astro';
 import SectorFilm from '../../components/cine/SectorFilm.astro';
 import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
@@ -10,6 +12,8 @@ import { ANTECEDENTES_REALES } from '../../lib/um26-data/antecedentesReales';
 import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 
 const total = getAntecedentesCatalogCount();
+const heroVariants = Object.fromEntries(HOME_SCENES.map((s) => [s.scene, Object.keys(V4_CUTS).filter((k) => k.startsWith(`${s.scene}-`))]));
+const heroStart = Math.floor(Math.random() * HOME_SCENES.length);
 const stats = [
   { value: '22+', label: 'Años de operación', href: '/nosotros' },
   { value: String(total), label: 'Proyectos documentados', href: '/antecedentes' },
@@ -36,8 +40,11 @@ const cases = FEATURED.flatMap(({ id, image }) => {
 ---
 <LayoutV4 skin="black" noindex={true} title="Propuesta · Última Milla" description="Propuesta de portada">
   <div class="prop">
-    <!-- 1 · Papel: qué hacemos -->
-    <HomeHero title="Servicios IT para operaciones que no pueden detenerse." lead="Redes, seguridad, telecomunicaciones, software, soporte y energía, resueltos por un mismo equipo en Cuyo y Patagonia." stats={stats} />
+    <!-- 1 · El banner Blender de producción -->
+    <CineBanner variant="home" kicker="Más de 22 años de servicios IT · Mendoza, Argentina" title="Servicios IT para operaciones que no pueden detenerse."
+      lead="Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar."
+      primary={{ href: '/antecedentes', label: 'Ver evidencia operativa' }} secondary={{ href: '/sectores', label: 'Entrar por sector' }}
+      variants={heroVariants} start={heroStart} />
 
     <!-- 2 · Pizarra: dónde lo hacemos -->
     <section class="prop-slate">
@@ -55,12 +62,9 @@ const cases = FEATURED.flatMap(({ id, image }) => {
     <SectorFilm sector="salud" antecedentesHref="/antecedentes?sector=salud" compact />
 
     <!-- 4 · Papel: servicios y prueba -->
-    <section class="prop-paper">
+    <HomeHero level="h2" kicker="Servicios" title="Ocho servicios, un mismo equipo." lead="Pasá por cada servicio y mirá el equipo que instalamos, armándose." />
+    <section class="prop-paper prop-paper--tight">
       <div class="prop-shell">
-        <header class="prop-head">
-          <p class="prop-kicker"><b></b>Servicios</p>
-          <h2>Ocho servicios, un mismo equipo.</h2>
-        </header>
         <ol class="prop-svc">
           {SERVICE_SPEC_LIST.map((s, i) => <li><a href={s.href}><span>{String(i + 1).padStart(2, '0')}</span><strong>{s.name}</strong><em>{s.promise}</em><i aria-hidden="true">→</i></a></li>)}
         </ol>
@@ -90,6 +94,7 @@ const cases = FEATURED.flatMap(({ id, image }) => {
   .prop-shell{width:min(var(--um-container-wide,1400px),calc(100% - (var(--um-page-gutter,24px) * 2)));margin:0 auto}
   .prop-slate{background:#14232f;color:#fff;padding:clamp(80px,9vw,140px) 0}
   .prop-paper{background:#fcfcf9;color:#182120;padding:clamp(80px,9vw,140px) 0}
+  .prop-paper--tight{padding-top:0}
   .prop-head{display:grid;grid-template-columns:1fr auto;align-items:end;gap:12px 32px;margin-bottom:clamp(32px,4vw,52px)}
   .prop .prop-kicker{grid-column:1/-1;display:flex;align-items:center;gap:14px;margin:0;font-size:13px!important;letter-spacing:.2em;text-transform:uppercase;color:inherit!important;opacity:.62}
   .prop-kicker b{width:32px;height:2px;background:#DC2626}

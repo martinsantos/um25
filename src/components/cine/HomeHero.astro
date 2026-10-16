@@ -2,20 +2,21 @@
 // Home opening on the page's paper: the promise on the left, and on the right the
 // eight services' objects assembling one after another, each naming its service.
 import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
-interface Props { title: string; lead: string; stats: { value: string; label: string; href?: string }[] }
-const { title, lead, stats } = Astro.props;
+interface Props { title: string; lead: string; stats?: { value: string; label: string; href?: string }[]; level?: 'h1' | 'h2'; kicker?: string }
+const { title, lead, stats = [], level = 'h1', kicker = 'Última Milla · Servicios IT' } = Astro.props;
+const H = level;
 const items = SERVICE_SPEC_LIST.map((s) => ({ code: s.code, name: s.name, href: s.href }));
 ---
 <section class="hhero" aria-labelledby="hhero-title">
   <div class="hhero__copy">
-    <p class="hhero__kicker"><span></span>Última Milla · Servicios IT</p>
-    <h1 id="hhero-title">{title}</h1>
+    <p class="hhero__kicker"><span></span>{kicker}</p>
+    <H id="hhero-title" class="hhero__title">{title}</H>
     <p class="hhero__lead">{lead}</p>
     <div class="hhero__cta">
       <a class="hhero__btn" href="/contacto">Solicitar relevamiento</a>
       <a class="hhero__link" href="/servicios">Ver los ocho servicios <span aria-hidden="true">→</span></a>
     </div>
-    <dl class="hhero__stats">{stats.map((s) => <div><dt>{s.label}</dt><dd>{s.href ? <a href={s.href}>{s.value}</a> : s.value}</dd></div>)}</dl>
+    <dl class="hhero__stats">{stats.length > 0 && stats.map((s) => <div><dt>{s.label}</dt><dd>{s.href ? <a href={s.href}>{s.value}</a> : s.value}</dd></div>)}</dl>
   </div>
   <div class="hhero__stage">
     <div class="hhero__canvas" data-hero-objects={JSON.stringify(items.map((i) => i.code))} aria-hidden="true"></div>
@@ -29,7 +30,7 @@ const items = SERVICE_SPEC_LIST.map((s) => ({ code: s.code, name: s.name, href: 
   .hhero__copy{padding:clamp(96px,10vw,140px) 24px clamp(56px,6vw,96px) max(var(--um-page-gutter,24px),calc((100% - var(--um-container-wide,1400px))/2))}
   .hhero.hhero .hhero__kicker{display:flex;align-items:center;gap:14px;margin:0;font-size:13px!important;letter-spacing:.2em;text-transform:uppercase;color:#5f6368!important}
   .hhero__kicker span{width:32px;height:2px;background:#DC2626}
-  .hhero.hhero h1{margin:22px 0 0;max-width:13ch;font-size:clamp(44px,5.4vw,88px)!important;line-height:1;letter-spacing:-.03em;color:#182120!important}
+  .hhero.hhero .hhero__title{margin:22px 0 0;max-width:13ch;font-size:clamp(44px,5.4vw,88px)!important;line-height:1;letter-spacing:-.03em;color:#182120!important}
   .hhero.hhero .hhero__lead{margin:24px 0 0;max-width:40ch;font-size:clamp(17px,1.35vw,21px)!important;line-height:1.55;color:#3c423f!important}
   .hhero__cta{display:flex;flex-wrap:wrap;align-items:center;gap:20px 28px;margin-top:36px}
   .hhero__btn{padding:18px 26px;background:#DC2626;color:#fff;font-weight:700;text-decoration:none}

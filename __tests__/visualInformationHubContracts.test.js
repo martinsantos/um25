@@ -270,15 +270,12 @@ describe('Information hub visual contracts', () => {
   });
 
   test('home numeric summary is actionable instead of dead dashboard text', () => {
-    // Rediseño 2026-10: las cifras viven en el hero y cada una enlaza a su evidencia.
     const home = read('src/pages/index.astro');
-    const hero = read('src/components/cine/HomeHero.astro');
     expect(home).toContain("href: '/nosotros'");
     expect(home).toContain("href: '/antecedentes'");
     expect(home).toContain("href: '/sectores'");
-    expect(home).toContain('stats={stats.slice(0, 3)}');
-    expect(hero).toContain('{s.href ? <a href={s.href}>{s.value}</a> : s.value}');
-    expect(hero).toMatch(/\.hhero a:focus-visible\s*\{[\s\S]*outline:\s*2px solid #DC2626/);
+    expect(home).toContain('{stats.map(({ value, label, href, aria }) => (');
+    expect(home).toContain('<a href={href} aria-label={aria}>');
   });
 
   test('home GEO hub cards are full-cell links with visible action states', () => {
@@ -402,15 +399,11 @@ describe('Information hub visual contracts', () => {
   });
 
   test('home service visual loads reliably for full-page visual QA', () => {
-    // Rediseño 2026-10: la primera pantalla es texto en papel con un lienzo 3D que se
-    // monta después; las imágenes de casos reservan su tamaño y cargan diferidas.
+    // La portada abre con el banner Blender de producción; las imágenes de casos reservan su tamaño.
     const home = read('src/pages/index.astro');
-    const hero = read('src/components/cine/HomeHero.astro');
-    expect(home).toContain('<HomeHero');
-    expect(hero).toContain("await import('../../scripts/senal/objects.js')");
-    expect(hero).not.toMatch(/<video|<iframe/);
+    expect(home).toContain('<CineBanner');
+    expect(home).toContain('variants={heroVariants}');
     expect(home).toContain('width="1200"');
-    expect(home).toContain('height="900"');
     expect(home).toContain('decoding="async"');
   });
 

@@ -5,7 +5,6 @@ import { getAntecedentesCatalogCount } from '../utils/verifiedProof';
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import EmailLink from '../components/common/EmailLink.astro';
 import CineBanner from '../components/cine/CineBanner.astro';
-import HomeHero from '../components/cine/HomeHero.astro';
 import { SERVICE_SPEC_LIST } from '../data/serviceSpecs';
 import ServicesStory from '../components/cine/ServicesStory.astro';
 import SectorAtlas from '../components/cine/SectorAtlas.astro';
@@ -16,12 +15,19 @@ import JournalBand from '../components/cine/JournalBand.astro';
 import SnapRail from '../components/cine/SnapRail.astro';
 import CapabilityLedger from '../components/cine/CapabilityLedger.astro';
 import { NAV_SERVICES } from '../data/navigation';
-import { HOME_SCENES } from '../data/cine/scenes';
+import { HOME_SCENES, V4_CUTS } from '../data/cine/scenes';
 import {sectorProject} from '../data/cine/sectorNarrative';
 
 // La portada conserva los vuelos completos de Blender; los servicios cuentan
 // su recorrido con el proyecto isométrico bajo el hero.
 const integralProject=sectorProject('integral','fachada');
+
+// Hero variable: cada visita arranca en otra escena y cada escena elige al azar uno de
+// sus recorridos v4 (servicio dentro de la escena). SSR: cambia en cada carga.
+const heroVariants = Object.fromEntries(
+  HOME_SCENES.map((s) => [s.scene, Object.keys(V4_CUTS).filter((k) => k.startsWith(`${s.scene}-`))]),
+);
+const heroStart = Math.floor(Math.random() * HOME_SCENES.length);
 
 const heroLead = 'Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.';
 
@@ -87,7 +93,37 @@ const hubs = [
   image="/cine/media/cine-bodega-poster.jpg"
 >
   <div class="um26-home">
-    <HomeHero title="Servicios IT para operaciones que no pueden detenerse." lead={heroLead} stats={stats.slice(0, 3)} />
+    <CineBanner
+      variant="home"
+      kicker="Más de 22 años de servicios IT · Mendoza, Argentina"
+      title="Servicios IT para operaciones que no pueden detenerse."
+      lead={heroLead}
+      primary={{ href: '/antecedentes', label: 'Ver evidencia operativa' }}
+      secondary={{ href: '/sectores', label: 'Entrar por sector' }}
+      variants={heroVariants}
+      start={heroStart}
+    />
+
+    <section class="um26-stats" aria-label="Indicadores ULTIMA MILLA">
+      <div class="um26-shell um26-stats__inner">
+        <div class="um26-stats__grid">
+          {stats.map(({ value, label, href, aria }) => (
+            <a href={href} aria-label={aria}>
+              <strong>
+                {value.endsWith('+') ? (
+                  <>{value.slice(0, -1)}<b>+</b></>
+                ) : value.endsWith('%') ? (
+                  <>{value.slice(0, -1)}<b>%</b></>
+                ) : (
+                  value
+                )}
+              </strong>
+              <span>{label}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
 
 
     <section class="um26-section" id="servicios-it">
