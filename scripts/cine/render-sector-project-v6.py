@@ -236,6 +236,8 @@ def author(scene_id):
    back=ids.get(i.replace('-seat-','-back-'));hero.append(('lounge',b,back));drop|={i,i.replace('-seat-','-back-')}
   elif scene_id=='plant' and re.match(r'process-\d+-\d+$',i):
    hero.append(('machine',b,None));drop.add(i)
+  elif scene_id=='plant' and i.startswith('pallet') and b['h']>8:
+   hero.append(('pallet',b,None));drop.add(i)
   elif scene_id=='mine' and re.match(r'equipment-pump-\d+$',i):
    hero.append(('pump',b,None));drop.add(i)
   elif scene_id=='mine' and i.startswith('module-roof-'):
@@ -486,6 +488,10 @@ def render(args):
    for dz in [a['h']*.33,a['h']*.66]:rbox(a['x'],a['y']+a['d']/2+.05,dz,a['w']-2,.2,.4,bezel,0)
    rbox(a['x'],a['y']+a['d']/2+.2,1,a['w'],.4,3,hazard,0.0017)
    for dx in range(-24,26,6):rbox(a['x']+dx,a['y'],a['h']+3,3.2,a['d']*.5,.8,frame,0.0033)
+  elif kind=='pallet':
+   for dy in (-a['d']/2+2,0,a['d']/2-2):rbox(a['x'],a['y']+dy,a['z'],a['w'],3,1.6,wood,.004)
+   rbox(a['x'],a['y'],a['z']+1.6,a['w'],a['d'],1,wood,.004)
+   rbox(a['x'],a['y'],a['z']+2.6,a['w']-2,a['d']-2,a['h']-2.6,pmat('stretch wrap','#E4EAEE',.18,0,{'Coat Weight':.8,'Transmission Weight':.15}),.02)
   elif kind=='pump':
    rbox(a['x'],a['y'],a['z'],a['w'],a['d'],4,paint,0.0100)
    rcyl(a['x']-a['w']/4,a['y'],a['z']+4,a['w']*.32,a['d']*.6,paint,'y',48,0.0133)
