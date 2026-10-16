@@ -1,0 +1,11 @@
+---
+// Review page for the six code-built sector films. Not linked from the site. ?s=salud shows one.
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+import SectorCode from '../../components/cine/SectorCode.astro';
+import { SECTOR_FILM_SLUGS } from '../../scripts/senal/sectorSpecs.js';
+const only = Astro.url.searchParams.get('s');
+const slugs = SECTOR_FILM_SLUGS.filter((s) => !only || s === only);
+---
+<LayoutV4 skin="black" noindex={true} title="Sectores en código · Última Milla" description="Revisión">
+  {slugs.map((s) => <SectorCode sector={s as any} />)}
+</LayoutV4>

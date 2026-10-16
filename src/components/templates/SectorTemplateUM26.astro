@@ -7,6 +7,7 @@ import SectorLayers from '../cine/SectorLayers.astro';
 import StoryStage from '../cine/StoryStage.astro';
 import SectorFilm from '../cine/SectorFilm.astro';
 import SectorAfter from '../cine/SectorAfter.astro';
+import SectorCode from '../cine/SectorCode.astro';
 import { SECTOR_STORIES } from '../../data/cine/sectorStories';
 import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
 import { SERVICE_STAGE, STAGE_SECTORS, caseService } from '../../data/cine/stageMap';
@@ -134,7 +135,7 @@ const stageItems = buildStageItems();
 
 <div class="um26-sector">
   {hasStory ? (
-    <SectorFilm sector={sectorSlug} antecedentesHref={sectorAntecedentesHref} />
+    <><SectorFilm sector={sectorSlug} antecedentesHref={sectorAntecedentesHref} /><SectorCode sector={sectorSlug as any} /></>
   ) : (<>
   <CineBanner
       variant="sector"
