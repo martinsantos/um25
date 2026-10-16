@@ -14,5 +14,6 @@ test.each(Object.keys(DISCIPLINE_SYSTEMS))('%s has six connected and self-contai
  for(let i=0;i<6;i++)expect(doc.querySelector(`[data-discipline-node="${i}"]`)||[...doc.querySelectorAll('[data-discipline-route]')].find(n=>n.dataset.disciplineRoute.split(' ').includes(String(i)))).toBeTruthy();
  expect(zlib.gzipSync(source).length).toBeLessThan(30000);
  expect(operationScenes(code).map(s=>s.disciplineStage)).toEqual([-1,0,1,2,3,4,5,6]);
- expect(operationScenes(code).every(s=>s.duration>=5500)).toBe(true);
+ // Software v27 narrates a 900 ms intro and prompt-synchronized chapters; the rest keep 5.5 s minimum.
+ expect(operationScenes(code).every(s=>s.duration>=(code==='104'?(s.disciplineStage===-1?900:3600):5500))).toBe(true);
 });
