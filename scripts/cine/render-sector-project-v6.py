@@ -369,8 +369,8 @@ def render(args):
  for prop,sock,val in [('threshold','Highlights Threshold',1.2),('size','Size',7),('mix','Strength',.45)]:
   if sock in glare.inputs:glare.inputs[sock].default_value=val if sock!='Size' else .55
   elif hasattr(glare,prop):setattr(glare,prop,val if prop!='mix' else -.55)
- comp=tree.nodes.new('CompositorNodeComposite');comp.use_alpha=True
- tree.links.new(rl.outputs['Image'],glare.inputs['Image']);tree.links.new(glare.outputs['Image'],comp.inputs['Image']);tree.links.new(rl.outputs['Alpha'],comp.inputs['Alpha'])
+ comp=tree.nodes.new('CompositorNodeComposite');comp.use_alpha=True;setalpha=tree.nodes.new('CompositorNodeSetAlpha');setalpha.mode='REPLACE_ALPHA'
+ tree.links.new(rl.outputs['Image'],glare.inputs['Image']);tree.links.new(glare.outputs['Image'],setalpha.inputs['Image']);tree.links.new(rl.outputs['Alpha'],setalpha.inputs['Alpha']);tree.links.new(setalpha.outputs['Image'],comp.inputs['Image'])
  def light(name,at,power,size):
   d=bpy.data.lights.new(name,'AREA');d.energy=power;d.shape='DISK';d.size=size;d.use_shadow=name=='Key';d.use_shadow_jitter=False;d.shadow_filter_radius=2;d.shadow_maximum_resolution=.01;o=bpy.data.objects.new(name,d);scene.collection.objects.link(o);o.location=at;o.rotation_euler=(Vector((7.5,4,2))-o.location).to_track_quat('-Z','Y').to_euler()
  # Directional shading is carried by normals; no redundant light/shadow passes.
