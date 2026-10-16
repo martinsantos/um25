@@ -544,7 +544,7 @@ def render(args):
   expanded_scale*=1.04
  else:raise ValueError(expanded_bounds)
  out=Path(args.output);out.mkdir(parents=True,exist_ok=True);timings=[]
- for frame in range(args.start,args.end+1):
+ for frame in range(args.start,args.end+1,args.step):
   t=frame/(FRAMES-1);spread=envelope(t,.55,.72,.86,1)
   for code in COLORS:roots[code].location.z=LEVELS[code]*S*spread
   for obj in outlines:obj.hide_render=spread<.05;obj.data.bevel_depth=.004*spread
@@ -568,7 +568,7 @@ def render(args):
  (out/'render-info.json').write_text(json.dumps(info))
 
 if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('--scene',choices=SCENES,required=True);p.add_argument('--composition',choices=['wide','mobile'],default='wide');p.add_argument('--width',type=int,default=3840);p.add_argument('--start',type=int,default=0);p.add_argument('--end',type=int,default=FRAMES-1);p.add_argument('--samples',type=int,default=8);p.add_argument('--font-dir',default='/tmp/um-fonts');p.add_argument('--output',default='frames');p.add_argument('--validate-only',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else None)
+ p=argparse.ArgumentParser();p.add_argument('--scene',choices=SCENES,required=True);p.add_argument('--composition',choices=['wide','mobile'],default='wide');p.add_argument('--width',type=int,default=3840);p.add_argument('--start',type=int,default=0);p.add_argument('--step',type=int,default=1);p.add_argument('--end',type=int,default=FRAMES-1);p.add_argument('--samples',type=int,default=8);p.add_argument('--font-dir',default='/tmp/um-fonts');p.add_argument('--output',default='frames');p.add_argument('--validate-only',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else None)
  assert 0<=a.start<=a.end<FRAMES;assert a.width in [1080,1600,1920,2160,3840];validate(a.scene)
  if a.validate_only:print(json.dumps({'valid':True,'scene':a.scene,'frames':FRAMES}))
  else:render(a)

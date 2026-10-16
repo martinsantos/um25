@@ -41,8 +41,15 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  sector-v6-batch:
+    if: inputs.renderer == 'v6' && inputs.mode == 'full'
+    uses: ./.github/workflows/cine-sector-v6.yml
+    with:
+      mode: full
+      projects: ${{ inputs.projects }}
+      only: ${{ inputs.repair_run || '' }}
   sector-v6-proof:
-    if: inputs.renderer == 'v6'
+    if: inputs.renderer == 'v6' && inputs.mode != 'full'
     uses: ./.github/workflows/cine-sector-v6-proof.yml
     with:
       scenes: ${{ inputs.projects == 'all' && 'clinic,winery' || inputs.projects }}
