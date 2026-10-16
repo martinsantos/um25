@@ -28,7 +28,7 @@ const markup=codes.length===1?(code==='101'?precisionNetwork:code==='103'?precis
  .discipline-system[data-visible=true]{visibility:visible;opacity:1}
  /* Reserve the full stage while deferring the offscreen SVG paint. The loader
     exposes it 300 px before arrival, before any mechanism is prepared. */
- .discipline-system[data-discipline-runtime="waiting"]{content-visibility:hidden}
+ .discipline-system[data-discipline-runtime="waiting"]{content-visibility:auto}
  .discipline-system :global(.ds-svg){display:block;width:100%;height:calc(100% - 36px);overflow:hidden}
  .discipline-system[data-discipline-service="104"] :global(.ds-svg){height:100%}
  .discipline-system[data-discipline-service="104"] .discipline-system__key{display:none}

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Señal · Última Milla</title>
+<style>
+@font-face{font-family:'UM Sans';src:url('/fonts/um-sans/UMSans-Bold.woff2') format('woff2');font-weight:700;font-display:block}
+@font-face{font-family:'UM Sans';src:url('/fonts/um-sans/UMSans-Regular.woff2') format('woff2');font-weight:400;font-display:block}
+:root{--ink:#000;--red:#DC2626;--paper:#fff}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;display:grid;grid-template-columns:100%;align-content:center;background:var(--ink);color:var(--paper);font-family:'UM Sans',Arial,system-ui,sans-serif}
+.stage{position:relative;width:100%;aspect-ratio:16/9;max-height:100vh;margin:auto;overflow:hidden;background:#000}
+@media (max-aspect-ratio:1/1){.stage{aspect-ratio:1/1}}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.brand{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+.logo{font-weight:700;letter-spacing:-.02em;font-size:clamp(28px,6.2vw,104px);line-height:1;white-space:nowrap}
+.logo span{display:inline-block;opacity:0;transform:translateY(.18em);transition:opacity .5s cubic-bezier(.2,.7,.1,1),transform .7s cubic-bezier(.2,.7,.1,1)}
+.logo .dot{color:var(--red)}
+.tag{margin-top:clamp(12px,1.6vw,24px);font-weight:400;font-size:clamp(12px,1.35vw,22px);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.72);max-width:min(36ch,88vw);margin-inline:auto;text-wrap:balance;opacity:0;transition:opacity .8s ease .2s}
+.on .logo span{opacity:1;transform:none}
+.on .tag{opacity:1}
+.hud{position:absolute;left:clamp(16px,3vw,48px);bottom:clamp(14px,2.6vw,40px);font-size:clamp(10px,.85vw,13px);letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.5);display:flex;gap:clamp(12px,2vw,32px);font-variant-numeric:tabular-nums}
+.hud b{color:#fff;font-weight:700}
+.hud i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--red);margin-right:8px;vertical-align:middle;font-style:normal}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <canvas id="c" aria-hidden="true"></canvas>
+  <div class="brand" id="brand" aria-label="ultimamilla.com.ar — Infraestructura que llega">
+    <div class="logo" id="logo"></div>
+    <div class="tag">Infraestructura que llega</div>
+  </div>
+  <div class="hud" aria-hidden="true"><span><i></i>Señal</span><span>Nodos <b id="n">0</b></span><span>Latencia <b id="ms">—</b></span></div>
+</div>
+<script>
+(()=>{
+const LOOP=13,stage=document.getElementById('stage'),cv=document.getElementById('c'),cx=cv.getContext('2d');
+const brand=document.getElementById('brand'),logo=document.getElementById('logo'),nEl=document.getElementById('n'),msEl=document.getElementById('ms');
+const RED='#DC2626',reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+// One banner, one sector: the headline's final red dot is where the last mile lands.
+const SECTORS={
+ home:{h:'ultimamilla.com.ar',t:'Infraestructura que llega',k:'Señal',n:['Fibra','Energía','Datos','CCTV','Acceso','Wi‑Fi','NOC']},
+ software:{h:'Software que opera.',t:'Sistemas propios sobre infraestructura propia',k:'Software',n:['API','Base','Panel','Backup','Auth','Móvil','Monitor']},
+ constructoras:{h:'Obra conectada.',t:'Datos, energía y seguridad desde el primer piso',k:'Constructoras',n:['Rack','Piso 2','Piso 5','CCTV','Acceso','Wi‑Fi','UPS']},
+ salud:{h:'Salud sin cortes.',t:'Camas, monitores y enfermería en una sola red',k:'Salud',n:['Monitor','Cama 12','Enfermería','Guardia','UPS','Llamador','Historia']},
+ aeropuertos:{h:'Terminal en línea.',t:'Check‑in, equipaje y accesos sincronizados',k:'Aeropuertos',n:['Check‑in','Equipaje','Puerta 3','CCTV','Control','FIDS','Wi‑Fi']},
+ industria:{h:'Planta sin pausa.',t:'Celdas productivas, tableros y protecciones conectados',k:'Industria',n:['Celda 1','Tablero','PLC','Sensor','UPS','CCTV','Línea 2']},
+ bodegas:{h:'Bodega medida.',t:'Tanques, válvulas y fraccionamiento bajo control',k:'Bodegas',n:['Tanque 4','Válvula','Frío','Sensor','Línea','CCTV','Depósito']},
+ mineria:{h:'Mina conectada.',t:'Enlaces de campo con línea de vista y respaldo',k:'Minería',n:['Mástil','Enlace','Módulo','Campamento','Energía','CCTV','Radio']},
+};
+const S0=SECTORS[new URLSearchParams(location.search).get('s')]||SECTORS.home;
+document.title=S0.k+' · Última Milla';document.querySelector('.tag').textContent=S0.t;
+document.querySelector('.hud span').lastChild.textContent=S0.k;brand.setAttribute('aria-label',S0.h+' — '+S0.t);
+S0.h.split('').forEach((ch,i)=>{const s=document.createElement('span');s.textContent=ch===' '?'\u00a0':ch;if(ch==='.')s.className='dot';s.style.transitionDelay=(i*28)+'ms';logo.appendChild(s)});
+const dots=logo.querySelectorAll('.dot'),landing=S0===SECTORS.home?dots[0]:dots[dots.length-1];
+let W,H,D,G,nodes,edges,core,targets,last,paths,lastPath,seed;
+const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2, clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+function build(){
+  const r=stage.getBoundingClientRect();D=Math.min(devicePixelRatio||1,2);W=r.width;H=r.height;
+  cv.width=Math.round(W*D);cv.height=Math.round(H*D);seed=20251016;
+  G=Math.max(26,Math.round(Math.min(W,H)/13));
+  const cols=Math.ceil(W/G)+2,rows=Math.ceil(H/G)+2;nodes=[];edges=[];
+  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+    const j=G*.05;nodes.push({x:(x-.5)*G+(rnd()-.5)*j,y:(y-.5)*G+(rnd()-.5)*j,gx:x,gy:y,adj:[]});
+  }
+  const id=(x,y)=>y*cols+x;
+  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+    if(x<cols-1&&rnd()>.12)link(id(x,y),id(x+1,y));
+    if(y<rows-1&&rnd()>.12)link(id(x,y),id(x,y+1));
+  }
+  function link(a,b){edges.push([a,b]);nodes[a].adj.push(b);nodes[b].adj.push(a)}
+  core=id(1,Math.floor(rows/2));
+  const pick=(fx,fy)=>id(clamp(Math.round(fx*cols),2,cols-2),clamp(Math.round(fy*rows),1,rows-2));
+  targets=[[.32,.2],[.5,.78],[.62,.3],[.78,.66],[.84,.24],[.42,.5],[.88,.52]].map(([a,b])=>pick(a,b));
+  last=pick(.7,.48);
+  paths=targets.map(t=>route(core,t));lastPath=route(core,last);
+  nodes.forEach(n=>n.d=Math.hypot(n.x-nodes[core].x,n.y-nodes[core].y));
+}
+function route(a,b){ // BFS shortest path on the street grid
+  const prev=new Map([[a,-1]]),q=[a];
+  while(q.length){const u=q.shift();if(u===b)break;for(const v of nodes[u].adj)if(!prev.has(v)){prev.set(v,u);q.push(v)}}
+  const p=[];for(let u=b;u!==-1&&u!==undefined;u=prev.get(u))p.unshift(nodes[u]);
+  let len=0;p.forEach((n,i)=>{if(i)len+=Math.hypot(n.x-p[i-1].x,n.y-p[i-1].y);n._l=len});
+  return {pts:p.map(n=>({x:n.x,y:n.y,l:n._l})),len};
+}
+function along(path,f){ // position at fraction f of a path
+  const L=path.len*f,p=path.pts;
+  for(let i=1;i<p.length;i++)if(p[i].l>=L){const k=(L-p[i-1].l)/((p[i].l-p[i-1].l)||1);return {x:p[i-1].x+(p[i].x-p[i-1].x)*k,y:p[i-1].y+(p[i].y-p[i-1].y)*k,i}}
+  return {x:p[p.length-1].x,y:p[p.length-1].y,i:p.length};
+}
+function trace(path,f0,f1,width,color){ // draw the lit section of a path
+  const a=along(path,f0),b=along(path,f1),p=path.pts;
+  cx.beginPath();cx.moveTo(a.x,a.y);for(let i=a.i;i<b.i;i++)cx.lineTo(p[i].x,p[i].y);cx.lineTo(b.x,b.y);
+  cx.lineWidth=width;cx.strokeStyle=color;cx.stroke();return b;
+}
+let lit=0,on=false;
+function frame(now){
+  const t=reduce?LOOP*.8:(now/1000)%LOOP;
+  cx.setTransform(D,0,0,D,0,0);cx.fillStyle='#000';cx.fillRect(0,0,W,H);
+  // Camera: push in on the last mile, landing exactly on the logo's red dot.
+  const z=ease(clamp((t-6.4)/2.4)),dr=landing.getBoundingClientRect(),sr=stage.getBoundingClientRect();
+  const lx=dr.left-sr.left+dr.width/2,ly=dr.top-sr.top+dr.height*.78,ln=nodes[last],S=1+z*2.2;
+  cx.translate((1-z)*0+z*(lx-ln.x*S),z*(ly-ln.y*S));cx.scale(S,S);
+  const fade=1-clamp((t-12.2)/.8),dim=1-.65*ease(clamp((t-8.6)/1.4));
+  // Street grid wakes up as a wavefront from the core.
+  const front=ease(clamp((t-.2)/3.2))*Math.hypot(W,H)*1.1;
+  cx.lineCap='round';cx.lineJoin='round';
+  for(const [a,b] of edges){
+    const na=nodes[a],nb=nodes[b],d=Math.min(na.d,nb.d),k=clamp((front-d)/(G*3));if(!k)continue;
+    cx.globalAlpha=k*.22*dim*fade;cx.beginPath();cx.moveTo(na.x,na.y);cx.lineTo(nb.x,nb.y);cx.lineWidth=1/S;cx.strokeStyle='#fff';cx.stroke();
+  }
+  // Signal to every building: staggered pulses with a crisp head and fading tail.
+  cx.globalCompositeOperation='lighter';lit=0;
+  paths.forEach((p,i)=>{
+    const s=1+i*.42,f=clamp((t-s)/1.5);if(!f)return;
+    const ease_f=ease(f),tail=Math.max(0,ease_f-.35);
+    cx.globalAlpha=.28*dim*fade;trace(p,0,ease_f,1.2/S,'#fff');
+    cx.globalAlpha=dim*fade;const h=trace(p,tail,ease_f,2.2/S,RED);
+    cx.globalAlpha=.25*dim*fade;trace(p,tail,ease_f,9/S,RED);
+    if(f<1){cx.globalAlpha=fade;cx.fillStyle='#fff';cx.beginPath();cx.arc(h.x,h.y,2.4/S,0,7);cx.fill()}
+    else{ // arrival: the building lights and pings
+      lit++;const e=nodes[targets[i]],age=t-s-1.5;
+      cx.globalAlpha=.9*dim*fade*(1-z*.8);cx.fillStyle='#fff';cx.fillRect(e.x-G*.22,e.y-G*.22,G*.44,G*.44);
+      cx.globalAlpha=.55*dim*fade;cx.fillStyle=RED;cx.fillRect(e.x-G*.07,e.y-G*.07,G*.14,G*.14);
+      const tx=Math.max(0,1-Math.max(0,t-11.6)/.6)*clamp(age/.5)*dim*(1-z);
+      if(tx){cx.globalCompositeOperation='source-over';cx.globalAlpha=tx*.85;cx.fillStyle='#fff';cx.font=`700 ${11/S}px 'UM Sans',Arial,sans-serif`;cx.letterSpacing=`${1.4/S}px`;const lb=S0.n[i].toUpperCase(),right=e.x<W*.72;cx.textAlign=right?'left':'right';cx.fillText(lb,e.x+(right?1:-1)*G*.36,e.y+4/S);cx.textAlign='left';cx.letterSpacing='0px';cx.globalCompositeOperation='lighter'}
+      if(age<1.2){cx.globalAlpha=(1-age/1.2)*.7*fade;cx.strokeStyle=RED;cx.lineWidth=1.4/S;cx.beginPath();cx.arc(e.x,e.y,G*(.3+age*1.4),0,7);cx.stroke()}
+    }
+  });
+  // The last mile: one deliberate red line that carries the camera to the logo.
+  const fl=ease(clamp((t-5.2)/2.6));
+  if(fl){
+    cx.globalAlpha=fade;trace(lastPath,0,fl,2.6/S,RED);
+    cx.globalAlpha=.3*fade;trace(lastPath,Math.max(0,fl-.4),fl,14/S,RED);
+    const h=along(lastPath,fl),r=(fl<1?3:4.2+2*Math.sin(t*5)*clamp(1-(t-8.4)))/S;
+    cx.globalAlpha=fade;cx.fillStyle=fl<1?'#fff':RED;cx.beginPath();cx.arc(h.x,h.y,r*(1+z*.6),0,7);cx.fill();
+  }
+  cx.globalCompositeOperation='source-over';cx.globalAlpha=1;
+  const show=t>8.2&&t<12.4;if(show!==on){on=show;brand.classList.toggle('on',on)}
+  nEl.textContent=String(lit+(fl>=1?1:0)).padStart(2,'0');
+  msEl.textContent=t<1?'—':(Math.max(1,9-Math.floor(lit*1.1))+' ms');
+  if(!reduce)requestAnimationFrame(frame);
+}
+build();addEventListener('resize',build);
+document.fonts.ready.then(()=>requestAnimationFrame(frame));
+})();
+</script>
+</body>
+</html>

@@ -34,7 +34,7 @@ export function bindViewportDiscipline(root,load=loadMechanisms){
  document.addEventListener('astro:before-swap',dispose,{once:true});
  if(typeof IntersectionObserver==='undefined')void start();
  else{
-  observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting))void start();},{rootMargin:'300px 0px'});
+  observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting))void start();},{rootMargin:'1200px 0px'});
   observer.observe(root.closest('[data-atlas-theater]')||root);
  }
  return dispose;
