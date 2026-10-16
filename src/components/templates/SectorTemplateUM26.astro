@@ -3,6 +3,7 @@ import { truncateEditorialText } from '../../utils/editorialContent';
 import { cleanCmsText } from '../../data/serviceSummaries';
 import SectorJourney from '../cine/SectorJourney.astro';
 import CineBanner from '../cine/CineBanner.astro';
+import SaludIsometria3D from '../cine/SaludIsometria3D.astro';
 import SnapRail from '../cine/SnapRail.astro';
 import { sectorBySlug } from '../../data/cine/scenes';
 import {sectorMovie} from '../../data/cine/projectCinema';
@@ -128,7 +129,7 @@ const areaLabel = (area: unknown) => {
     back={{ href: '/sectores', label: '← Todos los sectores' }}
   />
 
-  <SectorJourney slug={sectorDataSlug} scene={cineScene} />
+  {sectorSlug === 'salud' ? <SaludIsometria3D /> : <SectorJourney slug={sectorDataSlug} scene={cineScene} />}
 
   {criteriaItems.length > 0 && (
     <section class="sector26-criteria">

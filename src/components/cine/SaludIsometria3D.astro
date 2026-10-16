@@ -1,0 +1,12 @@
+---
+// Review integration of the real-time 3D Salud scene. The scene lives in
+// /lab/isometria-salud.html until three.js is bundled with the site.
+---
+<section class="salud3d" aria-label="Cómo se conectan energía, datos, seguridad y detección en una sala de internación">
+  <iframe class="salud3d__frame" src="/lab/isometria-salud.html" title="Isometría de una sala de internación: energía, datos, seguridad y detección" loading="lazy"></iframe>
+</section>
+<style>
+  .salud3d{width:min(var(--um-container-wide),calc(100% - (var(--um-page-gutter) * 2)));margin:clamp(24px,4vw,56px) auto}
+  .salud3d__frame{display:block;width:100%;aspect-ratio:16/9;max-height:860px;border:1px solid rgba(255,255,255,.08);background:#07080a}
+  @media (max-width:760px){.salud3d__frame{aspect-ratio:auto;height:min(760px,calc(100svh - 120px))}}
+</style>
