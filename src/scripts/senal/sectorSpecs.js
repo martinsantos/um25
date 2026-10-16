@@ -110,7 +110,7 @@ export const SECTOR_FILMS = {
     ],
     leaders: [[-1.6, -3.6], [-2.6, 2.5], [5.5, .6], [3.75, -2.6]],
     moment: { path: [[-1.6, -1, -3.6, 2.7], [-1.6, 3, -3.6], [-1.6, 3, -.2], [5.5, 3, -.2], [5.5, 3, .6], [5.5, -1, .6, .9]], stops: [0, 5] },
-    captions: [['Bodegas', 'Una bodega, del tanque a la botella.'], ['Por dentro', 'Lo que cuida cada litro.'], ['En marcha', 'Cada tanque, medido y conectado.'], ['Temperatura', 'El tanque 4 marca 14,2\u00a0°C. Enología lo ve.']],
+    captions: [['Bodegas', 'Una bodega, del tanque a la botella.'], ['Por dentro', 'Lo que cuida cada litro.'], ['En marcha', 'Cada tanque, medido y conectado.'], ['Temperatura', 'Tanque 4: 14,2\u00a0°C. Enología lo ve.']],
   },
 
   constructoras: {
