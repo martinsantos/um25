@@ -239,13 +239,13 @@ def render(args):
  from bpy_extras.object_utils import world_to_camera_view
  p,palette=author(args.scene)
  bpy.ops.wm.read_factory_settings(use_empty=True);scene=bpy.context.scene
- scene.render.engine='CYCLES';scene.cycles.device='CPU';scene.cycles.samples=args.samples;scene.cycles.use_adaptive_sampling=True;scene.cycles.adaptive_threshold=.02;scene.cycles.adaptive_min_samples=16
- scene.cycles.max_bounces=6;scene.cycles.diffuse_bounces=2;scene.cycles.glossy_bounces=2;scene.cycles.transmission_bounces=4;scene.cycles.transparent_max_bounces=16;scene.cycles.caustics_reflective=False;scene.cycles.caustics_refractive=False;scene.cycles.sample_clamp_indirect=4
+ scene.render.engine='CYCLES';scene.cycles.device='CPU';scene.cycles.samples=args.samples;scene.cycles.use_adaptive_sampling=True;scene.cycles.adaptive_threshold=.045;scene.cycles.adaptive_min_samples=12
+ scene.cycles.max_bounces=4;scene.cycles.diffuse_bounces=1;scene.cycles.glossy_bounces=1;scene.cycles.transmission_bounces=2;scene.cycles.use_fast_gi=True;scene.cycles.ao_bounces_render=1;scene.cycles.transparent_max_bounces=16;scene.cycles.caustics_reflective=False;scene.cycles.caustics_refractive=False;scene.cycles.sample_clamp_indirect=4
  scene.cycles.use_denoising=True;scene.cycles.denoiser='OPENIMAGEDENOISE';scene.cycles.denoising_input_passes='RGB_ALBEDO_NORMAL';scene.cycles.denoising_prefilter='ACCURATE'
  scene.render.film_transparent=True
  scene.render.resolution_x=args.width;scene.render.resolution_y=args.width if args.composition=='mobile' else round(args.width*9/16)
  scene.render.resolution_percentage=100;scene.render.fps=FPS;scene.render.threads_mode='FIXED';scene.render.threads=4
- scene.render.image_settings.file_format='PNG';scene.render.image_settings.color_mode='RGB';scene.render.use_persistent_data=True
+ scene.render.image_settings.file_format='PNG';scene.render.image_settings.color_mode='RGBA';scene.render.use_persistent_data=True
  scene.view_settings.view_transform='AgX'
  try:scene.view_settings.look='AgX - Medium High Contrast'
  except TypeError:pass
@@ -266,13 +266,14 @@ def render(args):
    em=nodes.new('ShaderNodeEmission');em.inputs[0].default_value=(*rgb,1)
    em.inputs[1].default_value=3.2 if name.startswith('route-') else 4 if name=='red' else 1.1 if name=='ink' else max(.6,emission*3)
    shader=em.outputs[0]
+   if not name.startswith('route-'):m.emission_sampling='NONE'
   else:
    b=nodes.new('ShaderNodeBsdfPrincipled');metal,rough,extra=SURF.get(name,(0,.5,{}))
    b.inputs['Base Color'].default_value=(*rgb,1);b.inputs['Metallic'].default_value=metal;b.inputs['Roughness'].default_value=rough
    for k,v in extra.items():b.inputs[k].default_value=v
    if name=='screen':
     # Live panels: a faint cold glow under a glossy face.
-    b.inputs['Emission Color'].default_value=(*lin('#1d4e66'),1);b.inputs['Emission Strength'].default_value=.55
+    b.inputs['Emission Color'].default_value=(*lin('#1d4e66'),1);b.inputs['Emission Strength'].default_value=.55;m.emission_sampling='NONE'
    if name in ('side','slab','top'):
     # Subtle large-scale variation so planes do not read as flat fills.
     tex=nodes.new('ShaderNodeTexNoise');tex.inputs['Scale'].default_value=2.4;tex.inputs['Detail'].default_value=3
@@ -360,7 +361,7 @@ def render(args):
  fill=bpy.data.lights.new('Fill','AREA');fill.energy=1800;fill.size=24;fill_o=bpy.data.objects.new('Fill',fill);scene.collection.objects.link(fill_o);fill_o.location=(7.5,4.2,22)
  rim=bpy.data.lights.new('Rim','SUN');rim.energy=1.1;rim.angle=math.radians(25);rim.use_shadow=False;rim_o=bpy.data.objects.new('Rim',rim);scene.collection.objects.link(rim_o)
  rim_o.rotation_euler=mathutils.Vector((.5,.6,.45)).normalized().to_track_quat('Z','Y').to_euler()
- scene.world.node_tree.nodes['Background'].inputs[0].default_value=(*lin('#2a4258'),1);scene.world.node_tree.nodes['Background'].inputs[1].default_value=.35
+ scene.world.node_tree.nodes['Background'].inputs[0].default_value=(*lin('#6d8aa3'),1);scene.world.node_tree.nodes['Background'].inputs[1].default_value=.55
  # Compositor: soft glow on emitters, then the exact site background under the alpha.
  scene.use_nodes=True;tree=scene.node_tree;tree.nodes.clear()
  rl=tree.nodes.new('CompositorNodeRLayers');glare=tree.nodes.new('CompositorNodeGlare');glare.glare_type='FOG_GLOW';glare.quality='HIGH'
@@ -368,9 +369,8 @@ def render(args):
  for prop,sock,val in [('threshold','Highlights Threshold',1.2),('size','Size',7),('mix','Strength',.45)]:
   if sock in glare.inputs:glare.inputs[sock].default_value=val if sock!='Size' else .55
   elif hasattr(glare,prop):setattr(glare,prop,val if prop!='mix' else -.55)
- bg=tree.nodes.new('CompositorNodeRGB');bg.outputs[0].default_value=(*lin(BG),1)
- over=tree.nodes.new('CompositorNodeAlphaOver');comp=tree.nodes.new('CompositorNodeComposite')
- tree.links.new(rl.outputs['Image'],glare.inputs['Image']);tree.links.new(bg.outputs[0],over.inputs[1]);tree.links.new(glare.outputs['Image'],over.inputs[2]);tree.links.new(over.outputs[0],comp.inputs['Image'])
+ comp=tree.nodes.new('CompositorNodeComposite');comp.use_alpha=True
+ tree.links.new(rl.outputs['Image'],glare.inputs['Image']);tree.links.new(glare.outputs['Image'],comp.inputs['Image']);tree.links.new(rl.outputs['Alpha'],comp.inputs['Alpha'])
  def light(name,at,power,size):
   d=bpy.data.lights.new(name,'AREA');d.energy=power;d.shape='DISK';d.size=size;d.use_shadow=name=='Key';d.use_shadow_jitter=False;d.shadow_filter_radius=2;d.shadow_maximum_resolution=.01;o=bpy.data.objects.new(name,d);scene.collection.objects.link(o);o.location=at;o.rotation_euler=(Vector((7.5,4,2))-o.location).to_track_quat('-Z','Y').to_euler()
  # Directional shading is carried by normals; no redundant light/shadow passes.
