@@ -7,6 +7,7 @@ import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.j
 import {RoundedBoxGeometry} from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import {LAYER_STYLE} from './sectorSpecs.js';
 
+const ROUTE = new Set(['tray', 'fiber', 'link', 'loop', 'pipe']);
 const LOOP = 20, GAP = 1.4, W = 14, D = 9, BASE_Y = 1;
 const ease = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -300,6 +301,19 @@ function drawLayer(layer, ppu) {
       if (k === 'dot') { const [, x, z] = it; g.beginPath(); g.arc(x, z, .085, 0, Math.PI * 2); g.fillStyle = color; g.fill(); g.beginPath(); g.arc(x, z, .16, 0, Math.PI * 2); g.strokeStyle = rgba(color, .35); g.lineWidth = .02; g.stroke(); }
       if (k === 'reader') { const [, x, z] = it; g.fillStyle = color; g.fillRect(x - .08, z - .08, .16, .16); g.strokeStyle = rgba(color, .35); g.lineWidth = .02; g.strokeRect(x - .17, z - .17, .34, .34); }
       if (k === 'node') { const [, x, z, name] = it; g.fillStyle = color; g.beginPath(); g.roundRect(x - .2, z - .13, .4, .26, .05); g.fill(); label(g, ppu, name, x + .3, z, ppu * .17, INK, 700, 'left'); }
+      if (k === 'fiber') { const pts = it[1]; g.beginPath(); pts.forEach(([x, z], i) => (i ? g.lineTo(x, z) : g.moveTo(x, z))); g.strokeStyle = rgba(color, .18); g.lineWidth = .3; g.stroke(); g.strokeStyle = color; g.lineWidth = .085; g.stroke(); g.setLineDash([.14, .1]); g.strokeStyle = '#fff'; g.lineWidth = .03; g.stroke(); g.setLineDash([]); }
+      if (k === 'loop') { const pts = it[1]; g.beginPath(); pts.forEach(([x, z], i) => (i ? g.lineTo(x, z) : g.moveTo(x, z))); g.closePath(); g.strokeStyle = rgba(color, .85); g.lineWidth = .035; g.stroke(); }
+      if (k === 'pipe') { const pts = it[1]; g.beginPath(); pts.forEach(([x, z], i) => (i ? g.lineTo(x, z) : g.moveTo(x, z))); g.strokeStyle = rgba(color, .55); g.lineWidth = .1; g.stroke(); for (let i = 1; i < pts.length; i++) { const [ax, az] = pts[i - 1], [bx, bz] = pts[i], n = Math.max(1, Math.round(Math.hypot(bx - ax, bz - az) / .45)); for (let j = 0; j <= n; j++) { g.beginPath(); g.arc(ax + (bx - ax) * j / n, az + (bz - az) * j / n, .035, 0, 7); g.fillStyle = '#fff'; g.fill(); } } }
+      if (k === 'cov') { const [, x, z, r] = it; g.beginPath(); g.arc(x, z, r, 0, Math.PI * 2); g.fillStyle = rgba(color, .05); g.fill(); g.setLineDash([.16, .12]); g.strokeStyle = rgba(color, .5); g.lineWidth = .025; g.stroke(); g.setLineDash([]); for (const rr of [r * .5, r * .75]) { g.beginPath(); g.arc(x, z, rr, 0, Math.PI * 2); g.strokeStyle = rgba(color, .14); g.lineWidth = .015; g.stroke(); } }
+      if (k === 'heat') { const [, x, z] = it; for (const r of [.14, .07]) { g.beginPath(); g.arc(x, z, r, 0, Math.PI * 2); g.strokeStyle = color; g.lineWidth = .03; g.stroke(); } }
+      if (k === 'mcp' || k === 'module') { const [, x, z] = it; g.fillStyle = color; g.fillRect(x - .11, z - .11, .22, .22); g.fillStyle = '#fff'; k === 'mcp' ? g.fillRect(x - .05, z - .05, .1, .1) : g.fillRect(x - .02, z - .08, .04, .16); }
+      if (k === 'siren') { const [, x, z] = it; g.beginPath(); g.moveTo(x, z - .14); g.lineTo(x + .13, z + .1); g.lineTo(x - .13, z + .1); g.closePath(); g.fillStyle = color; g.fill(); }
+      if (k === 'phone') { const [, x, z] = it; g.fillStyle = color; g.beginPath(); g.roundRect(x - .08, z - .13, .16, .26, .04); g.fill(); g.fillStyle = '#fff'; g.fillRect(x - .045, z - .08, .09, .08); }
+      if (k === 'speaker' || k === 'radio') { const [, x, z] = it; g.fillStyle = color; if (k === 'speaker') { g.beginPath(); g.moveTo(x - .1, z - .05); g.lineTo(x - .02, z - .05); g.lineTo(x + .06, z - .12); g.lineTo(x + .06, z + .12); g.lineTo(x - .02, z + .05); g.lineTo(x - .1, z + .05); g.closePath(); g.fill(); } else { g.fillRect(x - .02, z - .12, .04, .24); }
+        for (const r of [.16, .26]) { g.beginPath(); g.arc(k === 'speaker' ? x + .04 : x, z, r, -.7, .7); if (k === 'radio') g.arc(x, z, r, Math.PI - .7, Math.PI + .7); g.strokeStyle = rgba(color, .6); g.lineWidth = .02; g.stroke(); } }
+      if (k === 'bio') { const [, x, z] = it; g.strokeStyle = color; g.lineWidth = .03; g.strokeRect(x - .13, z - .13, .26, .26); for (const r of [.04, .08]) { g.beginPath(); g.arc(x, z + .03, r, Math.PI, 2 * Math.PI); g.stroke(); } }
+      if (k === 'pir') { const [, x, z, a = 45] = it, t = a * Math.PI / 180; g.beginPath(); g.moveTo(x, z); g.arc(x, z, .9, t - .7, t + .7); g.closePath(); g.fillStyle = rgba(color, .1); g.fill(); g.strokeStyle = rgba(color, .45); g.lineWidth = .015; g.stroke(); g.beginPath(); g.arc(x, z, .06, 0, 7); g.fillStyle = color; g.fill(); }
+      if (k === 'sensor') { const [, x, z] = it; g.beginPath(); g.moveTo(x, z - .12); g.lineTo(x + .12, z); g.lineTo(x, z + .12); g.lineTo(x - .12, z); g.closePath(); g.fillStyle = color; g.fill(); }
       if (k === 'card') { const [, x, z, title, sub, hot] = it, w = 3.0, h = 1.0; g.save(); g.shadowColor = 'rgba(24,33,32,.12)'; g.shadowBlur = ppu * .12; g.shadowOffsetY = ppu * .03;
         g.fillStyle = '#ffffff'; g.beginPath(); g.roundRect(x - w / 2, z - h / 2, w, h, .1); g.fill(); g.restore(); g.strokeStyle = hot ? rgba(RED, .7) : 'rgba(24,33,32,.14)'; g.lineWidth = .02; g.beginPath(); g.roundRect(x - w / 2, z - h / 2, w, h, .1); g.stroke();
         g.fillStyle = hot ? RED : color; g.fillRect(x - w / 2 + .14, z - h / 2 + .18, .05, h - .36);
@@ -336,7 +350,7 @@ export async function mountSector(host, spec) {
   const sun = new THREE.DirectionalLight(0xffffff, 2.1); sun.position.set(-6, 14, 8); sun.castShadow = true;
   Object.assign(sun.shadow.camera, { left: -10, right: 10, top: 9, bottom: -9, near: 1, far: 40 }); sun.shadow.mapSize.set(2048, 2048); sun.shadow.radius = 10; sun.shadow.blurSamples = 16; sun.shadow.bias = -.0004;
   scene.add(sun);
-  const M = materials(), ppu = innerWidth < 800 ? 80 : 128;
+  const M = materials(), ppu = innerWidth < 800 ? 72 : spec.layers.length > 4 ? 100 : 128;
 
   // Floor block: the place's plan on top; a terraced pit when the spec has one.
   const rr = (s, cx, cz, w, d, r) => { const x = cx - w / 2, y = -cz - d / 2; r = Math.min(r, w / 2, d / 2); s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r); s.lineTo(x + w, y + d - r); s.quadraticCurveTo(x + w, y + d, x + w - r, y + d); s.lineTo(x + r, y + d); s.quadraticCurveTo(x, y + d, x, y + d - r); s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y); return s; };
@@ -371,6 +385,7 @@ export async function mountSector(host, spec) {
   // Layers: drawn plate + small 3D tokens, each with an HTML label (a link to its service).
   const labels = [...host.querySelectorAll('[data-scode-layer]')];
   const tokenMat = (c) => new THREE.MeshStandardMaterial({ color: c, roughness: .4 });
+  const SMALL = new Set(['det', 'heat', 'mcp', 'siren', 'phone', 'speaker', 'reader', 'bio', 'sensor', 'radio']), smallGeo = new THREE.CylinderGeometry(.065, .065, .04, 16);
   const layers = spec.layers.map((layer, k) => {
     const grp = new THREE.Group(); scene.add(grp);
     const tex = drawLayer(layer, ppu);
@@ -381,18 +396,19 @@ export async function mountSector(host, spec) {
     for (const it of layer.items) {
       if (it[0] === 'ap') { const a = new THREE.Mesh(new THREE.CylinderGeometry(.16, .18, .06, 28), white); a.position.set(it[1], .03, it[2]); const b = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, .065, 20), tm); b.position.copy(a.position); grp.add(a, b); toks.push(a, b); }
       if (it[0] === 'cam') { const a = new THREE.Mesh(new THREE.SphereGeometry(.13, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2), white); a.position.set(it[1], 0, it[2]); grp.add(a); toks.push(a); }
-      if (it[0] === 'node') { const a = new THREE.Mesh(new RoundedBoxGeometry(.4, .22, .26, 2, .04), white); a.position.set(it[1], .11, it[2]); const b = new THREE.Mesh(new THREE.BoxGeometry(.4, .02, .26), tm); b.position.set(it[1], .23, it[2]); grp.add(a, b); toks.push(a, b); }
+      if (it[0] === 'node') { const tall = it[4] === 'rack' || it[4] === 'genset' || it[4] === 'ups' ? .42 : .22, a = new THREE.Mesh(new RoundedBoxGeometry(.4, tall, .26, 2, .04), it[4] === 'rack' ? M.dark : white); a.position.set(it[1], tall / 2, it[2]); const b = new THREE.Mesh(new THREE.BoxGeometry(.4, .02, .26), tm); b.position.set(it[1], tall + .01, it[2]); grp.add(a, b); toks.push(a, b); }
+      if (SMALL.has(it[0])) { const a = new THREE.Mesh(smallGeo, tm); a.position.set(it[1], .02, it[2]); grp.add(a); toks.push(a); }
     }
-    const routes = layer.items.filter((it) => it[0] === 'tray' || it[0] === 'link').map((it) => poly((it[0] === 'tray' ? it[1] : [it[1], it[2]]).map(([x, z]) => [x, .06, z])));
+    const routes = layer.items.filter((it) => ROUTE.has(it[0])).map((it) => poly((it[0] === 'link' ? [it[1], it[2]] : it[0] === 'loop' ? [...it[1], it[1][0]] : it[1]).map(([x, z]) => [x, .06, z])));
     const pulseMat = new THREE.MeshBasicMaterial({ color: col, toneMapped: false });
     const pulses = routes.flatMap((r, ri) => Array.from({ length: Math.max(1, Math.round(r.len / 3.5)) }, (_, j) => { const m = new THREE.Mesh(new THREE.SphereGeometry(.075, 16, 10), pulseMat); grp.add(m); return { m, r, ph: j / Math.max(1, Math.round(r.len / 3.5)) + ri * .17 }; }));
     return { grp, plate, toks, pulses, label: labels[k] };
   });
 
   // Leaders (dashed verticals) and the moment.
-  const topY = (k) => spec.lift + k * GAP;
+  const NL = spec.layers.length, gap = NL > 4 ? 1.12 : GAP, topY = (k) => spec.lift + k * gap;
   const leaderMat = new THREE.LineDashedMaterial({ color: 0x182120, dashSize: .09, gapSize: .09, transparent: true, opacity: 0 });
-  const leaders = spec.leaders.map(([x, z]) => { const ge = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x, BASE_Y, z), new THREE.Vector3(x, topY(3), z)]); const l = new THREE.Line(ge, leaderMat); l.computeLineDistances(); scene.add(l); return l; });
+  const leaders = spec.leaders.map(([x, z]) => { const ge = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x, BASE_Y, z), new THREE.Vector3(x, topY(NL - 1), z)]); const l = new THREE.Line(ge, leaderMat); l.computeLineDistances(); scene.add(l); return l; });
   const lvlY = (p) => (p[1] < 0 ? (p[3] ?? BASE_Y) : topY(p[1]) + .07);
   const momentPath = poly(spec.moment.path.map((p) => [p[0], lvlY(p), p[2]]));
   const redMat = new THREE.MeshBasicMaterial({ color: 0xDC2626, toneMapped: false });
@@ -405,7 +421,7 @@ export async function mountSector(host, spec) {
   // Camera: two framings (the place; the open stack), fitted exactly to the stage.
   const cam = new THREE.PerspectiveCamera(22, 1, .1, 200);
   const bb = new THREE.Box3(); pieces.forEach((p) => bb.expandByObject(p.g)); bb.expandByPoint(new THREE.Vector3(-W / 2, -depthAll, -D / 2)).expandByPoint(new THREE.Vector3(W / 2, 0, D / 2));
-  const boxOpen = bb.clone().expandByPoint(new THREE.Vector3(W / 2, topY(3), D / 2));
+  const boxOpen = bb.clone().expandByPoint(new THREE.Vector3(W / 2, topY(NL - 1), D / 2));
   let aspect = 1, offset = 0;
   const fit = (box3, az, el) => {
     const c = box3.getCenter(new THREE.Vector3()), dir = new THREE.Vector3(Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el));
@@ -414,7 +430,8 @@ export async function mountSector(host, spec) {
     let d = 0; for (let i = 0; i < 8; i++) { const p = new THREE.Vector3(i & 1 ? box3.max.x : box3.min.x, i & 2 ? box3.max.y : box3.min.y, i & 4 ? box3.max.z : box3.min.z).sub(c); const x = p.dot(right), y = p.dot(up), z = p.dot(fwd); d = Math.max(d, Math.abs(x) / th - z, Math.abs(y) / tv - z); }
     return { c, pos: c.clone().addScaledVector(dir, d * (driven ? (stage.clientWidth >= 700 ? 1.18 : 1.04) : 1.1)) };
   };
-  let A, B;
+  let A, B, BK = [];
+  const camPos = new THREE.Vector3(), camC = new THREE.Vector3(); let camInit = false;
   function resize() {
     const w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return;
     renderer.setSize(w, h, false); aspect = w / h; cam.aspect = aspect;
@@ -422,13 +439,16 @@ export async function mountSector(host, spec) {
     if (offset) cam.setViewOffset(w, h, -w * offset, 0, w, h); else cam.clearViewOffset();
     cam.updateProjectionMatrix();
     A = fit(bb, .62, .62); B = fit(boxOpen, .7, driven ? .36 : .48);
+    // Driven pages frame the floor plus the active layer, a little more from above, so its drawing reads.
+    BK = spec.layers.map((_, k) => fit(bb.clone().expandByPoint(new THREE.Vector3(W / 2, topY(k) + .4, D / 2)), .68, .5));
     if (ready && !driven && (reduce || freeze !== null)) render(reduce && freeze === null ? 13.4 : freeze, freeze !== null);
   }
   let ready = false;
   const ro = new ResizeObserver(resize); ro.observe(stage); resize();
 
   const caption = host.querySelector('[data-scode-caption]'), callout = host.querySelector('[data-scode-callout]');
-  let hot = null, hotK = 0; spec.layers.forEach((l, k) => l.items.forEach((it) => { if (it[0] === 'card' && it[5]) { hot = new THREE.Vector3(it[1], 0, it[2] - .5); hotK = k; } }));
+  const momentTop = Math.max(0, ...spec.moment.path.map((p) => p[1]));
+  const hot = momentPath.at(1).clone(); hot.y += .2; const desk = host.querySelector('[data-scode-desk]');
   if (freeze !== null) host.classList.add('is-frozen');
   let visible = freeze !== null, clock = 0, elapsed = 0, cycle = 0, lastNow = 0, raf = 0, lastStep = -1;
   const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: .02 }); io.observe(host);
@@ -438,7 +458,7 @@ export async function mountSector(host, spec) {
   // and every one of them rings in place.
   const ringGeo = new THREE.RingGeometry(.34, .44, 48);
   const pool = Array.from({ length: 40 }, () => { const m = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xDC2626, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, toneMapped: false })); m.rotation.x = -Math.PI / 2; m.renderOrder = 30; m.visible = false; scene.add(m); return m; });
-  const kindPts = (layer, kind) => layer.items.filter((it) => it[0] === kind).flatMap((it) => (kind === 'tray' ? [it[1][0], it[1][it[1].length - 1]] : kind === 'link' ? [it[1], it[2]] : kind === 'zone' ? [[(it[1] + it[3]) / 2, (it[2] + it[4]) / 2]] : [[it[1], it[2]]]));
+  const kindPts = (layer, kind) => layer.items.filter((it) => it[0] === kind || (it[0] === 'node' && it[4] === kind)).flatMap((it) => (ROUTE.has(it[0]) && it[0] !== 'link' ? [it[1][0], it[1][it[1].length - 1]] : it[0] === 'link' ? [it[1], it[2]] : kind === 'zone' ? [[(it[1] + it[3]) / 2, (it[2] + it[4]) / 2]] : [[it[1], it[2]]]));
   let hl = null, hlT = 0;
   function setHighlight(h) {
     hl = h ? { ...h, pts: h.layer >= 0 ? kindPts(spec.layers[h.layer], h.kind) : pieces.filter((p) => p.kind === h.kind).map((p) => [p.g.position.x, p.g.position.z, p.y0]), color: h.layer >= 0 ? LAYER_STYLE[spec.layers[h.layer].svc].color : '#DC2626' } : null;
@@ -446,28 +466,53 @@ export async function mountSector(host, spec) {
     pool.forEach((m, i) => { m.visible = !!hl && i < hl.pts.length; if (hl) m.material.color.set(hl.color); });
   }
 
+  // Relevamiento (106): a scan crosses the plan and pins every piece of equipment it finds.
+  const nodesAll = spec.layers.flatMap((l, k) => l.items.filter((it) => it[0] === 'node').map((it) => ({ k, x: it[1], z: it[2] })));
+  const pinGeo = new THREE.ConeGeometry(.1, .28, 16); pinGeo.rotateX(Math.PI);
+  const stemMat = new THREE.MeshBasicMaterial({ color: 0xDC2626, transparent: true, opacity: .45, toneMapped: false });
+  const pins = nodesAll.map(({ x, z }) => { const g = new THREE.Group(); g.position.set(x, 0, z); const c = new THREE.Mesh(pinGeo, redMat); c.position.y = 2.55; const st = new THREE.Mesh(new THREE.CylinderGeometry(.008, .008, 2.4, 6), stemMat); st.position.y = 1.2; g.add(c, st); g.visible = false; scene.add(g); return g; });
+  const scan = new THREE.Mesh(new THREE.PlaneGeometry(D, 1.6), new THREE.MeshBasicMaterial({ color: 0xDC2626, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, toneMapped: false }));
+  scan.rotation.y = Math.PI / 2; scan.position.y = .8; scene.add(scan);
+  // Soporte (105): every device reports in; one raises an alert, a ticket goes up to the
+  // help desk and the fix comes back down.
+  const okMat = new THREE.MeshBasicMaterial({ color: 0x1fae6b, toneMapped: false }), dotGeo = new THREE.SphereGeometry(.065, 12, 8);
+  const health = nodesAll.map((n) => { const m = new THREE.Mesh(dotGeo, okMat); m.userData = n; m.visible = false; scene.add(m); return m; });
+  const inc = spec.support || [0, 0, 0];
+  const incRing = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xDC2626, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, toneMapped: false })); incRing.rotation.x = -Math.PI / 2; scene.add(incRing);
+  const sSpark = new THREE.Mesh(new THREE.SphereGeometry(.11, 16, 10), redMat); sSpark.visible = false; scene.add(sSpark);
+  // Broadcast (e.g. voceo): when the signal arrives, every device of a kind answers.
+  const after = spec.moment.after ? kindPts(spec.layers[spec.moment.after[0]], spec.moment.after[1]) : [];
+  const echo = after.map(() => { const m = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xDC2626, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, toneMapped: false })); m.rotation.x = -Math.PI / 2; scene.add(m); return m; });
+  // Review captures: ?at= starts the chapter's own clock at that second.
+  const at0 = Number(new URLSearchParams(location.search).get('at')) || 0;
+  let aClock = at0, sClock = at0;
+
   // One state drives the picture. Autoplay computes it from the clock; the page's
   // chapters set targets and the state eases toward them.
-  const S = { open: [0, 0, 0, 0], dim: [1, 1, 1, 1], labels: [0, 0, 0, 0], tilt: 0, flow: 0, leaders: 0, look: 0 };
-  const T = { open: [0, 0, 0, 0], dim: [1, 1, 1, 1], labels: [0, 0, 0, 0], tilt: 0, flow: 0, leaders: 0, look: 0 };
+  const arr = (v) => Array.from({ length: NL }, () => v);
+  const S = { open: arr(0), dim: arr(1), labels: arr(0), tilt: 0, flow: 0, leaders: 0, look: 0, aud: 0, sup: 0 };
+  const T = { open: arr(0), dim: arr(1), labels: arr(0), tilt: 0, flow: 0, leaders: 0, look: 0, aud: 0, sup: 0 };
   let chapter = 'place', mClock = 0;
   function setChapter(ch) {
-    if (ch === chapter) return; chapter = ch; mClock = 0;
-    const k = ch.startsWith('layer-') ? Number(ch.slice(6)) : -1, up = ch === 'place' ? 0 : 1;
-    for (let j = 0; j < 4; j++) { T.open[j] = up; T.dim[j] = k < 0 ? (ch === 'moment' ? .55 : 1) : j === k ? 1 : .1; T.labels[j] = up * (k < 0 ? 1 : j === k ? 1 : 0); }
+    if (ch === chapter) return; chapter = ch; mClock = at0; aClock = at0; sClock = at0;
+    const k = ch.startsWith('layer-') ? Number(ch.slice(6)) : -1, up = ch === 'place' || ch === 'audit' ? 0 : 1;
+    T.aud = ch === 'audit' ? 1 : 0; T.sup = ch === 'support' ? 1 : 0;
+    for (let j = 0; j < NL; j++) { T.open[j] = up; T.dim[j] = k < 0 ? (ch === 'moment' ? .55 : ch === 'support' ? .8 : 1) : j === k ? 1 : .1; T.labels[j] = up * (k < 0 ? (ch === 'all' ? 1 : 0) : j === k ? 1 : 0); }
     T.tilt = up; T.flow = up * (ch === 'moment' ? .4 : 1); T.leaders = up * (k < 0 ? 1 : .4);
     T.look = k < 0 ? 0 : (topY(k) - (B ? B.c.y : 0)) * .3;
     labels.forEach((l, j) => l.classList.toggle('is-on', j === k));
     setHighlight(null);
   }
   function autoState(t) {
-    for (let k = 0; k < 4; k++) { S.open[k] = win(4.6 + k * .32, 6.9 + k * .32, t) * (1 - win(16 + (3 - k) * .24, 18 + (3 - k) * .24, t)); S.dim[k] = 1; S.labels[k] = win(5.6 + k * .32, 6.8 + k * .32, t) * (1 - win(15.6, 16.4, t)); }
-    S.flow = win(8.2, 9, t) * (1 - win(15.8, 16.4, t)); S.tilt = win(4.4, 7.6, t) * (1 - win(15.9, 18.9, t)); S.leaders = win(7, 8.2, t) * (1 - win(15.6, 16.4, t)); S.look = 0;
+    for (let k = 0; k < NL; k++) { S.open[k] = win(4.6 + k * .32, 6.9 + k * .32, t) * (1 - win(16 + (NL - 1 - k) * .24, 18 + (NL - 1 - k) * .24, t)); S.dim[k] = 1; S.labels[k] = win(5.6 + k * .32, 6.8 + k * .32, t) * (1 - win(15.6, 16.4, t)); }
+    S.flow = win(8.2, 9, t) * (1 - win(15.8, 16.4, t)); S.tilt = win(4.4, 7.6, t) * (1 - win(15.9, 18.9, t)); S.leaders = win(7, 8.2, t) * (1 - win(15.6, 16.4, t)); S.look = 0; S.aud = 0; S.sup = 0;
   }
+  let camK = 1;
   function ease2(dt) {
+    camK = reduce || snap ? 1 : 1 - Math.exp(-dt * 2.2);
     const a = reduce || snap ? 1 : 1 - Math.exp(-dt * 2.6), b = reduce || snap ? 1 : 1 - Math.exp(-dt * 6);
-    for (let k = 0; k < 4; k++) { S.open[k] += (T.open[k] - S.open[k]) * a; S.dim[k] += (T.dim[k] - S.dim[k]) * b; S.labels[k] += (T.labels[k] - S.labels[k]) * b; }
-    S.tilt += (T.tilt - S.tilt) * a; S.flow += (T.flow - S.flow) * b; S.leaders += (T.leaders - S.leaders) * b; S.look += (T.look - S.look) * a;
+    for (let k = 0; k < NL; k++) { S.open[k] += (T.open[k] - S.open[k]) * a; S.dim[k] += (T.dim[k] - S.dim[k]) * b; S.labels[k] += (T.labels[k] - S.labels[k]) * b; }
+    S.tilt += (T.tilt - S.tilt) * a; S.flow += (T.flow - S.flow) * b; S.leaders += (T.leaders - S.leaders) * b; S.look += (T.look - S.look) * a; S.aud += (T.aud - S.aud) * b; S.sup += (T.sup - S.sup) * b;
   }
 
   // mt: seconds into the moment (signal 0.3–3.3 s, callout after it arrives); end: its length.
@@ -492,12 +537,30 @@ export async function mountSector(host, spec) {
     spark.visible = mOn; momentPath.at(ease(mu), spark.position);
     trail.forEach((m, i) => { m.visible = mOn && mu > 0 && mu < 1; momentPath.at(ease(clamp(mu - (i + 1) * .006)), m.position); });
     rings.forEach((r, i) => { const e = mt - (.3 + stopsU[i] * 3.0); const on = mOn && e > 0; r.material.opacity = on ? Math.max(0, .9 - (e % 1.6) * .6) : 0; r.scale.setScalar(on ? 1 + (e % 1.6) * 1.4 : 1); });
-    if (callout && hot) { proj.copy(hot); proj.y = layers[hotK].grp.position.y + .1; proj.project(cam);
+    if (callout && hot) { proj.copy(hot); proj.project(cam);
       callout.style.transform = `translate(${((proj.x + 1) / 2) * w}px,${((1 - proj.y) / 2) * h}px) translate(-50%,-100%)`; callout.style.opacity = String(mOn ? win(2.9, 3.4, mt) * (1 - win(mEnd - .4, mEnd, mt)) : 0); }
     // Highlight rings follow their layer as it moves.
     if (hl) { hlT += 1 / 60; hl.pts.forEach(([x, z, y0], i) => { const m = pool[i]; if (!m) return; const y = hl.layer >= 0 ? layers[hl.layer].grp.position.y + .05 : (y0 || 0) + .03, e = (hlT * .9 + i * .07) % 1;
       m.position.set(x, y, z); m.scale.setScalar(1 + e * 1.1); m.material.opacity = Math.min(1, hlT * 4) * (1 - e) * .95; }); }
-    cam.position.lerpVectors(A.pos, B.pos, S.tilt); tmp.lerpVectors(A.c, B.c, S.tilt); tmp.y += S.look; cam.lookAt(tmp);
+    echo.forEach((r, i) => { const [x, z] = after[i], e = mt - 3.3 - i * .07, on = mOn && e > 0; r.position.set(x, layers[spec.moment.after[0]].grp.position.y + .05, z); r.material.opacity = on ? Math.max(0, .9 - (e % 1.4) * .7) : 0; r.scale.setScalar(on ? 1 + (e % 1.4) * 1.2 : 1); });
+    // Relevamiento
+    const sx = -W / 2 + clamp((aClock % 4.4) / 3.6) * W;
+    scan.visible = S.aud > .02; scan.position.x = sx; scan.material.opacity = .1 * S.aud;
+    pins.forEach((g, i) => { const seen = aClock > 3.6 || sx >= nodesAll[i].x; g.visible = S.aud > .02 && seen; g.scale.setScalar(Math.max(.001, S.aud)); });
+    // Soporte
+    const sc = sClock % 6.4, incY = layers[inc[0]] ? layers[inc[0]].grp.position.y : 0, topD = topY(NL - 1) + 1.3;
+    health.forEach((m) => { const { k, x, z } = m.userData, isInc = k === inc[0] && x === inc[1] && z === inc[2]; m.visible = S.sup > .05 && !(isInc && sc < 4.6); m.position.set(x, layers[k].grp.position.y + .55, z); m.scale.setScalar(Math.max(.001, S.sup)); });
+    incRing.visible = S.sup > .05; incRing.position.set(inc[1], incY + .06, inc[2]); incRing.material.color.set(sc < 4.6 ? 0xDC2626 : 0x1fae6b);
+    const ep = sc < 4.6 ? sc % 1.2 : (sc - 4.6) % 1.8; incRing.material.opacity = S.sup * Math.max(0, .95 - ep * .6); incRing.scale.setScalar(1 + ep * 1.1);
+    const up = clamp((sc - 1.2) / 1.2), down = clamp((sc - 3.4) / 1.2);
+    sSpark.visible = S.sup > .5 && sc > 1.2 && sc < 4.6; sSpark.position.set(inc[1], incY + .1 + (topD - incY - .1) * (sc < 3.4 ? ease(up) : 1 - ease(down)), inc[2]);
+    if (desk) { proj.set(inc[1], topD, inc[2]).project(cam); desk.style.transform = `translate(${((proj.x + 1) / 2) * w}px,${((1 - proj.y) / 2) * h}px) translate(-50%,-100%)`;
+      desk.style.opacity = String(S.sup * win(1.6, 2.2, sc)); const ph = sc < 2.4 ? '0' : sc < 4.6 ? '1' : '2'; if (desk.dataset.phase !== ph) desk.dataset.phase = ph; }
+    if (driven) {
+      const f = chapter.startsWith('layer-') ? BK[Number(chapter.slice(6))] : chapter === 'moment' ? BK[momentTop] : chapter === 'place' || chapter === 'audit' ? A : B;
+      if (!camInit || snap) { camPos.copy(f.pos); camC.copy(f.c); camInit = true; } else { camPos.lerp(f.pos, camK); camC.lerp(f.c, camK); }
+      cam.position.copy(camPos); cam.lookAt(camC);
+    } else { cam.position.lerpVectors(A.pos, B.pos, S.tilt); tmp.lerpVectors(A.c, B.c, S.tilt); cam.lookAt(tmp); }
     renderer.render(scene, cam);
   }
   function render(t, first, run = t) {
@@ -518,6 +581,8 @@ export async function mountSector(host, spec) {
     if (driven) {
       riseClock += dt; ease2(dt);
       if (chapter === 'moment') mClock = (mClock + dt) % 5.4;
+      if (chapter === 'audit') aClock += dt;
+      if (chapter === 'support') sClock += dt;
       draw(elapsed, riseClock < 3 && !reduce && !snap ? riseClock : null, chapter === 'moment' ? mClock : 0, chapter === 'moment', 5.4);
       return;
     }

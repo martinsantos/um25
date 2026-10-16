@@ -2,53 +2,23 @@
 // What follows the sector film: the record of work in the same palette, stated in
 // text (client, work, year), and one way forward. No illustrations posing as site photos.
 import { SECTOR_STORIES } from '../../data/cine/sectorStories';
-import { generateSlug } from '../../utils/slugUtils.js';
-import antecedentesSnapshot from '../../data/snapshots/antecedentes.json';
-// The CMS sector tag is loose (it files municipalities under construction, for example),
-// so the list reads each case's own client, title and description.
-const SECTOR_TEXT: Record<string, RegExp> = {
-  salud: /hospital|cl[ií]nic|sanatorio|fuesmen|medicina|salud mental|caps\b/i,
-  constructoras: /torre|edificio|consorcio|fideicomiso|constructora|desarrolladora/i,
-  aeropuertos: /aeropuert|aa2000|aeroparque|terminal a[eé]rea/i,
-  industria: /industr|planta(?! baja)|f[aá]brica|premix|frigor[ií]fico|metal[uú]rg/i,
-  bodegas: /bodega|vi[nñ]edo|vitivin|\bvinos?\b/i,
-  mineria: /miner|\bmina\b|yacimiento|campamento|radioenlace|enlace punto a punto/i,
-};
+import { sectorCases } from '../../data/cine/sectorCases';
 interface Props { sector: string; antecedentesHref: string }
 const { sector, antecedentesHref } = Astro.props;
-const records: any[] = Array.isArray(antecedentesSnapshot) ? antecedentesSnapshot : (antecedentesSnapshot as any).data || [];
-const match = SECTOR_TEXT[sector];
-const EXCLUDE: Record<string, RegExp> = { industria: /c[aá]mara de comercio|evento|bodega/i };
-const cases = match ? records.filter((r) => { const text = [r.Cliente, r.Titulo, r.Descripcion].join(' '); return match.test(text) && !EXCLUDE[sector]?.test(text); }).sort((a, b) => String(b.Fecha || '').localeCompare(String(a.Fecha || ''))) : [];
-const caseHref = (r: any) => `/antecedentes/${r.id}/${generateSlug(r.Titulo || '')}`;
 const story = SECTOR_STORIES[sector];
-const clean = (v: unknown) => String(v || '').replace(/\s+/g, ' ').replace(/\s*-\s*$/, '').trim();
-const titleCase = (v: string) => (v === v.toUpperCase() ? v.toLowerCase().replace(/(^|\s|\()(\p{L})/gu, (_, a, b) => a + b.toUpperCase()) : v);
-// The archive often repeats the client inside the title; keep the work, drop the echo.
-const work = (item: any) => {
-  const client = clean(item.Cliente);
-  let t = clean(item.Titulo).split(' - ')[0];
-  if (client) t = t.replace(new RegExp(client.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'ig'), '').replace(/\s{2,}/g, ' ').replace(/[\s:–-]+$/, '').trim();
-  t = t.replace(/\s+(para|de|del|en|y|a)$/i, '').replace(/\bSiste?na\b|\bSitema\b/g, 'Sistema').replace(/\bremplazo\b/gi, 'reemplazo').replace(/\bdebiles\b/g, 'débiles').replace(/\binformatica\b/g, 'informática');
-  t = t || clean(item.Titulo);
-  return t.charAt(0).toUpperCase() + t.slice(1);
-};
-const seen = new Set<string>();
-const rows = cases
-  .map((item) => ({ client: titleCase(clean(item.Cliente) || 'Cliente reservado'), work: work(item), year: String(item.Fecha || '').slice(0, 4), href: caseHref(item) }))
-  // Skip rows that say nothing on their own or belong to another sector's archive label.
-  .filter((r) => { const k = `${r.client}|${r.work}`.toLowerCase(); if (seen.has(k) || r.work.length < 14 || /^adicional\b|sector p[uú]blico|actualizar presupuesto/i.test(r.work)) return false; seen.add(k); return true; })
-  .slice(0, 6);
+const rows = sectorCases(sector).slice(0, 6);
 const total = story?.stats.find(([, l]) => /proyectos/i.test(l))?.[0];
 ---
 {story && (
 <section class="safter" aria-labelledby="safter-title">
   <div class="safter__shell">
+    {rows.length > 0 && (
     <header class="safter__head">
       <p class="safter__kicker"><b></b>Antecedentes</p>
       <h2 id="safter-title">Lo que ya instalamos en {story.label.toLowerCase()}.</h2>
       <a href={antecedentesHref}>{total ? `Ver los ${total} proyectos` : 'Ver todos los proyectos'} <span aria-hidden="true">→</span></a>
     </header>
+    )}
     {rows.length > 0 && (
       <ol class="safter__list">
         {rows.map((r) => (
