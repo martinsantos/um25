@@ -266,14 +266,14 @@ def render(args):
    em=nodes.new('ShaderNodeEmission');em.inputs[0].default_value=(*rgb,1)
    em.inputs[1].default_value=3.2 if name.startswith('route-') else 4 if name=='red' else 1.1 if name=='ink' else max(.6,emission*3)
    shader=em.outputs[0]
-   if not name.startswith('route-'):m.emission_sampling='NONE'
+   if not name.startswith('route-'):m.cycles.emission_sampling='NONE'
   else:
    b=nodes.new('ShaderNodeBsdfPrincipled');metal,rough,extra=SURF.get(name,(0,.5,{}))
    b.inputs['Base Color'].default_value=(*rgb,1);b.inputs['Metallic'].default_value=metal;b.inputs['Roughness'].default_value=rough
    for k,v in extra.items():b.inputs[k].default_value=v
    if name=='screen':
     # Live panels: a faint cold glow under a glossy face.
-    b.inputs['Emission Color'].default_value=(*lin('#1d4e66'),1);b.inputs['Emission Strength'].default_value=.55;m.emission_sampling='NONE'
+    b.inputs['Emission Color'].default_value=(*lin('#1d4e66'),1);b.inputs['Emission Strength'].default_value=.55;m.cycles.emission_sampling='NONE'
    if name in ('side','slab','top'):
     # Subtle large-scale variation so planes do not read as flat fills.
     tex=nodes.new('ShaderNodeTexNoise');tex.inputs['Scale'].default_value=2.4;tex.inputs['Detail'].default_value=3
