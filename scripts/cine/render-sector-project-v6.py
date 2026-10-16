@@ -1,7 +1,7 @@
 """Sector-specific architectural cinema, v6: path-traced light and physical materials.
 Same cameras, timing and geometry as v5, so the page story stays in sync.
 Blender runs on remote runners only."""
-import argparse, copy, hashlib, json, math, sys, time
+import argparse, copy, hashlib, json, math, re, sys, time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 FPS,FRAMES,S=60,1080,1/40
@@ -221,6 +221,26 @@ def author(scene_id):
   # v6 hero beds replace the flat bed slabs (rails, lift and casters stay authored).
  if scene_id=='clinic':
   p['boxes']=[b for b in p['boxes'] if not b['id'].startswith(('bed-base-','bed-mattress-','bed-pillow-'))]
+ # v6 hero props: modelled replacements for boxes that read as blocks.
+ ids={b['id']:b for b in p['boxes']};hero=[];drop=set()
+ for i,b in ids.items():
+  if i.endswith('-chair') and i[:-6]+'-back' in ids:
+   hero.append(('chair',b,ids[i[:-6]+'-back']));drop|={i,i[:-6]+'-back'}
+  elif i.endswith('-body') and i[:-5]+'-screen' in ids and b['h']>=12:
+   hero.append(('monitor',b,ids[i[:-5]+'-screen']));drop|={i,i[:-5]+'-screen'}
+  elif re.match(r'(desk|dispatch)-[\d-]+-?top$',i) or i=='nursing-top':
+   hero.append(('worktop',b,None));drop.add(i)
+  elif scene_id=='terminal' and re.match(r'counter-\d+$',i):
+   hero.append(('counter',b,None));drop.add(i)
+  elif scene_id=='terminal' and i.startswith('lounge-seat-'):
+   back=ids.get(i.replace('-seat-','-back-'));hero.append(('lounge',b,back));drop|={i,i.replace('-seat-','-back-')}
+  elif scene_id=='plant' and re.match(r'process-\d+-\d+$',i):
+   hero.append(('machine',b,None));drop.add(i)
+  elif scene_id=='mine' and re.match(r'equipment-pump-\d+$',i):
+   hero.append(('pump',b,None));drop.add(i)
+  elif scene_id=='mine' and i.startswith('module-roof-'):
+   hero.append(('module',b,None))
+ p['boxes']=[b for b in p['boxes'] if b['id'] not in drop];p['hero']=hero
  return p,palette
 
 def validate(scene_id):
@@ -418,8 +438,6 @@ def render(args):
     rbox(x,y-33,14,42,2.4,24,frame,.03)
     rtorus(x,y-33,38,10,.8,frame,(math.pi/2,0,0))
     rcyl(x-24,y-26,0,.8,64,frame,verts=16);rbox(x-24,y-26,52,5,1.6,8,pmat('iv','#DCEEF6',.05,0,{'Alpha':.75}),.02)
-  # Nursing counter gets a solid worktop edge.
-  rbox(217,257,24.5,63,31,1.6,frame,.02)
  if args.scene=='winery':
   for c in [c for c in p['cylinders'] if c.get('id','').endswith('-vessel')]:
    x,y=c['x'],c['y']
@@ -436,6 +454,46 @@ def render(args):
    # Level sight glass beside the gauge.
    rcyl(x-12,y+27.6,32,1.1,44,sight,verts=16)
    for zz in [31,76]:rcyl(x-12,y+27.6,zz,1.8,1.4,steel,verts=16)
+ wood=pmat('oak','#B89A78',.55,0,{'Coat Weight':.3,'Coat Roughness':.25});fabric=pmat('fabric','#3B4652',.9,0,{'Sheen Weight':.3})
+ paint=pmat('machine paint','#D9DEE2',.38,0,{'Coat Weight':.4});hazard=pmat('hazard','#E3B23C',.45);bezel=pmat('bezel','#15191E',.3,.2)
+ panel=pmat('panel','#E7EAEC',.5);rib=pmat('corrugated','#C8CFD5',.45,.5)
+ def chair(seat,back):
+  x,y,z=seat['x'],seat['y'],seat['z'];bx,by=back['x'],back['y']
+  for k in range(5):
+   a=k*2*math.pi/5;rbox(x+4.5*math.cos(a),y+4.5*math.sin(a),1.2,1.4,1.4,1.2,frame,.004)
+   rcyl(x+6*math.cos(a),y+6*math.sin(a),0,.9,1.2,rubber,'z',16)
+  rcyl(x,y,1.5,.8,z-1.5,frame,'z',16)
+  rbox(x,y,z,seat['w'],seat['d'],2.4,fabric,.6)
+  rbox(bx,by,back['z']+2,back['w']*.92,1.6,back['h']*.85,fabric,.6)
+  for dx in [-1,1]:rbox(x+dx*(seat['w']/2+.4),y,z+3,.8,seat['d']*.7,.8,frame,.2)
+ def monitor(body,screen):
+  rbox(body['x'],body['y'],body['z'],body['w']+.4,1.4,body['h'],bezel,.25)
+  rbox(screen['x'],body['y']+.75,screen['z'],screen['w'],.12,screen['h'],mats['screen'],0)
+ for kind,a,b in p.get('hero',[]):
+  if kind=='chair':chair(a,b)
+  elif kind=='monitor':monitor(a,b)
+  elif kind=='worktop':rbox(a['x'],a['y'],a['z'],a['w'],a['d'],a['h']+.6,wood,.25)
+  elif kind=='counter':
+   rbox(a['x'],a['y'],0,a['w'],a['d'],a['h']-2,panel,.6);rbox(a['x'],a['y']-1,a['h']-2,a['w']+2,a['d']+3,2.2,wood,.3)
+   rbox(a['x'],a['y']+a['d']/2+.2,3,a['w']-6,.4,a['h']-8,frame,.1)
+  elif kind=='lounge':
+   for k in range(3):
+    xx=a['x']-a['w']/2+4+k*8;rbox(xx,a['y'],a['z']-1,7,a['d'],3,fabric,.9)
+    if b:rbox(xx,b['y'],b['z'],7,2.4,b['h'],fabric,.9)
+   rcyl(a['x']-a['w']/2,a['y'],0,.8,a['z'],frame,'z',12);rcyl(a['x']+a['w']/2,a['y'],0,.8,a['z'],frame,'z',12)
+  elif kind=='machine':
+   rbox(a['x'],a['y'],0,a['w'],a['d'],a['h'],paint,.9)
+   for dz in [a['h']*.33,a['h']*.66]:rbox(a['x'],a['y']+a['d']/2+.05,dz,a['w']-2,.2,.4,bezel,0)
+   rbox(a['x'],a['y']+a['d']/2+.2,1,a['w'],.4,3,hazard,.05)
+   for dx in range(-24,26,6):rbox(a['x']+dx,a['y'],a['h']+3,3.2,a['d']*.5,.8,frame,.1)
+  elif kind=='pump':
+   rbox(a['x'],a['y'],a['z'],a['w'],a['d'],4,paint,.3)
+   rcyl(a['x']-a['w']/4,a['y'],a['z']+4,a['w']*.32,a['d']*.6,paint,'y',48,.4)
+   rcyl(a['x']+a['w']/4,a['y'],a['z']+12,9,a['d']*.5,hazard,'y',48,.4)
+  elif kind=='module':
+   x0,x1=a['x']-a['w']/2,a['x']+a['w']/2;y0,y1=a['y']-a['d']/2,a['y']+a['d']/2
+   for xx in range(int(x0)+2,int(x1)-1,3):rbox(xx,y1+.3,0,1.2,.6,a['z'],rib,.2)
+   for yy in range(int(y0)+2,int(y1)-1,3):rbox(x1+.3,yy,0,.6,1.2,a['z'],rib,.2)
  # Soft key from the v5 drafting direction, a broad overhead fill and a cool world.
  import mathutils
  key=bpy.data.lights.new('Key','SUN');key.energy=2.4;key.angle=math.radians(11);key_o=bpy.data.objects.new('Key',key);scene.collection.objects.link(key_o)
