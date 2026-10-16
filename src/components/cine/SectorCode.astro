@@ -1,72 +1,157 @@
 ---
-// A sector told in code, on the page's paper: the place, the four layers we install over
-// it (each label links to its service) and one moment of the operation crossing them.
-import { SECTOR_FILMS, LAYER_STYLE } from '../../scripts/senal/sectorSpecs.js';
+// A sector as an infographic you walk through: the model stays in view while the chapters
+// scroll past it (the place, the four layers we install, the moment it all works). The
+// active chapter drives the model; hovering a piece rings every one of them in place.
+import { SECTOR_FILMS, SECTOR_CHAPTERS, LAYER_STYLE } from '../../scripts/senal/sectorSpecs.js';
 import { NAV_SERVICES } from '../../data/navigation';
 interface Props { sector: keyof typeof SECTOR_FILMS }
 const { sector } = Astro.props;
 const spec = SECTOR_FILMS[sector];
+const ch = SECTOR_CHAPTERS[sector];
 const hrefOf = (code: number) => NAV_SERVICES.find((s) => s.code === String(code))?.href ?? '/servicios';
 const hot = spec.layers.flatMap((l) => l.items).find((it) => it[0] === 'card' && it[5]);
-const layers = spec.layers.map((l, i) => ({ n: String(i + 1).padStart(2, '0'), name: LAYER_STYLE[l.svc].name, color: LAYER_STYLE[l.svc].color, href: hrefOf(l.svc) }));
+// Counts come from the model, so the text never says more than the drawing shows.
+const COUNT = new Set(['ap', 'cam', 'det', 'dot', 'reader', 'bed', 'counter', 'cell', 'tank', 'mast', 'container', 'cabinet']);
+const countLayer = (k: number, kind: string) => spec.layers[k].items.filter((it) => it[0] === kind).length;
+const countBase = (kind: string) => spec.pieces.filter((p) => p[0] === kind).length;
+const layers = spec.layers.map((l, i) => ({
+  k: i, n: String(i + 1).padStart(2, '0'), name: LAYER_STYLE[l.svc].name, color: LAYER_STYLE[l.svc].color, href: hrefOf(l.svc),
+  text: ch.layers[i][0], parts: ch.layers[i][1].map(([label, kind]) => ({ label, kind, n: COUNT.has(kind) ? countLayer(i, kind) : 0 })),
+}));
+const place = ch.place.map(([label, kind]) => ({ label, kind, n: COUNT.has(kind) ? countBase(kind) : 0 }));
+const [c0, c1, c2, c3] = spec.captions;
+const id = (s: string) => `sc-${sector}-${s}`;
 ---
-<section class="scode" data-scode={sector} aria-label={`${spec.name}: cómo lo instalamos`}>
-  <div class="scode__stage" data-scode-stage>
-    {hot && <div class="scode__callout" data-scode-callout aria-hidden="true"><b>{hot[3]}</b><span>{hot[4]}</span></div>}
-    <div class="scode__legend">{layers.map((l) => <a class="scode__layer" data-scode-layer href={l.href} style={`--c:${l.color}`}><b>{l.n}</b>{l.name}</a>)}</div>
-  </div>
-  <div class="scode__cap" data-scode-caption data-step="0" aria-live="polite">
-    {spec.captions.map(([k, line]) => <p><small><i></i>{k}</small><strong>{line}</strong></p>)}
-    <p><small><i></i>Última Milla</small><strong class="scode__logo">ultimamilla<em>.</em>com<em>.</em>ar</strong></p>
+<section class="scode" data-scode={sector} aria-label={`${spec.name}: cómo lo instalamos, capa por capa`}>
+  <div class="scode__grid">
+    <div class="scode__stage" data-scode-stage>
+      {hot && <div class="scode__callout" data-scode-callout aria-hidden="true"><b>{hot[3]}</b><span>{hot[4]}</span></div>}
+      <div class="scode__legend" aria-hidden="true">{layers.map((l) => <span class="scode__layer" data-scode-layer style={`--c:${l.color}`}><b>{l.n}</b>{l.name}</span>)}</div>
+    </div>
+
+    <div class="scode__chapters">
+      <article class="scode__ch is-active" data-scode-ch="place" id={id('lugar')}>
+        <p class="scode__kick"><i></i>{c0[0]}</p>
+        <h3>{c0[1]}</h3>
+        <ul class="scode__parts">{place.map((p) => <li><button type="button" data-hl="-1" data-kind={p.kind} style="--c:#DC2626"><i></i>{p.label}{p.n > 1 && <em>{p.n}</em>}</button></li>)}</ul>
+      </article>
+
+      <article class="scode__ch" data-scode-ch="all" id={id('capas')}>
+        <p class="scode__kick"><i></i>{c1[0]}</p>
+        <h3>{c1[1]}</h3>
+        <p class="scode__lead">{c2[1]}</p>
+        <ol class="scode__index">{layers.map((l) => <li><a href={`#${id(`capa-${l.k + 1}`)}`} style={`--c:${l.color}`}><b>{l.n}</b>{l.name}</a></li>)}</ol>
+      </article>
+
+      {layers.map((l) => (
+        <article class="scode__ch" data-scode-ch={`layer-${l.k}`} id={id(`capa-${l.k + 1}`)} style={`--c:${l.color}`}>
+          <p class="scode__kick scode__kick--layer"><b>{l.n}</b>{l.name}</p>
+          <h3>{l.text}</h3>
+          <ul class="scode__parts">{l.parts.map((p) => <li><button type="button" data-hl={l.k} data-kind={p.kind}><i></i>{p.label}{p.n > 1 && <em>{p.n}</em>}</button></li>)}</ul>
+          <a class="scode__svc" href={l.href}>Ver el servicio <span aria-hidden="true">→</span></a>
+        </article>
+      ))}
+
+      <article class="scode__ch scode__ch--last" data-scode-ch="moment" id={id('momento')}>
+        <p class="scode__kick"><i></i>{c3[0]}</p>
+        <h3>{c3[1]}</h3>
+      </article>
+    </div>
   </div>
 </section>
 
 <style>
-  .scode{position:relative;background:#fcfcf9;color:#182120;height:min(100vh,920px);min-height:640px;overflow:hidden}
-  .scode__stage{position:absolute;inset:0}
-  .scode__legend{display:contents}
+  .scode{position:relative;background:#fcfcf9;color:#182120}
+  .scode__grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);width:100%}
+  .scode__stage{grid-column:2;grid-row:1;position:sticky;top:var(--um-header-h,66px);height:calc(100vh - var(--um-header-h,66px));height:calc(100svh - var(--um-header-h,66px));align-self:start}
   .scode__stage :global(canvas){position:absolute;inset:0;width:100%;height:100%;display:block}
-  .scode__layer{position:absolute;left:0;top:0;z-index:2;display:flex;align-items:center;gap:10px;padding-right:16px;opacity:0;white-space:nowrap;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#182120;text-decoration:none;will-change:transform,opacity}
+  .scode__chapters{grid-column:1;grid-row:1;padding:0 clamp(24px,3vw,56px) 0 max(var(--um-page-gutter,24px),calc((100vw - var(--um-container-wide,1400px))/2))}
+  .scode__ch{min-height:78vh;display:flex;flex-direction:column;justify-content:center;padding:48px 0;opacity:.28;transition:opacity .5s ease}
+  .scode__ch.is-active{opacity:1}
+  .scode__ch:first-child{min-height:calc(100vh - var(--um-header-h,66px))}
+  .scode__ch--last{min-height:100vh}
+  .scode.scode .scode__kick{display:flex;align-items:center;gap:14px;margin:0;font-size:13px!important;letter-spacing:.2em;text-transform:uppercase;color:#5f6368!important}
+  .scode__kick i{width:32px;height:2px;background:#DC2626}
+  .scode__kick--layer b{padding-top:3px;border-top:2px solid var(--c);color:#182120}
+  .scode.scode h3{margin:16px 0 0;max-width:17ch;font-size:clamp(28px,2.9vw,46px)!important;line-height:1.06;letter-spacing:-.022em;color:#182120!important}
+  .scode.scode .scode__lead{margin:18px 0 0;max-width:36ch;font-size:18px!important;line-height:1.5;color:#3c423f!important}
+  .scode__index{list-style:none;margin:28px 0 0;padding:0;border-top:1px solid rgba(24,33,32,.12)}
+  .scode__index a{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid rgba(24,33,32,.12);color:#182120;text-decoration:none;font-size:17px}
+  .scode__index b{min-width:24px;padding-top:3px;border-top:2px solid var(--c);font-size:12px;color:#5f6368}
+  .scode__index a:hover{color:var(--c)}
+  .scode__parts{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 0;padding:0}
+  .scode__parts button{display:inline-flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid rgba(24,33,32,.16);background:#fff;color:#182120;font:inherit;font-size:15px;cursor:pointer;transition:border-color .25s,box-shadow .25s}
+  .scode__parts button i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+  .scode__parts button em{font-style:normal;font-size:13px;color:#5f6368;font-variant-numeric:tabular-nums}
+  .scode__parts button:hover,.scode__parts button[aria-pressed="true"]{border-color:var(--c);box-shadow:inset 0 0 0 1px var(--c)}
+  .scode__svc{align-self:flex-start;margin-top:26px;color:#182120;font-weight:700;text-decoration:none;border-bottom:2px solid var(--c);padding-bottom:4px}
+  .scode a:focus-visible,.scode button:focus-visible{outline:2px solid #DC2626;outline-offset:3px}
+  .scode__layer{position:absolute;left:0;top:0;z-index:2;display:flex;align-items:center;gap:10px;padding-right:16px;opacity:0;white-space:nowrap;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#5f6368;will-change:transform,opacity;transition:color .3s}
+  .scode__layer b{display:inline-block;min-width:20px;padding:3px 0 2px;border-top:2px solid var(--c)}
+  .scode__layer:global(.is-on){color:#182120}
   .scode__callout{position:absolute;left:0;top:0;z-index:2;opacity:0;margin-top:-14px;padding:12px 16px 12px 14px;background:#fff;border-left:3px solid #DC2626;box-shadow:0 10px 30px rgba(24,33,32,.12);white-space:nowrap;pointer-events:none}
   .scode__callout b{display:block;font-size:15px;color:#182120}
   .scode__callout span{display:block;margin-top:3px;font-size:13px;color:#5f6368}
-  .scode__layer b{display:inline-block;min-width:22px;padding:3px 0 2px;border-top:2px solid var(--c);font-weight:700;color:#5f6368}
-  .scode__layer:hover{color:var(--c)}
-  .scode__layer:focus-visible{outline:2px solid #DC2626;outline-offset:4px;opacity:1!important}
-  .scode__cap{position:absolute;z-index:3;left:max(var(--um-page-gutter,24px),calc((100% - var(--um-container-wide,1400px))/2));bottom:clamp(40px,9vh,104px);width:min(520px,34vw);height:0}
-  .scode__cap p{position:absolute;left:0;bottom:0;width:100%;margin:0;opacity:0;transform:translateY(12px);transition:opacity .8s ease,transform 1s cubic-bezier(.2,.7,.1,1)}
-  .scode.scode .scode__cap small{display:flex;align-items:center;gap:14px;font-size:13px!important;letter-spacing:.2em;text-transform:uppercase;color:#5f6368!important}
-  .scode__cap small i{width:32px;height:2px;background:#DC2626}
-  .scode.scode .scode__cap strong{display:block;margin-top:14px;font-size:clamp(30px,3.2vw,54px)!important;line-height:1.04;letter-spacing:-.025em;color:#182120!important}
-  .scode__logo em{font-style:normal;color:#DC2626}
-  .scode__cap[data-step="0"] p:nth-child(1),.scode__cap[data-step="1"] p:nth-child(2),.scode__cap[data-step="2"] p:nth-child(3),.scode__cap[data-step="3"] p:nth-child(4),.scode__cap[data-step="4"] p:nth-child(5){opacity:1;transform:none}
-  :global(.is-frozen) .scode__cap p{transition:none}
   @media (max-width:899px){
-    .scode{height:auto;min-height:0;display:flex;flex-direction:column}
-    .scode__stage{position:relative;inset:auto;aspect-ratio:1/1.05}
-    .scode__legend{position:absolute;left:var(--um-page-gutter,20px);right:var(--um-page-gutter,20px);top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;z-index:2}
-    .scode__layer{position:static;transform:none!important;font-size:11px;letter-spacing:.1em;gap:8px;padding:0;white-space:normal}
-    .scode__layer b{min-width:18px}
-    .scode__callout{display:none}
-    .scode__cap{position:relative;left:auto;bottom:auto;width:auto;height:150px;margin:0 var(--um-page-gutter,20px) 40px}
-    .scode__cap p{top:0;bottom:auto}
+    .scode__grid{grid-template-columns:1fr}
+    .scode__stage{grid-column:1;top:var(--um-header-h,60px);height:min(54svh,100vw);z-index:2;background:#fcfcf9;box-shadow:0 1px 0 rgba(24,33,32,.08)}
+    .scode__chapters{grid-row:2;padding:0 var(--um-page-gutter,20px)}
+    .scode__ch,.scode__ch:first-child{min-height:62svh;justify-content:flex-start;padding:36px 0}
+    .scode__ch--last{min-height:70svh}
+    .scode__legend,.scode__callout{display:none}
+    .scode.scode h3{font-size:clamp(26px,7vw,34px)!important}
+    .scode__parts button{font-size:14px;padding:9px 12px}
   }
-  @media (prefers-reduced-motion:reduce){.scode__cap p{transition:none}}
+  @media (prefers-reduced-motion:reduce){.scode__ch{transition:none}}
+  .scode:global(.is-pinned) .scode__ch:not(.is-active){display:none}
 </style>
 
 <script>
   import { SECTOR_FILMS } from '../../scripts/senal/sectorSpecs.js';
+  type Api = { dispose: () => void; setChapter: (c: string) => void; setHighlight: (h: { layer: number; kind: string } | null) => void };
   function boot() {
     document.querySelectorAll<HTMLElement>('[data-scode]:not([data-bound])').forEach((host) => {
       host.dataset.bound = '1';
-      let dispose: (() => void) | null = null;
-      const io = new IntersectionObserver(async ([e]) => {
-        if (!e.isIntersecting || dispose) return; io.disconnect();
+      const chapters = [...host.querySelectorAll<HTMLElement>('[data-scode-ch]')];
+      const q = new URLSearchParams(location.search), pinned = q.get('ch');
+      let api: Api | null = null, current = 'place';
+      // Review captures: ?ch= pins one chapter and shows it alone.
+      if (pinned) host.classList.add('is-pinned');
+      const activate = (name: string) => {
+        if (pinned) name = pinned;
+        current = name; chapters.forEach((c) => c.classList.toggle('is-active', c.dataset.scodeCh === name));
+        host.querySelectorAll('[data-hl][aria-pressed="true"]').forEach((b) => b.setAttribute('aria-pressed', 'false'));
+        api?.setChapter(name);
+      };
+      // The chapter crossing the reading line is the active one.
+      const narrow = matchMedia('(max-width: 899px)').matches;
+      const reader = new IntersectionObserver((entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) activate((e.target as HTMLElement).dataset.scodeCh || 'place'); });
+      }, { rootMargin: narrow ? '-66% 0px -30% 0px' : '-48% 0px -48% 0px' });
+      chapters.forEach((c) => reader.observe(c));
+      // Pieces: hover or focus rings them in the model; a tap keeps them on.
+      host.querySelectorAll<HTMLButtonElement>('[data-hl]').forEach((b) => {
+        const h = () => ({ layer: Number(b.dataset.hl), kind: b.dataset.kind || '' });
+        b.setAttribute('aria-pressed', 'false');
+        b.addEventListener('mouseenter', () => api?.setHighlight(h()));
+        b.addEventListener('focus', () => api?.setHighlight(h()));
+        b.addEventListener('mouseleave', () => { if (b.getAttribute('aria-pressed') !== 'true') api?.setHighlight(null); });
+        b.addEventListener('blur', () => { if (b.getAttribute('aria-pressed') !== 'true') api?.setHighlight(null); });
+        b.addEventListener('click', () => {
+          const on = b.getAttribute('aria-pressed') !== 'true';
+          host.querySelectorAll('[data-hl]').forEach((o) => o.setAttribute('aria-pressed', 'false'));
+          b.setAttribute('aria-pressed', String(on)); api?.setHighlight(on ? h() : null);
+        });
+      });
+      const mount = new IntersectionObserver(async ([e]) => {
+        if (!e.isIntersecting || api) return; mount.disconnect();
         const { mountSector } = await import('../../scripts/senal/sector.js');
-        dispose = await mountSector(host, SECTOR_FILMS[host.dataset.scode as keyof typeof SECTOR_FILMS]);
+        api = (await mountSector(host, SECTOR_FILMS[host.dataset.scode as keyof typeof SECTOR_FILMS])) as Api;
+        api.setChapter(pinned || current);
+        const hl = q.get('hl'); if (hl) { const [k, kind] = hl.split(':'); api.setHighlight({ layer: Number(k), kind }); }
       }, { rootMargin: '400px 0px' });
-      io.observe(host);
-      document.addEventListener('astro:before-swap', () => { io.disconnect(); dispose?.(); }, { once: true });
+      mount.observe(host);
+      document.addEventListener('astro:before-swap', () => { reader.disconnect(); mount.disconnect(); api?.dispose(); }, { once: true });
     });
   }
   boot(); document.addEventListener('astro:page-load', boot);

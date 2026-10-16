@@ -321,6 +321,8 @@ function poly(pts) {
 
 export async function mountSector(host, spec) {
   const stage = host.querySelector('[data-scode-stage]') || host;
+  const freeze = new URLSearchParams(location.search).has('t') ? Number(new URLSearchParams(location.search).get('t')) : null;
+  const driven = freeze === null && !!host.querySelector('[data-scode-ch]'), snap = new URLSearchParams(location.search).has('ch');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   try { await Promise.all([document.fonts.load(`700 20px ${FONT}`), document.fonts.load(`600 20px ${FONT}`), document.fonts.load(`500 20px ${FONT}`)]); } catch { /* fallback font */ }
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -357,13 +359,13 @@ export async function mountSector(host, spec) {
     const k = kit(g, M);
     if (glass) { const p = new THREE.Mesh(new THREE.BoxGeometry(len, .9, .02), M.glass); p.position.y = .47; g.add(p); k.box(len, .04, .06, M.slate, 0, 0, 0, .005); k.box(len, .03, .05, M.slate, 0, .92, 0, .005); for (let x = -len / 2; x <= len / 2 + .01; x += len / Math.max(1, Math.round(len / .9))) k.box(.03, .92, .05, M.slate, x, 0, 0, .005); }
     else { k.box(len + .08, .55, .08, M.white, 0, 0, 0, .01); k.box(len + .08, .012, .084, M.cap, 0, .55, 0, .002); }
-    pieces.push({ g, at: 0 });
+    pieces.push({ g, at: 0, kind: 'wall', y0: 0 });
   };
   (spec.walls || []).forEach((w) => wallSeg(w, false)); (spec.glass || []).forEach((w) => wallSeg(w, true));
   spec.pieces.forEach(([kind, x, z, r = 0, arg, y], i) => {
     const g = new THREE.Group(); const yArg = (kind === 'truck' || kind === 'shovel') && typeof arg === 'number'; g.position.set(x, yArg ? arg : (y || 0), z); g.rotation.y = r * Math.PI / 180; scene.add(g);
     const up = BUILD[kind](kit(g, M), M, yArg ? undefined : arg); if (up) updates.push(up);
-    pieces.push({ g, at: .3 + i * .1 });
+    pieces.push({ g, at: .3 + i * .1, kind, y0: g.position.y });
   });
 
   // Layers: drawn plate + small 3D tokens, each with an HTML label (a link to its service).
@@ -400,7 +402,6 @@ export async function mountSector(host, spec) {
   const stopPts = stopsU.map((u) => momentPath.at(u).clone());
   const rings = stopPts.map((p) => { const m = new THREE.Mesh(new THREE.RingGeometry(.2, .26, 48), new THREE.MeshBasicMaterial({ color: 0xDC2626, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, toneMapped: false })); m.rotation.x = -Math.PI / 2; m.position.copy(p).y += .02; scene.add(m); return m; });
 
-  const q = new URLSearchParams(location.search), freeze = q.has('t') ? Number(q.get('t')) : null;
   // Camera: two framings (the place; the open stack), fitted exactly to the stage.
   const cam = new THREE.PerspectiveCamera(22, 1, .1, 200);
   const bb = new THREE.Box3(); pieces.forEach((p) => bb.expandByObject(p.g)); bb.expandByPoint(new THREE.Vector3(-W / 2, -depthAll, -D / 2)).expandByPoint(new THREE.Vector3(W / 2, 0, D / 2));
@@ -411,17 +412,17 @@ export async function mountSector(host, spec) {
     const fwd = dir.clone().negate(), right = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0, 1, 0)).normalize(), up = new THREE.Vector3().crossVectors(right, fwd);
     const tv = Math.tan(THREE.MathUtils.degToRad(cam.fov) / 2), th = tv * aspect * (1 - 2 * offset);
     let d = 0; for (let i = 0; i < 8; i++) { const p = new THREE.Vector3(i & 1 ? box3.max.x : box3.min.x, i & 2 ? box3.max.y : box3.min.y, i & 4 ? box3.max.z : box3.min.z).sub(c); const x = p.dot(right), y = p.dot(up), z = p.dot(fwd); d = Math.max(d, Math.abs(x) / th - z, Math.abs(y) / tv - z); }
-    return { c, pos: c.clone().addScaledVector(dir, d * 1.1) };
+    return { c, pos: c.clone().addScaledVector(dir, d * (driven ? (stage.clientWidth >= 700 ? 1.18 : 1.04) : 1.1)) };
   };
   let A, B;
   function resize() {
     const w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return;
     renderer.setSize(w, h, false); aspect = w / h; cam.aspect = aspect;
-    offset = aspect > 1.25 ? .17 : 0; cam.fov = aspect < 1.1 ? 28 : 22;
+    offset = driven ? (w >= 700 ? .11 : 0) : aspect > 1.25 ? .17 : 0; cam.fov = aspect < 1.1 ? 28 : 22;
     if (offset) cam.setViewOffset(w, h, -w * offset, 0, w, h); else cam.clearViewOffset();
     cam.updateProjectionMatrix();
-    A = fit(bb, .62, .62); B = fit(boxOpen, .7, .48);
-    if (ready && (reduce || freeze !== null)) render(reduce && freeze === null ? 13.4 : freeze, freeze !== null);
+    A = fit(bb, .62, .62); B = fit(boxOpen, .7, driven ? .36 : .48);
+    if (ready && !driven && (reduce || freeze !== null)) render(reduce && freeze === null ? 13.4 : freeze, freeze !== null);
   }
   let ready = false;
   const ro = new ResizeObserver(resize); ro.observe(stage); resize();
@@ -430,51 +431,102 @@ export async function mountSector(host, spec) {
   let hot = null, hotK = 0; spec.layers.forEach((l, k) => l.items.forEach((it) => { if (it[0] === 'card' && it[5]) { hot = new THREE.Vector3(it[1], 0, it[2] - .5); hotK = k; } }));
   if (freeze !== null) host.classList.add('is-frozen');
   let visible = freeze !== null, clock = 0, elapsed = 0, cycle = 0, lastNow = 0, raf = 0, lastStep = -1;
-  const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: .05 }); io.observe(host);
+  const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: .02 }); io.observe(host);
   const tmp = new THREE.Vector3(), proj = new THREE.Vector3();
 
-  function render(t, first, run = t) {
-    const rise = first ? 1 : 0;
-    pieces.forEach((p) => { const s = rise ? Math.max(.001, win(p.at * .55, p.at * .55 + .9, t)) : 1; p.g.scale.y = s; p.g.visible = s > .002; });
+  // Highlight rings: the page points at a kind of piece (a layer's APs, the floor's beds...)
+  // and every one of them rings in place.
+  const ringGeo = new THREE.RingGeometry(.34, .44, 48);
+  const pool = Array.from({ length: 40 }, () => { const m = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xDC2626, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, toneMapped: false })); m.rotation.x = -Math.PI / 2; m.renderOrder = 30; m.visible = false; scene.add(m); return m; });
+  const kindPts = (layer, kind) => layer.items.filter((it) => it[0] === kind).flatMap((it) => (kind === 'tray' ? [it[1][0], it[1][it[1].length - 1]] : kind === 'link' ? [it[1], it[2]] : kind === 'zone' ? [[(it[1] + it[3]) / 2, (it[2] + it[4]) / 2]] : [[it[1], it[2]]]));
+  let hl = null, hlT = 0;
+  function setHighlight(h) {
+    hl = h ? { ...h, pts: h.layer >= 0 ? kindPts(spec.layers[h.layer], h.kind) : pieces.filter((p) => p.kind === h.kind).map((p) => [p.g.position.x, p.g.position.z, p.y0]), color: h.layer >= 0 ? LAYER_STYLE[spec.layers[h.layer].svc].color : '#DC2626' } : null;
+    hlT = 0; pieces.forEach((p) => { p.hlTarget = hl && hl.layer < 0 && p.kind === hl.kind ? 1 : 0; });
+    pool.forEach((m, i) => { m.visible = !!hl && i < hl.pts.length; if (hl) m.material.color.set(hl.color); });
+  }
+
+  // One state drives the picture. Autoplay computes it from the clock; the page's
+  // chapters set targets and the state eases toward them.
+  const S = { open: [0, 0, 0, 0], dim: [1, 1, 1, 1], labels: [0, 0, 0, 0], tilt: 0, flow: 0, leaders: 0, look: 0 };
+  const T = { open: [0, 0, 0, 0], dim: [1, 1, 1, 1], labels: [0, 0, 0, 0], tilt: 0, flow: 0, leaders: 0, look: 0 };
+  let chapter = 'place', mClock = 0;
+  function setChapter(ch) {
+    if (ch === chapter) return; chapter = ch; mClock = 0;
+    const k = ch.startsWith('layer-') ? Number(ch.slice(6)) : -1, up = ch === 'place' ? 0 : 1;
+    for (let j = 0; j < 4; j++) { T.open[j] = up; T.dim[j] = k < 0 ? (ch === 'moment' ? .55 : 1) : j === k ? 1 : .1; T.labels[j] = up * (k < 0 ? 1 : j === k ? 1 : 0); }
+    T.tilt = up; T.flow = up * (ch === 'moment' ? .4 : 1); T.leaders = up * (k < 0 ? 1 : .4);
+    T.look = k < 0 ? 0 : (topY(k) - (B ? B.c.y : 0)) * .3;
+    labels.forEach((l, j) => l.classList.toggle('is-on', j === k));
+    setHighlight(null);
+  }
+  function autoState(t) {
+    for (let k = 0; k < 4; k++) { S.open[k] = win(4.6 + k * .32, 6.9 + k * .32, t) * (1 - win(16 + (3 - k) * .24, 18 + (3 - k) * .24, t)); S.dim[k] = 1; S.labels[k] = win(5.6 + k * .32, 6.8 + k * .32, t) * (1 - win(15.6, 16.4, t)); }
+    S.flow = win(8.2, 9, t) * (1 - win(15.8, 16.4, t)); S.tilt = win(4.4, 7.6, t) * (1 - win(15.9, 18.9, t)); S.leaders = win(7, 8.2, t) * (1 - win(15.6, 16.4, t)); S.look = 0;
+  }
+  function ease2(dt) {
+    const a = reduce || snap ? 1 : 1 - Math.exp(-dt * 2.6), b = reduce || snap ? 1 : 1 - Math.exp(-dt * 6);
+    for (let k = 0; k < 4; k++) { S.open[k] += (T.open[k] - S.open[k]) * a; S.dim[k] += (T.dim[k] - S.dim[k]) * b; S.labels[k] += (T.labels[k] - S.labels[k]) * b; }
+    S.tilt += (T.tilt - S.tilt) * a; S.flow += (T.flow - S.flow) * b; S.leaders += (T.leaders - S.leaders) * b; S.look += (T.look - S.look) * a;
+  }
+
+  // mt: seconds into the moment (signal 0.3–3.3 s, callout after it arrives); end: its length.
+  function draw(run, riseT, mt, mOn, mEnd) {
+    pieces.forEach((p) => { const s = riseT == null ? 1 : Math.max(.001, win(p.at * .55, p.at * .55 + .9, riseT)); p.g.scale.y = s; p.g.visible = s > .002;
+      p.hl = (p.hl || 0) + ((p.hlTarget || 0) - (p.hl || 0)) * .18; p.g.position.y = p.y0 + .16 * ease(p.hl); });
     updates.forEach((u) => u(run));
-    const open = (k) => win(4.6 + k * .32, 6.9 + k * .32, t) * (1 - win(16 + (3 - k) * .24, 18 + (3 - k) * .24, t));
-    const flow = win(8.2, 9, t) * (1 - win(15.8, 16.4, t)), tilt = win(4.4, 7.6, t) * (1 - win(15.9, 18.9, t));
+    const w = stage.clientWidth, h = stage.clientHeight;
     layers.forEach((L, k) => {
-      const o = open(k); L.grp.position.y = .02 + (topY(k) - .02) * o; L.grp.visible = o > .003;
-      L.plate.material.opacity = Math.min(1, o * 1.4); L.toks.forEach((m) => m.scale.setScalar(Math.max(.001, o)));
-      L.pulses.forEach((p) => { p.m.visible = flow > .02; p.r.at((t * .16 + p.ph) % 1, p.m.position); p.m.scale.setScalar(.4 + flow * .6); });
-      if (L.label && stage.clientWidth >= 700) {
+      const o = S.open[k], d = S.dim[k]; L.grp.position.y = .02 + (topY(k) - .02) * o; L.grp.visible = o > .003;
+      L.plate.material.opacity = Math.min(1, o * 1.4) * (.1 + .9 * d); L.toks.forEach((m) => m.scale.setScalar(Math.max(.001, o * (.5 + .5 * d))));
+      L.pulses.forEach((p) => { p.m.visible = S.flow * d > .05; p.r.at((run * .16 + p.ph) % 1, p.m.position); p.m.scale.setScalar(.4 + S.flow * d * .6); });
+      if (L.label && w >= 700) {
         let best = null; for (const [x, z] of [[-W / 2, -D / 2], [W / 2, -D / 2], [W / 2, D / 2], [-W / 2, D / 2]]) { proj.set(x, L.grp.position.y, z).project(cam); if (!best || proj.x < best.x) best = proj.clone(); }
-        const w = stage.clientWidth, h = stage.clientHeight; L.label.style.transform = `translate(${((best.x + 1) / 2) * w}px,${((1 - best.y) / 2) * h}px) translate(-100%,-50%)`;
+        L.label.style.transform = `translate(${((best.x + 1) / 2) * w}px,${((1 - best.y) / 2) * h}px) translate(-100%,-50%)`;
       }
-      if (L.label) L.label.style.opacity = String(win(5.6 + k * .32, 6.8 + k * .32, t) * (1 - win(15.6, 16.4, t)));
+      if (L.label) L.label.style.opacity = String(S.labels[k]);
     });
-    if (callout && hot) { const w = stage.clientWidth, h = stage.clientHeight; proj.copy(hot); proj.y = layers[hotK].grp.position.y + .1; proj.project(cam);
-      callout.style.transform = `translate(${((proj.x + 1) / 2) * w}px,${((1 - proj.y) / 2) * h}px) translate(-50%,-100%)`; callout.style.opacity = String(win(14.6, 15.1, t) * (1 - win(15.9, 16.3, t))); }
-    leaderMat.opacity = .38 * win(7, 8.2, t) * (1 - win(15.6, 16.4, t));
+    leaderMat.opacity = .38 * S.leaders;
     // Moment: the red signal crosses the stack, ringing where it starts and arrives.
-    const mu = clamp((t - 12.3) / 3.0), mOn = t > 12.1 && t < 16.2;
+    const mu = clamp((mt - .3) / 3.0);
     spark.visible = mOn; momentPath.at(ease(mu), spark.position);
     trail.forEach((m, i) => { m.visible = mOn && mu > 0 && mu < 1; momentPath.at(ease(clamp(mu - (i + 1) * .006)), m.position); });
-    rings.forEach((r, i) => { const e = t - (12.3 + stopsU[i] * 3.0); const on = e > 0 && t < 16.2; r.material.opacity = on ? Math.max(0, .9 - (e % 1.6) * .6) : 0; r.scale.setScalar(on ? 1 + (e % 1.6) * 1.4 : 1); });
-    // camera
-    cam.position.lerpVectors(A.pos, B.pos, tilt); tmp.lerpVectors(A.c, B.c, tilt); cam.lookAt(tmp);
+    rings.forEach((r, i) => { const e = mt - (.3 + stopsU[i] * 3.0); const on = mOn && e > 0; r.material.opacity = on ? Math.max(0, .9 - (e % 1.6) * .6) : 0; r.scale.setScalar(on ? 1 + (e % 1.6) * 1.4 : 1); });
+    if (callout && hot) { proj.copy(hot); proj.y = layers[hotK].grp.position.y + .1; proj.project(cam);
+      callout.style.transform = `translate(${((proj.x + 1) / 2) * w}px,${((1 - proj.y) / 2) * h}px) translate(-50%,-100%)`; callout.style.opacity = String(mOn ? win(2.9, 3.4, mt) * (1 - win(mEnd - .4, mEnd, mt)) : 0); }
+    // Highlight rings follow their layer as it moves.
+    if (hl) { hlT += 1 / 60; hl.pts.forEach(([x, z, y0], i) => { const m = pool[i]; if (!m) return; const y = hl.layer >= 0 ? layers[hl.layer].grp.position.y + .05 : (y0 || 0) + .03, e = (hlT * .9 + i * .07) % 1;
+      m.position.set(x, y, z); m.scale.setScalar(1 + e * 1.1); m.material.opacity = Math.min(1, hlT * 4) * (1 - e) * .95; }); }
+    cam.position.lerpVectors(A.pos, B.pos, S.tilt); tmp.lerpVectors(A.c, B.c, S.tilt); tmp.y += S.look; cam.lookAt(tmp);
+    renderer.render(scene, cam);
+  }
+  function render(t, first, run = t) {
+    autoState(t); draw(run, first ? t : null, t - 12, t > 12.1 && t < 16.2, 4.2);
     const step = t < 4.4 ? 0 : t < 8.2 ? 1 : t < 12.1 ? 2 : t < 16.2 ? 3 : 4;
     if (caption && step !== lastStep) { lastStep = step; caption.dataset.step = String(step); }
-    renderer.render(scene, cam);
   }
   // The ring delay uses the eased path progress: solve once for each stop.
   stopsU.forEach((u, i) => { let lo = 0, hi = 1; for (let n = 0; n < 30; n++) { const m = (lo + hi) / 2; if (ease(m) < u) lo = m; else hi = m; } stopsU[i] = lo; });
 
+  let riseClock = 0;
   function frame(now) {
     raf = requestAnimationFrame(frame);
     const dt = lastNow ? Math.min(.1, (now - lastNow) / 1000) : 0; lastNow = now;
     if (freeze !== null) { render(freeze, true); return; }
     if (!visible) return;
-    clock += dt; elapsed += dt; if (clock >= LOOP) { clock -= LOOP; cycle++; }
+    elapsed += reduce ? 0 : dt;
+    if (driven) {
+      riseClock += dt; ease2(dt);
+      if (chapter === 'moment') mClock = (mClock + dt) % 5.4;
+      draw(elapsed, riseClock < 3 && !reduce && !snap ? riseClock : null, chapter === 'moment' ? mClock : 0, chapter === 'moment', 5.4);
+      return;
+    }
+    clock += dt; if (clock >= LOOP) { clock -= LOOP; cycle++; }
     render(clock, cycle === 0, elapsed);
   }
   ready = true;
-  if (reduce && freeze === null) { render(13.4, false); } else raf = requestAnimationFrame(frame);
-  return () => { cancelAnimationFrame(raf); ro.disconnect(); io.disconnect(); renderer.dispose(); pm.dispose(); renderer.domElement.remove(); };
+  if (driven) setChapter(host.querySelector('[data-scode-ch].is-active')?.dataset.scodeCh || 'place'), raf = requestAnimationFrame(frame);
+  else if (reduce && freeze === null) render(13.4, false); else raf = requestAnimationFrame(frame);
+  const dispose = () => { cancelAnimationFrame(raf); ro.disconnect(); io.disconnect(); renderer.dispose(); pm.dispose(); renderer.domElement.remove(); };
+  return { dispose, setChapter, setHighlight };
 }

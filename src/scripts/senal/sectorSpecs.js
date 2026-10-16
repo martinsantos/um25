@@ -157,3 +157,62 @@ export const SECTOR_FILMS = {
 };
 
 export const SECTOR_FILM_SLUGS = Object.keys(SECTOR_FILMS);
+
+// The infographic's chapters: what to point at on the floor, and per layer one line plus
+// the pieces a reader can hover (by kind; counts come from the model itself).
+export const SECTOR_CHAPTERS = {
+  salud: {
+    place: [['Habitaciones', 'bed'], ['Enfermería', 'nurse'], ['Quirófano', 'ortable'], ['Sala técnica', 'rack']],
+    layers: [
+      ['Cableado certificado y Wi-Fi en cada habitación, quirófano y pasillo.', [['Puntos de acceso Wi-Fi', 'ap'], ['Bandejas y montantes', 'tray'], ['Rack', 'node']]],
+      ['UPS y tableros: los equipos críticos no se apagan.', [['Tomas por cama', 'dot'], ['UPS y tablero', 'node'], ['Circuitos', 'tray']]],
+      ['Cámaras en circulaciones, accesos con tarjeta y detección de humo.', [['Cámaras', 'cam'], ['Lectores de acceso', 'reader'], ['Detectores de humo', 'det']]],
+      ['Llamados de cama, turnos e historia clínica, en una misma pantalla.', [['Pantallas de gestión', 'card'], ['Integración', 'tray']]],
+    ],
+  },
+  aeropuertos: {
+    place: [['Mostradores de check-in', 'counter'], ['Equipaje', 'carousel'], ['Control de seguridad', 'arch'], ['Embarque', 'seats'], ['Avión en manga', 'plane']],
+    layers: [
+      ['Red y Wi-Fi para pasajeros, mostradores y puertas de embarque.', [['Puntos de acceso Wi-Fi', 'ap'], ['Bandejas', 'tray'], ['Sala técnica', 'node']]],
+      ['Cámaras de la vereda a la plataforma y accesos controlados.', [['Cámaras', 'cam'], ['Lectores de acceso', 'reader']]],
+      ['Pantallas de vuelos y megafonía en toda la terminal.', [['Pantallas y puertas', 'node'], ['Altavoces', 'dot']]],
+      ['Check-in, equipaje y embarque, seguidos en un mismo sistema.', [['Pantallas de gestión', 'card'], ['Integración', 'tray']]],
+    ],
+  },
+  industria: {
+    place: [['Celdas robotizadas', 'cell'], ['Línea', 'conveyor'], ['Tableros', 'cabinet'], ['Sala de control', 'vwall'], ['Depósito', 'shelf']],
+    layers: [
+      ['Red industrial en anillo: si un tramo se corta, la línea sigue.', [['Switches', 'node'], ['Anillo de fibra', 'tray'], ['Wi-Fi de planta', 'ap']]],
+      ['Tableros y UPS que alimentan cada celda.', [['UPS y tableros', 'node'], ['Alimentación por celda', 'tray']]],
+      ['Detección de incendios por zonas, con su central.', [['Detectores', 'det'], ['Zonas', 'zone'], ['Central', 'node']]],
+      ['Producción, mantenimiento y stock, a la vista de la sala de control.', [['Pantallas de gestión', 'card'], ['Integración', 'tray']]],
+    ],
+  },
+  bodegas: {
+    place: [['Tanques', 'tank'], ['Barricas', 'barrels'], ['Fraccionamiento', 'bottling'], ['Enología', 'desk'], ['Expedición', 'palletbox']],
+    layers: [
+      ['Red y sensores en cada tanque; Wi-Fi en sala, crianza y planta.', [['Sensores de tanque', 'dot'], ['Puntos de acceso Wi-Fi', 'ap'], ['Rack', 'node']]],
+      ['Energía estable para el frío y la línea de fraccionamiento.', [['Tablero y UPS', 'node'], ['Circuitos', 'tray']]],
+      ['Cámaras y accesos en crianza, laboratorio y expedición.', [['Cámaras', 'cam'], ['Lectores de acceso', 'reader']]],
+      ['Temperatura, lotes y trazabilidad, en un mismo tablero.', [['Pantallas de gestión', 'card'], ['Integración', 'tray']]],
+    ],
+  },
+  constructoras: {
+    place: [['Puestos de trabajo', 'desks'], ['Núcleo', 'core'], ['Sala de reunión', 'mtable'], ['Obrador', 'crane']],
+    layers: [
+      ['Cableado estructurado y Wi-Fi, certificados punto por punto.', [['Puestos de red', 'dot'], ['Puntos de acceso Wi-Fi', 'ap'], ['Rack de piso', 'node']]],
+      ['Tablero del piso y circuitos dedicados para cada puesto.', [['Tomas por puesto', 'dot'], ['Tablero', 'node'], ['Circuitos', 'tray']]],
+      ['Detección de incendios por zonas, con su central.', [['Detectores', 'det'], ['Zonas', 'zone'], ['Central', 'node']]],
+      ['Control de accesos en núcleo y entrada, y cámaras de obra.', [['Lectores de acceso', 'reader'], ['Cámaras', 'cam']]],
+    ],
+  },
+  mineria: {
+    place: [['Camión y pala', 'truck'], ['Despacho', 'building'], ['Campamento', 'container'], ['Mástiles', 'mast']],
+    layers: [
+      ['Radioenlaces que unen el rajo con despacho, a kilómetros.', [['Radioenlaces', 'link'], ['Repetidora y mástil', 'node']]],
+      ['Cobertura de datos en el rajo y Wi-Fi en el campamento.', [['Zonas de cobertura', 'ap'], ['Rack', 'node']]],
+      ['Grupo electrógeno y UPS: energía propia, lejos de la red.', [['Grupo y UPS', 'node'], ['Distribución', 'tray']]],
+      ['Despacho ve cada camión, cada pala y el campamento.', [['Pantallas de gestión', 'card'], ['Integración', 'tray']]],
+    ],
+  },
+};
