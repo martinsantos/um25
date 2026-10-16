@@ -463,37 +463,37 @@ def render(args):
    a=k*2*math.pi/5;rbox(x+4.5*math.cos(a),y+4.5*math.sin(a),1.2,1.4,1.4,1.2,frame,.004)
    rcyl(x+6*math.cos(a),y+6*math.sin(a),0,.9,1.2,rubber,'z',16)
   rcyl(x,y,1.5,.8,z-1.5,frame,'z',16)
-  rbox(x,y,z,seat['w'],seat['d'],2.4,fabric,.6)
-  rbox(bx,by,back['z']+2,back['w']*.92,1.6,back['h']*.85,fabric,.6)
+  rbox(x,y,z,seat['w'],seat['d'],2.4,fabric,0.0200)
+  rbox(bx,by,back['z']+2,back['w']*.92,1.6,back['h']*.85,fabric,0.0200)
   for dx in [-1,1]:rbox(x+dx*(seat['w']/2+.4),y,z+3,.8,seat['d']*.7,.8,frame,.2)
  def monitor(body,screen):
-  rbox(body['x'],body['y'],body['z'],body['w']+.4,1.4,body['h'],bezel,.25)
+  rbox(body['x'],body['y'],body['z'],body['w']+.4,1.4,body['h'],bezel,0.0083)
   rbox(screen['x'],body['y']+.75,screen['z'],screen['w'],.12,screen['h'],mats['screen'],0)
  for kind,a,b in p.get('hero',[]):
   if kind=='chair':chair(a,b)
   elif kind=='monitor':monitor(a,b)
-  elif kind=='worktop':rbox(a['x'],a['y'],a['z'],a['w'],a['d'],a['h']+.6,wood,.25)
+  elif kind=='worktop':rbox(a['x'],a['y'],a['z'],a['w'],a['d'],a['h']+.6,wood,0.0083)
   elif kind=='counter':
-   rbox(a['x'],a['y'],0,a['w'],a['d'],a['h']-2,panel,.6);rbox(a['x'],a['y']-1,a['h']-2,a['w']+2,a['d']+3,2.2,wood,.3)
-   rbox(a['x'],a['y']+a['d']/2+.2,3,a['w']-6,.4,a['h']-8,frame,.1)
+   rbox(a['x'],a['y'],0,a['w'],a['d'],a['h']-2,panel,0.0200);rbox(a['x'],a['y']-1,a['h']-2,a['w']+2,a['d']+3,2.2,wood,0.0100)
+   rbox(a['x'],a['y']+a['d']/2+.2,3,a['w']-6,.4,a['h']-8,frame,0.0033)
   elif kind=='lounge':
    for k in range(3):
-    xx=a['x']-a['w']/2+4+k*8;rbox(xx,a['y'],a['z']-1,7,a['d'],3,fabric,.9)
-    if b:rbox(xx,b['y'],b['z'],7,2.4,b['h'],fabric,.9)
+    xx=a['x']-a['w']/2+4+k*8;rbox(xx,a['y'],a['z']-1,7,a['d'],3,fabric,0.0300)
+    if b:rbox(xx,b['y'],b['z'],7,2.4,b['h'],fabric,0.0300)
    rcyl(a['x']-a['w']/2,a['y'],0,.8,a['z'],frame,'z',12);rcyl(a['x']+a['w']/2,a['y'],0,.8,a['z'],frame,'z',12)
   elif kind=='machine':
-   rbox(a['x'],a['y'],0,a['w'],a['d'],a['h'],paint,.9)
+   rbox(a['x'],a['y'],0,a['w'],a['d'],a['h'],paint,0.0300)
    for dz in [a['h']*.33,a['h']*.66]:rbox(a['x'],a['y']+a['d']/2+.05,dz,a['w']-2,.2,.4,bezel,0)
-   rbox(a['x'],a['y']+a['d']/2+.2,1,a['w'],.4,3,hazard,.05)
-   for dx in range(-24,26,6):rbox(a['x']+dx,a['y'],a['h']+3,3.2,a['d']*.5,.8,frame,.1)
+   rbox(a['x'],a['y']+a['d']/2+.2,1,a['w'],.4,3,hazard,0.0017)
+   for dx in range(-24,26,6):rbox(a['x']+dx,a['y'],a['h']+3,3.2,a['d']*.5,.8,frame,0.0033)
   elif kind=='pump':
-   rbox(a['x'],a['y'],a['z'],a['w'],a['d'],4,paint,.3)
-   rcyl(a['x']-a['w']/4,a['y'],a['z']+4,a['w']*.32,a['d']*.6,paint,'y',48,.4)
-   rcyl(a['x']+a['w']/4,a['y'],a['z']+12,9,a['d']*.5,hazard,'y',48,.4)
+   rbox(a['x'],a['y'],a['z'],a['w'],a['d'],4,paint,0.0100)
+   rcyl(a['x']-a['w']/4,a['y'],a['z']+4,a['w']*.32,a['d']*.6,paint,'y',48,0.0133)
+   rcyl(a['x']+a['w']/4,a['y'],a['z']+12,9,a['d']*.5,hazard,'y',48,0.0133)
   elif kind=='module':
    x0,x1=a['x']-a['w']/2,a['x']+a['w']/2;y0,y1=a['y']-a['d']/2,a['y']+a['d']/2
-   for xx in range(int(x0)+2,int(x1)-1,3):rbox(xx,y1+.3,0,1.2,.6,a['z'],rib,.2)
-   for yy in range(int(y0)+2,int(y1)-1,3):rbox(x1+.3,yy,0,.6,1.2,a['z'],rib,.2)
+   for xx in range(int(x0)+2,int(x1)-1,3):rbox(xx,y1+.3,0,1.2,.6,a['z'],rib,0.0067)
+   for yy in range(int(y0)+2,int(y1)-1,3):rbox(x1+.3,yy,0,.6,1.2,a['z'],rib,0.0067)
  # Soft key from the v5 drafting direction, a broad overhead fill and a cool world.
  import mathutils
  key=bpy.data.lights.new('Key','SUN');key.energy=2.4;key.angle=math.radians(11);key_o=bpy.data.objects.new('Key',key);scene.collection.objects.link(key_o)
