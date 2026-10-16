@@ -5,7 +5,6 @@
 import { SECTOR_STORIES } from '../../data/cine/sectorStories';
 import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
 import { caseService, caseSector } from '../../data/cine/stageMap';
-import { getGeneratedAntecedenteImageUrl } from '../../lib/directus';
 import { generateSlug } from '../../utils/slugUtils.js';
 import antecedentesSnapshot from '../../data/snapshots/antecedentes.json';
 interface Props { sector: string; antecedentesHref: string }
@@ -18,9 +17,10 @@ const services = SERVICE_SPEC_LIST.map((spec) => ({
   code: spec.code, name: spec.name, promise: spec.promise, scope: spec.scope.slice(0, 4), equipment: spec.equipment,
   deliverable: spec.keyDeliverable, standard: spec.keyStandard, href: `${spec.href}?sector=${sector}`, layer: LAYER_OF[spec.code] || 'all',
   cases: records.filter((r) => (caseSector(r.Area) || caseSector(r.Titulo)) === sector && caseService(r) === spec.code).slice(0, 3)
-    .map((r) => ({ t: clean(r.Cliente) || clean(r.Titulo), m: `${clean(r.Titulo).slice(0, 60)} · ${String(r.Fecha || '').slice(0, 4)}`, h: `/antecedentes/${r.id}/${generateSlug(r.Titulo || '')}`, img: getGeneratedAntecedenteImageUrl(r.id) })),
+    .map((r) => ({ t: clean(r.Cliente) || clean(r.Titulo), m: `${clean(r.Titulo).slice(0, 60)} · ${String(r.Fecha || '').slice(0, 4)}`, h: `/antecedentes/${r.id}/${generateSlug(r.Titulo || '')}`, img: '' })),
 }));
-const moments = story?.moments.map((m) => ({ ...m, proof: m.proof ? { ...m.proof, img: getGeneratedAntecedenteImageUrl(m.proof.id) } : undefined }));
+// The archive only holds generated illustrations, not photos of the work, so proof is stated in text.
+const moments = story?.moments.map((m) => ({ ...m, proof: m.proof ? { ...m.proof, img: '' } : undefined }));
 const payload = story ? JSON.stringify({ moments, services, stats: story.stats, layers: [['en', '108', 10.8, 12], ['da', '101', 12, 13.2], ['se', '102', 13.2, 14.4], ['de', '107', 14.4, 16]] }) : '';
 const film = story ? `/cine/scrub/${story.scene}` : '';
 ---
@@ -100,7 +100,7 @@ const film = story ? `/cine/scrub/${story.scene}` : '';
   .sf-sheet :global(.facts dt){font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
   .sf-sheet :global(.facts dd){margin:6px 0 0;font-size:15px;line-height:1.45}
   .sf-sheet :global(.cases){display:grid;gap:12px}
-  .sf-sheet :global(.cases a){display:grid;grid-template-columns:96px 1fr;gap:16px;align-items:center;color:#fff;text-decoration:none}
+  .sf-sheet :global(.cases a){display:block;padding:12px 0;border-top:1px solid var(--line);color:#fff;text-decoration:none}
   .sf-sheet :global(.cases img),.sf-sheet :global(.cases i){width:96px;height:72px;object-fit:cover;display:block;background:#1b2630}
   .sf-sheet :global(.cases strong){display:block;font-size:15px;line-height:1.35}
   .sf-sheet :global(.cases small){display:block;margin-top:4px;font-size:12px;color:var(--mute)}
@@ -152,8 +152,11 @@ const film = story ? `/cine/scrub/${story.scene}` : '';
     const scrim = root.querySelector<HTMLElement>('.sfilm__scrim')!, bar = root.querySelector<HTMLElement>('.sfilm__progress i')!, hint = root.querySelector<HTMLElement>('.sfilm__hint')!;
     const phone = matchMedia('(max-width: 820px)').matches;
     video.poster = `${video.dataset.poster}${phone ? '-sq' : ''}.jpg`;
-    video.src = `${video.dataset.film}${phone ? '-sq-1080' : '-1920'}.mp4`;
+    video.src = `${video.dataset.film}${phone ? '-sq-720' : '-1920'}.mp4`;
     let D = 18; video.addEventListener('loadedmetadata', () => { D = video.duration || 18; });
+    // iOS Safari may not decode frames of a video that never played: unlock it once on first touch or scroll.
+    const unlock = () => { video.play().then(() => video.pause()).catch(() => {}); removeEventListener('touchstart', unlock); removeEventListener('scroll', unlock); };
+    addEventListener('touchstart', unlock, { once: true, passive: true }); addEventListener('scroll', unlock, { once: true, passive: true });
     // Start fetching the film only when the page is idle, so the first paint stays light.
     video.preload = 'auto';
 
@@ -174,6 +177,8 @@ const film = story ? `/cine/scrub/${story.scene}` : '';
 
     const progress = () => { const r = root.getBoundingClientRect(), span = root.offsetHeight - innerHeight; return Math.min(1, Math.max(0, -r.top / span)); };
     const freeze = new URLSearchParams(location.search).get('t'); if (freeze !== null) root.style.height = '100vh';
+    // Review aid: ?skipfilm shows what follows the film without scrolling through it.
+    if (new URLSearchParams(location.search).has('skipfilm')) root.style.display = 'none';
     let shown = freeze !== null ? +freeze : 0, visible = true, raf = 0;
     new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(root);
     function tick() {
@@ -190,7 +195,7 @@ const film = story ? `/cine/scrub/${story.scene}` : '';
     const sheet = document.querySelector<HTMLElement>('[data-sf-sheet]')!, sheetIn = sheet.querySelector<HTMLElement>('.sf-sheet__in')!, veil = document.querySelector<HTMLElement>('[data-sf-veil]')!;
     function openSheet(code: string, quiet = false) {
       const s = svc(code); if (!s) return; sheet.style.setProperty('--c', C[s.layer]);
-      const cases = s.cases.length ? `<h4>Lo hicimos en</h4><div class="cases">${s.cases.map((c: any) => `<a href="${c.h}">${c.img ? `<img src="${c.img}" alt="" loading="lazy">` : '<i></i>'}<span><strong>${esc(c.t)}</strong><small>${esc(c.m)}</small></span></a>`).join('')}</div>` : '';
+      const cases = s.cases.length ? `<h4>Lo hicimos en</h4><div class="cases">${s.cases.map((c: any) => `<a href="${c.h}"><span><strong>${esc(c.t)}</strong><small>${esc(c.m)}</small></span></a>`).join('')}</div>` : '';
       sheetIn.innerHTML = `<p class="sf-kicker"><b></b>${LAYER[s.layer]}</p><h3>${esc(s.name)}</h3><p class="lead">${esc(s.promise)}</p><h4>Qué hacemos</h4><ol>${s.scope.map((x: string) => `<li>${esc(x)}</li>`).join('')}</ol><h4>Con qué</h4><ul class="chips">${s.equipment.map((x: string) => `<li>${esc(x)}</li>`).join('')}</ul><dl class="facts"><div><dt>Lo que entregamos</dt><dd>${esc(s.deliverable)}</dd></div><div><dt>Bajo norma</dt><dd>${esc(s.standard)}</dd></div></dl>${cases}<a class="sf-link" href="${s.href}">Ver el servicio completo →</a>`;
       sheet.classList.add('open'); sheet.setAttribute('aria-hidden', 'false'); veil.classList.add('on'); if (!quiet) sheet.querySelector<HTMLElement>('.sf-sheet__close')!.focus({ preventScroll: true });
     }

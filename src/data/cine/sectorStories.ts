@@ -73,7 +73,7 @@ export const SECTOR_STORIES: Record<string, SectorStory> = {
         proof: { id: '3218', title: 'Bodega La Esmeralda', what: 'Software y digitalización de procesos · 2022', href: '/antecedentes/3218/desarrollo-de-software-y-digitalizacion-de-procesos-bodega-la-esmeralda' } },
       LAYERS_MOMENT('Cuatro sistemas en cada etapa del proceso.', 'Los diseñamos, instalamos y documentamos como uno solo.',
         { id: '3190', title: 'Bodega Antigal', what: 'Detección de incendios · 2023', href: '/antecedentes/3190/sistema-de-deteccion-de-incendios-para-bodega-antigal' }),
-      { t: 15.6, kicker: 'Después de la obra', title: 'Infraestructura IT de alta disponibilidad, con soporte.', lead: 'Mesa de ayuda 24/7 y mantenimiento con SLA.', go: true,
+      { t: 15.6, kicker: 'Después de la obra', title: 'Disponible también después de la obra.', lead: 'Mesa de ayuda 24/7 y mantenimiento con SLA.', go: true,
         proof: { id: '3091', title: 'Bodega La Esmeralda', what: 'Soporte de infraestructura IT · 2025', href: '/antecedentes/3091/soporte-de-infraestructura-it-de-alta-disponibilidad-bodega-la-esmeralda' } },
     ],
   },

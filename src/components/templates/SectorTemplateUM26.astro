@@ -6,6 +6,7 @@ import CineBanner from '../cine/CineBanner.astro';
 import SectorLayers from '../cine/SectorLayers.astro';
 import StoryStage from '../cine/StoryStage.astro';
 import SectorFilm from '../cine/SectorFilm.astro';
+import SectorAfter from '../cine/SectorAfter.astro';
 import { SECTOR_STORIES } from '../../data/cine/sectorStories';
 import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
 import { SERVICE_STAGE, STAGE_SECTORS, caseService } from '../../data/cine/stageMap';
@@ -179,6 +180,9 @@ const stageItems = buildStageItems();
     </section>
   )}
 
+  {hasStory ? (
+    <SectorAfter sector={sectorSlug} antecedentesHref={sectorAntecedentesHref} />
+  ) : (<>
   <section class="sector26-evidence" aria-label="Evidencia vinculada">
     <div class="sector26-shell">
       <div class="sector26-section-head sector26-section-head--split">
@@ -246,6 +250,7 @@ const stageItems = buildStageItems();
       </div>
     </div>
   </section>
+  </>)}
 </div>
 
 <SnapRail />
