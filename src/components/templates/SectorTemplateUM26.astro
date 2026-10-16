@@ -1043,7 +1043,7 @@ const areaLabel = (area: unknown) => {
 
   @media (max-width: 900px) {
     .sector26-shell {
-      width: min(100% - 32px, 720px);
+      width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
     }
 
     .sector26-hero-card {

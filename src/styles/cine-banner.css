@@ -4,7 +4,8 @@
   --umc-ink: #07080a;
   --umc-line: rgba(255, 255, 255, .16);
   --umc-font: var(--um-font-editorial, 'UM Sans', Arial, system-ui, sans-serif);
-  --umc-gutter: clamp(20px, 4.6vw, 72px);
+  /* Same edge as the header logo and every page section. */
+  --umc-gutter: max(var(--um-page-gutter, 20px), calc((100% - var(--um-container-wide, 1400px)) / 2));
   position: relative;
   isolation: isolate;
   overflow: hidden;

@@ -356,7 +356,7 @@ export function bindServiceAtlas(root) {
   // chapters while the visitor is still reading the section introduction.
   const softwareStage=root.classList.contains('svc-story--software');
   const visibilityThreshold=softwareStage?.6:.35;
-  const observer=guided?new IntersectionObserver(entries=>{inView=entries.some(entry=>entry.isIntersecting&&entry.intersectionRatio>=visibilityThreshold);if(!inView)sceneAnimation?.cancel();schedule();},{threshold:[0,visibilityThreshold],...(softwareStage?{rootMargin:'-72px 0px -64px 0px'}:{})}):null;
+  const observer=guided?new IntersectionObserver(entries=>{inView=entries.some(entry=>entry.isIntersecting&&(entry.intersectionRatio>=visibilityThreshold||(entry.intersectionRect?.height||0)>=visibilityThreshold*Math.min(entry.rootBounds?.height||innerHeight,entry.boundingClientRect?.height||Infinity)));if(!inView)sceneAnimation?.cancel();schedule();},{threshold:[0,.05,.1,.15,.2,.25,.3,visibilityThreshold,.5,.75,1],...(softwareStage?{rootMargin:'-72px 0px -64px 0px'}:{})}):null;
   play?.addEventListener('click',playbackClick);
   root.addEventListener('change',choose);root.addEventListener('click',click);root.addEventListener('keydown',keyboard);
   root.addEventListener('pointerdown',intentEvent);root.addEventListener('focusin',focusIntent);root.addEventListener('focusout',blurIntent);root.addEventListener('um:network-step',networkStep);

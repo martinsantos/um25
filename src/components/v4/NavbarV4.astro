@@ -1058,7 +1058,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     }
 
     .um-ops-container {
-      width: min(100% - 32px, var(--um-container-wide));
+      width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
     }
 
     .um-ops-logo {

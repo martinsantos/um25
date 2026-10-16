@@ -1153,7 +1153,7 @@ const hubs = [
     @media (max-width: 760px) {
       .um26-shell,
       .um26-hero__top {
-        width: min(100% - 32px, var(--um-container-wide));
+        width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
       }
 
       .um26-hero {
