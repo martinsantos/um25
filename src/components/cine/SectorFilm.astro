@@ -7,8 +7,8 @@ import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
 import { caseService, caseSector } from '../../data/cine/stageMap';
 import { generateSlug } from '../../utils/slugUtils.js';
 import antecedentesSnapshot from '../../data/snapshots/antecedentes.json';
-interface Props { sector: string; antecedentesHref: string }
-const { sector, antecedentesHref } = Astro.props;
+interface Props { sector: string; antecedentesHref: string; compact?: boolean }
+const { sector, antecedentesHref, compact = false } = Astro.props;
 const story = SECTOR_STORIES[sector];
 const LAYER_OF: Record<string, string> = { '101': 'da', '103': 'da', '104': 'da', '102': 'se', '108': 'en', '107': 'de', '105': 'all', '106': 'all' };
 const records: any[] = Array.isArray(antecedentesSnapshot) ? antecedentesSnapshot : (antecedentesSnapshot as any).data || [];
@@ -25,7 +25,7 @@ const payload = story ? JSON.stringify({ moments, services, stats: story.stats, 
 const film = story ? `/cine/scrub/${story.scene}` : '';
 ---
 {story && (
-<section class="sfilm" data-sector-film aria-label={`${story.label}: qué hacemos, capa por capa`}>
+<section class:list={["sfilm", { "sfilm--compact": compact }]} data-sector-film aria-label={`${story.label}: qué hacemos, capa por capa`}>
   <div class="sfilm__pin">
     <video class="sfilm__video" data-film={film} data-poster={`/cine/media/cine-${story.scene}-proyecto-v5-poster`} muted playsinline preload="metadata" aria-hidden="true"></video>
     <div class="sfilm__scrim"></div>
@@ -46,6 +46,7 @@ const film = story ? `/cine/scrub/${story.scene}` : '';
 
 <style>
   .sfilm{--bg:#14232f;--line:rgba(255,255,255,.14);--mute:rgba(255,255,255,.62);--red:#DC2626;--g:var(--um-page-gutter,clamp(16px,3.2vw,32px));position:relative;height:760vh;color:#fff}
+  .sfilm--compact{height:480vh}
   .sfilm__pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--bg)}
   .sfilm__video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:translateX(17vw) scale(.92);transform-origin:right center}
   .sfilm__scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,var(--bg) 0%,var(--bg) var(--s1,14%),rgba(20,35,47,.7) var(--s2,30%),rgba(20,35,47,0) var(--s3,46%))}
