@@ -83,4 +83,4 @@ jobs:
         with:
           name: v6-proof-${{ matrix.scene }}-${{ matrix.frame }}
           path: frames
-          retention-days: 7
+          retention-days: 1

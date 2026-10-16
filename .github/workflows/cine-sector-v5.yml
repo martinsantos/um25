@@ -118,4 +118,4 @@ jobs:
         with:
           name: sector-v5-${{ matrix.scene }}-${{ matrix.composition }}-${{ matrix.start }}
           path: ${{ inputs.mode == 'proof' && 'frames' || 'delivery' }}
-          retention-days: 4
+          retention-days: 2
