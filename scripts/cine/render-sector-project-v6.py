@@ -218,6 +218,9 @@ def author(scene_id):
   if b['id'].startswith(('bed-base','process-0','process-1','rack','cabinet')) and b['w']>25 and b['d']>15:
    box('contact-footprint',b['x'],b['y'],.035,b['w']*.94,b['d']*.94,.01,'contact')
  # All surfaces and traces remain authored in the same physical coordinate system.
+  # v6 hero beds replace the flat bed slabs (rails, lift and casters stay authored).
+ if scene_id=='clinic':
+  p['boxes']=[b for b in p['boxes'] if not b['id'].startswith(('bed-base-','bed-mattress-','bed-pillow-'))]
  return p,palette
 
 def validate(scene_id):
@@ -235,7 +238,7 @@ def validate(scene_id):
 
 def render(args):
  import bpy
- from mathutils import Vector
+ from mathutils import Vector, Matrix
  from bpy_extras.object_utils import world_to_camera_view
  p,palette=author(args.scene)
  bpy.ops.wm.read_factory_settings(use_empty=True);scene=bpy.context.scene
@@ -255,7 +258,7 @@ def render(args):
  def lin(color):
   rgb=[int(color[i:i+2],16)/255 for i in (1,3,5)];return [v/12.92 if v<=.04045 else ((v+.055)/1.055)**2.4 for v in rgb]
  # name: (metallic, roughness, extra). Colors stay the v5 palette; physics changes.
- ALBEDO={'white':'#E9EEF2','top':'#C9D3DB','side':'#8A9AA8','slab':'#4C5B68','body':'#2B333C','edge':'#B7C3CD','metal':'#C3CDD6','screen':'#0e1a24'}
+ ALBEDO={'white':'#E9EEF2','top':'#C9D3DB','side':'#8A9AA8','slab':'#3A4753','body':'#2B333C','edge':'#B7C3CD','metal':'#C3CDD6','screen':'#0e1a24'}
  SURF={'metal':(1,.24,{}),'edge':(.7,.34,{}),'body':(0,.42,{'Coat Weight':.15}),'side':(0,.62,{}),'top':(0,.48,{}),'white':(0,.38,{'Coat Weight':.25,'Coat Roughness':.2}),
        'slab':(0,.78,{}),'screen':(0,.12,{}),}
  def mat(name,color,alpha=1,emission=0):
@@ -360,6 +363,79 @@ def render(args):
  layer_labels=[]
  for code,name in [('108','01  ENERGÍA'),('101','02  RED / DATOS'),('102','03  SEGURIDAD'),('107','04  DETECCIÓN')]:layer_labels.append((code,text(name,(618,205,85))))
  bpy.ops.mesh.primitive_plane_add(size=200,location=(7.5,4.2,-.3));floor_obj=bpy.context.object;floor_obj.data.materials.append(mats['floor']);floor_obj.is_shadow_catcher=True
+ # ---- Hero props: modelled volumes where the story's protagonists sit.
+ def pmat(name,color,rough,metal=0,extra=None):
+  m=bpy.data.materials.new(name);m.use_nodes=True;n=m.node_tree.nodes;b=n['Principled BSDF']
+  b.inputs['Base Color'].default_value=(*lin(color),1);b.inputs['Roughness'].default_value=rough;b.inputs['Metallic'].default_value=metal
+  for k,v in (extra or {}).items():b.inputs[k].default_value=v
+  return m
+ linen=pmat('linen','#EEF1F2',.92,0,{'Sheen Weight':.4});blanket=pmat('blanket','#6F8E98',.85,0,{'Sheen Weight':.5});frame=pmat('frame','#C9D1D8',.32,.6)
+ steel=bpy.data.materials.new('brushed steel');steel.use_nodes=True;sn=steel.node_tree.nodes;sb=sn['Principled BSDF']
+ sb.inputs['Base Color'].default_value=(*lin('#D2D8DD'),1);sb.inputs['Metallic'].default_value=1
+ # Vertical brushing: noise stretched along z drives roughness.
+ tc=sn.new('ShaderNodeTexCoord');mp=sn.new('ShaderNodeMapping');mp.inputs['Scale'].default_value=(60,60,1.5);nz=sn.new('ShaderNodeTexNoise');nz.inputs['Scale'].default_value=8;nz.inputs['Detail'].default_value=6
+ mr=sn.new('ShaderNodeMapRange');mr.inputs['To Min'].default_value=.16;mr.inputs['To Max'].default_value=.34
+ sl=steel.node_tree.links;sl.new(tc.outputs['Object'],mp.inputs['Vector']);sl.new(mp.outputs['Vector'],nz.inputs['Vector']);sl.new(nz.outputs['Fac'],mr.inputs['Value']);sl.new(mr.outputs['Result'],sb.inputs['Roughness'])
+ jacket=pmat('cooling jacket','#9AA6AF',.42,1);rubber=pmat('rubber','#1E2328',.7)
+ sight=bpy.data.materials.new('sight glass');sight.use_nodes=True;sgn=sight.node_tree.nodes;sgb=sgn['Principled BSDF'];sgb.inputs['Base Color'].default_value=(*lin('#7a1f2b'),1);sgb.inputs['Roughness'].default_value=.08;sgb.inputs['Coat Weight'].default_value=1
+ hero_root=roots['architecture']
+ def finish(o,mat,bevel=0):
+  o.data.materials.append(mat);o.parent=hero_root
+  if bevel:
+   b=o.modifiers.new('bevel','BEVEL');b.width=bevel;b.segments=3;b.limit_method='ANGLE'
+  for f in o.data.polygons:f.use_smooth=True
+  o.data.shade_auto_smooth(angle=math.radians(35)) if hasattr(o.data,'shade_auto_smooth') else None
+  return o
+ def rbox(x,y,z,w,d,h,mat,bevel=.02,pivot=None,tilt=0):
+  # x,y,z: centre-bottom in authoring units; optional tilt (radians) about the x axis through pivot (y,z).
+  bpy.ops.mesh.primitive_cube_add(size=1);o=bpy.context.object;o.scale=(w*S,d*S,h*S)
+  bpy.ops.object.transform_apply(scale=True);o.data.transform(Matrix.Translation((0,0,h*S/2)))
+  if pivot:
+   py,pz=pivot;o.data.transform(Matrix.Translation((0,(y-py)*S,(z-pz)*S)));o.location=(x*S,py*S,pz*S);o.rotation_euler=(tilt,0,0)
+  else:o.location=(x*S,y*S,z*S)
+  return finish(o,mat,bevel)
+ def rcyl(x,y,z,r,h,mat,axis='z',verts=48,bevel=0):
+  bpy.ops.mesh.primitive_cylinder_add(vertices=verts,radius=r*S,depth=h*S);o=bpy.context.object
+  if axis=='z':o.location=(x*S,y*S,(z+h/2)*S)
+  elif axis=='x':o.rotation_euler=(0,math.pi/2,0);o.location=((x+h/2)*S,y*S,z*S)
+  else:o.rotation_euler=(math.pi/2,0,0);o.location=(x*S,(y+h/2)*S,z*S)
+  return finish(o,mat,bevel)
+ def rtorus(x,y,z,R,r,mat,rot=(0,0,0)):
+  bpy.ops.mesh.primitive_torus_add(major_radius=R*S,minor_radius=r*S,major_segments=48,minor_segments=12);o=bpy.context.object;o.location=(x*S,y*S,z*S);o.rotation_euler=rot
+  return finish(o,mat)
+ if args.scene=='clinic':
+  for c in range(3):
+   for r in range(2):
+    x,y=68+172*c,44+74*r
+    # Chassis and articulated deck: foot section flat, back section raised 32°.
+    rbox(x,y+2,17,41,62,3,frame,.012)
+    rbox(x,y+14,20,40,36,6,linen,.06)
+    rbox(x,y-16,20,40,26,6,linen,.06,pivot=(y-3,20),tilt=math.radians(-32))
+    rbox(x,y+15,25.6,41.5,34,1.8,blanket,.05)
+    rbox(x,y+31,24,41.5,4,3.5,blanket,.04)
+    rbox(x,y-24,29.5,30,9,4.5,linen,.08,pivot=(y-3,20),tilt=math.radians(-32))
+    # Head and foot boards with grab bars; IV pole with bag.
+    rbox(x,y-33,14,42,2.4,24,frame,.03)
+    rtorus(x,y-33,38,10,.8,frame,(math.pi/2,0,0))
+    rcyl(x-24,y-26,0,.8,64,frame,verts=16);rbox(x-24,y-26,52,5,1.6,8,pmat('iv','#DCEEF6',.05,0,{'Alpha':.75}),.02)
+  # Nursing counter gets a solid worktop edge.
+  rbox(217,257,24.5,63,31,1.6,frame,.02)
+ if args.scene=='winery':
+  for c in [c for c in p['cylinders'] if c['id'].endswith('-vessel')]:
+   x,y=c['x'],c['y']
+   v=rcyl(x,y,28,28.15,61,steel,verts=96,bevel=0)
+   rcyl(x,y,61,28.9,16,jacket,verts=96)                       # cooling jacket band
+   for zz in [61,77]:rcyl(x,y,zz-.6,29.3,1.2,steel,verts=96)  # jacket welds
+   rcyl(x,y,88.4,28.6,1.6,steel,verts=96)                     # top rim
+   # Manway with hinged lid and handwheel.
+   rcyl(x,y,94,8.6,1.4,steel,verts=48);rtorus(x,y,96,4,.7,rubber)
+   # Ladder on the camera-facing side.
+   lx=x+20;ly=y+20
+   for dx in [-3,3]:rcyl(lx+dx*.7,ly+dx*.7,0,.55,94,frame,verts=12)
+   for zz in range(6,94,7):rbox(lx,ly,zz,8,1,.9,frame,.004)
+   # Level sight glass beside the gauge.
+   rcyl(x-12,y+27.6,32,1.1,44,sight,verts=16)
+   for zz in [31,76]:rcyl(x-12,y+27.6,zz,1.8,1.4,steel,verts=16)
  # Soft key from the v5 drafting direction, a broad overhead fill and a cool world.
  import mathutils
  key=bpy.data.lights.new('Key','SUN');key.energy=2.4;key.angle=math.radians(11);key_o=bpy.data.objects.new('Key',key);scene.collection.objects.link(key_o)
