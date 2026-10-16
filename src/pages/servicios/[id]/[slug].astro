@@ -426,12 +426,11 @@ const serviceCases = (() => {
   }));
 })();
 const antecedentesTotal = getAntecedentesCatalogCount();
-// Stage test: services listed here show their layer on every sector scene.
-const SERVICE_STAGE_TEST = ['102'];
+// Every service shows its layer on each sector scene where it has work.
 const SECTOR_NAMES: Record<string, string> = { salud: 'Salud', constructoras: 'Constructoras', aeropuertos: 'Aeropuertos', industria: 'Industria', bodegas: 'Bodegas', mineria: 'Minería' };
 const buildServiceStage = () => {
   const code = String(id), focus = SERVICE_STAGE[code];
-  if (!SERVICE_STAGE_TEST.includes(code) || !focus || !serviceSpec) return [];
+  if (!focus || !serviceSpec) return [];
   return STAGE_SECTORS.filter((slug) => serviceSpec.sectorSlugs.includes(slug)).map((slug) => {
     const text = (ISO3D_TEXT as Record<string, any>)[slug]?.[focus.layer === 'all' ? 'intro' : focus.layer] || ['', ''];
     const cases = snapshotCases.filter((r) => caseSector(r.Area) === slug && caseService(r) === code).slice(0, 3)

@@ -561,10 +561,9 @@ const antecedentePageStructuredData = [
     groups: caseStrategicLinkGroups,
   }),
 ];
-// Stage test: this case shows where it sits, in its sector scene and its service layer.
-const CASE_STAGE_TEST = ['3065'];
+// Each case that can be placed shows its sector scene and its service layer.
 const caseStageItems = (() => {
-  if (!antecedente || !CASE_STAGE_TEST.includes(String(antecedente.id))) return [];
+  if (!antecedente) return [];
   const sector = caseSector(antecedente.Area) || caseSector(antecedente.Titulo), code = caseService(antecedente);
   const spec = code ? getServiceSpec(code) : undefined, focus = code ? SERVICE_STAGE[code] : undefined;
   if (!sector || !spec || !focus) return [];

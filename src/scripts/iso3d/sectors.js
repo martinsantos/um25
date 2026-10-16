@@ -117,7 +117,7 @@ function constructoras(k){
  box(1.6,.9,.05,M.dark,mx,1.1,mz-1.95);tag([mx,1.9,mz-1.9],'Sala de reuniones','#ffffff',[null]);
  // floor boxes
  const fb=[];for(const x of[-10.5,-7.5,-4.5,-1.5])for(const z of[-3.85,2.95]){box(.3,.03,.3,M.alu,x,0,z,{round:false});fb.push([x,.05,z])}
- tag([-7.5,.5,2.95],'Caja de piso','#E2B04A',['en']);tag([-4.5,1.3,-4.6],'Puesto','#ffffff',[null,'da']);
+ tag([-7.5,.5,2.95],'Caja de piso','#E2B04A',['en']);tag([-4.5,1.3,-4.6],'Puesto','#ffffff',[null,'da']);k.points.screen=[-4.5,1,-4.8];
  for(const [x,z] of [[9,4.5],[-10.5,6]]){cyl(.28,.5,M.white,x,0,z);const l=new THREE.Mesh(new THREE.IcosahedronGeometry(.55,1),new THREE.MeshStandardMaterial({color:0x5f8f6a,roughness:.9,flatShading:true}));l.position.set(x,1.05,z);l.castShadow=true;world.add(l)}
  const feed=techRoom(k,{x:9.8,z:-4.2,D});
  ceiling(k,{x0:-11.4,x1:11,z:-.15,aps:[[-9,-3],[-3,-3],[-9,3],[-3,3],[4.2,-4.4]],dets:[[-7.5,-4.5],[-1.5,-4.5],[-7.5,4.5],[3,-3]],cams:[[-11.2,-.4],[1.2,-.4],[10.6,5.8]],feed});
@@ -145,7 +145,7 @@ function aeropuertos(k){
  // seating rows
  for(let r=0;r<2;r++)for(let i=0;i<8;i++){const x=1+i*.6,z=4.6+r*1.4;box(.52,.06,.5,M.chair,x,.45,z);box(.52,.45,.05,M.chair,x,.5,z+.25)}
  // FIDS wall
- const f=box(3.2,1,.08,M.dark,6.8,1.6,-6.7);box(3,.8,.01,led(0x10304f),0,-.4+.1,.05,{parent:f,shadow:false,round:false});tag([6.8,2.8,-6.6],'Pantallas FIDS','#3FC7B8',['da']);
+ const f=box(3.2,1,.08,M.dark,6.8,1.6,-6.7);box(3,.8,.01,led(0x10304f),0,-.4+.1,.05,{parent:f,shadow:false,round:false});tag([6.8,2.8,-6.6],'Pantallas FIDS','#3FC7B8',['da']);k.points.screen=[6.8,2,-6.6];
  const feed=techRoom(k,{x:9.8,z:-4.4,D});
  ceiling(k,{x0:-11.4,x1:11,z:-.9,aps:[[-8,-2.2],[-3,-2.2],[2,-2.2],[3,4.8]],dets:[[-9,1],[-4,1],[1,1],[5,5]],cams:[[-11,-1.2],[-3.4,1.2],[2.4,1.2],[10.6,5.8]],feed});
  data(k,feed,-.9,[[-9.5,1.9,-4.1],[-5.1,1.9,-4.1],[-0.7,1.9,-4.1],[6.8,1.6,-6.7]]);energy(k,feed,-.9,[[-4,.35,-5.2],[-9.5,1.05,-3.6],[-0.7,1.05,-3.6]]);
@@ -171,7 +171,7 @@ function industria(k){
  box(.3,.4,D-1,M.yellow,-11.6,3.5,0,{round:false});box(.3,.4,D-1,M.yellow,8,3.5,0,{round:false});box(19.6,.35,.3,M.yellow,-1.8,3.55,1.5,{round:false});
  // electrical board
  const tb=box(1.8,2,.5,M.white,-11.6,0,-6.4);k.lamp('en',.6,.08,.02,0,.3,.26,tb);tag([-11.6,2.3,-6.4],'Tablero','#E2B04A',['en','all']);
- tag([-9,2.6,-3.6],'Celda 1','#ffffff',[null]);tag([4.2,1.2,-.5],'Línea','#ffffff',[null]);tag([4.2,1.5,2.6],'PLC','#3FC7B8',['da']);
+ tag([-9,2.6,-3.6],'Celda 1','#ffffff',[null]);tag([4.2,1.2,-.5],'Línea','#ffffff',[null]);tag([4.2,1.5,2.6],'PLC','#3FC7B8',['da']);k.points.screen=[5.4,1.3,3.95];
  const feed=techRoom(k,{x:10.9,z:-5,D});
  ceiling(k,{x0:-12.4,x1:12,z:-1.6,aps:[[-6.8,-1.6],[2,-1.6],[2,4.6]],dets:cells.map(([x,z])=>[x,z+(z<0?1:-1)]),cams:[[-12,-1.9],[0,-1.9],[11.6,6.6]],feed});
  data(k,feed,-1.6,cells.map(([x,z])=>[x+1.2,1.3,z+1.35]));energy(k,feed,-1.6,cells.map(([x,z])=>[x,1.6,z]).concat([[-2.4,.6,-.5]]));
@@ -196,7 +196,7 @@ function bodegas(k){
  anim.push((t,dt,paused)=>{if(paused)return;for(const b of bottles){b.position.x+=dt*.5;if(b.position.x>9.5)b.position.x=.9}});
  box(1.4,1.8,1.2,M.white,2.2,0,4.6);box(1.4,1.8,1.2,M.white,7.6,0,4.6);tag([5.2,1.5,3.2],'Fraccionamiento','#ffffff',[null]);
  for(let i=0;i<6;i++)for(let j=0;j<2;j++)box(1.1,1,1.1,M.wood,-10+i*1.3,0,4.4+j*1.3);
- tag([-7.6,4.2,-4.6],'Tanque 4','#ffffff',[null]);tag([-4.4,2.1,-.45],'Sensor','#F07A5A',['de']);
+ tag([-7.6,4.2,-4.6],'Tanque 4','#ffffff',[null]);tag([-4.4,2.1,-.45],'Sensor','#F07A5A',['de']);k.points.screen=[-4.4,1.7,-.45];
  const feed=techRoom(k,{x:10.9,z:-5,D});
  ceiling(k,{x0:-12.4,x1:12,z:.6,aps:[[-7,2.6],[3,1.6]],dets:[[-9,3.4],[-3,3.4],[6,1.4]],cams:[[-12,.3],[0,.3],[11.6,6.6]],feed});
  data(k,feed,.6,tanks.map(([x,z])=>[x+.6,1.8,z+.75]).concat([[5.2,.9,3.2]]));energy(k,feed,.6,[[5.2,.9,3.2],[2.2,1.8,4.6],[7.6,1.8,4.6]].concat(tanks.slice(5).map(([x,z])=>[x,.9,z+.95])));
@@ -220,7 +220,7 @@ function mineria(k){
   for(let y=.6;y<h;y+=.8){rod([x-.3+.3*(y/h)*.7,y,z-.3],[x+.3-.3*(y/h)*.7,y,z-.3],.015,M.alu)}
   const d=cyl(.35,.18,M.white,x,h-.6,z+.1,{seg:24});d.rotation.x=Math.PI/2;lamp('da',.1,.1,.1,x,h+.1,z,world);return [x,h-.6,z]}
  const m1=mast(11,3.6,6.5),m2=mast(-12,4.2,5.5);
- tag([11,7.2,3.6],'Enlace de radio','#3FC7B8',['da','all']);
+ tag([11,7.2,3.6],'Enlace de radio','#3FC7B8',['da','all']);k.points.screen=[7.4,1,4.6];k.points.rack=[7.4,1,4.6];k.points.ups=[6,1,-5.4];k.points.ap=[11,5.9,3.6];k.points.det=[-11,2.85,-4.8];k.points.cam=[-12,4,6.4];k.points.door=[-.8,1.2,7.5];
  // line of sight beam between masts
  flow('da',[m1,[0,m1[1]+.5,3.9],m2],.05);
  // shelter with rack at mast base
