@@ -228,7 +228,7 @@ const squarePosterMedia = disciplineComposition ? '(max-width:820px)' : '(max-wi
  /* Architectural tours preserve their authored frame. Text precedes the
     installation; neither copy nor a gradient hides an operational layer. */
  .umc[data-architectural-cinema="true"]{--umc-ink:#111c2a;min-height:0;grid-template-rows:auto auto auto auto;padding-bottom:32px}
- .umc[data-architectural-cinema="true"] :global(.umc-copy){grid-row:1;grid-column:1;width:calc(100% - var(--umc-gutter)*2);margin:36px var(--umc-gutter) 24px;padding:0}
+ .umc[data-architectural-cinema="true"] :global(.umc-copy),.umc[data-architectural-cinema="true"][data-product-composition="true"][data-movie-chapters] :global(.umc-copy){grid-row:1;grid-column:1;width:calc(100% - var(--umc-gutter)*2);margin:36px var(--umc-gutter) 24px;padding:0}
  .umc[data-architectural-cinema="true"] :global(.umc-copy h1){max-width:24ch}
  .umc[data-architectural-cinema="true"] :global(.umc-stage){position:relative;grid-row:2;grid-column:1;inset:auto;z-index:0;transform:none;justify-self:center;width:min(100%,1600px);height:auto;aspect-ratio:16/9}
  .umc[data-architectural-cinema="true"] :global(.umc-poster),.umc[data-architectural-cinema="true"] :global(.umc-video){inset:0;height:100%;margin:0;object-fit:contain;mask-image:none}
