@@ -421,7 +421,7 @@ def render(args):
   # Nursing counter gets a solid worktop edge.
   rbox(217,257,24.5,63,31,1.6,frame,.02)
  if args.scene=='winery':
-  for c in [c for c in p['cylinders'] if c['id'].endswith('-vessel')]:
+  for c in [c for c in p['cylinders'] if c.get('id','').endswith('-vessel')]:
    x,y=c['x'],c['y']
    v=rcyl(x,y,28,28.15,61,steel,verts=96,bevel=0)
    rcyl(x,y,61,28.9,16,jacket,verts=96)                       # cooling jacket band
