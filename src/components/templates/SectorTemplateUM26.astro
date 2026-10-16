@@ -5,6 +5,8 @@ import SectorJourney from '../cine/SectorJourney.astro';
 import CineBanner from '../cine/CineBanner.astro';
 import SectorLayers from '../cine/SectorLayers.astro';
 import StoryStage from '../cine/StoryStage.astro';
+import SectorFilm from '../cine/SectorFilm.astro';
+import { SECTOR_STORIES } from '../../data/cine/sectorStories';
 import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
 import { SERVICE_STAGE, STAGE_SECTORS, caseService } from '../../data/cine/stageMap';
 import SnapRail from '../cine/SnapRail.astro';
@@ -41,6 +43,7 @@ const sectorAntecedentesHref = sectorSlug
   : '/antecedentes';
 const caseHref = (item: any) => `/antecedentes/${item.id}/${item.slug || ''}`;
 const leadCase = antecedentes[0];
+const hasStory = Boolean(SECTOR_STORIES[sectorSlug]);
 // Stage test: sectors listed here read their services on the 3D stage.
 const STAGE_TEST = STAGE_SECTORS;
 const buildStageItems = () => STAGE_TEST.includes(sectorSlug)
@@ -129,30 +132,34 @@ const stageItems = buildStageItems();
 ---
 
 <div class="um26-sector">
-  <CineBanner
-    variant="sector"
-    scenes={[projectMovie?.scene||cineScene]}
-    motion={projectMovie?.status==='ready'?'auto':'still'}
-    annotations={!projectMovie}
-    framing={projectMovie?'project':'cover'}
-    titleId="sector26-title"
-    kicker={cineSector?.text || `Sector ${sectorNumber}`}
-    title={sectorTitle}
-    lead={sectorSummary}
-    primary={{ href: '/contacto', label: 'Solicitar relevamiento' }}
-    secondary={{ href: sectorAntecedentesHref, label: 'Ver casos del sector' }}
-    stats={cineStats}
-    back={{ href: '/sectores', label: '← Todos los sectores' }}
-  />
-
-  {stageItems.length ? (
-    <StoryStage id="escenario" kicker="Servicios en el sector" title={`Qué resolvemos en ${sectorName.toLowerCase()}, capa por capa.`} lead="Recorré los servicios: la maqueta muestra dónde actúa cada uno. Abrí uno para ver su esqueleto, los equipos y los antecedentes del sector." items={stageItems} />
+  {hasStory ? (
+    <SectorFilm sector={sectorSlug} antecedentesHref={sectorAntecedentesHref} />
   ) : (<>
-    <SectorJourney slug={sectorDataSlug} scene={cineScene} />
-    <SectorLayers sector={sectorSlug} />
+  <CineBanner
+      variant="sector"
+      scenes={[projectMovie?.scene||cineScene]}
+      motion={projectMovie?.status==='ready'?'auto':'still'}
+      annotations={!projectMovie}
+      framing={projectMovie?'project':'cover'}
+      titleId="sector26-title"
+      kicker={cineSector?.text || `Sector ${sectorNumber}`}
+      title={sectorTitle}
+      lead={sectorSummary}
+      primary={{ href: '/contacto', label: 'Solicitar relevamiento' }}
+      secondary={{ href: sectorAntecedentesHref, label: 'Ver casos del sector' }}
+      stats={cineStats}
+      back={{ href: '/sectores', label: '← Todos los sectores' }}
+    />
+  
+    {stageItems.length ? (
+      <StoryStage id="escenario" kicker="Servicios en el sector" title={`Qué resolvemos en ${sectorName.toLowerCase()}, capa por capa.`} lead="Recorré los servicios: la maqueta muestra dónde actúa cada uno. Abrí uno para ver su esqueleto, los equipos y los antecedentes del sector." items={stageItems} />
+    ) : (<>
+      <SectorJourney slug={sectorDataSlug} scene={cineScene} />
+      <SectorLayers sector={sectorSlug} />
+    </>)}
   </>)}
 
-  {criteriaItems.length > 0 && (
+  {!hasStory && criteriaItems.length > 0 && (
     <section class="sector26-criteria">
       <div class="sector26-shell">
         <div class="sector26-section-head">

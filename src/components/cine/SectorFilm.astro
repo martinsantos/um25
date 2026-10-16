@@ -1,0 +1,205 @@
+---
+// The sector page as one story told over its Blender film. Scroll scrubs the film;
+// each moment says what is at stake, what we do and who proves it. Service detail
+// opens in a sheet only when asked.
+import { SECTOR_STORIES } from '../../data/cine/sectorStories';
+import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
+import { caseService, caseSector } from '../../data/cine/stageMap';
+import { getGeneratedAntecedenteImageUrl } from '../../lib/directus';
+import { generateSlug } from '../../utils/slugUtils.js';
+import antecedentesSnapshot from '../../data/snapshots/antecedentes.json';
+interface Props { sector: string; antecedentesHref: string }
+const { sector, antecedentesHref } = Astro.props;
+const story = SECTOR_STORIES[sector];
+const LAYER_OF: Record<string, string> = { '101': 'da', '103': 'da', '104': 'da', '102': 'se', '108': 'en', '107': 'de', '105': 'all', '106': 'all' };
+const records: any[] = Array.isArray(antecedentesSnapshot) ? antecedentesSnapshot : (antecedentesSnapshot as any).data || [];
+const clean = (v: unknown) => String(v || '').replace(/\s+/g, ' ').trim();
+const services = SERVICE_SPEC_LIST.map((spec) => ({
+  code: spec.code, name: spec.name, promise: spec.promise, scope: spec.scope.slice(0, 4), equipment: spec.equipment,
+  deliverable: spec.keyDeliverable, standard: spec.keyStandard, href: `${spec.href}?sector=${sector}`, layer: LAYER_OF[spec.code] || 'all',
+  cases: records.filter((r) => (caseSector(r.Area) || caseSector(r.Titulo)) === sector && caseService(r) === spec.code).slice(0, 3)
+    .map((r) => ({ t: clean(r.Cliente) || clean(r.Titulo), m: `${clean(r.Titulo).slice(0, 60)} · ${String(r.Fecha || '').slice(0, 4)}`, h: `/antecedentes/${r.id}/${generateSlug(r.Titulo || '')}`, img: getGeneratedAntecedenteImageUrl(r.id) })),
+}));
+const moments = story?.moments.map((m) => ({ ...m, proof: m.proof ? { ...m.proof, img: getGeneratedAntecedenteImageUrl(m.proof.id) } : undefined }));
+const payload = story ? JSON.stringify({ moments, services, stats: story.stats, layers: [['en', '108', 10.8, 12], ['da', '101', 12, 13.2], ['se', '102', 13.2, 14.4], ['de', '107', 14.4, 16]] }) : '';
+const film = story ? `/cine/scrub/${story.scene}` : '';
+---
+{story && (
+<section class="sfilm" data-sector-film aria-label={`${story.label}: qué hacemos, capa por capa`}>
+  <div class="sfilm__pin">
+    <video class="sfilm__video" data-film={film} data-poster={`/cine/media/cine-${story.scene}-proyecto-v5-poster`} muted playsinline preload="metadata" aria-hidden="true"></video>
+    <div class="sfilm__scrim"></div>
+    <div class="sfilm__story" aria-live="polite"><div class="sfilm__in">
+      <p class="sf-kicker"><b></b>{story.moments[0].kicker}</p>
+      <h1>{story.moments[0].title}</h1>
+      <p class="sf-lead">{story.moments[0].lead}</p>
+      <dl class="sf-stats">{story.stats.map(([v, l]) => <div><dt>{l}</dt><dd>{v}</dd></div>)}</dl>
+    </div></div>
+    <p class="sfilm__hint">Deslizá para recorrer</p>
+    <div class="sfilm__progress" aria-hidden="true"><i></i></div>
+  </div>
+  <script type="application/json" data-sector-film-data set:html={payload}></script>
+</section>
+<div class="sf-veil" data-sf-veil></div>
+<aside class="sf-sheet" data-sf-sheet aria-hidden="true" aria-label="Detalle del servicio"><button type="button" class="sf-sheet__close" aria-label="Cerrar">✕</button><div class="sf-sheet__in"></div></aside>
+)}
+
+<style>
+  .sfilm{--bg:#14232f;--line:rgba(255,255,255,.14);--mute:rgba(255,255,255,.62);--red:#DC2626;--g:var(--um-page-gutter,clamp(16px,3.2vw,32px));position:relative;height:760vh;color:#fff}
+  .sfilm__pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--bg)}
+  .sfilm__video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:translateX(17vw) scale(.92);transform-origin:right center}
+  .sfilm__scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,var(--bg) 0%,var(--bg) var(--s1,14%),rgba(20,35,47,.7) var(--s2,30%),rgba(20,35,47,0) var(--s3,46%))}
+  .sfilm__story{position:absolute;left:max(var(--g),calc((100% - var(--um-container-wide,1400px))/2));top:50%;transform:translateY(-50%);width:min(600px,calc(100% - 2*var(--g)))}
+  .sfilm__in{transition:opacity .6s ease,transform .8s cubic-bezier(.2,.7,.1,1)}
+  .sfilm__story.is-swap .sfilm__in{opacity:0;transform:translateY(14px)}
+  .sfilm.sfilm :global(.sf-kicker){display:flex;align-items:center;gap:14px;margin:0;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
+  .sfilm.sfilm :global(.sf-kicker b){width:32px;height:2px;background:var(--red)}
+  .sfilm.sfilm :global(h1),.sfilm.sfilm :global(h2){margin:20px 0 0;font-weight:700;letter-spacing:-.025em;line-height:1.02;max-width:13ch;font-size:clamp(42px,5vw,80px)!important;color:#fff}
+  .sfilm.sfilm :global(.sf-lead){margin:22px 0 0;max-width:38ch;font-size:clamp(17px,1.35vw,21px)!important;line-height:1.55;color:rgba(255,255,255,.8)}
+  .sfilm.sfilm :global(.sf-stats){display:flex;gap:clamp(28px,3.4vw,56px);margin:40px 0 0;padding:0}
+  .sfilm.sfilm :global(.sf-stats div){display:flex;flex-direction:column-reverse;gap:6px}
+  .sfilm.sfilm :global(.sf-stats dt){font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+  .sfilm.sfilm :global(.sf-stats dd){margin:0;font-size:clamp(30px,2.8vw,44px);font-weight:700;letter-spacing:-.02em}
+  .sfilm.sfilm :global(.sf-proof){display:grid;grid-template-columns:76px 1fr;gap:18px;align-items:center;margin:34px 0 0;padding:18px 0 0;border-top:1px solid var(--line);max-width:470px;color:#fff;text-decoration:none}
+  .sfilm.sfilm :global(.sf-proof.no-img){grid-template-columns:1fr}
+  .sfilm.sfilm :global(.sf-proof img){width:76px;height:57px;object-fit:cover;display:block}
+  .sfilm.sfilm :global(.sf-proof small){display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+  .sfilm.sfilm :global(.sf-proof strong){display:block;margin-top:5px;font-size:17px;line-height:1.3}
+  .sfilm.sfilm :global(.sf-proof span span){display:block;margin-top:3px;font-size:14px;color:var(--mute)}
+  .sfilm.sfilm :global(.sf-proof:hover strong){text-decoration:underline;text-underline-offset:4px}
+  .sfilm.sfilm :global(.sf-more){display:inline-flex;align-items:center;gap:10px;margin:28px 0 0;padding:0 0 5px;border:0;border-bottom:2px solid var(--red);background:none;color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer}
+  .sfilm.sfilm :global(.sf-go){display:inline-block;margin:34px 0 0;padding:18px 26px;background:var(--red);color:#fff;font-weight:700;text-decoration:none}
+  .sfilm.sfilm :global(.sf-layers){margin:30px 0 0;padding:0;list-style:none;max-width:480px}
+  .sfilm.sfilm :global(.sf-layers li){border-top:1px solid var(--line)}
+  .sfilm.sfilm :global(.sf-layers li:last-child){border-bottom:1px solid var(--line)}
+  .sfilm.sfilm :global(.sf-layers button){display:grid;grid-template-columns:12px 1fr auto;align-items:baseline;gap:16px;width:100%;padding:16px 2px;border:0;background:none;color:rgba(255,255,255,.48);font:inherit;text-align:left;cursor:pointer;transition:color .35s}
+  .sfilm.sfilm :global(.sf-layers b){width:9px;height:9px;border-radius:50%;background:var(--c);align-self:center;transition:transform .35s}
+  .sfilm.sfilm :global(.sf-layers strong){font-size:20px}
+  .sfilm.sfilm :global(.sf-layers em){font-style:normal;font-size:14px;color:var(--mute)}
+  .sfilm.sfilm :global(.sf-layers li.on button),.sfilm.sfilm :global(.sf-layers button:hover){color:#fff}
+  .sfilm.sfilm :global(.sf-layers li.on b){transform:scale(1.5);box-shadow:0 0 0 5px color-mix(in srgb,var(--c) 22%,transparent)}
+  .sfilm.sfilm :global(button:focus-visible),.sfilm.sfilm :global(a:focus-visible){outline:2px solid var(--red);outline-offset:3px}
+  .sfilm__progress{position:absolute;left:var(--g);right:var(--g);bottom:32px;height:1px;background:rgba(255,255,255,.14)}
+  .sfilm__progress i{position:absolute;inset:0;background:#fff;transform-origin:left;transform:scaleX(var(--p,0))}
+  .sfilm__hint{position:absolute;left:max(var(--g),calc((100% - var(--um-container-wide,1400px))/2));bottom:52px;margin:0;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);transition:opacity .4s}
+
+  .sf-sheet{--line:rgba(255,255,255,.14);--mute:rgba(255,255,255,.62);position:fixed;top:0;right:0;bottom:0;z-index:1200;width:min(500px,100%);background:#0c1218;color:#fff;border-left:1px solid var(--line);transform:translateX(100%);transition:transform .6s cubic-bezier(.2,.7,.1,1);overflow:auto;overscroll-behavior:contain}
+  .sf-sheet:global(.open){transform:none}
+  .sf-sheet__in{padding:96px 44px 48px}
+  .sf-sheet__close{position:absolute;top:20px;right:20px;width:44px;height:44px;border:1px solid var(--line);background:none;color:#fff;cursor:pointer;font-size:18px}
+  .sf-sheet :global(.sf-kicker){display:flex;align-items:center;gap:14px;margin:0;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
+  .sf-sheet :global(.sf-kicker b){width:32px;height:2px;background:var(--c)}
+  .sf-sheet :global(h3){margin:16px 0 0;font-size:40px;line-height:1.04;letter-spacing:-.02em}
+  .sf-sheet :global(.lead){margin:14px 0 0;font-size:18px;line-height:1.5;color:rgba(255,255,255,.8)}
+  .sf-sheet :global(h4){margin:36px 0 12px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);font-weight:400}
+  .sf-sheet :global(ol){margin:0;padding:0;list-style:none}
+  .sf-sheet :global(ol li){padding:13px 0;border-top:1px solid var(--line);font-size:16px;line-height:1.45}
+  .sf-sheet :global(.chips){display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+  .sf-sheet :global(.chips li){padding:7px 11px;border:1px solid var(--line);font-size:13px}
+  .sf-sheet :global(.facts){display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:32px 0 0;padding:20px 0 0;border-top:1px solid var(--line)}
+  .sf-sheet :global(.facts dt){font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+  .sf-sheet :global(.facts dd){margin:6px 0 0;font-size:15px;line-height:1.45}
+  .sf-sheet :global(.cases){display:grid;gap:12px}
+  .sf-sheet :global(.cases a){display:grid;grid-template-columns:96px 1fr;gap:16px;align-items:center;color:#fff;text-decoration:none}
+  .sf-sheet :global(.cases img),.sf-sheet :global(.cases i){width:96px;height:72px;object-fit:cover;display:block;background:#1b2630}
+  .sf-sheet :global(.cases strong){display:block;font-size:15px;line-height:1.35}
+  .sf-sheet :global(.cases small){display:block;margin-top:4px;font-size:12px;color:var(--mute)}
+  .sf-sheet :global(.sf-link){display:inline-block;margin:32px 0 0;color:#fff;font-weight:700;text-decoration:none;border-bottom:2px solid #DC2626;padding-bottom:4px}
+  .sf-veil{position:fixed;inset:0;z-index:1150;background:rgba(5,8,11,.4);opacity:0;pointer-events:none;transition:opacity .45s}
+  .sf-veil:global(.on){opacity:1;pointer-events:auto}
+  .sf-after{width:min(var(--um-container-wide,1400px),calc(100% - (var(--um-page-gutter,24px) * 2)));margin:clamp(40px,5vw,72px) auto 0}
+  .sf-after a{color:#fff;font-weight:700;text-decoration:none;border-bottom:2px solid #DC2626;padding-bottom:4px}
+
+  @media (max-width:820px){
+    .sfilm{height:680vh}
+    .sfilm__pin{display:flex;flex-direction:column}
+    .sfilm__video{position:relative;inset:auto;height:auto;aspect-ratio:1/1;flex:none;margin-top:60px;transform:none}
+    .sfilm__scrim{background:linear-gradient(0deg,var(--bg) 0%,rgba(20,35,47,0) 20%);height:calc(100vw + 60px)}
+    .sfilm__story{position:relative;left:auto;top:auto;transform:none;width:auto;margin:0 var(--g)}
+    .sfilm.sfilm :global(h1),.sfilm.sfilm :global(h2){font-size:34px!important;margin-top:12px;max-width:none}
+    .sfilm.sfilm :global(.sf-lead){font-size:16px!important;margin-top:12px}
+    .sfilm.sfilm :global(.sf-stats){margin-top:20px}
+    .sfilm.sfilm :global(.sf-stats dd){font-size:26px}
+    .sfilm.sfilm :global(.sf-proof){margin-top:18px;padding-top:12px}
+    .sfilm.sfilm :global(.sf-more){margin-top:16px}
+    .sfilm.sfilm :global(.sf-go){margin-top:18px}
+    .sfilm.sfilm :global(.sf-layers){margin-top:16px}
+    .sfilm.sfilm :global(.sf-layers button){padding:10px 2px}
+    .sfilm.sfilm :global(.sf-layers strong){font-size:16px}
+    .sfilm__story[data-layers] :global(.sf-lead){display:none}
+    .sfilm__story[data-layers] :global(.sf-proof){display:none}
+    .sfilm__hint{display:none}
+    .sfilm__progress{bottom:76px}
+    .sfilm__pin{padding-bottom:64px}
+    .sfilm.sfilm .sfilm__video{height:min(34svh,100vw);width:auto;max-width:100%;align-self:center;margin-top:64px}
+    .sfilm__scrim{display:none}
+    .sf-sheet{top:auto;height:88svh;width:100%;border-left:0;border-top:1px solid var(--line);transform:translateY(100%)}
+    .sf-sheet__in{padding:72px 22px 36px}
+  }
+  @media (prefers-reduced-motion:reduce){.sfilm__in,.sf-sheet,.sf-veil{transition:none}}
+</style>
+
+<script>
+  const C: Record<string, string> = { en: '#E2B04A', da: '#3FC7B8', se: '#8B7CF6', de: '#F07A5A', all: '#ffffff' };
+  const LAYER: Record<string, string> = { en: 'Energía', da: 'Datos', se: 'Seguridad', de: 'Detección', all: 'Operación' };
+  const esc = (s: string) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+  function bind(root: HTMLElement) {
+    if (root.dataset.bound) return; root.dataset.bound = '1';
+    const data = JSON.parse(root.querySelector('[data-sector-film-data]')!.textContent || '{}');
+    const { moments, services, stats, layers } = data;
+    const svc = (code: string) => services.find((s: any) => s.code === code);
+    const video = root.querySelector<HTMLVideoElement>('.sfilm__video')!, story = root.querySelector<HTMLElement>('.sfilm__story')!, inner = root.querySelector<HTMLElement>('.sfilm__in')!;
+    const scrim = root.querySelector<HTMLElement>('.sfilm__scrim')!, bar = root.querySelector<HTMLElement>('.sfilm__progress i')!, hint = root.querySelector<HTMLElement>('.sfilm__hint')!;
+    const phone = matchMedia('(max-width: 820px)').matches;
+    video.poster = `${video.dataset.poster}${phone ? '-sq' : ''}.jpg`;
+    video.src = `${video.dataset.film}${phone ? '-sq-1080' : '-1920'}.mp4`;
+    let D = 18; video.addEventListener('loadedmetadata', () => { D = video.duration || 18; });
+    // Start fetching the film only when the page is idle, so the first paint stays light.
+    video.preload = 'auto';
+
+    function render(i: number) {
+      const m = moments[i]; const heading = i === 0 ? 'h1' : 'h2';
+      let h = `<p class="sf-kicker"><b></b>${esc(m.kicker)}</p><${heading}>${esc(m.title)}</${heading}><p class="sf-lead">${esc(m.lead)}</p>`;
+      if (i === 0) h += `<dl class="sf-stats">${stats.map(([v, l]: string[]) => `<div><dt>${esc(l)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>`;
+      if (m.layers) h += `<ul class="sf-layers">${layers.map(([k, code]: string[]) => `<li data-k="${k}" style="--c:${C[k]}"><button type="button" data-open="${code}"><b></b><strong>${LAYER[k]}</strong><em>${esc(svc(code)?.name || '')} →</em></button></li>`).join('')}</ul>`;
+      if (m.proof) { const p = m.proof; h += `<a class="sf-proof${p.img ? '' : ' no-img'}" href="${p.href}">${p.img ? `<img src="${p.img}" alt="" loading="lazy">` : ''}<span><small>Lo hicimos en</small><strong>${esc(p.title)}</strong><span>${esc(p.what)}</span></span></a>`; }
+      if (m.more) h += `<div><button type="button" class="sf-more" data-open="${m.more}">Cómo lo hacemos <span aria-hidden="true">→</span></button></div>`;
+      if (m.go) h += `<div><a class="sf-go" href="/contacto">Solicitar relevamiento</a></div>`;
+      inner.innerHTML = h; if (m.layers) story.dataset.layers = ''; else delete story.dataset.layers;
+      const sc = m.scrim || ['14%', '30%', '46%']; ['--s1', '--s2', '--s3'].forEach((k, j) => scrim.style.setProperty(k, sc[j]));
+    }
+    let cur = 0;
+    function setMoment(i: number) { if (i === cur) return; cur = i; story.classList.add('is-swap'); setTimeout(() => { render(i); story.classList.remove('is-swap'); }, 300); }
+    inner.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('[data-open]'); if (b) openSheet(b.dataset.open!); });
+
+    const progress = () => { const r = root.getBoundingClientRect(), span = root.offsetHeight - innerHeight; return Math.min(1, Math.max(0, -r.top / span)); };
+    const freeze = new URLSearchParams(location.search).get('t'); if (freeze !== null) root.style.height = '100vh';
+    let shown = freeze !== null ? +freeze : 0, visible = true, raf = 0;
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(root);
+    function tick() {
+      raf = requestAnimationFrame(tick); if (!visible) return;
+      const target = freeze !== null ? +freeze : progress() * D; shown += (target - shown) * 0.16; if (Math.abs(target - shown) < 0.004) shown = target;
+      if (video.readyState >= 1 && !video.seeking && Math.abs(video.currentTime - shown) > 1 / 45) video.currentTime = shown;
+      const i = Math.max(0, moments.findLastIndex((m: any) => shown >= m.t - 0.001)); setMoment(i);
+      bar.style.setProperty('--p', String(shown / D)); hint.style.opacity = shown < 0.4 ? '1' : '0';
+      inner.querySelectorAll<HTMLElement>('.sf-layers li').forEach((li) => { const L = layers.find(([k]: any[]) => k === li.dataset.k); li.classList.toggle('on', shown >= L[2] && shown < L[3]); });
+    }
+    raf = requestAnimationFrame(tick);
+    if (freeze !== null) render(Math.max(0, moments.findLastIndex((m: any) => +freeze >= m.t - 0.001)));
+
+    const sheet = document.querySelector<HTMLElement>('[data-sf-sheet]')!, sheetIn = sheet.querySelector<HTMLElement>('.sf-sheet__in')!, veil = document.querySelector<HTMLElement>('[data-sf-veil]')!;
+    function openSheet(code: string, quiet = false) {
+      const s = svc(code); if (!s) return; sheet.style.setProperty('--c', C[s.layer]);
+      const cases = s.cases.length ? `<h4>Lo hicimos en</h4><div class="cases">${s.cases.map((c: any) => `<a href="${c.h}">${c.img ? `<img src="${c.img}" alt="" loading="lazy">` : '<i></i>'}<span><strong>${esc(c.t)}</strong><small>${esc(c.m)}</small></span></a>`).join('')}</div>` : '';
+      sheetIn.innerHTML = `<p class="sf-kicker"><b></b>${LAYER[s.layer]}</p><h3>${esc(s.name)}</h3><p class="lead">${esc(s.promise)}</p><h4>Qué hacemos</h4><ol>${s.scope.map((x: string) => `<li>${esc(x)}</li>`).join('')}</ol><h4>Con qué</h4><ul class="chips">${s.equipment.map((x: string) => `<li>${esc(x)}</li>`).join('')}</ul><dl class="facts"><div><dt>Lo que entregamos</dt><dd>${esc(s.deliverable)}</dd></div><div><dt>Bajo norma</dt><dd>${esc(s.standard)}</dd></div></dl>${cases}<a class="sf-link" href="${s.href}">Ver el servicio completo →</a>`;
+      sheet.classList.add('open'); sheet.setAttribute('aria-hidden', 'false'); veil.classList.add('on'); if (!quiet) sheet.querySelector<HTMLElement>('.sf-sheet__close')!.focus({ preventScroll: true });
+    }
+    const close = () => { sheet.classList.remove('open'); sheet.setAttribute('aria-hidden', 'true'); veil.classList.remove('on'); };
+    sheet.querySelector('.sf-sheet__close')!.addEventListener('click', close); veil.addEventListener('click', close);
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+    const q = new URLSearchParams(location.search); if (q.has('open')) setTimeout(() => openSheet(q.get('open')!, true), 300);
+    document.addEventListener('astro:before-swap', () => cancelAnimationFrame(raf), { once: true });
+  }
+  const boot = () => document.querySelectorAll<HTMLElement>('[data-sector-film]').forEach(bind);
+  boot(); document.addEventListener('astro:page-load', boot);
+</script>
