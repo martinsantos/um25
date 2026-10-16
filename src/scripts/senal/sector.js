@@ -429,14 +429,14 @@ export async function mountSector(host, spec) {
   const caption = host.querySelector('[data-scode-caption]'), callout = host.querySelector('[data-scode-callout]');
   let hot = null, hotK = 0; spec.layers.forEach((l, k) => l.items.forEach((it) => { if (it[0] === 'card' && it[5]) { hot = new THREE.Vector3(it[1], 0, it[2] - .5); hotK = k; } }));
   if (freeze !== null) host.classList.add('is-frozen');
-  let visible = freeze !== null, clock = 0, cycle = 0, lastNow = 0, raf = 0, lastStep = -1;
+  let visible = freeze !== null, clock = 0, elapsed = 0, cycle = 0, lastNow = 0, raf = 0, lastStep = -1;
   const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: .05 }); io.observe(host);
   const tmp = new THREE.Vector3(), proj = new THREE.Vector3();
 
-  function render(t, first) {
+  function render(t, first, run = t) {
     const rise = first ? 1 : 0;
     pieces.forEach((p) => { const s = rise ? Math.max(.001, win(p.at * .55, p.at * .55 + .9, t)) : 1; p.g.scale.y = s; p.g.visible = s > .002; });
-    updates.forEach((u) => u(t));
+    updates.forEach((u) => u(run));
     const open = (k) => win(4.6 + k * .32, 6.9 + k * .32, t) * (1 - win(16 + (3 - k) * .24, 18 + (3 - k) * .24, t));
     const flow = win(8.2, 9, t) * (1 - win(15.8, 16.4, t)), tilt = win(4.4, 7.6, t) * (1 - win(15.9, 18.9, t));
     layers.forEach((L, k) => {
@@ -471,8 +471,8 @@ export async function mountSector(host, spec) {
     const dt = lastNow ? Math.min(.1, (now - lastNow) / 1000) : 0; lastNow = now;
     if (freeze !== null) { render(freeze, true); return; }
     if (!visible) return;
-    clock += dt; if (clock >= LOOP) { clock -= LOOP; cycle++; }
-    render(clock, cycle === 0);
+    clock += dt; elapsed += dt; if (clock >= LOOP) { clock -= LOOP; cycle++; }
+    render(clock, cycle === 0, elapsed);
   }
   ready = true;
   if (reduce && freeze === null) { render(13.4, false); } else raf = requestAnimationFrame(frame);

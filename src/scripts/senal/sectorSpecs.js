@@ -39,7 +39,7 @@ export const SECTOR_FILMS = {
     ],
     leaders: [[3.5, -3.3], [-4.6, 2.9], [6, -3.9], [.75, 2.7]],
     moment: { path: [[3.5, -1, -3.3], [3.5, 3, -3.3], [3.5, 3, -.2], [-4.6, 3, -.2], [-4.6, 3, 2.9], [-4.6, -1, 2.9]], stops: [0, 5] },
-    captions: [['Salud', 'Un piso de internación, funcionando.'], ['Por dentro', 'Cuatro capas que nadie ve.'], ['En marcha', 'Cada equipo, conectado y con respaldo.'], ['Llamado de cama', 'La 204 llama. Enfermería lo ve.']],
+    captions: [['Salud', 'Un piso de internación, funcionando.'], ['Por dentro', 'Lo que sostiene cada cama.'], ['En marcha', 'Cada equipo, conectado y con respaldo.'], ['Llamado de cama', 'La 204 llama. Enfermería lo ve.']],
   },
 
   aeropuertos: {
@@ -64,7 +64,7 @@ export const SECTOR_FILMS = {
     ],
     leaders: [[-1.5, 2.7], [-3.8, -.8], [4.4, 1.8], [2, -4.4]],
     moment: { path: [[-1.5, -1, 2.7], [-1.5, 3, 2.7], [-1.5, 3, 0], [2, 3, 0], [2, 3, -4], [2, -1, -4.4, .9]], stops: [0, 5] },
-    captions: [['Aeropuertos', 'Una terminal, de la vereda al avión.'], ['Por dentro', 'Cuatro capas que nadie ve.'], ['En marcha', 'Red, cámaras y pantallas, siempre arriba.'], ['Equipaje', 'Cada valija, seguida hasta la bodega.']],
+    captions: [['Aeropuertos', 'Una terminal, de la vereda al avión.'], ['Por dentro', 'Lo que mueve a cada pasajero.'], ['En marcha', 'Red, cámaras y pantallas, siempre arriba.'], ['Equipaje', 'Cada valija, seguida hasta la bodega.']],
   },
 
   industria: {
@@ -88,7 +88,7 @@ export const SECTOR_FILMS = {
     ],
     leaders: [[-1.6, -.85], [5.5, -2.6], [-3.5, -4], [5.55, 2.5]],
     moment: { path: [[-1.6, -1, -.85, 1.4], [-1.6, 3, -.85], [-1.6, 3, -2.4], [5.5, 3, -2.4], [5.5, -1, -2.5, .9]], stops: [0, 4] },
-    captions: [['Industria', 'Una línea de producción, en marcha.'], ['Por dentro', 'Cuatro capas que nadie ve.'], ['En marcha', 'Cada máquina, en la red de planta.'], ['Aviso temprano', 'La celda 2 avisa antes de frenar.']],
+    captions: [['Industria', 'Una línea de producción, en marcha.'], ['Por dentro', 'Lo que mantiene la línea andando.'], ['En marcha', 'Cada máquina, en la red de planta.'], ['Aviso temprano', 'La celda 2 avisa antes de frenar.']],
   },
 
   bodegas: {
@@ -110,7 +110,7 @@ export const SECTOR_FILMS = {
     ],
     leaders: [[-1.6, -3.6], [-2.6, 2.5], [5.5, .6], [3.75, -2.6]],
     moment: { path: [[-1.6, -1, -3.6, 2.7], [-1.6, 3, -3.6], [-1.6, 3, -.2], [5.5, 3, -.2], [5.5, 3, .6], [5.5, -1, .6, .9]], stops: [0, 5] },
-    captions: [['Bodegas', 'Una bodega, del tanque a la botella.'], ['Por dentro', 'Cuatro capas que nadie ve.'], ['En marcha', 'Cada tanque, medido y conectado.'], ['Temperatura', 'El tanque 4 marca 14,2\u00a0°C. Enología lo ve.']],
+    captions: [['Bodegas', 'Una bodega, del tanque a la botella.'], ['Por dentro', 'Lo que cuida cada litro.'], ['En marcha', 'Cada tanque, medido y conectado.'], ['Temperatura', 'El tanque 4 marca 14,2\u00a0°C. Enología lo ve.']],
   },
 
   constructoras: {
@@ -131,7 +131,7 @@ export const SECTOR_FILMS = {
     ],
     leaders: [[-1.9, .6], [-5, 2.6], [2.5, -2.7], [-.4, -.8]],
     moment: { level: 0, path: [[3.2, 0, -2.7], [-1.9, 0, -2.7], [-1.9, 0, 2.6], [-6.4, 0, 2.6]], stops: [[3.2, -2.7], [1.8, -2.7], [-3.6, 2.6], [-5, 2.6], [-6.4, 2.6]] },
-    captions: [['Constructoras', 'Un piso que se entrega funcionando.'], ['Por dentro', 'Cuatro capas que nadie ve.'], ['Instalación', 'Red, energía, incendio y accesos, en obra.'], ['Entrega', 'Cada punto, medido y certificado.']],
+    captions: [['Constructoras', 'Un piso que se entrega funcionando.'], ['Por dentro', 'Lo que el edificio lleva adentro.'], ['Instalación', 'Red, energía, incendio y accesos, en obra.'], ['Entrega', 'Cada punto, medido y certificado.']],
   },
 
   mineria: {
@@ -152,7 +152,7 @@ export const SECTOR_FILMS = {
     ],
     leaders: [[-6.5, -4.05], [6.3, -3.9], [5.1, -.2], [-3.4, .55]],
     moment: { path: [[-3.4, -1, .55, -1.0], [-3.4, 3, .55], [-6.5, 3, -4.05], [6.3, 3, -3.9], [5.1, 3, -.2], [5.1, -1, -.2, 1.1]], stops: [0, 5] },
-    captions: [['Minería', 'Un rajo abierto, conectado de punta a punta.'], ['Por dentro', 'Cuatro capas que nadie ve.'], ['En marcha', 'Enlaces y energía, lejos de todo.'], ['Despacho', 'Cada camión, visto desde despacho.']],
+    captions: [['Minería', 'Un rajo abierto, conectado de punta a punta.'], ['Por dentro', 'Lo que une el rajo con la oficina.'], ['En marcha', 'Enlaces y energía, lejos de todo.'], ['Despacho', 'Cada camión, visto desde despacho.']],
   },
 };
 

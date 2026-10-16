@@ -3,9 +3,12 @@
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import SectorCode from '../../components/cine/SectorCode.astro';
 import { SECTOR_FILM_SLUGS } from '../../scripts/senal/sectorSpecs.js';
-const only = Astro.url.searchParams.get('s');
-const slugs = SECTOR_FILM_SLUGS.filter((s) => !only || s === only);
+// One film at a time (each is a WebGL context); ?s=all stacks the six.
+const q = Astro.url.searchParams.get('s') || 'salud';
+const slugs = SECTOR_FILM_SLUGS.filter((s) => q === 'all' || s === q);
 ---
 <LayoutV4 skin="black" noindex={true} title="Sectores en código · Última Milla" description="Revisión">
+  <nav class="lab-nav">{SECTOR_FILM_SLUGS.map((s) => <a href={`?s=${s}`} aria-current={s === q ? 'page' : undefined}>{s}</a>)}</nav>
   {slugs.map((s) => <SectorCode sector={s as any} />)}
+  <style>.lab-nav{display:flex;gap:18px;padding:18px var(--um-page-gutter,24px);background:#fcfcf9;font-size:13px;letter-spacing:.14em;text-transform:uppercase}.lab-nav a{color:#5f6368;text-decoration:none}.lab-nav a[aria-current]{color:#182120;border-bottom:2px solid #DC2626}</style>
 </LayoutV4>
