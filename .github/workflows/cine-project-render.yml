@@ -16,7 +16,7 @@ on:
       renderer:
         description: 'v2: continuous approach, restrained technical lighting and selective circuits'
         type: choice
-        options: [v1, v2, v5]
+        options: [v1, v2, v5, v6]
         default: v1
       source_run:
         description: 'For deliver mode: existing render run containing this project’s 18 parts'
@@ -41,6 +41,12 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  sector-v6-proof:
+    if: inputs.renderer == 'v6'
+    uses: ./.github/workflows/cine-sector-v6-proof.yml
+    with:
+      scenes: ${{ inputs.projects == 'all' && 'clinic,winery' || inputs.projects }}
+      frames: ${{ inputs.source_run || '60,504,756' }}
   sector-v5:
     if: inputs.renderer == 'v5'
     uses: ./.github/workflows/cine-sector-v5.yml
@@ -49,7 +55,7 @@ jobs:
       projects: ${{ inputs.projects }}
       part: ${{ format('{0}', inputs.part) }}
   plan:
-    if: inputs.renderer != 'v5'
+    if: inputs.renderer != 'v5' && inputs.renderer != 'v6'
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
@@ -81,7 +87,7 @@ jobs:
               out.write('scenes='+json.dumps(scenes)+'\n')
           PY
   render:
-    if: inputs.renderer != 'v5' && inputs.mode != 'deliver'
+    if: inputs.renderer != 'v5' && inputs.renderer != 'v6' && inputs.mode != 'deliver'
     name: ${{ matrix.scene }} · part ${{ matrix.part }}
     needs: plan
     runs-on: ubuntu-24.04
@@ -138,7 +144,7 @@ jobs:
           retention-days: 1
   assemble:
     name: Deliver ${{ matrix.scene }} cinema
-    if: always() && inputs.renderer != 'v5' && (inputs.mode == 'full' || inputs.mode == 'deliver') && (inputs.mode == 'deliver' || needs.render.result == 'success')
+    if: always() && inputs.renderer != 'v5' && inputs.renderer != 'v6' && (inputs.mode == 'full' || inputs.mode == 'deliver') && (inputs.mode == 'deliver' || needs.render.result == 'success')
     needs: [plan, render]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
