@@ -1,0 +1,70 @@
+PLANTILLAS ULTIMA MILLA — REVISIÓN 2026.10.10-r4
+
+1. Instalar las cuatro fuentes TTF incluidas antes de abrir Excel o editar Word.
+   Word también lleva las fuentes incrustadas. El PDF ya incorpora la tipografía.
+2. Para un documento nuevo, abrir el DOTX. Para editar el ejemplo, abrir el DOCX.
+3. Usar Título 1, Título 2 y Título 3 (Heading 1/2/3) para las secciones.
+   La numeración 1., 1.1. y 1.1.1. es automática. No escribir números, tabulados
+   ni espacios para simular sangrías. Al cambiar de nivel, aplicar el estilo.
+4. Los números y el texto tienen el mismo tamaño: 16, 13 y 12 puntos.
+   El cuerpo es de 12 puntos. Las tablas usan 10 puntos.
+   La cifra comienza en la misma línea izquierda del cuerpo, dentro del bloque.
+   Un espacio tipográfico separa número y título, sin saltos de tabulación.
+5. En Excel, completar descripción, cantidad y precio unitario. La unidad es
+   opcional. Los precios se calculan a dos decimales. Un renglón incompleto
+   muestra «Completar» y evita un total parcial que parezca definitivo.
+   Ingresar el importe total de impuestos; usar 0 cuando no corresponda.
+6. Al agregar contenido extenso en Excel, ajustar el alto de la fila. La
+   impresión admite páginas adicionales y repite el encabezado de la tabla.
+7. Reemplazar los campos entre corchetes. Comprobar moneda, impuestos,
+   condiciones, anexos y totales antes de exportar la oferta a PDF.
+8. La edición y la impresión del HTML se verificaron en Google Chrome.
+   Al imprimir, elegir A4, escala 100 % y desactivar los encabezados y pies
+   añadidos por el navegador; la plantilla incluye su propia marca y paginado.
+
+La prueba de licitación contiene texto ficticio para revisar títulos largos,
+numeración de dos cifras y el tercer nivel 10.12.1. No es una oferta real.
+El ejemplo-licitacion y el ejemplo-economico forman un mismo caso completo,
+con datos ficticios y sin validez comercial. Sus importes coinciden.
+
+Validación: PDF y LibreOffice; cálculos comprobados con datos de prueba.
+La interacción de teclado específica de Microsoft Word y Microsoft Excel
+no se ha probado en esas aplicaciones, que no están instaladas en esta Mac.
+
+IMÁGENES EN DOCUMENTOS
+El archivo imagenes-documento reúne bloques con PNG transparente, foto sobre
+blanco y una imagen sin comentario. Las ilustraciones del sitio son referencias
+de composición: no identifican modelos ni especificaciones de una oferta.
+Copiar un bloque o reemplazar la imagen de la oferta completa. Mantener la
+imagen en línea con el texto, centrada y con proporción bloqueada. No agregar
+marcos, fondos, sombras ni recortar el producto. Usar imágenes de buena resolución.
+Los estilos Imagen centrada y Comentario de imagen están en todas las variantes
+Word. El comentario usa 10,5 pt y se mantiene junto a la imagen al cambiar de
+página; eliminar su párrafo si no hace falta. El máximo es el ancho útil de la
+hoja (165 mm). Para imágenes altas, reducir también la altura antes de exportar.
+En HTML, Cambiar imagen permite elegir un PNG, JPG o WebP local; Guardar HTML
+editado conserva la imagen incorporada y el comentario. El botón no se imprime.
+
+PRESUPUESTO INTERNO
+Resultado, Costeo, Parámetros y Proveedores trabajan en un mismo libro vacío.
+Completar primero Parámetros, luego los componentes por renglón / código y
+sector / piso en Costeo. Los márgenes se calculan sobre la venta. Los ajustes
+se aplican en este orden: imprevistos, bonificación y, sobre el neto, IVA.
+Los valores de impuestos y cotización deben comprobarse para cada oferta.
+DH y HH usan la tarifa de Parámetros cuando el costo unitario está vacío y
+la moneda es USD. Un costo manual tiene prioridad. En Proveedores, comparar
+precios en la misma moneda y elegir A o B; trasladar el precio elegido al
+Costeo con su código. No se transfieren precios automáticamente entre esas
+hojas. Resultado y Parámetros imprimen en A4 apaisada; Costeo y Proveedores
+en A3 apaisada. El libro vacío imprime cuatro páginas, una por hoja, con
+cuerpo de 12 puntos sin reducir la escala. Los encabezados y las dos primeras
+columnas permanecen visibles al desplazarse. Para textos que ocupen más de
+una línea, ajustar el alto de la fila antes de imprimir.
+Este libro contiene costos internos: entregar al cliente sólo la oferta.
+
+MARCA EN EXCEL
+La imagen principal es un PNG visible con suavizado sobre fondo blanco.
+Office también dispone del SVG para la impresión. El visor del usuario no
+mostró la variante que usaba SVG como imagen principal; esa variante se descartó.
+LibreOffice y PDF se verificaron. Microsoft Excel y el visor integrado
+requieren control directo adicional; no impiden esta entrega autorizada.

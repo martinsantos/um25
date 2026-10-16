@@ -58,12 +58,11 @@
   --um-container: 1180px;
   --um-container-wide: 1400px;
   --um-page-gutter: clamp(20px, 3.2vw, 32px);
-  --um-font-editorial: 'UM Sans', 'UM Sans Fallback', Arial, system-ui, sans-serif;
+  --um-font-editorial: 'UM Sans 2', 'UM Sans 1.2 Compatibility', Arial, system-ui, sans-serif;
   --font-head: var(--um-font-editorial);
   --um-font-logo: 'Futura PT', 'Futura', Arial, sans-serif;
-  /* The procedural UM Sans 2 Display alpha failed word-level raster review.
-     Impact roles stay on the verified editorial family until a full redraw is
-     approved; never mask a broken outline with a CSS fallback. */
+  /* The reviewed 2.0 family supersedes the rejected procedural alpha.
+     The separate OFL 1.2 face only supplies characters outside its repertoire. */
   --um-font-impact: var(--um-font-editorial);
   --um-font-display: var(--um-font-editorial);
   --um-font-body: var(--um-font-editorial);
@@ -77,7 +76,7 @@
   --um-figures-tabular: tabular-nums lining-nums;
   --um-figures-proportional: proportional-nums lining-nums;
   --um-features-caps: "kern" 1, "calt" 1, "case" 1;
-  --um-font-x-height: 0.546;
+  --um-font-x-height: 0.530;
   --um-display-weight: 600;
   --um-display-emphasis-weight: 700;
   --um-hero-weight: 700;

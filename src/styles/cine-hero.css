@@ -6,7 +6,7 @@
   --um-ink:#111111; --um-black:#080808; --um-panel:#101010;
   --um-white:#FFFFFF; --um-soft:#F5F5F5; --um-line:#EAEDF0;
   --um-muted:#5F6368; --um-gray-700:#333333; --um-blue-doc:#1A56C0; --um-green:#2D8A2D; --um-amber:#B45309;
-  --um-font:'UM Sans','UM Sans Fallback',Arial,system-ui,sans-serif;
+  --um-font:var(--um-font-editorial,'UM Sans',Arial,system-ui,sans-serif);
   --um-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --um-container:1280px; --gutter:clamp(20px,5vw,72px);
   --h1:clamp(2.4rem,5.4vw,4.6rem); --h2:clamp(1.7rem,2.8vw,2.5rem); --h3:1.25rem;

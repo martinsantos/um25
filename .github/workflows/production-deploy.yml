@@ -23,12 +23,40 @@ env:
   RELEASE_ID: ${{ github.run_id }}-${{ github.run_attempt }}
 
 jobs:
+  runtime-scope:
+    runs-on: ubuntu-latest
+    outputs:
+      required: ${{ steps.scope.outputs.required }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: scope
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          OPERATION: ${{ inputs.operation }}
+        run: |
+          required=true
+          if [[ "$EVENT" == workflow_dispatch && -n "$OPERATION" && "$OPERATION" != deploy ]]; then
+            required=false
+          elif [[ "$EVENT" == push ]] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            required=false
+            while IFS= read -r path; do
+              case "$path" in
+                .github/workflows/production-deploy.yml|.github/workflows/server-storage-maintenance.yml|scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py) ;;
+                *) required=true ;;
+              esac
+            done < <(git diff --name-only "$BEFORE" HEAD)
+          fi
+          echo "required=$required" >> "$GITHUB_OUTPUT"
   #===========================================================================
   # JOB 1: BUILD & TEST
   #===========================================================================
   build-and-test:
     name: Build & Test
-    if: github.event_name != 'workflow_dispatch' || inputs.operation == 'deploy'
+    needs: runtime-scope
+    if: needs.runtime-scope.outputs.required == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -81,6 +109,7 @@ jobs:
   #===========================================================================
   deploy-production:
     name: Deploy to Production
+    if: github.ref == 'refs/heads/master'
     needs: build-and-test
     runs-on: ubuntu-latest
     environment:
@@ -136,7 +165,58 @@ jobs:
           test -s /tmp/umsa-release-paths.txt
           while IFS= read -r path; do
             case "$path" in
+              # UM Sans 2: versioned binaries and document templates. Keep the
+              # 1.2 service and unrelated unpublished assets unchanged.
+              public/fonts/um-sans/v2.0.0/*|\
+              scripts/fonts/release_um_sans_2.py|\
+              scripts/fonts/audit_um_sans_2_service.mjs|\
+              scripts/typography/build_offer_templates.py|\
+              scripts/visual-contrast-audit.mjs|\
+              __tests__/umSansFontContract.test.js|\
+              __tests__/umSans2FontContract.test.js|\
+              __tests__/umSans2Release.test.js|\
+              __tests__/visualAuditRunnerContracts.test.js|\
+              docs/typography/UM-SANS-2-SERVICE.md|\
+              docs/typography/um-sans-2.0.0-standards.json|\
+              public/downloads/plantillas-um-sans/2026.10.09-r3/*|\
+              public/downloads/plantillas-um-sans/2026.10.10-r4/*|\
+              public/downloads/plantillas-um-sans/2026.10.10-r5/*|\
+              public/downloads/plantillas-um-sans/2026.10.10-r6/*|\
+              public/downloads/plantillas-um-sans/2026.10.10-r7/*|\
+              public/downloads/plantillas-um-sans/2026.10.13-r8/*|\
+              public/images/brand-document.svg|\
+              scripts/typography/templates-v2/*|\
+              docs/typography/UM-SANS-2-PLANTILLAS-REVIEW-20261008.md|\
+              docs/typography/UM-SANS-2-SPECIMEN-REVIEW-20261008.md|\
+              src/data/brandTemplates.ts|src/components/brand/ResourceNavigation.astro|\
+              src/pages/estilo/fuentes/editor.astro|\
+              src/scripts/templateEditor.ts|src/scripts/templateStorage.ts|src/scripts/templatePdf.ts|\
+              src/styles/resource-navigation.css|src/styles/template-editor.css|\
+              __tests__/templateEditor.test.ts|tsconfig.templates.json|package-lock.json|\
+              docs/typography/UMSA-RESOURCE-WORKSPACE.md|\
+              src/data/brand-template-reading.json|\
+              src/scripts/fontSpecimen.ts|src/scripts/resourcePreviews.ts|\
+              src/styles/brand-resources.css|src/styles/font-specimen.css|\
+              src/layouts/LayoutV4.astro|\
+              src/pages/estilo/fuente.astro|\
+              src/pages/estilo/um-sans.astro|\
+              src/pages/estilo/fuentes/plantilla.astro|\
+              src/pages/estilo/fuente/plantillas.astro|\
+              src/pages/estilo/fuente/planillas.astro|\
+              src/pages/estilo/fuente/planilla.astro|\
+              src/pages/planilla.astro|\
+              src/pages/fuente.astro|\
+              src/pages/estilos/index.astro|\
+              src/pages/estilos/fuente.astro|\
+              src/pages/estilos/fuente/plantilla.astro|\
+              src/pages/estilo/fuente/plantilla.astro|\
+              src/styles/font-service.css|src/styles/v4.css|\
+              src/styles/cine-hero.css) ;;
               .github/workflows/production-deploy.yml|.github/workflows/community-demo-integrity.yml|\
+              .github/workflows/server-storage-maintenance.yml|\
+              scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|\
+              scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|\
+              scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|\
               scripts/ops/deploy-scoped-dist.sh|scripts/ops/prune-inactive-umbot-deps.sh|scripts/ops/audit-directus-uploads.sh|\
               __tests__/runtimeConfigContracts.test.js|__tests__/nginxOps.test.ts|\
               docs/campaign-preview/PHOTO-SOURCES.md|docs/campaign-preview/README.md|\
@@ -215,6 +295,11 @@ jobs:
               *) echo "Unexpected release path: $path" >&2; exit 1 ;;
             esac
           done < /tmp/umsa-release-paths.txt
+          # Versioned font/template URLs may only be added, never overwritten.
+          if [[ -n "$(git diff --name-only --diff-filter=MRD "${GITHUB_SHA}^1" "$GITHUB_SHA" -- public/fonts/um-sans/v2.0.0)" ]]; then
+            echo 'Published UM Sans URLs are immutable; use a new release directory' >&2
+            exit 1
+          fi
           # The scoped overlay restores every already-published public asset, so a
           # modified file under public/cine would silently ship its old version.
           # Cinema assets may only be added; ship changes under a new name.
@@ -441,6 +526,14 @@ jobs:
       - name: SEO and GEO release audit
         run: node scripts/seo-audit.mjs --base-url https://www.ultimamilla.com.ar
 
+      - name: Apply scoped font CORS and cache headers
+        run: |
+          ssh root@23.105.176.45 'UMSANS_FONT_MODE=apply bash -s' \
+            < scripts/ops/apply-umsans-font-headers.sh
+
+      - name: Verify UM Sans service and offer downloads at public edge
+        run: node scripts/fonts/audit_um_sans_2_service.mjs https://www.ultimamilla.com.ar
+
       - name: GEO scoring release audit
         run: npm run geo:score -- --base-url https://www.ultimamilla.com.ar --min-score 90 --json
 
@@ -452,6 +545,16 @@ jobs:
 
       - name: Directus integration release audit
         run: node scripts/directus-release-audit.mjs --base-url https://www.ultimamilla.com.ar
+
+      - name: Compact identical rollback assets after successful release
+        run: |
+          set -euo pipefail
+          ssh root@23.105.176.45 'python3 -' \
+            < scripts/ops/compact-runtime-backups.py > /tmp/runtime-compaction-plan.json
+          plan_sha="$(python3 -c 'import json; print(json.load(open("/tmp/runtime-compaction-plan.json"))["plan_sha256"])')"
+          [[ "$plan_sha" =~ ^[0-9a-f]{64}$ ]]
+          ssh root@23.105.176.45 "python3 - --apply --expected-plan-sha $plan_sha" \
+            < scripts/ops/compact-runtime-backups.py
 
       - name: Restore previous runtime after failed checks
         if: failure() && steps.ssh_agent.outcome == 'success'

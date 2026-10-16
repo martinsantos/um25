@@ -135,7 +135,8 @@ const enableServiceWorker = import.meta.env.PUBLIC_ENABLE_SW === 'true';
 
     <!-- Fuente UM Sans. El logo es un SVG vectorizado (UMLogo): ya no se carga
          Futura PT desde un CDN externo, que bloqueaba el render. -->
-    <link rel="preload" href="/fonts/um-sans/UMSans-Variable.woff2?v=1.2.0-production" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/um-sans/v2.0.0/UMSans2-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/fonts/um-sans/v2.0.0/um-sans.css" />
 
     {hasHeadSlot && <slot name="head" />}
 
@@ -251,7 +252,7 @@ const enableServiceWorker = import.meta.env.PUBLIC_ENABLE_SW === 'true';
       }
 
       /* Editorial headings must wrap by phrase, never split ordinary words. */
-      main :where(h1, h2, h3, h4) {
+      main :where(h1, h2, h3, h4):not(.font-hub *) {
         overflow-wrap: normal !important;
         word-break: normal !important;
         hyphens: none !important;
@@ -283,7 +284,7 @@ const enableServiceWorker = import.meta.env.PUBLIC_ENABLE_SW === 'true';
   </head>
   <body
     data-skin={skinAttribute}
-    data-font-system="um-sans-editorial-1.2"
+    data-font-system="um-sans-2.0.0"
   >
     <a class="um-skip-link" href="#main-content">{skipLinkLabel}</a>
     <NavbarV4 />

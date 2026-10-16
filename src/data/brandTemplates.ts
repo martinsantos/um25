@@ -1,0 +1,21 @@
+export const templateBase = '/downloads/plantillas-um-sans/2026.10.13-r8';
+export const templateLibrary = '/estilo/fuentes/plantilla';
+export const templateEditor = '/estilo/fuentes/editor';
+
+export const brandTemplates = [
+  { id: 'oferta-completa', sample: 'ejemplo-licitacion', number: '01', title: 'Oferta completa', purpose: 'Técnica y comercial', pages: 'Word · A4', description: 'Una propuesta de principio a fin: alcance, solución técnica, entregables, inversión y condiciones.', details: ['Numeración automática en tres niveles', 'Títulos y cifras con tamaños proporcionales', 'Imágenes centradas con comentario opcional'], primary: 'DOCX', action: 'Descargar plantilla Word', formats: ['DOTX', 'ODT', 'HTML', 'PDF'], googleUrl: 'https://docs.google.com/document/d/1nK4T38O4raAiqoxcZ4C5Dziol1HgBU77EKgDL1GdGTM/copy', googleSampleUrl: 'https://docs.google.com/document/d/1YHxg7PWmgfgzr1UIUvBV8gv-VWOvKMT8ciAASX9YCfo/copy' },
+  { id: 'resumen-comercial', number: '02', title: 'Resumen comercial', purpose: 'Propuesta en una página', pages: '1 página · A4', description: 'El alcance, la inversión y las condiciones esenciales en una presentación breve.', details: ['Jerarquía clara para leer de un vistazo', 'Espacio para identificar al cliente y al proyecto', 'Tabla de inversión y total'], primary: 'DOCX', action: 'Descargar Word', formats: ['DOTX', 'ODT', 'HTML', 'PDF'], googleUrl: 'https://docs.google.com/document/d/1Hp00vxPmzbr98lExyymTRr59tPAWLLRFfd5t1ggAP_o/copy' },
+  { id: 'membrete', number: '03', title: 'Carta con membrete', purpose: 'Notas y correspondencia', pages: '1 página · A4', description: 'Una base de correspondencia para comunicar una decisión, presentar una solicitud o acompañar documentación.', details: ['Destinatario, fecha y referencia', 'Cuerpo de carta con espacio para desarrollar', 'Cierre y firma'], primary: 'DOCX', action: 'Descargar Word', formats: ['DOTX', 'ODT', 'HTML', 'PDF'], googleUrl: 'https://docs.google.com/document/d/1vdDCACe-kd8HLDZJF5uO2GkjjDnY4lZ3OGM3dI7KlEU/copy' },
+  { id: 'imagenes-documento', number: '04', title: 'Imágenes en documentos', purpose: 'Productos y pies de imagen', pages: 'Word · A4', description: 'Productos sobre fondo transparente o blanco, centrados y con un comentario opcional debajo. Ejemplos para copiar a cualquier documento.', details: ['Imagen y comentario en la misma página', 'Proporción original, sin marcos ni fondos añadidos', 'Bloque con o sin comentario'], primary: 'DOCX', action: 'Descargar bloques de imágenes', formats: ['DOTX', 'ODT', 'HTML', 'PDF'], googleUrl: 'https://docs.google.com/document/d/14wcoy9VJUVjayPDfgqt50VRu2FfF3vRydv4SiGpveC4/copy' },
+  { id: 'oferta-economica', sample: 'ejemplo-economico', number: '05', title: 'Oferta económica', purpose: 'Precios para el cliente', pages: 'Excel · Impresión A4', description: 'Cantidades, precios e importes en una misma grilla. El detalle alimenta el subtotal y el total de la oferta.', details: ['15 renglones con cálculo de importes', 'Validación de cantidades y precios', 'Control de datos incompletos antes del total'], primary: 'XLSX', action: 'Descargar plantilla Excel', formats: ['PDF'], googleUrl: 'https://docs.google.com/spreadsheets/d/1R_Xl74MYzJyyyMus4XGEeDURNpPOzxW2Wh8zzDEO_WQ/copy' },
+  { id: 'presupuesto-interno', number: '06', title: 'Cotizador interno', purpose: 'Materiales, costos y parámetros', pages: 'Excel · Ocho hojas', description: 'El libro de PC-2505-ALT, preparado para cada nueva cotización: parámetros, materiales y detalle de costos en PD.', details: ['Las ocho hojas del libro original', 'Componentes, cantidades, costos y márgenes', 'Resultado y oferta vinculados al detalle'], primary: 'XLSX', action: 'Descargar cotizador de ocho hojas', formats: ['PDF'], googleUrl: 'https://docs.google.com/spreadsheets/d/1TrzkYXtBpvw3vURzM4idQeQmbHmoz7_XKlQBAjgushk/copy' },
+] as const;
+
+export type BrandTemplate = typeof brandTemplates[number];
+export type TemplateId = BrandTemplate['id'];
+export function findTemplate(id: string | null | undefined): BrandTemplate {
+  return brandTemplates.find(template => template.id === id) || brandTemplates[0];
+}
+export function editorLink(id: TemplateId, example = false) {
+  return `${templateEditor}?documento=${id}${example ? '&vista=ejemplo' : ''}`;
+}

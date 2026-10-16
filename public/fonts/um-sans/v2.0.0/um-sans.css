@@ -1,0 +1,18 @@
+/* UM Sans 2.0.0: pinned service. Loading this file does not restyle an application. */
+@font-face { font-family: 'UM Sans 2'; src: url('./UMSans2-Variable.woff2') format('woff2'); font-weight: 100 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'UM Sans 2'; src: url('./UMSans2-VariableItalic.woff2') format('woff2'); font-weight: 100 900; font-style: italic; font-display: swap; }
+@font-face { font-family: 'UM Sans 1.2 Compatibility'; src: url('./compat/UMSans-Variable.woff2') format('woff2'); font-weight: 100 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'UM Sans 1.2 Compatibility'; src: url('./compat/UMSans-VariableItalic.woff2') format('woff2'); font-weight: 100 900; font-style: italic; font-display: swap; }
+:root {
+  --um-font-family: 'UM Sans 2', 'UM Sans 1.2 Compatibility', Arial, system-ui, sans-serif;
+  --um-type-title: clamp(2.25rem, 3.5vw, 3rem);
+  --um-type-subtitle: 1.75rem;
+  --um-type-lead: 1.375rem;
+  --um-type-body: 1.25rem;
+  --um-type-ui: 1rem;
+  --um-type-leading: 1.65;
+  --um-type-measure: 31em;
+}
+.um-type { font-family: var(--um-font-family); font-kerning: normal; font-synthesis: none; }
+.um-type-reading { max-inline-size: var(--um-type-measure); font-size: var(--um-type-body); line-height: var(--um-type-leading); }
+.um-type-figures { font-variant-numeric: tabular-nums; }

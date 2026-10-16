@@ -1,0 +1,65 @@
+---
+import LayoutV4 from '../../../layouts/LayoutV4.astro';
+import ResourceNavigation from '../../../components/brand/ResourceNavigation.astro';
+import { brandTemplates, editorLink, templateBase } from '../../../data/brandTemplates';
+import '../../../styles/brand-resources.css';
+import reading from '../../../data/brand-template-reading.json';
+const base = templateBase;
+const templates = brandTemplates;
+---
+<LayoutV4 title="RECURSOS MARCA UMSA" description="Plantillas de propuesta, resumen, carta y planilla económica. UM Sans 2, marca oficial y vistas previas de los archivos reales.">
+  <div id="um-resources" class="resource-library">
+    <ResourceNavigation current="plantillas" />
+    <header class="rl-cover rl-shell">
+      <h1>RECURSOS MARCA UMSA</h1>
+      <div class="rl-cover-bottom"><p>Plantillas para licitaciones, propuestas y comunicaciones.</p><div><a class="rl-button" href={base+'/Plantillas-UMSans2-2026.10.13-r8.zip'} download>Descargar todo ↗</a><a class="rl-text-link" href="/fonts/um-sans/v2.0.0/UMSans2-2.0.0.zip" download>Fuentes UM Sans 2</a></div></div>
+    </header>
+    <div class="rl-workspace rl-shell">
+    <aside class="rl-sidebar"><nav class="rl-index" aria-label="Elegir plantilla"><p class="rl-eyebrow">ÍNDICE DE PLANTILLAS</p>{templates.map(t=><a href={'#'+t.id}><span>{t.title}</span><small>{t.purpose}</small></a>)}</nav><a class="rl-editor-entry" href={editorLink('oferta-completa')}>Ir al editor y Mis PDFs ↗</a></aside>
+    <div class="rl-main"><div class="rl-mobile-select"><label for="rl-template-select">Elegir plantilla</label><select id="rl-template-select">{templates.map(t=><option value={t.id}>{t.title} · {t.purpose}</option>)}</select></div>
+    <div class="rl-collection">
+      {templates.map(t=><section class="rl-item" id={t.id} aria-labelledby={t.id+'-title'}>
+        <div class="rl-info">
+        <div class="rl-copy">
+          <p class="rl-eyebrow">{t.number} / {t.pages}</p>
+          <h2 id={t.id+'-title'}>{t.title}</h2>
+          {t.id==='oferta-economica'&&<span id="template-economy-title" class="rl-anchor" />}
+          <p class="rl-description">{t.description}</p>
+          <ul>{t.details.map(detail=><li>{detail}</li>)}</ul>
+        </div>
+        <div class="rl-actions">
+          <div class="rl-main-actions"><a class="rl-button" data-local-editor={t.primary==='DOCX'?t.id:undefined} href={t.primary==='DOCX'?editorLink(t.id):t.googleUrl} target={t.primary==='XLSX'?'_blank':undefined} rel={t.primary==='XLSX'?'noopener noreferrer':undefined}>{t.primary==='DOCX'?'Editar en navegador':'Editar en Google Sheets'} ↗</a><a class="rl-download-link" href={base+'/'+t.id+'.'+t.primary.toLowerCase()} download>{t.action} ↗</a></div>
+          {t.primary==='DOCX'?<a class="rl-google-link" href={t.googleUrl} data-google-template={t.googleUrl} data-google-example={'googleSampleUrl' in t?t.googleSampleUrl:undefined} target="_blank" rel="noopener noreferrer">Abrir en Google {t.primary==='XLSX'?'Sheets':'Docs'} ↗</a>:<a class="rl-google-link" href={editorLink(t.id)}>Editor y Mis PDFs ↗</a>}<p class="rl-google-note">Creá tu copia para editar con tu cuenta de Google.</p>
+          <details class="rl-download-options"><summary>{'sample' in t?'Otros formatos y ejemplo':'Otros formatos'}</summary>
+          <div class="rl-formats" aria-label={'Otros formatos de '+t.title}>{t.formats.map(format=><a href={base+'/'+t.id+'.'+format.toLowerCase()} download={format==='HTML'||format==='PDF'?undefined:true}>{format==='HTML'?'HTML independiente':format==='PDF'?'Ver PDF':format}</a>)}</div>
+          {'sample' in t && <div class="rl-example-downloads"><span>Ejemplo completado</span><a href={base+'/'+t.sample+'.'+t.primary.toLowerCase()} download>{t.primary==='XLSX'?'Excel':'Word'} ↗</a><a href={base+'/'+t.sample+'.pdf'}>PDF ↗</a></div>}
+          </details>
+        </div>
+        </div>
+        <div class="rl-paper-column">
+          {'sample' in t && <div class="rl-reading-modes" role="group" aria-label={'Contenido de '+t.title}><button type="button" data-reading-choice="example" aria-pressed="true">Ejemplo</button><button type="button" data-reading-choice="blank" aria-pressed="false">Plantilla vacía</button></div>}
+          <div class="rl-reading-bar"><span data-reading-label>{'sample' in t?'Ejemplo ficticio':'Vista de lectura'}</span><button type="button" data-resource-preview={base+'/'+('sample' in t?t.sample:t.id)+'.svg'} data-preview-title={t.title} data-preview-pdf={base+'/'+('sample' in t?t.sample:t.id)+'.pdf'} data-blank-preview={base+'/'+t.id} data-example-preview={'sample' in t?base+'/'+t.sample:undefined} aria-label={'Ver composición '+(t.id==='presupuesto-interno'?'A3':'A4')+' de '+t.title}>{t.id==='presupuesto-interno'?'Ver impresión A3 ↗':'Ver hoja A4 ↗'}</button></div>
+          <div class="rl-reading-frame" role="region" aria-label={'Documento completo de '+t.title}>
+            <div class="rl-reading">
+              <div class="rl-reading-brand"><img src="/images/brand-document.svg" width="607" height="54" alt="ultimamilla.com.ar" /></div>
+              <div class="rl-reading-body" data-reading-mode="blank" hidden={'sample' in t} set:html={reading[t.id as keyof typeof reading]} />
+              {'sample' in t && <div class="rl-reading-body" data-reading-mode="example" set:html={reading[t.sample as keyof typeof reading]} />}
+              <p class="doc-footer">ULTIMA MILLA S.A. · ultimamilla.com.ar</p>
+            </div>
+          </div>
+          <p class="rl-caption">{t.id==='presupuesto-interno'?'Elegí cualquiera de las ocho hojas. La vista muestra las tablas del XLSX; el PDF conserva la impresión del libro.':'Documento completo, adaptado a tu pantalla. «Ver hoja A4» muestra la composición de impresión.'}</p>
+        </div>
+      </section>)}
+    </div></div></div>
+    <section class="rl-use"><div class="rl-shell">
+      <p class="rl-eyebrow">ANTES DE EMPEZAR</p><h2>Prepará tu documento.</h2>
+      <div class="rl-use-grid"><article><span>01</span><h3>Instalá la familia.</h3><p>El paquete incluye los cuatro TTF necesarios para editar Word y Excel con UM Sans 2.</p></article><article><span>02</span><h3>Usá los estilos.</h3><p>En Word, aplicá Título 1, 2 o 3. La numeración y las sangrías se ajustan juntas.</p></article><article><span>03</span><h3>Revisá la entrega.</h3><p>Completá los campos, comprobá los importes y exportá el documento final a PDF.</p></article></div>
+    </div></section>
+    <dialog id="resource-viewer" aria-labelledby="resource-viewer-title"><div class="rl-dialog-head"><strong id="resource-viewer-title">Vista previa</strong><a id="resource-viewer-pdf" href="#">Ver PDF completo ↗</a><button type="button" id="resource-viewer-zoom" aria-pressed="false">Ampliar</button><button type="button" id="resource-viewer-close" aria-label="Cerrar vista previa">Cerrar ×</button></div><div class="rl-dialog-paper"><img id="resource-viewer-image" width="595" height="842" alt="" /></div></dialog>
+  </div>
+</LayoutV4>
+<script>
+  import { initResourcePreviews } from '../../../scripts/resourcePreviews';
+  initResourcePreviews();
+  document.addEventListener('astro:page-load', initResourcePreviews);
+</script>

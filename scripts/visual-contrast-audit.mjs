@@ -1367,6 +1367,7 @@ async function auditRoute(ws, route, viewport) {
     const bodyFontFamily = getComputedStyle(document.body).fontFamily || null;
     const logo = document.querySelector('.um-ops-logo, .um-nav-logo, [data-um-logo]');
     const logoFontFamily = logo ? getComputedStyle(logo).fontFamily : null;
+    const logoIsVector = Boolean(logo?.querySelector('svg path') && !logo?.querySelector('svg text'));
     const fontSystem = document.body.dataset.fontSystem || null;
     const measureFont = (family, weight, sample) => {
       const probe = document.createElement('span');
@@ -1387,29 +1388,39 @@ async function auditRoute(ws, route, viewport) {
       probe.remove();
       return width;
     };
-    const fontReady = document.fonts.check('16px "UM Sans"');
+    const legacySpecimen = location.pathname === '/estilo/um-sans';
+    const fontReady = document.fonts.check(legacySpecimen ? '16px "UM Sans"' : '16px "UM Sans 2"');
     const displayProbeText = 'Operación 518 WMWM ÁÑ';
-    const displayProbeWidth = measureFont('"UM Sans", monospace', 800, displayProbeText);
+    const displayProbeWidth = legacySpecimen
+      ? measureFont('"UM Sans", monospace', 800, displayProbeText)
+      : measureFont('"UM Sans 2", monospace', 800, displayProbeText);
     const displayFallbackWidth = measureFont('monospace', 700, displayProbeText);
     const displayFontReady = Math.abs(displayProbeWidth - displayFallbackWidth) > 0.5;
-    const h1UsesDisplay = Boolean(h1FontFamily?.includes('UM Sans'));
+    const h1UsesDisplay = Boolean(h1FontFamily?.includes(legacySpecimen ? '"UM Sans"' : '"UM Sans 2"'));
     const h1DisplayEmphasis = Boolean(h1);
     const h1Overweight = h1Style && Number.parseFloat(h1Style.fontWeight) > 800;
 
     const displayTypographyIssues = textElements
-      .filter((element) => /UM Sans 2(?: Display| Candidate)?/i.test(getComputedStyle(element).fontFamily))
+      .filter((element) => /UM Sans 2 (?:Display|Candidate|Dev|Manual)/i.test(getComputedStyle(element).fontFamily))
       .map((element) => {
         const style = getComputedStyle(element);
         return {
           tag: element.tagName.toLowerCase(),
           className: String(element.className || '').slice(0, 90),
-          text: 'Blocked unapproved UM Sans 2 reference',
+          text: 'Blocked experimental UM Sans 2 reference',
           fontSize: Number.parseFloat(style.fontSize),
           allowedElement: false,
           tooSmall: true
         };
       })
       .slice(0, 12);
+
+    // The approved family has a distinct, pinned distribution. Loading a
+    // quarantined prototype still fails, even if it reuses a generic family name.
+    const prototypePaths = ['/fonts/um-sans-2/', '/fonts/um-sans-2-display/', '/fonts/um-sans-2-manual/'];
+    if (performance.getEntriesByType('resource').some((entry) => prototypePaths.some((prefix) => entry.name.includes(prefix)))) {
+      displayTypographyIssues.push({ tag: 'font', className: '', text: 'Blocked prototype font URL', fontSize: 0, allowedElement: false, tooSmall: true });
+    }
 
     return {
       title: document.title,
@@ -1453,6 +1464,7 @@ async function auditRoute(ws, route, viewport) {
       h1FontFamily,
       bodyFontFamily,
       logoFontFamily,
+      logoIsVector,
       fontSystem,
       fontReady,
       displayFontReady,
@@ -1627,13 +1639,13 @@ function collectFailures(results) {
     if (!result.allowSpecimenStructure && result.h1FontFamily && !result.h1UsesDisplay) {
       failures.push(`${result.viewport} ${result.label}: H1 does not use verified UM Sans (${result.h1FontFamily})`);
     }
-    if (!result.allowSpecimenStructure && (result.displayTypographyIssues || []).length) {
+    if ((result.displayTypographyIssues || []).length) {
       failures.push(`${result.viewport} ${result.label}: invalid impact typography roles ${JSON.stringify(result.displayTypographyIssues)}`);
     }
-    if (result.logoFontFamily && !String(result.logoFontFamily).includes('Futura PT')) {
-      failures.push(`${result.viewport} ${result.label}: logo font contract missing Futura PT (${result.logoFontFamily})`);
+    if (!result.logoIsVector) {
+      failures.push(`${result.viewport} ${result.label}: official vector logo missing or replaced by text`);
     }
-    if (result.fontSystem !== 'um-sans-editorial-1.2') {
+    if (result.fontSystem !== 'um-sans-2.0.0') {
       failures.push(`${result.viewport} ${result.label}: font system marker ${result.fontSystem || 'missing'}`);
     }
     if (!result.allowSpecimenStructure && result.heavyCount > 0) {

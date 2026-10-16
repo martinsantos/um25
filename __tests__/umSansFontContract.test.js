@@ -299,8 +299,9 @@ describe('UM Sans 1.2 definitive clean family', () => {
     expect(specimen).toContain('ums2-coverline');
     expect(specimen).toContain('FINAL DELIVERY · 1.2');
     expect(specimen).toContain('ums2-hero-proof');
-    expect(publicRoute).toContain("import UMSans from './um-sans.astro';");
-    expect(publicRoute).toContain('<UMSans publicRoute />');
+    expect(publicRoute).toContain("const base = '/fonts/um-sans/v2.0.0'");
+    expect(publicRoute).toContain('data-font-release="2.0.0"');
+    expect(publicRoute).toContain('href="/estilo/um-sans"');
     expect(specimen).toContain('UM Sans · sistema tipográfico editorial');
     expect(specimen).toContain('prototipo Display original está retirado');
     expect(specimen).toContain('falló ese gate y permanece bloqueado');
@@ -308,7 +309,7 @@ describe('UM Sans 1.2 definitive clean family', () => {
     expect(specimen).toContain('Probá tamaño y masa.');
     expect(specimen).toContain('Español completo.');
     expect(specimen).toContain('Qué existe. Qué falta.');
-    expect(specimen).toContain('La web usa UM Sans Text 1.2 en todos los roles editoriales.');
+    expect(specimen).toContain('El sistema anterior usa UM Sans Text 1.2 en todos los roles editoriales.');
     expect(specimen).toContain('no permite cursiva sintética');
     expect(specimen).toMatch(/\.ums2-composition--data strong \{[^}]*font-weight: 800;/);
     expect(specimen).not.toMatch(/\.ums2-composition--data strong \{[^}]*font-weight: 900;/);
@@ -339,7 +340,7 @@ describe('UM Sans 1.2 definitive clean family', () => {
     expect(specimen).not.toContain('font-size: 11px');
   });
 
-  test('integrates the variable family without changing the logo font', () => {
+  test('keeps the legacy family available while integrating reviewed 2.0 without changing the logo', () => {
     const css = fs.readFileSync(path.join(root, 'src/styles/v4.css'), 'utf8');
     const layout = fs.readFileSync(path.join(root, 'src/layouts/LayoutV4.astro'), 'utf8');
     const visualAudit = fs.readFileSync(path.join(root, 'scripts/visual-contrast-audit.mjs'), 'utf8');
@@ -363,10 +364,10 @@ describe('UM Sans 1.2 definitive clean family', () => {
     expect(fallbackBlock[0]).toMatch(/line-gap-override:\s*0%/);
     expect(fs.existsSync(path.join(root, 'docs/typography/UM-SANS-AUDITORIA-2026-09-27.md'))).toBe(true);
     expect(css).not.toContain('woff2-variations');
-    expect(layout).toContain('UMSans-Variable.woff2?v=1.2.0-production');
+    expect(layout).toContain('/fonts/um-sans/v2.0.0/UMSans2-Variable.woff2');
     expect(layout).not.toContain('UMSans-SemiBold.woff2?v=1.0.0-rc');
-    expect(layout).toContain('data-font-system="um-sans-editorial-1.2"');
-    expect(visualAudit).toContain("result.fontSystem !== 'um-sans-editorial-1.2'");
+    expect(layout).toContain('data-font-system="um-sans-2.0.0"');
+    expect(visualAudit).toContain("result.fontSystem !== 'um-sans-2.0.0'");
 
     // Rediseño 2026-09: el logotipo dejó de ser texto en Futura y es el SVG
     // vectorizado oficial. Garantía: nunca se compone con UM Sans ni con texto.
