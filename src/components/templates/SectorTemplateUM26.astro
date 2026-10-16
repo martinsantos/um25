@@ -3,7 +3,7 @@ import { truncateEditorialText } from '../../utils/editorialContent';
 import { cleanCmsText } from '../../data/serviceSummaries';
 import SectorJourney from '../cine/SectorJourney.astro';
 import CineBanner from '../cine/CineBanner.astro';
-import SaludIsometria3D from '../cine/SaludIsometria3D.astro';
+import Isometria3D from '../cine/Isometria3D.astro';
 import SnapRail from '../cine/SnapRail.astro';
 import { sectorBySlug } from '../../data/cine/scenes';
 import {sectorMovie} from '../../data/cine/projectCinema';
@@ -27,6 +27,8 @@ const {
 const truncate = (value: unknown, length = 150) => truncateEditorialText(value, length);
 const sectorSlug = sector.slug || '';
 const sectorDataSlug = sectorSlug === 'gobierno' ? 'gobiernosectorpublico' : sectorSlug;
+const ISO3D: Record<string, string> = {salud:'Salud · Internación',constructoras:'Constructoras · Planta de oficinas',aeropuertos:'Aeropuertos · Terminal',industria:'Industria · Nave productiva',bodegas:'Bodegas · Nave de elaboración',mineria:'Minería · Campamento'};
+const iso3dEyebrow = ISO3D[sectorSlug];
 const sectorName = sector.nombre || sector.label || sector.pageHeadline || 'Sector';
 const sectorTitle = sectorName;
 const sectorSummary = sector.pageSummary || sector.summary || sector.descripcion || '';
@@ -129,7 +131,7 @@ const areaLabel = (area: unknown) => {
     back={{ href: '/sectores', label: '← Todos los sectores' }}
   />
 
-  {sectorSlug === 'salud' ? <SaludIsometria3D /> : <SectorJourney slug={sectorDataSlug} scene={cineScene} />}
+  {iso3dEyebrow ? <Isometria3D sector={sectorSlug} eyebrow={iso3dEyebrow} /> : <SectorJourney slug={sectorDataSlug} scene={cineScene} />}
 
   {criteriaItems.length > 0 && (
     <section class="sector26-criteria">
