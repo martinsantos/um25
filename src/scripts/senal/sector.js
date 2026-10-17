@@ -385,12 +385,13 @@ export async function mountSector(host, spec) {
   // A layer is drawn in from its source (the board, the rack, the central): a front in the
   // layer's colour sweeps out and leaves the drawing behind it.
   const plateMaterial = (tex, col) => new THREE.ShaderMaterial({
-    uniforms: { map: { value: tex }, opacity: { value: 1 }, reveal: { value: 99 }, origin: { value: new THREE.Vector2() }, tint: { value: new THREE.Color(col) } },
+    uniforms: { map: { value: tex }, opacity: { value: 1 }, fill: { value: 1 }, reveal: { value: 99 }, origin: { value: new THREE.Vector2() }, tint: { value: new THREE.Color(col) } },
     vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-    fragmentShader: `uniform sampler2D map; uniform float opacity; uniform float reveal; uniform vec2 origin; uniform vec3 tint; varying vec2 vUv;
+    fragmentShader: `uniform sampler2D map; uniform float opacity; uniform float fill; uniform float reveal; uniform vec2 origin; uniform vec3 tint; varying vec2 vUv;
       void main(){ vec4 c = texture2D(map, vUv); vec2 p = vec2((vUv.x - .5) * ${W}.0, (.5 - vUv.y) * ${D}.0); float d = distance(p, origin);
         float m = 1.0 - smoothstep(reveal - .6, reveal, d); float f = (1.0 - smoothstep(0.0, .3, abs(d - reveal))) * step(.05, reveal) * (1.0 - step(40.0, reveal));
-        gl_FragColor = vec4(mix(c.rgb, tint, f * .7), max(c.a * m, f * .45) * opacity);
+        float ink = smoothstep(.04, .2, 1.0 - min(c.r, min(c.g, c.b))); float a = c.a * mix(fill, 1.0, ink);
+        gl_FragColor = vec4(mix(c.rgb, tint, f * .7), max(a * m, f * .45) * opacity);
         #include <colorspace_fragment>
       }`,
     transparent: true, depthWrite: false, side: THREE.DoubleSide,
@@ -620,7 +621,7 @@ export async function mountSector(host, spec) {
     layers.forEach((L, k) => {
       const o = S.open[k], d = S.dim[k]; L.grp.position.y = .02 + (topY(k) - .02) * o; L.grp.visible = o > .003;
       const rev = !driven || k !== curK ? 99 : ease(clamp(qv / .55)) * L.maxR; L.plate.material.uniforms.reveal.value = rev;
-      L.plate.material.uniforms.opacity.value = Math.min(1, o * 1.4) * (.1 + .9 * d);
+      L.plate.material.uniforms.opacity.value = Math.min(1, o * 1.4) * (.1 + .9 * d); L.plate.material.uniforms.fill.value = !driven ? 1 : k === curK ? .55 : .1;
       L.toks.forEach((m) => m.scale.setScalar(Math.max(.001, o * (.5 + .5 * d) * clamp((rev - m.userData.d) / .5))));
       L.pulses.forEach((p) => { p.m.visible = S.flow * d > .05 && rev > 30; p.r.at((run * .16 + p.ph) % 1, p.m.position); p.m.scale.setScalar(.4 + S.flow * d * .6); });
       if (L.label && w >= 700) {
@@ -635,7 +636,7 @@ export async function mountSector(host, spec) {
     verbs.forEach((V, k) => {
       const L = layers[k], o = S.open[k], y = L.grp.position.y, live = o > .5, cur = driven && k === curK, rev = cur ? ease(clamp(qv / .55)) * L.maxR : 99;
       V.ticks.forEach((t) => { const on = live && rev > t.d + .3, s = on ? Math.min(1, (rev - t.d - .3) / .6) : 0; t.r.visible = t.c.visible = s > .01; t.r.position.set(t.x, y + .05, t.z); t.c.position.set(t.x, y + .055, t.z); t.r.material.opacity = .9 * s * S.dim[k]; t.c.material.opacity = .85 * s * S.dim[k]; t.r.scale.setScalar(.6 + .4 * s); });
-      V.echoes.forEach((e, i) => { const ph = cur ? ((vq * 2.4 - i * .09) % 1 + 1) % 1 : (elapsed * .25 + i * .21) % 1, on = live && (cur ? vq > i * .03 : true); e.r.visible = on; e.r.position.set(e.x, y + .05, e.z); e.r.scale.setScalar(.4 + ph * 1.3); e.r.material.opacity = on ? (cur ? .8 : .25) * (1 - ph) * S.dim[k] : 0; });
+      V.echoes.forEach((e, i) => { const ph = ((vq * 2.4 - i * .09) % 1 + 1) % 1, on = !driven && live; e.r.visible = on; e.r.position.set(e.x, y + .05, e.z); e.r.scale.setScalar(.4 + ph * 1.3); e.r.material.opacity = on ? (cur ? .8 : .25) * (1 - ph) * S.dim[k] : 0; });
       V.fans.forEach((f) => { f.g.rotation.y = Math.sin(elapsed * .55 + f.ph) * .32; f.m.material.opacity = live ? (cur ? .2 + .1 * vq : .1) * S.dim[k] : 0; });
       if (V.test) { const done = !cur || vq >= 1, u = cur ? vq : 1; V.test.spark.visible = live && cur && vq > 0 && vq < 1; V.test.path.at(u, V.test.spark.position);
         V.dets.forEach((dd) => { const on = live && (done || dd.u <= u); dd.r.visible = on; dd.r.position.set(dd.x, y + .05, dd.z); dd.r.material.opacity = on ? .9 * S.dim[k] : 0; }); }
@@ -689,7 +690,7 @@ export async function mountSector(host, spec) {
       FX.net.tubes.forEach((t) => { t.m.visible = grow > .01; t.m.geometry.setDrawRange(0, Math.floor(t.n * grow / 3) * 3); t.m.material.opacity = 1; }); }
     // Telecomunicaciones
     if (FX.voice) { const c = curOf(FX.voice.k);
-      FX.voice.waves.forEach((w) => { const start = .22 + w.t0 * .35, on = c && q > start, ph = ((elapsed * .45 + w.j / 3) % 1);
+      FX.voice.waves.forEach((w) => { const start = .22 + w.t0 * .35, on = !!c && q > start, ph = ((elapsed * .45 + w.j / 3) % 1);
         w.m.visible = on; if (!on) return; w.m.position.set(w.x, .05, w.z); w.m.scale.setScalar(.2 + ph * 2.3); w.m.material.opacity = .95 * (1 - ph) * win(start, start + .08, q); }); }
     // Seguridad
     if (FX.watch) { const c = curOf(FX.watch.k), o = S.open[FX.watch.k];
