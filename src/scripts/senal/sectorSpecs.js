@@ -21,7 +21,8 @@ export const LAYER_STYLE = {
 // Base pieces: [kind, x, z, rotationDeg, arg]. Layer items: [kind, ...]; nodes carry
 // [label, kind]. Moment path: [x, level, z, y?] where level -1 is the floor. `critical` are
 // the areas the UPS keeps running in a power cut; `fire` is where the smoke starts and the
-// way out the evacuation route lights.
+// way out the evacuation route lights. `feed` picks the camera shown on the monitor;
+// `verbs` overrides a service's headline where the generic one would not fit.
 export const SECTOR_FILMS = {
   salud: {
     name: 'Salud',
@@ -162,6 +163,7 @@ export const SECTOR_FILMS = {
     moment: { svc: 104, kicker: 'Aviso temprano', line: 'La celda 2 avisa antes de frenar.', callout: ['Sala de control', 'Aviso de la celda 2'],
       path: [[-1.6, -1, -.85, 1.4], [-1.6, 5, -.85], [-1.6, 5, -2.4], [5.5, 5, -2.4], [5.5, -1, -2.5, .9]], stops: [0, 4] },
     support: [1, 1.4, .2],
+    feed: 1,
     critical: [[4, -4.5, 7, -1.4], [-7, -4.5, -2, -2.6]],
     fire: { at: [-2.5, -3.4], exit: [[-2.5, -2.4], [-2.5, 2.3], [-6.8, 2.3]] },
     captions: [['Industria', 'Una línea de producción, en marcha.'], ['Por dentro', 'Lo que mantiene la línea andando.'], ['En marcha', 'Cada máquina, en la red de planta.'], ['Aviso temprano', 'La celda 2 avisa antes de frenar.']],
@@ -205,6 +207,7 @@ export const SECTOR_FILMS = {
     moment: { svc: 104, kicker: 'Temperatura', line: 'El tanque 4 marca su temperatura y enología la ve.', callout: ['Enología', 'Temperatura del tanque 4'],
       path: [[-1.6, -1, -3.6, 2.7], [-1.6, 5, -3.6], [-1.6, 5, -.25], [5.5, 5, -.25], [5.5, 5, .6], [5.5, -1, .6, .9]], stops: [0, 5] },
     support: [0, 6.4, -.2],
+    feed: 0,
     critical: [[-7, -4.5, .5, .2], [4, -.6, 7, 1.8]],
     fire: { at: [2, -3.2], exit: [[2, -2.4], [3.1, -.9], [3.1, 1.3], [-6.8, 1.3]] },
     captions: [['Bodegas', 'Una bodega, del tanque a la botella.'], ['Por dentro', 'Lo que cuida cada litro.'], ['En marcha', 'Cada tanque, medido y conectado.'], ['Temperatura', 'El tanque 4 marca su temperatura y enología la ve.']],
@@ -280,6 +283,8 @@ export const SECTOR_FILMS = {
     moment: { svc: 103, kicker: 'Radio', line: 'Despacho habla con cada camión por radio digital.', callout: ['Despacho', 'Radio troncalizado digital'],
       path: [[-3.4, -1, .55, -1.0], [-3.4, 2, .55], [6.0, 2, -2.9], [5.1, 2, -.2], [5.1, -1, -.2, 1.1]], stops: [0, 2, 4] },
     support: [1, -6.5, -4.05],
+    feed: 0,
+    verbs: { 103: 'Voz y radio, de punta a punta del rajo.' },
     critical: [[3.4, -1.6, 7, 1.2], [5.8, -4.4, 6.8, -3.4], [-7, -4.55, -6, -3.55]],
     captions: [['Minería', 'Un rajo abierto, conectado de punta a punta.'], ['Por dentro', 'Lo que une el rajo con la oficina.'], ['En marcha', 'Enlaces y energía, lejos de todo.'], ['Despacho', 'Cada camión, visto desde despacho.']],
   },

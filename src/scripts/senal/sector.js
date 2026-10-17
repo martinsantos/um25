@@ -564,7 +564,7 @@ export async function mountSector(host, spec) {
     const pov = new THREE.PerspectiveCamera(62, 1.6, .1, 80);
     // The feed shows the camera that sees the most of the place.
     const seesMost = (it) => spec.pieces.filter(([, x, z]) => { const dx = x - it[1], dz = z - it[2], d = Math.hypot(dx, dz), a = it[3] * Math.PI / 180; return d > .6 && d < it[4] && Math.abs(Math.atan2(Math.sin(Math.atan2(dz, dx) - a), Math.cos(Math.atan2(dz, dx) - a))) < .5; }).length;
-    FX.watch = { k, cones, pov, cam0: cams.reduce((b, it) => (seesMost(it) > seesMost(b) ? it : b), cams[0]) }; }
+    FX.watch = { k, cones, pov, cam0: cams[spec.feed] || cams.reduce((b, it) => (seesMost(it) > seesMost(b) ? it : b), cams[0]) }; }
   // Incendios: smoke in one room, the detector takes it, the alarm runs the loop, sirens
   // sound and the way out lights up.
   if (L_(107) >= 0 && spec.fire) { const k = L_(107), L = layers[k], [fx, fz] = spec.fire.at;

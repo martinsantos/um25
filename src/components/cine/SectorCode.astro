@@ -52,7 +52,7 @@ const partsText = (l: (typeof layers)[number]) => l.parts.map((p) => (p.n > 1 ? 
 // The menu: Consultoría (where it applies), each layer bottom-up, then Soporte.
 const items = [
   ...(spec.audit ? [{ key: 'audit', svc: 106, name: nameOf(106), color: '#DC2626', verb: 'Antes de instalar, relevamos lo que hay.', line: SERVICE_SPECS['106'].scope[0] + '.', parts: '', facts: facts(106), last: casesOf(106)[0], moment: null as null | string[] }] : []),
-  ...layers.map((l) => ({ key: `layer-${l.k}`, svc: l.svc, name: l.name, color: l.color, verb: VERB[l.svc], line: l.line, parts: partsText(l), facts: l.facts, last: l.cases[0], moment: l.svc === spec.moment.svc ? [spec.moment.kicker, spec.moment.line] : null })),
+  ...layers.map((l) => ({ key: `layer-${l.k}`, svc: l.svc, name: l.name, color: l.color, verb: spec.verbs?.[l.svc] ?? VERB[l.svc], line: l.line, parts: partsText(l), facts: l.facts, last: l.cases[0], moment: l.svc === spec.moment.svc ? [spec.moment.kicker, spec.moment.line] : null })),
   { key: 'support', svc: 105, name: nameOf(105), color: '#1fae6b', verb: 'Después de instalar, lo seguimos de día y de noche.', line: SERVICE_SPECS['105'].scope[2] + '.', parts: '', facts: facts(105), last: casesOf(105)[0], moment: null },
 ];
 const m = spec.moment;
