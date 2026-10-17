@@ -19,7 +19,9 @@ export const LAYER_STYLE = {
 // chapters over the whole stack. Every device drawn is equipment the service lists; cards
 // say what the service delivers, never invented operating figures.
 // Base pieces: [kind, x, z, rotationDeg, arg]. Layer items: [kind, ...]; nodes carry
-// [label, kind]. Moment path: [x, level, z, y?] where level -1 is the floor.
+// [label, kind]. Moment path: [x, level, z, y?] where level -1 is the floor. `critical` are
+// the areas the UPS keeps running in a power cut; `fire` is where the smoke starts and the
+// way out the evacuation route lights.
 export const SECTOR_FILMS = {
   salud: {
     name: 'Salud',
@@ -67,6 +69,8 @@ export const SECTOR_FILMS = {
     moment: { svc: 103, kicker: 'Llamado', line: 'La 204 llama: la central IP lo pasa al teléfono de enfermería.', callout: ['Enfermería', 'Llamada de la habitación 204'],
       path: [[3.5, -1, -3.3], [3.5, 2, -3.3], [3.5, 2, -.6], [5.6, 2, -.6], [5.6, 2, -2.6], [5.6, 2, -.6], [-5.3, 2, -.6], [-5.3, 2, 2.4], [-5.3, -1, 2.4, .95]], stops: [0, 4, 8] },
     support: [1, 6, -3.8],
+    critical: [[-2, .6, 3.5, 4.5], [5, -4.5, 7, -1], [-7, .6, -2, 4.5]],
+    fire: { at: [-2.5, -2.8], exit: [[-2.5, -2.4], [-2.5, -.2], [-6.8, -.2]] },
     captions: [['Salud', 'Un piso de internación, funcionando.'], ['Por dentro', 'Lo que sostiene cada cama.'], ['En marcha', 'Cada equipo, conectado y con respaldo.'], ['Llamado', 'La 204 llama: la central IP lo pasa al teléfono de enfermería.']],
   },
 
@@ -111,6 +115,8 @@ export const SECTOR_FILMS = {
     moment: { svc: 103, kicker: 'Voceo', line: 'La puerta 4 llama a embarcar y se escucha en toda la terminal.', callout: ['Amplificadores PA', 'Llamado de la puerta 4'], after: [2, 'speaker'],
       path: [[6.1, -1, -1.5, .95], [6.1, 2, -1.5], [6.1, 2, 1.3], [-6.2, 2, 1.3], [-6.2, 2, 3]], stops: [0, 4] },
     support: [3, -6.3, -.9],
+    critical: [[-7, -2.4, -4.4, -.6], [0, .8, 2.6, 4.5], [5.2, -2.4, 7, -.4]],
+    fire: { at: [-3.8, -.8], exit: [[-3.8, .1], [-2.6, 1.3], [-4.5, 3.4], [-4.5, 4.5]] },
     captions: [['Aeropuertos', 'Una terminal, de la vereda al avión.'], ['Por dentro', 'Lo que mueve a cada pasajero.'], ['En marcha', 'Red, cámaras y pantallas, siempre arriba.'], ['Equipaje', 'Cada valija, seguida hasta la bodega.']],
   },
 
@@ -156,6 +162,8 @@ export const SECTOR_FILMS = {
     moment: { svc: 104, kicker: 'Aviso temprano', line: 'La celda 2 avisa antes de frenar.', callout: ['Sala de control', 'Aviso de la celda 2'],
       path: [[-1.6, -1, -.85, 1.4], [-1.6, 5, -.85], [-1.6, 5, -2.4], [5.5, 5, -2.4], [5.5, -1, -2.5, .9]], stops: [0, 4] },
     support: [1, 1.4, .2],
+    critical: [[4, -4.5, 7, -1.4], [-7, -4.5, -2, -2.6]],
+    fire: { at: [-2.5, -3.4], exit: [[-2.5, -2.4], [-2.5, 2.3], [-6.8, 2.3]] },
     captions: [['Industria', 'Una línea de producción, en marcha.'], ['Por dentro', 'Lo que mantiene la línea andando.'], ['En marcha', 'Cada máquina, en la red de planta.'], ['Aviso temprano', 'La celda 2 avisa antes de frenar.']],
   },
 
@@ -197,6 +205,8 @@ export const SECTOR_FILMS = {
     moment: { svc: 104, kicker: 'Temperatura', line: 'El tanque 4 marca su temperatura y enología la ve.', callout: ['Enología', 'Temperatura del tanque 4'],
       path: [[-1.6, -1, -3.6, 2.7], [-1.6, 5, -3.6], [-1.6, 5, -.25], [5.5, 5, -.25], [5.5, 5, .6], [5.5, -1, .6, .9]], stops: [0, 5] },
     support: [0, 6.4, -.2],
+    critical: [[-7, -4.5, .5, .2], [4, -.6, 7, 1.8]],
+    fire: { at: [2, -3.2], exit: [[2, -2.4], [3.1, -.9], [3.1, 1.3], [-6.8, 1.3]] },
     captions: [['Bodegas', 'Una bodega, del tanque a la botella.'], ['Por dentro', 'Lo que cuida cada litro.'], ['En marcha', 'Cada tanque, medido y conectado.'], ['Temperatura', 'El tanque 4 marca su temperatura y enología la ve.']],
   },
 
@@ -232,6 +242,8 @@ export const SECTOR_FILMS = {
     moment: { svc: 101, level: 1, kicker: 'Certificación', line: 'Cada punto, certificado con Fluke antes de la entrega.', callout: ['Reporte de certificación', 'Un reporte por canal (Fluke)'],
       path: [[3.2, 1, -2.7], [-1.9, 1, -2.7], [-1.9, 1, 2.6], [-6.4, 1, 2.6]], stops: [[3.2, -2.7], [1.8, -2.7], [-3.6, 2.6], [-5, 2.6], [-6.4, 2.6]] },
     support: [3, -2.2, -.9],
+    critical: [[-2.6, -1.3, 0, 1.3]],
+    fire: { at: [-5.8, 0], exit: [[-5.8, 1.6], [.2, 1.6], [.65, 1.0]] },
     captions: [['Constructoras', 'Un piso que se entrega funcionando.'], ['Por dentro', 'Lo que el edificio lleva adentro.'], ['Instalación', 'Red, energía, incendio y accesos, en obra.'], ['Entrega', 'Cada punto, medido y certificado.']],
   },
 
@@ -268,6 +280,7 @@ export const SECTOR_FILMS = {
     moment: { svc: 103, kicker: 'Radio', line: 'Despacho habla con cada camión por radio digital.', callout: ['Despacho', 'Radio troncalizado digital'],
       path: [[-3.4, -1, .55, -1.0], [-3.4, 2, .55], [6.0, 2, -2.9], [5.1, 2, -.2], [5.1, -1, -.2, 1.1]], stops: [0, 2, 4] },
     support: [1, -6.5, -4.05],
+    critical: [[3.4, -1.6, 7, 1.2], [5.8, -4.4, 6.8, -3.4], [-7, -4.55, -6, -3.55]],
     captions: [['Minería', 'Un rajo abierto, conectado de punta a punta.'], ['Por dentro', 'Lo que une el rajo con la oficina.'], ['En marcha', 'Enlaces y energía, lejos de todo.'], ['Despacho', 'Cada camión, visto desde despacho.']],
   },
 };

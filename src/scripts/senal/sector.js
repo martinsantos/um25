@@ -346,7 +346,7 @@ export async function mountSector(host, spec) {
   stage.prepend(renderer.domElement);
   const scene = new THREE.Scene(), pm = new THREE.PMREMGenerator(renderer);
   scene.environment = pm.fromScene(new RoomEnvironment(), .04).texture;
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xdfe2df, .6));
+  const hemi = new THREE.HemisphereLight(0xffffff, 0xdfe2df, .6); scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xffffff, 2.1); sun.position.set(-6, 14, 8); sun.castShadow = true;
   Object.assign(sun.shadow.camera, { left: -10, right: 10, top: 9, bottom: -9, near: 1, far: 40 }); sun.shadow.mapSize.set(2048, 2048); sun.shadow.radius = 10; sun.shadow.blurSamples = 16; sun.shadow.bias = -.0004;
   scene.add(sun);
@@ -527,6 +527,53 @@ export async function mountSector(host, spec) {
   });
   function grpAdd(L, g) { L.grp.add(g); }
 
+  // ---------- Each service in its own language. The floating plate is the schematic; the
+  // service's value plays out in the building below it.
+  const L_ = (svc) => layers.findIndex((l) => l.svc === svc);
+  const FX = {};
+  // Energía: a power cut; only what is critical stays lit, carried by the UPS.
+  if (L_(108) >= 0) FX.energy = { k: L_(108), zones: (spec.critical || []).map(([x1, z1, x2, z2]) => {
+    const m = flat(new THREE.PlaneGeometry(x2 - x1, z2 - z1), 0xffc24d); m.position.set((x1 + x2) / 2, .035, (z1 + z2) / 2);
+    const l = new THREE.PointLight(0xffd58a, 0, 6, 1.4); l.position.set((x1 + x2) / 2, 1.7, (z1 + z2) / 2); scene.add(l); return { m, l }; }) };
+  // Redes: coverage painted on the floor as a heat map; cables grow as tubes in the schematic.
+  if (L_(101) >= 0) { const k = L_(101), L = layers[k], ppx = 40, cv = document.createElement('canvas'); cv.width = W * ppx; cv.height = D * ppx;
+    const g = cv.getContext('2d'); g.scale(ppx, ppx); g.translate(W / 2, D / 2);
+    L.items.filter((it) => it[0] === 'ap').forEach(([, x, z, r]) => { const gr = g.createRadialGradient(x, z, 0, x, z, r * 1.2); gr.addColorStop(0, 'rgba(31,174,107,.62)'); gr.addColorStop(.5, 'rgba(18,152,138,.34)'); gr.addColorStop(1, 'rgba(18,152,138,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, z, r * 1.2, 0, 7); g.fill(); });
+    const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace;
+    const heat = new THREE.Mesh(new THREE.PlaneGeometry(W, D), new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0, depthWrite: false, toneMapped: false })); heat.rotation.x = -Math.PI / 2; heat.position.y = .04; heat.renderOrder = 5; scene.add(heat);
+    const tubeMat = new THREE.MeshStandardMaterial({ color: LAYER_STYLE[101].color, roughness: .35, emissive: LAYER_STYLE[101].color, emissiveIntensity: .25 });
+    const tubes = L.items.filter((it) => it[0] === 'tray' || it[0] === 'fiber').map((it) => { const path = new THREE.CurvePath(); for (let i = 1; i < it[1].length; i++) path.add(new THREE.LineCurve3(new THREE.Vector3(it[1][i - 1][0], .08, it[1][i - 1][1]), new THREE.Vector3(it[1][i][0], .08, it[1][i][1])));
+      const geo = new THREE.TubeGeometry(path, Math.max(8, it[1].length * 24), it[0] === 'fiber' ? .05 : .035, 8, false); const m = new THREE.Mesh(geo, tubeMat); L.grp.add(m); return { m, n: geo.index.count }; });
+    FX.net = { k, heat, tubes }; }
+  // Telecomunicaciones: sound travels room to room as waves on the floor.
+  if (L_(103) >= 0) { const k = L_(103), L = layers[k], src = L.items.filter((it) => ['speaker', 'phone', 'radio'].includes(it[0])), maxd = Math.max(1, ...src.map((it) => Math.hypot(it[1] - L.origin[0], it[2] - L.origin[1])));
+    const wGeo = new THREE.RingGeometry(.9, 1, 72);
+    FX.voice = { k, waves: src.flatMap((it) => [0, 1, 2].map((j) => ({ m: flat(wGeo, LAYER_STYLE[103].color), x: it[1], z: it[2], j, t0: Math.hypot(it[1] - L.origin[0], it[2] - L.origin[1]) / maxd }))) }; }
+  // Seguridad: each camera's field of view as a volume in the room, and what the operator sees.
+  if (L_(102) >= 0) { const k = L_(102), L = layers[k], cams = L.items.filter((it) => it[0] === 'cam');
+    const cones = cams.map((it, i) => { const h = it[4] * .9, geo = new THREE.ConeGeometry(Math.tan(.42) * h, h, 32, 1, true); geo.translate(0, -h / 2, 0);
+      const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: LAYER_STYLE[102].color, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, toneMapped: false })); m.position.set(it[1], 2.1, it[2]); m.renderOrder = 6; scene.add(m);
+      return { m, a: it[3] * Math.PI / 180, len: it[4] * .9, ph: i * 1.7 }; });
+    const pov = new THREE.PerspectiveCamera(54, 1.6, .1, 80);
+    FX.watch = { k, cones, pov, cam0: cams[0] }; }
+  // Incendios: smoke in one room, the detector takes it, the alarm runs the loop, sirens
+  // sound and the way out lights up.
+  if (L_(107) >= 0 && spec.fire) { const k = L_(107), L = layers[k], [fx, fz] = spec.fire.at;
+    const smokeMat = new THREE.MeshStandardMaterial({ color: 0x5f676d, roughness: 1, transparent: true, opacity: 0, depthWrite: false });
+    const smoke = Array.from({ length: 26 }, (_, i) => { const m = new THREE.Mesh(new THREE.SphereGeometry(.3, 14, 10), smokeMat.clone()); m.userData = { ox: Math.sin(i * 2.3) * .45, oz: Math.cos(i * 1.7) * .45, ph: i / 18 }; scene.add(m); return m; });
+    const exit = poly(spec.fire.exit.map(([x, z]) => [x, .05, z]));
+    const chev = new THREE.Shape(); chev.moveTo(-.16, -.14); chev.lineTo(.14, 0); chev.lineTo(-.16, .14); chev.lineTo(-.08, 0); chev.closePath();
+    const chevGeo = new THREE.ShapeGeometry(chev); chevGeo.rotateX(-Math.PI / 2);
+    const arrows = Array.from({ length: 9 }, () => { const m = new THREE.Mesh(chevGeo, new THREE.MeshBasicMaterial({ color: 0x1fae6b, transparent: true, opacity: 0, depthWrite: false, toneMapped: false })); m.renderOrder = 7; scene.add(m); return m; });
+    const sirens = L.items.filter((it) => it[0] === 'siren').map((it) => ({ m: flat(ringGeo, 0xDC2626), x: it[1], z: it[2] }));
+    const trig = L.items.filter((it) => it[0] === 'det' || it[0] === 'heat').reduce((b, it) => (!b || Math.hypot(it[1] - fx, it[2] - fz) < Math.hypot(b[1] - fx, b[2] - fz) ? it : b), null);
+    FX.fire = { k, fx, fz, smoke, exit, arrows, sirens, trig, trigRing: flat(ringGeo, 0xDC2626) }; }
+  // Software: the whole building summed up on one board (an HTML panel over the stage).
+  const panel = host.querySelector('[data-scode-panel]'), monitor = host.querySelector('[data-scode-cctv]');
+  if (L_(104) >= 0) FX.board = { k: L_(104) };
+  const fxObjs = () => [...(FX.net ? [FX.net.heat] : []), ...(FX.voice ? FX.voice.waves.map((w) => w.m) : []), ...(FX.watch ? FX.watch.cones.map((c) => c.m) : []), ...(FX.fire ? [...FX.fire.smoke, ...FX.fire.arrows] : [])];
+  const aim = new THREE.Vector3(), down = new THREE.Vector3(0, -1, 0);
+
   // Review captures: ?at= starts the chapter's own clock at that second.
   const at0 = Number(new URLSearchParams(location.search).get('at')) || 0;
   let aClock = at0, sClock = at0;
@@ -624,7 +671,51 @@ export async function mountSector(host, spec) {
       if (!camInit || snap) { camPos.copy(f.pos); camC.copy(f.c); camInit = true; } else { camPos.lerp(f.pos, camK); camC.lerp(f.c, camK); }
       cam.position.copy(camPos); cam.lookAt(camC);
     } else { cam.position.lerpVectors(A.pos, B.pos, S.tilt); tmp.lerpVectors(A.c, B.c, S.tilt); cam.lookAt(tmp); }
+    runFx();
     renderer.render(scene, cam);
+    renderInset();
+  }
+  function curOf(k) { return driven && curK === k ? 1 : 0; }
+  function runFx() {
+    const q = qv;
+    // Energía
+    let cut = 0;
+    if (FX.energy) { const c = curOf(FX.energy.k); cut = c * win(.2, .34, q) * (1 - win(.84, .97, q)); const gl = cut * win(.34, .48, q);
+      FX.energy.zones.forEach((z) => { z.m.material.opacity = .42 * gl; z.m.visible = gl > .01; z.l.intensity = 14 * gl; }); }
+    hemi.intensity = .6 * (1 - .85 * cut); sun.intensity = 2.1 * (1 - .9 * cut); scene.environmentIntensity = 1 - .82 * cut; renderer.toneMappingExposure = 1.08 * (1 - .35 * cut);
+    // Redes
+    if (FX.net) { const c = curOf(FX.net.k), o = S.open[FX.net.k], grow = c ? win(.04, .62, q) : o > .5 ? 1 : 0;
+      FX.net.heat.material.opacity = c * .85 * win(.3, .7, q); FX.net.heat.visible = FX.net.heat.material.opacity > .01;
+      FX.net.tubes.forEach((t) => { t.m.visible = grow > .01; t.m.geometry.setDrawRange(0, Math.floor(t.n * grow / 3) * 3); t.m.material.opacity = 1; }); }
+    // Telecomunicaciones
+    if (FX.voice) { const c = curOf(FX.voice.k);
+      FX.voice.waves.forEach((w) => { const start = .22 + w.t0 * .35, on = c && q > start, ph = ((elapsed * .45 + w.j / 3) % 1);
+        w.m.visible = on; if (!on) return; w.m.position.set(w.x, .05, w.z); w.m.scale.setScalar(.2 + ph * 2.3); w.m.material.opacity = .95 * (1 - ph) * win(start, start + .08, q); }); }
+    // Seguridad
+    if (FX.watch) { const c = curOf(FX.watch.k), o = S.open[FX.watch.k];
+      FX.watch.cones.forEach((cn) => { const a = cn.a - Math.sin(elapsed * .55 + cn.ph) * .32; aim.set(cn.m.position.x + Math.cos(a) * cn.len, .02, cn.m.position.z + Math.sin(a) * cn.len).sub(cn.m.position).normalize();
+        cn.m.quaternion.setFromUnitVectors(down, aim); cn.m.material.opacity = (c ? .17 * win(.12, .36, q) : o > .5 ? .035 : 0); cn.m.visible = cn.m.material.opacity > .005; }); }
+    if (monitor) monitor.style.opacity = String(FX.watch ? curOf(FX.watch.k) * win(.3, .45, q) : 0);
+    // Incendios
+    if (FX.fire) { const F = FX.fire, c = curOf(F.k), sm = c * win(.1, .4, q), alarm = c * win(.4, .46, q), out = c * win(.6, .72, q), ly = layers[F.k].grp.position.y;
+      F.smoke.forEach((m) => { const u = m.userData, f = (elapsed * .18 + u.ph) % 1; m.visible = sm > .01; m.position.set(F.fx + u.ox * (.4 + f * 1.4), .3 + f * 2.2 * sm, F.fz + u.oz * (.4 + f * 1.4)); m.scale.setScalar((.7 + f * 1.8) * sm); m.material.opacity = .5 * sm * Math.sin(f * Math.PI); });
+      F.trigRing.visible = alarm > .01 && !!F.trig; if (F.trig) { const e = (elapsed * 1.2) % 1; F.trigRing.position.set(F.trig[1], ly + .06, F.trig[2]); F.trigRing.scale.setScalar(1 + e * 1.4); F.trigRing.material.opacity = alarm * (1 - e); }
+      F.sirens.forEach((sr, i) => { const e = (elapsed * 1.6 + i * .3) % 1; sr.m.visible = out > .01; sr.m.position.set(sr.x, ly + .06, sr.z); sr.m.scale.setScalar(.8 + e * 1.6); sr.m.material.opacity = out * (1 - e) * .95; });
+      F.arrows.forEach((m, i) => { const u = ((i / F.arrows.length) + elapsed * .12) % 1; m.visible = out > .01; F.exit.at(u, m.position); F.exit.at(Math.min(1, u + .02), tmp); m.rotation.set(0, -Math.atan2(tmp.z - m.position.z, tmp.x - m.position.x), 0); m.scale.setScalar(1.7); m.position.y = .06; m.material.opacity = out * Math.min(1, Math.sin(u * Math.PI) * 1.6); });
+      // during the simulation the loop shows the alarm, not the test
+      verbs[F.k].dets.forEach((dd) => { if (c && alarm > .01) { dd.r.material.color.set(dd.u <= win(.46, .66, q) * 1 ? 0xDC2626 : 0x1fae6b); } else dd.r.material.color.set(0x1fae6b); }); }
+    // Software
+    if (panel) { const c = FX.board ? curOf(FX.board.k) : 0; panel.style.opacity = String(c * win(.22, .36, q)); const rows = panel.querySelectorAll('[data-row]'); rows.forEach((r, i) => r.classList.toggle('on', c && q > .3 + i * (.45 / Math.max(1, rows.length)))); }
+  }
+  // What the camera sees, drawn into the monitor frame over the stage.
+  function renderInset() {
+    if (!FX.watch || !monitor || !curOf(FX.watch.k) || Number(monitor.style.opacity) < .05) return;
+    const er = monitor.getBoundingClientRect(), cr = renderer.domElement.getBoundingClientRect(); if (!er.width) return;
+    const x = er.left - cr.left, y = cr.bottom - er.bottom, w = er.width, h = er.height, it = FX.watch.cam0, a = it[3] * Math.PI / 180 - Math.sin(elapsed * .55) * .32;
+    const P = FX.watch.pov; P.aspect = w / h; P.updateProjectionMatrix(); P.position.set(it[1], 2.05, it[2]); P.lookAt(it[1] + Math.cos(a) * 4, .35, it[2] + Math.sin(a) * 4);
+    const hidden = [...layers.map((l) => l.grp), ...fxObjs(), spark, ...trail, scan, ...pins].filter((o) => o.visible); hidden.forEach((o) => { o.visible = false; });
+    renderer.setScissorTest(true); renderer.setViewport(x, y, w, h); renderer.setScissor(x, y, w, h); renderer.setClearColor(0x1c232a, 1); renderer.clear(); renderer.render(scene, P);
+    renderer.setScissorTest(false); renderer.setViewport(0, 0, cr.width, cr.height); renderer.setClearColor(0x000000, 0); hidden.forEach((o) => { o.visible = true; });
   }
   function render(t, first, run = t) {
     autoState(t); draw(run, first ? t : null, t - 12, t > 12.1 && t < 16.2, 4.2);

@@ -30,14 +30,25 @@ const place = spec.place.map(([label, kind]) => ({ label, kind, n: BASE_COUNT.ha
 const [c0] = spec.captions;
 // Three acts give the walk an arc; each service has its own verb instead of a repeated slide.
 const ACT: Record<number, string> = { 108: 'Infraestructura', 101: 'Infraestructura', 103: 'Operación', 102: 'Operación', 107: 'Operación', 104: 'Gestión' };
+// Each service says what it is worth, not what it is.
 const VERB: Record<number, string> = {
-  108: 'Primero, la energía.',
-  101: 'Después, la red, punto por punto.',
+  108: 'Si se corta la luz, lo crítico sigue.',
+  101: 'Señal en cada rincón, cada punto certificado.',
   103: 'La voz llega a todo el lugar.',
-  102: 'Cada acceso, mirado y controlado.',
-  107: 'El lazo se prueba, detector por detector.',
-  104: 'Todo llega a una pantalla.',
+  102: 'Lo que ve el operador, en cada acceso.',
+  107: 'Del humo a la alarma, y la salida marcada.',
+  104: 'Todo el edificio, en una pantalla.',
 };
+// The board counts only what the model holds.
+const BOARD: Record<number, [string, string[], string]> = {
+  108: ['UPS online', ['ups'], 'En línea'],
+  101: ['Puntos de acceso Wi-Fi', ['ap'], 'Certificados'],
+  103: ['Teléfonos, altavoces y radios', ['phone', 'speaker', 'radio'], 'Registrados'],
+  102: ['Cámaras IP', ['cam'], 'Grabando'],
+  107: ['Detectores', ['det', 'heat'], 'Normal'],
+};
+const boardRows = spec.layers.filter((l) => BOARD[l.svc]).map((l) => { const [label, kinds, status] = BOARD[l.svc]; return { label, status, color: LAYER_STYLE[l.svc].color, n: kinds.reduce((a, k) => a + countIn(l.items, k), 0) }; }).filter((r) => r.n > 0);
+const hasCams = spec.layers.some((l) => l.svc === 102), hasBoard = spec.layers.some((l) => l.svc === 104);
 // The record, once, at the end: what each service put in this place, under which standard,
 // what it hands over, and the latest real case.
 const partsText = (l: (typeof layers)[number]) => l.parts.map((p) => (p.n > 1 ? `${p.label} (${p.n})` : p.label)).join(' · ');
@@ -54,6 +65,8 @@ const id = (s: string) => `sc-${sector}-${s}`;
     <div class="scode__stage" data-scode-stage>
       <div class="scode__callout" data-scode-callout aria-hidden="true"><b>{m.callout[0]}</b><span>{m.callout[1]}</span></div>
       <div class="scode__callout scode__desk" data-scode-desk data-phase="0" aria-hidden="true"><b>Mesa de ayuda 24/7</b><span data-p="0">Alerta del monitoreo</span><span data-p="1">Ticket abierto y asignado</span><span data-p="2">Resuelto y registrado</span></div>
+      {hasCams && <div class="scode__cctv" data-scode-cctv aria-hidden="true"><span><i></i>Cámara IP · vista del operador</span></div>}
+      {hasBoard && <div class="scode__panel" data-scode-panel aria-hidden="true"><b>Tablero · {spec.name}</b>{boardRows.map((r, i) => <p data-row={i} style={`--c:${r.color}`}><i></i><span>{r.label}</span><em>{r.n}</em><small>{r.status}</small></p>)}</div>}
       <div class="scode__legend" aria-hidden="true">{layers.map((l) => <span class="scode__layer" data-scode-layer style={`--c:${l.color}`}><b>{l.n}</b>{l.name}</span>)}</div>
     </div>
 
@@ -161,6 +174,16 @@ const id = (s: string) => `sc-${sector}-${s}`;
   .scode__callout{position:absolute;left:0;top:0;z-index:2;opacity:0;margin-top:-14px;padding:12px 16px 12px 14px;background:#fff;border-left:3px solid #DC2626;box-shadow:0 10px 30px rgba(24,33,32,.12);white-space:nowrap;pointer-events:none}
   .scode__callout b{display:block;font-size:15px;color:#182120}
   .scode__callout span{display:block;margin-top:3px;font-size:13px;color:#5f6368}
+  .scode__cctv{position:absolute;z-index:2;top:20px;right:24px;width:min(38%,380px);aspect-ratio:16/10;opacity:0;pointer-events:none;border:1px solid rgba(24,33,32,.5);box-shadow:0 14px 34px rgba(24,33,32,.18);-webkit-backdrop-filter:grayscale(1) contrast(1.15) brightness(1.1);backdrop-filter:grayscale(1) contrast(1.15) brightness(1.1);background:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 3px)}
+  .scode__cctv span{position:absolute;left:10px;top:8px;display:flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+  .scode__cctv i{width:7px;height:7px;border-radius:50%;background:#DC2626;box-shadow:0 0 6px #DC2626}
+  .scode__panel{position:absolute;z-index:2;top:20px;right:24px;width:min(38%,360px);opacity:0;pointer-events:none;padding:16px 18px 10px;background:#16222d;color:#e8eef2;box-shadow:0 14px 34px rgba(24,33,32,.22);font-size:13px}
+  .scode__panel b{display:block;margin-bottom:10px;font-size:14px;color:#fff}
+  .scode__panel p{display:grid;grid-template-columns:10px 1fr auto auto;gap:10px;align-items:center;margin:0;padding:8px 0;border-top:1px solid rgba(255,255,255,.08);opacity:0;transform:translateY(6px);transition:opacity .4s ease,transform .5s cubic-bezier(.2,.7,.1,1)}
+  .scode__panel p:global(.on){opacity:1;transform:none}
+  .scode__panel p i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+  .scode__panel p em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums}
+  .scode__panel p small{font-size:11px;color:#3fd08a;letter-spacing:.04em}
   .scode__desk span{display:none}
   .scode__desk[data-phase="0"] span[data-p="0"],.scode__desk[data-phase="1"] span[data-p="1"]{display:block}
   .scode__desk[data-phase="2"] span[data-p="2"]{display:block;color:#13804d}
@@ -172,6 +195,8 @@ const id = (s: string) => `sc-${sector}-${s}`;
     .scode__ch{min-height:110svh}.scode__ch--place{min-height:80svh}.scode__ch--long{min-height:150svh}
     .scode__txt,.scode__ch--low .scode__txt,.scode__ch--place .scode__txt{top:calc(var(--um-header-h,60px) + min(54svh,100vw) + 16px)}
     .scode__legend,.scode__callout{display:none}
+    .scode__cctv,.scode__panel{top:10px;right:10px;width:48%}
+    .scode__panel{padding:10px 12px 6px;font-size:11px}.scode__panel p{gap:6px;padding:5px 0}
     .scode.scode h3{font-size:clamp(26px,7vw,34px)!important}
     .scode.scode .scode__big{font-size:clamp(30px,8.4vw,40px)!important}
     .scode__ch--ficha{padding:40px 0 60px}
