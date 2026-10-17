@@ -442,12 +442,13 @@ export async function mountSector(host, spec) {
   const cam = new THREE.PerspectiveCamera(22, 1, .1, 200);
   const bb = new THREE.Box3(); pieces.forEach((p) => bb.expandByObject(p.g)); bb.expandByPoint(new THREE.Vector3(-W / 2, -depthAll, -D / 2)).expandByPoint(new THREE.Vector3(W / 2, 0, D / 2));
   const boxOpen = bb.clone().expandByPoint(new THREE.Vector3(W / 2, topY(NL - 1), D / 2));
-  let aspect = 1, offset = 0;
+  let aspect = 1, offset = 0, offsetY = 0;
+  const rail = host.querySelector('[data-scode-rail]');
   const fit = (box3, az, el) => {
     const c = box3.getCenter(new THREE.Vector3()), dir = new THREE.Vector3(Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el));
     const fwd = dir.clone().negate(), right = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0, 1, 0)).normalize(), up = new THREE.Vector3().crossVectors(right, fwd);
-    const tv = Math.tan(THREE.MathUtils.degToRad(cam.fov) / 2), th = tv * aspect * (1 - 2 * offset);
-    let d = 0; for (let i = 0; i < 8; i++) { const p = new THREE.Vector3(i & 1 ? box3.max.x : box3.min.x, i & 2 ? box3.max.y : box3.min.y, i & 4 ? box3.max.z : box3.min.z).sub(c); const x = p.dot(right), y = p.dot(up), z = p.dot(fwd); d = Math.max(d, Math.abs(x) / th - z, Math.abs(y) / tv - z); }
+    const tv = Math.tan(THREE.MathUtils.degToRad(cam.fov) / 2), th = tv * aspect * (1 - 2 * Math.abs(offset)), tvv = tv * (1 - 2 * offsetY);
+    let d = 0; for (let i = 0; i < 8; i++) { const p = new THREE.Vector3(i & 1 ? box3.max.x : box3.min.x, i & 2 ? box3.max.y : box3.min.y, i & 4 ? box3.max.z : box3.min.z).sub(c); const x = p.dot(right), y = p.dot(up), z = p.dot(fwd); d = Math.max(d, Math.abs(x) / th - z, Math.abs(y) / tvv - z); }
     return { c, pos: c.clone().addScaledVector(dir, d * (driven ? (stage.clientWidth >= 700 ? 1.18 : 1.04) : 1.1)) };
   };
   let A, B, BK = [], CAM = null;
@@ -455,8 +456,12 @@ export async function mountSector(host, spec) {
   function resize() {
     const w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return;
     renderer.setSize(w, h, false); aspect = w / h; cam.aspect = aspect;
-    offset = driven ? (w >= 700 ? .11 : 0) : aspect > 1.25 ? .17 : 0; cam.fov = aspect < 1.1 ? 28 : 22;
-    if (offset) cam.setViewOffset(w, h, -w * offset, 0, w, h); else cam.clearViewOffset();
+    offset = driven ? (w >= 700 ? .11 : 0) : aspect > 1.25 ? .17 : 0; offsetY = 0; cam.fov = aspect < 1.1 ? 28 : 22;
+    // In the composition the rail of tiles owns one side of the stage; the model is framed in the rest.
+    if (compo && rail) { const sr = stage.getBoundingClientRect(), rr = rail.getBoundingClientRect(); offset = 0;
+      if (rr.width && rr.left > sr.left + sr.width * .45) offset = -(sr.right - rr.left + 16) / sr.width / 2;
+      else if (rr.height && rr.top > sr.top + sr.height * .4) offsetY = (sr.bottom - rr.top + 12) / sr.height / 2; }
+    if (offset || offsetY) cam.setViewOffset(w, h, -w * offset, h * offsetY, w, h); else cam.clearViewOffset();
     cam.updateProjectionMatrix();
     A = fit(bb, .62, .62); B = fit(boxOpen, .7, driven ? .36 : .48);
     // Driven pages frame the floor plus the active layer, a little more from above, so its drawing reads.
@@ -550,7 +555,7 @@ export async function mountSector(host, spec) {
   // Telecomunicaciones: sound travels room to room as waves on the floor.
   if (L_(103) >= 0) { const k = L_(103), L = layers[k], src = L.items.filter((it) => ['speaker', 'phone', 'radio'].includes(it[0])), maxd = Math.max(1, ...src.map((it) => Math.hypot(it[1] - L.origin[0], it[2] - L.origin[1])));
     const wGeo = new THREE.RingGeometry(.9, 1, 72);
-    FX.voice = { k, waves: src.flatMap((it) => [0, 1, 2].map((j) => ({ m: flat(wGeo, LAYER_STYLE[103].color), x: it[1], z: it[2], j, t0: Math.hypot(it[1] - L.origin[0], it[2] - L.origin[1]) / maxd }))) }; }
+    FX.voice = { k, waves: src.flatMap((it) => [0, 1].map((j) => ({ m: flat(wGeo, LAYER_STYLE[103].color), x: it[1], z: it[2], j, t0: Math.hypot(it[1] - L.origin[0], it[2] - L.origin[1]) / maxd }))) }; }
   // Seguridad: each camera's field of view as a volume in the room, and what the operator sees.
   if (L_(102) >= 0) { const k = L_(102), L = layers[k], cams = L.items.filter((it) => it[0] === 'cam');
     const cones = cams.map((it, i) => { const h = it[4] * .9, geo = new THREE.ConeGeometry(Math.tan(.42) * h, h, 32, 1, true); geo.translate(0, -h / 2, 0);
@@ -597,7 +602,7 @@ export async function mountSector(host, spec) {
     const ch = name || 'idle'; if (ch === chapter) return; chapter = ch; activeClock = 0;
     const k = ch.startsWith('layer-') ? Number(ch.slice(6)) : -1; curK = k;
     T.aud = ch === 'audit' ? 1 : 0; T.sup = ch === 'support' ? 1 : 0;
-    for (let j = 0; j < NL; j++) { T.open[j] = 1; T.spread[j] = k >= 0 && j > k ? 1.2 : 0; T.dim[j] = ch === 'idle' ? 1 : k >= 0 ? (j === k ? 1 : .3) : ch === 'audit' ? .35 : .8; T.labels[j] = k >= 0 && j === k ? 1 : 0; }
+    for (let j = 0; j < NL; j++) { T.open[j] = 1; T.spread[j] = k >= 0 && j > k ? 1.2 : 0; T.dim[j] = ch === 'idle' ? 1 : k >= 0 ? (j === k ? 1 : .3) : ch === 'audit' ? .35 : .8; T.labels[j] = 0; }
     T.tilt = 1; T.flow = 1; T.leaders = ch === 'idle' ? .5 : .25;
     labels.forEach((l, j) => l.classList.toggle('is-on', j === k));
   }
@@ -635,7 +640,7 @@ export async function mountSector(host, spec) {
     layers.forEach((L, k) => {
       const o = S.open[k], d = S.dim[k]; L.grp.position.y = .02 + (topY(k) - .02) * o + S.spread[k]; L.grp.visible = o > .003;
       const rev = !driven || k !== curK ? 99 : compo ? (activeClock < CYCLE ? ease(clamp(qv / .3)) * L.maxR : 99) : ease(clamp(qv / .55)) * L.maxR; L.plate.material.uniforms.reveal.value = rev;
-      L.plate.material.uniforms.opacity.value = Math.min(1, o * 1.4) * (.1 + .9 * d); L.plate.material.uniforms.fill.value = !driven ? 1 : k === curK ? .55 : compo && curK < 0 ? .2 : .08;
+      L.plate.material.uniforms.opacity.value = Math.min(1, o * 1.4) * (.1 + .9 * d); L.plate.material.uniforms.fill.value = !driven ? 1 : k === curK ? .5 : compo && curK < 0 ? .12 : .06;
       L.toks.forEach((m) => m.scale.setScalar(Math.max(.001, o * (.5 + .5 * d) * clamp((rev - m.userData.d) / .5))));
       L.pulses.forEach((p) => { p.m.visible = S.flow * d > .05 && rev > 30; p.r.at((run * .16 + p.ph) % 1, p.m.position); p.m.scale.setScalar(.4 + S.flow * d * .6); });
       if (L.label && w >= 700) {
@@ -662,7 +667,7 @@ export async function mountSector(host, spec) {
     trail.forEach((m, i) => { m.visible = mOn && mu > 0 && mu < 1; momentPath.at(ease(clamp(mu - (i + 1) * .006)), m.position); });
     rings.forEach((r, i) => { const e = mt - (.3 + stopsU[i] * 3.0); const on = mOn && e > 0; r.material.opacity = on ? Math.max(0, .9 - (e % 1.6) * .6) : 0; r.scale.setScalar(on ? 1 + (e % 1.6) * 1.4 : 1); });
     if (callout && hot) { proj.copy(hot); proj.project(cam);
-      callout.style.transform = `translate(${((proj.x + 1) / 2) * w}px,${((1 - proj.y) / 2) * h}px) translate(-50%,-100%)`; callout.style.opacity = String(mOn ? win(2.9, 3.4, mt) * (1 - win(mEnd - .4, mEnd, mt)) : 0); }
+      if (!callout.closest('[data-scode-rail]')) callout.style.transform = `translate(${((proj.x + 1) / 2) * w}px,${((1 - proj.y) / 2) * h}px) translate(-50%,-100%)`; callout.style.opacity = String(mOn ? win(2.9, 3.4, mt) * (1 - win(mEnd - .4, mEnd, mt)) : 0); }
     // Highlight rings follow their layer as it moves.
     if (hl) { hlT += 1 / 60; hl.pts.forEach(([x, z, y0], i) => { const m = pool[i]; if (!m) return; const y = hl.layer >= 0 ? layers[hl.layer].grp.position.y + .05 : (y0 || 0) + .03, e = (hlT * .9 + i * .07) % 1;
       m.position.set(x, y, z); m.scale.setScalar(1 + e * 1.1); m.material.opacity = Math.min(1, hlT * 4) * (1 - e) * .95; }); }
@@ -678,7 +683,7 @@ export async function mountSector(host, spec) {
     const ep = sc < 4.6 ? sc % 1.2 : (sc - 4.6) % 1.8; incRing.material.opacity = S.sup * Math.max(0, .95 - ep * .6); incRing.scale.setScalar(1 + ep * 1.1);
     const up = clamp((sc - 1.2) / 1.2), down = clamp((sc - 3.4) / 1.2);
     sSpark.visible = S.sup > .5 && sc > 1.2 && sc < 4.6; sSpark.position.set(inc[1], incY + .1 + (topD - incY - .1) * (sc < 3.4 ? ease(up) : 1 - ease(down)), inc[2]);
-    if (desk) { proj.set(inc[1], topD, inc[2]).project(cam); desk.style.transform = `translate(${((proj.x + 1) / 2) * w}px,${((1 - proj.y) / 2) * h}px) translate(-50%,-100%)`;
+    if (desk) { proj.set(inc[1], topD, inc[2]).project(cam); if (!desk.closest('[data-scode-rail]')) desk.style.transform = `translate(${((proj.x + 1) / 2) * w}px,${((1 - proj.y) / 2) * h}px) translate(-50%,-100%)`;
       desk.style.opacity = String(S.sup * win(1.6, 2.2, sc)); const ph = sc < 2.4 ? '0' : sc < 4.6 ? '1' : '2'; if (desk.dataset.phase !== ph) desk.dataset.phase = ph; }
     if (driven) {
       const pair = chapter.startsWith('layer-') ? CAM.layers[Number(chapter.slice(6))] : chapter === 'idle' ? CAM.idle : CAM[chapter] || CAM.ficha, e = chapter === 'idle' ? 0 : ease(qv);
@@ -704,8 +709,8 @@ export async function mountSector(host, spec) {
       FX.net.tubes.forEach((t) => { t.m.visible = grow > .01; t.m.geometry.setDrawRange(0, Math.floor(t.n * grow / 3) * 3); t.m.material.opacity = 1; }); }
     // Telecomunicaciones
     if (FX.voice) { const c = curOf(FX.voice.k);
-      FX.voice.waves.forEach((w) => { const start = .22 + w.t0 * .35, on = !!c && q > start, ph = ((elapsed * .45 + w.j / 3) % 1);
-        w.m.visible = on; if (!on) return; w.m.position.set(w.x, .05, w.z); w.m.scale.setScalar(.2 + ph * 2.3); w.m.material.opacity = .95 * (1 - ph) * win(start, start + .08, q); }); }
+      FX.voice.waves.forEach((w) => { const start = .22 + w.t0 * .35, on = !!c && q > start, ph = ((elapsed * .4 + w.j / 2) % 1);
+        w.m.visible = on; if (!on) return; w.m.position.set(w.x, .05, w.z); w.m.scale.setScalar(.2 + ph * 1.7); w.m.material.opacity = .55 * (1 - ph) * win(start, start + .08, q); }); }
     // Seguridad
     if (FX.watch) { const c = curOf(FX.watch.k), o = S.open[FX.watch.k];
       FX.watch.cones.forEach((cn) => { const a = cn.a - Math.sin(elapsed * .55 + cn.ph) * .32; aim.set(cn.m.position.x + Math.cos(a) * cn.len, .02, cn.m.position.z + Math.sin(a) * cn.len).sub(cn.m.position).normalize();

@@ -85,10 +85,26 @@ const id = (s: string) => `sc-${sector}-${s}`;
       </div>
     </div>
     <div class="scode__stage" data-scode-stage>
-      <div class="scode__callout" data-scode-callout aria-hidden="true"><b>{m.callout[0]}</b><span>{m.callout[1]}</span></div>
-      <div class="scode__callout scode__desk" data-scode-desk data-phase="0" aria-hidden="true"><b>Mesa de ayuda 24/7</b><span data-p="0">Alerta del monitoreo</span><span data-p="1">Ticket abierto y asignado</span><span data-p="2">Resuelto y registrado</span></div>
-      {hasCams && <div class="scode__cctv" data-scode-cctv aria-hidden="true"><span><i></i>Cámara IP · vista del operador</span></div>}
-      <div class="scode__panel" data-scode-panel aria-hidden="true"><b>{boardTitle}</b>{boardRows.map((r, i) => <p data-row={i} data-svc={r.svc} style={`--c:${r.color}`}><i></i><span>{r.label}</span><em>{r.n}</em><small>{r.status}</small></p>)}</div>
+      <aside class="scode__rail" data-scode-rail aria-hidden="true">
+        {hasCams && (
+          <div class="scode__tile scode__tile--cam" data-tile="102">
+            <header><i></i>Cámara IP<em>En vivo</em></header>
+            <div class="scode__feed" data-scode-cctv></div>
+          </div>
+        )}
+        <div class="scode__tile scode__tile--board" data-tile={hasBoard ? '104' : '105'} data-scode-panel>
+          <header><i></i>{boardTitle}</header>
+          {boardRows.map((r, i) => <p data-row={i} data-svc={r.svc} style={`--c:${r.color}`}><i></i><span>{r.label}</span><em>{r.n}</em><small>{r.status}</small></p>)}
+        </div>
+        <div class="scode__tile scode__tile--event" data-tile="event">
+          <header><i></i>Eventos</header>
+          <div class="scode__events">
+            <p class="scode__calm">Sin novedades · monitoreo 24/7</p>
+            <div class="scode__ev" data-scode-callout><b>{m.callout[0]}</b><span>{m.callout[1]}</span></div>
+            <div class="scode__ev scode__desk" data-scode-desk data-phase="0"><b>Mesa de ayuda 24/7</b><span data-p="0">Alerta del monitoreo</span><span data-p="1">Ticket abierto y asignado</span><span data-p="2">Resuelto y registrado</span></div>
+          </div>
+        </div>
+      </aside>
       <div class="scode__legend" aria-hidden="true">{layers.map((l) => <span class="scode__layer" data-scode-layer style={`--c:${l.color}`}><b>{l.n}</b>{l.name}</span>)}</div>
     </div>
   </div>
@@ -128,33 +144,54 @@ const id = (s: string) => `sc-${sector}-${s}`;
   .scode__stage :global(canvas){position:absolute;inset:0;width:100%;height:100%;display:block}
   .scode__layer{position:absolute;left:0;top:0;z-index:2;display:flex;align-items:center;gap:10px;padding-right:16px;opacity:0;white-space:nowrap;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#182120;will-change:transform,opacity}
   .scode__layer b{display:inline-block;min-width:20px;padding:3px 0 2px;border-top:2px solid var(--c)}
-  .scode__callout{position:absolute;left:0;top:0;z-index:3;opacity:0;margin-top:-14px;padding:12px 16px 12px 14px;background:#fff;border-left:3px solid #DC2626;box-shadow:0 10px 30px rgba(24,33,32,.12);white-space:nowrap;pointer-events:none}
-  .scode__callout b{display:block;font-size:15px;color:#182120}
-  .scode__callout span{display:block;margin-top:3px;font-size:13px;color:#5f6368}
-  .scode__desk span{display:none}
   .scode__desk[data-phase="0"] span[data-p="0"],.scode__desk[data-phase="1"] span[data-p="1"]{display:block}
-  .scode__desk[data-phase="2"] span[data-p="2"]{display:block;color:#13804d}
+  .scode__desk[data-phase="2"] span[data-p="2"]{display:block;color:#3fd08a}
   .scode__desk[data-phase="2"]{border-left-color:#1fae6b}
   /* The two insets are part of the composition, and grow when their service has the stage. */
-  .scode__cctv,.scode__panel{position:absolute;z-index:2;right:clamp(16px,2vw,32px);width:min(30%,320px);opacity:0;pointer-events:none;transform-origin:100% 0;transition:transform .6s cubic-bezier(.2,.7,.1,1),box-shadow .4s,outline-color .4s;outline:2px solid transparent;outline-offset:3px}
-  .scode__cctv{top:clamp(16px,3vh,32px);aspect-ratio:16/10;border:1px solid rgba(24,33,32,.5);box-shadow:0 14px 34px rgba(24,33,32,.18);-webkit-backdrop-filter:grayscale(1) contrast(1.15) brightness(1.1);backdrop-filter:grayscale(1) contrast(1.15) brightness(1.1);background:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 3px)}
-  .scode__cctv span{position:absolute;left:10px;top:8px;display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6)}
-  .scode__cctv i{width:7px;height:7px;border-radius:50%;background:#DC2626;box-shadow:0 0 6px #DC2626}
-  .scode__panel{bottom:clamp(16px,3vh,32px);right:auto;left:clamp(8px,1.2vw,20px);transform-origin:0 100%;padding:14px 16px 8px;background:#16222d;color:#e8eef2;box-shadow:0 14px 34px rgba(24,33,32,.22);font-size:12px}
-  .scode__panel b{display:block;margin-bottom:8px;font-size:13px;color:#fff}
-  .scode__panel p{display:grid;grid-template-columns:8px 1fr auto auto;gap:9px;align-items:center;margin:0;padding:6px 0;border-top:1px solid rgba(255,255,255,.08);opacity:0;transition:opacity .4s ease,background .3s}
-  .scode__panel p:global(.on){opacity:.8}
-  .scode__panel p:global(.hot){opacity:1;background:rgba(255,255,255,.06)}
-  .scode__panel p i{width:7px;height:7px;border-radius:50%;background:var(--c)}
-  .scode__panel p em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums}
-  .scode__panel p small{font-size:10px;color:#3fd08a;letter-spacing:.04em}
-  .scode:global([data-active="102"]) .scode__cctv{transform:scale(1.3);outline-color:#6b5be6}
-  .scode:global([data-active="104"]) .scode__panel,.scode:global([data-active="105"]) .scode__panel{transform:scale(1.08);outline-color:#1fae6b}
+
+  /* The rail: three equal tiles, like a control desk beside the building. */
+  .scode__rail{position:absolute;z-index:2;top:50%;right:clamp(16px,2.2vw,40px);transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;width:clamp(230px,21vw,300px)}
+  .scode__tile{background:#14202b;color:#e8eef2;border:1px solid rgba(255,255,255,.06);box-shadow:0 18px 40px -18px rgba(20,32,43,.55);transition:box-shadow .4s,border-color .4s}
+  .scode.scode .scode__tile header{font-size:10px!important}
+  .scode__tile header{display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(232,238,242,.72);border-bottom:1px solid rgba(255,255,255,.06)}
+  .scode__tile header i{width:6px;height:6px;border-radius:50%;background:#3fd08a}
+  .scode.scode .scode__tile header em{margin-left:auto;font-size:10px!important;font-style:normal;font-weight:600;color:#ff6b6b;letter-spacing:.12em}
+  .scode__tile--cam{background:transparent}
+  .scode__tile--cam header{background:#14202b}
+  .scode__tile--cam header i{background:#DC2626;box-shadow:0 0 6px #DC2626}
+  .scode__feed{aspect-ratio:16/10;-webkit-backdrop-filter:grayscale(1) contrast(1.12);backdrop-filter:grayscale(1) contrast(1.12);background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px)}
+  .scode__tile--board{padding-bottom:4px}
+  .scode__tile--board p{display:grid;grid-template-columns:7px 1fr auto auto;gap:9px;align-items:center;margin:0 12px;padding:7px 0;border-top:1px solid rgba(255,255,255,.06);font-size:12px;opacity:.72;transition:opacity .35s}
+  .scode__tile--board p:first-of-type{border-top:0}
+  .scode__tile--board p:global(.hot){opacity:1}
+  .scode__tile--board p i{width:6px;height:6px;border-radius:50%;background:var(--c)}
+  .scode.scode .scode__tile--board p,.scode.scode .scode__tile--board p span,.scode.scode .scode__tile--board p em{font-size:12px!important;line-height:1.3;color:#e8eef2!important}
+  .scode.scode .scode__tile--board p small{font-size:10px!important;color:#3fd08a!important}
+  .scode__tile--board p em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums}
+  .scode__tile--board p small{font-size:10px;color:#3fd08a}
+  .scode__events{position:relative;min-height:62px;padding:12px}
+  .scode__calm,.scode__ev{position:absolute;inset:12px;margin:0;font-size:12px;line-height:1.45;transition:opacity .35s}
+  .scode__calm{color:rgba(232,238,242,.6)}
+  .scode__ev{opacity:0;background:#14202b;border-left:2px solid #DC2626;padding-left:10px}
+  .scode.scode .scode__ev b{display:block;font-size:13px!important;line-height:1.3;color:#fff!important}
+  .scode.scode .scode__ev span{margin-top:2px;font-size:12px!important;line-height:1.35;color:rgba(232,238,242,.72)!important}
+  .scode.scode .scode__calm{font-size:12px!important;color:rgba(232,238,242,.6)!important}
+  .scode__ev > span:not([data-p]){display:block}
+  .scode__desk span{display:none}
+  /* The tile of the service on stage lights up with its colour. */
+  .scode:global([data-active="102"]) .scode__tile--cam{border-color:#6b5be6;box-shadow:0 0 0 1px #6b5be6,0 18px 40px -18px rgba(20,32,43,.55)}
+  .scode:global([data-active="104"]) .scode__tile--board,.scode:global([data-active="105"]) .scode__tile--board{border-color:#1fae6b;box-shadow:0 0 0 1px #1fae6b,0 18px 40px -18px rgba(20,32,43,.55)}
   @media (max-width:899px){
     .scode__grid{grid-template-columns:1fr;height:auto}
     .scode__side{display:contents}
     .scode__head{order:1;padding:56px var(--um-page-gutter,20px) 8px}
-    .scode__stage{order:2;min-height:0;aspect-ratio:1/1}
+    .scode__stage{order:2;min-height:0;aspect-ratio:1/1.28}
+    .scode__rail{top:auto;bottom:10px;left:10px;right:10px;transform:none;flex-direction:row;align-items:stretch;width:auto;gap:8px}
+    .scode__rail .scode__tile{flex:1;min-width:0}
+    .scode__tile--board{display:none}
+    .scode__tile header{padding:6px 8px;font-size:9px;letter-spacing:.1em}
+    .scode__events{min-height:0;height:calc(100% - 26px);padding:8px}
+    .scode__calm,.scode__ev{inset:8px;font-size:11px}.scode__ev b{font-size:12px}
     .scode__menu{order:3;display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0;padding:12px var(--um-page-gutter,20px);border:0;scrollbar-width:none}
     .scode__menu::-webkit-scrollbar{display:none}
     .scode__menu li{flex:none;scroll-snap-align:center}
@@ -163,13 +200,6 @@ const id = (s: string) => `sc-${sector}-${s}`;
     .scode__menu button::after{display:none}
     .scode__menu button[aria-selected="true"]{border-color:var(--c);box-shadow:inset 0 0 0 1px var(--c)}
     .scode__details{order:4;min-height:300px;margin:6px var(--um-page-gutter,20px) 48px}
-    .scode__legend,.scode__callout{display:none}
-    .scode__cctv,.scode__panel{width:44%}.scode__cctv{right:10px}.scode__panel{left:10px}
-    .scode__cctv{top:10px}.scode__panel{bottom:10px;padding:8px 10px 4px;font-size:10px}
-    .scode__panel b{font-size:11px}.scode__panel p{gap:6px;padding:4px 0}.scode__panel p small{display:none}
-    .scode:not([data-active="102"]) .scode__cctv,.scode:not([data-active="104"]):not([data-active="105"]) .scode__panel{visibility:hidden}
-    .scode:global([data-active="102"]) .scode__cctv{transform:none}
-    .scode:global([data-active="104"]) .scode__panel,.scode:global([data-active="105"]) .scode__panel{transform:scale(1.08)}
   }
   @media (prefers-reduced-motion:reduce){.scode__detail,.scode__menu button::after{transition:none}}
 </style>
