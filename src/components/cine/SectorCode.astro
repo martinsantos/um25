@@ -1,9 +1,8 @@
 ---
-// A sector as an infographic you walk through: the model stays in view while the chapters
-// scroll past it. Every service that applies to the sector is here — Consultoría opens with
-// the survey, each physical service is a layer with its real equipment, standard and
-// deliverable, the moment shows one of them working, and Soporte closes over the whole
-// stack. Real cases sit under the service they describe.
+// A sector as one composition: from the first frame the whole building is on — every
+// service that applies to it, the camera feed and the board. The menu beside it hands the
+// stage to one service at a time (its layer stands apart and plays its gesture); left
+// alone, it walks through them by itself. Every word comes from the service record.
 import { SECTOR_FILMS, LAYER_STYLE } from '../../scripts/senal/sectorSpecs.js';
 import { NAV_SERVICES } from '../../data/navigation';
 import { SERVICE_SPECS } from '../../data/serviceSpecs';
@@ -26,10 +25,7 @@ const layers = spec.layers.map((l, i) => ({
   line: l.line, facts: facts(l.svc), cases: casesOf(l.svc),
   parts: l.parts.map(([label, kind]) => ({ label, kind, n: NOCOUNT.has(kind) ? 0 : countIn(l.items, kind) })),
 }));
-const place = spec.place.map(([label, kind]) => ({ label, kind, n: BASE_COUNT.has(kind) ? countBase(kind) : 0 }));
 const [c0] = spec.captions;
-// Three acts give the walk an arc; each service has its own verb instead of a repeated slide.
-const ACT: Record<number, string> = { 108: 'Infraestructura', 101: 'Infraestructura', 103: 'Operación', 102: 'Operación', 107: 'Operación', 104: 'Gestión' };
 // Each service says what it is worth, not what it is.
 const VERB: Record<number, string> = {
   108: 'Si se corta la luz, lo crítico sigue.',
@@ -41,215 +37,188 @@ const VERB: Record<number, string> = {
 };
 // The board counts only what the model holds.
 const BOARD: Record<number, [string, string[], string]> = {
-  108: ['UPS online', ['ups'], 'En línea'],
-  101: ['Puntos de acceso Wi-Fi', ['ap'], 'Certificados'],
-  103: ['Teléfonos, altavoces y radios', ['phone', 'speaker', 'radio'], 'Registrados'],
-  102: ['Cámaras IP', ['cam'], 'Grabando'],
+  108: ['UPS', ['ups'], 'En línea'],
+  101: ['Wi-Fi', ['ap'], 'Certificados'],
+  103: ['Voz y voceo', ['phone', 'speaker', 'radio'], 'Registrados'],
+  102: ['Cámaras', ['cam'], 'Grabando'],
   107: ['Detectores', ['det', 'heat'], 'Normal'],
 };
-const boardRows = spec.layers.filter((l) => BOARD[l.svc]).map((l) => { const [label, kinds, status] = BOARD[l.svc]; return { label, status, color: LAYER_STYLE[l.svc].color, n: kinds.reduce((a, k) => a + countIn(l.items, k), 0) }; }).filter((r) => r.n > 0);
+const boardRows = spec.layers.filter((l) => BOARD[l.svc]).map((l) => { const [label, kinds, status] = BOARD[l.svc]; return { svc: l.svc, label, status, color: LAYER_STYLE[l.svc].color, n: kinds.reduce((a, k) => a + countIn(l.items, k), 0) }; }).filter((r) => r.n > 0);
 const hasCams = spec.layers.some((l) => l.svc === 102), hasBoard = spec.layers.some((l) => l.svc === 104);
-// The record, once, at the end: what each service put in this place, under which standard,
-// what it hands over, and the latest real case.
+// Without custom software the board is the 24/7 monitoring every sector gets (105).
+const boardTitle = hasBoard ? `Tablero · ${spec.name}` : `Monitoreo 24/7 · ${spec.name}`;
+const boardSvcs = spec.layers.filter((l) => BOARD[l.svc]).map((l) => l.svc);
 const partsText = (l: (typeof layers)[number]) => l.parts.map((p) => (p.n > 1 ? `${p.label} (${p.n})` : p.label)).join(' · ');
-const ficha = [
-  ...(spec.audit ? [{ k: -1, svc: 106, name: nameOf(106), color: '#DC2626', what: SERVICE_SPECS['106'].scope[0], facts: facts(106), last: casesOf(106)[0] }] : []),
-  ...layers.map((l) => ({ k: l.k, svc: l.svc, name: l.name, color: l.color, what: partsText(l), facts: l.facts, last: l.cases[0] })),
-  { k: -1, svc: 105, name: nameOf(105), color: '#1fae6b', what: SERVICE_SPECS['105'].scope[0], facts: facts(105), last: casesOf(105)[0] },
+// The menu: Consultoría (where it applies), each layer bottom-up, then Soporte.
+const items = [
+  ...(spec.audit ? [{ key: 'audit', svc: 106, name: nameOf(106), color: '#DC2626', verb: 'Antes de instalar, relevamos lo que hay.', line: SERVICE_SPECS['106'].scope[0] + '.', parts: '', facts: facts(106), last: casesOf(106)[0], moment: null as null | string[] }] : []),
+  ...layers.map((l) => ({ key: `layer-${l.k}`, svc: l.svc, name: l.name, color: l.color, verb: VERB[l.svc], line: l.line, parts: partsText(l), facts: l.facts, last: l.cases[0], moment: l.svc === spec.moment.svc ? [spec.moment.kicker, spec.moment.line] : null })),
+  { key: 'support', svc: 105, name: nameOf(105), color: '#1fae6b', verb: 'Después de instalar, lo seguimos de día y de noche.', line: SERVICE_SPECS['105'].scope[2] + '.', parts: '', facts: facts(105), last: casesOf(105)[0], moment: null },
 ];
 const m = spec.moment;
 const id = (s: string) => `sc-${sector}-${s}`;
 ---
-<section class="scode" data-scode={sector} aria-label={`${spec.name}: cómo lo instalamos, servicio por servicio`}>
+<section class="scode" data-scode={sector} aria-label={`${spec.name}: lo que instalamos, servicio por servicio`}>
   <div class="scode__grid">
+    <div class="scode__side">
+      <header class="scode__head">
+        <p class="scode__kick"><i></i>{spec.name}</p>
+        <h2>{c0[1]}</h2>
+      </header>
+      <ol class="scode__menu" data-scode-menu role="tablist" aria-label="Servicios">
+        {items.map((it, i) => (
+          <li><button type="button" role="tab" aria-selected="false" data-item={it.key} data-svc={it.svc} style={`--c:${it.color}`}>
+            <b>{String(i + 1).padStart(2, '0')}</b><span>{it.name}</span><i aria-hidden="true"></i>
+          </button></li>
+        ))}
+      </ol>
+      <div class="scode__details">
+        {items.map((it) => (
+          <article class="scode__detail" data-detail={it.key} style={`--c:${it.color}`}>
+            <h3>{it.verb}</h3>
+            {it.moment ? <p class="scode__lead"><strong>{it.moment[0]}.</strong> {it.moment[1]}</p> : <p class="scode__lead">{it.line}</p>}
+            {it.parts && <p class="scode__parts">{it.parts}</p>}
+            <dl>{it.facts.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
+            <p class="scode__more">{it.last && <a class="scode__last" href={it.last.href}>{it.last.client} · {it.last.year}</a>}<a class="scode__svc" href={hrefOf(it.svc)}>{it.name} <span aria-hidden="true">→</span></a></p>
+          </article>
+        ))}
+      </div>
+    </div>
     <div class="scode__stage" data-scode-stage>
       <div class="scode__callout" data-scode-callout aria-hidden="true"><b>{m.callout[0]}</b><span>{m.callout[1]}</span></div>
       <div class="scode__callout scode__desk" data-scode-desk data-phase="0" aria-hidden="true"><b>Mesa de ayuda 24/7</b><span data-p="0">Alerta del monitoreo</span><span data-p="1">Ticket abierto y asignado</span><span data-p="2">Resuelto y registrado</span></div>
       {hasCams && <div class="scode__cctv" data-scode-cctv aria-hidden="true"><span><i></i>Cámara IP · vista del operador</span></div>}
-      {hasBoard && <div class="scode__panel" data-scode-panel aria-hidden="true"><b>Tablero · {spec.name}</b>{boardRows.map((r, i) => <p data-row={i} style={`--c:${r.color}`}><i></i><span>{r.label}</span><em>{r.n}</em><small>{r.status}</small></p>)}</div>}
+      <div class="scode__panel" data-scode-panel aria-hidden="true"><b>{boardTitle}</b>{boardRows.map((r, i) => <p data-row={i} data-svc={r.svc} style={`--c:${r.color}`}><i></i><span>{r.label}</span><em>{r.n}</em><small>{r.status}</small></p>)}</div>
       <div class="scode__legend" aria-hidden="true">{layers.map((l) => <span class="scode__layer" data-scode-layer style={`--c:${l.color}`}><b>{l.n}</b>{l.name}</span>)}</div>
-    </div>
-
-    <div class="scode__chapters">
-      <article class="scode__ch scode__ch--place is-active" data-scode-ch="place" id={id('lugar')}>
-        <div class="scode__txt">
-          <p class="scode__kick"><i></i>{c0[0]}</p>
-          <h3>{c0[1]}</h3>
-        </div>
-      </article>
-
-      {spec.audit && (
-        <article class="scode__ch scode__ch--low" data-scode-ch="audit" id={id('relevamiento')} style="--c:#DC2626">
-          <div class="scode__txt">
-            <p class="scode__kick"><i></i>{nameOf(106)}</p>
-            <h3>Antes de instalar, relevamos lo que hay.</h3>
-            <p class="scode__lead">{SERVICE_SPECS['106'].scope[0]}.</p>
-          </div>
-        </article>
-      )}
-
-      {layers.map((l, i) => (
-        <article class:list={['scode__ch', i % 2 ? 'scode__ch--low' : '']} data-scode-ch={`layer-${l.k}`} id={id(`capa-${l.k + 1}`)} style={`--c:${l.color}`}>
-          <div class="scode__txt">
-            <p class="scode__kick scode__kick--layer"><span>{ACT[l.svc]}</span><b>{l.name}</b></p>
-            <h3>{VERB[l.svc]}</h3>
-            <p class="scode__lead">{l.line}</p>
-            <a class="scode__svc" href={l.href}>{l.name} <span aria-hidden="true">→</span></a>
-          </div>
-        </article>
-      ))}
-
-      <article class="scode__ch scode__ch--long" data-scode-ch="moment" id={id('momento')} style={`--c:${LAYER_STYLE[m.svc].color}`}>
-        <div class="scode__txt">
-          <p class="scode__kick"><i></i>{m.kicker}</p>
-          <h3 class="scode__big">{m.line}</h3>
-        </div>
-      </article>
-
-      <article class="scode__ch scode__ch--low" data-scode-ch="support" id={id('soporte')} style="--c:#1fae6b">
-        <div class="scode__txt">
-          <p class="scode__kick"><i></i>{nameOf(105)}</p>
-          <h3>Después de instalar, lo seguimos de día y de noche.</h3>
-          <p class="scode__lead">{SERVICE_SPECS['105'].scope[2]}.</p>
-        </div>
-      </article>
-
-      <article class="scode__ch scode__ch--ficha" data-scode-ch="ficha" id={id('ficha')}>
-        <p class="scode__kick"><i></i>Ficha de la obra</p>
-        <h3>Todo lo que instalamos en {spec.name.toLowerCase()}.</h3>
-        <ol class="scode__ficha">
-          {ficha.map((r) => (
-            <li data-focus={r.k} style={`--c:${r.color}`}>
-              <a class="scode__fname" href={hrefOf(r.svc)}>{r.name}</a>
-              <p class="scode__fwhat">{r.what}</p>
-              <dl>{r.facts.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
-              {r.last && <a class="scode__flast" href={r.last.href}>{r.last.client} · {r.last.work} · {r.last.year}</a>}
-            </li>
-          ))}
-        </ol>
-      </article>
     </div>
   </div>
 </section>
 
 <style>
   .scode{position:relative;background:#fcfcf9;color:#182120}
-  .scode__grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);width:100%}
-  .scode__stage{grid-column:2;grid-row:1;position:sticky;top:var(--um-header-h,66px);height:calc(100vh - var(--um-header-h,66px));height:calc(100svh - var(--um-header-h,66px));align-self:start}
-  .scode__stage :global(canvas){position:absolute;inset:0;width:100%;height:100%;display:block}
-  .scode__chapters{grid-column:1;grid-row:1;padding:0 clamp(24px,3vw,56px) 0 max(var(--um-page-gutter,24px),calc((100vw - var(--um-container-wide,1400px))/2))}
-  /* Each chapter is a stretch of scroll; its text holds still while the model plays it. */
-  .scode__ch{position:relative;min-height:135vh}
-  .scode__ch--place{min-height:115vh}
-  .scode__ch--long{min-height:190vh}
-  .scode__txt{position:sticky;top:calc(var(--um-header-h,66px) + 16vh);padding:8px 0 40px;opacity:0;transition:opacity .5s ease}
-  .scode__ch--low .scode__txt{top:calc(var(--um-header-h,66px) + 40vh)}
-  .scode__ch--place .scode__txt{top:calc(var(--um-header-h,66px) + 26vh)}
-  .scode__ch.is-active .scode__txt{opacity:1}
+  .scode__grid{display:grid;grid-template-columns:minmax(340px,4fr) minmax(0,8fr);height:clamp(680px,calc(100svh - var(--um-header-h,66px)),940px)}
+  .scode__side{display:flex;flex-direction:column;justify-content:center;gap:20px;padding:clamp(28px,4vh,56px) clamp(20px,2.4vw,40px) clamp(40px,6vh,80px) max(var(--um-page-gutter,24px),calc((100vw - var(--um-container-wide,1400px))/2))}
   .scode.scode .scode__kick{display:flex;align-items:center;gap:14px;margin:0;font-size:13px!important;letter-spacing:.2em;text-transform:uppercase;color:#5f6368!important}
-  .scode__kick i{width:32px;height:2px;background:var(--c,#DC2626)}
-  .scode__kick--layer span{color:#8a9097}
-  .scode__kick--layer b{padding-top:3px;border-top:2px solid var(--c);color:#182120;font-weight:700}
-  .scode.scode h3{margin:16px 0 0;max-width:15ch;font-size:clamp(30px,3.1vw,50px)!important;line-height:1.04;letter-spacing:-.025em;color:#182120!important}
-  .scode.scode .scode__big{max-width:13ch;font-size:clamp(36px,4vw,64px)!important}
-  .scode.scode .scode__lead{margin:18px 0 0;max-width:36ch;font-size:17px!important;line-height:1.5;color:#3c423f!important}
-  .scode__svc{display:inline-block;margin-top:20px;color:#182120;font-size:15px;font-weight:700;text-decoration:none;border-bottom:2px solid var(--c,#DC2626);padding-bottom:3px}
-  .scode__ch--ficha{min-height:0;padding:12vh 0 16vh}
-  .scode__ficha{list-style:none;margin:32px 0 0;padding:0;border-top:1px solid rgba(24,33,32,.14)}
-  .scode__ficha li{display:grid;grid-template-columns:1fr;gap:6px;padding:16px 12px 16px 14px;border-bottom:1px solid rgba(24,33,32,.14);border-left:3px solid transparent;transition:background .25s,border-color .25s}
-  .scode__ficha li:hover,.scode__ficha li:focus-within{background:rgba(24,33,32,.035);border-left-color:var(--c)}
-  .scode__fname{color:#182120;font-size:18px;font-weight:700;text-decoration:none}
-  .scode__fname:hover{color:var(--c)}
-  .scode.scode .scode__fwhat{margin:0;font-size:14px!important;line-height:1.45;color:#3c423f!important}
-  .scode__ficha dl{display:flex;flex-wrap:wrap;gap:4px 20px;margin:2px 0 0}
-  .scode__ficha dl div{display:flex;gap:6px;align-items:baseline}
-  .scode.scode .scode__ficha dt{font-size:11px!important;letter-spacing:.14em;text-transform:uppercase;color:#8a9097!important}
-  .scode.scode .scode__ficha dd{margin:0;font-size:13px!important;color:#182120!important}
-  .scode__flast{font-size:13px;color:#5f6368;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .scode__flast:hover{color:#182120;text-decoration:underline;text-decoration-color:var(--c)}
+  .scode__kick i{width:32px;height:2px;background:#DC2626}
+  .scode.scode h2{margin:12px 0 0;max-width:18ch;font-size:clamp(26px,2.3vw,38px)!important;line-height:1.04;letter-spacing:-.025em;color:#182120!important}
+  .scode__menu{list-style:none;margin:0;padding:0;border-top:1px solid rgba(24,33,32,.12)}
+  .scode__menu button{position:relative;display:grid;grid-template-columns:30px 1fr 12px;align-items:center;gap:12px;width:100%;padding:8px 4px 8px 0;border:0;border-bottom:1px solid rgba(24,33,32,.12);background:none;color:#5f6368;font:inherit;font-size:16px;text-align:left;cursor:pointer;transition:color .25s}
+  .scode__menu button b{font-size:12px;font-weight:600;color:#8a9097;font-variant-numeric:tabular-nums}
+  .scode__menu button i{width:8px;height:8px;border-radius:50%;background:var(--c);opacity:.35;transition:opacity .25s,transform .25s}
+  .scode__menu button::after{content:'';position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--c);transition:width .5s cubic-bezier(.2,.7,.1,1)}
+  .scode__menu button:hover,.scode__menu button[aria-selected="true"]{color:#182120}
+  .scode__menu button[aria-selected="true"] i{opacity:1;transform:scale(1.5)}
+  .scode__menu button[aria-selected="true"]::after{width:100%}
+  .scode__details{position:relative;min-height:210px}
+  .scode__detail{position:absolute;inset:0 0 auto 0;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .35s ease,transform .45s cubic-bezier(.2,.7,.1,1)}
+  .scode__detail.is-on{opacity:1;transform:none;pointer-events:auto}
+  .scode.scode .scode__detail h3{margin:0;max-width:20ch;font-size:clamp(22px,1.8vw,28px)!important;line-height:1.15;letter-spacing:-.015em;color:#182120!important}
+  .scode.scode .scode__lead{margin:10px 0 0;max-width:44ch;font-size:15px!important;line-height:1.5;color:#3c423f!important}
+  .scode.scode .scode__parts{margin:8px 0 0;max-width:46ch;font-size:13px!important;line-height:1.5;color:#5f6368!important}
+  .scode__detail dl{display:flex;flex-wrap:wrap;gap:4px 22px;margin:12px 0 0}
+  .scode__detail dl div{display:flex;gap:6px;align-items:baseline}
+  .scode.scode .scode__detail dt{font-size:11px!important;letter-spacing:.14em;text-transform:uppercase;color:#8a9097!important}
+  .scode.scode .scode__detail dd{margin:0;font-size:13px!important;color:#182120!important}
+  .scode__more{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 20px;margin:14px 0 0}
+  .scode__last{font-size:13px;color:#5f6368;text-decoration:none}
+  .scode__last:hover{color:#182120;text-decoration:underline;text-decoration-color:var(--c)}
+  .scode__svc{color:#182120;font-size:14px;font-weight:700;text-decoration:none;border-bottom:2px solid var(--c);padding-bottom:2px}
   .scode a:focus-visible,.scode button:focus-visible{outline:2px solid #DC2626;outline-offset:3px}
-  .scode__layer{position:absolute;left:0;top:0;z-index:2;display:flex;align-items:center;gap:10px;padding-right:16px;opacity:0;white-space:nowrap;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#5f6368;will-change:transform,opacity;transition:color .3s}
+  .scode__stage{position:relative;min-height:0}
+  .scode__stage :global(canvas){position:absolute;inset:0;width:100%;height:100%;display:block}
+  .scode__layer{position:absolute;left:0;top:0;z-index:2;display:flex;align-items:center;gap:10px;padding-right:16px;opacity:0;white-space:nowrap;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#182120;will-change:transform,opacity}
   .scode__layer b{display:inline-block;min-width:20px;padding:3px 0 2px;border-top:2px solid var(--c)}
-  .scode__layer:global(.is-on){color:#182120}
-  .scode__callout{position:absolute;left:0;top:0;z-index:2;opacity:0;margin-top:-14px;padding:12px 16px 12px 14px;background:#fff;border-left:3px solid #DC2626;box-shadow:0 10px 30px rgba(24,33,32,.12);white-space:nowrap;pointer-events:none}
+  .scode__callout{position:absolute;left:0;top:0;z-index:3;opacity:0;margin-top:-14px;padding:12px 16px 12px 14px;background:#fff;border-left:3px solid #DC2626;box-shadow:0 10px 30px rgba(24,33,32,.12);white-space:nowrap;pointer-events:none}
   .scode__callout b{display:block;font-size:15px;color:#182120}
   .scode__callout span{display:block;margin-top:3px;font-size:13px;color:#5f6368}
-  .scode__cctv{position:absolute;z-index:2;top:20px;right:24px;width:min(38%,380px);aspect-ratio:16/10;opacity:0;pointer-events:none;border:1px solid rgba(24,33,32,.5);box-shadow:0 14px 34px rgba(24,33,32,.18);-webkit-backdrop-filter:grayscale(1) contrast(1.15) brightness(1.1);backdrop-filter:grayscale(1) contrast(1.15) brightness(1.1);background:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 3px)}
-  .scode__cctv span{position:absolute;left:10px;top:8px;display:flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6)}
-  .scode__cctv i{width:7px;height:7px;border-radius:50%;background:#DC2626;box-shadow:0 0 6px #DC2626}
-  .scode__panel{position:absolute;z-index:2;top:20px;right:24px;width:min(38%,360px);opacity:0;pointer-events:none;padding:16px 18px 10px;background:#16222d;color:#e8eef2;box-shadow:0 14px 34px rgba(24,33,32,.22);font-size:13px}
-  .scode__panel b{display:block;margin-bottom:10px;font-size:14px;color:#fff}
-  .scode__panel p{display:grid;grid-template-columns:10px 1fr auto auto;gap:10px;align-items:center;margin:0;padding:8px 0;border-top:1px solid rgba(255,255,255,.08);opacity:0;transform:translateY(6px);transition:opacity .4s ease,transform .5s cubic-bezier(.2,.7,.1,1)}
-  .scode__panel p:global(.on){opacity:1;transform:none}
-  .scode__panel p i{width:7px;height:7px;border-radius:50%;background:var(--c)}
-  .scode__panel p em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums}
-  .scode__panel p small{font-size:11px;color:#3fd08a;letter-spacing:.04em}
   .scode__desk span{display:none}
   .scode__desk[data-phase="0"] span[data-p="0"],.scode__desk[data-phase="1"] span[data-p="1"]{display:block}
   .scode__desk[data-phase="2"] span[data-p="2"]{display:block;color:#13804d}
   .scode__desk[data-phase="2"]{border-left-color:#1fae6b}
+  /* The two insets are part of the composition, and grow when their service has the stage. */
+  .scode__cctv,.scode__panel{position:absolute;z-index:2;right:clamp(16px,2vw,32px);width:min(30%,320px);opacity:0;pointer-events:none;transform-origin:100% 0;transition:transform .6s cubic-bezier(.2,.7,.1,1),box-shadow .4s,outline-color .4s;outline:2px solid transparent;outline-offset:3px}
+  .scode__cctv{top:clamp(16px,3vh,32px);aspect-ratio:16/10;border:1px solid rgba(24,33,32,.5);box-shadow:0 14px 34px rgba(24,33,32,.18);-webkit-backdrop-filter:grayscale(1) contrast(1.15) brightness(1.1);backdrop-filter:grayscale(1) contrast(1.15) brightness(1.1);background:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 3px)}
+  .scode__cctv span{position:absolute;left:10px;top:8px;display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+  .scode__cctv i{width:7px;height:7px;border-radius:50%;background:#DC2626;box-shadow:0 0 6px #DC2626}
+  .scode__panel{bottom:clamp(16px,3vh,32px);right:auto;left:clamp(8px,1.2vw,20px);transform-origin:0 100%;padding:14px 16px 8px;background:#16222d;color:#e8eef2;box-shadow:0 14px 34px rgba(24,33,32,.22);font-size:12px}
+  .scode__panel b{display:block;margin-bottom:8px;font-size:13px;color:#fff}
+  .scode__panel p{display:grid;grid-template-columns:8px 1fr auto auto;gap:9px;align-items:center;margin:0;padding:6px 0;border-top:1px solid rgba(255,255,255,.08);opacity:0;transition:opacity .4s ease,background .3s}
+  .scode__panel p:global(.on){opacity:.8}
+  .scode__panel p:global(.hot){opacity:1;background:rgba(255,255,255,.06)}
+  .scode__panel p i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+  .scode__panel p em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums}
+  .scode__panel p small{font-size:10px;color:#3fd08a;letter-spacing:.04em}
+  .scode:global([data-active="102"]) .scode__cctv{transform:scale(1.3);outline-color:#6b5be6}
+  .scode:global([data-active="104"]) .scode__panel,.scode:global([data-active="105"]) .scode__panel{transform:scale(1.08);outline-color:#1fae6b}
   @media (max-width:899px){
-    .scode__grid{grid-template-columns:1fr}
-    .scode__stage{grid-column:1;top:var(--um-header-h,60px);height:min(54svh,100vw);z-index:2;background:#fcfcf9;box-shadow:0 1px 0 rgba(24,33,32,.08)}
-    .scode__chapters{grid-row:2;padding:0 var(--um-page-gutter,20px)}
-    .scode__ch{min-height:110svh}.scode__ch--place{min-height:80svh}.scode__ch--long{min-height:150svh}
-    .scode__txt,.scode__ch--low .scode__txt,.scode__ch--place .scode__txt{top:calc(var(--um-header-h,60px) + min(54svh,100vw) + 16px)}
+    .scode__grid{grid-template-columns:1fr;height:auto}
+    .scode__side{display:contents}
+    .scode__head{order:1;padding:56px var(--um-page-gutter,20px) 8px}
+    .scode__stage{order:2;min-height:0;aspect-ratio:1/1}
+    .scode__menu{order:3;display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0;padding:12px var(--um-page-gutter,20px);border:0;scrollbar-width:none}
+    .scode__menu::-webkit-scrollbar{display:none}
+    .scode__menu li{flex:none;scroll-snap-align:center}
+    .scode__menu button{width:auto;grid-template-columns:auto auto;gap:8px;padding:9px 14px;border:1px solid rgba(24,33,32,.16);border-radius:999px;font-size:14px;white-space:nowrap}
+    .scode__menu button b{display:none}
+    .scode__menu button::after{display:none}
+    .scode__menu button[aria-selected="true"]{border-color:var(--c);box-shadow:inset 0 0 0 1px var(--c)}
+    .scode__details{order:4;min-height:300px;margin:6px var(--um-page-gutter,20px) 48px}
     .scode__legend,.scode__callout{display:none}
-    .scode__cctv,.scode__panel{top:10px;right:10px;width:48%}
-    .scode__panel{padding:10px 12px 6px;font-size:11px}.scode__panel p{gap:6px;padding:5px 0}
-    .scode.scode h3{font-size:clamp(26px,7vw,34px)!important}
-    .scode.scode .scode__big{font-size:clamp(30px,8.4vw,40px)!important}
-    .scode__ch--ficha{padding:40px 0 60px}
+    .scode__cctv,.scode__panel{width:44%}.scode__cctv{right:10px}.scode__panel{left:10px}
+    .scode__cctv{top:10px}.scode__panel{bottom:10px;padding:8px 10px 4px;font-size:10px}
+    .scode__panel b{font-size:11px}.scode__panel p{gap:6px;padding:4px 0}.scode__panel p small{display:none}
+    .scode:not([data-active="102"]) .scode__cctv,.scode:not([data-active="104"]):not([data-active="105"]) .scode__panel{visibility:hidden}
+    .scode:global([data-active="102"]) .scode__cctv{transform:none}
+    .scode:global([data-active="104"]) .scode__panel,.scode:global([data-active="105"]) .scode__panel{transform:scale(1.08)}
   }
-  @media (prefers-reduced-motion:reduce){.scode__txt{transition:none}}
-  .scode:global(.is-pinned) .scode__ch:not(.is-active){display:none}
-  .scode:global(.is-pinned) .scode__ch{min-height:0}
-  .scode:global(.is-pinned) .scode__txt{position:relative;top:auto;padding-top:22vh}
+  @media (prefers-reduced-motion:reduce){.scode__detail,.scode__menu button::after{transition:none}}
 </style>
 
 <script>
   import { SECTOR_FILMS } from '../../scripts/senal/sectorSpecs.js';
-  type Api = { dispose: () => void; setChapter: (c: string) => void; setProgress: (q: number) => void; setFocus: (k: number | null) => void };
+  type Api = { dispose: () => void; setActive: (c: string | null) => void };
+  const CYCLE = 6500;
   function boot() {
     document.querySelectorAll<HTMLElement>('[data-scode]:not([data-bound])').forEach((host) => {
       host.dataset.bound = '1';
-      const chapters = [...host.querySelectorAll<HTMLElement>('[data-scode-ch]')];
-      const q = new URLSearchParams(location.search), pinned = q.get('ch');
-      let api: Api | null = null, current = '', progress = 0;
-      // Review captures: ?ch= pins one chapter and shows it alone (?q= pins its progress).
-      if (pinned) host.classList.add('is-pinned');
-      const activate = (name: string) => {
-        if (name === current) return; current = name;
-        chapters.forEach((c) => c.classList.toggle('is-active', c.dataset.scodeCh === name));
-        api?.setChapter(name);
+      const buttons = [...host.querySelectorAll<HTMLButtonElement>('[data-item]')];
+      const details = [...host.querySelectorAll<HTMLElement>('[data-detail]')];
+      const menu = host.querySelector<HTMLElement>('[data-scode-menu]')!;
+      const q = new URLSearchParams(location.search), pinned = q.get('item') || (q.has('rec') ? 'idle' : null);
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let api: Api | null = null, idx = -1, timer = 0, hold = false, inView = false;
+      // At rest everything is on together; that is the first thing a reader sees.
+      const rest = () => { idx = -1; buttons.forEach((x) => x.setAttribute('aria-selected', 'false')); details.forEach((d, j) => d.classList.toggle('is-on', false)); host.dataset.active = ''; api?.setActive(null); };
+      const show = (i: number, user = false) => {
+        idx = i; const b = buttons[i];
+        buttons.forEach((x, j) => x.setAttribute('aria-selected', String(j === i)));
+        details.forEach((d) => d.classList.toggle('is-on', d.dataset.detail === b.dataset.item));
+        host.dataset.active = b.dataset.svc || '';
+        api?.setActive(b.dataset.item || null);
+        // Keep the active chip in view on phones without moving the page.
+        if (getComputedStyle(menu).display === 'flex') { const li = b.parentElement!; menu.scrollTo({ left: li.offsetLeft - (menu.clientWidth - li.clientWidth) / 2, behavior: user ? 'smooth' : 'smooth' }); }
+        schedule();
       };
-      // The chapter under the reading line is active; how far it has been read is its timeline.
-      let ticking = false;
-      const read = () => {
-        ticking = false;
-        if (pinned) { activate(pinned); api?.setProgress(Number(q.get('q') ?? .5)); return; }
-        const line = innerHeight * (matchMedia('(max-width: 899px)').matches ? .78 : .5);
-        for (const c of chapters) {
-          const r = c.getBoundingClientRect();
-          if (r.top <= line && r.bottom > line) { activate(c.dataset.scodeCh || 'place'); progress = Math.min(1, Math.max(0, (line - r.top) / Math.max(1, r.height - innerHeight * .25))); api?.setProgress(progress); break; }
-        }
-      };
-      const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(read); } };
-      addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onScroll); read();
-      // The record drives the model too: pointing at a service lights its layer.
-      host.querySelectorAll<HTMLElement>('[data-focus]').forEach((li) => {
-        const k = Number(li.dataset.focus);
-        const on = () => api?.setFocus(k >= 0 ? k : null), off = () => api?.setFocus(null);
-        li.addEventListener('mouseenter', on); li.addEventListener('mouseleave', off); li.addEventListener('focusin', on); li.addEventListener('focusout', off);
+      // Left alone, it walks the services; any touch or pointer hands control to the reader.
+      const schedule = () => { clearTimeout(timer); if (reduce || hold || pinned || !inView || idx < 0) return; timer = window.setTimeout(() => show((idx + 1) % buttons.length), CYCLE); };
+      buttons.forEach((b, i) => {
+        b.addEventListener('mouseenter', () => { hold = true; show(i, true); });
+        b.addEventListener('focus', () => { hold = true; show(i, true); });
+        b.addEventListener('click', () => { hold = true; show(i, true); clearTimeout(timer); window.setTimeout(() => { hold = false; schedule(); }, 14000); });
       });
+      menu.addEventListener('mouseleave', () => { hold = false; clearTimeout(timer); rest(); timer = window.setTimeout(() => show(0), 4000); });
+      const seen = new IntersectionObserver(([e]) => { inView = e.isIntersecting; if (inView) schedule(); else clearTimeout(timer); }, { threshold: .35 });
+      seen.observe(host);
       const mount = new IntersectionObserver(async ([e]) => {
         if (!e.isIntersecting || api) return; mount.disconnect();
         const { mountSector } = await import('../../scripts/senal/sector.js');
         api = (await mountSector(host, SECTOR_FILMS[host.dataset.scode as keyof typeof SECTOR_FILMS])) as Api;
-        const name = current || 'place'; current = ''; activate(name); read();
+        if (q.has('rec')) (window as any).__scode = { api, show, rest, items: buttons.map((b) => b.dataset.item) };
+        if (pinned && pinned !== 'idle') show(Math.max(0, buttons.findIndex((b) => b.dataset.item === pinned)));
+        else { rest(); if (!pinned && !reduce) { clearTimeout(timer); timer = window.setTimeout(() => show(0), 4000); } }
       }, { rootMargin: '400px 0px' });
       mount.observe(host);
-      document.addEventListener('astro:before-swap', () => { removeEventListener('scroll', onScroll); removeEventListener('resize', onScroll); mount.disconnect(); api?.dispose(); }, { once: true });
+      document.addEventListener('astro:before-swap', () => { clearTimeout(timer); seen.disconnect(); mount.disconnect(); api?.dispose(); }, { once: true });
     });
   }
   boot(); document.addEventListener('astro:page-load', boot);

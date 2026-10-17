@@ -336,7 +336,8 @@ function poly(pts) {
 export async function mountSector(host, spec) {
   const stage = host.querySelector('[data-scode-stage]') || host;
   const freeze = new URLSearchParams(location.search).has('t') ? Number(new URLSearchParams(location.search).get('t')) : null;
-  const driven = freeze === null && !!host.querySelector('[data-scode-ch]'), snap = new URLSearchParams(location.search).has('ch');
+  const compo = freeze === null && !!host.querySelector('[data-scode-menu]');
+  const driven = freeze === null && (compo || !!host.querySelector('[data-scode-ch]')), snap = new URLSearchParams(location.search).has('ch');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   try { await Promise.all([document.fonts.load(`700 20px ${FONT}`), document.fonts.load(`600 20px ${FONT}`), document.fonts.load(`500 20px ${FONT}`)]); } catch { /* fallback font */ }
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -463,7 +464,7 @@ export async function mountSector(host, spec) {
     // Each step has its own camera, and scrolling through it moves the camera a little.
     const P = { 108: [.95, .48], 101: [.4, .64], 103: [1.12, .42], 102: [.26, .54], 107: [.84, .62], 104: [.6, .36] };
     const boxM = bb.clone().expandByPoint(new THREE.Vector3(W / 2, topY(Math.max(0, ...spec.moment.path.map((q) => q[1]))) + .4, D / 2));
-    CAM = { place: [fit(bb, .42, .64), fit(bb, .78, .58)], audit: [fit(bb, .62, 1.1), fit(bb, .62, 1.22)], moment: [fit(boxM, .58, .46), fit(boxM, .82, .46)],
+    CAM = { idle: [fit(boxOpen, .62, .4), fit(boxOpen, .62, .4)], place: [fit(bb, .42, .64), fit(bb, .78, .58)], audit: [fit(bb, .62, 1.1), fit(bb, .62, 1.22)], moment: [fit(boxM, .58, .46), fit(boxM, .82, .46)],
       support: [fit(boxOpen, .5, .42), fit(boxOpen, .8, .42)], ficha: [fit(boxOpen, .66, .4), fit(boxOpen, .66, .4)],
       layers: spec.layers.map((l, k) => { const bx = bb.clone().expandByPoint(new THREE.Vector3(W / 2, topY(k) + .4, D / 2)), [az, el] = P[l.svc] || [.68, .5]; return [fit(bx, az - .09, el), fit(bx, az + .09, el)]; }) };
     if (ready && !driven && (reduce || freeze !== null)) render(reduce && freeze === null ? 13.4 : freeze, freeze !== null);
@@ -555,8 +556,10 @@ export async function mountSector(host, spec) {
     const cones = cams.map((it, i) => { const h = it[4] * .9, geo = new THREE.ConeGeometry(Math.tan(.42) * h, h, 32, 1, true); geo.translate(0, -h / 2, 0);
       const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: LAYER_STYLE[102].color, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, toneMapped: false })); m.position.set(it[1], 2.1, it[2]); m.renderOrder = 6; scene.add(m);
       return { m, a: it[3] * Math.PI / 180, len: it[4] * .9, ph: i * 1.7 }; });
-    const pov = new THREE.PerspectiveCamera(54, 1.6, .1, 80);
-    FX.watch = { k, cones, pov, cam0: cams[0] }; }
+    const pov = new THREE.PerspectiveCamera(62, 1.6, .1, 80);
+    // The feed shows the camera that sees the most of the place.
+    const seesMost = (it) => spec.pieces.filter(([, x, z]) => { const dx = x - it[1], dz = z - it[2], d = Math.hypot(dx, dz), a = it[3] * Math.PI / 180; return d > .6 && d < it[4] && Math.abs(Math.atan2(Math.sin(Math.atan2(dz, dx) - a), Math.cos(Math.atan2(dz, dx) - a))) < .5; }).length;
+    FX.watch = { k, cones, pov, cam0: cams.reduce((b, it) => (seesMost(it) > seesMost(b) ? it : b), cams[0]) }; }
   // Incendios: smoke in one room, the detector takes it, the alarm runs the loop, sirens
   // sound and the way out lights up.
   if (L_(107) >= 0 && spec.fire) { const k = L_(107), L = layers[k], [fx, fz] = spec.fire.at;
@@ -582,11 +585,22 @@ export async function mountSector(host, spec) {
   // One state drives the picture. Autoplay computes it from the clock; the page's
   // chapters set targets and the state eases toward them.
   const arr = (v) => Array.from({ length: NL }, () => v);
-  const S = { open: arr(0), dim: arr(1), labels: arr(0), tilt: 0, flow: 0, leaders: 0, look: 0, aud: 0, sup: 0 };
-  const T = { open: arr(0), dim: arr(1), labels: arr(0), tilt: 0, flow: 0, leaders: 0, look: 0, aud: 0, sup: 0 };
+  const S = { spread: arr(0), open: arr(0), dim: arr(1), labels: arr(0), tilt: 0, flow: 0, leaders: 0, look: 0, aud: 0, sup: 0 };
+  const T = { spread: arr(0), open: arr(0), dim: arr(1), labels: arr(0), tilt: 0, flow: 0, leaders: 0, look: 0, aud: 0, sup: 0 };
   let chapter = 'place', mClock = 0, curK = -1, qv = 0, focus = null;
   const qPin = new URLSearchParams(location.search).get('q');
   function setProgress(q) { qv = qPin !== null ? Number(qPin) : clamp(q); }
+  // Composition: the whole building is on from the first frame; one service at a time
+  // takes the stage (its layer stands apart from the ones above and plays its gesture).
+  let activeClock = 0; const CYCLE = 6.5;
+  function setActive(name) {
+    const ch = name || 'idle'; if (ch === chapter) return; chapter = ch; activeClock = 0;
+    const k = ch.startsWith('layer-') ? Number(ch.slice(6)) : -1; curK = k;
+    T.aud = ch === 'audit' ? 1 : 0; T.sup = ch === 'support' ? 1 : 0;
+    for (let j = 0; j < NL; j++) { T.open[j] = 1; T.spread[j] = k >= 0 && j > k ? 1.2 : 0; T.dim[j] = ch === 'idle' ? 1 : k >= 0 ? (j === k ? 1 : .3) : ch === 'audit' ? .35 : .8; T.labels[j] = k >= 0 && j === k ? 1 : 0; }
+    T.tilt = 1; T.flow = 1; T.leaders = ch === 'idle' ? .5 : .25;
+    labels.forEach((l, j) => l.classList.toggle('is-on', j === k));
+  }
   function setFocus(f) { focus = f; for (let j = 0; j < NL; j++) T.dim[j] = f === null ? 1 : j === f ? 1 : .12; }
   function setChapter(ch) {
     if (ch === chapter) return; chapter = ch; mClock = at0; aClock = at0; sClock = at0;
@@ -608,7 +622,7 @@ export async function mountSector(host, spec) {
   function ease2(dt) {
     camK = reduce || snap ? 1 : 1 - Math.exp(-dt * 2.2);
     const a = reduce || snap ? 1 : 1 - Math.exp(-dt * 2.6), b = reduce || snap ? 1 : 1 - Math.exp(-dt * 6);
-    for (let k = 0; k < NL; k++) { S.open[k] += (T.open[k] - S.open[k]) * a; S.dim[k] += (T.dim[k] - S.dim[k]) * b; S.labels[k] += (T.labels[k] - S.labels[k]) * b; }
+    for (let k = 0; k < NL; k++) { S.spread[k] += (T.spread[k] - S.spread[k]) * a; S.open[k] += (T.open[k] - S.open[k]) * a; S.dim[k] += (T.dim[k] - S.dim[k]) * b; S.labels[k] += (T.labels[k] - S.labels[k]) * b; }
     S.tilt += (T.tilt - S.tilt) * a; S.flow += (T.flow - S.flow) * b; S.leaders += (T.leaders - S.leaders) * b; S.look += (T.look - S.look) * a; S.aud += (T.aud - S.aud) * b; S.sup += (T.sup - S.sup) * b;
   }
 
@@ -619,9 +633,9 @@ export async function mountSector(host, spec) {
     updates.forEach((u) => u(run));
     const w = stage.clientWidth, h = stage.clientHeight;
     layers.forEach((L, k) => {
-      const o = S.open[k], d = S.dim[k]; L.grp.position.y = .02 + (topY(k) - .02) * o; L.grp.visible = o > .003;
-      const rev = !driven || k !== curK ? 99 : ease(clamp(qv / .55)) * L.maxR; L.plate.material.uniforms.reveal.value = rev;
-      L.plate.material.uniforms.opacity.value = Math.min(1, o * 1.4) * (.1 + .9 * d); L.plate.material.uniforms.fill.value = !driven ? 1 : k === curK ? .55 : .1;
+      const o = S.open[k], d = S.dim[k]; L.grp.position.y = .02 + (topY(k) - .02) * o + S.spread[k]; L.grp.visible = o > .003;
+      const rev = !driven || k !== curK ? 99 : compo ? (activeClock < CYCLE ? ease(clamp(qv / .3)) * L.maxR : 99) : ease(clamp(qv / .55)) * L.maxR; L.plate.material.uniforms.reveal.value = rev;
+      L.plate.material.uniforms.opacity.value = Math.min(1, o * 1.4) * (.1 + .9 * d); L.plate.material.uniforms.fill.value = !driven ? 1 : k === curK ? .55 : compo && curK < 0 ? .2 : .08;
       L.toks.forEach((m) => m.scale.setScalar(Math.max(.001, o * (.5 + .5 * d) * clamp((rev - m.userData.d) / .5))));
       L.pulses.forEach((p) => { p.m.visible = S.flow * d > .05 && rev > 30; p.r.at((run * .16 + p.ph) % 1, p.m.position); p.m.scale.setScalar(.4 + S.flow * d * .6); });
       if (L.label && w >= 700) {
@@ -667,7 +681,7 @@ export async function mountSector(host, spec) {
     if (desk) { proj.set(inc[1], topD, inc[2]).project(cam); desk.style.transform = `translate(${((proj.x + 1) / 2) * w}px,${((1 - proj.y) / 2) * h}px) translate(-50%,-100%)`;
       desk.style.opacity = String(S.sup * win(1.6, 2.2, sc)); const ph = sc < 2.4 ? '0' : sc < 4.6 ? '1' : '2'; if (desk.dataset.phase !== ph) desk.dataset.phase = ph; }
     if (driven) {
-      const pair = chapter.startsWith('layer-') ? CAM.layers[Number(chapter.slice(6))] : CAM[chapter] || CAM.ficha, e = ease(qv);
+      const pair = chapter.startsWith('layer-') ? CAM.layers[Number(chapter.slice(6))] : chapter === 'idle' ? CAM.idle : CAM[chapter] || CAM.ficha, e = chapter === 'idle' ? 0 : ease(qv);
       const f = { pos: tmp.lerpVectors(pair[0].pos, pair[1].pos, e).clone(), c: new THREE.Vector3().lerpVectors(pair[0].c, pair[1].c, e) };
       if (!camInit || snap) { camPos.copy(f.pos); camC.copy(f.c); camInit = true; } else { camPos.lerp(f.pos, camK); camC.lerp(f.c, camK); }
       cam.position.copy(camPos); cam.lookAt(camC);
@@ -686,7 +700,7 @@ export async function mountSector(host, spec) {
     hemi.intensity = .6 * (1 - .85 * cut); sun.intensity = 2.1 * (1 - .9 * cut); scene.environmentIntensity = 1 - .82 * cut; renderer.toneMappingExposure = 1.08 * (1 - .35 * cut);
     // Redes
     if (FX.net) { const c = curOf(FX.net.k), o = S.open[FX.net.k], grow = c ? win(.04, .62, q) : o > .5 ? 1 : 0;
-      FX.net.heat.material.opacity = c * .85 * win(.3, .7, q); FX.net.heat.visible = FX.net.heat.material.opacity > .01;
+      FX.net.heat.material.opacity = c ? .85 * win(.3, .7, q) : compo && curK < 0 && chapter === 'idle' ? .32 : 0; FX.net.heat.visible = FX.net.heat.material.opacity > .01;
       FX.net.tubes.forEach((t) => { t.m.visible = grow > .01; t.m.geometry.setDrawRange(0, Math.floor(t.n * grow / 3) * 3); t.m.material.opacity = 1; }); }
     // Telecomunicaciones
     if (FX.voice) { const c = curOf(FX.voice.k);
@@ -695,8 +709,8 @@ export async function mountSector(host, spec) {
     // Seguridad
     if (FX.watch) { const c = curOf(FX.watch.k), o = S.open[FX.watch.k];
       FX.watch.cones.forEach((cn) => { const a = cn.a - Math.sin(elapsed * .55 + cn.ph) * .32; aim.set(cn.m.position.x + Math.cos(a) * cn.len, .02, cn.m.position.z + Math.sin(a) * cn.len).sub(cn.m.position).normalize();
-        cn.m.quaternion.setFromUnitVectors(down, aim); cn.m.material.opacity = (c ? .17 * win(.12, .36, q) : o > .5 ? .035 : 0); cn.m.visible = cn.m.material.opacity > .005; }); }
-    if (monitor) monitor.style.opacity = String(FX.watch ? curOf(FX.watch.k) * win(.3, .45, q) : 0);
+        cn.m.quaternion.setFromUnitVectors(down, aim); cn.m.material.opacity = (c ? .17 * win(.12, .36, q) : o > .5 ? (compo && chapter === 'idle' ? .07 : .035) : 0); cn.m.visible = cn.m.material.opacity > .005; }); }
+    if (monitor) monitor.style.opacity = String(FX.watch ? (compo ? 1 : curOf(FX.watch.k) * win(.3, .45, q)) : 0);
     // Incendios
     if (FX.fire) { const F = FX.fire, c = curOf(F.k), sm = c * win(.1, .4, q), alarm = c * win(.4, .46, q), out = c * win(.6, .72, q), ly = layers[F.k].grp.position.y;
       F.smoke.forEach((m) => { const u = m.userData, f = (elapsed * .18 + u.ph) % 1; m.visible = sm > .01; m.position.set(F.fx + u.ox * (.4 + f * 1.4), .3 + f * 2.2 * sm, F.fz + u.oz * (.4 + f * 1.4)); m.scale.setScalar((.7 + f * 1.8) * sm); m.material.opacity = .5 * sm * Math.sin(f * Math.PI); });
@@ -706,14 +720,15 @@ export async function mountSector(host, spec) {
       // during the simulation the loop shows the alarm, not the test
       verbs[F.k].dets.forEach((dd) => { if (c && alarm > .01) { dd.r.material.color.set(dd.u <= win(.46, .66, q) * 1 ? 0xDC2626 : 0x1fae6b); } else dd.r.material.color.set(0x1fae6b); }); }
     // Software
-    if (panel) { const c = FX.board ? curOf(FX.board.k) : 0; panel.style.opacity = String(c * win(.22, .36, q)); const rows = panel.querySelectorAll('[data-row]'); rows.forEach((r, i) => r.classList.toggle('on', c && q > .3 + i * (.45 / Math.max(1, rows.length)))); }
+    if (panel && compo) { const act = curK >= 0 ? layers[curK].svc : 0; panel.style.opacity = '1'; panel.querySelectorAll('[data-row]').forEach((r) => { r.classList.add('on'); r.classList.toggle('hot', Number(r.dataset.svc) === act); }); }
+    else if (panel) { const c = FX.board ? curOf(FX.board.k) : 0; panel.style.opacity = String(c * win(.22, .36, q)); const rows = panel.querySelectorAll('[data-row]'); rows.forEach((r, i) => r.classList.toggle('on', c && q > .3 + i * (.45 / Math.max(1, rows.length)))); }
   }
   // What the camera sees, drawn into the monitor frame over the stage.
   function renderInset() {
-    if (!FX.watch || !monitor || !curOf(FX.watch.k) || Number(monitor.style.opacity) < .05) return;
+    if (!FX.watch || !monitor || !(compo || curOf(FX.watch.k)) || Number(monitor.style.opacity) < .05 || getComputedStyle(monitor).visibility === 'hidden') return;
     const er = monitor.getBoundingClientRect(), cr = renderer.domElement.getBoundingClientRect(); if (!er.width) return;
     const x = er.left - cr.left, y = cr.bottom - er.bottom, w = er.width, h = er.height, it = FX.watch.cam0, a = it[3] * Math.PI / 180 - Math.sin(elapsed * .55) * .32;
-    const P = FX.watch.pov; P.aspect = w / h; P.updateProjectionMatrix(); P.position.set(it[1], 2.05, it[2]); P.lookAt(it[1] + Math.cos(a) * 4, .35, it[2] + Math.sin(a) * 4);
+    const P = FX.watch.pov; P.aspect = w / h; P.updateProjectionMatrix(); P.position.set(it[1], 1.75, it[2]); P.lookAt(it[1] + Math.cos(a) * 3, .45, it[2] + Math.sin(a) * 3);
     const hidden = [...layers.map((l) => l.grp), ...fxObjs(), spark, ...trail, scan, ...pins].filter((o) => o.visible); hidden.forEach((o) => { o.visible = false; });
     renderer.setScissorTest(true); renderer.setViewport(x, y, w, h); renderer.setScissor(x, y, w, h); renderer.setClearColor(0x1c232a, 1); renderer.clear(); renderer.render(scene, P);
     renderer.setScissorTest(false); renderer.setViewport(0, 0, cr.width, cr.height); renderer.setClearColor(0x000000, 0); hidden.forEach((o) => { o.visible = true; });
@@ -733,6 +748,14 @@ export async function mountSector(host, spec) {
     if (freeze !== null) { render(freeze, true); return; }
     if (!visible) return;
     elapsed += reduce ? 0 : dt;
+    if (compo) {
+      riseClock += dt; activeClock += dt; ease2(dt);
+      qv = qPin !== null ? Number(qPin) : (activeClock % CYCLE) / CYCLE;
+      mClock = qv * 5.4; aClock = qv * 4.4; sClock = qv * 6.3;
+      const momentOn = curK >= 0 && layers[curK].svc === spec.moment.svc;
+      draw(elapsed, null, momentOn ? clamp(qv * 1.4 - .35) * 5.4 : 0, momentOn && qv > .25, 5.4);
+      return;
+    }
     if (driven) {
       riseClock += dt; ease2(dt);
       // In the moment, the survey and support, scrolling is the timeline.
@@ -744,8 +767,11 @@ export async function mountSector(host, spec) {
     render(clock, cycle === 0, elapsed);
   }
   ready = true;
-  if (driven) setChapter(host.querySelector('[data-scode-ch].is-active')?.dataset.scodeCh || 'place'), raf = requestAnimationFrame(frame);
+  if (compo) { chapter = ''; setActive(null); raf = requestAnimationFrame(frame); }
+  else if (driven) setChapter(host.querySelector('[data-scode-ch].is-active')?.dataset.scodeCh || 'place'), raf = requestAnimationFrame(frame);
   else if (reduce && freeze === null) render(13.4, false); else raf = requestAnimationFrame(frame);
   const dispose = () => { cancelAnimationFrame(raf); ro.disconnect(); io.disconnect(); renderer.dispose(); pm.dispose(); renderer.domElement.remove(); };
-  return { dispose, setChapter, setHighlight, setProgress, setFocus };
+  // Recording: step the active service's clock by hand (frames are captured slower than real time).
+  const setClock = (sec) => { activeClock = sec; };
+  return { dispose, setChapter, setHighlight, setProgress, setFocus, setActive, setClock };
 }
