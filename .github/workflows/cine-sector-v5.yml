@@ -1,0 +1,121 @@
+name: Sector architectural cinema v5
+on:
+  workflow_call:
+    inputs:
+      mode:
+        type: string
+        default: proof
+      projects:
+        type: string
+        default: all
+      part:
+        type: string
+        default: '1'
+permissions:
+  contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - id: plan
+        env:
+          MODE: ${{ inputs.mode }}
+          PROJECTS: ${{ inputs.projects }}
+          PART: ${{ inputs.part }}
+        run: |
+          python3 - <<'PYPLAN'
+          import os,json
+          allscenes=['building','clinic','terminal','plant','winery','mine']
+          chosen=os.environ['PROJECTS'];scenes=allscenes if chosen in ['all','remaining'] else [chosen]
+          assert all(s in allscenes for s in scenes)
+          mode=os.environ['MODE'];assert mode in ['proof','full','repair']
+          rows=[]
+          for scene in scenes:
+            for composition,width in [('wide',3840),('mobile',2160)]:
+              if mode=='proof':ranges=[(365,368),(800,800)] if composition=='wide' else [(800,800)]
+              elif mode=='repair':
+                part=int(os.environ['PART']);assert 1<=part<=9;ranges=[((part-1)*120,part*120-1)]
+              else:ranges=[(i*120,i*120+119) for i in range(9)]
+              for start,end in ranges:rows.append(dict(scene=scene,composition=composition,width=width,start=start,end=end))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('matrix='+json.dumps({'include':rows})+'\n')
+          PYPLAN
+  render:
+    needs: plan
+    name: ${{ matrix.scene }} / ${{ matrix.composition }} / ${{ matrix.start }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/cine/render-sector-project-v5.py
+            scripts/cine/prepare-blender-fonts.py
+            src/assets/cine/isometric/site-projects-v1.json
+            public/fonts/um-sans
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Prepare remote studio
+        run: |
+          MISSING=()
+          for PACKAGE in ffmpeg libgl1 libegl1 libxrender1 libxi6 xvfb libgl1-mesa-dri; do
+            if [ "$(dpkg-query -W -f='${db:Status-Status}' "$PACKAGE" 2>/dev/null)" != installed ]; then MISSING+=("$PACKAGE"); fi
+          done
+          if [ "${#MISSING[@]}" -gt 0 ]; then
+            sudo timeout 120 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update -qq || true
+            for ATTEMPT in 1 2; do
+              if sudo timeout 180 apt-get -o DPkg::Lock::Timeout=30 -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y --no-install-recommends "${MISSING[@]}"; then break; fi
+              if [ "$ATTEMPT" = 2 ]; then exit 1; fi
+            done
+          fi
+          ffmpeg -version | head -1
+          curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz -o blender.tar.xz
+          curl --retry 3 --connect-timeout 15 --max-time 240 -fsSL https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256 -o blender.sha256
+          awk '$2 == "blender-4.5.3-linux-x64.tar.xz" {print $1 "  blender.tar.xz"}' blender.sha256 > selected.sha256
+          test -s selected.sha256
+          sha256sum -c selected.sha256
+          tar -xf blender.tar.xz
+          python -m pip install --disable-pip-version-check fonttools==4.58.0 skia-pathops==0.8.0.post2 pillow==11.2.1 numpy==2.2.6
+          python scripts/cine/prepare-blender-fonts.py public/fonts/um-sans /tmp/um-fonts
+      - name: Render native architectural sequence
+        run: |
+          ulimit -c 0
+          STATUS=0
+          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 ./blender-4.5.3-linux-x64/blender -b -t 4 --python-exit-code 1 --python scripts/cine/render-sector-project-v5.py -- --scene ${{ matrix.scene }} --composition ${{ matrix.composition }} --width ${{ matrix.width }} --samples 8 --start ${{ matrix.start }} --end ${{ matrix.end }} --font-dir /tmp/um-fonts --output frames || STATUS=$?
+          if [ "$STATUS" != 0 ] && [ "$STATUS" != 139 ]; then exit "$STATUS"; fi
+          python3 - <<'PYCHECK'
+          import json
+          from pathlib import Path
+          from PIL import Image
+          start,end,width=${{ matrix.start }},${{ matrix.end }},${{ matrix.width }}
+          height=width if '${{ matrix.composition }}'=='mobile' else round(width*9/16)
+          info=json.loads(Path('frames/render-info.json').read_text())
+          assert [t['frame'] for t in info['timings']]==list(range(start,end+1))
+          assert info['resolution']==[width,height]
+          for frame in range(start,end+1):
+            with Image.open(f'frames/{frame:04d}.png') as image:
+              assert image.size==(width,height);image.load()
+          PYCHECK
+          if [ "$STATUS" = 139 ]; then echo '::warning::Blender teardown fault; all native frames and metadata independently verified.'; fi
+      - name: Encode sequence part
+        if: inputs.mode != 'proof'
+        run: |
+          COUNT=$((${{ matrix.end }} - ${{ matrix.start }} + 1))
+          mkdir delivery
+          cp frames/render-info.json delivery/info.json
+          ffmpeg -v error -framerate 60 -start_number ${{ matrix.start }} -i frames/%04d.png -frames:v "$COUNT" -vf 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p' -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1 -c:v libx264 -preset medium -crf 17 -an -movflags +faststart delivery/movie.mp4
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sector-v5-${{ matrix.scene }}-${{ matrix.composition }}-${{ matrix.start }}
+          path: ${{ inputs.mode == 'proof' && 'frames' || 'delivery' }}
+          retention-days: 2

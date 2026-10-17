@@ -1,0 +1,20 @@
+---
+// Small 3D isometric thumbnail. All thumbnails on a page share one renderer.
+interface Props {sector:string;layer?:string;class?:string}
+const {sector,layer='none',class:cls}=Astro.props;
+---
+<figure class:list={['mini-iso',cls]} data-mini-iso={sector} data-layer={layer} aria-hidden="true"><canvas></canvas></figure>
+<style>
+  .mini-iso{position:relative;margin:0;overflow:hidden;background:radial-gradient(120% 100% at 50% 45%,#161b22 0%,#0b0e12 70%)}
+  .mini-iso canvas{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity .6s ease}
+  .mini-iso:global(.is-ready) canvas{opacity:1}
+</style>
+<script>
+  function bootMini(){
+    const cards=document.querySelectorAll('[data-mini-iso]:not([data-mini-bound])');if(!cards.length)return;
+    const io=new IntersectionObserver(async entries=>{if(!entries.some(e=>e.isIntersecting))return;io.disconnect();
+      const {bindMiniIso}=await import('../../scripts/iso3d/mini.js');bindMiniIso();},{rootMargin:'600px 0px'});
+    cards.forEach(c=>io.observe(c));
+  }
+  bootMini();document.addEventListener('astro:page-load',bootMini);
+</script>

@@ -113,7 +113,7 @@ const clientRecords = getTopClienteRecords(6);
   }
 
   .um-trust-strip__inner {
-    width: min(1180px, calc(100% - 32px));
+    width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
     margin-inline: auto;
     display: grid;
     gap: clamp(20px, 2.6vw, 32px);
@@ -406,7 +406,7 @@ const clientRecords = getTopClienteRecords(6);
     }
 
     .um-trust-strip__inner {
-      width: min(100% - 28px, 1180px);
+      width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
       gap: 14px;
     }
 

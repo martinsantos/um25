@@ -1,10 +1,8 @@
 ---
 // Empresa: cómo trabaja ULTIMA MILLA (textos de /nosotros, depurados).
 const principles = [
-  ['Ingeniería primero', 'Cada decisión se justifica por disponibilidad, seguridad, mantenibilidad y costo operativo.'],
-  ['Ejecución en campo', 'Diseñamos con conocimiento real de obra, salas técnicas, racks, tendidos, energía y operación diaria.'],
-  ['Documentación útil', 'Cada entrega se puede operar, auditar, ampliar y sostener en el tiempo.'],
-  ['Continuidad como criterio', 'El soporte, el mantenimiento y la trazabilidad forman parte del diseño desde el primer día.'],
+  ['Criterio técnico compartido', 'Redes, energía, seguridad y software se diseñan considerando las dependencias entre sistemas.'],
+  ['Conocimiento del sitio', 'El trabajo en obra y en salas técnicas forma parte de las decisiones de ingeniería.'],
 ];
 ---
 <div class="umco">
@@ -14,7 +12,7 @@ const principles = [
   </figure>
   <div class="umco__body">
     <h2>Diseño, instalación y soporte en un mismo equipo.</h2>
-    <p class="umco__lead">ULTIMA MILLA integra infraestructura, comunicaciones, seguridad y software con criterio de continuidad operativa. Relevamos, diseñamos, ejecutamos, documentamos y sostenemos cada sistema que debe convivir en la operación.</p>
+    <p class="umco__lead">Un proyecto atraviesa distintas especialidades. Nuestro equipo conecta esas decisiones, desde la infraestructura física hasta las aplicaciones que usa tu operación.</p>
     <ol class="umco__list">
       {principles.map(([t, d], i) => (
         <li><span>{String(i + 1).padStart(2, '0')}</span><div><strong>{t}</strong><p>{d}</p></div></li>
@@ -25,18 +23,18 @@ const principles = [
 </div>
 <style>
   .umco { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(28px, 5vw, 80px); align-items: center; }
-  .umco__media { margin: 0; position: relative; overflow: hidden; aspect-ratio: 4 / 5; max-height: 720px; background: #111; }
+  .umco__media { margin: 0; position: relative; overflow: hidden; aspect-ratio: 4 / 3; max-height: 520px; background: #111; }
   .umco__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .umco__media figcaption { position: absolute; left: 18px; bottom: 16px; font-size: .9rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: #fff; text-shadow: 0 1px 12px rgba(0, 0, 0, .6); }
-  .umco h2 { margin: 0; font-size: clamp(2rem, 3.2vw, 3rem) !important; line-height: 1.06 !important; font-weight: 600 !important; letter-spacing: -.025em; color: #fff; max-width: 18ch; }
-  .umco__lead { margin: 20px 0 0; font-size: 1.12rem; line-height: 1.6; color: rgba(255, 255, 255, .8); max-width: 52ch; }
+  .umco__media figcaption { position: absolute; left: 18px; bottom: 16px; font-size: 1rem; font-weight: 600; letter-spacing: .02em; color: #fff; background:#090909d9;padding:8px 12px;max-width:calc(100% - 36px); }
+  .umco h2 { margin: 0; font-size: var(--um-world-h2, 2.125rem) !important; line-height: var(--um-heading-h2-line-height, 1.12) !important; font-weight: 600 !important; letter-spacing: -.025em; color: #fff; max-width: 18ch; }
+  .umco__lead { margin: 20px 0 0; font-size: var(--um-copy-description, 1.125rem); line-height: var(--um-body-line-height, 1.62); color: #c4c7cc; max-width: 52ch; }
   .umco__list { list-style: none; margin: 30px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 22px 28px; }
   .umco__list li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, .12); }
-  .umco__list span { font-size: .9rem; font-weight: 600; color: #dc2626; font-variant-numeric: tabular-nums; padding-top: 3px; }
-  .umco__list strong { font-size: 1.08rem; font-weight: 600; color: #fff; }
-  .umco__list p { margin: 6px 0 0; font-size: .98rem; line-height: 1.55; color: rgba(255, 255, 255, .72); }
+  .umco__list span { font-size: 1rem; font-weight: 600; color: #dc2626; font-variant-numeric: tabular-nums; padding-top: 3px; }
+  .umco__list strong { font-size: 1rem; font-weight: 600; color: #fff; }
+  .umco__list p { margin: 6px 0 0; font-size: 1rem; line-height: var(--um-body-line-height, 1.62); color: #c4c7cc; }
   .umco__link { display: inline-flex; gap: 8px; margin-top: 28px; font-size: 1rem; font-weight: 600; color: #fff; text-decoration: none; border-bottom: 1px solid #dc2626; padding-bottom: 3px; }
   @media (max-width: 900px) { .umco { grid-template-columns: 1fr; } .umco__media { aspect-ratio: 16 / 10; } .umco__list { grid-template-columns: 1fr; } }
   @media (max-width: 1110px), (pointer: coarse) { .umco__link { min-height: 44px; align-items: center; } }
-  @media (max-width: 760px) { .umco { gap: 24px; } .umco__media { aspect-ratio: 16 / 9; } .umco h2 { text-wrap: balance; } .umco__lead { font-size: 1.0625rem; margin-top: 16px; } .umco__list { margin-top: 24px; gap: 0; } .umco__list li { padding: 14px 0; } .umco__list p { margin-top: 4px; } .umco__link { min-height: 44px; align-items: center; margin-top: 12px; padding-bottom: 0; border-bottom: 0; text-decoration: underline; text-decoration-color: #dc2626; text-underline-offset: 6px; } }
+  @media (max-width: 760px) { .umco { gap: 24px; } .umco__media { aspect-ratio: 16 / 9; } .umco h2 { font-size: 1.75rem !important; text-wrap: balance; } .umco__lead { margin-top: 16px; } .umco__list { margin-top: 24px; gap: 0; } .umco__list li { padding: 14px 0; } .umco__list p { margin-top: 4px; } .umco__link { min-height: 44px; align-items: center; margin-top: 12px; padding-bottom: 0; border-bottom: 0; text-decoration: underline; text-decoration-color: #dc2626; text-underline-offset: 6px; } }
 </style>

@@ -29,7 +29,7 @@ export const serviceSingleDemoCopy: Record<number, ServiceSingleCopy> = {
     approachIntro: 'Cada obra de red se entrega medida, etiquetada y documentada. Lo que instalamos, lo podemos probar.',
   },
   102: {
-    headline: 'Seguridad electrónica para proteger activos críticos.',
+    headline: 'Seguridad electrónica para actuar.',
     paragraph: 'Videovigilancia IP, control de accesos, intrusión y monitoreo, con documentación y evidencia técnica para operaciones que no pueden detenerse.',
     capabilitiesIntro: 'Un mismo equipo releva, diseña, implementa, documenta y sostiene cada frente de protección para operaciones que no pueden detenerse.',
     approachHeading: 'De la auditoría de riesgo al monitoreo continuo.',
@@ -50,7 +50,7 @@ export const serviceSingleDemoCopy: Record<number, ServiceSingleCopy> = {
     approachIntro: 'Empezamos por cómo trabaja el equipo y adaptamos el software a esa operación.',
   },
   105: {
-    headline: 'Soporte 24/7 para que nada se detenga.',
+    headline: 'Soporte 24/7, del incidente a la solución.',
     paragraph: 'Mesa de ayuda, monitoreo continuo, mantenimiento preventivo y respuesta en sitio con acuerdos de servicio, para operaciones que necesitan continuidad y evidencia.',
     capabilitiesIntro: 'Un mismo equipo monitorea, previene, responde y documenta cada incidente para operaciones que no pueden detenerse.',
     approachHeading: 'Del incidente resuelto a la falla evitada.',
@@ -64,14 +64,14 @@ export const serviceSingleDemoCopy: Record<number, ServiceSingleCopy> = {
     approachIntro: 'No vendemos un informe genérico. Auditamos el sitio, ordenamos riesgos y entregamos un plan que se puede ejecutar y medir.',
   },
   107: {
-    headline: 'Detección de incendios para proteger personas y activos.',
+    headline: 'Detección de incendios para actuar a tiempo.',
     paragraph: 'Ingeniería, paneles, sensores y alarmas integradas con monitoreo, con documentación y evidencia técnica para instalaciones que no pueden quedar desprotegidas.',
     capabilitiesIntro: 'Un mismo equipo diseña, implementa, integra, documenta y sostiene cada sistema de detección para instalaciones que no pueden detenerse.',
     approachHeading: 'Del estudio de riesgo a la respuesta inmediata.',
     approachIntro: 'Cada sistema se diseña sobre el riesgo real del sitio, se prueba zona por zona y se sostiene con mantenimiento y monitoreo.',
   },
   108: {
-    headline: 'Eléctricos para IT que garantizan continuidad.',
+    headline: 'Energía IT para sostener la operación.',
     paragraph: 'UPS, tableros, tendido, puesta a tierra y respaldo energético dedicados a infraestructura tecnológica, con documentación y evidencia técnica para que nada se apague.',
     capabilitiesIntro: 'Un mismo equipo releva, diseña, implementa, documenta y sostiene cada instalación eléctrica que alimenta la infraestructura crítica.',
     approachHeading: 'Del cálculo de cargas al respaldo garantizado.',

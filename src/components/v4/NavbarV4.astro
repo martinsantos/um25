@@ -1058,7 +1058,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     }
 
     .um-ops-container {
-      width: min(100% - 32px, var(--um-container-wide));
+      width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
     }
 
     .um-ops-logo {
@@ -1107,7 +1107,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
       const link = mega.querySelector<HTMLAnchorElement>('.um-ops-mega__link');
       if (!toggle) return;
       const setOpen = (open: boolean) => {
-        closeMegas(mega);
+        if (open) closeMegas(mega);
         mega.classList.toggle('is-open', open);
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       };

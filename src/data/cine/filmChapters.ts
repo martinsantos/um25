@@ -1,0 +1,259 @@
+/** Captions follow the native movie clock; they explain the installation in view. */
+export type FilmChapter = { at: number; text: string };
+export const FILM_CHAPTERS: Record<string, FilmChapter[]> = {
+  'software-system-v27': [
+    {at:0,text:'Una orden reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.6,text:'Antes de aprobar, verificamos quién actúa y qué puede hacer en ese proyecto.'},
+    {at:7.8,text:'Las integraciones validan cada dato y lo conectan con su destino.'},
+    {at:12.6,text:'La aprobación conserva el proyecto, la versión y el historial del cambio.'},
+    {at:17.2,text:'El equipo recibe la orden aprobada y puede seguir trabajando.'},
+  ],
+  'software-system-v25': [
+    {at:0,text:'Una orden reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.6,text:'Antes de aprobar, verificamos quién actúa y qué puede hacer en ese proyecto.'},
+    {at:7.8,text:'Las integraciones validan cada dato y lo conectan con su destino.'},
+    {at:12.6,text:'La aprobación conserva el proyecto, la versión y el historial del cambio.'},
+    {at:17.2,text:'El equipo recibe la orden aprobada y puede seguir trabajando.'},
+  ],
+
+
+  'software-system-v24': [
+    {at:0,text:'Una orden reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.6,text:'Antes de aprobar, verificamos quién actúa y qué puede hacer en ese proyecto.'},
+    {at:7.8,text:'Las integraciones validan cada dato y lo conectan con su destino.'},
+    {at:12.6,text:'La aprobación conserva el proyecto, la versión y el historial del cambio.'},
+    {at:17.2,text:'El equipo recibe la orden aprobada y puede seguir trabajando.'},
+  ],
+
+  'software-system-v23': [
+    {at:0,text:'Una orden reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.6,text:'Antes de aprobar, verificamos quién actúa y qué puede hacer en ese proyecto.'},
+    {at:7.8,text:'Las integraciones validan cada dato y lo conectan con su destino.'},
+    {at:12.6,text:'La aprobación conserva el proyecto, la versión y el historial del cambio.'},
+    {at:17.2,text:'El equipo recibe la orden aprobada y puede seguir trabajando.'},
+  ],
+
+  'software-system-v22': [
+    {at:0,text:'Una herramienta reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.6,text:'Identidad, rol y alcance autorizan la misma operación.'},
+    {at:7.8,text:'Cada campo llega a su destino y se valida.'},
+    {at:12.6,text:'El cambio se confirma y conserva su historia.'},
+    {at:17.2,text:'La operación vuelve al equipo como información confiable.'},
+  ],
+
+  'software-system-v21': [
+    {at:0,text:'Una herramienta reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.6,text:'Identidad, rol y alcance autorizan la misma operación.'},
+    {at:7.8,text:'Cada campo llega a su destino y se valida.'},
+    {at:12.6,text:'El cambio se confirma y conserva su historia.'},
+    {at:17.2,text:'La operación vuelve al equipo como información confiable.'},
+  ],
+
+  'software-system-v20': [
+    {at:0,text:'Una herramienta reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.6,text:'Identidad, rol y alcance autorizan la misma operación.'},
+    {at:7.8,text:'Cada campo llega a su destino y se valida.'},
+    {at:12.6,text:'El cambio se confirma y conserva su historia.'},
+    {at:17.2,text:'La operación vuelve al equipo como información confiable.'},
+  ],
+  'software-system-v19': [
+    {at:0,text:'Una herramienta reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.6,text:'Identidad, rol y alcance autorizan la misma operación.'},
+    {at:7.8,text:'Cada campo llega a su destino y se valida.'},
+    {at:12.6,text:'El cambio se confirma y conserva su historia.'},
+    {at:17.2,text:'La operación vuelve al equipo como información confiable.'},
+  ],
+  'software-system-v18': [
+    {at:0,text:'Una herramienta reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.6,text:'Identidad, rol y alcance autorizan la misma operación.'},
+    {at:7.8,text:'Cada campo llega a su destino y se valida.'},
+    {at:12.6,text:'El cambio se confirma y conserva su historia.'},
+    {at:17.2,text:'La operación vuelve al equipo como información confiable.'},
+  ],
+  'software-system-v17': [
+    {at:0,text:'Una herramienta reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.6,text:'Identidad, rol y alcance autorizan la misma operación.'},
+    {at:7.8,text:'Cada campo llega a su destino y se valida.'},
+    {at:12.6,text:'El cambio se confirma y conserva su historia.'},
+    {at:17.2,text:'La operación vuelve al equipo como información confiable.'},
+  ],
+  'software-system-v15': [
+    {at:0,text:'Una herramienta reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.6,text:'Identidad, rol y alcance autorizan la misma operación.'},
+    {at:7.8,text:'Cada campo llega a su destino y se valida.'},
+    {at:12.6,text:'El cambio se confirma y conserva su historia.'},
+    {at:17.2,text:'La operación vuelve al equipo como información confiable.'},
+  ],
+  'software-system-v14': [
+    {at:0,text:'Una herramienta reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.2,text:'Cada aprobación verifica identidad, rol y alcance.'},
+    {at:6.4,text:'Conectamos los campos sin perder su significado.'},
+    {at:10,text:'Cada cambio confirma su estado y conserva su historia.'},
+    {at:13.8,text:'Una operación completa, de la interfaz al registro.'},
+  ],
+  'software-system-v13': [
+    {at:0,text:'Una herramienta reúne el trabajo, sus responsables y su contexto.'},
+    {at:2.2,text:'Cada aprobación verifica identidad, rol y alcance.'},
+    {at:6.4,text:'El contrato conserva el contexto de la misma solicitud.'},
+    {at:9.6,text:'El cambio queda registrado antes de responder al equipo.'},
+    {at:13.8,text:'Una operación completa, de la interfaz al registro.'},
+  ],
+  'software-system-v12': [
+    { at: 0, text: 'Una herramienta reúne el trabajo, sus responsables y su contexto.' },
+    { at: 1.6, text: 'Detrás de cada acción, identidad, rol y alcance verifican el acceso.' },
+    { at: 8.5, text: 'La misma solicitud atraviesa el contrato y deja un registro relacionado.' },
+    { at: 13.8, text: 'Interfaz, reglas y datos: un solo producto para tu equipo.' },
+  ],
+  'software-system-v11': [
+    { at: 0, text: 'Una orden reúne el trabajo, sus responsables y su contexto.' },
+    { at: 1.2, text: 'Detrás de la interfaz, identidad, rol y alcance verifican el acceso.' },
+    { at: 3.84, text: 'La integración traduce los campos y conserva el mismo identificador.' },
+    { at: 7.36, text: 'Proyecto, orden y evento quedan relacionados en una transacción.' },
+    { at: 10.88, text: 'La infraestructura sostiene la operación y permite publicar cambios controlados.' },
+    { at: 14.08, text: 'Todas las capas devuelven un resultado claro al equipo.' },
+  ],
+  'software-system-v10': [
+    { at: 0, text: 'Una herramienta diseñada alrededor del trabajo de tu equipo.' },
+    { at: 2, text: 'Abrimos la interfaz para mostrar las reglas que sostienen cada acción.' },
+    { at: 3.6, text: 'Por detrás, identidad, permisos y datos se comunican con un mismo contexto.' },
+    { at: 7.55, text: 'La aprobación deja un registro y devuelve el resultado al equipo.' },
+    { at: 9.6, text: 'Lo que se ve y lo que sucede detrás: un solo producto.' },
+  ],
+  'software-system-v9': [
+    { at: 0, text: 'Una herramienta diseñada alrededor del trabajo del equipo.' },
+    { at: 1.2, text: 'Cada orden reúne proyecto, responsables y alcance.' },
+    { at: 4, text: 'La aprobación verifica identidad, rol y permisos sobre ese proyecto.' },
+    { at: 7.55, text: 'La decisión queda registrada y vuelve al equipo.' },
+    { at: 9.6, text: 'Interfaz, reglas y trazabilidad forman parte del mismo producto.' },
+  ],
+  'software-system-v8': [
+    { at: 0, text: 'Diseñamos software alrededor de tu operación.' },
+    { at: 3.1, text: 'Conectamos tus sistemas con acceso seguro y controles claros.' },
+    { at: 8.3, text: 'Cada integración traduce y valida la información.' },
+    { at: 12.9, text: 'Los equipos trabajan sobre datos consistentes y trazables.' },
+    { at: 17.1, text: 'Verificamos cada cambio y observamos el sistema en operación.' },
+    { at: 21, text: 'Interfaz, lógica y datos forman un producto que funciona.' },
+  ],
+  'software-system-v7': [
+    { at: 0, text: 'Diseñamos el producto alrededor del trabajo de las personas.' },
+    { at: 4, text: 'Una solicitud reúne alcance, responsables y evidencia.' },
+    { at: 8.6, text: 'Cada cambio valida sus datos, permisos y reglas.' },
+    { at: 12.8, text: 'El registro conserva relaciones, versiones y trazabilidad.' },
+    { at: 16, text: 'Verificamos, publicamos y observamos el sistema en operación.' },
+    { at: 20, text: 'Todas las capas devuelven un resultado al equipo.' },
+  ],
+  'software-system-v6': [
+    { at: 0, text: 'La aplicación empieza por el trabajo de las personas.' },
+    { at: 5.6, text: 'Cada acción pasa por validación, permisos e integración.' },
+    { at: 11.2, text: 'Los datos relacionan solicitud, responsables e historial.' },
+    { at: 15.9, text: 'Verificamos cada versión y observamos su funcionamiento.' },
+    { at: 20.2, text: 'Todas las capas trabajan para devolver un resultado al equipo.' },
+  ],
+  'software-system-v5': [
+    { at: 0, text: 'La aplicación empieza por el trabajo de las personas.' },
+    { at: 6.5, text: 'Cada acción tiene reglas, permisos y un resultado.' },
+    { at: 11.2, text: 'Interfaz, reglas, datos e infraestructura forman un sistema.' },
+    { at: 17.4, text: 'La información conserva su origen y su historial.' },
+    { at: 21, text: 'El resultado vuelve al equipo para continuar el trabajo.' },
+  ],
+  'network-project-v2': [
+    { at: 0, text: 'Del puesto de trabajo al núcleo de la red.' },
+    { at: 5.6, text: 'Distribución identificada, con acceso para mantenerla.' },
+    { at: 9, text: 'El switch conecta los equipos con la infraestructura.' },
+    { at: 13.8, text: 'La radio extiende el acceso dentro del mismo sistema.' },
+    { at: 20.5, text: 'Una infraestructura conectada de punta a punta.' },
+  ],
+  'security-project-v2': [
+    { at: 0, text: 'Acceso, imagen y registro comparten el contexto.' },
+    { at: 5.7, text: 'La óptica y el sensor permiten observar el lugar.' },
+    { at: 12.4, text: 'El grabador conserva la secuencia y su evidencia.' },
+    { at: 18.5, text: 'La supervisión relaciona imagen, evento y respuesta.' },
+    { at: 22, text: 'Un sistema que se puede operar y verificar.' },
+  ],
+  'telecom-project-v2': [
+    { at: 0, text: 'Cada sitio se conecta según su distancia y su entorno.' },
+    { at: 5.5, text: 'El radioenlace requiere alineación y línea de vista.' },
+    { at: 12.5, text: 'La fibra ofrece otra alternativa de transporte.' },
+    { at: 15.2, text: 'Terminaciones, empalmes y reserva quedan protegidos.' },
+    { at: 21, text: 'Elegimos el medio según lo que necesita la operación.' },
+  ],
+  'fire-project-v2': [
+    { at: 0, text: 'La detección se organiza alrededor de los espacios.' },
+    { at: 5.4, text: 'Cada detector integra sensado e identificación.' },
+    { at: 9.7, text: 'El circuito vincula los dispositivos con la central.' },
+    { at: 13.5, text: 'La central supervisa señales, avisos y respaldo.' },
+    { at: 21, text: 'La instalación se entrega identificada y verificada.' },
+  ],
+  'power-project-v2': [
+    { at: 0, text: 'La continuidad parte de conocer las cargas críticas.' },
+    { at: 5.2, text: 'Entrada y protecciones se coordinan con la instalación.' },
+    { at: 11.5, text: 'La UPS integra control, baterías y mantenimiento.' },
+    { at: 18.4, text: 'Cada salida alimenta equipos identificados.' },
+    { at: 22, text: 'Una cadena de alimentación que se puede comprobar.' },
+  ],
+  'support-project-v2': [
+    { at: 0, text: 'Cada incidente empieza con un equipo y su contexto.' },
+    { at: 5.5, text: 'La señal se convierte en un caso con evidencia.' },
+    { at: 10.5, text: 'El diagnóstico sigue las dependencias del sistema.' },
+    { at: 17.8, text: 'La recuperación se verifica y queda registrada.' },
+    { at: 22, text: 'El historial conserva lo aprendido para el próximo caso.' },
+  ],
+  'consulting-project-v2': [
+    { at: 0, text: 'Primero entendemos la operación y lo que la sostiene.' },
+    { at: 5.5, text: 'Revelamos cómo se relacionan red, energía y servicios.' },
+    { at: 13.2, text: 'Cada hallazgo vincula evidencia, impacto y alternativas.' },
+    { at: 18, text: 'El plan ordena etapas, responsables y verificación.' },
+    { at: 22, text: 'La complejidad se transforma en decisiones ejecutables.' },
+  ],
+};
+
+// Lighting refinement preserves the authored camera and narration timing.
+FILM_CHAPTERS['power-project-v3'] = FILM_CHAPTERS['power-project-v2'];
+
+FILM_CHAPTERS['fachada-proyecto-v5'] = [
+    {at:0,text:'Cada puesto forma parte de la infraestructura del edificio.'},
+    {at:2.8,text:'Datos y alimentación llegan hasta el lugar de trabajo.'},
+    {at:6.6,text:'Las bandejas ordenan la distribución y dejan acceso para mantenerla.'},
+    {at:10.8,text:'Abrimos las capas: energía, datos, seguridad y detección.'},
+    {at:15.6,text:'Cada sistema vuelve a su lugar dentro de una misma obra.'}
+];
+
+FILM_CHAPTERS['hospital-proyecto-v5'] = [
+    {at:0,text:'La infraestructura acompaña cada espacio de atención.'},
+    {at:2.8,text:'La conectividad llega a los equipos y puestos clínicos.'},
+    {at:6.6,text:'El puesto de enfermería reúne las comunicaciones del área.'},
+    {at:10.8,text:'Abrimos las capas: energía, datos, seguridad y detección.'},
+    {at:15.6,text:'Cada sistema vuelve a su lugar dentro de una misma obra.'}
+];
+
+FILM_CHAPTERS['aeropuerto-proyecto-v5'] = [
+    {at:0,text:'Una terminal conecta personas, equipaje y operación.'},
+    {at:2.8,text:'Los puestos de atención comparten una red identificada.'},
+    {at:6.6,text:'Accesos y videovigilancia se integran al control de la terminal.'},
+    {at:10.8,text:'Abrimos las capas: energía, datos, seguridad y detección.'},
+    {at:15.6,text:'Cada sistema vuelve a su lugar dentro de una misma obra.'}
+];
+
+FILM_CHAPTERS['planta-proyecto-v5'] = [
+    {at:0,text:'La infraestructura técnica acompaña el proceso productivo.'},
+    {at:2.8,text:'Conectamos los equipos de cada celda de trabajo.'},
+    {at:6.6,text:'El tablero organiza alimentación, protecciones y control.'},
+    {at:10.8,text:'Abrimos las capas: energía, datos, seguridad y detección.'},
+    {at:15.6,text:'Cada sistema vuelve a su lugar dentro de una misma obra.'}
+];
+
+FILM_CHAPTERS['bodega-proyecto-v5'] = [
+    {at:0,text:'La información acompaña el proceso, del tanque al fraccionamiento.'},
+    {at:2.8,text:'Instrumentación y red conectan cada etapa de elaboración.'},
+    {at:6.6,text:'La línea de fraccionamiento se integra a la misma infraestructura.'},
+    {at:10.8,text:'Abrimos las capas: energía, datos, seguridad y detección.'},
+    {at:15.6,text:'Cada sistema vuelve a su lugar dentro de una misma obra.'}
+];
+
+FILM_CHAPTERS['mineria-proyecto-v5'] = [
+    {at:0,text:'Conectamos los puntos de una operación distribuida.'},
+    {at:2.8,text:'El radioenlace une sitios con línea de vista.'},
+    {at:6.6,text:'La red lleva las comunicaciones hasta el puesto de despacho.'},
+    {at:10.8,text:'Abrimos las capas: energía, datos, seguridad y detección.'},
+    {at:15.6,text:'Cada sistema vuelve a su lugar dentro de una misma obra.'}
+];

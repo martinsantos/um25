@@ -57,7 +57,7 @@
   --um-radius-lg: 8px;
   --um-container: 1180px;
   --um-container-wide: 1400px;
-  --um-page-gutter: clamp(20px, 3.2vw, 32px);
+  --um-page-gutter: clamp(16px, 3.2vw, 32px);
   --um-font-editorial: 'UM Sans 2', 'UM Sans 1.2 Compatibility', Arial, system-ui, sans-serif;
   --font-head: var(--um-font-editorial);
   --um-font-logo: 'Futura PT', 'Futura', Arial, sans-serif;
@@ -450,12 +450,12 @@ body[data-skin="steel"] {
 /* V4 Component Layer */
 @layer components {
   .um-container {
-    width: min(var(--um-container), calc(100% - 32px));
+    width: min(var(--um-container), calc(100% - (var(--um-page-gutter) * 2)));
     margin-inline: auto;
   }
 
   .um-container-wide {
-    width: min(var(--um-container-wide), calc(100% - 32px));
+    width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
     margin-inline: auto;
   }
 

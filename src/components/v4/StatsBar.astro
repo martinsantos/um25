@@ -73,7 +73,7 @@ const countClass = `stats-bar-v4__grid--${Math.min(validStats.length, 4)}`;
   }
 
   .stats-bar-v4__inner {
-    width: min(100% - 32px, 1240px);
+    width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
     margin-inline: auto;
     padding: clamp(22px, 3vw, 34px) 0;
     min-width: 0;
@@ -144,7 +144,7 @@ const countClass = `stats-bar-v4__grid--${Math.min(validStats.length, 4)}`;
 
   @media (max-width: 640px) {
     .stats-bar-v4__inner {
-      width: min(100% - 32px, 1240px);
+      width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
       padding: 14px 0 16px;
     }
 

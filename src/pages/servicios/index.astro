@@ -2,6 +2,15 @@
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
 import CineBanner from '../../components/cine/CineBanner.astro';
+import ServicesStory from '../../components/cine/ServicesStory.astro';
+import MiniIso from '../../components/cine/MiniIso.astro';
+// Scene and layer that best explain each service in its 3D thumbnail.
+const SERVICE_ISO: Record<string,[string,string]> = {'101':['constructoras','da'],'102':['aeropuertos','se'],'103':['mineria','da'],'104':['salud','da'],'105':['industria','all'],'106':['constructoras','all'],'107':['bodegas','de'],'108':['industria','en']};
+import {NAV_SERVICES} from '../../data/navigation';
+import {sectorProject} from '../../data/cine/sectorNarrative';
+import {cinemaChapters} from '../../data/cine/projectCinema';
+const project=sectorProject('integral','fachada');
+const chapters=cinemaChapters();
 import {ISOMETRIC_STUDIES} from '../../data/cine/isometric';
 const isometricAssets=import.meta.glob<string>('../../assets/cine/isometric/*-object.svg',{eager:true,query:'?url',import:'default'});
 
@@ -129,7 +138,9 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
   <div class="services-demo">
     <CineBanner
       variant="sector"
-      scenes={['fachada', 'aeropuerto', 'planta', 'hospital', 'bodega']}
+      scenes={chapters.map(chapter=>chapter.scene)}
+      annotations={false}
+      framing="project"
       titleId="services-demo-title"
       kicker="Servicios"
       title="Ocho frentes de servicio."
@@ -138,6 +149,8 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
       secondary={{ href: '/antecedentes', label: 'Ver evidencia operativa' }}
     />
 
+    <section class="services-demo-shell services-demo-journey" id="equipamiento" aria-label="Los ocho servicios en un mismo proyecto"><ServicesStory services={NAV_SERVICES} project={project} /></section>
+    <details class="services-demo-shell services-demo-compare"><summary>Comparar el alcance de los ocho servicios</summary>
     <section class="services-demo-shell services-demo-list" aria-label="Frentes de servicio de ULTIMA MILLA">
       {servicesWithPosters.map((service, index) => (
         <a
@@ -150,6 +163,7 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
             class={`services-demo-media services-demo-media--${service.code}`}
           >
             <img src={service.image} alt={ISOMETRIC_STUDIES[service.code].object} width="1040" height="755" loading="lazy" decoding="async" />
+            {SERVICE_ISO[service.code] && <MiniIso sector={SERVICE_ISO[service.code][0]} layer={SERVICE_ISO[service.code][1]} class="services-demo-iso" />}
             <span>SRV.{service.code}</span>
             <em>{service.sectors} sectores</em>
           </div>
@@ -171,6 +185,7 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
         </a>
       ))}
     </section>
+    </details>
 
     <section class="services-demo-shell services-demo-compare" aria-labelledby="services-compare-title">
       <div class="services-demo-compare__head">
@@ -219,6 +234,10 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
   </div>
 
   <style>
+    .services-demo-journey{padding-block:48px;scroll-margin-top:88px}
+    .services-demo-compare>summary{min-height:64px;display:flex;align-items:center;cursor:pointer;color:#fff;font-size:1.125rem;border-block:1px solid #ffffff30}
+    .services-demo-compare{margin-bottom:48px}
+
     .services-demo {
       min-height: 100vh;
       background: #0a0a0b;
@@ -380,6 +399,17 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
       color: #fff;
       text-decoration: none;
       background-color: #0f0f11;
+    }
+
+    .services-demo-media :global(.services-demo-iso) {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: transparent;
+    }
+
+    .services-demo-media:has(:global(.mini-iso.is-ready)) img {
+      opacity: 0;
     }
 
     .services-demo-media img {
@@ -676,7 +706,7 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
 
     @media (max-width: 980px) {
       .services-demo-shell {
-        width: min(100% - 32px, var(--um-container-wide));
+        width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
       }
 
       .services-demo-hero {

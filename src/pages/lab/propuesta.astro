@@ -1,0 +1,125 @@
+---
+// Proposal: one home that alternates paper (isometric objects: what we do) and slate
+// (Blender films: where and how we do it). Not linked; review only.
+import LayoutV4 from '../../layouts/LayoutV4.astro';
+import HomeHero from '../../components/cine/HomeHero.astro';
+import CineBanner from '../../components/cine/CineBanner.astro';
+import { HOME_SCENES, V4_CUTS } from '../../data/cine/scenes';
+import SectorRail from '../../components/cine/SectorRail.astro';
+import SectorFilm from '../../components/cine/SectorFilm.astro';
+import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
+import { ANTECEDENTES_REALES } from '../../lib/um26-data/antecedentesReales';
+import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
+
+const total = getAntecedentesCatalogCount();
+const heroVariants = Object.fromEntries(HOME_SCENES.map((s) => [s.scene, Object.keys(V4_CUTS).filter((k) => k.startsWith(`${s.scene}-`))]));
+const heroStart = Math.floor(Math.random() * HOME_SCENES.length);
+const stats = [
+  { value: '22+', label: 'Años de operación', href: '/nosotros' },
+  { value: String(total), label: 'Proyectos documentados', href: '/antecedentes' },
+  { value: '9', label: 'Sectores atendidos', href: '/sectores' },
+];
+const sectors = [
+  { slug: 'salud', scene: 'hospital', name: 'Salud', line: 'Redes y energía que no se cortan en ningún piso.' },
+  { slug: 'aeropuertos', scene: 'aeropuerto', name: 'Aeropuertos', line: 'Check-in, accesos y video en tiempo real.' },
+  { slug: 'industria', scene: 'planta', name: 'Industria', line: 'Cada máquina, en la red de planta.' },
+  { slug: 'bodegas', scene: 'bodega', name: 'Bodegas', line: 'Del tanque a la botella, todo medido.' },
+  { slug: 'constructoras', scene: 'fachada', name: 'Constructoras', line: 'El edificio se entrega funcionando.' },
+  { slug: 'mineria', scene: 'mineria', name: 'Minería', line: 'Enlaces y energía lejos de todo.' },
+];
+const FEATURED = [
+  { id: 3065, image: '/img/antecedentes/curadas/3065-aeropuerto-cctv.webp' },
+  { id: 3075, image: '/img/antecedentes/curadas/3075-fuesmen-redes.webp' },
+  { id: 3064, image: '/img/antecedentes/curadas/3064-gobierno-software.webp' },
+  { id: 3334, image: '/img/antecedentes/curadas/3334-bodega-servidores.webp' },
+];
+const cases = FEATURED.flatMap(({ id, image }) => {
+  const item = ANTECEDENTES_REALES.find((a) => a.id === id); if (!item) return [];
+  return [{ href: `/antecedentes/${id}/${item.slug}`, image, client: item.client, title: item.title.split(' - ')[0], year: item.year }];
+});
+---
+<LayoutV4 skin="black" noindex={true} title="Propuesta · Última Milla" description="Propuesta de portada">
+  <div class="prop">
+    <!-- 1 · El banner Blender de producción -->
+    <CineBanner variant="home" kicker="Más de 22 años de servicios IT · Mendoza, Argentina" title="Servicios IT para operaciones que no pueden detenerse."
+      lead="Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar."
+      primary={{ href: '/antecedentes', label: 'Ver evidencia operativa' }} secondary={{ href: '/sectores', label: 'Entrar por sector' }}
+      variants={heroVariants} start={heroStart} />
+
+    <!-- 2 · Pizarra: dónde lo hacemos -->
+    <section class="prop-slate">
+      <div class="prop-shell">
+        <header class="prop-head">
+          <p class="prop-kicker"><b></b>Sectores</p>
+          <h2>Cada operación, con su propia obra.</h2>
+          <p class="prop-lead">Pasá el mouse por un sector y mirá cómo lo instalamos.</p>
+        </header>
+        <SectorRail items={sectors} />
+      </div>
+    </section>
+
+    <!-- 3 · Pizarra a pantalla completa: cómo lo hacemos -->
+    <SectorFilm sector="salud" antecedentesHref="/antecedentes?sector=salud" compact />
+
+    <!-- 4 · Papel: servicios y prueba -->
+    <HomeHero level="h2" kicker="Servicios" title="Ocho servicios, un mismo equipo." lead="Pasá por cada servicio y mirá el equipo que instalamos, armándose." />
+    <section class="prop-paper prop-paper--tight">
+      <div class="prop-shell">
+        <ol class="prop-svc">
+          {SERVICE_SPEC_LIST.map((s, i) => <li><a href={s.href}><span>{String(i + 1).padStart(2, '0')}</span><strong>{s.name}</strong><em>{s.promise}</em><i aria-hidden="true">→</i></a></li>)}
+        </ol>
+
+        <header class="prop-head prop-gap">
+          <p class="prop-kicker"><b></b>Antecedentes</p>
+          <h2>{total} proyectos documentados.</h2>
+          <a class="prop-link" href="/antecedentes">Ver todos <span aria-hidden="true">→</span></a>
+        </header>
+        <ul class="prop-cases">
+          {cases.map((c) => <li><a href={c.href}><img src={c.image} alt="" width="1200" height="900" loading="lazy" decoding="async" /><small>{c.client}{c.year ? ` · ${c.year}` : ''}</small><strong>{c.title}</strong></a></li>)}
+        </ul>
+      </div>
+    </section>
+
+    <!-- 5 · Cierre -->
+    <section class="prop-close">
+      <div class="prop-shell">
+        <h2>Contanos cómo es tu operación.</h2>
+        <a href="/contacto">Solicitar relevamiento</a>
+      </div>
+    </section>
+  </div>
+</LayoutV4>
+
+<style>
+  .prop-shell{width:min(var(--um-container-wide,1400px),calc(100% - (var(--um-page-gutter,24px) * 2)));margin:0 auto}
+  .prop-slate{background:#14232f;color:#fff;padding:clamp(80px,9vw,140px) 0}
+  .prop-paper{background:#fcfcf9;color:#182120;padding:clamp(80px,9vw,140px) 0}
+  .prop-paper--tight{padding-top:0}
+  .prop-head{display:grid;grid-template-columns:1fr auto;align-items:end;gap:12px 32px;margin-bottom:clamp(32px,4vw,52px)}
+  .prop .prop-kicker{grid-column:1/-1;display:flex;align-items:center;gap:14px;margin:0;font-size:13px!important;letter-spacing:.2em;text-transform:uppercase;color:inherit!important;opacity:.62}
+  .prop-kicker b{width:32px;height:2px;background:#DC2626}
+  .prop .prop-head h2{margin:0;max-width:18ch;font-size:clamp(34px,3.8vw,58px)!important;line-height:1.04;letter-spacing:-.025em;color:inherit!important}
+  .prop .prop-lead{grid-column:1/-1;margin:4px 0 0;font-size:18px!important;color:inherit!important;opacity:.72}
+  .prop-gap{margin-top:clamp(88px,10vw,140px)}
+  .prop-link{color:inherit;font-weight:700;text-decoration:none;border-bottom:2px solid #DC2626;padding-bottom:4px}
+  .prop-svc{list-style:none;margin:0;padding:0;border-top:1px solid rgba(24,33,32,.14)}
+  .prop-svc a{display:grid;grid-template-columns:48px minmax(200px,1fr) minmax(0,1.6fr) 24px;gap:24px;align-items:baseline;padding:22px 4px;border-bottom:1px solid rgba(24,33,32,.14);color:#182120;text-decoration:none;transition:background .3s}
+  .prop-svc a:hover{background:rgba(24,33,32,.035)}
+  .prop-svc span{font-size:13px;color:#8a9097}
+  .prop-svc strong{font-size:20px}
+  .prop-svc em{font-style:normal;font-size:17px;color:#3c423f}
+  .prop-svc i{font-style:normal;color:#8a9097;transition:transform .3s,color .3s}
+  .prop-svc a:hover i{color:#DC2626;transform:translateX(4px)}
+  .prop-cases{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(14px,1.6vw,24px)}
+  .prop-cases a{display:block;color:#182120;text-decoration:none}
+  .prop-cases img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;transition:filter .4s}
+  .prop-cases a:hover img{filter:brightness(1.05)}
+  .prop-cases small{display:block;margin-top:14px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#5f6368}
+  .prop-cases strong{display:block;margin-top:6px;font-size:18px;line-height:1.3}
+  .prop-close{background:#14232f;color:#fff;padding:clamp(80px,9vw,128px) 0}
+  .prop-close .prop-shell{display:flex;align-items:flex-end;justify-content:space-between;gap:32px;flex-wrap:wrap}
+  .prop .prop-close h2{margin:0;max-width:16ch;font-size:clamp(36px,4vw,64px)!important;line-height:1.02;letter-spacing:-.025em;color:#fff!important}
+  .prop-close a{padding:18px 26px;background:#DC2626;color:#fff;font-weight:700;text-decoration:none}
+  .prop a:focus-visible{outline:2px solid #DC2626;outline-offset:3px}
+  @media (max-width:900px){.prop-cases{grid-template-columns:repeat(2,minmax(0,1fr))}.prop-svc a{grid-template-columns:32px 1fr;gap:4px 12px}.prop-svc em{grid-column:2;font-size:15px}.prop-svc i{display:none}.prop-head{grid-template-columns:1fr}}
+</style>

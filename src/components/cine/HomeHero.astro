@@ -1,0 +1,79 @@
+---
+// Home opening on the page's paper: the promise on the left, and on the right the
+// eight services' objects assembling one after another, each naming its service.
+import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
+interface Props { title: string; lead: string; stats?: { value: string; label: string; href?: string }[]; level?: 'h1' | 'h2'; kicker?: string }
+const { title, lead, stats = [], level = 'h1', kicker = 'Última Milla · Servicios IT' } = Astro.props;
+const H = level;
+const items = SERVICE_SPEC_LIST.map((s) => ({ code: s.code, name: s.name, href: s.href }));
+---
+<section class="hhero" aria-labelledby="hhero-title">
+  <div class="hhero__copy">
+    <p class="hhero__kicker"><span></span>{kicker}</p>
+    <H id="hhero-title" class="hhero__title">{title}</H>
+    <p class="hhero__lead">{lead}</p>
+    <div class="hhero__cta">
+      <a class="hhero__btn" href="/contacto">Solicitar relevamiento</a>
+      <a class="hhero__link" href="/servicios">Ver los ocho servicios <span aria-hidden="true">→</span></a>
+    </div>
+    <dl class="hhero__stats">{stats.length > 0 && stats.map((s) => <div><dt>{s.label}</dt><dd>{s.href ? <a href={s.href}>{s.value}</a> : s.value}</dd></div>)}</dl>
+  </div>
+  <div class="hhero__stage">
+    <div class="hhero__canvas" data-hero-objects={JSON.stringify(items.map((i) => i.code))} aria-hidden="true"></div>
+    <ol class="hhero__index" aria-label="Servicios">
+      {items.map((i, k) => <li data-k={k}><a href={i.href}><i></i>{i.name}</a></li>)}
+    </ol>
+  </div>
+</section>
+<style>
+  .hhero{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);align-items:center;min-height:min(92vh,900px);background:#fcfcf9;color:#182120;overflow:hidden}
+  .hhero__copy{padding:clamp(96px,10vw,140px) 24px clamp(56px,6vw,96px) max(var(--um-page-gutter,24px),calc((100% - var(--um-container-wide,1400px))/2))}
+  .hhero.hhero .hhero__kicker{display:flex;align-items:center;gap:14px;margin:0;font-size:13px!important;letter-spacing:.2em;text-transform:uppercase;color:#5f6368!important}
+  .hhero__kicker span{width:32px;height:2px;background:#DC2626}
+  .hhero.hhero .hhero__title{margin:22px 0 0;max-width:13ch;font-size:clamp(44px,5.4vw,88px)!important;line-height:1;letter-spacing:-.03em;color:#182120!important}
+  .hhero.hhero .hhero__lead{margin:24px 0 0;max-width:40ch;font-size:clamp(17px,1.35vw,21px)!important;line-height:1.55;color:#3c423f!important}
+  .hhero__cta{display:flex;flex-wrap:wrap;align-items:center;gap:20px 28px;margin-top:36px}
+  .hhero__btn{padding:18px 26px;background:#DC2626;color:#fff;font-weight:700;text-decoration:none}
+  .hhero__link{color:#182120;font-weight:700;text-decoration:none;border-bottom:2px solid #DC2626;padding-bottom:4px}
+  .hhero__stats{display:flex;gap:clamp(24px,3vw,48px);margin:48px 0 0;padding:0}
+  .hhero__stats div{display:flex;flex-direction:column-reverse;gap:6px}
+  .hhero.hhero .hhero__stats dt{font-size:12px!important;letter-spacing:.14em;text-transform:uppercase;color:#5f6368!important}
+  .hhero.hhero .hhero__stats dd{margin:0;font-size:clamp(28px,2.4vw,40px)!important;font-weight:700;letter-spacing:-.02em;color:#182120!important}
+  .hhero__stats a{color:inherit;text-decoration:none}
+  .hhero__stage{position:relative;height:100%;min-height:min(92vh,900px)}
+  .hhero__canvas{position:absolute;inset:0 0 72px 0}
+  .hhero__canvas :global(canvas){position:absolute;inset:0;width:100%;height:100%;display:block;transition:opacity .6s ease}
+  .hhero__index{position:absolute;left:0;right:max(var(--um-page-gutter,24px),calc((100% - var(--um-container-wide,1400px))/2));bottom:24px;display:flex;flex-wrap:wrap;gap:6px 18px;margin:0;padding:0;list-style:none}
+  .hhero__index a{display:flex;align-items:center;gap:8px;font-size:13px;color:#8a9097;text-decoration:none;transition:color .3s}
+  .hhero__index i{width:6px;height:6px;border-radius:50%;background:currentColor;transition:background .3s,transform .3s}
+  .hhero__index li.on a{color:#182120}
+  .hhero__index li.on i{background:#DC2626;transform:scale(1.4)}
+  .hhero__index a:hover{color:#182120}
+  .hhero a:focus-visible{outline:2px solid #DC2626;outline-offset:3px}
+  @media (max-width:900px){
+    .hhero{grid-template-columns:1fr;min-height:0}
+    .hhero__copy{padding:96px var(--um-page-gutter,20px) 8px}
+    .hhero__stage{min-height:0;aspect-ratio:1/1}
+    .hhero__index{left:var(--um-page-gutter,20px);right:var(--um-page-gutter,20px)}
+  }
+</style>
+<script>
+  async function boot() {
+    const host = document.querySelector<HTMLElement>('[data-hero-objects]:not([data-bound])'); if (!host) return;
+    host.dataset.bound = '1';
+    const codes: string[] = JSON.parse(host.dataset.heroObjects || '[]');
+    const items = [...document.querySelectorAll<HTMLElement>('.hhero__index li')];
+    const { mountObject } = await import('../../scripts/senal/objects.js');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let k = 0, dispose = () => {}, timer = 0;
+    const show = (i: number) => {
+      k = (i + codes.length) % codes.length; dispose(); dispose = mountObject(host, codes[k]);
+      items.forEach((li, j) => li.classList.toggle('on', j === k));
+      clearTimeout(timer); if (!reduce) timer = window.setTimeout(() => show(k + 1), 11800);
+    };
+    items.forEach((li, j) => li.addEventListener('mouseenter', () => show(j)));
+    show(0);
+    document.addEventListener('astro:before-swap', () => { clearTimeout(timer); dispose(); }, { once: true });
+  }
+  boot(); document.addEventListener('astro:page-load', boot);
+</script>
