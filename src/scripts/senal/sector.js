@@ -382,6 +382,19 @@ export async function mountSector(host, spec) {
     pieces.push({ g, at: .3 + i * .1, kind, y0: g.position.y });
   });
 
+  // A layer is drawn in from its source (the board, the rack, the central): a front in the
+  // layer's colour sweeps out and leaves the drawing behind it.
+  const plateMaterial = (tex, col) => new THREE.ShaderMaterial({
+    uniforms: { map: { value: tex }, opacity: { value: 1 }, reveal: { value: 99 }, origin: { value: new THREE.Vector2() }, tint: { value: new THREE.Color(col) } },
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: `uniform sampler2D map; uniform float opacity; uniform float reveal; uniform vec2 origin; uniform vec3 tint; varying vec2 vUv;
+      void main(){ vec4 c = texture2D(map, vUv); vec2 p = vec2((vUv.x - .5) * ${W}.0, (.5 - vUv.y) * ${D}.0); float d = distance(p, origin);
+        float m = 1.0 - smoothstep(reveal - .6, reveal, d); float f = (1.0 - smoothstep(0.0, .3, abs(d - reveal))) * step(.05, reveal) * (1.0 - step(40.0, reveal));
+        gl_FragColor = vec4(mix(c.rgb, tint, f * .7), max(c.a * m, f * .45) * opacity);
+        #include <colorspace_fragment>
+      }`,
+    transparent: true, depthWrite: false, side: THREE.DoubleSide,
+  });
   // Layers: drawn plate + small 3D tokens, each with an HTML label (a link to its service).
   const labels = [...host.querySelectorAll('[data-scode-layer]')];
   const tokenMat = (c) => new THREE.MeshStandardMaterial({ color: c, roughness: .4 });
@@ -389,7 +402,7 @@ export async function mountSector(host, spec) {
   const layers = spec.layers.map((layer, k) => {
     const grp = new THREE.Group(); scene.add(grp);
     const tex = drawLayer(layer, ppu);
-    const plate = new THREE.Mesh(new THREE.PlaneGeometry(W, D), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
+    const plate = new THREE.Mesh(new THREE.PlaneGeometry(W, D), plateMaterial(tex, LAYER_STYLE[layer.svc].color));
     plate.rotation.x = -Math.PI / 2; plate.renderOrder = 10 + k; grp.add(plate);
     const col = new THREE.Color(LAYER_STYLE[layer.svc].color), tm = tokenMat(col), white = M.white;
     const toks = [];
@@ -402,7 +415,12 @@ export async function mountSector(host, spec) {
     const routes = layer.items.filter((it) => ROUTE.has(it[0])).map((it) => poly((it[0] === 'link' ? [it[1], it[2]] : it[0] === 'loop' ? [...it[1], it[1][0]] : it[1]).map(([x, z]) => [x, .06, z])));
     const pulseMat = new THREE.MeshBasicMaterial({ color: col, toneMapped: false });
     const pulses = routes.flatMap((r, ri) => Array.from({ length: Math.max(1, Math.round(r.len / 3.5)) }, (_, j) => { const m = new THREE.Mesh(new THREE.SphereGeometry(.075, 16, 10), pulseMat); grp.add(m); return { m, r, ph: j / Math.max(1, Math.round(r.len / 3.5)) + ri * .17 }; }));
-    return { grp, plate, toks, pulses, label: labels[k] };
+    const src = layer.items.find((it) => it[0] === 'node') || layer.items.find((it) => ROUTE.has(it[0]) && it[0] !== 'link');
+    const origin = !src ? [0, 0] : src[0] === 'node' ? [src[1], src[2]] : src[1][0];
+    plate.material.uniforms.origin.value.set(origin[0], origin[1]);
+    const maxR = Math.max(...[[-W / 2, -D / 2], [W / 2, -D / 2], [W / 2, D / 2], [-W / 2, D / 2]].map(([x, z]) => Math.hypot(x - origin[0], z - origin[1]))) + .8;
+    toks.forEach((m) => { m.userData.d = Math.hypot(m.position.x - origin[0], m.position.z - origin[1]); });
+    return { grp, plate, toks, pulses, label: labels[k], svc: layer.svc, origin, maxR, items: layer.items, routes };
   });
 
   // Leaders (dashed verticals) and the moment.
@@ -430,7 +448,7 @@ export async function mountSector(host, spec) {
     let d = 0; for (let i = 0; i < 8; i++) { const p = new THREE.Vector3(i & 1 ? box3.max.x : box3.min.x, i & 2 ? box3.max.y : box3.min.y, i & 4 ? box3.max.z : box3.min.z).sub(c); const x = p.dot(right), y = p.dot(up), z = p.dot(fwd); d = Math.max(d, Math.abs(x) / th - z, Math.abs(y) / tv - z); }
     return { c, pos: c.clone().addScaledVector(dir, d * (driven ? (stage.clientWidth >= 700 ? 1.18 : 1.04) : 1.1)) };
   };
-  let A, B, BK = [];
+  let A, B, BK = [], CAM = null;
   const camPos = new THREE.Vector3(), camC = new THREE.Vector3(); let camInit = false;
   function resize() {
     const w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return;
@@ -441,6 +459,12 @@ export async function mountSector(host, spec) {
     A = fit(bb, .62, .62); B = fit(boxOpen, .7, driven ? .36 : .48);
     // Driven pages frame the floor plus the active layer, a little more from above, so its drawing reads.
     BK = spec.layers.map((_, k) => fit(bb.clone().expandByPoint(new THREE.Vector3(W / 2, topY(k) + .4, D / 2)), .68, .5));
+    // Each step has its own camera, and scrolling through it moves the camera a little.
+    const P = { 108: [.95, .48], 101: [.4, .64], 103: [1.12, .42], 102: [.26, .54], 107: [.84, .62], 104: [.6, .36] };
+    const boxM = bb.clone().expandByPoint(new THREE.Vector3(W / 2, topY(Math.max(0, ...spec.moment.path.map((q) => q[1]))) + .4, D / 2));
+    CAM = { place: [fit(bb, .42, .64), fit(bb, .78, .58)], audit: [fit(bb, .62, 1.1), fit(bb, .62, 1.22)], moment: [fit(boxM, .58, .46), fit(boxM, .82, .46)],
+      support: [fit(boxOpen, .5, .42), fit(boxOpen, .8, .42)], ficha: [fit(boxOpen, .66, .4), fit(boxOpen, .66, .4)],
+      layers: spec.layers.map((l, k) => { const bx = bb.clone().expandByPoint(new THREE.Vector3(W / 2, topY(k) + .4, D / 2)), [az, el] = P[l.svc] || [.68, .5]; return [fit(bx, az - .09, el), fit(bx, az + .09, el)]; }) };
     if (ready && !driven && (reduce || freeze !== null)) render(reduce && freeze === null ? 13.4 : freeze, freeze !== null);
   }
   let ready = false;
@@ -483,6 +507,26 @@ export async function mountSector(host, spec) {
   // Broadcast (e.g. voceo): when the signal arrives, every device of a kind answers.
   const after = spec.moment.after ? kindPts(spec.layers[spec.moment.after[0]], spec.moment.after[1]) : [];
   const echo = after.map(() => { const m = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xDC2626, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, toneMapped: false })); m.rotation.x = -Math.PI / 2; scene.add(m); return m; });
+  // Each service has its own verb while its chapter is on screen.
+  const flat = (geo, color, op = 0) => { const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: op, side: THREE.DoubleSide, depthWrite: false, toneMapped: false })); m.rotation.x = -Math.PI / 2; m.renderOrder = 25; scene.add(m); return m; };
+  const tickGeo = new THREE.RingGeometry(.17, .25, 32), dotFill = new THREE.CircleGeometry(.11, 24);
+  const verbs = layers.map((L, k) => {
+    const v = { ticks: [], echoes: [], fans: [], dets: [], test: null, rise: [] };
+    const pts = (kinds) => L.items.filter((it) => kinds.includes(it[0])).map((it) => [it[1], it[2]]);
+    if (L.svc === 101) v.ticks = pts(['dot', 'ap']).map(([x, z]) => ({ x, z, d: Math.hypot(x - L.origin[0], z - L.origin[1]), r: flat(tickGeo, 0x1fae6b), c: flat(dotFill, 0x1fae6b) }));
+    if (L.svc === 103) v.echoes = pts(['speaker', 'phone', 'radio']).map(([x, z]) => ({ x, z, r: flat(ringGeo, LAYER_STYLE[103].color) }));
+    if (L.svc === 102) v.fans = L.items.filter((it) => it[0] === 'cam').map((it, i) => {
+      const a = it[3] * Math.PI / 180, h = .45, g = new THREE.Group(); g.position.set(it[1], 0, it[2]); grpAdd(L, g);
+      const m = new THREE.Mesh(new THREE.CircleGeometry(it[4] * .92, 32, -a - h, 2 * h), new THREE.MeshBasicMaterial({ color: LAYER_STYLE[102].color, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, toneMapped: false }));
+      m.rotation.x = -Math.PI / 2; m.position.y = .03; m.renderOrder = 24; g.add(m); return { g, m, ph: i * 1.7 };
+    });
+    if (L.svc === 107) { const loopIt = L.items.find((it) => it[0] === 'loop'); if (loopIt) { const path = poly([...loopIt[1], loopIt[1][0]].map(([x, z]) => [x, .08, z])); v.test = { path, spark: new THREE.Mesh(new THREE.SphereGeometry(.1, 16, 10), new THREE.MeshBasicMaterial({ color: LAYER_STYLE[107].color, toneMapped: false })) }; L.grp.add(v.test.spark);
+      v.dets = pts(['det', 'heat']).map(([x, z]) => ({ u: path.near(new THREE.Vector3(x, .08, z)), r: flat(tickGeo, 0x1fae6b), x, z })); } }
+    if (L.svc === 104) v.rise = spec.leaders.flatMap(([x, z], i) => [0, 1, 2].map((j) => { const m = new THREE.Mesh(new THREE.SphereGeometry(.05, 10, 8), new THREE.MeshBasicMaterial({ color: 0x182120, toneMapped: false })); m.visible = false; scene.add(m); return { m, x, z, ph: j / 3 + i * .13 }; }));
+    return v;
+  });
+  function grpAdd(L, g) { L.grp.add(g); }
+
   // Review captures: ?at= starts the chapter's own clock at that second.
   const at0 = Number(new URLSearchParams(location.search).get('at')) || 0;
   let aClock = at0, sClock = at0;
@@ -492,13 +536,18 @@ export async function mountSector(host, spec) {
   const arr = (v) => Array.from({ length: NL }, () => v);
   const S = { open: arr(0), dim: arr(1), labels: arr(0), tilt: 0, flow: 0, leaders: 0, look: 0, aud: 0, sup: 0 };
   const T = { open: arr(0), dim: arr(1), labels: arr(0), tilt: 0, flow: 0, leaders: 0, look: 0, aud: 0, sup: 0 };
-  let chapter = 'place', mClock = 0;
+  let chapter = 'place', mClock = 0, curK = -1, qv = 0, focus = null;
+  const qPin = new URLSearchParams(location.search).get('q');
+  function setProgress(q) { qv = qPin !== null ? Number(qPin) : clamp(q); }
+  function setFocus(f) { focus = f; for (let j = 0; j < NL; j++) T.dim[j] = f === null ? 1 : j === f ? 1 : .12; }
   function setChapter(ch) {
     if (ch === chapter) return; chapter = ch; mClock = at0; aClock = at0; sClock = at0;
     const k = ch.startsWith('layer-') ? Number(ch.slice(6)) : -1, up = ch === 'place' || ch === 'audit' ? 0 : 1;
+    // The building is put together as you read: every layer up to the current one stays built.
+    const built = up ? (k >= 0 ? k : NL - 1) : -1; curK = k;
     T.aud = ch === 'audit' ? 1 : 0; T.sup = ch === 'support' ? 1 : 0;
-    for (let j = 0; j < NL; j++) { T.open[j] = up; T.dim[j] = k < 0 ? (ch === 'moment' ? .55 : ch === 'support' ? .8 : 1) : j === k ? 1 : .1; T.labels[j] = up * (k < 0 ? (ch === 'all' ? 1 : 0) : j === k ? 1 : 0); }
-    T.tilt = up; T.flow = up * (ch === 'moment' ? .4 : 1); T.leaders = up * (k < 0 ? 1 : .4);
+    for (let j = 0; j < NL; j++) { T.open[j] = j <= built ? 1 : 0; T.dim[j] = k >= 0 ? (j < k ? .28 : 1) : ch === 'moment' ? .55 : ch === 'support' ? .8 : 1; T.labels[j] = k >= 0 && j === k ? 1 : 0; }
+    T.tilt = up; T.flow = up * (ch === 'moment' ? .4 : 1); T.leaders = up * (k < 0 ? (ch === 'ficha' ? .5 : 1) : .3);
     T.look = k < 0 ? 0 : (topY(k) - (B ? B.c.y : 0)) * .3;
     labels.forEach((l, j) => l.classList.toggle('is-on', j === k));
     setHighlight(null);
@@ -523,8 +572,10 @@ export async function mountSector(host, spec) {
     const w = stage.clientWidth, h = stage.clientHeight;
     layers.forEach((L, k) => {
       const o = S.open[k], d = S.dim[k]; L.grp.position.y = .02 + (topY(k) - .02) * o; L.grp.visible = o > .003;
-      L.plate.material.opacity = Math.min(1, o * 1.4) * (.1 + .9 * d); L.toks.forEach((m) => m.scale.setScalar(Math.max(.001, o * (.5 + .5 * d))));
-      L.pulses.forEach((p) => { p.m.visible = S.flow * d > .05; p.r.at((run * .16 + p.ph) % 1, p.m.position); p.m.scale.setScalar(.4 + S.flow * d * .6); });
+      const rev = !driven || k !== curK ? 99 : ease(clamp(qv / .55)) * L.maxR; L.plate.material.uniforms.reveal.value = rev;
+      L.plate.material.uniforms.opacity.value = Math.min(1, o * 1.4) * (.1 + .9 * d);
+      L.toks.forEach((m) => m.scale.setScalar(Math.max(.001, o * (.5 + .5 * d) * clamp((rev - m.userData.d) / .5))));
+      L.pulses.forEach((p) => { p.m.visible = S.flow * d > .05 && rev > 30; p.r.at((run * .16 + p.ph) % 1, p.m.position); p.m.scale.setScalar(.4 + S.flow * d * .6); });
       if (L.label && w >= 700) {
         let best = null; for (const [x, z] of [[-W / 2, -D / 2], [W / 2, -D / 2], [W / 2, D / 2], [-W / 2, D / 2]]) { proj.set(x, L.grp.position.y, z).project(cam); if (!best || proj.x < best.x) best = proj.clone(); }
         L.label.style.transform = `translate(${((best.x + 1) / 2) * w}px,${((1 - best.y) / 2) * h}px) translate(-100%,-50%)`;
@@ -532,6 +583,17 @@ export async function mountSector(host, spec) {
       if (L.label) L.label.style.opacity = String(S.labels[k]);
     });
     leaderMat.opacity = .38 * S.leaders;
+    // Verbs: certified points, voices, sweeping cameras, the loop test, data rising.
+    const vq = clamp((qv - .3) / .7);
+    verbs.forEach((V, k) => {
+      const L = layers[k], o = S.open[k], y = L.grp.position.y, live = o > .5, cur = driven && k === curK, rev = cur ? ease(clamp(qv / .55)) * L.maxR : 99;
+      V.ticks.forEach((t) => { const on = live && rev > t.d + .3, s = on ? Math.min(1, (rev - t.d - .3) / .6) : 0; t.r.visible = t.c.visible = s > .01; t.r.position.set(t.x, y + .05, t.z); t.c.position.set(t.x, y + .055, t.z); t.r.material.opacity = .9 * s * S.dim[k]; t.c.material.opacity = .85 * s * S.dim[k]; t.r.scale.setScalar(.6 + .4 * s); });
+      V.echoes.forEach((e, i) => { const ph = cur ? ((vq * 2.4 - i * .09) % 1 + 1) % 1 : (elapsed * .25 + i * .21) % 1, on = live && (cur ? vq > i * .03 : true); e.r.visible = on; e.r.position.set(e.x, y + .05, e.z); e.r.scale.setScalar(.4 + ph * 1.3); e.r.material.opacity = on ? (cur ? .8 : .25) * (1 - ph) * S.dim[k] : 0; });
+      V.fans.forEach((f) => { f.g.rotation.y = Math.sin(elapsed * .55 + f.ph) * .32; f.m.material.opacity = live ? (cur ? .2 + .1 * vq : .1) * S.dim[k] : 0; });
+      if (V.test) { const done = !cur || vq >= 1, u = cur ? vq : 1; V.test.spark.visible = live && cur && vq > 0 && vq < 1; V.test.path.at(u, V.test.spark.position);
+        V.dets.forEach((dd) => { const on = live && (done || dd.u <= u); dd.r.visible = on; dd.r.position.set(dd.x, y + .05, dd.z); dd.r.material.opacity = on ? .9 * S.dim[k] : 0; }); }
+      V.rise.forEach((r) => { r.m.visible = live && S.dim[k] > .5; const f = (elapsed * .35 + r.ph) % 1; r.m.position.set(r.x, BASE_Y + (y - BASE_Y) * f, r.z); r.m.scale.setScalar(Math.sin(f * Math.PI)); });
+    });
     // Moment: the red signal crosses the stack, ringing where it starts and arrives.
     const mu = clamp((mt - .3) / 3.0);
     spark.visible = mOn; momentPath.at(ease(mu), spark.position);
@@ -557,7 +619,8 @@ export async function mountSector(host, spec) {
     if (desk) { proj.set(inc[1], topD, inc[2]).project(cam); desk.style.transform = `translate(${((proj.x + 1) / 2) * w}px,${((1 - proj.y) / 2) * h}px) translate(-50%,-100%)`;
       desk.style.opacity = String(S.sup * win(1.6, 2.2, sc)); const ph = sc < 2.4 ? '0' : sc < 4.6 ? '1' : '2'; if (desk.dataset.phase !== ph) desk.dataset.phase = ph; }
     if (driven) {
-      const f = chapter.startsWith('layer-') ? BK[Number(chapter.slice(6))] : chapter === 'moment' ? BK[momentTop] : chapter === 'place' || chapter === 'audit' ? A : B;
+      const pair = chapter.startsWith('layer-') ? CAM.layers[Number(chapter.slice(6))] : CAM[chapter] || CAM.ficha, e = ease(qv);
+      const f = { pos: tmp.lerpVectors(pair[0].pos, pair[1].pos, e).clone(), c: new THREE.Vector3().lerpVectors(pair[0].c, pair[1].c, e) };
       if (!camInit || snap) { camPos.copy(f.pos); camC.copy(f.c); camInit = true; } else { camPos.lerp(f.pos, camK); camC.lerp(f.c, camK); }
       cam.position.copy(camPos); cam.lookAt(camC);
     } else { cam.position.lerpVectors(A.pos, B.pos, S.tilt); tmp.lerpVectors(A.c, B.c, S.tilt); cam.lookAt(tmp); }
@@ -580,9 +643,8 @@ export async function mountSector(host, spec) {
     elapsed += reduce ? 0 : dt;
     if (driven) {
       riseClock += dt; ease2(dt);
-      if (chapter === 'moment') mClock = (mClock + dt) % 5.4;
-      if (chapter === 'audit') aClock += dt;
-      if (chapter === 'support') sClock += dt;
+      // In the moment, the survey and support, scrolling is the timeline.
+      mClock = qv * 5.0; aClock = qv * 4.4; sClock = qv * 6.3;
       draw(elapsed, riseClock < 3 && !reduce && !snap ? riseClock : null, chapter === 'moment' ? mClock : 0, chapter === 'moment', 5.4);
       return;
     }
@@ -593,5 +655,5 @@ export async function mountSector(host, spec) {
   if (driven) setChapter(host.querySelector('[data-scode-ch].is-active')?.dataset.scodeCh || 'place'), raf = requestAnimationFrame(frame);
   else if (reduce && freeze === null) render(13.4, false); else raf = requestAnimationFrame(frame);
   const dispose = () => { cancelAnimationFrame(raf); ro.disconnect(); io.disconnect(); renderer.dispose(); pm.dispose(); renderer.domElement.remove(); };
-  return { dispose, setChapter, setHighlight };
+  return { dispose, setChapter, setHighlight, setProgress, setFocus };
 }
