@@ -1,5 +1,7 @@
+import {industrialInventory} from './industrialInventory.js';
 // All telemetry is synthetic. These are scene annotations, not SGI or hardware readings.
 export const INSPECTION_POINTS=[
+ ...industrialInventory('hospital'),
  {id:'ODF-01',system:'Data',name:'ODF / backbone óptico',p:[9.5,3.3,1.52],kind:'fiber'},
  {id:'SW-01',system:'Data',name:'Switch de distribución',p:[10.3,3.46,1.75]},
  {id:'UPS-01',system:'Power',name:'UPS modular / sala eléctrica',p:[17.15,6.74,1.3]},
@@ -19,6 +21,7 @@ export function inspectAt(system,p){
  return candidates[0]?.d<1.3?candidates[0].a:{id:`${system}-ENLACE`,name:'Enlace / distribución',system,kind:'link'};
 }
 export function sampleTelemetry(asset,seconds=0,active=true){
+ if(asset.measurement)return [['Integración propuesta',asset.measurement.protocol],['Origen','Simulación local · sin hardware'],['Modo','Sólo observación; sin actuadores'],...(asset.kind==='environment'?[['Humedad sintética','45 % HR']]:[]),...(asset.kind==='meter'?[['Frecuencia sintética','50 Hz']]:[])];
  const traffic=active?Math.round(128+24*Math.sin(seconds*.7)):0;
  const base={Data:[['Capacidad ilustrativa',asset.kind==='fiber'?'10 Gb/s':'1 Gb/s'],['Tráfico simulado',`${traffic} Mb/s`],['Medio',asset.kind==='fiber'?'Fibra óptica · 1310 nm':'Ethernet']],
  CCTV:[['Video simulado','H.264 · 1920 × 1080'],['Caudal simulado',`${active?(4+.3*Math.sin(seconds)).toFixed(1):'0'} Mb/s`],['Cadencia DEMO',active?'25 fps':'Pausada']],

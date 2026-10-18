@@ -8,13 +8,16 @@ export const SERVICE_STORIES={
  Software:{title:'Software y operación',verb:'Convierte datos en acciones',why:'Los eventos de la infraestructura se presentan como información útil para gestionar y dar soporte.',um:'Última Milla · desarrollo e integración de software',chain:['Dato','Proceso','Decisión'],icon:'M8 6L2 12l6 6 M16 6l6 6-6 6 M14 3l-4 18'},
 };
 export function assetStory(asset){
- const base=SERVICE_STORIES[asset.system];
+ const base={...SERVICE_STORIES[asset.system],...(asset.why?{why:asset.why}:{})};
+ if(asset.industrial)return {...base,title:asset.name.split(' ·')[0],verb:asset.measurement.label,chain:['Sensor / equipo','Supervisión','Operación']};
+ if(asset.kind==='camera')return {...base,why:'Video DEMO hacia PoE y grabación. El volumen rosa es una orientación geométrica ilustrativa: no calcula óptica, oclusiones, cobertura efectiva ni zonas ciegas.',chain:['Cámara IP','Switch PoE','NVR / VMS']};
  if(asset.kind==='fiber')return {...base,title:'Fibra óptica',verb:'Conecta la red troncal',why:'El ODF organiza la fibra y la conecta al switch: el enlace troncal transporta información entre sectores.',chain:['Fibra','ODF / switch','Red de datos']};
  if(asset.kind==='wifi')return {...base,title:'Wi-Fi',verb:'Da movilidad a los dispositivos'};
  if(asset.kind==='phone')return {...base,title:'Telefonía IP',verb:'Transporta conversaciones',chain:['Terminal IP','Central','Destino']};
  return base;
 }
 export function flowValue(asset,t){
+ if(asset.measurement)return asset.measurement.base+asset.measurement.amplitude*Math.sin(t*.4);
  const s=asset.system;
  if(s==='Power')return 12+.6*Math.sin(t);
  if(s==='Data')return 128+24*Math.sin(t*.7);
@@ -24,6 +27,7 @@ export function flowValue(asset,t){
  return s==='Security'?.5+.1*Math.sin(t*.3):1;
 }
 export function flowSummary(asset,time=0,active=true){
+ if(asset.measurement){const m=asset.measurement,samples=Array.from({length:31},(_,i)=>flowValue(asset,time-60+i*2));return {samples,value:flowValue(asset,time),unit:m.unit,label:m.label,total:(samples.reduce((a,b)=>a+b,0)/samples.length).toFixed(1),totalLabel:`${m.unit} / promedio de 60 s`,peak:Math.max(...samples),network:false};}
  const network=['Data','CCTV','Telecom'].includes(asset.system),power=asset.system==='Power';
  // Pause freezes the simulation clock; it must not erase a minute of history.
  const samples=Array.from({length:31},(_,i)=>flowValue(asset,time-60+i*2));
