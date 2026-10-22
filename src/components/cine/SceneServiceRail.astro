@@ -174,7 +174,7 @@ const title = SCENE_TITLES[scene];
     aspect-ratio: 16 / 9;
     overflow: hidden;
     /* Tono medio de los pósters: mientras carga, el recuadro no queda negro. */
-    background: #545447;
+    background: #545447 !important; /* le gana a la regla global que vacía el fondo de los recuadros de imagen */
   }
 
   .um-cuts__media img,
