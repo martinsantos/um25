@@ -58,6 +58,7 @@ jobs:
           curl -fs -o /dev/null -w 'Inicio: %{http_code}\n' http://127.0.0.1:4321/
 
       - name: Abrir el túnel y publicar el link
+        id: tunel
         env:
           MINUTOS: ${{ inputs.minutos || '90' }}
           REF: ${{ inputs.ref || github.ref_name }}
@@ -76,5 +77,9 @@ jobs:
             echo ""
             echo "Abierta durante $min minutos. Para cerrarla antes, cancelá esta ejecución."
           } >> "$GITHUB_STEP_SUMMARY"
-          echo "VISTA PREVIA: $url"
-          sleep $(( min * 60 ))
+          echo "::notice title=Vista previa::$url"
+          echo "min=$min" >> "$GITHUB_OUTPUT"
+
+      # Paso aparte: así el link y el resumen ya se ven mientras la vista previa sigue abierta.
+      - name: Mantener abierta
+        run: sleep $(( ${{ steps.tunel.outputs.min }} * 60 ))
