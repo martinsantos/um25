@@ -29,10 +29,12 @@ const title = SCENE_TITLES[scene];
           <li>
             <a class="um-cuts__item" href={svc?.href || '/servicios'} data-cut>
               <span class="um-cuts__media">
-                <img src={cut.poster} alt="" width="1920" height="1080" loading="lazy" decoding="async" />
+                <picture>
+                  <source type="image/avif" srcset={cut.poster.replace(/\.jpg$/, '.avif')} />
+                  <img src={cut.poster} alt="" width="1920" height="1080" loading="lazy" decoding="async" />
+                </picture>
                 <video muted loop playsinline preload="none" data-src={cut.video} aria-hidden="true"></video>
                 <span class="um-cuts__code">{cut.code}</span>
-                <span class="um-cuts__tag">Render v4</span>
               </span>
               <span class="um-cuts__body">
                 <strong>{svc?.name || cut.service}</strong>
@@ -171,7 +173,8 @@ const title = SCENE_TITLES[scene];
     display: block;
     aspect-ratio: 16 / 9;
     overflow: hidden;
-    background: #0a0a0b;
+    /* Tono medio de los pósters: mientras carga, el recuadro no queda negro. */
+    background: #545447;
   }
 
   .um-cuts__media img,
@@ -203,19 +206,6 @@ const title = SCENE_TITLES[scene];
     font-family: var(--um-font-mono);
     font-size: 1rem;
     line-height: 1.2;
-  }
-
-  .um-cuts__tag {
-    position: absolute;
-    right: 10px;
-    bottom: 10px;
-    padding: 3px 7px;
-    background: rgba(16, 17, 19, 0.85);
-    color: #a1a1aa;
-    font-family: var(--um-font-mono);
-    font-size: 1rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
 
   .um-cuts__body {

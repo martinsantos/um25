@@ -1,0 +1,79 @@
+name: Vista previa
+
+# Levanta cualquier rama en un runner de GitHub y la publica por un túnel temporal de
+# Cloudflare (https://<algo>.trycloudflare.com) para revisarla desde cualquier equipo,
+# también el teléfono, sin tocar producción, el DNS ni el servidor. El link vive mientras
+# corre el job y se muestra en el resumen de la ejecución.
+# Dos formas: botón «Run workflow» (elegís rama y minutos) o subir una rama `preview/<nombre>`.
+on:
+  push:
+    branches: ['preview/**']
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Rama o commit a mostrar'
+        required: true
+        default: 'master'
+      minutos:
+        description: 'Cuánto tiempo queda abierta (máx. 300)'
+        required: true
+        default: '120'
+
+concurrency:
+  group: vista-previa-${{ inputs.ref || github.ref_name }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  NODE_VERSION: '18.x'
+
+jobs:
+  vista-previa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 320
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Instalar y compilar
+        run: |
+          npm ci
+          npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Levantar el sitio
+        run: |
+          HOST=127.0.0.1 PORT=4321 nohup node dist/server/entry.mjs > server.log 2>&1 &
+          for i in $(seq 1 60); do curl -fs -o /dev/null http://127.0.0.1:4321/ && break; sleep 2; done
+          curl -fs -o /dev/null -w 'Inicio: %{http_code}\n' http://127.0.0.1:4321/
+
+      - name: Abrir el túnel y publicar el link
+        env:
+          MINUTOS: ${{ inputs.minutos || '90' }}
+          REF: ${{ inputs.ref || github.ref_name }}
+        run: |
+          curl -fsSL -o cloudflared https://github.com/cloudflare/cloudflared/releases/download/2025.4.0/cloudflared-linux-amd64
+          chmod +x cloudflared
+          ./cloudflared tunnel --no-autoupdate --url http://127.0.0.1:4321 > tunnel.log 2>&1 &
+          url=''
+          for i in $(seq 1 60); do url=$(grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' tunnel.log | head -1); [ -n "$url" ] && break; sleep 2; done
+          if [ -z "$url" ]; then cat tunnel.log; exit 1; fi
+          min=$(( MINUTOS > 300 ? 300 : MINUTOS ))
+          {
+            echo "## Vista previa de \`$REF\`"
+            echo ""
+            echo "**$url**"
+            echo ""
+            echo "Abierta durante $min minutos. Para cerrarla antes, cancelá esta ejecución."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "VISTA PREVIA: $url"
+          sleep $(( min * 60 ))
