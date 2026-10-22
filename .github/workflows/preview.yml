@@ -43,10 +43,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
-      - name: Instalar y compilar
-        run: |
-          npm ci
-          npm run build
+      - name: Instalar
+        run: npm ci
+
+      - name: Compilar
+        run: npm run build
         env:
           NODE_ENV: production
 
