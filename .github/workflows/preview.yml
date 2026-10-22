@@ -33,6 +33,7 @@ jobs:
     timeout-minutes: 320
     permissions:
       contents: read
+      statuses: write
     steps:
       - uses: actions/checkout@v6
         with:
@@ -60,6 +61,7 @@ jobs:
       - name: Abrir el túnel y publicar el link
         id: tunel
         env:
+          GH_TOKEN: ${{ github.token }}
           MINUTOS: ${{ inputs.minutos || '90' }}
           REF: ${{ inputs.ref || github.ref_name }}
         run: |
@@ -78,6 +80,11 @@ jobs:
             echo "Abierta durante $min minutos. Para cerrarla antes, cancelá esta ejecución."
           } >> "$GITHUB_STEP_SUMMARY"
           echo "::notice title=Vista previa::$url"
+          # El link también queda como estado del commit: se ve en el commit y en el PR al instante.
+          sha=$(git rev-parse HEAD)
+          curl -fsS -X POST -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' \
+            "https://api.github.com/repos/${{ github.repository }}/statuses/$sha" \
+            -d "{\"state\":\"success\",\"context\":\"vista-previa\",\"target_url\":\"$url\",\"description\":\"Abierta $min minutos desde $(date -u +%H:%M) UTC\"}" > /dev/null
           echo "min=$min" >> "$GITHUB_OUTPUT"
 
       # Paso aparte: así el link y el resumen ya se ven mientras la vista previa sigue abierta.
