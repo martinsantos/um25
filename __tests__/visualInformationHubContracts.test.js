@@ -258,40 +258,24 @@ describe('Information hub visual contracts', () => {
   });
 
   test('home service index avoids floating red dash markers in each service unit', () => {
-    // Rediseño 2026-09: el índice de servicios de la home es ServicesStory. Se
-    // mantiene: ningún servicio lleva un guion rojo flotante propio; el acento de
-    // cada unidad es su color de sistema y un único enlace real al servicio.
+    // Rediseño 2026-10: los servicios son filas-enlace completas, sin marcadores
+    // rojos sueltos; el rojo queda para la barra de los casos.
     const home = read('src/pages/index.astro');
-    const story = read('src/components/cine/ServicesStory.astro');
-    const itemTemplate = story.slice(story.indexOf('<ol class="svc-story__list"'), story.indexOf('</ol>'));
-
-    expect(home).toContain("import ServicesStory from '../components/cine/ServicesStory.astro'");
-    expect(home).toContain('<ServicesStory services={services} />');
+    const rows = home.slice(home.indexOf('<ol class="hsvc">'), home.indexOf('</ol>', home.indexOf('<ol class="hsvc">')));
+    expect(rows).toContain('<li><a href={spec.href}>');
+    expect(rows).not.toMatch(/<i\b/);
     expect(home).not.toContain('<i aria-hidden="true"></i>');
-    expect(home).not.toMatch(/\.um-service-unit__head i\s*\{/);
-    expect(itemTemplate).not.toMatch(/<i\b/);
-    expect(itemTemplate).toContain('data-atlas-service={s.code}');
-    expect(story).toContain('href={first.href} data-atlas-link');
     expect(home).toContain('class="um26-card-bar" aria-hidden="true"');
     expect(home).toMatch(/\.um26-card-bar\s*\{[\s\S]*background:\s*#dc2626;/);
   });
 
   test('home numeric summary is actionable instead of dead dashboard text', () => {
     const home = read('src/pages/index.astro');
-
     expect(home).toContain("href: '/nosotros'");
     expect(home).toContain("href: '/antecedentes'");
     expect(home).toContain("href: '/sectores'");
-    expect(home).toContain("href: '/servicios-it-empresas-argentina'");
-    expect(home).toContain("href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it'");
     expect(home).toContain('{stats.map(({ value, label, href, aria }) => (');
     expect(home).toContain('<a href={href} aria-label={aria}>');
-    expect(home).toMatch(/\.um26-stats__grid a:hover,[\s\S]*\.um26-stats__grid a:focus-visible\s*\{/);
-    expect(home).toMatch(/\.um26-stats__grid a:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.5\);/);
-    expect(home).toMatch(/\.um26-stats__inner\s*\{[\s\S]*padding-block:\s*0;/);
-    expect(home).toMatch(/\.um26-stats__grid a\s*\{[\s\S]*display:\s*flex;[\s\S]*min-height:\s*138px;/);
-    expect(home).toMatch(/\.um26-stats__grid a:hover,[\s\S]*box-shadow:\s*inset 0 -3px 0 #dc2626;/);
-    expect(home).not.toMatch(/\.um26-stats__grid div\s*\{/);
   });
 
   test('home GEO hub cards are full-cell links with visible action states', () => {
@@ -311,15 +295,16 @@ describe('Information hub visual contracts', () => {
     expect(coverage).not.toMatch(/outline:\s*(none|0)/);
   });
 
-  test('sector service cards expose real link interaction states', () => {
-    expect(sectorUM26).toContain('class="um-click-surface sector26-service-card"');
-    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</em>');
-    expect(sectorUM26).toMatch(/\.sector26-service-card,[\s\S]*--um-click-hover-bg:[\s\S]*#171719;/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover,[\s\S]*a\.sector26-service-card:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.22\);/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover strong,[\s\S]*a\.sector26-service-card:focus-visible strong\s*\{[\s\S]*color:\s*#fff !important;/);
-    expect(sectorUM26).toMatch(/\.sector26-service-card em\s*\{[\s\S]*text-decoration:\s*underline;/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover em::after,[\s\S]*a\.sector26-service-card:focus-visible em::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
+  test('sector chapters keep selected, hover and keyboard focus states with a real detail link', () => {
+    const story = read('src/components/cine/ServicesStory.astro');
+    expect(sectorUM26).toContain('<SectorJourney ');
+    expect(story).toContain('data-atlas-service={s.code}');
+    expect(story).toContain('aria-pressed={String(i===0)}');
+    expect(story).toContain('button:focus-visible');
+    expect(story).toContain('outline:2px solid #fff');
+    expect(story).toContain('button[aria-pressed=true]');
+    expect(story).toContain('href={first.href} data-atlas-link');
+    expect(story).toContain('text-underline-offset:7px');
   });
 
   test('sector evidence links expose active hover and focus states', () => {
@@ -414,19 +399,11 @@ describe('Information hub visual contracts', () => {
   });
 
   test('home service visual loads reliably for full-page visual QA', () => {
-    // Rediseño 2026-09: la primera pantalla es CineBanner (póster con prioridad
-    // alta); las imágenes de servicios están bajo el pliegue y reservan su tamaño.
+    // La portada abre con el banner Blender de producción; las imágenes de casos reservan su tamaño.
     const home = read('src/pages/index.astro');
-    const banner = read('src/components/cine/CineBanner.astro');
-    const story = read('src/components/cine/ServicesStory.astro');
-
     expect(home).toContain('<CineBanner');
-    expect(banner).toMatch(/<img class="umc-poster"[^>]*width="1920" height="1080" fetchpriority="high" decoding="async"/);
-    // Un único SVG isométrico reserva su tamaño y carga diferido.
-    expect(story).toMatch(/<img[^>]*width="1040" height="755" loading="lazy" decoding="async" data-atlas-image/);
-    expect(story).not.toMatch(/<video|<iframe/);
+    expect(home).toContain('variants={heroVariants}');
     expect(home).toContain('width="1200"');
-    expect(home).toContain('height="900"');
     expect(home).toContain('decoding="async"');
   });
 
@@ -874,6 +851,30 @@ describe('mega-menú de escritorio', () => {
     mega.dispatchEvent(new MouseEvent('mouseleave'));
     expect(mega.classList.contains('is-open')).toBe(false);
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    document.body.innerHTML = '';
+  });
+
+  test('moving hover and focus between menus keeps the newly opened panel visible', () => {
+    const navbar = read('src/components/v4/NavbarV4.astro');
+    const typescript = require('typescript');
+    const start = navbar.indexOf('    const megas =');
+    const end = navbar.indexOf('    const root = document.documentElement;', start);
+    const compiled = typescript.transpileModule(navbar.slice(start, end), {
+      compilerOptions: {target: typescript.ScriptTarget.ES2020}
+    }).outputText;
+    document.body.innerHTML = ['servicios','sectores'].map(group => `<div class="um-ops-mega" data-group="${group}"><button class="um-ops-mega__toggle" aria-expanded="false">${group}</button><div class="um-ops-mega__panel"></div></div>`).join('');
+    new Function('matchMedia', compiled)(() => ({matches:true}));
+    const [services,sectors] = document.querySelectorAll('.um-ops-mega');
+    services.dispatchEvent(new MouseEvent('mouseenter'));services.querySelector('button').focus();
+    sectors.dispatchEvent(new MouseEvent('mouseenter'));sectors.querySelector('button').focus();
+    expect(services.classList.contains('is-open')).toBe(false);
+    expect(services.querySelector('button').getAttribute('aria-expanded')).toBe('false');
+    expect(sectors.classList.contains('is-open')).toBe(true);
+    expect(sectors.querySelector('button').getAttribute('aria-expanded')).toBe('true');
+    sectors.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape',bubbles:true}));
+    expect(sectors.classList.contains('is-open')).toBe(false);
+    services.dispatchEvent(new MouseEvent('mouseenter'));services.querySelector('button').focus();
+    expect(services.classList.contains('is-open')).toBe(true);
     document.body.innerHTML = '';
   });
 

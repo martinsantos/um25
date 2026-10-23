@@ -8,13 +8,18 @@ on:
       - 'docs/**'
       - '.gitignore'
       - 'LICENSE'
-  workflow_dispatch:
+  workflow_dispatch:  # Allow manual triggers
     inputs:
-      operation:
-        description: 'Deploy or run separately approved, audited storage maintenance'
+      keep_releases:
+        description: 'Carpetas de respaldo de versiones anteriores a conservar antes de publicar (0-2)'
         type: choice
-        default: deploy
-        options: [deploy, storage-plan, storage-apply, uploads-audit]
+        options: ['2', '1', '0']
+        default: '2'
+      max_disk_pct:
+        description: 'Uso máximo del disco del servidor para publicar (90 es el tope de arquitectura; subirlo sólo de forma excepcional)'
+        type: choice
+        options: ['90', '92', '94']
+        default: '90'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -44,7 +49,7 @@ jobs:
             required=false
             while IFS= read -r path; do
               case "$path" in
-                .github/workflows/production-deploy.yml|.github/workflows/server-storage-maintenance.yml|scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|scripts/ops/compact-vivero-snapshots.py|scripts/ops/test_vivero_compaction.py|scripts/ops/clean-audited-storage.py|scripts/ops/test_audited_storage.py) ;;
+                .github/workflows/production-deploy.yml|.github/workflows/server-storage-maintenance.yml|.github/workflows/preview.yml|scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|scripts/ops/compact-vivero-snapshots.py|scripts/ops/test_vivero_compaction.py|scripts/ops/clean-audited-storage.py|scripts/ops/test_audited_storage.py|scripts/ops/configure-offsite-backups.py|scripts/ops/test_offsite_backups.py) ;;
                 *) required=true ;;
               esac
             done < <(git diff --name-only "$BEFORE" HEAD)
@@ -96,12 +101,7 @@ jobs:
         continue-on-error: true  # Don't fail build if storage quota exceeded
         with:
           name: dist-build
-          path: |
-            dist/
-            !dist/client/cine/media/cine-v5-*
-            !dist/client/cine/cine-studies-v5.js
-            !dist/client/cine/services-story-v5.js
-            !dist/client/cine/software-layers-v5.js
+          path: dist/
           retention-days: 1
 
   #===========================================================================
@@ -213,10 +213,11 @@ jobs:
               src/styles/font-service.css|src/styles/v4.css|\
               src/styles/cine-hero.css) ;;
               .github/workflows/production-deploy.yml|.github/workflows/community-demo-integrity.yml|\
+              .github/workflows/preview.yml|\
               .github/workflows/server-storage-maintenance.yml|\
               scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|\
               scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|\
-              scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|scripts/ops/compact-vivero-snapshots.py|scripts/ops/test_vivero_compaction.py|scripts/ops/clean-audited-storage.py|scripts/ops/test_audited_storage.py|\
+              scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|scripts/ops/compact-vivero-snapshots.py|scripts/ops/test_vivero_compaction.py|scripts/ops/clean-audited-storage.py|scripts/ops/test_audited_storage.py|scripts/ops/configure-offsite-backups.py|scripts/ops/test_offsite_backups.py|\
               scripts/ops/deploy-scoped-dist.sh|scripts/ops/prune-inactive-umbot-deps.sh|scripts/ops/audit-directus-uploads.sh|\
               __tests__/runtimeConfigContracts.test.js|__tests__/nginxOps.test.ts|\
               docs/campaign-preview/PHOTO-SOURCES.md|docs/campaign-preview/README.md|\
@@ -255,22 +256,25 @@ jobs:
               src/pages/sitemap-blog.xml.ts|\
               src/utils/blogRss.ts|src/utils/blogTopicCases.ts|\
               src/utils/blogTopicMap.ts|src/utils/getBlogData.ts) ;;
+              # UM25 nueva versión (23/10): composiciones de sector en código,
+              # escenas, lab, datos y pruebas de la rama de revisión.
+              .github/workflows/cine-*.yml|scripts/cine/*|docs/cine/*|\
+              public/cine/*|public/lab/*|src/assets/cine/*|src/data/cine/*|\
+              src/scripts/senal/*|src/scripts/iso3d/*|src/pages/lab/*|\
+              src/components/um/*|src/components/templates/*|src/components/v4/StatsBar.astro|\
+              src/data/serviceSingleDemoSystem.ts|src/data/snapshots/sectores.json|\
+              src/pages/antecedentes/'[id]'/'[slug].astro'|scripts/css-contract-audit.mjs|\
+              __tests__/*.test.js|__tests__/*.test.ts|\
               # UM25 refactor: cine v4 (40 recorridos), páginas de producto
               # 104/105/106 y control visual.
-              public/cine/cine-banner-v4.js|public/cine/cine-banner-v5.js|public/cine/cine-studies-v5.js|public/cine/product-tour-v5.js|\
-              public/cine/services-story-v5.js|public/cine/software-layers-v5.js|\
-              public/cine/isometric-services-v6.js|public/cine/service-atlas-v6.js|public/cine/software-layers-v6.js|\
-              public/cine/hairline-v5.js|public/cine/LICENSE-hairline-v5.txt|public/cine/media/cine-*|\
-              __tests__/visualInformationHubContracts.test.js|__tests__/cineMotionLifecycle.test.js|\
-              docs/cine/v5-integration.md|docs/cine/storage-maintenance-20261004.md|\
-              scripts/cine/import-v4-media.mjs|scripts/cine/build-hairline-v5.mjs|scripts/cine/vendor/*|\
+              public/cine/cine-banner-v4.js|public/cine/media/cine-*|\
+              __tests__/visualInformationHubContracts.test.js|\
+              scripts/cine/import-v4-media.mjs|\
               src/components/cine/*.astro|\
               src/components/templates/SectorTemplateUM26.astro|\
               src/components/v4/NavbarV4.astro|\
               src/data/cine/scenes.ts|src/data/cine/v4-media.json|\
-              src/data/productPages.ts|src/data/cine/hardware.ts|src/data/cine/isometric.ts|\
-              src/assets/cine/isometric/*|scripts/cine/build-isometric-v6.mjs|scripts/cine/isometric-models-v6.mjs|\
-              __tests__/isometricServices.test.js|__tests__/mobileOverflowContracts.test.js|docs/cine/isometric-v6.md|\
+              src/data/productPages.ts|\
               src/pages/antecedentes/index.astro|\
               src/pages/certificaciones.astro|\
               src/pages/index.astro|\
@@ -303,15 +307,20 @@ jobs:
       # Each scoped release keeps the runtime it replaced (~1 GB). Only the newest
       # folder is a rollback target; keep the two newest and prune older ones so
       # the disk does not fill up release after release.
+      # A manual run can keep fewer (down to 0) when the disk is over the limit; this
+      # release then leaves its own rollback folder behind.
       - name: Prune old scoped release folders
+        env:
+          KEEP: ${{ inputs.keep_releases || '2' }}
         run: |
           set -euo pipefail
-          ssh root@23.105.176.45 "bash -s -- '$DEPLOY_PATH'" <<'EOF'
+          [[ "$KEEP" =~ ^[0-2]$ ]]
+          ssh root@23.105.176.45 "bash -s -- '$DEPLOY_PATH' '$KEEP'" <<'EOF'
           set -euo pipefail
-          backups="$1/backups"
+          backups="$1/backups"; keep="$2"
           mapfile -t old < <(
             find "$backups" -maxdepth 1 -type d -name 'umsa-campaign-[0-9]*-[0-9]*' -printf '%f\n' 2>/dev/null |
-              sort -t- -k3,3n -k4,4n | head -n -2
+              sort -t- -k3,3n -k4,4n | if (( keep > 0 )); then head -n "-$keep"; else cat; fi
           )
           if (( ${#old[@]} == 0 )); then
             echo 'No old scoped release folders to prune'
@@ -330,12 +339,15 @@ jobs:
       # swap script's 2.5 GB reserve would not fit, so an aborted release never
       # leaves another orphan incoming-dist behind.
       - name: Report and check server storage
+        env:
+          MAX_PCT: ${{ inputs.max_disk_pct || '90' }}
         run: |
           set -euo pipefail
+          [[ "$MAX_PCT" =~ ^(90|92|94)$ ]]
           need_kb=$(( $(du -sk dist | cut -f1) + 2500000 ))
-          ssh root@23.105.176.45 "bash -s -- '$DEPLOY_PATH' '$need_kb'" <<'EOF'
+          ssh root@23.105.176.45 "bash -s -- '$DEPLOY_PATH' '$need_kb' '$MAX_PCT'" <<'EOF'
           set -euo pipefail
-          app="$1"; need_kb="$2"
+          app="$1"; need_kb="$2"; max_pct="$3"
           df -h "$app"
           echo '--- scoped release folders (newest first)'
           { ls -1dt "$app"/backups/umsa-campaign-* 2>/dev/null || true; } | head -20 | xargs -r du -sh
@@ -344,9 +356,14 @@ jobs:
           echo '--- git worktrees'
           git -C "$app" worktree list 2>/dev/null || true
           git -C "$app" worktree prune --dry-run -v 2>/dev/null || true
+          # Read-only inventory: the biggest directories on the root filesystem.
+          echo '--- largest directories (same filesystem, depth 3)'
+          timeout 120 du -xk --max-depth=3 / 2>/dev/null | sort -rn | head -40 | awk '{printf "%.1fG\t%s\n", $1/1048576, $2}' || true
+          echo '--- docker'
+          timeout 60 docker system df 2>/dev/null || true
           used_pct="$(df -Pk "$app" | awk 'NR==2 {gsub(/%/, "", $5); print $5}')"
-          if (( used_pct > 90 )); then
-            echo "Disk usage ${used_pct}% exceeds the architecture limit of 90%; nothing was uploaded" >&2
+          if (( used_pct > max_pct )); then
+            echo "Disk usage ${used_pct}% exceeds the limit of ${max_pct}%; nothing was uploaded" >&2
             exit 1
           fi
           avail_kb="$(df -Pk "$app" | awk 'NR==2 {print $4}')"
@@ -362,13 +379,7 @@ jobs:
           set -euo pipefail
           STAGE="${DEPLOY_PATH}/backups/umsa-campaign-${RELEASE_ID}/incoming-dist"
           ssh root@23.105.176.45 "mkdir -p '$STAGE'"
-          # Keep superseded experiments in Git for provenance, outside the release.
-          rsync -az --checksum \
-            --exclude='/client/cine/media/cine-v5-*' \
-            --exclude='/client/cine/cine-studies-v5.js' \
-            --exclude='/client/cine/services-story-v5.js' \
-            --exclude='/client/cine/software-layers-v5.js' \
-            dist/ "root@23.105.176.45:$STAGE/"
+          rsync -az --checksum dist/ "root@23.105.176.45:$STAGE/"
 
       - name: Swap verified runtime with automatic origin rollback
         run: |
@@ -559,37 +570,3 @@ jobs:
           echo "Author: $AUTHOR"
           echo "Message: $COMMIT_MSG"
           echo "Status: ${{ job.status }}"
-
-  storage-maintenance:
-    name: Audited storage maintenance
-    if: github.event_name == 'workflow_dispatch' && inputs.operation != 'deploy'
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: actions/checkout@v6
-      - uses: webfactory/ssh-agent@v0.10.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - name: Add server to known hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H 23.105.176.45 >> ~/.ssh/known_hosts
-      - name: Execute only the selected maintenance mode
-        env:
-          OPERATION: ${{ inputs.operation }}
-        run: |
-          set -euo pipefail
-          case "$OPERATION" in
-            storage-plan) script=scripts/ops/prune-inactive-umbot-deps.sh; mode=--plan ;;
-            storage-apply) script=scripts/ops/prune-inactive-umbot-deps.sh; mode=--apply ;;
-            uploads-audit) script=scripts/ops/audit-directus-uploads.sh; mode=--plan ;;
-            *) echo 'Unexpected maintenance operation' >&2; exit 2 ;;
-          esac
-          ssh root@23.105.176.45 "bash -s -- '$mode'" < "$script" | tee storage-report.txt
-      - name: Save maintenance receipt
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: storage-maintenance-${{ github.run_id }}
-          path: storage-report.txt
-          retention-days: 30

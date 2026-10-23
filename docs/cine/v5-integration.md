@@ -42,3 +42,33 @@ QA continues on desktop and mobile before the release is merged.
 Deployment: feature → develop → master through GitHub Actions. Production disk
 96% blocked the release. Owner separately authorized the audited dependency-only
 maintenance and deployment after tests. See storage-maintenance-20261004.md.
+
+
+## 2026-10-05 — Piloto con cámaras Blender animadas
+
+Se retomó el executor de Cloud del mismo chat Blender. El nuevo piloto Bodega /
+Redes usa tres planos de ocho segundos, 1920 × 1080 y 24 fps. Arquitectura →
+recorrido de red y fibra → gabinete/conexión. La cámara se anima en Blender,
+con paralaje real; no es una composición de tres stills. No hay proceso Blender
+en el Mac, MCP disponible ni proveedor de render pago.
+
+El checkpoint privado contiene PNG nativos 96/288/576, contacto, fuentes,
+modelo editable dividido en dos ZIP y manifiesto con hashes:
+https://chatgpt.com/space/page_be8191ded5bc8191b84cecad534a9f59.
+El controlador local recuperó y revisó contacto y PNG 576 mediante referencias
+del Page. La arquitectura y la aproximación son legibles; el macro está demasiado
+suavizado con cuatro samples y requiere más nitidez y validación temporal.
+
+Cycles CPU con cuatro hilos y denoise HIGH/FAST midió 16,3 / 20,1 / 24,9 s por
+cuadro y unos 2,11 GiB de RSS máximo en Cloud. La estimación de 3 h 16 min para
+576 cuadros corresponde a esa configuración; puede aumentar al corregir calidad.
+El lote se detuvo conservando cuadros y fuentes. Se ejecutó una prueba animada
+480–503 y se solicitó compararla con 16 samples antes de continuar. El MP4 final
+y su estabilidad temporal siguen pendientes: no se presentan como terminados
+ni se integran en el sitio hasta revisarlos. No se abre otra tarea ni ventana.
+
+La entrega web actual usa banner v6, Hairline v7, dibujos SSR completos y
+controles que responden durante el streaming SSR. Véase `isometric-v6.md`.
+Las películas v4 publicadas se conservan. La publicación sigue el flujo feature
+→ develop → master por Actions y requiere resolver la situación de disco del
+servidor documentada en el inventario anterior.

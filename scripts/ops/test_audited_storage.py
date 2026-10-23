@@ -145,5 +145,105 @@ class DependencyVolumeTest(unittest.TestCase):
         os.utime(self.path,(time.time()-10*86400,)*2)
         self.assertEqual(self.select()['kind'],'volume')
 
+
+class ReleaseFolderTest(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name).resolve() / 'releases'
+        old = time.time() - 10 * 86400
+        for i, name in enumerate(['r1-uploads-home', 'r2', 'r3', 'r4', 'r5']):
+            (self.root / name).mkdir(parents=True)
+            (self.root / name / 'index.js').write_text(name)
+            os.utime(self.root / name, (old + i * 3600,) * 2)
+        self.patches = [mock.patch.object(module, 'RELEASE_ROOTS', (self.root,)),
+                        mock.patch.object(module, 'KEEP_NEWEST', 2),
+                        mock.patch.object(module, 'has_mount', return_value=False)]
+        for patch in self.patches:
+            patch.start()
+
+    def tearDown(self):
+        for patch in self.patches:
+            patch.stop()
+        self.temp.cleanup()
+
+    def old(self, refs=frozenset(), paths=frozenset()):
+        with mock.patch.object(module, 'release_refs', return_value=set(refs)):
+            ((_, keep, referenced, old),) = module.release_candidates(set(paths), set())
+        return [p.name for p in keep], [p.name for p in referenced], sorted(p.name for p in old)
+
+    def test_newest_releases_are_kept(self):
+        keep, _, old = self.old()
+        self.assertEqual(keep, ['r5', 'r4'])
+        self.assertEqual(old, ['r1-uploads-home', 'r2', 'r3'])
+
+    def test_release_holding_live_uploads_is_kept(self):
+        _, referenced, old = self.old({self.root / 'r1-uploads-home' / 'uploads'})
+        self.assertEqual(referenced, ['r1-uploads-home'])
+        self.assertNotIn('r1-uploads-home', old)
+
+    def test_release_used_by_a_process_is_kept(self):
+        _, _, old = self.old(paths={self.root / 'r2' / 'index.js'})
+        self.assertNotIn('r2', old)
+
+    def test_recent_release_is_kept_even_beyond_newest(self):
+        os.utime(self.root / 'r3', None)
+        os.utime(self.root / 'r5', (time.time() - 9 * 86400,) * 2)
+        _, _, old = self.old()
+        self.assertNotIn('r3', old)
+
+class DirectusUploadDuplicateTest(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name).resolve()
+        self.patches = [mock.patch.object(module, 'DIRECTUS_BACKUPS', self.root),
+                        mock.patch.object(module, 'DIRECTUS_STATE', self.root / 'directus-uploads-content.state'),
+                        mock.patch.object(module, 'has_mount', return_value=False)]
+        for patch in self.patches:
+            patch.start()
+
+    def tearDown(self):
+        for patch in self.patches:
+            patch.stop()
+        self.temp.cleanup()
+
+    def archive(self, stamp, files):
+        path = self.root / ('directus-uploads-%s.tar.gz' % stamp)
+        with tarfile.open(path, 'w:gz') as tf:
+            for name, data in files.items():
+                info = tarfile.TarInfo('directus/uploads/' + name)
+                info.size = len(data)
+                tf.addfile(info, io.BytesIO(data))
+        return path
+
+    def plan(self):
+        (self.root / 'directus-uploads-content.state').write_text(
+            'fingerprint=x\narchive=directus-uploads-20261009-020001.tar.gz\n')
+        return module.directus_duplicates(set(), set())
+
+    def test_copy_differing_only_in_health_marker_is_retired(self):
+        old = self.archive('20260711-221307', {'a.png': b'img', 'directus-health-file': b'old'})
+        self.archive('20261009-020001', {'a.png': b'img', 'directus-health-file': b'new'})
+        (self.root / 'directus-checkpoint-20260712-000725.txt').write_text('uploads=%s\n' % old.name)
+        retained, targets = self.plan()
+        self.assertEqual([t['path'] for t in targets], [str(old)])
+        self.assertEqual(targets[0]['checkpoints'], ['directus-checkpoint-20260712-000725.txt'])
+        self.assertTrue(retained['path'].endswith('20261009-020001.tar.gz'))
+
+    def test_archive_with_an_image_the_newest_lacks_is_kept(self):
+        self.archive('20260711-221307', {'a.png': b'img', 'deleted.png': b'only here'})
+        self.archive('20261009-020001', {'a.png': b'img'})
+        self.assertEqual(self.plan()[1], [])
+
+    def test_same_name_different_bytes_is_kept(self):
+        self.archive('20260711-221307', {'a.png': b'v1!'})
+        self.archive('20261009-020001', {'a.png': b'v2!'})
+        self.assertEqual(self.plan()[1], [])
+
+    def test_newest_must_be_the_archive_the_state_names(self):
+        self.archive('20261009-020001', {'a.png': b'img'})
+        self.archive('20261020-020001', {'a.png': b'img'})
+        with self.assertRaises(RuntimeError):
+            self.plan()
+
 if __name__ == '__main__':
     unittest.main()

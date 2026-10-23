@@ -6,6 +6,9 @@
 
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import EvidenceCaseRow from '../../../components/um/EvidenceCaseRow.astro';
+import StoryStage from '../../../components/cine/StoryStage.astro';
+import { SERVICE_STAGE, caseService, caseSector } from '../../../data/cine/stageMap';
+import { getServiceSpec } from '../../../data/serviceSpecs';
 import ShareButton from '../../../components/common/ShareButton.astro';
 import { getAntecedentes as getCatalogAntecedentes, getServicios as getCatalogServicios } from '../../../lib/um26-directus';
 import UMButton from '../../../components/um/UMButton.astro';
@@ -558,6 +561,17 @@ const antecedentePageStructuredData = [
     groups: caseStrategicLinkGroups,
   }),
 ];
+// Each case that can be placed shows its sector scene and its service layer.
+const caseStageItems = (() => {
+  if (!antecedente) return [];
+  const sector = caseSector(antecedente.Area) || caseSector(antecedente.Titulo), code = caseService(antecedente);
+  const spec = code ? getServiceSpec(code) : undefined, focus = code ? SERVICE_STAGE[code] : undefined;
+  if (!sector || !spec || !focus) return [];
+  const sectorName = sector.charAt(0).toUpperCase() + sector.slice(1);
+  return [{ key: 'caso', label: spec.name, kicker: `${sectorName} · Servicio ${spec.code}`, promise: spec.promise, sector, layer: focus.layer, point: focus.point, film: focus.film,
+    scope: spec.scope.slice(0, 3), equipment: spec.equipment, deliverable: spec.keyDeliverable, standard: spec.keyStandard,
+    links: [{ label: `Ver ${spec.name}`, href: `${spec.href}?sector=${sector}#escenario-servicio` }, { label: `Ver ${sectorName}`, href: `/${sector}#escenario` }, { label: 'Más antecedentes del sector', href: `/antecedentes?sector=${sector}` }] }];
+})();
 ---
 
 <LayoutV4

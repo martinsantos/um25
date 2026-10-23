@@ -1,0 +1,11 @@
+---
+// Review page for the per-service objects. ?code=101..108 · ?t=seconds freezes a moment.
+---
+<html lang="es"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="robots" content="noindex" /><title>Objetos · Última Milla</title>
+<style is:global>html,body{margin:0;height:100%;background:#fcfcf9}.obj{width:100%;height:100vh}.obj canvas{display:block;width:100%;height:100%}</style></head>
+<body><div class="obj" data-obj></div>
+<script>
+  import { mountObject } from '../../scripts/senal/objects.js';
+  const code = new URLSearchParams(location.search).get('code') || '101';
+  mountObject(document.querySelector('[data-obj]') as HTMLElement, code);
+</script></body></html>

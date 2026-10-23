@@ -46,6 +46,7 @@ const labOrLegacy = [
   /^src\/styles\/(modern-css|antecedentes|global|banner-overlays|sectors-mobile)\.css$/,
   /^src\/utils\/pretextFx\.ts$/,
   /^src\/pages\/casos\//,
+  /^src\/pages\/lab\//,
 ];
 
 const commercialExemptions = [
