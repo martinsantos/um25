@@ -21,7 +21,7 @@ on:
       operation:
         description: 'Audited dependencies, reproducible package caches or duplicate backups'
         type: choice
-        options: [dependencies, caches, backups, runtime-backups, archive-blocks, uploads-backup, vivero-snapshots, volume-dependencies, temporary-archives, release-folders]
+        options: [dependencies, caches, backups, runtime-backups, archive-blocks, uploads-backup, vivero-snapshots, volume-dependencies, temporary-archives, release-folders, directus-upload-duplicates]
         default: dependencies
         required: true
       mode:
@@ -82,14 +82,15 @@ jobs:
             uploads-backup) script=scripts/ops/compact-runtime-backups.py; scope=--uploads-backup ;;
             archive-blocks) script=scripts/ops/compact-runtime-backups.py; scope=--archive-ranges ;;
             vivero-snapshots) script=scripts/ops/compact-vivero-snapshots.py ;;
-            volume-dependencies|temporary-archives|release-folders) script=scripts/ops/clean-audited-storage.py; scope="--operation $OPERATION" ;;
+            volume-dependencies|temporary-archives|release-folders|directus-upload-duplicates) script=scripts/ops/clean-audited-storage.py; scope="--operation $OPERATION" ;;
             *) exit 2 ;;
           esac
           if [[ "$MODE" == apply ]]; then
             [[ "$PLAN_SHA" =~ ^[0-9a-f]{64}$ ]]
             args="--apply --expected-plan-sha $PLAN_SHA"
           fi
-          ssh root@23.105.176.45 "ionice -c3 nice -n 19 python3 - $scope $args" \
+          # Keepalive: a long apply once left the runner waiting on a dead connection for 30 min.
+          ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=6 root@23.105.176.45 "ionice -c3 nice -n 19 python3 - $scope $args" \
             < "$script" | tee storage-maintenance.jsonl
       - name: Confirm storage and live sites
         if: always()

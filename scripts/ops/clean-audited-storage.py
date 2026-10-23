@@ -185,6 +185,12 @@ MIN_AGE = 48 * 3600
 # are symlinked INTO some old releases, so each one referenced from anywhere stays.
 RELEASE_ROOTS = (Path('/var/www/sitrep-releases'), Path('/var/www/sitrep-backend-releases'))
 KEEP_NEWEST = 12
+# Directus uploads snapshots: the backup writes a new archive only when uploads change, but the
+# liveness probe file used to count as a change, so many archives repeat the same images.
+DIRECTUS_BACKUPS = Path('/opt/directus-backups')
+DIRECTUS_STATE = DIRECTUS_BACKUPS / 'directus-uploads-content.state'
+DIRECTUS_BACKUP_SCRIPT = '/opt/scripts-cicd/backup_directus.sh'
+HEALTH_MARKER = 'directus-health-file'
 REF_TEXTS = ('/root/.pm2/dump.pm2', '/etc/crontab', '/var/spool/cron', '/etc/cron.d', '/etc/systemd/system')
 
 def within(path, parent):
@@ -411,6 +417,57 @@ def release_target(path, keep, root_device):
     return {'kind': 'release', 'path': str(path), 'signature': signature(path),
             'bytes_estimated': int(out[-1].split()[0]) * 1024}
 
+def archive_members(path):
+    """Content of every regular member except the 5-byte liveness marker."""
+    members = {}
+    with tarfile.open(path, 'r:gz') as archive:
+        for item in archive:
+            if item.isdir():
+                continue
+            if not item.isfile():
+                raise RuntimeError('Uploads archive has a non-regular member: ' + path.name)
+            if item.name.rsplit('/', 1)[-1] == HEALTH_MARKER:
+                continue
+            digest = hashlib.sha256()
+            with archive.extractfile(item) as stream:
+                for block in iter(lambda: stream.read(1048576), b''):
+                    digest.update(block)
+            members[item.name] = [item.size, item.mode, digest.hexdigest()]
+    return members
+
+def directus_backup_idle():
+    for proc in Path('/proc').glob('[0-9]*'):
+        try:
+            if os.fsencode(DIRECTUS_BACKUP_SCRIPT) in (proc / 'cmdline').read_bytes().split(b'\0'):
+                raise RuntimeError('Directus backup is running; retry after it finishes')
+        except (FileNotFoundError, ProcessLookupError):
+            pass
+
+def directus_duplicates(paths, mounts):
+    directus_backup_idle()
+    state = dict(line.split('=', 1) for line in DIRECTUS_STATE.read_text().split())
+    keep = DIRECTUS_BACKUPS / state['archive']
+    archives = sorted(DIRECTUS_BACKUPS.glob('directus-uploads-*.tar.gz'))
+    if not archives or archives[-1] != keep or keep.is_symlink() or not keep.is_file():
+        raise RuntimeError('Newest uploads archive is not the one the backup state names')
+    reference = archive_members(keep)
+    if not reference:
+        raise RuntimeError('Retained uploads archive is empty')
+    retained = {'path': str(keep), 'signature': signature(keep), 'member_count': len(reference),
+                'members_sha256': fingerprint(reference)}
+    targets = []
+    for path in archives[:-1]:
+        if path.is_symlink() or path.resolve() != path or not path.is_file() or active(path, paths, mounts):
+            continue
+        before = signature(path)
+        if archive_members(path) != reference or signature(path) != before:
+            continue  # holds something the retained archive does not: stays
+        checkpoints = sorted(c.name for c in DIRECTUS_BACKUPS.glob('directus-checkpoint-*.txt')
+                             if ('uploads=' + path.name) in c.read_text().split())
+        targets.append({'kind': 'directus-uploads', 'path': str(path), 'signature': before,
+                        'checkpoints': checkpoints, 'bytes_estimated': path.stat().st_blocks * 512})
+    return retained, targets
+
 def make_plan(operation):
     paths, mounts, busy = protection()
     if busy:
@@ -438,6 +495,9 @@ def make_plan(operation):
                 item = archive_target(path, Path(retained), paths, mounts)
                 if item:
                     targets.append(item)
+    elif operation == 'directus-upload-duplicates':
+        retained, targets = directus_duplicates(paths, mounts)
+        return {'operation': operation, 'retained': retained, 'targets': targets}
     elif operation == 'release-folders':
         kept = {}
         freed = 0
@@ -491,6 +551,18 @@ def apply(plan, digest, expected):
             if volume_target(target['name'],paths,mounts) != target:
                 raise RuntimeError('Dependency volume changed or became active')
             subprocess.run(['docker','volume','rm',target['name']],check=True,capture_output=True,text=True)
+        elif target['kind'] == 'directus-uploads':
+            directus_backup_idle()
+            if active(path, paths, mounts) or signature(path) != target['signature']:
+                raise RuntimeError('Uploads archive changed or became active: ' + str(path))
+            retained = Path(plan['retained']['path'])
+            for name in target['checkpoints']:
+                # Old checkpoints keep their line and gain the equivalent archive to restore from.
+                checkpoint = DIRECTUS_BACKUPS / name
+                shutil.copy2(checkpoint, receipt / name)
+                with checkpoint.open('a') as stream:
+                    stream.write('uploads_equivalent=%s\n' % retained.name)
+            path.unlink()
         elif target['kind'] == 'release':
             # Symlinks were re-scanned by make_plan just before; here, live processes per folder.
             if active(path, paths, mounts) or any(within(r, path) for r in refs):
@@ -514,7 +586,7 @@ def apply(plan, digest, expected):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--operation',choices=('volume-dependencies','temporary-archives','release-folders'),required=True)
+    parser.add_argument('--operation',choices=('volume-dependencies','temporary-archives','release-folders','directus-upload-duplicates'),required=True)
     parser.add_argument('--apply',action='store_true')
     parser.add_argument('--expected-plan-sha',default='')
     args = parser.parse_args()
@@ -526,7 +598,7 @@ def main():
                                                  sum(t['bytes_estimated'] for t in plan['targets'])),
                       'targets':[{'path':t['path'],'kind':t['kind'],'bytes_estimated':t['bytes_estimated']}
                                  for t in plan['targets']],
-                      'kept':plan.get('kept')}),flush=True)
+                      'kept':plan.get('kept'),'retained':plan.get('retained')}),flush=True)
     if args.apply:
         print(json.dumps(apply(plan,digest,args.expected_plan_sha)),flush=True)
 

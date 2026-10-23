@@ -191,5 +191,59 @@ class ReleaseFolderTest(unittest.TestCase):
         _, _, old = self.old()
         self.assertNotIn('r3', old)
 
+class DirectusUploadDuplicateTest(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name).resolve()
+        self.patches = [mock.patch.object(module, 'DIRECTUS_BACKUPS', self.root),
+                        mock.patch.object(module, 'DIRECTUS_STATE', self.root / 'directus-uploads-content.state'),
+                        mock.patch.object(module, 'has_mount', return_value=False)]
+        for patch in self.patches:
+            patch.start()
+
+    def tearDown(self):
+        for patch in self.patches:
+            patch.stop()
+        self.temp.cleanup()
+
+    def archive(self, stamp, files):
+        path = self.root / ('directus-uploads-%s.tar.gz' % stamp)
+        with tarfile.open(path, 'w:gz') as tf:
+            for name, data in files.items():
+                info = tarfile.TarInfo('directus/uploads/' + name)
+                info.size = len(data)
+                tf.addfile(info, io.BytesIO(data))
+        return path
+
+    def plan(self):
+        (self.root / 'directus-uploads-content.state').write_text(
+            'fingerprint=x\narchive=directus-uploads-20261009-020001.tar.gz\n')
+        return module.directus_duplicates(set(), set())
+
+    def test_copy_differing_only_in_health_marker_is_retired(self):
+        old = self.archive('20260711-221307', {'a.png': b'img', 'directus-health-file': b'old'})
+        self.archive('20261009-020001', {'a.png': b'img', 'directus-health-file': b'new'})
+        (self.root / 'directus-checkpoint-20260712-000725.txt').write_text('uploads=%s\n' % old.name)
+        retained, targets = self.plan()
+        self.assertEqual([t['path'] for t in targets], [str(old)])
+        self.assertEqual(targets[0]['checkpoints'], ['directus-checkpoint-20260712-000725.txt'])
+        self.assertTrue(retained['path'].endswith('20261009-020001.tar.gz'))
+
+    def test_archive_with_an_image_the_newest_lacks_is_kept(self):
+        self.archive('20260711-221307', {'a.png': b'img', 'deleted.png': b'only here'})
+        self.archive('20261009-020001', {'a.png': b'img'})
+        self.assertEqual(self.plan()[1], [])
+
+    def test_same_name_different_bytes_is_kept(self):
+        self.archive('20260711-221307', {'a.png': b'v1!'})
+        self.archive('20261009-020001', {'a.png': b'v2!'})
+        self.assertEqual(self.plan()[1], [])
+
+    def test_newest_must_be_the_archive_the_state_names(self):
+        self.archive('20261009-020001', {'a.png': b'img'})
+        self.archive('20261020-020001', {'a.png': b'img'})
+        with self.assertRaises(RuntimeError):
+            self.plan()
+
 if __name__ == '__main__':
     unittest.main()
