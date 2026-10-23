@@ -66,7 +66,7 @@ export interface SceneServiceCut {
   track: string | null;
 }
 
-export const V4_CUTS: Record<string, SceneServiceCut> = v4Media as Record<string, SceneServiceCut>;
+export const V4_CUTS: Record<string, SceneServiceCut> = v4Media as unknown as Record<string, SceneServiceCut>;
 
 const SERVICE_SLUG_BY_CODE: Record<string, string> = {
   '101': 'redes', '102': 'seguridad', '103': 'telecom', '104': 'software',
@@ -75,7 +75,7 @@ const SERVICE_SLUG_BY_CODE: Record<string, string> = {
 
 /** Clave de banner para un servicio: su recorrido v4 si está renderizado, o la escena base. */
 export const serviceSceneKey = (code: string): string => {
-  const base = SERVICE_SCENES[code] || SERVICE_SCENES['101'];
+  const base = (SERVICE_SCENES[code] || SERVICE_SCENES['101'])!;
   const key = `${base.scene}-${SERVICE_SLUG_BY_CODE[code] || ''}`;
   return V4_CUTS[key] ? key : base.scene;
 };
