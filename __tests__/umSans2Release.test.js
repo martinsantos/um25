@@ -61,7 +61,7 @@ describe('UM Sans 2 production distribution', () => {
 describe('UM Sans 2 public edge audit', () => {
   const http = require('http');
   const { spawn } = require('child_process');
-  const packagePath = '/downloads/plantillas-um-sans/2026.10.10-r7/Plantillas-UMSans2-2026.10.10-r7.zip';
+  const packagePath = '/downloads/plantillas-um-sans/2026.10.13-r8/Plantillas-UMSans2-2026.10.13-r8.zip';
   const fontRoutes = ['/estilo/fuente', '/fuente', '/estilos/fuente'];
   const redirects = new Map([
     ['/fuente', '/estilo/fuente'], ['/estilos/fuente', '/estilo/fuente'], ['/estilos', '/estilo'],
@@ -104,7 +104,7 @@ describe('UM Sans 2 public edge audit', () => {
   test('accepts corrected catalogue and verifies both immutable font and document releases', async () => {
     const result = await audit();
     expect(result.code).toBe(0);
-    expect(JSON.parse(result.output)).toMatchObject({ version: '2.0.0', resourceVersion: '2026.10.10-r7',
+    expect(JSON.parse(result.output)).toMatchObject({ version: '2.0.0', resourceVersion: '2026.10.13-r8',
       corsChecked: true, legacyUnchanged: true });
   }, 30000);
 
@@ -117,6 +117,6 @@ describe('UM Sans 2 public edge audit', () => {
   test('rejects altered bytes in the served corrected ZIP', async () => {
     const result = await audit({ corruptPackage: true });
     expect(result.code).not.toBe(0);
-    expect(result.output).toContain('Plantillas-UMSans2-2026.10.10-r7.zip: changed bytes');
+    expect(result.output).toContain('Plantillas-UMSans2-2026.10.13-r8.zip: changed bytes');
   }, 30000);
 });
