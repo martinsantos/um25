@@ -4,6 +4,7 @@
 // (estudio fijo del hospital, un sistema aislado o la movie completa). Un solo
 // iframe; se suspende fuera de pantalla. En móvil o con movimiento reducido /
 // ahorro de datos el 3D se monta solo si el usuario lo pide.
+import { sectorBySlug } from '../../data/cine/scenes';
 interface Props { slug: string; name: string; }
 const { slug, name } = Astro.props;
 
@@ -13,6 +14,12 @@ const MAP: Record<string, 'hospital' | 'aeropuerto' | 'bodega' | 'fachada'> = {
   constructoras: 'fachada', gobiernosectorpublico: 'fachada', gobierno: 'fachada', software: 'fachada',
 };
 const scene = MAP[slug] || 'fachada';
+// Imagen del escenario: sólo hospital, aeropuerto, bodega y fachada tienen render `*-cycles.webp`.
+// Industria y Minería (escena de datos `planta`) usan el póster de planta; el motor 3D sólo
+// conoce las cuatro escenas de arriba, por eso el iframe sigue usando `scene`.
+const CYCLES = ['hospital', 'aeropuerto', 'bodega', 'fachada'];
+const visual = sectorBySlug(slug)?.scene ?? scene;
+const stillSrc = CYCLES.includes(visual) ? `/cine/media/${visual}-cycles.webp` : `/cine/media/cine-${visual}-proyecto-v5-poster.jpg`;
 const PLACE = {
   hospital: { name: 'un hospital', short: 'Hospital conectado', where: { Data: 'bandejas sobre el cielorraso, del rack de piso a cada puesto clínico y de admisión', CCTV: 'accesos, circulaciones, farmacia y guardia', Fire: 'cada sala y cada cielorraso técnico, con la central en el cuarto de control', Power: 'el cuarto técnico, con el tablero, la UPS y las cargas críticas que respalda', Software: 'los puestos de admisión, enfermería y los tableros de gestión' } },
   aeropuerto: { name: 'una terminal', short: 'Terminal aeroportuaria', where: { Data: 'desde el cuarto técnico hasta check-in, seguridad y embarque', CCTV: 'perímetro, preembarque y puntos de control', Fire: 'hall central, cuarto técnico y zonas de espera', Power: 'el cuarto técnico y los puestos que no pueden apagarse', Software: 'pantallas de información al pasajero y el NOC' } },
@@ -53,7 +60,9 @@ const src = `/3d/cinema.html?scene=${scene}&mode=building&embed=1&ar=clean&cente
   </div>
   <div class="um-story__grid">
     <div class="um-story__stage" data-src={src}>
-      <img src={`/cine/media/${scene}-cycles.webp`} alt={`${PLACE.short}: gemelo digital de la infraestructura`} width="1600" height="1000" loading="lazy" decoding="async" />
+      {/* Imagen principal de la sección: carga sin diferir. Con `loading="lazy"` dentro de la caja fija
+          (sticky + overflow:hidden) el navegador no la pedía y la caja quedaba vacía. */}
+      <img src={stillSrc} alt={`${PLACE.short}: gemelo digital de la infraestructura`} width="1600" height="1000" decoding="async" />
       <div class="um-story__frame" aria-hidden="true"></div>
       <button class="um-story__mount" type="button" hidden aria-hidden="true" tabindex="-1"></button>
       <p class="um-story__now" aria-live="polite"><i></i><span>{PLACE.short}</span></p>
@@ -107,11 +116,14 @@ const src = `/3d/cinema.html?scene=${scene}&mode=building&embed=1&ar=clean&cente
     };
     const io = new IntersectionObserver((entries) => { for (const e of entries) if (e.isIntersecting) activate(e.target as HTMLElement); }, { rootMargin: '-45% 0px -45% 0px' });
     chapters.forEach((c) => io.observe(c));
-    new IntersectionObserver(([e]) => {
-      inView = e.isIntersecting;
-      if (inView && !compact && !limited) mount();
-      if (ready) send('suspend', !inView);
-    }, { rootMargin: '300px 0px' }).observe(story);
+    // Montaje del 3D: sólo en escritorio y sin movimiento reducido / ahorro de datos.
+    const wants = !compact && !limited;
+    const setView = (v: boolean) => { if (v === inView) return; inView = v; if (inView && wants) mount(); if (ready) send('suspend', !inView); };
+    new IntersectionObserver(([e]) => setView(e.isIntersecting), { rootMargin: '300px 0px' }).observe(story);
+    // Respaldo por geometría: si el observer tarda o no dispara (pestaña recién activada, scroll
+    // programático), el 3D igual se monta al acercarse a la sección.
+    const near = () => { const r = story.getBoundingClientRect(); setView(r.bottom > -300 && r.top < innerHeight + 300); };
+    if (wants) { addEventListener('scroll', near, { passive: true }); addEventListener('resize', near); near(); }
     // En pantallas chicas queda la imagen: el gemelo digital no se ofrece al usuario final.
     activate(chapters[0]);
   }

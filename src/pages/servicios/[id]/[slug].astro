@@ -11,6 +11,7 @@
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import EmailLink from '../../../components/common/EmailLink.astro';
 import CineBanner from '../../../components/cine/CineBanner.astro';
+import SoftwareFilm from '../../../components/cine/SoftwareFilm.astro';
 import RenderStage from '../../../components/cine/RenderStage.astro';
 import ProductStage from '../../../components/cine/ProductStage.astro';
 import { productPage } from '../../../data/productPages';
@@ -477,6 +478,17 @@ const fichaItems = [
   canonical={canonicalUrl}
   structuredData={servicePageStructuredData}
 >
+  {String(id) === '104' ? (
+    <SoftwareFilm
+      titleId="service-title"
+      kicker={visual?.eyebrow || servicio.area || 'Servicio IT'}
+      title={serviceHeroTitle}
+      lead={heroLead}
+      primary={{ href: '/contacto', label: 'Solicitar diagnóstico' }}
+      secondary={{ href: '/antecedentes', label: 'Ver evidencia' }}
+      back={{ href: '/servicios', label: '← Todos los servicios' }}
+    />
+  ) : (
   <CineBanner
     variant="sector"
     scenes={[serviceSceneKey(String(id))]}
@@ -490,6 +502,7 @@ const fichaItems = [
     secondary={{ href: '/antecedentes', label: 'Ver evidencia' }}
     back={{ href: '/servicios', label: '← Todos los servicios' }}
   />
+  )}
 
   <div class="svc">
     <!-- 1 · Resumen ejecutivo -->

@@ -15,6 +15,7 @@ import SnapRail from '../components/cine/SnapRail.astro';
 import CapabilityLedger from '../components/cine/CapabilityLedger.astro';
 import { NAV_SERVICES } from '../data/navigation';
 import { HOME_SCENES, V4_CUTS } from '../data/cine/scenes';
+import { avifOf, sectorPoster } from '../data/cine/posters';
 
 // Hero variable: cada visita arranca en otra escena y cada escena elige al azar uno de
 // sus recorridos v4 (servicio dentro de la escena). SSR: cambia en cada carga.
@@ -28,15 +29,15 @@ const heroLead = 'Redes, seguridad electrónica, telecomunicaciones, software a 
 const services = NAV_SERVICES;
 
 const sectors = [
-  { name: 'Aeropuertos', count: sectorCaseLabel('aeropuertos'), text: 'CCTV de perímetro 24/7', href: '/aeropuertos', image: '/cine/media/cine-aeropuerto-poster.jpg', accent: '#DC2626', big: true },
-  { name: 'Bodegas', count: sectorCaseLabel('bodegas'), text: 'Trazabilidad vitivinícola end-to-end', href: '/bodegas', image: '/cine/media/cine-bodega-poster.jpg', accent: '#DC2626' },
-  { name: 'Constructoras', count: sectorCaseLabel('constructoras'), text: 'Cableado estructurado certificado', href: '/constructoras', image: '/cine/media/cine-fachada-poster.jpg', accent: '#DC2626' },
-  { name: 'Gobierno y Sector Público', count: sectorCaseLabel('gobiernosectorpublico'), text: 'Digitalización de trámites', href: '/gobiernosectorpublico', image: '/cine/media/cine-fachada-software-poster.jpg', accent: '#DC2626' },
-  { name: 'Industria', count: sectorCaseLabel('industria'), text: 'Redes industriales en planta 24/7', href: '/industria', image: '/cine/media/cine-planta-poster.jpg', accent: '#DC2626' },
-  { name: 'Minería', count: sectorCaseLabel('mineria'), text: 'Telecomunicaciones en campamento remoto', href: '/mineria', image: '/cine/media/cine-planta-telecom-poster.jpg', accent: '#DC2626', big: true },
-  { name: 'Salud', count: sectorCaseLabel('salud'), text: 'Redes para imágenes médicas', href: '/salud', image: '/cine/media/cine-hospital-poster.jpg', accent: '#DC2626' },
-  { name: 'Seguridad Electrónica', count: sectorCaseLabel('seguridad-electronica'), text: 'Centro de monitoreo 24/7', href: '/seguridad-electronica', image: '/cine/media/cine-aeropuerto-seguridad-poster.jpg', accent: '#DC2626' },
-  { name: 'Software', count: sectorCaseLabel('software'), text: 'ERPs y plataformas a medida', href: '/software', image: '/cine/media/cine-hospital-software-poster.jpg', accent: '#DC2626' },
+  { name: 'Aeropuertos', count: sectorCaseLabel('aeropuertos'), text: 'CCTV de perímetro 24/7', href: '/aeropuertos', image: sectorPoster('aeropuertos'), accent: '#DC2626', big: true },
+  { name: 'Bodegas', count: sectorCaseLabel('bodegas'), text: 'Trazabilidad vitivinícola end-to-end', href: '/bodegas', image: sectorPoster('bodegas'), accent: '#DC2626' },
+  { name: 'Constructoras', count: sectorCaseLabel('constructoras'), text: 'Cableado estructurado certificado', href: '/constructoras', image: sectorPoster('constructoras'), accent: '#DC2626' },
+  { name: 'Gobierno y Sector Público', count: sectorCaseLabel('gobiernosectorpublico'), text: 'Digitalización de trámites', href: '/gobiernosectorpublico', image: sectorPoster('gobierno'), accent: '#DC2626' },
+  { name: 'Industria', count: sectorCaseLabel('industria'), text: 'Redes industriales en planta 24/7', href: '/industria', image: sectorPoster('industria'), accent: '#DC2626' },
+  { name: 'Minería', count: sectorCaseLabel('mineria'), text: 'Telecomunicaciones en campamento remoto', href: '/mineria', image: sectorPoster('mineria'), accent: '#DC2626', big: true },
+  { name: 'Salud', count: sectorCaseLabel('salud'), text: 'Redes para imágenes médicas', href: '/salud', image: sectorPoster('salud'), accent: '#DC2626' },
+  { name: 'Seguridad Electrónica', count: sectorCaseLabel('seguridad-electronica'), text: 'Centro de monitoreo 24/7', href: '/seguridad-electronica', image: sectorPoster('seguridad-electronica'), accent: '#DC2626' },
+  { name: 'Software', count: sectorCaseLabel('software'), text: 'ERPs y plataformas a medida', href: '/software', image: sectorPoster('software'), accent: '#DC2626' },
 ];
 
 // Proyectos destacados: registros reales del catálogo, con su ficha y su imagen curada.
@@ -45,10 +46,10 @@ const SECTOR_LABEL: Record<string, string> = {
   industria: 'Industria', mineria: 'Minería', salud: 'Salud', 'seguridad-electronica': 'Seguridad electrónica', software: 'Software',
 };
 const DESTACADOS: { id: number; image: string }[] = [
-  { id: 3065, image: '/cine/media/cine-aeropuerto-seguridad-poster.jpg' },
-  { id: 3075, image: '/cine/media/cine-hospital-redes-poster.jpg' },
-  { id: 3064, image: '/cine/media/cine-fachada-software-poster.jpg' },
-  { id: 3334, image: '/cine/media/cine-bodega-soporte-poster.jpg' },
+  { id: 3065, image: sectorPoster('aeropuertos') },
+  { id: 3075, image: sectorPoster('salud') },
+  { id: 3064, image: sectorPoster('gobierno') },
+  { id: 3334, image: sectorPoster('bodegas') },
 ];
 const cases = DESTACADOS.flatMap(({ id, image }) => {
   const item = ANTECEDENTES_REALES.find((antecedente) => antecedente.id === id);
@@ -84,7 +85,7 @@ const hubs = [
   title="ULTIMA MILLA | Operaciones que no pueden detenerse"
   description="Servicios IT integrales para empresas en Mendoza, Cuyo y Patagonia: redes, seguridad electrónica, telecomunicaciones, software, soporte y energía IT."
   keywords="servicios IT, redes, seguridad electrónica, CCTV, telecomunicaciones, software a medida, soporte técnico 24/7, Mendoza, Cuyo, Patagonia"
-  image="/cine/media/cine-bodega-poster.jpg"
+  image={sectorPoster('aeropuertos')}
 >
   <div class="um26-home">
     <CineBanner
@@ -162,7 +163,10 @@ const hubs = [
         <div class="um26-case-grid" data-rail="Proyectos destacados" data-reveal>
           {cases.map((item) => (
             <a class="um26-media-card um26-case-card" href={item.href}>
-              <img src={item.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />
+              <picture>
+                <source type="image/avif" srcset={avifOf(item.image)} />
+                <img src={item.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />
+              </picture>
               <span class="um26-media-card__code">#{item.id}</span>
               <div>
                 <p>{item.meta}</p>

@@ -62,7 +62,7 @@ describe('generated antecedentes image integration', () => {
     expect(ANTECEDENTES_REALES.length).toBeGreaterThanOrEqual(518);
     for (const item of ANTECEDENTES_REALES) {
       const image = getAntecedenteImage(item.sectorSlug, item.serviceCodes, item.id);
-      expect(image).toMatch(/^\/cine\/media\/cine-[a-z]+(-[a-z]+)?-poster\.jpg$/);
+      expect(image).toMatch(/^\/cine\/media\/cine-[a-z0-9-]+-poster\.jpg$/);
       expect(image).toBe(posterFor(item.sectorSlug, item.serviceCodes[0]));
       expect(fs.existsSync(path.join(repoRoot, 'public', image))).toBe(true);
     }

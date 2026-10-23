@@ -13,16 +13,16 @@ describe('blog image helpers', () => {
     expect(blogImageUrl(cover)).toBe(cover);
     expect(
       blogPostImageUrl({ imagen_portada: cover, slug: 'nota-con-imagen-automatizada', categoria: 'noticias' } as any)
-    ).toMatch(/^\/cine\/media\/cine-[a-z]+(-[a-z]+)?-poster\.jpg$/);
+    ).toMatch(/^\/cine\/media\/cine-[a-z0-9-]+-poster\.jpg$/);
     expect(
       blogPostImageUrl({ imagen_portada: null, slug: 'deteccion-incendio-bodegas-vitivinicolas', titulo: 'Detección de incendio en bodegas', categoria: 'tecnico' } as any)
-    ).toBe('/cine/media/cine-bodega-incendios-poster.jpg');
+    ).toBe('/cine/media/cine-fire-system-v1-poster.jpg');
     expect(
       blogPostImageUrl({ imagen_portada: null, slug: 'hospital-regional-neuquen-cableado-estructurado', titulo: 'Cableado estructurado en el hospital', categoria: 'proyectos' } as any)
-    ).toBe('/cine/media/cine-hospital-redes-poster.jpg');
+    ).toBe('/cine/media/cine-network-system-v1-poster.jpg');
     expect(
       blogPostImageUrl({ imagen_portada: null, slug: 'aeropuerto-mendoza-cctv', titulo: 'CCTV en el aeropuerto', categoria: 'proyectos' } as any)
-    ).toBe('/cine/media/cine-aeropuerto-seguridad-poster.jpg');
+    ).toBe('/cine/media/cine-security-system-v1-poster.jpg');
   });
 
   test('every topic poster exists and the same note always gets the same cover', () => {

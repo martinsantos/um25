@@ -1,15 +1,20 @@
 ---
+import { avifOf, servicePoster } from '../../data/cine/posters';
 // Producto propio: UMSA CCTV AI (textos de /cctvai, resumidos).
 const features = [
   ['Detecta', 'Cruces de línea, intrusión, permanencia, conteo, EPP o eventos validados por sitio.'],
   ['Ordena', 'Clasifica eventos, clips, severidad, estado y responsables para reducir la búsqueda manual.'],
   ['Documenta', 'Genera reportes operativos o forenses con evidencia visual y recomendaciones revisables.'],
 ];
+const securityPoster = servicePoster('102');
 const facts = [['Piloto', '30 días'], ['Cámaras', '6 críticas'], ['Entrega', 'Dashboard y reporte forense']];
 ---
 <div class="ump">
   <figure class="ump__media">
-    <img src="/cine/media/cine-aeropuerto-seguridad-poster.jpg" alt="Cámaras de seguridad en una terminal aeroportuaria, en el recorrido de seguridad electrónica" width="1920" height="1080" loading="lazy" decoding="async" />
+    <picture>
+      <source type="image/avif" srcset={avifOf(securityPoster)} />
+      <img src={securityPoster} alt="Vista isométrica de cámaras de seguridad, control de acceso y sala de monitoreo" width="1920" height="1080" loading="lazy" decoding="async" />
+    </picture>
   </figure>
   <div class="ump__body">
     <p class="ump__kicker">Producto UMSA</p>

@@ -12,7 +12,7 @@ describe('service visual system', () => {
     expect(new Set(images).size).toBe(images.length);
 
     for (const image of images) {
-      expect(image).toMatch(/^\/cine\/media\/cine-[a-z]+-[a-z]+-poster\.jpg$/);
+      expect(image).toMatch(/^\/cine\/media\/cine-[a-z0-9-]+-poster\.jpg$/);
       expect(fs.existsSync(path.join(process.cwd(), 'public', image))).toBe(true);
     }
   });
