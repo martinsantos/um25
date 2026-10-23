@@ -17,7 +17,9 @@ const stateClass = (s?: string) => (s ? `is-${s}` : '');
   <figure class="pst__frame" aria-label={`${stage.product} con datos de ejemplo`}>
     <div class="pst__bar">
       <span class="pst__host">{stage.host}<span class="pst__path" data-pst-path>/{first.key}</span></span>
-      <span class="pst__sample">Datos de ejemplo</span>
+      <div class="pst__tools"><span class="pst__sample">Datos de ejemplo</span>
+        {tour && <button type="button" class="pst__motion" data-pst-motion aria-pressed="false">Pausar recorrido</button>}
+      </div>
     </div>
     <div class="pst__app">
       <nav class="pst__nav" aria-label="Secciones">
@@ -131,36 +133,7 @@ const stateClass = (s?: string) => (s ? `is-${s}` : '');
   </ol>
 </div>
 
-<script>
-  document.querySelectorAll<HTMLElement>('[data-pst]').forEach((root) => {
-    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-pst-tab]')];
-    const panels = root.querySelectorAll<HTMLElement>('[data-pst-panel]');
-    const path = root.querySelector<HTMLElement>('[data-pst-path]');
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const STEP = 5200;
-    let current = 0, timer = 0, held = false;
-    const show = (key: string) => {
-      current = Math.max(0, tabs.findIndex((t) => t.dataset.pstTab === key));
-      tabs.forEach((t) => {
-        t.setAttribute('aria-pressed', String(t.dataset.pstTab === key));
-        const bar = t.querySelector<HTMLElement>('.pst__progress');
-        if (bar) { bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = ''; }
-      });
-      panels.forEach((p) => { p.hidden = p.dataset.pstPanel !== key; });
-      if (path) path.textContent = `/${key}`;
-    };
-    const next = () => { if (!held) show(tabs[(current + 1) % tabs.length].dataset.pstTab || ''); };
-    const arm = () => { if (timer) clearInterval(timer); if (root.dataset.tour === 'on' && !reduced) timer = window.setInterval(next, STEP); };
-    tabs.forEach((t) => t.addEventListener('click', () => { show(t.dataset.pstTab || ''); root.dataset.tour = 'off'; arm(); }));
-    const hold = (v: boolean) => { held = v; root.classList.toggle('is-held', v); };
-    root.addEventListener('mouseenter', () => hold(true));
-    root.addEventListener('mouseleave', () => hold(false));
-    root.addEventListener('focusin', () => hold(true));
-    root.addEventListener('focusout', () => hold(false));
-    root.addEventListener('touchstart', () => hold(true), { passive: true });
-    new IntersectionObserver(([e]) => { if (e.isIntersecting) arm(); else if (timer) { clearInterval(timer); timer = 0; } }, { threshold: 0.3 }).observe(root);
-  });
-</script>
+<script src="/cine/product-tour-v5.js" type="module" is:inline />
 
 <style>
   .pst { display: grid; gap: 28px; color: inherit; grid-template-areas: "app" "aside" "list"; }
@@ -168,6 +141,9 @@ const stateClass = (s?: string) => (s ? `is-${s}` : '');
   .pst__bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; border-bottom: 1px solid rgba(127, 127, 127, 0.35); font-size: 1rem; font-variant-numeric: var(--um-figures-tabular); }
   .pst__host { opacity: 0.75; min-width: 0; overflow-wrap: anywhere; }
   .pst__path { opacity: 1; font-weight: 600; }
+  .pst__tools { display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:flex-end; }
+  .pst__motion { min-height:44px;padding:0 12px;font:600 1rem 'UM Sans',Arial,sans-serif;background:transparent;color:inherit;border:1px solid rgba(127,127,127,.5);cursor:pointer; }
+  .pst__motion:focus-visible { outline:2px solid var(--um-red,#dc2626);outline-offset:3px; }
   .pst__sample { font-size: 1rem; font-weight: 600; letter-spacing: var(--um-label-tracking, 0.08em); text-transform: uppercase; color: var(--um-red, #DC2626); white-space: nowrap; }
   .pst__app { display: grid; grid-template-columns: 188px minmax(0, 1fr); min-height: 420px; }
   .pst__nav { display: flex; flex-direction: column; gap: 2px; padding: 12px 8px; border-right: 1px solid rgba(127, 127, 127, 0.35); }
@@ -177,7 +153,7 @@ const stateClass = (s?: string) => (s ? `is-${s}` : '');
   .pst__tab:focus-visible { outline: 2px solid var(--um-red, #DC2626); outline-offset: 2px; }
   .pst__progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--um-red, #DC2626); transform: scaleX(0); transform-origin: left; }
   [data-tour="on"] .pst__tab[aria-pressed="true"] .pst__progress { animation: pst-progress 5200ms linear forwards; }
-  .pst.is-held .pst__progress { animation-play-state: paused; }
+  .pst.is-held .pst__progress, .pst:not(.is-running) .pst__progress { animation-play-state: paused; }
   @keyframes pst-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
   .pst__panel { padding: 20px 20px 16px; min-width: 0; }
   .pst__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin: 0 0 16px; }

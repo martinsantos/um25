@@ -11,18 +11,28 @@
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import EmailLink from '../../../components/common/EmailLink.astro';
 import CineBanner from '../../../components/cine/CineBanner.astro';
-import RenderStage from '../../../components/cine/RenderStage.astro';
+import {DISCIPLINE_SYSTEMS} from '../../../data/cine/disciplineSystems';
+import ServicesStory from '../../../components/cine/ServicesStory.astro';
+import {NAV_SERVICES} from '../../../data/navigation';
+import {sectorProject} from '../../../data/cine/sectorNarrative';
+import {serviceMovie,serviceProjectScene} from '../../../data/cine/projectCinema';
+import ServiceSequence from '../../../components/cine/ServiceSequence.astro';
+import { ISOMETRIC_STUDIES } from '../../../data/cine/isometric';
 import ProductStage from '../../../components/cine/ProductStage.astro';
 import { productPage } from '../../../data/productPages';
 import SystemsMap from '../../../components/cine/SystemsMap.astro';
 import DeliveryProcess from '../../../components/cine/DeliveryProcess.astro';
 import ProductMoments from '../../../components/cine/ProductMoments.astro';
 import ServiceSpecSheet from '../../../components/cine/ServiceSpecSheet.astro';
+import StoryStage from '../../../components/cine/StoryStage.astro';
+import ServiceObject from '../../../components/cine/ServiceObject.astro';
+import ServiceAfter from '../../../components/cine/ServiceAfter.astro';
+import { SERVICE_STAGE, STAGE_SECTORS, caseService, caseSector } from '../../../data/cine/stageMap';
+import { ISO3D_TEXT } from '../../../data/cine/iso3dText.js';
 import ShareButton from '../../../components/common/ShareButton.astro';
 import { getServiceSpec } from '../../../data/serviceSpecs';
-import { RENDERS } from '../../../data/renders';
 import SnapRail from '../../../components/cine/SnapRail.astro';
-import { SERVICE_SCENES, serviceSceneKey, V4_CUTS } from '../../../data/cine/scenes';
+import { SERVICE_SCENES, serviceSceneKey } from '../../../data/cine/scenes';
 
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
@@ -87,7 +97,7 @@ const serviceDetailPath = `/servicios/${id}/${expectedSlug}`;
 const datasheetHref = getDatasheetPublicPath(expectedSlug);
 const replicaProd = isReplicaIdenticalCopy();
 const cmsTitle = cmsServiceTitle(servicio.Titulo);
-const cmsSubtitulo = readServiceSubtitulo(servicio);
+const cmsSubtitulo = String(id) === '104' ? 'Software a medida que impulsa tu negocio.' : readServiceSubtitulo(servicio);
 const editorialHeroTitle =
   (!replicaProd && demoCopy?.headline) || visual?.shortName || cmsTitle || servicio.Titulo;
 const serviceHeroTitle = resolveReplicaH1(serviceDetailPath, editorialHeroTitle);
@@ -130,7 +140,7 @@ const pageDescription = rawDesc.length > 155 ? rawDesc.slice(0, 155) + '...' :
   rawDesc || `${seoTitleBase} - Servicios tecnológicos en Mendoza, Cuyo y Patagonia.`;
 const bodyPlainLead = plainTextFromHtml(serviceBodySource, 120);
 const heroLead = serviceHeroLead(
-  cmsSubtitulo,
+  (!replicaProd && DISCIPLINE_SYSTEMS[String(id)]?.premise) || cmsSubtitulo,
   replicaProd ? undefined : visual?.proof,
   !replicaProd && demoCopy?.paragraph ? demoCopy.paragraph : pageDescription,
   bodyPlainLead,
@@ -418,6 +428,19 @@ const serviceCases = (() => {
   }));
 })();
 const antecedentesTotal = getAntecedentesCatalogCount();
+// Every service shows its layer on each sector scene where it has work.
+const SECTOR_NAMES: Record<string, string> = { salud: 'Salud', constructoras: 'Constructoras', aeropuertos: 'Aeropuertos', industria: 'Industria', bodegas: 'Bodegas', mineria: 'Minería' };
+const buildServiceStage = () => {
+  const code = String(id), focus = SERVICE_STAGE[code];
+  if (!focus || !serviceSpec) return [];
+  return STAGE_SECTORS.filter((slug) => serviceSpec.sectorSlugs.includes(slug)).map((slug) => {
+    const text = (ISO3D_TEXT as Record<string, any>)[slug]?.[focus.layer === 'all' ? 'intro' : focus.layer] || ['', ''];
+    const cases = snapshotCases.filter((r) => caseSector(r.Area) === slug && caseService(r) === code).slice(0, 3)
+      .map((r) => ({ title: smartCase(cleanCmsText(r.Cliente || '')) || cleanCmsText(r.Titulo || ''), href: `/antecedentes/${r.id}/${generateSlug(r.Titulo || '')}`, meta: [cleanCmsText(r.Titulo || '').slice(0, 70), String(r.Fecha || '').slice(0, 4)].filter(Boolean).join(' · ') }));
+    return { key: slug, label: SECTOR_NAMES[slug], kicker: text[0], promise: text[1], sector: slug, layer: focus.layer, point: focus.point,
+      equipment: serviceSpec.equipment, cases, links: [{ label: `Ver ${SECTOR_NAMES[slug]}`, href: `/${slug}#escenario` }, { label: 'Antecedentes', href: `/antecedentes?sector=${slug}` }] };
+  });
+};
 
 // ── Soluciones incluidas (acordeón compacto, sin copy de folleto) ──────
 const productTechLine = (producto: any) => {
@@ -439,12 +462,17 @@ const solutionItems = productCards.map((producto: any, index: number) => ({
 const whyItems = porQueElegirnos.map((item: string) => cleanCmsText(sanitizeEditorialText(item))).filter(Boolean);
 const marcas = Array.isArray(servicio.marcas) ? servicio.marcas.map((m: unknown) => cleanCmsText(m)).filter(Boolean) : [];
 const serviceShortName = visual?.shortName || cmsTitle;
-const serviceRender = RENDERS[`servicio-${id}`];
+const hardwareStudy = ISOMETRIC_STUDIES[String(id)];
+const projectMovie=serviceMovie(String(id));
+const projectContext=serviceProjectScene(String(id));
+const project=sectorProject(projectContext.slug,projectContext.scene,[String(id)]);
+const projectServices=NAV_SERVICES.filter(service=>service.code===String(id));
 // Páginas de producto (software, soporte, consultoría): el servicio mostrado como producto,
 // en el tono de la landing de comunidades, en lugar de un render de objetos.
 const product = productPage(String(id));
 const isProductPage = Boolean(product);
 const serviceSpec = getServiceSpec(id);
+const serviceStageItems = buildServiceStage();
 const fichaPrintHref = serviceSpec ? `/servicios/${id}/ficha` : null;
 const serviceSummaryText = cleanCmsText(plainTextFromHtml(serviceBodySource)) ||
   'Alcance técnico definido bajo relevamiento de sitio y criterios operativos verificables.';
@@ -477,19 +505,28 @@ const fichaItems = [
 >
   <CineBanner
     variant="sector"
-    scenes={[serviceSceneKey(String(id))]}
-    variants={{ [serviceSceneKey(String(id))]: Object.keys(V4_CUTS).filter((k) => V4_CUTS[k].code === String(id)) }}
+    scenes={[projectMovie?.scene||serviceSceneKey(String(id))]}
+    motion={projectMovie?.status==='ready'?'auto':'still'}
+    annotations={false}
+    framing="project"
     systems={(SERVICE_SCENES[String(id)] || SERVICE_SCENES['101']).systems}
     titleId="service-title"
     kicker={visual?.eyebrow || servicio.area || 'Servicio IT'}
     title={serviceHeroTitle}
     lead={heroLead}
     primary={{ href: '/contacto', label: 'Solicitar diagnóstico' }}
-    secondary={{ href: '/antecedentes', label: 'Ver evidencia' }}
+    secondary={{ href: serviceCases.length > 0 ? '#experiencia' : '/antecedentes', label: 'Ver proyectos' }}
     back={{ href: '/servicios', label: '← Todos los servicios' }}
   />
 
   <div class="svc">
+    {serviceSpec && <ServiceObject code={String(id)} kicker={serviceSpec.name} title={serviceSpec.promise} />}
+
+    {serviceSpec ? (
+      <ServiceAfter name={serviceSpec.name} scope={serviceSpec.scope} deliverable={serviceSpec.keyDeliverable} standard={serviceSpec.keyStandard}
+        cases={serviceCases.map((c) => ({ href: c.href, client: c.client, title: c.title, year: c.year, sector: c.sector }))}
+        sectors={serviceSpec.sectors} fichaHref={fichaPrintHref} />
+    ) : (<>
     <!-- 1 · Resumen ejecutivo -->
     <section class="svc-section svc-section--brief" aria-labelledby="svc-brief-title">
       <div class="svc-wrap">
@@ -527,7 +564,7 @@ const fichaItems = [
                   {product.intro.cta}
                   <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
                 </a>
-                <a class="svc-intro__link" href="#equipamiento">{product.intro.explore}</a>
+                <a class="svc-intro__link" href="#equipamiento">Explorar el sistema</a>
               </div>
               <p class="svc-intro__note"><b>{product.intro.note.strong}</b> {product.intro.note.rest}</p>
             </div>
@@ -537,16 +574,25 @@ const fichaItems = [
           </div>
         </section>
 
-        <section class="svc-section svc-section--paper" id="equipamiento" aria-labelledby="svc-render-title">
+        <section class="svc-section svc-section--render svc-section--journey" id="equipamiento" aria-labelledby="svc-render-title">
           <div class="svc-wrap">
             <header class="svc-head">
               <div>
-                <p class="svc-kicker">{product.stage.kicker}</p>
-                <h2 id="svc-render-title">{product.stage.title}</h2>
+                <p class="svc-kicker">El sistema</p>
+                <h2 id="svc-render-title">{String(id)==='104'?'Tu software, por dentro.':DISCIPLINE_SYSTEMS[String(id)]?.premise||hardwareStudy.title}</h2>
               </div>
-              <p class="svc-head__lead">{product.stage.lead}</p>
+              <p class="svc-head__lead">{String(id)==='104'?'Desde la interfaz hasta la operación: diseñamos cada capa para que una tarea llegue a destino, con sus reglas, sus datos y su historia.':DISCIPLINE_SYSTEMS[String(id)]?'Cada capa se explica en relación con las demás. El recorrido avanza por sí solo y muestra qué diseñamos, qué integramos y qué verificamos.':hardwareStudy.views[0].description}</p>
             </header>
-            <ProductStage stage={product.stage} />
+            <div class="svc-project-story"><ServicesStory services={projectServices} project={project} single /></div>
+            <details class="svc-stage-demo">
+              <summary>{product.intro.explore}</summary>
+              <div class="svc-stage-demo__intro">
+                <h3>{product.stage.title}</h3>
+                <p>{product.stage.lead}</p>
+              </div>
+              <ProductStage stage={product.stage} tour={false} />
+            </details>
+            <ServiceSequence code={String(id)} />
           </div>
         </section>
 
@@ -556,17 +602,18 @@ const fichaItems = [
           </div>
         </section>
       </>
-    ) : serviceRender && (
-      <section class="svc-section svc-section--render" id="equipamiento" aria-labelledby="svc-render-title">
+    ) : hardwareStudy && (
+      <section class:list={['svc-section','svc-section--render',{'svc-section--journey':true}]} id="equipamiento" aria-labelledby="svc-render-title">
         <div class="svc-wrap">
           <header class="svc-head">
             <div>
               <p class="svc-kicker">Sistema y equipamiento</p>
-              <h2 id="svc-render-title">{serviceRender.title.split(' · ')[0]}, pieza por pieza.</h2>
+              <h2 id="svc-render-title">{String(id)==='104'?'Tu software, por dentro.':DISCIPLINE_SYSTEMS[String(id)]?.premise||hardwareStudy.title}</h2>
             </div>
-            <p class="svc-head__lead">Los mismos equipos que aparecen en la escena de arriba, en estudio. Cada componente se especifica según el sitio, la norma aplicable y la operación que debe sostener.</p>
+            <p class="svc-head__lead">Del sistema completo al detalle que lo hace funcionar. El recorrido muestra las decisiones, conexiones y pruebas que resolvemos para cada proyecto.</p>
           </header>
-          <RenderStage render={serviceRender} layout="split" />
+          <div class="svc-project-story"><ServicesStory services={projectServices} project={project} single /></div>
+          <ServiceSequence code={String(id)} />
         </div>
       </section>
     )}
@@ -705,7 +752,7 @@ const fichaItems = [
 
     <!-- 4 · Antecedentes del servicio -->
     {serviceCases.length > 0 && (
-      <section class="svc-section" aria-labelledby="svc-cases-title">
+      <section class="svc-section" id="experiencia" aria-labelledby="svc-cases-title">
         <div class="svc-wrap">
           <header class="svc-head">
             <div>
@@ -737,6 +784,7 @@ const fichaItems = [
 
     <!-- Guías y análisis del blog para este servicio (mapa temático) -->
     <!-- 4b · Ficha técnica completa -->
+    {serviceStageItems.length > 0 && <StoryStage id="escenario-servicio" kicker="El servicio en cada sector" title={`Dónde actúa ${serviceShortName} en cada operación.`} lead="Recorré los sectores: la maqueta de cada uno muestra la capa de este servicio y el equipo que instalamos. Abrí uno para ver los antecedentes en ese sector." items={serviceStageItems} />}
     {serviceSpec && (
       <section class="svc-section" id="ficha-tecnica" aria-labelledby="svc-spec-title">
         <div class="svc-wrap">
@@ -812,11 +860,16 @@ const fichaItems = [
         </aside>
       </div>
     </section>
+    </>)}
   </div>
   <SnapRail />
 </LayoutV4>
 
 <style>
+.svc-project-story{color:#fff;padding:0}
+.svc-section--render{background:#0a0a0b;color:#fff}
+
+  .svc-section[id] { scroll-margin-top:96px; }
   .svc {
     --svc-pad: clamp(64px, 5vw, 80px);
     background: var(--x-ink, #0a0a0b);
@@ -824,6 +877,14 @@ const fichaItems = [
     font-family: var(--um-font-editorial);
   }
 
+  .svc-section--journey { padding-block:48px; }
+  .svc-stage-demo { margin-top:32px; border-block:1px solid var(--x-line,#d4d4d4); }
+  .svc-stage-demo summary { cursor:pointer; min-height:56px; padding:16px 0; font-size:1rem; font-weight:600; line-height:1.5; color:var(--x-text,#111); }
+  .svc-stage-demo summary:focus-visible { outline:2px solid #dc2626; outline-offset:4px; }
+  .svc-stage-demo[open] summary { margin-bottom:20px; }
+  .svc-stage-demo__intro { margin-bottom:24px; max-width:72ch; }
+  .svc-stage-demo__intro h3 { margin:0; font-size:var(--um-world-h3,1.25rem); line-height:1.3; font-weight:var(--um-display-weight,600); }
+  .svc-stage-demo__intro p { margin:12px 0 0; font-size:var(--um-copy-description,1.125rem); line-height:var(--um-body-line-height,1.62); }
   .svc-wrap {
     width: 100%;
     max-width: var(--um-container-wide, 1400px);
@@ -892,6 +953,8 @@ const fichaItems = [
     line-height: 1.08;
     text-wrap: balance;
   }
+
+  .svc-section--journey .svc-head { margin-bottom:24px; }
 
   .svc-head__lead {
     max-width: 62ch;

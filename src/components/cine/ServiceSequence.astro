@@ -1,0 +1,20 @@
+---
+import {NAV_SERVICES} from '../../data/navigation';
+interface Props {code:string}
+const {code}=Astro.props;
+const at=NAV_SERVICES.findIndex(service=>service.code===code);
+const previous=NAV_SERVICES[at-1],next=NAV_SERVICES[at+1];
+---
+{at>=0&&<nav class="service-sequence" aria-label="Seguir explorando servicios IT">
+ <a href={previous?previous.href+'#equipamiento':'/servicios'}><span>{previous?'Anterior':'Vista general'}</span><strong>{previous?'← '+previous.name:'Todos los servicios'}</strong></a>
+ <a href={next?next.href+'#equipamiento':'/#servicios-it'}><span>{next?'Siguiente':'El sistema completo'}</span><strong>{next?next.name+' →':'Volver a la visión integral →'}</strong></a>
+</nav>}
+<style>
+ .service-sequence{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:32px;padding-top:24px;border-top:1px solid var(--x-line,#ffffff28);color:var(--x-text,#fff)}
+ .service-sequence a{min-width:0;min-height:56px;display:grid;align-content:start;gap:8px;color:inherit;font-size:1rem;line-height:1.5;text-decoration:none}
+ .service-sequence a:last-child{text-align:right}
+ .service-sequence span{opacity:.72}.service-sequence strong{font-size:1rem;font-weight:500;text-decoration:underline;text-decoration-color:#DC2626;text-underline-offset:6px}
+ .service-sequence a:focus-visible{outline:2px solid #DC2626;outline-offset:6px}
+ @media(hover:hover){.service-sequence a:hover strong{text-decoration-thickness:2px}}
+ @media(max-width:480px){.service-sequence{gap:16px}.service-sequence a{min-height:72px}}
+</style>

@@ -1,0 +1,50 @@
+---
+import preview from '../../assets/cine/isometric/software-layers-v7.svg?raw';
+import expandedPreview from '../../assets/cine/isometric/software-layers-expanded-v7.svg?raw';
+interface Props {compact?: boolean;guided?:boolean}
+const {compact=false,guided=false}=Astro.props;
+const layers = [
+  {name:'Aplicación',description:'Una herramienta propia, con roles y permisos para cada persona que la usa.'},
+  {name:'Navegación',description:'Cada área encuentra sus módulos y tareas sin recorrer pantallas innecesarias.'},
+  {name:'Contenido',description:'Estados, indicadores y registros convierten los datos del proceso en decisiones.'},
+  {name:'Acciones',description:'Crear, revisar, aprobar y resolver: cada acción tiene contexto y deja un registro.'},
+];
+---
+<section class:list={["sl", {"sl--compact":compact}]} data-software-layers data-software-guided={String(guided)} data-sl-compact={String(compact)} data-sl-expanded={String(!compact)} aria-label="Explorar las capas de una aplicación">
+  <div class="sl__visual">
+    <div class="sl__canvas" data-sl-canvas data-hairline="exploded" data-hairline-theme="dark" role="img" aria-label="Aplicación isométrica con navegación, contenido y acciones.">
+      <Fragment set:html={compact?preview:expandedPreview} />
+    </div>
+    <button type="button" class="sl__separate" data-sl-separate aria-pressed="true">Unir capas</button>
+  </div>
+  <div class="sl__text">
+    <p class="sl__eyebrow">Software, desde adentro</p>
+    <h3>El proceso se convierte en una herramienta.</h3>
+    <p class="sl__lead">Explorá cómo se organiza una aplicación que tu equipo puede usar todos los días.</p>
+    <div class="sl__controls" role="group" aria-label="Capas de la aplicación">
+      {layers.map((layer,i)=><button type="button" data-sl-layer={i} data-description={layer.description} aria-pressed={String(i===0)}><span aria-hidden="true">0{i+1}</span>{layer.name}</button>)}
+    </div>
+    <p class="sl__description" data-sl-description aria-live={compact?"off":"polite"}>{layers[0].description}</p>
+  </div>
+</section>
+<script src="/cine/software-layers-v9.js" type="module" async is:inline />
+<style>
+  .sl--compact{display:block!important;margin:0!important;width:100%;height:100%}.sl--compact .sl__visual,.sl--compact .sl__canvas{height:100%;background:transparent;aspect-ratio:auto}.sl--compact .sl__text,.sl--compact .sl__separate{display:none}
+  .sl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,4vw,64px);align-items:center;margin-bottom:48px}
+  .sl__visual{position:relative;background:#0a0d10;min-width:0;color:#fff}
+  .sl__canvas{aspect-ratio:5/4;--hairline-plate:#0a0d10;--hairline-hi:#dc2626;--hairline-edge:#ddd;--hairline-mid:#888;--hairline-lo:#454545;--hairline-stroke:1.15}
+  .sl__fallback{display:block;width:100%;height:100%}
+  .sl__separate{position:absolute;bottom:16px;left:16px;min-height:44px;padding:0 16px;border:1px solid #ffffff55;background:#111316;color:#fff;font:600 1rem 'UM Sans',Arial,sans-serif;cursor:pointer}
+  .sl__eyebrow{margin:0 0 12px;color:var(--um-red,#dc2626);font-size:1rem;font-weight:600}
+  .sl__text h3{margin:0;font-size:var(--um-world-h3,1.25rem);font-weight:var(--um-display-weight,600);line-height:1.15;letter-spacing:-.025em}
+  .sl__lead{font-size:var(--um-copy-description,1.125rem);line-height:var(--um-body-line-height,1.62);margin:16px 0 24px;max-width:48ch}
+  .sl__controls{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}
+  .sl__controls button{display:flex;gap:12px;align-items:center;min-height:52px;padding:12px 0;background:none;color:inherit;border:0;border-bottom:1px solid #7f7f7f60;font:500 1rem 'UM Sans',Arial,sans-serif;text-align:left;cursor:pointer}
+  .sl__controls span{font-variant-numeric:tabular-nums;opacity:.6}
+  .sl__controls button[aria-pressed=true]{color:var(--um-red,#dc2626);border-color:var(--um-red,#dc2626)}
+  .sl button:focus-visible{outline:2px solid var(--um-red,#dc2626);outline-offset:4px}
+  .sl__description{font-size:1rem;line-height:1.6;margin:20px 0 0;min-height:4.8em;max-width:50ch}
+  @media(hover:hover){.sl__controls button:hover{color:var(--um-red,#dc2626)}.sl__separate:hover{border-color:#dc2626}}
+  @media(max-width:760px){.sl{grid-template-columns:1fr;gap:24px}.sl__description{min-height:0}}
+  @media(prefers-reduced-motion:reduce){.sl__canvas :global(path){transition:none!important}}
+</style>

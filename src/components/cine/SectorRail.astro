@@ -1,0 +1,47 @@
+---
+// The six sector films as product pieces: poster at rest, the film plays on hover or
+// focus, and each piece opens its sector story.
+interface Item { slug: string; scene: string; name: string; line: string }
+interface Props { items: Item[] }
+const { items } = Astro.props;
+---
+<ol class="srail">
+  {items.map((it) => (
+    <li>
+      <a href={`/${it.slug}`} class="srail__card" data-srail>
+        <span class="srail__media">
+          <img src={`/cine/media/cine-${it.scene}-proyecto-v5-poster-sq.jpg`} alt="" width="1080" height="1080" loading="lazy" decoding="async" />
+          <video muted playsinline loop preload="none" data-src={`/cine/scrub/${it.scene}-sq-720.mp4`} aria-hidden="true"></video>
+        </span>
+        <span class="srail__name">{it.name}</span>
+        <span class="srail__line">{it.line}</span>
+        <span class="srail__go">Ver cómo lo hacemos <i aria-hidden="true">→</i></span>
+      </a>
+    </li>
+  ))}
+</ol>
+<style>
+  .srail{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,1.6vw,24px)}
+  .srail__card{display:flex;flex-direction:column;height:100%;color:#fff;text-decoration:none}
+  .srail__media{position:relative;display:block;aspect-ratio:1/1;overflow:hidden;background:#14232f}
+  .srail__media img,.srail__media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .4s}
+  .srail__media video{opacity:0}
+  .srail__card:hover .srail__media video,.srail__card:focus-visible .srail__media video{opacity:1}
+  .srail__name{margin-top:18px;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  .srail__line{margin-top:6px;font-size:16px;line-height:1.45;color:rgba(255,255,255,.7)}
+  .srail__go{margin-top:14px;font-size:16px;font-weight:700;color:#fff}
+  .srail__go i{font-style:normal;display:inline-block;transition:transform .3s}
+  .srail__card:hover .srail__go i{transform:translateX(4px)}
+  .srail__card:focus-visible{outline:2px solid #DC2626;outline-offset:4px}
+  @media (max-width:900px){.srail{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:560px){.srail{grid-template-columns:1fr}}
+</style>
+<script>
+  for (const card of document.querySelectorAll<HTMLElement>('[data-srail]')) {
+    const v = card.querySelector('video')!;
+    const play = () => { if (!v.src) v.src = v.dataset.src || ''; v.play().catch(() => {}); };
+    const stop = () => { v.pause(); };
+    card.addEventListener('pointerenter', play); card.addEventListener('focus', play);
+    card.addEventListener('pointerleave', stop); card.addEventListener('blur', stop);
+  }
+</script>
