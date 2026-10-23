@@ -399,10 +399,13 @@ describe('Information hub visual contracts', () => {
   });
 
   test('home service visual loads reliably for full-page visual QA', () => {
-    // La portada abre con el banner Blender de producción; las imágenes de casos reservan su tamaño.
+    // La portada rota las películas v5 (los recortes v4 traían glitch horneado y titilaban);
+    // las imágenes de casos reservan su tamaño.
     const home = read('src/pages/index.astro');
     expect(home).toContain('<CineBanner');
-    expect(home).toContain('variants={heroVariants}');
+    expect(home).toContain('scene: `${s.scene}-proyecto-v5`');
+    expect(home).toContain('chapters={heroChapters}');
+    expect(home).not.toContain('variants={heroVariants}');
     expect(home).toContain('width="1200"');
     expect(home).toContain('decoding="async"');
   });
