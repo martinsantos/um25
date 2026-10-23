@@ -72,10 +72,9 @@ const stamp = asset.illustrative ? 'Render ilustrativo · UM25' : 'Render UM25 �
       ))}
     </ul>
   )}
-  {(asset.caption || asset.twin) && (
+  {asset.caption && (
     <figcaption class="um-rs__caption">
       <span>{asset.caption ?? asset.title}</span>
-      {asset.twin && <a href={asset.twin} target="_blank" rel="noopener">Recorrer el gemelo digital <span aria-hidden="true">↗</span></a>}
     </figcaption>
   )}
 </figure>

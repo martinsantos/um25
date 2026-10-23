@@ -33,7 +33,7 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
     <img class="svc-story__poster is-on" src={items[0]?.poster ?? '/cine/media/story-fachada.jpg'} alt="" width="1920" height="1080" loading="lazy" decoding="async" data-poster-layer />
     <img class="svc-story__poster" src={items[0]?.poster ?? '/cine/media/story-fachada.jpg'} alt="" width="1920" height="1080" loading="lazy" decoding="async" data-poster-layer />
     <div class="svc-story__frame" aria-hidden="true"></div>
-    <button class="svc-story__mount" type="button" hidden>Recorrer el gemelo digital</button>
+    <button class="svc-story__mount" type="button" hidden aria-hidden="true" tabindex="-1"></button>
     <p class="svc-story__now" aria-live="polite"><i></i><span>{items[0]?.name}</span></p>
   </div>
   <ol class="svc-story__list">
@@ -104,7 +104,7 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
       if (inView && !compact && !limited) mount();
       if (ready) send('suspend', !inView);
     }, { rootMargin: '300px 0px' }).observe(root);
-    if (compact || limited) { mountBtn.hidden = false; mountBtn.addEventListener('click', mount); }
+    // En pantallas chicas queda la imagen: el gemelo digital no se ofrece al usuario final.
     if (items[0]) activate(items[0]);
   });
 </script>

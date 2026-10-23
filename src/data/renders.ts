@@ -62,7 +62,7 @@ export const RENDERS: Record<string, RenderAsset> = {
       { x: 62, y: 46, text: 'Cámara IP · corredor', system: 'V' },
       { x: 48, y: 72, text: 'UPS y tablero IT', system: 'E' },
     ],
-    caption: 'Recorrido pre-renderizado. El gemelo digital se abre a pedido.',
+    caption: 'Recorrido pre-renderizado.',
   },
   'bodega-trazabilidad': {
     id: 'bodega-trazabilidad',
