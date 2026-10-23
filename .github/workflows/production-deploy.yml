@@ -256,6 +256,15 @@ jobs:
               src/pages/sitemap-blog.xml.ts|\
               src/utils/blogRss.ts|src/utils/blogTopicCases.ts|\
               src/utils/blogTopicMap.ts|src/utils/getBlogData.ts) ;;
+              # UM25 nueva versión (23/10): composiciones de sector en código,
+              # escenas, lab, datos y pruebas de la rama de revisión.
+              .github/workflows/cine-*.yml|scripts/cine/*|docs/cine/*|\
+              public/cine/*|public/lab/*|src/assets/cine/*|src/data/cine/*|\
+              src/scripts/senal/*|src/scripts/iso3d/*|src/pages/lab/*|\
+              src/components/um/*|src/components/templates/*|src/components/v4/StatsBar.astro|\
+              src/data/serviceSingleDemoSystem.ts|src/data/snapshots/sectores.json|\
+              src/pages/antecedentes/'[id]'/'[slug].astro'|scripts/css-contract-audit.mjs|\
+              __tests__/*.test.js|__tests__/*.test.ts|\
               # UM25 refactor: cine v4 (40 recorridos), páginas de producto
               # 104/105/106 y control visual.
               public/cine/cine-banner-v4.js|public/cine/media/cine-*|\
