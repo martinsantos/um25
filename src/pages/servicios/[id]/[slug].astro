@@ -22,7 +22,7 @@ import ShareButton from '../../../components/common/ShareButton.astro';
 import { getServiceSpec } from '../../../data/serviceSpecs';
 import { RENDERS } from '../../../data/renders';
 import SnapRail from '../../../components/cine/SnapRail.astro';
-import { SERVICE_SCENES, serviceSceneKey, V4_CUTS } from '../../../data/cine/scenes';
+import { SERVICE_SCENES, serviceSceneKey, V4_CUTS, sceneServiceCuts } from '../../../data/cine/scenes';
 
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
@@ -440,6 +440,8 @@ const whyItems = porQueElegirnos.map((item: string) => cleanCmsText(sanitizeEdit
 const marcas = Array.isArray(servicio.marcas) ? servicio.marcas.map((m: unknown) => cleanCmsText(m)).filter(Boolean) : [];
 const serviceShortName = visual?.shortName || cmsTitle;
 const serviceRender = RENDERS[`servicio-${id}`];
+// Recorrido completo del servicio en la planta de altura (el despiece de la nave industrial).
+const plantCut = sceneServiceCuts('planta').find((cut) => cut.code === String(id));
 // Páginas de producto (software, soporte, consultoría): el servicio mostrado como producto,
 // en el tono de la landing de comunidades, en lugar de un render de objetos.
 const product = productPage(String(id));
@@ -556,6 +558,23 @@ const fichaItems = [
           </div>
         </section>
       </>
+    ) : plantCut ? (
+      <section class="svc-section svc-section--render" id="equipamiento" aria-labelledby="svc-render-title">
+        <div class="svc-wrap">
+          <header class="svc-head">
+            <div>
+              <p class="svc-kicker">Recorrido completo</p>
+              <h2 id="svc-render-title">El sistema, dentro de la planta de altura.</h2>
+            </div>
+            <p class="svc-head__lead">El mismo sistema, seguido dentro de una instalación industrial completa: dónde va cada equipo y cómo se conecta con el resto.</p>
+          </header>
+          <figure class="svc-plant">
+            <video muted loop playsinline autoplay preload="metadata" poster={plantCut.poster} aria-hidden="true">
+              <source src={plantCut.video} type="video/mp4" />
+            </video>
+          </figure>
+        </div>
+      </section>
     ) : serviceRender && (
       <section class="svc-section svc-section--render" id="equipamiento" aria-labelledby="svc-render-title">
         <div class="svc-wrap">
@@ -824,6 +843,8 @@ const fichaItems = [
     font-family: var(--um-font-editorial);
   }
 
+  .svc-plant { margin: 0; aspect-ratio: 16 / 9; background: #545447; overflow: hidden; }
+  .svc-plant video { display: block; width: 100%; height: 100%; object-fit: cover; }
   .svc-wrap {
     width: 100%;
     max-width: var(--um-container-wide, 1400px);
