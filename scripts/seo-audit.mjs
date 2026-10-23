@@ -181,7 +181,8 @@ async function auditSitemap(baseUrl, canonicalBaseUrl, failures) {
   const imageCount = (imageSitemap.match(/<image:image>/g) || []).length;
   assert(imageSitemap.includes('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"'), 'sitemap-images.xml missing image namespace', failures);
   assert(imageSitemap.includes('<image:loc>'), 'sitemap-images.xml missing image loc entries', failures);
-  assert(imageSitemap.includes('/images/antecedentes/generated/'), 'sitemap-images.xml missing generated antecedente image paths', failures);
+  assert(imageSitemap.includes('/cine/media/cine-'), 'sitemap-images.xml missing Blender poster image paths', failures);
+  assert(!imageSitemap.includes('/images/antecedentes/generated/'), 'sitemap-images.xml still lists generated antecedente images', failures);
   assert(!imageSitemap.includes('<image:title>'), 'sitemap-images.xml still emits deprecated image:title tags', failures);
   assert(imageCount >= 518, `sitemap-images.xml exposes too few images (${imageCount})`, failures);
   assert(!imageSitemap.includes(NON_CANONICAL_APEX_URL), 'sitemap-images.xml leaks apex URL', failures);
