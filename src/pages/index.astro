@@ -7,15 +7,13 @@ import EmailLink from '../components/common/EmailLink.astro';
 import CineBanner from '../components/cine/CineBanner.astro';
 import ServicesStory from '../components/cine/ServicesStory.astro';
 import SectorAtlas from '../components/cine/SectorAtlas.astro';
-import CoverageMap from '../components/cine/CoverageMap.astro';
-import ProductBand from '../components/cine/ProductBand.astro';
-import CompanyBand from '../components/cine/CompanyBand.astro';
-import JournalBand from '../components/cine/JournalBand.astro';
-import SnapRail from '../components/cine/SnapRail.astro';
-import CapabilityLedger from '../components/cine/CapabilityLedger.astro';
 import { NAV_SERVICES } from '../data/navigation';
 import { HOME_SCENES, V4_CUTS } from '../data/cine/scenes';
-import { avifOf, sectorPoster } from '../data/cine/posters';
+import { sectorPoster } from '../data/cine/posters';
+
+// La home cuenta una sola historia: arriba el Blender (CineBanner), debajo el despiece
+// (ServicesStory: los ocho servicios junto al edificio que se segmenta por capas), después
+// los sectores, los proyectos como lista sobria y el cierre de contacto.
 
 // Hero variable: cada visita arranca en otra escena y cada escena elige al azar uno de
 // sus recorridos v4 (servicio dentro de la escena). SSR: cambia en cada carga.
@@ -40,44 +38,53 @@ const sectors = [
   { name: 'Software', count: sectorCaseLabel('software'), text: 'ERPs y plataformas a medida', href: '/software', image: sectorPoster('software'), accent: '#DC2626' },
 ];
 
-// Proyectos destacados: registros reales del catálogo, con su ficha y su imagen curada.
+// Proyectos: registros reales del catálogo (ANTECEDENTES_REALES), con su ficha pública.
 const SECTOR_LABEL: Record<string, string> = {
   aeropuertos: 'Aeropuertos', bodegas: 'Bodegas', constructoras: 'Constructoras', gobierno: 'Gobierno',
   industria: 'Industria', mineria: 'Minería', salud: 'Salud', 'seguridad-electronica': 'Seguridad electrónica', software: 'Software',
 };
-const DESTACADOS: { id: number; image: string }[] = [
-  { id: 3065, image: sectorPoster('aeropuertos') },
-  { id: 3075, image: sectorPoster('salud') },
-  { id: 3064, image: sectorPoster('gobierno') },
-  { id: 3334, image: sectorPoster('bodegas') },
-];
-const cases = DESTACADOS.flatMap(({ id, image }) => {
-  const item = ANTECEDENTES_REALES.find((antecedente) => antecedente.id === id);
-  if (!item) return [];
-  const title = item.title.replace(new RegExp(`\\s*-\\s*${item.client.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}.*$`, 'i'), '').trim() || item.title;
-  return [{
-    id: String(id),
-    title,
-    meta: `${item.client}${item.year ? ` / ${item.year}` : ''}`,
-    sector: SECTOR_LABEL[item.sectorSlug] || '',
-    href: `/antecedentes/${id}/${item.slug}`,
-    image,
-  }];
-});
+type Antecedente = (typeof ANTECEDENTES_REALES)[number];
+
+// Los cuatro destacados de siempre.
+const FEATURED = [3065, 3075, 3064, 3334];
+
+// Título sin el sufijo «- Cliente» que repite la columna de cliente.
+const cleanTitle = (item: Antecedente) =>
+  item.title.replace(new RegExp(`\\s*-\\s*${item.client.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}.*$`, 'i'), '').trim() || item.title;
+
+const featured = FEATURED.flatMap((id) => ANTECEDENTES_REALES.find((item) => item.id === id) ?? []);
+
+// Cuatro más: los más recientes del catálogo, uno por sector, prefiriendo sectores que
+// los destacados no cubren. Sin cliente confidencial ni fecha desconocida.
+const recientes = ANTECEDENTES_REALES
+  .filter((item) => item.year > 0 && item.client !== 'Cliente confidencial' && !FEATURED.includes(item.id))
+  .sort((a, b) => b.year - a.year || b.month - a.month || b.id - a.id);
+const sectoresDestacados = new Set(featured.map((item) => item.sectorSlug));
+const masProyectos: Antecedente[] = [];
+for (const evitarDestacados of [true, false]) {
+  for (const item of recientes) {
+    if (masProyectos.length >= 4) break;
+    if (masProyectos.some((elegido) => elegido.sectorSlug === item.sectorSlug)) continue;
+    if (evitarDestacados && sectoresDestacados.has(item.sectorSlug)) continue;
+    masProyectos.push(item);
+  }
+}
+
+const projects = [...featured, ...masProyectos].map((item) => ({
+  id: item.id,
+  client: item.client,
+  title: cleanTitle(item),
+  sector: SECTOR_LABEL[item.sectorSlug] || '',
+  year: item.year ? String(item.year) : '',
+  href: `/antecedentes/${item.id}/${item.slug}`,
+}));
+
+const catalogCount = getAntecedentesCatalogCount();
 
 const stats = [
   { value: '22+', label: 'Años de operación', href: '/nosotros', aria: 'Ver trayectoria de ULTIMA MILLA' },
-  { value: String(getAntecedentesCatalogCount()), label: 'Proyectos documentados', href: '/antecedentes', aria: 'Ver proyectos documentados' },
+  { value: String(catalogCount), label: 'Proyectos documentados', href: '/antecedentes', aria: 'Ver proyectos documentados' },
   { value: '9', label: 'Sectores atendidos', href: '/sectores', aria: 'Ver sectores atendidos' },
-  { value: '4', label: 'Sedes en Cuyo y Patagonia', href: '#cobertura', aria: 'Ver sedes y cobertura' },
-  { value: '24/7', label: 'Soporte operativo', href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it', aria: 'Ver soporte operativo 24/7' },
-];
-
-const hubs = [
-  { name: 'Mendoza', region: 'Cuyo / sede central', coords: '-32.8908, -68.8272', href: '/servicios-it-empresas-mendoza', aria: 'Ver servicios IT para empresas en Mendoza' },
-  { name: 'San Juan', region: 'Cuyo', coords: '-31.5375, -68.5364', href: '/servicios-it-empresas-argentina', aria: 'Ver cobertura de servicios IT para empresas en San Juan' },
-  { name: 'San Luis', region: 'Cuyo', coords: '-33.2950, -66.3356', href: '/servicios-it-empresas-argentina', aria: 'Ver cobertura de servicios IT para empresas en San Luis' },
-  { name: 'Neuquen', region: 'Patagonia', coords: '-38.9516, -68.0591', href: '/servicios-it-empresas-argentina', aria: 'Ver cobertura de servicios IT para empresas en Patagonia' },
 ];
 ---
 
@@ -107,8 +114,6 @@ const hubs = [
               <strong>
                 {value.endsWith('+') ? (
                   <>{value.slice(0, -1)}<b>+</b></>
-                ) : value.endsWith('%') ? (
-                  <>{value.slice(0, -1)}<b>%</b></>
                 ) : (
                   value
                 )}
@@ -123,11 +128,8 @@ const hubs = [
     <section class="um26-section" id="servicios-it">
       <div class="um26-shell">
         <div class="um26-section__head" data-reveal>
-          <div>
-            <p class="um26-kicker"><span></span>Servicios</p>
-            <h2>Ocho frentes de servicio IT.</h2>
-          </div>
-          <p>Un mismo equipo releva, instala y sostiene cada sistema, de la obra a la operación diaria.</p>
+          <p class="um26-kicker"><span></span>Servicios</p>
+          <h2>Ocho frentes de servicio IT.</h2>
         </div>
 
         <ServicesStory services={services} />
@@ -139,11 +141,8 @@ const hubs = [
     <section class="um26-section um26-section--band" id="sectores">
       <div class="um26-shell">
         <div class="um26-section__head" data-reveal>
-          <div>
-            <p class="um26-kicker"><span></span>Sectores</p>
-            <h2>Infraestructura IT por sector.</h2>
-          </div>
-          <p>Entrá por su sector y revisá casos comparables antes de contratar.</p>
+          <p class="um26-kicker"><span></span>Sectores</p>
+          <h2>Infraestructura IT por sector.</h2>
         </div>
 
         <SectorAtlas sectors={sectors} />
@@ -153,69 +152,24 @@ const hubs = [
     <section class="um26-section" id="antecedentes-home">
       <div class="um26-shell">
         <div class="um26-section__head" data-reveal>
-          <div>
-            <p class="um26-kicker"><span></span>Proyectos</p>
-            <h2>Proyectos que respaldan cada propuesta.</h2>
-          </div>
-          <p>{getAntecedentesCatalogCount()} proyectos documentados con cliente, sector, servicios aplicados y alcance técnico.</p>
+          <p class="um26-kicker"><span></span>Proyectos</p>
+          <h2>Proyectos que respaldan cada propuesta.</h2>
         </div>
 
-        <div class="um26-case-grid" data-rail="Proyectos destacados" data-reveal>
-          {cases.map((item) => (
-            <a class="um26-media-card um26-case-card" href={item.href}>
-              <picture>
-                <source type="image/avif" srcset={avifOf(item.image)} />
-                <img src={item.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />
-              </picture>
-              <span class="um26-media-card__code">#{item.id}</span>
-              <div>
-                <p>{item.meta}</p>
-                <h3>{item.title}</h3>
-                <small>{item.sector}</small>
-              </div>
-              <span class="um26-card-bar" aria-hidden="true"></span>
-            </a>
+        <ol class="um26-projects" data-reveal>
+          {projects.map((item) => (
+            <li>
+              <a href={item.href}>
+                <span class="um26-projects__client">{item.client}</span>
+                <span class="um26-projects__title">{item.title}</span>
+                <span class="um26-projects__sector">{item.sector}</span>
+                <span class="um26-projects__year">{item.year}</span>
+              </a>
+            </li>
           ))}
-        </div>
+        </ol>
 
-        <a class="um26-btn um26-btn--red um26-section__cta" href="/antecedentes">Explorar los {getAntecedentesCatalogCount()} proyectos</a>
-      </div>
-    </section>
-
-    <section class="um26-section" id="empresa">
-      <div class="um26-shell">
-        <CompanyBand />
-      </div>
-    </section>
-
-    <section class="um26-section um26-section--band" id="capacidad">
-      <div class="um26-shell">
-        <CapabilityLedger />
-      </div>
-    </section>
-
-    <section class="um26-section" id="producto">
-      <div class="um26-shell">
-        <ProductBand />
-      </div>
-    </section>
-
-    <section class="um26-section um26-section--band" id="cobertura">
-      <div class="um26-shell">
-        <div class="um26-section__head" data-reveal>
-          <div>
-            <p class="um26-kicker"><span></span>Cobertura</p>
-            <h2>Cobertura en Cuyo y Patagonia.</h2>
-          </div>
-          <p>Sede central en Mendoza, al pie de los Andes, y sedes en San Juan, San Luis y Neuquén.</p>
-        </div>
-        <CoverageMap hubs={hubs} />
-      </div>
-    </section>
-
-    <section class="um26-section" id="blog-home">
-      <div class="um26-shell">
-        <JournalBand />
+        <a class="um26-text-link" href="/antecedentes">Ver los {catalogCount} proyectos</a>
       </div>
     </section>
 
@@ -236,7 +190,6 @@ const hubs = [
       </div>
     </section>
   </div>
-  <SnapRail />
 
   <style>
     :global(body[data-skin]) main {
@@ -254,230 +207,18 @@ const hubs = [
       margin-inline: auto;
     }
 
-    .um26-hero {
-      position: relative;
-      min-height: min(780px, calc(100svh - 64px));
-      overflow: hidden;
-      display: flex;
-      align-items: flex-end;
-      background: #0a0a0b;
-      isolation: isolate;
-    }
-
-    .um26-hero__image,
-    .um26-hero__veil {
-      position: absolute;
-      inset: 0;
-    }
-
-    .um26-hero__image {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      z-index: -3;
-    }
-
-    .um26-hero__veil {
-      z-index: -2;
-      background:
-        linear-gradient(105deg, rgba(10, 10, 11, 0.94) 0%, rgba(10, 10, 11, 0.6) 42%, rgba(10, 10, 11, 0.3) 100%),
-        linear-gradient(to top, #0a0a0b 0%, rgba(10, 10, 11, 0.55) 50%, transparent 100%);
-    }
-
-    .um26-hero__top {
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: min(1400px, calc(100% - 64px));
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      color: rgba(255, 255, 255, 0.52);
-      font-family: var(--um-font-mono);
-      font-size: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.2em;
-      z-index: 2;
-    }
-
-    .um26-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      color: rgba(255, 255, 255, 0.74);
-      background: rgba(10, 10, 11, 0.42);
-    }
-
-    .um26-chip span,
-    .um26-hub-grid p span {
-      width: 7px;
-      height: 7px;
-      background: #dc2626;
-      display: inline-block;
-    }
-
-    .um26-hero__metric {
-      position: absolute;
-      right: 32px;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-      color: #fff;
-      z-index: 2;
-    }
-
-    .um26-hero__metric span {
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      font-size: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.25em;
-      color: rgba(255, 255, 255, 0.55);
-      font-family: var(--um-font-mono);
-    }
-
-    .um26-hero__metric strong {
-      font-family: var(--um-font-display);
-      font-size: 7rem;
-      line-height: 0.8;
-      letter-spacing: var(--um-display-tracking);
-      text-shadow: 0 20px 55px rgba(0, 0, 0, 0.65);
-    }
-
-    .um26-hero__metric b {
-      color: #dc2626;
-      font-weight: inherit;
-    }
-
-    .um26-hero__metric i {
-      width: 1px;
-      height: 56px;
-      background: linear-gradient(to bottom, #dc2626, transparent);
-    }
-
-    .um26-hero__shuffle {
-      position: absolute;
-      top: 64px;
-      right: 32px;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-family: var(--um-font-mono);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      background: rgba(10, 10, 11, 0.72);
-      backdrop-filter: blur(8px);
-      padding: 10px 13px;
-      color: rgba(255, 255, 255, 0.78);
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      font-size: 1rem;
-      z-index: 2;
-      cursor: pointer;
-      opacity: 0;
-      transform: translateY(14px);
-      animation: um26FadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.42s forwards;
-    }
-
-    .um26-home .um26-hero__shuffle,
-    .um26-home .um26-hero__shuffle * {
-      font-size: 1rem !important;
-      line-height: 1 !important;
-      white-space: nowrap;
-      text-wrap: nowrap;
-    }
-
-    .um26-hero__shuffle:hover {
-      border-color: rgba(220, 38, 38, 0.78);
-      color: #fff;
-    }
-
-    .um26-hero__shuffle-icon {
-      color: #dc2626;
-      font-size: 1rem !important;
-      line-height: 1;
-    }
-
-    .um26-hero__shuffle b {
-      color: #dc2626;
-      font-weight: 600;
-      border-left: 1px solid rgba(255, 255, 255, 0.16);
-      padding-left: 10px;
-    }
-
-    .um26-hero__variant {
-      position: absolute;
-      top: 0;
-      right: 16px;
-      z-index: 3;
-      display: inline-flex;
-      align-items: center;
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      background: rgba(10, 10, 11, 0.72);
-      backdrop-filter: blur(8px);
-      color: rgba(255, 255, 255, 0.45);
-      font-family: var(--um-font-mono);
-      font-size: 1rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-    }
-
-    .um26-hero__variant span,
-    .um26-hero__variant b {
-      display: inline-flex;
-      align-items: center;
-      min-height: 24px;
-      padding: 0 10px;
-      border-left: 1px solid rgba(255, 255, 255, 0.1);
-      font-weight: 500;
-    }
-
-    .um26-hero__variant span:first-child {
-      border-left: 0;
-    }
-
-    .um26-hero__variant b {
-      background: #dc2626;
-      color: #fff;
-      font-weight: 700;
-    }
-
-    .um26-hero__body {
-      position: relative;
-      z-index: 1;
-      padding-block: 0 64px;
-    }
-
-    @media (min-width: 640px) {
-      .um26-hero__body {
-        padding-bottom: 70px;
-      }
-    }
-
     .um26-kicker {
       display: inline-flex;
       align-items: center;
       gap: 14px;
-      margin: 0 0 24px;
+      margin: 0 0 12px;
       color: #dc2626;
       font-family: var(--um-font-mono);
       font-size: 1rem;
+      line-height: 1.5;
       font-weight: 700;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-    }
-
-    .um26-home .um26-kicker {
-      font-size: 1rem !important;
     }
 
     .um26-kicker span {
@@ -487,70 +228,16 @@ const hubs = [
       background: #dc2626;
     }
 
-    .um26-hero h1,
     .um26-section h2,
     .um26-contact h2 {
       margin: 0;
-      font-family: var(--um-font-display);
-      font-weight: 700;
-      letter-spacing: var(--um-display-tracking);
-      line-height: 0.94;
       color: #fff;
-    }
-
-    .um26-hero h1 {
-      max-width: 18ch;
-      min-height: 0;
-      font-size: clamp(3.25rem, 4.6vw, 3.625rem) !important;
-      line-height: 1.04;
-      --um-hero-title-weight: 700;
       font-family: var(--um-font-display) !important;
-      font-weight: var(--um-hero-title-weight) !important;
-      letter-spacing: -0.018em !important;
-      text-shadow: none;
-      text-wrap: normal !important;
+      font-weight: 600 !important;
+      letter-spacing: var(--um-display-tracking) !important;
+      line-height: 1.1;
+      text-wrap: wrap;
       overflow-wrap: normal !important;
-      word-break: normal !important;
-      hyphens: none;
-    }
-
-    .um26-hero h1 > span {
-      display: block;
-      opacity: 0;
-      transform: translateY(18px);
-      animation: um26FadeUp 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.26s forwards;
-    }
-
-    .um26-hero__line {
-      display: inline;
-    }
-
-    [data-hero-reveal] {
-      opacity: 0;
-      transform: translateY(18px);
-      animation: um26FadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0ms) forwards;
-    }
-
-    @keyframes um26FadeUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .um26-hero__lead {
-      max-width: 42rem;
-      margin: 28px 0 0;
-      color: rgba(255, 255, 255, 0.82);
-      font-size: var(--um-copy-lead);
-      line-height: 1.625;
-    }
-
-    .um26-hero__actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      margin-top: 36px;
     }
 
     .um26-btn {
@@ -566,18 +253,7 @@ const hubs = [
       font-size: 1rem;
       line-height: 1.2;
       letter-spacing: 0;
-      transition: background 0.18s ease, border-color 0.18s ease;
-    }
-
-    .um26-text-link::after {
-      content: "→";
-      margin-left: 10px;
-      color: currentColor;
-    }
-
-    .um26-btn svg {
-      flex: 0 0 auto;
-      color: currentColor;
+      transition: background-color 0.18s ease, border-color 0.18s ease;
     }
 
     .um26-btn--red {
@@ -590,49 +266,37 @@ const hubs = [
       border-color: #b91c1c;
     }
 
-    .um26-btn--ghost {
-      background: rgba(10, 10, 11, 0.32);
-      border: 1px solid rgba(255, 255, 255, 0.28);
-    }
-
-    .um26-btn--ghost:hover {
-      border-color: rgba(255, 255, 255, 0.58);
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .um26-sector-card:hover,
-    .um26-sector-card:focus-visible {
-      border-color: rgba(220, 38, 38, 0.72) !important;
-      box-shadow: inset 0 -2px 0 #dc2626;
-    }
-
-    .um26-hero__caption {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin: 40px 0 0;
-      color: rgba(255, 255, 255, 0.45);
-      font-family: var(--um-font-mono);
+    .um26-text-link {
+      display: inline-flex;
+      margin-top: 34px;
+      color: #fff;
+      font-weight: 700;
       font-size: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
+      text-decoration: none;
+      border-bottom: 2px solid #dc2626;
+      padding-bottom: 4px;
     }
 
-    .um26-hero__caption svg { color: #dc2626; flex: 0 0 auto; }
+    .um26-text-link::after {
+      content: "→";
+      margin-left: 10px;
+      color: currentColor;
+    }
 
+    .um26-text-link:focus-visible {
+      outline: 3px solid rgba(220, 38, 38, 0.5);
+      outline-offset: 4px;
+    }
+
+    /* Indicadores: una sola línea de tres números. */
     .um26-stats {
       border-block: 1px solid rgba(255, 255, 255, 0.08);
       background: #0f0f11;
     }
 
-    .um26-stats__inner {
-      padding-block: 0;
-    }
-
     .um26-stats__grid {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      min-height: 138px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       background: rgba(255, 255, 255, 0.05);
       gap: 1px;
     }
@@ -640,20 +304,14 @@ const hubs = [
     .um26-stats__grid a {
       display: flex;
       min-width: 0;
-      min-height: 138px;
+      min-height: 120px;
       flex-direction: column;
       justify-content: center;
       background: #0f0f11;
       padding: 24px 20px;
-      position: relative;
       color: inherit;
       text-decoration: none;
-      box-shadow: inset 0 0 0 transparent;
-      transition: background-color 160ms ease, box-shadow 160ms ease, color 160ms ease;
-    }
-
-    .um26-stats__grid a:last-child {
-      background: #151517;
+      transition: background-color 160ms ease, box-shadow 160ms ease;
     }
 
     .um26-stats__grid a:hover,
@@ -662,18 +320,9 @@ const hubs = [
       box-shadow: inset 0 -3px 0 #dc2626;
     }
 
-    .um26-stats__grid a:hover span,
-    .um26-stats__grid a:focus-visible span {
-      color: rgba(255, 255, 255, 0.82);
-    }
-
     .um26-stats__grid a:focus-visible {
       outline: 3px solid rgba(220, 38, 38, 0.5);
       outline-offset: -3px;
-    }
-
-    .um26-stats__grid a:active {
-      background: #231414;
     }
 
     .um26-stats strong {
@@ -681,8 +330,7 @@ const hubs = [
       color: #fff;
       font-family: var(--um-font-display);
       font-size: 2.25rem;
-      --um-stats-number-weight: 700;
-      font-weight: var(--um-stats-number-weight);
+      font-weight: 700;
       letter-spacing: var(--um-display-tracking);
       line-height: 1;
     }
@@ -695,9 +343,9 @@ const hubs = [
     .um26-stats span {
       display: block;
       margin-top: 10px;
-      color: #71717a;
+      color: #a1a1aa;
       font-family: var(--um-font-body);
-      font-size: 16px;
+      font-size: 1rem;
       letter-spacing: 0.04em;
       line-height: 1.25;
       text-transform: uppercase;
@@ -730,344 +378,79 @@ const hubs = [
     }
 
     .um26-section__head {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 56px;
       min-width: 0;
       max-width: 100%;
       margin-bottom: 40px;
     }
 
-    .um26-section__head > * {
-      min-width: 0;
-      max-width: 100%;
-    }
-
-    .um26-section .um26-kicker {
-      color: #dc2626 !important;
-      font-family: var(--um-font-mono) !important;
-      font-size: 1rem !important;
-      line-height: 1.5 !important;
-      margin-bottom: 9px;
-    }
-
     .um26-section h2 {
       width: min(650px, 100%);
-      --um-section-title-weight: 600;
-      font-family: var(--um-font-display) !important;
       font-size: clamp(2.25rem, 3.3vw, 2.75rem);
-      font-weight: var(--um-section-title-weight) !important;
-      letter-spacing: var(--um-display-tracking) !important;
-      line-height: 1.1;
-      text-wrap: wrap;
-      overflow-wrap: normal !important;
     }
 
-    .um26-section__head > p {
-      max-width: 430px;
+    /* Proyectos: lista sobria, sin imágenes. cliente · título · sector · año. */
+    .um26-projects {
+      list-style: none;
       margin: 0;
-      color: #a1a1aa;
-      font-size: var(--um-copy-description);
-      line-height: 1.65;
+      padding: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
     }
 
-    .um26-service-grid,
-    .um26-sector-grid,
-    .um26-case-grid {
+    .um26-projects li {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .um26-projects a {
       display: grid;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .um26-service-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
-    .um26-sector-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      grid-auto-flow: dense;
-    }
-
-    .um26-case-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .um26-media-card {
-      position: relative;
-      min-width: 0;
-      min-height: 300px;
-      overflow: hidden;
-      display: flex;
-      align-items: end;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 2fr) minmax(0, 1fr) 4.5rem;
+      align-items: baseline;
+      gap: 24px;
+      padding: 20px 12px;
       color: #fff;
       text-decoration: none;
+      transition: background-color 160ms ease;
+    }
+
+    .um26-projects a:hover,
+    .um26-projects a:focus-visible {
       background: #121214;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      isolation: isolate;
-      transition: border-color 0.18s ease, background-color 0.18s ease;
     }
 
-    .um26-media-card img {
-      position: absolute;
-      inset: 0;
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      z-index: -3;
-    }
-
-    .um26-media-card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: -2;
-      background:
-        linear-gradient(to top, rgba(10, 10, 11, 0.90) 0%, rgba(10, 10, 11, 0.30) 52%, rgba(10, 10, 11, 0.08) 100%),
-        linear-gradient(120deg, rgba(220, 38, 38, 0.12), transparent 36%);
-    }
-
-    .um26-media-card:hover {
-      border-color: rgba(220, 38, 38, 0.62);
-    }
-
-    .um26-card-bar {
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 0;
-      height: 3px;
-      background: #dc2626;
-      transition: width 0.25s ease;
-    }
-
-    .um26-media-card:hover .um26-card-bar {
-      width: 100%;
-    }
-
-    .um26-media-card > div {
-      width: 100%;
-      padding: 24px;
-    }
-
-    .um26-media-card h3 {
-      min-width: 0;
-      margin: 0;
-      color: #fff;
-      font-family: var(--um-font-display);
-      font-size: clamp(1.25rem, 1.7vw, 1.7rem);
-      font-weight: 700;
-      letter-spacing: var(--um-display-tracking);
-      line-height: 1.02;
-      transition: color 0.18s ease;
-    }
-
-    .um26-media-card:hover h3 {
-      color: #dc2626;
-    }
-
-    .um26-media-card p {
-      min-width: 0;
-      margin: 8px 0 0;
-      color: #a1a1aa;
-      font-size: var(--um-copy-description);
-      line-height: 1.5;
-    }
-
-    .um26-media-card__code {
-      position: absolute;
-      top: 14px;
-      left: 14px;
-      display: inline-flex;
-      align-items: center;
-      min-height: 32px;
-      /* El tracking deja aire a la derecha del último carácter: se descuenta del padding derecho. */
-      padding: 0 calc(12px - 0.15em) 0 12px;
-      border-radius: 4px;
-      line-height: 1;
-      background: rgba(10, 10, 11, 0.74);
-      color: #dc2626;
-      font-family: var(--um-font-editorial);
-      font-size: 1rem;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-    }
-
-    .um26-media-card__ai {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      display: inline-flex;
-      align-items: center;
-      min-height: 32px;
-      padding: 0 calc(12px - 0.1em) 0 12px;
-      border-radius: 4px;
-      background: rgba(10, 10, 11, 0.62);
-      color: rgba(255, 255, 255, 0.72);
-      font: 600 0.8125rem/1 var(--um-font-body, 'UM Sans', sans-serif);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-
-    .um26-sector-card {
-      min-height: 300px;
-    }
-
-    .um26-sector-card--big {
-      grid-column: span 2;
-      min-height: 300px;
-    }
-
-    .um26-sector-card strong {
-      position: absolute;
-      right: 18px;
-      top: 14px;
-      color: var(--accent);
-      font-family: var(--um-font-display);
-      font-size: clamp(2rem, 3vw, 3.4rem);
-      line-height: 1;
-      letter-spacing: var(--um-display-tracking);
-      text-shadow: 0 10px 28px rgba(0, 0, 0, 0.7);
-    }
-
-    .um26-case-card {
-      min-height: 380px;
-    }
-
-    .um26-case-card small {
-      display: inline-flex;
-      margin-top: 14px;
-      color: #dc2626;
-      font-family: var(--um-font-editorial);
-      font-size: 1rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-    }
-
-    .um26-text-link {
-      display: inline-flex;
-      margin-top: 34px;
-      color: #fff;
-      font-weight: 700;
-      font-size: 1rem;
-      text-decoration: none;
-      border-bottom: 2px solid #dc2626;
-      padding-bottom: 4px;
-    }
-
-    .um26-section__cta {
-      margin-top: 34px;
-    }
-
-    @media (max-width: 1110px), (pointer: coarse) {
-      .um26-text-link {
-        min-height: 44px;
-        align-items: center;
-      }
-    }
-
-    .um26-hub-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 1px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .um26-hub-grid a {
-      display: flex;
-      flex-direction: column;
-      min-height: 210px;
-      padding: 32px;
-      background: #0f0f11;
-      color: inherit;
-      text-decoration: none;
-      transition: background-color 160ms ease, color 160ms ease;
-    }
-
-    .um26-hub-grid a:hover,
-    .um26-hub-grid a:focus-visible {
-      background: #182233;
-    }
-
-    .um26-hub-grid a:focus-visible {
+    .um26-projects a:focus-visible {
       outline: 3px solid rgba(220, 38, 38, 0.5);
       outline-offset: -3px;
     }
 
-    .um26-hub-grid a:active {
-      background: #231414;
-    }
-
-    .um26-hub-grid p {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 0 0 22px;
-      color: #71717a;
-      font-family: var(--um-font-editorial);
+    .um26-projects span {
+      min-width: 0;
       font-size: 1rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
     }
 
-    .um26-hub-grid strong,
-    .um26-hub-grid em,
-    .um26-hub-grid small {
-      display: block;
-    }
-
-    .um26-hub-grid strong {
-      font-family: var(--um-font-display);
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: var(--um-display-tracking);
-      line-height: 1;
-    }
-
-    .um26-hub-grid em {
-      margin-top: 12px;
-      color: #71717a;
-      font-style: normal;
-      font-family: var(--um-font-editorial);
-      font-size: 1rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-
-    .um26-hub-grid small {
-      margin-top: 28px;
-      color: #3f3f46;
-      font-family: var(--um-font-editorial);
-      font-size: 1rem;
-    }
-
-    .um26-hub-grid__action {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: auto;
-      padding-top: 28px;
+    .um26-projects__client {
       color: #fff;
-      font-family: var(--um-font-body);
-      font-size: 1rem;
       font-weight: 700;
-      line-height: 1.2;
     }
 
-    .um26-hub-grid__action svg {
-      color: #dc2626;
-      flex: 0 0 auto;
-      transition: transform 160ms ease;
+    .um26-projects__title {
+      color: #d4d4d8;
+      transition: color 160ms ease;
     }
 
-    .um26-hub-grid a:hover .um26-hub-grid__action svg,
-    .um26-hub-grid a:focus-visible .um26-hub-grid__action svg {
-      transform: translate(1px, -1px);
+    .um26-projects a:hover .um26-projects__title,
+    .um26-projects a:focus-visible .um26-projects__title {
+      color: #fff;
+    }
+
+    .um26-projects__sector {
+      color: #a1a1aa;
+    }
+
+    .um26-projects__year {
+      color: #a1a1aa;
+      font-family: var(--um-font-mono);
+      text-align: right;
     }
 
     .um26-contact {
@@ -1127,204 +510,70 @@ const hubs = [
     .um26-contact__panel > div:last-child > span {
       text-align: center;
       color: #a1a1aa;
-      font-size: 0.95rem;
+      font-size: 1rem;
     }
 
     @media (max-width: 1100px) {
-      .um26-hero__metric {
-        right: 32px;
-        opacity: 0.45;
-      }
-
-      .um26-service-grid,
-      .um26-sector-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .um26-stats__grid,
-      .um26-hub-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .um26-section__head,
       .um26-contact__panel {
         grid-template-columns: 1fr;
-        display: grid;
         align-items: start;
       }
     }
 
     @media (max-width: 760px) {
-      .um26-shell,
-      .um26-hero__top {
+      .um26-shell {
         width: min(100% - 32px, var(--um-container-wide));
       }
 
-      .um26-hero {
-        min-height: 0;
-        align-items: flex-start;
-      }
-
-      .um26-hero__variant,
-      .um26-hero__metric {
-        display: none;
-      }
-
-      .um26-hero__top {
-        top: 20px;
-        left: 14px;
-        transform: none;
-        width: calc(100% - 28px);
-        display: flex;
-        justify-content: flex-start;
-      }
-
-      .um26-hero__top .um26-chip {
-        display: none;
-      }
-
-      /* The site header already carries brand and navigation on phones.
-         Removing duplicated operational chrome restores a clean first fold. */
-      .um26-home .um26-hero__top,
-      .um26-home .um26-hero__shuffle {
-        display: none;
-      }
-
-      .um26-hero__body {
-        padding-block: 48px;
-      }
-
-      .um26-hero h1 {
-        max-width: 17ch;
-        min-height: 0;
-        font-size: clamp(2.375rem, 9.5vw, 2.625rem) !important;
-        --um-hero-mobile-title-weight: 700;
-        font-weight: var(--um-hero-mobile-title-weight) !important;
-        line-height: 1.04 !important;
-        letter-spacing: -0.018em !important;
-        text-wrap: balance !important;
-        overflow-wrap: normal !important;
-        word-break: normal !important;
-        hyphens: none;
-        text-shadow: none;
-      }
-
-      .um26-hero .um26-kicker {
-        max-width: 100%;
-        flex-wrap: wrap;
-        margin-bottom: 18px;
-        font-size: 1rem;
-        line-height: 1.35;
-        letter-spacing: 0.12em;
-      }
-
-      .um26-hero__line {
-        display: inline;
-      }
-
-      .um26-hero__lead {
-        font-size: clamp(1.125rem, 4.5vw, 1.1875rem) !important;
-        line-height: 1.58;
-        margin-top: 22px;
-      }
-
-      .um26-hero__actions {
-        align-items: stretch;
-        gap: 12px;
-        margin-top: 30px;
-      }
-
-      .um26-btn {
-        min-height: 48px;
-      }
-
-      .um26-hero__caption {
-        align-items: flex-start;
-        line-height: 1.5;
-      }
-
-      .um26-stats__grid,
-      .um26-service-grid,
-      .um26-sector-grid,
-      .um26-case-grid,
-      .um26-hub-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .um26-stats__grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .um26-sector-card--big {
-        grid-column: auto;
-      }
-
-      .um26-section {
-        padding-block: 72px;
-      }
-
-      .um26-section__head {
-        gap: 22px;
-        margin-bottom: 30px;
-      }
-
-      .um26-section h2,
-      .um26-contact h2 {
-        font-size: clamp(1.875rem, 8vw, 2.25rem);
-        line-height: 1.1;
-      }
-
-      .um26-media-card,
-      .um26-case-card {
-        min-height: 320px;
-      }
-
-      .um26-contact__panel {
-        padding: 28px 20px;
-        gap: 24px;
-      }
-
-      /* Ritmo móvil: 56 px por sección, cabeceras más próximas al contenido. */
       .um26-section {
         padding-block: 56px;
       }
 
       .um26-section__head {
-        gap: 12px;
         margin-bottom: 24px;
       }
 
       .um26-section h2,
       .um26-contact h2 {
+        font-size: clamp(1.875rem, 8vw, 2.25rem);
         text-wrap: balance;
       }
 
-      .um26-stats__grid,
+      .um26-stats__grid {
+        grid-template-columns: 1fr;
+      }
+
       .um26-stats__grid a {
         min-height: 0;
-      }
-
-      .um26-stats__grid a {
-        padding: 20px 16px;
-      }
-
-      .um26-stats__grid a:last-child {
-        grid-column: 1 / -1;
-      }
-
-      .um26-stats strong {
-        font-size: 2rem;
+        flex-direction: row;
+        align-items: baseline;
+        gap: 16px;
+        padding: 16px;
       }
 
       .um26-stats span {
-        margin-top: 6px;
-        font-size: var(--x-fs-meta);
+        margin-top: 0;
       }
 
-      .um26-media-card,
-      .um26-case-card {
-        min-height: 0;
-        aspect-ratio: 4 / 5;
+      .um26-projects a {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 4px 16px;
+        padding: 16px 4px;
+      }
+
+      .um26-projects__title {
+        grid-column: 1 / -1;
+        grid-row: 2;
+      }
+
+      .um26-projects__sector {
+        grid-column: 1;
+        grid-row: 3;
+      }
+
+      .um26-projects__year {
+        grid-column: 2;
+        grid-row: 3;
       }
 
       .um26-text-link {
@@ -1339,14 +588,13 @@ const hubs = [
         text-underline-offset: 6px;
       }
 
-      .um26-section__cta {
-        width: 100%;
-        margin-top: 24px;
-        justify-content: center;
-      }
-
       .um26-contact {
         padding-block: 56px;
+      }
+
+      .um26-contact__panel {
+        padding: 28px 20px;
+        gap: 24px;
       }
 
       .um26-contact p:not(.um26-kicker) {
@@ -1354,5 +602,4 @@ const hubs = [
       }
     }
   </style>
-
 </LayoutV4>

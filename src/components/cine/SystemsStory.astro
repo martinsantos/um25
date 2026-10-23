@@ -19,7 +19,7 @@ const scene = MAP[slug] || 'fachada';
 // conoce las cuatro escenas de arriba, por eso el iframe sigue usando `scene`.
 const CYCLES = ['hospital', 'aeropuerto', 'bodega', 'fachada'];
 const visual = sectorBySlug(slug)?.scene ?? scene;
-const stillSrc = CYCLES.includes(visual) ? `/cine/media/${visual}-cycles.webp` : `/cine/media/cine-${visual}-proyecto-v5-poster.jpg`;
+const stillSrc = CYCLES.includes(visual) ? `/cine/media/${visual}-cycles.webp` : `/cine/despiece/${visual === 'planta' ? 'industria' : 'constructoras'}.jpg`;
 const PLACE = {
   hospital: { name: 'un hospital', short: 'Hospital conectado', where: { Data: 'bandejas sobre el cielorraso, del rack de piso a cada puesto clínico y de admisión', CCTV: 'accesos, circulaciones, farmacia y guardia', Fire: 'cada sala y cada cielorraso técnico, con la central en el cuarto de control', Power: 'el cuarto técnico, con el tablero, la UPS y las cargas críticas que respalda', Software: 'los puestos de admisión, enfermería y los tableros de gestión' } },
   aeropuerto: { name: 'una terminal', short: 'Terminal aeroportuaria', where: { Data: 'desde el cuarto técnico hasta check-in, seguridad y embarque', CCTV: 'perímetro, preembarque y puntos de control', Fire: 'hall central, cuarto técnico y zonas de espera', Power: 'el cuarto técnico y los puestos que no pueden apagarse', Software: 'pantallas de información al pasajero y el NOC' } },

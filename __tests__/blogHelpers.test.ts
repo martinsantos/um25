@@ -16,13 +16,13 @@ describe('blog image helpers', () => {
     ).toMatch(/^\/cine\/media\/cine-[a-z0-9-]+-poster\.jpg$/);
     expect(
       blogPostImageUrl({ imagen_portada: null, slug: 'deteccion-incendio-bodegas-vitivinicolas', titulo: 'Detección de incendio en bodegas', categoria: 'tecnico' } as any)
-    ).toBe('/cine/media/cine-fire-system-v1-poster.jpg');
+    ).toBe('/cine/despiece/bodegas-107.jpg');
     expect(
       blogPostImageUrl({ imagen_portada: null, slug: 'hospital-regional-neuquen-cableado-estructurado', titulo: 'Cableado estructurado en el hospital', categoria: 'proyectos' } as any)
-    ).toBe('/cine/media/cine-network-system-v1-poster.jpg');
+    ).toBe('/cine/despiece/constructoras-101.jpg');
     expect(
       blogPostImageUrl({ imagen_portada: null, slug: 'aeropuerto-mendoza-cctv', titulo: 'CCTV en el aeropuerto', categoria: 'proyectos' } as any)
-    ).toBe('/cine/media/cine-security-system-v1-poster.jpg');
+    ).toBe('/cine/despiece/aeropuertos-102.jpg');
   });
 
   test('every topic poster exists and the same note always gets the same cover', () => {

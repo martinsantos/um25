@@ -1,61 +1,70 @@
-// Pósters isométricos limpios (render propio sobre fondo azul marino, 1920×1080 y
-// variante cuadrada 1080×1080) como única fuente de imágenes fijas de sectores,
-// servicios, antecedentes y blog. Reemplazan a los cuadros de los recorridos v4
-// (`cine-{escena}-{servicio}-poster.jpg`), que quedan sólo para los videos del cine.
-// Ninguna imagen de estas rutas es generada con IA.
+// Imágenes fijas del sitio: capturas del despiece de código (`SectorCode`), la escena de
+// cada sector desarmada por capas con un servicio activo. Una por sector y una por par
+// sector × servicio, en `public/cine/despiece/`. Son la misma pieza que se ve en movimiento
+// en las páginas, no renders sueltos; ninguna es generada con IA.
 import { ANTECEDENTES_REALES } from '../../lib/um26-data/antecedentesReales';
 import { sectorBySlug, type Scene } from './scenes';
 
-/** Disciplina (archivo) de cada servicio y versión vigente de su póster. */
-const SERVICE_POSTER_KEY: Record<string, string> = {
-  '101': 'network-system-v1', '102': 'security-system-v1', '103': 'telecom-system-v1',
-  '104': 'software-system-v5', '105': 'support-system-v1', '106': 'consulting-system-v1',
-  '107': 'fire-system-v1', '108': 'power-system-v1',
+/** Servicios que aparecen como capa en el despiece de cada sector (orden del modelo). */
+const DESPIECE: Record<string, string[]> = {
+  salud: ['108', '101', '103', '102', '107', '104', '106', '105'],
+  aeropuertos: ['108', '101', '103', '102', '107', '105'],
+  industria: ['108', '101', '103', '102', '107', '104', '106', '105'],
+  bodegas: ['108', '101', '103', '102', '107', '104', '105'],
+  constructoras: ['108', '101', '102', '107', '105'],
+  mineria: ['108', '101', '103', '102', '106', '105'],
 };
-const SERVICE_CODES = Object.keys(SERVICE_POSTER_KEY);
 
-// Slugs de sector que no coinciden con los de la navegación.
-const SECTOR_ALIAS: Record<string, string> = { gobierno: 'gobiernosectorpublico' };
+/** Sector de referencia de cada servicio (donde su capa se lee mejor). */
+const SERVICE_SECTOR: Record<string, string> = {
+  '101': 'constructoras', '102': 'aeropuertos', '103': 'mineria', '104': 'industria',
+  '105': 'salud', '106': 'salud', '107': 'bodegas', '108': 'salud',
+};
+const SERVICE_CODES = Object.keys(SERVICE_SECTOR);
 
-/** Escenas con póster isométrico propio (minería tiene el suyo, aunque su recorrido comparta la planta). */
-type PosterScene = Scene | 'mineria';
+/** Sectores de la navegación que no tienen despiece propio: usan el de la escena que comparten. */
+const SECTOR_ALIAS: Record<string, string> = {
+  gobierno: 'constructoras', gobiernosectorpublico: 'constructoras', software: 'industria', 'seguridad-electronica': 'aeropuertos',
+};
 
 export interface PosterOptions {
-  /** Variante cuadrada 1080×1080. */
+  /** Se mantiene por compatibilidad: las capturas tienen una sola proporción y las tarjetas recortan con `object-fit`. */
   square?: boolean;
 }
 
-const MEDIA = '/cine/media';
-const suffix = (opts?: PosterOptions) => (opts?.square ? '-poster-sq.jpg' : '-poster.jpg');
+const DIR = '/cine/despiece';
+const despieceSector = (slug: string | null | undefined): string => {
+  const s = SECTOR_ALIAS[slug || ''] || slug || '';
+  return DESPIECE[s] ? s : 'constructoras';
+};
 
-export const BASE_POSTER = `${MEDIA}/cine-fachada-proyecto-v5-poster.jpg`;
+export const BASE_POSTER = `${DIR}/constructoras.jpg`;
 
-/** Misma ruta con la variante AVIF (todos los pósters tienen su `.avif` al lado). */
+/** Misma captura en AVIF (cada `.jpg` tiene su `.avif` al lado). */
 export const avifOf = (path: string): string => path.replace(/\.jpg$/, '.avif');
 
-/** Escena del recorrido de un sector (fachada si no se reconoce). */
+/** Escena del recorrido Blender de un sector (fachada si no se reconoce). */
 export const sceneForSector = (slug: string | null | undefined): Scene =>
-  (sectorBySlug(SECTOR_ALIAS[slug || ''] || slug || '')?.scene as Scene) || 'fachada';
+  (sectorBySlug(slug === 'gobierno' ? 'gobiernosectorpublico' : slug || '')?.scene as Scene) || 'fachada';
 
-/** Escena del póster de un sector: igual que la del recorrido, salvo minería. */
-const posterSceneForSector = (slug: string | null | undefined): PosterScene =>
-  slug === 'mineria' ? 'mineria' : sceneForSector(slug);
-
-/** Póster isométrico del sector. */
-export function sectorPoster(slug: string | null | undefined, opts?: PosterOptions): string {
-  return `${MEDIA}/cine-${posterSceneForSector(slug)}-proyecto-v5${suffix(opts)}`;
+/** La escena del sector, completa. */
+export function sectorPoster(slug: string | null | undefined, _opts?: PosterOptions): string {
+  return `${DIR}/${despieceSector(slug)}.jpg`;
 }
 
-/** Póster isométrico de un servicio (código 101–108); sin código válido, la portada base. */
-export function servicePoster(code: string | number | null | undefined, opts?: PosterOptions): string {
-  const key = SERVICE_POSTER_KEY[String(code ?? '')];
-  if (key) return `${MEDIA}/cine-${key}${suffix(opts)}`;
-  return opts?.square ? `${MEDIA}/cine-fachada-proyecto-v5-poster-sq.jpg` : BASE_POSTER;
+/** El servicio activo en su sector de referencia; sin código válido, la portada base. */
+export function servicePoster(code: string | number | null | undefined, _opts?: PosterOptions): string {
+  const c = String(code ?? '');
+  const sector = SERVICE_SECTOR[c];
+  return sector ? `${DIR}/${sector}-${c}.jpg` : BASE_POSTER;
 }
 
-/** Póster del servicio si lo hay; si no, el del sector. */
+/** El servicio dentro del sector pedido si esa capa existe; si no, el servicio en su referencia; sin servicio, el sector. */
 export function posterFor(sector: string | null | undefined, serviceCode?: string | number | null): string {
-  return SERVICE_POSTER_KEY[String(serviceCode ?? '')] ? servicePoster(serviceCode) : sectorPoster(sector);
+  const c = String(serviceCode ?? '');
+  if (!SERVICE_SECTOR[c]) return sectorPoster(sector);
+  const s = despieceSector(sector);
+  return DESPIECE[s].includes(c) ? `${DIR}/${s}-${c}.jpg` : servicePoster(c);
 }
 
 /** Póster de un servicio. */
@@ -65,7 +74,7 @@ export function posterForService(serviceCode: string | number): string {
 
 const BY_ID = new Map(ANTECEDENTES_REALES.map((item) => [String(item.id), item]));
 
-/** Póster de un antecedente: su servicio principal o, sin servicio, su sector. */
+/** Póster de un antecedente: su servicio principal dentro de su sector. */
 export function posterForAntecedente(id: string | number | null | undefined): string {
   const item = BY_ID.get(String(id ?? ''));
   return item ? posterFor(item.sectorSlug, item.serviceCodes?.[0]) : '';
@@ -77,7 +86,7 @@ export const ALL_SERVICE_POSTERS: string[] = SERVICE_CODES.map((code) => service
 // ── Portadas del blog: póster según el tema de la nota ──
 // Las portadas de Directus y el pozo de reemplazo eran imágenes generadas. El servicio
 // sale de palabras clave del título, la ruta, las etiquetas y el resumen. Sin coincidencia,
-// la categoría decide y el slug reparte entre servicios. La portada no lleva sector.
+// la categoría decide y el slug reparte entre servicios.
 const SERVICE_TERMS: [string, RegExp][] = [
   ['107', /incendi|humo|sdi\b|nfpa|deteccion de (fuego|incendio)|alarma de incendio|rociador/],
   ['108', /electri|ups\b|tablero|puesta a tierra|energia|bateria|generador|grupo electrogeno|tension/],
@@ -96,7 +105,7 @@ const norm = (value: unknown) =>
 
 const hash = (value: string) => [...value].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
 
-/** Póster de portada para una nota del blog: el del servicio que trata (sin sector). */
+/** Póster de portada para una nota del blog: el del servicio que trata. */
 export function blogTopicPoster(post: { slug?: string; titulo?: string; categoria?: string; tags?: string[] | null; resumen?: string }): string {
   const head = norm([post.titulo, post.slug, ...(post.tags || [])].join(' '));
   const body = norm(post.resumen);

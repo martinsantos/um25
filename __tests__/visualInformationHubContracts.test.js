@@ -271,80 +271,84 @@ describe('Information hub visual contracts', () => {
     expect(home).not.toMatch(/\.um-service-unit__head i\s*\{/);
     expect(itemTemplate).not.toMatch(/<i\b/);
     expect(itemTemplate).toContain('<a class="svc-story__link" href={s.href}>');
-    expect(home).toContain('class="um26-card-bar" aria-hidden="true"');
-    expect(home).toMatch(/\.um26-card-bar\s*\{[\s\S]*background:\s*#dc2626;/);
   });
 
-  test('home numeric summary is actionable instead of dead dashboard text', () => {
+  test('home numeric summary is a single actionable row of three numbers', () => {
+    // Una sola línea: 22+ años, proyectos documentados y sectores; cada número es un enlace real.
     const home = read('src/pages/index.astro');
 
     expect(home).toContain("href: '/nosotros'");
     expect(home).toContain("href: '/antecedentes'");
     expect(home).toContain("href: '/sectores'");
-    expect(home).toContain("href: '/servicios-it-empresas-argentina'");
-    expect(home).toContain("href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it'");
+    expect(home).not.toContain("href: '#cobertura'");
+    expect(home).not.toContain("href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it'");
+    expect(home.match(/aria: '/g)).toHaveLength(3);
     expect(home).toContain('{stats.map(({ value, label, href, aria }) => (');
     expect(home).toContain('<a href={href} aria-label={aria}>');
+    expect(home).toMatch(/\.um26-stats__grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
     expect(home).toMatch(/\.um26-stats__grid a:hover,[\s\S]*\.um26-stats__grid a:focus-visible\s*\{/);
     expect(home).toMatch(/\.um26-stats__grid a:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.5\);/);
-    expect(home).toMatch(/\.um26-stats__inner\s*\{[\s\S]*padding-block:\s*0;/);
-    expect(home).toMatch(/\.um26-stats__grid a\s*\{[\s\S]*display:\s*flex;[\s\S]*min-height:\s*138px;/);
+    expect(home).toMatch(/\.um26-stats__grid a\s*\{[\s\S]*display:\s*flex;[\s\S]*min-height:\s*120px;/);
     expect(home).toMatch(/\.um26-stats__grid a:hover,[\s\S]*box-shadow:\s*inset 0 -3px 0 #dc2626;/);
     expect(home).not.toMatch(/\.um26-stats__grid div\s*\{/);
   });
 
-  test('home GEO hub cards are full-cell links with visible action states', () => {
-    // Rediseño 2026-09: los hubs GEO de la home viven en CoverageMap (lista + mapa).
-    // Cada hub sigue siendo una fila-enlace completa con estados hover/focus.
+  test('home tells one story: Blender hero, service despiece, sectors, projects, contact', () => {
+    // Rediseño 2026-10: la home deja sólo CineBanner -> indicadores -> ServicesStory ->
+    // SectorAtlas -> proyectos -> contacto. Sin bandas, mapa de cobertura ni interlinks.
     const home = read('src/pages/index.astro');
-    const coverage = read('src/components/cine/CoverageMap.astro');
+    const order = [
+      '<CineBanner',
+      'class="um26-stats"',
+      '<ServicesStory services={services} />',
+      '<SectorAtlas sectors={sectors} />',
+      'class="um26-projects"',
+      'class="um26-contact"',
+    ].map((marker) => home.indexOf(marker));
 
-    expect(home).toContain("href: '/servicios-it-empresas-mendoza'");
-    expect(home).toContain("href: '/servicios-it-empresas-argentina'");
-    expect(home).toContain('<CoverageMap hubs={hubs} />');
-    expect(coverage).toContain('{hubs.map((h, i) => {');
-    expect(coverage).toMatch(/<a href=\{h\.href\} aria-label=\{h\.aria\}/);
-    expect(coverage).toContain('<span class="umc-map__go" aria-hidden="true">↗</span>');
-    expect(cssBlock(coverage, '.umc-map__list a')).toMatch(/display:\s*grid;/);
-    expect(coverage).toMatch(/\.umc-map__list a:hover, \.umc-map__list a:focus-visible[^{]*\{[^}]*color:\s*#fff;/);
-    expect(coverage).not.toMatch(/outline:\s*(none|0)/);
+    expect(order.every((index) => index >= 0)).toBe(true);
+    expect([...order].sort((x, y) => x - y)).toEqual(order);
+
+    for (const removed of ['CompanyBand', 'CapabilityLedger', 'ProductBand', 'CoverageMap', 'JournalBand', 'SnapRail', 'data-rail']) {
+      expect(home).not.toContain(removed);
+    }
+    for (const removedCopy of [
+      'Diseño, instalación y soporte en un mismo equipo',
+      'Un proveedor que entrega obra, documentación y soporte',
+      'Cobertura en Cuyo y Patagonia',
+      'Lo que estamos implementando',
+      'id="cobertura"',
+    ]) {
+      expect(home).not.toContain(removedCopy);
+    }
+    // Los componentes retirados de la home siguen existiendo en el repositorio.
+    for (const component of ['CoverageMap', 'ProductBand', 'CompanyBand', 'CapabilityLedger', 'JournalBand', 'SnapRail']) {
+      expect(fs.existsSync(path.join(root, `src/components/cine/${component}.astro`))).toBe(true);
+    }
   });
 
-  test('sector service cards expose real link interaction states', () => {
-    expect(sectorUM26).toContain('class="um-click-surface sector26-service-card"');
-    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</em>');
-    expect(sectorUM26).toMatch(/\.sector26-service-card,[\s\S]*--um-click-hover-bg:[\s\S]*#171719;/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover,[\s\S]*a\.sector26-service-card:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.22\);/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover strong,[\s\S]*a\.sector26-service-card:focus-visible strong\s*\{[\s\S]*color:\s*#fff !important;/);
-    expect(sectorUM26).toMatch(/\.sector26-service-card em\s*\{[\s\S]*text-decoration:\s*underline;/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover em::after,[\s\S]*a\.sector26-service-card:focus-visible em::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
+  test('sector page is the Blender hero plus the exploded-layers composition, with no extra bands', () => {
+    // Concepto aprobado: arriba el Blender (CineBanner), debajo el despiece por servicios
+    // (SectorCode) y al final los proyectos con el cierre (SectorAfter). Sin rails ni bandas.
+    for (const component of ['CineBanner', 'SectorCode', 'SectorAfter']) {
+      expect(fs.existsSync(path.join(root, `src/components/cine/${component}.astro`))).toBe(true);
+      expect(sectorUM26).toContain(`<${component}`);
+    }
+    for (const removed of ['SceneServiceRail', 'SystemsStory', 'SnapRail']) {
+      expect(sectorUM26).not.toContain(removed);
+    }
+    expect(sectorUM26).not.toContain('sector26-service-card');
+    expect(sectorUM26).not.toContain('sector26-criteria');
+    expect(sectorUM26).not.toContain('sector26-closing');
   });
 
-  test('sector evidence links expose active hover and focus states', () => {
-    expect(sectorUM26).toContain('class="um-click-surface sector26-feature-case"');
-    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</strong>');
-    expect(sectorUM26).toContain('class="um-click-surface sector26-case-row"');
-    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</b>');
-    expect(sectorUM26).toMatch(/\.sector26-feature-case:hover,[\s\S]*\.sector26-feature-case:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.26\);/);
-    expect(sectorUM26).toMatch(/\.sector26-feature-case:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
-    expect(sectorUM26).toMatch(/\.sector26-feature-case:hover strong::after,[\s\S]*\.sector26-feature-case:focus-visible strong::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
-    expect(sectorUM26).toMatch(/\.sector26-case-row\s*\{[\s\S]*--um-click-hover-bg:[\s\S]*#171719;/);
-    expect(sectorUM26).toMatch(/\.sector26-case-row:hover,[\s\S]*\.sector26-case-row:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.24\);/);
-    expect(sectorUM26).toMatch(/\.sector26-case-row:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
-    expect(sectorUM26).toMatch(/\.sector26-case-row:hover b::after,[\s\S]*\.sector26-case-row:focus-visible b::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
-  });
+  test('sector record list and closing keep real hover and focus states', () => {
+    const after = read('src/components/cine/SectorAfter.astro');
 
-  test('sector dark surfaces keep body text readable over images and black panels', () => {
-    expect(sectorUM26).toMatch(/\.sector26-hero-frame > img\s*\{[\s\S]*filter:\s*contrast\(1\.1\) saturate\(0\.9\) brightness\(0\.54\);/);
-    expect(sectorUM26).toMatch(/\.sector26-hero-frame__body > p:not\(\.sector26-kicker\)\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.88\);/);
-    expect(sectorUM26).toMatch(/\.sector26-hero__copy > p:not\(\.sector26-kicker\)\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.86\);/);
-    expect(sectorUM26).toMatch(/\.sector26-service-card p,[\s\S]*\.sector26-criteria-grid p\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.76\);/);
-    expect(sectorUM26).toMatch(/\.sector26-feature-case p:not\(:first-child\)\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.86\);/);
-    expect(sectorUM26).toMatch(/\.sector26-case-row em\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.74\);/);
-    expect(sectorUM26).not.toMatch(/\.sector26-hero-frame__body > p:not\(\.sector26-kicker\)\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.72\);/);
-    expect(sectorUM26).not.toMatch(/\.sector26-service-card p,[\s\S]*\.sector26-criteria-grid p\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.62\);/);
-    expect(sectorUM26).not.toMatch(/\.sector26-case-row em\s*\{[\s\S]*color:\s*rgba\(255,255,255,0\.58\);/);
+    expect(after).toContain('class="safter__cta" href="/contacto"');
+    expect(after).toMatch(/\.safter__list a:hover\s*\{[^}]*background:/);
+    expect(after).toMatch(/\.safter__list a:focus-visible,\.safter a:focus-visible\s*\{[^}]*outline:\s*2px solid #DC2626;/);
+    expect(after).toMatch(/\.safter__list a:hover \.safter__go\s*\{[^}]*transform:\s*translateX\(4px\)/);
   });
 
   test('global skin overrides cannot flatten UM26 sector dark contrast', () => {
@@ -403,13 +407,28 @@ describe('Information hub visual contracts', () => {
     expect(evidenceRow).toMatch(/@media \(max-width:\s*520px\)\s*\{[\s\S]*\.evidence-case-row__copy\s*\{[\s\S]*align-self:\s*start;/);
   });
 
-  test('home secondary evidence rows remove repeated sector metadata to prevent compressed words', () => {
+  test('home projects are a sober list: client, title, sector and year, without images', () => {
     const home = read('src/pages/index.astro');
 
-    expect(home).toContain('class="um26-case-grid"');
-    expect(home).toMatch(/\.um26-case-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
-    expect(home).toMatch(/\.um26-case-card\s*\{[\s\S]*min-height:\s*380px;/);
-    expect(home).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-case-grid,[\s\S]*\.um26-hub-grid\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
+    expect(home).toContain('class="um26-projects"');
+    expect(home).toContain('const FEATURED = [3065, 3075, 3064, 3334];');
+    expect(home).toContain('...featured, ...masProyectos');
+    expect(home).toContain('<span class="um26-projects__client">{item.client}</span>');
+    expect(home).toContain('<span class="um26-projects__title">{item.title}</span>');
+    expect(home).toContain('<span class="um26-projects__sector">{item.sector}</span>');
+    expect(home).toContain('<span class="um26-projects__year">{item.year}</span>');
+    expect(home).toContain('href="/antecedentes">Ver los {catalogCount} proyectos</a>');
+    expect(home).not.toContain('um26-case-grid');
+    expect(home).not.toContain('um26-media-card');
+    expect(home).not.toMatch(/<(img|picture)\b/);
+    expect(home).toMatch(/\.um26-projects a\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*1\.1fr\)\s+minmax\(0,\s*2fr\)\s+minmax\(0,\s*1fr\)\s+4\.5rem;/);
+    expect(home).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-projects a\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+auto;/);
+
+    // Los cuatro destacados y las candidatas recientes existen en el catálogo real.
+    const catalog = read('src/data/snapshots/antecedentes.json');
+    for (const id of [3065, 3075, 3064, 3334]) {
+      expect(catalog).toMatch(new RegExp(`"id":\\s*${id}\\b`));
+    }
   });
 
   test('home service visual loads reliably for full-page visual QA', () => {
@@ -429,9 +448,6 @@ describe('Information hub visual contracts', () => {
     // Miniaturas livianas: AVIF con respaldo JPG.
     expect(story).toContain(`<source type="image/avif" srcset={s.poster.replace(/\\.jpg$/, '.avif')} />`);
     expect(story).toMatch(/<img class="svc-story__render" src=\{s\.poster\}[^>]*width="320" height="180" decoding="async" \/>/);
-    expect(home).toContain('width="1200"');
-    expect(home).toContain('height="900"');
-    expect(home).toContain('decoding="async"');
   });
 
   test('contact antispam field stays visually hidden without offscreen overflow', () => {
@@ -765,10 +781,56 @@ describe('Information hub visual contracts', () => {
 
     expect(serviceDetail).not.toContain('prose prose-lg max-w-none text-um-gray mb-12 service-detail-copy');
     expect(serviceDetail).not.toMatch(/set:html=/);
-    expect(serviceDetail).toContain('<p class="svc-tile__text">{cleanCmsText(item.description)}</p>');
+    expect(serviceDetail).toContain('<p class="svc-list__text">{cleanCmsText(item.description)}</p>');
     expect(cssBlock(serviceDetail, '.svc-head__lead')).toMatch(/max-width:\s*62ch;/);
     expect(cssBlock(serviceDetail, '.svc-head__lead')).toMatch(/font-size:\s*1\.0625rem;/);
     expect(cssBlock(serviceDetail, '.svc-head__lead')).toMatch(/line-height:\s*1\.6;/);
+  });
+
+  test('service detail follows hero, despiece, scope list, cases, spec sheet and one contact close', () => {
+    // Concepto aprobado: arriba el Blender, debajo el despiece del sector con ESE servicio
+    // activo; después la lista de tareas, los casos sobrios, la ficha y un único cierre.
+    const serviceDetail = read('src/pages/servicios/[id]/[slug].astro');
+    const body = serviceDetail.slice(serviceDetail.indexOf('<LayoutV4'), serviceDetail.indexOf('<style>'));
+    const at = (needle) => body.indexOf(needle);
+
+    expect(serviceDetail).toContain("import SectorCode from '../../../components/cine/SectorCode.astro';");
+    expect(serviceDetail).toContain('sectorsForService');
+    expect(body).toContain('<SectorCode sector={despieceSector} service={String(id)} />');
+    expect(body).toContain('El servicio, en obra');
+    expect(at('<CineBanner')).toBeGreaterThan(-1);
+    expect(at('<SectorCode')).toBeGreaterThan(at('<CineBanner'));
+    expect(at('<ProductStage')).toBeGreaterThan(at('<SectorCode'));
+    expect(at('id="alcance"')).toBeGreaterThan(at('<ProductStage'));
+    expect(at('Casos comparables en operación')).toBeGreaterThan(at('id="alcance"'));
+    expect(at('id="ficha-tecnica"')).toBeGreaterThan(at('Casos comparables en operación'));
+    expect(at('svc-section--close')).toBeGreaterThan(at('id="ficha-tecnica"'));
+    expect(body.match(/svc-section--close/g)).toHaveLength(1);
+    expect(body).toContain('<ServiceSpecSheet');
+  });
+
+  test('service detail scope and cases are plain lists without generated images or removed bands', () => {
+    const serviceDetail = read('src/pages/servicios/[id]/[slug].astro');
+    const body = serviceDetail.slice(serviceDetail.indexOf('<LayoutV4'), serviceDetail.indexOf('<style>'));
+
+    expect(body).toContain('<ol class="svc-list"');
+    expect(body).toContain('<ul class="svc-caselist">');
+    expect(body).not.toMatch(/<img\b/);
+    expect(body).not.toContain('svc-tile');
+    expect(body).not.toContain('svc-plant');
+    expect(body).not.toContain('<RenderStage');
+    expect(body).not.toContain('<SnapRail');
+    expect(body).not.toContain('<TopicGuides');
+    expect(body).not.toContain('svc-brief');
+    expect(body).not.toContain('svc-steps');
+    expect(serviceDetail).not.toContain('getGeneratedAntecedenteImageUrl');
+    expect(serviceDetail).not.toContain('sceneServiceCuts');
+    expect(serviceDetail).not.toContain('plantCut');
+    expect(serviceDetail).toContain('const CASES_MAX = 6;');
+
+    const capabilities = read('src/data/serviceSingleDemoSystem.ts');
+    expect(capabilities).not.toContain('img/servicios/sistemas');
+    expect(capabilities).not.toContain('imageAlt');
   });
 
   test('service detail mobile breadcrumb does not leave a trailing separator when current item is hidden', () => {
