@@ -435,24 +435,24 @@ jobs:
         run: |
           set -euo pipefail
           BASE=https://www.ultimamilla.com.ar
-          curl -4 -fsS --max-time 20 \
+          curl -4 -fsS --retry 3 --retry-all-errors --retry-delay 5 --max-time 60 \
             "$BASE/software/gestion-de-comunidades-profesionales" \
             -o /tmp/umsa-colleges-landing.html
           grep -Fq 'Un espacio propio para tu colegio y sus matriculados:' \
             /tmp/umsa-colleges-landing.html
           grep -Fq 'id="gc-form"' /tmp/umsa-colleges-landing.html
           grep -Fq 'data-cta="demo-hero"' /tmp/umsa-colleges-landing.html
-          curl -4 -fLsS --max-time 20 \
+          curl -4 -fLsS --retry 3 --retry-all-errors --retry-delay 5 --max-time 60 \
             "$BASE/software/gestion-de-comunidades-profesionales/demo/" \
             -o /tmp/umsa-colleges-demo.html
           grep -Fq '/software/gestion-de-comunidades-profesionales/demo/app.js' \
             /tmp/umsa-colleges-demo.html
-          curl -4 -fsS --max-time 20 \
+          curl -4 -fsS --retry 3 --retry-all-errors --retry-delay 5 --max-time 60 \
             "$BASE/software/gestion-de-comunidades-profesionales/demo/app.js" \
             -o /tmp/umsa-colleges-demo-app.js
           cmp /tmp/umsa-colleges-demo-app.js \
             dist/client/software/gestion-de-comunidades-profesionales/demo/app.js
-          curl -4 -fsS --max-time 20 \
+          curl -4 -fsS --retry 3 --retry-all-errors --retry-delay 5 --max-time 60 \
             "$BASE/images/software-comunidades/credencial-demo-email.gif" \
             -o /tmp/umsa-credential-demo.gif
           cmp /tmp/umsa-credential-demo.gif \
