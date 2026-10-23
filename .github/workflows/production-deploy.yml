@@ -9,6 +9,17 @@ on:
       - '.gitignore'
       - 'LICENSE'
   workflow_dispatch:  # Allow manual triggers
+    inputs:
+      keep_releases:
+        description: 'Carpetas de respaldo de versiones anteriores a conservar antes de publicar (0-2)'
+        type: choice
+        options: ['2', '1', '0']
+        default: '2'
+      max_disk_pct:
+        description: 'Uso máximo del disco del servidor para publicar (90 es el tope de arquitectura; subirlo sólo de forma excepcional)'
+        type: choice
+        options: ['90', '92', '94']
+        default: '90'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -38,7 +49,7 @@ jobs:
             required=false
             while IFS= read -r path; do
               case "$path" in
-                .github/workflows/production-deploy.yml|.github/workflows/server-storage-maintenance.yml|scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|scripts/ops/compact-vivero-snapshots.py|scripts/ops/test_vivero_compaction.py|scripts/ops/clean-audited-storage.py|scripts/ops/test_audited_storage.py) ;;
+                .github/workflows/production-deploy.yml|.github/workflows/server-storage-maintenance.yml|.github/workflows/preview.yml|scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|scripts/ops/compact-vivero-snapshots.py|scripts/ops/test_vivero_compaction.py|scripts/ops/clean-audited-storage.py|scripts/ops/test_audited_storage.py|scripts/ops/configure-offsite-backups.py|scripts/ops/test_offsite_backups.py) ;;
                 *) required=true ;;
               esac
             done < <(git diff --name-only "$BEFORE" HEAD)
@@ -202,10 +213,11 @@ jobs:
               src/styles/font-service.css|src/styles/v4.css|\
               src/styles/cine-hero.css) ;;
               .github/workflows/production-deploy.yml|.github/workflows/community-demo-integrity.yml|\
+              .github/workflows/preview.yml|\
               .github/workflows/server-storage-maintenance.yml|\
               scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|\
               scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|\
-              scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|scripts/ops/compact-vivero-snapshots.py|scripts/ops/test_vivero_compaction.py|scripts/ops/clean-audited-storage.py|scripts/ops/test_audited_storage.py|\
+              scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|scripts/ops/compact-vivero-snapshots.py|scripts/ops/test_vivero_compaction.py|scripts/ops/clean-audited-storage.py|scripts/ops/test_audited_storage.py|scripts/ops/configure-offsite-backups.py|scripts/ops/test_offsite_backups.py|\
               scripts/ops/deploy-scoped-dist.sh|scripts/ops/prune-inactive-umbot-deps.sh|scripts/ops/audit-directus-uploads.sh|\
               __tests__/runtimeConfigContracts.test.js|__tests__/nginxOps.test.ts|\
               docs/campaign-preview/PHOTO-SOURCES.md|docs/campaign-preview/README.md|\
@@ -286,15 +298,20 @@ jobs:
       # Each scoped release keeps the runtime it replaced (~1 GB). Only the newest
       # folder is a rollback target; keep the two newest and prune older ones so
       # the disk does not fill up release after release.
+      # A manual run can keep fewer (down to 0) when the disk is over the limit; this
+      # release then leaves its own rollback folder behind.
       - name: Prune old scoped release folders
+        env:
+          KEEP: ${{ inputs.keep_releases || '2' }}
         run: |
           set -euo pipefail
-          ssh root@23.105.176.45 "bash -s -- '$DEPLOY_PATH'" <<'EOF'
+          [[ "$KEEP" =~ ^[0-2]$ ]]
+          ssh root@23.105.176.45 "bash -s -- '$DEPLOY_PATH' '$KEEP'" <<'EOF'
           set -euo pipefail
-          backups="$1/backups"
+          backups="$1/backups"; keep="$2"
           mapfile -t old < <(
             find "$backups" -maxdepth 1 -type d -name 'umsa-campaign-[0-9]*-[0-9]*' -printf '%f\n' 2>/dev/null |
-              sort -t- -k3,3n -k4,4n | head -n -2
+              sort -t- -k3,3n -k4,4n | if (( keep > 0 )); then head -n "-$keep"; else cat; fi
           )
           if (( ${#old[@]} == 0 )); then
             echo 'No old scoped release folders to prune'
@@ -313,12 +330,15 @@ jobs:
       # swap script's 2.5 GB reserve would not fit, so an aborted release never
       # leaves another orphan incoming-dist behind.
       - name: Report and check server storage
+        env:
+          MAX_PCT: ${{ inputs.max_disk_pct || '90' }}
         run: |
           set -euo pipefail
+          [[ "$MAX_PCT" =~ ^(90|92|94)$ ]]
           need_kb=$(( $(du -sk dist | cut -f1) + 2500000 ))
-          ssh root@23.105.176.45 "bash -s -- '$DEPLOY_PATH' '$need_kb'" <<'EOF'
+          ssh root@23.105.176.45 "bash -s -- '$DEPLOY_PATH' '$need_kb' '$MAX_PCT'" <<'EOF'
           set -euo pipefail
-          app="$1"; need_kb="$2"
+          app="$1"; need_kb="$2"; max_pct="$3"
           df -h "$app"
           echo '--- scoped release folders (newest first)'
           { ls -1dt "$app"/backups/umsa-campaign-* 2>/dev/null || true; } | head -20 | xargs -r du -sh
@@ -327,9 +347,14 @@ jobs:
           echo '--- git worktrees'
           git -C "$app" worktree list 2>/dev/null || true
           git -C "$app" worktree prune --dry-run -v 2>/dev/null || true
+          # Read-only inventory: the biggest directories on the root filesystem.
+          echo '--- largest directories (same filesystem, depth 3)'
+          timeout 120 du -xk --max-depth=3 / 2>/dev/null | sort -rn | head -40 | awk '{printf "%.1fG\t%s\n", $1/1048576, $2}' || true
+          echo '--- docker'
+          timeout 60 docker system df 2>/dev/null || true
           used_pct="$(df -Pk "$app" | awk 'NR==2 {gsub(/%/, "", $5); print $5}')"
-          if (( used_pct > 90 )); then
-            echo "Disk usage ${used_pct}% exceeds the architecture limit of 90%; nothing was uploaded" >&2
+          if (( used_pct > max_pct )); then
+            echo "Disk usage ${used_pct}% exceeds the limit of ${max_pct}%; nothing was uploaded" >&2
             exit 1
           fi
           avail_kb="$(df -Pk "$app" | awk 'NR==2 {print $4}')"
