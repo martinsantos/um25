@@ -1,6 +1,6 @@
 ---
 import { fetchBlogBand } from '../../utils/getBlogData';
-import { blogImageUrl } from '../../utils/blogHelpers';
+import { blogPostImageUrl } from '../../utils/blogHelpers';
 import { getCategoryLabel, formatBlogDate } from '../../utils/blogUtils';
 
 const posts = await fetchBlogBand(3);
@@ -26,7 +26,7 @@ if (posts.length === 0) return;
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       {posts.map(post => {
-        const imgUrl = blogImageUrl(post.imagen_portada);
+        const imgUrl = blogPostImageUrl(post);
         const label = getCategoryLabel(post.categoria);
         const date = formatBlogDate(post.fecha_publicacion);
         return (
