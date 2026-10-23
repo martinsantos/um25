@@ -38,7 +38,7 @@ const total = story?.stats.find(([, l]) => /proyectos/i.test(l))?.[0];
   .safter{background:#14232f;color:#fff;padding:clamp(72px,9vw,140px) 0}
   .safter__shell{width:min(var(--um-container-wide,1400px),calc(100% - (var(--um-page-gutter,24px) * 2)));margin:0 auto}
   .safter__head{display:grid;grid-template-columns:1fr auto;align-items:end;gap:12px 32px}
-  .safter__kicker{grid-column:1/-1;display:flex;align-items:center;gap:14px;margin:0;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.62)}
+  .safter__kicker{grid-column:1/-1;display:flex;align-items:center;gap:14px;margin:0;font-size:16px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.62)}
   .safter__kicker b{width:32px;height:2px;background:#DC2626}
   .safter.safter h2{margin:0;max-width:20ch;font-size:clamp(34px,3.6vw,56px)!important;line-height:1.05;letter-spacing:-.02em;color:#fff}
   .safter__head a{color:#fff;font-weight:700;text-decoration:none;border-bottom:2px solid #DC2626;padding-bottom:4px;white-space:nowrap}
@@ -47,7 +47,7 @@ const total = story?.stats.find(([, l]) => /proyectos/i.test(l))?.[0];
   .safter__list a:hover{background:rgba(255,255,255,.04)}
   .safter__client{font-size:18px;font-weight:700}
   .safter__work{font-size:17px;line-height:1.45;color:rgba(255,255,255,.78)}
-  .safter__year{font-size:14px;color:rgba(255,255,255,.55);font-variant-numeric:tabular-nums;text-align:right}
+  .safter__year{font-size:16px;color:rgba(255,255,255,.55);font-variant-numeric:tabular-nums;text-align:right}
   .safter__go{color:rgba(255,255,255,.4);transition:transform .3s,color .3s}
   .safter__list a:hover .safter__go{color:#fff;transform:translateX(4px)}
   .safter__list a:focus-visible,.safter a:focus-visible{outline:2px solid #DC2626;outline-offset:3px}
@@ -58,7 +58,7 @@ const total = story?.stats.find(([, l]) => /proyectos/i.test(l))?.[0];
     .safter__head{grid-template-columns:1fr}
     .safter__list a{grid-template-columns:1fr auto;gap:4px 16px;padding:18px 2px}
     .safter__client{grid-column:1}.safter__year{grid-column:2;grid-row:1}
-    .safter__work{grid-column:1/-1;font-size:15px}.safter__go{display:none}
+    .safter__work{grid-column:1/-1;font-size:16px}.safter__go{display:none}
     .safter__close{grid-template-columns:1fr}.safter__cta{grid-column:1;grid-row:auto;justify-self:start}
   }
 </style>
