@@ -1,20 +1,12 @@
 ---
 import { truncateEditorialText } from '../../utils/editorialContent';
-import { cleanCmsText } from '../../data/serviceSummaries';
-import SectorJourney from '../cine/SectorJourney.astro';
+import SystemsStory from '../cine/SystemsStory.astro';
+import SceneServiceRail from '../cine/SceneServiceRail.astro';
 import CineBanner from '../cine/CineBanner.astro';
-import SectorLayers from '../cine/SectorLayers.astro';
-import StoryStage from '../cine/StoryStage.astro';
-import SectorFilm from '../cine/SectorFilm.astro';
-import SectorAfter from '../cine/SectorAfter.astro';
-import SectorCode from '../cine/SectorCode.astro';
-import { SECTOR_STORIES } from '../../data/cine/sectorStories';
-import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
-import { SERVICE_STAGE, STAGE_SECTORS, caseService } from '../../data/cine/stageMap';
 import SnapRail from '../cine/SnapRail.astro';
-import { sectorBySlug } from '../../data/cine/scenes';
-import {sectorMovie} from '../../data/cine/projectCinema';
+import { sectorBySlug, V4_CUTS } from '../../data/cine/scenes';
 import { getAntecedentesCountShort, getAntecedentesCatalogCount } from '../../utils/verifiedProof';
+import { serviceSummary, cleanCmsText } from '../../data/serviceSummaries';
 import { buildSectorStrategicLinkGroups } from '../../data/strategicLinkGraph';
 
 interface Props {
@@ -32,6 +24,8 @@ const {
 } = Astro.props;
 
 const truncate = (value: unknown, length = 150) => truncateEditorialText(value, length);
+const serviceExcerpt = (value: unknown, length = 150) => truncate(value, length)
+  .replace(/soluciones integrales/gi, 'arquitectura técnica integrada');
 const sectorSlug = sector.slug || '';
 const sectorDataSlug = sectorSlug === 'gobierno' ? 'gobiernosectorpublico' : sectorSlug;
 const sectorName = sector.nombre || sector.label || sector.pageHeadline || 'Sector';
@@ -45,19 +39,6 @@ const sectorAntecedentesHref = sectorSlug
   : '/antecedentes';
 const caseHref = (item: any) => `/antecedentes/${item.id}/${item.slug || ''}`;
 const leadCase = antecedentes[0];
-const hasStory = Boolean(SECTOR_STORIES[sectorSlug]);
-// Stage test: sectors listed here read their services on the 3D stage.
-const STAGE_TEST = STAGE_SECTORS;
-const buildStageItems = () => STAGE_TEST.includes(sectorSlug)
-  ? SERVICE_SPEC_LIST.filter((spec) => spec.sectorSlugs.includes(sectorDataSlug)).map((spec) => {
-      const focus = SERVICE_STAGE[spec.code];
-      const cases = antecedentes.filter((item: any) => caseService(item) === spec.code).slice(0, 3)
-        .map((item: any) => ({ title: formatCaseName(item.Cliente || item.Titulo, 'Proyecto'), href: caseHref(item), meta: [areaLabel(item.Area), item.Fecha ? String(item.Fecha).slice(0, 4) : ''].filter(Boolean).join(' · ') }));
-      return { key: spec.code, label: spec.name, kicker: `Servicio ${spec.code}`, promise: spec.promise, sector: sectorSlug, layer: focus.layer, point: focus.point, film: focus.film,
-        scope: spec.scope.slice(0, 4), equipment: spec.equipment, deliverable: spec.keyDeliverable, standard: spec.keyStandard, cases,
-        links: [{ label: `Ver ${spec.name}`, href: `${spec.href}?sector=${sectorSlug}` }, { label: 'Antecedentes del sector', href: sectorAntecedentesHref }] };
-    })
-  : [];
 const evidenceCases = antecedentes.slice(0, 6);
 const serviceItems = (serviciosRelacionados || []).slice(0, 8);
 const criteriaItems = (valueProps || []).slice(0, 6);
@@ -101,13 +82,12 @@ const strategicLinkGroups = buildSectorStrategicLinkGroups({
 });
 const cineSector = sectorBySlug(sectorDataSlug);
 const cineScene = cineSector?.scene || 'fachada';
-const projectMovie=sectorMovie(sectorDataSlug);
 const cineStats = [
   cineSector?.count
-    ? { label: 'Casos', value: cineSector.count }
-    : { label: 'Archivo', value: String(getAntecedentesCatalogCount()) },
+    ? { label: 'Casos en el sector', value: cineSector.count }
+    : { label: 'Proyectos documentados', value: String(getAntecedentesCatalogCount()) },
   { label: 'Soporte', value: '24/7' },
-  { label: 'Años', value: '22+' },
+  { label: 'Trayectoria', value: '22+ años' },
 ];
 const nextLinks = strategicLinkGroups.flatMap((group: any) => group.links || []).slice(0, 4);
 const caseNameAcronyms = new Set(['SA', 'SRL', 'IT', 'CCTV', 'SDI', 'API', 'APIS', 'ERP']);
@@ -130,38 +110,54 @@ const areaLabel = (area: unknown) => {
   const parts = String(area || sectorName).split(/\s*&\s*/).map((p) => p.trim()).filter(Boolean);
   return parts.filter((p) => !parts.some((q) => q !== p && p.toLowerCase().includes(q.toLowerCase()))).join(' y ');
 };
-const stageItems = buildStageItems();
 ---
 
 <div class="um26-sector">
-  {hasStory ? (
-    <><SectorFilm sector={sectorSlug} antecedentesHref={sectorAntecedentesHref} /><SectorCode sector={sectorSlug as any} /></>
-  ) : (<>
   <CineBanner
-      variant="sector"
-      scenes={[projectMovie?.scene||cineScene]}
-      motion={projectMovie?.status==='ready'?'auto':'still'}
-      annotations={!projectMovie}
-      framing={projectMovie?'project':'cover'}
-      titleId="sector26-title"
-      kicker={cineSector?.text || `Sector ${sectorNumber}`}
-      title={sectorTitle}
-      lead={sectorSummary}
-      primary={{ href: '/contacto', label: 'Solicitar relevamiento' }}
-      secondary={{ href: sectorAntecedentesHref, label: 'Ver casos del sector' }}
-      stats={cineStats}
-      back={{ href: '/sectores', label: '← Todos los sectores' }}
-    />
-  
-    {stageItems.length ? (
-      <StoryStage id="escenario" kicker="Servicios en el sector" title={`Qué resolvemos en ${sectorName.toLowerCase()}, capa por capa.`} lead="Recorré los servicios: la maqueta muestra dónde actúa cada uno. Abrí uno para ver su esqueleto, los equipos y los antecedentes del sector." items={stageItems} />
-    ) : (<>
-      <SectorJourney slug={sectorDataSlug} scene={cineScene} />
-      <SectorLayers sector={sectorSlug} />
-    </>)}
-  </>)}
+    variant="sector"
+    scenes={[cineScene]}
+    variants={{ [cineScene]: Object.keys(V4_CUTS).filter((k) => k.startsWith(`${cineScene}-`)) }}
+    titleId="sector26-title"
+    kicker={cineSector?.text || `Sector ${sectorNumber}`}
+    title={sectorTitle}
+    lead={sectorSummary}
+    primary={{ href: '/contacto', label: 'Solicitar relevamiento' }}
+    secondary={{ href: sectorAntecedentesHref, label: 'Ver casos del sector' }}
+    stats={cineStats}
+    back={{ href: '/sectores', label: '← Todos los sectores' }}
+  />
 
-  {!hasStory && criteriaItems.length > 0 && (
+  <SceneServiceRail scene={cineScene} sectorName={sectorName} />
+
+  <SystemsStory slug={sectorSlug} name={sectorName} />
+
+  <section class="sector26-services" aria-label="Servicios aplicados">
+    <div class="sector26-shell">
+      <div class="sector26-section-head">
+        <p class="sector26-kicker"><span></span>Servicios</p>
+        <h2>Servicios aplicados a {sectorName.toLowerCase()}.</h2>
+      </div>
+      <div class="sector26-service-grid" data-rail="Servicios aplicados">
+        {serviceItems.map((item: any, index: number) => (
+          <a href={`/servicios/${item.id}/${item.slug || ''}`} class="um-click-surface sector26-service-card">
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <strong>{serviceSummary(item.id)?.name || cleanCmsText(item.nombre || item.Titulo).split(' · ')[0] || 'Servicio'}</strong>
+            <p>{serviceSummary(item.id)?.summary || cleanCmsText(item.descripcion || item.Descripcion)}</p>
+            <em class="um-click-action">Ver detalle</em>
+          </a>
+        ))}
+        {serviceItems.length === 0 && sectorServices.map((item: string, index: number) => (
+          <article class="sector26-service-card">
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <strong>{item}</strong>
+            <p>Capacidad aplicada al mapa operativo de {sectorName}.</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {criteriaItems.length > 0 && (
     <section class="sector26-criteria">
       <div class="sector26-shell">
         <div class="sector26-section-head">
@@ -181,9 +177,6 @@ const stageItems = buildStageItems();
     </section>
   )}
 
-  {hasStory ? (
-    <SectorAfter sector={sectorSlug} antecedentesHref={sectorAntecedentesHref} />
-  ) : (<>
   <section class="sector26-evidence" aria-label="Evidencia vinculada">
     <div class="sector26-shell">
       <div class="sector26-section-head sector26-section-head--split">
@@ -251,7 +244,6 @@ const stageItems = buildStageItems();
       </div>
     </div>
   </section>
-  </>)}
 </div>
 
 <SnapRail />
@@ -1078,7 +1070,7 @@ const stageItems = buildStageItems();
 
   @media (max-width: 900px) {
     .sector26-shell {
-      width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
+      width: min(100% - 32px, 720px);
     }
 
     .sector26-hero-card {

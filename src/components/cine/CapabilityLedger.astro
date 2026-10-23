@@ -4,7 +4,7 @@
  * documentación y con qué cobertura. Textos tomados de /certificaciones,
  * /nosotros y los servicios publicados; sin cifras no aprobadas.
  */
-
+import RenderStage from './RenderStage.astro';
 
 const process = [
   ['Relevamiento', 'Visita técnica, inventario de sistemas existentes y definición de alcance con el responsable de operación.'],
@@ -14,15 +14,27 @@ const process = [
   ['Soporte 24/7', 'Mesa de ayuda, NOC y mantenimiento con SLA sobre lo instalado, con trazabilidad por ticket.'],
 ];
 
-const outputs = ['Alcance e inventario', 'Planos y memoria técnica', 'Registro de instalación', 'Protocolos y mediciones', 'Tickets e historial'];
+const deliverables = [
+  ['Protocolos de prueba', 'Por sistema y por sitio, listos para recepción técnica.'],
+  ['Certificación de cableado', 'Reporte de mediciones por canal con equipamiento Fluke.'],
+  ['Documentación de obra', 'Planos, memoria técnica y registro del alcance ejecutado.'],
+  ['Dossier para licitaciones', 'Antecedentes, protocolos y documentación del rubro, a medida del pliego.'],
+];
+
+const coverage = [
+  ['Mendoza', 'Sede central'],
+  ['San Juan', 'Cuyo'],
+  ['San Luis', 'Cuyo'],
+  ['Neuquén', 'Patagonia'],
+];
 ---
 <div class="um-cap">
   <div class="um-cap__head">
     <div>
       <p class="um-cap__kicker"><span></span>Capacidad de proveedor</p>
-      <h2>De la visita técnica a una entrega verificable.</h2>
+      <h2>Un proveedor que entrega obra, documentación y soporte.</h2>
     </div>
-    <p>Cada etapa produce algo que tu equipo puede revisar. Esa documentación conecta la obra con su operación y su mantenimiento.</p>
+    <p>Cada proyecto recorre el mismo circuito, de la visita técnica al mantenimiento. Lo que se instala queda documentado para operar, auditar y ampliar.</p>
   </div>
 
   <div class="um-cap__body">
@@ -34,24 +46,39 @@ const outputs = ['Alcance e inventario', 'Planos y memoria técnica', 'Registro 
             <strong>{title}</strong>
             <p>{text}</p>
           </div>
-          <p class="um-cap__output"><span>Entregable</span><strong>{outputs[i]}</strong></p>
         </li>
       ))}
     </ol>
 
-
+    <div class="um-cap__stage">
+      <RenderStage render="fachada-sistemas" />
+    </div>
   </div>
 
   <div class="um-cap__ledger">
     <section class="um-cap__block" aria-labelledby="cap-doc">
       <h3 id="cap-doc">Entregables documentados</h3>
-      <p>Revisá los criterios de certificación y la documentación técnica que acompaña la entrega de cada sistema.</p>
+      <ul>
+        {deliverables.map(([title, text]) => (
+          <li><strong>{title}</strong><span>{text}</span></li>
+        ))}
+      </ul>
       <a href="/certificaciones">Ver documentación técnica <span aria-hidden="true">→</span></a>
+    </section>
+
+    <section class="um-cap__block" aria-labelledby="cap-cov">
+      <h3 id="cap-cov">Cobertura con equipo propio</h3>
+      <ul class="um-cap__coverage">
+        {coverage.map(([city, region]) => (
+          <li><strong>{city}</strong><span>{region}</span></li>
+        ))}
+      </ul>
+      <a href="/servicios-it-empresas-argentina">Ver cobertura en Argentina <span aria-hidden="true">→</span></a>
     </section>
 
     <section class="um-cap__block um-cap__block--cta" aria-labelledby="cap-rfq">
       <h3 id="cap-rfq">Pedido de cotización</h3>
-      <p>Enviá el pliego, el plano o una descripción del sitio. Definimos el alcance y la información técnica necesaria para preparar la propuesta.</p>
+      <p>Enviá el pliego, el plano o una descripción del sitio. Respondemos en el día con un relevamiento técnico y una propuesta verificable.</p>
       <a class="um-cap__btn" href="/presupuesto-servicios-it-empresas">Pedir presupuesto <span aria-hidden="true">↗</span></a>
     </section>
   </div>
@@ -72,9 +99,9 @@ const outputs = ['Alcance e inventario', 'Planos y memoria técnica', 'Registro 
 
   .um-cap__head > p {
     margin: 0;
-    color: #c4c7cc;
-    font-size: var(--um-copy-description, 1.125rem);
-    line-height: var(--um-body-line-height, 1.62);
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 1.12rem;
+    line-height: 1.6;
     max-width: 48ch;
   }
 
@@ -87,7 +114,7 @@ const outputs = ['Alcance e inventario', 'Planos y memoria técnica', 'Registro 
     font-weight: 600;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: #c4c7cc;
+    color: rgba(255, 255, 255, 0.78);
   }
 
   .um-cap__kicker span {
@@ -98,8 +125,8 @@ const outputs = ['Alcance e inventario', 'Planos y memoria técnica', 'Registro 
 
   .um-cap h2 {
     margin: 0;
-    font-size: var(--um-world-h2, 2.125rem) !important;
-    line-height: var(--um-heading-h2-line-height, 1.12) !important;
+    font-size: clamp(2rem, 3.2vw, 3rem) !important;
+    line-height: 1.06 !important;
     font-weight: 600 !important;
     letter-spacing: -0.025em;
     max-width: 20ch;
@@ -108,7 +135,7 @@ const outputs = ['Alcance e inventario', 'Planos y memoria técnica', 'Registro 
 
   .um-cap__body {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
     gap: clamp(28px, 5vw, 72px);
     align-items: center;
   }
@@ -122,7 +149,7 @@ const outputs = ['Alcance e inventario', 'Planos y memoria técnica', 'Registro 
 
   .um-cap__process li {
     display: grid;
-    grid-template-columns: 44px minmax(0, 1.6fr) minmax(180px, .8fr);
+    grid-template-columns: 44px minmax(0, 1fr);
     gap: 12px;
     padding: 18px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
@@ -145,28 +172,29 @@ const outputs = ['Alcance e inventario', 'Planos y memoria técnica', 'Registro 
 
   .um-cap__process p {
     margin: 6px 0 0;
-    color: #c4c7cc;
+    color: rgba(255, 255, 255, 0.72);
     font-size: 1rem;
     line-height: 1.55;
   }
 
   .um-cap__ledger {
     display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-    gap: clamp(24px, 5vw, 64px);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
     margin-top: clamp(40px, 5vw, 72px);
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   .um-cap__block {
     display: flex;
     flex-direction: column;
-    padding: 28px 0;
-    background: transparent;
+    padding: clamp(22px, 2.6vw, 34px);
+    background: #0a0a0b;
   }
 
   .um-cap__block--cta {
-    background: transparent;
+    background: #111214;
   }
 
   .um-cap__block h3 {
@@ -196,7 +224,7 @@ const outputs = ['Alcance e inventario', 'Planos y memoria técnica', 'Registro 
   }
 
   .um-cap__block li span {
-    color: #c4c7cc;
+    color: rgba(255, 255, 255, 0.7);
     font-size: 1rem;
     line-height: 1.5;
   }
@@ -215,7 +243,7 @@ const outputs = ['Alcance e inventario', 'Planos y memoria técnica', 'Registro 
   .um-cap__block > p {
     flex: 1;
     margin: 0;
-    color: #c4c7cc;
+    color: rgba(255, 255, 255, 0.78);
     font-size: 1rem;
     line-height: 1.55;
   }
@@ -251,10 +279,6 @@ const outputs = ['Alcance e inventario', 'Planos y memoria técnica', 'Registro 
     background: #b91c1c;
   }
 
-  .um-cap__process .um-cap__output{margin:0;padding:0 0 0 24px;border-left:1px solid #ffffff20;align-self:center}
-  .um-cap__output span{display:block;margin-bottom:6px;color:#c4c7cc;font-size:1rem}
-  .um-cap__output strong{font-size:1rem;color:#fff;line-height:1.5}
-  @media(max-width:600px){.um-cap__process li{grid-template-columns:28px minmax(0,1fr)}.um-cap__process .um-cap__output{grid-column:2;padding:8px 0 0;border:0}.um-cap__output span{display:inline;margin-right:8px}.um-cap__output strong{display:inline}}
   @media (max-width: 1100px) {
     .um-cap__ledger {
       grid-template-columns: 1fr;
@@ -278,8 +302,8 @@ const outputs = ['Alcance e inventario', 'Planos y memoria técnica', 'Registro 
       margin-bottom: 24px;
     }
 
-    .um-cap h2 {
-      font-size: 1.75rem !important;
+    .um-cap__head > p {
+      font-size: 1.0625rem;
     }
 
     .um-cap__process li {
