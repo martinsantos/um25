@@ -64,7 +64,7 @@ export function posterFor(sector: string | null | undefined, serviceCode?: strin
   const c = String(serviceCode ?? '');
   if (!SERVICE_SECTOR[c]) return sectorPoster(sector);
   const s = despieceSector(sector);
-  return DESPIECE[s].includes(c) ? `${DIR}/${s}-${c}.jpg` : servicePoster(c);
+  return (DESPIECE[s] ?? []).includes(c) ? `${DIR}/${s}-${c}.jpg` : servicePoster(c);
 }
 
 /** Póster de un servicio. */
