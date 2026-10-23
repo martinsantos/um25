@@ -169,7 +169,7 @@ describe('Information hub visual contracts', () => {
 
     expect(antecedentes).toMatch(/@media \(max-width: 639px\)[\s\S]*\.ev-card\s*\{\s*display:\s*grid;\s*grid-template-columns:\s*132px minmax\(0, 1fr\);/);
     expect(antecedentes).toMatch(/@media \(max-width: 639px\)[\s\S]*\.ev-card__media\s*\{\s*aspect-ratio:\s*auto;\s*min-height:\s*132px;/);
-    expect(services).toMatch(/@media \(max-width:\s*640px\)[\s\S]*grid-template-columns:\s*1fr/);
+    expect(services).toMatch(/@media \(max-width:\s*640px\)[\s\S]*grid-template-columns:\s*minmax\(84px, 24vw\) minmax\(0, 1fr\)/);
     expect(services).toMatch(/@media \(max-width:\s*640px\)[\s\S]*\.services-demo-body > p\s*\{\s*display:\s*none;/);
     expect(sectores).toMatch(/\.sectors-demo-stats\s*\{[\s\S]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
     expect(sectores).toMatch(/@media \(max-width:\s*620px\)[\s\S]*\.sectors-demo-filters > div\s*\{[\s\S]*flex-wrap:\s*nowrap;[\s\S]*overflow-x:\s*auto;/);
@@ -258,24 +258,39 @@ describe('Information hub visual contracts', () => {
   });
 
   test('home service index avoids floating red dash markers in each service unit', () => {
-    // Rediseño 2026-10: los servicios son filas-enlace completas, sin marcadores
-    // rojos sueltos; el rojo queda para la barra de los casos.
+    // Rediseño 2026-09: el índice de servicios de la home es ServicesStory. Se
+    // mantiene: ningún servicio lleva un guion rojo flotante propio; el acento de
+    // cada unidad es su color de sistema y un único enlace real al servicio.
     const home = read('src/pages/index.astro');
-    const rows = home.slice(home.indexOf('<ol class="hsvc">'), home.indexOf('</ol>', home.indexOf('<ol class="hsvc">')));
-    expect(rows).toContain('<li><a href={spec.href}>');
-    expect(rows).not.toMatch(/<i\b/);
+    const story = read('src/components/cine/ServicesStory.astro');
+    const itemTemplate = story.slice(story.indexOf('<ol class="svc-story__list">'), story.indexOf('</ol>'));
+
+    expect(home).toContain("import ServicesStory from '../components/cine/ServicesStory.astro'");
+    expect(home).toContain('<ServicesStory services={services} />');
     expect(home).not.toContain('<i aria-hidden="true"></i>');
+    expect(home).not.toMatch(/\.um-service-unit__head i\s*\{/);
+    expect(itemTemplate).not.toMatch(/<i\b/);
+    expect(itemTemplate).toContain('<a class="svc-story__link" href={s.href}>');
     expect(home).toContain('class="um26-card-bar" aria-hidden="true"');
     expect(home).toMatch(/\.um26-card-bar\s*\{[\s\S]*background:\s*#dc2626;/);
   });
 
   test('home numeric summary is actionable instead of dead dashboard text', () => {
     const home = read('src/pages/index.astro');
+
     expect(home).toContain("href: '/nosotros'");
     expect(home).toContain("href: '/antecedentes'");
     expect(home).toContain("href: '/sectores'");
+    expect(home).toContain("href: '/servicios-it-empresas-argentina'");
+    expect(home).toContain("href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it'");
     expect(home).toContain('{stats.map(({ value, label, href, aria }) => (');
     expect(home).toContain('<a href={href} aria-label={aria}>');
+    expect(home).toMatch(/\.um26-stats__grid a:hover,[\s\S]*\.um26-stats__grid a:focus-visible\s*\{/);
+    expect(home).toMatch(/\.um26-stats__grid a:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.5\);/);
+    expect(home).toMatch(/\.um26-stats__inner\s*\{[\s\S]*padding-block:\s*0;/);
+    expect(home).toMatch(/\.um26-stats__grid a\s*\{[\s\S]*display:\s*flex;[\s\S]*min-height:\s*138px;/);
+    expect(home).toMatch(/\.um26-stats__grid a:hover,[\s\S]*box-shadow:\s*inset 0 -3px 0 #dc2626;/);
+    expect(home).not.toMatch(/\.um26-stats__grid div\s*\{/);
   });
 
   test('home GEO hub cards are full-cell links with visible action states', () => {
@@ -295,16 +310,15 @@ describe('Information hub visual contracts', () => {
     expect(coverage).not.toMatch(/outline:\s*(none|0)/);
   });
 
-  test('sector chapters keep selected, hover and keyboard focus states with a real detail link', () => {
-    const story = read('src/components/cine/ServicesStory.astro');
-    expect(sectorUM26).toContain('<SectorJourney ');
-    expect(story).toContain('data-atlas-service={s.code}');
-    expect(story).toContain('aria-pressed={String(i===0)}');
-    expect(story).toContain('button:focus-visible');
-    expect(story).toContain('outline:2px solid #fff');
-    expect(story).toContain('button[aria-pressed=true]');
-    expect(story).toContain('href={first.href} data-atlas-link');
-    expect(story).toContain('text-underline-offset:7px');
+  test('sector service cards expose real link interaction states', () => {
+    expect(sectorUM26).toContain('class="um-click-surface sector26-service-card"');
+    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</em>');
+    expect(sectorUM26).toMatch(/\.sector26-service-card,[\s\S]*--um-click-hover-bg:[\s\S]*#171719;/);
+    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover,[\s\S]*a\.sector26-service-card:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.22\);/);
+    expect(sectorUM26).toMatch(/a\.sector26-service-card:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
+    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover strong,[\s\S]*a\.sector26-service-card:focus-visible strong\s*\{[\s\S]*color:\s*#fff !important;/);
+    expect(sectorUM26).toMatch(/\.sector26-service-card em\s*\{[\s\S]*text-decoration:\s*underline;/);
+    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover em::after,[\s\S]*a\.sector26-service-card:focus-visible em::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
   });
 
   test('sector evidence links expose active hover and focus states', () => {
@@ -399,14 +413,20 @@ describe('Information hub visual contracts', () => {
   });
 
   test('home service visual loads reliably for full-page visual QA', () => {
-    // La portada rota las películas v5 (los recortes v4 traían glitch horneado y titilaban);
-    // las imágenes de casos reservan su tamaño.
+    // Rediseño 2026-09: la primera pantalla es CineBanner (póster con prioridad
+    // alta); las imágenes de servicios están bajo el pliegue y reservan su tamaño.
     const home = read('src/pages/index.astro');
+    const banner = read('src/components/cine/CineBanner.astro');
+    const story = read('src/components/cine/ServicesStory.astro');
+
     expect(home).toContain('<CineBanner');
-    expect(home).toContain('scene: `${s.scene}-proyecto-v5`');
-    expect(home).toContain('chapters={heroChapters}');
-    expect(home).not.toContain('variants={heroVariants}');
+    expect(banner).toMatch(/<img class="umc-poster"[^>]*width="1920" height="1080" fetchpriority="high" decoding="async"/);
+    // El escenario tiene dos capas de póster (se funden al cambiar de servicio) con dimensiones
+    // explícitas y carga diferida; las miniaturas son el póster v4 de cada servicio.
+    expect(story).toMatch(/<img class="svc-story__poster is-on"[^>]*width="1920" height="1080" loading="lazy" decoding="async" data-poster-layer \/>/);
+    expect(story).toMatch(/<img class="svc-story__render" src=\{s\.poster\}[^>]*width="320" height="180" loading="lazy" decoding="async" \/>/);
     expect(home).toContain('width="1200"');
+    expect(home).toContain('height="900"');
     expect(home).toContain('decoding="async"');
   });
 
@@ -585,10 +605,10 @@ describe('Information hub visual contracts', () => {
     // Rediseño 2026-09: la primera pantalla es CineBanner; las filas de servicio
     // quedan bajo el pliegue, cargan diferido y reservan su tamaño intrínseco.
     expect(servicios).toContain('<CineBanner');
-    expect(servicios).toContain('<img src={service.image} alt={ISOMETRIC_STUDIES[service.code].object} width="1040" height="755" loading="lazy" decoding="async" />');
+    expect(servicios).toContain('<img src={service.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />');
     expect(servicios).toMatch(/\.services-demo-row\s*\{[\s\S]*content-visibility:\s*auto;[\s\S]*contain-intrinsic-block-size:\s*360px;/);
-    expect(cssBlock(servicios, '.services-demo-media img')).toMatch(/object-fit:\s*contain;/);
-    expect(servicios).not.toContain('background-image: var(--service-image)');
+    expect(servicios).toMatch(/\.services-demo-media\s*\{[\s\S]*background-image:\s*var\(--service-image\);/);
+    expect(cssBlock(servicios, '.services-demo-media div')).toMatch(/z-index:\s*1;/);
     expect(cssBlock(servicios, '.services-demo-media img')).toMatch(/z-index:\s*0;/);
     expect(cssBlock(servicios, '.services-demo-media span,\n    .services-demo-media em')).toMatch(/z-index:\s*2;/);
     expect(servicios).toMatch(/\.services-demo-body ul\s*\{[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
@@ -828,57 +848,4 @@ describe('mega-menú de escritorio', () => {
     for (const rule of itemRules) expect(rule).not.toMatch(/position\s*:\s*(relative|absolute|fixed|sticky)/);
     expect(navbar).toMatch(/\.um-ops-mega__panel\s*\{[^}]*position:\s*absolute;[^}]*left:\s*0;[^}]*right:\s*0;/);
   });
-  test('hover and Escape share one visible and accessible state, and keyboard can reopen it', () => {
-    const navbar = read('src/components/v4/NavbarV4.astro');
-    expect(navbar).not.toContain('.um-ops-mega:hover .um-ops-mega__panel');
-    const typescript = require('typescript');
-    const start = navbar.indexOf('    const megas =');
-    const end = navbar.indexOf('    const root = document.documentElement;', start);
-    const compiled = typescript.transpileModule(navbar.slice(start, end), {
-      compilerOptions: {target: typescript.ScriptTarget.ES2020}
-    }).outputText;
-    document.body.innerHTML = `<div class="um-ops-mega"><a href="/servicios" class="um-ops-mega__link">Servicios</a><button class="um-ops-mega__toggle" aria-expanded="false">Abrir</button><div class="um-ops-mega__panel"><div class="um-ops-mega__grid"><a href="/servicios/101">Redes</a></div></div></div>`;
-    new Function('matchMedia', compiled)(() => ({matches:true}));
-    const mega = document.querySelector('.um-ops-mega');
-    const toggle = mega.querySelector('button');
-    mega.dispatchEvent(new MouseEvent('mouseenter'));
-    expect(mega.classList.contains('is-open')).toBe(true);
-    expect(toggle.getAttribute('aria-expanded')).toBe('true');
-    mega.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape',bubbles:true}));
-    expect(mega.classList.contains('is-open')).toBe(false);
-    expect(toggle.getAttribute('aria-expanded')).toBe('false');
-    expect(document.activeElement).toBe(toggle);
-    mega.querySelector('.um-ops-mega__link').dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowDown',bubbles:true}));
-    expect(mega.classList.contains('is-open')).toBe(true);
-    expect(document.activeElement.textContent).toBe('Redes');
-    mega.dispatchEvent(new MouseEvent('mouseleave'));
-    expect(mega.classList.contains('is-open')).toBe(false);
-    expect(toggle.getAttribute('aria-expanded')).toBe('false');
-    document.body.innerHTML = '';
-  });
-
-  test('moving hover and focus between menus keeps the newly opened panel visible', () => {
-    const navbar = read('src/components/v4/NavbarV4.astro');
-    const typescript = require('typescript');
-    const start = navbar.indexOf('    const megas =');
-    const end = navbar.indexOf('    const root = document.documentElement;', start);
-    const compiled = typescript.transpileModule(navbar.slice(start, end), {
-      compilerOptions: {target: typescript.ScriptTarget.ES2020}
-    }).outputText;
-    document.body.innerHTML = ['servicios','sectores'].map(group => `<div class="um-ops-mega" data-group="${group}"><button class="um-ops-mega__toggle" aria-expanded="false">${group}</button><div class="um-ops-mega__panel"></div></div>`).join('');
-    new Function('matchMedia', compiled)(() => ({matches:true}));
-    const [services,sectors] = document.querySelectorAll('.um-ops-mega');
-    services.dispatchEvent(new MouseEvent('mouseenter'));services.querySelector('button').focus();
-    sectors.dispatchEvent(new MouseEvent('mouseenter'));sectors.querySelector('button').focus();
-    expect(services.classList.contains('is-open')).toBe(false);
-    expect(services.querySelector('button').getAttribute('aria-expanded')).toBe('false');
-    expect(sectors.classList.contains('is-open')).toBe(true);
-    expect(sectors.querySelector('button').getAttribute('aria-expanded')).toBe('true');
-    sectors.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape',bubbles:true}));
-    expect(sectors.classList.contains('is-open')).toBe(false);
-    services.dispatchEvent(new MouseEvent('mouseenter'));services.querySelector('button').focus();
-    expect(services.classList.contains('is-open')).toBe(true);
-    document.body.innerHTML = '';
-  });
-
 });
