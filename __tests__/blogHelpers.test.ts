@@ -1,4 +1,3 @@
-import { editorialImages } from '../src/data/editorialImageSystem';
 import { blogImageUrl, blogPostImageUrl } from '../src/utils/blogHelpers';
 
 describe('blog image helpers', () => {
@@ -9,39 +8,30 @@ describe('blog image helpers', () => {
     );
   });
 
-  test('preserves automation cover images from the configured external host', () => {
+  test('blog covers are own Blender posters chosen by topic, never the stored cover', () => {
     const cover = 'https://images.unsplash.com/photo-1586281380349-6325315f36a2?w=1200&h=480&fit=crop&q=80';
     expect(blogImageUrl(cover)).toBe(cover);
     expect(
-      blogPostImageUrl({
-        imagen_portada: cover,
-        slug: 'nota-con-imagen-automatizada',
-        categoria: 'noticias',
-      } as any)
-    ).toBe(cover);
+      blogPostImageUrl({ imagen_portada: cover, slug: 'nota-con-imagen-automatizada', categoria: 'noticias' } as any)
+    ).toMatch(/^\/cine\/media\/cine-[a-z]+(-[a-z]+)?-poster\.jpg$/);
+    expect(
+      blogPostImageUrl({ imagen_portada: null, slug: 'deteccion-incendio-bodegas-vitivinicolas', titulo: 'Detección de incendio en bodegas', categoria: 'tecnico' } as any)
+    ).toBe('/cine/media/cine-bodega-incendios-poster.jpg');
+    expect(
+      blogPostImageUrl({ imagen_portada: null, slug: 'hospital-regional-neuquen-cableado-estructurado', titulo: 'Cableado estructurado en el hospital', categoria: 'proyectos' } as any)
+    ).toBe('/cine/media/cine-hospital-redes-poster.jpg');
+    expect(
+      blogPostImageUrl({ imagen_portada: null, slug: 'aeropuerto-mendoza-cctv', titulo: 'CCTV en el aeropuerto', categoria: 'proyectos' } as any)
+    ).toBe('/cine/media/cine-aeropuerto-seguridad-poster.jpg');
   });
 
-  test('rejects unknown external images and falls back to local editorial assets', () => {
-    expect(blogImageUrl('https://example.com/photo-1586281380349-6325315f36a2.jpg')).toBe('');
-    expect(
-      blogPostImageUrl({
-        imagen_portada: 'https://example.com/photo-1586281380349-6325315f36a2.jpg',
-        slug: 'nota-sin-imagen-valida',
-        categoria: 'noticias',
-      } as any)
-    ).toBe(editorialImages.defaultOg);
-  });
-
-  test('rejects truncated local upload paths before falling back', () => {
-    expect(blogImageUrl('/uploads/hero/a')).toBe('');
-    expect(blogImageUrl('/uploads/hero/4f9aa0c4-4aeb-40')).toBe('');
-    expect(blogImageUrl('/uploads/hero/f83400c')).toBe('');
-    expect(
-      blogPostImageUrl({
-        imagen_portada: '/uploads/hero/f83400c',
-        slug: 'nota-con-path-trunco',
-        categoria: 'tecnico',
-      } as any)
-    ).toBe('/uploads/hero/4f9aa0c4-4aeb-4027-a7a0-8a6cfbb14705.jpg');
+  test('every topic poster exists and the same note always gets the same cover', () => {
+    const fs = require('fs');
+    const path = require('path');
+    for (const slug of ['odoo-18-postgresql', 'starlink-campamento-minero', 'ups-online-data-center', 'mesa-de-ayuda-sla', 'nota-sin-tema']) {
+      const image = blogPostImageUrl({ imagen_portada: null, slug, categoria: 'noticias' } as any);
+      expect(fs.existsSync(path.join(process.cwd(), 'public', image))).toBe(true);
+      expect(blogPostImageUrl({ imagen_portada: null, slug, categoria: 'noticias' } as any)).toBe(image);
+    }
   });
 });

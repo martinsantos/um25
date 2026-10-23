@@ -1,7 +1,7 @@
 ---
 // Últimos artículos del blog técnico (mismo origen que /blog).
 import { fetchBlogListing } from '../../utils/getBlogData';
-import { blogImageUrl } from '../../utils/blogHelpers';
+import { blogPostImageUrl } from '../../utils/blogHelpers';
 import { getCategoryLabel, formatBlogDate } from '../../utils/blogUtils';
 
 let posts: any[] = [];
@@ -18,7 +18,7 @@ try { posts = (await fetchBlogListing(1, 3)).posts || []; } catch { posts = []; 
     </div>
     <div class="umj__grid" data-rail="Artículos del blog">
       {posts.map((post) => {
-        const img = blogImageUrl(post.imagen_portada);
+        const img = blogPostImageUrl(post);
         return (
           <a class="umj__card" href={`/blog/${post.slug}`}>
             {img && <figure><img src={img} alt="" width="800" height="500" loading="lazy" decoding="async" /></figure>}

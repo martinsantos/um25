@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { SITE_URL } from '../config/seo';
 import { fetchBlogSitemapEntries } from '../utils/getBlogData';
+import { blogPostImageUrl } from '../utils/blogHelpers';
 import { canonicalUrl, escapeXml, formatSitemapDate, publicImageUrl } from '../utils/seoUrl';
 import { getBlogTopicEntry, postsForCluster, publishableServiceHubs } from '../utils/blogTopicMap';
 
@@ -77,7 +78,7 @@ export const GET: APIRoute = async () => {
       const loc = canonicalUrl(`/blog/${post.slug}`);
       const lastmodSource = post.fecha_modificacion || post.fecha_publicacion;
       const lastmod = lastmodSource ? formatSitemapDate(lastmodSource) : '';
-      const imageUrl = publicImageUrl(post.imagen_portada);
+      const imageUrl = publicImageUrl(blogPostImageUrl(post as any));
       const imageTag = imageUrl
         ? `
     <image:image>
