@@ -3,6 +3,8 @@ import os
 import tempfile
 import time
 import unittest
+import io
+import tarfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -74,6 +76,98 @@ class ColdDependenciesTest(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, 'Plan changed'):
                 cleanup.main()
         self.assertTrue(all((r / 'node_modules').exists() for r in self.releases))
+
+
+class AuditedLotTest(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name).resolve()
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def archive(self, name='dist/app.js', payload=b'verified'):
+        root = self.root / 'release'
+        frontend = root / 'frontend'
+        frontend.mkdir(parents=True, exist_ok=True)
+        with tarfile.open(root / 'frontend.tar.gz', 'w:gz') as stream:
+            member = tarfile.TarInfo(name)
+            member.size = len(payload)
+            stream.addfile(member, io.BytesIO(payload))
+        if '..' not in Path(name).parts:
+            item = frontend / name
+            item.parent.mkdir(parents=True, exist_ok=True)
+            item.write_bytes(payload)
+        return frontend
+
+    def test_allowlist_excludes_live_website_and_backups(self):
+        self.assertEqual(len(cleanup.AUDITED_LOT), 7)
+        for name, kind in cleanup.AUDITED_LOT:
+            for excluded in ['/root/fumbling-field', '/var/www/ultimamilla', '/backups', '/var/lib/docker']:
+                self.assertNotIn(excluded, name)
+
+    def test_symlink_target_is_refused(self):
+        original = self.root / 'source'
+        original.mkdir()
+        link = self.root / 'link'
+        link.symlink_to(original, target_is_directory=True)
+        with self.assertRaisesRegex(RuntimeError, 'identity'):
+            cleanup.assert_lot_path(link, 'binary-cache', set())
+
+    def test_active_source_preserves_dependency_target(self):
+        target = self.root / 'node_modules'
+        target.mkdir()
+        with patch.object(cleanup, 'has_mount', return_value=False):
+            with self.assertRaisesRegex(RuntimeError, 'active'):
+                cleanup.assert_lot_path(target, 'dependencies', {self.root / 'app.js'})
+
+    def test_container_mount_ancestor_is_refused(self):
+        target = self.root / 'node_modules'
+        target.mkdir()
+        def docker(args, **kwargs):
+            return 'container-id' if args[:3] == ['docker', 'ps', '-aq'] else '[{"Mounts":[{"Source":"%s"}]}]' % self.root
+        with patch.object(cleanup, 'has_mount', return_value=False), patch.object(cleanup.subprocess, 'check_output', side_effect=docker):
+            with self.assertRaisesRegex(RuntimeError, 'container mount'):
+                cleanup.assert_lot_path(target, 'dependencies', set())
+
+    def test_duplicate_requires_archive_and_no_extra_files(self):
+        frontend = self.archive()
+        self.assertEqual(cleanup.duplicate_frontend(frontend)['files'], 1)
+        (frontend / 'unique.txt').write_text('preserve')
+        with self.assertRaisesRegex(RuntimeError, 'unarchived'):
+            cleanup.duplicate_frontend(frontend)
+
+    def test_modified_frontend_is_preserved(self):
+        frontend = self.archive()
+        (frontend / 'dist/app.js').write_text('unique change')
+        with self.assertRaisesRegex(RuntimeError, 'unique content'):
+            cleanup.duplicate_frontend(frontend)
+
+    def test_archive_path_traversal_is_refused(self):
+        frontend = self.archive('../outside')
+        with self.assertRaisesRegex(RuntimeError, 'unsafe member'):
+            cleanup.duplicate_frontend(frontend)
+
+    def test_active_certificate_is_preserved(self):
+        with patch.object(cleanup.subprocess, 'run') as run:
+            run.return_value.stdout = 'server_name ' + cleanup.STALE_DOMAIN
+            with self.assertRaisesRegex(RuntimeError, 'active Nginx'):
+                cleanup.stale_renewal_plan()
+
+    def test_unapproved_plan_has_no_write_or_delete(self):
+        with patch.object(cleanup.shutil, 'rmtree') as remove, patch.object(cleanup, 'audited_lot_plan') as plan:
+            with self.assertRaisesRegex(RuntimeError, 'fingerprint'):
+                cleanup.audited_lot_apply({'targets': []}, '0' * 64)
+            remove.assert_not_called()
+            plan.assert_not_called()
+
+    def test_changed_plan_has_no_delete(self):
+        plan = {'targets': [], 'renewal': None}
+        digest = cleanup.hashlib.sha256(cleanup.json.dumps(plan, sort_keys=True).encode()).hexdigest()
+        with patch.object(cleanup.shutil, 'rmtree') as remove, patch.object(cleanup, 'audited_lot_plan', return_value={'changed': True}):
+            with self.assertRaisesRegex(RuntimeError, 'lot changed'):
+                cleanup.audited_lot_apply(plan, digest)
+            remove.assert_not_called()
 
 
 if __name__ == '__main__':
