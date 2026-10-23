@@ -30,8 +30,9 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
 ---
 <div class="svc-story" data-svc-story>
   <div class="svc-story__stage" data-src={src}>
-    <img class="svc-story__poster is-on" src={items[0]?.poster ?? '/cine/media/story-fachada.jpg'} alt="" width="1920" height="1080" loading="lazy" decoding="async" data-poster-layer />
-    <img class="svc-story__poster" src={items[0]?.poster ?? '/cine/media/story-fachada.jpg'} alt="" width="1920" height="1080" loading="lazy" decoding="async" data-poster-layer />
+    {/* Imagen principal de la sección: carga sin diferir (en celular la carga diferida no arrancaba y la caja quedaba vacía). */}
+    <img class="svc-story__poster is-on" src={items[0]?.poster ?? '/cine/media/story-fachada.jpg'} alt="" width="1920" height="1080" decoding="async" data-poster-layer />
+    <img class="svc-story__poster" src={items[0]?.poster ?? '/cine/media/story-fachada.jpg'} alt="" width="1920" height="1080" decoding="async" data-poster-layer />
     <div class="svc-story__frame" aria-hidden="true"></div>
     <button class="svc-story__mount" type="button" hidden aria-hidden="true" tabindex="-1"></button>
     <p class="svc-story__now" aria-live="polite"><i></i><span>{items[0]?.name}</span></p>
@@ -39,7 +40,10 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
   <ol class="svc-story__list">
     {items.map((s, i) => (
       <li class="svc-story__item" data-cmd={JSON.stringify(s.cmd)} data-name={s.name} data-poster={s.poster}>
-        <img class="svc-story__render" src={s.poster} alt="" width="320" height="180" loading="lazy" decoding="async" />
+        <picture>
+          <source type="image/avif" srcset={s.poster.replace(/\.jpg$/, '.avif')} />
+          <img class="svc-story__render" src={s.poster} alt="" width="320" height="180" decoding="async" />
+        </picture>
         <div>
           <p class="svc-story__code"><span>{s.code}</span></p>
           <h3>{s.name}</h3>

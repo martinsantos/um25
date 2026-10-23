@@ -423,8 +423,12 @@ describe('Information hub visual contracts', () => {
     expect(banner).toMatch(/<img class="umc-poster"[^>]*width="1920" height="1080" fetchpriority="high" decoding="async"/);
     // El escenario tiene dos capas de póster (se funden al cambiar de servicio) con dimensiones
     // explícitas y carga diferida; las miniaturas son el póster v4 de cada servicio.
-    expect(story).toMatch(/<img class="svc-story__poster is-on"[^>]*width="1920" height="1080" loading="lazy" decoding="async" data-poster-layer \/>/);
-    expect(story).toMatch(/<img class="svc-story__render" src=\{s\.poster\}[^>]*width="320" height="180" loading="lazy" decoding="async" \/>/);
+    // El póster del escenario carga sin diferir: en celular la carga diferida no arrancaba.
+    expect(story).toMatch(/<img class="svc-story__poster is-on"[^>]*width="1920" height="1080" decoding="async" data-poster-layer \/>/);
+    expect(story).not.toMatch(/svc-story__poster[^>]*loading="lazy"/);
+    // Miniaturas livianas: AVIF con respaldo JPG.
+    expect(story).toContain(`<source type="image/avif" srcset={s.poster.replace(/\\.jpg$/, '.avif')} />`);
+    expect(story).toMatch(/<img class="svc-story__render" src=\{s\.poster\}[^>]*width="320" height="180" decoding="async" \/>/);
     expect(home).toContain('width="1200"');
     expect(home).toContain('height="900"');
     expect(home).toContain('decoding="async"');
