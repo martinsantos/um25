@@ -25,7 +25,7 @@
 @media (min-width: 821px) { .umc-stage { left: 12%; right: -12%; } }
 .umc-poster, .umc-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .umc-poster { transition: opacity 1s ease; }
-.umc-poster.is-hidden { opacity: 0; }
+.umc-poster.is-hidden { opacity: 0; transition-delay: 1.3s; } /* se apaga recién cuando el video ya terminó de aparecer: sin cuadro negro entre ambos */
 .umc-video { opacity: 0; transition: opacity 1.2s ease; }
 .umc-video.is-on { opacity: 1; }
 .umc-grade {
