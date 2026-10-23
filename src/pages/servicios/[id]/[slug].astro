@@ -25,7 +25,6 @@ import DeliveryProcess from '../../../components/cine/DeliveryProcess.astro';
 import ProductMoments from '../../../components/cine/ProductMoments.astro';
 import ServiceSpecSheet from '../../../components/cine/ServiceSpecSheet.astro';
 import StoryStage from '../../../components/cine/StoryStage.astro';
-import ServiceObject from '../../../components/cine/ServiceObject.astro';
 import ServiceAfter from '../../../components/cine/ServiceAfter.astro';
 import { SERVICE_STAGE, STAGE_SECTORS, caseService, caseSector } from '../../../data/cine/stageMap';
 import { ISO3D_TEXT } from '../../../data/cine/iso3dText.js';
@@ -520,7 +519,6 @@ const fichaItems = [
   />
 
   <div class="svc">
-    {serviceSpec && <ServiceObject code={String(id)} kicker={serviceSpec.name} title={serviceSpec.promise} />}
 
     {serviceSpec ? (
       <ServiceAfter name={serviceSpec.name} scope={serviceSpec.scope} deliverable={serviceSpec.keyDeliverable} standard={serviceSpec.keyStandard}
