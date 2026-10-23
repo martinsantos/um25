@@ -9,6 +9,12 @@ on:
       - '.gitignore'
       - 'LICENSE'
   workflow_dispatch:  # Allow manual triggers
+    inputs:
+      keep_releases:
+        description: 'Carpetas de respaldo de versiones anteriores a conservar antes de publicar (0-2)'
+        type: choice
+        options: ['2', '1', '0']
+        default: '2'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -287,15 +293,20 @@ jobs:
       # Each scoped release keeps the runtime it replaced (~1 GB). Only the newest
       # folder is a rollback target; keep the two newest and prune older ones so
       # the disk does not fill up release after release.
+      # A manual run can keep fewer (down to 0) when the disk is over the limit; this
+      # release then leaves its own rollback folder behind.
       - name: Prune old scoped release folders
+        env:
+          KEEP: ${{ inputs.keep_releases || '2' }}
         run: |
           set -euo pipefail
-          ssh root@23.105.176.45 "bash -s -- '$DEPLOY_PATH'" <<'EOF'
+          [[ "$KEEP" =~ ^[0-2]$ ]]
+          ssh root@23.105.176.45 "bash -s -- '$DEPLOY_PATH' '$KEEP'" <<'EOF'
           set -euo pipefail
-          backups="$1/backups"
+          backups="$1/backups"; keep="$2"
           mapfile -t old < <(
             find "$backups" -maxdepth 1 -type d -name 'umsa-campaign-[0-9]*-[0-9]*' -printf '%f\n' 2>/dev/null |
-              sort -t- -k3,3n -k4,4n | head -n -2
+              sort -t- -k3,3n -k4,4n | if (( keep > 0 )); then head -n "-$keep"; else cat; fi
           )
           if (( ${#old[@]} == 0 )); then
             echo 'No old scoped release folders to prune'
