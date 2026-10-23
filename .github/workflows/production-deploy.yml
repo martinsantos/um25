@@ -15,6 +15,11 @@ on:
         type: choice
         options: ['2', '1', '0']
         default: '2'
+      max_disk_pct:
+        description: 'Uso máximo del disco del servidor para publicar (90 es el tope de arquitectura; subirlo sólo de forma excepcional)'
+        type: choice
+        options: ['90', '92', '94']
+        default: '90'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -325,12 +330,15 @@ jobs:
       # swap script's 2.5 GB reserve would not fit, so an aborted release never
       # leaves another orphan incoming-dist behind.
       - name: Report and check server storage
+        env:
+          MAX_PCT: ${{ inputs.max_disk_pct || '90' }}
         run: |
           set -euo pipefail
+          [[ "$MAX_PCT" =~ ^(90|92|94)$ ]]
           need_kb=$(( $(du -sk dist | cut -f1) + 2500000 ))
-          ssh root@23.105.176.45 "bash -s -- '$DEPLOY_PATH' '$need_kb'" <<'EOF'
+          ssh root@23.105.176.45 "bash -s -- '$DEPLOY_PATH' '$need_kb' '$MAX_PCT'" <<'EOF'
           set -euo pipefail
-          app="$1"; need_kb="$2"
+          app="$1"; need_kb="$2"; max_pct="$3"
           df -h "$app"
           echo '--- scoped release folders (newest first)'
           { ls -1dt "$app"/backups/umsa-campaign-* 2>/dev/null || true; } | head -20 | xargs -r du -sh
@@ -339,9 +347,14 @@ jobs:
           echo '--- git worktrees'
           git -C "$app" worktree list 2>/dev/null || true
           git -C "$app" worktree prune --dry-run -v 2>/dev/null || true
+          # Read-only inventory: the biggest directories on the root filesystem.
+          echo '--- largest directories (same filesystem, depth 3)'
+          timeout 120 du -xk --max-depth=3 / 2>/dev/null | sort -rn | head -40 | awk '{printf "%.1fG\t%s\n", $1/1048576, $2}' || true
+          echo '--- docker'
+          timeout 60 docker system df 2>/dev/null || true
           used_pct="$(df -Pk "$app" | awk 'NR==2 {gsub(/%/, "", $5); print $5}')"
-          if (( used_pct > 90 )); then
-            echo "Disk usage ${used_pct}% exceeds the architecture limit of 90%; nothing was uploaded" >&2
+          if (( used_pct > max_pct )); then
+            echo "Disk usage ${used_pct}% exceeds the limit of ${max_pct}%; nothing was uploaded" >&2
             exit 1
           fi
           avail_kb="$(df -Pk "$app" | awk 'NR==2 {print $4}')"
