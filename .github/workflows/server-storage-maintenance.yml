@@ -21,7 +21,7 @@ on:
       operation:
         description: 'Audited dependencies, reproducible package caches or duplicate backups'
         type: choice
-        options: [dependencies, caches, backups, runtime-backups, archive-blocks, uploads-backup, vivero-snapshots, volume-dependencies, temporary-archives]
+        options: [dependencies, caches, backups, runtime-backups, archive-blocks, uploads-backup, vivero-snapshots, volume-dependencies, temporary-archives, cold-lot-20261023]
         default: dependencies
         required: true
       mode:
@@ -37,6 +37,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -56,6 +57,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/master' || inputs.mode == 'plan')
     runs-on: ubuntu-latest
     environment: production
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
       - uses: webfactory/ssh-agent@v0.10.0
@@ -70,8 +72,18 @@ jobs:
           MODE: ${{ inputs.mode }}
           PLAN_SHA: ${{ inputs.plan_sha }}
           OPERATION: ${{ inputs.operation }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          if [[ "$MODE" == apply && "$OPERATION" == cold-lot-20261023 ]]; then
+            for attempt in $(seq 1 40); do
+              busy=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow production-deploy.yml \
+                --limit 20 --json status --jq '[.[] | select(.status != "completed")] | length')
+              if [[ "$busy" == 0 ]]; then break; fi
+              if [[ "$attempt" == 40 ]]; then echo 'Publication still active; nothing removed'; exit 1; fi
+              sleep 15
+            done
+          fi
           args=''
           scope=''
           case "$OPERATION" in
@@ -83,6 +95,7 @@ jobs:
             archive-blocks) script=scripts/ops/compact-runtime-backups.py; scope=--archive-ranges ;;
             vivero-snapshots) script=scripts/ops/compact-vivero-snapshots.py ;;
             volume-dependencies|temporary-archives) script=scripts/ops/clean-audited-storage.py; scope="--operation $OPERATION" ;;
+            cold-lot-20261023) script=scripts/ops/prune-cold-dependencies.py; scope=--audited-lot ;;
             *) exit 2 ;;
           esac
           if [[ "$MODE" == apply ]]; then
