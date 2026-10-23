@@ -28,15 +28,15 @@ const heroLead = 'Redes, seguridad electrónica, telecomunicaciones, software a 
 const services = NAV_SERVICES;
 
 const sectors = [
-  { name: 'Aeropuertos', count: sectorCaseLabel('aeropuertos'), text: 'CCTV de perímetro 24/7', href: '/aeropuertos', image: '/img/sectores/aeropuertos.webp', accent: '#DC2626', big: true },
-  { name: 'Bodegas', count: sectorCaseLabel('bodegas'), text: 'Trazabilidad vitivinícola end-to-end', href: '/bodegas', image: '/img/sectores/bodegas.webp', accent: '#DC2626' },
-  { name: 'Constructoras', count: sectorCaseLabel('constructoras'), text: 'Cableado estructurado certificado', href: '/constructoras', image: '/img/sectores/constructoras.webp', accent: '#DC2626' },
-  { name: 'Gobierno y Sector Público', count: sectorCaseLabel('gobiernosectorpublico'), text: 'Digitalización de trámites', href: '/gobiernosectorpublico', image: '/img/sectores/gobierno.webp', accent: '#DC2626' },
-  { name: 'Industria', count: sectorCaseLabel('industria'), text: 'Redes industriales en planta 24/7', href: '/industria', image: '/img/sectores/industria.webp', accent: '#DC2626' },
-  { name: 'Minería', count: sectorCaseLabel('mineria'), text: 'Telecomunicaciones en campamento remoto', href: '/mineria', image: '/img/sectores/mineria.webp', accent: '#DC2626', big: true },
-  { name: 'Salud', count: sectorCaseLabel('salud'), text: 'Redes para imágenes médicas', href: '/salud', image: '/img/sectores/salud.webp', accent: '#DC2626' },
-  { name: 'Seguridad Electrónica', count: sectorCaseLabel('seguridad-electronica'), text: 'Centro de monitoreo 24/7', href: '/seguridad-electronica', image: '/img/sectores/seguridad-electronica.webp', accent: '#DC2626' },
-  { name: 'Software', count: sectorCaseLabel('software'), text: 'ERPs y plataformas a medida', href: '/software', image: '/img/sectores/software.webp', accent: '#DC2626' },
+  { name: 'Aeropuertos', count: sectorCaseLabel('aeropuertos'), text: 'CCTV de perímetro 24/7', href: '/aeropuertos', image: '/cine/media/cine-aeropuerto-poster.jpg', accent: '#DC2626', big: true },
+  { name: 'Bodegas', count: sectorCaseLabel('bodegas'), text: 'Trazabilidad vitivinícola end-to-end', href: '/bodegas', image: '/cine/media/cine-bodega-poster.jpg', accent: '#DC2626' },
+  { name: 'Constructoras', count: sectorCaseLabel('constructoras'), text: 'Cableado estructurado certificado', href: '/constructoras', image: '/cine/media/cine-fachada-poster.jpg', accent: '#DC2626' },
+  { name: 'Gobierno y Sector Público', count: sectorCaseLabel('gobiernosectorpublico'), text: 'Digitalización de trámites', href: '/gobiernosectorpublico', image: '/cine/media/cine-fachada-software-poster.jpg', accent: '#DC2626' },
+  { name: 'Industria', count: sectorCaseLabel('industria'), text: 'Redes industriales en planta 24/7', href: '/industria', image: '/cine/media/cine-planta-poster.jpg', accent: '#DC2626' },
+  { name: 'Minería', count: sectorCaseLabel('mineria'), text: 'Telecomunicaciones en campamento remoto', href: '/mineria', image: '/cine/media/cine-planta-telecom-poster.jpg', accent: '#DC2626', big: true },
+  { name: 'Salud', count: sectorCaseLabel('salud'), text: 'Redes para imágenes médicas', href: '/salud', image: '/cine/media/cine-hospital-poster.jpg', accent: '#DC2626' },
+  { name: 'Seguridad Electrónica', count: sectorCaseLabel('seguridad-electronica'), text: 'Centro de monitoreo 24/7', href: '/seguridad-electronica', image: '/cine/media/cine-aeropuerto-seguridad-poster.jpg', accent: '#DC2626' },
+  { name: 'Software', count: sectorCaseLabel('software'), text: 'ERPs y plataformas a medida', href: '/software', image: '/cine/media/cine-hospital-software-poster.jpg', accent: '#DC2626' },
 ];
 
 // Proyectos destacados: registros reales del catálogo, con su ficha y su imagen curada.
@@ -45,10 +45,10 @@ const SECTOR_LABEL: Record<string, string> = {
   industria: 'Industria', mineria: 'Minería', salud: 'Salud', 'seguridad-electronica': 'Seguridad electrónica', software: 'Software',
 };
 const DESTACADOS: { id: number; image: string }[] = [
-  { id: 3065, image: '/img/antecedentes/curadas/3065-aeropuerto-cctv.webp' },
-  { id: 3075, image: '/img/antecedentes/curadas/3075-fuesmen-redes.webp' },
-  { id: 3064, image: '/img/antecedentes/curadas/3064-gobierno-software.webp' },
-  { id: 3334, image: '/img/antecedentes/curadas/3334-bodega-servidores.webp' },
+  { id: 3065, image: '/cine/media/cine-aeropuerto-seguridad-poster.jpg' },
+  { id: 3075, image: '/cine/media/cine-hospital-redes-poster.jpg' },
+  { id: 3064, image: '/cine/media/cine-fachada-software-poster.jpg' },
+  { id: 3334, image: '/cine/media/cine-bodega-soporte-poster.jpg' },
 ];
 const cases = DESTACADOS.flatMap(({ id, image }) => {
   const item = ANTECEDENTES_REALES.find((antecedente) => antecedente.id === id);

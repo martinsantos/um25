@@ -15,6 +15,7 @@ import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
 import { getAntecedenteConServicios, getAntecedenteImageUrl, getDirectusImageUrl, getGeneratedAntecedenteImageUrl, getAllAntecedentes } from '../../../lib/directus.ts';
+import { BASE_POSTER } from '../../../data/cine/posters';
 import {
   getAntecedenteById as getUm26AntecedenteById,
   getSectores as getUm26Sectores,
@@ -181,12 +182,10 @@ const caseRecordTone = antecedente.curation?.recordTone || 'technical-record';
 const caseRecordSummary = toPublicCaseSummary(antecedente.curation?.recordSummary);
 
 // --- Prepare data for UI (generated-case image first, Directus as fallback) ---
-const directusMainImageUrl = getAssetUrl(antecedente.Imagen || antecedente.ImagenPrincipal);
 const generatedMainImageUrl = getGeneratedAntecedenteImageUrl(antecedente.id) || getGeneratedAntecedenteImageUrl(antecedente.original_id);
-const mainImageUrl = generatedMainImageUrl
-    || (directusMainImageUrl && !directusMainImageUrl.includes('default-background') ? directusMainImageUrl : '')
-    || DEFAULT_IMAGE_URL;
-const hasGeneratedMainImage = mainImageUrl.startsWith('/images/antecedentes/generated/') || mainImageUrl.startsWith('/img/antecedentes/');
+// Póster Blender del sector × servicio; los archivos de Directus eran imágenes generadas.
+const mainImageUrl = generatedMainImageUrl || BASE_POSTER;
+const hasGeneratedMainImage = mainImageUrl.startsWith('/cine/media/');
 const caseImageDimensions = hasGeneratedMainImage ? generatedAntecedenteImageDimensions : { width: 720, height: 720 };
 const caseSeoImageUrl = mainImageUrl.startsWith('/uploads/antecedentes/') ? editorialImages.defaultOg : mainImageUrl;
 const caseSeoImageDimensions = hasGeneratedMainImage
@@ -728,28 +727,7 @@ const antecedentePageStructuredData = [
           </div>
         )}
 
-        <!-- Additional project gallery -->
-        {antecedente.Imagenes && antecedente.Imagenes.length > 0 && (
-          <div class="flex flex-col gap-4 sm:gap-5">
-            <div class="case-section-title">
-              <span aria-hidden="true"></span>
-              <h2>Galería del proyecto</h2>
-            </div>
-            <div class="case-gallery-grid">
-              {antecedente.Imagenes.map((img: any) => (
-                <figure class="case-gallery-frame">
-                  <img
-                    src={getAssetUrl(img)}
-                    alt="Galería del proyecto"
-                    class="case-gallery-image"
-                    loading="lazy"
-                    onerror="this.src='/images/default-background.jpg'"
-                  />
-                </figure>
-              ))}
-            </div>
-          </div>
-        )}
+        <!-- La galería de Directus se retiró: eran imágenes generadas. -->
       </div>
 
       <!-- Sidebar -->

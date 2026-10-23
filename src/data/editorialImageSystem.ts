@@ -1,47 +1,45 @@
 export const editorialImageDimensions = {
-  width: 1672,
-  height: 941,
+  width: 1920,
+  height: 1080,
 };
 
 export const generatedAntecedenteImageDimensions = {
-  width: 1600,
-  height: 1000,
+  width: 1920,
+  height: 1080,
 };
 
-/** Imágenes curadas (1600×1000) que reemplazan a la generada de esos antecedentes. */
-export const curatedAntecedenteImages: Record<string, string> = {
-  '3064': '/img/antecedentes/curadas/3064-gobierno-software.webp',
-  '3065': '/img/antecedentes/curadas/3065-aeropuerto-cctv.webp',
-  '3075': '/img/antecedentes/curadas/3075-fuesmen-redes.webp',
-  '3334': '/img/antecedentes/curadas/3334-bodega-servidores.webp',
-};
+/** Las curadas eran imágenes generadas; cada antecedente usa su póster Blender. */
+export const curatedAntecedenteImages: Record<string, string> = {};
+
+// Pósters Blender propios (1920×1080). Las portadas editoriales eran imágenes generadas.
+const poster = (scene: string, service?: string) => `/cine/media/cine-${scene}${service ? `-${service}` : ''}-poster.jpg`;
 
 export const editorialImages = {
-  defaultOg: '/images/editorial/umsa-home-operations.webp',
-  homeHero: '/images/editorial/umsa-home-operations.webp',
-  homeServices: '/images/editorial/umsa-home-operations.webp',
-  aboutHero: '/images/editorial/umsa-about-engineering.webp',
-  aboutCapabilities: '/images/editorial/umsa-sector-constructoras.webp',
+  defaultOg: poster('bodega'),
+  homeHero: poster('bodega'),
+  homeServices: poster('fachada'),
+  aboutHero: poster('fachada', 'consultoria'),
+  aboutCapabilities: poster('fachada'),
   sectors: {
-    aeropuertos: '/images/editorial/umsa-sector-aeropuertos.webp',
-    bodegas: '/images/editorial/umsa-sector-bodegas.webp',
-    gobiernosectorpublico: '/images/editorial/umsa-sector-gobierno.webp',
-    salud: '/images/editorial/umsa-sector-salud.webp',
-    constructoras: '/images/editorial/umsa-sector-constructoras.webp',
-    industria: '/images/editorial/umsa-sector-industria.webp',
-    mineria: '/images/editorial/umsa-sector-mineria.webp',
-    'seguridad-electronica': '/images/editorial/umsa-sector-seguridad-electronica.webp',
-    software: '/images/editorial/umsa-sector-software.webp',
+    aeropuertos: poster('aeropuerto'),
+    bodegas: poster('bodega'),
+    gobiernosectorpublico: poster('fachada', 'software'),
+    salud: poster('hospital'),
+    constructoras: poster('fachada'),
+    industria: poster('planta'),
+    mineria: poster('planta', 'telecom'),
+    'seguridad-electronica': poster('aeropuerto', 'seguridad'),
+    software: poster('hospital', 'software'),
   },
   services: {
-    101: '/images/editorial/umsa-service-redes.webp',
-    102: '/images/editorial/umsa-service-seguridad-electronica.webp',
-    103: '/images/editorial/umsa-service-telecomunicaciones.webp',
-    104: '/images/editorial/umsa-service-software-a-medida.webp',
-    105: '/images/editorial/umsa-service-soporte-247.webp',
-    106: '/images/editorial/umsa-service-consultoria-it.webp',
-    107: '/images/editorial/umsa-service-deteccion-incendios.webp',
-    108: '/images/editorial/umsa-service-electricos-it.webp',
+    101: poster('fachada', 'redes'),
+    102: poster('aeropuerto', 'seguridad'),
+    103: poster('planta', 'telecom'),
+    104: poster('hospital', 'software'),
+    105: poster('aeropuerto', 'soporte'),
+    106: poster('fachada', 'consultoria'),
+    107: poster('bodega', 'incendios'),
+    108: poster('hospital', 'electricos'),
   },
 } as const;
 
