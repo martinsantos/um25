@@ -38,7 +38,7 @@ const activeSectors = sectorFilter
 const allSectors = activeSectors.length ? activeSectors : sectors;
 const feature = allSectors[0];
 const rest = allSectors.slice(1);
-const leadImage = feature?.image || sectors[0]?.image || '/img/sectores/aeropuertos.webp';
+const leadImage = feature?.image || sectors[0]?.image || '/cine/media/cine-aeropuerto-poster.jpg';
 const countLabel = (sector: SectorIndexItem) => sectorCaseLabel(sector.slug);
 const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id || !sectorFilter);
 ---

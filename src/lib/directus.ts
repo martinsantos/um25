@@ -1,3 +1,4 @@
+import { BASE_POSTER, posterForAntecedente } from '../data/cine/posters';
 import { createDirectus, rest, readItems, readItem, staticToken } from '@directus/sdk';
 import type {
   ServicioV4,
@@ -11,7 +12,6 @@ import { visibleBlogStatusDirectusFilter } from '../utils/blogPublishing';
 import { diversifyBlogPostCovers } from '../utils/blogCoverDiversity.js';
 import { isCanonicalBlogSlug } from '../data/seoRedirects';
 import { fetchWithTimeout, getFetchTimeoutMs, withTimeout } from '../utils/fetchWithTimeout';
-import { curatedAntecedenteImages } from '../data/editorialImageSystem';
 
 const readItemsAny = readItems as any;
 const readItemAny = readItem as any;
@@ -607,13 +607,6 @@ try {
   // No map available, will use Directus URLs
 }
 
-let generatedAntecedenteImageMap: Record<string, string> = {};
-try {
-  const mapModule = await import('../data/antecedentes-generated-image-map.json');
-  generatedAntecedenteImageMap = mapModule.default || mapModule;
-} catch {
-  generatedAntecedenteImageMap = {};
-}
 
 const directusAssetsAvailable = !import.meta.env?.DEV || isLocalProdReplica();
 
@@ -665,22 +658,17 @@ export function getDirectusImageFallback(imageId: string | null | undefined): st
 
 export function getGeneratedAntecedenteImageUrl(id: string | number | null | undefined): string {
   if (id === null || id === undefined || id === '') return '';
-  return curatedAntecedenteImages[String(id)] || generatedAntecedenteImageMap[String(id)] || '';
+  // Póster Blender del sector × servicio del antecedente: las imágenes por antecedente
+  // (mapa de lotes y archivos de Directus) eran generadas.
+  return posterForAntecedente(id);
 }
 
 export function getAntecedenteImageUrl(
   item: { id?: string | number | null; original_id?: string | number | null; Imagen?: string | { id?: string; directus_files_id?: string } | null } | null | undefined
 ): string {
   if (!item) return '/images/default-background.jpg';
-  const generatedImage = getGeneratedAntecedenteImageUrl(item.id) || getGeneratedAntecedenteImageUrl(item.original_id);
-  if (generatedImage) return generatedImage;
-
-  const directusImageId = typeof item.Imagen === 'object'
-    ? item.Imagen?.id || item.Imagen?.directus_files_id
-    : item.Imagen;
-  const directusImage = getDirectusImageUrl(directusImageId);
-  if (directusImage && !directusImage.includes('default-background')) return directusImage;
-  return '/images/default-background.jpg';
+  // Sin recurrir a los archivos de Directus: también eran imágenes generadas.
+  return getGeneratedAntecedenteImageUrl(item.id) || getGeneratedAntecedenteImageUrl(item.original_id) || BASE_POSTER;
 }
 
 /**
