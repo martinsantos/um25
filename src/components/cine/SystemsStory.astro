@@ -117,7 +117,8 @@ const src = `/3d/cinema.html?scene=${scene}&mode=building&embed=1&ar=clean&cente
     const io = new IntersectionObserver((entries) => { for (const e of entries) if (e.isIntersecting) activate(e.target as HTMLElement); }, { rootMargin: '-45% 0px -45% 0px' });
     chapters.forEach((c) => io.observe(c));
     // Montaje del 3D: sólo en escritorio y sin movimiento reducido / ahorro de datos.
-    const wants = !compact && !limited;
+    // El motor 3D no tiene nave industrial: Industria y Minería (escena planta) muestran su póster y no un edificio ajeno.
+    const wants = !compact && !limited && story.dataset.scene !== 'planta';
     const setView = (v: boolean) => { if (v === inView) return; inView = v; if (inView && wants) mount(); if (ready) send('suspend', !inView); };
     new IntersectionObserver(([e]) => setView(e.isIntersecting), { rootMargin: '300px 0px' }).observe(story);
     // Respaldo por geometría: si el observer tarda o no dispara (pestaña recién activada, scroll
