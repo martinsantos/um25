@@ -440,6 +440,15 @@ describe('Information hub visual contracts', () => {
 
     expect(home).toContain('<CineBanner');
     expect(banner).toMatch(/<img class="umc-poster"[^>]*width="1920" height="1080" fetchpriority="high" decoding="async"/);
+    // Concepto 23/10: toda imagen fija sale del despiece. El póster que se ve hasta que arranca
+    // la película (hero y atlas de sectores) es la captura del despiece del sector, nunca un
+    // cuadro de dron de la película.
+    const atlas = read('src/components/cine/SectorAtlas.astro');
+    expect(banner).toContain('src={poster}');
+    expect(banner).toContain('const poster = scenePoster(first);');
+    expect(banner).not.toMatch(/cine\/media\/cine-\$\{first\}-poster/);
+    expect(atlas).toContain('src={scenePoster(k)}');
+    expect(atlas).not.toMatch(/cine\/media\/cine-\$\{k\}-poster/);
     // El escenario tiene dos capas de póster (se funden al cambiar de servicio) con dimensiones
     // explícitas y carga diferida; las miniaturas son el póster v4 de cada servicio.
     // El póster del escenario carga sin diferir: en celular la carga diferida no arrancaba.

@@ -3,7 +3,7 @@
 // sector × servicio, en `public/cine/despiece/`. Son la misma pieza que se ve en movimiento
 // en las páginas, no renders sueltos; ninguna es generada con IA.
 import { ANTECEDENTES_REALES } from '../../lib/um26-data/antecedentesReales';
-import { sectorBySlug, type Scene } from './scenes';
+import { baseScene, sectorBySlug, type Scene } from './scenes';
 
 /** Servicios que aparecen como capa en el despiece de cada sector (orden del modelo). */
 const DESPIECE: Record<string, string[]> = {
@@ -39,6 +39,16 @@ const despieceSector = (slug: string | null | undefined): string => {
 };
 
 export const BASE_POSTER = `${DIR}/constructoras.jpg`;
+
+/** Sector cuyo despiece representa a cada escena del recorrido Blender. */
+const SCENE_SECTOR: Record<Scene, string> = {
+  hospital: 'salud', aeropuerto: 'aeropuertos', bodega: 'bodegas', fachada: 'constructoras', planta: 'industria',
+};
+
+/** Imagen fija de una escena (o clave v4 "<escena>-<servicio>") del recorrido: la captura del
+ *  despiece del sector que representa; nunca un cuadro de la película. */
+export const scenePoster = (key: string | null | undefined): string =>
+  `${DIR}/${SCENE_SECTOR[baseScene(key || 'fachada')] || 'constructoras'}.jpg`;
 
 /** Misma captura en AVIF (cada `.jpg` tiene su `.avif` al lado). */
 export const avifOf = (path: string): string => path.replace(/\.jpg$/, '.avif');
