@@ -425,12 +425,12 @@ describe('Information hub visual contracts', () => {
     expect(banner).not.toMatch(/cine-\$\{first\}-poster/);
     // 24/10: el escenario es la película del servicio activo y las miniaturas son su corte cuadrado.
     expect(story).toMatch(/<video class="svc-story__poster is-on" muted loop playsinline preload="metadata" src=\{items\[0\]\?\.film\}[^>]*data-film-layer><\/video>/);
-    expect(story).toMatch(/<video class="svc-story__render" muted loop playsinline preload="none" data-src=\{s\.sq\}[^>]*><\/video>/);
+    // Un solo escenario: la lista lleva la isometría de los elementos de cada servicio, nunca un video por ítem.
+    expect(story).toMatch(/<img class="svc-story__render" src=\{s\.iso\}[^>]*loading="lazy" decoding="async" \/>/);
+    expect(story).not.toContain('svc-story__render" muted');
     expect(story).not.toMatch(/-poster\.jpg|data-poster/);
-    expect(home).toContain('width="1200"');
-    expect(home).toContain('height="900"');
-    // 24/10: los destacados son la película de cada caso, sin cuadro fijo.
-    expect(home).toContain('<video src={item.image} muted loop autoplay playsinline preload="metadata" width="1200" height="900" aria-hidden="true"></video>');
+    // 24/10: las tarjetas de proyectos no llevan medio propio (ni cuadro fijo ni un video por tarjeta).
+    expect(home).not.toMatch(/um26-case-card" href=\{item\.href\}>\s*<(img|video)/);
   });
 
   test('contact antispam field stays visually hidden without offscreen overflow', () => {

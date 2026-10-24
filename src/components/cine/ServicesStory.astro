@@ -26,11 +26,9 @@ const filmOf = (code: string) => {
   const key = serviceSceneKey(code);
   return V4_CUTS[key]?.video ?? `/cine/media/cine-${baseScene(key)}.mp4`;
 };
-const sqOf = (code: string) => {
-  const key = serviceSceneKey(code);
-  return V4_CUTS[key]?.square ?? `/cine/media/cine-${baseScene(key)}-sq.mp4`;
-};
-const items = services.map((s) => ({ ...s, ...STORY[s.code], film: filmOf(s.code), sq: sqOf(s.code) }));
+// Cada servicio se representa con la isometría de sus elementos (render Blender propio).
+const isoOf = (code: string) => (code === '101' ? '/cine/servicios/101.webp' : `/cine/servicios/${code}-x.webp`);
+const items = services.map((s) => ({ ...s, ...STORY[s.code], film: filmOf(s.code), iso: isoOf(s.code) }));
 const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=1';
 ---
 <div class="svc-story" data-svc-story>
@@ -44,7 +42,7 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
   <ol class="svc-story__list">
     {items.map((s, i) => (
       <li class="svc-story__item" data-cmd={JSON.stringify(s.cmd)} data-name={s.name} data-film={s.film}>
-        <video class="svc-story__render" muted loop playsinline preload="none" data-src={s.sq} width="320" height="200" aria-hidden="true"></video>
+        <img class="svc-story__render" src={s.iso} alt="" width="320" height="240" loading="lazy" decoding="async" />
         <div>
           <p class="svc-story__code"><span>{s.code}</span></p>
           <h3>{s.name}</h3>
@@ -83,19 +81,12 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
       if (e.origin !== location.origin || !frame || e.source !== frame.contentWindow) return;
       if (e.data?.type === 'um-cinema-state' && e.data.ready && !ready) { ready = true; stage.classList.add('is-ready'); if (active) apply(active); if (!inView) send('suspend', true); }
     });
-    // El escenario muestra la película del servicio activo; cada miniatura reproduce su corte
-    // cuadrado sólo mientras está activa (una por vez, nada se carga de más).
+    // El escenario muestra la película del servicio activo.
     const film = stage.querySelector<HTMLVideoElement>('[data-film-layer]')!;
     const showFilm = (src: string) => {
       if (!src || film.getAttribute('src') === src) { if (inView) film.play().catch(() => {}); return; }
       film.src = src;
       if (inView) film.play().catch(() => {});
-    };
-    const showThumbs = (el: HTMLElement) => {
-      for (const i of items) {
-        const v = i.querySelector<HTMLVideoElement>('video.svc-story__render'); if (!v) continue;
-        if (i === el) { if (!v.getAttribute('src') && v.dataset.src) v.src = v.dataset.src; v.play().catch(() => {}); } else v.pause();
-      }
     };
     const activate = (el: HTMLElement) => {
       if (el === active) return;
@@ -103,7 +94,6 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
       items.forEach((i) => i.classList.toggle('is-active', i === el));
       now.textContent = el.dataset.name || '';
       showFilm(el.dataset.film || '');
-      showThumbs(el);
       clearTimeout(timer);
       timer = setTimeout(() => { if (active === el) apply(el); }, 240);
     };
@@ -136,7 +126,7 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
   .svc-story__list { list-style: none; margin: 0; padding: 6vh 0 18vh; display: flex; flex-direction: column; gap: 9vh; }
   .svc-story__item { --c: #dc2626; display: grid; grid-template-columns: 136px 1fr; gap: 22px; align-items: start; padding-left: 22px; border-left: 2px solid rgba(255, 255, 255, .1); opacity: .62; transition: opacity .24s cubic-bezier(.2, .8, .2, 1), border-color .24s cubic-bezier(.2, .8, .2, 1); }
   .svc-story__item.is-active { opacity: 1; border-left-color: var(--c); }
-  .svc-story__render { width: 136px; aspect-ratio: 16 / 10; height: auto; object-fit: cover; background: #15171b; border: 1px solid rgba(255, 255, 255, .1); }
+  .svc-story__render { width: 136px; aspect-ratio: 4 / 3; height: auto; object-fit: contain; background: #15171b; border: 1px solid rgba(255, 255, 255, .1); }
   .svc-story__code { margin: 0 0 8px; display: flex; align-items: center; gap: 10px; }
   .svc-story__code span { font-size: 1rem; font-weight: 600; letter-spacing: .12em; color: rgba(255, 255, 255, .55); font-variant-numeric: tabular-nums; }
   .svc-story__item.is-active .svc-story__code span { color: var(--c); }
