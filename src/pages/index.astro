@@ -31,11 +31,11 @@ const sectors = [
   { name: 'Aeropuertos', count: sectorCaseLabel('aeropuertos'), text: 'CCTV de perímetro 24/7', href: '/aeropuertos', image: '/cine/media/cine-aeropuerto-poster.jpg', accent: '#DC2626', big: true },
   { name: 'Bodegas', count: sectorCaseLabel('bodegas'), text: 'Trazabilidad vitivinícola end-to-end', href: '/bodegas', image: '/cine/media/cine-bodega-poster.jpg', accent: '#DC2626' },
   { name: 'Constructoras', count: sectorCaseLabel('constructoras'), text: 'Cableado estructurado certificado', href: '/constructoras', image: '/cine/media/cine-fachada-poster.jpg', accent: '#DC2626' },
-  { name: 'Gobierno y Sector Público', count: sectorCaseLabel('gobiernosectorpublico'), text: 'Digitalización de trámites', href: '/gobiernosectorpublico', image: '/cine/media/cine-fachada-software-poster.jpg', accent: '#DC2626' },
+  { name: 'Gobierno y Sector Público', count: sectorCaseLabel('gobiernosectorpublico'), text: 'Digitalización de trámites', href: '/gobiernosectorpublico', image: '/cine/media/cine-fachada-software.mp4', accent: '#DC2626' },
   { name: 'Industria', count: sectorCaseLabel('industria'), text: 'Redes industriales en planta 24/7', href: '/industria', image: '/cine/media/cine-planta-poster.jpg', accent: '#DC2626' },
   { name: 'Minería', count: sectorCaseLabel('mineria'), text: 'Telecomunicaciones en campamento remoto', href: '/mineria', image: '/cine/media/cine-planta-telecom-poster.jpg', accent: '#DC2626', big: true },
   { name: 'Salud', count: sectorCaseLabel('salud'), text: 'Redes para imágenes médicas', href: '/salud', image: '/cine/media/cine-hospital-poster.jpg', accent: '#DC2626' },
-  { name: 'Seguridad Electrónica', count: sectorCaseLabel('seguridad-electronica'), text: 'Centro de monitoreo 24/7', href: '/seguridad-electronica', image: '/cine/media/cine-aeropuerto-seguridad-poster.jpg', accent: '#DC2626' },
+  { name: 'Seguridad Electrónica', count: sectorCaseLabel('seguridad-electronica'), text: 'Centro de monitoreo 24/7', href: '/seguridad-electronica', image: '/cine/media/cine-aeropuerto-seguridad.mp4', accent: '#DC2626' },
   { name: 'Software', count: sectorCaseLabel('software'), text: 'ERPs y plataformas a medida', href: '/software', image: '/cine/media/cine-hospital-software-poster.jpg', accent: '#DC2626' },
 ];
 
@@ -45,10 +45,10 @@ const SECTOR_LABEL: Record<string, string> = {
   industria: 'Industria', mineria: 'Minería', salud: 'Salud', 'seguridad-electronica': 'Seguridad electrónica', software: 'Software',
 };
 const DESTACADOS: { id: number; image: string }[] = [
-  { id: 3065, image: '/cine/media/cine-aeropuerto-seguridad-poster.jpg' },
-  { id: 3075, image: '/cine/media/cine-hospital-redes-poster.jpg' },
-  { id: 3064, image: '/cine/media/cine-fachada-software-poster.jpg' },
-  { id: 3334, image: '/cine/media/cine-bodega-soporte-poster.jpg' },
+  { id: 3065, image: '/cine/media/cine-aeropuerto-seguridad.mp4' },
+  { id: 3075, image: '/cine/media/cine-hospital-redes.mp4' },
+  { id: 3064, image: '/cine/media/cine-fachada-software.mp4' },
+  { id: 3334, image: '/cine/media/cine-bodega-soporte.mp4' },
 ];
 const cases = DESTACADOS.flatMap(({ id, image }) => {
   const item = ANTECEDENTES_REALES.find((antecedente) => antecedente.id === id);
@@ -162,7 +162,7 @@ const hubs = [
         <div class="um26-case-grid" data-rail="Proyectos destacados" data-reveal>
           {cases.map((item) => (
             <a class="um26-media-card um26-case-card" href={item.href}>
-              <img src={item.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />
+              <video src={item.image} muted loop autoplay playsinline preload="metadata" width="1200" height="900" aria-hidden="true"></video>
               <span class="um26-media-card__code">#{item.id}</span>
               <div>
                 <p>{item.meta}</p>
@@ -804,7 +804,7 @@ const hubs = [
       transition: border-color 0.18s ease, background-color 0.18s ease;
     }
 
-    .um26-media-card img {
+    .um26-media-card img, .um26-media-card video {
       position: absolute;
       inset: 0;
       display: block;
