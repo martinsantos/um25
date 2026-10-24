@@ -67,15 +67,10 @@ const hubs = [
       </div>
       <div class="ctc-shell ctc-hero__grid">
         <div class="ctc-intro">
-          <nav class="ctc-crumbs" aria-label="Migas de pan"><a href="/">Inicio</a><span aria-hidden="true">/</span><span>Contacto</span></nav>
-          <p class="ctc-eyebrow">Contacto</p>
           <h1 id="ctcTitle">{contactoH1}</h1>
           <p class="ctc-lead">Indicá qué necesitás, dónde y para cuándo. Un técnico te responde por email con el próximo paso: diagnóstico, relevamiento, propuesta o documentación.</p>
         </div>
         <div class="ctc-aside">
-          <dl class="ctc-proof">
-            {proof.map((p) => <div><dt>{p.label}</dt><dd>{p.value}</dd></div>)}
-          </dl>
           <div class="ctc-direct">
             <div>
               <span>Email</span>
@@ -95,41 +90,13 @@ const hubs = [
           </div>
         </div>
         <div class="ctc-panel" id="formulario">
-          <p class="ctc-panel__kicker">Consulta</p>
-          <h2>Escribinos</h2>
+          <h2>Escribinos.</h2>
           <ContactForm />
         </div>
       </div>
     </section>
 
-    <section class="ctc-info" aria-label="Información útil">
-      <div class="ctc-shell ctc-info__grid">
-        <div>
-          <h2>Para responderte más rápido</h2>
-          <ul class="ctc-check">
-            {checklist.map((c) => <li>{c}</li>)}
-          </ul>
-        </div>
-        <div>
-          <h2>Alcances frecuentes</h2>
-          <p>Abonos de soporte, relevamientos de red, CCTV y control de accesos, detección de incendios, tableros para salas técnicas, software operativo y documentación para licitaciones.</p>
-          <a class="ctc-link" href="/certificaciones">Documentación para compras y auditorías →</a>
-        </div>
-        <div>
-          <h2>Cobertura</h2>
-          <ul class="ctc-hubs">
-            {hubs.map((h) => <li><a href={h.href}><strong>{h.name}</strong><span>{h.role}</span></a></li>)}
-          </ul>
-        </div>
-      </div>
-    </section>
 
-    <IntentLinkGraph
-      kicker="Para avanzar"
-      title="Antes de escribir"
-      text="Alcances técnicos, antecedentes comparables y sectores para precisar el pedido."
-      groups={contactStrategicLinkGroups}
-    />
   </div>
 </LayoutV4>
 
