@@ -6,10 +6,7 @@
 
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import EvidenceCaseRow from '../../../components/um/EvidenceCaseRow.astro';
-import ShareButton from '../../../components/common/ShareButton.astro';
 import { getAntecedentes as getCatalogAntecedentes, getServicios as getCatalogServicios } from '../../../lib/um26-directus';
-import UMButton from '../../../components/um/UMButton.astro';
-import IntentLinkGraph from '../../../components/um/IntentLinkGraph.astro';
 import EmailLink from '../../../components/common/EmailLink.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
@@ -560,6 +557,7 @@ const antecedentePageStructuredData = [
 ---
 
 <LayoutV4
+  skin="black"
   title={caseSeo.title}
   description={metaDescription}
   image={caseSeoImageUrl}
@@ -568,1389 +566,182 @@ const antecedentePageStructuredData = [
   canonical={canonicalUrl}
   structuredData={antecedentePageStructuredData}
 >
-  <section class="case-detail-hero">
-    <div class="case-detail-hero__wash"></div>
-
-    <div class="um-container case-detail-hero__content">
-      <nav class="case-detail-breadcrumb" aria-label="Breadcrumb">
-        <a href="/">Inicio</a>
-        <span>/</span>
-        <a href="/antecedentes">Antecedentes</a>
-        <span>/</span>
-        <span>{antecedente.Area || 'Proyecto'}</span>
-      </nav>
-
-      <div class="case-detail-hero__grid">
+  <article class="case">
+    <section class="case-detail-hero">
+      <div class="case-shell case-detail-hero__grid">
         <div class="case-detail-hero__copy">
+          <a class="case-back" href="/antecedentes">← Todos los antecedentes</a>
           <div class:list={['case-detail-label', `is-${caseRecordTone}`]}>
             <span class="case-detail-label__area">{antecedente.Area || 'Proyecto'}</span>
             <span class="case-detail-label__reference">{caseReference}</span>
           </div>
-
           <h1>{caseHeadline}</h1>
-
-          <p>
-            {caseHeroExcerpt}
-          </p>
-
-          <div class="case-detail-actions">
-            <UMButton href="/contacto">Solicitar relevamiento</UMButton>
-            <UMButton href="/antecedentes" variant="secondary">Volver al archivo</UMButton>
-            <ShareButton title={caseHeadline} text={metaDescription} label="Compartir caso" />
-          </div>
+          <p class="case-lead">{caseHeroExcerpt}</p>
+          <a class="case-btn" href="/contacto">Pedir un relevamiento</a>
         </div>
 
         <aside class="case-detail-dossier" aria-label="Ficha técnica del antecedente">
           <figure class="case-detail-dossier__media">
             <img
               src={mainImageUrl}
-              alt={antecedente.Titulo}
+              alt=""
               loading="eager"
               fetchpriority="high"
               decoding="async"
               width={caseImageDimensions.width}
               height={caseImageDimensions.height}
-              onerror="this.src='/images/default-background.jpg'"
             />
           </figure>
-          <div class="case-detail-dossier__body">
-            <span>{caseRecordLabel}</span>
-            <strong>{displayClientName || 'Proyecto técnico'}</strong>
-            {caseRecordSummary && <p>{caseRecordSummary}</p>}
-            <div class="case-detail-meta">
-              {antecedente.Area && (
-                <div>
-                  <span>Sector</span>
-                  <strong>{antecedente.Area}</strong>
-                </div>
-              )}
-              {caseDateLabel && (
-                <div>
-                  <span>Fecha</span>
-                  <strong>{caseDateLabel}</strong>
-                </div>
-              )}
-            </div>
-          </div>
+          <dl class="case-ficha">
+            {displayClientName && <div><dt>Cliente</dt><dd>{displayClientName}</dd></div>}
+            {antecedente.Area && <div><dt>Sector</dt><dd>{antecedente.Area}</dd></div>}
+            {caseDateLabel && <div><dt>Finalización</dt><dd>{caseDateLabel}</dd></div>}
+            <div><dt>Tipo de trabajo</dt><dd>{caseRecordLabel}</dd></div>
+            {appliedServiceNames.length > 0 && <div><dt>Servicios</dt><dd>{appliedServiceNames.join(' · ')}</dd></div>}
+          </dl>
         </aside>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="case-executive-brief" aria-label="Resumen ejecutivo del antecedente">
-    <div class="um-container case-executive-brief__grid">
-      <div class="case-executive-brief__head">
-        <span>Resumen ejecutivo</span>
-        <h2>Contexto y alcance del proyecto.</h2>
-      </div>
-      <dl class="case-executive-brief__ledger">
-        {caseExecutiveItems.map((item) => (
-          <div>
-            <dt>{item.label}</dt>
-            <dd>{item.value}</dd>
-          </div>
-        ))}
-      </dl>
-    </div>
-  </section>
-
-  <!-- CONTENT SECTION -->
-  <section class="case-detail-main case-detail">
-    <div class="um-container case-detail-main__grid">
-      <!-- Left Column (Main Content) -->
-      <div class="case-detail-body">
-
-        <!-- Description Section -->
-        <div class="flex flex-col gap-4 sm:gap-5">
-          <div class="case-section-title">
-            <span aria-hidden="true"></span>
-            <h2>Descripción del proyecto</h2>
-          </div>
-          <div class="case-detail-body__copy editorial-body">
-            {caseDescriptionHtml ? (
-              <div set:html={caseDescriptionHtml} />
-            ) : (
-              <p>{caseHeroExcerpt}</p>
-            )}
-          </div>
-
-        </div>
-
-        <!-- Alcance del Proyecto Section -->
-        {scopeItems.length > 0 && (
-          <div class="flex flex-col gap-4 sm:gap-5">
-            <div class="case-section-title">
-              <span aria-hidden="true"></span>
-              <h2>Alcance técnico</h2>
-            </div>
-            <ul class="case-scope-list">
-              {scopeItems.map((item) => (
-                <li>{item}</li>
-              ))}
-            </ul>
-          </div>
+    <section class="case-detail-main">
+      <div class="case-shell case-body">
+        <h2>Qué se hizo.</h2>
+        {caseDescriptionHtml ? (
+          <div class="case-prose" set:html={caseDescriptionHtml} />
+        ) : (
+          <p class="case-prose">{caseHeroExcerpt}</p>
         )}
 
-        <!-- Servicios Relacionados -->
+        {scopeItems.length > 0 && (
+          <>
+            <h2>Alcance técnico.</h2>
+            <ul class="case-scope-list">
+              {scopeItems.map((item) => <li>{item}</li>)}
+            </ul>
+          </>
+        )}
+
         {relatedServices.length > 0 && (
-          <div class="flex flex-col gap-4 sm:gap-5">
-            <div class="case-section-title">
-              <span aria-hidden="true"></span>
-              <h2>Servicios aplicados</h2>
-            </div>
-            <ul class="case-service-cards">
-              {relatedServices.map((servicio, serviceIndex) => (
+          <>
+            <h2>Servicios aplicados.</h2>
+            <ul class="case-services">
+              {relatedServices.map((servicio) => (
                 <li>
-                  <a class="um-click-surface case-service-card" href={`/servicios/${servicio.id}/${servicio.slug}`}>
-                    <figure class="case-service-card__media">
-                      <img
-                        src={servicio.imageUrl || '/images/default-background.jpg'}
-                        alt={servicio.imageAlt}
-                        loading="lazy"
-                        decoding="async"
-                        width="320"
-                        height="240"
-                        onerror="this.onerror=null;this.src='/images/default-background.jpg'"
-                      />
-                    </figure>
-                    <div class="case-service-card__body">
-                      <h3>{compactServiceTitle(servicio.Titulo)}</h3>
-                      <p>{servicio.lead}</p>
-                      <span class="case-service-card__cta">Ver servicio</span>
-                    </div>
-                  </a>
+                  <a href={`/servicios/${servicio.id}/${servicio.slug}`}>{compactServiceTitle(servicio.Titulo)}</a>
+                  <span>{servicio.lead}</span>
                 </li>
               ))}
             </ul>
-
-            <a href="/servicios" class="um-click-surface case-service-cards__all">Ver todos los servicios</a>
-          </div>
+          </>
         )}
-
-        <!-- La galería de Directus se retiró: eran imágenes generadas. -->
       </div>
+    </section>
 
-      <!-- Sidebar -->
-      <div class="case-detail-side">
-
-        <!-- Ficha Técnica Card -->
-        <div class="case-info-card">
-          <div class="case-info-card__head">
-            <span class="case-info-card__icon" aria-hidden="true">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-              </svg>
-            </span>
-            <span class="case-info-card__title">Ficha técnica</span>
+    {relatedAntecedentes.length > 0 && (
+      <section class="case-related">
+        <div class="case-shell">
+          <h2>{comparablesAreScored ? 'Mismo servicio, mismo sector.' : 'Proyectos relacionados.'}</h2>
+          <div class="case-related__ledger">
+            {relatedAntecedentes.map((ant, index) => (
+              <EvidenceCaseRow
+                href={`/antecedentes/${ant.id}/${ant.slug}`}
+                number={String(index + 1).padStart(2, '0')}
+                title={compactCaseTitle(ant.displayTitle || ant.Titulo || 'Proyecto', ant.Cliente)}
+                description={applyDisplayNameReplacements(
+                  truncateEditorialText(ant.displayDescription || ant.Descripcion || ant.Titulo, 150),
+                  [ant.Cliente]
+                )}
+                sector={ant.Area || 'Servicios IT'}
+                year={formatAntecedenteYear(ant.Fecha)}
+              />
+            ))}
           </div>
-          <div class="p-0 flex flex-col gap-3 sm:gap-4">
-            {antecedente.Cliente && (
-              <>
-                <div class="flex flex-col gap-1">
-                  <span class="case-info-label">Organización</span>
-                  <span class="case-info-value">{displayClientName}</span>
-                </div>
-                <div class="h-px bg-gray-100"></div>
-              </>
-            )}
-            {antecedente.Area && (
-              <>
-                <div class="flex flex-col gap-1">
-                  <span class="case-info-label">Sector</span>
-                  <span class="case-info-value">{antecedente.Area}</span>
-                </div>
-                <div class="h-px bg-gray-100"></div>
-              </>
-            )}
-            {isPublicBusinessUnit(antecedente.Unidad_de_negocio, antecedente.Area) && (
-              <>
-                <div class="flex flex-col gap-1">
-                  <span class="case-info-label">Unidad de negocio</span>
-                  <span class="case-info-value">{antecedente.Unidad_de_negocio}</span>
-                </div>
-                <div class="h-px bg-gray-100"></div>
-              </>
-            )}
-            {caseDateLabel && (
-              <>
-                <div class="flex flex-col gap-1">
-                  <span class="case-info-label">Finalización</span>
-                  <span class="case-info-value">{caseDateLabel}</span>
-                </div>
-              </>
-            )}
-            <div class="h-px bg-gray-100"></div>
-            <div class="flex flex-col gap-1">
-              <span class="case-info-label">Tipo de trabajo</span>
-              <span class="case-info-value">{caseRecordLabel}</span>
-            </div>
-          </div>
+          <a class="case-textlink" href="/antecedentes">Ver todos los antecedentes</a>
         </div>
+      </section>
+    )}
 
-        <!-- CTA Widget -->
-        <div class="case-cta-card">
-          <div class="case-cta-card__icon">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-            </svg>
-          </div>
-          <h3>¿Tiene una operación similar?</h3>
-          <p>
-            Relevamos contexto, riesgos y alcance, y proponemos los próximos pasos.
-          </p>
-          <div class="case-cta-card__actions">
-            <a href="/contacto">
-              <span class="case-cta-card__action-icon" aria-hidden="true">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                </svg>
-              </span>
-              Solicitar relevamiento
-            </a>
-            <EmailLink label="Enviar email">
-              <span class="case-cta-card__action-icon" aria-hidden="true">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-              </span>
-              Enviar email
-            </EmailLink>
-          </div>
+    <section class="case-close">
+      <div class="case-shell case-close__grid">
+        <div>
+          <h2>Contanos qué tiene que seguir funcionando.</h2>
+          <p>Relevamos en el lugar y te decimos qué hace falta.</p>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- RELATED SECTION -->
-  {relatedAntecedentes.length > 0 && (
-    <section class="case-related">
-      <div class="um-container">
-        <div class="case-related__head">
-          <div>
-            <span class="um-kicker">{comparablesAreScored ? 'Casos comparables' : 'Proyectos relacionados'}</span>
-            <h2>{comparablesAreScored ? 'Mismo servicio, mismo sector.' : 'Evidencia relacionada'}</h2>
-          </div>
-          <a href="/antecedentes" class="um-click-surface case-related__link">
-            Ver antecedentes
-            <span class="case-related__icon" aria-hidden="true">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-              </svg>
-            </span>
-          </a>
-        </div>
-
-        <div class="case-related__ledger">
-          {relatedAntecedentes.map((ant, index) => (
-            <EvidenceCaseRow
-              href={`/antecedentes/${ant.id}/${ant.slug}`}
-              number={String(index + 1).padStart(2, '0')}
-              title={compactCaseTitle(ant.displayTitle || ant.Titulo || 'Proyecto', ant.Cliente)}
-              description={applyDisplayNameReplacements(
-                truncateEditorialText(ant.displayDescription || ant.Descripcion || ant.Titulo, 150),
-                [ant.Cliente]
-              )}
-              image={ant.imageUrl}
-              imageAlt={ant.Titulo || 'Antecedente'}
-              sector={ant.Area || 'Servicios IT'}
-              year={formatAntecedenteYear(ant.Fecha)}
-              eyebrow={ant.comparableWhy}
-            />
-          ))}
-        </div>
-
-        <div class="case-related__footer">
-          <a href="/antecedentes" class="um-click-surface">
-            Explorar archivo completo
-            <span class="case-related__icon case-related__icon--lg" aria-hidden="true">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-              </svg>
-            </span>
-          </a>
+        <div class="case-close__actions">
+          <a class="case-btn" href="/contacto">Pedir un relevamiento</a>
+          <EmailLink class="case-textlink"><span aria-hidden="true">✉</span> Enviar email</EmailLink>
         </div>
       </div>
     </section>
-  )}
-
-  <IntentLinkGraph
-    kicker="Para avanzar"
-    title="Ver también"
-    text="El servicio aplicado, casos comparables y un contacto directo con el equipo técnico."
-    groups={caseStrategicLinkGroups}
-  />
-
-  <section class="case-detail-footer-cta">
-    <div class="um-container case-detail-footer-cta__grid">
-      <div>
-        <span class="um-kicker">Siguiente paso</span>
-        <h2>Un proyecto como este, en su operación</h2>
-        <p>Relevamos sitio, riesgo, dependencias y prioridad técnica antes de proponer una intervención.</p>
-      </div>
-      <div class="case-detail-footer-cta__actions">
-        <UMButton href="/contacto">Solicitar relevamiento</UMButton>
-        <UMButton href="/antecedentes" variant="secondary">Ver archivo completo</UMButton>
-      </div>
-    </div>
-  </section>
+  </article>
 </LayoutV4>
 
 <style>
-  /* Escala editorial única — detalle antecedente (cuerpo 18px, sección ~1.11×) */
-  .case-detail-hero,
-  .case-detail-main.case-detail,
-  .case-related,
-  .case-detail-footer-cta {
-    --case-body: 1.125rem;
-    --case-body-line: 1.72;
-    --case-section: clamp(1.2rem, 1.15vw, 1.3125rem);
-    --case-hero-excerpt: 1.1875rem;
-    --case-meta-label: 1rem;
-    --case-meta-value: 1rem;
-    --case-sidebar-label: 1rem;
-    --case-sidebar-value: 1.0625rem;
-    --case-card-title: 1.0625rem;
-  }
-
-  .case-detail-hero {
-    position: relative;
-    overflow: hidden;
-    min-height: 0;
-    border-bottom: 0;
-    background: #fff;
-    color: #111;
-  }
-
-  .case-detail-hero__wash {
-    position: absolute;
-    inset: 0;
-  }
-
-  .case-detail-hero__wash {
-    background:
-      linear-gradient(90deg, #fff 0%, rgba(255,255,255,0.98) 52%, rgba(255,255,255,0.9) 100%),
-      linear-gradient(135deg, rgba(220,38,38,0.08) 0 1px, transparent 1px 32px),
-      linear-gradient(0deg, #fff 0%, rgba(255,255,255,0.72) 72%);
-  }
-
-  .case-detail-hero__content {
-    position: relative;
-    z-index: 1;
-    padding-top: clamp(22px, 2.6vw, 36px);
-    padding-bottom: clamp(26px, 4vw, 48px);
-  }
-
-  .case-detail-breadcrumb {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.55rem;
-    margin-bottom: clamp(18px, 2.8vw, 30px);
-    color: #5f6368;
-    font-size: 1rem;
-    font-weight: 700;
-  }
-
-  .case-detail-breadcrumb {
-    align-items: center;
-  }
-
-  .case-detail-breadcrumb a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-  }
-
-  .case-detail-breadcrumb a:hover {
-    color: #111;
-  }
-
-  .case-detail-hero__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 0.52fr) minmax(380px, 0.48fr);
-    gap: clamp(26px, 4.2vw, 56px);
-    align-items: start;
-  }
-
-  .case-detail-hero__grid > *,
-  .case-detail-hero__copy {
-    min-width: 0;
-  }
-
-  .case-detail-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.65rem;
-    margin-bottom: 0.85rem;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    color: #DC2626 !important;
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0;
-    line-height: 1.2;
-  }
-
-  .case-detail-label::before {
-    content: "";
-    width: 34px;
-    height: 2px;
-    background: #DC2626;
-  }
-
-  .case-detail-label.is-documentary-record,
-  .case-detail-label.is-technical-record {
-    color: #4b5563 !important;
-  }
-
-  .case-detail-label.is-documentary-record::before,
-  .case-detail-label.is-technical-record::before {
-    background: #6b7280;
-  }
-
-  .case-detail-label.is-editorial-review {
-    color: #92400e !important;
-  }
-
-  .case-detail-label.is-editorial-review::before {
-    background: #92400e;
-  }
-
-  .case-detail-label .case-detail-label__area {
-    color: #dc2626 !important;
-  }
-
-  .case-detail-label .case-detail-label__reference {
-    padding-left: 0.7rem;
-    border-left: 1px solid #d5d8dc;
-    color: #6b7280 !important;
-    font-variant-numeric: tabular-nums lining-nums;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    white-space: nowrap;
-  }
-
-  .case-detail-hero__copy h1 {
-    max-width: min(100%, 20ch);
-    color: #111;
-    font-size: clamp(2.5rem, 2.45vw, 2.75rem);
-    line-height: 1.1;
-    font-weight: var(--um-weight-title, 600);
-    letter-spacing: 0;
-    text-wrap: balance;
-    overflow-wrap: anywhere;
-  }
-
-  .case-detail-hero__copy > p {
-    max-width: 650px;
-    margin-top: 1rem;
-    color: #535a62;
-    font-size: var(--case-hero-excerpt);
-    line-height: 1.65;
-  }
-
-  .case-detail-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.8rem;
-    margin-top: clamp(18px, 2.5vw, 28px);
-  }
-
-  .case-detail-actions :global(.um-btn) {
-    min-width: 216px;
-  }
-
-  .case-detail-actions :global(.um-btn-secondary) {
-    background: #f1f3f5;
-    color: #111;
-  }
-
-  .case-detail-actions :global(.um-btn-secondary:hover) {
-    background: #111;
-    color: #fff;
-  }
-
-  .case-detail-dossier {
-    overflow: hidden;
-    width: min(100%, 540px);
-    justify-self: end;
-    border: 1px solid rgba(17, 17, 17, 0.12);
-    background: #fff;
-    box-shadow: none;
-  }
-
+  /* Barrido 24/10: ficha de antecedente en tema oscuro, sin resumen ejecutivo, compartir, tarjetas ni grafo de enlaces. */
+  .case { color: #fff; }
+  .case-shell { width: min(1400px, 100% - 48px); margin: 0 auto; }
+  .case h1, .case h2 { color: #fff; font-family: var(--um-font-display); letter-spacing: -0.01em; }
+  .case h2 { margin: 40px 0 16px; font-size: clamp(1.5rem, 2.2vw, 1.875rem); font-weight: 600; }
+  .case-detail-hero { padding: clamp(40px, 6vw, 72px) 0 32px; }
+  .case-detail-hero__grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; align-items: start; }
+  .case-back { display: inline-block; margin-bottom: 20px; color: #c4c7cc; text-decoration: none; font-size: 1rem; }
+  .case-back:hover, .case-back:focus-visible { color: #fff; text-decoration: underline; text-decoration-color: #dc2626; }
+  .case-detail-label { display: flex; gap: 12px; margin: 0 0 12px; color: #9a9a9a; font-size: 1rem; }
+  .case-detail-label__reference { color: #c4c7cc; }
+  .case-detail-hero h1 { margin: 0 0 16px; font-size: clamp(2rem, 3.6vw, 3rem); font-weight: 700; line-height: 1.08; max-width: 22ch; overflow-wrap: normal; }
+  .case-lead { margin: 0 0 24px; max-width: 62ch; color: #c4c7cc; font-size: 1.125rem; line-height: 1.55; }
+  .case-btn { display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; background: #dc2626; color: #fff; font-weight: 600; text-decoration: none; border-radius: 4px; }
+  .case-btn:hover, .case-btn:focus-visible { background: #b91c1c; }
+  .case-textlink { color: #fff; text-decoration: underline; text-decoration-color: #dc2626; text-underline-offset: 5px; font-size: 1.0625rem; }
+  .case-detail-dossier { border: 1px solid rgba(255,255,255,0.12); padding: 16px; }
   .case-detail-dossier__media {
-    aspect-ratio: 16 / 10;
     width: 100%;
     max-width: 100%;
-    margin: 0;
-    min-height: 280px;
-    overflow: hidden;
-    background: #111;
+    margin: 0 0 16px;
+    aspect-ratio: 4 / 3;
+    min-height: 220px;
+    background: #090909;
+  }
+  .case-detail-dossier__media img { display: block; width: 100%; height: 100%; object-fit: contain; padding: 4%; box-sizing: border-box; }
+  .case-ficha { margin: 0; display: grid; gap: 0; }
+  .case-ficha div { display: grid; grid-template-columns: minmax(120px, 0.4fr) minmax(0, 0.6fr); gap: 16px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.12); }
+  .case-ficha dt { margin: 0; color: #9a9a9a; font-size: 1rem; }
+  .case-ficha dd { margin: 0; color: #fff; font-size: 1rem; overflow-wrap: anywhere; }
+  .case-detail-main { padding: 8px 0 24px; }
+  .case-body { max-width: 860px; }
+  .case-body h2:first-child { margin-top: 8px; }
+  .case-prose, .case-prose :global(p) { color: #c4c7cc; font-size: 1.0625rem; line-height: 1.6; }
+  .case-prose :global(p) { margin: 0 0 14px; }
+  .case-scope-list { list-style: none; margin: 0; padding: 0; }
+  .case-scope-list li { padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.12); color: #c4c7cc; font-size: 1.0625rem; line-height: 1.5; }
+  .case-scope-list li:last-child { border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .case-services { list-style: none; margin: 0; padding: 0; }
+  .case-services li { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 24px; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.12); }
+  .case-services li:last-child { border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .case-services a { color: #fff; font-weight: 600; text-decoration: none; }
+  .case-services a:hover, .case-services a:focus-visible { text-decoration: underline; text-decoration-color: #dc2626; }
+  .case-services span { color: #c4c7cc; font-size: 1.0625rem; line-height: 1.5; }
+  .case-related { padding: 16px 0 24px; }
+  .case-related__ledger { margin: 0 0 20px; border-top: 1px solid rgba(255,255,255,0.12); }
+  .case-related :global(.evidence-case-row) { background: transparent !important; border: 0 !important; border-bottom: 1px solid rgba(255,255,255,0.12) !important; border-radius: 0 !important; color: #fff !important; box-shadow: none !important; }
+  .case-related :global(.evidence-case-row h3) { color: #fff !important; }
+  .case-related :global(.evidence-case-row p), .case-related :global(.evidence-case-row__meta span) { color: #9a9a9a !important; }
+  .case-related :global(.evidence-case-row__meta strong) { color: #c4c7cc !important; }
+  .case-related :global(.evidence-case-row__number), .case-related :global(.evidence-case-row__thumb), .case-related :global(.evidence-case-row__action) { display: none !important; }
+  .case-close { padding: 32px 0 64px; }
+  .case-close__grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px; align-items: center; padding: 32px; border: 1px solid rgba(255,255,255,0.12); background: linear-gradient(105deg, rgba(220,38,38,0.14), transparent 46%), #0f0f10; }
+  .case-close h2 { margin: 0 0 8px; }
+  .case-close p { margin: 0; color: #c4c7cc; font-size: 1.0625rem; }
+  .case-close__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; justify-content: flex-end; }
+  @media (max-width: 960px) {
+    .case-detail-hero__grid, .case-close__grid { grid-template-columns: 1fr; }
+    .case-close__actions { justify-content: flex-start; }
   }
-
-  .case-detail-dossier__media img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    filter: saturate(1.04) contrast(1.06);
-  }
-
-  .case-detail-dossier__body {
-    padding: clamp(16px, 1.8vw, 20px) clamp(16px, 1.9vw, 22px) clamp(17px, 2vw, 22px);
-  }
-
-  .case-detail-dossier__body > span {
-    display: block;
-    color: #dc2626 !important;
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.3;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  .case-detail-dossier__body > strong {
-    display: block;
-    margin-top: 0.65rem;
-    color: #111 !important;
-    font-family: var(--um-font-display);
-    font-size: clamp(1.28rem, 1.65vw, 1.55rem);
-    font-weight: var(--um-weight-title, 600);
-    line-height: 1.12;
-    text-wrap: balance;
-  }
-
-  .case-detail-dossier__body > p {
-    margin: 0.75rem 0 0;
-    color: #4b5563;
-    font-size: 1rem;
-    line-height: 1.58;
-  }
-
-  .case-detail-meta {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem 1.25rem;
-    margin-top: 1.1rem;
-    padding: 0.9rem;
-    border-top: 0;
-    background: #f7f8f9;
-  }
-
-  .case-detail-meta div {
-    min-width: 0;
-    padding: 0;
-    background: transparent;
-  }
-
-  .case-detail-dossier .case-detail-meta span {
-    display: block;
-    color: #6b7280 !important;
-    font-size: var(--case-meta-label);
-    font-weight: 700;
-    line-height: 1.25;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  .case-detail-dossier .case-detail-meta strong {
-    display: block;
-    margin-top: 0.35rem;
-    color: #111 !important;
-    font-size: var(--case-meta-value);
-    font-weight: 600;
-    line-height: 1.35;
-    overflow-wrap: anywhere;
-    text-transform: none;
-  }
-
-  .case-detail-main {
-    padding: clamp(42px, 5.5vw, 72px) 0;
-    background: #fff;
-  }
-
-  .case-executive-brief {
-    background: #fff;
-    border-bottom: 1px solid #e4e6e9;
-  }
-
-  .case-executive-brief__grid {
-    display: grid;
-    grid-template-columns: minmax(240px, 0.32fr) minmax(0, 0.68fr);
-    gap: clamp(24px, 4.5vw, 62px);
-    padding-block: clamp(28px, 4vw, 48px);
-  }
-
-  .case-executive-brief__head span {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.65rem;
-    color: #DC2626;
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.2;
-    text-transform: uppercase;
-  }
-
-  .case-executive-brief__head span::before {
-    content: "";
-    width: 34px;
-    height: 2px;
-    background: #DC2626;
-  }
-
-  .case-executive-brief__head h2 {
-    max-width: 440px;
-    margin-top: 0.9rem;
-    color: #111;
-    font-size: clamp(1.45rem, 1.8vw, 2rem);
-    font-weight: 600;
-    line-height: 1.14;
-    text-wrap: balance;
-  }
-
-  .case-executive-brief__ledger {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1px;
-    margin: 0;
-    background: #dfe3e7;
-  }
-
-  .case-executive-brief__ledger div {
-    min-width: 0;
-    padding: clamp(16px, 2vw, 22px);
-    background: #f7f8f9;
-  }
-
-  .case-executive-brief__ledger dt {
-    color: #111;
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.25;
-    text-transform: uppercase;
-  }
-
-  .case-executive-brief__ledger dd {
-    margin: 0.65rem 0 0;
-    color: #111;
-    font-size: clamp(1.02rem, 1.08vw, 1.12rem);
-    font-weight: 600;
-    line-height: 1.45;
-    overflow-wrap: anywhere;
-  }
-
-  .case-detail-main__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 0.68fr) minmax(300px, 0.32fr);
-    gap: clamp(34px, 6vw, 72px);
-    align-items: start;
-  }
-
-  .case-detail-main__grid > * {
-    min-width: 0;
-  }
-
-  .case-detail-body {
-    display: grid;
-    gap: clamp(30px, 4.5vw, 48px);
-    max-width: 820px;
-  }
-
-  .case-detail-side {
-    display: grid;
-    gap: 1rem;
-    position: sticky;
-    top: 104px;
-    z-index: 1;
-    align-self: start;
-  }
-
-  .case-section-title {
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
-    margin-bottom: 1rem;
-  }
-
-  .case-section-title > span {
-    flex: 0 0 34px;
-    width: 34px;
-    height: 2px;
-    background: #DC2626;
-  }
-
-  .case-section-title h2 {
-    color: #111;
-    font-size: var(--case-section);
-    line-height: 1.2;
-    font-weight: var(--um-weight-title, 600);
-    letter-spacing: 0;
-    text-wrap: balance;
-  }
-
-  .case-detail-body__copy {
-    color: #1f2937;
-    font-size: var(--case-body);
-    line-height: var(--case-body-line);
-  }
-
-  .case-detail-body__copy :global(p),
-  .case-detail-body__copy :global(li) {
-    font-size: inherit;
-    line-height: 1.75;
-    color: #374151;
-  }
-
-  .case-detail-body__copy :global(p[style]),
-  .case-detail-body__copy :global(li[style]),
-  .case-detail-body__copy :global(span[style]) {
-    font-size: inherit !important;
-  }
-
-  .case-callout {
-    padding: 1rem 1.1rem;
-    border-left: 0;
-    background: linear-gradient(90deg, #DC2626 0 3px, #FFFFFF 3px);
-    color: #111;
-    font-size: var(--case-body);
-    font-weight: 600;
-    line-height: 1.45;
-  }
-
-  .case-scope-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: grid;
-    gap: 10px;
-    border: 0;
-    background: transparent;
-  }
-
-  .case-scope-list li {
-    position: relative;
-    padding: 1rem 1.1rem 1rem 2.2rem;
-    background: #f7f8f9;
-    color: #1f2937;
-    font-size: var(--case-body);
-    line-height: var(--case-body-line);
-    font-weight: 500;
-  }
-
-  .case-scope-list li::before {
-    content: '';
-    position: absolute;
-    left: 1.1rem;
-    top: 1.35rem;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #DC2626;
-  }
-
-  .case-gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: clamp(1rem, 2vw, 1.35rem);
-  }
-
-  .case-gallery-frame {
-    margin: 0;
-    min-height: 300px;
-    padding: 0;
-    border: 1px solid rgba(17, 17, 17, 0.12);
-    border-radius: 0;
-    background: #111;
-    box-shadow: none;
-    overflow: hidden;
-  }
-
-  .case-gallery-frame:first-child {
-    grid-column: span 2;
-    min-height: 380px;
-  }
-
-  .case-gallery-image {
-    width: 100%;
-    height: 100%;
-    min-height: 300px;
-    object-fit: cover;
-    object-position: center;
-    display: block;
-    filter: saturate(1.04) contrast(1.04);
-  }
-
-  .case-info-card {
-    overflow: hidden;
-    border-top: 0;
-    border-bottom: 0;
-    border-radius: 0;
-    background: #fff;
-  }
-
-  .case-info-card__head {
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
-    padding: 1.1rem 0;
-    border-bottom: 0;
-    background: #fff;
-    color: #111;
-  }
-
-  .case-info-card__icon {
-    display: inline-grid;
-    flex: 0 0 42px;
-    width: 42px;
-    height: 42px;
-    place-items: center;
-    color: #dc2626;
-    background: rgba(220, 38, 38, 0.08);
-  }
-
-  .case-info-card__icon svg {
-    display: block;
-    width: 24px;
-    height: 24px;
-    flex-shrink: 0;
-  }
-
-  .case-info-card__title {
-    color: #111 !important;
-    font-size: 1.1875rem;
-    font-weight: 700;
-    line-height: 1.2;
-  }
-
-  .case-info-card :global(.p-4),
-  .case-info-card :global(.sm\:p-5) {
-    padding: 1.05rem 1rem !important;
-  }
-
-  .case-info-card :global(.tracking-wider) {
-    letter-spacing: 0 !important;
-  }
-
-  .case-info-card :global(.h-px) {
-    display: none !important;
-  }
-
-  .case-info-label {
-    display: block;
-    color: #4b5563 !important;
-    font-size: var(--case-sidebar-label);
-    font-weight: 700;
-    line-height: 1.3;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  .case-info-value {
-    display: block;
-    margin-top: 0.35rem;
-    color: #111 !important;
-    font-size: var(--case-sidebar-value);
-    font-weight: 600;
-    line-height: 1.4;
-  }
-
-  .case-info-value--code {
-    color: #dc2626;
-    font-family: ui-monospace, monospace;
-  }
-
-  .case-cta-card {
-    padding: 1.35rem;
-    border: 0;
-    border-radius: 0;
-    background: #080808;
-    color: #fff;
-  }
-
-  .case-cta-card__icon {
-    display: grid;
-    width: 48px;
-    height: 48px;
-    margin-bottom: 1rem;
-    place-items: center;
-    border: 0;
-    color: #dc2626;
-    background: rgba(220, 38, 38, 0.12);
-  }
-
-  .case-cta-card__icon svg {
-    display: block;
-    width: 26px;
-    height: 26px;
-    flex-shrink: 0;
-  }
-
-  .case-cta-card__action-icon {
-    display: inline-grid;
-    flex: 0 0 22px;
-    width: 22px;
-    height: 22px;
-    place-items: center;
-  }
-
-  .case-cta-card__action-icon svg {
-    display: block;
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-  }
-
-  .case-cta-card h3 {
-    color: #fff !important;
-    font-size: 1.28rem;
-    line-height: 1.22;
-    font-weight: var(--um-weight-title, 600);
-  }
-
-  .case-cta-card p {
-    margin-top: 0.75rem;
-    color: rgba(255, 255, 255, 0.9) !important;
-    font-size: 1.125rem;
-    line-height: 1.62;
-  }
-
-  .case-cta-card__actions {
-    display: grid;
-    gap: 0.65rem;
-    margin-top: 1.1rem;
-  }
-
-  .case-cta-card__actions :global(a) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.55rem;
-    min-height: 46px;
-    border: 0;
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 700;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.22);
-    text-decoration: none;
-  }
-
-  .case-cta-card__actions a:first-child {
-    background: #DC2626;
-    border-color: #DC2626;
-  }
-
-  .case-cta-card__actions :global(a:hover) {
-    background: #fff;
-    color: #080808;
-  }
-
-  .case-related {
-    position: relative;
-    z-index: 2;
-    padding: clamp(42px, 5.5vw, 72px) 0;
-    border-top: 0;
-    background: #FFFFFF;
-    scroll-margin-top: 96px;
-  }
-
-  .case-related__head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: end;
-    justify-content: space-between;
-    gap: 1.25rem;
-    margin-bottom: clamp(28px, 4vw, 44px);
-  }
-
-  .case-related__head h2 {
-    margin-top: 1rem;
-    color: #111;
-    font-size: var(--case-section);
-    line-height: 1.2;
-    font-weight: var(--um-weight-title, 600);
-    text-wrap: balance;
-  }
-
-  .case-related__link,
-  .case-related__footer a {
-    /* Link de texto: sin caja tintada en hover (la superficie global la pinta pegada al texto). */
-    --um-click-hover-bg: transparent;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.55rem;
-    min-height: 46px;
-    color: #111;
-    font-size: 1rem;
-    font-weight: 700;
-    text-decoration: underline;
-    text-decoration-color: transparent;
-    text-underline-offset: 4px;
-    transition: color 160ms cubic-bezier(.2,.8,.2,1), text-decoration-color 160ms cubic-bezier(.2,.8,.2,1);
-  }
-
-  .case-related__link:hover,
-  .case-related__footer a:hover {
-    color: #b91c1c;
-    text-decoration-color: currentColor;
-  }
-
-  .case-related__icon {
-    transition: transform 160ms cubic-bezier(.2,.8,.2,1);
-  }
-
-  .case-related__link:hover .case-related__icon,
-  .case-related__footer a:hover .case-related__icon {
-    transform: translateX(3px);
-  }
-
-  .case-related__link:focus-visible,
-  .case-related__footer a:focus-visible,
-  .case-service-cards__all:focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: 4px;
-  }
-
-  .case-related__icon {
-    display: inline-grid;
-    flex: 0 0 20px;
-    width: 20px;
-    height: 20px;
-    place-items: center;
-    color: #dc2626;
-  }
-
-  .case-related__icon svg {
-    display: block;
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-  }
-
-  .case-related__icon--lg,
-  .case-related__icon--lg svg {
-    width: 22px;
-    height: 22px;
-  }
-
-  .case-related__ledger {
-    border-top: 0;
-    overflow: hidden;
-    display: grid;
-    gap: 0.85rem;
-  }
-
-  .case-related__ledger :global(.evidence-case-row) {
-    isolation: isolate;
-  }
-
-  .case-related__ledger :global(.evidence-case-row__thumb) {
-    width: 100%;
-    height: auto;
-    min-width: 156px;
-    min-height: 112px;
-    max-width: none;
-    aspect-ratio: 16 / 10;
-  }
-
-  .case-related__ledger :global(.evidence-case-row__copy) {
-    padding-left: 0;
-  }
-
-  .case-service-cards {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 1rem;
-  }
-
-  .case-service-card {
-    display: grid;
-    grid-template-columns: minmax(148px, 200px) minmax(0, 1fr);
-    gap: 0;
-    border: 0;
-    border-top: 0;
-    background: #f7f8f9;
-    color: inherit;
-    text-decoration: none;
-    overflow: hidden;
-    transition: background-color 180ms ease;
-  }
-
-  .case-service-card:hover {
-    background: #f1f3f5;
-  }
-
-  .case-service-card__media {
-    margin: 0;
-    min-height: 148px;
-    background: #eceff2;
-    overflow: hidden;
-  }
-
-  .case-service-card__media img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    min-height: 148px;
-    object-fit: cover;
-    object-position: center;
-  }
-
-  .case-service-card__body {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.55rem;
-    padding: 1.1rem 1.15rem;
-  }
-
-  .case-service-card__body h3 {
-    margin: 0;
-    color: #111;
-    font-family: var(--um-font-display);
-    font-size: var(--case-card-title);
-    font-weight: 600;
-    line-height: 1.28;
-  }
-
-  .case-service-card__body p {
-    margin: 0;
-    color: #4b5563;
-    font-size: 1rem;
-    line-height: 1.62;
-  }
-
-  .case-service-card__cta {
-    margin-top: 0.2rem;
-    color: var(--um-red);
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-  }
-
-  .case-service-cards__all {
-    --um-click-hover-bg: transparent;
-    display: inline-flex;
-    align-items: center;
-    justify-self: start;
-    align-self: flex-start;
-    width: fit-content;
-    min-height: 44px;
-    margin-top: 1rem;
-    color: var(--um-red);
-    font-size: 1.125rem;
-    font-weight: 700;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
-  @media (max-width: 640px) {
-    .case-service-card {
-      grid-template-columns: 1fr;
-    }
-
-    .case-service-card__media {
-      aspect-ratio: 16 / 9;
-      min-height: 0;
-    }
-
-    .case-service-card__media img {
-      min-height: 0;
-    }
-  }
-
-  .case-detail-footer-cta {
-    background: #fff;
-    border-top: 0;
-    padding: clamp(48px, 6vw, 88px) 0;
-  }
-
-  .case-detail-footer-cta__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: clamp(24px, 4vw, 48px);
-    align-items: end;
-  }
-
-  .case-detail-footer-cta h2 {
-    margin-top: 0.75rem;
-    color: #111;
-    font-size: var(--case-section);
-    font-weight: 600;
-    line-height: 1.2;
-  }
-
-  .case-detail-footer-cta p {
-    max-width: 620px;
-    margin-top: 0.85rem;
-    color: #5f6368;
-    font-size: var(--case-body);
-    line-height: 1.65;
-  }
-
-  .case-detail-footer-cta__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    justify-content: flex-end;
-  }
-
-  .case-related__footer {
-    margin-top: 1.4rem;
-  }
-
-  @media (max-width: 1120px) {
-    .case-detail-hero__grid,
-    .case-detail-main__grid,
-    .case-detail-footer-cta__grid {
-      grid-template-columns: 1fr;
-    }
-
-    .case-detail-footer-cta__actions {
-      justify-content: flex-start;
-    }
-
-    .case-detail-dossier {
-      justify-self: start;
-      width: 100%;
-      max-width: 760px;
-    }
-
-    .case-detail-side {
-      position: static;
-    }
-
-    .case-executive-brief__grid,
-    .case-executive-brief__ledger {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .case-detail-hero,
-    .case-detail-main.case-detail,
-    .case-related,
-    .case-detail-footer-cta {
-      --case-body: 1.03125rem;
-      --case-body-line: 1.66;
-      --case-section: clamp(1.12rem, 5.2vw, 1.28rem);
-      --case-hero-excerpt: 1.0625rem;
-      --case-meta-label: 1rem;
-      --case-meta-value: 1rem;
-      --case-sidebar-label: 1rem;
-      --case-sidebar-value: 1rem;
-      --case-card-title: 1.02rem;
-    }
-
-    .case-detail-hero__copy h1 {
-      max-width: 100%;
-      font-size: clamp(2.125rem, 7vw, 2.45rem);
-      line-height: 1.1;
-    }
-
-    .case-detail-hero__copy > p {
-      max-width: 34ch;
-      font-size: var(--case-hero-excerpt);
-      line-height: 1.58;
-    }
-
-    .case-detail-actions {
-      display: grid;
-      gap: 0.65rem;
-      margin-top: 1.05rem;
-    }
-
-    .case-detail-actions :global(.um-btn) {
-      width: 100%;
-      min-width: 0;
-      min-height: 48px;
-      font-size: 1rem;
-    }
-  }
-
   @media (max-width: 720px) {
-    .case-detail-hero {
-      min-height: auto;
-    }
-
-    .case-detail-hero__content {
-      padding-top: 30px;
-      padding-bottom: 36px;
-    }
-
-    .case-detail-breadcrumb {
-      display: none;
-    }
-
-    .case-detail-label::before {
-      width: 28px;
-      flex: 0 0 28px;
-    }
-
-    .case-detail-label {
-      margin-bottom: 0.7rem;
-      font-size: 1rem;
-    }
-
-    .case-detail-label .case-detail-label__reference {
-      padding-left: 0.6rem;
-    }
-
-    .case-detail-hero__copy h1 {
-      font-size: clamp(2.125rem, 7vw, 2.45rem);
-      line-height: 1.1;
-    }
-
-    .case-detail-actions {
-      display: grid;
-    }
-
-    .case-detail-actions :global(.um-btn) {
-      width: 100%;
-    }
-
     .case-detail-dossier__media {
-      aspect-ratio: 16 / 9;
       min-height: 0;
     }
-
-    .case-gallery-frame:first-child {
-      grid-column: auto;
-      min-height: 300px;
-    }
-
-    .case-detail-dossier__body {
-      padding: 18px;
-    }
-
-    .case-detail-dossier__body > span {
-      font-size: 1rem;
-    }
-
-    .case-detail-dossier__body > strong {
-      font-size: clamp(1.12rem, 5vw, 1.3rem);
-    }
-
-    .case-detail-meta {
-      grid-template-columns: 1fr;
-      padding: 0.85rem;
-    }
-
-    .case-executive-brief__grid {
-      gap: 18px;
-      padding-block: 26px;
-    }
-
-    .case-detail-main {
-      padding: 34px 0 48px;
-    }
+    .case-services li { grid-template-columns: 1fr; gap: 4px; }
+    .case-shell { width: min(1400px, 100% - 32px); }
   }
 </style>
