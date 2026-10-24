@@ -37,14 +37,14 @@
   /* 2 · Ocho frentes: la película del servicio activo queda fija y la lista avanza. */
   .frentes { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
   .frentes__stage { position: sticky; top: 0; height: 100svh; min-height: 560px; overflow: hidden; }
-  .frentes__stage video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .6s ease; }
-  .frentes__stage video.on { opacity: 1; }
+  .frentes__stage .capa { position: absolute; inset: 0; opacity: 0; transition: opacity .5s ease; }
+  .frentes__stage .capa.on { opacity: 1; }
+  .frentes__stage .capa img { position: absolute; inset: 8%; width: 84%; height: 84%; object-fit: contain; }
+  .frentes__stage .explotado { opacity: 0; transition: opacity .6s ease .3s; }
+  .frentes__stage .capa.on .explotado { opacity: 1; }
   .frentes__stage .ahora { position: absolute; left: var(--gutter); bottom: 48px; font-size: 15px; color: #cfcfcf; text-shadow: 0 1px 8px rgba(0,0,0,.6); }
   .frentes__list { list-style: none; margin: 0; padding: 18vh var(--gutter) 24vh calc(var(--gutter) * .6); }
-  .frentes__list li { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 20px; align-items: center; padding: 26px 0; border-top: 1px solid var(--gris-linea); color: var(--gris); transition: color .4s; }
-  .frentes__list .iso { width: 104px; aspect-ratio: 4/3; height: auto; object-fit: contain; background: #0a0a0a; border-radius: 2px; opacity: .55; transition: opacity .4s; }
-  .frentes__list li.on .iso { opacity: 1; }
-  .frentes__list li > div { min-width: 0; }
+  .frentes__list li { padding: 26px 0; border-top: 1px solid var(--gris-linea); color: var(--gris); transition: color .4s; }
   .frentes__list li.on { color: #fff; }
   .frentes__list h2 { margin: 0; font-weight: 600; font-size: clamp(28px, 2.6vw, 40px); line-height: 1.08; letter-spacing: -.02em; }
   .frentes__list p { margin: 10px 0 0; max-width: 42ch; font-size: 17px; line-height: 1.5; color: inherit; opacity: .78; }
@@ -123,25 +123,25 @@
 
 <section class="frentes" aria-label="Ocho frentes de servicio">
   <div class="frentes__stage">
-    <video class="on" data-f="101" src="/cine/media/cine-fachada-redes.mp4" muted loop playsinline preload="auto" autoplay></video>
-    <video data-f="102" src="/cine/media/cine-aeropuerto-seguridad.mp4" muted loop playsinline preload="none"></video>
-    <video data-f="103" src="/cine/media/cine-planta-telecom.mp4" muted loop playsinline preload="none"></video>
-    <video data-f="104" src="/cine/media/cine-hospital-software.mp4" muted loop playsinline preload="none"></video>
-    <video data-f="105" src="/cine/media/cine-aeropuerto-soporte.mp4" muted loop playsinline preload="none"></video>
-    <video data-f="106" src="/cine/media/cine-fachada-consultoria.mp4" muted loop playsinline preload="none"></video>
-    <video data-f="107" src="/cine/media/cine-bodega-incendios.mp4" muted loop playsinline preload="none"></video>
-    <video data-f="108" src="/cine/media/cine-hospital-electricos.mp4" muted loop playsinline preload="none"></video>
+    <div class="capa on" data-f="101"><img class="armado" src="/cine/servicios/101.webp" alt="" loading="lazy"></div>
+    <div class="capa" data-f="102"><img class="armado" src="/cine/servicios/102.webp" alt="" loading="lazy"><img class="explotado" src="/cine/servicios/102-x.webp" alt="" loading="lazy"></div>
+    <div class="capa" data-f="103"><img class="armado" src="/cine/servicios/103.webp" alt="" loading="lazy"><img class="explotado" src="/cine/servicios/103-x.webp" alt="" loading="lazy"></div>
+    <div class="capa" data-f="104"><img class="armado" src="/cine/servicios/104.webp" alt="" loading="lazy"><img class="explotado" src="/cine/servicios/104-x.webp" alt="" loading="lazy"></div>
+    <div class="capa" data-f="105"><img class="armado" src="/cine/servicios/105.webp" alt="" loading="lazy"><img class="explotado" src="/cine/servicios/105-x.webp" alt="" loading="lazy"></div>
+    <div class="capa" data-f="106"><img class="armado" src="/cine/servicios/106.webp" alt="" loading="lazy"><img class="explotado" src="/cine/servicios/106-x.webp" alt="" loading="lazy"></div>
+    <div class="capa" data-f="107"><img class="armado" src="/cine/servicios/107.webp" alt="" loading="lazy"><img class="explotado" src="/cine/servicios/107-x.webp" alt="" loading="lazy"></div>
+    <div class="capa" data-f="108"><img class="armado" src="/cine/servicios/108.webp" alt="" loading="lazy"><img class="explotado" src="/cine/servicios/108-x.webp" alt="" loading="lazy"></div>
     <p class="ahora"><span>Redes y Wi-Fi</span></p>
   </div>
   <ol class="frentes__list">
-    <li class="on" data-f="101"><img class="iso" src="/cine/servicios/101.webp" alt="" width="240" height="180"><div><h2>Redes y Wi-Fi</h2><p>Cableado Cat 6A, fibra, radioenlaces y Wi-Fi, certificados punto por punto.</p><a href="/servicios/101">Ver redes</a></div></li>
-    <li data-f="102"><img class="iso" src="/cine/servicios/102-x.webp" alt="" width="240" height="180" loading="lazy"><div><h2>Seguridad electrónica</h2><p>Cámaras IP, control de acceso y alarmas con grabación y monitoreo.</p><a href="/servicios/102">Ver seguridad</a></div></li>
-    <li data-f="103"><img class="iso" src="/cine/servicios/103-x.webp" alt="" width="240" height="180" loading="lazy"><div><h2>Telecomunicaciones</h2><p>Centrales IP, enlaces y voceo para sitios remotos y plantas.</p><a href="/servicios/103">Ver telecomunicaciones</a></div></li>
-    <li data-f="104"><img class="iso" src="/cine/servicios/104-x.webp" alt="" width="240" height="180" loading="lazy"><div><h2>Software a medida</h2><p>Sistemas de gestión, apps móviles y tableros integrados por API.</p><a href="/servicios/104">Ver software</a></div></li>
-    <li data-f="105"><img class="iso" src="/cine/servicios/105-x.webp" alt="" width="240" height="180" loading="lazy"><div><h2>Soporte 24/7</h2><p>Mesa de ayuda, monitoreo y mantenimiento con tiempos de respuesta pactados.</p><a href="/servicios/105">Ver soporte</a></div></li>
-    <li data-f="106"><img class="iso" src="/cine/servicios/106-x.webp" alt="" width="240" height="180" loading="lazy"><div><h2>Consultoría IT</h2><p>Relevamiento, auditoría y plan de obra antes de instalar.</p><a href="/servicios/106">Ver consultoría</a></div></li>
-    <li data-f="107"><img class="iso" src="/cine/servicios/107-x.webp" alt="" width="240" height="180" loading="lazy"><div><h2>Detección de incendios</h2><p>Centrales direccionables, lazos de detectores y evacuación señalizada.</p><a href="/servicios/107">Ver detección</a></div></li>
-    <li data-f="108"><img class="iso" src="/cine/servicios/108-x.webp" alt="" width="240" height="180" loading="lazy"><div><h2>Energía</h2><p>Tableros, UPS y puesta a tierra para lo que no puede apagarse.</p><a href="/servicios/108">Ver energía</a></div></li>
+    <li class="on" data-f="101"><div><h2>Redes y Wi-Fi</h2><p>Cableado Cat 6A, fibra, radioenlaces y Wi-Fi, certificados punto por punto.</p><a href="/servicios/101">Ver redes</a></div></li>
+    <li data-f="102"><div><h2>Seguridad electrónica</h2><p>Cámaras IP, control de acceso y alarmas con grabación y monitoreo.</p><a href="/servicios/102">Ver seguridad</a></div></li>
+    <li data-f="103"><div><h2>Telecomunicaciones</h2><p>Centrales IP, enlaces y voceo para sitios remotos y plantas.</p><a href="/servicios/103">Ver telecomunicaciones</a></div></li>
+    <li data-f="104"><div><h2>Software a medida</h2><p>Sistemas de gestión, apps móviles y tableros integrados por API.</p><a href="/servicios/104">Ver software</a></div></li>
+    <li data-f="105"><div><h2>Soporte 24/7</h2><p>Mesa de ayuda, monitoreo y mantenimiento con tiempos de respuesta pactados.</p><a href="/servicios/105">Ver soporte</a></div></li>
+    <li data-f="106"><div><h2>Consultoría IT</h2><p>Relevamiento, auditoría y plan de obra antes de instalar.</p><a href="/servicios/106">Ver consultoría</a></div></li>
+    <li data-f="107"><div><h2>Detección de incendios</h2><p>Centrales direccionables, lazos de detectores y evacuación señalizada.</p><a href="/servicios/107">Ver detección</a></div></li>
+    <li data-f="108"><div><h2>Energía</h2><p>Tableros, UPS y puesta a tierra para lo que no puede apagarse.</p><a href="/servicios/108">Ver energía</a></div></li>
   </ol>
 </section>
 
@@ -191,22 +191,27 @@
 </footer>
 
 <script>
-  // Ocho frentes: la lista activa la película. Una sola película cargada y reproduciéndose por vez.
+  // Ocho frentes: el ítem activo muestra sus elementos despiezados y el banner corta a su recorrido.
   const stage = document.querySelector('.frentes__stage'), ahora = stage.querySelector('.ahora span');
-  const vids = [...stage.querySelectorAll('video')], items = [...document.querySelectorAll('.frentes__list li')];
+  const capas = [...stage.querySelectorAll('.capa')], items = [...document.querySelectorAll('.frentes__list li')];
+  const CUT = { 101: 'redes', 102: 'seguridad', 103: 'telecom', 104: 'software', 105: 'soporte', 106: 'consultoria', 107: 'incendios', 108: 'electricos' };
+  const hero = document.querySelector('.hero video');
+  let activo = '101';
   const on = (f) => {
+    if (f === activo) return; activo = f;
     items.forEach((li) => li.classList.toggle('on', li.dataset.f === f));
-    vids.forEach((v) => { const hit = v.dataset.f === f; v.classList.toggle('on', hit); if (hit) { if (v.preload === 'none') v.preload = 'auto'; v.play().catch(() => {}); } else v.pause(); });
+    capas.forEach((c) => c.classList.toggle('on', c.dataset.f === f));
     const li = items.find((i) => i.dataset.f === f); ahora.textContent = li ? li.querySelector('h2').textContent : '';
+    hero.src = `/cine/media/cine-fachada-${CUT[f]}.mp4`; hero.play().catch(() => {});
   };
-  new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) on(e.target.dataset.f); }, { rootMargin: '-45% 0px -45% 0px' }).observe && items.forEach((li) => new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) on(e.target.dataset.f); }, { rootMargin: '-45% 0px -45% 0px' }).observe(li));
+  items.forEach((li) => new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) on(e.target.dataset.f); }, { rootMargin: '-45% 0px -45% 0px' }).observe(li));
   // Sectores: un solo escenario; el sector activo trae la película de su lugar.
   const sst = document.querySelector('.sectores__stage'), sv = sst.querySelector('video'), sahora = sst.querySelector('.ahora'), sitems = [...document.querySelectorAll('.sectores__list li')];
   const sshow = (li) => { sitems.forEach((i) => i.classList.toggle('on', i === li)); sahora.textContent = li.querySelector('strong').textContent; const src = `/cine/media/cine-${li.dataset.scene}.mp4`; if (!sv.src.endsWith(src)) { sv.src = src; sv.play().catch(() => {}); } };
   sitems.forEach((li) => { li.addEventListener('pointerenter', () => sshow(li)); li.querySelector('a').addEventListener('focus', () => sshow(li)); });
   // Hero: cambia de escena cada vuelta de la película.
   const hero = document.querySelector('.hero video'), scenes = ['fachada', 'hospital', 'aeropuerto', 'bodega', 'planta']; let k = 0;
-  hero.loop = false; hero.addEventListener('ended', () => { k = (k + 1) % scenes.length; hero.src = `/cine/media/cine-${scenes[k]}.mp4`; hero.play().catch(() => {}); });
+  hero.loop = false; hero.addEventListener('ended', () => { if (hero.src.includes('cine-fachada-')) { hero.play().catch(() => {}); return; } k = (k + 1) % scenes.length; hero.src = `/cine/media/cine-${scenes[k]}.mp4`; hero.play().catch(() => {}); });
 </script>
 </body>
 </html>
