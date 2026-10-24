@@ -1,6 +1,6 @@
 ---
 import { sectorCaseLabel } from '../../data/sectorCaseCounts';
-import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
+import { sceneForSector } from '../../data/cine/posters';
 import CineBanner from '../cine/CineBanner.astro';
 interface SectorIndexItem {
   slug: string;
@@ -36,9 +36,7 @@ const activeSectors = sectorFilter
   ? sectors.filter((sector) => sector.slug === sectorFilter)
   : sectors;
 const allSectors = activeSectors.length ? activeSectors : sectors;
-const feature = allSectors[0];
-const rest = allSectors.slice(1);
-const leadImage = feature?.image || sectors[0]?.image || '/cine/media/cine-aeropuerto-poster.jpg';
+const siteImage = (slug: string) => `/cine/iso/site-${sceneForSector(slug)}.svg`;
 const countLabel = (sector: SectorIndexItem) => sectorCaseLabel(sector.slug);
 const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id || !sectorFilter);
 ---
@@ -51,73 +49,31 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
     kicker="Sectores"
     title="Infraestructura por sector."
     lead="Cada sector tiene exigencias distintas. Entrá por el suyo y revisá casos comparables antes de contratar."
-    primary={{ href: '/contacto', label: 'Solicitar relevamiento' }}
-    secondary={{ href: '/antecedentes', label: 'Ver evidencia operativa' }}
+    primary={{ href: '/contacto', label: 'Pedir un relevamiento' }}
   />
 
-  <section class="sectors-demo-shell sectors-demo-stats" aria-label="Resumen de sectores">
-    <div>
-      <strong>{sectors.length}</strong>
-      <span>sectores</span>
-    </div>
-    <div>
-      <strong>{getAntecedentesCatalogCount()}</strong>
-      <span>proyectos documentados</span>
-    </div>
-  </section>
-
-
-  {feature && (
-    <section class="sectors-demo-shell">
-      <a href={`/${feature.slug}`} class="sectors-demo-feature">
-        {/* Sin cuadro fijo: la escena del sector en movimiento (24/10). */}
-        <video src={feature.image.replace(/-poster\.(jpg|avif)$/, '.mp4')} muted loop autoplay playsinline preload="metadata" width="1600" height="900" aria-label={feature.imageAlt}></video>
-        <div class="sectors-demo-feature__shade" aria-hidden="true"></div>
-        <div class="sectors-demo-feature__body">
-          <h2>{feature.label}</h2>
-          <span>{feature.operatingNeed}</span>
-        </div>
-        {countLabel(feature) && (
-          <div class="sectors-demo-feature__count">
-            <span>Casos</span>
-            <strong>{countLabel(feature)}</strong>
-          </div>
-        )}
-        <i aria-hidden="true"></i>
-      </a>
-    </section>
-  )}
-
-  <section class="sectors-demo-shell sectors-demo-grid" aria-label="Mapa de sectores">
-    {rest.map((sector, index) => (
-      <a
-        href={`/${sector.slug}`}
-        class:list={['sectors-demo-card', { 'sectors-demo-card--wide': index === 0 || index === 4 }]}
-      >
-        <div class="sectors-demo-card__shade" aria-hidden="true"></div>
-        {countLabel(sector) && (
-          <div class="sectors-demo-card__count">
-            <span>Casos</span>
-            <strong>{countLabel(sector)}</strong>
-          </div>
-        )}
-        <div class="sectors-demo-card__body">
-          <h2>{sector.label}</h2>
-          <span>{sector.operatingNeed || sector.summary}</span>
-        </div>
-        <i aria-hidden="true"></i>
-      </a>
-    ))}
+  <section class="sectors-demo-shell" aria-label="Sectores">
+    <ol class="sectors-demo-list">
+      {allSectors.map((sector) => (
+        <li>
+          <a href={`/${sector.slug}`} class="sectors-demo-rowlink">
+            <img src={siteImage(sector.slug)} alt="" width="1200" height="900" loading="lazy" decoding="async" />
+            <h2>{sector.label}</h2>
+            <span>{sector.operatingNeed || sector.summary}</span>
+            <em>{countLabel(sector) ? `${countLabel(sector)} casos` : ''}</em>
+          </a>
+        </li>
+      ))}
+    </ol>
   </section>
 
   <section class="sectors-demo-shell sectors-demo-closing">
     <div>
-      <p class="sectors-demo-kicker"><span></span>¿Sector no listado?</p>
-      <h2>Trabajamos en operaciones críticas de industrias diversas.</h2>
+      <h2>Contanos qué tiene que seguir funcionando.</h2>
+      <p>Relevamos en el lugar y te decimos qué hace falta.</p>
     </div>
     <div>
-      <a href="/antecedentes">Explorar antecedentes</a>
-      <a href="/servicios">Ver servicios</a>
+      <a href="/contacto">Pedir un relevamiento</a>
     </div>
   </section>
 </div>
@@ -643,4 +599,13 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
       display: none;
     }
   }
+  .sectors-demo-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid rgba(255,255,255,0.12); }
+  .sectors-demo-rowlink { display: grid; grid-template-columns: 160px minmax(0, 4fr) minmax(0, 6fr) auto; gap: 28px; align-items: center; padding: 18px 0; color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .sectors-demo-rowlink img { width: 160px; aspect-ratio: 4 / 3; object-fit: contain; display: block; }
+  .sectors-demo-rowlink h2 { margin: 0; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; }
+  .sectors-demo-rowlink span { color: #c4c7cc; font-size: 1.0625rem; line-height: 1.45; }
+  .sectors-demo-rowlink em { font-style: normal; color: #9a9a9a; white-space: nowrap; }
+  .sectors-demo-rowlink:hover h2, .sectors-demo-rowlink:focus-visible h2 { text-decoration: underline; text-decoration-color: #dc2626; }
+  .sectors-demo-closing > div:first-child p { margin: 10px 0 0; color: #c4c7cc; font-size: 1.0625rem; }
+  @media (max-width: 760px) { .sectors-demo-rowlink { grid-template-columns: 96px minmax(0, 1fr); gap: 14px; } .sectors-demo-rowlink img { width: 96px; grid-row: 1 / span 3; } }
 </style>
