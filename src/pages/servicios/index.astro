@@ -2,7 +2,7 @@
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
 import CineBanner from '../../components/cine/CineBanner.astro';
-import { V4_CUTS, serviceSceneKey, baseScene } from '../../data/cine/scenes';
+import { avifOf, servicePoster } from '../../data/cine/posters';
 
 type Service = {
   code: string;
@@ -27,7 +27,7 @@ const services: Service[] = [
     capabilities: ['Relevamiento y diseño de topología', 'Cableado estructurado y fibra óptica', 'Certificación y documentación', 'Mantenimiento correctivo y preventivo'],
     sectors: 9,
     evidence: 86,
-    image: '/cine/media/cine-fachada-redes-poster.jpg',
+    image: servicePoster('101'),
   },
   {
     code: '102',
@@ -39,7 +39,7 @@ const services: Service[] = [
     capabilities: ['CCTV IP y VMS', 'Control de accesos', 'Monitoreo y grabación', 'Integración con operación existente'],
     sectors: 8,
     evidence: 72,
-    image: '/cine/media/cine-aeropuerto-seguridad-poster.jpg',
+    image: servicePoster('102'),
   },
   {
     code: '103',
@@ -51,7 +51,7 @@ const services: Service[] = [
     capabilities: ['Radioenlaces y enlaces dedicados', 'Voz, datos y video', 'Redundancia y contingencia', 'Operaciones remotas'],
     sectors: 8,
     evidence: 64,
-    image: '/cine/media/cine-planta-telecom-poster.jpg',
+    image: servicePoster('103'),
   },
   {
     code: '104',
@@ -63,7 +63,7 @@ const services: Service[] = [
     capabilities: ['Aplicaciones web y móviles', 'APIs e integraciones', 'Dashboards operativos', 'Automatización de procesos'],
     sectors: 7,
     evidence: 58,
-    image: '/cine/media/cine-hospital-software-poster.jpg',
+    image: servicePoster('104'),
   },
   {
     code: '105',
@@ -75,7 +75,7 @@ const services: Service[] = [
     capabilities: ['Mesa de ayuda', 'Monitoreo NOC', 'Mantenimiento en sitio', 'Gestión de incidentes y SLA'],
     sectors: 9,
     evidence: 92,
-    image: '/cine/media/cine-aeropuerto-soporte-poster.jpg',
+    image: servicePoster('105'),
   },
   {
     code: '106',
@@ -87,7 +87,7 @@ const services: Service[] = [
     capabilities: ['Auditoría técnica', 'Roadmap de infraestructura', 'Análisis de riesgo', 'Pliegos y especificaciones'],
     sectors: 9,
     evidence: 44,
-    image: '/cine/media/cine-fachada-consultoria-poster.jpg',
+    image: servicePoster('106'),
   },
   {
     code: '107',
@@ -99,7 +99,7 @@ const services: Service[] = [
     capabilities: ['Paneles y sensores', 'Pruebas y puesta en marcha', 'Documentación de zonas', 'Mantenimiento y verificación'],
     sectors: 7,
     evidence: 39,
-    image: '/cine/media/cine-bodega-incendios-poster.jpg',
+    image: servicePoster('107'),
   },
   {
     code: '108',
@@ -111,24 +111,19 @@ const services: Service[] = [
     capabilities: ['Tableros y protecciones', 'UPS y autonomía', 'Energía para racks', 'Medición y mantenimiento'],
     sectors: 8,
     evidence: 63,
-    image: '/cine/media/cine-hospital-electricos-poster.jpg',
+    image: servicePoster('108'),
   },
 ];
 
 const totalServices = String(services.length).padStart(2, '0');
-// La imagen de cada frente es el póster de su recorrido v4 (el servicio dentro de la
-// escena del gemelo digital), no una foto de banco.
-const servicesWithPosters = services.map((s) => {
-  const key = serviceSceneKey(s.code);
-  return { ...s, image: V4_CUTS[key]?.poster ?? `/cine/media/cine-${baseScene(key)}-poster.jpg` };
-});
+// La imagen de cada frente es el póster isométrico de su disciplina (ver data/cine/posters.ts).
 ---
 
 <LayoutV4 skin="black"
   title="Servicios IT para continuidad operativa | ULTIMA MILLA"
   description="8 frentes de servicio IT: redes, seguridad electronica, telecomunicaciones, software, soporte 24/7, consultoria, deteccion de incendios y electricos IT."
   keywords="servicios IT integrales, redes empresariales, seguridad electronica, telecomunicaciones, software a medida, soporte IT 24/7, consultoria IT, deteccion de incendios, electricos para IT"
-  image="/cine/media/cine-fachada-redes-poster.jpg"
+  image={servicePoster('101')}
 >
   <div class="services-demo">
     <CineBanner
@@ -143,7 +138,7 @@ const servicesWithPosters = services.map((s) => {
     />
 
     <section class="services-demo-shell services-demo-list" aria-label="Frentes de servicio de ULTIMA MILLA">
-      {servicesWithPosters.map((service, index) => (
+      {services.map((service, index) => (
         <a
           class="services-demo-row"
           href={`/servicios/${service.code}/${service.slug}`}
@@ -154,7 +149,10 @@ const servicesWithPosters = services.map((s) => {
             class={`services-demo-media services-demo-media--${service.code}`}
             style={`--service-image: url('${service.image}')`}
           >
-            <img src={service.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />
+            <picture>
+              <source type="image/avif" srcset={avifOf(service.image)} />
+              <img src={service.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />
+            </picture>
             <div aria-hidden="true"></div>
             <span>SRV.{service.code}</span>
             <em>{service.sectors} sectores</em>
@@ -439,14 +437,14 @@ const servicesWithPosters = services.map((s) => {
       color: rgba(255,255,255,0.78);
     }
 
-    .services-demo-media--101 { --service-image: url('/cine/media/cine-fachada-redes-poster.jpg'); }
-    .services-demo-media--102 { --service-image: url('/cine/media/cine-aeropuerto-seguridad-poster.jpg'); }
-    .services-demo-media--103 { --service-image: url('/cine/media/cine-planta-telecom-poster.jpg'); }
-    .services-demo-media--104 { --service-image: url('/cine/media/cine-hospital-software-poster.jpg'); }
-    .services-demo-media--105 { --service-image: url('/cine/media/cine-aeropuerto-soporte-poster.jpg'); }
-    .services-demo-media--106 { --service-image: url('/cine/media/cine-fachada-consultoria-poster.jpg'); }
-    .services-demo-media--107 { --service-image: url('/cine/media/cine-bodega-incendios-poster.jpg'); }
-    .services-demo-media--108 { --service-image: url('/cine/media/cine-hospital-electricos-poster.jpg'); }
+    .services-demo-media--101 { --service-image: url('/cine/despiece/constructoras-101.jpg'); }
+    .services-demo-media--102 { --service-image: url('/cine/despiece/aeropuertos-102.jpg'); }
+    .services-demo-media--103 { --service-image: url('/cine/despiece/mineria-103.jpg'); }
+    .services-demo-media--104 { --service-image: url('/cine/despiece/industria-104.jpg'); }
+    .services-demo-media--105 { --service-image: url('/cine/despiece/salud-105.jpg'); }
+    .services-demo-media--106 { --service-image: url('/cine/despiece/salud-106.jpg'); }
+    .services-demo-media--107 { --service-image: url('/cine/despiece/bodegas-107.jpg'); }
+    .services-demo-media--108 { --service-image: url('/cine/despiece/salud-108.jpg'); }
 
     .services-demo-body {
       display: flex;

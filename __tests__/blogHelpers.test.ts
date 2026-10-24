@@ -8,21 +8,21 @@ describe('blog image helpers', () => {
     );
   });
 
-  test('blog covers are own Blender posters chosen by topic, never the stored cover', () => {
+  test('blog covers are own despieces chosen by topic, never the stored cover', () => {
     const cover = 'https://images.unsplash.com/photo-1586281380349-6325315f36a2?w=1200&h=480&fit=crop&q=80';
     expect(blogImageUrl(cover)).toBe(cover);
     expect(
       blogPostImageUrl({ imagen_portada: cover, slug: 'nota-con-imagen-automatizada', categoria: 'noticias' } as any)
-    ).toMatch(/^\/cine\/media\/cine-[a-z]+(-[a-z]+)?-poster\.jpg$/);
+    ).toMatch(/^\/cine\/despiece\/[a-z]+(?:-\d{3})?\.jpg$/);
     expect(
       blogPostImageUrl({ imagen_portada: null, slug: 'deteccion-incendio-bodegas-vitivinicolas', titulo: 'Detección de incendio en bodegas', categoria: 'tecnico' } as any)
-    ).toBe('/cine/media/cine-bodega-incendios-poster.jpg');
+    ).toBe('/cine/despiece/bodegas-107.jpg');
     expect(
       blogPostImageUrl({ imagen_portada: null, slug: 'hospital-regional-neuquen-cableado-estructurado', titulo: 'Cableado estructurado en el hospital', categoria: 'proyectos' } as any)
-    ).toBe('/cine/media/cine-hospital-redes-poster.jpg');
+    ).toBe('/cine/despiece/constructoras-101.jpg');
     expect(
       blogPostImageUrl({ imagen_portada: null, slug: 'aeropuerto-mendoza-cctv', titulo: 'CCTV en el aeropuerto', categoria: 'proyectos' } as any)
-    ).toBe('/cine/media/cine-aeropuerto-seguridad-poster.jpg');
+    ).toBe('/cine/despiece/aeropuertos-102.jpg');
   });
 
   test('every topic poster exists and the same note always gets the same cover', () => {

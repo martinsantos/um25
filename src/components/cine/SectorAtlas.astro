@@ -3,6 +3,7 @@
 // izquierda y la lista a la derecha. Si el puntero se detiene sobre un sector
 // (o recibe foco), la escena cambia con un fundido; el clic entra al sector.
 import { SCENE_TITLES, sectorBySlug } from '../../data/cine/scenes';
+import { avifOf, scenePoster } from '../../data/cine/posters';
 interface Sector { name: string; href: string; count?: string | number | null; text: string }
 interface Props { sectors: Sector[] }
 const { sectors } = Astro.props;
@@ -14,8 +15,8 @@ const first = items[0]?.scene || 'aeropuerto';
   <div class="um-atlas__stage">
     {['hospital', 'aeropuerto', 'bodega', 'fachada', 'planta'].map((k) => (
       <picture>
-        <source type="image/avif" srcset={`/cine/media/cine-${k}-poster.avif`} />
-        <img class:list={['um-atlas__poster', { 'is-on': k === first }]} data-poster={k} src={`/cine/media/cine-${k}-poster.jpg`} alt="" width="1920" height="1080" loading="lazy" decoding="async" />
+        <source type="image/avif" srcset={avifOf(scenePoster(k))} />
+        <img class:list={['um-atlas__poster', { 'is-on': k === first }]} data-poster={k} src={scenePoster(k)} alt="" width="1920" height="1080" loading="lazy" decoding="async" />
       </picture>
     ))}
     <video class="um-atlas__video" muted loop playsinline preload="none" aria-hidden="true"></video>

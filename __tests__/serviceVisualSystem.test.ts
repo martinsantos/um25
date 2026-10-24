@@ -4,7 +4,7 @@ import { editorialImages } from '../src/data/editorialImageSystem';
 import { serviceVisualOrder } from '../src/data/serviceVisualSystem';
 
 describe('service visual system', () => {
-  test('primary services use unique Blender poster thumbnails', () => {
+  test('primary services use unique despiece thumbnails', () => {
     const images = serviceVisualOrder.map(
       (id) => editorialImages.services[id as keyof typeof editorialImages.services]
     );
@@ -12,7 +12,7 @@ describe('service visual system', () => {
     expect(new Set(images).size).toBe(images.length);
 
     for (const image of images) {
-      expect(image).toMatch(/^\/cine\/media\/cine-[a-z]+-[a-z]+-poster\.jpg$/);
+      expect(image).toMatch(/^\/cine\/despiece\/[a-z]+(?:-\d{3})?\.jpg$/);
       expect(fs.existsSync(path.join(process.cwd(), 'public', image))).toBe(true);
     }
   });

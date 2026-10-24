@@ -3,9 +3,10 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
 import { getAntecedentes, getServicios } from '../../lib/um26-directus';
 import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import EmailLink from '../../components/common/EmailLink.astro';
+import { avifOf, sectorPoster } from '../../data/cine/posters';
 
 // Hero editorial: no coincide con ninguna miniatura del listado.
-const heroImage = '/cine/media/cine-fachada-consultoria-poster.jpg';
+const heroImage = sectorPoster('aeropuertos');
 const PAGE_SIZE = 24;
 const catalogCount = getAntecedentesCatalogCount();
 
@@ -119,7 +120,7 @@ const filterGroups = [
 >
   <div class="ev" data-evidence>
     <header class="ev-hero" aria-labelledby="evidence-title">
-      <img src={heroImage} alt="" width="1672" height="941" loading="eager" decoding="async" fetchpriority="high" />
+      <img src={heroImage} alt="" width="1920" height="1080" loading="eager" decoding="async" fetchpriority="high" />
       <div class="ev-hero__shade" aria-hidden="true"></div>
       <div class="ev-shell ev-hero__inner">
         <p class="ev-kicker"><span aria-hidden="true"></span>Antecedentes</p>
@@ -192,7 +193,10 @@ const filterGroups = [
           >
             <a class="ev-card" href={item.href}>
               <div class="ev-card__media">
-                <img src={item.image} alt="" width="800" height="500" loading={index < 4 ? 'eager' : 'lazy'} decoding="async" />
+                <picture>
+                  <source type="image/avif" srcset={avifOf(item.image)} />
+                  <img src={item.image} alt="" width="800" height="500" loading={index < 4 ? 'eager' : 'lazy'} decoding="async" />
+                </picture>
               </div>
               <div class="ev-card__body">
                 <p class="ev-card__client">{item.client}</p>

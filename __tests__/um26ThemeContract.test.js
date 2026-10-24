@@ -25,6 +25,9 @@ describe('UM26 theme contract', () => {
     expect(page).toContain('<SectorTemplateUM26');
     expect(page).not.toContain("?? 'editorial'");
     expect(template).toContain('class="um26-sector"');
+    // El sector se cuenta con el despiece (SectorCode), no con rails de películas repetidas.
+    expect(template).toContain('<SectorCode');
+    expect(template).not.toContain('<SceneServiceRail');
     expect(template).not.toContain('sector-editorial');
   });
 
