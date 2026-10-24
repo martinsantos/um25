@@ -38,7 +38,14 @@ const sectorAntecedentesHref = sectorSlug
   : '/antecedentes';
 const caseHref = (item: any) => `/antecedentes/${item.id}/${item.slug || ''}`;
 const leadCase = antecedentes[0];
-const evidenceCases = antecedentes.slice(0, 6);
+// Seis proyectos sin repetir cliente+título.
+const seenCases = new Set<string>();
+const evidenceCases = antecedentes.filter((item: any) => {
+  const key = `${String(item.Cliente || '').toLowerCase()}|${String(item.Titulo || '').toLowerCase().split(/\s+[-–]\s+/)[0]}`;
+  if (seenCases.has(key)) return false;
+  seenCases.add(key);
+  return true;
+}).slice(0, 6);
 const cleanCaseTitle = (raw: string) => {
   let title = cleanCmsText(String(raw || '').split('|')[0]).replace(/\s*\(\d+\)\s*$/, '');
   title = title.split(/\s+[-–]\s+/)[0] || title;
@@ -1274,7 +1281,6 @@ const areaLabel = (area: unknown) => {
   .sector26-case-list span { color: #c4c7cc; }
   .sector26-case-list em { font-style: normal; color: #9a9a9a; font-variant-numeric: tabular-nums; }
   .sector26-case-list a:hover b, .sector26-case-list a:focus-visible b { text-decoration: underline; text-decoration-color: #dc2626; }
-  .sector26-closing__cta { display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; background: #dc2626; color: #fff; font-weight: 600; text-decoration: none; }
   @media (max-width: 760px) { .sector26-case-list .sector26-case-row { grid-template-columns: 1fr; gap: 2px; padding: 14px 0; } }
   .sector26-case-row > b { font-weight: 600; color: #fff; }
   .sector26-case-row > span { color: #c4c7cc; font-size: 1.0625rem; font-weight: 400; }
@@ -1286,4 +1292,6 @@ const areaLabel = (area: unknown) => {
   :global(body[data-skin] main) .sector26-case-row > em { color: #9a9a9a !important; }
   :global(body[data-skin] main) .sector26-case-row > b::after { content: none !important; }
   :global(body[data-skin] main) .sector26-case-row:hover > b, :global(body[data-skin] main) .sector26-case-row:focus-visible > b { color: #fff !important; text-decoration: underline !important; text-decoration-color: #dc2626 !important; }
+  :global(body[data-skin] main) .sector26-closing__cta { display: inline-block; padding: 14px 22px; background: #dc2626 !important; color: #fff !important; font-weight: 600; text-decoration: none; border: 0 !important; border-radius: 4px; }
+  :global(body[data-skin] main) .sector26-closing__cta:hover, :global(body[data-skin] main) .sector26-closing__cta:focus-visible { background: #b91c1c !important; }
 </style>
