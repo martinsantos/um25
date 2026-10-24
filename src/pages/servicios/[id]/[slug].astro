@@ -473,7 +473,7 @@ const fichaItems = [
   <CineBanner
     variant="sector"
     scenes={[serviceSceneKey(String(id))]}
-    variants={{ [serviceSceneKey(String(id))]: Object.keys(V4_CUTS).filter((k) => V4_CUTS[k].code === String(id)) }}
+    variants={{ [serviceSceneKey(String(id))]: String(id) === '104' ? ['fachada-software'] : Object.keys(V4_CUTS).filter((k) => V4_CUTS[k].code === String(id)) }}
     systems={(SERVICE_SCENES[String(id)] || SERVICE_SCENES['101']).systems}
     titleId="service-title"
     kicker={visual?.eyebrow || servicio.area || 'Servicio IT'}

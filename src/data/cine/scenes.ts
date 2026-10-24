@@ -44,7 +44,7 @@ export const SERVICE_SCENES: Record<string, { scene: Scene; systems: string[] }>
   '101': { scene: 'fachada', systems: ['Data', 'Fiber', 'WiFi'] },
   '102': { scene: 'aeropuerto', systems: ['CCTV', 'Security', 'Intercom'] },
   '103': { scene: 'planta', systems: ['Telecom', 'WiFi', 'Data'] },
-  '104': { scene: 'hospital', systems: ['Software'] },
+  '104': { scene: 'fachada', systems: ['Software'] }, // Software: el edificio en rayos X con las pantallas (pedido del dueño, 24/10)
   '105': { scene: 'aeropuerto', systems: [] },
   '106': { scene: 'fachada', systems: [] },
   '107': { scene: 'bodega', systems: ['Fire-detection'] },
