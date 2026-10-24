@@ -63,316 +63,40 @@ const socialLinks = [
 ];
 ---
 
-<footer class="um-site-footer py-10 sm:py-12 lg:py-16">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="um-footer-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8 sm:gap-10 lg:gap-8 xl:gap-12">
-
-      <!-- Brand Column -->
-      <div class="min-w-0 sm:text-left">
-        <div class="flex items-center justify-start mb-4 sm:mb-6">
-          <span class="um-footer-logo"><UMLogo title="ultimamilla.com.ar" /></span>
-        </div>
-        <p class="text-base leading-relaxed mb-4 sm:mb-6">
-          Servicios IT integrales para continuidad operativa: redes, seguridad, software, energía y soporte para empresas en Mendoza, Cuyo y Patagonia.
-        </p>
-        <div class="flex gap-3 sm:gap-4 justify-center sm:justify-start">
-          {socialLinks.map((social) => (
-            <a
-              href={social.href}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              class="um-footer-social w-10 h-10 rounded-[4px] flex items-center justify-center transition-colors min-h-[44px] min-w-[44px]"
-              aria-label={`Seguir a Ultima Milla en ${social.label}`}
-            >
-              {social.icon === 'linkedin' && (
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                </svg>
-              )}
-              {social.icon === 'twitter' && (
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                </svg>
-              )}
-            </a>
-          ))}
-        </div>
-      </div>
-
-      <!-- Servicios Column -->
-      <div class="min-w-0 text-center sm:text-left">
-        <h4 class="font-bold mb-4 sm:mb-6">{footerSections.servicios.title}</h4>
-        <ul class="space-y-2 sm:space-y-3 text-base">
-          {footerSections.servicios.links.map((link) => (
-            <li>
-              <a href={link.href} class="transition-colors">
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <!-- Empresa Column -->
-      <div class="min-w-0 text-center sm:text-left">
-        <h4 class="font-bold mb-4 sm:mb-6">{footerSections.empresa.title}</h4>
-        <ul class="space-y-2 sm:space-y-3 text-base">
-          {footerSections.empresa.links.map((link) => (
-            <li>
-              <a href={link.href} class="transition-colors">
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <!-- Cobertura Column -->
-      <div class="min-w-0 text-center sm:text-left">
-        <h4 class="font-bold mb-4 sm:mb-6">{footerSections.hubs.title}</h4>
-        <ul class="space-y-2 sm:space-y-3 text-base">
-          {footerSections.hubs.links.map((link) => (
-            <li>
-              <a href={link.href} class="transition-colors">
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <!-- Contacto Column -->
-      <div class="min-w-0 text-center sm:text-left">
-        <h4 class="font-bold mb-4 sm:mb-6">Contacto</h4>
-        <ul class="space-y-3 sm:space-y-4 text-base">
-          <li class="flex items-start gap-3 justify-center sm:justify-start">
-            <svg class="w-5 h-5 text-um-primary-light shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            <span class="text-left">Houssay 1159, Guaymallén<br/>Mendoza M5519, Argentina</span>
-          </li>
-          <li class="flex items-center gap-3 justify-center sm:justify-start">
-            <svg class="w-5 h-5 text-um-primary-light shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
-            <EmailLink class="um-footer-email transition-colors" />
-          </li>
-        </ul>
-      </div>
+<footer class="um-site-footer um-foot">
+  <div class="um-foot__shell">
+    <div class="um-foot__row um-foot__brand">
+      <a href="/" class="um-footer-logo" aria-label="Ir al inicio"><UMLogo title="ultimamilla.com.ar" /></a>
+      <p class="um-foot__line">Houssay 1159, Guaymallén, Mendoza · <EmailLink class="um-footer-email" /> · Lunes a viernes, 8 a 18 h</p>
     </div>
-
-    <!-- Bottom Bar -->
-    <div class="um-footer-bottom mt-8 sm:mt-12 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
-      <p class="text-base sm:text-base">© {currentYear} Ultima Milla. {shellT.footer.rights}</p>
-      <div class="flex gap-4 sm:gap-6 text-base sm:text-base">
-        <a href="/privacidad" class="transition-colors">{shellT.footer.privacy}</a>
-        <a href="/terminos" class="transition-colors">{shellT.footer.terms}</a>
-        <a href={alternateLangHref} class="transition-colors um-footer-lang" hreflang={alternateLang} lang={alternateLang}>{shellT.lang.switchTo}</a>
-      </div>
-    </div>
+    <nav class="um-foot__row um-foot__links" aria-label="Enlaces del pie">
+      {footerSections.hubs.links.map((link) => (
+        <a href={link.href}>{link.label}</a>
+      ))}
+      <a href="/certificaciones">Certificaciones</a>
+      <a href="/privacidad">{shellT.footer.privacy}</a>
+      <a href="/terminos">{shellT.footer.terms}</a>
+      <a href={alternateLangHref} class="um-footer-lang" hreflang={alternateLang} lang={alternateLang}>{shellT.lang.switchTo}</a>
+      <span class="um-foot__copy">© {currentYear} Ultima Milla</span>
+    </nav>
   </div>
 </footer>
 
 <style>
-  .um-site-footer {
-    background: var(--skin-footer-bg);
-    border-top: 1px solid var(--skin-footer-line);
-    color: var(--skin-footer-text);
-    overflow-x: clip;
-  }
-
-  .um-footer-grid > * {
-    min-width: 0;
-  }
-
-  .um-footer-logo,
-  .um-site-footer h4 {
-    color: var(--skin-footer-heading);
-  }
-
-  .um-footer-logo {
-    display: block;
-    max-width: 100%;
-    width: 100%;
-    max-width: 260px;
-    line-height: 1;
-  }
-
-  .um-footer-logo :global(.um-logo) {
-    width: 100%;
-    height: auto;
-  }
-
-  .um-footer-logo span {
-    color: var(--um-red);
-  }
-
-  .um-site-footer p,
-  .um-site-footer li,
-  .um-site-footer span {
-    color: var(--skin-footer-text);
-    min-width: 0;
-  }
-
-  .um-site-footer a {
-    color: inherit;
-    max-width: 100%;
-    overflow-wrap: anywhere;
-  }
-
-  .um-site-footer a:hover {
-    color: var(--skin-footer-heading);
-  }
-
-  .um-footer-social {
-    background: color-mix(in srgb, var(--skin-footer-heading) 10%, transparent);
-    color: var(--skin-footer-heading);
-  }
-
-  .um-footer-social:hover {
-    background: var(--um-red);
-    color: #fff;
-  }
-
-  .um-footer-email {
-    display: block;
-    flex: 1 1 auto;
-    min-width: 0;
-    max-width: calc(100% - 2rem);
-    line-height: 1.35;
-    overflow-wrap: anywhere;
-    word-break: normal;
-    white-space: normal;
-  }
-
-  .um-footer-email span {
-    display: inline;
-  }
-
-  .um-footer-bottom {
-    border-top: 1px solid var(--skin-footer-line);
-  }
-
-  /* Pantallas táctiles y tablet: todos los enlaces del pie con 44 px de alto. */
-  @media (max-width: 1110px), (pointer: coarse) {
-    .um-footer-grid ul a,
-    .um-footer-bottom a {
-      display: inline-flex;
-      align-items: center;
-      min-height: 44px;
-    }
-
-    .um-site-footer :global(.um-footer-email) {
-      display: inline-flex;
-      flex-wrap: wrap;
-      align-items: center;
-      min-height: 44px;
-    }
-
-    .um-site-footer ul > li {
-      margin-top: 0 !important;
-    }
-  }
-
-  /* Teléfono: un solo eje de lectura a la izquierda, enlaces en dos columnas
-     y áreas táctiles de 44 px. Reduce ~35 % el alto del pie. */
-  @media (max-width: 639px) {
-    .um-site-footer {
-      padding-block: 48px 32px;
-    }
-
-    .um-footer-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 32px 16px;
-      text-align: left;
-    }
-
-    .um-footer-grid > :first-child,
-    .um-footer-grid > :nth-child(4),
-    .um-footer-grid > :nth-child(5) {
-      grid-column: 1 / -1;
-    }
-
-    .um-footer-grid > * {
-      text-align: left;
-    }
-
-    .um-footer-grid > :first-child p {
-      max-width: 44ch;
-      margin-bottom: 16px;
-    }
-
-    .um-footer-grid > :first-child .flex {
-      justify-content: flex-start;
-    }
-
-    .um-footer-logo {
-      max-width: 220px;
-    }
-
-    .um-site-footer h4 {
-      margin-bottom: 8px;
-      font-size: var(--x-fs-meta);
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--skin-footer-text);
-    }
-
-    .um-site-footer ul {
-      margin: 0;
-    }
-
-    .um-site-footer ul > li {
-      margin-top: 0 !important;
-    }
-
-    .um-footer-grid ul a {
-      display: flex;
-      align-items: center;
-      min-height: 44px;
-      line-height: 1.3;
-    }
-
-    .um-footer-grid > :nth-child(4) ul {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: 16px;
-    }
-
-    .um-footer-grid > :nth-child(5) li {
-      justify-content: flex-start;
-      min-height: 44px;
-      align-items: center;
-    }
-
-    .um-footer-grid > :nth-child(5) li + li {
-      margin-top: 4px !important;
-    }
-
-    .um-site-footer :global(.um-footer-email) {
-      display: inline-flex;
-      flex-wrap: wrap;
-      align-items: center;
-      min-height: 44px;
-    }
-
-    .um-footer-bottom {
-      margin-top: 32px;
-      padding-top: 16px;
-      align-items: flex-start;
-      text-align: left;
-      gap: 4px;
-    }
-
-    .um-footer-bottom > div {
-      gap: 24px;
-    }
-
-    .um-footer-bottom a {
-      display: inline-flex;
-      align-items: center;
-      min-height: 44px;
-    }
+  .um-site-footer { background: var(--skin-footer-bg); border-top: 1px solid var(--skin-footer-line); color: var(--skin-footer-text); overflow-x: clip; }
+  .um-footer-logo { color: var(--skin-footer-heading); }
+  /* Barrido 24/10: pie de dos líneas (marca y datos directos; enlaces útiles). Sin columnas, redes ni descripción. */
+  .um-foot { padding: 28px 0 36px; }
+  .um-foot__shell { width: min(1400px, 100% - 48px); margin: 0 auto; display: grid; gap: 14px; }
+  .um-foot__row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 24px; font-size: 1rem; line-height: 1.5; }
+  .um-foot__brand { justify-content: space-between; }
+  .um-footer-logo { display: inline-flex; width: 168px; }
+  .um-foot__line { margin: 0; color: inherit; opacity: 0.86; }
+  .um-foot__links a { color: inherit; text-decoration: none; opacity: 0.86; }
+  .um-foot__links a:hover, .um-foot__links a:focus-visible { opacity: 1; text-decoration: underline; text-decoration-color: #dc2626; text-underline-offset: 5px; }
+  .um-foot__copy { margin-left: auto; opacity: 0.7; }
+  @media (max-width: 760px) {
+    .um-foot__shell { width: min(1400px, 100% - 32px); }
+    .um-foot__copy { margin-left: 0; }
   }
 </style>
