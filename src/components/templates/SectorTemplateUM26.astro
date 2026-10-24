@@ -39,6 +39,13 @@ const sectorAntecedentesHref = sectorSlug
 const caseHref = (item: any) => `/antecedentes/${item.id}/${item.slug || ''}`;
 const leadCase = antecedentes[0];
 const evidenceCases = antecedentes.slice(0, 6);
+const cleanCaseTitle = (raw: string) => {
+  let title = cleanCmsText(String(raw || '').split('|')[0]).replace(/\s*\(\d+\)\s*$/, '');
+  title = title.split(/\s+[-–]\s+/)[0] || title;
+  title = title.replace(/\.?\s*[^.]{2,40}\s&\sSector\s[^.]{2,40}\.?$/i, '').trim();
+  return title.replace(/[.\s]+$/, '');
+};
+
 const serviceItems = (serviciosRelacionados || []).slice(0, 8);
 const criteriaItems = (valueProps || []).slice(0, 6);
 const heroStats = [
@@ -138,7 +145,7 @@ const areaLabel = (area: unknown) => {
           <li>
             <a href={caseHref(item)} class="sector26-case-row">
               <b>{formatCaseName(item.Cliente || item.Titulo, 'Proyecto')}</b>
-              <span>{cleanCmsText(item.Descripcion || item.Titulo)}</span>
+              <span>{cleanCaseTitle(item.Titulo) || cleanCmsText(item.Descripcion)}</span>
               <em>{item.Fecha ? String(item.Fecha).slice(0, 4) : ''}</em>
             </a>
           </li>
@@ -1269,4 +1276,8 @@ const areaLabel = (area: unknown) => {
   .sector26-case-list a:hover b, .sector26-case-list a:focus-visible b { text-decoration: underline; text-decoration-color: #dc2626; }
   .sector26-closing__cta { display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; background: #dc2626; color: #fff; font-weight: 600; text-decoration: none; }
   @media (max-width: 760px) { .sector26-case-list .sector26-case-row { grid-template-columns: 1fr; gap: 2px; padding: 14px 0; } }
+  .sector26-case-row > b { font-weight: 600; color: #fff; }
+  .sector26-case-row > span { color: #c4c7cc; font-size: 1.0625rem; font-weight: 400; }
+  .sector26-case-row > em { font-style: normal; color: #9a9a9a; display: block; -webkit-line-clamp: unset; }
+  .sector26-case-row:hover > b, .sector26-case-row:focus-visible > b { text-decoration: underline; text-decoration-color: #dc2626; }
 </style>
