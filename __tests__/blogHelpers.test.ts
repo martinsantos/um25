@@ -8,12 +8,12 @@ describe('blog image helpers', () => {
     );
   });
 
-  test('blog covers are own Blender posters chosen by topic, never the stored cover', () => {
+  test('blog covers are own despieces chosen by topic, never the stored cover', () => {
     const cover = 'https://images.unsplash.com/photo-1586281380349-6325315f36a2?w=1200&h=480&fit=crop&q=80';
     expect(blogImageUrl(cover)).toBe(cover);
     expect(
       blogPostImageUrl({ imagen_portada: cover, slug: 'nota-con-imagen-automatizada', categoria: 'noticias' } as any)
-    ).toMatch(/^\/cine\/media\/cine-[a-z0-9-]+-poster\.jpg$/);
+    ).toMatch(/^\/cine\/despiece\/[a-z]+(?:-\d{3})?\.jpg$/);
     expect(
       blogPostImageUrl({ imagen_portada: null, slug: 'deteccion-incendio-bodegas-vitivinicolas', titulo: 'Detección de incendio en bodegas', categoria: 'tecnico' } as any)
     ).toBe('/cine/despiece/bodegas-107.jpg');

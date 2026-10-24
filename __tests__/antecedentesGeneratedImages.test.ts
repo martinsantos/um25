@@ -38,7 +38,7 @@ describe('generated antecedentes image integration', () => {
     }
   });
 
-  test('public antecedente surfaces use Blender posters, never generated images', () => {
+  test('public antecedente surfaces use despieces, never generated images', () => {
     const directus = fs.readFileSync(path.join(repoRoot, 'src/lib/directus.ts'), 'utf8');
     const home = fs.readFileSync(path.join(repoRoot, 'src/pages/index.astro'), 'utf8');
     const index = fs.readFileSync(path.join(repoRoot, 'src/pages/antecedentes/index.astro'), 'utf8');
@@ -62,7 +62,7 @@ describe('generated antecedentes image integration', () => {
     expect(ANTECEDENTES_REALES.length).toBeGreaterThanOrEqual(518);
     for (const item of ANTECEDENTES_REALES) {
       const image = getAntecedenteImage(item.sectorSlug, item.serviceCodes, item.id);
-      expect(image).toMatch(/^\/cine\/media\/cine-[a-z0-9-]+-poster\.jpg$/);
+      expect(image).toMatch(/^\/cine\/despiece\/[a-z]+(?:-\d{3})?\.jpg$/);
       expect(image).toBe(posterFor(item.sectorSlug, item.serviceCodes[0]));
       expect(fs.existsSync(path.join(repoRoot, 'public', image))).toBe(true);
     }
