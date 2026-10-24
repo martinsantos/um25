@@ -116,7 +116,8 @@ const pageKeywords = keywords ?? defaultKeywords;
 // ---------------------------------------------------------------------------
 // Preferencia: variante 1200×630 generada > imagen dedicada de 1200×630 >
 // imagen original con sus dimensiones medidas > imagen por defecto 1200×630.
-const rawImage = ogImage || editorialImages.defaultOg;
+// Las isometrías SVG del sitio no sirven como og:image (las redes no las renderizan): cae a la imagen por defecto.
+const rawImage = (ogImage && /\.svg$/i.test(ogImage) ? null : ogImage) || editorialImages.defaultOg;
 const ogVariant = ogVariantFor(rawImage);
 const declaresOgSize = ogImageWidth === OG_IMAGE_WIDTH && ogImageHeight === OG_IMAGE_HEIGHT;
 const publicRawImage = publicImageUrl(rawImage);
