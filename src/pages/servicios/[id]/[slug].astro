@@ -11,12 +11,9 @@
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import EmailLink from '../../../components/common/EmailLink.astro';
 import CineBanner from '../../../components/cine/CineBanner.astro';
-import RenderStage from '../../../components/cine/RenderStage.astro';
-import ProductStage from '../../../components/cine/ProductStage.astro';
+import IsometricStage from '../../../components/cine/IsometricStage.astro';
 import { productPage } from '../../../data/productPages';
-import SystemsMap from '../../../components/cine/SystemsMap.astro';
 import DeliveryProcess from '../../../components/cine/DeliveryProcess.astro';
-import ProductMoments from '../../../components/cine/ProductMoments.astro';
 import ServiceSpecSheet from '../../../components/cine/ServiceSpecSheet.astro';
 import ShareButton from '../../../components/common/ShareButton.astro';
 import { getServiceSpec } from '../../../data/serviceSpecs';
@@ -492,6 +489,19 @@ const fichaItems = [
   />
 
   <div class="svc">
+    <!-- 0 · Despiece: los ítems del servicio (sistema → equipo → despiece → detalle), isometrías propias -->
+    <section class="svc-section svc-section--despiece" id="despiece" aria-labelledby="svc-despiece-title">
+      <div class="svc-wrap">
+        <header class="svc-head svc-head--solo">
+          <div>
+            <p class="svc-kicker">El servicio, pieza por pieza</p>
+            <h2 id="svc-despiece-title">{serviceShortName}, por dentro.</h2>
+          </div>
+        </header>
+        <IsometricStage code={String(id)} />
+      </div>
+    </section>
+
     <!-- 1 · Resumen ejecutivo -->
     <section class="svc-section svc-section--brief" aria-labelledby="svc-brief-title">
       <div class="svc-wrap">
@@ -512,99 +522,6 @@ const fichaItems = [
         </dl>
       </div>
     </section>
-
-    <!-- 1b · Sistema y equipamiento (render UM25) · para software, el producto como interfaz -->
-    {product ? (
-      <>
-        <section class="svc-section svc-section--paper svc-section--intro" id="para-tu-empresa" aria-labelledby="svc-intro-title">
-          <div class="svc-wrap svc-intro">
-            <div class="svc-intro__copy">
-              <h2 id="svc-intro-title">{product.intro.title}</h2>
-              <p class="svc-intro__lead">{product.intro.lead}</p>
-              <ul class="svc-intro__list" aria-label="Qué resuelve">
-                {product.intro.benefits.map((b) => <li>{b}</li>)}
-              </ul>
-              <div class="svc-intro__actions">
-                <a class="svc-btn" href="/contacto">
-                  {product.intro.cta}
-                  <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
-                </a>
-                <a class="svc-intro__link" href="#equipamiento">{product.intro.explore}</a>
-              </div>
-              <p class="svc-intro__note"><b>{product.intro.note.strong}</b> {product.intro.note.rest}</p>
-            </div>
-            <ol class="svc-intro__questions" aria-label="Preguntas que responde">
-              {product.intro.questions.map((q, i) => <li><span>{String(i + 1).padStart(2, '0')}</span>{q}</li>)}
-            </ol>
-          </div>
-        </section>
-
-        <section class="svc-section svc-section--paper" id="equipamiento" aria-labelledby="svc-render-title">
-          <div class="svc-wrap">
-            <header class="svc-head">
-              <div>
-                <p class="svc-kicker">{product.stage.kicker}</p>
-                <h2 id="svc-render-title">{product.stage.title}</h2>
-              </div>
-              <p class="svc-head__lead">{product.stage.lead}</p>
-            </header>
-            <ProductStage stage={product.stage} />
-          </div>
-        </section>
-
-        <section class="svc-section svc-section--paper" id="momentos" aria-label={product.moments.head}>
-          <div class="svc-wrap">
-            <ProductMoments moments={product.moments} />
-          </div>
-        </section>
-      </>
-    ) : plantCut ? (
-      <section class="svc-section svc-section--render" id="equipamiento" aria-labelledby="svc-render-title">
-        <div class="svc-wrap">
-          <header class="svc-head">
-            <div>
-              <p class="svc-kicker">Recorrido completo</p>
-              <h2 id="svc-render-title">El sistema, dentro de la planta de altura.</h2>
-            </div>
-            <p class="svc-head__lead">El mismo sistema, seguido dentro de una instalación industrial completa: dónde va cada equipo y cómo se conecta con el resto.</p>
-          </header>
-          <figure class="svc-plant">
-            <video muted loop playsinline autoplay preload="metadata" poster={plantCut.poster} aria-hidden="true">
-              <source src={plantCut.video} type="video/mp4" />
-            </video>
-          </figure>
-        </div>
-      </section>
-    ) : serviceRender && (
-      <section class="svc-section svc-section--render" id="equipamiento" aria-labelledby="svc-render-title">
-        <div class="svc-wrap">
-          <header class="svc-head">
-            <div>
-              <p class="svc-kicker">Sistema y equipamiento</p>
-              <h2 id="svc-render-title">{serviceRender.title.split(' · ')[0]}, pieza por pieza.</h2>
-            </div>
-            <p class="svc-head__lead">Los mismos equipos que aparecen en la escena de arriba, en estudio. Cada componente se especifica según el sitio, la norma aplicable y la operación que debe sostener.</p>
-          </header>
-          <RenderStage render={serviceRender} layout="split" />
-        </div>
-      </section>
-    )}
-
-    <!-- 1c · Mapa de sistemas (páginas de producto) -->
-    {product && (
-      <section class="svc-section svc-section--paper svc-section--map" id="integraciones" aria-labelledby="svc-map-title">
-        <div class="svc-wrap">
-          <header class="svc-head">
-            <div>
-              <p class="svc-kicker">{product.map.kicker}</p>
-              <h2 id="svc-map-title">{product.map.title}</h2>
-            </div>
-            <p class="svc-head__lead">{product.map.lead}</p>
-          </header>
-          <SystemsMap core={product.map.core} coreSub={product.map.coreSub} nodes={product.map.nodes} />
-        </div>
-      </section>
-    )}
 
     <!-- 2 · Qué cubre -->
     {(serviceCapabilityItems.length > 0 || solutionItems.length > 0) && (
@@ -1666,4 +1583,8 @@ const fichaItems = [
   .svc-guarantees dd { margin: 0; font-size: 1rem; color: var(--x-muted); line-height: 1.55; }
   @media (max-width: 980px) { .svc-guarantees { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 560px) { .svc-guarantees { grid-template-columns: 1fr; } }
+  .svc-section--despiece { background: #090909; color: #fff; }
+  .svc-section--despiece .svc-head--solo { margin-bottom: 20px; }
+  .svc-section--despiece .svc-kicker { color: #c4c7cc; }
+  .svc-section--despiece h2 { color: #fff; }
 </style>
