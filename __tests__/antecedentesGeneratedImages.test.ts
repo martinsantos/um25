@@ -38,7 +38,7 @@ describe('generated antecedentes image integration', () => {
     }
   });
 
-  test('public antecedente surfaces use Blender posters, never generated images', () => {
+  test('public antecedente surfaces use own isometrics, never generated images', () => {
     const directus = fs.readFileSync(path.join(repoRoot, 'src/lib/directus.ts'), 'utf8');
     const home = fs.readFileSync(path.join(repoRoot, 'src/pages/index.astro'), 'utf8');
     const index = fs.readFileSync(path.join(repoRoot, 'src/pages/antecedentes/index.astro'), 'utf8');
@@ -55,14 +55,14 @@ describe('generated antecedentes image integration', () => {
     expect(detail).toContain('const mainImageUrl = generatedMainImageUrl || BASE_POSTER');
   });
 
-  test('every catalog case resolves to an existing poster of its sector and service', async () => {
+  test('every catalog case resolves to an existing isometric of its service or sector', async () => {
     const { ANTECEDENTES_REALES } = await import('../src/lib/um26-data/antecedentesReales');
     const { getAntecedenteImage } = await import('../src/lib/um26-data/images');
     const { posterFor } = await import('../src/data/cine/posters');
     expect(ANTECEDENTES_REALES.length).toBeGreaterThanOrEqual(518);
     for (const item of ANTECEDENTES_REALES) {
       const image = getAntecedenteImage(item.sectorSlug, item.serviceCodes, item.id);
-      expect(image).toMatch(/^\/cine\/media\/cine-[a-z]+(-[a-z]+)?-poster\.jpg$/);
+      expect(image).toMatch(/^\/cine\/iso\/(service-\d{3}|site-[a-z]+)\.svg$/);
       expect(image).toBe(posterFor(item.sectorSlug, item.serviceCodes[0]));
       expect(fs.existsSync(path.join(repoRoot, 'public', image))).toBe(true);
     }
