@@ -272,42 +272,30 @@ describe('Information hub visual contracts', () => {
     expect(home).not.toMatch(/\.um-service-unit__head i\s*\{/);
     expect(itemTemplate).not.toMatch(/<i\b/);
     expect(itemTemplate).toContain('<a class="svc-story__link" href={s.href}>');
-    expect(home).toContain('class="um26-card-bar" aria-hidden="true"');
-    expect(home).toMatch(/\.um26-card-bar\s*\{[\s\S]*background:\s*#dc2626;/);
   });
 
-  test('home numeric summary is actionable instead of dead dashboard text', () => {
+  test('home keeps five blocks: banner, despiece, sectors, project list, contact (24/10)', () => {
     const home = read('src/pages/index.astro');
 
-    expect(home).toContain("href: '/nosotros'");
-    expect(home).toContain("href: '/antecedentes'");
-    expect(home).toContain("href: '/sectores'");
-    expect(home).toContain("href: '/servicios-it-empresas-argentina'");
-    expect(home).toContain("href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it'");
-    expect(home).toContain('{stats.map(({ value, label, href, aria }) => (');
-    expect(home).toContain('<a href={href} aria-label={aria}>');
-    expect(home).toMatch(/\.um26-stats__grid a:hover,[\s\S]*\.um26-stats__grid a:focus-visible\s*\{/);
-    expect(home).toMatch(/\.um26-stats__grid a:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.5\);/);
-    expect(home).toMatch(/\.um26-stats__inner\s*\{[\s\S]*padding-block:\s*0;/);
-    expect(home).toMatch(/\.um26-stats__grid a\s*\{[\s\S]*display:\s*flex;[\s\S]*min-height:\s*138px;/);
-    expect(home).toMatch(/\.um26-stats__grid a:hover,[\s\S]*box-shadow:\s*inset 0 -3px 0 #dc2626;/);
-    expect(home).not.toMatch(/\.um26-stats__grid div\s*\{/);
+    expect(home).not.toContain('class="um26-stats"');
+    expect(home).not.toContain('<CompanyBand');
+    expect(home).not.toContain('<CapabilityLedger');
+    expect(home).not.toContain('<ProductBand');
+    expect(home).not.toContain('<CoverageMap');
+    expect(home).not.toContain('<JournalBand');
+    expect(home).toContain('<SiteDespiece scene="fachada"');
+    expect(home).toContain('<SectorAtlas sectors={sectors} />');
+    expect(home).toContain('<ol class="um26-case-list">');
+    expect(home).toContain("primary={{ href: '/contacto', label: 'Pedir un relevamiento' }}");
+    expect(home).not.toContain('class="um26-kicker"');
   });
 
-  test('home GEO hub cards are full-cell links with visible action states', () => {
-    // Rediseño 2026-09: los hubs GEO de la home viven en CoverageMap (lista + mapa).
-    // Cada hub sigue siendo una fila-enlace completa con estados hover/focus.
-    const home = read('src/pages/index.astro');
+  test('coverage map component keeps full-cell hub links with visible action states', () => {
     const coverage = read('src/components/cine/CoverageMap.astro');
 
-    expect(home).toContain("href: '/servicios-it-empresas-mendoza'");
-    expect(home).toContain("href: '/servicios-it-empresas-argentina'");
-    expect(home).toContain('<CoverageMap hubs={hubs} />');
     expect(coverage).toContain('{hubs.map((h, i) => {');
     expect(coverage).toMatch(/<a href=\{h\.href\} aria-label=\{h\.aria\}/);
-    expect(coverage).toContain('<span class="umc-map__go" aria-hidden="true">↗</span>');
     expect(cssBlock(coverage, '.umc-map__list a')).toMatch(/display:\s*grid;/);
-    expect(coverage).toMatch(/\.umc-map__list a:hover, \.umc-map__list a:focus-visible[^{]*\{[^}]*color:\s*#fff;/);
     expect(coverage).not.toMatch(/outline:\s*(none|0)/);
   });
 
@@ -404,13 +392,12 @@ describe('Information hub visual contracts', () => {
     expect(evidenceRow).toMatch(/@media \(max-width:\s*520px\)\s*\{[\s\S]*\.evidence-case-row__copy\s*\{[\s\S]*align-self:\s*start;/);
   });
 
-  test('home secondary evidence rows remove repeated sector metadata to prevent compressed words', () => {
+  test('home projects are a plain list, never cards with media (24/10)', () => {
     const home = read('src/pages/index.astro');
 
-    expect(home).toContain('class="um26-case-grid"');
-    expect(home).toMatch(/\.um26-case-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
-    expect(home).toMatch(/\.um26-case-card\s*\{[\s\S]*min-height:\s*380px;/);
-    expect(home).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-case-grid,[\s\S]*\.um26-hub-grid\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
+    expect(home).not.toContain('class="um26-case-grid"');
+    expect(home).toMatch(/\.um26-case-list a\s*\{[\s\S]*display:\s*grid;/);
+    expect(home).toMatch(/@media \(max-width:\s*760px\)\s*\{\s*\.um26-case-list a\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
   });
 
   test('home service visual loads reliably for full-page visual QA', () => {
