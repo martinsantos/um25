@@ -265,8 +265,9 @@ describe('Information hub visual contracts', () => {
     const story = read('src/components/cine/ServicesStory.astro');
     const itemTemplate = story.slice(story.indexOf('<ol class="svc-story__list">'), story.indexOf('</ol>'));
 
-    expect(home).toContain("import ServicesStory from '../components/cine/ServicesStory.astro'");
-    expect(home).toContain('<ServicesStory services={services} />');
+    // 24/10: debajo del banner, el despiece isométrico del edificio (un solo escenario + lista en texto).
+    expect(home).toContain("import SiteDespiece from '../components/cine/SiteDespiece.astro'");
+    expect(home).toContain('<SiteDespiece scene="fachada"');
     expect(home).not.toContain('<i aria-hidden="true"></i>');
     expect(home).not.toMatch(/\.um-service-unit__head i\s*\{/);
     expect(itemTemplate).not.toMatch(/<i\b/);

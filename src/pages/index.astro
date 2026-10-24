@@ -5,7 +5,7 @@ import { getAntecedentesCatalogCount } from '../utils/verifiedProof';
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import EmailLink from '../components/common/EmailLink.astro';
 import CineBanner from '../components/cine/CineBanner.astro';
-import ServicesStory from '../components/cine/ServicesStory.astro';
+import SiteDespiece from '../components/cine/SiteDespiece.astro';
 import SectorAtlas from '../components/cine/SectorAtlas.astro';
 import CoverageMap from '../components/cine/CoverageMap.astro';
 import ProductBand from '../components/cine/ProductBand.astro';
@@ -129,7 +129,7 @@ const hubs = [
           <p>Un mismo equipo releva, instala y sostiene cada sistema, de la obra a la operación diaria.</p>
         </div>
 
-        <ServicesStory services={services} />
+        <SiteDespiece scene="fachada" sectorSlug="constructoras" sectorName="un edificio" />
 
         <a class="um26-text-link" href="/servicios">Ver los ocho servicios</a>
       </div>
