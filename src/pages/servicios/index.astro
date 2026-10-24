@@ -816,15 +816,15 @@ const servicesWithPosters = services;
     .services-demo-list > .services-demo-row,
     .services-demo-list > .services-demo-row:nth-child(even) { grid-template-columns: 220px minmax(0, 1fr); min-height: 0; gap: 28px; padding: 18px 0; background: transparent; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.12); }
     .services-demo-list > .services-demo-row:nth-child(even) .services-demo-media { order: 0; }
-    .services-demo-list .services-demo-media { aspect-ratio: 4 / 3; background: transparent; }
-    .services-demo-list .services-demo-media img { padding: 0; }
+    .services-demo-list .services-demo-media { position: relative; width: 220px; aspect-ratio: 4 / 3; min-height: 0; overflow: hidden; background: transparent; }
+    .services-demo-list .services-demo-media img { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; object-fit: contain; }
     .services-demo-list .services-demo-body { padding: 0; background: transparent; display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr) auto; gap: 28px; align-items: center; }
     .services-demo-list .services-demo-body h2 { margin: 0; max-width: none; font-size: 1.5rem; letter-spacing: -0.01em; }
     .services-demo-list .services-demo-row:hover h2, .services-demo-list .services-demo-row:focus-visible h2 { color: #fff; text-decoration: underline; text-decoration-color: #dc2626; }
     .services-demo-list .services-demo-body > p { display: block; margin: 0; color: #c4c7cc; font-size: 1.0625rem; line-height: 1.45; }
     .services-demo-list .services-demo-body footer { margin: 0; padding: 0; border: 0; display: block; }
     .services-demo-list .services-demo-body footer span { display: block; margin: 0; font-family: inherit; letter-spacing: 0; text-transform: none; font-weight: 400; color: #9a9a9a; white-space: nowrap; }
-    .services-demo-list .services-demo-action { display: none; }
+    .services-demo-list .services-demo-body footer .services-demo-action { display: none; }
     @media (max-width: 980px) { .services-demo-list .services-demo-body { grid-template-columns: 1fr; gap: 6px; } .services-demo-list > .services-demo-row, .services-demo-list > .services-demo-row:nth-child(even) { grid-template-columns: 160px minmax(0, 1fr); } }
 </style>
 </LayoutV4>
