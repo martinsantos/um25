@@ -1,8 +1,6 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
-import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
 import CineBanner from '../../components/cine/CineBanner.astro';
-import { V4_CUTS, serviceSceneKey, baseScene } from '../../data/cine/scenes';
 
 type Service = {
   code: string;
@@ -115,20 +113,14 @@ const services: Service[] = [
   },
 ];
 
-const totalServices = String(services.length).padStart(2, '0');
-// La imagen de cada frente es el póster de su recorrido v4 (el servicio dentro de la
-// escena del gemelo digital), no una foto de banco.
-const servicesWithPosters = services.map((s) => {
-  const key = serviceSceneKey(s.code);
-  return { ...s, image: V4_CUTS[key]?.poster ?? `/cine/media/cine-${baseScene(key)}-poster.jpg` };
-});
+// La imagen de cada servicio es su isometría propia (el objeto), nunca un cuadro de película.
+const servicesWithPosters = services;
 ---
 
 <LayoutV4 skin="black"
   title="Servicios IT para continuidad operativa | ULTIMA MILLA"
   description="8 frentes de servicio IT: redes, seguridad electronica, telecomunicaciones, software, soporte 24/7, consultoria, deteccion de incendios y electricos IT."
   keywords="servicios IT integrales, redes empresariales, seguridad electronica, telecomunicaciones, software a medida, soporte IT 24/7, consultoria IT, deteccion de incendios, electricos para IT"
-  image="/cine/media/cine-fachada-redes-poster.jpg"
 >
   <div class="services-demo">
     <CineBanner
@@ -138,88 +130,38 @@ const servicesWithPosters = services.map((s) => {
       kicker="Servicios"
       title="Ocho frentes de servicio."
       lead="Diseñamos, implementamos y sostenemos infraestructura, seguridad, software y soporte."
-      primary={{ href: '/contacto', label: 'Solicitar relevamiento' }}
-      secondary={{ href: '/antecedentes', label: 'Ver evidencia operativa' }}
+      primary={{ href: '/contacto', label: 'Pedir un relevamiento' }}
     />
 
-    <section class="services-demo-shell services-demo-list" aria-label="Frentes de servicio de ULTIMA MILLA">
-      {servicesWithPosters.map((service, index) => (
+    <section class="services-demo-shell services-demo-list" aria-label="Servicios de ULTIMA MILLA">
+      {servicesWithPosters.map((service) => (
         <a
           class="services-demo-row"
           href={`/servicios/${service.code}/${service.slug}`}
           aria-label={`Abrir servicio ${service.name}`}
         >
-          <div
-            role="presentation"
-            class={`services-demo-media services-demo-media--${service.code}`}
-            style={`--service-image: url('${service.image}')`}
-          >
+          <div role="presentation" class={`services-demo-media services-demo-media--${service.code}`}>
             <img src={service.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />
-            <div aria-hidden="true"></div>
-            <span>SRV.{service.code}</span>
-            <em>{service.sectors} sectores</em>
           </div>
           <div class="services-demo-body">
-            <p class="services-demo-front"><span></span>Frente {String(index + 1).padStart(2, '0')} / {totalServices}</p>
             <h2>{service.name}</h2>
-            <strong>{service.tagline}</strong>
             <p>{service.description}</p>
-            <ul>
-              {service.capabilities.map((capability) => (
-                <li>{capability}</li>
-              ))}
-            </ul>
             <footer>
               <span>{service.evidence} antecedentes</span>
-              <span class="services-demo-action">Ver detalle</span>
+              <span class="services-demo-action">Ver el servicio</span>
             </footer>
           </div>
         </a>
       ))}
     </section>
 
-    <section class="services-demo-shell services-demo-compare" aria-labelledby="services-compare-title">
-      <div class="services-demo-compare__head">
-        <div>
-          <p class="services-demo-kicker"><span></span>Comparar</p>
-          <h2 id="services-compare-title">Los ocho frentes en una tabla.</h2>
-        </div>
-        <p>Entregable clave, referencia normativa y nivel de servicio de cada frente. La ficha técnica completa está en cada detalle y en <a href="/certificaciones#fichas">documentación técnica</a>.</p>
-      </div>
-      <div class="services-demo-compare__table">
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">Frente</th>
-              <th scope="col">Entregable clave</th>
-              <th scope="col">Referencia normativa</th>
-              <th scope="col">Nivel de servicio</th>
-              <th scope="col">Sectores</th>
-            </tr>
-          </thead>
-          <tbody>
-            {SERVICE_SPEC_LIST.map((spec) => (
-              <tr>
-                <th scope="row"><a href={spec.href}><span>{spec.code}</span>{spec.name}</a></th>
-                <td>{spec.keyDeliverable}</td>
-                <td>{spec.keyStandard}</td>
-                <td>{spec.serviceLevel[0]}</td>
-                <td>{spec.sectors.length}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-
     <section class="services-demo-shell services-demo-closing">
       <div>
-        <p class="services-demo-kicker"><span></span>Diagnóstico sin costo inicial</p>
-        <h2>¿Qué parte de su operación necesita estabilizar primero?</h2>
+        <h2>Contanos qué tiene que seguir funcionando.</h2>
+        <p>Relevamos en el lugar y te decimos qué hace falta.</p>
       </div>
       <div>
-        <a href="/contacto">Solicitar relevamiento</a>
-        <a href="/sectores">Explorar por sector</a>
+        <a href="/contacto">Pedir un relevamiento</a>
       </div>
     </section>
   </div>
@@ -867,5 +809,22 @@ const servicesWithPosters = services.map((s) => {
         font-size: 1rem;
       }
     }
-  </style>
+      .services-demo-row { min-height: 0; align-items: center; }
+    .services-demo-media { aspect-ratio: 4 / 3; }
+    .services-demo-closing > div:first-child p { margin: 10px 0 0; color: #c4c7cc; font-size: 1.0625rem; }
+    /* Barrido 24/10: filas compactas (isometría · nombre · una línea · antecedentes). */
+    .services-demo-list > .services-demo-row,
+    .services-demo-list > .services-demo-row:nth-child(even) { grid-template-columns: 220px minmax(0, 1fr); min-height: 0; gap: 28px; padding: 18px 0; background: transparent; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.12); }
+    .services-demo-list > .services-demo-row:nth-child(even) .services-demo-media { order: 0; }
+    .services-demo-list .services-demo-media { position: relative; width: 220px; aspect-ratio: 4 / 3; min-height: 0; overflow: hidden; background: transparent; }
+    .services-demo-list .services-demo-media img { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; object-fit: contain; }
+    .services-demo-list .services-demo-body { padding: 0; background: transparent; display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr) auto; gap: 28px; align-items: center; }
+    .services-demo-list .services-demo-body h2 { margin: 0; max-width: none; font-size: 1.5rem; letter-spacing: -0.01em; }
+    .services-demo-list .services-demo-row:hover h2, .services-demo-list .services-demo-row:focus-visible h2 { color: #fff; text-decoration: underline; text-decoration-color: #dc2626; }
+    .services-demo-list .services-demo-body > p { display: block; margin: 0; color: #c4c7cc; font-size: 1.0625rem; line-height: 1.45; }
+    .services-demo-list .services-demo-body footer { margin: 0; padding: 0; border: 0; display: block; }
+    .services-demo-list .services-demo-body footer span { display: block; margin: 0; font-family: inherit; letter-spacing: 0; text-transform: none; font-weight: 400; color: #9a9a9a; white-space: nowrap; }
+    .services-demo-list .services-demo-body footer .services-demo-action { display: none; }
+    @media (max-width: 980px) { .services-demo-list .services-demo-body { grid-template-columns: 1fr; gap: 6px; } .services-demo-list > .services-demo-row, .services-demo-list > .services-demo-row:nth-child(even) { grid-template-columns: 160px minmax(0, 1fr); } }
+</style>
 </LayoutV4>
