@@ -254,6 +254,16 @@ function banner(el) {
     }
   }
 
+  // El despiece de abajo pide el recorrido de un servicio en la escena actual ("hospital-redes").
+  el.addEventListener('umc:cut', (e) => {
+    const key = String(e.detail || '');
+    if (!key || key === cutOf(index) || !(key === scenes[index] || (VARIANTS[scenes[index]] || []).includes(key))) return;
+    planned[index] = key;
+    started = true;
+    userPaused = false;
+    cutTo(index);
+    label();
+  });
   rail.forEach((b, k) => b.addEventListener('click', () => {
     if (k === index) return;
     started = true;

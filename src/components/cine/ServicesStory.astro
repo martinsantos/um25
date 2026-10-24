@@ -26,9 +26,7 @@ const filmOf = (code: string) => {
   const key = serviceSceneKey(code);
   return V4_CUTS[key]?.video ?? `/cine/media/cine-${baseScene(key)}.mp4`;
 };
-// Cada servicio se representa con la isometría de sus elementos (render Blender propio).
-const isoOf = (code: string) => (code === '101' ? '/cine/servicios/101.webp' : `/cine/servicios/${code}-x.webp`);
-const items = services.map((s) => ({ ...s, ...STORY[s.code], film: filmOf(s.code), iso: isoOf(s.code) }));
+const items = services.map((s) => ({ ...s, ...STORY[s.code], film: filmOf(s.code) }));
 const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=1';
 ---
 <div class="svc-story" data-svc-story>
@@ -42,7 +40,6 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
   <ol class="svc-story__list">
     {items.map((s, i) => (
       <li class="svc-story__item" data-cmd={JSON.stringify(s.cmd)} data-name={s.name} data-film={s.film}>
-        <img class="svc-story__render" src={s.iso} alt="" width="320" height="240" loading="lazy" decoding="async" />
         <div>
           <p class="svc-story__code"><span>{s.code}</span></p>
           <h3>{s.name}</h3>
