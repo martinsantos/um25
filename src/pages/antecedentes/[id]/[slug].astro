@@ -15,7 +15,7 @@ import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
 import { getAntecedenteConServicios, getAntecedenteImageUrl, getDirectusImageUrl, getGeneratedAntecedenteImageUrl, getAllAntecedentes } from '../../../lib/directus.ts';
-import { BASE_POSTER } from '../../../data/cine/posters';
+import { BASE_POSTER, servicePoster } from '../../../data/cine/posters';
 import {
   getAntecedenteById as getUm26AntecedenteById,
   getSectores as getUm26Sectores,
@@ -259,14 +259,9 @@ const caseCalloutText = [
   displayClientName ? `para ${displayClientName}` : '',
 ].filter(Boolean).join(' ');
 
-const resolveServiceImageUrl = (servicio: any): string => {
-  const serviceImage = getDirectusImageUrl(servicio?.Imagen);
-  if (serviceImage) return serviceImage;
-  const firstProduct = servicio?.productos?.[0];
-  if (firstProduct?.imagen) return firstProduct.imagen;
-  if (firstProduct?.Imagen) return getDirectusImageUrl(firstProduct.Imagen) || '';
-  return '/images/default-background.jpg';
-};
+// La imagen del servicio aplicado es la captura del despiece de ese servicio: las imágenes
+// de Directus y de los productos eran renders sueltos o generadas (concepto 23/10).
+const resolveServiceImageUrl = (servicio: any): string => servicePoster(servicio?.id);
 
 const compactServiceTitle = (value: unknown): string => {
   const title = cleanDisplayText(value)
