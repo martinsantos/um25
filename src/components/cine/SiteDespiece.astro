@@ -52,6 +52,10 @@ const first = items[0];
     document.querySelectorAll<HTMLElement>('[data-despiece]:not([data-bound])').forEach((root) => {
       root.dataset.bound = 'true';
       const now = root.querySelector<HTMLElement>('.um-desp__now')!;
+      // El dibujo llena el escenario: el viewBox se ajusta al contenido real de la isometría.
+      const svg = root.querySelector<SVGSVGElement>('.um-desp__stage svg');
+      const art = svg?.querySelector<SVGGraphicsElement>('.sp-root');
+      if (svg && art) { try { const b = art.getBBox(); const pad = Math.max(b.width, b.height) * 0.04; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); } catch (e) {} }
       const items = [...root.querySelectorAll<HTMLAnchorElement>('[data-code]')];
       const banner = document.querySelector<HTMLElement>('[data-umc]');
       let current = items[0] || null, timer: ReturnType<typeof setTimeout> | undefined;
@@ -86,10 +90,8 @@ const first = items[0];
   .um-desp h2 { margin: 0; font-size: clamp(1.9rem, 3vw, 2.6rem) !important; line-height: 1.08 !important; font-weight: 600 !important; text-wrap: balance; }
   .um-desp__head > p { margin: 0; color: rgba(255, 255, 255, 0.78); font-size: 1.0625rem; line-height: 1.6; max-width: 52ch; }
   .um-desp__body { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: clamp(20px, 3vw, 48px); align-items: start; }
-  .um-desp__stage { position: sticky; top: 88px; aspect-ratio: 5 / 3; overflow: hidden; background: #0a0b0d; }
-  .um-desp__stage :global(svg) { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
-  .um-desp__stage :global(.sp-root) { transform-origin: 0 0; transform: translate(0, -60px) scale(1.04); transition: transform 1400ms cubic-bezier(.22, 1, .36, 1); }
-  .um-desp__stage[data-project-floors="3"] :global(.sp-root) { transform: translate(0, 0) scale(1); }
+  .um-desp__stage { position: sticky; top: 88px; aspect-ratio: 5 / 3; overflow: hidden; background: #0a0b0d; padding: 4%; box-sizing: border-box; }
+  .um-desp__stage :global(svg) { position: absolute; inset: 4%; width: 92%; height: 92%; display: block; overflow: visible; }
   /* Las rutas de todos los servicios quedan como trazas; la del servicio activo se enciende. */
   .um-desp :global(.sp-route path) { stroke-width: 1.2; }
   .um-desp :global(.sp-route) { opacity: .09; transition: opacity 800ms ease; }
@@ -118,7 +120,6 @@ const first = items[0];
     .um-desp__head { grid-template-columns: 1fr; }
     .um-desp__body { grid-template-columns: 1fr; }
     .um-desp__stage { position: sticky; top: 63px; z-index: 1; aspect-ratio: 4 / 3; }
-    .um-desp__stage :global(.sp-root) { transform: translate(0, -40px) scale(1.02); }
     .um-desp__item { padding: 11px 0; }
     .um-desp__item strong { font-size: 1.0625rem; }
     .um-desp__item span { display: none; }
