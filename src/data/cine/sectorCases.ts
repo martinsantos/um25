@@ -13,8 +13,8 @@ const SECTOR_TEXT: Record<string, RegExp> = {
   industria: /industr|planta(?! baja)|f[aá]brica|premix|frigor[ií]fico|metal[uú]rg/i,
   bodegas: /bodega|vi[nñ]edo|vitivin|\bvinos?\b/i,
   mineria: /miner|\bmina\b|yacimiento/i,
-  // Gobierno y software tienen escena propia en SECTOR_FILMS (slugs `gobierno` y `software`) y
-  // casos propios: se leen igual, por cliente, título y descripción.
+  // Gobierno y software no tienen escena propia (la página usa la de constructoras o industria),
+  // pero sí casos propios: se leen igual, por cliente, título y descripción.
   gobierno: /municipalidad|gobierno de|ministerio|poder judicial|vialidad|irrigaci[oó]n|fondo para la transformaci|administraci[oó]n federal|legislat|concejo|intendencia|sector p[uú]blico/i,
   software: /software|digitalizaci[oó]n de procesos|aplicaci[oó]n (web|m[oó]vil)|sistema de gesti[oó]n|\bapi\b/i,
 };

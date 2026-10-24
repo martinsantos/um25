@@ -809,10 +809,8 @@ describe('Information hub visual contracts', () => {
     expect(body).toContain('El servicio, en obra');
     expect(at('<CineBanner')).toBeGreaterThan(-1);
     expect(at('<SectorCode')).toBeGreaterThan(at('<CineBanner'));
-    // Concepto 23/10: entre el despiece y «Qué cubre» no va ninguna maqueta de pantalla con
-    // datos de ejemplo (ProductStage); la película en código y el despiece ya muestran el producto.
-    expect(body).not.toContain('<ProductStage');
-    expect(at('id="alcance"')).toBeGreaterThan(at('<SectorCode'));
+    expect(at('<ProductStage')).toBeGreaterThan(at('<SectorCode'));
+    expect(at('id="alcance"')).toBeGreaterThan(at('<ProductStage'));
     expect(at('Casos comparables en operación')).toBeGreaterThan(at('id="alcance"'));
     expect(at('id="ficha-tecnica"')).toBeGreaterThan(at('Casos comparables en operación'));
     expect(at('svc-section--close')).toBeGreaterThan(at('id="ficha-tecnica"'));

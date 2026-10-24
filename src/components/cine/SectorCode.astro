@@ -193,13 +193,16 @@ const pinnedItem = items.find((it) => it.key === pinnedKey);
     .scode__grid{grid-template-columns:1fr;height:auto}
     .scode__side{display:contents}
     .scode__head{order:1;padding:56px var(--um-page-gutter,20px) 8px}
-    /* En un teléfono el escenario es la escena entera: sin riel de cámara ni tablero encima
-       (sector.js encuadra el modelo en todo el stage cuando el riel no mide). */
-    .scode__stage{order:2;min-height:0;aspect-ratio:1/1}
-    .scode__rail{display:none}
-    /* Todos los servicios a la vista, en filas; nada escondido detrás de un desplazamiento. */
-    .scode__menu{order:3;display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:8px var(--um-page-gutter,20px) 4px;border:0}
-    .scode__menu li{flex:none}
+    .scode__stage{order:2;min-height:0;aspect-ratio:1/1.28}
+    .scode__rail{top:auto;bottom:10px;left:10px;right:10px;transform:none;flex-direction:row;align-items:stretch;width:auto;gap:8px}
+    .scode__rail .scode__tile{flex:1;min-width:0}
+    .scode__tile--board{display:none}
+    .scode__tile header{padding:6px 8px;font-size:16px;letter-spacing:.06em}
+    .scode__events{min-height:0;height:calc(100% - 26px);padding:8px}
+    .scode__calm,.scode__ev{inset:8px;font-size:16px}.scode__ev b{font-size:16px}
+    .scode__menu{order:3;display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0;padding:12px var(--um-page-gutter,20px);border:0;scrollbar-width:none}
+    .scode__menu::-webkit-scrollbar{display:none}
+    .scode__menu li{flex:none;scroll-snap-align:center}
     .scode__menu button{width:auto;grid-template-columns:auto auto;gap:8px;padding:9px 14px;border:1px solid rgba(24,33,32,.16);border-radius:999px;font-size:16px;white-space:nowrap}
     .scode__menu button b{display:none}
     .scode__menu button::after{display:none}
