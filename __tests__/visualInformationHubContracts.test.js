@@ -784,15 +784,26 @@ describe('Information hub visual contracts', () => {
     expect(read('src/components/SEO/SEOHead.astro')).toContain('"@type": "BreadcrumbList"');
   });
 
-  test('service detail technical sidebar renders as a compact ledger instead of a redundant card', () => {
-    // Rediseño 2026-09: la ficha técnica es un <dl> compacto junto al CTA único.
+  test('service detail keeps six blocks: banner, despiece, qué cubre, casos, ficha as a link, one CTA', () => {
+    // Barrido 24/10: nada superfluo. Sin resumen ejecutivo, acordeón, proceso,
+    // guías, ficha en pantalla ni botón de compartir; una sola acción al cierre.
     const serviceDetail = read('src/pages/servicios/[id]/[slug].astro');
+    const markup = serviceDetail.split('<style>')[0];
 
-    expect(serviceDetail).toContain('<aside class="svc-ficha" aria-label="Ficha técnica del servicio">');
-    expect(serviceDetail).not.toContain('<SectionHeader kicker="Ficha técnica" title={sidebarInfoTitle} />');
-    expect(cssBlock(serviceDetail, '.svc-ficha dl > div')).toMatch(/grid-template-columns:\s*minmax\(120px,\s*0\.4fr\) minmax\(0,\s*0\.6fr\);/);
-    expect(cssBlock(serviceDetail, '.svc-ficha dd')).toMatch(/overflow-wrap:\s*anywhere;/);
-    expect(serviceDetail).not.toMatch(/\.svc-ficha\s*\{[^}]*box-shadow/);
+    expect(markup).toContain('<IsometricStage code={String(id)} />');
+    expect(markup).toContain('<ol class="svc-list"');
+    expect(markup).toContain('<ol class="svc-rows"');
+    expect(markup).toContain('Descargar la ficha técnica (PDF)');
+    expect(markup).toContain("primary={{ href: '/contacto', label: 'Pedir un relevamiento' }}");
+    expect(markup).not.toContain('secondary={{');
+    expect(markup).not.toContain('svc-kicker');
+    expect(markup).not.toContain('svc-section--brief');
+    expect(markup).not.toContain('svc-tiles');
+    expect(markup).not.toContain('<aside class="svc-ficha"');
+    for (const removed of ['<ServiceSpecSheet', '<ShareButton', '<TopicGuides', '<SnapRail', '<ProductStage', '<RenderStage', '<SystemsMap', '<ProductMoments']) {
+      expect(markup).not.toContain(removed);
+    }
+    expect((markup.match(/class="svc-btn"/g) || []).length).toBe(1);
   });
 
   test('blog category stays readable without a duplicated featured banner or repeated header CTAs', () => {
