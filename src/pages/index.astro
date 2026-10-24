@@ -824,6 +824,10 @@ const hubs = [
         linear-gradient(120deg, rgba(220, 38, 38, 0.12), transparent 36%);
     }
 
+    /* Tarjetas de proyectos sin medio (24/10): quedan compactas, sólo texto; nada de caja negra vacía. */
+    .um26-case-card { min-height: 0; }
+    .um26-case-card::before { background: none; }
+
     .um26-media-card:hover {
       border-color: rgba(220, 38, 38, 0.62);
     }
