@@ -1094,9 +1094,12 @@ const filterGroups = [
     .ev .ev-card__meta { margin: 0; color: #9a9a9a; font-size: 1rem; white-space: nowrap; display: flex; gap: 8px; }
     .ev .ev-card:hover .ev-card__client, .ev .ev-card:focus-visible .ev-card__client { text-decoration: underline; text-decoration-color: #dc2626; }
     .ev .ev-grid__item { display: block; content-visibility: visible; contain-intrinsic-size: auto; min-height: 0; }
-    .ev .ev-card__title { text-align: left; }
+    .ev .ev-card__client, .ev .ev-card__title, .ev .ev-card__meta { grid-row: 1 !important; margin: 0 !important; padding: 0 !important; }
+    .ev .ev-card__client { grid-column: 1 !important; }
+    .ev .ev-card__title { grid-column: 2 !important; text-align: left; -webkit-line-clamp: unset !important; display: block !important; }
+    .ev .ev-card__meta { grid-column: 3 !important; }
     .ev .ev-card__meta { margin: 0 !important; padding: 0 !important; border: 0 !important; justify-self: end; overflow: visible; }
     .ev .ev-main { padding-block: 24px 48px; }
-    @media (max-width: 760px) { .ev .ev-card { grid-template-columns: 1fr !important; gap: 4px; } .ev .ev-card__meta { white-space: normal; justify-self: start; } }
+    @media (max-width: 760px) { .ev .ev-card { grid-template-columns: 1fr !important; gap: 4px; } .ev .ev-card__client, .ev .ev-card__title, .ev .ev-card__meta { grid-column: 1 !important; grid-row: auto !important; } .ev .ev-card__meta { white-space: normal; justify-self: start; } }
 </style>
 </LayoutV4>
