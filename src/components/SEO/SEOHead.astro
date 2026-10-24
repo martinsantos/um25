@@ -121,8 +121,9 @@ const ogVariant = ogVariantFor(rawImage);
 const declaresOgSize = ogImageWidth === OG_IMAGE_WIDTH && ogImageHeight === OG_IMAGE_HEIGHT;
 const publicRawImage = publicImageUrl(rawImage);
 let pageImage = absoluteOgUrl(DEFAULT_OG_IMAGE_PATH);
-let ogWidth: number | null = OG_IMAGE_WIDTH;
-let ogHeight: number | null = OG_IMAGE_HEIGHT;
+// La imagen por defecto es una captura del despiece (1600×1000), no una variante 1200×630.
+let ogWidth: number | null = 1600;
+let ogHeight: number | null = 1000;
 if (ogVariant) {
   pageImage = absoluteOgUrl(ogVariant);
 } else if (publicRawImage) {
