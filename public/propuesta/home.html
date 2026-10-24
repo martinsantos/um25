@@ -41,7 +41,10 @@
   .frentes__stage video.on { opacity: 1; }
   .frentes__stage .ahora { position: absolute; left: var(--gutter); bottom: 48px; font-size: 15px; color: #cfcfcf; text-shadow: 0 1px 8px rgba(0,0,0,.6); }
   .frentes__list { list-style: none; margin: 0; padding: 18vh var(--gutter) 24vh calc(var(--gutter) * .6); }
-  .frentes__list li { padding: 34px 0; border-top: 1px solid var(--gris-linea); color: var(--gris); transition: color .4s; }
+  .frentes__list li { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 20px; align-items: center; padding: 26px 0; border-top: 1px solid var(--gris-linea); color: var(--gris); transition: color .4s; }
+  .frentes__list .iso { width: 104px; aspect-ratio: 4/3; height: auto; object-fit: contain; background: #0a0a0a; border-radius: 2px; opacity: .55; transition: opacity .4s; }
+  .frentes__list li.on .iso { opacity: 1; }
+  .frentes__list li > div { min-width: 0; }
   .frentes__list li.on { color: #fff; }
   .frentes__list h2 { margin: 0; font-weight: 600; font-size: clamp(28px, 2.6vw, 40px); line-height: 1.08; letter-spacing: -.02em; }
   .frentes__list p { margin: 10px 0 0; max-width: 42ch; font-size: 17px; line-height: 1.5; color: inherit; opacity: .78; }
@@ -54,13 +57,17 @@
   .sectores header { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 40px; align-items: end; margin-bottom: 40px; }
   h2.titulo { margin: 0; font-weight: 600; font-size: clamp(34px, 3.6vw, 56px); line-height: 1.02; letter-spacing: -.025em; }
   .sectores header p { margin: 0; color: #cfcfcf; max-width: 40ch; }
-  .sectores__grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
-  .sector { display: block; }
-  .sector video { width: 100%; aspect-ratio: 1; object-fit: cover; background: #0a0a0a; }
-  .sector strong { display: block; margin-top: 16px; font-weight: 600; font-size: 20px; letter-spacing: -.01em; }
-  .sector strong + strong, .sector span + strong { margin-top: 14px; }
-  .sector span { display: block; color: var(--gris); font-size: 16px; margin-top: 2px; }
-  .sector .n { color: #cfcfcf; }
+  .sectores__body { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(20px, 3vw, 40px); align-items: start; }
+  .sectores__stage { position: sticky; top: 24px; aspect-ratio: 16/10; overflow: hidden; background: #0a0a0a; }
+  .sectores__stage video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .sectores__stage .ahora { position: absolute; left: 20px; bottom: 16px; margin: 0; font-size: 15px; color: #cfcfcf; text-shadow: 0 1px 8px rgba(0,0,0,.6); }
+  .sectores__list { list-style: none; margin: 0; padding: 0; }
+  .sectores__list li { border-top: 1px solid var(--gris-linea); }
+  .sectores__list a { display: block; padding: 16px 0; color: var(--gris); transition: color .3s; }
+  .sectores__list li.on a, .sectores__list a:hover { color: #fff; }
+  .sectores__list strong { display: block; font-weight: 600; font-size: 22px; letter-spacing: -.01em; }
+  .sectores__list li.on strong { border-bottom: 2px solid var(--rojo); display: inline-block; padding-bottom: 2px; }
+  .sectores__list span { display: block; font-size: 16px; color: var(--gris); margin-top: 3px; }
 
   /* 4 · Proyectos: una tabla, sin fotos. */
   .proyectos { padding: 40px var(--gutter) 120px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px; }
@@ -90,7 +97,9 @@
     .frentes__list li { padding: 22px 0; }
     .sectores { padding: 72px var(--gutter) 56px; }
     .sectores header { grid-template-columns: 1fr; gap: 12px; margin-bottom: 28px; }
-    .sectores__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 14px; }
+    .sectores__body { grid-template-columns: 1fr; }
+    .sectores__stage { position: sticky; top: 0; z-index: 1; }
+    .sectores__list strong { font-size: 19px; }
     .proyectos { grid-template-columns: 1fr; padding-bottom: 72px; }
     .proyectos li { grid-template-columns: 1fr; gap: 2px; }
     .contacto { grid-template-columns: 1fr; padding-top: 48px; }
@@ -125,14 +134,14 @@
     <p class="ahora"><span>Redes y Wi-Fi</span></p>
   </div>
   <ol class="frentes__list">
-    <li class="on" data-f="101"><h2>Redes y Wi-Fi</h2><p>Cableado Cat 6A, fibra, radioenlaces y Wi-Fi, certificados punto por punto.</p><a href="/servicios/101">Ver redes</a></li>
-    <li data-f="102"><h2>Seguridad electrónica</h2><p>Cámaras IP, control de acceso y alarmas con grabación y monitoreo.</p><a href="/servicios/102">Ver seguridad</a></li>
-    <li data-f="103"><h2>Telecomunicaciones</h2><p>Centrales IP, enlaces y voceo para sitios remotos y plantas.</p><a href="/servicios/103">Ver telecomunicaciones</a></li>
-    <li data-f="104"><h2>Software a medida</h2><p>Sistemas de gestión, apps móviles y tableros integrados por API.</p><a href="/servicios/104">Ver software</a></li>
-    <li data-f="105"><h2>Soporte 24/7</h2><p>Mesa de ayuda, monitoreo y mantenimiento con tiempos de respuesta pactados.</p><a href="/servicios/105">Ver soporte</a></li>
-    <li data-f="106"><h2>Consultoría IT</h2><p>Relevamiento, auditoría y plan de obra antes de instalar.</p><a href="/servicios/106">Ver consultoría</a></li>
-    <li data-f="107"><h2>Detección de incendios</h2><p>Centrales direccionables, lazos de detectores y evacuación señalizada.</p><a href="/servicios/107">Ver detección</a></li>
-    <li data-f="108"><h2>Energía</h2><p>Tableros, UPS y puesta a tierra para lo que no puede apagarse.</p><a href="/servicios/108">Ver energía</a></li>
+    <li class="on" data-f="101"><img class="iso" src="/cine/servicios/101.webp" alt="" width="240" height="180"><div><h2>Redes y Wi-Fi</h2><p>Cableado Cat 6A, fibra, radioenlaces y Wi-Fi, certificados punto por punto.</p><a href="/servicios/101">Ver redes</a></div></li>
+    <li data-f="102"><img class="iso" src="/cine/servicios/102-x.webp" alt="" width="240" height="180" loading="lazy"><div><h2>Seguridad electrónica</h2><p>Cámaras IP, control de acceso y alarmas con grabación y monitoreo.</p><a href="/servicios/102">Ver seguridad</a></div></li>
+    <li data-f="103"><img class="iso" src="/cine/servicios/103-x.webp" alt="" width="240" height="180" loading="lazy"><div><h2>Telecomunicaciones</h2><p>Centrales IP, enlaces y voceo para sitios remotos y plantas.</p><a href="/servicios/103">Ver telecomunicaciones</a></div></li>
+    <li data-f="104"><img class="iso" src="/cine/servicios/104-x.webp" alt="" width="240" height="180" loading="lazy"><div><h2>Software a medida</h2><p>Sistemas de gestión, apps móviles y tableros integrados por API.</p><a href="/servicios/104">Ver software</a></div></li>
+    <li data-f="105"><img class="iso" src="/cine/servicios/105-x.webp" alt="" width="240" height="180" loading="lazy"><div><h2>Soporte 24/7</h2><p>Mesa de ayuda, monitoreo y mantenimiento con tiempos de respuesta pactados.</p><a href="/servicios/105">Ver soporte</a></div></li>
+    <li data-f="106"><img class="iso" src="/cine/servicios/106-x.webp" alt="" width="240" height="180" loading="lazy"><div><h2>Consultoría IT</h2><p>Relevamiento, auditoría y plan de obra antes de instalar.</p><a href="/servicios/106">Ver consultoría</a></div></li>
+    <li data-f="107"><img class="iso" src="/cine/servicios/107-x.webp" alt="" width="240" height="180" loading="lazy"><div><h2>Detección de incendios</h2><p>Centrales direccionables, lazos de detectores y evacuación señalizada.</p><a href="/servicios/107">Ver detección</a></div></li>
+    <li data-f="108"><img class="iso" src="/cine/servicios/108-x.webp" alt="" width="240" height="180" loading="lazy"><div><h2>Energía</h2><p>Tableros, UPS y puesta a tierra para lo que no puede apagarse.</p><a href="/servicios/108">Ver energía</a></div></li>
   </ol>
 </section>
 
@@ -141,12 +150,19 @@
     <h2 class="titulo">Nueve sectores, cinco lugares que conocemos por dentro.</h2>
     <p>Cada sector tiene su propio recorrido: la misma instalación, vista sistema por sistema.</p>
   </header>
-  <div class="sectores__grid">
-    <a class="sector" href="/salud"><video src="/cine/media/cine-hospital-sq.mp4" muted loop playsinline preload="metadata" autoplay></video><strong>Salud</strong><span>Redes para imágenes médicas</span><span class="n">51 proyectos</span></a>
-    <a class="sector" href="/aeropuertos"><video src="/cine/media/cine-aeropuerto-sq.mp4" muted loop playsinline preload="metadata" autoplay></video><strong>Aeropuertos</strong><span>CCTV de perímetro 24/7</span><span class="n">109 proyectos</span><strong>Seguridad electrónica</strong><span>Centro de monitoreo 24/7</span></a>
-    <a class="sector" href="/bodegas"><video src="/cine/media/cine-bodega-sq.mp4" muted loop playsinline preload="metadata" autoplay></video><strong>Bodegas</strong><span>Trazabilidad vitivinícola end-to-end</span></a>
-    <a class="sector" href="/constructoras"><video src="/cine/media/cine-fachada-sq.mp4" muted loop playsinline preload="metadata" autoplay></video><strong>Constructoras</strong><span>Cableado estructurado certificado</span><span class="n">80 proyectos</span><strong>Gobierno y Sector Público</strong><span>Digitalización de trámites</span><span class="n">92 proyectos</span><strong>Software</strong><span>ERPs y plataformas a medida</span><span class="n">126 proyectos</span></a>
-    <a class="sector" href="/industria"><video src="/cine/media/cine-planta-sq.mp4" muted loop playsinline preload="metadata" autoplay></video><strong>Industria</strong><span>Redes industriales en planta 24/7</span><strong>Minería</strong><span>Telecomunicaciones en campamento remoto</span></a>
+  <div class="sectores__body">
+    <div class="sectores__stage"><video src="/cine/media/cine-hospital.mp4" muted loop playsinline preload="metadata" autoplay aria-hidden="true"></video><p class="ahora">Salud</p></div>
+    <ul class="sectores__list">
+      <li class="on" data-scene="hospital"><a href="/salud"><strong>Salud</strong><span>Redes para imágenes médicas · 51 proyectos</span></a></li>
+      <li data-scene="aeropuerto"><a href="/aeropuertos"><strong>Aeropuertos</strong><span>CCTV de perímetro 24/7 · 109 proyectos</span></a></li>
+      <li data-scene="aeropuerto"><a href="/seguridad-electronica"><strong>Seguridad electrónica</strong><span>Centro de monitoreo 24/7</span></a></li>
+      <li data-scene="bodega"><a href="/bodegas"><strong>Bodegas</strong><span>Trazabilidad vitivinícola end-to-end</span></a></li>
+      <li data-scene="fachada"><a href="/constructoras"><strong>Constructoras</strong><span>Cableado estructurado certificado · 80 proyectos</span></a></li>
+      <li data-scene="fachada"><a href="/gobierno"><strong>Gobierno y Sector Público</strong><span>Digitalización de trámites · 92 proyectos</span></a></li>
+      <li data-scene="fachada"><a href="/software"><strong>Software</strong><span>ERPs y plataformas a medida · 126 proyectos</span></a></li>
+      <li data-scene="planta"><a href="/industria"><strong>Industria</strong><span>Redes industriales en planta 24/7</span></a></li>
+      <li data-scene="planta"><a href="/mineria"><strong>Minería</strong><span>Telecomunicaciones en campamento remoto</span></a></li>
+    </ul>
   </div>
 </section>
 
@@ -184,6 +200,10 @@
     const li = items.find((i) => i.dataset.f === f); ahora.textContent = li ? li.querySelector('h2').textContent : '';
   };
   new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) on(e.target.dataset.f); }, { rootMargin: '-45% 0px -45% 0px' }).observe && items.forEach((li) => new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) on(e.target.dataset.f); }, { rootMargin: '-45% 0px -45% 0px' }).observe(li));
+  // Sectores: un solo escenario; el sector activo trae la película de su lugar.
+  const sst = document.querySelector('.sectores__stage'), sv = sst.querySelector('video'), sahora = sst.querySelector('.ahora'), sitems = [...document.querySelectorAll('.sectores__list li')];
+  const sshow = (li) => { sitems.forEach((i) => i.classList.toggle('on', i === li)); sahora.textContent = li.querySelector('strong').textContent; const src = `/cine/media/cine-${li.dataset.scene}.mp4`; if (!sv.src.endsWith(src)) { sv.src = src; sv.play().catch(() => {}); } };
+  sitems.forEach((li) => { li.addEventListener('pointerenter', () => sshow(li)); li.querySelector('a').addEventListener('focus', () => sshow(li)); });
   // Hero: cambia de escena cada vuelta de la película.
   const hero = document.querySelector('.hero video'), scenes = ['fachada', 'hospital', 'aeropuerto', 'bodega', 'planta']; let k = 0;
   hero.loop = false; hero.addEventListener('ended', () => { k = (k + 1) % scenes.length; hero.src = `/cine/media/cine-${scenes[k]}.mp4`; hero.play().catch(() => {}); });
