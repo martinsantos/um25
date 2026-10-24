@@ -63,7 +63,7 @@ const hubs = [
   <div class="ctc">
     <section class="ctc-hero" aria-labelledby="ctcTitle">
       <div class="ctc-hero__bg" aria-hidden="true">
-        <img src="/cine/media/cine-fachada-poster.jpg" alt="" width="1920" height="1080" fetchpriority="high" decoding="async" />
+        <video src="/cine/media/cine-fachada.mp4" muted loop autoplay playsinline preload="metadata" width="1920" height="1080" aria-hidden="true"></video>
       </div>
       <div class="ctc-shell ctc-hero__grid">
         <div class="ctc-intro">
@@ -151,7 +151,7 @@ const hubs = [
 
   .ctc-hero { position: relative; isolation: isolate; overflow: hidden; padding-block: clamp(32px, 4vw, 56px) var(--x-section); }
   .ctc-hero__bg { position: absolute; inset: 0; z-index: -1; }
-  .ctc-hero__bg img { width: 100%; height: 100%; object-fit: cover; opacity: .3; }
+  .ctc-hero__bg img, .ctc-hero__bg video { width: 100%; height: 100%; object-fit: cover; opacity: .3; }
   .ctc-hero__bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--x-ink) 0%, rgba(10, 10, 11, .9) 40%, rgba(10, 10, 11, .6) 100%), linear-gradient(0deg, var(--x-ink) 0%, transparent 30%); }
   .ctc-hero__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); grid-template-areas: 'intro panel' 'aside panel'; column-gap: clamp(32px, 6vw, 96px); row-gap: 0; align-items: start; }
   .ctc-intro { grid-area: intro; }

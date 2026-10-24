@@ -94,7 +94,6 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
         href={`/${sector.slug}`}
         class:list={['sectors-demo-card', { 'sectors-demo-card--wide': index === 0 || index === 4 }]}
       >
-        <img src={sector.image} alt={sector.imageAlt} width="1200" height="900" loading="lazy" decoding="async" />
         <div class="sectors-demo-card__shade" aria-hidden="true"></div>
         {countLabel(sector) && (
           <div class="sectors-demo-card__count">
