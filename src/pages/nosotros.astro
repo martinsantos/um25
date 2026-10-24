@@ -82,12 +82,8 @@ const structuredData = {
   <div class="abx">
     <section class="abx-hero" aria-labelledby="abxTitle">
       <div class="abx-shell">
-        <nav class="abx-crumbs" aria-label="Migas de pan">
-          <a href="/">Inicio</a><span aria-hidden="true">/</span><span aria-current="page">Nosotros</span>
-        </nav>
         <div class="abx-hero__grid">
           <div>
-            <p class="abx-kicker">Nosotros</p>
             <h1 id="abxTitle">{nosotrosH1}</h1>
           </div>
           <div class="abx-hero__side">
@@ -96,8 +92,7 @@ const structuredData = {
               continuidad operativa. Diseño, instalación y soporte trabajan en un mismo sistema.
             </p>
             <div class="abx-actions">
-              <a class="abx-btn" href="/antecedentes">Ver proyectos <span aria-hidden="true">→</span></a>
-              <a class="abx-link" href="/servicios">Servicios <span aria-hidden="true">→</span></a>
+              <a class="abx-btn" href="/contacto">Pedir un relevamiento</a>
             </div>
           </div>
         </div>
@@ -114,44 +109,17 @@ const structuredData = {
         ></video>
       </figure>
 
-      <div class="abx-shell">
-        <dl class="abx-metrics">
-          {metrics.map((m) => (
-            <div><dd>{m.value}</dd><dt>{m.label}</dt></div>
-          ))}
-        </dl>
-      </div>
     </section>
 
-    <section class="abx-section" aria-labelledby="abxPosition">
-      <div class="abx-shell abx-split">
-        <div>
-          <p class="abx-kicker">Posicionamiento</p>
-          <h2 id="abxPosition">Servicios IT integrales, con responsabilidad sobre el resultado</h2>
-        </div>
-        <div class="abx-prose">
-          <p>
-            Un mismo equipo releva, diseña, ejecuta, documenta y sostiene los componentes que deben
-            convivir: red, energía, seguridad, software, comunicaciones y soporte.
-          </p>
-          <p>
-            Ese enfoque permite reducir puntos ciegos, ordenar decisiones técnicas y convertir cada
-            proyecto en una plataforma operable para el cliente.
-          </p>
-        </div>
-      </div>
-    </section>
 
     <section class="abx-section abx-section--panel" aria-labelledby="abxPrinciples">
       <div class="abx-shell">
         <div class="abx-head">
-          <p class="abx-kicker">Criterios</p>
-          <h2 id="abxPrinciples">Cómo trabajamos</h2>
+          <h2 id="abxPrinciples">Cómo trabajamos.</h2>
         </div>
         <ol class="abx-principles">
           {principles.map(([title, text], index) => (
             <li>
-              <span>{String(index + 1).padStart(2, '0')}</span>
               <h3>{title}</h3>
               <p>{text}</p>
             </li>
@@ -160,44 +128,12 @@ const structuredData = {
       </div>
     </section>
 
-    <section class="abx-section" aria-labelledby="abxCapabilities">
-      <div class="abx-shell abx-cap">
-        <figure class="abx-cap__media">
-          <img src={editorialImages.aboutCapabilities} alt="Edificio en obra con estructura, cerramientos y tendidos en ejecución" loading="lazy" decoding="async" width={editorialImageDimensions.width} height={editorialImageDimensions.height} />
-        </figure>
-        <div>
-          <p class="abx-kicker">Capacidad conectada</p>
-          <h2 id="abxCapabilities">Una mesa técnica para resolver el sistema completo</h2>
-          <ul class="abx-cap__list">
-            {capabilities.map((capability) => <li>{capability}</li>)}
-          </ul>
-        </div>
-      </div>
-    </section>
 
-    <section class="abx-section abx-section--panel" aria-labelledby="abxTimeline">
-      <div class="abx-shell">
-        <div class="abx-head">
-          <p class="abx-kicker">Trayectoria</p>
-          <h2 id="abxTimeline">Hitos que sostienen la operación en campo</h2>
-        </div>
-        <ol class="abx-timeline">
-          {milestones.map(([year, title, text]) => (
-            <li>
-              <span class="abx-timeline__year">{year}</span>
-              <h3>{title}</h3>
-              <p>{text}</p>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </section>
 
     <section class="abx-section" aria-labelledby="abxSites">
       <div class="abx-shell abx-split">
         <div>
-          <p class="abx-kicker">Sedes y cobertura</p>
-          <h2 id="abxSites">Desde Mendoza para Cuyo, Patagonia y el país</h2>
+          <h2 id="abxSites">Desde Mendoza para Cuyo, Patagonia y el país.</h2>
           <p class="abx-lead abx-lead--sm">Base técnica en Mendoza, con cobertura regional para proyectos, mantenimiento y soporte.</p>
         </div>
         <ul class="abx-sites">
@@ -207,7 +143,6 @@ const structuredData = {
                 <strong>{s.name}</strong>
                 <span class="abx-sites__role">{s.role}</span>
                 {s.detail && <span class="abx-sites__detail">{s.detail}</span>}
-                <span class="abx-sites__arrow" aria-hidden="true">→</span>
               </a>
             </li>
           ))}
@@ -225,8 +160,7 @@ const structuredData = {
             deja cada sistema instalado, documentado y operable desde el primer día.
           </p>
           <div class="abx-actions">
-            <a class="abx-btn" href="/antecedentes">Revisar los {projectCount} proyectos <span aria-hidden="true">→</span></a>
-            <a class="abx-link" href="/contacto">Hablar con un técnico <span aria-hidden="true">→</span></a>
+            <a class="abx-btn" href="/contacto">Pedir un relevamiento</a>
           </div>
         </div>
       </div>
@@ -592,4 +526,7 @@ const structuredData = {
   @media (prefers-reduced-motion: reduce) {
     .abx *, .abx *::before { transition: none !important; }
   }
+  /* Barrido 24/10 */
+  .abx-principles li { padding-left: 0; }
+  .abx-principles li::before { display: none; }
 </style>
