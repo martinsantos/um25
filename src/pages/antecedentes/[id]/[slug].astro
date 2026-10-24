@@ -5,7 +5,6 @@
  */
 
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
-import EvidenceCaseRow from '../../../components/um/EvidenceCaseRow.astro';
 import { getAntecedentes as getCatalogAntecedentes, getServicios as getCatalogServicios } from '../../../lib/um26-directus';
 import EmailLink from '../../../components/common/EmailLink.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
@@ -567,9 +566,9 @@ const antecedentePageStructuredData = [
   structuredData={antecedentePageStructuredData}
 >
   <article class="case">
-    <section class="case-detail-hero">
-      <div class="case-shell case-detail-hero__grid">
-        <div class="case-detail-hero__copy">
+    <section class="caso-hero">
+      <div class="case-shell caso-hero__grid">
+        <div class="caso-hero__copy">
           <a class="case-back" href="/antecedentes">← Todos los antecedentes</a>
           <div class:list={['case-detail-label', `is-${caseRecordTone}`]}>
             <span class="case-detail-label__area">{antecedente.Area || 'Proyecto'}</span>
@@ -580,7 +579,7 @@ const antecedentePageStructuredData = [
           <a class="case-btn" href="/contacto">Pedir un relevamiento</a>
         </div>
 
-        <aside class="case-detail-dossier" aria-label="Ficha técnica del antecedente">
+        <aside class="caso-dossier" aria-label="Ficha técnica del antecedente">
           <figure class="case-detail-dossier__media">
             <img
               src={mainImageUrl}
@@ -603,7 +602,7 @@ const antecedentePageStructuredData = [
       </div>
     </section>
 
-    <section class="case-detail-main">
+    <section class="caso-main">
       <div class="case-shell case-body">
         <h2>Qué se hizo.</h2>
         {caseDescriptionHtml ? (
@@ -638,23 +637,20 @@ const antecedentePageStructuredData = [
     </section>
 
     {relatedAntecedentes.length > 0 && (
-      <section class="case-related">
+      <section class="caso-rel">
         <div class="case-shell">
           <h2>{comparablesAreScored ? 'Mismo servicio, mismo sector.' : 'Proyectos relacionados.'}</h2>
-          <div class="case-related__ledger">
-            {relatedAntecedentes.map((ant, index) => (
-              <EvidenceCaseRow
-                href={`/antecedentes/${ant.id}/${ant.slug}`}
-                number={String(index + 1).padStart(2, '0')}
-                title={compactCaseTitle(ant.displayTitle || ant.Titulo || 'Proyecto', ant.Cliente)}
-                description={applyDisplayNameReplacements(
-                  truncateEditorialText(ant.displayDescription || ant.Descripcion || ant.Titulo, 150),
-                  [ant.Cliente]
-                )}
-                sector={ant.Area || 'Servicios IT'}
-                year={formatAntecedenteYear(ant.Fecha)}
-              />
-            ))}
+          <div class="caso-rel__ledger">
+            {relatedAntecedentes.map((ant) => {
+              const year = formatAntecedenteYear(ant.Fecha);
+              return (
+                <a class="caso-row" href={`/antecedentes/${ant.id}/${ant.slug}`} data-year={year} year={formatAntecedenteYear(ant.Fecha)}>
+                  <b>{compactCaseTitle(ant.displayTitle || ant.Titulo || 'Proyecto', ant.Cliente)}</b>
+                  <span>{applyDisplayNameReplacements(truncateEditorialText(ant.displayDescription || ant.Descripcion || ant.Titulo, 150), [ant.Cliente])}</span>
+                  <em>{[ant.Area || 'Servicios IT', year].filter(Boolean).join(' · ')}</em>
+                </a>
+              );
+            })}
           </div>
           <a class="case-textlink" href="/antecedentes">Ver todos los antecedentes</a>
         </div>
@@ -682,18 +678,18 @@ const antecedentePageStructuredData = [
   .case-shell { width: min(1400px, 100% - 48px); margin: 0 auto; }
   .case h1, .case h2 { color: #fff; font-family: var(--um-font-display); letter-spacing: -0.01em; }
   .case h2 { margin: 40px 0 16px; font-size: clamp(1.5rem, 2.2vw, 1.875rem); font-weight: 600; }
-  .case-detail-hero { padding: clamp(40px, 6vw, 72px) 0 32px; }
-  .case-detail-hero__grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; align-items: start; }
+  .caso-hero { padding: clamp(40px, 6vw, 72px) 0 32px; }
+  .caso-hero__grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; align-items: start; }
   .case-back { display: inline-block; margin-bottom: 20px; color: #c4c7cc; text-decoration: none; font-size: 1rem; }
   .case-back:hover, .case-back:focus-visible { color: #fff; text-decoration: underline; text-decoration-color: #dc2626; }
   .case-detail-label { display: flex; gap: 12px; margin: 0 0 12px; color: #9a9a9a; font-size: 1rem; }
   .case-detail-label__reference { color: #c4c7cc; }
-  .case-detail-hero h1 { margin: 0 0 16px; font-size: clamp(2rem, 3.6vw, 3rem); font-weight: 700; line-height: 1.08; max-width: 22ch; overflow-wrap: normal; }
+  .caso-hero h1 { margin: 0 0 16px; font-size: clamp(2rem, 3.6vw, 3rem); font-weight: 700; line-height: 1.08; max-width: 22ch; overflow-wrap: normal; }
   .case-lead { margin: 0 0 24px; max-width: 62ch; color: #c4c7cc; font-size: 1.125rem; line-height: 1.55; }
   .case-btn { display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; background: #dc2626; color: #fff; font-weight: 600; text-decoration: none; border-radius: 4px; }
   .case-btn:hover, .case-btn:focus-visible { background: #b91c1c; }
   .case-textlink { color: #fff; text-decoration: underline; text-decoration-color: #dc2626; text-underline-offset: 5px; font-size: 1.0625rem; }
-  .case-detail-dossier { border: 1px solid rgba(255,255,255,0.12); padding: 16px; }
+  .caso-dossier { border: 1px solid rgba(255,255,255,0.12); padding: 16px; }
   .case-detail-dossier__media {
     width: 100%;
     max-width: 100%;
@@ -707,7 +703,7 @@ const antecedentePageStructuredData = [
   .case-ficha div { display: grid; grid-template-columns: minmax(120px, 0.4fr) minmax(0, 0.6fr); gap: 16px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.12); }
   .case-ficha dt { margin: 0; color: #9a9a9a; font-size: 1rem; }
   .case-ficha dd { margin: 0; color: #fff; font-size: 1rem; overflow-wrap: anywhere; }
-  .case-detail-main { padding: 8px 0 24px; }
+  .caso-main { padding: 8px 0 24px; }
   .case-body { max-width: 860px; }
   .case-body h2:first-child { margin-top: 8px; }
   .case-prose, .case-prose :global(p) { color: #c4c7cc; font-size: 1.0625rem; line-height: 1.6; }
@@ -721,20 +717,19 @@ const antecedentePageStructuredData = [
   .case-services a { color: #fff; font-weight: 600; text-decoration: none; }
   .case-services a:hover, .case-services a:focus-visible { text-decoration: underline; text-decoration-color: #dc2626; }
   .case-services span { color: #c4c7cc; font-size: 1.0625rem; line-height: 1.5; }
-  .case-related { padding: 16px 0 24px; }
-  .case-related__ledger { margin: 0 0 20px; border-top: 1px solid rgba(255,255,255,0.12); }
-  .case-related :global(.evidence-case-row) { background: transparent !important; border: 0 !important; border-bottom: 1px solid rgba(255,255,255,0.12) !important; border-radius: 0 !important; color: #fff !important; box-shadow: none !important; }
-  .case-related :global(.evidence-case-row h3) { color: #fff !important; }
-  .case-related :global(.evidence-case-row p), .case-related :global(.evidence-case-row__meta span) { color: #9a9a9a !important; }
-  .case-related :global(.evidence-case-row__meta strong) { color: #c4c7cc !important; }
-  .case-related :global(.evidence-case-row__number), .case-related :global(.evidence-case-row__thumb), .case-related :global(.evidence-case-row__action) { display: none !important; }
+  .caso-rel { padding: 16px 0 24px; }
+  .caso-rel__ledger { margin: 0 0 20px; border-top: 1px solid rgba(255,255,255,0.12); }
+  .caso-row { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr) auto; gap: 24px; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.12); color: #fff; text-decoration: none; }
+  .caso-row b { font-weight: 600; } .caso-row span { color: #c4c7cc; font-size: 1.0625rem; line-height: 1.45; } .caso-row em { font-style: normal; color: #9a9a9a; white-space: nowrap; }
+  .caso-row:hover b, .caso-row:focus-visible b { text-decoration: underline; text-decoration-color: #dc2626; }
+  @media (max-width: 760px) { .caso-row { grid-template-columns: 1fr; gap: 4px; } .caso-row em { white-space: normal; } }
   .case-close { padding: 32px 0 64px; }
   .case-close__grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px; align-items: center; padding: 32px; border: 1px solid rgba(255,255,255,0.12); background: linear-gradient(105deg, rgba(220,38,38,0.14), transparent 46%), #0f0f10; }
   .case-close h2 { margin: 0 0 8px; }
   .case-close p { margin: 0; color: #c4c7cc; font-size: 1.0625rem; }
   .case-close__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; justify-content: flex-end; }
   @media (max-width: 960px) {
-    .case-detail-hero__grid, .case-close__grid { grid-template-columns: 1fr; }
+    .caso-hero__grid, .case-close__grid { grid-template-columns: 1fr; }
     .case-close__actions { justify-content: flex-start; }
   }
   @media (max-width: 720px) {
