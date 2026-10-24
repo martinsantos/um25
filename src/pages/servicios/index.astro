@@ -27,7 +27,7 @@ const services: Service[] = [
     capabilities: ['Relevamiento y diseño de topología', 'Cableado estructurado y fibra óptica', 'Certificación y documentación', 'Mantenimiento correctivo y preventivo'],
     sectors: 9,
     evidence: 86,
-    image: '/cine/servicios/101.webp',
+    image: '/cine/iso/service-101.svg',
   },
   {
     code: '102',
@@ -39,7 +39,7 @@ const services: Service[] = [
     capabilities: ['CCTV IP y VMS', 'Control de accesos', 'Monitoreo y grabación', 'Integración con operación existente'],
     sectors: 8,
     evidence: 72,
-    image: '/cine/servicios/102-x.webp',
+    image: '/cine/iso/service-102.svg',
   },
   {
     code: '103',
@@ -51,7 +51,7 @@ const services: Service[] = [
     capabilities: ['Radioenlaces y enlaces dedicados', 'Voz, datos y video', 'Redundancia y contingencia', 'Operaciones remotas'],
     sectors: 8,
     evidence: 64,
-    image: '/cine/servicios/103-x.webp',
+    image: '/cine/iso/service-103.svg',
   },
   {
     code: '104',
@@ -63,7 +63,7 @@ const services: Service[] = [
     capabilities: ['Aplicaciones web y móviles', 'APIs e integraciones', 'Dashboards operativos', 'Automatización de procesos'],
     sectors: 7,
     evidence: 58,
-    image: '/cine/servicios/104-x.webp',
+    image: '/cine/iso/service-104.svg',
   },
   {
     code: '105',
@@ -75,7 +75,7 @@ const services: Service[] = [
     capabilities: ['Mesa de ayuda', 'Monitoreo NOC', 'Mantenimiento en sitio', 'Gestión de incidentes y SLA'],
     sectors: 9,
     evidence: 92,
-    image: '/cine/servicios/105-x.webp',
+    image: '/cine/iso/service-105.svg',
   },
   {
     code: '106',
@@ -87,7 +87,7 @@ const services: Service[] = [
     capabilities: ['Auditoría técnica', 'Roadmap de infraestructura', 'Análisis de riesgo', 'Pliegos y especificaciones'],
     sectors: 9,
     evidence: 44,
-    image: '/cine/servicios/106-x.webp',
+    image: '/cine/iso/service-106.svg',
   },
   {
     code: '107',
@@ -99,7 +99,7 @@ const services: Service[] = [
     capabilities: ['Paneles y sensores', 'Pruebas y puesta en marcha', 'Documentación de zonas', 'Mantenimiento y verificación'],
     sectors: 7,
     evidence: 39,
-    image: '/cine/servicios/107-x.webp',
+    image: '/cine/iso/service-107.svg',
   },
   {
     code: '108',
@@ -111,7 +111,7 @@ const services: Service[] = [
     capabilities: ['Tableros y protecciones', 'UPS y autonomía', 'Energía para racks', 'Medición y mantenimiento'],
     sectors: 8,
     evidence: 63,
-    image: '/cine/servicios/108-x.webp',
+    image: '/cine/iso/service-108.svg',
   },
 ];
 
@@ -397,8 +397,10 @@ const servicesWithPosters = services.map((s) => {
       z-index: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      filter: contrast(1.08) saturate(0.9) brightness(0.82);
+      object-fit: contain;
+      padding: 6%;
+      box-sizing: border-box;
+      filter: none;
       transform: none;
       transition: filter 0.18s ease;
     }
@@ -439,14 +441,14 @@ const servicesWithPosters = services.map((s) => {
       color: rgba(255,255,255,0.78);
     }
 
-    .services-demo-media--101 { --service-image: url('/cine/servicios/101.webp'); }
-    .services-demo-media--102 { --service-image: url('/cine/servicios/102-x.webp'); }
-    .services-demo-media--103 { --service-image: url('/cine/servicios/103-x.webp'); }
-    .services-demo-media--104 { --service-image: url('/cine/servicios/104-x.webp'); }
-    .services-demo-media--105 { --service-image: url('/cine/servicios/105-x.webp'); }
-    .services-demo-media--106 { --service-image: url('/cine/servicios/106-x.webp'); }
-    .services-demo-media--107 { --service-image: url('/cine/servicios/107-x.webp'); }
-    .services-demo-media--108 { --service-image: url('/cine/servicios/108-x.webp'); }
+    .services-demo-media--101 { --service-image: none; }
+    .services-demo-media--102 { --service-image: none; }
+    .services-demo-media--103 { --service-image: none; }
+    .services-demo-media--104 { --service-image: none; }
+    .services-demo-media--105 { --service-image: none; }
+    .services-demo-media--106 { --service-image: none; }
+    .services-demo-media--107 { --service-image: none; }
+    .services-demo-media--108 { --service-image: none; }
 
     .services-demo-body {
       display: flex;
