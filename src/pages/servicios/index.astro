@@ -826,5 +826,6 @@ const servicesWithPosters = services;
     .services-demo-list .services-demo-body footer span { display: block; margin: 0; font-family: inherit; letter-spacing: 0; text-transform: none; font-weight: 400; color: #9a9a9a; white-space: nowrap; }
     .services-demo-list .services-demo-body footer .services-demo-action { display: none; }
     @media (max-width: 980px) { .services-demo-list .services-demo-body { grid-template-columns: 1fr; gap: 6px; } .services-demo-list > .services-demo-row, .services-demo-list > .services-demo-row:nth-child(even) { grid-template-columns: 160px minmax(0, 1fr); } }
+    @media (max-width: 640px) { .services-demo-list > .services-demo-row, .services-demo-list > .services-demo-row:nth-child(even) { grid-template-columns: minmax(84px, 24vw) minmax(0, 1fr); gap: 14px; } .services-demo-list .services-demo-media { width: 100%; } .services-demo-list .services-demo-body > p { font-size: 1rem; } }
 </style>
 </LayoutV4>
