@@ -40,8 +40,12 @@ const cases = [...ANTECEDENTES_REALES]
   .sort((a, b) => (b.year - a.year) || (b.month - a.month) || (b.id - a.id))
   .slice(0, 6)
   .map((item) => {
-    const title = item.title.replace(new RegExp(`\\s*-\\s*${item.client.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}.*$`, 'i'), '').trim() || item.title;
-    return { id: String(item.id), title, client: item.client, year: item.year || '', sector: SECTOR_LABEL[item.sectorSlug] || '', href: `/antecedentes/${item.id}/${item.slug}` };
+    // Título sin la cola «- Cliente…» ni segmentos repetidos; cliente en caja normal si el registro viene en mayúsculas.
+    const title = (item.title.split(/\s+[-–]\s+/)[0] || item.title).replace(/\s*\(\d+\)\s*$/, '').trim() || item.title;
+    const client = item.client === item.client.toUpperCase()
+      ? item.client.toLowerCase().replace(/(^|\s)(\S)/g, (m: string) => m.toUpperCase()).replace(/\b(De|Del|La|Las|Los|Y|E|Sa|Srl)\b/g, (w: string) => (/^(Sa|Srl)$/.test(w) ? w.toUpperCase() : w.toLowerCase()))
+      : item.client;
+    return { id: String(item.id), title, client, year: item.year || '', sector: SECTOR_LABEL[item.sectorSlug] || '', href: `/antecedentes/${item.id}/${item.slug}` };
   });
 
 ---
