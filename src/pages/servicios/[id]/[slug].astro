@@ -14,7 +14,6 @@ import EmailLink from '../../../components/common/EmailLink.astro';
 import CineBanner from '../../../components/cine/CineBanner.astro';
 import SoftwareFilm from '../../../components/cine/SoftwareFilm.astro';
 import SectorCode from '../../../components/cine/SectorCode.astro';
-import ProductStage from '../../../components/cine/ProductStage.astro';
 import { productPage } from '../../../data/productPages';
 import ServiceSpecSheet from '../../../components/cine/ServiceSpecSheet.astro';
 import ShareButton from '../../../components/common/ShareButton.astro';
@@ -475,22 +474,6 @@ const fichaItems = [
           </header>
         </div>
         <SectorCode sector={despieceSector} service={String(id)} />
-      </section>
-    )}
-
-    <!-- 2b · La demo (solo 104, 105 y 106): el producto mostrado como producto, con datos de ejemplo -->
-    {product && (
-      <section class="svc-section svc-section--paper" id="equipamiento" aria-labelledby="svc-render-title">
-        <div class="svc-wrap">
-          <header class="svc-head">
-            <div>
-              <p class="svc-kicker">{product.stage.kicker}</p>
-              <h2 id="svc-render-title">{product.stage.title}</h2>
-            </div>
-            <p class="svc-head__lead">{product.stage.lead}</p>
-          </header>
-          <ProductStage stage={product.stage} />
-        </div>
       </section>
     )}
 

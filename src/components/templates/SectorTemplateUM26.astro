@@ -38,8 +38,8 @@ const sectorOrder = [
   'software',
 ];
 const sectorNumber = String(Math.max(1, sectorOrder.indexOf(sectorDataSlug) + 1)).padStart(2, '0');
-// Escena del despiece: los seis sectores con escena propia usan la suya; gobierno comparte la
-// de constructoras (edificio de oficinas) y software la de industria (planta con tableros).
+// Escena del despiece: cada sector con escena propia en SECTOR_FILMS usa la suya (gobierno
+// y software tienen la suya desde el 24/10); seguridad-electronica no tiene y no dibuja despiece.
 const SPEC_FOR: Record<string, string> = {
   salud: 'salud',
   aeropuertos: 'aeropuertos',
@@ -47,8 +47,8 @@ const SPEC_FOR: Record<string, string> = {
   bodegas: 'bodegas',
   constructoras: 'constructoras',
   mineria: 'mineria',
-  gobiernosectorpublico: 'constructoras',
-  software: 'industria',
+  gobiernosectorpublico: 'gobierno',
+  software: 'software',
 };
 const specSlug = SPEC_FOR[sectorDataSlug] as any;
 const cineSector = sectorBySlug(sectorDataSlug);

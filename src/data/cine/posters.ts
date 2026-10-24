@@ -13,6 +13,8 @@ const DESPIECE: Record<string, string[]> = {
   bodegas: ['108', '101', '103', '102', '107', '104', '105'],
   constructoras: ['108', '101', '102', '107', '105'],
   mineria: ['108', '101', '103', '102', '106', '105'],
+  gobierno: ['108', '101', '103', '102', '104', '106', '105'],
+  software: ['101', '104', '106', '105'],
 };
 
 /** Sector de referencia de cada servicio (donde su capa se lee mejor). */
@@ -22,9 +24,10 @@ const SERVICE_SECTOR: Record<string, string> = {
 };
 const SERVICE_CODES = Object.keys(SERVICE_SECTOR);
 
-/** Sectores de la navegación que no tienen despiece propio: usan el de la escena que comparten. */
+/** Slugs de la navegación que no coinciden con el del despiece: el dato del CMS de gobierno, y
+ *  seguridad electrónica, que no tiene despiece propio y usa el de aeropuertos. */
 const SECTOR_ALIAS: Record<string, string> = {
-  gobierno: 'constructoras', gobiernosectorpublico: 'constructoras', software: 'industria', 'seguridad-electronica': 'aeropuertos',
+  gobiernosectorpublico: 'gobierno', 'seguridad-electronica': 'aeropuertos',
 };
 
 export interface PosterOptions {
