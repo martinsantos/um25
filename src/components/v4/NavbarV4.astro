@@ -35,7 +35,6 @@ const isActive = (href: string) => {
   return clean.startsWith(target);
 };
 
-const moreIsActive = moreItems.some((item) => isActive(item.href));
 ---
 
 <header class="um-ops-header">
@@ -104,24 +103,8 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
           </a>
         ))}
 
-        <div class:list={['um-ops-more', { 'is-active': moreIsActive }]}>
-          <button type="button" class="um-ops-more__trigger" aria-haspopup="true" aria-expanded="false">
-            {t.nav.more}
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-          </button>
-          <div class="um-ops-more__menu" role="menu">
-            {moreItems.map((item) => (
-              <a href={item.href} role="menuitem" class:list={[{ 'is-active': isActive(item.href) }]}>
-                {item.label}
-              </a>
-            ))}
-          </div>
-        </div>
       </nav>
 
-      <a href={alternate} class="um-ops-lang" hreflang={alternateLang} lang={alternateLang} aria-label={t.lang.switchTo} title={t.lang.switchTo}>
-        {t.lang.code}
-      </a>
 
       {lang === 'en' ? (
         <a href="/en/contacto" class="um-ops-cta">{t.nav.contact}</a>

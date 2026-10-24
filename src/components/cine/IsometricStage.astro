@@ -11,7 +11,7 @@ const first=study.views[1];
 {<figure class:list={['iso',{'iso--compact':compact}]} data-isometric data-iso-code={code} data-iso-view="1">
   <div class="iso__meta"><span>{study.name}</span><span>{study.object}</span><button type="button" class="iso__play" data-iso-play aria-pressed="false">Ver recorrido</button></div>
   <div class="iso__controls" role="group" aria-label={`Explorar ${study.name.toLowerCase()}`}>
-    {study.views.map((view,i)=><button type="button" id={`${prefix}-view-${i}`} data-iso-select={i} data-title={view.title} data-description={view.description} aria-pressed={String(i===1)}><span aria-hidden="true">0{i+1}</span>{view.label}</button>)}
+    {study.views.map((view,i)=><button type="button" id={`${prefix}-view-${i}`} data-iso-select={i} data-title={view.title} data-description={view.description} aria-pressed={String(i===1)}>{view.label}</button>)}
   </div>
   <div class="iso__frame">
     <div class="iso__drawing" data-iso-panel="system" hidden set:html={drawing('system')} />
@@ -66,4 +66,5 @@ const first=study.views[1];
   @media(hover:hover){.iso__controls button:hover{background:#1c1c1c;color:#fff}}
   @media(max-width:760px){.iso{padding:20px}.iso__meta{display:grid;gap:6px}.iso__frame{height:300px;margin:16px -8px 0}.iso__caption{padding:18px 0;gap:12px;min-height:172px}.iso__controls{grid-template-columns:1fr 1fr}.iso__controls button{justify-content:flex-start;padding-left:12px}.iso__controls button:nth-child(3){border-left:0}.iso__controls button:nth-child(-n+2){border-bottom-color:#ffffff24}.iso__controls button[aria-pressed=true]{border-bottom-color:#dc2626}.iso__parts{grid-template-columns:1fr;gap:20px}}
   @media(prefers-reduced-motion:reduce){.iso__drawing.is-entering{animation:none}.iso__drawing :global(.iso-lid),.iso__drawing :global(.iso-operation-layer){transition:none}.iso__drawing :global(.iso-internals),.iso__drawing :global(.iso-guides){transition:none}}
+  .iso__step{display:none}
 </style>
