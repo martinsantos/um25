@@ -1,6 +1,5 @@
 ---
 import { truncateEditorialText } from '../../utils/editorialContent';
-import SystemsStory from '../cine/SystemsStory.astro';
 import SiteDespiece from '../cine/SiteDespiece.astro';
 import CineBanner from '../cine/CineBanner.astro';
 import SnapRail from '../cine/SnapRail.astro';
@@ -39,7 +38,21 @@ const sectorAntecedentesHref = sectorSlug
   : '/antecedentes';
 const caseHref = (item: any) => `/antecedentes/${item.id}/${item.slug || ''}`;
 const leadCase = antecedentes[0];
-const evidenceCases = antecedentes.slice(0, 6);
+// Seis proyectos sin repetir cliente+título.
+const seenCases = new Set<string>();
+const evidenceCases = antecedentes.filter((item: any) => {
+  const key = `${String(item.Cliente || '').toLowerCase()}|${String(item.Titulo || '').toLowerCase().split(/\s+[-–]\s+/)[0]}`;
+  if (seenCases.has(key)) return false;
+  seenCases.add(key);
+  return true;
+}).slice(0, 6);
+const cleanCaseTitle = (raw: string) => {
+  let title = cleanCmsText(String(raw || '').split('|')[0]).replace(/\s*\(\d+\)\s*$/, '');
+  title = title.split(/\s+[-–]\s+/)[0] || title;
+  title = title.replace(/\.?\s*[^.]{2,40}\s&\sSector\s[^.]{2,40}\.?$/i, '').trim();
+  return title.replace(/[.\s]+$/, '');
+};
+
 const serviceItems = (serviciosRelacionados || []).slice(0, 8);
 const criteriaItems = (valueProps || []).slice(0, 6);
 const heroStats = [
@@ -121,126 +134,41 @@ const areaLabel = (area: unknown) => {
     kicker={cineSector?.text || `Sector ${sectorNumber}`}
     title={sectorTitle}
     lead={sectorSummary}
-    primary={{ href: '/contacto', label: 'Solicitar relevamiento' }}
-    secondary={{ href: sectorAntecedentesHref, label: 'Ver casos del sector' }}
+    primary={{ href: '/contacto', label: 'Pedir un relevamiento' }}
     stats={cineStats}
     back={{ href: '/sectores', label: '← Todos los sectores' }}
   />
 
   <SiteDespiece scene={cineScene} sectorSlug={sectorDataSlug} sectorName={sectorName} />
 
-  <SystemsStory slug={sectorSlug} name={sectorName} />
-
-  <section class="sector26-services" aria-label="Servicios aplicados">
-    <div class="sector26-shell">
-      <div class="sector26-section-head">
-        <p class="sector26-kicker"><span></span>Servicios</p>
-        <h2>Servicios aplicados a {sectorName.toLowerCase()}.</h2>
-      </div>
-      <div class="sector26-service-grid" data-rail="Servicios aplicados">
-        {serviceItems.map((item: any, index: number) => (
-          <a href={`/servicios/${item.id}/${item.slug || ''}`} class="um-click-surface sector26-service-card">
-            <span>{String(index + 1).padStart(2, '0')}</span>
-            <strong>{serviceSummary(item.id)?.name || cleanCmsText(item.nombre || item.Titulo).split(' · ')[0] || 'Servicio'}</strong>
-            <p>{serviceSummary(item.id)?.summary || cleanCmsText(item.descripcion || item.Descripcion)}</p>
-            <em class="um-click-action">Ver detalle</em>
-          </a>
-        ))}
-        {serviceItems.length === 0 && sectorServices.map((item: string, index: number) => (
-          <article class="sector26-service-card">
-            <span>{String(index + 1).padStart(2, '0')}</span>
-            <strong>{item}</strong>
-            <p>Capacidad aplicada al mapa operativo de {sectorName}.</p>
-          </article>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  {criteriaItems.length > 0 && (
-    <section class="sector26-criteria">
-      <div class="sector26-shell">
-        <div class="sector26-section-head">
-          <p class="sector26-kicker"><span></span>Criterios</p>
-          <h2>Condiciones de diseño.</h2>
-        </div>
-        <div class="sector26-criteria-grid">
-          {criteriaItems.map((item: any, index: number) => (
-            <article>
-              <span>{String(index + 1).padStart(2, '0')}</span>
-              <h3>{item.titulo}</h3>
-              <p>{truncate(item.descripcion, 170)}</p>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  )}
-
-  <section class="sector26-evidence" aria-label="Evidencia vinculada">
+  <section class="sector26-evidence" aria-label="Proyectos del sector">
     <div class="sector26-shell">
       <div class="sector26-section-head sector26-section-head--split">
-        <div>
-          <p class="sector26-kicker"><span></span>Proyectos</p>
-          <h2>Proyectos en el sector.</h2>
-        </div>
+        <h2>Lo que ya instalamos en {sectorName.toLowerCase()}.</h2>
         <a href={sectorAntecedentesHref}>Ver todos los proyectos</a>
       </div>
-
-      {leadCase && (
-        <a class="um-click-surface sector26-feature-case" href={caseHref(leadCase)}>
-          {leadCase.imageUrl && <img src={leadCase.imageUrl} alt="" width="1600" height="900" loading="lazy" decoding="async" />}
-          <div>
-            <p>Caso destacado</p>
-            <h3>{formatCaseName(leadCase.Cliente || leadCase.Titulo, 'Proyecto destacado')}</h3>
-            <p>{cleanCmsText(leadCase.Descripcion || leadCase.Titulo)}</p>
-            <dl>
-              <div><dt>Área</dt><dd>{areaLabel(leadCase.Area)}</dd></div>
-              {leadCase.Fecha && <div><dt>Año</dt><dd>{String(leadCase.Fecha).slice(0, 4)}</dd></div>}
-            </dl>
-            <strong class="um-click-action">Ver detalle</strong>
-          </div>
-        </a>
-      )}
-
-      <div class="sector26-case-list" data-rail="Proyectos del sector">
-        {evidenceCases.slice(1).map((item: any, index: number) => (
-          <a href={caseHref(item)} class="um-click-surface sector26-case-row">
-            <span>{String(index + 2).padStart(2, '0')}</span>
-            {item.imageUrl && <img src={item.imageUrl} alt="" width="1200" height="900" loading="lazy" decoding="async" />}
-            <div>
-              <p>{areaLabel(item.Area)}{item.Fecha ? ` · ${String(item.Fecha).slice(0, 4)}` : ''}</p>
-              <strong>{formatCaseName(item.Cliente || item.Titulo, 'Proyecto')}</strong>
-              <em>{cleanCmsText(item.Descripcion || item.Titulo)}</em>
-            </div>
-            <b class="um-click-action">Ver detalle</b>
-          </a>
+      <ol class="sector26-case-list" data-rail="Proyectos del sector">
+        {evidenceCases.slice(0, 6).map((item: any) => (
+          <li>
+            <a href={caseHref(item)} class="sector26-case-row">
+              <b>{formatCaseName(item.Cliente || item.Titulo, 'Proyecto')}</b>
+              <span>{cleanCaseTitle(item.Titulo) || cleanCmsText(item.Descripcion)}</span>
+              <em>{item.Fecha ? String(item.Fecha).slice(0, 4) : ''}</em>
+            </a>
+          </li>
         ))}
-      </div>
+      </ol>
     </div>
   </section>
 
   <section class="sector26-closing">
     <div class="sector26-shell sector26-closing__panel">
       <div>
-        <p class="sector26-kicker"><span></span>Para avanzar</p>
-        <h2>Hablemos de su operación.</h2>
-        <p>Cuéntenos qué necesita resolver y le proponemos un relevamiento técnico con casos comparables del sector.</p>
+        <h2>Contanos qué tiene que seguir funcionando.</h2>
+        <p>Relevamos en el lugar y te decimos qué hace falta.</p>
       </div>
-      <div class="sector26-closing__links" data-rail="Próximos pasos">
-        {nextLinks.map((link: any) => (
-          <a href={link.href}>
-            <span>{link.label || 'Ruta'}</span>
-            <strong>{link.title}</strong>
-            <em>{truncate(link.summary, 96)}</em>
-          </a>
-        ))}
-        {nextLinks.length === 0 && (
-          <>
-            <a href="/contacto"><span>Contacto</span><strong>Contacto técnico</strong><em>Un técnico responde por email con el próximo paso.</em></a>
-            <a href="/servicios"><span>Servicios</span><strong>Servicios IT</strong><em>Los ocho frentes de servicio, con su alcance técnico.</em></a>
-          </>
-        )}
+      <div class="sector26-closing__links">
+        <a class="sector26-closing__cta" href="/contacto">Pedir un relevamiento</a>
       </div>
     </div>
   </section>
@@ -1345,4 +1273,25 @@ const areaLabel = (area: unknown) => {
       font-size: 2.125rem;
     }
   }
+  .sector26-case-list { list-style: none; margin: 0; padding: 0; }
+  .sector26-case-list li { border-top: 1px solid rgba(255, 255, 255, 0.12); }
+  .sector26-case-list li:last-child { border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
+  .sector26-case-list .sector26-case-row { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr) auto; gap: 24px; padding: 18px 0; color: #fff; text-decoration: none; font-size: 1.0625rem; line-height: 1.45; border: 0; background: none; }
+  .sector26-case-list b { font-weight: 600; }
+  .sector26-case-list span { color: #c4c7cc; }
+  .sector26-case-list em { font-style: normal; color: #9a9a9a; font-variant-numeric: tabular-nums; }
+  .sector26-case-list a:hover b, .sector26-case-list a:focus-visible b { text-decoration: underline; text-decoration-color: #dc2626; }
+  @media (max-width: 760px) { .sector26-case-list .sector26-case-row { grid-template-columns: 1fr; gap: 2px; padding: 14px 0; } }
+  .sector26-case-row > b { font-weight: 600; color: #fff; }
+  .sector26-case-row > span { color: #c4c7cc; font-size: 1.0625rem; font-weight: 400; }
+  .sector26-case-row > em { font-style: normal; color: #9a9a9a; display: block; -webkit-line-clamp: unset; }
+  .sector26-case-row:hover > b, .sector26-case-row:focus-visible > b { text-decoration: underline; text-decoration-color: #dc2626; }
+  /* v4.css pinta estas filas con !important; `main` va en :global para que Astro no le pegue el cid del componente. */
+  :global(body[data-skin] main) .sector26-case-row > span { color: #c4c7cc !important; font-weight: 400 !important; font-size: 1.0625rem !important; }
+  :global(body[data-skin] main) .sector26-case-row > b { color: #fff !important; text-decoration: none !important; }
+  :global(body[data-skin] main) .sector26-case-row > em { color: #9a9a9a !important; }
+  :global(body[data-skin] main) .sector26-case-row > b::after { content: none !important; }
+  :global(body[data-skin] main) .sector26-case-row:hover > b, :global(body[data-skin] main) .sector26-case-row:focus-visible > b { color: #fff !important; text-decoration: underline !important; text-decoration-color: #dc2626 !important; }
+  :global(body[data-skin] main) .sector26-closing__cta { display: inline-flex !important; align-items: center; min-height: 48px !important; align-self: center; justify-self: start; width: auto; height: auto; padding: 0 22px !important; background: #dc2626 !important; color: #fff !important; font-weight: 600; text-decoration: none; border: 0 !important; border-radius: 4px; }
+  :global(body[data-skin] main) .sector26-closing__cta:hover, :global(body[data-skin] main) .sector26-closing__cta:focus-visible { background: #b91c1c !important; }
 </style>

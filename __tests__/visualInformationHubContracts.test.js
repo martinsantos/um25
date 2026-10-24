@@ -299,29 +299,20 @@ describe('Information hub visual contracts', () => {
     expect(coverage).not.toMatch(/outline:\s*(none|0)/);
   });
 
-  test('sector service cards expose real link interaction states', () => {
-    expect(sectorUM26).toContain('class="um-click-surface sector26-service-card"');
-    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</em>');
-    expect(sectorUM26).toMatch(/\.sector26-service-card,[\s\S]*--um-click-hover-bg:[\s\S]*#171719;/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover,[\s\S]*a\.sector26-service-card:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.22\);/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover strong,[\s\S]*a\.sector26-service-card:focus-visible strong\s*\{[\s\S]*color:\s*#fff !important;/);
-    expect(sectorUM26).toMatch(/\.sector26-service-card em\s*\{[\s\S]*text-decoration:\s*underline;/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover em::after,[\s\S]*a\.sector26-service-card:focus-visible em::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
-  });
-
-  test('sector evidence links expose active hover and focus states', () => {
-    expect(sectorUM26).toContain('class="um-click-surface sector26-feature-case"');
-    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</strong>');
-    expect(sectorUM26).toContain('class="um-click-surface sector26-case-row"');
-    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</b>');
-    expect(sectorUM26).toMatch(/\.sector26-feature-case:hover,[\s\S]*\.sector26-feature-case:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.26\);/);
-    expect(sectorUM26).toMatch(/\.sector26-feature-case:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
-    expect(sectorUM26).toMatch(/\.sector26-feature-case:hover strong::after,[\s\S]*\.sector26-feature-case:focus-visible strong::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
-    expect(sectorUM26).toMatch(/\.sector26-case-row\s*\{[\s\S]*--um-click-hover-bg:[\s\S]*#171719;/);
-    expect(sectorUM26).toMatch(/\.sector26-case-row:hover,[\s\S]*\.sector26-case-row:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.24\);/);
-    expect(sectorUM26).toMatch(/\.sector26-case-row:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
-    expect(sectorUM26).toMatch(/\.sector26-case-row:hover b::after,[\s\S]*\.sector26-case-row:focus-visible b::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
+  test('sector page keeps four blocks: banner, despiece, project list, contact (24/10)', () => {
+    const markup = sectorUM26.split('<style>')[0];
+    expect(markup).toContain('<SiteDespiece scene={cineScene}');
+    expect(markup).not.toContain('<SystemsStory');
+    expect(markup).not.toContain('sector26-service-card');
+    expect(markup).not.toContain('sector26-criteria');
+    expect(markup).not.toContain('sector26-feature-case');
+    expect(markup).not.toContain('sector26-kicker');
+    expect(markup).toContain('<ol class="sector26-case-list"');
+    expect(markup).toContain('class="sector26-case-row"');
+    expect(markup).not.toMatch(/sector26-case-row"[^>]*>\s*<span>\{String/);
+    expect(sectorUM26).toMatch(/\.sector26-case-list \.sector26-case-row\s*\{[\s\S]*display:\s*grid;/);
+    expect(sectorUM26).toMatch(/\.sector26-case-list a:hover b,[\s\S]*text-decoration-color:\s*#dc2626;/);
+    expect(markup).toContain('<a class="sector26-closing__cta" href="/contacto">Pedir un relevamiento</a>');
   });
 
   test('sector dark surfaces keep body text readable over images and black panels', () => {
