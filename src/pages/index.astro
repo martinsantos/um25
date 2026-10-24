@@ -7,13 +7,6 @@ import EmailLink from '../components/common/EmailLink.astro';
 import CineBanner from '../components/cine/CineBanner.astro';
 import SiteDespiece from '../components/cine/SiteDespiece.astro';
 import SectorAtlas from '../components/cine/SectorAtlas.astro';
-import CoverageMap from '../components/cine/CoverageMap.astro';
-import ProductBand from '../components/cine/ProductBand.astro';
-import CompanyBand from '../components/cine/CompanyBand.astro';
-import JournalBand from '../components/cine/JournalBand.astro';
-import SnapRail from '../components/cine/SnapRail.astro';
-import CapabilityLedger from '../components/cine/CapabilityLedger.astro';
-import { NAV_SERVICES } from '../data/navigation';
 import { HOME_SCENES, V4_CUTS } from '../data/cine/scenes';
 
 // Hero variable: cada visita arranca en otra escena y cada escena elige al azar uno de
@@ -25,7 +18,6 @@ const heroStart = Math.floor(Math.random() * HOME_SCENES.length);
 
 const heroLead = 'Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.';
 
-const services = NAV_SERVICES;
 
 const sectors = [
   { name: 'Aeropuertos', count: sectorCaseLabel('aeropuertos'), text: 'CCTV de perímetro 24/7', href: '/aeropuertos', image: '/cine/media/cine-aeropuerto-poster.jpg', accent: '#DC2626', big: true },
@@ -39,45 +31,25 @@ const sectors = [
   { name: 'Software', count: sectorCaseLabel('software'), text: 'ERPs y plataformas a medida', href: '/software', image: '/cine/media/cine-hospital-software-poster.jpg', accent: '#DC2626' },
 ];
 
-// Proyectos destacados: registros reales del catálogo, con su ficha y su imagen curada.
+// Proyectos: los seis más recientes del catálogo real, en lista (cliente · trabajo · año).
 const SECTOR_LABEL: Record<string, string> = {
   aeropuertos: 'Aeropuertos', bodegas: 'Bodegas', constructoras: 'Constructoras', gobierno: 'Gobierno',
   industria: 'Industria', mineria: 'Minería', salud: 'Salud', 'seguridad-electronica': 'Seguridad electrónica', software: 'Software',
 };
-const DESTACADOS: { id: number; image: string }[] = [
-  { id: 3065, image: '/cine/media/cine-aeropuerto-seguridad.mp4' },
-  { id: 3075, image: '/cine/media/cine-hospital-redes.mp4' },
-  { id: 3064, image: '/cine/media/cine-fachada-software.mp4' },
-  { id: 3334, image: '/cine/media/cine-bodega-soporte.mp4' },
-];
-const cases = DESTACADOS.flatMap(({ id, image }) => {
-  const item = ANTECEDENTES_REALES.find((antecedente) => antecedente.id === id);
-  if (!item) return [];
-  const title = item.title.replace(new RegExp(`\\s*-\\s*${item.client.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}.*$`, 'i'), '').trim() || item.title;
-  return [{
-    id: String(id),
-    title,
-    meta: `${item.client}${item.year ? ` / ${item.year}` : ''}`,
-    sector: SECTOR_LABEL[item.sectorSlug] || '',
-    href: `/antecedentes/${id}/${item.slug}`,
-    image,
-  }];
-});
+const cases = [...ANTECEDENTES_REALES]
+  .sort((a, b) => (b.year - a.year) || (b.month - a.month) || (b.id - a.id))
+  .slice(0, 6)
+  .map((item) => {
+    // Título sin la cola «- Cliente…» ni segmentos repetidos; cliente en caja normal si el registro viene en mayúsculas.
+    const clientKey = item.client.toLowerCase();
+    const segments = item.title.split(/\s+[-–]\s+/).map((s) => s.replace(/\s*\(\d+\)\s*$/, '').trim()).filter(Boolean);
+    const title = segments.find((s) => !clientKey.includes(s.toLowerCase())) || segments[0] || item.title;
+    const client = item.client === item.client.toUpperCase()
+      ? item.client.toLowerCase().replace(/(^|\s)(\S)/g, (m: string) => m.toUpperCase()).replace(/\b(De|Del|La|Las|Los|Y|E|Sa|Srl)\b/g, (w: string) => (/^(Sa|Srl)$/.test(w) ? w.toUpperCase() : w.toLowerCase()))
+      : item.client;
+    return { id: String(item.id), title, client, year: item.year || '', sector: SECTOR_LABEL[item.sectorSlug] || '', href: `/antecedentes/${item.id}/${item.slug}` };
+  });
 
-const stats = [
-  { value: '22+', label: 'Años de operación', href: '/nosotros', aria: 'Ver trayectoria de ULTIMA MILLA' },
-  { value: String(getAntecedentesCatalogCount()), label: 'Proyectos documentados', href: '/antecedentes', aria: 'Ver proyectos documentados' },
-  { value: '9', label: 'Sectores atendidos', href: '/sectores', aria: 'Ver sectores atendidos' },
-  { value: '4', label: 'Sedes en Cuyo y Patagonia', href: '#cobertura', aria: 'Ver sedes y cobertura' },
-  { value: '24/7', label: 'Soporte operativo', href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it', aria: 'Ver soporte operativo 24/7' },
-];
-
-const hubs = [
-  { name: 'Mendoza', region: 'Cuyo / sede central', coords: '-32.8908, -68.8272', href: '/servicios-it-empresas-mendoza', aria: 'Ver servicios IT para empresas en Mendoza' },
-  { name: 'San Juan', region: 'Cuyo', coords: '-31.5375, -68.5364', href: '/servicios-it-empresas-argentina', aria: 'Ver cobertura de servicios IT para empresas en San Juan' },
-  { name: 'San Luis', region: 'Cuyo', coords: '-33.2950, -66.3356', href: '/servicios-it-empresas-argentina', aria: 'Ver cobertura de servicios IT para empresas en San Luis' },
-  { name: 'Neuquen', region: 'Patagonia', coords: '-38.9516, -68.0591', href: '/servicios-it-empresas-argentina', aria: 'Ver cobertura de servicios IT para empresas en Patagonia' },
-];
 ---
 
 <LayoutV4 skin="black"
@@ -92,125 +64,43 @@ const hubs = [
       kicker="Más de 22 años de servicios IT · Mendoza, Argentina"
       title="Servicios IT para operaciones que no pueden detenerse."
       lead={heroLead}
-      primary={{ href: '/antecedentes', label: 'Ver evidencia operativa' }}
-      secondary={{ href: '/sectores', label: 'Entrar por sector' }}
+      primary={{ href: '/contacto', label: 'Pedir un relevamiento' }}
       variants={heroVariants}
       start={heroStart}
     />
 
-    <section class="um26-stats" aria-label="Indicadores ULTIMA MILLA">
-      <div class="um26-shell um26-stats__inner">
-        <div class="um26-stats__grid">
-          {stats.map(({ value, label, href, aria }) => (
-            <a href={href} aria-label={aria}>
-              <strong>
-                {value.endsWith('+') ? (
-                  <>{value.slice(0, -1)}<b>+</b></>
-                ) : value.endsWith('%') ? (
-                  <>{value.slice(0, -1)}<b>%</b></>
-                ) : (
-                  value
-                )}
-              </strong>
-              <span>{label}</span>
-            </a>
-          ))}
-        </div>
-      </div>
-    </section>
-
     <section class="um26-section" id="servicios-it">
       <div class="um26-shell">
-        <div class="um26-section__head" data-reveal>
-          <div>
-            <p class="um26-kicker"><span></span>Servicios</p>
-            <h2>Ocho frentes de servicio IT.</h2>
-          </div>
-          <p>Un mismo equipo releva, instala y sostiene cada sistema, de la obra a la operación diaria.</p>
-        </div>
-
         <SiteDespiece scene="fachada" sectorSlug="constructoras" sectorName="un edificio" />
-
-        <a class="um26-text-link" href="/servicios">Ver los ocho servicios</a>
       </div>
     </section>
 
-    <section class="um26-section um26-section--band" id="sectores">
+    <section class="um26-section" id="sectores">
       <div class="um26-shell">
-        <div class="um26-section__head" data-reveal>
-          <div>
-            <p class="um26-kicker"><span></span>Sectores</p>
-            <h2>Infraestructura IT por sector.</h2>
-          </div>
-          <p>Entrá por su sector y revisá casos comparables antes de contratar.</p>
+        <div class="um26-section__head">
+          <h2>Nueve sectores, cinco lugares que conocemos por dentro.</h2>
         </div>
-
         <SectorAtlas sectors={sectors} />
       </div>
     </section>
 
     <section class="um26-section" id="antecedentes-home">
       <div class="um26-shell">
-        <div class="um26-section__head" data-reveal>
-          <div>
-            <p class="um26-kicker"><span></span>Proyectos</p>
-            <h2>Proyectos que respaldan cada propuesta.</h2>
-          </div>
-          <p>{getAntecedentesCatalogCount()} proyectos documentados con cliente, sector, servicios aplicados y alcance técnico.</p>
+        <div class="um26-section__head">
+          <h2>{getAntecedentesCatalogCount()} proyectos documentados.</h2>
         </div>
-
-        <div class="um26-case-grid" data-rail="Proyectos destacados" data-reveal>
+        <ol class="um26-case-list">
           {cases.map((item) => (
-            <a class="um26-media-card um26-case-card" href={item.href}>
-              <span class="um26-media-card__code">#{item.id}</span>
-              <div>
-                <p>{item.meta}</p>
-                <h3>{item.title}</h3>
-                <small>{item.sector}</small>
-              </div>
-              <span class="um26-card-bar" aria-hidden="true"></span>
-            </a>
+            <li>
+              <a href={item.href}>
+                <b>{item.client}</b>
+                <span>{item.title}</span>
+                <em>{item.year}</em>
+              </a>
+            </li>
           ))}
-        </div>
-
-        <a class="um26-btn um26-btn--red um26-section__cta" href="/antecedentes">Explorar los {getAntecedentesCatalogCount()} proyectos</a>
-      </div>
-    </section>
-
-    <section class="um26-section" id="empresa">
-      <div class="um26-shell">
-        <CompanyBand />
-      </div>
-    </section>
-
-    <section class="um26-section um26-section--band" id="capacidad">
-      <div class="um26-shell">
-        <CapabilityLedger />
-      </div>
-    </section>
-
-    <section class="um26-section" id="producto">
-      <div class="um26-shell">
-        <ProductBand />
-      </div>
-    </section>
-
-    <section class="um26-section um26-section--band" id="cobertura">
-      <div class="um26-shell">
-        <div class="um26-section__head" data-reveal>
-          <div>
-            <p class="um26-kicker"><span></span>Cobertura</p>
-            <h2>Cobertura en Cuyo y Patagonia.</h2>
-          </div>
-          <p>Sede central en Mendoza, al pie de los Andes, y sedes en San Juan, San Luis y Neuquén.</p>
-        </div>
-        <CoverageMap hubs={hubs} />
-      </div>
-    </section>
-
-    <section class="um26-section" id="blog-home">
-      <div class="um26-shell">
-        <JournalBand />
+        </ol>
+        <a class="um26-text-link" href="/antecedentes">Ver los {getAntecedentesCatalogCount()} proyectos</a>
       </div>
     </section>
 
@@ -218,20 +108,17 @@ const hubs = [
       <div class="um26-shell">
         <div class="um26-contact__panel" data-reveal>
           <div>
-            <p class="um26-kicker"><span></span>Contacto rápido</p>
-            <h2>Ordenemos su infraestructura y su continuidad operativa.</h2>
-            <p>Respondemos en el día con un relevamiento técnico y una propuesta verificable. Sin compromiso inicial.</p>
+            <h2>Contanos qué tiene que seguir funcionando.</h2>
+            <p>Relevamos en el lugar y te decimos qué hace falta.</p>
           </div>
           <div>
-            <a class="um26-btn um26-btn--red" href="/contacto" data-contact-open>Escribinos</a>
+            <a class="um26-btn um26-btn--red" href="/contacto" data-contact-open>Pedir un relevamiento</a>
             <EmailLink class="um26-contact__mail" subject="Consulta desde la web ULTIMA MILLA" />
-            <span>Lunes a viernes, 8 a 18 h</span>
           </div>
         </div>
       </div>
     </section>
   </div>
-  <SnapRail />
 
   <style>
     :global(body[data-skin]) main {
@@ -723,6 +610,16 @@ const hubs = [
       position: relative;
       z-index: 1;
     }
+
+    .um26-case-list { list-style: none; margin: 0; padding: 0; }
+    .um26-case-list li { border-top: 1px solid rgba(255, 255, 255, 0.12); }
+    .um26-case-list li:last-child { border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
+    .um26-case-list a { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr) auto; gap: 24px; padding: 18px 0; color: #fff; text-decoration: none; font-size: 1.0625rem; line-height: 1.45; }
+    .um26-case-list b { font-weight: 600; }
+    .um26-case-list span { color: #c4c7cc; }
+    .um26-case-list em { font-style: normal; color: #9a9a9a; font-variant-numeric: tabular-nums; }
+    .um26-case-list a:hover b, .um26-case-list a:focus-visible b { text-decoration: underline; text-decoration-color: #dc2626; }
+    @media (max-width: 760px) { .um26-case-list a { grid-template-columns: 1fr; gap: 2px; padding: 14px 0; } }
 
     .um26-section__head {
       display: flex;
