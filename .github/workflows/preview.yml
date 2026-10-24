@@ -56,7 +56,10 @@ jobs:
         run: |
           HOST=127.0.0.1 PORT=4321 nohup node dist/server/entry.mjs > server.log 2>&1 &
           for i in $(seq 1 60); do curl -fs -o /dev/null http://127.0.0.1:4321/ && break; sleep 2; done
-          curl -fs -o /dev/null -w 'Inicio: %{http_code}\n' http://127.0.0.1:4321/
+          if ! curl -fs -o /dev/null -w 'Inicio: %{http_code}\n' http://127.0.0.1:4321/; then
+            echo '--- respuesta de / (primeras líneas)'; curl -s http://127.0.0.1:4321/ | head -c 1500; echo
+            echo '--- server.log'; cat server.log; exit 1
+          fi
 
       - name: Abrir el túnel y publicar el link
         id: tunel
