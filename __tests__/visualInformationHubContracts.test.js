@@ -429,7 +429,8 @@ describe('Information hub visual contracts', () => {
     expect(story).not.toMatch(/-poster\.jpg|data-poster/);
     expect(home).toContain('width="1200"');
     expect(home).toContain('height="900"');
-    expect(home).toContain('decoding="async"');
+    // 24/10: los destacados son la película de cada caso, sin cuadro fijo.
+    expect(home).toContain('<video src={item.image} muted loop autoplay playsinline preload="metadata" width="1200" height="900" aria-hidden="true"></video>');
   });
 
   test('contact antispam field stays visually hidden without offscreen overflow', () => {
