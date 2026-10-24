@@ -9,6 +9,7 @@ import SectorTemplateEditorial from '../components/templates/SectorTemplateEdito
 import SectorTemplateAtlas from '../components/templates/SectorTemplateAtlas.astro';
 import SectorTemplateUM26 from '../components/templates/SectorTemplateUM26.astro';
 import GeoHubDossier from '../components/templates/GeoHubDossier.astro';
+import TopicGuides from '../components/SEO/TopicGuides.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getSectorBySlug, getAntecedentesForSector } from '../utils/sectoresHelpers.ts';
 import { getFAQSchema } from '../data/sectorFAQs';
@@ -165,5 +166,6 @@ const sectorStructuredData = geoHub ? [] : [
       serviciosRelacionados={templateServiciosRelacionados}
     />
   )}
+  <TopicGuides kind="sector" topicKey={sectorSlug} label={templateSector.label || nombre} />
 </LayoutV4>
 )}

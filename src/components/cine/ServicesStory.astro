@@ -2,7 +2,7 @@
 // Servicios de la home como relato: la escena del edificio queda fija en modo
 // esqueleto y, a medida que se recorre cada servicio, el motor aísla y encuadra el
 // sistema correspondiente. El 3D se monta al acercarse (en móvil, a pedido).
-import { servicePoster } from '../../data/cine/posters';
+import { V4_CUTS, serviceSceneKey, baseScene } from '../../data/cine/scenes';
 interface Service { code: string; name: string; href: string }
 interface Props { services: Service[] }
 const { services } = Astro.props;
@@ -19,9 +19,12 @@ const STORY: Record<string, { body: string; cmd: Record<string, unknown>[] }> = 
   '107': { body: 'Detección temprana direccionable, diseñada según NFPA 72, con habilitación de bomberos y mantenimiento periódico.', cmd: [{ action: 'mode', value: 'systems' }, { action: 'focus', value: ['Fire-detection'] }] },
   '108': { body: 'Tableros dedicados, UPS online, bancos de baterías y puesta a tierra técnica para racks y equipos críticos.', cmd: [{ action: 'mode', value: 'systems' }, { action: 'focus', value: ['Power'] }] },
 };
-// Cada servicio trae la captura de su despiece (el servicio activo en su sector de referencia):
+// Cada servicio trae el póster de su recorrido v4 (el servicio dentro de la escena):
 // es la miniatura de la lista y la imagen del escenario mientras el 3D no está montado.
-const posterOf = (code: string) => servicePoster(code);
+const posterOf = (code: string) => {
+  const key = serviceSceneKey(code);
+  return V4_CUTS[key]?.poster ?? `/cine/media/cine-${baseScene(key)}-poster.jpg`;
+};
 const items = services.map((s) => ({ ...s, ...STORY[s.code], poster: posterOf(s.code) }));
 const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=1';
 ---

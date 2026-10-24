@@ -1,13 +1,11 @@
 ---
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import { editorialImages, editorialImageDimensions } from '../data/editorialImageSystem';
-import { avifOf, sectorPoster } from '../data/cine/posters';
 import { resolveReplicaH1 } from '../utils/replicaProdCopy';
 import { getAntecedentesCatalogCount } from '../utils/verifiedProof';
 
 const nosotrosH1 = resolveReplicaH1('/nosotros', 'Una empresa técnica para operaciones que no pueden detenerse');
 const projectCount = getAntecedentesCatalogCount();
-const heroPoster = sectorPoster('constructoras');
 
 const metrics = [
   { value: '22+', label: 'años de trayectoria técnica' },
@@ -106,18 +104,15 @@ const structuredData = {
       </div>
 
       <figure class="abx-hero__media">
-        <picture>
-          <source type="image/avif" srcset={avifOf(heroPoster)} />
-          <img
-            src={heroPoster}
-            alt="Vista isométrica de un edificio corporativo con su sala de racks, cableado estructurado y puestos de trabajo"
-            width="1920"
-            height="1080"
-            loading="eager"
-            fetchpriority="high"
-            decoding="async"
-          />
-        </picture>
+        <img
+          src="/cine/media/cine-fachada-consultoria-poster.jpg"
+          alt="Equipo técnico de ULTIMA MILLA saliendo de una sala de racks hacia la cordillera, con valijas de herramientas"
+          width="1672"
+          height="941"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
       </figure>
 
       <div class="abx-shell">
