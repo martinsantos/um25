@@ -41,7 +41,9 @@ const cases = [...ANTECEDENTES_REALES]
   .slice(0, 6)
   .map((item) => {
     // Título sin la cola «- Cliente…» ni segmentos repetidos; cliente en caja normal si el registro viene en mayúsculas.
-    const title = (item.title.split(/\s+[-–]\s+/)[0] || item.title).replace(/\s*\(\d+\)\s*$/, '').trim() || item.title;
+    const clientKey = item.client.toLowerCase();
+    const segments = item.title.split(/\s+[-–]\s+/).map((s) => s.replace(/\s*\(\d+\)\s*$/, '').trim()).filter(Boolean);
+    const title = segments.find((s) => !clientKey.includes(s.toLowerCase())) || segments[0] || item.title;
     const client = item.client === item.client.toUpperCase()
       ? item.client.toLowerCase().replace(/(^|\s)(\S)/g, (m: string) => m.toUpperCase()).replace(/\b(De|Del|La|Las|Los|Y|E|Sa|Srl)\b/g, (w: string) => (/^(Sa|Srl)$/.test(w) ? w.toUpperCase() : w.toLowerCase()))
       : item.client;
