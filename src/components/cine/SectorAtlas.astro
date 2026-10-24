@@ -3,7 +3,6 @@
 // izquierda y la lista a la derecha. Si el puntero se detiene sobre un sector
 // (o recibe foco), la escena cambia con un fundido; el clic entra al sector.
 import { SCENE_TITLES, sectorBySlug } from '../../data/cine/scenes';
-import { avifOf, scenePoster } from '../../data/cine/posters';
 interface Sector { name: string; href: string; count?: string | number | null; text: string }
 interface Props { sectors: Sector[] }
 const { sectors } = Astro.props;
@@ -13,13 +12,8 @@ const first = items[0]?.scene || 'aeropuerto';
 ---
 <div class="um-atlas" data-scene={first}>
   <div class="um-atlas__stage">
-    {['hospital', 'aeropuerto', 'bodega', 'fachada', 'planta'].map((k) => (
-      <picture>
-        <source type="image/avif" srcset={avifOf(scenePoster(k))} />
-        <img class:list={['um-atlas__poster', { 'is-on': k === first }]} data-poster={k} src={scenePoster(k)} alt="" width="1920" height="1080" loading="lazy" decoding="async" />
-      </picture>
-    ))}
-    <video class="um-atlas__video" muted loop playsinline preload="none" aria-hidden="true"></video>
+    {/* Sin cuadros fijos: la escena se ve en movimiento o no se ve (24/10). */}
+    <video class="um-atlas__video" muted loop playsinline preload="metadata" aria-hidden="true"></video>
     <p class="um-atlas__now" aria-live="polite"><i></i><span>{titles[first]}</span></p>
     <button class="um-atlas__motion" type="button">Reproducir recorrido</button>
   </div>
@@ -42,7 +36,6 @@ const first = items[0]?.scene || 'aeropuerto';
     const video = atlas.querySelector<HTMLVideoElement>('video')!;
     const button = atlas.querySelector<HTMLButtonElement>('.um-atlas__motion')!;
     const now = atlas.querySelector<HTMLElement>('.um-atlas__now span')!;
-    const posters = [...atlas.querySelectorAll<HTMLImageElement>('[data-poster]')];
     const links = [...atlas.querySelectorAll<HTMLAnchorElement>('.um-atlas__list a')];
     const conn = (navigator as any).connection;
     const limited = matchMedia('(prefers-reduced-motion: reduce)').matches || Boolean(conn?.saveData);
@@ -60,7 +53,6 @@ const first = items[0]?.scene || 'aeropuerto';
       const next = a.dataset.scene || scene;
       if (next === scene) return;
       scene = next; atlas.dataset.scene = scene;
-      posters.forEach((p) => p.classList.toggle('is-on', p.dataset.poster === scene));
       video.classList.remove('is-on');
       sync();
     };

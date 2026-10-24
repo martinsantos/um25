@@ -2,7 +2,6 @@
 import { sectorCaseLabel } from '../../data/sectorCaseCounts';
 import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import CineBanner from '../cine/CineBanner.astro';
-import { sectorPoster } from '../../data/cine/posters';
 interface SectorIndexItem {
   slug: string;
   label: string;
@@ -39,7 +38,7 @@ const activeSectors = sectorFilter
 const allSectors = activeSectors.length ? activeSectors : sectors;
 const feature = allSectors[0];
 const rest = allSectors.slice(1);
-const leadImage = feature?.image || sectors[0]?.image || sectorPoster('constructoras');
+const leadImage = feature?.image || sectors[0]?.image || '/cine/media/cine-aeropuerto-poster.jpg';
 const countLabel = (sector: SectorIndexItem) => sectorCaseLabel(sector.slug);
 const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id || !sectorFilter);
 ---
@@ -71,7 +70,8 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
   {feature && (
     <section class="sectors-demo-shell">
       <a href={`/${feature.slug}`} class="sectors-demo-feature">
-        <img src={feature.image} alt={feature.imageAlt} width="1600" height="900" loading="eager" decoding="async" />
+        {/* Sin cuadro fijo: la escena del sector en movimiento (24/10). */}
+        <video src={feature.image.replace(/-poster\.(jpg|avif)$/, '.mp4')} muted loop autoplay playsinline preload="metadata" width="1600" height="900" aria-label={feature.imageAlt}></video>
         <div class="sectors-demo-feature__shade" aria-hidden="true"></div>
         <div class="sectors-demo-feature__body">
           <h2>{feature.label}</h2>
@@ -312,7 +312,7 @@ const visibleFilterOptions = sectorFilterOptions.filter((option) => option.id ||
     border-top: 3px solid #dc2626;
   }
 
-  .sectors-demo-feature > img,
+  .sectors-demo-feature > img, .sectors-demo-feature > video,
   .sectors-demo-card > img {
     position: absolute;
     inset: 0;

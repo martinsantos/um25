@@ -1,13 +1,11 @@
 ---
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import { editorialImages, editorialImageDimensions } from '../data/editorialImageSystem';
-import { avifOf, sectorPoster } from '../data/cine/posters';
 import { resolveReplicaH1 } from '../utils/replicaProdCopy';
 import { getAntecedentesCatalogCount } from '../utils/verifiedProof';
 
 const nosotrosH1 = resolveReplicaH1('/nosotros', 'Una empresa técnica para operaciones que no pueden detenerse');
 const projectCount = getAntecedentesCatalogCount();
-const heroPoster = sectorPoster('constructoras');
 
 const metrics = [
   { value: '22+', label: 'años de trayectoria técnica' },
@@ -106,18 +104,14 @@ const structuredData = {
       </div>
 
       <figure class="abx-hero__media">
-        <picture>
-          <source type="image/avif" srcset={avifOf(heroPoster)} />
-          <img
-            src={heroPoster}
-            alt="Vista isométrica de un edificio corporativo con su sala de racks, cableado estructurado y puestos de trabajo"
-            width="1920"
-            height="1080"
-            loading="eager"
-            fetchpriority="high"
-            decoding="async"
-          />
-        </picture>
+        {/* Sin cuadro fijo: el recorrido de consultoría en movimiento (24/10). */}
+        <video
+          src="/cine/media/cine-fachada-consultoria.mp4"
+          muted loop autoplay playsinline preload="metadata"
+          aria-label="Recorrido de consultoría IT por un edificio de oficinas"
+          width="1672"
+          height="941"
+        ></video>
       </figure>
 
       <div class="abx-shell">
@@ -376,7 +370,7 @@ const structuredData = {
     border-bottom: 1px solid var(--x-line);
     background: var(--x-panel);
   }
-  .abx-hero__media img {
+  .abx-hero__media img, .abx-hero__media video {
     display: block;
     width: 100%;
     height: auto;
@@ -582,7 +576,7 @@ const structuredData = {
   @media (max-width: 640px) {
     .abx-crumbs { margin-bottom: 24px; }
     .abx-hero__media { margin-top: 48px; }
-    .abx-hero__media img { aspect-ratio: 4 / 3; object-position: 58% 50%; }
+    .abx-hero__media img, .abx-hero__media video { aspect-ratio: 4 / 3; object-position: 58% 50%; }
     .abx-metrics { grid-template-columns: 1fr; }
     .abx-metrics > div { flex-direction: row; align-items: baseline; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--x-line); }
     .abx-metrics > div + div { padding-left: 0; border-left: 0; }

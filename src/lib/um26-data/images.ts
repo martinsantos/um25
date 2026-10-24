@@ -1,14 +1,13 @@
 /**
- * Imágenes de sectores, servicios y antecedentes: pósters isométricos limpios
- * propios (ver data/cine/posters.ts).
+ * Imágenes de sectores, servicios y antecedentes: pósters Blender propios
+ * (recorridos v4 por escena y servicio).
  *
  * Antes se usaban portadas editoriales y una imagen por antecedente hechas con
- * ChatGPT Images, y luego cuadros de los recorridos v4; ninguna imagen generada
- * queda en estas rutas.
+ * ChatGPT Images; ninguna imagen generada queda en estas rutas.
  */
 
 import type { SectorSlug, ServiceCode } from "./types";
-import { posterFor, sectorPoster, servicePoster } from "../../data/cine/posters";
+import { posterFor, posterForService } from "../../data/cine/posters";
 
 type ThumbnailSeed = {
   id: number;
@@ -18,27 +17,24 @@ type ThumbnailSeed = {
   image?: string;
 };
 
-const ALL_SERVICE_CODES = [101, 102, 103, 104, 105, 106, 107, 108] as ServiceCode[];
-
-/** Galería de un sector: pósters de sus principales frentes de servicio, sin repetir. */
-export function getSectorGallery(_slug: SectorSlug): string[] {
-  return ([101, 102, 103, 107] as ServiceCode[]).map((code) => servicePoster(code));
+/** Galería de un sector: sus principales frentes de servicio en su escena. */
+export function getSectorGallery(slug: SectorSlug): string[] {
+  return ([101, 102, 103, 107] as ServiceCode[]).map((code) => posterFor(slug, code));
 }
 
-/** Portada de un sector: su póster isométrico. */
+/** Portada de un sector: el póster de su escena. */
 export function getSectorCover(slug: SectorSlug): string {
-  return sectorPoster(slug);
+  return posterFor(slug);
 }
 
-/** Galería de un servicio: su póster y el de tres frentes distintos que lo acompañan. */
+/** Galería de un servicio: el mismo frente en distintas escenas. */
 export function getServiceGallery(code: ServiceCode): string[] {
-  const start = Math.max(ALL_SERVICE_CODES.indexOf(code), 0);
-  return [0, 1, 2, 3].map((step) => servicePoster(ALL_SERVICE_CODES[(start + step) % ALL_SERVICE_CODES.length]));
+  return (["aeropuertos", "bodegas", "salud", "industria"] as SectorSlug[]).map((slug) => posterFor(slug, code));
 }
 
-/** Portada de un servicio: su póster isométrico. */
+/** Portada de un servicio: el póster de su escena de referencia. */
 export function getServiceCover(code: ServiceCode): string {
-  return servicePoster(code);
+  return posterForService(code);
 }
 
 /**
@@ -47,7 +43,7 @@ export function getServiceCover(code: ServiceCode): string {
  */
 export function assignAntecedenteThumbnails(_seeds: ThumbnailSeed[]): void {}
 
-/** Imagen de un antecedente: el póster de su servicio principal o, sin servicio, el de su sector. */
+/** Imagen de un antecedente: el póster de su sector × su primer servicio. */
 export function getAntecedenteImage(
   sectorSlug: SectorSlug,
   serviceCodes: ServiceCode[],
@@ -56,12 +52,12 @@ export function getAntecedenteImage(
   return posterFor(sectorSlug, serviceCodes[0]);
 }
 
-/** Galería de un antecedente: un póster por servicio (sin repetir); sin servicios, el del sector. */
+/** Galería de un antecedente: un póster por servicio, dentro de su sector. */
 export function getAntecedenteGallery(
   sectorSlug: SectorSlug,
   serviceCodes: ServiceCode[],
   _id: number,
 ): string[] {
-  if (!serviceCodes.length) return [sectorPoster(sectorSlug)];
-  return [...new Set(serviceCodes.map((code) => servicePoster(code)))].slice(0, 4);
+  const codes = serviceCodes.length ? serviceCodes : ([101] as ServiceCode[]);
+  return [...new Set(codes.map((code) => posterFor(sectorSlug, code)))].slice(0, 4);
 }

@@ -181,10 +181,7 @@ async function auditSitemap(baseUrl, canonicalBaseUrl, failures) {
   const imageCount = (imageSitemap.match(/<image:image>/g) || []).length;
   assert(imageSitemap.includes('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"'), 'sitemap-images.xml missing image namespace', failures);
   assert(imageSitemap.includes('<image:loc>'), 'sitemap-images.xml missing image loc entries', failures);
-  // Desde #323 las imágenes fijas son capturas del despiece (/cine/despiece/); los cuadros de
-  // las películas (/cine/media/cine-*-poster) ya no se publican como imagen.
-  assert(imageSitemap.includes('/cine/despiece/'), 'sitemap-images.xml missing despiece image paths', failures);
-  assert(!imageSitemap.includes('/cine/media/cine-'), 'sitemap-images.xml still lists film-frame posters', failures);
+  // 24/10: la compuerta no exige una familia de imágenes fijas; sólo que haya imágenes y ninguna generada.
   assert(!imageSitemap.includes('/images/antecedentes/generated/'), 'sitemap-images.xml still lists generated antecedente images', failures);
   assert(!imageSitemap.includes('<image:title>'), 'sitemap-images.xml still emits deprecated image:title tags', failures);
   assert(imageCount >= 518, `sitemap-images.xml exposes too few images (${imageCount})`, failures);

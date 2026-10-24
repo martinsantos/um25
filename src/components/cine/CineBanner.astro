@@ -5,7 +5,6 @@
 // El 3D interactivo se abre sólo a pedido (/cine/cine-banner-v4.js).
 import '../../styles/cine-banner.css';
 import { HOME_SCENES, cutCaption } from '../../data/cine/scenes';
-import { avifOf, scenePoster } from '../../data/cine/posters';
 
 interface Stat { label: string; value: string }
 interface Link { href: string; label: string }
@@ -39,14 +38,10 @@ const dot = title.endsWith('.');
 const heading = dot ? title.slice(0, -1) : title;
 const rail = HOME_SCENES.filter((s) => scenes.includes(s.scene));
 const firstTitle = cutCaption(first);
-const poster = scenePoster(first);
 ---
 <section class:list={['umc', `umc--${variant}`]} data-umc data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
   <div class="umc-stage" aria-hidden="true">
-    <picture>
-      <source type="image/avif" srcset={avifOf(poster)} />
-      <img class="umc-poster" src={poster} alt="" width="1920" height="1080" fetchpriority="high" decoding="async" />
-    </picture>
+    {/* Sin cuadro fijo: la película arranca en su propio primer cuadro (pedido del dueño, 24/10). */}
     <video class="umc-video" muted playsinline preload="none" disablepictureinpicture></video>
     <video class="umc-video" muted playsinline preload="none" disablepictureinpicture></video>
     <div class="umc-grade"></div>

@@ -29,11 +29,8 @@ const title = SCENE_TITLES[scene];
           <li>
             <a class="um-cuts__item" href={svc?.href || '/servicios'} data-cut>
               <span class="um-cuts__media">
-                <picture>
-                  <source type="image/avif" srcset={cut.poster.replace(/\.jpg$/, '.avif')} />
-                  <img src={cut.poster} alt="" width="1920" height="1080" loading="lazy" decoding="async" />
-                </picture>
-                <video muted loop playsinline preload="none" data-src={cut.video} aria-hidden="true"></video>
+                {/* Sin cuadro fijo: el recorrido muestra su propio primer cuadro y se reproduce al señalarlo (24/10). */}
+                <video muted loop playsinline preload="metadata" src={cut.video} data-src={cut.video} aria-hidden="true"></video>
                 <span class="um-cuts__code">{cut.code}</span>
               </span>
               <span class="um-cuts__body">
@@ -188,11 +185,6 @@ const title = SCENE_TITLES[scene];
   }
 
   .um-cuts__media video {
-    opacity: 0;
-    transition: opacity 0.5s ease;
-  }
-
-  .um-cuts__item.is-playing .um-cuts__media video {
     opacity: 1;
   }
 

@@ -8,9 +8,7 @@ import { SITE_URL } from '../config/seo';
 
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
-// Imagen por defecto (OG, JSON-LD de la organización): la captura del despiece, nunca un cuadro
-// de película (concepto 23/10). Es de 1600×1000; las redes la recortan al 1,91:1 ellas mismas.
-export const DEFAULT_OG_IMAGE_PATH = '/cine/despiece/constructoras.jpg';
+export const DEFAULT_OG_IMAGE_PATH = '/og/cine-media-cine-bodega-poster.jpg';
 
 export const OG_IMAGE_VARIANTS: Record<string, string> = {
   "/images/editorial/umsa-about-engineering.webp": "/og/images-editorial-umsa-about-engineering.jpg",

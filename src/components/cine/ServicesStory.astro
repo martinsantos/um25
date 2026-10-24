@@ -2,7 +2,7 @@
 // Servicios de la home como relato: la escena del edificio queda fija en modo
 // esqueleto y, a medida que se recorre cada servicio, el motor aísla y encuadra el
 // sistema correspondiente. El 3D se monta al acercarse (en móvil, a pedido).
-import { servicePoster } from '../../data/cine/posters';
+import { V4_CUTS, serviceSceneKey, baseScene } from '../../data/cine/scenes';
 interface Service { code: string; name: string; href: string }
 interface Props { services: Service[] }
 const { services } = Astro.props;
@@ -19,28 +19,32 @@ const STORY: Record<string, { body: string; cmd: Record<string, unknown>[] }> = 
   '107': { body: 'Detección temprana direccionable, diseñada según NFPA 72, con habilitación de bomberos y mantenimiento periódico.', cmd: [{ action: 'mode', value: 'systems' }, { action: 'focus', value: ['Fire-detection'] }] },
   '108': { body: 'Tableros dedicados, UPS online, bancos de baterías y puesta a tierra técnica para racks y equipos críticos.', cmd: [{ action: 'mode', value: 'systems' }, { action: 'focus', value: ['Power'] }] },
 };
-// Cada servicio trae la captura de su despiece (el servicio activo en su sector de referencia):
-// es la miniatura de la lista y la imagen del escenario mientras el 3D no está montado.
-const posterOf = (code: string) => servicePoster(code);
-const items = services.map((s) => ({ ...s, ...STORY[s.code], poster: posterOf(s.code) }));
+// Cada servicio trae su recorrido v4 (el servicio dentro de la escena) en movimiento: la
+// película es el escenario mientras el 3D no está montado y el corte cuadrado es la miniatura.
+// Ningún cuadro fijo (pedido del dueño, 24/10).
+const filmOf = (code: string) => {
+  const key = serviceSceneKey(code);
+  return V4_CUTS[key]?.video ?? `/cine/media/cine-${baseScene(key)}.mp4`;
+};
+const sqOf = (code: string) => {
+  const key = serviceSceneKey(code);
+  return V4_CUTS[key]?.square ?? `/cine/media/cine-${baseScene(key)}-sq.mp4`;
+};
+const items = services.map((s) => ({ ...s, ...STORY[s.code], film: filmOf(s.code), sq: sqOf(s.code) }));
 const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=1';
 ---
 <div class="svc-story" data-svc-story>
   <div class="svc-story__stage" data-src={src}>
-    {/* Imagen principal de la sección: carga sin diferir (en celular la carga diferida no arrancaba y la caja quedaba vacía). */}
-    <img class="svc-story__poster is-on" src={items[0]?.poster ?? '/cine/media/story-fachada.jpg'} alt="" width="1920" height="1080" decoding="async" data-poster-layer />
-    <img class="svc-story__poster" src={items[0]?.poster ?? '/cine/media/story-fachada.jpg'} alt="" width="1920" height="1080" decoding="async" data-poster-layer />
+    {/* La película del servicio activo, en movimiento, mientras el 3D no está montado. */}
+    <video class="svc-story__poster is-on" muted loop playsinline preload="metadata" src={items[0]?.film} aria-hidden="true" data-film-layer></video>
     <div class="svc-story__frame" aria-hidden="true"></div>
     <button class="svc-story__mount" type="button" hidden aria-hidden="true" tabindex="-1"></button>
     <p class="svc-story__now" aria-live="polite"><i></i><span>{items[0]?.name}</span></p>
   </div>
   <ol class="svc-story__list">
     {items.map((s, i) => (
-      <li class="svc-story__item" data-cmd={JSON.stringify(s.cmd)} data-name={s.name} data-poster={s.poster}>
-        <picture>
-          <source type="image/avif" srcset={s.poster.replace(/\.jpg$/, '.avif')} />
-          <img class="svc-story__render" src={s.poster} alt="" width="320" height="180" decoding="async" />
-        </picture>
+      <li class="svc-story__item" data-cmd={JSON.stringify(s.cmd)} data-name={s.name} data-film={s.film}>
+        <video class="svc-story__render" muted loop playsinline preload="none" data-src={s.sq} width="320" height="200" aria-hidden="true"></video>
         <div>
           <p class="svc-story__code"><span>{s.code}</span></p>
           <h3>{s.name}</h3>
@@ -79,22 +83,27 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
       if (e.origin !== location.origin || !frame || e.source !== frame.contentWindow) return;
       if (e.data?.type === 'um-cinema-state' && e.data.ready && !ready) { ready = true; stage.classList.add('is-ready'); if (active) apply(active); if (!inView) send('suspend', true); }
     });
-    // Dos capas de póster que se funden: el escenario cambia de escena con cada servicio.
-    const layers = [...stage.querySelectorAll<HTMLImageElement>('[data-poster-layer]')];
-    const showPoster = (src: string) => {
-      const on = layers.find((l) => l.classList.contains('is-on')) || layers[0];
-      const off = layers.find((l) => l !== on) || layers[0];
-      if (!src || on.getAttribute('src') === src) return;
-      off.src = src;
-      const swap = () => { off.classList.add('is-on'); on.classList.remove('is-on'); };
-      if (off.complete) swap(); else off.addEventListener('load', swap, { once: true });
+    // El escenario muestra la película del servicio activo; cada miniatura reproduce su corte
+    // cuadrado sólo mientras está activa (una por vez, nada se carga de más).
+    const film = stage.querySelector<HTMLVideoElement>('[data-film-layer]')!;
+    const showFilm = (src: string) => {
+      if (!src || film.getAttribute('src') === src) { if (inView) film.play().catch(() => {}); return; }
+      film.src = src;
+      if (inView) film.play().catch(() => {});
+    };
+    const showThumbs = (el: HTMLElement) => {
+      for (const i of items) {
+        const v = i.querySelector<HTMLVideoElement>('video.svc-story__render'); if (!v) continue;
+        if (i === el) { if (!v.getAttribute('src') && v.dataset.src) v.src = v.dataset.src; v.play().catch(() => {}); } else v.pause();
+      }
     };
     const activate = (el: HTMLElement) => {
       if (el === active) return;
       active = el;
       items.forEach((i) => i.classList.toggle('is-active', i === el));
       now.textContent = el.dataset.name || '';
-      showPoster(el.dataset.poster || '');
+      showFilm(el.dataset.film || '');
+      showThumbs(el);
       clearTimeout(timer);
       timer = setTimeout(() => { if (active === el) apply(el); }, 240);
     };
@@ -102,10 +111,11 @@ const src = '/3d/cinema.html?scene=fachada&mode=systems&embed=1&ar=clean&center=
     items.forEach((i) => io.observe(i));
     new IntersectionObserver(([e]) => {
       inView = e.isIntersecting;
+      if (inView) film.play().catch(() => {}); else film.pause();
       if (inView && !compact && !limited) mount();
       if (ready) send('suspend', !inView);
     }, { rootMargin: '300px 0px' }).observe(root);
-    // En pantallas chicas queda la imagen: el gemelo digital no se ofrece al usuario final.
+    // En pantallas chicas queda la película: el gemelo digital no se ofrece al usuario final.
     if (items[0]) activate(items[0]);
   });
 </script>
