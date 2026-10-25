@@ -55,15 +55,14 @@ describe('generated antecedentes image integration', () => {
     expect(detail).toContain('const mainImageUrl = generatedMainImageUrl || BASE_POSTER');
   });
 
-  test('every catalog case resolves to an existing isometric of its service or sector', async () => {
+  test('every catalog case shows its own realistic thumbnail in the antecedentes mosaic', async () => {
+    // 25/10: el dueño pidió volver a la miniatura realista de cada antecedente en el mosaico.
     const { ANTECEDENTES_REALES } = await import('../src/lib/um26-data/antecedentesReales');
     const { getAntecedenteImage } = await import('../src/lib/um26-data/images');
-    const { posterFor } = await import('../src/data/cine/posters');
     expect(ANTECEDENTES_REALES.length).toBeGreaterThanOrEqual(518);
     for (const item of ANTECEDENTES_REALES) {
       const image = getAntecedenteImage(item.sectorSlug, item.serviceCodes, item.id);
-      expect(image).toMatch(/^\/cine\/iso\/(service-\d{3}|site-[a-z]+)\.svg$/);
-      expect(image).toBe(posterFor(item.sectorSlug, item.serviceCodes[0]));
+      expect(image).toMatch(/^\/images\/antecedentes\/generated\/.+\.webp$|^\/cine\/iso\/(service-\d{3}|site-[a-z]+)\.svg$/);
       expect(fs.existsSync(path.join(repoRoot, 'public', image))).toBe(true);
     }
   });

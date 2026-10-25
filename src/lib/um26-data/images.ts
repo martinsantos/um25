@@ -8,6 +8,10 @@
 
 import type { SectorSlug, ServiceCode } from "./types";
 import { posterFor, posterForService } from "../../data/cine/posters";
+import antecedenteThumbs from "../../data/antecedentes-generated-image-map.json";
+
+/** Miniatura realista propia de cada antecedente (una por id, 518). Sólo para el mosaico de /antecedentes: pedido del dueño 25/10. */
+const ANTECEDENTE_THUMBS = antecedenteThumbs as Record<string, string>;
 
 type ThumbnailSeed = {
   id: number;
@@ -43,13 +47,13 @@ export function getServiceCover(code: ServiceCode): string {
  */
 export function assignAntecedenteThumbnails(_seeds: ThumbnailSeed[]): void {}
 
-/** Imagen de un antecedente: el póster de su sector × su primer servicio. */
+/** Imagen de un antecedente en el mosaico: su miniatura realista propia; si no tiene, la isometría de su sector × servicio. */
 export function getAntecedenteImage(
   sectorSlug: SectorSlug,
   serviceCodes: ServiceCode[],
-  _id: number,
+  id: number,
 ): string {
-  return posterFor(sectorSlug, serviceCodes[0]);
+  return ANTECEDENTE_THUMBS[String(id)] || posterFor(sectorSlug, serviceCodes[0]);
 }
 
 /** Galería de un antecedente: un póster por servicio, dentro de su sector. */
