@@ -16,7 +16,7 @@ import { productPage } from '../../../data/productPages';
 import DeliveryProcess from '../../../components/cine/DeliveryProcess.astro';
 import { getServiceSpec } from '../../../data/serviceSpecs';
 import { RENDERS } from '../../../data/renders';
-import { SERVICE_SCENES, serviceSceneKey, V4_CUTS, sceneServiceCuts } from '../../../data/cine/scenes';
+import { SERVICE_SCENES, serviceSceneKey, V4_CUTS, sceneServiceCuts, SOFTWARE_FILM } from '../../../data/cine/scenes';
 
 import { generateSlug } from '../../../utils/slugUtils.js';
 import { getServicioById } from '../../../utils/directusHelpers';
@@ -472,8 +472,8 @@ const fichaItems = [
 >
   <CineBanner
     variant="sector"
-    scenes={[serviceSceneKey(String(id))]}
-    variants={{ [serviceSceneKey(String(id))]: String(id) === '104' ? ['fachada-software'] : Object.keys(V4_CUTS).filter((k) => V4_CUTS[k].code === String(id)) }}
+    scenes={[String(id) === '104' ? SOFTWARE_FILM : serviceSceneKey(String(id))]}
+    variants={String(id) === '104' ? {} : { [serviceSceneKey(String(id))]: Object.keys(V4_CUTS).filter((k) => V4_CUTS[k].code === String(id)) }}
     systems={(SERVICE_SCENES[String(id)] || SERVICE_SCENES['101']).systems}
     titleId="service-title"
     kicker={visual?.eyebrow || servicio.area || 'Servicio IT'}

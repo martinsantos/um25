@@ -3,7 +3,7 @@ import { truncateEditorialText } from '../../utils/editorialContent';
 import SiteDespiece from '../cine/SiteDespiece.astro';
 import CineBanner from '../cine/CineBanner.astro';
 import SnapRail from '../cine/SnapRail.astro';
-import { sectorBySlug, V4_CUTS } from '../../data/cine/scenes';
+import { sectorBySlug, V4_CUTS, SOFTWARE_FILM } from '../../data/cine/scenes';
 import { getAntecedentesCountShort, getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import { serviceSummary, cleanCmsText } from '../../data/serviceSummaries';
 import { buildSectorStrategicLinkGroups } from '../../data/strategicLinkGraph';
@@ -95,6 +95,8 @@ const strategicLinkGroups = buildSectorStrategicLinkGroups({
 });
 const cineSector = sectorBySlug(sectorDataSlug);
 const cineScene = cineSector?.scene || 'fachada';
+// /software: el banner es la película propia de pantallas con transparencias, sin cortes por servicio.
+const isSoftware = sectorDataSlug === 'software';
 const cineStats = [
   cineSector?.count
     ? { label: 'Casos en el sector', value: cineSector.count }
@@ -128,8 +130,8 @@ const areaLabel = (area: unknown) => {
 <div class="um26-sector">
   <CineBanner
     variant="sector"
-    scenes={[cineScene]}
-    variants={{ [cineScene]: Object.keys(V4_CUTS).filter((k) => k.startsWith(`${cineScene}-`)) }}
+    scenes={[isSoftware ? SOFTWARE_FILM : cineScene]}
+    variants={isSoftware ? {} : { [cineScene]: Object.keys(V4_CUTS).filter((k) => k.startsWith(`${cineScene}-`)) }}
     titleId="sector26-title"
     kicker={cineSector?.text || `Sector ${sectorNumber}`}
     title={sectorTitle}
@@ -139,7 +141,7 @@ const areaLabel = (area: unknown) => {
     back={{ href: '/sectores', label: '← Todos los sectores' }}
   />
 
-  <SiteDespiece scene={cineScene} sectorSlug={sectorDataSlug} sectorName={sectorName} />
+  <SiteDespiece scene={cineScene} sectorSlug={sectorDataSlug} sectorName={sectorName} linkBanner={!isSoftware} />
 
   <section class="sector26-evidence" aria-label="Proyectos del sector">
     <div class="sector26-shell">
