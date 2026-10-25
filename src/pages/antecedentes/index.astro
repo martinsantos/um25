@@ -128,7 +128,7 @@ cases.forEach((item) => {
   clientCounts.set(key, entry);
 });
 const clients = [...clientCounts.entries()]
-  .filter(([, v]) => v.count > 2)
+  .filter(([key, v]) => v.count > 2 && !/confidencial|reservado|sin-nombre|^n-?a$/.test(key))
   .sort((a, b) => b[1].count - a[1].count || a[1].label.localeCompare(b[1].label, 'es'))
   .slice(0, 16)
   .map(([key, v]) => ({ key, label: v.label, count: v.count }));
