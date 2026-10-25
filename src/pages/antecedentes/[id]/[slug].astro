@@ -12,6 +12,7 @@ import { getServicioById } from '../../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
 import { getAntecedenteConServicios, getAntecedenteImageUrl, getDirectusImageUrl, getGeneratedAntecedenteImageUrl, getAllAntecedentes } from '../../../lib/directus.ts';
 import { BASE_POSTER } from '../../../data/cine/posters';
+import { getAntecedenteThumb } from '../../../lib/um26-data/images';
 import {
   getAntecedenteById as getUm26AntecedenteById,
   getSectores as getUm26Sectores,
@@ -178,13 +179,16 @@ const caseRecordTone = antecedente.curation?.recordTone || 'technical-record';
 const caseRecordSummary = toPublicCaseSummary(antecedente.curation?.recordSummary);
 
 // --- Prepare data for UI (generated-case image first, Directus as fallback) ---
-const generatedMainImageUrl = getGeneratedAntecedenteImageUrl(antecedente.id) || getGeneratedAntecedenteImageUrl(antecedente.original_id);
-// Póster Blender del sector × servicio; los archivos de Directus eran imágenes generadas.
+// Imagen realista propia del antecedente (pedido del dueño 25/10); si no tiene, la isometría de su sector × servicio.
+const realisticMainImageUrl = getAntecedenteThumb(antecedente.id) || getAntecedenteThumb(antecedente.original_id);
+const generatedMainImageUrl = realisticMainImageUrl || getGeneratedAntecedenteImageUrl(antecedente.id) || getGeneratedAntecedenteImageUrl(antecedente.original_id);
 const mainImageUrl = generatedMainImageUrl || BASE_POSTER;
-const hasGeneratedMainImage = mainImageUrl.startsWith('/cine/media/');
-const caseImageDimensions = hasGeneratedMainImage ? generatedAntecedenteImageDimensions : { width: 720, height: 720 };
+const hasGeneratedMainImage = Boolean(realisticMainImageUrl) || mainImageUrl.startsWith('/cine/media/');
+const caseImageDimensions = realisticMainImageUrl ? { width: 1600, height: 1000 } : hasGeneratedMainImage ? generatedAntecedenteImageDimensions : { width: 720, height: 720 };
 const caseSeoImageUrl = mainImageUrl.startsWith('/uploads/antecedentes/') ? editorialImages.defaultOg : mainImageUrl;
-const caseSeoImageDimensions = hasGeneratedMainImage
+const caseSeoImageDimensions = realisticMainImageUrl
+  ? caseImageDimensions
+  : hasGeneratedMainImage
   ? generatedAntecedenteImageDimensions
   : mainImageUrl.startsWith('/uploads/antecedentes/')
     ? editorialImageDimensions
@@ -580,7 +584,7 @@ const antecedentePageStructuredData = [
         </div>
 
         <aside class="caso-dossier" aria-label="Ficha técnica del antecedente">
-          <figure class="case-detail-dossier__media">
+          <figure class:list={["case-detail-dossier__media", { "is-photo": Boolean(realisticMainImageUrl) }]}>
             <img
               src={mainImageUrl}
               alt=""
@@ -699,6 +703,8 @@ const antecedentePageStructuredData = [
     background: #090909;
   }
   .case-detail-dossier__media img { display: block; width: 100%; height: 100%; object-fit: contain; padding: 4%; box-sizing: border-box; }
+  .case-detail-dossier__media.is-photo { aspect-ratio: 16 / 10; }
+  .case-detail-dossier__media.is-photo img { object-fit: cover; padding: 0; }
   .case-ficha { margin: 0; display: grid; gap: 0; }
   .case-ficha div { display: grid; grid-template-columns: minmax(120px, 0.4fr) minmax(0, 0.6fr); gap: 16px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.12); }
   .case-ficha dt { margin: 0; color: #9a9a9a; font-size: 1rem; }
