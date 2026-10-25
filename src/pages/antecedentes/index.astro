@@ -5,7 +5,6 @@ import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import EmailLink from '../../components/common/EmailLink.astro';
 
 // Hero editorial: no coincide con ninguna miniatura del listado.
-const heroImage = '/cine/media/cine-fachada-consultoria-poster.jpg';
 const PAGE_SIZE = 24;
 const catalogCount = getAntecedentesCatalogCount();
 
@@ -115,15 +114,11 @@ const filterGroups = [
   skin="black"
   title="Antecedentes | ULTIMA MILLA"
   description={`${catalogCount} antecedentes técnicos de ULTIMA MILLA con cliente, sector, servicio aplicado y alcance.`}
-  image={heroImage}
 >
   <div class="ev" data-evidence>
     <header class="ev-hero" aria-labelledby="evidence-title">
-      <img src={heroImage} alt="" width="1672" height="941" loading="eager" decoding="async" fetchpriority="high" />
-      <div class="ev-hero__shade" aria-hidden="true"></div>
       <div class="ev-shell ev-hero__inner">
-        <p class="ev-kicker"><span aria-hidden="true"></span>Antecedentes</p>
-        <h1 id="evidence-title">Evidencia operativa real</h1>
+        <h1 id="evidence-title">Antecedentes.</h1>
         <p class="ev-lead">
           <strong>{catalogCount}</strong> antecedentes técnicos con cliente, sector y alcance, en más de 22 años de obras y servicios.
         </p>
@@ -191,16 +186,9 @@ const filterGroups = [
             data-search={`${item.client} ${item.title} ${item.summary} ${item.sector} ${item.tags.join(' ')} ${item.serviceNames.join(' ')}`.toLowerCase()}
           >
             <a class="ev-card" href={item.href}>
-              <div class="ev-card__media">
-                <img src={item.image} alt="" width="800" height="500" loading={index < 4 ? 'eager' : 'lazy'} decoding="async" />
-              </div>
-              <div class="ev-card__body">
-                <p class="ev-card__client">{item.client}</p>
-                <h3 class="ev-card__title">{item.title}</h3>
-                <p class="ev-card__meta">
-                  <span>{item.sector}</span><span aria-hidden="true">·</span><span>{item.year}</span><span aria-hidden="true">·</span><span>#{item.id}</span>
-                </p>
-              </div>
+              <p class="ev-card__client">{item.client}</p>
+              <h3 class="ev-card__title">{item.title}</h3>
+              <p class="ev-card__meta"><span>{item.sector}</span><span aria-hidden="true">·</span><span>{item.year}</span></p>
             </a>
           </li>
         ))}
@@ -221,9 +209,8 @@ const filterGroups = [
     <section class="ev-contact" aria-labelledby="evidence-contact-title">
       <div class="ev-shell ev-contact__panel">
         <div>
-          <p class="ev-kicker"><span aria-hidden="true"></span>Contacto</p>
-          <h2 id="evidence-contact-title">Ordenemos su infraestructura y su continuidad operativa.</h2>
-          <p class="ev-contact__text">Respondemos en el día con un relevamiento técnico y una propuesta verificable.</p>
+          <h2 id="evidence-contact-title">Contanos qué tiene que seguir funcionando.</h2>
+          <p class="ev-contact__text">Relevamos en el lugar y te decimos qué hace falta.</p>
         </div>
         <div class="ev-contact__cta">
           <EmailLink class="ev-btn" subject="Consulta desde Antecedentes ULTIMA MILLA"><span class="ev-btn__mail"><span>contacto</span><span aria-hidden="true">&#64;</span><wbr /><span>ultimamilla.com.ar</span></span> <span aria-hidden="true">→</span></EmailLink>
@@ -1098,5 +1085,22 @@ const filterGroups = [
         transform: none;
       }
     }
-  </style>
+      /* Barrido 24/10: lista plana (cliente · trabajo · sector · año), sin tarjetas ni imágenes. */
+    .ev .ev-hero { min-height: 0; padding: clamp(40px, 6vw, 72px) 0 8px; }
+    .ev .ev-grid { grid-template-columns: minmax(0, 1fr) !important; gap: 0 !important; border-top: 1px solid rgba(255,255,255,0.12); }
+    .ev .ev-card { display: grid !important; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr) 200px !important; gap: 24px; align-items: center; min-height: 0 !important; padding: 14px 0 !important; border: 0 !important; border-bottom: 1px solid rgba(255,255,255,0.12) !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; }
+    .ev .ev-card__client { margin: 0; color: #fff; font-weight: 600; font-size: 1.0625rem; }
+    .ev .ev-card__title { margin: 0; color: #c4c7cc; font-weight: 400; font-size: 1.0625rem; line-height: 1.45; }
+    .ev .ev-card__meta { margin: 0; color: #9a9a9a; font-size: 1rem; white-space: nowrap; display: flex; gap: 8px; }
+    .ev .ev-card:hover .ev-card__client, .ev .ev-card:focus-visible .ev-card__client { text-decoration: underline; text-decoration-color: #dc2626; }
+    .ev .ev-card, .ev .ev-card * { text-align: left !important; }
+    .ev .ev-grid__item { display: block; content-visibility: visible; contain-intrinsic-size: auto; min-height: 0; }
+    .ev .ev-card__client, .ev .ev-card__title, .ev .ev-card__meta { grid-row: 1 !important; margin: 0 !important; padding: 0 !important; }
+    .ev .ev-card__client { grid-column: 1 !important; justify-self: start !important; }
+    .ev .ev-card__title { grid-column: 2 !important; text-align: left; -webkit-line-clamp: unset !important; display: block !important; min-height: 0 !important; overflow: visible !important; justify-self: start !important; width: 100%; }
+    .ev .ev-card__meta { grid-column: 3 !important; }
+    .ev .ev-card__meta { margin: 0 !important; padding: 0 !important; border: 0 !important; justify-self: end; overflow: visible; }
+    .ev .ev-main { padding-block: 24px 48px; }
+    @media (max-width: 760px) { .ev .ev-card { grid-template-columns: 1fr !important; gap: 4px; } .ev .ev-card__client, .ev .ev-card__title, .ev .ev-card__meta { grid-column: 1 !important; grid-row: auto !important; } .ev .ev-card__meta { white-space: normal; justify-self: start; } }
+</style>
 </LayoutV4>
