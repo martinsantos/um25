@@ -47,6 +47,11 @@ export function getServiceCover(code: ServiceCode): string {
  */
 export function assignAntecedenteThumbnails(_seeds: ThumbnailSeed[]): void {}
 
+/** Imagen realista propia de un antecedente (mosaico y ficha), o vacío si no tiene. */
+export function getAntecedenteThumb(id: string | number | null | undefined): string {
+  return id === null || id === undefined || id === '' ? '' : ANTECEDENTE_THUMBS[String(id)] || '';
+}
+
 /** Imagen de un antecedente en el mosaico: su miniatura realista propia; si no tiene, la isometría de su sector × servicio. */
 export function getAntecedenteImage(
   sectorSlug: SectorSlug,
