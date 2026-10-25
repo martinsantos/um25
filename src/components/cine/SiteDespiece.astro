@@ -9,8 +9,8 @@
 import { SCENE_TITLES, sceneServiceCuts, type Scene } from '../../data/cine/scenes';
 import { NAV_SERVICES } from '../../data/navigation';
 
-interface Props { scene: Scene; sectorSlug?: string; sectorName?: string }
-const { scene, sectorSlug, sectorName } = Astro.props;
+interface Props { scene: Scene; sectorSlug?: string; sectorName?: string; linkBanner?: boolean }
+const { scene, sectorSlug, sectorName, linkBanner = true } = Astro.props;
 const SITE: Record<Scene, string> = { hospital: 'clinic', aeropuerto: 'terminal', bodega: 'winery', fachada: 'building', planta: 'plant' };
 const site = sectorSlug === 'mineria' ? 'mine' : SITE[scene];
 const files = import.meta.glob<string>('../../assets/cine/isometric/site-*-v2.svg', { eager: true, query: '?raw', import: 'default' });
@@ -22,7 +22,7 @@ const items = cuts.map((cut) => ({ cut, svc: byCode.get(cut.code) }));
 const first = items[0];
 ---
 {markup && first && (
-  <section class="um-desp" aria-labelledby="um-desp-title" data-despiece data-project-service={first.cut.code}>
+  <section class="um-desp" aria-labelledby="um-desp-title" data-despiece data-project-service={first.cut.code} data-link-banner={linkBanner ? "1" : "0"}>
     <div class="um-desp__head">
       <h2 id="um-desp-title">{items.length === 8 ? 'Los ocho frentes' : `${items.length} frentes`} en {title.toLowerCase()}.</h2>
       <p>La misma instalación{sectorName ? ` de ${sectorName.toLowerCase()}` : ''}, sistema por sistema. Pasá por un servicio: su recorrido se enciende en el proyecto y la película de arriba cambia de plano.</p>
@@ -57,7 +57,7 @@ const first = items[0];
       const art = svg?.querySelector<SVGGraphicsElement>('.sp-root');
       if (svg && art) { try { const b = art.getBBox(); const pad = Math.max(b.width, b.height) * 0.04; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); } catch (e) {} }
       const items = [...root.querySelectorAll<HTMLAnchorElement>('[data-code]')];
-      const banner = document.querySelector<HTMLElement>('[data-umc]');
+      const banner = root.dataset.linkBanner === '0' ? null : document.querySelector<HTMLElement>('[data-umc]');
       let current = items[0] || null, timer: ReturnType<typeof setTimeout> | undefined;
       const show = (item: HTMLAnchorElement) => {
         if (current === item) return;
