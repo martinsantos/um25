@@ -11,7 +11,7 @@ module.exports = {
     '^.+\\.(ts|tsx|js|jsx)$': ['babel-jest', { configFile: './babel.config.cjs' }],
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(node-fetch|@directus|@babel/runtime/helpers/esm)/)',
+    'node_modules/(?!(node-fetch|@directus|@babel/runtime/helpers/esm|unified|remark-[^/]+|rehype-[^/]+|micromark[^/]*|mdast-util-[^/]+|hast-util-[^/]+|hastscript|web-namespaces|unist-util-[^/]+|vfile[^/]*|trough|bail|character-entities[^/]*|decode-named-character-reference|stringify-entities|parse-entities|property-information|space-separated-tokens|comma-separated-tokens|html-void-elements|is-plain-obj|devlop|ccount|escape-string-regexp|longest-streak|markdown-table|zwitch|extend|trim-lines|@types/unist)/)',
   ],
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'node', 'mjs'],
   testEnvironmentOptions: {

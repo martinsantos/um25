@@ -2,8 +2,6 @@ import {
   fixLiteralMarkdownInHtml,
   markdownToHtml,
   plainTextFromHtml,
-  sanitizeEditorialText,
-  stripMarketingFluff,
 } from './editorialContent';
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -58,7 +56,10 @@ export async function addHeadingIds(content: string): Promise<{
   html: string;
   headings: Array<{ level: number; id: string; text: string }>;
 }> {
-  const normalized = stripMarketingFluff(sanitizeEditorialText(content));
+  // Blog content is authored copy, not generated case boilerplate. Preserve Markdown
+  // block boundaries and code samples; stripMarketingFluff collapses newlines and
+  // can rewrite text inside code fences before Markdown gets a chance to parse it.
+  const normalized = String(content || '').replace(/\r\n/g, '\n').trim();
   const html = fixLiteralMarkdownInHtml((await markdownToHtml(normalized))
     .replace(/<h1([^>]*)>/gi, '<h2$1>')
     .replace(/<\/h1>/gi, '</h2>'));
@@ -119,5 +120,27 @@ export function extractFaqSchema(html: string): object | null {
 }
 
 export function sanitizeBlogExcerpt(value: unknown, maxLength = 160): string {
-  return plainTextFromHtml(value, maxLength);
+  const text = normalizeInlineBlogMarkdown(plainTextFromHtml(value));
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength - 1).trimEnd()}…`;
+}
+
+/** Keep labels from inline Markdown links in plain-text leads and card excerpts. */
+export function normalizeInlineBlogMarkdown(value: unknown): string {
+  const text = String(value || '').replace(/\s+/g, ' ').trim();
+  return text
+    .replace(/([A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9])(?=\[[^\]]+\]\((?:https?:\/\/|\/))/g, '$1 ')
+    .replace(/\[([^\]]+)\]\((?:https?:\/\/|\/)[^\s)]*(?:\)|$)/g, '$1')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/__([^_]+)__/g, '$1')
+    .replace(/(^|\s)(\*|_)([^*_]+)\2(?=\s|[.,;:!?]|$)/g, '$1$3');
+}
+
+/** Plain-text lead with link labels retained and sentence-aware length control. */
+export function normalizeBlogLead(value: unknown, maxLength = 220): string {
+  const clean = normalizeInlineBlogMarkdown(value);
+  if (clean.length <= maxLength) return clean;
+  const sentence = clean.match(/^(.{96,215}?[.!?])\s/);
+  if (sentence?.[1] && sentence[1].length <= maxLength) return sentence[1];
+  return `${clean.slice(0, maxLength - 1).trimEnd()}…`;
 }

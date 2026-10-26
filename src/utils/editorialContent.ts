@@ -20,7 +20,7 @@ const GENERIC_MARKETING_PATTERNS: Array<[RegExp, string]> = [
   [/La diferencia entre encontrar un problema en minutos o en horas\.?\s*/gi, ''],
   [/No instalamos cables, construimos infraestructura\.?\s*/gi, ''],
   [/No confíe en "funciona bien"\.?\s*/gi, ''],
-  [/Ejecución integral de [^.]+\.\s*/gi, ''],
+  [/(^|\n)Ejecución integral de\s+([\s\S]+?), asegurando continuidad operativa y cumplimiento de estándares técnicos de calidad\.?/gi, '$1$2.'],
   [/,\s*asegurando continuidad operativa y cumplimiento de estándares técnicos de calidad\.?\s*/gi, ''],
   [/Solución implementada por el equipo de ingeniería de Última Milla\.?\s*/gi, ''],
 ];
@@ -172,7 +172,7 @@ export function stripMarketingFluff(value: unknown): string {
   clean = clean
     .replace(/\bes\s+(?=[A-ZÁÉÍÓÚÑ])/g, '. ')
     .replace(/\.\s+\./g, '.')
-    .replace(/\s+/g, ' ')
+    .replace(/[ \t]+/g, ' ')
     .trim();
   return stripBannedLedgerPhrases(clean);
 }
@@ -207,7 +207,7 @@ export function stripBannedLedgerPhrases(value: unknown): string {
   for (const [pattern, replacement] of LEDGER_REPLACEMENTS) {
     text = text.replace(pattern, replacement);
   }
-  return text.replace(/\s{2,}/g, ' ').replace(/\s+([,.;])/g, '$1').trim();
+  return text.replace(/[ \t]{2,}/g, ' ').replace(/\s+([,.;])/g, '$1').trim();
 }
 
 export function stripBannedLedgerFromHtml(html: string): string {
@@ -356,14 +356,22 @@ function fixLiteralMarkdownHeadingsInParagraph(inner: string): string {
 }
 
 export function fixLiteralMarkdownInHtml(html: string): string {
-  return String(html || '')
+  const codeBlocks: string[] = [];
+  const protectedHtml = String(html || '').replace(/<(pre|code)\b[^>]*>[\s\S]*?<\/\1>/gi, (block) => {
+    const index = codeBlocks.push(block) - 1;
+    return `__EDITORIAL_CODE_BLOCK_${index}__`;
+  });
+  const fixedHtml = protectedHtml
     .replace(/\*\*([^*<]+)\*\*/g, '<strong>$1</strong>')
     .replace(/(?<![\w/])__([^_<]+)__(?![\w/])/g, '<strong>$1</strong>')
     .replace(/<p>([\s\S]*?)<\/p>/gi, (_match, inner) => fixLiteralMarkdownHeadingsInParagraph(inner));
+  return fixedHtml.replace(/__EDITORIAL_CODE_BLOCK_(\d+)__/g, (_match, index) => codeBlocks[Number(index)] || '');
 }
 
 export async function markdownToHtml(markdown: string): Promise<string> {
-  const cleaned = sanitizeEditorialText(markdown);
+  // Rendering should preserve author-provided code samples and Markdown layout.
+  // Editorial cleanup belongs to callers that explicitly request it.
+  const cleaned = String(markdown || '').replace(/\r\n/g, '\n').trim();
 
   const hasHtml = HTML_TAG_RE.test(cleaned);
   const hasMarkdownBlocks = /(^|\n)\s{0,3}(#{1,6}\s+|[-*+]\s+|\d+\.\s+)/m.test(cleaned);
