@@ -1,7 +1,7 @@
 ---
 import type { EntradaBlog } from '../../lib/directus';
 import { blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
-import { getCategoryColor, getCategoryLabel, formatBlogDate } from '../../utils/blogUtils';
+import { getCategoryColor, getCategoryLabel, formatBlogDate, sanitizeBlogExcerpt } from '../../utils/blogUtils';
 
 interface Props {
   post: EntradaBlog;
@@ -17,6 +17,7 @@ const categoryColor = getCategoryColor(post.categoria);
 const date = formatBlogDate(post.fecha_publicacion);
 const issue = typeof index === 'number' ? String(index).padStart(2, '0') : '';
 const thumbLabel = `Leer artículo: ${post.titulo}`;
+const excerpt = sanitizeBlogExcerpt(post.resumen, 180);
 ---
 
 <article class:list={['feed-item', `feed-item--${variant}`, !imgUrl && 'feed-item--no-image']}>
@@ -37,7 +38,7 @@ const thumbLabel = `Leer artículo: ${post.titulo}`;
       <a href={`/blog/${post.slug}`}>{post.titulo}</a>
     </h2>
 
-    <p class="feed-excerpt">{post.resumen.substring(0, 180)}{post.resumen.length > 180 ? '…' : ''}</p>
+    <p class="feed-excerpt">{excerpt}</p>
 
     <a href={`/blog/${post.slug}`} class="feed-link">
       Leer artículo
