@@ -44,7 +44,7 @@
       const list = items();
       const on = MQ.matches && rail.scrollWidth > rail.clientWidth + 4;
       ui.hidden = !on;
-      if (on) { rail.setAttribute('tabindex', '0'); rail.setAttribute('role', 'region'); rail.setAttribute('aria-roledescription', 'carrusel'); rail.setAttribute('aria-label', label); }
+      if (on) { rail.setAttribute('tabindex', '0'); rail.setAttribute('role', rail.matches('ol, ul') ? 'list' : 'region'); rail.setAttribute('aria-roledescription', 'carrusel'); rail.setAttribute('aria-label', label); }
       else { rail.removeAttribute('tabindex'); rail.removeAttribute('role'); rail.removeAttribute('aria-roledescription'); }
       if (!on) return;
       const i = index();
