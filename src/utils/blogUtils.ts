@@ -129,8 +129,8 @@ export function sanitizeBlogExcerpt(value: unknown, maxLength = 160): string {
 export function normalizeInlineBlogMarkdown(value: unknown): string {
   const text = String(value || '').replace(/\s+/g, ' ').trim();
   return text
-    .replace(/([A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9])(?=\[[^\]]+\]\((?:https?:\/\/|\/)[^\s)]+\))/g, '$1 ')
-    .replace(/\[([^\]]+)\]\((?:https?:\/\/|\/)[^\s)]+\)/g, '$1')
+    .replace(/([A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9])(?=\[[^\]]+\]\((?:https?:\/\/|\/))/g, '$1 ')
+    .replace(/\[([^\]]+)\]\((?:https?:\/\/|\/)[^\s)]*(?:\)|$)/g, '$1')
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/__([^_]+)__/g, '$1')
     .replace(/(^|\s)(\*|_)([^*_]+)\2(?=\s|[.,;:!?]|$)/g, '$1$3');

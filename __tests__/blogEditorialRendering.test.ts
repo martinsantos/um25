@@ -62,11 +62,30 @@ describe('blog editorial rendering', () => {
   });
 
   test('keeps Markdown link labels in leads and excerpts without exposing URLs', () => {
-    const source = 'El [Informe de Pagos Minoristas](https://example.com/informe) cambió.';
-    expect(normalizeBlogLead(source)).toBe('El Informe de Pagos Minoristas cambió.');
-    expect(normalizeBlogLead('La[Comunicación A8425](https://example.com/anexo) se aplica.'))
-      .toBe('La Comunicación A8425 se aplica.');
-    expect(sanitizeBlogExcerpt(source, 100)).toBe('El Informe de Pagos Minoristas cambió.');
+    const cases = [
+      {
+        source: 'El [Informe](https://example.com/informe) cambió.',
+        expected: 'El Informe cambió.',
+      },
+      {
+        source: 'El[Informe de Pagos Minoristas de marzo](https://www.bcra.gob.ar/publicaciones/informe-de-pagos-minoristas-marzo-d',
+        expected: 'El Informe de Pagos Minoristas de marzo',
+      },
+      {
+        source: 'La[Comunicación A8425](https://www.bcra.gob.ar/archivos/Pdfs/comytexord',
+        expected: 'La Comunicación A8425',
+      },
+    ];
+
+    for (const { source, expected } of cases) {
+      const lead = normalizeBlogLead(source);
+      const excerpt = sanitizeBlogExcerpt(source, 220);
+      expect(lead).toBe(expected);
+      expect(excerpt).toBe(expected);
+      for (const rendered of [lead, excerpt]) {
+        expect(rendered).not.toMatch(/\[|\]\(|https:/i);
+      }
+    }
   });
 
   test('preserves sentence-aware lead truncation after Markdown normalization', () => {
