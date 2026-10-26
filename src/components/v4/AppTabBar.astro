@@ -13,7 +13,7 @@ const clean = currentPath.replace(/\/$/, '') || '/';
 const { lang, t } = shellLocale(currentPath);
 const routes = shellRoutes(lang);
 const tabHref: Record<string, string> = { '/': routes.home, '/servicios': routes.services, '/antecedentes': routes.projects, '/contacto': routes.contact };
-const tabLabel: Record<string, string> = { '/': t.tabs.home, '/servicios': t.tabs.services, '/antecedentes': t.tabs.projects, '/contacto': t.tabs.contact };
+const tabLabel: Record<string, string> = { '/': t.tabs.home, '/servicios': t.tabs.services, '/antecedentes': lang === 'en' ? t.destinationLabel(t.tabs.projects) : t.tabs.projects, '/contacto': t.tabs.contact };
 const isActive = (href: string) => {
   const target = (tabHref[href] || href).replace(/\/$/, '') || '/';
   if (target === '/' || target === '/en') return clean === target;

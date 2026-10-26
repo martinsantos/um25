@@ -11,43 +11,31 @@ import UMLogo from '../brand/UMLogo.astro';
 import EmailLink from '../common/EmailLink.astro';
 import { commercialHubLinkItems, commercialHubShortLabels } from '../../data/strategicLinkGraph';
 import { shellLocale } from '../../config/i18nShell';
-const { t: shellT, alternate: alternateLangHref, alternateLang } = shellLocale(Astro.url.pathname);
+const { lang, t: shellT, alternate: alternateLangHref, alternateLang } = shellLocale(Astro.url.pathname);
 
 const currentYear = new Date().getFullYear();
 const commercialHubFooterLinks = commercialHubLinkItems.map((link) => ({
   href: link.href,
   label: commercialHubShortLabels[link.href] || link.label,
 }));
-
-// Footer navigation sections
-const footerSections = {
-  servicios: {
-    title: 'Servicios',
-    links: [
-      { href: '/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces', label: 'Infraestructura de Redes' },
-      { href: '/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi', label: 'Seguridad Electrónica' },
-      { href: '/servicios/103/telecomunicaciones-datos-voz-video', label: 'Telecomunicaciones' },
-      { href: '/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp', label: 'Desarrollo de Software' },
-      { href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it', label: 'Soporte Técnico 24/7' },
-    ],
-  },
-  empresa: {
-    title: 'Empresa',
-    links: [
-      { href: '/nosotros', label: 'Nosotros' },
-      { href: '/antecedentes', label: 'Antecedentes' },
-      { href: '/certificaciones', label: 'Certificaciones' },
-      { href: '/sectores', label: 'Sectores' },
-      { href: '/contacto', label: 'Contacto' },
-    ],
-  },
-  hubs: {
-    title: 'Sedes',
-    links: [
-      ...commercialHubFooterLinks,
-    ],
-  },
+const englishHubLabels: Record<string, string> = {
+  '/servicios-it-empresas-mendoza': 'IT services in Mendoza',
+  '/presupuesto-servicios-it-empresas': 'IT quote',
+  '/proyectos-ingenieria-it-mendoza': 'IT engineering',
+  '/servicios-it-empresas-argentina': 'IT services in Argentina',
 };
+const shellFooterLinks = lang === 'en'
+  ? [
+      ...commercialHubFooterLinks.map((link) => ({
+        href: link.href,
+        label: `${englishHubLabels[link.href] || link.label} (ES)`,
+      })),
+      { href: '/certificaciones', label: 'Technical documentation (ES)' },
+    ]
+  : [
+      ...commercialHubFooterLinks,
+      { href: '/certificaciones', label: 'Certificaciones' },
+    ];
 
 const socialLinks = [
   {
@@ -66,16 +54,15 @@ const socialLinks = [
 <footer class="um-site-footer um-foot">
   <div class="um-foot__shell">
     <div class="um-foot__row um-foot__brand">
-      <a href="/" class="um-footer-logo" aria-label="Ir al inicio"><UMLogo title="ultimamilla.com.ar" /></a>
-      <p class="um-foot__line">Houssay 1159, Guaymallén, Mendoza · <EmailLink class="um-footer-email" /> · Lunes a viernes, 8 a 18 h</p>
+      <a href={lang === 'en' ? '/en/' : '/'} class="um-footer-logo" aria-label={shellT.footerShell.home}><UMLogo title="ultimamilla.com.ar" /></a>
+      <p class="um-foot__line">Houssay 1159, Guaymallén, Mendoza · <EmailLink class="um-footer-email" /> · {shellT.footerShell.locationHours}</p>
     </div>
-    <nav class="um-foot__row um-foot__links" aria-label="Enlaces del pie">
-      {footerSections.hubs.links.map((link) => (
+    <nav class="um-foot__row um-foot__links" aria-label={lang === 'en' ? 'Footer links' : 'Enlaces del pie'}>
+      {shellFooterLinks.map((link) => (
         <a href={link.href}>{link.label}</a>
       ))}
-      <a href="/certificaciones">Certificaciones</a>
-      <a href="/privacidad">{shellT.footer.privacy}</a>
-      <a href="/terminos">{shellT.footer.terms}</a>
+      <a href="/privacidad">{lang === 'en' ? shellT.destinationLabel(shellT.footer.privacy) : shellT.footer.privacy}</a>
+      <a href="/terminos">{lang === 'en' ? shellT.destinationLabel(shellT.footer.terms) : shellT.footer.terms}</a>
       <a href={alternateLangHref} class="um-footer-lang" hreflang={alternateLang} lang={alternateLang}>{shellT.lang.switchTo}</a>
       <span class="um-foot__copy">© {currentYear} Ultima Milla</span>
     </nav>

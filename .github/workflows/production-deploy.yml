@@ -290,6 +290,14 @@ jobs:
               src/pages/index.astro|\
               src/pages/servicios/'[id]'/ficha.astro|\
               src/pages/servicios/index.astro|\
+              src/utils/antecedenteSectorPresentation.ts|\
+              src/config/i18nShell.ts|\
+              src/components/v4/AppTabBar.astro|\
+              src/pages/en/index.astro|src/pages/en/services.astro|src/pages/en/contacto.astro|\
+              src/pages/3dgemelohospital.astro|src/pages/3dgemelobodega.astro|src/pages/3dgemeloaeropuerto.astro|\
+              public/hospital-3d/20261026/hospital.html|public/hospital-3d/assets/HospitalExperience-20261026.js|public/hospital-3d/assets/hospital-20261026.js|\
+              public/sector-3d/20261026/bodega.html|public/sector-3d/20261026/aeropuerto.html|public/sector-3d/assets/SectorPublic-20261026.js|public/sector-3d/assets/SectorExperience-20261026.js|\
+              work/um-territorio/src/HospitalExperience.jsx|work/um-territorio/src/HospitalPublic.jsx|\
               src/styles/cine-banner.css) ;;
               *) echo "Unexpected release path: $path" >&2; exit 1 ;;
             esac

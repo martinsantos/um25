@@ -211,3 +211,9 @@
 }
 /* Barrido 24/10: la leyenda de escena en caja normal, sin rótulos en mayúsculas. */
 .umc-caption { text-transform: none; letter-spacing: 0; }
+
+/* Sin animación automática: la imagen alternativa permanece hasta una reproducción explícita. */
+@media (prefers-reduced-motion: reduce) {
+  .umc-poster.is-hidden { opacity: 1; }
+  .umc:has(.umc-video.is-on) .umc-poster { opacity: 0; }
+}

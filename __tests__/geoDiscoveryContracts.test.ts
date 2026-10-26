@@ -251,13 +251,13 @@ describe('GEO discovery and commercial hub contracts', () => {
     // laboratorio /geo salió del footer y del sitemap. La garantía comercial es
     // la misma: cada hub GEO comercial queda enlazado con <a href> rastreable.
     expect(footer).toContain("import { commercialHubLinkItems, commercialHubShortLabels } from '../../data/strategicLinkGraph'");
-    expect(footer).toMatch(/hubs:\s*\{\s*title: 'Sedes',\s*links: \[\s*\.\.\.commercialHubFooterLinks,/);
-    expect(footer).toMatch(/\{footerSections\.hubs\.links\.map\(\(link\) => \([\s\S]*?href=\{link\.href\}/);
+    expect(footer).toMatch(/const shellFooterLinks = lang === 'en'[\s\S]*?commercialHubFooterLinks\.map\(\(link\) => \([\s\S]*?href: link\.href/);
+    expect(footer).toContain("{ href: '/certificaciones', label: 'Certificaciones' }");
     expect(footer).not.toContain("href: '/geo'");
 
     expect(commercialHubLinkItems.map((item) => item.href)).toEqual(
       geoCommercialHubSlugs.map((slug) => `/${geoCommercialHubs[slug].slug}`),
     );
-    expect(commercialHubLinkItems.length).toBeGreaterThanOrEqual(4);
+    expect(commercialHubLinkItems).toHaveLength(4);
   });
 });

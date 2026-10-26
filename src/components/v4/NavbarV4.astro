@@ -1,7 +1,7 @@
 ---
 import UMLogo from '../brand/UMLogo.astro';
 import { NAV_SECTORS, NAV_SERVICES } from '../../data/navigation';
-import { shellLocale, shellRoutes } from '../../config/i18nShell';
+import { shellLocale, shellRoutes, shellServiceCopy, shellSectorCopy } from '../../config/i18nShell';
 /** Cabecera comercial UMSA: marca, navegación principal (con mega-menú de
  *  servicios y sectores en escritorio) y contacto. */
 
@@ -16,15 +16,15 @@ const routes = shellRoutes(lang);
 const navItems: { href: string; label: string; mega?: 'servicios' | 'sectores' }[] = [
   { href: routes.home, label: t.nav.home },
   { href: routes.services, label: t.nav.services, mega: 'servicios' },
-  { href: routes.sectors, label: t.nav.sectors, mega: 'sectores' },
-  { href: routes.projects, label: t.nav.projects },
-  { href: routes.blog, label: t.nav.blog },
+  { href: routes.sectors, label: lang === 'en' ? t.destinationLabel(t.nav.sectors) : t.nav.sectors, mega: 'sectores' },
+  { href: routes.projects, label: lang === 'en' ? t.destinationLabel(t.nav.projects) : t.nav.projects },
+  { href: routes.blog, label: lang === 'en' ? t.destinationLabel(t.nav.blog) : t.nav.blog },
 ];
 
 const moreItems = [
   { href: routes.about, label: lang === 'en' ? 'About' : 'Nosotros' },
-  { href: routes.cctv, label: 'UMSA CCTV AI' },
-  { href: routes.certifications, label: lang === 'en' ? 'Technical documentation' : 'Certificaciones' },
+  { href: routes.cctv, label: lang === 'en' ? 'UMSA CCTV AI (ES)' : 'UMSA CCTV AI' },
+  { href: routes.certifications, label: lang === 'en' ? t.destinationLabel('Technical documentation') : 'Certificaciones' },
   { href: routes.contact, label: lang === 'en' ? 'Contact' : 'Contacto' },
 ];
 
@@ -40,11 +40,11 @@ const isActive = (href: string) => {
 <header class="um-ops-header">
   <div class="um-ops-header__main">
     <div class="um-ops-container um-ops-header__row">
-      <a href="/" class="um-ops-logo" aria-label="Ir al inicio">
+      <a href={routes.home} class="um-ops-logo" aria-label={t.footerShell.home}>
         <UMLogo title="ultimamilla.com.ar" />
       </a>
 
-      <nav class="um-ops-nav" aria-label="Navegación principal">
+      <nav class="um-ops-nav" aria-label={lang === 'en' ? 'Main navigation' : 'Navegación principal'}>
         {navItems.map((item) => item.mega ? (
           <div class:list={['um-ops-mega', { 'is-active': isActive(item.href) }]} data-mega={item.mega}>
             <a href={item.href} class:list={['um-ops-nav__link', 'um-ops-mega__link', { 'is-active': isActive(item.href) }]}>
@@ -67,8 +67,8 @@ const isActive = (href: string) => {
                         <li>
                           <a href={s.href} class:list={[{ 'is-active': currentPath.startsWith(`/servicios/${s.code}`) }]}>
                             <span class="um-ops-mega__code">{s.code}</span>
-                            <span class="um-ops-mega__name">{s.name}</span>
-                            <span class="um-ops-mega__text">{s.text}</span>
+                            <span class="um-ops-mega__name">{lang === 'en' ? t.destinationLabel(shellServiceCopy(lang, s.code, s.name, s.text).name) : s.name}</span>
+                            <span class="um-ops-mega__text">{shellServiceCopy(lang, s.code, s.name, s.text).text}</span>
                           </a>
                         </li>
                       ))}
@@ -79,15 +79,15 @@ const isActive = (href: string) => {
                     <div class="um-ops-mega__intro">
                       <p class="um-ops-mega__kicker"><i></i>{t.megaSectors.kicker}</p>
                       <p class="um-ops-mega__lead">{t.megaSectors.lead}</p>
-                      <a class="um-ops-mega__all" href={routes.sectors}>{t.megaSectors.all} <span aria-hidden="true">→</span></a>
+                      <a class="um-ops-mega__all" href={routes.sectors}>{lang === 'en' ? t.destinationLabel(t.megaSectors.all) : t.megaSectors.all} <span aria-hidden="true">→</span></a>
                     </div>
                     <ul class="um-ops-mega__grid um-ops-mega__grid--sectors">
                       {NAV_SECTORS.map((s) => (
                         <li>
                           <a href={s.href} class:list={[{ 'is-active': isActive(s.href) }]}>
-                            <span class="um-ops-mega__code" aria-label={s.count ? `${s.count} casos documentados` : undefined}>{s.count ?? '—'}</span>
-                            <span class="um-ops-mega__name">{s.name}</span>
-                            <span class="um-ops-mega__text">{s.text}</span>
+                            <span class="um-ops-mega__code" aria-label={s.count ? (lang === 'en' ? `${s.count} documented projects` : `${s.count} casos documentados`) : undefined}>{s.count ?? '—'}</span>
+                            <span class="um-ops-mega__name">{lang === 'en' ? t.destinationLabel(shellSectorCopy(lang, s.slug, s.name, s.text).name) : s.name}</span>
+                            <span class="um-ops-mega__text">{shellSectorCopy(lang, s.slug, s.name, s.text).text}</span>
                           </a>
                         </li>
                       ))}
@@ -134,7 +134,7 @@ const isActive = (href: string) => {
 </header>
 
 <div id="mobileMenu" class="um-ops-mobile" hidden>
-  <nav class="um-ops-container um-ops-mobile__inner" aria-label="Menú móvil">
+  <nav class="um-ops-container um-ops-mobile__inner" aria-label={lang === 'en' ? 'Mobile menu' : 'Menú móvil'}>
     <ul class="um-ops-mobile__primary">
       {navItems.map((item) => (
         <li>
