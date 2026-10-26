@@ -1,4 +1,4 @@
-import generatedAntecedenteImageMap from '../data/antecedentes-generated-image-map.json';
+import { BASE_POSTER, posterForAntecedente } from '../data/cine/posters';
 import antecedentesSnapshot from '../data/snapshots/antecedentes.json';
 import { canonicalUrl, publicImageUrl } from './seoUrl';
 import { generateSlug } from './slugUtils.js';
@@ -33,27 +33,19 @@ function snapshotData<T>(snapshot: SnapshotRoot<T>): T[] {
 
 const antecedentes = snapshotData<SnapshotCase>(antecedentesSnapshot as SnapshotRoot<SnapshotCase>);
 const antecedentesById = new Map(antecedentes.map((item) => [Number(item.id), item]));
-const generatedMap = generatedAntecedenteImageMap as Record<string, string>;
-const directusImageVersion = '20260201';
+// Póster Blender por antecedente (sector × servicio): las imágenes por caso eran generadas.
+const generatedMap: Record<string, string> = Object.fromEntries(
+  antecedentes.map((item) => [String(item.id), posterForAntecedente(item.id) || BASE_POSTER]),
+);
 
 function cleanOptionalText(value: string | null | undefined): string | null {
   const normalized = String(value || '').replace(/\s+/g, ' ').trim();
   return normalized || null;
 }
 
-function getDirectusImageId(image: SnapshotCase['Imagen']): string {
-  if (!image) return '';
-  if (typeof image === 'string') return image;
-  return image.id || image.directus_files_id || '';
-}
-
 function getEvidenceImagePath(item: SnapshotCase): string {
-  const generatedImage = generatedMap[String(item.id)] || generatedMap[String(item.original_id || '')] || '';
-  if (generatedImage) return generatedImage;
-
-  const directusImageId = getDirectusImageId(item.Imagen);
-  if (directusImageId) return `/assets/${directusImageId}?v=${directusImageVersion}`;
-  return '';
+  // Sin recurrir a los archivos de Directus: también eran imágenes generadas.
+  return generatedMap[String(item.id)] || generatedMap[String(item.original_id || '')] || posterForAntecedente(item.id) || BASE_POSTER;
 }
 
 export function getAntecedentesImageEvidenceEntries(): AntecedenteImageEvidenceEntry[] {

@@ -209,3 +209,5 @@
 @media (prefers-reduced-motion: reduce) {
   .umc[data-fx] .umc-stage, .umc[data-fx] .umc-video { animation: none; }
 }
+/* Barrido 24/10: la leyenda de escena en caja normal, sin rótulos en mayúsculas. */
+.umc-caption { text-transform: none; letter-spacing: 0; }

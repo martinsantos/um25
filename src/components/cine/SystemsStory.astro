@@ -55,7 +55,7 @@ const src = `/3d/cinema.html?scene=${scene}&mode=building&embed=1&ar=clean&cente
     <div class="um-story__stage" data-src={src}>
       <img src={`/cine/media/${scene}-cycles.webp`} alt={`${PLACE.short}: gemelo digital de la infraestructura`} width="1600" height="1000" loading="lazy" decoding="async" />
       <div class="um-story__frame" aria-hidden="true"></div>
-      <button class="um-story__mount" type="button" hidden>Recorrer el gemelo digital</button>
+      <button class="um-story__mount" type="button" hidden aria-hidden="true" tabindex="-1"></button>
       <p class="um-story__now" aria-live="polite"><i></i><span>{PLACE.short}</span></p>
     </div>
     <ol class="um-story__chapters">
@@ -112,7 +112,7 @@ const src = `/3d/cinema.html?scene=${scene}&mode=building&embed=1&ar=clean&cente
       if (inView && !compact && !limited) mount();
       if (ready) send('suspend', !inView);
     }, { rootMargin: '300px 0px' }).observe(story);
-    if (compact || limited) { mountBtn.hidden = false; mountBtn.addEventListener('click', mount); }
+    // En pantallas chicas queda la imagen: el gemelo digital no se ofrece al usuario final.
     activate(chapters[0]);
   }
 </script>

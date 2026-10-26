@@ -35,7 +35,6 @@ const isActive = (href: string) => {
   return clean.startsWith(target);
 };
 
-const moreIsActive = moreItems.some((item) => isActive(item.href));
 ---
 
 <header class="um-ops-header">
@@ -86,7 +85,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
                       {NAV_SECTORS.map((s) => (
                         <li>
                           <a href={s.href} class:list={[{ 'is-active': isActive(s.href) }]}>
-                            {s.count && <span class="um-ops-mega__code" aria-label={`${s.count} casos documentados`}>{s.count}</span>}
+                            <span class="um-ops-mega__code" aria-label={s.count ? `${s.count} casos documentados` : undefined}>{s.count ?? '—'}</span>
                             <span class="um-ops-mega__name">{s.name}</span>
                             <span class="um-ops-mega__text">{s.text}</span>
                           </a>
@@ -104,24 +103,8 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
           </a>
         ))}
 
-        <div class:list={['um-ops-more', { 'is-active': moreIsActive }]}>
-          <button type="button" class="um-ops-more__trigger" aria-haspopup="true" aria-expanded="false">
-            {t.nav.more}
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-          </button>
-          <div class="um-ops-more__menu" role="menu">
-            {moreItems.map((item) => (
-              <a href={item.href} role="menuitem" class:list={[{ 'is-active': isActive(item.href) }]}>
-                {item.label}
-              </a>
-            ))}
-          </div>
-        </div>
       </nav>
 
-      <a href={alternate} class="um-ops-lang" hreflang={alternateLang} lang={alternateLang} aria-label={t.lang.switchTo} title={t.lang.switchTo}>
-        {t.lang.code}
-      </a>
 
       {lang === 'en' ? (
         <a href="/en/contacto" class="um-ops-cta">{t.nav.contact}</a>
@@ -414,6 +397,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s linear 0.16s;
   }
 
+  .um-ops-mega:hover .um-ops-mega__panel,
   .um-ops-mega.is-open .um-ops-mega__panel {
     opacity: 1;
     visibility: visible;
@@ -1093,7 +1077,7 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
     if (!header || !menuToggle || !mobileMenu || menuToggle.dataset.bound === 'true') return;
     menuToggle.dataset.bound = 'true';
 
-    // Hover, teclado y clic comparten is-open y el mismo estado accesible.
+    // Mega-menú de escritorio: hover lo abre por CSS; teclado y clic usan is-open.
     const megas = [...document.querySelectorAll<HTMLElement>('.um-ops-mega')];
     const closeMegas = (except?: HTMLElement) => {
       megas.forEach((m) => {
@@ -1111,9 +1095,6 @@ const moreIsActive = moreItems.some((item) => isActive(item.href));
         mega.classList.toggle('is-open', open);
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       };
-      mega.addEventListener('mouseenter', () => {
-        if (matchMedia('(hover: hover)').matches) setOpen(true);
-      });
       toggle.addEventListener('click', () => setOpen(!mega.classList.contains('is-open')));
       link?.addEventListener('keydown', (event) => {
         if (event.key === 'ArrowDown') { event.preventDefault(); setOpen(true); mega.querySelector<HTMLAnchorElement>('.um-ops-mega__grid a')?.focus(); }

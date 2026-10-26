@@ -41,7 +41,7 @@ export const ISOMETRIC_STUDIES: Record<string, IsometricStudy> = {
   '104': {
     asset:'software',name:'Software a medida',title:'La lógica. En cada capa.',object:'Aplicación · navegación / contenido / acciones',
     views:[
-      system('Los puestos y los equipos se conectan con la aplicación que organiza el proceso. La herramienta pertenece a la operación.'),
+      {...system('Los puestos y los equipos se conectan con la aplicación que organiza el proceso. La herramienta pertenece a la operación.'),title:'El proceso organiza el sistema.'},
       {label:'Aplicación',title:'Un proceso, una herramienta propia.',description:'La interfaz reúne navegación, información y acciones en un mismo lugar.'},
       {label:'Capas',title:'Cada capa tiene un propósito.',description:'La aplicación se separa para leer su estructura. La navegación conserva su relación con el contenido.'},
       {label:'Contenido',title:'La información permite decidir.',description:'Registros, estados y acciones mantienen su contexto dentro de la misma herramienta.'},
@@ -49,21 +49,21 @@ export const ISOMETRIC_STUDIES: Record<string, IsometricStudy> = {
     parts:[{name:'Proceso y personas',detail:'La herramienta se define a partir de tareas, roles y permisos reales.'},{name:'Datos e integraciones',detail:'APIs, sistemas y registros conectan la aplicación con la operación.'},{name:'Código y evolución',detail:'El desarrollo conserva trazabilidad, pruebas y capacidad de mejora.'}],
   },
   '105': {
-    asset:'support',name:'Soporte IT 24/7',title:'Leer el estado. Resolver el incidente.',object:'Consola operativa · sistemas / trazas / avisos',
+    asset:'support-v7',name:'Soporte IT 24/7',title:'Leer el estado. Resolver el incidente.',object:'Consola operativa · señal / diagnóstico / respuesta',
     views:[
-      system('La operación centraliza los estados de red, energía y video. Un incidente conserva su relación con el sistema afectado.'),
+      {...system('La operación centraliza los estados de red, energía y video. Un incidente conserva su relación con el sistema afectado.'),title:'De cada sistema al responsable.'},
       {label:'Consola',title:'Los sistemas tienen un estado visible.',description:'Una consola reúne señales, estados y trazas para reconocer qué necesita atención.'},
-      {label:'Capas',title:'La señal llega con contexto.',description:'La interfaz se separa del equipo para leer la información que sostiene la respuesta.'},
-      {label:'Aviso',title:'El incidente llega al responsable.',description:'El evento se convierte en un aviso y una tarea asignada. La respuesta se organiza con prioridades y SLA.'},
+      {label:'Capas',title:'La señal llega con contexto.',description:'Telemetría, diagnóstico y respuesta se separan como capas de una misma consola. El incidente conserva su origen y sus dependencias.'},
+      {label:'Aviso',title:'El incidente llega al responsable.',description:'Detección, diagnóstico, intervención y verificación conservan un registro. La respuesta se organiza con prioridades y un SLA acordado.'},
     ],
     parts:[{name:'Monitoreo y prioridad',detail:'El estado del sitio orienta la evaluación inicial del incidente.'},{name:'Responsable y respuesta',detail:'Cada solicitud tiene asignación, seguimiento y un alcance acordado.'},{name:'Registro y prevención',detail:'La resolución documentada alimenta el mantenimiento y la mejora del servicio.'}],
   },
   '106': {
-    asset:'consulting',name:'Consultoría IT',title:'La arquitectura se puede leer.',object:'Proyecto · acceso / núcleo / servicios',
+    asset:'consulting-v7',name:'Consultoría IT',title:'La arquitectura se puede leer.',object:'Proyecto · sitio / dependencias / decisiones',
     views:[
-      system('La planta permite relacionar espacios, equipos y recorridos. La arquitectura organiza decisiones sobre el conjunto.'),
-      {label:'Proyecto',title:'Decisiones que forman un sistema.',description:'Acceso, núcleo y servicios se representan en láminas relacionadas, con un mismo criterio de diseño.'},
-      {label:'Capas',title:'Separar para entender las relaciones.',description:'Las láminas se abren para leer estructura y dependencias sin perder la visión del conjunto.'},
+      {...system('La planta permite relacionar espacios, equipos y recorridos. La arquitectura organiza decisiones sobre el conjunto.'),title:'El proyecto empieza en el sitio.'},
+      {label:'Proyecto',title:'Decisiones que forman un sistema.',description:'El relevamiento del sitio, las dependencias técnicas y las decisiones se representan en láminas de un mismo proyecto.'},
+      {label:'Capas',title:'Separar para entender las relaciones.',description:'El plano, la arquitectura y la matriz de decisiones se abren para seguir las relaciones sin perder la visión del conjunto.'},
       {label:'Decisión',title:'Una decisión conserva su evidencia.',description:'Cada elección se puede explicar por sus relaciones, requisitos y efecto sobre la operación.'},
     ],
     parts:[{name:'Relevamiento y evidencia',detail:'El diagnóstico parte de sistemas, documentación y necesidades del sitio.'},{name:'Diseño y alternativas',detail:'La arquitectura conecta alcance, dependencias y criterios de decisión.'},{name:'Plan de ejecución',detail:'El roadmap ordena prioridades, etapas y entregables verificables.'}],

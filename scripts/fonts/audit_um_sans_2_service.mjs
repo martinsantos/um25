@@ -8,17 +8,24 @@ import assert from 'node:assert/strict';
 const base = (process.argv[2] || 'https://www.ultimamilla.com.ar').replace(/\/$/, '');
 const prefix = '/fonts/um-sans/v2.0.0';
 const root = path.resolve('public' + prefix);
-const resourceVersion = '2026.10.10-r7';
+const resourceVersion = '2026.10.13-r8';
 const resourcePrefix = `/downloads/plantillas-um-sans/${resourceVersion}`;
 const resourceRoot = path.resolve('public' + resourcePrefix);
 const resourcePackage = `Plantillas-UMSans2-${resourceVersion}.zip`;
 const requireCors = !process.argv.includes('--local');
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 async function get(url) {
-  const response = await fetch(base + url, {
-    headers: { Origin: 'https://sgi.ultimamilla.com.ar' },
-    signal: AbortSignal.timeout(30000),
-  });
+  // Justo después del cambio de versión el borde puede devolver un 5xx pasajero (525):
+  // se reintenta antes de dar el servicio por roto.
+  let response;
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    response = await fetch(base + url, {
+      headers: { Origin: 'https://sgi.ultimamilla.com.ar' },
+      signal: AbortSignal.timeout(30000),
+    });
+    if (response.status < 500 || attempt === 4) break;
+    await new Promise((resolve) => setTimeout(resolve, 5000 * attempt));
+  }
   assert.equal(response.status, 200, `${url}: HTTP ${response.status}`);
   return response;
 }

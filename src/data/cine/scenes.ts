@@ -44,7 +44,7 @@ export const SERVICE_SCENES: Record<string, { scene: Scene; systems: string[] }>
   '101': { scene: 'fachada', systems: ['Data', 'Fiber', 'WiFi'] },
   '102': { scene: 'aeropuerto', systems: ['CCTV', 'Security', 'Intercom'] },
   '103': { scene: 'planta', systems: ['Telecom', 'WiFi', 'Data'] },
-  '104': { scene: 'hospital', systems: ['Software'] },
+  '104': { scene: 'fachada', systems: ['Software'] }, // Software: el edificio en rayos X con las pantallas (pedido del dueño, 24/10)
   '105': { scene: 'aeropuerto', systems: [] },
   '106': { scene: 'fachada', systems: [] },
   '107': { scene: 'bodega', systems: ['Fire-detection'] },
@@ -66,7 +66,7 @@ export interface SceneServiceCut {
   track: string | null;
 }
 
-export const V4_CUTS: Record<string, SceneServiceCut> = v4Media as Record<string, SceneServiceCut>;
+export const V4_CUTS: Record<string, SceneServiceCut> = v4Media as unknown as Record<string, SceneServiceCut>;
 
 const SERVICE_SLUG_BY_CODE: Record<string, string> = {
   '101': 'redes', '102': 'seguridad', '103': 'telecom', '104': 'software',
@@ -75,7 +75,7 @@ const SERVICE_SLUG_BY_CODE: Record<string, string> = {
 
 /** Clave de banner para un servicio: su recorrido v4 si está renderizado, o la escena base. */
 export const serviceSceneKey = (code: string): string => {
-  const base = SERVICE_SCENES[code] || SERVICE_SCENES['101'];
+  const base = (SERVICE_SCENES[code] || SERVICE_SCENES['101'])!;
   const key = `${base.scene}-${SERVICE_SLUG_BY_CODE[code] || ''}`;
   return V4_CUTS[key] ? key : base.scene;
 };
@@ -96,7 +96,12 @@ const SERVICE_LABEL_BY_SLUG: Record<string, string> = {
 
 /** Rótulo del plano: "Hospital" para una escena base, "Hospital · Software a medida" para un recorrido v4.
  *  Mismo texto que escribe el reproductor (/cine/cine-banner-v4.js) en cada corte. */
+/** Película propia de Software: pantallas de interfaz con transparencias (Blender, v27). Ya publicada en
+ *  /cine/media/cine-software-system-v27{,-sq}.mp4; la piden /software y el servicio 104 (dueño, 25/10). */
+export const SOFTWARE_FILM = 'software-system-v27';
+
 export const cutCaption = (key: string): string => {
+  if (key === SOFTWARE_FILM) return 'Software a medida';
   const service = SERVICE_LABEL_BY_SLUG[key.split('-')[1] || ''];
   return SCENE_TITLES[baseScene(key)] + (service ? ` · ${service}` : '');
 };

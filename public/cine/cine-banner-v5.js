@@ -23,7 +23,6 @@ const compact = () => innerWidth <= 820 || matchMedia('(pointer: coarse)').match
 const tracks = new Map();
 const loadTrack = (scene) => {
   if (!tracks.has(scene)) tracks.set(scene, fetch(`/cine/media/cine-${scene}-ar.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
-  if (tracks.size > 4) tracks.delete(tracks.keys().next().value);
   return tracks.get(scene);
 };
 
@@ -35,104 +34,117 @@ const serviceOf = (cut) => SERVICE_NAMES[String(cut || '').split('-')[1]] || '';
 // Empalmes entre planos: corte seco, ráfaga de glitch o barrido. Se sortea en cada corte.
 const FX = ['cut', 'glitch', 'wipe-l', 'wipe-r', 'wipe-u', 'glitch'];
 
-export function banner(el) {
-  if (el.dataset.bound) return;
-  el.dataset.bound = 'true';
-  const scenes = (el.dataset.scenes || '').split(',').filter(Boolean);
-  const variants = Object.fromEntries((el.dataset.variants || '').split(';').filter(Boolean).map(g => {
-    const [scene, list] = g.split(':'); return [scene, (list || '').split('|').filter(Boolean)];
+function banner(el) {
+  const scenes = el.dataset.scenes.split(',');
+  // Recorridos alternativos por escena ("bodega:bodega-redes|bodega-soporte;hospital:…").
+  const VARIANTS = Object.fromEntries((el.dataset.variants || '').split(';').filter(Boolean).map((g) => {
+    const [s, list] = g.split(':');
+    return [s, (list || '').split('|').filter(Boolean)];
   }));
-  const vary = Object.keys(variants).length > 0;
+  const vary = Object.keys(VARIANTS).length > 0 && !motionLimited();
   const planned = {};
   let lastCut = '';
-  const cutOf = i => {
-    const scene = scenes[i];
-    if (!vary || motionLimited()) return scene;
+  // Qué recorrido toca para la escena i: la escena base o uno de sus v4, nunca el mismo dos veces seguidas.
+  const cutOf = (i) => {
+    const s = scenes[i];
+    if (!vary) return s;
     if (!planned[i]) {
-      const choices = [scene, ...(variants[scene] || [])].filter(k => k !== lastCut);
-      planned[i] = choices[Math.floor(Math.random() * choices.length)] || scene;
+      const opts = [s, ...(VARIANTS[s] || [])].filter((k) => k !== lastCut);
+      planned[i] = opts[Math.floor(Math.random() * opts.length)] || s;
     }
     return planned[i];
   };
   const only = (el.dataset.systems || '').split(',').filter(Boolean);
   const [va, vb] = el.querySelectorAll('.umc-video');
-  const poster = el.querySelector('.umc-poster'), stage = el.querySelector('.umc-stage');
-  const layer = el.querySelector('.umc-ar'), rail = [...el.querySelectorAll('[data-umc-scene]')];
-  const motion = el.querySelector('[data-umc-motion]'), caption = el.querySelector('[data-umc-caption]');
-  if (!scenes.length || !va || !vb || !poster || !stage || !layer) return;
+  const poster = el.querySelector('.umc-poster');
+  const stage = el.querySelector('.umc-stage');
+  const layer = el.querySelector('.umc-ar');
+  const rail = [...el.querySelectorAll('[data-umc-scene]')];
+  const motion = el.querySelector('[data-umc-motion]');
+  const caption = el.querySelector('[data-umc-caption]');
+  // Con una sola escena pero varios recorridos (sector o servicio), el banner también
+  // encadena: al terminar un recorrido sortea otro de la misma escena.
   const multi = scenes.length > 1 || vary;
-  const SQ = {x:487,w:1080,h:1080};
+  // Escenario angosto (teléfono vertical): recorte cuadrado 1080×1080 de la zona que
+  // encuadra el escenario, píxel a píxel. Más ancho (tablet, desktop): 1080p completo.
+  const SQ = { x: 487, w: 1080, h: 1080 };
   const narrow = () => stage.clientWidth <= stage.clientHeight * 1.05;
-  const src = scene => `/cine/media/cine-${scene}${narrow() ? '-sq' : ''}.mp4`;
-  let index = Math.max(0, Math.min(Number(el.dataset.start) || 0, scenes.length - 1));
-  let active = va, idle = vb, track = null, playingCut = '', visible = false, userPaused = motionLimited();
-  let started = false, disposed = false, raf = 0, cutting = false, generation = 0, preloaded = '', fxTimer = 0, startTimer = 0;
-  let shown = [], lastPick = 0, posNow = .5;
-  const pool = Array.from({length:4}, () => {
-    const t = document.createElement('a'); t.className = 'umc-tag'; t.tabIndex = -1;
+  const src = (scene) => `/cine/media/cine-${scene}${narrow() ? '-sq' : ''}.mp4`;
+  let index = Math.min(Number(el.dataset.start) || 0, scenes.length - 1), active = va, idle = vb, track = null, visible = true, userPaused = motionLimited();
+  // El video no compite con el póster (LCP): arranca con la página ya cargada.
+  let started = false;
+  let shown = [], lastPick = 0, cutting = false, preloaded = -1, posNow = .5;
+
+  const pool = Array.from({ length: 4 }, () => {
+    const t = document.createElement('a');
+    t.className = 'umc-tag';
+    t.tabIndex = -1;
     t.innerHTML = '<i class="umc-tag__ret"></i><i class="umc-tag__lead"></i><span class="umc-tag__card"><small></small><strong></strong></span>';
     layer.appendChild(t);
-    return {el:t,id:null,small:t.querySelector('small'),name:t.querySelector('strong')};
+    return { el: t, id: null, small: t.querySelector('small'), name: t.querySelector('strong') };
   });
-  const stopFrames = () => { cancelAnimationFrame(raf); raf = 0; };
-  const canPlay = () => !disposed && started && visible && !document.hidden && !userPaused && !el.classList.contains('is-exploring');
-  const startFrames = () => { if (!raf && canPlay() && !active.paused) raf = requestAnimationFrame(frame); };
-  const clearTags = () => { track = null; shown = []; pool.forEach(p => {p.id=null;p.el.classList.remove('is-on');}); el.classList.remove('is-glitch'); };
-  const useTrack = scene => {
-    clearTags();
-    loadTrack(scene).then(t => { if (!disposed && playingCut === scene && t?.track && t?.assets) {track=t;startFrames();} });
-  };
-  const mark = i => {
+
+  const useTrack = (scene) => { track = null; loadTrack(scene).then((t) => { if (el.dataset.scene === scene) track = t; }); };
+  const clearTags = () => { shown = []; pool.forEach((p) => { p.id = null; p.el.classList.remove('is-on'); }); };
+  const mark = (i) => {
     el.dataset.scene = scenes[i];
-    const svc = serviceOf(playingCut || scenes[i]);
-    rail.forEach((b,k) => {
-      b.setAttribute('aria-pressed',String(k===i));
+    const svc = serviceOf(cutOf(i));
+    rail.forEach((b, k) => {
+      b.setAttribute('aria-pressed', String(k === i));
+      // En la portada, el botón activo del carril dice qué servicio se está recorriendo.
       const small = b.querySelector('small');
-      if (small) { if (!small.dataset.base) small.dataset.base=small.textContent; small.textContent=k===i && svc ? svc : small.dataset.base; }
-      const bar = b.querySelector('b'); if (bar && k!==i) bar.style.transform='scaleX(0)';
-    });
-    if (caption) caption.textContent=(TITLES[baseOf(scenes[i])] || '')+(svc ? ` · ${svc}` : '');
-  };
-  const label = () => {
-    const paused = userPaused || active.paused;
-    el.classList.toggle('is-paused',paused);
-    motion?.setAttribute('aria-label',paused ? 'Reanudar el recorrido' : 'Pausar el recorrido');
-  };
-  const showPoster = scene => {
-    const source = poster.closest('picture')?.querySelector('source');
-    if (source) source.srcset=`/cine/media/cine-${scene}-poster.avif`;
-    poster.src=`/cine/media/cine-${scene}-poster.jpg`;
-    poster.classList.remove('is-hidden');
-  };
-  function play() {
-    if (!canPlay()) {active.pause();idle.pause();stopFrames();label();return;}
-    if (!active.getAttribute('src')) {
-      playingCut=cutOf(index); active.loop=!multi; active.src=src(playingCut); mark(index); useTrack(playingCut);
-    }
-    active.play().then(() => {
-      if (!canPlay()) {active.pause();stopFrames();return;}
-      active.classList.add('is-on');poster.classList.add('is-hidden');startFrames();label();
-    }).catch(e => { if (e?.name==='NotAllowedError') {userPaused=true;label();} });
-  }
-  function cutTo(nextIndex) {
-    if (cutting || !canPlay()) return;
-    const next=(nextIndex+scenes.length)%scenes.length, scene=cutOf(next), nextVideo=idle;
-    cutting=true; const token=++generation;
-    if (preloaded!==scene) nextVideo.src=src(scene);
-    nextVideo.currentTime=0; nextVideo.loop=!multi;
-    nextVideo.play().then(() => {
-      if (token!==generation || !canPlay()) {nextVideo.pause();if(token===generation)cutting=false;return;}
-      stopFrames();active.classList.remove('is-on');active.pause();
-      [active,idle]=[nextVideo,active]; index=next; playingCut=scene;
-      active.classList.add('is-on');poster.classList.add('is-hidden');
-      mark(index);useTrack(scene);preloaded='';cutting=false;lastCut=scene;planned[index]=null;
-      if (vary && !motionLimited()) {
-        const fx=FX[Math.floor(Math.random()*FX.length)];el.dataset.fx='';void el.offsetWidth;el.dataset.fx=fx;
-        clearTimeout(fxTimer);fxTimer=setTimeout(() => {el.dataset.fx='';},800);
+      if (small) {
+        if (!small.dataset.base) small.dataset.base = small.textContent;
+        small.textContent = k === i && svc ? svc : small.dataset.base;
       }
-      startFrames();label();
-    }).catch(() => {if(token===generation)cutting=false;});
+    });
+    if (caption) caption.textContent = (TITLES[baseOf(scenes[i])] || '') + (svc ? ` · ${svc}` : '');
+  };
+
+  function play() {
+    if (!started) return;
+    if (userPaused || !visible || document.hidden) { active.pause(); return; }
+    if (!active.getAttribute('src')) { active.loop = !multi; active.src = src(cutOf(index)); }
+    active.play().then(() => { active.classList.add('is-on'); poster.classList.add('is-hidden'); }).catch((e) => {
+      if (e?.name === 'NotAllowedError') { userPaused = true; label(); }
+    });
   }
+  function label() {
+    const paused = userPaused || active.paused;
+    el.classList.toggle('is-paused', paused);
+    motion?.setAttribute('aria-label', paused ? 'Reanudar el recorrido' : 'Pausar el recorrido');
+  }
+  // Corte seco al plano siguiente: el glitch del final y del comienzo disimulan el empalme.
+  function cutTo(i) {
+    if (cutting) return;
+    cutting = true;
+    index = (i + scenes.length) % scenes.length;
+    const scene = cutOf(index);
+    if (preloaded !== index) { idle.src = src(scene); preloaded = index; }
+    idle.currentTime = 0;
+    idle.loop = !multi;
+    idle.play().then(() => {
+      idle.classList.add('is-on');
+      active.classList.remove('is-on');
+      active.pause();
+      [active, idle] = [idle, active];
+      mark(index);
+      useTrack(scene);
+      clearTags();
+      preloaded = -1;
+      cutting = false;
+      lastCut = scene;
+      planned[index] = null; // la próxima vuelta vuelve a sortear
+      if (vary) {
+        const fx = FX[Math.floor(Math.random() * FX.length)];
+        el.dataset.fx = '';
+        void el.offsetWidth;
+        el.dataset.fx = fx;
+        setTimeout(() => { if (el.dataset.fx === fx) el.dataset.fx = ''; }, 800);
+      }
+    }).catch(() => { cutting = false; });
+  }
+
   // Pista: 'linear' (v3, un cuadro de video = un cuadro de render) o ida y vuelta con pausa (v2).
   const frameAt = (f) => {
     const n = track.frames;
@@ -144,9 +156,7 @@ export function banner(el) {
   const inRanges = (ranges, f) => (ranges || []).some(([a, b]) => f >= a && f < b);
   const sample = (id, time) => {
     const f = time * (track.fps || 24);
-    const path = track.track[id];
-    if (!path?.length) return [0, 0, false];
-    const a = path[frameAt(f)] || path[path.length - 1], b = path[frameAt(f + 1)] || a;
+    const a = track.track[id][frameAt(f)], b = track.track[id][frameAt(f + 1)];
     const u = f - Math.floor(f);
     return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u, a[2] && b[2]];
   };
@@ -210,108 +220,122 @@ export function banner(el) {
     }
   }
 
-
   function frame(now) {
-    raf=0;
-    if (!canPlay() || active.paused || !active.classList.contains('is-on')) return;
-    const time=active.currentTime;
-    if (track) {
-      posNow=parseFloat(getComputedStyle(active).objectPosition)/100 || .5;
-      const f=time*(track.fps || 24), skeleton=inRanges(track.beats,f);
-      el.classList.toggle('is-glitch',!motionLimited() && inRanges(track.glitch,f));
-      if (now-lastPick>450) {lastPick=now;pick(time,skeleton);}
-      for (const p of pool) {
-        if (!p.id) continue;
-        const [nx,ny]=sample(p.id,time),[x,y]=project(nx,ny),flip=flips(x);
-        p.el.classList.toggle('is-flip',flip);p.el.style.transform=`translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`;
-        const card=p.card || (p.card=p.el.querySelector('.umc-tag__card'));
-        if (card) {
-          const cw=card.offsetWidth,off=compact()?28:34,sx=x+stage.offsetLeft,W=el.clientWidth;
-          const left=flip?sx-off-cw:sx+off,dx=left<8?8-left:left+cw>W-8?W-8-(left+cw):0;
-          card.style.translate=dx?`${dx.toFixed(1)}px 0`:'';
-        }
+    requestAnimationFrame(frame);
+    if (!track || active.paused || !active.classList.contains('is-on')) return;
+    posNow = parseFloat(getComputedStyle(active).objectPosition) / 100 || .5;
+    const time = active.currentTime;
+    const f = time * (track.fps || 24);
+    const skeleton = inRanges(track.beats, f);
+    el.classList.toggle('is-glitch', inRanges(track.glitch, f));
+    if (now - lastPick > 450) { lastPick = now; pick(time, skeleton); }
+    for (const p of pool) {
+      if (!p.id) continue;
+      const [nx, ny] = sample(p.id, time);
+      const [x, y, w] = project(nx, ny);
+      const flip = flips(x, w);
+      p.el.classList.toggle('is-flip', flip);
+      p.el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+      // La tarjeta nunca sale de la sección: se corre lo justo para quedar dentro.
+      const card = p.card || (p.card = p.el.querySelector('.umc-tag__card'));
+      if (card) {
+        const cw = card.offsetWidth, off = compact() ? 28 : 34, sx = x + stage.offsetLeft, W = el.clientWidth;
+        const left = flip ? sx - off - cw : sx + off;
+        const dx = left < 8 ? 8 - left : left + cw > W - 8 ? W - 8 - (left + cw) : 0;
+        card.style.translate = dx ? `${dx.toFixed(1)}px 0` : '';
       }
     }
-    const bar=rail[index]?.querySelector('b');
-    if(bar && active.duration)bar.style.transform=`scaleX(${Math.min(1,time/active.duration).toFixed(4)})`;
-    if(multi && active.duration && !motionLimited()) {
-      const next=(index+1)%scenes.length,scene=cutOf(next);
-      if(time>active.duration-3 && preloaded!==scene){idle.src=src(scene);idle.preload='auto';idle.load();preloaded=scene;}
-      if(time>=active.duration-.05)cutTo(next);
+    const bar = rail[index]?.querySelector('b');
+    if (bar && active.duration) bar.style.transform = `scaleX(${Math.min(1, time / active.duration).toFixed(4)})`;
+    if (multi && active.duration) {
+      const next = (index + 1) % scenes.length;
+      if (time > active.duration - 3 && preloaded !== next) { idle.src = src(cutOf(next)); idle.preload = 'auto'; idle.load(); preloaded = next; }
+      if (time >= active.duration - .05) cutTo(next);
     }
-    startFrames();
   }
-  rail.forEach((b,k) => b.addEventListener('click', () => {
-    if(k===index)return;
-    started=true;
-    if(motionLimited() || userPaused) {
-      generation++;cutting=false;active.pause();idle.pause();stopFrames();
-      index=k;playingCut='';active.removeAttribute('src');idle.removeAttribute('src');active.load();idle.load();preloaded='';
-      active.classList.remove('is-on');idle.classList.remove('is-on');clearTags();showPoster(scenes[k]);mark(k);label();
-      return;
-    }
+
+  // El despiece de abajo pide el recorrido de un servicio en la escena actual ("hospital-redes").
+  el.addEventListener('umc:cut', (e) => {
+    const key = String(e.detail || '');
+    if (!key || key === cutOf(index) || !(key === scenes[index] || (VARIANTS[scenes[index]] || []).includes(key))) return;
+    planned[index] = key;
+    started = true;
+    userPaused = false;
+    cutTo(index);
+    label();
+  });
+  rail.forEach((b, k) => b.addEventListener('click', () => {
+    if (k === index) return;
+    started = true;
+    userPaused = false;
     cutTo(k);
+    label();
   }));
   motion?.addEventListener('click', () => {
-    started=true;userPaused=!(userPaused || active.paused);
-    if(userPaused){generation++;cutting=false;}play();label();
+    started = true;
+    userPaused = !(userPaused || active.paused);
+    if (userPaused) active.pause(); else play();
+    label();
   });
-  for(const v of [va,vb]) {
-    v.addEventListener('play',label);v.addEventListener('playing',() => {if(v===active)startFrames();});
-    v.addEventListener('pause',() => {label();if(v===active)stopFrames();});
-    v.addEventListener('ended',() => {if(v===active && multi && !motionLimited())cutTo(index+1);});
-    v.addEventListener('error',() => {
-      if(v!==active)return;userPaused=true;v.classList.remove('is-on');clearTags();poster.classList.remove('is-hidden');stopFrames();label();
-    });
+  for (const v of [va, vb]) {
+    v.addEventListener('play', label);
+    v.addEventListener('pause', label);
+    v.addEventListener('ended', () => { if (v === active && multi) cutTo(index + 1); });
+    v.addEventListener('error', () => { if (v === active) { v.classList.remove('is-on'); poster.classList.remove('is-hidden'); } });
   }
-  const observer=new IntersectionObserver(([e]) => {visible=e.intersectionRatio>.15;play();},{threshold:[0,.15,.5]});observer.observe(el);
-  const visibility=() => play();document.addEventListener('visibilitychange',visibility);
-  const preference=matchMedia('(prefers-reduced-motion: reduce)');
-  const onPreference=() => {if(preference.matches){userPaused=true;generation++;cutting=false;}play();};preference.addEventListener('change',onPreference);
-  const exploreButton=el.querySelector('[data-umc-3d]');
-  exploreButton?.addEventListener('click',() => {
-    el.classList.add('is-exploring');play();
-    explore(el.dataset.scene,() => {el.classList.remove('is-exploring');play();},exploreButton);
-  });
-  const start=() => {if(disposed || started)return;started=true;play();};
-  const whenIdle=() => {startTimer=setTimeout(start,600);};
-  if(document.readyState==='complete')whenIdle();else addEventListener('load',whenIdle,{once:true});
-  const cleanup=() => {
-    disposed=true;generation++;clearTimeout(startTimer);clearTimeout(fxTimer);active.pause();idle.pause();stopFrames();observer.disconnect();
-    document.removeEventListener('visibilitychange',visibility);preference.removeEventListener('change',onPreference);removeEventListener('load',whenIdle);
-    document.querySelector('.umc-dialog')?.close();
+  new IntersectionObserver(([e]) => { visible = e.intersectionRatio > .15; play(); label(); }, { threshold: [0, .15, .5] }).observe(el);
+  document.addEventListener('visibilitychange', () => { play(); label(); });
+  el.querySelector('[data-umc-3d]')?.addEventListener('click', () => explore(el.dataset.scene));
+  useTrack(cutOf(index));
+  active.loop = !multi;
+  const start = () => {
+    if (started) return;
+    started = true;
+    if (!userPaused) { active.preload = 'auto'; play(); }
   };
-  document.addEventListener('astro:before-swap',cleanup,{once:true});
+  const whenIdle = () => ('requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 1500 }) : setTimeout(start, 600));
+  if (document.readyState === 'complete') whenIdle(); else addEventListener('load', whenIdle, { once: true });
   label();
-  return cleanup;
+  requestAnimationFrame(frame);
 }
 
-function explore(scene,onClose,trigger) {
-  let dlg=document.querySelector('.umc-dialog');
-  if(!dlg) {
-    dlg=document.createElement('dialog');dlg.className='umc-dialog';
-    dlg.innerHTML='<div class="umc-dialog__bar"><p><b data-umc-dialog-title>Gemelo digital</b><span>Arrastrá para orbitar · rueda para acercar</span></p><button type="button" aria-label="Cerrar el gemelo digital">Cerrar</button></div><div class="umc-dialog__view"></div>';
-    document.body.appendChild(dlg);dlg.querySelector('button').addEventListener('click',()=>dlg.close());
-    dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});
+// Motor 3D en un diálogo: se monta al abrir y se desmonta al cerrar (libera GPU y memoria).
+function explore(scene) {
+  let dlg = document.querySelector('.umc-dialog');
+  if (!dlg) {
+    dlg = document.createElement('dialog');
+    dlg.className = 'umc-dialog';
+    dlg.innerHTML = '<div class="umc-dialog__bar"><p><b data-umc-dialog-title>Gemelo digital</b><span>Arrastrá para orbitar · rueda para acercar</span></p><button type="button" aria-label="Cerrar el gemelo digital">Cerrar</button></div><div class="umc-dialog__view"></div>';
+    document.body.appendChild(dlg);
+    dlg.querySelector('button').addEventListener('click', () => dlg.close());
+    dlg.addEventListener('close', () => { dlg.querySelector('.umc-dialog__view').replaceChildren(); document.documentElement.classList.remove('umc-lock'); });
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
   }
-  const base=baseOf(scene),name=TITLES[base] || '', title=name?`Gemelo digital · ${name}`:'Gemelo digital';
-  dlg.querySelector('[data-umc-dialog-title]').textContent=title;dlg.setAttribute('aria-label',title);
-  const frame=document.createElement('iframe');frame.title=`Gemelo digital interactivo · ${name}`;
-  frame.src=`/3d/cinema.html?scene=${ENGINE[base] || base}&mode=building&embed=1&ar=clean&center=1`;frame.allow='fullscreen';
-  dlg.querySelector('.umc-dialog__view').replaceChildren(frame);document.documentElement.classList.add('umc-lock');dlg.showModal();
-  let armed=false,timer=0;
-  const send=(action,value)=>frame.contentWindow?.postMessage({type:'um-cinema-command',action,value},location.origin);
-  const onState=e=>{
-    if(e.origin!==location.origin || e.source!==frame.contentWindow)return;
-    if(e.data?.type==='um-cinema-exit'){dlg.close();return;}
-    if(e.data?.type!=='um-cinema-state' || !e.data.ready || armed)return;
-    armed=true;send('mode','systems');send('focus',['Data','Telecom','CCTV','Security','Fire-detection','Power','Software']);send('play');
-    timer=setTimeout(()=>{if(dlg.open){send('explore',true);frame.focus();}},2400);
+  const base = baseOf(scene);
+  const name = TITLES[base] || '';
+  dlg.querySelector('[data-umc-dialog-title]').textContent = name ? `Gemelo digital · ${name}` : 'Gemelo digital';
+  dlg.setAttribute('aria-label', name ? `Gemelo digital · ${name}` : 'Gemelo digital');
+  const frame = document.createElement('iframe');
+  frame.title = name ? `Gemelo digital interactivo · ${name}` : 'Gemelo digital interactivo';
+  frame.src = `/3d/cinema.html?scene=${ENGINE[base] || base}&mode=building&embed=1&ar=clean&center=1`;
+  frame.allow = 'fullscreen';
+  dlg.querySelector('.umc-dialog__view').replaceChildren(frame);
+  document.documentElement.classList.add('umc-lock');
+  dlg.showModal();
+  const send = (action, value) => frame.contentWindow?.postMessage({ type: 'um-cinema-command', action, value }, location.origin);
+  let armed = false;
+  const onState = (e) => {
+    if (e.source !== frame.contentWindow) return;
+    if (e.data?.type === 'um-cinema-exit') { dlg.close(); return; }
+    if (e.data?.type !== 'um-cinema-state' || !e.data.ready || armed) return;
+    armed = true;
+    send('mode', 'systems');
+    send('focus', ['Data', 'Telecom', 'CCTV', 'Security', 'Fire-detection', 'Power', 'Software']);
+    send('play');
+    setTimeout(() => { send('explore', true); frame.focus(); }, 2400);
   };
-  addEventListener('message',onState);
-  dlg.addEventListener('close',()=>{
-    clearTimeout(timer);removeEventListener('message',onState);dlg.querySelector('.umc-dialog__view').replaceChildren();
-    document.documentElement.classList.remove('umc-lock');if(trigger?.isConnected)trigger.focus();onClose();
-  },{once:true});
+  addEventListener('message', onState);
+  dlg.addEventListener('close', () => removeEventListener('message', onState), { once: true });
 }
+
 document.querySelectorAll('[data-umc]').forEach(banner);

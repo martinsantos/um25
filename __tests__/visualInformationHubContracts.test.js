@@ -169,7 +169,7 @@ describe('Information hub visual contracts', () => {
 
     expect(antecedentes).toMatch(/@media \(max-width: 639px\)[\s\S]*\.ev-card\s*\{\s*display:\s*grid;\s*grid-template-columns:\s*132px minmax\(0, 1fr\);/);
     expect(antecedentes).toMatch(/@media \(max-width: 639px\)[\s\S]*\.ev-card__media\s*\{\s*aspect-ratio:\s*auto;\s*min-height:\s*132px;/);
-    expect(services).toMatch(/@media \(max-width:\s*640px\)[\s\S]*grid-template-columns:\s*1fr/);
+    expect(services).toMatch(/@media \(max-width:\s*640px\)[\s\S]*grid-template-columns:\s*minmax\(84px, 24vw\) minmax\(0, 1fr\)/);
     expect(services).toMatch(/@media \(max-width:\s*640px\)[\s\S]*\.services-demo-body > p\s*\{\s*display:\s*none;/);
     expect(sectores).toMatch(/\.sectors-demo-stats\s*\{[\s\S]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
     expect(sectores).toMatch(/@media \(max-width:\s*620px\)[\s\S]*\.sectors-demo-filters > div\s*\{[\s\S]*flex-wrap:\s*nowrap;[\s\S]*overflow-x:\s*auto;/);
@@ -263,77 +263,56 @@ describe('Information hub visual contracts', () => {
     // cada unidad es su color de sistema y un único enlace real al servicio.
     const home = read('src/pages/index.astro');
     const story = read('src/components/cine/ServicesStory.astro');
-    const itemTemplate = story.slice(story.indexOf('<ol class="svc-story__list"'), story.indexOf('</ol>'));
+    const itemTemplate = story.slice(story.indexOf('<ol class="svc-story__list">'), story.indexOf('</ol>'));
 
-    expect(home).toContain("import ServicesStory from '../components/cine/ServicesStory.astro'");
-    expect(home).toContain('<ServicesStory services={services} />');
+    // 24/10: debajo del banner, el despiece isométrico del edificio (un solo escenario + lista en texto).
+    expect(home).toContain("import SiteDespiece from '../components/cine/SiteDespiece.astro'");
+    expect(home).toContain('<SiteDespiece scene="fachada"');
     expect(home).not.toContain('<i aria-hidden="true"></i>');
     expect(home).not.toMatch(/\.um-service-unit__head i\s*\{/);
     expect(itemTemplate).not.toMatch(/<i\b/);
-    expect(itemTemplate).toContain('data-atlas-service={s.code}');
-    expect(story).toContain('href={first.href} data-atlas-link');
-    expect(home).toContain('class="um26-card-bar" aria-hidden="true"');
-    expect(home).toMatch(/\.um26-card-bar\s*\{[\s\S]*background:\s*#dc2626;/);
+    expect(itemTemplate).toContain('<a class="svc-story__link" href={s.href}>');
   });
 
-  test('home numeric summary is actionable instead of dead dashboard text', () => {
+  test('home keeps five blocks: banner, despiece, sectors, project list, contact (24/10)', () => {
     const home = read('src/pages/index.astro');
 
-    expect(home).toContain("href: '/nosotros'");
-    expect(home).toContain("href: '/antecedentes'");
-    expect(home).toContain("href: '/sectores'");
-    expect(home).toContain("href: '/servicios-it-empresas-argentina'");
-    expect(home).toContain("href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it'");
-    expect(home).toContain('{stats.map(({ value, label, href, aria }) => (');
-    expect(home).toContain('<a href={href} aria-label={aria}>');
-    expect(home).toMatch(/\.um26-stats__grid a:hover,[\s\S]*\.um26-stats__grid a:focus-visible\s*\{/);
-    expect(home).toMatch(/\.um26-stats__grid a:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.5\);/);
-    expect(home).toMatch(/\.um26-stats__inner\s*\{[\s\S]*padding-block:\s*0;/);
-    expect(home).toMatch(/\.um26-stats__grid a\s*\{[\s\S]*display:\s*flex;[\s\S]*min-height:\s*138px;/);
-    expect(home).toMatch(/\.um26-stats__grid a:hover,[\s\S]*box-shadow:\s*inset 0 -3px 0 #dc2626;/);
-    expect(home).not.toMatch(/\.um26-stats__grid div\s*\{/);
+    expect(home).not.toContain('class="um26-stats"');
+    expect(home).not.toContain('<CompanyBand');
+    expect(home).not.toContain('<CapabilityLedger');
+    expect(home).not.toContain('<ProductBand');
+    expect(home).not.toContain('<CoverageMap');
+    expect(home).not.toContain('<JournalBand');
+    expect(home).toContain('<SiteDespiece scene="fachada"');
+    expect(home).toContain('<SectorAtlas sectors={sectors} />');
+    expect(home).toContain('<ol class="um26-case-list">');
+    expect(home).toContain("primary={{ href: '/contacto', label: 'Pedir un relevamiento' }}");
+    expect(home).not.toContain('class="um26-kicker"');
   });
 
-  test('home GEO hub cards are full-cell links with visible action states', () => {
-    // Rediseño 2026-09: los hubs GEO de la home viven en CoverageMap (lista + mapa).
-    // Cada hub sigue siendo una fila-enlace completa con estados hover/focus.
-    const home = read('src/pages/index.astro');
+  test('coverage map component keeps full-cell hub links with visible action states', () => {
     const coverage = read('src/components/cine/CoverageMap.astro');
 
-    expect(home).toContain("href: '/servicios-it-empresas-mendoza'");
-    expect(home).toContain("href: '/servicios-it-empresas-argentina'");
-    expect(home).toContain('<CoverageMap hubs={hubs} />');
     expect(coverage).toContain('{hubs.map((h, i) => {');
     expect(coverage).toMatch(/<a href=\{h\.href\} aria-label=\{h\.aria\}/);
-    expect(coverage).toContain('<span class="umc-map__go" aria-hidden="true">↗</span>');
     expect(cssBlock(coverage, '.umc-map__list a')).toMatch(/display:\s*grid;/);
-    expect(coverage).toMatch(/\.umc-map__list a:hover, \.umc-map__list a:focus-visible[^{]*\{[^}]*color:\s*#fff;/);
     expect(coverage).not.toMatch(/outline:\s*(none|0)/);
   });
 
-  test('sector service cards expose real link interaction states', () => {
-    expect(sectorUM26).toContain('class="um-click-surface sector26-service-card"');
-    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</em>');
-    expect(sectorUM26).toMatch(/\.sector26-service-card,[\s\S]*--um-click-hover-bg:[\s\S]*#171719;/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover,[\s\S]*a\.sector26-service-card:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.22\);/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover strong,[\s\S]*a\.sector26-service-card:focus-visible strong\s*\{[\s\S]*color:\s*#fff !important;/);
-    expect(sectorUM26).toMatch(/\.sector26-service-card em\s*\{[\s\S]*text-decoration:\s*underline;/);
-    expect(sectorUM26).toMatch(/a\.sector26-service-card:hover em::after,[\s\S]*a\.sector26-service-card:focus-visible em::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
-  });
-
-  test('sector evidence links expose active hover and focus states', () => {
-    expect(sectorUM26).toContain('class="um-click-surface sector26-feature-case"');
-    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</strong>');
-    expect(sectorUM26).toContain('class="um-click-surface sector26-case-row"');
-    expect(sectorUM26).toContain('class="um-click-action">Ver detalle</b>');
-    expect(sectorUM26).toMatch(/\.sector26-feature-case:hover,[\s\S]*\.sector26-feature-case:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.26\);/);
-    expect(sectorUM26).toMatch(/\.sector26-feature-case:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
-    expect(sectorUM26).toMatch(/\.sector26-feature-case:hover strong::after,[\s\S]*\.sector26-feature-case:focus-visible strong::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
-    expect(sectorUM26).toMatch(/\.sector26-case-row\s*\{[\s\S]*--um-click-hover-bg:[\s\S]*#171719;/);
-    expect(sectorUM26).toMatch(/\.sector26-case-row:hover,[\s\S]*\.sector26-case-row:focus-visible\s*\{[\s\S]*border-color:\s*rgba\(255,255,255,0\.24\);/);
-    expect(sectorUM26).toMatch(/\.sector26-case-row:focus-visible\s*\{[\s\S]*outline:\s*3px solid rgba\(220,\s*38,\s*38,\s*0\.42\);/);
-    expect(sectorUM26).toMatch(/\.sector26-case-row:hover b::after,[\s\S]*\.sector26-case-row:focus-visible b::after\s*\{[\s\S]*transform:\s*translateX\(4px\);/);
+  test('sector page keeps four blocks: banner, despiece, project list, contact (24/10)', () => {
+    const markup = sectorUM26.split('<style>')[0];
+    expect(markup).toContain('<SiteDespiece scene={cineScene}');
+    expect(markup).not.toContain('<SystemsStory');
+    expect(markup).not.toContain('sector26-service-card');
+    expect(markup).not.toContain('sector26-criteria');
+    expect(markup).not.toContain('sector26-feature-case');
+    expect(markup).not.toContain('sector26-kicker');
+    expect(markup).toContain('<ol class="sector26-case-list"');
+    expect(markup).toContain('class="sector26-case-row"');
+    expect(markup).not.toMatch(/sector26-case-row"[^>]*>\s*<span>\{String/);
+    expect(sectorUM26).toMatch(/\.sector26-case-list \.sector26-case-row\s*\{[\s\S]*display:\s*grid;/);
+    expect(sectorUM26).toMatch(/\.sector26-case-list a:hover b,[\s\S]*text-decoration-color:\s*#dc2626;/);
+    expect(markup).toContain('<a class="sector26-closing__cta" href="/contacto">Pedir un relevamiento</a>');
   });
 
   test('sector dark surfaces keep body text readable over images and black panels', () => {
@@ -404,13 +383,12 @@ describe('Information hub visual contracts', () => {
     expect(evidenceRow).toMatch(/@media \(max-width:\s*520px\)\s*\{[\s\S]*\.evidence-case-row__copy\s*\{[\s\S]*align-self:\s*start;/);
   });
 
-  test('home secondary evidence rows remove repeated sector metadata to prevent compressed words', () => {
+  test('home projects are a plain list, never cards with media (24/10)', () => {
     const home = read('src/pages/index.astro');
 
-    expect(home).toContain('class="um26-case-grid"');
-    expect(home).toMatch(/\.um26-case-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
-    expect(home).toMatch(/\.um26-case-card\s*\{[\s\S]*min-height:\s*380px;/);
-    expect(home).toMatch(/@media \(max-width:\s*760px\)\s*\{[\s\S]*\.um26-case-grid,[\s\S]*\.um26-hub-grid\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
+    expect(home).not.toContain('class="um26-case-grid"');
+    expect(home).toMatch(/\.um26-case-list a\s*\{[\s\S]*display:\s*grid;/);
+    expect(home).toMatch(/@media \(max-width:\s*760px\)\s*\{\s*\.um26-case-list a\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
   });
 
   test('home service visual loads reliably for full-page visual QA', () => {
@@ -421,13 +399,16 @@ describe('Information hub visual contracts', () => {
     const story = read('src/components/cine/ServicesStory.astro');
 
     expect(home).toContain('<CineBanner');
-    expect(banner).toMatch(/<img class="umc-poster"[^>]*width="1920" height="1080" fetchpriority="high" decoding="async"/);
-    // Un único SVG isométrico reserva su tamaño y carga diferido.
-    expect(story).toMatch(/<img[^>]*width="1040" height="755" loading="lazy" decoding="async" data-atlas-image/);
-    expect(story).not.toMatch(/<video|<iframe/);
-    expect(home).toContain('width="1200"');
-    expect(home).toContain('height="900"');
-    expect(home).toContain('decoding="async"');
+    // 24/10: ningún cuadro fijo delante del video; la película arranca en su propio primer cuadro.
+    expect(banner).not.toContain('umc-poster');
+    expect(banner).not.toMatch(/cine-\$\{first\}-poster/);
+    // 24/10: el escenario es la película del servicio activo y las miniaturas son su corte cuadrado.
+    expect(story).toMatch(/<video class="svc-story__poster is-on" muted loop playsinline preload="metadata" src=\{items\[0\]\?\.film\}[^>]*data-film-layer><\/video>/);
+    // Un solo escenario: la lista es texto; ningún medio ni miniatura por ítem (24/10).
+    expect(story).not.toMatch(/<(img|video)[^>]*class="svc-story__render/);
+    expect(story).not.toMatch(/-poster\.jpg|data-poster/);
+    // 24/10: las tarjetas de proyectos no llevan medio propio (ni cuadro fijo ni un video por tarjeta).
+    expect(home).not.toMatch(/um26-case-card" href=\{item\.href\}>\s*<(img|video)/);
   });
 
   test('contact antispam field stays visually hidden without offscreen overflow', () => {
@@ -605,10 +586,10 @@ describe('Information hub visual contracts', () => {
     // Rediseño 2026-09: la primera pantalla es CineBanner; las filas de servicio
     // quedan bajo el pliegue, cargan diferido y reservan su tamaño intrínseco.
     expect(servicios).toContain('<CineBanner');
-    expect(servicios).toContain('<img src={service.image} alt={ISOMETRIC_STUDIES[service.code].object} width="1040" height="755" loading="lazy" decoding="async" />');
+    expect(servicios).toContain('<img src={service.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />');
     expect(servicios).toMatch(/\.services-demo-row\s*\{[\s\S]*content-visibility:\s*auto;[\s\S]*contain-intrinsic-block-size:\s*360px;/);
-    expect(cssBlock(servicios, '.services-demo-media img')).toMatch(/object-fit:\s*contain;/);
-    expect(servicios).not.toContain('background-image: var(--service-image)');
+    expect(servicios).toMatch(/\.services-demo-media\s*\{[\s\S]*background-image:\s*var\(--service-image\);/);
+    expect(cssBlock(servicios, '.services-demo-media div')).toMatch(/z-index:\s*1;/);
     expect(cssBlock(servicios, '.services-demo-media img')).toMatch(/z-index:\s*0;/);
     expect(cssBlock(servicios, '.services-demo-media span,\n    .services-demo-media em')).toMatch(/z-index:\s*2;/);
     expect(servicios).toMatch(/\.services-demo-body ul\s*\{[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
@@ -781,15 +762,26 @@ describe('Information hub visual contracts', () => {
     expect(read('src/components/SEO/SEOHead.astro')).toContain('"@type": "BreadcrumbList"');
   });
 
-  test('service detail technical sidebar renders as a compact ledger instead of a redundant card', () => {
-    // Rediseño 2026-09: la ficha técnica es un <dl> compacto junto al CTA único.
+  test('service detail keeps six blocks: banner, despiece, qué cubre, casos, ficha as a link, one CTA', () => {
+    // Barrido 24/10: nada superfluo. Sin resumen ejecutivo, acordeón, proceso,
+    // guías, ficha en pantalla ni botón de compartir; una sola acción al cierre.
     const serviceDetail = read('src/pages/servicios/[id]/[slug].astro');
+    const markup = serviceDetail.split('<style>')[0];
 
-    expect(serviceDetail).toContain('<aside class="svc-ficha" aria-label="Ficha técnica del servicio">');
-    expect(serviceDetail).not.toContain('<SectionHeader kicker="Ficha técnica" title={sidebarInfoTitle} />');
-    expect(cssBlock(serviceDetail, '.svc-ficha dl > div')).toMatch(/grid-template-columns:\s*minmax\(120px,\s*0\.4fr\) minmax\(0,\s*0\.6fr\);/);
-    expect(cssBlock(serviceDetail, '.svc-ficha dd')).toMatch(/overflow-wrap:\s*anywhere;/);
-    expect(serviceDetail).not.toMatch(/\.svc-ficha\s*\{[^}]*box-shadow/);
+    expect(markup).toContain('<IsometricStage code={String(id)} />');
+    expect(markup).toContain('<ol class="svc-list"');
+    expect(markup).toContain('<ol class="svc-rows"');
+    expect(markup).toContain('Descargar la ficha técnica (PDF)');
+    expect(markup).toContain("primary={{ href: '/contacto', label: 'Pedir un relevamiento' }}");
+    expect(markup).not.toContain('secondary={{');
+    expect(markup).not.toContain('svc-kicker');
+    expect(markup).not.toContain('svc-section--brief');
+    expect(markup).not.toContain('svc-tiles');
+    expect(markup).not.toContain('<aside class="svc-ficha"');
+    for (const removed of ['<ServiceSpecSheet', '<ShareButton', '<TopicGuides', '<SnapRail', '<ProductStage', '<RenderStage', '<SystemsMap', '<ProductMoments']) {
+      expect(markup).not.toContain(removed);
+    }
+    expect((markup.match(/class="svc-btn"/g) || []).length).toBe(1);
   });
 
   test('blog category stays readable without a duplicated featured banner or repeated header CTAs', () => {
@@ -848,33 +840,4 @@ describe('mega-menú de escritorio', () => {
     for (const rule of itemRules) expect(rule).not.toMatch(/position\s*:\s*(relative|absolute|fixed|sticky)/);
     expect(navbar).toMatch(/\.um-ops-mega__panel\s*\{[^}]*position:\s*absolute;[^}]*left:\s*0;[^}]*right:\s*0;/);
   });
-  test('hover and Escape share one visible and accessible state, and keyboard can reopen it', () => {
-    const navbar = read('src/components/v4/NavbarV4.astro');
-    expect(navbar).not.toContain('.um-ops-mega:hover .um-ops-mega__panel');
-    const typescript = require('typescript');
-    const start = navbar.indexOf('    const megas =');
-    const end = navbar.indexOf('    const root = document.documentElement;', start);
-    const compiled = typescript.transpileModule(navbar.slice(start, end), {
-      compilerOptions: {target: typescript.ScriptTarget.ES2020}
-    }).outputText;
-    document.body.innerHTML = `<div class="um-ops-mega"><a href="/servicios" class="um-ops-mega__link">Servicios</a><button class="um-ops-mega__toggle" aria-expanded="false">Abrir</button><div class="um-ops-mega__panel"><div class="um-ops-mega__grid"><a href="/servicios/101">Redes</a></div></div></div>`;
-    new Function('matchMedia', compiled)(() => ({matches:true}));
-    const mega = document.querySelector('.um-ops-mega');
-    const toggle = mega.querySelector('button');
-    mega.dispatchEvent(new MouseEvent('mouseenter'));
-    expect(mega.classList.contains('is-open')).toBe(true);
-    expect(toggle.getAttribute('aria-expanded')).toBe('true');
-    mega.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape',bubbles:true}));
-    expect(mega.classList.contains('is-open')).toBe(false);
-    expect(toggle.getAttribute('aria-expanded')).toBe('false');
-    expect(document.activeElement).toBe(toggle);
-    mega.querySelector('.um-ops-mega__link').dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowDown',bubbles:true}));
-    expect(mega.classList.contains('is-open')).toBe(true);
-    expect(document.activeElement.textContent).toBe('Redes');
-    mega.dispatchEvent(new MouseEvent('mouseleave'));
-    expect(mega.classList.contains('is-open')).toBe(false);
-    expect(toggle.getAttribute('aria-expanded')).toBe('false');
-    document.body.innerHTML = '';
-  });
-
 });
