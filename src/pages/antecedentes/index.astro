@@ -3,22 +3,11 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
 import { getAntecedentes, getServicios } from '../../lib/um26-directus';
 import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import EmailLink from '../../components/common/EmailLink.astro';
+import { ANTECEDENTE_SECTOR_LABELS, getAntecedenteSectorLabel } from '../../utils/antecedenteSectorPresentation';
 
 // Hero editorial: no coincide con ninguna miniatura del listado.
 const PAGE_SIZE = 24;
 const catalogCount = getAntecedentesCatalogCount();
-
-const sectorLabels: Record<string, string> = {
-  aeropuertos: 'Aeropuertos',
-  bodegas: 'Bodegas',
-  constructoras: 'Constructoras',
-  gobierno: 'Gobierno',
-  industria: 'Industria',
-  mineria: 'Minería',
-  salud: 'Salud',
-  'seguridad-electronica': 'Seguridad electrónica',
-  software: 'Software',
-};
 
 const statusLabels: Record<string, string> = {
   verificado: 'Verificado',
@@ -63,7 +52,7 @@ const cases = [...orderedLead, ...rest].map((item) => {
     title: cleanTitle(item.title, client),
     summary: cleanText(item.summary),
     year: String(item.year),
-    sector: sectorLabels[item.sector_slug] || item.sector_slug,
+    sector: getAntecedenteSectorLabel(item.sector_slug) || item.sector_slug,
     sectorKey: item.sector_slug,
     status: item.status,
     image: item.image,
@@ -83,7 +72,7 @@ function countBy(values: string[]) {
 }
 
 const sectorCounts = countBy(cases.map((item) => item.sectorKey));
-const sectors = Object.entries(sectorLabels)
+const sectors = Object.entries(ANTECEDENTE_SECTOR_LABELS)
   .map(([key, label]) => ({ key, label, count: sectorCounts.get(key) || 0 }))
   .filter((item) => item.count > 0);
 
@@ -175,7 +164,7 @@ for (const pass of [true, false]) {
         <ul class="ev-collage" aria-label="Algunos antecedentes">
           {heroTiles.map((item, i) => (
             <li class={`ev-collage__tile ev-collage__tile--${i}`}>
-              <a href={item.href} aria-label={`${item.client}: ${item.title}`}>
+              <a href={item.href} aria-label={`${item.client}: ${item.title}`} data-case-link>
                 <img src={item.image} alt="" width="800" height="500" loading={i < 5 ? 'eager' : 'lazy'} decoding="async" />
                 <span>{item.sector} · {item.year}</span>
               </a>
@@ -205,11 +194,19 @@ for (const pass of [true, false]) {
             </select>
           </label>
         </div>
+        <p class="ev-filter-summary" data-filter-summary aria-live="polite" hidden></p>
 
         <div class="ev-panel" id="evidence-filter-panel" data-filter-panel>
           {filterGroups.map((group) => (
             <div class="ev-panel__row">
               <p class="ev-panel__label">{group.label}</p>
+              <label class="ev-filter-select">
+                <span class="ev-sr">Filtrar por {group.label}</span>
+                <select data-filter-select={group.type} aria-label={`Filtrar por ${group.label}`}>
+                  <option value="">Todos</option>
+                  {group.options.map((option) => <option value={option.key}>{option.label} ({option.count})</option>)}
+                </select>
+              </label>
               <div class="ev-panel__chips">
                 {group.options.map((option) => (
                   <button type="button" class="ev-chip" data-filter={group.type} data-value={option.key} aria-pressed="false">
@@ -301,6 +298,7 @@ for (const pass of [true, false]) {
       const search = root.querySelector('[data-search]');
       const sort = root.querySelector('[data-sort]');
       const chips = Array.from(root.querySelectorAll('[data-filter]'));
+      const filterSelects = Array.from(root.querySelectorAll('[data-filter-select]'));
       const toggle = root.querySelector('[data-filter-toggle]');
       const panel = root.querySelector('[data-filter-panel]');
       const activeCount = root.querySelector('[data-active-filter-count]');
@@ -312,28 +310,46 @@ for (const pass of [true, false]) {
       const more = root.querySelector('[data-more]');
       const moreCount = root.querySelector('[data-more-count]');
       const filters = { sector: '', service: '', period: '', year: '', client: '', status: '' };
+      const RETURN_KEY = 'umsa-antecedentes-return-v1';
+      const FILTER_LABELS = { sector: 'Sector', service: 'Servicio', period: 'Período', year: 'Año', client: 'Cliente', status: 'Estado' };
+      const filterSummary = root.querySelector('[data-filter-summary]');
       let limit = PAGE_SIZE;
 
-      if (toggle) toggle.hidden = false;
-      // Filtros a la vista desde el inicio (se pueden plegar con el botón).
-      if (toggle && panel) { toggle.setAttribute('aria-expanded', 'true'); panel.classList.add('is-open'); }
+      // Each mobile facet remains visible as a compact native select.
+      const compactFilters = window.matchMedia('(max-width: 760px)').matches;
+      if (toggle && panel) {
+        toggle.hidden = compactFilters;
+        toggle.setAttribute('aria-expanded', 'true');
+        panel.classList.add('is-open');
+      }
 
-      // Filtros en la dirección (?sector=salud&periodo=2020…): se pueden compartir y vuelven al recargar.
+      // Filtros, orden y cantidad visible viven en la URL actual para recargar o volver desde una ficha.
       const URL_KEYS = { sector: 'sector', service: 'servicio', period: 'periodo', year: 'anio', client: 'cliente', status: 'estado' };
       const params = new URLSearchParams(location.search);
       Object.entries(URL_KEYS).forEach(([type, key]) => {
         const value = params.get(key);
         if (value && chips.some((c) => c.getAttribute('data-filter') === type && c.getAttribute('data-value') === value)) filters[type] = value;
       });
+      filterSelects.forEach((select) => {
+        const type = select.getAttribute('data-filter-select');
+        if (type && Object.hasOwn(filters, type)) select.value = filters[type];
+      });
       if (params.get('q') && search) search.value = params.get('q');
+      const allowedSorts = ['recent', 'year-desc', 'year-asc', 'client'];
+      if (params.has('orden') && allowedSorts.includes(params.get('orden')) && sort) sort.value = params.get('orden');
+      const requestedLimit = Number(params.get('mostrar'));
+      if (Number.isInteger(requestedLimit) && requestedLimit > PAGE_SIZE) limit = Math.min(cards.length, requestedLimit);
       chips.forEach((c) => c.setAttribute('aria-pressed', String(filters[c.getAttribute('data-filter')] === c.getAttribute('data-value'))));
       function syncUrl() {
         const next = new URLSearchParams();
         Object.entries(URL_KEYS).forEach(([type, key]) => { if (filters[type]) next.set(key, filters[type]); });
         const q = String(search?.value || '').trim();
         if (q) next.set('q', q);
+        const sortMode = String(sort?.value || 'recent');
+        if (sortMode !== 'recent') next.set('orden', sortMode);
+        if (limit > PAGE_SIZE) next.set('mostrar', String(limit));
         const qs = next.toString();
-        history.replaceState(null, '', qs ? `${location.pathname}?${qs}` : location.pathname);
+        history.replaceState(history.state || {}, '', qs ? `${location.pathname}?${qs}` : location.pathname);
       }
 
       function num(card, attr) {
@@ -381,9 +397,20 @@ for (const pass of [true, false]) {
         const remaining = total - shown;
         if (moreWrap) moreWrap.hidden = remaining <= 0;
         if (moreCount) moreCount.textContent = remaining > 0 ? `(${remaining})` : '';
-        const active = Object.values(filters).filter(Boolean).length;
-        if (activeCount) activeCount.textContent = active ? String(active) : '';
-        if (clear) clear.hidden = !(active || q);
+        const activeLabels = Object.entries(filters)
+          .filter(([, value]) => value)
+          .map(([type, value]) => {
+            const selected = chips.find((chip) => chip.getAttribute('data-filter') === type && chip.getAttribute('data-value') === value);
+            const optionLabel = selected?.childNodes[0]?.textContent?.trim() || value;
+            return `${FILTER_LABELS[type] || type}: ${optionLabel}`;
+          });
+        if (q) activeLabels.unshift(`Búsqueda: ${q}`);
+        if (activeCount) activeCount.textContent = activeLabels.length ? String(activeLabels.length) : '';
+        if (filterSummary) {
+          filterSummary.hidden = activeLabels.length === 0;
+          filterSummary.textContent = activeLabels.length ? `Activos: ${activeLabels.join(' · ')}` : '';
+        }
+        if (clear) clear.hidden = activeLabels.length === 0;
       }
 
       function reset() {
@@ -401,6 +428,20 @@ for (const pass of [true, false]) {
           chips
             .filter((item) => item.getAttribute('data-filter') === type)
             .forEach((item) => item.setAttribute('aria-pressed', String(item === chip && filters[type] === value)));
+          const matchingSelect = filterSelects.find((select) => select.getAttribute('data-filter-select') === type);
+          if (matchingSelect) matchingSelect.value = filters[type];
+          reset();
+        });
+      });
+
+      filterSelects.forEach((select) => {
+        select.addEventListener('change', () => {
+          const type = select.getAttribute('data-filter-select');
+          if (!type || !Object.hasOwn(filters, type)) return;
+          filters[type] = select.value;
+          chips
+            .filter((chip) => chip.getAttribute('data-filter') === type)
+            .forEach((chip) => chip.setAttribute('aria-pressed', String(chip.getAttribute('data-value') === select.value && Boolean(select.value))));
           reset();
         });
       });
@@ -409,6 +450,7 @@ for (const pass of [true, false]) {
         const firstNew = limit;
         limit += PAGE_SIZE;
         render();
+        syncUrl();
         const visible = Array.from(grid?.children || []).filter((card) => !card.hidden);
         const target = visible[firstNew]?.querySelector('a');
         target?.focus({ preventScroll: true });
@@ -417,6 +459,7 @@ for (const pass of [true, false]) {
       clear?.addEventListener('click', () => {
         Object.keys(filters).forEach((key) => { filters[key] = ''; });
         chips.forEach((chip) => chip.setAttribute('aria-pressed', 'false'));
+        filterSelects.forEach((select) => { select.value = ''; });
         if (search) search.value = '';
         reset();
       });
@@ -430,7 +473,41 @@ for (const pass of [true, false]) {
       search?.addEventListener('input', reset);
       sort?.addEventListener('change', () => { sortCards(); reset(); });
 
+      const restoreReturnPosition = () => {
+        if (location.pathname !== '/antecedentes') return;
+        try {
+          const raw = sessionStorage.getItem(RETURN_KEY);
+          if (!raw) return;
+          const saved = JSON.parse(raw);
+          if (saved.href !== `${location.pathname}${location.search}` || Date.now() - saved.at > 15 * 60 * 1000) {
+            sessionStorage.removeItem(RETURN_KEY);
+            return;
+          }
+          sessionStorage.removeItem(RETURN_KEY);
+          requestAnimationFrame(() => window.scrollTo(0, Math.max(0, Number(saved.scrollY) || 0)));
+        } catch {
+          // Storage may be disabled; the browser's history scroll restoration remains available.
+        }
+      };
+      root.querySelectorAll('[data-case-link], [data-card] a').forEach((link) => {
+        link.addEventListener('click', (event) => {
+          if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+          try {
+            sessionStorage.setItem(RETURN_KEY, JSON.stringify({
+              href: `${location.pathname}${location.search}`,
+              scrollY: window.scrollY,
+              at: Date.now(),
+            }));
+          } catch {
+            // Browser back still restores the same history entry when storage is unavailable.
+          }
+        });
+      });
+      window.addEventListener('pageshow', restoreReturnPosition);
+
+      if (sort) sortCards();
       render();
+      restoreReturnPosition();
     }
 
     initEvidence();
@@ -545,6 +622,18 @@ for (const pass of [true, false]) {
       flex-wrap: wrap;
       gap: 12px;
       align-items: stretch;
+    }
+
+    .ev-filter-summary {
+      margin: 10px 0 0;
+      color: var(--x-text-2);
+      font-size: var(--x-fs-meta);
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .ev-filter-summary[hidden] {
+      display: none;
     }
 
     .ev-search {
@@ -685,6 +774,10 @@ for (const pass of [true, false]) {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
+    }
+
+    .ev-filter-select {
+      display: none;
     }
 
     .ev-chip {
@@ -1203,6 +1296,20 @@ for (const pass of [true, false]) {
       .ev .ev-panel__row { grid-template-columns: 1fr; gap: 6px; }
       .ev .ev-panel__chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
       .ev .ev-chip { flex: none; white-space: nowrap; min-height: 40px; }
+    }
+    @media (max-width: 760px) {
+      .ev .ev-main { padding-top: 24px; }
+      .ev-toolbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+      .ev-search, .ev-sort, .ev-toggle { grid-column: 1 / -1; min-width: 0; }
+      .ev-search input, .ev-sort select { min-width: 0; }
+      .ev-status { margin-top: 20px; }
+      .ev .ev-panel { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 12px; }
+      .ev .ev-panel__row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 5px; min-width: 0; }
+      .ev .ev-panel__label { padding: 0; font-size: 12px; line-height: 1.2; }
+      .ev .ev-panel__chips { display: none; }
+      .ev .ev-filter-select { display: grid; min-width: 0; }
+      .ev .ev-filter-select select { width: 100%; min-width: 0; min-height: 44px; padding: 8px 28px 8px 10px; border: 1px solid var(--x-line); border-radius: 3px; color: var(--x-text); background: var(--x-panel); font: inherit; font-size: 16px; }
+      .ev .ev-filter-select select:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
     }
 </style>
 </LayoutV4>

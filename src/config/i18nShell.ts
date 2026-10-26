@@ -13,6 +13,8 @@ export interface ShellStrings {
   tabs: { home: string; services: string; projects: string; contact: string; aria: string };
   footer: { privacy: string; terms: string; rights: string };
   lang: { label: string; switchTo: string; code: string };
+  footerShell: { company: string; projects: string; industries: string; contact: string; documentation: string; locationHours: string; home: string };
+  destinationLabel: (label: string) => string;
 }
 
 const STRINGS: Record<ShellLang, ShellStrings> = {
@@ -24,19 +26,56 @@ const STRINGS: Record<ShellLang, ShellStrings> = {
     tabs: { home: 'Inicio', services: 'Servicios', projects: 'Proyectos', contact: 'Contacto', aria: 'Navegación rápida' },
     footer: { privacy: 'Privacidad', terms: 'Términos', rights: 'Todos los derechos reservados.' },
     lang: { label: 'Idioma', switchTo: 'English version', code: 'EN' },
+    footerShell: { company: 'Empresa', projects: 'Antecedentes', industries: 'Sectores', contact: 'Contacto', documentation: 'Certificaciones', locationHours: 'Lunes a viernes, 8 a 18 h', home: 'Ir al inicio' },
+    destinationLabel: (label) => label,
   },
   en: {
     nav: { home: 'Home', services: 'Services', sectors: 'Industries', projects: 'Projects', blog: 'Blog', more: 'More', contact: 'Contact' },
     megaServices: { kicker: 'Eight service lines', lead: 'One team surveys, installs, documents and supports every system, from the job site to daily operation.', all: 'See all eight services', open: 'Open services' },
     megaSectors: { kicker: 'Nine industries', lead: 'Enter through your industry and review comparable projects before contracting. The number is the count of documented projects.', all: 'See all industries', open: 'Open industries' },
     mobile: { more: 'More', hours: 'Monday to Friday, 8 am to 6 pm · Mendoza, Argentina', open: 'Open menu', close: 'Close menu' },
-    tabs: { home: 'Home', services: 'Services', projects: 'Projects', contact: 'Contact', aria: 'Quick navigation' },
+    tabs: { home: 'Home', services: 'Services', projects: 'Cases', contact: 'Contact', aria: 'Quick navigation' },
     footer: { privacy: 'Privacy', terms: 'Terms', rights: 'All rights reserved.' },
     lang: { label: 'Language', switchTo: 'Versión en español', code: 'ES' },
+    footerShell: { company: 'Company', projects: 'Projects', industries: 'Industries', contact: 'Contact', documentation: 'Technical documentation', locationHours: 'Monday to Friday, 8 am to 6 pm', home: 'Go to English home' },
+    destinationLabel: (label) => `${label} (ES)`,
   },
 };
 
 export const shellStrings = (lang: ShellLang) => STRINGS[lang];
+
+const SERVICE_EN: Record<string, { name: string; text: string }> = {
+  '101': { name: 'Networks', text: 'Certified structured cabling and fiber optics.' },
+  '102': { name: 'Electronic security', text: 'IP CCTV, access control and documented monitoring.' },
+  '103': { name: 'Telecommunications', text: 'Data, voice and video links for remote sites.' },
+  '104': { name: 'Custom software', text: 'Systems, APIs and dashboards for critical processes.' },
+  '105': { name: '24/7 support', text: 'Help desk, NOC and SLA-backed maintenance.' },
+  '106': { name: 'IT consulting', text: 'Architecture, audits and operational roadmaps.' },
+  '107': { name: 'Fire detection', text: 'Detection systems, sensors and panels for production environments.' },
+  '108': { name: 'IT electrical systems', text: 'Panels, UPS and clean power for infrastructure.' },
+};
+
+const SECTOR_EN: Record<string, { name: string; text: string }> = {
+  aeropuertos: { name: 'Airports', text: '24/7 perimeter CCTV' },
+  bodegas: { name: 'Wineries', text: 'End-to-end wine production traceability' },
+  constructoras: { name: 'Construction', text: 'Certified structured cabling' },
+  gobiernosectorpublico: { name: 'Government and public sector', text: 'Digital public services' },
+  industria: { name: 'Industry', text: '24/7 industrial plant networks' },
+  mineria: { name: 'Mining', text: 'Telecommunications for remote camps' },
+  salud: { name: 'Healthcare', text: 'Networks for medical imaging' },
+  'seguridad-electronica': { name: 'Electronic security', text: '24/7 monitoring center' },
+  software: { name: 'Software', text: 'Custom ERPs and platforms' },
+};
+
+export function shellServiceCopy(lang: ShellLang, code: string, name: string, text: string) {
+  const translated = SERVICE_EN[code];
+  return lang === 'en' && translated ? translated : { name, text };
+}
+
+export function shellSectorCopy(lang: ShellLang, slug: string, name: string, text: string) {
+  const translated = SECTOR_EN[slug];
+  return lang === 'en' && translated ? translated : { name, text };
+}
 
 /** Idioma de la ruta y enlace al otro idioma (a la home del otro idioma si
  *  la página no tiene alternativa). */

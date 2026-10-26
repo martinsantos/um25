@@ -191,6 +191,8 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
   .bx-grid :global(.bcard__title) { margin: 4px 0 6px; font-size: 1.25rem; }
   .bx-grid :global(.bcard__title a), .bx-featured :global(.bfeat__title a) { color: #fff; text-decoration: none; }
   .bx-grid :global(.bcard__title a:hover), .bx-featured :global(.bfeat__title a:hover) { text-decoration: underline; text-decoration-color: #dc2626; }
+  .bx-grid :global(.bcard__title), .bx-featured :global(.bfeat__title),
+  .bx-grid :global(.bcard__excerpt), .bx-featured :global(.bfeat__excerpt) { min-width: 0; overflow-wrap: anywhere; }
   .bx-grid :global(.bcard__excerpt), .bx-featured :global(.bfeat__excerpt) { margin: 0; color: #c4c7cc; font-size: 1.0625rem; line-height: 1.5; max-width: 80ch; }
   .bx-grid :global(.bcard__meta), .bx-featured :global(.bfeat__meta) { margin: 0; color: #9a9a9a; font-size: 1rem; text-transform: none; letter-spacing: 0; }
 </style>

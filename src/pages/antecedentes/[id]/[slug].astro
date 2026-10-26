@@ -8,9 +8,7 @@ import LayoutV4 from '../../../layouts/LayoutV4.astro';
 import { getAntecedentes as getCatalogAntecedentes, getServicios as getCatalogServicios } from '../../../lib/um26-directus';
 import EmailLink from '../../../components/common/EmailLink.astro';
 import { generateSlug } from '../../../utils/slugUtils.js';
-import { getServicioById } from '../../../utils/directusHelpers';
-import { getServiceIdFromArea } from '../../../data/areaToServiceMap.js';
-import { getAntecedenteConServicios, getAntecedenteImageUrl, getDirectusImageUrl, getGeneratedAntecedenteImageUrl, getAllAntecedentes } from '../../../lib/directus.ts';
+import { getAntecedenteConServicios, getGeneratedAntecedenteImageUrl } from '../../../lib/directus.ts';
 import { BASE_POSTER } from '../../../data/cine/posters';
 import { getAntecedenteThumb } from '../../../lib/um26-data/images';
 import {
@@ -29,9 +27,9 @@ import {
   plainTextFromHtml,
   renderEditorialBody,
   sanitizeEditorialText,
-  sanitizeMarketingCopy,
   truncateEditorialText,
 } from '../../../utils/editorialContent';
+import { getAntecedenteSectorLabel } from '../../../utils/antecedenteSectorPresentation';
 import { excerptEditorialSentences } from '../../../utils/editorialExcerpt';
 import { isReplicaIdenticalCopy, resolveReplicaH1 } from '../../../utils/replicaProdCopy';
 import {
@@ -58,26 +56,6 @@ let antecedente: any = null;
 let sourceSlug: string | null = null;
 
 // --- Helper Functions ---
-const getAssetUrl = (assetId: any): string => {
-    if (!assetId) return DEFAULT_IMAGE_URL;
-
-    // Handle object with nested ID properties
-    if (typeof assetId === 'object') {
-        if (assetId.id) return getDirectusImageUrl(assetId.id);
-        if (assetId.directus_files_id) return getDirectusImageUrl(assetId.directus_files_id);
-    }
-
-    // Handle string UUIDs
-    if (typeof assetId === 'string') {
-        if (assetId.startsWith('http')) return assetId;
-        if (assetId.startsWith('/')) return assetId;
-        const url = getDirectusImageUrl(assetId);
-        if (url) return url;
-    }
-
-    return DEFAULT_IMAGE_URL;
-};
-
 const toUm26Date = (year?: number, month?: number): string => {
   const safeYear = Number.isFinite(Number(year)) ? Number(year) : new Date().getFullYear();
   const safeMonth = Number.isFinite(Number(month)) ? Math.min(12, Math.max(1, Number(month))) : 1;
@@ -225,7 +203,7 @@ const buildStructuredScopeItems = (item: any): string[] => {
   const rows = [
     item.displayTitle || item.Titulo ? `Alcance: ${cleanDisplayText(item.displayTitle || item.Titulo)}` : '',
     item.Cliente ? `Cliente: ${formatDisplayName(item.Cliente)}` : '',
-    item.Area ? `Sector: ${cleanDisplayText(item.Area)}` : '',
+    item.Area ? `Área registrada: ${cleanDisplayText(item.Area)}` : '',
     isPublicBusinessUnit(item.Unidad_de_negocio, item.Area) ? `Unidad: ${cleanDisplayText(item.Unidad_de_negocio)}` : '',
     formatAntecedenteDate(item.Fecha) ? `Cierre: ${formatDate(item.Fecha)}` : '',
   ].filter((row) => row.length > 8);
@@ -253,20 +231,34 @@ const scopeItems = (() => {
   return buildStructuredScopeItems(antecedente);
 })();
 
+// Use the same catalog classification as the index. Area remains a separate source field.
+const [catalogCases, catalogServices] = await Promise.all([
+  getCatalogAntecedentes({ limit: 1000 }).catch(() => []),
+  getCatalogServicios().catch(() => []),
+]);
+const currentCatalogCase = catalogCases.find((item) => String(item.id) === String(id));
+const caseSectorSlug = currentCatalogCase?.sector_slug;
+const caseSectorLabel = getAntecedenteSectorLabel(caseSectorSlug);
+const sourceAreaLabel = cleanDisplayText(antecedente.Area || '');
+const serviceByCode = new Map(catalogServices.map((service) => [Number(service.code), service]));
+const relatedServices = (currentCatalogCase?.service_codes || [])
+  .map((code) => serviceByCode.get(Number(code)))
+  .filter((service): service is NonNullable<typeof service> => Boolean(service))
+  .slice(0, 3)
+  .map((service) => ({
+    id: service.code,
+    slug: service.slug,
+    Titulo: service.name,
+    Descripcion: service.description,
+    lead: service.tagline || service.description,
+  }));
+const appliedServiceNames = relatedServices.map((service) => service.Titulo);
+
 const caseCalloutText = [
   'Proyecto aplicado',
-  antecedente.Area ? `en ${cleanDisplayText(antecedente.Area)}` : '',
+  caseSectorLabel ? `en el sector ${caseSectorLabel}` : '',
   displayClientName ? `para ${displayClientName}` : '',
 ].filter(Boolean).join(' ');
-
-const resolveServiceImageUrl = (servicio: any): string => {
-  const serviceImage = getDirectusImageUrl(servicio?.Imagen);
-  if (serviceImage) return serviceImage;
-  const firstProduct = servicio?.productos?.[0];
-  if (firstProduct?.imagen) return firstProduct.imagen;
-  if (firstProduct?.Imagen) return getDirectusImageUrl(firstProduct.Imagen) || '';
-  return '/images/default-background.jpg';
-};
 
 const compactServiceTitle = (value: unknown): string => {
   const title = cleanDisplayText(value)
@@ -285,87 +277,6 @@ const compactServiceTitle = (value: unknown): string => {
   return replacements[title] || title || 'Servicio IT';
 };
 
-// Get related services via M2M relationship from Directus (with fallback to area mapping)
-const getRelatedServices = async (antecedenteId: string, area: string) => {
-    // TODO: Re-enable M2M relationship when function is available in directusHelpers.ts
-    // try {
-    //     // Try to get M2M related services from Directus
-    //     const serviciosFromDirectus = await getServiciosPorAntecedente(parseInt(antecedenteId));
-    //
-    //     if (serviciosFromDirectus && serviciosFromDirectus.length > 0) {
-    //         return serviciosFromDirectus.slice(0, 4); // Max 4 services
-    //     }
-    // } catch (error) {
-    //     console.error('Error fetching related services from Directus:', error);
-    // }
-
-    // Fallback: Use area-based mapping to find one service from Directus
-    try {
-        const serviceId = getServiceIdFromArea(area);
-        const servicio = await getServicioById(serviceId);
-
-        if (servicio) {
-            const lead = sanitizeMarketingCopy(
-              servicio.Subtitulo || servicio.Descripcion,
-              280,
-            );
-            return [{
-                id: serviceId,
-                Titulo: servicio.Titulo,
-                Descripcion: servicio.Descripcion,
-                lead,
-                imageUrl: resolveServiceImageUrl(servicio),
-                imageAlt: compactServiceTitle(servicio.Titulo),
-                slug: generateSlug(servicio.Titulo),
-            }];
-        }
-    } catch (error) {
-        console.error('Error fetching service by area mapping:', error);
-    }
-
-    return [];
-};
-
-const relatedServices = await getRelatedServices(id, antecedente.Area || '');
-
-const getRelatedAntecedentes = async (area: string, excludeId: string, limit: number = 3) => {
-  try {
-    const all = await getAllAntecedentes();
-    return all
-      .filter(item => {
-        if (String(item.id) === excludeId) return false;
-        const itemArea = (item.Area || '').toLowerCase();
-        const searchArea = (area || '').toLowerCase();
-        return itemArea.includes(searchArea) || searchArea.includes(itemArea);
-      })
-      .slice(0, limit)
-      .map(item => ({
-        ...curateAntecedente(item),
-        slug: generateSlug(item.Titulo || 'proyecto'),
-        imageUrl: getAntecedenteImageUrl(item)
-      }));
-  } catch {
-    return [];
-  }
-};
-
-// Casos comparables (fase 4): se puntúan por servicios compartidos (código SGI),
-// mismo sector y cercanía en el tiempo sobre el catálogo verificado. Si el caso
-// no está en el catálogo, se cae al criterio anterior (mismo sector por Area).
-const SECTOR_LABELS: Record<string, string> = {
-  aeropuertos: 'Aeropuertos', bodegas: 'Bodegas', constructoras: 'Constructoras', gobierno: 'Gobierno y sector público',
-  gobiernosectorpublico: 'Gobierno y sector público', industria: 'Industria', mineria: 'Minería', salud: 'Salud',
-  'seguridad-electronica': 'Seguridad electrónica', software: 'Software',
-};
-const [catalogCases, catalogServices] = await Promise.all([
-  getCatalogAntecedentes({ limit: 1000 }).catch(() => []),
-  getCatalogServicios().catch(() => []),
-]);
-const serviceNameByCode = new Map(catalogServices.map((s) => [Number(s.code), s.name]));
-const currentCatalogCase = catalogCases.find((item) => String(item.id) === String(id));
-const appliedServiceNames = (currentCatalogCase?.service_codes || [])
-  .map((code) => serviceNameByCode.get(Number(code)))
-  .filter((name): name is string => Boolean(name));
 const comparableCases = currentCatalogCase
   ? catalogCases
       .filter((item) => String(item.id) !== String(id) && item.image && item.image !== mainImageUrl)
@@ -389,16 +300,12 @@ const comparableCases = currentCatalogCase
         displayDescription: item.summary,
         Descripcion: item.summary,
         imageUrl: item.image,
-        Area: SECTOR_LABELS[item.sector_slug] || item.sector_slug,
+        Area: getAntecedenteSectorLabel(item.sector_slug) || '',
         Fecha: String(item.year || ''),
         comparableWhy: [shared > 0 ? (shared === 1 ? 'mismo servicio' : `${shared} servicios en común`) : '', sameSector ? 'mismo sector' : ''].filter(Boolean).join(' · '),
       }))
   : [];
-const relatedAntecedentes = comparableCases.length > 0
-  ? comparableCases
-  : (await getRelatedAntecedentes(antecedente.Area || '', id, 4))
-      .filter((item) => item.imageUrl !== mainImageUrl)
-      .slice(0, 3);
+const relatedAntecedentes = comparableCases;
 const comparablesAreScored = comparableCases.length > 0;
 
 const buildCaseHeadline = (item: any): string => {
@@ -442,7 +349,7 @@ const buildCaseHeadline = (item: any): string => {
 const caseHeadlineSource = isReplicaIdenticalCopy()
   ? resolveReplicaH1(Astro.url.pathname, cleanDisplayText(antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre))
   : cleanDisplayText(antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre);
-const baseCaseHeadline = buildCaseHeadline({ ...antecedente, Titulo: caseHeadlineSource });
+const baseCaseHeadline = buildCaseHeadline({ ...antecedente, Area: caseSectorLabel || '', Titulo: caseHeadlineSource });
 const caseHeadline = baseCaseHeadline;
 const caseReference = `UM-${id}`;
 const compactCaseTitle = (value: unknown, client?: unknown): string => {
@@ -481,38 +388,17 @@ const caseSeo = buildCaseSeoMeta({
   title: antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre,
   description: caseSeoDescriptionSource,
   client: displayClientName || antecedente.Cliente,
-  area: antecedente.Area || antecedente.Unidad_de_negocio,
+  area: caseSectorLabel || undefined,
   date: antecedente.Fecha,
   identifier: id,
 });
 const metaDescription = caseSeo.description;
 const structuredImageUrl = publicImageUrl(caseSeoImageUrl) || toCanonicalUrl(DEFAULT_IMAGE_URL);
-const caseExecutiveItems = [
-  {
-    label: 'Contexto',
-    value: truncateEditorialText(
-      [displayClientName, antecedente.Area].filter(Boolean).join(' · ') || caseRecordLabel,
-      120,
-    ),
-  },
-  {
-    label: 'Alcance',
-    value: truncateEditorialText(String(scopeItems[0] || caseCalloutText || '').replace(/^Alcance:\s*/i, ''), 135),
-  },
-  {
-    label: 'Resultado',
-    value: caseRecordSummary ? truncateEditorialText(caseRecordSummary, 135) : '',
-  },
-  {
-    label: 'Servicios aplicados',
-    value: appliedServiceNames.join(' · '),
-  },
-].filter((item) => item.value);
 const caseStrategicLinkGroups = buildCaseStrategicLinkGroups({
   currentPath: `/antecedentes/${id}/${slugFromUrl}`,
   title: caseHeadline,
   summary: metaDescription,
-  sectorName: antecedente.Area || antecedente.Unidad_de_negocio,
+  sectorName: caseSectorLabel || undefined,
   text: `${caseBodyPlain} ${antecedente.Cliente || ''}`,
   relatedServices,
   relatedCases: relatedAntecedentes,
@@ -529,13 +415,13 @@ const antecedenteStructuredData = {
     "caption": [
       antecedente.displayTitle || antecedente.Titulo,
       antecedente.Cliente ? `Cliente: ${cleanDisplayText(antecedente.Cliente)}` : '',
-      antecedente.Area ? `Sector: ${cleanDisplayText(antecedente.Area)}` : '',
+      caseSectorLabel ? `Sector: ${caseSectorLabel}` : '',
     ].filter(Boolean).join(' | '),
   },
   "datePublished": caseDatePublished,
   "inLanguage": "es-AR",
   "genre": caseRecordLabel,
-  "about": antecedente.Area ? { "@type": "Thing", "name": cleanDisplayText(antecedente.Area) } : undefined,
+  "about": caseSectorLabel ? { "@type": "Thing", "name": caseSectorLabel } : undefined,
   "mentions": antecedente.Cliente ? [{ "@type": "Organization", "name": cleanDisplayText(antecedente.Cliente) }] : undefined,
   "isPartOf": {
     "@type": "CollectionPage",
@@ -573,9 +459,9 @@ const antecedentePageStructuredData = [
     <section class="caso-hero">
       <div class="case-shell caso-hero__grid">
         <div class="caso-hero__copy">
-          <a class="case-back" href="/antecedentes">← Todos los antecedentes</a>
+          <a class="case-back" href="/antecedentes" data-case-back>← Todos los antecedentes</a>
           <div class:list={['case-detail-label', `is-${caseRecordTone}`]}>
-            <span class="case-detail-label__area">{antecedente.Area || 'Proyecto'}</span>
+            <span class="case-detail-label__area">{caseSectorLabel || 'Clasificación pendiente'}</span>
             <span class="case-detail-label__reference">{caseReference}</span>
           </div>
           <h1>{caseHeadline}</h1>
@@ -597,10 +483,11 @@ const antecedentePageStructuredData = [
           </figure>
           <dl class="case-ficha">
             {displayClientName && <div><dt>Cliente</dt><dd>{displayClientName}</dd></div>}
-            {antecedente.Area && <div><dt>Sector</dt><dd>{antecedente.Area}</dd></div>}
+            {caseSectorLabel && <div><dt>Sector</dt><dd>{caseSectorLabel}</dd></div>}
+            {sourceAreaLabel && <div><dt>Área registrada</dt><dd>{sourceAreaLabel}</dd></div>}
             {caseDateLabel && <div><dt>Finalización</dt><dd>{caseDateLabel}</dd></div>}
             <div><dt>Tipo de trabajo</dt><dd>{caseRecordLabel}</dd></div>
-            {appliedServiceNames.length > 0 && <div><dt>Servicios</dt><dd>{appliedServiceNames.join(' · ')}</dd></div>}
+            {appliedServiceNames.length > 0 && <div><dt>Servicios relacionados</dt><dd>{appliedServiceNames.join(' · ')}</dd></div>}
           </dl>
         </aside>
       </div>
@@ -626,7 +513,7 @@ const antecedentePageStructuredData = [
 
         {relatedServices.length > 0 && (
           <>
-            <h2>Servicios aplicados.</h2>
+            <h2>Servicios relacionados.</h2>
             <ul class="case-services">
               {relatedServices.map((servicio) => (
                 <li>
@@ -643,7 +530,7 @@ const antecedentePageStructuredData = [
     {relatedAntecedentes.length > 0 && (
       <section class="caso-rel">
         <div class="case-shell">
-          <h2>{comparablesAreScored ? 'Mismo servicio, mismo sector.' : 'Proyectos relacionados.'}</h2>
+          <h2>{comparablesAreScored ? 'Proyectos relacionados por servicio o sector.' : 'Proyectos relacionados.'}</h2>
           <div class="caso-rel__ledger">
             {relatedAntecedentes.map((ant) => {
               const year = formatAntecedenteYear(ant.Fecha);
@@ -651,7 +538,8 @@ const antecedentePageStructuredData = [
                 <a class="caso-row" href={`/antecedentes/${ant.id}/${ant.slug}`} data-year={year} year={formatAntecedenteYear(ant.Fecha)}>
                   <b>{compactCaseTitle(ant.displayTitle || ant.Titulo || 'Proyecto', ant.Cliente)}</b>
                   <span>{applyDisplayNameReplacements(truncateEditorialText(ant.displayDescription || ant.Descripcion || ant.Titulo, 150), [ant.Cliente])}</span>
-                  <em>{[ant.Area || 'Servicios IT', year].filter(Boolean).join(' · ')}</em>
+                  <em>{[ant.Area ? `Sector: ${ant.Area}` : '', year].filter(Boolean).join(' · ')}</em>
+                  {ant.comparableWhy && <small class="caso-row__reason">Coincidencia: {ant.comparableWhy}</small>}
                 </a>
               );
             })}
@@ -675,6 +563,27 @@ const antecedentePageStructuredData = [
     </section>
   </article>
 </LayoutV4>
+
+<script is:inline>
+  (() => {
+    const backLink = document.querySelector('[data-case-back]');
+    if (!backLink || window.history.length <= 1 || !document.referrer) return;
+
+    try {
+      const referrer = new URL(document.referrer);
+      const referrerPath = referrer.pathname.replace(/\/+$/, '') || '/';
+      if (referrer.origin !== window.location.origin || referrerPath !== '/antecedentes') return;
+
+      backLink.addEventListener('click', (event) => {
+        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        window.history.back();
+      });
+    } catch {
+      // The fixed /antecedentes href remains the safe fallback.
+    }
+  })();
+</script>
 
 <style>
   /* Barrido 24/10: ficha de antecedente en tema oscuro, sin resumen ejecutivo, compartir, tarjetas ni grafo de enlaces. */
@@ -727,6 +636,7 @@ const antecedentePageStructuredData = [
   .caso-rel__ledger { margin: 0 0 20px; border-top: 1px solid rgba(255,255,255,0.12); }
   .caso-row { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr) auto; gap: 24px; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.12); color: #fff; text-decoration: none; }
   .caso-row b { font-weight: 600; } .caso-row span { color: #c4c7cc; font-size: 1.0625rem; line-height: 1.45; } .caso-row em { font-style: normal; color: #9a9a9a; white-space: nowrap; }
+  .caso-row__reason { grid-column: 1 / -1; color: #9a9a9a; font-size: 0.875rem; line-height: 1.4; }
   .caso-row:hover b, .caso-row:focus-visible b { text-decoration: underline; text-decoration-color: #dc2626; }
   @media (max-width: 760px) { .caso-row { grid-template-columns: 1fr; gap: 4px; } .caso-row em { white-space: normal; } }
   .case-close { padding: 32px 0 64px; }
