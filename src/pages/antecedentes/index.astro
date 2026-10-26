@@ -519,6 +519,11 @@ for (const pass of [true, false]) {
   </script>
 
   <style>
+    /* This archive restores its saved viewport; native anchoring must not move it again. */
+    :global(html:has([data-evidence])) {
+      overflow-anchor: none;
+    }
+
     .ev {
       /* El fondo lo da skin="black" en body/main: evita dos negros distintos. */
       background: transparent;
