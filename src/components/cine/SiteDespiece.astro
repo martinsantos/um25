@@ -25,7 +25,7 @@ const first = items[0];
   <section class="um-desp" aria-labelledby="um-desp-title" data-despiece data-project-service={first.cut.code} data-link-banner={linkBanner ? "1" : "0"}>
     <div class="um-desp__head">
       <h2 id="um-desp-title">{items.length === 8 ? 'Los ocho frentes' : `${items.length} frentes`} en {title.toLowerCase()}.</h2>
-      <p>La misma instalación{sectorName ? ` de ${sectorName.toLowerCase()}` : ''}, sistema por sistema. Pasá por un servicio: su recorrido se enciende en el proyecto y la película de arriba cambia de plano.</p>
+      <p>La misma instalación{sectorName ? ` de ${sectorName.toLowerCase()}` : ''}, sistema por sistema. Elegí un servicio para ver su recorrido en el proyecto{linkBanner ? ' y cambiar el plano de la película de arriba' : ''}.</p>
     </div>
     <div class="um-desp__body">
       <div class="um-desp__stage" data-project-floors={site === 'building' ? 3 : 1}>

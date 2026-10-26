@@ -2,9 +2,9 @@
 // Banner cine: plano Cycles pre-renderizado (vuelo imposible por la escena, con cortes
 // "pop" entre edificio y esqueleto de sistemas) y etiquetas que siguen a los equipos.
 // Portada: encadena las escenas. Sector o servicio: una escena en bucle.
-// El 3D interactivo se abre sólo a pedido (/cine/cine-banner-despiece-2410.js; v5 = v4 + evento umc:cut desde el despiece).
+// El 3D interactivo se abre sólo a pedido (/cine/cine-banner-accessible-2610.js; v5 = v4 + evento umc:cut desde el despiece).
 import '../../styles/cine-banner.css';
-import { HOME_SCENES, cutCaption } from '../../data/cine/scenes';
+import { HOME_SCENES, cutCaption, V4_CUTS, SOFTWARE_FILM } from '../../data/cine/scenes';
 
 interface Stat { label: string; value: string }
 interface Link { href: string; label: string }
@@ -38,10 +38,18 @@ const dot = title.endsWith('.');
 const heading = dot ? title.slice(0, -1) : title;
 const rail = HOME_SCENES.filter((s) => scenes.includes(s.scene));
 const firstTitle = cutCaption(first);
+const fallbackFor = (key: string) => key === SOFTWARE_FILM
+  ? '/cine/iso/service-104.svg'
+  : V4_CUTS[key]?.poster || `/cine/media/cine-${key.split('-')[0]}-poster.avif`;
+const fallbackKeys = [...new Set([...scenes, ...Object.values(variants).flat()])];
+const fallbacks = Object.fromEntries(fallbackKeys.map((key) => [key, fallbackFor(key)]));
+const firstFallback = fallbackFor(first);
 ---
-<section class:list={['umc', `umc--${variant}`]} data-umc data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} aria-labelledby={titleId}>
+<section class:list={['umc', `umc--${variant}`]} data-umc data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} data-fallbacks={JSON.stringify(fallbacks)} aria-labelledby={titleId}>
   <div class="umc-stage" aria-hidden="true">
-    {/* Sin cuadro fijo: la película arranca en su propio primer cuadro (pedido del dueño, 24/10). */}
+    {/* Oculta durante el inicio normal; alternativa para movimiento reducido o video no disponible. */}
+    <img class="umc-poster is-hidden" src={firstFallback} data-default={firstFallback} alt="" width="1920" height="1080" decoding="async" />
+    <noscript><img class="umc-poster" src={firstFallback} alt="" width="1920" height="1080" /></noscript>
     <video class="umc-video" muted playsinline preload="none" disablepictureinpicture></video>
     <video class="umc-video" muted playsinline preload="none" disablepictureinpicture></video>
     <div class="umc-grade"></div>
@@ -83,4 +91,4 @@ const firstTitle = cutCaption(first);
     </div>
   </div>
 </section>
-<script src="/cine/cine-banner-despiece-2410.js" type="module" is:inline></script>
+<script src="/cine/cine-banner-accessible-2610.js" type="module" is:inline></script>
