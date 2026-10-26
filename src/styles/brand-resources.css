@@ -103,7 +103,7 @@ body:has(#um-resources) .um-tabbar { display:none !important; }
 .rl-use { padding-block:72px; background:var(--rl-paper); }
 #um-resources .rl-use h2 { margin-top:20px; }
 .rl-use-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:48px; margin-top:40px; }
-.rl-use-grid article > span { display:block; color:#dc2626; font-size:1.125rem; margin-bottom:18px; }
+.rl-use-grid article > span { display:block; color:#b91c1c; font-size:1.125rem; margin-bottom:18px; }
 #um-resources .rl-use-grid h3 { margin-bottom:16px; }
 .rl-use-grid p { font-size:var(--um-copy-description); }
 #resource-viewer { width:min(1060px,calc(100vw - 32px)); max-width:none; max-height:90dvh; margin:auto; padding:0; border:0; color:var(--rl-ink); background:var(--rl-paper); }
