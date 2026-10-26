@@ -38,60 +38,32 @@ describe('generated antecedentes image integration', () => {
     }
   });
 
-  test('public antecedente surfaces use generated images', () => {
+  test('public antecedente surfaces use own isometrics, never generated images', () => {
     const directus = fs.readFileSync(path.join(repoRoot, 'src/lib/directus.ts'), 'utf8');
     const home = fs.readFileSync(path.join(repoRoot, 'src/pages/index.astro'), 'utf8');
     const index = fs.readFileSync(path.join(repoRoot, 'src/pages/antecedentes/index.astro'), 'utf8');
     const detail = fs.readFileSync(path.join(repoRoot, 'src/pages/antecedentes/[id]/[slug].astro'), 'utf8');
-    const sectors = fs.readFileSync(path.join(repoRoot, 'src/utils/sectoresHelpers.ts'), 'utf8');
-    const um26Directus = fs.readFileSync(path.join(repoRoot, 'src/lib/um26-directus.ts'), 'utf8');
+    const evidence = fs.readFileSync(path.join(repoRoot, 'src/utils/antecedentesImageEvidence.ts'), 'utf8');
 
-    expect(directus).toContain('getAntecedenteImageUrl');
-    // Destacados de la home: registros reales del catálogo con su imagen curada.
+    expect(directus).toContain('posterForAntecedente(id)');
     expect(home).toContain('ANTECEDENTES_REALES');
-    expect(home).toContain('/img/antecedentes/curadas/3065-aeropuerto-cctv.webp');
-    expect(home).not.toContain('Tapiz');
-    // El hero del listado es editorial para no duplicar ninguna miniatura de la grilla.
-    expect(index).toContain("const heroImage = '/images/editorial/umsa-about-engineering.webp'");
-    expect(index).toContain('image: item.image');
-    expect(um26Directus).toContain('getAntecedenteImage(');
-    expect(detail).toContain('getGeneratedAntecedenteImageUrl(antecedente.id)');
-    expect(sectors).toContain('getAntecedenteImageUrl(item)');
+    for (const source of [directus, home, index, detail, evidence]) {
+      expect(source).not.toMatch(/antecedentes\/generated\/|antecedentes\/curadas\/|umsa-about-engineering|antecedentes-generated-image-map/);
+    }
+    // La ficha no muestra la galería de Directus (eran imágenes generadas).
+    expect(detail).not.toContain('case-gallery-grid">');
+    expect(detail).toContain('const mainImageUrl = generatedMainImageUrl || BASE_POSTER');
   });
 
-  test('catalog thumbnails are unique and prefer curated, then own generated image', async () => {
+  test('every catalog case shows its own realistic thumbnail in the antecedentes mosaic', async () => {
+    // 25/10: el dueño pidió volver a la miniatura realista de cada antecedente en el mosaico.
     const { ANTECEDENTES_REALES } = await import('../src/lib/um26-data/antecedentesReales');
-    const { curatedAntecedenteImages } = await import('../src/data/editorialImageSystem');
-    const { assignAntecedenteThumbnails, getAntecedenteImage } = await import('../src/lib/um26-data/images');
-    assignAntecedenteThumbnails(ANTECEDENTES_REALES);
-    const images = ANTECEDENTES_REALES.map((item) => getAntecedenteImage(item.sectorSlug, item.serviceCodes, item.id));
+    const { getAntecedenteImage } = await import('../src/lib/um26-data/images');
     expect(ANTECEDENTES_REALES.length).toBeGreaterThanOrEqual(518);
-    expect(new Set(images).size).toBe(images.length);
-    for (const image of images) {
+    for (const item of ANTECEDENTES_REALES) {
+      const image = getAntecedenteImage(item.sectorSlug, item.serviceCodes, item.id);
+      expect(image).toMatch(/^\/images\/antecedentes\/generated\/.+\.webp$|^\/cine\/iso\/(service-\d{3}|site-[a-z]+)\.svg$/);
       expect(fs.existsSync(path.join(repoRoot, 'public', image))).toBe(true);
     }
-    const byId = new Map(ANTECEDENTES_REALES.map((item, index) => [String(item.id), images[index]]));
-    const curated = Object.keys(curatedAntecedenteImages);
-    for (const id of curated) {
-      expect(byId.has(id)).toBe(true);
-      expect(byId.get(id)).toBe(curatedAntecedenteImages[id]);
-    }
-    for (const [id, image] of byId) {
-      if (!curated.includes(id) && generatedMap[id]) expect(image).toBe(generatedMap[id]);
-    }
-  });
-
-  test('generated case images win over legacy Directus assets on public surfaces', () => {
-    const directus = fs.readFileSync(path.join(repoRoot, 'src/lib/directus.ts'), 'utf8');
-    const evidence = fs.readFileSync(path.join(repoRoot, 'src/utils/antecedentesImageEvidence.ts'), 'utf8');
-    const detail = fs.readFileSync(path.join(repoRoot, 'src/pages/antecedentes/[id]/[slug].astro'), 'utf8');
-
-    expect(directus.indexOf('const generatedImage = getGeneratedAntecedenteImageUrl')).toBeLessThan(
-      directus.indexOf('const directusImageId = typeof item.Imagen'),
-    );
-    expect(evidence.indexOf('const generatedImage = generatedMap')).toBeLessThan(
-      evidence.indexOf('const directusImageId = getDirectusImageId'),
-    );
-    expect(detail).toContain('const mainImageUrl = generatedMainImageUrl');
   });
 });

@@ -181,6 +181,17 @@ TOP_ARCHIVES = {
     '/tmp/vlc-plastic-qa-update-20261010.tar.gz': '/tmp/vlc-plastic-groups-qa-20261010',
 }
 MIN_AGE = 48 * 3600
+# Release folders: code copies, rebuildable from git. Uploads, data and .env of the live backend
+# are symlinked INTO some old releases, so each one referenced from anywhere stays.
+RELEASE_ROOTS = (Path('/var/www/sitrep-releases'), Path('/var/www/sitrep-backend-releases'))
+KEEP_NEWEST = 12
+# Directus uploads snapshots: the backup writes a new archive only when uploads change, but the
+# liveness probe file used to count as a change, so many archives repeat the same images.
+DIRECTUS_BACKUPS = Path('/opt/directus-backups')
+DIRECTUS_STATE = DIRECTUS_BACKUPS / 'directus-uploads-content.state'
+DIRECTUS_BACKUP_SCRIPT = '/opt/scripts-cicd/backup_directus.sh'
+HEALTH_MARKER = 'directus-health-file'
+REF_TEXTS = ('/root/.pm2/dump.pm2', '/etc/crontab', '/var/spool/cron', '/etc/cron.d', '/etc/systemd/system')
 
 def within(path, parent):
     return path == parent or parent in path.parents
@@ -352,6 +363,111 @@ def archive_target(path, root, paths, mounts, now=None):
             'signature': before, 'sha256': sha(path), 'proof': proof,
             'bytes_estimated': path.stat().st_blocks * 512}
 
+def release_refs():
+    """Every path inside a release root that something on the server points at."""
+    pattern = re.compile(r'(?:%s)/[^/\s"\';:,]+' % '|'.join(re.escape(str(r)) for r in RELEASE_ROOTS))
+    refs = set()
+    links = subprocess.run(['find', '/', '-xdev', '-type', 'l', '-print0'], capture_output=True).stdout
+    for raw in links.split(b'\0'):
+        if not raw:
+            continue
+        link = os.fsdecode(raw)
+        try:
+            refs.add(Path(os.path.normpath(os.path.join(os.path.dirname(link), os.readlink(link)))))
+            refs.add(Path(os.path.realpath(link)))
+        except OSError:
+            pass
+    texts = [subprocess.run(['nginx', '-T'], capture_output=True, text=True).stdout]
+    for proc in Path('/proc').glob('[0-9]*'):
+        try:
+            texts.append((proc / 'environ').read_bytes().replace(b'\0', b'\n').decode(errors='replace'))
+        except (FileNotFoundError, ProcessLookupError):
+            pass
+    for name in REF_TEXTS:
+        base = Path(name)
+        for item in ([base] if base.is_file() else sorted(base.rglob('*')) if base.is_dir() else []):
+            if item.is_file():
+                texts.append(item.read_text(errors='replace'))
+    for text in texts:
+        refs.update(Path(m) for m in pattern.findall(text))
+    return refs
+
+def release_candidates(paths, mounts, now=None):
+    now = time.time() if now is None else now
+    refs = release_refs() | paths
+    roots = []
+    for root in RELEASE_ROOTS:
+        if root.is_symlink() or root.resolve() != root or not root.is_dir():
+            raise RuntimeError('Release root changed: ' + str(root))
+        releases = sorted((p for p in root.iterdir() if p.is_dir() and not p.is_symlink()),
+                          key=lambda p: (p.stat().st_mtime_ns, p.name), reverse=True)
+        keep = releases[:KEEP_NEWEST]
+        referenced = [p for p in releases if any(within(r, p) for r in refs)]
+        old = [p for p in releases[KEEP_NEWEST:]
+               if p not in referenced and now - p.stat().st_mtime >= MIN_AGE
+               and not active(p, paths, mounts)]
+        roots.append((root, keep, referenced, old))
+    return roots
+
+def release_target(path, keep, root_device):
+    if path.is_symlink() or path.resolve() != path or path.stat().st_dev != root_device:
+        raise RuntimeError('Release folder changed identity: ' + str(path))
+    # Hardlinks with kept releases are counted against those, so this is what really frees.
+    out = subprocess.check_output(['du', '-sk', *map(str, keep), str(path)], text=True).splitlines()
+    return {'kind': 'release', 'path': str(path), 'signature': signature(path),
+            'bytes_estimated': int(out[-1].split()[0]) * 1024}
+
+def archive_members(path):
+    """Content of every regular member except the 5-byte liveness marker."""
+    members = {}
+    with tarfile.open(path, 'r:gz') as archive:
+        for item in archive:
+            if item.isdir():
+                continue
+            if not item.isfile():
+                raise RuntimeError('Uploads archive has a non-regular member: ' + path.name)
+            if item.name.rsplit('/', 1)[-1] == HEALTH_MARKER:
+                continue
+            digest = hashlib.sha256()
+            with archive.extractfile(item) as stream:
+                for block in iter(lambda: stream.read(1048576), b''):
+                    digest.update(block)
+            members[item.name] = [item.size, item.mode, digest.hexdigest()]
+    return members
+
+def directus_backup_idle():
+    for proc in Path('/proc').glob('[0-9]*'):
+        try:
+            if os.fsencode(DIRECTUS_BACKUP_SCRIPT) in (proc / 'cmdline').read_bytes().split(b'\0'):
+                raise RuntimeError('Directus backup is running; retry after it finishes')
+        except (FileNotFoundError, ProcessLookupError):
+            pass
+
+def directus_duplicates(paths, mounts):
+    directus_backup_idle()
+    state = dict(line.split('=', 1) for line in DIRECTUS_STATE.read_text().split())
+    keep = DIRECTUS_BACKUPS / state['archive']
+    archives = sorted(DIRECTUS_BACKUPS.glob('directus-uploads-*.tar.gz'))
+    if not archives or archives[-1] != keep or keep.is_symlink() or not keep.is_file():
+        raise RuntimeError('Newest uploads archive is not the one the backup state names')
+    reference = archive_members(keep)
+    if not reference:
+        raise RuntimeError('Retained uploads archive is empty')
+    retained = {'path': str(keep), 'signature': signature(keep), 'member_count': len(reference),
+                'members_sha256': fingerprint(reference)}
+    targets = []
+    for path in archives[:-1]:
+        if path.is_symlink() or path.resolve() != path or not path.is_file() or active(path, paths, mounts):
+            continue
+        before = signature(path)
+        if archive_members(path) != reference or signature(path) != before:
+            continue  # holds something the retained archive does not: stays
+        checkpoints = sorted(c.name for c in DIRECTUS_BACKUPS.glob('directus-checkpoint-*.txt')
+                             if ('uploads=' + path.name) in c.read_text().split())
+        targets.append({'kind': 'directus-uploads', 'path': str(path), 'signature': before,
+                        'checkpoints': checkpoints, 'bytes_estimated': path.stat().st_blocks * 512})
+    return retained, targets
+
 def make_plan(operation):
     paths, mounts, busy = protection()
     if busy:
@@ -379,6 +495,22 @@ def make_plan(operation):
                 item = archive_target(path, Path(retained), paths, mounts)
                 if item:
                     targets.append(item)
+    elif operation == 'directus-upload-duplicates':
+        retained, targets = directus_duplicates(paths, mounts)
+        return {'operation': operation, 'retained': retained, 'targets': targets}
+    elif operation == 'release-folders':
+        kept = {}
+        freed = 0
+        for root, keep, referenced, old in release_candidates(paths, mounts):
+            kept[str(root)] = {'newest': [p.name for p in keep], 'referenced': [p.name for p in referenced]}
+            device = root.stat().st_dev
+            targets.extend(release_target(p, keep, device) for p in sorted(old))
+            if old:
+                # One du over kept + candidates counts each shared hardlink once.
+                held = sorted(set(keep) | set(referenced))
+                out = subprocess.check_output(['du', '-sk', *map(str, held + sorted(old))], text=True)
+                freed += sum(int(line.split()[0]) for line in out.splitlines()[len(held):]) * 1024
+        return {'operation': operation, 'kept': kept, 'bytes_freed_estimated': freed, 'targets': targets}
     else:
         raise RuntimeError('Unsupported cleanup scope')
     return {'operation': operation, 'targets': targets}
@@ -408,6 +540,7 @@ def apply(plan, digest, expected):
             if sha(destination) != target['lock_sha256']:
                 raise RuntimeError('Dependency lock retention failed')
     before = shutil.disk_usage('/').free
+    refs = release_refs() if any(t['kind'] == 'release' for t in plan['targets']) else set()
     completed = []
     for target in plan['targets']:
         paths, mounts, busy = protection()
@@ -418,6 +551,25 @@ def apply(plan, digest, expected):
             if volume_target(target['name'],paths,mounts) != target:
                 raise RuntimeError('Dependency volume changed or became active')
             subprocess.run(['docker','volume','rm',target['name']],check=True,capture_output=True,text=True)
+        elif target['kind'] == 'directus-uploads':
+            directus_backup_idle()
+            if active(path, paths, mounts) or signature(path) != target['signature']:
+                raise RuntimeError('Uploads archive changed or became active: ' + str(path))
+            retained = Path(plan['retained']['path'])
+            for name in target['checkpoints']:
+                # Old checkpoints keep their line and gain the equivalent archive to restore from.
+                checkpoint = DIRECTUS_BACKUPS / name
+                shutil.copy2(checkpoint, receipt / name)
+                with checkpoint.open('a') as stream:
+                    stream.write('uploads_equivalent=%s\n' % retained.name)
+            path.unlink()
+        elif target['kind'] == 'release':
+            # Symlinks were re-scanned by make_plan just before; here, live processes per folder.
+            if active(path, paths, mounts) or any(within(r, path) for r in refs):
+                raise RuntimeError('Release became referenced: ' + str(path))
+            if signature(path) != target['signature']:
+                raise RuntimeError('Release folder changed: ' + str(path))
+            shutil.rmtree(path)
         else:
             if archive_target(path,Path(target['retained_root']),paths,mounts) != target:
                 raise RuntimeError('Archive or retained payload changed or became active')
@@ -434,7 +586,7 @@ def apply(plan, digest, expected):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--operation',choices=('volume-dependencies','temporary-archives'),required=True)
+    parser.add_argument('--operation',choices=('volume-dependencies','temporary-archives','release-folders','directus-upload-duplicates'),required=True)
     parser.add_argument('--apply',action='store_true')
     parser.add_argument('--expected-plan-sha',default='')
     args = parser.parse_args()
@@ -442,9 +594,11 @@ def main():
     digest = fingerprint(plan)
     print(json.dumps({'mode':'apply' if args.apply else 'plan','operation':args.operation,
                       'plan_sha256':digest,'target_count':len(plan['targets']),
-                      'bytes_estimated':sum(t['bytes_estimated'] for t in plan['targets']),
+                      'bytes_estimated':plan.get('bytes_freed_estimated',
+                                                 sum(t['bytes_estimated'] for t in plan['targets'])),
                       'targets':[{'path':t['path'],'kind':t['kind'],'bytes_estimated':t['bytes_estimated']}
-                                 for t in plan['targets']]}),flush=True)
+                                 for t in plan['targets']],
+                      'kept':plan.get('kept'),'retained':plan.get('retained')}),flush=True)
     if args.apply:
         print(json.dumps(apply(plan,digest,args.expected_plan_sha)),flush=True)
 

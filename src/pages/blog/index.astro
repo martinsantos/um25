@@ -1,11 +1,9 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import BlogCategoryTabs from '../../components/blog/BlogCategoryTabs.astro';
-import BlogTopicNav from '../../components/blog/BlogTopicNav.astro';
 import BlogCard from '../../components/blog/BlogCard.astro';
 import BlogHero from '../../components/blog/BlogHero.astro';
 import BlogPagination from '../../components/blog/BlogPagination.astro';
-import IntentLinkGraph from '../../components/blog/BlogIntentLinks.astro';
 import { fetchBlogListing } from '../../utils/getBlogData';
 import { blogPostImageUrl } from '../../utils/blogHelpers';
 import { toIsoDate } from '../../utils/blogUtils';
@@ -97,23 +95,12 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
 
   <div class="bx">
     <header class="bx-hero bx-shell">
-      <nav class="bx-crumbs" aria-label="Migas de pan">
-        <a href="/">Inicio</a><span aria-hidden="true">/</span>
-        {page === 1 ? <span aria-current="page">Blog</span> : <a href="/blog">Blog</a>}
-        {page > 1 && <><span aria-hidden="true">/</span><span aria-current="page">Página {page}</span></>}
-      </nav>
-      <p class="bx-kicker">Blog técnico</p>
       <h1 class="bx-title">{blogIndexH1}</h1>
       <p class="bx-lead">{blogLead}</p>
-      <p class="bx-count">
-        {total > 0 && <span>{total} artículos publicados</span>}
-        <a href="/rss.xml">Suscribirse por RSS</a>
-      </p>
     </header>
 
     <div class="bx-shell">
       <BlogCategoryTabs />
-      <BlogTopicNav />
 
       {featuredPost && (
         <section class="bx-featured" aria-label="Artículo destacado">
@@ -142,15 +129,6 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
 
       <BlogPagination page={page} totalPages={totalPages} baseHref="/blog" />
 
-      <div class="bx-related">
-        <IntentLinkGraph
-          class="um-intent-link-graph--contained"
-          kicker="Para avanzar"
-          title="Ver también"
-          text="De la lectura a los servicios, sectores y antecedentes donde aplica."
-          groups={blogStrategicLinkGroups}
-        />
-      </div>
     </div>
   </div>
 </LayoutV4>
@@ -200,4 +178,19 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
     .bx-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
     .bx-crumbs { margin-bottom: 32px; }
   }
+  /* Barrido 24/10: el blog es una lista (categoría · fecha · título · bajada), sin imágenes ni destacados en tarjeta. */
+  .bx-featured { margin-bottom: 0; }
+  .bx-featured :global(.bfeat) { grid-template-columns: minmax(0, 1fr) !important; gap: 0 !important; padding: 16px 0; border-top: 1px solid rgba(255,255,255,0.12); background: transparent !important; }
+  .bx-featured :global(.bfeat__media), .bx-featured :global(.bfeat__kicker), .bx-featured :global(.bfeat__link) { display: none !important; }
+  .bx-featured :global(.bfeat__title) { font-size: 1.375rem; margin: 4px 0 6px; }
+  .bx-archive__head { display: none; }
+  .bx-grid { grid-template-columns: minmax(0, 1fr) !important; gap: 0 !important; border-top: 1px solid rgba(255,255,255,0.12); }
+  .bx-grid :global(.bcard) { display: block; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.12); background: transparent !important; border-radius: 0 !important; box-shadow: none !important; }
+  .bx-grid :global(.bcard__media) { display: none !important; }
+  .bx-grid :global(.bcard__body) { padding: 0 !important; }
+  .bx-grid :global(.bcard__title) { margin: 4px 0 6px; font-size: 1.25rem; }
+  .bx-grid :global(.bcard__title a), .bx-featured :global(.bfeat__title a) { color: #fff; text-decoration: none; }
+  .bx-grid :global(.bcard__title a:hover), .bx-featured :global(.bfeat__title a:hover) { text-decoration: underline; text-decoration-color: #dc2626; }
+  .bx-grid :global(.bcard__excerpt), .bx-featured :global(.bfeat__excerpt) { margin: 0; color: #c4c7cc; font-size: 1.0625rem; line-height: 1.5; max-width: 80ch; }
+  .bx-grid :global(.bcard__meta), .bx-featured :global(.bfeat__meta) { margin: 0; color: #9a9a9a; font-size: 1rem; text-transform: none; letter-spacing: 0; }
 </style>

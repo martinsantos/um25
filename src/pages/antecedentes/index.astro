@@ -5,7 +5,6 @@ import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import EmailLink from '../../components/common/EmailLink.astro';
 
 // Hero editorial: no coincide con ninguna miniatura del listado.
-const heroImage = '/images/editorial/umsa-about-engineering.webp';
 const PAGE_SIZE = 24;
 const catalogCount = getAntecedentesCatalogCount();
 
@@ -103,30 +102,86 @@ const statuses = Object.entries(statusLabels)
   .map(([key, label]) => ({ key, label, count: statusCounts.get(key) || 0 }))
   .filter((item) => item.count > 0);
 
+// Período: tramos de años para buscar rápido sin recorrer año por año.
+const periodOf = (year: string) => {
+  const y = Number(year) || 0;
+  if (y >= 2024) return '2024';
+  if (y >= 2020) return '2020';
+  if (y >= 2015) return '2015';
+  if (y >= 2010) return '2010';
+  return 'antes';
+};
+const periodLabels: Record<string, string> = { '2024': '2024 en adelante', '2020': '2020–2023', '2015': '2015–2019', '2010': '2010–2014', antes: 'Antes de 2010' };
+const periodCounts = countBy(cases.map((item) => periodOf(item.year)));
+const periods = Object.entries(periodLabels)
+  .map(([key, label]) => ({ key, label, count: periodCounts.get(key) || 0 }))
+  .filter((item) => item.count > 0);
+
+// Clientes con más de un proyecto (los más recurrentes primero).
+const clientKeyOf = (client: string) => client.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const clientCounts = new Map<string, { label: string; count: number }>();
+cases.forEach((item) => {
+  const key = clientKeyOf(item.client);
+  if (!key) return;
+  const entry = clientCounts.get(key) || { label: item.client, count: 0 };
+  entry.count += 1;
+  clientCounts.set(key, entry);
+});
+const clients = [...clientCounts.entries()]
+  .filter(([key, v]) => v.count > 2 && !/confidencial|reservado|sin-nombre|^n-?a$/.test(key))
+  .sort((a, b) => b[1].count - a[1].count || a[1].label.localeCompare(b[1].label, 'es'))
+  .slice(0, 16)
+  .map(([key, v]) => ({ key, label: v.label, count: v.count }));
+
 const filterGroups = [
   { type: 'sector', label: 'Sector', options: sectors },
   { type: 'service', label: 'Servicio', options: services },
+  { type: 'period', label: 'Período', options: periods },
   { type: 'year', label: 'Año', options: years },
+  { type: 'client', label: 'Cliente', options: clients },
   { type: 'status', label: 'Estado', options: statuses },
 ];
+
+// Cabecera: collage aleatorio en cada visita, fotos distintas y de sectores distintos; cada una lleva a su antecedente.
+const withPhoto = cases.filter((item) => item.image.startsWith('/images/antecedentes/'));
+const shuffled = withPhoto.map((item) => ({ item, r: Math.random() })).sort((a, b) => a.r - b.r).map((x) => x.item);
+const heroTiles: typeof cases = [];
+const seenSectors = new Set<string>();
+for (const pass of [true, false]) {
+  for (const item of shuffled) {
+    if (heroTiles.length === 9) break;
+    if (heroTiles.includes(item)) continue;
+    if (pass && seenSectors.has(item.sectorKey)) continue;
+    seenSectors.add(item.sectorKey);
+    heroTiles.push(item);
+  }
+}
 ---
 
 <LayoutV4
   skin="black"
   title="Antecedentes | ULTIMA MILLA"
   description={`${catalogCount} antecedentes técnicos de ULTIMA MILLA con cliente, sector, servicio aplicado y alcance.`}
-  image={heroImage}
 >
   <div class="ev" data-evidence>
     <header class="ev-hero" aria-labelledby="evidence-title">
-      <img src={heroImage} alt="" width="1672" height="941" loading="eager" decoding="async" fetchpriority="high" />
-      <div class="ev-hero__shade" aria-hidden="true"></div>
-      <div class="ev-shell ev-hero__inner">
-        <p class="ev-kicker"><span aria-hidden="true"></span>Antecedentes</p>
-        <h1 id="evidence-title">Evidencia operativa real</h1>
-        <p class="ev-lead">
-          <strong>{catalogCount}</strong> antecedentes técnicos con cliente, sector y alcance, en más de 22 años de obras y servicios.
-        </p>
+      <div class="ev-shell ev-hero__inner ev-hero__grid">
+        <div class="ev-hero__copy">
+          <h1 id="evidence-title">Antecedentes.</h1>
+          <p class="ev-lead">
+            <strong>{catalogCount}</strong> antecedentes técnicos con cliente, sector y alcance, en más de 22 años de obras y servicios.
+          </p>
+        </div>
+        <ul class="ev-collage" aria-label="Algunos antecedentes">
+          {heroTiles.map((item, i) => (
+            <li class={`ev-collage__tile ev-collage__tile--${i}`}>
+              <a href={item.href} aria-label={`${item.client}: ${item.title}`}>
+                <img src={item.image} alt="" width="800" height="500" loading={i < 5 ? 'eager' : 'lazy'} decoding="async" />
+                <span>{item.sector} · {item.year}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     </header>
 
@@ -188,6 +243,8 @@ const filterGroups = [
             data-sector={item.sectorKey}
             data-status={item.status}
             data-services={item.serviceSlugs.join(' ')}
+            data-period={periodOf(item.year)}
+            data-clientkey={clientKeyOf(item.client)}
             data-search={`${item.client} ${item.title} ${item.summary} ${item.sector} ${item.tags.join(' ')} ${item.serviceNames.join(' ')}`.toLowerCase()}
           >
             <a class="ev-card" href={item.href}>
@@ -221,9 +278,8 @@ const filterGroups = [
     <section class="ev-contact" aria-labelledby="evidence-contact-title">
       <div class="ev-shell ev-contact__panel">
         <div>
-          <p class="ev-kicker"><span aria-hidden="true"></span>Contacto</p>
-          <h2 id="evidence-contact-title">Ordenemos su infraestructura y su continuidad operativa.</h2>
-          <p class="ev-contact__text">Respondemos en el día con un relevamiento técnico y una propuesta verificable.</p>
+          <h2 id="evidence-contact-title">Contanos qué tiene que seguir funcionando.</h2>
+          <p class="ev-contact__text">Relevamos en el lugar y te decimos qué hace falta.</p>
         </div>
         <div class="ev-contact__cta">
           <EmailLink class="ev-btn" subject="Consulta desde Antecedentes ULTIMA MILLA"><span class="ev-btn__mail"><span>contacto</span><span aria-hidden="true">&#64;</span><wbr /><span>ultimamilla.com.ar</span></span> <span aria-hidden="true">→</span></EmailLink>
@@ -255,10 +311,30 @@ const filterGroups = [
       const moreWrap = root.querySelector('[data-more-wrap]');
       const more = root.querySelector('[data-more]');
       const moreCount = root.querySelector('[data-more-count]');
-      const filters = { sector: '', service: '', year: '', status: '' };
+      const filters = { sector: '', service: '', period: '', year: '', client: '', status: '' };
       let limit = PAGE_SIZE;
 
       if (toggle) toggle.hidden = false;
+      // Filtros a la vista desde el inicio (se pueden plegar con el botón).
+      if (toggle && panel) { toggle.setAttribute('aria-expanded', 'true'); panel.classList.add('is-open'); }
+
+      // Filtros en la dirección (?sector=salud&periodo=2020…): se pueden compartir y vuelven al recargar.
+      const URL_KEYS = { sector: 'sector', service: 'servicio', period: 'periodo', year: 'anio', client: 'cliente', status: 'estado' };
+      const params = new URLSearchParams(location.search);
+      Object.entries(URL_KEYS).forEach(([type, key]) => {
+        const value = params.get(key);
+        if (value && chips.some((c) => c.getAttribute('data-filter') === type && c.getAttribute('data-value') === value)) filters[type] = value;
+      });
+      if (params.get('q') && search) search.value = params.get('q');
+      chips.forEach((c) => c.setAttribute('aria-pressed', String(filters[c.getAttribute('data-filter')] === c.getAttribute('data-value'))));
+      function syncUrl() {
+        const next = new URLSearchParams();
+        Object.entries(URL_KEYS).forEach(([type, key]) => { if (filters[type]) next.set(key, filters[type]); });
+        const q = String(search?.value || '').trim();
+        if (q) next.set('q', q);
+        const qs = next.toString();
+        history.replaceState(null, '', qs ? `${location.pathname}?${qs}` : location.pathname);
+      }
 
       function num(card, attr) {
         return Number(card.getAttribute(attr) || 0);
@@ -281,6 +357,8 @@ const filterGroups = [
           (!filters.sector || card.getAttribute('data-sector') === filters.sector) &&
           (!filters.year || card.getAttribute('data-year') === filters.year) &&
           (!filters.status || card.getAttribute('data-status') === filters.status) &&
+          (!filters.period || card.getAttribute('data-period') === filters.period) &&
+          (!filters.client || card.getAttribute('data-clientkey') === filters.client) &&
           (!filters.service || String(card.getAttribute('data-services')).split(' ').includes(filters.service))
         );
       }
@@ -311,6 +389,7 @@ const filterGroups = [
       function reset() {
         limit = PAGE_SIZE;
         render();
+        syncUrl();
       }
 
       chips.forEach((chip) => {
@@ -1098,5 +1177,32 @@ const filterGroups = [
         transform: none;
       }
     }
-  </style>
+      /* Barrido 25/10: cabecera sin imagen de película; el mosaico conserva la imagen de cada antecedente. */
+    .ev .ev-hero { min-height: 0; padding: clamp(40px, 6vw, 72px) 0 8px; }
+    /* Barrido 25/10: cabecera con collage aleatorio de antecedentes y filtros a la vista. */
+    .ev .ev-hero__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 4vw, 56px); align-items: center; padding-block: clamp(32px, 4vw, 56px); }
+    .ev-collage { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(3, clamp(72px, 7vw, 108px)); gap: 6px; }
+    .ev-collage__tile { position: relative; overflow: hidden; border-radius: 3px; background: #111; }
+    .ev-collage__tile--0 { grid-column: span 2; grid-row: span 2; }
+    .ev-collage__tile a { display: block; width: 100%; height: 100%; color: #fff; text-decoration: none; }
+    .ev-collage__tile img { width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(0.85) brightness(0.82); transition: filter 300ms var(--x-ease); }
+    .ev-collage__tile span { position: absolute; left: 8px; bottom: 6px; right: 8px; font-size: 12px; line-height: 1.3; color: #fff; opacity: 0; transform: translateY(4px); transition: opacity 200ms var(--x-ease), transform 200ms var(--x-ease); text-shadow: 0 1px 6px rgba(0,0,0,0.8); }
+    .ev-collage__tile a:hover img, .ev-collage__tile a:focus-visible img { filter: none; }
+    .ev-collage__tile a:hover span, .ev-collage__tile a:focus-visible span { opacity: 1; transform: none; }
+    .ev .ev-panel { margin-top: 12px; padding: 16px 20px; gap: 10px; }
+    .ev .ev-panel__row { grid-template-columns: 84px 1fr; gap: 12px; }
+    .ev .ev-panel__label { text-transform: none; letter-spacing: 0; font-size: 14px; padding-top: 7px; }
+    .ev .ev-panel__chips { gap: 6px; }
+    .ev .ev-chip { min-height: 32px; padding: 0 10px; }
+    @media (max-width: 1023px) {
+      .ev .ev-hero__grid { grid-template-columns: 1fr; }
+      .ev-collage { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(3, 80px); }
+    }
+    @media (max-width: 639px) {
+      .ev-collage { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(3, 56px); gap: 4px; }
+      .ev .ev-panel__row { grid-template-columns: 1fr; gap: 6px; }
+      .ev .ev-panel__chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+      .ev .ev-chip { flex: none; white-space: nowrap; min-height: 40px; }
+    }
+</style>
 </LayoutV4>

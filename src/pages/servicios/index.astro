@@ -1,9 +1,6 @@
 ---
 import LayoutV4 from '../../layouts/LayoutV4.astro';
-import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
 import CineBanner from '../../components/cine/CineBanner.astro';
-import {ISOMETRIC_STUDIES} from '../../data/cine/isometric';
-const isometricAssets=import.meta.glob<string>('../../assets/cine/isometric/*-object.svg',{eager:true,query:'?url',import:'default'});
 
 type Service = {
   code: string;
@@ -28,7 +25,7 @@ const services: Service[] = [
     capabilities: ['Relevamiento y diseño de topología', 'Cableado estructurado y fibra óptica', 'Certificación y documentación', 'Mantenimiento correctivo y preventivo'],
     sectors: 9,
     evidence: 86,
-    image: '/img/servicios/redes.webp',
+    image: '/cine/iso/service-101.svg',
   },
   {
     code: '102',
@@ -40,7 +37,7 @@ const services: Service[] = [
     capabilities: ['CCTV IP y VMS', 'Control de accesos', 'Monitoreo y grabación', 'Integración con operación existente'],
     sectors: 8,
     evidence: 72,
-    image: '/img/servicios/seguridad-electronica.webp',
+    image: '/cine/iso/service-102.svg',
   },
   {
     code: '103',
@@ -52,7 +49,7 @@ const services: Service[] = [
     capabilities: ['Radioenlaces y enlaces dedicados', 'Voz, datos y video', 'Redundancia y contingencia', 'Operaciones remotas'],
     sectors: 8,
     evidence: 64,
-    image: '/img/servicios/telecomunicaciones.webp',
+    image: '/cine/iso/service-103.svg',
   },
   {
     code: '104',
@@ -64,7 +61,7 @@ const services: Service[] = [
     capabilities: ['Aplicaciones web y móviles', 'APIs e integraciones', 'Dashboards operativos', 'Automatización de procesos'],
     sectors: 7,
     evidence: 58,
-    image: '/img/servicios/software-a-medida.webp',
+    image: '/cine/iso/service-104.svg',
   },
   {
     code: '105',
@@ -76,7 +73,7 @@ const services: Service[] = [
     capabilities: ['Mesa de ayuda', 'Monitoreo NOC', 'Mantenimiento en sitio', 'Gestión de incidentes y SLA'],
     sectors: 9,
     evidence: 92,
-    image: '/img/servicios/soporte-247.webp',
+    image: '/cine/iso/service-105.svg',
   },
   {
     code: '106',
@@ -88,7 +85,7 @@ const services: Service[] = [
     capabilities: ['Auditoría técnica', 'Roadmap de infraestructura', 'Análisis de riesgo', 'Pliegos y especificaciones'],
     sectors: 9,
     evidence: 44,
-    image: '/img/servicios/consultoria-it.webp',
+    image: '/cine/iso/service-106.svg',
   },
   {
     code: '107',
@@ -100,7 +97,7 @@ const services: Service[] = [
     capabilities: ['Paneles y sensores', 'Pruebas y puesta en marcha', 'Documentación de zonas', 'Mantenimiento y verificación'],
     sectors: 7,
     evidence: 39,
-    image: '/img/servicios/deteccion-incendios.webp',
+    image: '/cine/iso/service-107.svg',
   },
   {
     code: '108',
@@ -112,19 +109,18 @@ const services: Service[] = [
     capabilities: ['Tableros y protecciones', 'UPS y autonomía', 'Energía para racks', 'Medición y mantenimiento'],
     sectors: 8,
     evidence: 63,
-    image: '/img/servicios/electricos-it.webp',
+    image: '/cine/iso/service-108.svg',
   },
 ];
 
-const totalServices = String(services.length).padStart(2, '0');
-const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../assets/cine/isometric/${ISOMETRIC_STUDIES[s.code].asset}-object.svg`]}));
+// La imagen de cada servicio es su isometría propia (el objeto), nunca un cuadro de película.
+const servicesWithPosters = services;
 ---
 
 <LayoutV4 skin="black"
   title="Servicios IT para continuidad operativa | ULTIMA MILLA"
   description="8 frentes de servicio IT: redes, seguridad electronica, telecomunicaciones, software, soporte 24/7, consultoria, deteccion de incendios y electricos IT."
   keywords="servicios IT integrales, redes empresariales, seguridad electronica, telecomunicaciones, software a medida, soporte IT 24/7, consultoria IT, deteccion de incendios, electricos para IT"
-  image="/img/servicios/redes.webp"
 >
   <div class="services-demo">
     <CineBanner
@@ -134,86 +130,38 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
       kicker="Servicios"
       title="Ocho frentes de servicio."
       lead="Diseñamos, implementamos y sostenemos infraestructura, seguridad, software y soporte."
-      primary={{ href: '/contacto', label: 'Solicitar relevamiento' }}
-      secondary={{ href: '/antecedentes', label: 'Ver evidencia operativa' }}
+      primary={{ href: '/contacto', label: 'Pedir un relevamiento' }}
     />
 
-    <section class="services-demo-shell services-demo-list" aria-label="Frentes de servicio de ULTIMA MILLA">
-      {servicesWithPosters.map((service, index) => (
+    <section class="services-demo-shell services-demo-list" aria-label="Servicios de ULTIMA MILLA">
+      {servicesWithPosters.map((service) => (
         <a
           class="services-demo-row"
           href={`/servicios/${service.code}/${service.slug}`}
           aria-label={`Abrir servicio ${service.name}`}
         >
-          <div
-            role="presentation"
-            class={`services-demo-media services-demo-media--${service.code}`}
-          >
-            <img src={service.image} alt={ISOMETRIC_STUDIES[service.code].object} width="1040" height="755" loading="lazy" decoding="async" />
-            <span>SRV.{service.code}</span>
-            <em>{service.sectors} sectores</em>
+          <div role="presentation" class={`services-demo-media services-demo-media--${service.code}`}>
+            <img src={service.image} alt="" width="1200" height="900" loading="lazy" decoding="async" />
           </div>
           <div class="services-demo-body">
-            <p class="services-demo-front"><span></span>Frente {String(index + 1).padStart(2, '0')} / {totalServices}</p>
             <h2>{service.name}</h2>
-            <strong>{service.tagline}</strong>
             <p>{service.description}</p>
-            <ul>
-              {service.capabilities.map((capability) => (
-                <li>{capability}</li>
-              ))}
-            </ul>
             <footer>
               <span>{service.evidence} antecedentes</span>
-              <span class="services-demo-action">Ver detalle</span>
+              <span class="services-demo-action">Ver el servicio</span>
             </footer>
           </div>
         </a>
       ))}
     </section>
 
-    <section class="services-demo-shell services-demo-compare" aria-labelledby="services-compare-title">
-      <div class="services-demo-compare__head">
-        <div>
-          <p class="services-demo-kicker"><span></span>Comparar</p>
-          <h2 id="services-compare-title">Los ocho frentes en una tabla.</h2>
-        </div>
-        <p>Entregable clave, referencia normativa y nivel de servicio de cada frente. La ficha técnica completa está en cada detalle y en <a href="/certificaciones#fichas">documentación técnica</a>.</p>
-      </div>
-      <div class="services-demo-compare__table">
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">Frente</th>
-              <th scope="col">Entregable clave</th>
-              <th scope="col">Referencia normativa</th>
-              <th scope="col">Nivel de servicio</th>
-              <th scope="col">Sectores</th>
-            </tr>
-          </thead>
-          <tbody>
-            {SERVICE_SPEC_LIST.map((spec) => (
-              <tr>
-                <th scope="row"><a href={spec.href}><span>{spec.code}</span>{spec.name}</a></th>
-                <td>{spec.keyDeliverable}</td>
-                <td>{spec.keyStandard}</td>
-                <td>{spec.serviceLevel[0]}</td>
-                <td>{spec.sectors.length}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-
     <section class="services-demo-shell services-demo-closing">
       <div>
-        <p class="services-demo-kicker"><span></span>Diagnóstico sin costo inicial</p>
-        <h2>¿Qué parte de su operación necesita estabilizar primero?</h2>
+        <h2>Contanos qué tiene que seguir funcionando.</h2>
+        <p>Relevamos en el lugar y te decimos qué hace falta.</p>
       </div>
       <div>
-        <a href="/contacto">Solicitar relevamiento</a>
-        <a href="/sectores">Explorar por sector</a>
+        <a href="/contacto">Pedir un relevamiento</a>
       </div>
     </section>
   </div>
@@ -380,6 +328,9 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
       color: #fff;
       text-decoration: none;
       background-color: #0f0f11;
+      background-image: var(--service-image);
+      background-position: center;
+      background-size: cover;
     }
 
     .services-demo-media img {
@@ -387,10 +338,22 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
       inset: 0;
       z-index: 0;
       width: 100%;
-      height: 100% !important;
+      height: 100%;
       object-fit: contain;
-      padding: 28px;
+      padding: 6%;
+      box-sizing: border-box;
+      filter: none;
       transform: none;
+      transition: filter 0.18s ease;
+    }
+
+    .services-demo-media div {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(to top, rgba(10,10,11,0.92), rgba(10,10,11,0.18) 58%, rgba(10,10,11,0.04)),
+        linear-gradient(120deg, rgba(220,38,38,0.16), transparent 38%);
     }
 
     .services-demo-media span,
@@ -419,6 +382,15 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
       padding: 7px 0;
       color: rgba(255,255,255,0.78);
     }
+
+    .services-demo-media--101 { --service-image: none; }
+    .services-demo-media--102 { --service-image: none; }
+    .services-demo-media--103 { --service-image: none; }
+    .services-demo-media--104 { --service-image: none; }
+    .services-demo-media--105 { --service-image: none; }
+    .services-demo-media--106 { --service-image: none; }
+    .services-demo-media--107 { --service-image: none; }
+    .services-demo-media--108 { --service-image: none; }
 
     .services-demo-body {
       display: flex;
@@ -710,9 +682,14 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
       }
 
       .services-demo-media {
-        min-height: 280px;
+        min-height: 176px;
       }
 
+      .services-demo-media div {
+        background:
+          linear-gradient(to top, rgba(10,10,11,0.76), rgba(10,10,11,0.12) 58%, rgba(10,10,11,0.02)),
+          linear-gradient(120deg, rgba(220,38,38,0.10), transparent 38%);
+      }
 
       .services-demo-body h2 {
         max-width: 100%;
@@ -737,10 +714,10 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
 
       .services-demo-row,
       .services-demo-row:nth-child(even) {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(84px, 24vw) minmax(0, 1fr);
         min-height: 0;
         border-top-width: 1px;
-        contain-intrinsic-block-size: 480px;
+        contain-intrinsic-block-size: 240px;
       }
 
       .services-demo-row + .services-demo-row {
@@ -752,11 +729,10 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
       }
 
       .services-demo-media {
-        min-height: 240px;
+        min-height: 100%;
       }
 
       .services-demo-media img {
-        padding: 12px;
         transform: none;
       }
 
@@ -765,6 +741,11 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
         transform: none;
       }
 
+      .services-demo-media div {
+        background:
+          linear-gradient(to top, rgba(10,10,11,0.72), rgba(10,10,11,0.18)),
+          linear-gradient(120deg, rgba(220,38,38,0.12), transparent 52%);
+      }
 
       .services-demo-media span,
       .services-demo-media em {
@@ -828,5 +809,23 @@ const servicesWithPosters=services.map(s=>({...s,image:isometricAssets[`../../as
         font-size: 1rem;
       }
     }
-  </style>
+      .services-demo-row { min-height: 0; align-items: center; }
+    .services-demo-media { aspect-ratio: 4 / 3; }
+    .services-demo-closing > div:first-child p { margin: 10px 0 0; color: #c4c7cc; font-size: 1.0625rem; }
+    /* Barrido 24/10: filas compactas (isometría · nombre · una línea · antecedentes). */
+    .services-demo-list > .services-demo-row,
+    .services-demo-list > .services-demo-row:nth-child(even) { grid-template-columns: 220px minmax(0, 1fr); min-height: 0; gap: 28px; padding: 18px 0; background: transparent; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.12); }
+    .services-demo-list > .services-demo-row:nth-child(even) .services-demo-media { order: 0; }
+    .services-demo-list .services-demo-media { position: relative; width: 220px; aspect-ratio: 4 / 3; min-height: 0; overflow: hidden; background: transparent; }
+    .services-demo-list .services-demo-media img { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; object-fit: contain; }
+    .services-demo-list .services-demo-body { padding: 0; background: transparent; display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr) auto; gap: 28px; align-items: center; }
+    .services-demo-list .services-demo-body h2 { margin: 0; max-width: none; font-size: 1.5rem; letter-spacing: -0.01em; }
+    .services-demo-list .services-demo-row:hover h2, .services-demo-list .services-demo-row:focus-visible h2 { color: #fff; text-decoration: underline; text-decoration-color: #dc2626; }
+    .services-demo-list .services-demo-body > p { display: block; margin: 0; color: #c4c7cc; font-size: 1.0625rem; line-height: 1.45; }
+    .services-demo-list .services-demo-body footer { margin: 0; padding: 0; border: 0; display: block; }
+    .services-demo-list .services-demo-body footer span { display: block; margin: 0; font-family: inherit; letter-spacing: 0; text-transform: none; font-weight: 400; color: #9a9a9a; white-space: nowrap; }
+    .services-demo-list .services-demo-body footer .services-demo-action { display: none; }
+    @media (max-width: 980px) { .services-demo-list .services-demo-body { grid-template-columns: 1fr; gap: 6px; } .services-demo-list > .services-demo-row, .services-demo-list > .services-demo-row:nth-child(even) { grid-template-columns: 160px minmax(0, 1fr); } }
+    @media (max-width: 640px) { .services-demo-list > .services-demo-row, .services-demo-list > .services-demo-row:nth-child(even) { grid-template-columns: minmax(84px, 24vw) minmax(0, 1fr); gap: 14px; } .services-demo-list .services-demo-media { width: 100%; } .services-demo-list .services-demo-body > p { font-size: 1rem; } }
+</style>
 </LayoutV4>
