@@ -5,7 +5,7 @@
  */
 import type { EntradaBlog } from '../../lib/directus';
 import { blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
-import { formatBlogDate, getCategoryLabel } from '../../utils/blogUtils';
+import { formatBlogDate, getCategoryLabel, normalizeInlineBlogMarkdown } from '../../utils/blogUtils';
 
 interface Props {
   post: EntradaBlog;
@@ -20,7 +20,7 @@ const imgAlt = blogPostImageAlt(post);
 const label = getCategoryLabel(post.categoria);
 const date = formatBlogDate(post.fecha_publicacion);
 const isoDate = post.fecha_publicacion ? new Date(post.fecha_publicacion).toISOString() : undefined;
-const excerpt = String(post.resumen || '').replace(/\s+/g, ' ').trim();
+const excerpt = normalizeInlineBlogMarkdown(post.resumen);
 const Heading = headingLevel;
 ---
 

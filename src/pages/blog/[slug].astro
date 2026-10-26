@@ -17,7 +17,7 @@ import {
 import { casesForTopics } from '../../utils/blogTopicCases';
 import { SERVICE_SUMMARIES } from '../../data/serviceSummaries';
 import { blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
-import { addHeadingIds, getCategoryLabel, formatBlogDateLong, toIsoDate, extractFaqSchema } from '../../utils/blogUtils';
+import { addHeadingIds, getCategoryLabel, formatBlogDateLong, toIsoDate, extractFaqSchema, normalizeBlogLead } from '../../utils/blogUtils';
 import { isReplicaIdenticalCopy, resolveReplicaH1 } from '../../utils/replicaProdCopy';
 import { canonicalizeBlogSlug, canonicalizeInternalBlogLinks } from '../../utils/blogCanonicalLinks';
 import { blogSeoTitleOverrides } from '../../data/seoTitleOverrides';
@@ -103,14 +103,7 @@ const blogSeo = buildBlogSeoMeta({
 const seoTitle = blogSeo.title;
 const seoDesc = blogSeo.description;
 
-const buildArticleLead = (value: unknown): string => {
-  const clean = String(value || '').replace(/\s+/g, ' ').trim();
-  if (clean.length <= 220) return clean;
-  const sentence = clean.match(/^(.{96,215}?[.!?])\s/);
-  if (sentence?.[1]) return sentence[1];
-  return `${clean.slice(0, 206).trimEnd()}…`;
-};
-const articleLead = buildArticleLead(post.resumen);
+const articleLead = normalizeBlogLead(post.resumen);
 
 const { posts: allRecent } = await fetchBlogListing(1, 20);
 const idx = allRecent.findIndex((p) => p.slug === slug);
