@@ -404,10 +404,11 @@ describe('Information hub visual contracts', () => {
     expect(banner).toContain('data-fallbacks={JSON.stringify(fallbacks)}');
     expect(banner).not.toMatch(/cine-\$\{first\}-poster/);
     // 24/10: el escenario es la película del servicio activo y las miniaturas son su corte cuadrado.
-    expect(story).toMatch(/<video class="svc-story__poster is-on" muted loop playsinline preload="metadata" src=\{items\[0\]\?\.film\}[^>]*data-film-layer><\/video>/);
+    expect(story).toMatch(/<video class="[^"]*svc-story__film[^"]*" muted loop playsinline preload="metadata" src=\{items\[0\]\?\.film\}[^>]*data-film-layer><\/video>/);
     // Un solo escenario: la lista es texto; ningún medio ni miniatura por ítem (24/10).
     expect(story).not.toMatch(/<(img|video)[^>]*class="svc-story__render/);
-    expect(story).not.toMatch(/-poster\.jpg|data-poster/);
+    expect(story).toContain('data-fallback-layer');
+    expect(story).toContain('if (inView && !limited)');
     // 24/10: las tarjetas de proyectos no llevan medio propio (ni cuadro fijo ni un video por tarjeta).
     expect(home).not.toMatch(/um26-case-card" href=\{item\.href\}>\s*<(img|video)/);
   });
