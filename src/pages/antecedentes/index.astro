@@ -484,7 +484,11 @@ for (const pass of [true, false]) {
             return;
           }
           sessionStorage.removeItem(RETURN_KEY);
-          requestAnimationFrame(() => window.scrollTo(0, Math.max(0, Number(saved.scrollY) || 0)));
+          // Font metrics and the filtered grid must settle before restoring the viewport.
+          document.fonts.ready.then(() => requestAnimationFrame(() => requestAnimationFrame(() => {
+            if (saved.href !== `${location.pathname}${location.search}`) return;
+            window.scrollTo({ top: Math.max(0, Number(saved.scrollY) || 0), left: 0, behavior: 'instant' });
+          })));
         } catch {
           // Storage may be disabled; the browser's history scroll restoration remains available.
         }
@@ -874,10 +878,8 @@ for (const pass of [true, false]) {
     .ev-grid__item {
       display: flex;
       min-width: 0;
-      /* Listado largo: el navegador salta el render de las cards fuera de
-         pantalla con una reserva estable, sin saltos visuales (DESIGN.md). */
-      content-visibility: auto;
-      contain-intrinsic-size: auto 420px;
+      /* Pagination and lazy images bound initial work. Keep real card heights:
+         estimated containment heights shift the viewport on history return. */
     }
 
     .ev-grid__item[hidden] {

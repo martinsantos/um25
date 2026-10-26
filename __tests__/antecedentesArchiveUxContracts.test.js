@@ -20,7 +20,7 @@ describe('antecedentes archive navigation and mobile filters', () => {
     expect(page).toContain("sessionStorage.setItem(RETURN_KEY");
     expect(page).toContain('scrollY: window.scrollY');
     expect(page).toContain("window.addEventListener('pageshow', restoreReturnPosition)");
-    expect(page).toContain('window.scrollTo(0, Math.max(0, Number(saved.scrollY) || 0))');
+    expect(page).toContain("window.scrollTo({ top: Math.max(0, Number(saved.scrollY) || 0), left: 0, behavior: 'instant' })");
   });
 
   test('keeps each mobile facet visible as a compact select and announces selected filters', () => {
