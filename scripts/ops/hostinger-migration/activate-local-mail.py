@@ -51,7 +51,11 @@ def queue_empty(root):
 def check_dns():
     for domain, expected in SPF.items():
         check_spf(subprocess.check_output(['dig', '+short', 'TXT', domain], text=True), expected)
-    if socket.gethostbyname(NAME) != IP or socket.gethostbyaddr(IP)[0].rstrip('.') != NAME:
+    # The host's /etc/hosts maps its own hostname to loopback. Check public
+    # DNS explicitly instead of using the OS host lookup for forward matching.
+    forward = subprocess.check_output(['dig', '+short', 'A', NAME], text=True).splitlines()
+    reverse = subprocess.check_output(['dig', '+short', '-x', IP], text=True).splitlines()
+    if forward != [IP] or [name.rstrip('.').lower() for name in reverse] != [NAME]:
         raise RuntimeError('Forward/reverse mail hostname does not match')
 
 

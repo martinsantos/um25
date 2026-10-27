@@ -2,6 +2,7 @@ import importlib.util
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('local_mail', Path(__file__).with_name('activate-local-mail.py'))
 module = importlib.util.module_from_spec(spec)
@@ -21,6 +22,19 @@ class LocalMailActivationTests(unittest.TestCase):
         self.assertIn('smtp_helo_name = srv2101069.hstgr.cloud', module.append_helo('myhostname = umbot.com.ar\n'))
         with self.assertRaises(ValueError):
             module.append_helo('smtp_helo_name = existing.example\n')
+
+    def test_forward_and_reverse_are_checked_via_dns(self):
+        answers = {
+            ('dig', '+short', 'TXT', domain): '"' + value + '"\n'
+            for domain, value in module.SPF.items()
+        }
+        answers[('dig', '+short', 'A', module.NAME)] = module.IP + '\n'
+        answers[('dig', '+short', '-x', module.IP)] = module.NAME + '.\n'
+        with patch.object(module.subprocess, 'check_output', side_effect=lambda args, **_: answers[tuple(args)]):
+            module.check_dns()
+            answers[('dig', '+short', 'A', module.NAME)] = '127.0.0.1\n'
+            with self.assertRaises(RuntimeError):
+                module.check_dns()
 
     def test_queue_must_be_empty(self):
         with tempfile.TemporaryDirectory() as tmp:
