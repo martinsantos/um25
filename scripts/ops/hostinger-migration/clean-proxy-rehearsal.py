@@ -44,7 +44,12 @@ def main():
         def run(args):
             subprocess.run(args,check=True,stdout=log,stderr=log)
         ROOT.mkdir(mode=0o755)
+        ROOT.chmod(0o755)
         STATIC.mkdir(mode=0o755)
+        STATIC.chmod(0o755)
+        # Explicit modes are needed because the migration process uses umask 077.
+        for root in ('/srv/umsa-clean-php','/srv/umsa-clean-apps'):
+            Path(root).chmod(0o755)
         run(['cp','-a','--reflink=always',str(sitrep / 'application/web'),str(STATIC / 'sitrep')])
         run(['cp','-a','--reflink=always',str(sitrep / 'application/app'),str(STATIC / 'sitrep/app')])
         run(['cp','-a','--reflink=always',str(pre.resolve()),str(STATIC / 'precrimen')])

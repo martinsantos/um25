@@ -47,6 +47,7 @@ def main():
         def run(args):
             subprocess.run(args,check=True,stdout=log,stderr=log)
         ROOT.mkdir(mode=0o755)
+        ROOT.chmod(0o755)
         for name in ('wordpress','wiki'):
             run(['cp','-a','--reflink=always',str(cms / 'application' / name),str(ROOT / name)])
         for source,dest in [('/home/vecinorabioso.com.ar/public_html/wp-content/uploads','wordpress/wp-content/uploads'),
