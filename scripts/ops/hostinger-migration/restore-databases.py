@@ -16,6 +16,16 @@ DATABASES = {
     'directus-admin-database-1': ('postgres-shared.sql.gz', 'directus-admin_directus_db_data', 'directus'),
     'dge-demo-db': ('postgres-dge.sql.gz', 'dge-demo-postgres', 'postgres'),
 }
+# Independently resolved from the official Docker Hub postgres repository,
+# linux/amd64 manifests. Never execute database images supplied by the old host.
+VERIFIED_IMAGES = {
+    'directus-admin-database-1': (
+        'postgres@sha256:dbedb0e3d02d268e77b6966910404b748bd390a9dbcb91216303349bbc4dc1b3',
+        'sha256:06686173a6ebc27c0f4687565ae0fe73342ea23d1e3813264ded5f5d2b29fe28', '15'),
+    'dge-demo-db': (
+        'postgres@sha256:f9d1e581cde3e4c8bc696b07e6f7b7aea1d41014b33a52b27990762daae61beb',
+        'sha256:066167ff39c2a612402ce99b734ea1cff92a9d1f2ac52f697a5f0384f0d88d6b', '16'),
+}
 
 
 def validate_snapshot(stage):
@@ -39,12 +49,14 @@ def database_plan(metadata):
             raise ValueError('Unexpected database storage: ' + name)
         if row['Config']['Entrypoint'] != ['docker-entrypoint.sh'] or row['Config']['Cmd'][0] != 'postgres':
             raise ValueError('Unexpected database entrypoint: ' + name)
-        env = dict(value.split('=', 1) for value in row['Config']['Env'] if '=' in value)
-        # Never initialize a database with a public/demo password or trust auth.
-        env.pop('POSTGRES_HOST_AUTH_METHOD', None)
-        env.update(POSTGRES_USER=BOOTSTRAP, POSTGRES_DB='postgres')
+        old_env = dict(value.split('=', 1) for value in row['Config']['Env'] if '=' in value)
+        image, config_id, major = VERIFIED_IMAGES[name]
+        if old_env.get('PG_MAJOR') != major or row['Config']['Cmd'] != ['postgres']:
+            raise ValueError('Database version/command differs from the audited source')
+        # Runtime defaults come from the official image, not the source environment.
+        env = dict(POSTGRES_USER=BOOTSTRAP, POSTGRES_DB='postgres')
         result.append(dict(name=name, dump=dump, volume=volume, owner=owner,
-                           image=row['Image'], command=row['Config']['Cmd'], env=env))
+                           image=image, config_id=config_id, command=['postgres'], env=env))
     return result
 
 
@@ -94,9 +106,11 @@ def main(recover=False):
         if containers or (volumes and not (recover and volumes == 'directus-admin_directus_db_data')):
             raise RuntimeError('Target Docker is not empty; no restore performed')
         marker.write_text(str(snapshot) + '\n')
-        run(['docker', 'load', '--input', str(snapshot / 'docker-images.tar.gz')])
-        for image in sorted({x['Image'] for x in json.loads((snapshot / 'docker-inspect.json').read_text())}):
-            run(['docker', 'image', 'inspect', '--format', '{{.Id}}', image])
+        for item in plan:
+            run(['docker', 'pull', item['image']])
+            actual = subprocess.check_output(['docker', 'image', 'inspect', '--format', '{{.Id}}', item['image']], text=True).strip()
+            if actual != item['config_id']:
+                raise RuntimeError('Official image configuration digest does not match')
         if not recover:
             run(['docker', 'network', 'create', '--internal', '--subnet', '172.30.250.0/24', 'umsa-migration-db'])
         for item in plan:
