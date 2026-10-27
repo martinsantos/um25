@@ -1,10 +1,10 @@
-name: Handoff Vivero mail client after Hostinger cutover
+name: Handoff Vivero mail client after verified relay readiness
 
 on:
   workflow_dispatch:
     inputs:
       acknowledgement:
-        description: 'Enter CUTOVER only after Hostinger production and relay have been verified'
+        description: 'Enter CUTOVER only after the Hostinger relay, local mail hop and SPF have been verified'
         required: true
         type: string
 
@@ -35,12 +35,14 @@ jobs:
           ssh-private-key: |
             ${{ secrets.HOSTINGER_MIGRATION_KEY }}
             ${{ secrets.VIVERO_CLIENT_SSH_KEY }}
-      - name: Require verified Hostinger production and relay; change only Vivero mail client
+            ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Require verified mail readiness; change only Vivero mail client
         run: |
           set -euo pipefail
           [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
           opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15)
-          ssh "${opts[@]}" root@179.198.115.115 'test "$(hostname)" = srv2101069.hstgr.cloud && test -f /srv/umsa-migration/production.active && test -f /srv/umsa-migration/relay-certificate-prepared.complete && systemctl is-active --quiet vivero-relay-hostinger'
+          ssh "${opts[@]}" root@179.198.115.115 'test "$(hostname)" = srv2101069.hstgr.cloud && test -f /srv/umsa-migration/relay-certificate-prepared.complete && python3 /srv/umsa-migration/tooling/activate-local-mail.py --check-readiness'
+          ssh "${opts[@]}" root@23.105.176.45 'systemctl is-active --quiet postfix && systemctl is-active --quiet vivero-relay-origin && test "$(postqueue -p 2>/dev/null)" = "Mail queue is empty" && test "$(postqueue -c /etc/postfix-vivero -p 2>/dev/null)" = "Mail queue is empty"'
           ssh "${opts[@]}" root@68.168.218.28 'test "$(hostname)" = vps3709080.trouble-free.net && test ! -L /root/umsa-vivero-mail-migration && install -d -m 0700 /root/umsa-vivero-mail-migration'
           scp "${opts[@]}" scripts/ops/hostinger-migration/handoff-vivero-mail-client.py "root@68.168.218.28:/root/umsa-vivero-mail-migration/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.py"
           ssh "${opts[@]}" root@68.168.218.28 "python3 /root/umsa-vivero-mail-migration/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.py $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
