@@ -7,6 +7,7 @@ from pathlib import Path
 import secrets
 import socket
 import subprocess
+import sys
 import time
 
 STAGE = Path('/srv/umsa-migration')
@@ -47,12 +48,22 @@ def database_plan(metadata):
     return result
 
 
-def main():
+def validate_empty_recovery(containers, volumes, volume_path, network):
+    if containers or volumes != ['directus-admin_directus_db_data']:
+        raise RuntimeError('Recovery requires exactly the initial empty volume and no containers')
+    if volume_path.is_symlink() or not volume_path.is_dir() or any(volume_path.iterdir()):
+        raise RuntimeError('Recovery refuses any initialized database volume')
+    if (not network['Internal'] or network['Containers']
+            or [x['Subnet'] for x in network['IPAM']['Config']] != ['172.30.250.0/24']):
+        raise RuntimeError('Unexpected recovery network')
+
+
+def main(recover=False):
     os.umask(0o077)
     snapshot = validate_snapshot(STAGE)
     plan = database_plan(json.loads((snapshot / 'docker-inspect.json').read_text()))
     marker = STAGE / 'database-restore.started'
-    if marker.exists():
+    if marker.exists() and not recover:
         raise RuntimeError('Database restoration already attempted; inspect before any retry')
     with (STAGE / 'receipts/database-restore.log').open('ab') as log:
         def run(args, **kwargs):
@@ -60,14 +71,34 @@ def main():
 
         run(['sha256sum', '--check', str(snapshot / 'SHA256SUMS')])
         run(['systemctl', 'start', 'docker'])
+        if recover:
+            archived_marker = STAGE / 'database-restore.before-storage-repair'
+            if not marker.is_file() or archived_marker.exists() or (STAGE / 'database-restore.complete').exists():
+                raise RuntimeError('Not the audited initial failure')
+            if marker.read_text().strip() != str(snapshot) or Path('/etc/docker/daemon.json').exists():
+                raise RuntimeError('Recovery state/configuration changed')
+            containers = subprocess.check_output(['docker', 'ps', '-aq'], text=True).split()
+            volumes = subprocess.check_output(['docker', 'volume', 'ls', '-q'], text=True).split()
+            network = json.loads(subprocess.check_output(['docker', 'network', 'inspect', 'umsa-migration-db']))[0]
+            validate_empty_recovery(containers, volumes,
+                Path('/var/lib/docker/volumes/directus-admin_directus_db_data/_data'), network)
+            # Match the source's overlay2 store; keep the containerd store archived in place.
+            Path('/etc/docker/daemon.json').write_text('{"features":{"containerd-snapshotter":false},"storage-driver":"overlay2"}\n')
+            run(['systemctl', 'restart', 'docker'])
+            if subprocess.check_output(['docker', 'info', '--format', '{{.Driver}}'], text=True).strip() != 'overlay2':
+                raise RuntimeError('Classic storage driver not confirmed')
+            marker.rename(archived_marker)
         # Refuse to touch any initialized target containers or volumes.
         containers = subprocess.check_output(['docker', 'ps', '-aq'], text=True).strip()
         volumes = subprocess.check_output(['docker', 'volume', 'ls', '-q'], text=True).strip()
-        if containers or volumes:
+        if containers or (volumes and not (recover and volumes == 'directus-admin_directus_db_data')):
             raise RuntimeError('Target Docker is not empty; no restore performed')
         marker.write_text(str(snapshot) + '\n')
         run(['docker', 'load', '--input', str(snapshot / 'docker-images.tar.gz')])
-        run(['docker', 'network', 'create', '--internal', '--subnet', '172.30.250.0/24', 'umsa-migration-db'])
+        for image in sorted({x['Image'] for x in json.loads((snapshot / 'docker-inspect.json').read_text())}):
+            run(['docker', 'image', 'inspect', '--format', '{{.Id}}', image])
+        if not recover:
+            run(['docker', 'network', 'create', '--internal', '--subnet', '172.30.250.0/24', 'umsa-migration-db'])
         for item in plan:
             environment = item['env']
             environment['POSTGRES_PASSWORD'] = secrets.token_urlsafe(48)
@@ -139,4 +170,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    if sys.argv[1:] not in ([], ['--recover-empty-storage']):
+        raise SystemExit('Unknown option')
+    main(recover=bool(sys.argv[1:]))

@@ -10,6 +10,23 @@ import subprocess
 STAGE = Path('/srv/umsa-migration')
 
 
+def empty_destination(path):
+    if path.is_symlink():
+        return False
+    if not path.exists():
+        return True
+    if not path.is_dir():
+        return False
+    children = list(path.iterdir())
+    if not children:
+        return True
+    # httpd-filesystem installs precisely these empty directories with PHP.
+    # Preserve them in place, refusing files, symlinks or other contents.
+    return path == Path('/var/www') and all(
+        child.name in ('html', 'cgi-bin') and not child.is_symlink()
+        and child.is_dir() and not any(child.iterdir()) for child in children)
+
+
 def main():
     os.umask(0o077)
     if socket.gethostname() != 'srv2101069.hstgr.cloud' or STAGE.is_symlink():
@@ -36,7 +53,7 @@ def main():
         incoming = source / str(path).lstrip('/')
         if not incoming.exists() and not incoming.is_symlink():
             raise RuntimeError('Missing application root: ' + str(path))
-        if path.exists() and (not path.is_dir() or any(path.iterdir())):
+        if not empty_destination(path):
             raise RuntimeError('Destination is not empty: ' + str(path))
     marker.write_text('Initial copy verified; reflink materialization started.\n')
     with (STAGE / 'receipts/application-files.log').open('ab') as log:
