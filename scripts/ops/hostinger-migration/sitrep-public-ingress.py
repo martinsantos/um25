@@ -77,8 +77,7 @@ def live_unit(config):
     return f'''[Unit]
 Description=UMSA SITREP public ingress
 After=network-online.target umsa-clean-sitrep-backend.service
-Wants=network-online.target
-Requires=umsa-clean-sitrep-backend.service
+Wants=network-online.target umsa-clean-sitrep-backend.service
 [Service]
 Type=simple
 ExecStartPre=/usr/sbin/nginx -t -c {config}

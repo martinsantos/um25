@@ -31,6 +31,9 @@ server { listen 127.0.0.1:443 ssl http2; server_name sitrep.ultimamilla.com.ar; 
         self.assertIn('return 444;', config)
         self.assertIn('gzip on;', config)
         self.assertNotIn('viveroloscocos.com.ar', config)
+        unit = module.live_unit(Path('/tmp/test/nginx.conf'))
+        self.assertIn('Wants=network-online.target umsa-clean-sitrep-backend.service', unit)
+        self.assertNotIn('Requires=umsa-clean-sitrep-backend.service', unit)
 
     def test_identifier_is_not_interpreted_as_configuration(self):
         with self.assertRaises(ValueError):
