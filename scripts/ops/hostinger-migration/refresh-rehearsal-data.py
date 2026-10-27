@@ -38,6 +38,14 @@ def validate_inventory(source, target):
         raise RuntimeError('System databases must not be replaced')
 
 
+def maria_inventory(source, target, empty_test):
+    # MariaDB's fresh RPM initialization left an empty `test` database which
+    # was never part of the source. Preserve it without importing or removing it.
+    if 'test' not in source and set(target) - set(source) == {'test'} and empty_test:
+        target = [name for name in target if name != 'test']
+    validate_inventory(source, target)
+
+
 def target_guard():
     if (socket.gethostname() != 'srv2101069.hstgr.cloud' or STAGE.is_symlink()
             or (STAGE / '.target').read_text().strip() != '179.198.115.115'):
@@ -86,7 +94,9 @@ def main(identifier):
         validate_inventory(source_names, target_names)
         plan[container] = source_names
     maria_names = names(query(remote(['mariadb', '--no-defaults', '-uroot', '-N', '-e', maria_query])))
-    validate_inventory(maria_names, names(query(['mariadb', '--no-defaults', '-uroot', '-N', '-e', maria_query])))
+    empty_test_query = "SELECT (SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='test')+(SELECT COUNT(*) FROM information_schema.ROUTINES WHERE ROUTINE_SCHEMA='test')+(SELECT COUNT(*) FROM information_schema.EVENTS WHERE EVENT_SCHEMA='test');"
+    empty_test = query(['mariadb', '--no-defaults', '-uroot', '-N', '-e', empty_test_query]).strip() == '0'
+    maria_inventory(maria_names, names(query(['mariadb', '--no-defaults', '-uroot', '-N', '-e', maria_query])), empty_test)
     accounts = 'SELECT User,Host FROM mysql.user ORDER BY User,Host;'
     if query(remote(['mariadb', '--no-defaults', '-uroot', '-N', '-e', accounts])) != query(['mariadb', '--no-defaults', '-uroot', '-N', '-e', accounts]):
         raise RuntimeError('MariaDB account identities changed since credential rotation')
