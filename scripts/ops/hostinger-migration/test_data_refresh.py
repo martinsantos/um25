@@ -20,6 +20,13 @@ class RefreshGuards(unittest.TestCase):
             with self.assertRaises(ValueError):module.names(rows)
         self.assertEqual(module.names('sgi_production\ndirectus\n'),['directus','sgi_production'])
 
+    def test_only_the_empty_rpm_test_database_may_be_extra(self):
+        module.maria_inventory(['sgi_production'],['sgi_production','test'],True)
+        with self.assertRaises(RuntimeError):
+            module.maria_inventory(['sgi_production'],['sgi_production','test'],False)
+        with self.assertRaises(RuntimeError):
+            module.maria_inventory(['sgi_production'],['other','sgi_production'],True)
+
     def test_cutover_blocks_refresh_even_with_a_completed_rehearsal(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory)
