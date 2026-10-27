@@ -38,6 +38,16 @@ class CleanNodeGuards(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             module.trusted_application('/root/copied-app', '', 'server.js')
 
+    def test_only_named_sitrep_pem_may_span_environment_lines(self):
+        pem = '-----BEGIN PRIVATE KEY-----\nYWJj\n-----END PRIVATE KEY-----\n'
+        key = 'CERTIFICATE_ED25519_PRIVATE_KEY'
+        env = module.safe_environment({key: pem}, 'sitrep-backend', Path('/clean/sitrep'))
+        self.assertEqual(env[key], pem)
+        self.assertIn(key + '="' + pem + '"\n', module.environment_text({key: pem}))
+        for app, value in [('sgi', pem), ('sitrep-backend', pem + 'NODE_OPTIONS=bad')]:
+            with self.assertRaises(ValueError):
+                module.safe_environment({key: value}, app, Path('/clean/app'))
+
 
 if __name__ == '__main__':
     unittest.main()

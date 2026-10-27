@@ -34,7 +34,11 @@ def safe_environment(source, name, root):
             'NODE_PATH', 'NODE_OPTIONS', 'BASH_ENV', 'ENV', 'PYTHONPATH', 'PYTHONHOME', 'PWD', 'OLDPWD', '_'}:
             continue
         value = str(value)
-        if '\n' in value or '\r' in value or '\x00' in value:
+        pem_kind = {'CERTIFICATE_ED25519_PRIVATE_KEY': 'PRIVATE KEY',
+                    'CERTIFICATE_ED25519_PUBLIC_KEY': 'PUBLIC KEY'}.get(key)
+        allowed_pem = name == 'sitrep-backend' and pem_kind and re.fullmatch(
+            r'-----BEGIN ' + pem_kind + r'-----\n[A-Za-z0-9+/=\n]+\n-----END ' + pem_kind + r'-----\n?', value)
+        if '\r' in value or '\x00' in value or ('\n' in value and not allowed_pem):
             raise ValueError('Unsupported multiline environment setting')
         result[key] = value
     result.update(PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin', HOME='/root', NODE_ENV='production',

@@ -2,6 +2,7 @@
 """Prepare existing mail identities and verify relay TLS/AUTH without sending mail."""
 import os
 from pathlib import Path
+import pwd
 import re
 import smtplib
 import socket
@@ -27,7 +28,7 @@ def main():
     os.umask(0o077)
     if socket.gethostname() != 'srv2101069.hstgr.cloud' or STAGE.is_symlink() or (STAGE / '.target').read_text().strip() != '179.198.115.115':
         raise RuntimeError('Wrong host')
-    if not (STAGE / 'rehearsal.ready').is_file():
+    if not (STAGE / 'clean-proxy-rehearsal.ready').is_file() or not (STAGE / 'internal-rotation.complete').is_file():
         raise RuntimeError('Application rehearsal and network required first')
     marker = STAGE / 'mail-preparation.started'
     if marker.exists():
@@ -59,6 +60,20 @@ def main():
         global_main = Path('/etc/postfix/main.cf')
         global_main.write_text(setting(global_main.read_text(), 'inet_interfaces', '127.0.0.1, 172.18.0.1'))
         relay = Path('/etc/postfix-vivero')
+        postfix_user = pwd.getpwnam('postfix')
+        for directory in ('/var/spool/postfix-vivero', '/var/lib/postfix-vivero'):
+            path = Path(directory)
+            if path.exists():
+                raise RuntimeError('Relay queue already exists; inspect before initializing')
+            path.mkdir(mode=0o700)
+            os.chown(path, postfix_user.pw_uid, postfix_user.pw_gid)
+        # The relay uses the preserved SASL database, not accounts from the OS.
+        sasl = relay / 'sasl'
+        for path in (sasl, sasl / 'sasldb2', sasl / 'vivero-relay.conf'):
+            if path.is_symlink() or not path.exists():
+                raise RuntimeError('Invalid existing relay authentication data')
+            os.chown(path, 0, postfix_user.pw_gid)
+            path.chmod(0o750 if path.is_dir() else 0o640)
         public_main = setting((relay / 'main.cf').read_text(), 'inet_interfaces', '179.198.115.115')
         public_master = (relay / 'master.cf').read_text()
         if public_master.count('23.105.176.45:587') != 1:
