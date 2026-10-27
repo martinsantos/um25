@@ -10,7 +10,7 @@ on:
       phase:
         description: 'Prepare isolated destination; never changes source services or DNS'
         type: choice
-        options: [preflight, bootstrap, copy-data, copy-runtime, install-runtime, snapshot-data, restore-databases, recover-empty-storage, materialize-files, rehearsal, prepare-mail]
+        options: [preflight, bootstrap, copy-data, copy-runtime, install-runtime, snapshot-data, restore-databases, recover-empty-storage, materialize-files, rehearsal, prepare-mail, build-clean-web, finish-file-validation]
         default: preflight
         required: true
 
@@ -44,6 +44,20 @@ jobs:
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        if: inputs.phase == 'build-clean-web'
+        with:
+          node-version: '20.19.6'
+      - name: Build clean UMSA artifact from reviewed Git and locked dependencies
+        if: inputs.phase == 'build-clean-web'
+        env:
+          NODE_ENV: production
+        run: |
+          npm ci --include=dev
+          npm run build
+          npm prune --omit=dev --ignore-scripts
+          test -s dist/server/entry.mjs
+          tar -czf "$RUNNER_TEMP/umsa-clean-web.tar.gz" dist node_modules package.json package-lock.json
       - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: |
@@ -53,4 +67,5 @@ jobs:
         env:
           PHASE: ${{ inputs.phase }}
           GH_TOKEN: ${{ github.token }}
+          CLEAN_WEB_PACKAGE: ${{ runner.temp }}/umsa-clean-web.tar.gz
         run: bash scripts/ops/hostinger-migration/stage.sh "$PHASE"
