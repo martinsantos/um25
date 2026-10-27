@@ -3,7 +3,7 @@
 set -euo pipefail
 umask 077
 phase=${1:-preflight}
-case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases|recover-empty-storage|materialize-files|rehearsal|prepare-mail) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
+case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases|recover-empty-storage|materialize-files|rehearsal|prepare-mail|build-clean-web) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
 source_host=23.105.176.45
 target_host=179.198.115.115
 target_name=srv2101069.hstgr.cloud
@@ -20,6 +20,36 @@ actual_name=$(ssh "${ssh_opts[@]}" "root@$target_host" hostname)
 ssh "${ssh_opts[@]}" "root@$source_host" 'test -d /root/fumbling-field && test -d /opt/directus-admin && printf "Source application roots confirmed\n"'
 ssh "${ssh_opts[@]}" "root@$target_host" 'test "$(id -u)" = 0; cat /etc/os-release; nproc; free -m; df -h /'
 [[ "$phase" != preflight ]] || exit 0
+
+if [[ "$phase" == build-clean-web ]]; then
+  [[ "${GITHUB_SHA:-}" =~ ^[0-9a-f]{40}$ ]]
+  test -s "${CLEAN_WEB_PACKAGE:-}"
+  package_sha=$(sha256sum "$CLEAN_WEB_PACKAGE" | cut -d' ' -f1)
+  [[ "$package_sha" =~ ^[0-9a-f]{64}$ ]]
+  destination="$stage/trusted/umsa-$GITHUB_SHA"
+  ssh "${ssh_opts[@]}" "root@$target_host" "test ! -e '$destination' && install -d -m 0700 '$destination'"
+  scp "${ssh_opts[@]}" "$CLEAN_WEB_PACKAGE" "root@$target_host:$destination/package.tar.gz"
+  ssh "${ssh_opts[@]}" "root@$target_host" bash -s -- "$GITHUB_SHA" "$package_sha" <<'TARGET'
+set -euo pipefail
+umask 077
+test "$(hostname)" = srv2101069.hstgr.cloud
+test "$(cat /srv/umsa-migration/.target)" = 179.198.115.115
+revision=$1
+expected=$2
+[[ "$revision" =~ ^[0-9a-f]{40}$ && "$expected" =~ ^[0-9a-f]{64}$ ]]
+destination="/srv/umsa-migration/trusted/umsa-$revision"
+test ! -L "$destination"
+cd "$destination"
+printf '%s  package.tar.gz\n' "$expected" | sha256sum --check
+mkdir application
+tar --no-same-owner -xzf package.tar.gz -C application
+test -s application/dist/server/entry.mjs
+printf 'repository=martinsantos/um25\nrevision=%s\narchive_sha256=%s\nnode=20.19.6\n' "$revision" "$expected" > provenance.txt
+printf '%s\n' "$destination" > /srv/umsa-migration/trusted-web
+printf 'Clean UMSA artifact prepared from reviewed Git. No application activated.\n'
+TARGET
+  exit 0
+fi
 
 if [[ "$phase" == bootstrap ]]; then
   ssh "${ssh_opts[@]}" "root@$target_host" bash -s <<'TARGET'
