@@ -17,7 +17,7 @@ dnf config-manager --set-enabled crb
 dnf -y install https://rpms.remirepo.net/enterprise/remi-release-9.rpm
 dnf -y module enable php:remi-8.2
 dnf -y install nginx redis memcached postfix opendkim opendkim-tools cronie \
-  openssl sqlite policycoreutils-python-utils \
+  openssl sqlite acl policycoreutils-python-utils \
   php-cli php-common php-fpm php-gd php-mbstring php-mysqlnd php-opcache php-pdo \
   php-sodium php-xml php-pecl-zip php-intl \
   php74-php-cli php74-php-fpm php74-php-gd php74-php-mbstring php74-php-mysqlnd php74-php-xml
