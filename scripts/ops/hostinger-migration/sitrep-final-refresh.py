@@ -16,6 +16,7 @@ import shutil
 import socket
 import subprocess
 import sys
+import tarfile
 import time
 
 STAGE = Path('/srv/umsa-migration')
@@ -126,6 +127,29 @@ def tree_manifest(root):
     return {'files': count, 'bytes': total, 'sha256': digest.hexdigest()}
 
 
+def file_sha256(path):
+    digest = hashlib.sha256()
+    with path.open('rb') as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b''):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def archive_trees(snapshot, identifier, manifest):
+    files_archive = snapshot / ('CUTOVER-sitrep-files-' + safe_id(identifier) + '.tar.gz')
+    with tarfile.open(files_archive, mode='x:gz', compresslevel=1) as archive:
+        for name in ('data', 'uploads'):
+            archive.add(snapshot / ('incoming-' + name), arcname=name, recursive=True)
+    with tarfile.open(files_archive, mode='r:gz') as archive:
+        members = archive.getmembers()
+        if (any(not (item.isdir() or item.isfile()) or item.name.startswith('/')
+                or not Path(item.name).parts or '..' in Path(item.name).parts
+                or Path(item.name).parts[0] not in ('data', 'uploads') for item in members)
+                or sum(item.isfile() for item in members) != sum(row['files'] for row in manifest.values())):
+            raise RuntimeError('SITREP file backup inventory differs')
+    return files_archive, file_sha256(files_archive)
+
+
 def main(identifier, fence_id):
     identifier, fence_id = safe_id(identifier), safe_id(fence_id)
     swap = load_swap()
@@ -195,10 +219,7 @@ def main(identifier, fence_id):
         with dump.open('rb') as input_file:
             subprocess.run(['docker', 'exec', '-i', PG, 'pg_restore', '--list'],
                            stdin=input_file, check=True, stdout=log, stderr=log)
-        digest = hashlib.sha256()
-        with dump.open('rb') as stream:
-            for block in iter(lambda: stream.read(1024 * 1024), b''):
-                digest.update(block)
+        dump_hash = file_sha256(dump)
         ssh_rsync = shlex.join(ssh[:-1])
         trees_manifest = {}
         for name, path in DATA_PATHS.items():
@@ -215,6 +236,7 @@ def main(identifier, fence_id):
                 '-o', '-type', 'c', '-o', '-type', 'p', '-o', '-type', 's', ')', '-print', '-quit']), text=True)
             if unsafe:
                 raise RuntimeError('SITREP source data gained a link or special file during capture')
+        files_archive, files_hash = archive_trees(snapshot, identifier, trees_manifest)
         backup_key = Path('/root/.ssh/umsa_offsite_20261027')
         backup_known = STAGE / 'backup-known-hosts'
         if any(path.is_symlink() or not path.is_file() for path in
@@ -223,14 +245,15 @@ def main(identifier, fence_id):
         backup_ssh = ['ssh', '-o', 'BatchMode=yes', '-o', 'IdentitiesOnly=yes', '-o',
                       'StrictHostKeyChecking=yes', '-o', 'UserKnownHostsFile=' + str(backup_known),
                       '-o', 'ConnectTimeout=15', '-i', str(backup_key)]
-        listing = subprocess.check_output(backup_ssh + ['umbak@76.13.234.213', 'listar'], text=True)
-        if any(line.split() and line.split()[-1] == dump.name for line in listing.splitlines()):
-            raise RuntimeError('Offsite SITREP backup name already exists')
-        run(['rsync', '-a', '-e', shlex.join(backup_ssh), str(dump),
-             'umbak@76.13.234.213:/opt/remote-backups/sitrep/'])
-        listing = subprocess.check_output(backup_ssh + ['umbak@76.13.234.213', 'listar'], text=True)
-        if not backup_listing_matches(listing, dump.name, dump.stat().st_size):
-            raise RuntimeError('Offsite SITREP backup size could not be confirmed')
+        for backup in (dump, files_archive):
+            listing = subprocess.check_output(backup_ssh + ['umbak@76.13.234.213', 'listar'], text=True)
+            if any(line.split() and line.split()[-1] == backup.name for line in listing.splitlines()):
+                raise RuntimeError('Offsite SITREP backup name already exists')
+            run(['rsync', '-a', '-e', shlex.join(backup_ssh), str(backup),
+                 'umbak@76.13.234.213:/opt/remote-backups/sitrep/'])
+            listing = subprocess.check_output(backup_ssh + ['umbak@76.13.234.213', 'listar'], text=True)
+            if not backup_listing_matches(listing, backup.name, backup.stat().st_size):
+                raise RuntimeError('Offsite SITREP backup size could not be confirmed')
         verify_source()
         run(['docker', 'exec', PG, 'createdb', '-U', ADMIN, '-O', 'directus', '-T', 'template0',
              '-E', 'UTF8', '--lc-collate=en_US.utf8', '--lc-ctype=en_US.utf8', staged_db])
@@ -258,8 +281,10 @@ def main(identifier, fence_id):
             raise RuntimeError('Refreshed isolated SITREP did not become healthy')
         verify_source()
         receipt = {'run': identifier, 'fence_run': fence_id, 'source_dump_bytes': dump.stat().st_size,
-                   'source_dump_sha256': digest.hexdigest(), 'previous_database': previous_db,
+                   'source_dump_sha256': dump_hash, 'previous_database': previous_db,
                    'offsite_backup': dump.name, 'offsite_size_confirmed': True,
+                   'offsite_files_backup': files_archive.name, 'offsite_files_bytes': files_archive.stat().st_size,
+                   'offsite_files_sha256': files_hash,
                    'offsite_sha256_independently_verified': False,
                    'source_trees': trees_manifest,
                    'previous_data': str(snapshot / 'previous-data'),

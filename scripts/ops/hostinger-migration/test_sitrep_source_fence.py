@@ -94,23 +94,24 @@ class SitrepSourceFenceTests(unittest.TestCase):
             directory.mkdir()
             with patch.object(module, 'RUN_ROOT', root), patch.object(module, 'verify_fence'):
                 with self.assertRaises(ValueError):
-                    module.commit_target_writes('42-1', 'invalid')
-                module.commit_target_writes('42-1', 'a' * 64)
+                    module.commit_target_writes('42-1', 'invalid', 'b' * 64)
+                module.commit_target_writes('42-1', 'a' * 64, 'b' * 64)
                 self.assertEqual(json.loads((directory / 'target-writes-authorized').read_text())['offsite_sha256'], 'a' * 64)
                 with self.assertRaises(RuntimeError):
-                    module.commit_target_writes('42-1', 'b' * 64)
+                    module.commit_target_writes('42-1', 'b' * 64, 'b' * 64)
 
     def test_matching_commit_can_be_rechecked_after_source_proxy_activation(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             directory = root / '42-1'
             directory.mkdir()
-            (directory / 'target-writes-authorized').write_text(json.dumps({'run': '42-1', 'offsite_sha256': 'a' * 64}))
+            (directory / 'target-writes-authorized').write_text(json.dumps({'run': '42-1', 'offsite_sha256': 'a' * 64,
+                                                                            'offsite_files_sha256': 'b' * 64}))
             gate = root / 'gate.conf'
             gate.write_text('proxy')
             with patch.object(module, 'RUN_ROOT', root), patch.object(module, 'GATE', gate), \
                  patch.object(module, 'load_gate', return_value='proxy'), patch.object(module, 'verify_fence') as verify:
-                module.commit_target_writes('42-1', 'a' * 64)
+                module.commit_target_writes('42-1', 'a' * 64, 'b' * 64)
                 verify.assert_called_once_with('42-1', allow_committed=True, gate_mode='proxy')
 
     def test_existing_healthy_proxy_can_be_rechecked_without_reloading_nginx(self):

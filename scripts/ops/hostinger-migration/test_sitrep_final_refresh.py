@@ -1,6 +1,7 @@
 import importlib.util
 import json
 from pathlib import Path
+import tarfile
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
@@ -80,6 +81,14 @@ class SitrepFinalRefreshTests(unittest.TestCase):
         (root / 'link').symlink_to(root / 'value')
         with self.assertRaises(RuntimeError):
             module.tree_manifest(root)
+
+    def test_files_backup_preserves_both_reviewed_trees(self):
+        manifest = {name: module.tree_manifest(self.snapshot / ('incoming-' + name)) for name in ('data', 'uploads')}
+        archive, digest = module.archive_trees(self.snapshot, '42-1', manifest)
+        self.assertEqual(digest, module.file_sha256(archive))
+        with tarfile.open(archive, mode='r:gz') as saved:
+            self.assertEqual(saved.extractfile('data/value').read(), b'new-data')
+            self.assertEqual(saved.extractfile('uploads/value').read(), b'new-uploads')
 
 
 if __name__ == '__main__':

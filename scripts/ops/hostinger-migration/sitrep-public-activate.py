@@ -100,11 +100,12 @@ def ensure_exact_file(path, content, mode):
     write_exclusive(path, content, mode)
 
 
-def main(identifier, fence_id, backup_sha256):
+def main(identifier, fence_id, backup_sha256, files_sha256):
     ingress = load('sitrep_public_ingress', 'sitrep-public-ingress.py')
     refresh = load('sitrep_final_refresh', 'sitrep-final-refresh.py')
     identifier, fence_id = ingress.valid_id(identifier), ingress.valid_id(fence_id)
     backup_sha256 = validate_hash(backup_sha256)
+    files_sha256 = validate_hash(files_sha256)
     snapshot = STAGE / 'sitrep-final-refreshes' / identifier
     directory = STAGE / 'sitrep-public-ingress' / identifier
     config = directory / 'nginx.conf'
@@ -126,14 +127,16 @@ def main(identifier, fence_id, backup_sha256):
         raise RuntimeError('SITREP activation prerequisites or isolation differ')
     receipt = json.loads((snapshot / 'refresh.complete.json').read_text())
     if (receipt.get('run') != identifier or receipt.get('fence_run') != fence_id
-            or receipt.get('source_dump_sha256') != backup_sha256 or not receipt.get('offsite_size_confirmed')):
+            or receipt.get('source_dump_sha256') != backup_sha256 or receipt.get('offsite_files_sha256') != files_sha256
+            or not receipt.get('offsite_size_confirmed')):
         raise RuntimeError('Independently verified backup hash differs from the final source snapshot')
     health_config = ingress.health_config(directory, identifier)
     public_config = ingress.live_config(ingress.SITE.read_text(), directory)
     source_unit = ingress.source_only_unit(config)
     public_unit = ingress.live_unit(config)
     resuming = started.exists()
-    expected_start = {'run': identifier, 'fence_run': fence_id, 'offsite_sha256': backup_sha256}
+    expected_start = {'run': identifier, 'fence_run': fence_id, 'offsite_sha256': backup_sha256,
+                      'offsite_files_sha256': files_sha256}
     if resuming and json.loads(started.read_text()) != expected_start:
         raise RuntimeError('An existing SITREP activation receipt differs')
     if (live_candidate.read_text() != public_config or config.read_text() not in (health_config, public_config)
@@ -174,7 +177,7 @@ def main(identifier, fence_id, backup_sha256):
         write_exclusive(started, json.dumps(expected_start) + '\n', 0o600)
     # This source-side marker is the one-way boundary: automatic recovery must
     # never restart the old writer after this point.
-    subprocess.run(remote(['/usr/bin/python3', source_tool, '--commit-target', fence_id, backup_sha256]), check=True)
+    subprocess.run(remote(['/usr/bin/python3', source_tool, '--commit-target', fence_id, backup_sha256, files_sha256]), check=True)
     ensure_exact_file(LIVE_ENV, 'BLOCKCHAIN_ENABLED=true\n', 0o600)
     ensure_exact_file(DROPIN, backend_dropin(LIVE_ENV), 0o644)
     subprocess.run(['systemctl', 'daemon-reload'], check=True)
@@ -228,10 +231,11 @@ def main(identifier, fence_id, backup_sha256):
     subprocess.run(remote(['/usr/bin/python3', source_tool, '--proxy', fence_id]), check=True)
     completion = json.dumps({
         'run': identifier, 'fence_run': fence_id, 'offsite_sha256': backup_sha256,
+        'offsite_files_sha256': files_sha256,
         'source_proxy': 'active', 'blockchain_restored': True}) + '\n'
     ensure_exact_file(complete, completion, 0o600)
     print('SITREP is served by Hostinger through the old source proxy; DNS remains unchanged.')
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

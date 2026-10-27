@@ -12,7 +12,11 @@ on:
         required: true
         type: string
       verified_sha256:
-        description: 'Independently verified SHA-256 of the offsite final SITREP backup'
+        description: 'Independently verified SHA-256 of the offsite final SITREP database backup'
+        required: true
+        type: string
+      verified_files_sha256:
+        description: 'Independently verified SHA-256 of the offsite final SITREP files backup'
         required: true
         type: string
       acknowledgement:
@@ -59,9 +63,10 @@ jobs:
         env:
           RUN_ID: ${{ inputs.run_id }}
           VERIFIED_SHA256: ${{ inputs.verified_sha256 }}
+          VERIFIED_FILES_SHA256: ${{ inputs.verified_files_sha256 }}
         run: |
           set -euo pipefail
-          [[ "$RUN_ID" =~ ^[0-9]{1,20}-[0-9]{1,4}$ && "$VERIFIED_SHA256" =~ ^[0-9a-f]{64}$ ]]
+          [[ "$RUN_ID" =~ ^[0-9]{1,20}-[0-9]{1,4}$ && "$VERIFIED_SHA256" =~ ^[0-9a-f]{64}$ && "$VERIFIED_FILES_SHA256" =~ ^[0-9a-f]{64}$ ]]
           opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15)
           source=root@23.105.176.45
           target=root@179.198.115.115
@@ -84,5 +89,5 @@ jobs:
             remote_hash=$(ssh "${opts[@]}" "$target" "sha256sum $target_run/$file" | cut -d ' ' -f1)
             [[ "$local_hash" = "$remote_hash" ]]
           done
-          ssh -A "${opts[@]}" "$target" "python3 $target_run/sitrep-public-activate.py $RUN_ID $RUN_ID $VERIFIED_SHA256"
+          ssh -A "${opts[@]}" "$target" "python3 $target_run/sitrep-public-activate.py $RUN_ID $RUN_ID $VERIFIED_SHA256 $VERIFIED_FILES_SHA256"
           done=true

@@ -184,13 +184,14 @@ def verify_fence(identifier, allow_committed=False, gate_mode='maintenance'):
     print('SITREP source fence is active; no other database sessions are connected.')
 
 
-def commit_target_writes(identifier, backup_sha256):
-    if not re.fullmatch(r'[0-9a-f]{64}', backup_sha256):
+def commit_target_writes(identifier, backup_sha256, files_sha256):
+    if not all(re.fullmatch(r'[0-9a-f]{64}', value) for value in (backup_sha256, files_sha256)):
         raise ValueError('Expected offsite backup SHA-256 is invalid')
     directory = RUN_ROOT / identifier
     marker = directory / 'target-writes-authorized'
+    expected = {'run': identifier, 'offsite_sha256': backup_sha256, 'offsite_files_sha256': files_sha256}
     if marker.exists():
-        if marker.is_symlink() or json.loads(marker.read_text()) != {'run': identifier, 'offsite_sha256': backup_sha256}:
+        if marker.is_symlink() or json.loads(marker.read_text()) != expected:
             raise RuntimeError('Existing target authorization does not match')
         if GATE.is_symlink() or not GATE.is_file():
             raise RuntimeError('Existing SITREP gate is unexpected')
@@ -200,7 +201,7 @@ def commit_target_writes(identifier, backup_sha256):
         return
     verify_fence(identifier)
     with marker.open('x') as stream:
-        json.dump({'run': identifier, 'offsite_sha256': backup_sha256}, stream)
+        json.dump(expected, stream)
         stream.write('\n')
         stream.flush()
         os.fsync(stream.fileno())
@@ -369,8 +370,8 @@ if __name__ == '__main__':
         fcntl.flock(_lock, fcntl.LOCK_SH if _mode == '--verify' else fcntl.LOCK_EX)
         if _mode == '--verify' and len(sys.argv) == 3:
             verify_fence(_id)
-        elif _mode == '--commit-target' and len(sys.argv) == 4:
-            commit_target_writes(_id, sys.argv[3])
+        elif _mode == '--commit-target' and len(sys.argv) == 5:
+            commit_target_writes(_id, sys.argv[3], sys.argv[4])
         elif _mode == '--proxy' and len(sys.argv) == 3:
             activate_source_proxy(_id)
         elif _mode == '--fence' and len(sys.argv) == 2:
