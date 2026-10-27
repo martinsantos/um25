@@ -110,7 +110,10 @@ def atomic_gate(text, *, exclusive):
             stream.write(text)
             stream.flush()
             os.fsync(stream.fileno())
-        os.link(pending, GATE, follow_symlinks=False)
+        try:
+            os.link(pending, GATE, follow_symlinks=False)
+        finally:
+            pending.unlink()
         return
     temp = GATE.with_name('.umsa-sitrep-gate-restored')
     fd = os.open(temp, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)

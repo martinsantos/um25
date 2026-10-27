@@ -21,9 +21,11 @@ class SitrepSourceFenceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp, patch.object(module, 'GATE', Path(tmp) / 'gate.conf'):
             module.atomic_gate('maintenance', exclusive=True)
             self.assertEqual(module.GATE.read_text(), 'maintenance')
+            self.assertFalse((Path(tmp) / '.umsa-sitrep-gate-pending').exists())
             with self.assertRaises(FileExistsError):
                 module.atomic_gate('other', exclusive=True)
             self.assertEqual(module.GATE.read_text(), 'maintenance')
+            self.assertFalse((Path(tmp) / '.umsa-sitrep-gate-pending').exists())
             module.atomic_gate('recovered', exclusive=False)
             self.assertEqual(module.GATE.read_text(), 'recovered')
 
