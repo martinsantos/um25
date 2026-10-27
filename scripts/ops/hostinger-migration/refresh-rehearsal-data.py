@@ -106,7 +106,7 @@ def main(identifier):
     if not re.fullmatch('[A-Za-z0-9_-]+', token): raise RuntimeError('Unexpected rotated token format')
     token_query = "SELECT id FROM directus_users WHERE token='" + token + "';"
     account = subprocess.check_output(['docker', 'exec', '-i', 'directus-admin-database-1', 'psql', '-X', '-w',
-        '-U', BOOTSTRAP, '-d', 'directus', '-At'], input=token_query, text=True).strip()
+        '-U', BOOTSTRAP, '-d', 'directus', '-At'], input=token_query, text=True, stderr=subprocess.DEVNULL).strip()
     if not re.fullmatch('[0-9a-f-]{36}', account): raise RuntimeError('Rotated API account not unique')
     (snapshot / 'inventory.json').write_text(json.dumps(plan, indent=2) + '\n')
     with (snapshot / 'refresh.log').open('ab') as log:
@@ -161,7 +161,7 @@ def main(identifier):
         run(['mariadb-check', '--no-defaults', '-uroot', '--databases', *maria_names, '--check'])
         sql = "UPDATE directus_users SET token='" + token + "' WHERE id='" + account + "' RETURNING id;"
         restored = subprocess.check_output(['docker', 'exec', '-i', 'directus-admin-database-1', 'psql', '-X', '-w',
-            '-U', BOOTSTRAP, '-d', 'directus', '-At', '--set', 'ON_ERROR_STOP=on'], input=sql, text=True)
+            '-U', BOOTSTRAP, '-d', 'directus', '-At', '--set', 'ON_ERROR_STOP=on'], input=sql, text=True, stderr=log)
         if restored.splitlines() != [account, 'UPDATE 1']:
             raise RuntimeError('API account changed during refresh')
         # Existing app credentials must still authenticate after data import.
