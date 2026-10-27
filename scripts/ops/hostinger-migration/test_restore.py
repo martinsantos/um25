@@ -2,6 +2,7 @@ import copy
 import importlib.util
 from pathlib import Path
 import unittest
+import tempfile
 
 spec = importlib.util.spec_from_file_location('restore', Path(__file__).with_name('restore-databases.py'))
 module = importlib.util.module_from_spec(spec)
@@ -35,6 +36,27 @@ class DatabaseRestorePlan(unittest.TestCase):
         metadata[0]['Config']['Entrypoint'] = ['unrecognized']
         with self.assertRaises(ValueError):
             module.database_plan(metadata)
+
+    def test_recovery_refuses_initialized_volume_and_existing_containers(self):
+        network = dict(Internal=True, Containers={}, IPAM=dict(Config=[dict(Subnet='172.30.250.0/24')]))
+        volumes = ['directus-admin_directus_db_data']
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)
+            module.validate_empty_recovery([], volumes, path, network)
+            with self.assertRaises(RuntimeError):
+                module.validate_empty_recovery(['running-app'], volumes, path, network)
+            (path / 'PG_VERSION').write_text('15')
+            with self.assertRaises(RuntimeError):
+                module.validate_empty_recovery([], volumes, path, network)
+
+    def test_recovery_refuses_unexpected_volumes_or_external_network(self):
+        with tempfile.TemporaryDirectory() as directory:
+            network = dict(Internal=False, Containers={}, IPAM=dict(Config=[dict(Subnet='172.30.250.0/24')]))
+            with self.assertRaises(RuntimeError):
+                module.validate_empty_recovery([], ['directus-admin_directus_db_data'], Path(directory), network)
+            network['Internal'] = True
+            with self.assertRaises(RuntimeError):
+                module.validate_empty_recovery([], ['other-data'], Path(directory), network)
 
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@
 set -euo pipefail
 umask 077
 phase=${1:-preflight}
-case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases|materialize-files|rehearsal|prepare-mail) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
+case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases|recover-empty-storage|materialize-files|rehearsal|prepare-mail) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
 source_host=23.105.176.45
 target_host=179.198.115.115
 target_name=srv2101069.hstgr.cloud
@@ -114,10 +114,12 @@ if [[ "$phase" == rehearsal ]]; then
   exit 0
 fi
 
-if [[ "$phase" == restore-databases ]]; then
+if [[ "$phase" == restore-databases || "$phase" == recover-empty-storage ]]; then
   ssh "${ssh_opts[@]}" "root@$target_host" 'test "$(hostname)" = srv2101069.hstgr.cloud && test "$(cat /srv/umsa-migration/.target)" = 179.198.115.115 && install -d -m 0700 /srv/umsa-migration/tooling'
   scp "${ssh_opts[@]}" "$script_dir/restore-databases.py" "root@$target_host:$stage/tooling/"
-  ssh "${ssh_opts[@]}" "root@$target_host" "python3 $stage/tooling/restore-databases.py"
+  recovery_arg=''
+  [[ "$phase" != recover-empty-storage ]] || recovery_arg='--recover-empty-storage'
+  ssh "${ssh_opts[@]}" "root@$target_host" "python3 $stage/tooling/restore-databases.py $recovery_arg"
   exit 0
 fi
 
