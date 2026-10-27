@@ -15,6 +15,7 @@ STAGE = Path('/srv/umsa-migration')
 SOURCE = 'root@23.105.176.45'
 PATHS = {
     'umsa-public-archive': '/root/fumbling-field/public',
+    'umsa-legacy-case-images': '/root/fumbling-field/imagenes_antecedentes_versionproduccion',
     'directus-uploads': '/opt/directus-admin/uploads',
     'sgi-private': '/home/sgi.ultimamilla.com.ar/private',
     'sgi-imports': '/home/sgi.ultimamilla.com.ar/imports',
