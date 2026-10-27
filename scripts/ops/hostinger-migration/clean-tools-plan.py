@@ -8,6 +8,7 @@ import re
 import shutil
 import socket
 import subprocess
+import sys
 import tarfile
 import urllib.request
 
@@ -17,16 +18,61 @@ PLAN = Path('/srv/umsa-clean-plan')
 NODE_ARCHIVE = 'c514127107ebf6e3885f793b06674574d71fe22e3df91a78c52c5a6f84b3b5b0'
 
 
+def plan_credentials(text):
+    result = {}
+    for line in text.splitlines():
+        if not line or line.strip().startswith('#') or '=' not in line:
+            continue
+        key,value = line.split('=',1)
+        key = key.strip()
+        if key in ('ADMIN_USER','ADMIN_PASSWORD'):
+            if key in result:
+                raise RuntimeError('Duplicate Plan credential setting')
+            result[key] = re.sub(r'''^["']|["']$''','',value.strip())
+    if set(result) != {'ADMIN_USER','ADMIN_PASSWORD'} or not all(result.values()) or result['ADMIN_PASSWORD'] == 'change-me':
+        raise RuntimeError('Existing Plan login credentials missing')
+    return result
+
+
+def finish_configuration():
+    if not (STAGE / 'clean-tools-plan.ready').is_file() or not (STAGE / 'clean-php-rehearsal.ready').is_file():
+        raise RuntimeError('Completed isolated runtimes required')
+    env_path = STAGE / 'internal-credentials/node-environments.json'
+    nodes = json.loads(env_path.read_text())
+    credentials = plan_credentials(Path('/home/umbot.com.ar/cannaval-plan-repo/admin/.env').read_text())
+    nodes['cannaval-plan-admin'].update(credentials)
+    env_path.write_text(json.dumps(nodes,indent=2) + '\n')
+    environment = STAGE / 'clean-plan.environment'
+    text = environment.read_text()
+    for key,value in credentials.items():
+        if re.search(r'(?m)^' + key + '=',text):
+            raise RuntimeError('Plan login already supplied; inspect before retry')
+        text += key + '="' + value.replace('\\','\\\\').replace('"','\\"') + '"\n'
+    environment.write_text(text)
+    # Public worker traversal only; config files and vault keep their private modes.
+    Path('/srv/umsa-clean-php').chmod(0o755)
+    with (STAGE / 'receipts/clean-runtime-finish.log').open('ab') as log:
+        subprocess.run(['systemctl','start','umsa-clean-plan'],check=True,stdout=log,stderr=log)
+    (STAGE / 'clean-runtime-configuration.complete').write_text('Preserved Plan login and corrected public-root traversal.\n')
+    print('Existing Plan login restored without changing its rotated session secret. PHP worker traversal corrected.')
+
+
 def main():
     os.umask(0o077)
     if socket.gethostname() != 'srv2101069.hstgr.cloud' or STAGE.is_symlink() or (STAGE / '.target').read_text().strip() != '179.198.115.115':
         raise RuntimeError('Wrong target')
+    if sys.argv[1:] == ['--finish-config']:
+        finish_configuration()
+        return
+    if sys.argv[1:]:
+        raise RuntimeError('Unsupported operation')
     if ROOT.exists() or PLAN.exists() or not (STAGE / 'internal-rotation.complete').exists():
         raise RuntimeError('Unexpected destination state')
     artifact = Path((STAGE / 'trusted-plan').read_text().strip())
     if artifact.name != 'plan-d4d462eb50cb26eba53cf0551b1eabe35824935e' or artifact.parent != STAGE / 'trusted' or artifact.is_symlink():
         raise RuntimeError('Unexpected published Plan revision')
     env = json.loads((STAGE / 'internal-credentials/node-environments.json').read_text())['cannaval-plan-admin']
+    env.update(plan_credentials(Path('/home/umbot.com.ar/cannaval-plan-repo/admin/.env').read_text()))
     with (STAGE / 'receipts/clean-tools-plan.log').open('ab') as log:
         def run(args, **kwargs):
             subprocess.run(args, check=True, stdout=log, stderr=log, **kwargs)
