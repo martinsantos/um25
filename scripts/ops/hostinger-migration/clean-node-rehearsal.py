@@ -102,6 +102,7 @@ def main():
              '--property=IPAddressDeny=any', '--property=IPAddressAllow=localhost', '/usr/bin/python3', '-c', gate])
         (STAGE / 'clean-node-rehearsal.started').write_text(str(snapshot) + '\n')
         ROOT.mkdir(mode=0o755)
+        ROOT.chmod(0o755)
         for name, (app, values) in plans.items():
             destination = ROOT / name
             run(['cp', '-a', '--reflink=always', str(app), str(destination)])
