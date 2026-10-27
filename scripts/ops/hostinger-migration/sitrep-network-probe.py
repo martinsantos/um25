@@ -44,7 +44,9 @@ def main(identifier):
     expected = token(identifier)
     if (socket.gethostname() != 'srv2101069.hstgr.cloud' or STAGE.is_symlink()
             or (STAGE / '.target').read_text().strip() != TARGET_IP
-            or (STAGE / 'production.active').exists() or not os.environ.get('SSH_AUTH_SOCK')):
+            or any((STAGE / marker).exists() for marker in ('production.active', 'sitrep-final-refresh.started',
+                                                              'sitrep-public-activation.started'))
+            or not os.environ.get('SSH_AUTH_SOCK')):
         raise RuntimeError('Not the isolated Hostinger destination')
     known = STAGE / 'known_hosts'
     if known.is_symlink() or not known.is_file():
