@@ -1,0 +1,58 @@
+name: Prepare the verified local mail hop on Hostinger
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-local-mail-cutover.yml'
+      - 'scripts/ops/hostinger-migration/activate-local-mail.py'
+      - 'scripts/ops/hostinger-migration/test_local_mail_activation.py'
+  workflow_dispatch:
+    inputs:
+      acknowledgement:
+        description: 'Enter READY after the Vivero standby test and reviewed SPF records are active'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostinger-vivero-mail-handoff
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_local_mail_activation.py' -v
+  activate:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'READY'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Activate local mail only after relay and SPF checks
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15)
+          target=root@179.198.115.115
+          stage=/srv/umsa-migration
+          ssh "${opts[@]}" "$target" 'test "$(hostname)" = srv2101069.hstgr.cloud && test ! -e /srv/umsa-migration/production.active'
+          scp "${opts[@]}" scripts/ops/hostinger-migration/activate-local-mail.py "$target:$stage/tooling/"
+          ssh "${opts[@]}" "$target" "python3 $stage/tooling/activate-local-mail.py $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
