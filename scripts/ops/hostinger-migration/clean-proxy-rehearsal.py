@@ -8,11 +8,44 @@ import re
 import shutil
 import socket
 import subprocess
+import sys
 
 STAGE = Path('/srv/umsa-migration')
 ROOT = Path('/srv/umsa-clean-proxy')
 STATIC = ROOT / 'static'
 PRECRIMEN = '13331a19df6cee47ba2cfd36dc6b7ede949856f3f22121b16d58d24d5b5f59b2'
+
+
+def copy_active_config(source, destination, active):
+    destination.mkdir()
+    for relative in active:
+        if relative.is_absolute() or '..' in relative.parts:
+            raise RuntimeError('Unexpected active configuration path')
+        path = source / relative
+        if not path.is_file():
+            raise RuntimeError('Active configuration file missing')
+        target = destination / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, target)
+
+
+def resume_after_dangling_config():
+    saved = STAGE / 'proxy-attempt-before-dangling-links'
+    if (saved.exists() or not ROOT.is_dir() or ROOT.is_symlink()
+            or {p.name for p in ROOT.iterdir()} != {'nginx','static'}
+            or (STAGE / 'clean-proxy-rehearsal.ready').exists()):
+        raise RuntimeError('Not the reviewed partial proxy preparation')
+    if subprocess.run(['systemctl','is-active','--quiet','umsa-clean-proxy']).returncode == 0:
+        raise RuntimeError('Proxy already serving; no partial recovery allowed')
+    for port in (80,443):
+        with socket.socket() as probe:
+            probe.bind(('127.0.0.1',port))
+    if not (ROOT / 'nginx/nginx.conf').is_file():
+        raise RuntimeError('Expected original configuration copy missing')
+    if str(ROOT / 'nginx') in (ROOT / 'nginx/nginx.conf').read_text():
+        raise RuntimeError('Configuration was already transformed')
+    # Preserve the entire incomplete attempt, including all historical files.
+    ROOT.rename(saved)
 
 
 def retire_unused_routes(text, name):
@@ -34,6 +67,10 @@ def main():
     os.umask(0o077)
     if socket.gethostname() != 'srv2101069.hstgr.cloud' or STAGE.is_symlink() or (STAGE / '.target').read_text().strip() != '179.198.115.115':
         raise RuntimeError('Wrong destination')
+    if sys.argv[1:] == ['--retry-dangling-config']:
+        resume_after_dangling_config()
+    elif sys.argv[1:]:
+        raise RuntimeError('Unsupported operation')
     if ROOT.exists():
         raise RuntimeError('Proxy rehearsal already attempted; inspect before retry')
     for marker in ('clean-node-rehearsal.ready','clean-container-rehearsal.ready','clean-php-rehearsal.ready',
@@ -72,9 +109,9 @@ def main():
         (STATIC / 'legacy-pending').mkdir()
         # User confirmed these applications are unused: archive only, never serve.
         config = ROOT / 'nginx'
-        shutil.copytree('/etc/nginx',config,symlinks=False)
         dump = subprocess.check_output(['/usr/sbin/nginx','-T'],stderr=log,text=True)
         active = [Path(name).relative_to('/etc/nginx') for name in re.findall(r'^# configuration file (/etc/nginx/.+):$',dump,re.M)]
+        copy_active_config(Path('/etc/nginx'), config, active)
         for path in (config / 'sites-enabled').iterdir():
             if '.backup-' in path.name:
                 path.rename(ROOT / ('inactive-' + path.name))
