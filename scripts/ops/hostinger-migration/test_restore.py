@@ -10,6 +10,14 @@ spec.loader.exec_module(module)
 
 
 class DatabaseRestorePlan(unittest.TestCase):
+    def test_maria_recovery_allows_only_empty_package_test_schema(self):
+        module.validate_maria_inventory([])
+        module.validate_maria_inventory([['test', '0', '0', '0']])
+        for rows in ([['customer', '0', '0', '0']], [['test', '1', '0', '0']],
+                     [['test', '0', '1', '0']], [['test', '0', '0', '1']]):
+            with self.assertRaises(RuntimeError):
+                module.validate_maria_inventory(rows)
+
     def setUp(self):
         self.metadata = [dict(Name='/' + name, Image='sha256:' + 'a' * 64,
             Mounts=[dict(Name=volume, Destination='/var/lib/postgresql/data')],

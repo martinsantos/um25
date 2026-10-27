@@ -75,6 +75,73 @@ def validate_empty_recovery(containers, volumes, volume_path, network):
         raise RuntimeError('Unexpected recovery network')
 
 
+def validate_maria_inventory(rows):
+    if rows not in ([], [['test', '0', '0', '0']]):
+        raise RuntimeError('MariaDB contains existing application data; refusing import')
+
+
+def restore_maria(snapshot, run, log):
+    if (STAGE / 'mariadb-import.started').exists():
+        raise RuntimeError('MariaDB import already attempted; inspect before retry')
+    # Target-only MariaDB rehearsal. No copied events or public DB listeners.
+    Path('/etc/my.cnf.d/umsa-migration.cnf').write_text(
+        '[mysqld]\nbind-address=127.0.0.1\nevent_scheduler=OFF\n'
+        'character-set-server=latin1\ncollation-server=latin1_swedish_ci\n'
+        'default-time-zone=-03:00\nmax_allowed_packet=16777216\n')
+    run(['systemctl', 'start', 'mariadb'])
+    inventory = subprocess.check_output(['mariadb', '--no-defaults', '-uroot', '-N', '-e',
+        "SELECT s.SCHEMA_NAME,(SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=s.SCHEMA_NAME),"
+        "(SELECT COUNT(*) FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA=s.SCHEMA_NAME),"
+        "(SELECT COUNT(*) FROM INFORMATION_SCHEMA.EVENTS WHERE EVENT_SCHEMA=s.SCHEMA_NAME) "
+        "FROM INFORMATION_SCHEMA.SCHEMATA s WHERE s.SCHEMA_NAME NOT IN ('mysql','information_schema','performance_schema','sys');"], text=True)
+    validate_maria_inventory([line.split('\t') for line in inventory.splitlines() if line])
+    (STAGE / 'mariadb-import.started').write_text(str(snapshot) + '\n')
+    with gzip.open(snapshot / 'mariadb-rehearsal.sql.gz', 'rb') as dump:
+        process = subprocess.Popen(['mariadb', '--no-defaults', '-uroot'], stdin=subprocess.PIPE, stdout=log, stderr=log)
+        try:
+            while chunk := dump.read(1024 * 1024):
+                process.stdin.write(chunk)
+            process.stdin.close()
+        except Exception:
+            process.stdin.close()
+            process.wait()
+            raise
+        if process.wait() != 0:
+            raise RuntimeError('MariaDB rehearsal import failed; private receipt retained')
+    run(['mariadb', '--no-defaults', '-uroot', '-e', 'FLUSH PRIVILEGES; SET GLOBAL event_scheduler=OFF; SHOW DATABASES;'])
+    run(['mariadb-check', '--no-defaults', '-uroot', '--all-databases', '--check'])
+
+
+def finish_mariadb():
+    os.umask(0o077)
+    snapshot = validate_snapshot(STAGE)
+    if ((STAGE / 'database-restore.complete').exists()
+            or not (STAGE / 'database-restore.before-storage-repair').is_file()
+            or (STAGE / 'database-restore.started').read_text().strip() != str(snapshot)):
+        raise RuntimeError('Not the audited partial database restore')
+    names = subprocess.check_output(['docker', 'ps', '-a', '--format', '{{.Names}}'], text=True).split()
+    if sorted(names) != sorted(DATABASES):
+        raise RuntimeError('Unexpected target containers before MariaDB completion')
+    plan = database_plan(json.loads((snapshot / 'docker-inspect.json').read_text()))
+    with (STAGE / 'receipts/database-restore.log').open('ab') as log:
+        def run(args):
+            subprocess.run(args, check=True, stdout=log, stderr=log)
+        run(['sha256sum', '--check', str(snapshot / 'SHA256SUMS')])
+        for item in plan:
+            row = json.loads(subprocess.check_output(['docker', 'inspect', item['name']]))[0]
+            if row['Image'] != item['config_id'] or not row['State']['Running']:
+                raise RuntimeError('Restored official PostgreSQL container not confirmed')
+            database = 'directus' if item['name'] == 'directus-admin-database-1' else 'dge_demo'
+            count = subprocess.check_output(['docker', 'exec', item['name'], 'psql', '-X', '-w',
+                '-U', item['owner'], '-d', database, '-At', '-c',
+                "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';"], text=True)
+            if int(count.strip()) <= 0:
+                raise RuntimeError('Restored PostgreSQL application schema missing')
+        restore_maria(snapshot, run, log)
+    (STAGE / 'database-restore.complete').write_text(str(snapshot) + '\n')
+    print('MariaDB restored and checked. Existing restored PostgreSQL data preserved; no applications activated.')
+
+
 def main(recover=False):
     os.umask(0o077)
     snapshot = validate_snapshot(STAGE)
@@ -160,35 +227,15 @@ def main(recover=False):
             run(['docker', 'exec', item['name'], 'psql', '-X', '-w', '-U', item['owner'], '-d', 'postgres',
                  '-c', 'SELECT datname, pg_database_size(oid) FROM pg_database WHERE datistemplate = false ORDER BY datname;'])
 
-        # Target-only MariaDB rehearsal. No copied events or public DB listeners.
-        Path('/etc/my.cnf.d/umsa-migration.cnf').write_text(
-            '[mysqld]\nbind-address=127.0.0.1\nevent_scheduler=OFF\n'
-            'character-set-server=latin1\ncollation-server=latin1_swedish_ci\n'
-            'default-time-zone=-03:00\nmax_allowed_packet=16777216\n')
-        run(['systemctl', 'start', 'mariadb'])
-        schemas = subprocess.check_output(['mariadb', '--no-defaults', '-uroot', '-N', '-e',
-            "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME NOT IN ('mysql','information_schema','performance_schema','sys');"], text=True).strip()
-        if schemas:
-            raise RuntimeError('MariaDB has existing user databases; refusing import')
-        with gzip.open(snapshot / 'mariadb-rehearsal.sql.gz', 'rb') as dump:
-            process = subprocess.Popen(['mariadb', '--no-defaults', '-uroot'], stdin=subprocess.PIPE, stdout=log, stderr=log)
-            try:
-                while chunk := dump.read(1024 * 1024):
-                    process.stdin.write(chunk)
-                process.stdin.close()
-            except Exception:
-                process.stdin.close()
-                process.wait()
-                raise
-            if process.wait() != 0:
-                raise RuntimeError('MariaDB rehearsal import failed; private receipt retained')
-        run(['mariadb', '--no-defaults', '-uroot', '-e', 'FLUSH PRIVILEGES; SET GLOBAL event_scheduler=OFF; SHOW DATABASES;'])
-        run(['mariadb-check', '--no-defaults', '-uroot', '--all-databases', '--check'])
+        restore_maria(snapshot, run, log)
     (STAGE / 'database-restore.complete').write_text(str(snapshot) + '\n')
     print('Rehearsal databases restored and checked; applications, jobs and DNS remain inactive on target.')
 
 
 if __name__ == '__main__':
-    if sys.argv[1:] not in ([], ['--recover-empty-storage']):
+    if sys.argv[1:] not in ([], ['--recover-empty-storage'], ['--finish-mariadb']):
         raise SystemExit('Unknown option')
-    main(recover=bool(sys.argv[1:]))
+    if sys.argv[1:] == ['--finish-mariadb']:
+        finish_mariadb()
+    else:
+        main(recover=bool(sys.argv[1:]))
