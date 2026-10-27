@@ -1,0 +1,29 @@
+name: Verify SGI-scoped write fence on disposable MariaDB
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-sgi-lock-rehearsal.yml'
+      - 'scripts/ops/hostinger-migration/*sgi*lock*.py'
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  isolated-lock-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sgi_write_lock.py' -v
+      - name: Verify InnoDB and MyISAM locks and restore without network or persistent data
+        run: |
+          docker run --detach --network none --tmpfs /var/lib/mysql --name umsa-sgi-lock-source-ci -e MARIADB_ROOT_PASSWORD=ci-only mariadb:10.11
+          docker run --detach --network none --tmpfs /var/lib/mysql --name umsa-sgi-lock-target-ci -e MARIADB_ROOT_PASSWORD=ci-only mariadb:10.11
+          SGI_LOCK_CI=1 python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sgi_lock_integration.py' -v
