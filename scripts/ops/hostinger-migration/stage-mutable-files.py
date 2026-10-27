@@ -68,20 +68,33 @@ def main(identifier):
                 'test -d ' + shlex.quote(source) + ' && test ! -L ' + shlex.quote(source)],
                 check=True, stdout=log, stderr=log)
             unsafe = subprocess.check_output(['ssh', *options, SOURCE,
-                'find ' + shlex.quote(source) + r' \( -type l -o -type b -o -type c -o -type p -o -type s \) -print -quit'],
+                'find ' + shlex.quote(source) + r' \( -type b -o -type c -o -type p -o -type s \) -print -quit'],
                 stderr=log, text=True)
             if unsafe:
-                raise RuntimeError('Source data contains a link or special file: ' + name)
+                raise RuntimeError('Source data contains a special file: ' + name)
+            links = subprocess.check_output(['ssh', *options, SOURCE,
+                'find ' + shlex.quote(source) + ' -type l -print'], stderr=log, text=True).splitlines()
+            expected = [source + '/wiki'] if name == 'plan-docs' else []
+            if links != expected:
+                raise RuntimeError('Unexpected source link inventory: ' + name)
+            if links:
+                target = subprocess.check_output(['ssh', *options, SOURCE, 'readlink ' + shlex.quote(links[0])],
+                                                 stderr=log, text=True).strip()
+                if target != '../wiki':
+                    raise RuntimeError('Unexpected Plan documentation link')
             dest = root / name
             dest.mkdir(mode=0o700)
-            subprocess.run(['rsync', '-a', '--numeric-ids', '--no-specials', '--no-devices', '--safe-links',
+            subprocess.run(['rsync', '-a', '--numeric-ids', '--no-specials', '--no-devices',
                 '--rsync-path=ionice -c3 nice -n 19 rsync', '-e', ssh, SOURCE + ':' + source + '/', str(dest) + '/'],
                 check=True, stdout=log, stderr=log)
             digest = hashlib.sha256()
             count = total = 0
             for path in sorted(dest.rglob('*')):
                 if path.is_symlink():
-                    raise RuntimeError('Source data contains an unexpected link: ' + name)
+                    if name != 'plan-docs' or path.relative_to(dest).as_posix() != 'wiki' or os.readlink(path) != '../wiki':
+                        raise RuntimeError('Unexpected staged link: ' + name)
+                    digest.update(b'link\0wiki\0../wiki')
+                    continue
                 if not path.is_file():
                     continue
                 relative = path.relative_to(dest).as_posix().encode('utf-8')
