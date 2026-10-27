@@ -1,6 +1,7 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import errno
 
 spec = importlib.util.spec_from_file_location('clean_node', Path(__file__).with_name('clean-node-rehearsal.py'))
 module = importlib.util.module_from_spec(spec)
@@ -8,6 +9,12 @@ spec.loader.exec_module(module)
 
 
 class CleanNodeGuards(unittest.TestCase):
+    def test_packet_drop_timeout_is_denied_but_connected_or_unrelated_failure_is_not(self):
+        for code in (errno.EPERM, errno.EACCES, errno.EAGAIN, errno.ETIMEDOUT):
+            self.assertIn(code, module.DENIED_NETWORK_RESULTS)
+        for code in (0, errno.ECONNREFUSED, errno.ENETUNREACH):
+            self.assertNotIn(code, module.DENIED_NETWORK_RESULTS)
+
     def test_sitrep_listener_is_explicitly_local_and_unknown_code_is_rejected(self):
         self.assertEqual(module.local_sitrep_listener('app.listen(PORT, () => {'), "app.listen(PORT, '127.0.0.1', () => {")
         with self.assertRaises(RuntimeError):
