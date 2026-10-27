@@ -1,0 +1,56 @@
+name: Rehearse SITREP-only ingress
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-sitrep-ingress-rehearsal.yml'
+      - 'scripts/ops/hostinger-migration/*sitrep-ingress*.py'
+  workflow_dispatch:
+    inputs:
+      acknowledgement:
+        description: 'Enter REHEARSE for a loopback-only ingress check; no DNS or live service changes'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostinger-migration-preparation
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sitrep_ingress_rehearsal.py' -v
+  rehearse:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'REHEARSE'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Test a separate local-only nginx instance
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15)
+          target=root@179.198.115.115
+          stage=/srv/umsa-migration
+          scp "${opts[@]}" scripts/ops/hostinger-migration/rehearse-sitrep-ingress.py "$target:$stage/tooling/"
+          ssh "${opts[@]}" "$target" "python3 $stage/tooling/rehearse-sitrep-ingress.py $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
