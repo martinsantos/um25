@@ -1,0 +1,59 @@
+name: Check source-to-Hostinger SITREP network path
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-sitrep-network-probe.yml'
+      - 'scripts/ops/hostinger-migration/*sitrep-network-probe.py'
+      - 'scripts/ops/hostinger-migration/test_sitrep_network_probe.py'
+  workflow_dispatch:
+    inputs:
+      acknowledgement:
+        description: 'Enter PROBE for a short-lived source-restricted TCP listener with no application data'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostinger-migration-${{ github.event_name == 'workflow_dispatch' && 'preparation' || github.run_id }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sitrep_network_probe.py' -v
+  probe:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'PROBE'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SSH_PRIVATE_KEY }}
+            ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Test and stop the restricted listener
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15)
+          target=root@179.198.115.115
+          destination="/srv/umsa-migration/tooling/sitrep-network-probe-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.py"
+          scp "${opts[@]}" scripts/ops/hostinger-migration/sitrep-network-probe.py "$target:$destination"
+          ssh -A "${opts[@]}" "$target" "python3 $destination $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
