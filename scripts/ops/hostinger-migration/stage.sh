@@ -3,7 +3,7 @@
 set -euo pipefail
 umask 077
 phase=${1:-preflight}
-case "$phase" in preflight|bootstrap|copy-data) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
+case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
 source_host=23.105.176.45
 target_host=179.198.115.115
 target_name=srv2101069.hstgr.cloud
@@ -43,6 +43,36 @@ dnf -y install rsync tar gzip python3 openssl
 printf 'Staging utilities installed; no application started.\n'
 TARGET
   scp "${ssh_opts[@]}" "$known_hosts" "root@$target_host:$stage/known_hosts"
+  exit 0
+fi
+
+if [[ "$phase" == copy-runtime ]]; then
+  ssh -A "${ssh_opts[@]}" "root@$target_host" bash -s <<'TARGET'
+set -euo pipefail
+umask 077
+test "$(hostname)" = srv2101069.hstgr.cloud
+stage=/srv/umsa-migration
+test ! -L "$stage"
+test "$(cat "$stage/.target")" = 179.198.115.115
+test "$(realpath "$stage/source")" = /srv/umsa-migration/source
+test -S "$SSH_AUTH_SOCK"
+receipt="$stage/receipts/runtime-copy-$(date -u +%Y%m%dT%H%M%SZ).log"
+ionice -c3 nice -n 19 rsync -aHAX --numeric-ids --relative --timeout=180 --info=stats2 \
+  --rsync-path='ionice -c3 nice -n 19 rsync' \
+  -e "ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$stage/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30" \
+  root@23.105.176.45:/usr/bin/node :/usr/bin/npm :/usr/bin/npx \
+  :/usr/bin/pm2 :/usr/bin/pm2-dev :/usr/bin/pm2-docker :/usr/bin/pm2-runtime \
+  :/usr/lib/node_modules/ :/usr/local/CyberCP/ :/usr/local/lscp/ :/usr/local/lsws/ \
+  "$stage/source/" > "$receipt" 2>&1
+printf 'Runtime files preserved; private receipt=%s\n' "$receipt"
+TARGET
+  exit 0
+fi
+
+if [[ "$phase" == install-runtime ]]; then
+  ssh "${ssh_opts[@]}" "root@$target_host" 'test "$(hostname)" = srv2101069.hstgr.cloud && test "$(cat /srv/umsa-migration/.target)" = 179.198.115.115 && install -d -m 0700 /srv/umsa-migration/tooling'
+  scp "${ssh_opts[@]}" "$script_dir/runtime-accounts.py" "$script_dir/install-runtime.sh" "root@$target_host:$stage/tooling/"
+  ssh "${ssh_opts[@]}" "root@$target_host" "bash $stage/tooling/install-runtime.sh"
   exit 0
 fi
 
