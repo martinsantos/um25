@@ -37,6 +37,9 @@ mv "$snapshot/docker-inspect.json.partial" "$snapshot/docker-inspect.json"
 ssh "${ssh_opts[@]}" "$source_host" 'docker network ls -q | xargs -r docker network inspect' > "$snapshot/docker-networks.json.partial" 2>>"$receipt"
 python3 -m json.tool "$snapshot/docker-networks.json.partial" > /dev/null
 mv "$snapshot/docker-networks.json.partial" "$snapshot/docker-networks.json"
+ssh "${ssh_opts[@]}" "$source_host" 'pm2 jlist' > "$snapshot/pm2.json.partial" 2>>"$receipt"
+python3 -m json.tool "$snapshot/pm2.json.partial" > /dev/null
+mv "$snapshot/pm2.json.partial" "$snapshot/pm2.json"
 
 # Export exactly the container images in this snapshot, including historical rollbacks.
 # The argument list is restricted to full hexadecimal image IDs before shell use.
