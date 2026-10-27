@@ -37,7 +37,8 @@ def main():
     if ROOT.exists():
         raise RuntimeError('Proxy rehearsal already attempted; inspect before retry')
     for marker in ('clean-node-rehearsal.ready','clean-container-rehearsal.ready','clean-php-rehearsal.ready',
-                   'clean-tools-plan.ready','rehearsal-bridges.ready'):
+                   'clean-tools-plan.ready','rehearsal-bridges.ready','clean-runtime-configuration.complete',
+                   'database-network-restricted.complete'):
         if not (STAGE / marker).is_file():
             raise RuntimeError('Missing rehearsal prerequisite: ' + marker)
     if subprocess.run(['systemctl','is-active','--quiet','nginx']).returncode == 0:
@@ -98,7 +99,8 @@ def main():
                 marker = '    location = /plan/admin {'
                 if text.count(marker) != 1:
                     raise RuntimeError('Unexpected UMBot Plan configuration')
-                text = text.replace(marker,'    location ^~ /plan/ { alias /srv/umsa-clean-plan/public/; index index.html; }\n' + marker)
+                text = text.replace(marker,'    location = /plan { return 308 /plan/; }\n'
+                    '    location ^~ /plan/ { alias /srv/umsa-clean-plan/public/; index index.html; }\n' + marker)
             path.write_text(text)
         for base in (STATIC,Path('/srv/umsa-clean-apps/astro-ultimamilla/dist/client'),Path('/srv/umsa-clean-plan/public')):
             for item in [base,*base.rglob('*')]:

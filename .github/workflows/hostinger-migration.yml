@@ -32,6 +32,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/ops/hostinger-migration/
+            /.github/workflows/
       - run: bash -n scripts/ops/hostinger-migration/stage.sh
       - run: bash -n scripts/ops/hostinger-migration/install-runtime.sh
       - run: bash -n scripts/ops/hostinger-migration/snapshot-data.sh
@@ -44,6 +49,14 @@ jobs:
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v6
+        if: inputs.phase == 'build-clean-web'
+      - uses: actions/checkout@v6
+        if: inputs.phase != 'build-clean-web'
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/ops/hostinger-migration/
+            /.github/workflows/
       - uses: actions/setup-node@v6
         if: inputs.phase == 'build-clean-web' || inputs.phase == 'build-clean-sitrep' || inputs.phase == 'build-clean-sgi'
         with:
