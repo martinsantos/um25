@@ -9,6 +9,9 @@ import unittest
 spec = importlib.util.spec_from_file_location('sitrep_lock', Path(__file__).with_name('sitrep-write-lock.py'))
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
+swap_spec = importlib.util.spec_from_file_location('sitrep_swap', Path(__file__).with_name('sitrep-database-swap.py'))
+swap_module = importlib.util.module_from_spec(swap_spec)
+swap_spec.loader.exec_module(swap_module)
 CONTAINER = 'umsa-sitrep-lock-ci'
 
 
@@ -60,6 +63,25 @@ class SitrepLockIntegrationTests(unittest.TestCase):
                     "WHERE application_name='umsa_sitrep_fence_42_1';")
                 process.terminate()
                 process.wait(timeout=10)
+
+    def test_database_swap_preserves_and_restores_the_previous_database(self):
+        self.assertEqual(sql('CREATE TABLE swap_probe (id integer); INSERT INTO swap_probe VALUES (1);').returncode, 0)
+        archive = subprocess.check_output(['docker', 'exec', CONTAINER, 'pg_dump', '-U', 'directus',
+                                           '-Fc', module.DATABASE_NAME])
+        self.assertEqual(sql('UPDATE swap_probe SET id=2;').returncode, 0)
+        staged, previous = swap_module.names('42-1')
+        subprocess.run(['docker', 'exec', CONTAINER, 'createdb', '-U', 'directus', '-T', 'template0', staged],
+                       check=True, capture_output=True)
+        restored = subprocess.run(['docker', 'exec', '-i', CONTAINER, 'pg_restore', '-U', 'directus',
+                                   '--exit-on-error', '-d', staged], input=archive, capture_output=True)
+        self.assertEqual(restored.returncode, 0, restored.stderr.decode(errors='replace'))
+        swap_module.swap(CONTAINER, 'directus', '42-1')
+        self.assertEqual(sql('SELECT id FROM swap_probe;').stdout.strip(), '1')
+        previous_data = subprocess.check_output(['docker', 'exec', CONTAINER, 'psql', '-U', 'directus',
+                                                 '-d', previous, '-At', '-c', 'SELECT id FROM swap_probe;'], text=True)
+        self.assertEqual(previous_data.strip(), '2')
+        swap_module.undo_private_swap(CONTAINER, 'directus', '42-1')
+        self.assertEqual(sql('SELECT id FROM swap_probe;').stdout.strip(), '2')
 
 
 if __name__ == '__main__':
