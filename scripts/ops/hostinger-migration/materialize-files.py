@@ -6,6 +6,7 @@ from pathlib import Path
 import shutil
 import socket
 import subprocess
+import sys
 
 STAGE = Path('/srv/umsa-migration')
 
@@ -27,7 +28,18 @@ def empty_destination(path):
         and child.is_dir() and not any(child.iterdir()) for child in children)
 
 
-def main():
+def validate_configs(command):
+    cache = Path('/var/cache/nginx')
+    if cache.is_symlink():
+        raise RuntimeError('Unexpected Nginx cache symlink')
+    cache.mkdir(mode=0o755, parents=True, exist_ok=True)
+    command(['chown', 'nginx:nginx', str(cache)])
+    command(['nginx', '-t'])
+    command(['php-fpm', '-t'])
+    command(['/opt/remi/php74/root/usr/sbin/php-fpm', '-t'])
+
+
+def main(finish_validation=False):
     os.umask(0o077)
     if socket.gethostname() != 'srv2101069.hstgr.cloud' or STAGE.is_symlink():
         raise RuntimeError('Wrong target')
@@ -39,6 +51,17 @@ def main():
             or run.get('path') != '.github/workflows/hostinger-migration.yml'):
         raise RuntimeError('Initial copy not verified by CI')
     marker = STAGE / 'application-files.started'
+    if finish_validation:
+        logpath = STAGE / 'receipts/application-files.log'
+        if not marker.is_file() or (STAGE / 'application-files.complete').exists():
+            raise RuntimeError('Not an incomplete file materialization')
+        if 'mkdir() "/var/cache/nginx/directus" failed' not in logpath.read_text():
+            raise RuntimeError('Not the audited missing-cache failure')
+        with logpath.open('ab') as log:
+            validate_configs(lambda args: subprocess.run(args, check=True, stdout=log, stderr=log))
+        (STAGE / 'application-files.complete').write_text('Files and configurations verified after creating the missing cache parent. Services remain inactive.\n')
+        print('Nginx and both PHP configurations validated. No services started.')
+        return
     if marker.exists():
         raise RuntimeError('Materialization already attempted; inspect before retry')
     source = STAGE / 'source'
@@ -101,12 +124,12 @@ def main():
             command(['chown', 'nginx:nginx', str(directory)])
         # Asset fallback traverses /root; grant only traversal to the proxy identity.
         command(['setfacl', '-m', 'u:nginx:--x', '/root'])
-        command(['nginx', '-t'])
-        command(['php-fpm', '-t'])
-        command(['/opt/remi/php74/root/usr/sbin/php-fpm', '-t'])
+        validate_configs(command)
     (STAGE / 'application-files.complete').write_text('Files and Nginx/PHP configuration prepared; applications not started.\n')
     print('Application files materialized; Nginx and both PHP configurations validate. Services remain inactive.')
 
 
 if __name__ == '__main__':
-    main()
+    if sys.argv[1:] not in ([], ['--finish-validation']):
+        raise SystemExit('Unknown option')
+    main(finish_validation=bool(sys.argv[1:]))
