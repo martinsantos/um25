@@ -3,7 +3,7 @@
 set -euo pipefail
 umask 077
 phase=${1:-preflight}
-case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
+case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
 source_host=23.105.176.45
 target_host=179.198.115.115
 target_name=srv2101069.hstgr.cloud
@@ -66,6 +66,20 @@ ionice -c3 nice -n 19 rsync -aHAX --numeric-ids --relative --timeout=180 --info=
   "$stage/source/" > "$receipt" 2>&1
 printf 'Runtime files preserved; private receipt=%s\n' "$receipt"
 TARGET
+  exit 0
+fi
+
+if [[ "$phase" == snapshot-data ]]; then
+  ssh "${ssh_opts[@]}" "root@$target_host" 'test "$(hostname)" = srv2101069.hstgr.cloud && test "$(cat /srv/umsa-migration/.target)" = 179.198.115.115 && install -d -m 0700 /srv/umsa-migration/tooling'
+  scp "${ssh_opts[@]}" "$script_dir/snapshot-data.sh" "$script_dir/sqlite-snapshot.py" "root@$target_host:$stage/tooling/"
+  ssh -A "${ssh_opts[@]}" "root@$target_host" "bash $stage/tooling/snapshot-data.sh"
+  exit 0
+fi
+
+if [[ "$phase" == restore-databases ]]; then
+  ssh "${ssh_opts[@]}" "root@$target_host" 'test "$(hostname)" = srv2101069.hstgr.cloud && test "$(cat /srv/umsa-migration/.target)" = 179.198.115.115 && install -d -m 0700 /srv/umsa-migration/tooling'
+  scp "${ssh_opts[@]}" "$script_dir/restore-databases.py" "root@$target_host:$stage/tooling/"
+  ssh "${ssh_opts[@]}" "root@$target_host" "python3 $stage/tooling/restore-databases.py"
   exit 0
 fi
 
