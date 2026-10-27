@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Exercise freshly built Node applications on the isolated destination only."""
 import gzip
+import errno
 import hashlib
 import json
 import os
@@ -23,6 +24,13 @@ DATA = {
     'sgi': ('/home/sgi.ultimamilla.com.ar', ('private', 'imports', 'uploads', 'src/public/uploads')),
     'sitrep-backend': ('/var/www/sitrep-backend', ('data', 'uploads')),
 }
+DENIED_NETWORK_RESULTS = {errno.EPERM, errno.EACCES, errno.EAGAIN, errno.ETIMEDOUT}
+
+
+def denied_probe_code():
+    return ('import socket,sys; s=socket.socket(); s.settimeout(3); '
+        'c=s.connect_ex(("1.1.1.1",443)); print("Filtered connection result:",c); '
+        'sys.exit(0 if c in ' + repr(sorted(DENIED_NETWORK_RESULTS)) + ' else 1)')
 
 
 def safe_environment(source, name, root):
@@ -98,10 +106,16 @@ def main():
         with socket.socket() as probe:
             probe.bind(('127.0.0.1', port))
     snapshot = Path((STAGE / 'latest-snapshot').read_text().strip())
+    # A timeout inside the filtered cgroup is meaningful only after a successful
+    # control connection. systemd's BPF packet drop can return EAGAIN on timeout.
+    with socket.socket() as control:
+        control.settimeout(3)
+        if control.connect_ex(('1.1.1.1',443)) != 0:
+            raise RuntimeError('Unrestricted network control unavailable; isolation cannot be proved')
     with (STAGE / 'receipts/clean-node-rehearsal.log').open('ab') as log:
         def run(args):
             subprocess.run(args, check=True, stdout=log, stderr=log)
-        gate = 'import socket,sys; s=socket.socket(); s.settimeout(3); c=s.connect_ex(("1.1.1.1",443)); sys.exit(0 if c in (1,13) else 1)'
+        gate = denied_probe_code()
         run(['systemd-run', '--unit=umsa-clean-egress-proof', '--wait', '--pipe', '--collect',
              '--property=IPAddressDeny=any', '--property=IPAddressAllow=localhost', '/usr/bin/python3', '-c', gate])
         (STAGE / 'clean-node-rehearsal.started').write_text(str(snapshot) + '\n')
