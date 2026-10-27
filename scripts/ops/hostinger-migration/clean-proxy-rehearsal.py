@@ -15,6 +15,21 @@ STATIC = ROOT / 'static'
 PRECRIMEN = '13331a19df6cee47ba2cfd36dc6b7ede949856f3f22121b16d58d24d5b5f59b2'
 
 
+def retire_unused_routes(text, name):
+    if name == 'ultimamilla.com.ar':
+        for location in ('/demoambiente/assets/', '/demoambiente/api/', '/demoambiente/api-DISABLED/', '/demoambiente/', '= /demoambiente'):
+            pattern = r'(?m)^[ \t]*location ' + re.escape(location) + r'\s*\{[^{}]*\}'
+            text, count = re.subn(pattern, '    location ' + location + ' { return 410; }', text)
+            if count != 1:
+                raise RuntimeError('Unexpected retired demo location')
+    if name == 'umbot.com.ar':
+        old = 'try_files $uri $uri/ /index.html;'
+        if text.count(old) != 1:
+            raise RuntimeError('Unexpected legacy game fallback')
+        text = text.replace(old, 'return 410;')
+    return text
+
+
 def main():
     os.umask(0o077)
     if socket.gethostname() != 'srv2101069.hstgr.cloud' or STAGE.is_symlink() or (STAGE / '.target').read_text().strip() != '179.198.115.115':
@@ -54,8 +69,7 @@ def main():
         run(['cp','-a','--reflink=always',str(sitrep / 'application/app'),str(STATIC / 'sitrep/app')])
         run(['cp','-a','--reflink=always',str(pre.resolve()),str(STATIC / 'precrimen')])
         (STATIC / 'legacy-pending').mkdir()
-        # Legacy Cannaval game and demoambiente are not yet independently rebuilt.
-        # Their source copies stay archived; do not serve their copied scripts.
+        # User confirmed these applications are unused: archive only, never serve.
         config = ROOT / 'nginx'
         shutil.copytree('/etc/nginx',config,symlinks=False)
         dump = subprocess.check_output(['/usr/sbin/nginx','-T'],stderr=log,text=True)
@@ -74,7 +88,7 @@ def main():
             path = config / relative
             if not path.is_file():
                 continue
-            text = path.read_text()
+            text = retire_unused_routes(path.read_text(), path.name)
             for old,new in mappings:
                 text = text.replace(old,new)
             if 'listen ' in text:
@@ -97,7 +111,7 @@ def main():
         run(['systemd-run','--unit=umsa-clean-proxy','--property=IPAddressDeny=any',
              '--property=IPAddressAllow=localhost','--property=IPAddressAllow=68.168.218.28/32',
              '/usr/sbin/nginx','-c',str(config / 'nginx.conf'),'-g','daemon off;'])
-    (STAGE / 'clean-proxy-rehearsal.ready').write_text('Localhost only; legacy Cannaval frontend and demoambiente remain blocked pending verified rebuild.\n')
+    (STAGE / 'clean-proxy-rehearsal.ready').write_text('Localhost only; legacy Cannaval frontend and demoambiente are archive-only by user instruction.\n')
     print('Clean Nginx rehearsal started on loopback. Legacy unverified frontends remain excluded; no DNS/public cutover.')
 
 
