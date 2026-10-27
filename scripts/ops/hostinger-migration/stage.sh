@@ -3,7 +3,7 @@
 set -euo pipefail
 umask 077
 phase=${1:-preflight}
-case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
+case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases|materialize-files) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
 source_host=23.105.176.45
 target_host=179.198.115.115
 target_name=srv2101069.hstgr.cloud
@@ -73,6 +73,32 @@ if [[ "$phase" == snapshot-data ]]; then
   ssh "${ssh_opts[@]}" "root@$target_host" 'test "$(hostname)" = srv2101069.hstgr.cloud && test "$(cat /srv/umsa-migration/.target)" = 179.198.115.115 && install -d -m 0700 /srv/umsa-migration/tooling'
   scp "${ssh_opts[@]}" "$script_dir/snapshot-data.sh" "$script_dir/sqlite-snapshot.py" "root@$target_host:$stage/tooling/"
   ssh -A "${ssh_opts[@]}" "root@$target_host" "bash $stage/tooling/snapshot-data.sh"
+  exit 0
+fi
+
+if [[ "$phase" == materialize-files ]]; then
+  # Read-only proof from GitHub that this migration's initial copy completed.
+  test -n "${GH_TOKEN:-}"
+  proof=$(mktemp)
+  trap 'rm -f "$proof"' EXIT
+  gh api repos/martinsantos/um25/actions/runs/40498669903 > "$proof"
+  python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["id"] == 40498669903 and r["conclusion"] == "success" and r["event"] == "workflow_dispatch" and r["path"] == ".github/workflows/hostinger-migration.yml"' "$proof"
+  scp "${ssh_opts[@]}" "$proof" "root@$target_host:$stage/receipts/initial-copy-run.json"
+  scp "${ssh_opts[@]}" "$script_dir/materialize-files.py" "root@$target_host:$stage/tooling/"
+  ssh -A "${ssh_opts[@]}" "root@$target_host" bash -s <<'TARGET'
+set -euo pipefail
+umask 077
+test "$(hostname)" = srv2101069.hstgr.cloud
+stage=/srv/umsa-migration
+test "$(cat "$stage/.target")" = 179.198.115.115
+test "$(realpath "$stage/source")" = /srv/umsa-migration/source
+ionice -c3 nice -n 19 rsync -aHAX --numeric-ids --relative --timeout=180 \
+  --rsync-path='ionice -c3 nice -n 19 rsync' \
+  -e "ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$stage/known_hosts -o ConnectTimeout=15" \
+  root@23.105.176.45:/var/lib/sgi-arca/ "$stage/source/" \
+  > "$stage/receipts/sgi-arca-copy.log" 2>&1
+python3 "$stage/tooling/materialize-files.py"
+TARGET
   exit 0
 fi
 
