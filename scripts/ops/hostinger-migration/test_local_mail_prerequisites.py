@@ -8,6 +8,11 @@ spec.loader.exec_module(module)
 
 
 class AliasPreparation(unittest.TestCase):
+    def test_reassembles_split_dns_public_key(self):
+        self.assertEqual(module.dkim_dns_key('"v=DKIM1; p=aG" "VsbG8="\n'), b'hello')
+        with self.assertRaises(ValueError):
+            module.dkim_dns_key('"v=DKIM1; p=aGVsbG8="\n"v=DKIM1; p=aGVsbG8="\n')
+
     def test_preserves_target_and_adds_address(self):
         new, address = module.append_reviewed_alias('martin: name@example.com\n', 'postmaster: root\n')
         self.assertEqual(address, 'name@example.com')
