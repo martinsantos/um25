@@ -27,6 +27,12 @@ DATA = {
 DENIED_NETWORK_RESULTS = {errno.EPERM, errno.EACCES, errno.EAGAIN, errno.ETIMEDOUT}
 
 
+def denied_probe_code():
+    return ('import socket,sys; s=socket.socket(); s.settimeout(3); '
+        'c=s.connect_ex(("1.1.1.1",443)); print("Filtered connection result:",c); '
+        'sys.exit(0 if c in ' + repr(sorted(DENIED_NETWORK_RESULTS)) + ' else 1)')
+
+
 def safe_environment(source, name, root):
     result = {}
     for key, value in source.items():
@@ -109,9 +115,7 @@ def main():
     with (STAGE / 'receipts/clean-node-rehearsal.log').open('ab') as log:
         def run(args):
             subprocess.run(args, check=True, stdout=log, stderr=log)
-        gate = ('import socket,sys; s=socket.socket(); s.settimeout(3); '
-            'c=s.connect_ex(("1.1.1.1",443)); print("Filtered connection result:",c); '
-            'sys.exit(0 if c in ' + repr(sorted(DENIED_NETWORK_RESULTS)) + ' else 1)')
+        gate = denied_probe_code()
         run(['systemd-run', '--unit=umsa-clean-egress-proof', '--wait', '--pipe', '--collect',
              '--property=IPAddressDeny=any', '--property=IPAddressAllow=localhost', '/usr/bin/python3', '-c', gate])
         (STAGE / 'clean-node-rehearsal.started').write_text(str(snapshot) + '\n')
