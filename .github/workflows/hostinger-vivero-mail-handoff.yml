@@ -1,0 +1,46 @@
+name: Handoff Vivero mail client after Hostinger cutover
+
+on:
+  workflow_dispatch:
+    inputs:
+      acknowledgement:
+        description: 'Enter CUTOVER only after Hostinger production and relay have been verified'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostinger-vivero-mail-handoff
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  handoff:
+    if: github.ref == 'refs/heads/master' && inputs.acknowledgement == 'CUTOVER'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_vivero_mail_handoff.py' -v
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+            ${{ secrets.VIVERO_CLIENT_SSH_KEY }}
+      - name: Require verified Hostinger production and relay; change only Vivero mail client
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15)
+          ssh "${opts[@]}" root@179.198.115.115 'test "$(hostname)" = srv2101069.hstgr.cloud && test -f /srv/umsa-migration/production.active && test -f /srv/umsa-migration/relay-certificate-prepared.complete && systemctl is-active --quiet vivero-relay-hostinger'
+          ssh "${opts[@]}" root@68.168.218.28 'test "$(hostname)" = vps3709080.trouble-free.net && test ! -L /root/umsa-vivero-mail-migration && install -d -m 0700 /root/umsa-vivero-mail-migration'
+          scp "${opts[@]}" scripts/ops/hostinger-migration/handoff-vivero-mail-client.py "root@68.168.218.28:/root/umsa-vivero-mail-migration/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.py"
+          ssh "${opts[@]}" root@68.168.218.28 "python3 /root/umsa-vivero-mail-migration/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.py $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
