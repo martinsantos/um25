@@ -13,7 +13,7 @@ class DatabaseRestorePlan(unittest.TestCase):
     def setUp(self):
         self.metadata = [dict(Name='/' + name, Image='sha256:' + 'a' * 64,
             Mounts=[dict(Name=volume, Destination='/var/lib/postgresql/data')],
-            Config=dict(Entrypoint=['docker-entrypoint.sh'], Cmd=['postgres'],
+            Config=dict(Entrypoint=['docker-entrypoint.sh'], Cmd=module.AUDITED_COMMANDS[name],
                         Env=['POSTGRES_USER=original', 'POSTGRES_DB=app', 'POSTGRES_HOST_AUTH_METHOD=trust',
                              'LD_PRELOAD=/untrusted/library.so', 'PG_MAJOR=' + module.VERIFIED_IMAGES[name][2]]))
             for name, (_, volume, _) in module.DATABASES.items()]

@@ -26,6 +26,11 @@ VERIFIED_IMAGES = {
         'postgres@sha256:f9d1e581cde3e4c8bc696b07e6f7b7aea1d41014b33a52b27990762daae61beb',
         'sha256:066167ff39c2a612402ce99b734ea1cff92a9d1f2ac52f697a5f0384f0d88d6b', '16'),
 }
+AUDITED_COMMANDS = {
+    'directus-admin-database-1': ['postgres'],
+    'dge-demo-db': ['postgres', '-c', 'shared_buffers=32MB', '-c', 'max_connections=16',
+                    '-c', 'work_mem=2MB', '-c', 'max_wal_size=128MB'],
+}
 
 
 def validate_snapshot(stage):
@@ -51,12 +56,12 @@ def database_plan(metadata):
             raise ValueError('Unexpected database entrypoint: ' + name)
         old_env = dict(value.split('=', 1) for value in row['Config']['Env'] if '=' in value)
         image, config_id, major = VERIFIED_IMAGES[name]
-        if old_env.get('PG_MAJOR') != major or row['Config']['Cmd'] != ['postgres']:
+        if old_env.get('PG_MAJOR') != major or row['Config']['Cmd'] != AUDITED_COMMANDS[name]:
             raise ValueError('Database version/command differs from the audited source')
         # Runtime defaults come from the official image, not the source environment.
         env = dict(POSTGRES_USER=BOOTSTRAP, POSTGRES_DB='postgres')
         result.append(dict(name=name, dump=dump, volume=volume, owner=owner,
-                           image=image, config_id=config_id, command=['postgres'], env=env))
+                           image=image, config_id=config_id, command=AUDITED_COMMANDS[name], env=env))
     return result
 
 
