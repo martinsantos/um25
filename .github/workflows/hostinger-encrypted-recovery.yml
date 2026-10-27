@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/hostinger-encrypted-recovery.yml'
       - 'scripts/ops/hostinger-migration/*encrypted-recovery.py'
+      - 'scripts/ops/hostinger-migration/test_encrypted_recovery.py'
       - 'scripts/ops/hostinger-migration/offsite-recovery-cert.pem'
   workflow_dispatch:
     inputs:
