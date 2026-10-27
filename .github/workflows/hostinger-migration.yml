@@ -10,7 +10,7 @@ on:
       phase:
         description: 'Prepare isolated destination; never changes source services or DNS'
         type: choice
-        options: [preflight, bootstrap, copy-data]
+        options: [preflight, bootstrap, copy-data, copy-runtime, install-runtime]
         default: preflight
         required: true
 
@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: hostinger-migration-staging
+  group: hostinger-migration-${{ github.event_name == 'workflow_dispatch' && 'staging' || github.run_id }}
   cancel-in-progress: false
 
 env:
@@ -30,6 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - run: bash -n scripts/ops/hostinger-migration/stage.sh
+      - run: bash -n scripts/ops/hostinger-migration/install-runtime.sh
       - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_*.py' -v
   stage:
     needs: validate
