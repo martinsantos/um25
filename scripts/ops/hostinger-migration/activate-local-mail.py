@@ -55,6 +55,19 @@ def check_dns():
         raise RuntimeError('Forward/reverse mail hostname does not match')
 
 
+def wait_for_local_smtp():
+    for attempt in range(20):
+        try:
+            with smtplib.SMTP('127.0.0.1', 25, timeout=3) as smtp:
+                if smtp.ehlo()[0] == 250 and smtp.rset()[0] == 250:
+                    return
+        except (OSError, smtplib.SMTPException):
+            pass
+        if attempt < 19:
+            time.sleep(0.5)
+    raise RuntimeError('Local SMTP readiness failed')
+
+
 def verify_readiness():
     if (socket.gethostname() != NAME or STAGE.is_symlink() or MAIN.is_symlink()
             or (STAGE / '.target').read_text().strip() != IP
@@ -133,9 +146,7 @@ def main(identifier):
             raise RuntimeError('DKIM signer is not listening')
         run(['systemctl', 'start', 'postfix'])
         run(['systemctl', 'enable', 'postfix', 'sitrep-opendkim'])
-        with smtplib.SMTP('127.0.0.1', 25, timeout=10) as smtp:
-            if smtp.ehlo()[0] != 250 or smtp.rset()[0] != 250:
-                raise RuntimeError('Local SMTP readiness failed')
+        wait_for_local_smtp()
         probe = ("import smtplib; s=smtplib.SMTP('172.18.0.1',25,timeout=5); "
                  "assert s.ehlo()[0]==250; assert s.rset()[0]==250; s.quit()")
         run(['docker', 'exec', 'dge-demo-web', 'python', '-c', probe])
