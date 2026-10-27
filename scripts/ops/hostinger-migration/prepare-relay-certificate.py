@@ -56,7 +56,6 @@ def main():
     with (STAGE / 'receipts/relay-certificate-preparation.log').open('ab') as log:
         def run(args):
             return subprocess.run(args, check=True, stdout=log, stderr=log)
-        started = False
         try:
             run(['openssl', 'x509', '-in', CERTDIR + '/fullchain.pem', '-noout', '-checkhost', 'www.ultimamilla.com.ar', '-checkend', '86400'])
             files[0].write_text(private_main)
@@ -64,7 +63,6 @@ def main():
             files[2].write_text('127.0.0.1/32 OK\n' + clients_text)
             run(['postfix', '-c', str(RELAY), 'check'])
             run(['systemctl', 'start', 'vivero-relay-hostinger'])
-            started = True
             password = (RELAY / 'credential.private').read_text().strip()
             if len(password) < 20 or '\n' in password:
                 raise RuntimeError('Unexpected SASL credential')
@@ -77,16 +75,17 @@ def main():
                     raise RuntimeError('Relay authentication failed')
                 smtp.rset()
             run(['systemctl', 'stop', 'vivero-relay-hostinger'])
-            started = False
             files[0].write_text(new_main)
             files[1].write_text(master_text)
             files[2].write_text(clients_text)
             run(['postfix', '-c', str(RELAY), 'check'])
         except Exception:
-            if started:
-                run(['systemctl', 'stop', 'vivero-relay-hostinger'])
-            for path in files:
-                shutil.copy2(backup / path.name, path)
+            try:
+                if subprocess.run(['systemctl', 'is-active', '--quiet', 'vivero-relay-hostinger']).returncode == 0:
+                    run(['systemctl', 'stop', 'vivero-relay-hostinger'])
+            finally:
+                for path in files:
+                    shutil.copy2(backup / path.name, path)
             raise
     (STAGE / 'relay-certificate-prepared.complete').write_text('TLS and AUTH passed with www.ultimamilla.com.ar on loopback; relay stopped. Client policy and public activation pending. No mail sent.\n')
     print('Relay TLS and authentication passed privately with the UMSA certificate; client and public activation remain pending. No mail sent.')
