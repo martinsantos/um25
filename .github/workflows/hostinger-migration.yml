@@ -10,7 +10,7 @@ on:
       phase:
         description: 'Prepare isolated destination; never changes source services or DNS'
         type: choice
-        options: [preflight, bootstrap, copy-data, copy-runtime, install-runtime]
+        options: [preflight, bootstrap, copy-data, copy-runtime, install-runtime, snapshot-data]
         default: preflight
         required: true
 
@@ -31,6 +31,7 @@ jobs:
       - uses: actions/checkout@v6
       - run: bash -n scripts/ops/hostinger-migration/stage.sh
       - run: bash -n scripts/ops/hostinger-migration/install-runtime.sh
+      - run: bash -n scripts/ops/hostinger-migration/snapshot-data.sh
       - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_*.py' -v
   stage:
     needs: validate
