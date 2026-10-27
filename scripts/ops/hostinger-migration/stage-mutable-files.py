@@ -14,6 +14,7 @@ import sys
 STAGE = Path('/srv/umsa-migration')
 SOURCE = 'root@23.105.176.45'
 PATHS = {
+    'umsa-public-archive': '/root/fumbling-field/public',
     'directus-uploads': '/opt/directus-admin/uploads',
     'sgi-private': '/home/sgi.ultimamilla.com.ar/private',
     'sgi-imports': '/home/sgi.ultimamilla.com.ar/imports',
@@ -31,6 +32,10 @@ PATHS = {
     'plan-site-data': '/home/umbot.com.ar/cannaval-plan-repo/site-data',
     'plan-exports': '/home/umbot.com.ar/cannaval-plan-repo/exports',
     'plan-wiki': '/home/umbot.com.ar/cannaval-plan-repo/wiki',
+}
+REVIEWED_LINKS = {
+    'plan-docs': ('wiki', '../wiki'),
+    'umsa-public-archive': ('imagenes_antecedentes_versionproduccion', '../imagenes_antecedentes_versionproduccion'),
 }
 
 
@@ -79,14 +84,14 @@ def main(identifier):
                 raise RuntimeError('Source data contains a special file: ' + name)
             links = subprocess.check_output(['ssh', *options, SOURCE,
                 'find ' + shlex.quote(source) + ' -type l -print'], stderr=log, text=True).splitlines()
-            expected = [source + '/wiki'] if name == 'plan-docs' else []
+            expected = [source + '/' + REVIEWED_LINKS[name][0]] if name in REVIEWED_LINKS else []
             if links != expected:
                 raise RuntimeError('Unexpected source link inventory: ' + name)
             if links:
                 target = subprocess.check_output(['ssh', *options, SOURCE, 'readlink ' + shlex.quote(links[0])],
                                                  stderr=log, text=True).strip()
-                if target != '../wiki':
-                    raise RuntimeError('Unexpected Plan documentation link')
+                if target != REVIEWED_LINKS[name][1]:
+                    raise RuntimeError('Unexpected reviewed link target: ' + name)
             dest = root / name
             dest.mkdir(mode=0o700)
             subprocess.run(['rsync', '-a', '--numeric-ids', '--no-specials', '--no-devices',
@@ -96,9 +101,10 @@ def main(identifier):
             count = total = 0
             for path in sorted(dest.rglob('*')):
                 if path.is_symlink():
-                    if name != 'plan-docs' or path.relative_to(dest).as_posix() != 'wiki' or os.readlink(path) != '../wiki':
+                    actual = (path.relative_to(dest).as_posix(), os.readlink(path))
+                    if name not in REVIEWED_LINKS or actual != REVIEWED_LINKS[name]:
                         raise RuntimeError('Unexpected staged link: ' + name)
-                    digest.update(b'link\0wiki\0../wiki')
+                    digest.update(b'link\0' + actual[0].encode() + b'\0' + actual[1].encode())
                     continue
                 if not path.is_file():
                     continue

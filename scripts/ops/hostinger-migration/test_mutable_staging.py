@@ -15,7 +15,7 @@ class MutableStaging(unittest.TestCase):
 
     def test_paths_are_explicit_and_unique(self):
         self.assertEqual(len(module.PATHS), len(set(module.PATHS.values())))
-        self.assertTrue(all(p.startswith(('/opt/', '/home/', '/var/')) for p in module.PATHS.values()))
+        self.assertTrue(all(p.startswith(('/opt/', '/home/', '/var/', '/root/fumbling-field/public')) for p in module.PATHS.values()))
         self.assertIn('/opt/directus-admin/uploads', module.PATHS.values())
 
 
