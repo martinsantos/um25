@@ -3,7 +3,7 @@
 set -euo pipefail
 umask 077
 phase=${1:-preflight}
-case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases|recover-empty-storage|materialize-files|rehearsal|prepare-mail|build-clean-web|finish-file-validation|finish-mariadb|build-clean-sitrep|build-clean-arca) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
+case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases|recover-empty-storage|materialize-files|rehearsal|prepare-mail|build-clean-web|finish-file-validation|finish-mariadb|build-clean-sitrep|build-clean-arca|build-clean-sgi) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
 source_host=23.105.176.45
 target_host=179.198.115.115
 target_name=srv2101069.hstgr.cloud
@@ -20,6 +20,11 @@ actual_name=$(ssh "${ssh_opts[@]}" "root@$target_host" hostname)
 ssh "${ssh_opts[@]}" "root@$source_host" 'test -d /root/fumbling-field && test -d /opt/directus-admin && printf "Source application roots confirmed\n"'
 ssh "${ssh_opts[@]}" "root@$target_host" 'test "$(id -u)" = 0; cat /etc/os-release; nproc; free -m; df -h /'
 [[ "$phase" != preflight ]] || exit 0
+
+if [[ "$phase" == build-clean-sgi ]]; then
+  python3 "$script_dir/clean-sgi.py"
+  exit 0
+fi
 
 if [[ "$phase" == build-clean-sitrep ]]; then
   python3 "$script_dir/clean-sitrep.py"
