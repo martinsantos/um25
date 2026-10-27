@@ -1,0 +1,53 @@
+name: Hostinger UMSA production
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'astro.config.mjs'
+      - 'tailwind.config.*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostinger-umsa-production
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/master' && vars.UMSA_PRODUCTION_TARGET == 'hostinger'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20.19.6'
+      - name: Validate and build the exact release
+        run: |
+          npm ci --include=dev
+          npm run lint
+          npm run typecheck
+          npm run audit:css
+          npm run test:ci
+          npm run build
+          python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_*.py' -q
+          npm prune --omit=dev --ignore-scripts
+          tar -czf "$RUNNER_TEMP/umsa-clean-web.tar.gz" dist node_modules package.json package-lock.json
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Publish only after the migration cutover gate
+        env:
+          CLEAN_WEB_PACKAGE: ${{ runner.temp }}/umsa-clean-web.tar.gz
+        run: bash scripts/ops/hostinger-migration/ship-web-build.sh publish
