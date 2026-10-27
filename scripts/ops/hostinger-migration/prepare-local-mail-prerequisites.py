@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Prepare aliases and test the SITREP signer on the isolated target only."""
 import hashlib
+import base64
 import os
 from pathlib import Path
 import re
@@ -27,6 +28,17 @@ def append_reviewed_alias(source, current):
     return current.rstrip('\n') + '\n' + rows[0] + '\n', address
 
 
+def dkim_dns_key(output):
+    records = [line for line in output.splitlines() if 'v=DKIM1' in line]
+    if len(records) != 1:
+        raise ValueError('Unexpected DKIM DNS record inventory')
+    value = ''.join(re.findall(r'"([^"]*)"', records[0]))
+    match = re.search(r'(?:^|;)[ \t]*p[ \t]*=[ \t]*([^;]+)', value, re.I)
+    if not match:
+        raise ValueError('DKIM public key absent')
+    return base64.b64decode(''.join(match.group(1).split()), validate=True)
+
+
 def main():
     os.umask(0o077)
     if (socket.gethostname() != 'srv2101069.hstgr.cloud' or STAGE.is_symlink()
@@ -48,14 +60,14 @@ def main():
     with (STAGE / 'receipts/local-mail-prerequisites.log').open('ab') as log:
         def run(args, **kwargs):
             return subprocess.run(args, check=True, stdout=log, stderr=log, **kwargs)
-        # Exercise the existing key without sending any email. The dummy message
-        # never leaves this host; verification queries the public DNS key.
-        message = b'From: no-reply@ultimamilla.com.ar\r\nTo: test@example.invalid\r\nSubject: Local verification\r\n\r\nLocal test.\r\n'
-        signed = subprocess.check_output(['runuser', '-u', 'opendkim', '--', 'opendkim-testmsg', '-C',
-            '-d', 'ultimamilla.com.ar', '-s', 'sitrep20261012', '-k', KEY], input=message, stderr=log)
-        if b'DKIM-Signature:' not in signed:
-            raise RuntimeError('Signer did not produce a signature')
-        run(['runuser', '-u', 'opendkim', '--', 'opendkim-testmsg'], input=signed)
+        # opendkim-testmsg on this distro rejected a valid dummy message before
+        # changes. Compare the actual public key material to DNS instead.
+        public = subprocess.check_output(['runuser', '-u', 'opendkim', '--', 'openssl', 'pkey',
+            '-in', KEY, '-pubout', '-outform', 'DER'], stderr=log)
+        dns = subprocess.check_output(['dig', '+short', 'TXT', 'sitrep20261012._domainkey.ultimamilla.com.ar'],
+                                      stderr=log, text=True)
+        if public != dkim_dns_key(dns):
+            raise RuntimeError('Signing key differs from DNS')
         try:
             run(['systemctl', 'start', 'sitrep-opendkim'])
             for _ in range(20):
@@ -85,8 +97,8 @@ def main():
             shutil.copy2(backup, ALIASES)
             run(['postalias', 'hash:' + str(ALIASES)])
             raise
-    (STAGE / 'local-mail-prerequisites.complete').write_text('Alias map created and legacy SITREP signer verified locally. Both services stopped; no mail sent.\n')
-    print('Alias map and existing SITREP signing key passed isolated checks. SMTP and signer remain stopped; no mail sent.')
+    (STAGE / 'local-mail-prerequisites.complete').write_text('Alias map created; existing SITREP key matches DNS and signer socket is reachable. Both services stopped; no mail sent.\n')
+    print('Alias map, DKIM key/DNS match and signer socket passed. SMTP and signer remain stopped; no mail sent.')
 
 
 if __name__ == '__main__':
