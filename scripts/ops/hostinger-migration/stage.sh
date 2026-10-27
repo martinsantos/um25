@@ -3,7 +3,7 @@
 set -euo pipefail
 umask 077
 phase=${1:-preflight}
-case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases|recover-empty-storage|materialize-files|rehearsal|prepare-mail|build-clean-web|finish-file-validation|finish-mariadb|build-clean-sitrep|build-clean-arca|build-clean-sgi|rotate-internal|build-clean-cms|clean-node-rehearsal|clean-container-rehearsal|clean-php-rehearsal|clean-tools-plan|rehearsal-bridges|clean-proxy-rehearsal|finish-clean-runtime|restrict-database|finish-clean-proxy|persist-rehearsal|rehearse-web-publisher|refresh-rehearsal-data|finish-web-publisher|prepare-backup-identity|prepare-acme|finish-acme) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
+case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases|recover-empty-storage|materialize-files|rehearsal|prepare-mail|build-clean-web|finish-file-validation|finish-mariadb|build-clean-sitrep|build-clean-arca|build-clean-sgi|rotate-internal|build-clean-cms|clean-node-rehearsal|clean-container-rehearsal|clean-php-rehearsal|clean-tools-plan|rehearsal-bridges|clean-proxy-rehearsal|finish-clean-runtime|restrict-database|finish-clean-proxy|persist-rehearsal|rehearse-web-publisher|refresh-rehearsal-data|finish-web-publisher|prepare-backup-identity|prepare-acme|finish-acme|rehearse-offsite-backups) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
 source_host=23.105.176.45
 target_host=179.198.115.115
 target_name=srv2101069.hstgr.cloud
@@ -20,6 +20,13 @@ actual_name=$(ssh "${ssh_opts[@]}" "root@$target_host" hostname)
 ssh "${ssh_opts[@]}" "root@$source_host" 'test -d /root/fumbling-field && test -d /opt/directus-admin && printf "Source application roots confirmed\n"'
 ssh "${ssh_opts[@]}" "root@$target_host" 'test "$(id -u)" = 0; cat /etc/os-release; nproc; free -m; df -h /'
 [[ "$phase" != preflight ]] || exit 0
+
+if [[ "$phase" == rehearse-offsite-backups ]]; then
+  [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+  scp "${ssh_opts[@]}" "$script_dir/rehearse-offsite-backups.py" "root@$target_host:$stage/tooling/"
+  ssh "${ssh_opts[@]}" "root@$target_host" "python3 $stage/tooling/rehearse-offsite-backups.py $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+  exit 0
+fi
 
 if [[ "$phase" == finish-acme ]]; then
   scp "${ssh_opts[@]}" "$script_dir/prepare-acme.py" "root@$target_host:$stage/tooling/"
