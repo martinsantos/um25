@@ -58,7 +58,7 @@ def environment_text(values):
 
 def trusted_application(pointer, subdir, entry):
     base = Path(pointer.strip())
-    if base.is_symlink() or base.parent != STAGE / 'trusted' or not base.is_dir():
+    if base.parent != STAGE / 'trusted' or base.is_symlink() or not base.is_dir():
         raise RuntimeError('Untrusted application pointer')
     root = base / 'application' / subdir
     if not (root / entry).is_file() or not (root / 'node_modules').is_dir():
