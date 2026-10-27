@@ -1,974 +1,220 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ULTIMA MILLA - Emergency Dashboard v1.0</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="shortcut icon" href="icon.svg" type="image/svg+xml">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #DC2626;
-            --secondary-color: #f39c12;
-            --success-color: #166534;
-            --warning-color: #f39c12;
-            --error-color: #DC2626;
-            --info-color: #333333;
-            --bg-color: #f5f5f5;
-            --card-bg: #ffffff;
-            --text-color: #111111;
-            --text-secondary-color: #555555;
-            --border-color: #dddddd;
-            --shadow: 0 8px 20px rgba(0,0,0,0.06);
-            --border-radius: 8px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Open Sans', Arial, system-ui, sans-serif;
-            background: var(--bg-color);
-            min-height: 100vh;
-            color: var(--text-color);
-            line-height: 1.6;
-        }
-
-        .dashboard-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .dashboard-header {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #111111;
-            opacity: 1;
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 2;
-            color: white;
-        }
-
-        .main-title {
-            font-family: 'Poppins', 'Futura PT', 'Century Gothic', sans-serif;
-            font-size: clamp(2.25rem, 5vw, 3rem);
-            font-weight: 600;
-            line-height: 1.08;
-            margin-bottom: 0.5rem;
-            text-shadow: none;
-        }
-
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 1rem;
-        }
-
-        .version-info {
-            font-size: 1rem;
-            opacity: 0.8;
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(255,255,255,0.12);
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            margin-top: 1rem;
-            border: 1px solid rgba(255,255,255,0.24);
-        }
-
-        .grid {
-            display: grid;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .grid-4 {
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        }
-
-        .grid-2 {
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-        }
-
-        .stat-card {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 1rem 0;
-        }
-
-        .stat-label {
-            color: var(--text-secondary-color);
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: background-color 0.2s, color 0.2s, transform 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: color-mix(in srgb, var(--primary-color) 82%, #000 18%);
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: var(--border-color);
-            color: var(--text-color);
-        }
-
-        .btn-secondary:hover {
-            background: #dee2e6;
-        }
-
-        .btn-emergency {
-            background: var(--error-color);
-            color: white;
-        }
-
-        .btn-emergency:hover {
-            background: color-mix(in srgb, var(--error-color) 82%, #000 18%);
-        }
-
-        .logs-container {
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            background: #f8f9fa;
-        }
-
-        .log-entry {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border-color);
-            font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 1rem;
-            transition: background-color 0.2s;
-        }
-
-        .log-entry:hover {
-            background: #f1f3f4;
-        }
-
-        .log-entry.unread {
-            background: #fff3cd;
-            border-left: 4px solid var(--warning-color);
-        }
-
-        .log-timestamp {
-            color: var(--text-secondary-color);
-            margin-right: 0.5rem;
-        }
-
-        .log-type-badge {
-            padding: 0.2rem 0.5rem;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 500;
-            margin-right: 0.5rem;
-        }
-
-        .badge-info {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .badge-success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .badge-warning {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .badge-error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .badge-command {
-            background: #e2e3e5;
-            color: #383d41;
-        }
-
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1rem;
-        }
-
-        .service-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            padding: 1rem;
-            transition: background-color 0.2s, border-color 0.2s;
-        }
-
-        .service-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .service-name {
-            font-weight: 600;
-        }
-
-        .service-status {
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .status-online {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-offline {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .status-checking {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .controls {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 0.5rem;
-            flex: 1;
-            min-width: 250px;
-        }
-
-        .form-control {
-            flex: 1;
-            padding: 0.5rem;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-        }
-
-        .filter-buttons {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 0.25rem 0.75rem;
-            border: 1px solid var(--border-color);
-            background: white;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
-        }
-
-        .filter-btn.active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-
-        .command-panel {
-            background: #2c3e50;
-            border-radius: var(--border-radius);
-            padding: 1rem;
-            color: white;
-        }
-
-        .command-input {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .command-input input {
-            flex: 1;
-            padding: 0.5rem;
-            background: #34495e;
-            border: 1px solid #4a5f7a;
-            border-radius: 4px;
-            color: white;
-            font-family: monospace;
-        }
-
-        .quick-commands {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .quick-cmd {
-            padding: 0.25rem 0.5rem;
-            background: #34495e;
-            border: 1px solid #4a5f7a;
-            border-radius: 4px;
-            color: white;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background 0.2s;
-        }
-
-        .quick-cmd:hover {
-            background: #4a5f7a;
-        }
-
-        .fade-in {
-            animation: fadeIn 0.24s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .text-center { text-align: center; }
-        .text-sm { font-size: 1rem; }
-        .mt-2 { margin-top: 0.5rem; }
-        .mt-3 { margin-top: 0.75rem; }
-        .mr-1 { margin-right: 0.25rem; }
-        .flex { display: flex; }
-        .items-start { align-items: flex-start; }
-        .items-center { align-items: center; }
-        .justify-between { justify-content: space-between; }
-        .flex-1 { flex: 1; }
-        .space-x-2 > * + * { margin-left: 0.5rem; }
-
-        .material-icons.icon-sm { font-size: 18px; }
-        .material-icons.icon-md { font-size: 24px; }
-        .material-icons.icon-lg { font-size: 36px; }
-
-        .text-primary { color: var(--primary-color); }
-        .text-success { color: var(--success-color); }
-        .text-warning { color: var(--warning-color); }
-        .text-error { color: var(--error-color); }
-
-        @media (max-width: 768px) {
-            .dashboard-container {
-                padding: 1rem;
-            }
-            
-            .main-title {
-                font-size: 2rem;
-            }
-            
-            .grid-4 {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            }
-            
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-            
-            .controls {
-                flex-direction: column;
-            }
-            
-            .input-group {
-                min-width: auto;
-            }
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#111111">
+  <title>Estado de las sondas · ULTIMA MILLA</title>
+  <link rel="manifest" href="/status/manifest.json">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <style>
+    @font-face { font-family: 'UM Sans 2'; src: url('/fonts/um-sans/v2.0.0/UMSans2-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'UM Sans 2'; src: url('/fonts/um-sans/v2.0.0/UMSans2-Bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    :root { --primary-color: #DC2626; color-scheme: light; font-family: 'UM Sans 2', Arial, sans-serif; color: #111111; background: #f5f5f5; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-size: 18px; line-height: 1.6; }
+    main { max-width: 1120px; margin: auto; padding: 32px 24px 64px; }
+    header { background: #111111; color: #fff; padding: 32px; border-top: 4px solid var(--primary-color); }
+    h1 { margin: 16px 0 8px; font-size: clamp(28px, 5vw, 42px); line-height: 1.15; }
+    h2 { margin: 0 0 16px; font-size: 24px; line-height: 1.25; }
+    p { margin: 0 0 16px; }
+    a { color: inherit; text-underline-offset: 4px; }
+    a:focus-visible, button:focus-visible { outline: 3px solid var(--primary-color); outline-offset: 4px; }
+    .eyebrow { font-size: 16px; letter-spacing: 0.06em; }
+    .summary { margin: 24px 0 0; font-weight: 700; }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin: 24px 0; }
+    button { font: inherit; font-weight: 700; padding: 10px 20px; min-height: 48px; border: 1px solid #111; background: #111111; color: #fff; cursor: pointer; }
+    button:disabled { opacity: 0.65; cursor: wait; }
+    .muted { color: #555; font-size: 16px; }
+    .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 0 0 32px; }
+    .metric, section { background: #fff; border: 1px solid #ddd; padding: 24px; }
+    .metric dt { font-size: 16px; }
+    .metric dd { margin: 8px 0; font-size: 26px; font-weight: 700; overflow-wrap: anywhere; }
+    .metric p { margin: 0; }
+    section { margin-bottom: 24px; }
+    .services { list-style: none; padding: 0; margin: 24px 0 0; }
+    .services li { padding: 20px 0; border-top: 1px solid #ddd; }
+    .service-line { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+    .service-state { font-size: 16px; font-weight: 700; }
+    .service-state[data-status='online'] { color: #166534; }
+    .service-state[data-status='offline'] { color: #b91c1c; }
+    .service-state[data-status='unknown'] { color: #555; }
+    .service-detail { margin: 8px 0 0; font-size: 16px; color: #555; }
+    footer { font-size: 16px; }
+    noscript p { margin: 24px 0; padding: 16px; border: 1px solid #b91c1c; background: #fff; }
+    @media (max-width: 700px) {
+      main { padding: 16px 16px 40px; }
+      header, section, .metric { padding: 24px 20px; }
+      .metrics { grid-template-columns: 1fr; }
+      .service-line { flex-direction: column; align-items: flex-start; gap: 4px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Header -->
-        <div class="dashboard-header">
-            <div class="header-bg"></div>
-            <div class="header-content">
-                <h1 class="main-title">ULTIMA MILLA</h1>
-                <p class="subtitle">Emergency Dashboard - Sistema de Monitoreo</p>
-                <p class="version-info">v1.0 - Monitoreo en Tiempo Real</p>
-                <div class="status-badge">
-                    <span class="material-icons">check_circle</span>
-                    <span>Sistema funcionando</span>
-                    <span id="system-uptime">Uptime: No disponible</span>
-                </div>
-            </div>
-        </div>
+<main data-status-version="20261026-real-readings">
+  <header>
+    <a class="eyebrow" href="/">ULTIMA MILLA</a>
+    <h1>Estado de las sondas</h1>
+    <p>Lecturas actuales de los puntos de comprobación del servidor.</p>
+    <p class="summary" id="overall-status" role="status" aria-live="polite">Estado desconocido · aún sin comprobar</p>
+  </header>
+  <noscript><p>JavaScript está desactivado. No se realizaron comprobaciones; el estado permanece desconocido.</p></noscript>
+  <div class="toolbar">
+    <button id="refresh" type="button">Actualizar lecturas</button>
+    <span class="muted" id="last-check">Sin lectura reciente</span>
+  </div>
+  <dl class="metrics">
+    <div class="metric"><dt>Sondas con respuesta</dt><dd id="responding">Sin comprobar</dd><p class="muted">Resultado de la última consulta, no disponibilidad histórica.</p></div>
+    <div class="metric"><dt>Tiempo de la consulta</dt><dd id="response-time">No disponible</dd><p class="muted">Medido desde este navegador hasta recibir la consulta de sondas.</p></div>
+    <div class="metric"><dt>Proceso web activo desde hace</dt><dd id="system-uptime">No disponible</dd><p class="muted">Tiempo de actividad del proceso Astro, no del servidor completo.</p></div>
+  </dl>
+  <section aria-labelledby="services-title">
+    <h2 id="services-title">Comprobaciones actuales</h2>
+    <p class="muted">Las sondas HTTP y TCP comprueban respuesta o conexión. No certifican el funcionamiento completo de cada aplicación. Si una lectura falla o pierde vigencia, se muestra como desconocida.</p>
+    <ul class="services" id="services-grid"></ul>
+  </section>
+  <section aria-labelledby="coverage-title">
+    <h2 id="coverage-title">Alcance del panel</h2>
+    <p><strong>Disponibilidad histórica: sin datos.</strong> No hay un historial conectado que permita calcular un porcentaje de disponibilidad.</p>
+    <p><strong>Registros del servidor: no conectados.</strong> Este panel no ofrece una fuente de logs de producción.</p>
+    <p class="muted">Solo lectura. Actualización cada minuto mientras esta pestaña está visible. Una lectura vence a los dos minutos. No hay controles de reinicio, limpieza ni ejecución de comandos.</p>
+  </section>
+  <footer><a href="/">Volver a ULTIMA MILLA</a> · Fuentes: <a href="/api/monitoring/services">sondas de servicios</a> y <a href="/api/monitoring/health">proceso web</a>.</footer>
+</main>
+<script>
+(() => {
+  const MAX_AGE = 120000;
+  const names = ['Astro Frontend', 'Directus CMS', 'PostgreSQL Database', 'Redis Cache', 'Nginx Reverse Proxy'];
+  const byId = id => document.getElementById(id);
+  const rows = new Map();
+  let servicesAt = 0;
+  let healthAt = 0;
+  let busy = false;
+  let refreshPending = false;
+  let generation = 0;
 
-        <!-- Stats Grid -->
-        <div class="grid grid-4">
-            <div class="card stat-card">
-                <div class="stat-value text-success" id="stat-availability">99.5%</div>
-                <div class="stat-label">Disponibilidad</div>
-            </div>
-            <div class="card stat-card">
-                <div class="stat-value text-primary" id="stat-response-time">45ms</div>
-                <div class="stat-label">Tiempo Respuesta</div>
-            </div>
-            <div class="card stat-card">
-                <div class="stat-value text-warning" id="stat-logs-total">-</div>
-                <div class="stat-label">Total Logs</div>
-            </div>
-            <div class="card stat-card">
-                <div class="stat-value text-error" id="stat-logs-unread">-</div>
-                <div class="stat-label">Logs No Leídos</div>
-            </div>
-        </div>
+  for (const name of names) {
+    const row = document.createElement('li');
+    const line = document.createElement('div');
+    line.className = 'service-line';
+    const title = document.createElement('strong');
+    title.textContent = name;
+    const state = document.createElement('span');
+    state.className = 'service-state';
+    const detail = document.createElement('p');
+    detail.className = 'service-detail';
+    line.append(title, state);
+    row.append(line, detail);
+    byId('services-grid').append(row);
+    rows.set(name, {state, detail});
+  }
 
-        <!-- Main Content Grid -->
-        <div class="grid grid-2">
-            <!-- Services Panel -->
-            <div class="card">
-                <h2 class="card-title">
-                    <span class="material-icons">dns</span>
-                    Estado de Servicios
-                </h2>
-                <div id="services-grid" class="services-grid">
-                    <!-- Services will be loaded here -->
-                </div>
-            </div>
+  function unknownServices(message = 'Estado desconocido · sin lectura reciente') {
+    servicesAt = 0;
+    byId('overall-status').textContent = message;
+    byId('responding').textContent = 'Sin comprobar';
+    byId('response-time').textContent = 'No disponible';
+    byId('last-check').textContent = 'Sin lectura reciente';
+    for (const {state, detail} of rows.values()) {
+      state.textContent = 'Desconocido';
+      state.dataset.status = 'unknown';
+      detail.textContent = 'Sin evidencia reciente';
+    }
+  }
 
-            <!-- System Logs -->
-            <div class="card">
-                <h2 class="card-title">
-                    <span class="material-icons">list_alt</span>
-                    Logs del Sistema
-                    <span id="log-stats" class="text-sm" style="margin-left: auto; color: var(--text-secondary-color);"></span>
-                </h2>
-                
-                <div class="controls">
-                    <div class="input-group">
-                        <input type="text" id="log-search" class="form-control" placeholder="Buscar en logs..." onkeyup="searchLogs()">
-                        <button class="btn btn-primary" onclick="refreshLogs()">
-                            <span class="material-icons">refresh</span>
-                        </button>
-                    </div>
-                    
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-filter="" onclick="filterLogs('')">Todos</button>
-                        <button class="filter-btn" data-filter="info" onclick="filterLogs('info')">Info</button>
-                        <button class="filter-btn" data-filter="warning" onclick="filterLogs('warning')">Warning</button>
-                        <button class="filter-btn" data-filter="error" onclick="filterLogs('error')">Error</button>
-                        <button class="filter-btn" data-filter="success" onclick="filterLogs('success')">Success</button>
-                    </div>
-                </div>
+  function timestamp(value) {
+    const time = typeof value === 'string' ? Date.parse(value) : NaN;
+    return Number.isFinite(time) && Date.now() - time <= MAX_AGE && time - Date.now() <= 30000 ? time : 0;
+  }
 
-                <div class="controls">
-                    <button class="btn btn-secondary" onclick="markAllAsRead()">
-                        <span class="material-icons mr-1">done_all</span>
-                        Marcar como leídos
-                    </button>
-                    <button class="btn btn-secondary" onclick="clearAllLogs()">
-                        <span class="material-icons mr-1">clear_all</span>
-                        Limpiar logs
-                    </button>
-                </div>
+  async function read(url) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 12000);
+    try {
+      const response = await fetch(url, {cache: 'no-store', signal: controller.signal});
+      if (!response.ok) throw new Error('No se obtuvo una lectura válida');
+      const data = await response.json();
+      if (!data.success || !timestamp(data.timestamp)) throw new Error('Lectura ausente o vencida');
+      return data;
+    } finally { clearTimeout(timer); }
+  }
 
-                <div id="logs-container" class="logs-container">
-                    <!-- Logs will be loaded here -->
-                </div>
-            </div>
-        </div>
+  function showServices(data, elapsed) {
+    if (!Array.isArray(data.services)) throw new Error('Respuesta de sondas incompleta');
+    let online = 0;
+    let offline = 0;
+    let checked = 0;
+    for (const name of names) {
+      const matches = data.services.filter(service => service.name === name);
+      const service = matches.length === 1 ? matches[0] : null;
+      const valid = service && timestamp(service.lastCheck) && ['online', 'offline'].includes(service.status);
+      const {state, detail} = rows.get(name);
+      const status = valid ? service.status : 'unknown';
+      state.dataset.status = status;
+      state.textContent = status === 'online' ? 'Con respuesta' : status === 'offline' ? 'Sin respuesta' : 'Desconocido';
+      if (valid) {
+        checked++;
+        if (status === 'online') online++; else offline++;
+        const probe = service.type === 'tcp' ? 'Sonda TCP' : service.type === 'http' ? 'Sonda HTTP' : 'Sonda';
+        const duration = typeof service.responseTime === 'string' && /^\d+(?:\.\d+)?ms$/.test(service.responseTime) ? ` · ${service.responseTime}` : '';
+        detail.textContent = `${probe}${duration} · ${new Date(service.lastCheck).toLocaleString('es-AR', {hour12: false})}`;
+      } else { detail.textContent = 'Sin evidencia reciente'; }
+    }
+    servicesAt = timestamp(data.timestamp);
+    byId('responding').textContent = checked ? `${online} de ${names.length}` : 'Sin comprobar';
+    byId('response-time').textContent = `${Math.round(elapsed)} ms`;
+    byId('last-check').textContent = `Última consulta: ${new Date(servicesAt).toLocaleString('es-AR', {hour12: false})}`;
+    byId('overall-status').textContent = offline ? 'Hay sondas sin respuesta' : checked === names.length ? 'Las 5 sondas respondieron' : checked ? 'Comprobación incompleta · hay estados desconocidos' : 'Estado desconocido · sin sondas verificables';
+  }
 
-        <!-- Command Panel -->
-        <div class="card">
-            <h2 class="card-title">
-                <span class="material-icons">terminal</span>
-                Panel de Comandos
-            </h2>
-            
-            <div class="command-panel">
-                <form onsubmit="executeCommand(event)" class="command-input">
-                    <input type="text" id="cmd-input" placeholder="Ingresa un comando..." autocomplete="off">
-                    <button type="submit" class="btn btn-primary">Ejecutar</button>
-                </form>
-                
-                <div class="quick-commands">
-                    <span class="quick-cmd" onclick="runDirectCommand('help')">help</span>
-                    <span class="quick-cmd" onclick="runDirectCommand('status')">status</span>
-                    <span class="quick-cmd" onclick="runDirectCommand('logs')">logs</span>
-                    <span class="quick-cmd" onclick="runDirectCommand('refresh')">refresh</span>
-                </div>
-            </div>
-        </div>
+  async function refresh() {
+    if (busy) { refreshPending = true; return; }
+    busy = true;
+    const current = ++generation;
+    byId('refresh').disabled = true;
+    byId('refresh').textContent = 'Consultando…';
+    const started = performance.now();
+    await Promise.all([
+      read('/api/monitoring/services').then(data => {
+        if (current === generation) showServices(data, performance.now() - started);
+      }).catch(() => { if (current === generation) unknownServices(); }),
+      read('/api/monitoring/health').then(data => {
+        if (current !== generation) return;
+        if (!Number.isFinite(data.uptime_seconds) || data.uptime_seconds < 0 || data.status !== 'online') throw new Error('Tiempo no disponible');
+        healthAt = timestamp(data.timestamp);
+        const seconds = Math.floor(data.uptime_seconds);
+        byId('system-uptime').textContent = `${Math.floor(seconds / 86400)} d ${Math.floor(seconds % 86400 / 3600)} h ${Math.floor(seconds % 3600 / 60)} min`;
+      }).catch(() => { if (current === generation) { healthAt = 0; byId('system-uptime').textContent = 'No disponible'; } })
+    ]);
+    busy = false;
+    byId('refresh').disabled = false;
+    byId('refresh').textContent = 'Actualizar lecturas';
+    const repeat = refreshPending;
+    refreshPending = false;
+    if (repeat && navigator.onLine && !document.hidden) refresh();
+  }
 
-        <!-- Emergency Actions -->
-        <div class="card">
-            <h2 class="card-title">
-                <span class="material-icons">warning</span>
-                Acciones de Emergencia
-            </h2>
-            
-            <div class="controls">
-                <button class="btn btn-emergency" onclick="emergencyRestart()">
-                    <span class="material-icons mr-1">restart_alt</span>
-                    Verificar Emergencia
-                </button>
-                <button class="btn btn-secondary" onclick="runDiagnostics()">
-                    <span class="material-icons mr-1">health_and_safety</span>
-                    Diagnóstico Local
-                </button>
-                <button class="btn btn-secondary" onclick="cleanDocker()">
-                    <span class="material-icons mr-1">refresh</span>
-                    Refrescar Estado
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Variables globales
-        let allLogs = [];
-        let filteredLogs = [];
-        let currentFilter = '';
-
-        let services = [
-            { name: 'Astro Frontend', status: 'checking', critical: true },
-            { name: 'Directus CMS', status: 'checking', critical: true },
-            { name: 'PostgreSQL Database', status: 'checking', critical: true },
-            { name: 'Redis Cache', status: 'checking', critical: false },
-            { name: 'Nginx Reverse Proxy', status: 'checking', critical: true }
-        ];
-
-        function escapeHtml(value) {
-            return String(value ?? '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
-
-        function normalizeLogType(type) {
-            return ['info', 'success', 'warning', 'error', 'command'].includes(type) ? type : 'info';
-        }
-
-        function normalizeServiceStatus(status) {
-            return ['online', 'offline', 'checking', 'unknown'].includes(status) ? status : 'unknown';
-        }
-
-        // Función debug mejorada
-        function debug(message, type = 'info') {
-            const timestamp = new Date().toLocaleTimeString();
-            console.log(`[${timestamp}] ${type.toUpperCase()}: ${message}`);
-            
-            // Agregar al DOM si hay un elemento debug
-            const debugElement = document.getElementById('debug-console');
-            if (debugElement) {
-                const logEntry = document.createElement('div');
-                const safeType = normalizeLogType(type);
-                logEntry.className = `debug-entry debug-${safeType}`;
-                logEntry.innerHTML = `<span class="debug-time">[${escapeHtml(timestamp)}]</span> <span class="debug-message">${escapeHtml(message)}</span>`;
-                debugElement.appendChild(logEntry);
-                debugElement.scrollTop = debugElement.scrollHeight;
-            }
-        }
-
-        // Función fetchUptime corregida
-        async function fetchUptime() {
-            try {
-                const response = await fetch('/api/monitoring/health');
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                const data = await response.json();
-                
-                if (data.uptime_formatted) {
-                    const uptimeElement = document.getElementById('system-uptime');
-                    if (uptimeElement) {
-                        uptimeElement.textContent = `Uptime: ${data.uptime_formatted}`;
-                    }
-                    debug(`Uptime actualizado: ${data.uptime_formatted}`);
-                } else {
-                    throw new Error('Formato de respuesta inválido');
-                }
-            } catch (error) {
-                const uptimeElement = document.getElementById('system-uptime');
-                if (uptimeElement) {
-                    uptimeElement.textContent = 'Uptime: Error al obtener uptime';
-                }
-                debug(`Error al obtener uptime: ${error.message}`, 'error');
-                
-                // Reintento automático después de 30 segundos
-                setTimeout(fetchUptime, 30000);
-            }
-        }
-
-        // Control de tamaño de iconos
-        document.querySelectorAll('.material-icons').forEach(icon => {
-            if (!icon.classList.contains('icon-sm') && 
-                !icon.classList.contains('icon-md') && 
-                !icon.classList.contains('icon-lg')) {
-                icon.classList.add('icon-md'); // Tamaño por defecto
-            }
-        });
-
-        // Inicialización
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchUptime();
-            setInterval(fetchUptime, 60000); // Actualizar cada minuto
-            debug('Dashboard inicializado');
-            initDashboard();
-
-            // Registrar service worker para soporte offline
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/status/service-worker.js')
-                    .then(registration => {
-                        console.log('[App] Service Worker registrado:', registration);
-                        debug('Service Worker registrado para modo offline');
-                    })
-                    .catch(error => {
-                        console.error('[App] Error registrando Service Worker:', error);
-                        debug('Error registrando Service Worker: ' + error.message, 'warning');
-                    });
-            }
-        });
-
-        async function initDashboard() {
-            loadServices();
-            loadLogs();
-            
-            // Actualizar cada 30 segundos
-            setInterval(() => {
-                loadServices();
-                loadLogs();
-            }, 30000);
-        }
-
-        // Sistema de Logs - URLs corregidas
-        async function loadLogs() {
-            try {
-                const response = await fetch('/api/monitoring/logs?limit=50');
-                const data = await response.json();
-                
-                if (data.success) {
-                    allLogs = data.data;
-                    applyCurrentFilter();
-                    updateLogStats();
-                    renderLogs();
-                }
-            } catch (error) {
-                console.error('Error cargando logs:', error);
-                addLocalLog('error', 'Error al cargar logs: ' + error.message);
-            }
-        }
-
-        function renderLogs() {
-            const container = document.getElementById('logs-container');
-            
-            if (filteredLogs.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center" style="color: var(--text-secondary-color); padding: 2rem;">
-                        <span class="material-icons" style="font-size: 48px; opacity: 0.5;">search_off</span>
-                        <p class="mt-2">No hay logs que mostrar</p>
-                        <p class="text-sm">Prueba ajustando los filtros o generando actividad</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = filteredLogs.map(log => {
-                const type = normalizeLogType(log.type);
-                return `
-                <div class="log-entry log-${type} ${!log.read ? 'unread' : ''} fade-in">
-                    <div class="flex items-start justify-between">
-                        <div class="flex-1">
-                            <span class="log-timestamp">${escapeHtml(log.datetime)}</span>
-                            <span class="log-type-badge badge-${type}">${escapeHtml(type)}</span>
-                            <span class="log-message">${escapeHtml(log.message)}</span>
-                            ${log.source ? `<span class="text-xs" style="color: var(--text-secondary-color); margin-left: 0.5rem;">[${escapeHtml(log.source)}]</span>` : ''}
-                        </div>
-                        ${!log.read ? `<span class="material-icons text-primary" style="font-size: 16px;">fiber_new</span>` : ''}
-                    </div>
-                </div>
-            `;
-            }).join('');
-        }
-
-        function filterLogs(type) {
-            currentFilter = type;
-            
-            // Actualizar botones activos
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelector(`[data-filter="${type}"]`).classList.add('active');
-            
-            applyCurrentFilter();
-            renderLogs();
-        }
-
-        function applyCurrentFilter() {
-            filteredLogs = allLogs.filter(log => {
-                if (currentFilter && log.type !== currentFilter) return false;
-                
-                const searchTerm = document.getElementById('log-search').value.toLowerCase();
-                if (searchTerm && !log.message.toLowerCase().includes(searchTerm)) return false;
-                
-                return true;
-            });
-        }
-
-        function searchLogs() {
-            applyCurrentFilter();
-            renderLogs();
-        }
-
-        function updateLogStats() {
-            const total = allLogs.length;
-            const unread = allLogs.filter(log => !log.read).length;
-            
-            document.getElementById('log-stats').textContent = `Total: ${total} | No leídos: ${unread}`;
-            document.getElementById('stat-logs-total').textContent = total;
-            document.getElementById('stat-logs-unread').textContent = unread;
-        }
-
-        async function refreshLogs() {
-            await loadLogs();
-            addLocalLog('info', 'Logs actualizados manualmente');
-        }
-
-        async function markAllAsRead() {
-            const unreadCount = allLogs.filter(log => !log.read).length;
-            if (unreadCount === 0) return;
-
-            allLogs.forEach(log => log.read = true);
-            updateLogStats();
-            renderLogs();
-            addLocalLog('success', `${unreadCount} logs marcados como leídos localmente`);
-        }
-
-        async function clearAllLogs() {
-            if (!confirm('¿Estás seguro de que quieres limpiar todos los logs?')) return;
-
-            allLogs = [];
-            filteredLogs = [];
-            updateLogStats();
-            renderLogs();
-            addLocalLog('warning', 'Logs locales limpiados');
-        }
-
-        async function addLog(type, message, source = 'dashboard') {
-            addLocalLog(type, `[${source}] ${message}`);
-        }
-
-        function addLocalLog(type, message) {
-            const log = {
-                id: 'local_' + Date.now(),
-                timestamp: Math.floor(Date.now() / 1000),
-                datetime: new Date().toLocaleString('es-ES'),
-                type: normalizeLogType(type),
-                message: message,
-                source: 'local',
-                read: false
-            };
-            
-            allLogs.unshift(log);
-            applyCurrentFilter();
-            updateLogStats();
-            renderLogs();
-        }
-
-        // Sistema de Servicios
-        async function loadServices() {
-            renderServices();
-
-            try {
-                const response = await fetch('/api/monitoring/services');
-                const data = await response.json();
-                services = Array.isArray(data.services) ? data.services : services.map(service => ({
-                    ...service,
-                    status: 'unknown'
-                }));
-            } catch (error) {
-                services = services.map(service => ({
-                    ...service,
-                    status: 'unknown'
-                }));
-                addLocalLog('warning', 'No se pudo verificar servicios: ' + error.message);
-            }
-
-            renderServices();
-        }
-
-        function renderServices() {
-            const container = document.getElementById('services-grid');
-            
-            container.innerHTML = services.map(service => {
-                const status = normalizeServiceStatus(service.status);
-                const serviceName = escapeHtml(service.name);
-                return `
-                <div class="service-card fade-in">
-                    <div class="service-header">
-                        <div class="service-name">${serviceName}</div>
-                        <div class="service-status status-${status}">
-                            ${status === 'online' ? 'Online' :
-                              status === 'offline' ? 'Offline' :
-                              status === 'checking' ? 'Verificando' :
-                              'Desconocido'}
-                        </div>
-                    </div>
-                    <div class="text-sm" style="color: var(--text-secondary-color);">
-                        ${service.responseTime ? `Respuesta: ${escapeHtml(service.responseTime)}` : 'Sin evidencia reciente'}
-                        ${service.lastCheck ? ` | Último check: ${escapeHtml(service.lastCheck)}` : ''}
-                    </div>
-                    <div class="flex space-x-2 mt-3">
-                        <button class="btn btn-secondary" style="flex: 1;" onclick="checkService()">
-                            <span class="material-icons" style="font-size: 16px;">refresh</span>
-                            Verificar
-                        </button>
-                    </div>
-                </div>
-            `;
-            }).join('');
-        }
-
-        function checkService() {
-            addLocalLog('info', 'Verificando estado de servicios...');
-            loadServices();
-        }
-
-        // Sistema de Comandos
-        async function executeCommand(event, directCommand = null) {
-            if (event) event.preventDefault();
-            
-            const input = document.getElementById('cmd-input');
-            const command = directCommand || input.value.trim();
-            
-            if (!command) return;
-            
-            if (!directCommand) input.value = '';
-            
-            addLocalLog('command', `Ejecutando: ${command}`);
-            
-            // Simular comandos básicos
-            if (command === 'help') {
-                addLocalLog('info', 'Comandos disponibles: help, status, restart [servicio], logs, emergency');
-            } else if (command === 'status') {
-                addLocalLog('info', 'Sistema operativo, servicios verificándose...');
-                loadServices();
-            } else if (command === 'refresh') {
-                addLocalLog('info', 'Refrescando estado del dashboard...');
-                fetchUptime();
-                loadServices();
-                loadLogs();
-            } else if (command.startsWith('restart ')) {
-                const service = command.split(' ')[1];
-                addLocalLog('warning', `El reinicio remoto de ${service} no está disponible desde este dashboard`);
-            } else if (command === 'logs') {
-                addLocalLog('info', 'Recargando logs del sistema...');
-                loadLogs();
-            } else if (command === 'emergency') {
-                addLocalLog('warning', 'Modo de emergencia activado');
-                emergencyRestart();
-            } else {
-                addLocalLog('command', `Comando "${command}" enviado al servidor`);
-            }
-        }
-
-        function runDirectCommand(command) {
-            executeCommand(null, command);
-        }
-
-        // Funciones de Emergencia
-        function emergencyRestart() {
-            if (!confirm('¿Confirmas la activación del modo de emergencia?')) return;
-            
-            addLocalLog('warning', 'Verificación de emergencia iniciada. Este dashboard no ejecuta reinicios remotos.');
-            fetchUptime();
-            loadServices();
-            loadLogs();
-        }
-
-        function runDiagnostics() {
-            addLocalLog('info', 'Ejecutando diagnóstico local con endpoints disponibles...');
-            fetchUptime();
-            loadServices();
-            loadLogs();
-        }
-
-        function cleanDocker() {
-            addLocalLog('info', 'Refrescando estado local del dashboard...');
-            fetchUptime();
-            loadServices();
-            loadLogs();
-        }
-
-    </script>
+  unknownServices('Estado desconocido · aún sin comprobar');
+  byId('refresh').addEventListener('click', refresh);
+  setInterval(() => { if (!document.hidden) refresh(); }, 60000);
+  setInterval(() => {
+    if (servicesAt && Date.now() - servicesAt > MAX_AGE) unknownServices('Estado desconocido · la lectura venció');
+    if (healthAt && Date.now() - healthAt > MAX_AGE) { healthAt = 0; byId('system-uptime').textContent = 'No disponible'; }
+  }, 10000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+  window.addEventListener('offline', () => {
+    generation++;
+    healthAt = 0;
+    unknownServices('Estado desconocido · sin conexión');
+    byId('system-uptime').textContent = 'No disponible';
+  });
+  window.addEventListener('online', refresh);
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/status/service-worker.js').catch(() => {});
+  }
+  refresh();
+})();
+</script>
 </body>
 </html>
