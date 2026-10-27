@@ -1,0 +1,72 @@
+name: Test Vivero relay standby on Hostinger
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-vivero-relay-standby.yml'
+      - 'scripts/ops/hostinger-migration/*vivero-relay-standby.py'
+  workflow_dispatch:
+    inputs:
+      acknowledgement:
+        description: 'Enter READY to start the restricted standby relay and test TLS/AUTH without sending mail'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostinger-vivero-mail-handoff
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_vivero_relay_standby.py' -v
+  standby:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'READY'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+            ${{ secrets.VIVERO_CLIENT_SSH_KEY }}
+      - name: Start restricted standby and verify it from Vivero without sending mail
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15)
+          target=root@179.198.115.115
+          client=root@68.168.218.28
+          stage=/srv/umsa-migration
+          verified=false
+          cleanup() {
+            if [[ "$verified" != true ]]; then
+              ssh "${opts[@]}" "$target" "test -f $stage/vivero-relay-standby.started && test \"\$(head -n1 $stage/vivero-relay-standby.started)\" = $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT && test ! -e $stage/vivero-relay-standby.complete && test ! -e $stage/production.active && systemctl stop vivero-relay-hostinger" || true
+            fi
+          }
+          trap cleanup EXIT
+          ssh "${opts[@]}" "$target" 'test "$(hostname)" = srv2101069.hstgr.cloud && test ! -e /srv/umsa-migration/production.active'
+          ssh "${opts[@]}" "$client" 'test "$(hostname)" = vps3709080.trouble-free.net && systemctl is-active --quiet vivero-mail-client && test ! -L /root/umsa-vivero-mail-migration && install -d -m 0700 /root/umsa-vivero-mail-migration'
+          scp "${opts[@]}" scripts/ops/hostinger-migration/start-vivero-relay-standby.py "$target:$stage/tooling/"
+          scp "${opts[@]}" scripts/ops/hostinger-migration/probe-vivero-relay-standby.py "$client:/root/umsa-vivero-mail-migration/probe-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.py"
+          ssh "${opts[@]}" "$target" "python3 $stage/tooling/start-vivero-relay-standby.py $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          ssh "${opts[@]}" "$client" "python3 /root/umsa-vivero-mail-migration/probe-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.py"
+          ssh "${opts[@]}" "$target" "test -f $stage/vivero-relay-standby.started && test ! -e $stage/production.active && systemctl is-active --quiet vivero-relay-hostinger && printf '%s\\n' 'Client TLS and AUTH passed without sending mail; standby only.' > $stage/vivero-relay-standby.complete"
+          verified=true
