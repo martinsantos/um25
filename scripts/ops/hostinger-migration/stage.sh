@@ -3,7 +3,7 @@
 set -euo pipefail
 umask 077
 phase=${1:-preflight}
-case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases|materialize-files|rehearsal) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
+case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases|materialize-files|rehearsal|prepare-mail) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
 source_host=23.105.176.45
 target_host=179.198.115.115
 target_name=srv2101069.hstgr.cloud
@@ -99,6 +99,12 @@ ionice -c3 nice -n 19 rsync -aHAX --numeric-ids --relative --timeout=180 \
   > "$stage/receipts/sgi-arca-copy.log" 2>&1
 python3 "$stage/tooling/materialize-files.py"
 TARGET
+  exit 0
+fi
+
+if [[ "$phase" == prepare-mail ]]; then
+  scp "${ssh_opts[@]}" "$script_dir/prepare-mail.py" "root@$target_host:$stage/tooling/"
+  ssh "${ssh_opts[@]}" "root@$target_host" "python3 $stage/tooling/prepare-mail.py"
   exit 0
 fi
 

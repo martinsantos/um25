@@ -20,7 +20,7 @@ class StageGuards(unittest.TestCase):
             ssh = root / 'ssh'
             ssh.write_text('#!/bin/sh\nprintf "wrong-server\\n"\n')
             ssh.chmod(0o700)
-            for phase in ['bootstrap', 'copy-data', 'copy-runtime', 'install-runtime', 'snapshot-data', 'restore-databases', 'materialize-files', 'rehearsal']:
+            for phase in ['bootstrap', 'copy-data', 'copy-runtime', 'install-runtime', 'snapshot-data', 'restore-databases', 'materialize-files', 'rehearsal', 'prepare-mail']:
                 result = subprocess.run(['bash', str(SCRIPT), phase], env={**os.environ, 'PATH': directory + ':' + os.environ['PATH']}, capture_output=True, text=True)
                 self.assertEqual(result.returncode, 3)
                 self.assertIn('Unexpected target hostname', result.stderr)
