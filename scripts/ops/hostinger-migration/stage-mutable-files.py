@@ -20,7 +20,7 @@ PATHS = {
     'sgi-uploads': '/home/sgi.ultimamilla.com.ar/uploads',
     'sgi-arca-archive': '/var/lib/sgi-arca/archive',
     'sitrep-data': '/var/www/sitrep-backend/data',
-    'sitrep-uploads': '/var/www/sitrep-backend/uploads',
+    'sitrep-uploads': '/var/www/sitrep-backend-releases/20260925-064551-inspections/uploads',
     'arca-output': '/opt/plantilla-arca-app/output',
     'wordpress-uploads': '/home/vecinorabioso.com.ar/public_html/wp-content/uploads',
     'wiki-images': '/home/wiki.ultimamilla.com.ar/images',
@@ -64,6 +64,11 @@ def main(identifier):
         for name, source in PATHS.items():
             # Refuse missing roots and symlinked roots; never follow a new path
             # under a potentially compromised source installation.
+            if name == 'sitrep-uploads':
+                target = subprocess.check_output(['ssh', *options, SOURCE,
+                    'readlink /var/www/sitrep-backend/uploads'], stderr=log, text=True).strip()
+                if target != source:
+                    raise RuntimeError('SITREP upload link changed; inspect before copying')
             subprocess.run(['ssh', *options, SOURCE,
                 'test -d ' + shlex.quote(source) + ' && test ! -L ' + shlex.quote(source)],
                 check=True, stdout=log, stderr=log)
