@@ -10,7 +10,7 @@ on:
       phase:
         description: 'Prepare isolated destination; never changes source services or DNS'
         type: choice
-        options: [preflight, bootstrap, copy-data, copy-runtime, install-runtime, snapshot-data, restore-databases, recover-empty-storage, materialize-files, rehearsal, prepare-mail, build-clean-web, finish-file-validation, finish-mariadb]
+        options: [preflight, bootstrap, copy-data, copy-runtime, install-runtime, snapshot-data, restore-databases, recover-empty-storage, materialize-files, rehearsal, prepare-mail, build-clean-web, finish-file-validation, finish-mariadb, build-clean-sitrep, build-clean-arca]
         default: preflight
         required: true
 
@@ -45,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
-        if: inputs.phase == 'build-clean-web'
+        if: inputs.phase == 'build-clean-web' || inputs.phase == 'build-clean-sitrep'
         with:
           node-version: '20.19.6'
       - name: Build clean UMSA artifact from reviewed Git and locked dependencies
