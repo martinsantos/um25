@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Add reviewed missing WordPress images to the isolated target only."""
 import hashlib
-import imghdr
 import json
 import os
 from pathlib import Path
@@ -24,6 +23,13 @@ def digest(path):
     return result.hexdigest()
 
 
+def supported_image(path):
+    with path.open('rb') as stream:
+        header = stream.read(12)
+    return (header.startswith(b'\xff\xd8\xff') or header.startswith(b'\x89PNG\r\n\x1a\n')
+            or header.startswith((b'GIF87a', b'GIF89a')))
+
+
 def missing_images(source, target):
     missing = []
     for item in sorted(source.rglob('*')):
@@ -41,7 +47,7 @@ def missing_images(source, target):
             continue
         if relative.parts[:2] != ('2026', '10') or item.suffix.lower() not in ('.jpg', '.jpeg', '.png', '.gif'):
             raise ValueError('Unreviewed missing file')
-        if imghdr.what(item) not in ('jpeg', 'png', 'gif'):
+        if not supported_image(item):
             raise ValueError('Missing file is not a supported image')
         missing.append(relative)
     if len(missing) != 11:
