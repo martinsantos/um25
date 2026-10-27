@@ -19,7 +19,9 @@ permissions:
   actions: read
 
 concurrency:
-  group: hostinger-migration-${{ github.event_name == 'workflow_dispatch' && 'staging' || github.run_id }}
+  # Bulk files write only source/{root,etc,home,opt,var}; preparation writes other
+  # staging areas or the fresh OS. All preparation phases remain serialized.
+  group: hostinger-migration-${{ github.event_name == 'workflow_dispatch' && (inputs.phase == 'copy-data' && 'bulk-copy' || 'preparation') || github.run_id }}
   cancel-in-progress: false
 
 env:
