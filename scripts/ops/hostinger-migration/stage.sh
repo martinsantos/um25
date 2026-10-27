@@ -3,7 +3,7 @@
 set -euo pipefail
 umask 077
 phase=${1:-preflight}
-case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases|recover-empty-storage|materialize-files|rehearsal|prepare-mail|build-clean-web|finish-file-validation|finish-mariadb|build-clean-sitrep|build-clean-arca|build-clean-sgi|rotate-internal|build-clean-cms|clean-node-rehearsal|clean-container-rehearsal|clean-php-rehearsal|clean-tools-plan|rehearsal-bridges|clean-proxy-rehearsal|finish-clean-runtime|restrict-database|finish-clean-proxy|persist-rehearsal|rehearse-web-publisher|refresh-rehearsal-data|finish-web-publisher|prepare-backup-identity|prepare-acme|finish-acme|rehearse-offsite-backups|rehearse-backup-restore|guard-wiki-uploads|stage-mutable-files|restore-case-image|prepare-relay-certificate|rehearse-wordpress-media) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
+case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases|recover-empty-storage|materialize-files|rehearsal|prepare-mail|build-clean-web|finish-file-validation|finish-mariadb|build-clean-sitrep|build-clean-arca|build-clean-sgi|rotate-internal|build-clean-cms|clean-node-rehearsal|clean-container-rehearsal|clean-php-rehearsal|clean-tools-plan|rehearsal-bridges|clean-proxy-rehearsal|finish-clean-runtime|restrict-database|finish-clean-proxy|persist-rehearsal|rehearse-web-publisher|refresh-rehearsal-data|finish-web-publisher|prepare-backup-identity|prepare-acme|finish-acme|rehearse-offsite-backups|rehearse-backup-restore|guard-wiki-uploads|stage-mutable-files|restore-case-image|prepare-relay-certificate|rehearse-wordpress-media|rehearse-dge-mail) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
 source_host=23.105.176.45
 target_host=179.198.115.115
 target_name=srv2101069.hstgr.cloud
@@ -20,6 +20,12 @@ actual_name=$(ssh "${ssh_opts[@]}" "root@$target_host" hostname)
 ssh "${ssh_opts[@]}" "root@$source_host" 'test -d /root/fumbling-field && test -d /opt/directus-admin && printf "Source application roots confirmed\n"'
 ssh "${ssh_opts[@]}" "root@$target_host" 'test "$(id -u)" = 0; cat /etc/os-release; nproc; free -m; df -h /'
 [[ "$phase" != preflight ]] || exit 0
+
+if [[ "$phase" == rehearse-dge-mail ]]; then
+  scp "${ssh_opts[@]}" "$script_dir/rehearse-dge-mail.py" "root@$target_host:$stage/tooling/"
+  ssh "${ssh_opts[@]}" "root@$target_host" "python3 $stage/tooling/rehearse-dge-mail.py"
+  exit 0
+fi
 
 if [[ "$phase" == rehearse-wordpress-media ]]; then
   scp "${ssh_opts[@]}" "$script_dir/rehearse-wordpress-media.py" "root@$target_host:$stage/tooling/"
