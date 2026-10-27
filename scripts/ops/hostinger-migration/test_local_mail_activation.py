@@ -2,7 +2,7 @@ import importlib.util
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 spec = importlib.util.spec_from_file_location('local_mail', Path(__file__).with_name('activate-local-mail.py'))
 module = importlib.util.module_from_spec(spec)
@@ -10,6 +10,13 @@ spec.loader.exec_module(module)
 
 
 class LocalMailActivationTests(unittest.TestCase):
+    def test_boot_readiness_fails_for_a_disabled_service(self):
+        with patch.object(module.subprocess, 'run', return_value=Mock(returncode=1)) as run:
+            self.assertFalse(module.unit_is_enabled('vivero-relay-hostinger'))
+            run.assert_called_once_with(['systemctl', 'is-enabled', '--quiet', 'vivero-relay-hostinger'])
+        with patch.object(module.subprocess, 'run', return_value=Mock(returncode=0)):
+            self.assertTrue(module.unit_is_enabled('vivero-relay-hostinger'))
+
     def test_spf_must_be_the_reviewed_transition_record(self):
         expected = module.SPF['ultimamilla.com.ar']
         module.check_spf('"google-verification=x"\n"' + expected + '"\n', expected)

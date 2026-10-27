@@ -72,6 +72,10 @@ def wait_for_local_smtp():
     raise RuntimeError('Local SMTP readiness failed')
 
 
+def unit_is_enabled(unit):
+    return subprocess.run(['systemctl', 'is-enabled', '--quiet', unit]).returncode == 0
+
+
 def verify_readiness():
     if (socket.gethostname() != NAME or STAGE.is_symlink() or MAIN.is_symlink()
             or (STAGE / '.target').read_text().strip() != IP
@@ -79,8 +83,9 @@ def verify_readiness():
             or not (STAGE / 'local-mail-activation.complete').is_file()):
         raise RuntimeError('Verified mail readiness markers are missing')
     for unit in ('vivero-relay-hostinger', 'postfix', 'sitrep-opendkim'):
-        if subprocess.run(['systemctl', 'is-active', '--quiet', unit]).returncode:
-            raise RuntimeError('A required mail service is not active')
+        if (subprocess.run(['systemctl', 'is-active', '--quiet', unit]).returncode
+                or not unit_is_enabled(unit)):
+            raise RuntimeError('A required mail service is not active and enabled')
     interfaces = subprocess.check_output(['postconf', '-h', 'inet_interfaces'], text=True).strip()
     helo = subprocess.check_output(['postconf', '-h', 'smtp_helo_name'], text=True).strip()
     if interfaces != '127.0.0.1, 172.18.0.1' or helo != NAME:
@@ -101,6 +106,10 @@ def main(identifier):
         raise RuntimeError('Not the reviewed pre-cutover mail target')
     if subprocess.run(['systemctl', 'is-active', '--quiet', 'vivero-relay-hostinger']).returncode:
         raise RuntimeError('Verified Vivero relay is not active')
+    relay_enabled = subprocess.run(['systemctl', 'is-enabled', 'vivero-relay-hostinger'],
+                                   capture_output=True, text=True)
+    if relay_enabled.stdout.strip() != 'disabled':
+        raise RuntimeError('Unexpected Vivero relay boot configuration')
     started = STAGE / 'local-mail-activation.started'
     complete = STAGE / 'local-mail-activation.complete'
     backup = STAGE / 'before-local-mail-activation'
@@ -128,6 +137,7 @@ def main(identifier):
     log = (STAGE / 'receipts/local-mail-activation.log').open('ab')
     def run(args):
         return subprocess.run(args, check=True, stdout=log, stderr=log)
+    relay_enabled_here = False
     try:
         temp = MAIN.with_name('.main.cf.umsa-mail-pending')
         with temp.open('x') as file:
@@ -159,9 +169,15 @@ def main(identifier):
                 raise RuntimeError('Outbound SMTP readiness failed')
         if not queue_empty(Path('/var/spool/postfix')):
             raise RuntimeError('Unexpected queued mail during readiness')
+        relay_enabled_here = True
+        run(['systemctl', 'enable', 'vivero-relay-hostinger'])
+        if not all(unit_is_enabled(unit) for unit in ('vivero-relay-hostinger', 'postfix', 'sitrep-opendkim')):
+            raise RuntimeError('A required mail service will not start on boot')
         complete.write_text('Local SMTP, DGE path and outbound EHLO passed; no test message sent.\n')
     except Exception:
         if not (STAGE / 'production.active').exists():
+            if relay_enabled_here:
+                subprocess.run(['systemctl', 'disable', 'vivero-relay-hostinger'], stdout=log, stderr=log)
             subprocess.run(['systemctl', 'stop', 'postfix', 'sitrep-opendkim'], stdout=log, stderr=log)
             subprocess.run(['systemctl', 'disable', 'postfix', 'sitrep-opendkim'], stdout=log, stderr=log)
             shutil.copy2(backup / 'main.cf', MAIN)
