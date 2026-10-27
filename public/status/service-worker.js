@@ -1,106 +1,52 @@
-// ULTIMA MILLA Emergency Dashboard Service Worker
-// Habilita funcionamiento offline y caching de recursos
+// Only the status shell may be cached. Operational readings always need the network.
+const CACHE_NAME = 'um-dashboard-v2-real-readings';
+const SHELL = ['/status/', '/status/index.html', '/status/manifest.json'];
 
-const CACHE_NAME = 'um-dashboard-v1';
-const ASSETS_TO_CACHE = [
-  '/status/',
-  '/status/index.html',
-  '/status/manifest.json'
-];
-
-// Instalar service worker
 self.addEventListener('install', event => {
-  console.log('[SW] Installing...');
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW] Caching app shell');
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
-  );
-  self.skipWaiting();
+  event.waitUntil(caches.open(CACHE_NAME).then(async cache => {
+    for (const path of SHELL) {
+      const response = await fetch(path, {cache: 'reload'});
+      if (!response.ok) throw new Error('Status shell unavailable');
+      await cache.put(path, response);
+    }
+    await self.skipWaiting();
+  }));
 });
 
-// Activar service worker
 self.addEventListener('activate', event => {
-  console.log('[SW] Activating...');
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('[SW] Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
-  self.clients.claim();
+  event.waitUntil((async () => {
+    const names = await caches.keys();
+    await Promise.all(names.filter(name => name === 'um-dashboard-v1').map(name => caches.delete(name)));
+    await self.clients.claim();
+    // Replace an already-open v1 shell, whose markup contained fixed metrics.
+    const clients = await self.clients.matchAll({type: 'window'});
+    for (const client of clients) {
+      const url = new URL(client.url);
+      if (url.origin === self.location.origin && ['/status/', '/status/index.html'].includes(url.pathname)) {
+        // Do not wait for navigation: its fetch needs activation to finish first.
+        client.navigate(client.url).catch(() => {});
+      }
+    }
+  })());
 });
 
-// Estrategia: Network first, fallback to cache
 self.addEventListener('fetch', event => {
-  const { request } = event;
+  const {request} = event;
   const url = new URL(request.url);
-
-  // API calls: network first
+  if (request.method !== 'GET' || url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api/')) {
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-          // Update cache with new response
-          if (response.ok) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(request, responseClone);
-            });
-          }
-          return response;
-        })
-        .catch(() => {
-          // Return cached response or offline page
-          return caches.match(request).then(response => {
-            return response || new Response(
-              JSON.stringify({
-                offline: true,
-                message: 'Aplicación en modo offline',
-                data: null
-              }),
-              { headers: { 'Content-Type': 'application/json' } }
-            );
-          });
-        })
-    );
+    event.respondWith(fetch(request, {cache: 'no-store'}).catch(() => new Response(
+      JSON.stringify({success: false, offline: true, status: 'unknown'}),
+      {status: 503, headers: {'Content-Type': 'application/json', 'Cache-Control': 'no-store'}}
+    )));
+    return;
   }
-  // Static assets: cache first
-  else {
-    event.respondWith(
-      caches.match(request).then(response => {
-        return response || fetch(request).then(response => {
-          if (request.method === 'GET' && response.ok) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(request, responseClone);
-            });
-          }
-          return response;
-        }).catch(() => {
-          console.log('[SW] Failed to fetch:', request.url);
-          return new Response('Network error occurred', {
-            status: 503,
-            statusText: 'Service Unavailable'
-          });
-        });
-      })
-    );
-  }
+  if (!SHELL.includes(url.pathname)) return;
+  event.respondWith(fetch(request, {cache: 'no-cache'}).then(async response => {
+    if (response.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.put(request, response.clone());
+    }
+    return response;
+  }).catch(async () => (await caches.match(request)) || new Response('Sin conexión. Estado desconocido.', {status: 503})));
 });
-
-// Handle messages from clients
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-});
-
-console.log('[SW] Service Worker loaded');

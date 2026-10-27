@@ -77,16 +77,23 @@ fi
 # cinema/3D work, but let assets that only exist in the new build through:
 # without them the new server bundle references files that 404 (hero AVIF
 # posters, datasheets). The campaign GIF must already be live and
-# byte-identical; only candidate _astro bundles may differ.
+# byte-identical. Candidate _astro bundles and the three reviewed status-panel
+# files below may differ; every other published asset remains protected.
 rsync -anic \
   --exclude='/_astro/***' \
   --exclude='/sw.js' \
+  --exclude='/status/index.html' \
+  --exclude='/status/service-worker.js' \
+  --exclude='/status/manifest.json' \
   --exclude='/images/software-comunidades/credencial-demo-email.gif' \
   --exclude='/software/gestion-de-comunidades-profesionales/demo/***' \
   "$current/client/" "$incoming/client/" > "$release/asset-overlay-dry-run.txt"
 rsync -ac \
   --exclude='/_astro/***' \
   --exclude='/sw.js' \
+  --exclude='/status/index.html' \
+  --exclude='/status/service-worker.js' \
+  --exclude='/status/manifest.json' \
   --exclude='/images/software-comunidades/credencial-demo-email.gif' \
   --exclude='/software/gestion-de-comunidades-profesionales/demo/***' \
   "$current/client/" "$incoming/client/"
@@ -141,12 +148,23 @@ curl -4 -fsS --max-time 8 \
   -o "$release/staging-credential.gif"
 cmp "$release/staging-credential.gif" \
   "$incoming/client/images/software-comunidades/credencial-demo-email.gif"
+curl -4 -fsS --max-time 8 "http://127.0.0.1:$port/status/index.html" \
+  -o "$release/staging-status.html"
+grep -Fq 'data-status-version="20261026-real-readings"' "$release/staging-status.html"
+for asset in service-worker.js manifest.json; do
+  curl -4 -fsS --max-time 8 "http://127.0.0.1:$port/status/$asset" \
+    -o "$release/staging-status-$asset"
+  cmp "$release/staging-status-$asset" "$incoming/client/status/$asset"
+done
 stage_cleanup
 trap - EXIT
 sha256sum -c "$release/protected.before.sha256"
 rsync -anic \
   --exclude='/_astro/***' \
   --exclude='/sw.js' \
+  --exclude='/status/index.html' \
+  --exclude='/status/service-worker.js' \
+  --exclude='/status/manifest.json' \
   --exclude='/images/software-comunidades/credencial-demo-email.gif' \
   --exclude='/software/gestion-de-comunidades-profesionales/demo/***' \
   "$current/client/" "$incoming/client/" > "$release/asset-overlay-final-raw.txt"
