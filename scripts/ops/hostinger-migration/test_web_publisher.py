@@ -32,6 +32,21 @@ class PublisherGuards(unittest.TestCase):
         with self.archive('node_modules/.bin/astro','../astro/astro.js') as archive:
             module.validate_archive(archive)
 
+    def test_hardlinks_require_an_already_validated_regular_member(self):
+        for target,valid in [('node_modules/@esbuild/linux-x64/bin/esbuild',True),('../etc/passwd',False),
+                             ('/etc/passwd',False),('node_modules/missing',False)]:
+            data=io.BytesIO()
+            with tarfile.open(fileobj=data,mode='w') as archive:
+                archive.addfile(tarfile.TarInfo('node_modules/@esbuild/linux-x64/bin/esbuild'))
+                link=tarfile.TarInfo('node_modules/esbuild/bin/esbuild')
+                link.type=tarfile.LNKTYPE;link.linkname=target
+                archive.addfile(link)
+            data.seek(0)
+            with tarfile.open(fileobj=data) as archive:
+                if valid:module.validate_archive(archive)
+                else:
+                    with self.assertRaises(ValueError):module.validate_archive(archive)
+
     def test_non_web_upstreams_remain_unchanged(self):
         old='proxy_pass http://127.0.0.1:4321;\nproxy_pass http://127.0.0.1:18191;\nproxy_pass http://127.0.0.1:3000;\n'
         new=module.transform_config(old,module.INITIAL,Path('/srv/new/nginx'),Path('/srv/new/assets'),4322)
