@@ -67,7 +67,7 @@ def main():
             raise RuntimeError('Target Docker is not empty; no restore performed')
         marker.write_text(str(snapshot) + '\n')
         run(['docker', 'load', '--input', str(snapshot / 'docker-images.tar.gz')])
-        run(['docker', 'network', 'create', '--internal', 'umsa-migration-db'])
+        run(['docker', 'network', 'create', '--internal', '--subnet', '172.30.250.0/24', 'umsa-migration-db'])
         for item in plan:
             environment = item['env']
             environment['POSTGRES_PASSWORD'] = secrets.token_urlsafe(48)
