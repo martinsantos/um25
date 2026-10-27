@@ -19,6 +19,12 @@ NETWORKS = {'dge-demo-network': ('172.18.0.0/16', '172.18.0.1'),
             'fumbling-field_umbot-network': ('172.20.0.0/16', '172.20.0.1')}
 
 
+def validate_source_preload(source):
+    preload = source / 'etc/ld.so.preload'
+    if preload.is_symlink() or (preload.exists() and preload.read_text().strip()):
+        raise RuntimeError('Source has a global preload: copied applications require security/provenance review before activation')
+
+
 def local_listeners(text):
     def replace(match):
         address = match.group(1)
@@ -61,6 +67,7 @@ def main():
     os.umask(0o077)
     if socket.gethostname() != 'srv2101069.hstgr.cloud' or STAGE.is_symlink() or (STAGE / '.target').read_text().strip() != '179.198.115.115':
         raise RuntimeError('Wrong target')
+    validate_source_preload(STAGE / 'source')
     for marker in ('database-restore.complete', 'application-files.complete'):
         if not (STAGE / marker).is_file():
             raise RuntimeError('Missing prerequisite: ' + marker)
