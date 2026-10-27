@@ -3,7 +3,7 @@
 set -euo pipefail
 umask 077
 phase=${1:-preflight}
-case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases|recover-empty-storage|materialize-files|rehearsal|prepare-mail|build-clean-web|finish-file-validation|finish-mariadb|build-clean-sitrep|build-clean-arca|build-clean-sgi|rotate-internal|build-clean-cms|clean-node-rehearsal|clean-container-rehearsal|clean-php-rehearsal|clean-tools-plan|rehearsal-bridges|clean-proxy-rehearsal|finish-clean-runtime|restrict-database|finish-clean-proxy|persist-rehearsal|rehearse-web-publisher|refresh-rehearsal-data|finish-web-publisher|prepare-backup-identity|prepare-acme|finish-acme|rehearse-offsite-backups|rehearse-backup-restore|guard-wiki-uploads|stage-mutable-files|restore-case-image|prepare-relay-certificate|rehearse-wordpress-media|rehearse-dge-mail|prepare-local-mail-prerequisites) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
+case "$phase" in preflight|bootstrap|copy-data|copy-runtime|install-runtime|snapshot-data|restore-databases|recover-empty-storage|materialize-files|rehearsal|prepare-mail|build-clean-web|finish-file-validation|finish-mariadb|build-clean-sitrep|build-clean-arca|build-clean-sgi|rotate-internal|build-clean-cms|clean-node-rehearsal|clean-container-rehearsal|clean-php-rehearsal|clean-tools-plan|rehearsal-bridges|clean-proxy-rehearsal|finish-clean-runtime|restrict-database|finish-clean-proxy|persist-rehearsal|rehearse-web-publisher|refresh-rehearsal-data|finish-web-publisher|prepare-backup-identity|prepare-acme|finish-acme|rehearse-offsite-backups|rehearse-backup-restore|guard-wiki-uploads|stage-mutable-files|restore-case-image|prepare-relay-certificate|rehearse-wordpress-media|rehearse-dge-mail|prepare-local-mail-prerequisites|rehearse-plan-site-data) ;; *) echo 'Unknown phase' >&2; exit 2 ;; esac
 source_host=23.105.176.45
 target_host=179.198.115.115
 target_name=srv2101069.hstgr.cloud
@@ -55,6 +55,12 @@ if [[ "$phase" == stage-mutable-files ]]; then
   [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
   scp "${ssh_opts[@]}" "$script_dir/stage-mutable-files.py" "root@$target_host:$stage/tooling/"
   ssh -A "${ssh_opts[@]}" "root@$target_host" "python3 $stage/tooling/stage-mutable-files.py $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+  exit 0
+fi
+
+if [[ "$phase" == rehearse-plan-site-data ]]; then
+  scp "${ssh_opts[@]}" "$script_dir/rehearse-plan-site-data.py" "root@$target_host:$stage/tooling/"
+  ssh "${ssh_opts[@]}" "root@$target_host" "python3 $stage/tooling/rehearse-plan-site-data.py"
   exit 0
 fi
 
