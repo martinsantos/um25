@@ -1,6 +1,7 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import tempfile
 
 
 def load(name):
@@ -11,6 +12,23 @@ def load(name):
 
 
 class FinalRehearsalGuards(unittest.TestCase):
+    def test_only_active_configs_are_copied_and_links_are_dereferenced(self):
+        proxy = load('clean-proxy-rehearsal')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'source'
+            source.mkdir()
+            (source / 'real.conf').write_text('server {}')
+            (source / 'active.conf').symlink_to('real.conf')
+            (source / 'disabled.conf').symlink_to('missing.conf')
+            destination = root / 'new'
+            proxy.copy_active_config(source, destination, [Path('active.conf')])
+            self.assertEqual((destination / 'active.conf').read_text(), 'server {}')
+            self.assertFalse((destination / 'active.conf').is_symlink())
+            self.assertEqual([p.name for p in destination.iterdir()], ['active.conf'])
+            with self.assertRaises(RuntimeError):
+                proxy.copy_active_config(source, root / 'bad', [Path('../outside')])
+
     def test_retired_demo_cannot_fall_back_to_api_or_legacy_files(self):
         proxy = load('clean-proxy-rehearsal')
         routes = ('/demoambiente/assets/', '/demoambiente/api/', '/demoambiente/api-DISABLED/', '/demoambiente/', '= /demoambiente')
