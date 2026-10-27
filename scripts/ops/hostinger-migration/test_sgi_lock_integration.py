@@ -26,8 +26,7 @@ class SgiLockIntegrationTests(unittest.TestCase):
     def test_only_sgi_writes_pause_and_a_full_dump_restores(self):
         for container in (SOURCE, TARGET):
             for _ in range(90):
-                ready = subprocess.run(['docker', 'exec', container, 'mariadb-admin', '--no-defaults',
-                                        *AUTH, 'ping', '--silent'], capture_output=True)
+                ready = sql(container, 'SELECT 1;')
                 if ready.returncode == 0:
                     break
                 time.sleep(1)
