@@ -46,16 +46,16 @@ def load_gate(directory, mode='maintenance'):
 
 
 def command(args, *, check=True):
-    return subprocess.run(args, check=check, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return subprocess.run(args, check=check, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=45)
 
 
 def query(database, sql):
     return subprocess.check_output(['docker', 'exec', CONTAINER, 'psql', '-X', '-w',
-        '-U', 'directus', '-d', database, '-At', '--set', 'ON_ERROR_STOP=1', '-c', sql], text=True).strip()
+        '-U', 'directus', '-d', database, '-At', '--set', 'ON_ERROR_STOP=1', '-c', sql], text=True, timeout=10).strip()
 
 
 def pm2_sitrep():
-    processes = json.loads(subprocess.check_output(['pm2', 'jlist'], text=True))
+    processes = json.loads(subprocess.check_output(['pm2', 'jlist'], text=True, timeout=20))
     return [process for process in processes if process.get('name') == 'sitrep-backend']
 
 
@@ -75,7 +75,8 @@ def checked_runtime_flags():
 
 
 def wait_pm2(status):
-    for _ in range(40):
+    deadline = time.monotonic() + 60
+    while time.monotonic() < deadline:
         states = pm2_states()
         if len(states) == EXPECTED_PROCESSES and all(value == status for value in states):
             return
@@ -86,11 +87,12 @@ def wait_pm2(status):
 def http_status(host, path='/'):
     return subprocess.check_output(['curl', '--noproxy', '*', '--silent', '--show-error', '--max-time', '8',
         '--output', '/dev/null', '--write-out', '%{http_code}', '--resolve', host + ':443:127.0.0.1',
-        'https://' + host + path], text=True).strip()
+        'https://' + host + path], text=True, timeout=12).strip()
 
 
 def wait_gate(expected):
-    for _ in range(40):
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline:
         try:
             if http_status('sitrep.ultimamilla.com.ar') == expected:
                 return
@@ -137,7 +139,8 @@ def lock_session_count(application):
 
 
 def wait_for_lock(application, unit):
-    for _ in range(80):
+    deadline = time.monotonic() + 60
+    while time.monotonic() < deadline:
         if command(['systemctl', 'is-active', '--quiet', unit], check=False).returncode:
             raise RuntimeError('SITREP lock service stopped unexpectedly')
         if lock_session_count(application) == 1 and lock_count(application) > 0:
@@ -207,7 +210,7 @@ def commit_target_writes(identifier, backup_sha256):
 def target_health(address):
     response = subprocess.check_output(['curl', '--noproxy', '*', '--silent', '--show-error', '--fail',
         '--max-time', '10', '--resolve', 'sitrep.ultimamilla.com.ar:443:' + address,
-        'https://sitrep.ultimamilla.com.ar/api/health'], text=True)
+        'https://sitrep.ultimamilla.com.ar/api/health'], text=True, timeout=15)
     status = json.loads(response)
     return status.get('status') == 'ok' and status.get('db') == 'connected'
 
@@ -263,7 +266,8 @@ def release_lock(application, unit):
     # Prevent a still-starting helper from opening a new session after recovery.
     command(['systemctl', 'stop', unit], check=False)
     empty = 0
-    for _ in range(40):
+    deadline = time.monotonic() + 60
+    while time.monotonic() < deadline:
         count = lock_session_count(application)
         if count > 1:
             raise RuntimeError('More than one SITREP lock session needs review')
