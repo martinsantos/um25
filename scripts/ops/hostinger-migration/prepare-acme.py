@@ -8,6 +8,8 @@ import secrets
 import shutil
 import socket
 import subprocess
+import sys
+import time
 
 STAGE = Path('/srv/umsa-migration')
 CONFIG = Path('/srv/umsa-clean-proxy/nginx')
@@ -41,27 +43,48 @@ def prepare_text(text, domains):
     return re.sub(r'(^\s*server_name\s+[^;]+;[^\n]*)', lambda m: m[0] + LOCATION, text, flags=re.M)
 
 
-def main():
+def wait_for_challenge(command, expected, log):
+    # systemctl reload only confirms that HUP was sent. Existing workers may
+    # still answer briefly with the previous config, so require actual readiness.
+    for attempt in range(20):
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=log, text=True)
+        if result.returncode == 0 and result.stdout == expected:
+            return
+        if attempt < 19:
+            time.sleep(0.5)
+    raise RuntimeError('Challenge route did not become ready')
+
+
+def main(resume=False):
     os.umask(0o077)
     if socket.gethostname() != 'srv2101069.hstgr.cloud' or STAGE.is_symlink() or (STAGE / '.target').read_text().strip() != '179.198.115.115':
         raise RuntimeError('Wrong destination')
     backup = STAGE / 'before-acme-preparation'
     if (not (STAGE / 'persist-rehearsal.complete').is_file() or (STAGE / 'production.active').exists()
-            or backup.exists() or WEBROOT.exists() or WEBROOT.is_symlink()):
+            or (STAGE / 'acme-preparation.complete').exists() or WEBROOT.is_symlink()):
         raise RuntimeError('Unexpected ACME preparation state; inspect before retry')
+    if resume:
+        if not backup.is_dir() or not WEBROOT.is_dir() or 'curl: (22) The requested URL returned error: 403' not in (STAGE / 'receipts/acme-preparation.log').read_text():
+            raise RuntimeError('Not the reviewed rolled-back readiness failure')
+        for relative in PLANS:
+            if (CONFIG / relative).read_bytes() != (backup / relative).read_bytes():
+                raise RuntimeError('Original configuration was not restored')
+    elif backup.exists() or WEBROOT.exists():
+        raise RuntimeError('Existing attempt requires explicit reviewed recovery')
     prepared = {}
     for relative, (_, domains) in PLANS.items():
         path = CONFIG / relative
         if path.is_symlink():
             raise RuntimeError('Unexpected config symlink')
         prepared[path] = prepare_text(path.read_text(), domains)
-    backup.mkdir(mode=0o700)
-    for path in prepared:
-        dest = backup / path.relative_to(CONFIG)
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(path, dest)
+    if not resume:
+        backup.mkdir(mode=0o700)
+        for path in prepared:
+            dest = backup / path.relative_to(CONFIG)
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(path, dest)
     challenge = WEBROOT / '.well-known/acme-challenge'
-    challenge.mkdir(parents=True)
+    challenge.mkdir(parents=True, exist_ok=resume)
     for path in (WEBROOT, WEBROOT / '.well-known', challenge):
         path.chmod(0o755)
     token = 'migration-probe-' + secrets.token_hex(16)
@@ -78,10 +101,8 @@ def main():
             run(['/usr/sbin/nginx', '-t', '-c', str(CONFIG / 'nginx.conf')])
             run(['systemctl', 'reload', 'umsa-clean-front'])
             for host in hosts:
-                result = subprocess.check_output(['curl', '--noproxy', '*', '-fsSL', '--max-redirs', '5', '--max-time', '20',
-                    *resolve, f'http://{host}/.well-known/acme-challenge/{token}'], stderr=log, text=True)
-                if result != token:
-                    raise RuntimeError('Challenge body differs: ' + host)
+                wait_for_challenge(['curl', '--noproxy', '*', '-fsSL', '--max-redirs', '5', '--max-time', '20',
+                    *resolve, f'http://{host}/.well-known/acme-challenge/{token}'], token, log)
         except Exception:
             for path in prepared:
                 shutil.copy2(backup / path.relative_to(CONFIG), path)
@@ -107,4 +128,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    if sys.argv[1:] not in ([], ['--resume-after-reload']):
+        raise RuntimeError('Unsupported operation')
+    main(bool(sys.argv[1:]))
