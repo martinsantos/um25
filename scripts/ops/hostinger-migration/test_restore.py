@@ -13,8 +13,9 @@ class DatabaseRestorePlan(unittest.TestCase):
     def setUp(self):
         self.metadata = [dict(Name='/' + name, Image='sha256:' + 'a' * 64,
             Mounts=[dict(Name=volume, Destination='/var/lib/postgresql/data')],
-            Config=dict(Entrypoint=['docker-entrypoint.sh'], Cmd=['postgres'],
-                        Env=['POSTGRES_USER=original', 'POSTGRES_DB=app', 'POSTGRES_HOST_AUTH_METHOD=trust']))
+            Config=dict(Entrypoint=['docker-entrypoint.sh'], Cmd=module.AUDITED_COMMANDS[name],
+                        Env=['POSTGRES_USER=original', 'POSTGRES_DB=app', 'POSTGRES_HOST_AUTH_METHOD=trust',
+                             'LD_PRELOAD=/untrusted/library.so', 'PG_MAJOR=' + module.VERIFIED_IMAGES[name][2]]))
             for name, (_, volume, _) in module.DATABASES.items()]
 
     def test_new_cluster_uses_unique_bootstrap_and_no_trust(self):
@@ -23,7 +24,16 @@ class DatabaseRestorePlan(unittest.TestCase):
             self.assertEqual(database['env']['POSTGRES_USER'], module.BOOTSTRAP)
             self.assertEqual(database['env']['POSTGRES_DB'], 'postgres')
             self.assertNotIn('POSTGRES_HOST_AUTH_METHOD', database['env'])
+            self.assertNotIn('LD_PRELOAD', database['env'])
+            self.assertTrue(database['image'].startswith('postgres@sha256:'))
+            self.assertNotEqual(database['image'], 'sha256:' + 'a' * 64)
         self.assertEqual(len(plan), 2)
+
+    def test_unexpected_postgres_major_is_rejected(self):
+        metadata = copy.deepcopy(self.metadata)
+        metadata[0]['Config']['Env'] = ['PG_MAJOR=17']
+        with self.assertRaises(ValueError):
+            module.database_plan(metadata)
 
     def test_changed_storage_is_not_guessed(self):
         metadata = copy.deepcopy(self.metadata)
