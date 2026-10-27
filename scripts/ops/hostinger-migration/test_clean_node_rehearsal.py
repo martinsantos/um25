@@ -8,6 +8,11 @@ spec.loader.exec_module(module)
 
 
 class CleanNodeGuards(unittest.TestCase):
+    def test_sitrep_listener_is_explicitly_local_and_unknown_code_is_rejected(self):
+        self.assertEqual(module.local_sitrep_listener('app.listen(PORT, () => {'), "app.listen(PORT, '127.0.0.1', () => {")
+        with self.assertRaises(RuntimeError):
+            module.local_sitrep_listener('app.listen(3002);')
+
     def test_old_runtime_injection_removed_and_listener_forced_local(self):
         env = module.safe_environment({'NODE_PATH': '/old/modules', 'NODE_OPTIONS': '--require=/old/a.js',
             'LD_PRELOAD': '/old/a.so', 'PYTHONPATH': '/old/python', 'PORT': 80, 'HOST': '0.0.0.0',
