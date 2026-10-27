@@ -10,7 +10,7 @@ on:
       phase:
         description: 'Prepare isolated destination; never changes source services or DNS'
         type: choice
-        options: [preflight, bootstrap, copy-data, copy-runtime, install-runtime, snapshot-data, restore-databases, recover-empty-storage, materialize-files, rehearsal, prepare-mail, build-clean-web, finish-file-validation, finish-mariadb, build-clean-sitrep, build-clean-arca, build-clean-sgi, rotate-internal, build-clean-cms, clean-node-rehearsal, clean-container-rehearsal, clean-php-rehearsal, clean-tools-plan, rehearsal-bridges, clean-proxy-rehearsal, finish-clean-runtime, restrict-database, finish-clean-proxy, persist-rehearsal, rehearse-web-publisher, refresh-rehearsal-data, finish-web-publisher, prepare-backup-identity, prepare-acme, finish-acme, rehearse-offsite-backups, rehearse-backup-restore, guard-wiki-uploads, stage-mutable-files, restore-case-image, prepare-relay-certificate]
+        options: [preflight, bootstrap, copy-data, copy-runtime, install-runtime, snapshot-data, restore-databases, recover-empty-storage, materialize-files, rehearsal, prepare-mail, build-clean-web, finish-file-validation, finish-mariadb, build-clean-sitrep, build-clean-arca, build-clean-sgi, rotate-internal, build-clean-cms, clean-node-rehearsal, clean-container-rehearsal, clean-php-rehearsal, clean-tools-plan, rehearsal-bridges, clean-proxy-rehearsal, finish-clean-runtime, restrict-database, finish-clean-proxy, persist-rehearsal, rehearse-web-publisher, refresh-rehearsal-data, finish-web-publisher, prepare-backup-identity, prepare-acme, finish-acme, rehearse-offsite-backups, rehearse-backup-restore, guard-wiki-uploads, stage-mutable-files, restore-case-image, prepare-relay-certificate, inspect-mail-client-keys]
         default: preflight
         required: true
 
@@ -39,6 +39,7 @@ jobs:
             /.github/workflows/
       - run: bash -n scripts/ops/hostinger-migration/stage.sh
       - run: bash -n scripts/ops/hostinger-migration/ship-web-build.sh
+      - run: bash -n scripts/ops/hostinger-migration/check-existing-mail-client-keys.sh
       - run: bash -n scripts/ops/hostinger-migration/install-runtime.sh
       - run: bash -n scripts/ops/hostinger-migration/snapshot-data.sh
       - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_*.py' -v
@@ -72,12 +73,20 @@ jobs:
           npm prune --omit=dev --ignore-scripts
           test -s dist/server/entry.mjs
           tar -czf "$RUNNER_TEMP/umsa-clean-web.tar.gz" dist node_modules package.json package-lock.json
+      - name: Compare existing encrypted key identities without exposing them
+        if: inputs.phase == 'inspect-mail-client-keys'
+        env:
+          CANDIDATE_RAW: ${{ secrets.VPS_SSH_KEY }}
+          CANDIDATE_BASE64: ${{ secrets.VPS_SSH_KEY_BASE64 }}
+        run: bash scripts/ops/hostinger-migration/check-existing-mail-client-keys.sh
       - uses: webfactory/ssh-agent@v0.10.0
+        if: inputs.phase != 'inspect-mail-client-keys'
         with:
           ssh-private-key: |
             ${{ secrets.SSH_PRIVATE_KEY }}
             ${{ secrets.HOSTINGER_MIGRATION_KEY }}
       - name: Stage selected phase on the new VPS
+        if: inputs.phase != 'inspect-mail-client-keys'
         env:
           PHASE: ${{ inputs.phase }}
           GH_TOKEN: ${{ github.token }}
