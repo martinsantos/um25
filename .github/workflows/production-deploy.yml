@@ -228,6 +228,7 @@ jobs:
               public/images/software-comunidades/credencial-demo-email.gif|\
               public/images/software-comunidades/comunidad-rosario.jpg|\
               public/sw.js|\
+              public/status/index.html|public/status/service-worker.js|public/status/manifest.json|\
               public/software/gestion-de-comunidades-profesionales/demo/*|\
               work/um-comunidades-demo/*|\
               src/pages/software/gestion-de-comunidades-profesionales.astro|\
@@ -448,6 +449,18 @@ jobs:
             echo "❌ Canonical health check failed"
             exit 1
           fi
+
+      - name: Verify read-only status panel at public edge
+        run: |
+          set -euo pipefail
+          for file in index.html service-worker.js manifest.json; do
+            curl -4 -fsS --retry 3 --retry-all-errors --retry-delay 5 --max-time 30 \
+              "https://www.ultimamilla.com.ar/status/$file" -o "/tmp/umsa-status-$file"
+            cmp "/tmp/umsa-status-$file" "dist/client/status/$file"
+          done
+          curl -4 -fLsS --max-time 30 https://www.ultimamilla.com.ar/status \
+            -o /tmp/umsa-status-alias.html
+          grep -Fq 'data-status-version="20261026-real-readings"' /tmp/umsa-status-alias.html
 
       - name: Check colleges landing, demo and GIF at public edge
         run: |
