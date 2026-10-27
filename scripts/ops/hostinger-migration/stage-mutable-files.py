@@ -24,6 +24,13 @@ PATHS = {
     'arca-output': '/opt/plantilla-arca-app/output',
     'wordpress-uploads': '/home/vecinorabioso.com.ar/public_html/wp-content/uploads',
     'wiki-images': '/home/wiki.ultimamilla.com.ar/images',
+    'plan-docs': '/home/umbot.com.ar/cannaval-plan-repo/docs',
+    'plan-acciones': '/home/umbot.com.ar/cannaval-plan-repo/acciones',
+    'plan-registro': '/home/umbot.com.ar/cannaval-plan-repo/registro',
+    'plan-plantillas': '/home/umbot.com.ar/cannaval-plan-repo/plantillas',
+    'plan-site-data': '/home/umbot.com.ar/cannaval-plan-repo/site-data',
+    'plan-exports': '/home/umbot.com.ar/cannaval-plan-repo/exports',
+    'plan-wiki': '/home/umbot.com.ar/cannaval-plan-repo/wiki',
 }
 
 
