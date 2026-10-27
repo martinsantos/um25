@@ -24,6 +24,8 @@ RUN_ROOT = Path('/root/umsa-sitrep-migration')
 DATABASE = 'trazabilidad_rrpp'
 CONTAINER = 'directus-admin-database-1'
 EXPECTED_PROCESSES = 2
+EXPECTED_FLAGS = {'BLOCKCHAIN_ENABLED': 'true', 'DISABLE_EMAILS': 'true',
+                  'SMTP_HOST': '127.0.0.1', 'SMTP_PORT': '25'}
 
 
 def identifier_parts(identifier):
@@ -33,14 +35,14 @@ def identifier_parts(identifier):
             'umsa-sitrep-fence-' + identifier)
 
 
-def load_gate(directory):
+def load_gate(directory, mode='maintenance'):
     file = directory / 'sitrep-gate-config.py'
     if file.is_symlink() or not file.is_file():
         raise RuntimeError('Reviewed gate renderer is missing')
     spec = importlib.util.spec_from_file_location('sitrep_gate_config', file)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return module.render_gate('maintenance')
+    return module.render_gate(mode)
 
 
 def command(args, *, check=True):
@@ -52,10 +54,24 @@ def query(database, sql):
         '-U', 'directus', '-d', database, '-At', '--set', 'ON_ERROR_STOP=1', '-c', sql], text=True).strip()
 
 
-def pm2_states():
+def pm2_sitrep():
     processes = json.loads(subprocess.check_output(['pm2', 'jlist'], text=True))
-    return [process.get('pm2_env', {}).get('status') for process in processes
-            if process.get('name') == 'sitrep-backend']
+    return [process for process in processes if process.get('name') == 'sitrep-backend']
+
+
+def pm2_states():
+    return [process.get('pm2_env', {}).get('status') for process in pm2_sitrep()]
+
+
+def checked_runtime_flags():
+    processes = pm2_sitrep()
+    if len(processes) != EXPECTED_PROCESSES:
+        raise RuntimeError('Unexpected SITREP process inventory')
+    for process in processes:
+        environment = process.get('pm2_env', {}).get('env', {})
+        if {key: str(environment.get(key, '')) for key in EXPECTED_FLAGS} != EXPECTED_FLAGS:
+            raise RuntimeError('SITREP external-integration flags changed')
+    return dict(EXPECTED_FLAGS)
 
 
 def wait_pm2(status):
@@ -136,30 +152,111 @@ def wait_for_lock(application, unit):
     raise RuntimeError('SITREP database was not fenced cleanly')
 
 
-def verify_fence(identifier):
+def verify_fence(identifier, allow_committed=False, gate_mode='maintenance'):
     application, unit = identifier_parts(identifier)
     directory = RUN_ROOT / identifier
     receipt_path = directory / 'fence.complete.json'
+    if gate_mode not in ('maintenance', 'proxy') or (gate_mode == 'proxy' and not allow_committed):
+        raise ValueError('Invalid SITREP fence verification mode')
     if (socket.gethostname() != HOST or directory.is_symlink() or not directory.is_dir()
             or receipt_path.is_symlink() or not receipt_path.is_file()
             or (directory / 'fence.recovered').exists()
-            or (directory / 'target-writes-authorized').exists()
-            or GATE.is_symlink() or not GATE.is_file() or GATE.read_text() != load_gate(directory)):
+            or ((directory / 'target-writes-authorized').exists() != allow_committed)
+            or GATE.is_symlink() or not GATE.is_file() or GATE.read_text() != load_gate(directory, gate_mode)):
         raise RuntimeError('SITREP source fence markers or gate differ')
     receipt = json.loads(receipt_path.read_text())
     if (receipt.get('run') != identifier or receipt.get('lock_application') != application
             or receipt.get('lock_unit') != unit or int(receipt.get('locked_relations', 0)) < 1
+            or receipt.get('runtime_flags') != checked_runtime_flags()
             or pm2_states() != ['stopped'] * EXPECTED_PROCESSES
             or command(['systemctl', 'is-active', '--quiet', unit], check=False).returncode
             or lock_session_count(application) != 1
             or lock_count(application) < int(receipt['locked_relations'])
-            or http_status('sitrep.ultimamilla.com.ar') != '503'):
+            or http_status('sitrep.ultimamilla.com.ar') != ('503' if gate_mode == 'maintenance' else '200')):
         raise RuntimeError('SITREP source fence is not active')
     others = int(query('postgres', "SELECT count(*) FROM pg_stat_activity WHERE datname='trazabilidad_rrpp' "
                        "AND application_name <> '" + application + "' AND backend_type='client backend';"))
     if others:
         raise RuntimeError('Unexpected source database session during SITREP fence')
     print('SITREP source fence is active; no other database sessions are connected.')
+
+
+def commit_target_writes(identifier, backup_sha256):
+    if not re.fullmatch(r'[0-9a-f]{64}', backup_sha256):
+        raise ValueError('Expected offsite backup SHA-256 is invalid')
+    directory = RUN_ROOT / identifier
+    marker = directory / 'target-writes-authorized'
+    if marker.exists():
+        if marker.is_symlink() or json.loads(marker.read_text()) != {'run': identifier, 'offsite_sha256': backup_sha256}:
+            raise RuntimeError('Existing target authorization does not match')
+        if GATE.is_symlink() or not GATE.is_file():
+            raise RuntimeError('Existing SITREP gate is unexpected')
+        mode = 'proxy' if GATE.read_text() == load_gate(directory, 'proxy') else 'maintenance'
+        verify_fence(identifier, allow_committed=True, gate_mode=mode)
+        print('Matching target-write authorization already exists.')
+        return
+    verify_fence(identifier)
+    with marker.open('x') as stream:
+        json.dump({'run': identifier, 'offsite_sha256': backup_sha256}, stream)
+        stream.write('\n')
+        stream.flush()
+        os.fsync(stream.fileno())
+    print('Target writes authorized; automatic restart of the old SITREP writer is disabled.')
+
+
+def target_health(address):
+    response = subprocess.check_output(['curl', '--noproxy', '*', '--silent', '--show-error', '--fail',
+        '--max-time', '10', '--resolve', 'sitrep.ultimamilla.com.ar:443:' + address,
+        'https://sitrep.ultimamilla.com.ar/api/health'], text=True)
+    status = json.loads(response)
+    return status.get('status') == 'ok' and status.get('db') == 'connected'
+
+
+def mark_source_proxy(directory):
+    marker = directory / 'source-proxy.complete'
+    content = 'SITREP source forwards to the verified target.\n'
+    if marker.is_symlink():
+        raise RuntimeError('Unexpected proxy receipt link')
+    if marker.exists():
+        if marker.read_text() != content:
+            raise RuntimeError('Existing proxy receipt differs')
+        return
+    with marker.open('x') as stream:
+        stream.write(content)
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def activate_source_proxy(identifier):
+    directory = RUN_ROOT / identifier
+    proxy = load_gate(directory, 'proxy')
+    if GATE.is_file() and not GATE.is_symlink() and GATE.read_text() == proxy:
+        verify_fence(identifier, allow_committed=True, gate_mode='proxy')
+        if not target_health('127.0.0.1'):
+            raise RuntimeError('Existing SITREP source proxy is not healthy')
+        mark_source_proxy(directory)
+        print('SITREP source already forwards to the target.')
+        return
+    verify_fence(identifier, allow_committed=True)
+    if not target_health('179.198.115.115'):
+        raise RuntimeError('SITREP target is not healthy')
+    maintenance = load_gate(directory)
+    try:
+        atomic_gate(proxy, exclusive=False)
+        reload_nginx()
+        wait_gate('200')
+        if not target_health('127.0.0.1'):
+            raise RuntimeError('SITREP source proxy did not reach the healthy target')
+        for host in ('www.ultimamilla.com.ar', 'sgi.ultimamilla.com.ar', 'www.umbot.com.ar'):
+            if not re.fullmatch(r'[23][0-9]{2}', http_status(host)):
+                raise RuntimeError('An unrelated site failed after the SITREP proxy reload')
+    except Exception:
+        if GATE.is_file() and not GATE.is_symlink() and GATE.read_text() == proxy:
+            atomic_gate(maintenance, exclusive=False)
+            reload_nginx()
+        raise
+    mark_source_proxy(directory)
+    print('SITREP source now forwards to the target; the old SITREP writer remains stopped.')
 
 
 def release_lock(application, unit):
@@ -225,7 +322,8 @@ def main(identifier):
     if http_status('sitrep.ultimamilla.com.ar') != '200':
         raise RuntimeError('SITREP source is not healthy before fencing')
     receipt = {'source_config_sha256': hashlib.sha256(SOURCE_SITE.read_bytes()).hexdigest(),
-               'lock_application': application, 'lock_unit': unit, 'run': identifier}
+               'lock_application': application, 'lock_unit': unit, 'run': identifier,
+               'runtime_flags': checked_runtime_flags()}
     (directory / 'fence.started.json').write_text(json.dumps(receipt, indent=2) + '\n')
     gate_written = stopped = lock_started = False
     try:
@@ -256,15 +354,22 @@ def main(identifier):
 
 
 if __name__ == '__main__':
-    _verify = len(sys.argv) == 3 and sys.argv[1] == '--verify'
-    _id = sys.argv[2] if _verify else sys.argv[1]
+    os.umask(0o077)
+    _mode = sys.argv[1] if sys.argv[1].startswith('--') else '--fence'
+    _id = sys.argv[2] if _mode != '--fence' else sys.argv[1]
     _, _unit = identifier_parts(_id)
     _directory = RUN_ROOT / _id
     if _directory.is_symlink() or not _directory.is_dir():
         raise RuntimeError('Expected private run directory is missing')
     with (_directory / 'transition.lock').open('a') as _lock:
-        fcntl.flock(_lock, fcntl.LOCK_SH if _verify else fcntl.LOCK_EX)
-        if _verify:
+        fcntl.flock(_lock, fcntl.LOCK_SH if _mode == '--verify' else fcntl.LOCK_EX)
+        if _mode == '--verify' and len(sys.argv) == 3:
             verify_fence(_id)
-        else:
+        elif _mode == '--commit-target' and len(sys.argv) == 4:
+            commit_target_writes(_id, sys.argv[3])
+        elif _mode == '--proxy' and len(sys.argv) == 3:
+            activate_source_proxy(_id)
+        elif _mode == '--fence' and len(sys.argv) == 2:
             main(_id)
+        else:
+            raise RuntimeError('Unknown SITREP cutover operation')

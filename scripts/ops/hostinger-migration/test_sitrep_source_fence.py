@@ -70,12 +70,14 @@ class SitrepSourceFenceTests(unittest.TestCase):
             directory.mkdir()
             (directory / 'fence.complete.json').write_text(json.dumps({
                 'run': '42-1', 'lock_application': 'umsa_sitrep_fence_42_1',
-                'lock_unit': 'umsa-sitrep-fence-42-1', 'locked_relations': 3}))
+                'lock_unit': 'umsa-sitrep-fence-42-1', 'locked_relations': 3,
+                'runtime_flags': module.EXPECTED_FLAGS}))
             gate = root / 'gate.conf'
             gate.write_text('maintenance')
             with patch.object(module, 'RUN_ROOT', root), patch.object(module, 'GATE', gate), \
                  patch.object(module.socket, 'gethostname', return_value=module.HOST), \
                  patch.object(module, 'load_gate', return_value='maintenance'), \
+                 patch.object(module, 'checked_runtime_flags', return_value=module.EXPECTED_FLAGS), \
                  patch.object(module, 'pm2_states', return_value=['stopped', 'stopped']), \
                  patch.object(module, 'command', return_value=Mock(returncode=0)), \
                  patch.object(module, 'lock_session_count', return_value=1), \
@@ -84,6 +86,69 @@ class SitrepSourceFenceTests(unittest.TestCase):
                  patch.object(module, 'query', return_value='1'):
                 with self.assertRaisesRegex(RuntimeError, 'Unexpected source database session'):
                     module.verify_fence('42-1')
+
+    def test_commit_records_only_a_valid_backup_hash_and_does_not_overwrite(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            directory = root / '42-1'
+            directory.mkdir()
+            with patch.object(module, 'RUN_ROOT', root), patch.object(module, 'verify_fence'):
+                with self.assertRaises(ValueError):
+                    module.commit_target_writes('42-1', 'invalid')
+                module.commit_target_writes('42-1', 'a' * 64)
+                self.assertEqual(json.loads((directory / 'target-writes-authorized').read_text())['offsite_sha256'], 'a' * 64)
+                with self.assertRaises(RuntimeError):
+                    module.commit_target_writes('42-1', 'b' * 64)
+
+    def test_matching_commit_can_be_rechecked_after_source_proxy_activation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            directory = root / '42-1'
+            directory.mkdir()
+            (directory / 'target-writes-authorized').write_text(json.dumps({'run': '42-1', 'offsite_sha256': 'a' * 64}))
+            gate = root / 'gate.conf'
+            gate.write_text('proxy')
+            with patch.object(module, 'RUN_ROOT', root), patch.object(module, 'GATE', gate), \
+                 patch.object(module, 'load_gate', return_value='proxy'), patch.object(module, 'verify_fence') as verify:
+                module.commit_target_writes('42-1', 'a' * 64)
+                verify.assert_called_once_with('42-1', allow_committed=True, gate_mode='proxy')
+
+    def test_existing_healthy_proxy_can_be_rechecked_without_reloading_nginx(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            directory = root / '42-1'
+            directory.mkdir()
+            gate = root / 'gate.conf'
+            gate.write_text('proxy')
+            with patch.object(module, 'RUN_ROOT', root), patch.object(module, 'GATE', gate), \
+                 patch.object(module, 'load_gate', return_value='proxy'), \
+                 patch.object(module, 'verify_fence') as verify, \
+                 patch.object(module, 'target_health', return_value=True), \
+                 patch.object(module, 'reload_nginx') as reload_nginx:
+                module.activate_source_proxy('42-1')
+                verify.assert_called_once_with('42-1', allow_committed=True, gate_mode='proxy')
+                reload_nginx.assert_not_called()
+                self.assertTrue((directory / 'source-proxy.complete').is_file())
+
+    def test_proxy_failure_restores_maintenance_without_starting_the_old_writer(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            directory = root / '42-1'
+            directory.mkdir()
+            gate = root / 'gate.conf'
+            gate.write_text('maintenance')
+            def render(_directory, mode='maintenance'):
+                return mode
+            with patch.object(module, 'RUN_ROOT', root), patch.object(module, 'GATE', gate), \
+                 patch.object(module, 'verify_fence'), patch.object(module, 'load_gate', side_effect=render), \
+                 patch.object(module, 'target_health', side_effect=[True, False]), \
+                 patch.object(module, 'reload_nginx'), patch.object(module, 'wait_gate'), \
+                 patch.object(module, 'command') as command:
+                with self.assertRaises(RuntimeError):
+                    module.activate_source_proxy('42-1')
+                self.assertEqual(gate.read_text(), 'maintenance')
+                command.assert_not_called()
+                self.assertFalse((directory / 'source-proxy.complete').exists())
 
     def test_failure_stopping_source_attempts_recovery_with_the_gate_still_active(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -104,6 +169,7 @@ class SitrepSourceFenceTests(unittest.TestCase):
             with patch.object(module, 'RUN_ROOT', root), patch.object(module, 'SOURCE_SITE', site), \
                  patch.object(module, 'GATE', gate), patch.object(module.socket, 'gethostname', return_value=module.HOST), \
                  patch.object(module, 'pm2_states', return_value=['online', 'online']), \
+                 patch.object(module, 'checked_runtime_flags', return_value=module.EXPECTED_FLAGS), \
                  patch.object(module, 'load_gate', return_value='maintenance'), \
                  patch.object(module, 'command', side_effect=command), \
                  patch.object(module, 'reload_nginx'), patch.object(module, 'wait_gate'), \

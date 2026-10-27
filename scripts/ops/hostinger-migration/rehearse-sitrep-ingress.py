@@ -13,7 +13,7 @@ ROOT = Path('/srv/umsa-clean-proxy/nginx')
 SITE = ROOT / 'conf.d/sitrep.conf'
 SOURCE_IP = '23.105.176.45'
 PUBLIC_HOST = 'sitrep.ultimamilla.com.ar'
-PROBES = ('/', '/app/', '/manifest.webmanifest', '/api/auth/profile', '/precrimen/')
+PROBES = ('/', '/app/', '/manifest.json', '/api/auth/profile', '/precrimen/')
 
 
 def render_config(site, directory):
