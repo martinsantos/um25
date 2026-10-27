@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: hostinger-migration-preparation
+  group: hostinger-migration-${{ github.event_name == 'workflow_dispatch' && 'preparation' || github.run_id }}
   cancel-in-progress: false
 
 env:
