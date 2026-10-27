@@ -24,14 +24,28 @@ ROUTES = ('/', '/servicios', '/antecedentes', '/estilo/fuentes/plantilla', '/sta
 
 
 def validate_archive(archive):
+    regular = set()
+    seen = set()
     for member in archive.getmembers():
         name = PurePosixPath(member.name)
         if name.is_absolute() or '..' in name.parts or not name.parts:
             raise ValueError('Unsafe archive path')
         if name.parts[0] not in ('dist', 'node_modules', 'package.json', 'package-lock.json'):
             raise ValueError('Unexpected release payload')
-        if member.isdev() or member.isfifo() or member.islnk():
+        if name in seen:
+            raise ValueError('Duplicate archive member')
+        seen.add(name)
+        if member.isdev() or member.isfifo():
             raise ValueError('Unsupported archive entry')
+        if member.islnk():
+            # npm installs esbuild's executable as a hardlink. Only accept a
+            # backward reference to a regular member already validated here.
+            target = PurePosixPath(member.linkname)
+            if target.is_absolute() or '..' in target.parts or target not in regular:
+                raise ValueError('Unsafe hardlink target')
+            regular.add(name)
+        elif member.isfile():
+            regular.add(name)
         if member.issym():
             target = PurePosixPath(member.linkname)
             if target.is_absolute():
