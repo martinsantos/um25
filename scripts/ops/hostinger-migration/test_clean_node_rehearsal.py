@@ -1,6 +1,10 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import errno
+import io
+from contextlib import redirect_stdout
+from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('clean_node', Path(__file__).with_name('clean-node-rehearsal.py'))
 module = importlib.util.module_from_spec(spec)
@@ -8,6 +12,15 @@ spec.loader.exec_module(module)
 
 
 class CleanNodeGuards(unittest.TestCase):
+    def test_packet_drop_timeout_is_denied_but_connected_or_unrelated_failure_is_not(self):
+        for code, expected in ((errno.EPERM, 0), (errno.EACCES, 0), (errno.EAGAIN, 0),
+                (errno.ETIMEDOUT, 0), (0, 1), (errno.ECONNREFUSED, 1), (errno.ENETUNREACH, 1)):
+            with patch.object(module.socket, 'socket') as connection, redirect_stdout(io.StringIO()):
+                connection.return_value.connect_ex.return_value = code
+                with self.assertRaises(SystemExit) as result:
+                    exec(module.denied_probe_code(), {})
+                self.assertEqual(result.exception.code, expected)
+
     def test_sitrep_listener_is_explicitly_local_and_unknown_code_is_rejected(self):
         self.assertEqual(module.local_sitrep_listener('app.listen(PORT, () => {'), "app.listen(PORT, '127.0.0.1', () => {")
         with self.assertRaises(RuntimeError):
