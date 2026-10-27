@@ -1,0 +1,50 @@
+name: Hostinger migration staging
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-migration.yml'
+      - 'scripts/ops/hostinger-migration/**'
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: 'Prepare isolated destination; never changes source services or DNS'
+        type: choice
+        options: [preflight, bootstrap, copy-data]
+        default: preflight
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostinger-migration-staging
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: bash -n scripts/ops/hostinger-migration/stage.sh
+      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_*.py' -v
+  stage:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v6
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SSH_PRIVATE_KEY }}
+            ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Stage selected phase on the new VPS
+        env:
+          PHASE: ${{ inputs.phase }}
+        run: bash scripts/ops/hostinger-migration/stage.sh "$PHASE"
