@@ -82,6 +82,8 @@ def main():
             directory = Path(path)
             directory.mkdir(parents=True, exist_ok=True)
             command(['chown', 'nginx:nginx', str(directory)])
+        # Asset fallback traverses /root; grant only traversal to the proxy identity.
+        command(['setfacl', '-m', 'u:nginx:--x', '/root'])
         command(['nginx', '-t'])
         command(['php-fpm', '-t'])
         command(['/opt/remi/php74/root/usr/sbin/php-fpm', '-t'])
