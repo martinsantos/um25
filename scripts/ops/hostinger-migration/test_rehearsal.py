@@ -1,6 +1,7 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import tempfile
 
 spec = importlib.util.spec_from_file_location('rehearsal', Path(__file__).with_name('rehearsal.py'))
 module = importlib.util.module_from_spec(spec)
@@ -8,6 +9,15 @@ spec.loader.exec_module(module)
 
 
 class RehearsalGuards(unittest.TestCase):
+    def test_global_preload_prevents_application_activation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'etc').mkdir()
+            module.validate_source_preload(root)
+            (root / 'etc/ld.so.preload').write_text('/usr/local/lib/libsend.so\n')
+            with self.assertRaises(RuntimeError):
+                module.validate_source_preload(root)
+
     def test_ipv4_ipv6_and_inline_listeners_are_local(self):
         text = 'listen 443 ssl; listen [::]:443 ssl;\nlisten 80; listen [::]:80;'
         self.assertEqual(module.local_listeners(text),
