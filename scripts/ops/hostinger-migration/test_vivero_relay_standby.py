@@ -28,6 +28,9 @@ class ViveroRelayStandbyTests(unittest.TestCase):
         changed = dict(start.SETTINGS, smtpd_tls_auth_only='no')
         with self.assertRaises(ValueError):
             start.validate_config(changed, self.clients, self.master)
+        start.validate_recipient_denial('REJECT 5.7.1 unrelated recipient')
+        with self.assertRaises(ValueError):
+            start.validate_recipient_denial('OK')
 
     def test_client_must_still_use_old_relay(self):
         self.assertEqual(probe.credential('[23.105.176.45]:587 example:secret\n'), ['example', 'secret'])

@@ -37,6 +37,11 @@ def validate_config(settings, clients, master):
         raise ValueError('Unexpected SMTP listener')
 
 
+def validate_recipient_denial(value):
+    if not value.startswith('REJECT '):
+        raise ValueError('Unrelated recipients must be rejected')
+
+
 def main(identifier):
     os.umask(0o077)
     if (not re.fullmatch(r'[0-9]+-[0-9]+', identifier)
@@ -53,6 +58,9 @@ def main(identifier):
     settings = {key: subprocess.check_output(['postconf', '-c', str(RELAY), '-h', key], text=True).strip()
                 for key in SETTINGS}
     validate_config(settings, (RELAY / 'allowed-clients.cidr').read_text(), (RELAY / 'master.cf').read_text())
+    denial = subprocess.check_output(['postmap', '-q', 'migration-probe@example.invalid',
+                                       'regexp:' + str(RELAY / 'allowed-recipients.regexp')], text=True).strip()
+    validate_recipient_denial(denial)
     queue = subprocess.check_output(['postqueue', '-c', str(RELAY), '-p'], stderr=subprocess.DEVNULL, text=True)
     if 'Mail queue is empty' not in queue:
         raise RuntimeError('Relay queue is not empty')
