@@ -56,6 +56,13 @@ def environment_text(values):
                    for key, value in sorted(values.items()))
 
 
+def local_sitrep_listener(text):
+    original = 'app.listen(PORT, () => {'
+    if text.count(original) != 1:
+        raise RuntimeError('SITREP listener differs from reviewed release')
+    return text.replace(original, "app.listen(PORT, '127.0.0.1', () => {")
+
+
 def trusted_application(pointer, subdir, entry):
     base = Path(pointer.strip())
     if base.parent != STAGE / 'trusted' or base.is_symlink() or not base.is_dir():
@@ -101,6 +108,9 @@ def main():
             # No copied launch configuration or dependencies from the old server.
             if (destination / '.env').exists() or (destination / '.env.local').exists():
                 raise RuntimeError('Build unexpectedly contains an environment file')
+            if name == 'sitrep-backend':
+                entry = destination / 'dist/index.js'
+                entry.write_text(local_sitrep_listener(entry.read_text()))
             if name in DATA:
                 old, paths = DATA[name]
                 for relative in paths:
