@@ -89,8 +89,9 @@ def main(identifier):
         files = []
         for name, command in pg:
             file = capture(command, name)
+            catalog_container = 'dge-demo-db' if name == 'dge-source.dump' else 'directus-admin-database-1'
             with file.open('rb') as stream:
-                subprocess.run(['docker', 'exec', '-i', 'directus-admin-database-1', 'pg_restore', '--list'],
+                subprocess.run(['docker', 'exec', '-i', catalog_container, 'pg_restore', '--list'],
                                stdin=stream, stdout=log, stderr=log, check=True)
             files.append(file)
         files.append(capture(remote(['mariadb-dump', '--no-defaults', '-uroot', '--single-transaction',
