@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import signal
 import socket
 import ssl
 import subprocess
@@ -172,6 +173,36 @@ class DirectusAdminTests(unittest.TestCase):
                          ['systemctl', 'is-active', '--quiet', 'umsa-certificate-renew.timer'])
         context.return_value.load_cert_chain.assert_called_once()
 
+    def test_readiness_waits_for_301_to_become_the_exact_challenge(self):
+        with patch.object(m, 'request', side_effect=[
+                ('old redirect', '301', 'text/html'), ('proof', '200', 'text/plain')]) as request, \
+                patch.object(m.time, 'sleep') as sleep:
+            m.wait_ready(lambda budget: m.verify_challenge('proof', timeout=budget))
+        self.assertEqual(request.call_count, 2)
+        self.assertTrue(all(0 < call.args[-1] <= 1 for call in request.call_args_list))
+        sleep.assert_called_once()
+
+    def test_readiness_accepts_transient_tls_failure_then_requires_the_same_check(self):
+        check = unittest.mock.Mock(side_effect=[subprocess.CalledProcessError(60, ['curl']), None])
+        with patch.object(m.time, 'sleep'):
+            m.wait_ready(check)
+        self.assertEqual(check.call_count, 2)
+
+    def test_readiness_times_out_on_permanent_failure_or_wrong_body(self):
+        for response in (('missing', '404', 'text/plain'), ('wrong proof', '200', 'text/plain')):
+            with self.subTest(response=response):
+                clock = [0.0]
+                def advance(seconds):
+                    clock[0] += seconds
+                with patch.object(m, 'request', return_value=response) as request, \
+                        patch.object(m.time, 'monotonic', side_effect=lambda: clock[0]), \
+                        patch.object(m.time, 'sleep', side_effect=advance):
+                    with self.assertRaisesRegex(RuntimeError, 'timed out.*HTTP ' + response[1]):
+                        m.wait_ready(lambda budget: m.verify_challenge('proof', timeout=budget),
+                                     timeout=0.5, interval=0.25)
+                self.assertEqual(clock[0], 0.5)
+                self.assertEqual(request.call_count, 2)
+
 
 class Backend(BaseHTTPRequestHandler):
     def log_message(self, *args):
@@ -199,6 +230,83 @@ class Backend(BaseHTTPRequestHandler):
 
 @unittest.skipUnless(os.environ.get('DIRECTUS_ADMIN_NGINX_CI') == '1', 'requires disposable Nginx')
 class DirectusRealNginxTests(unittest.TestCase):
+    def test_hup_returns_while_old_workers_serve_301_then_readiness_waits_for_200(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            with socket.socket() as probe:
+                probe.bind(('127.0.0.1', 0))
+                port = probe.getsockname()[1]
+            (root / '.well-known/acme-challenge').mkdir(parents=True)
+            (root / '.well-known/acme-challenge/proof').write_text('proof')
+            old = ('server { listen 127.0.0.1:' + str(port) + '; server_name ' + m.HOST +
+                   '; location / { return 301 https://old.invalid$request_uri; } }')
+            candidate = m.render_admin().replace(m.TARGET + ':80', '127.0.0.1:' + str(port))
+            candidate = candidate.replace(str(m.WEBROOT), str(root))
+            def config(text):
+                return ('error_log stderr; pid ' + str(root / 'nginx.pid') +
+                        '; events {} http { access_log off; ' +
+                        ''.join(name + '_temp_path ' + str(root / name) + '; ' for name in
+                                ('client_body', 'proxy', 'fastcgi', 'uwsgi', 'scgi')) + text + '}')
+            path = root / 'nginx.conf'
+            path.write_text(config(old))
+            command = [shutil.which('nginx') or '/usr/sbin/nginx', '-p', str(root), '-c', str(path)]
+            process = subprocess.Popen(command + ['-g', 'daemon off;'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            timer = None
+            def fetch(budget=1):
+                connection = http.client.HTTPConnection('127.0.0.1', port, timeout=budget)
+                connection.request('GET', '/.well-known/acme-challenge/proof', headers={'Host': m.HOST})
+                response = connection.getresponse()
+                result = response.read().decode(), str(response.status), response.getheader('Content-Type')
+                connection.close()
+                return result
+            try:
+                for attempt in range(50):
+                    try:
+                        self.assertEqual(fetch()[1], '301')
+                        break
+                    except OSError:
+                        if process.poll() is not None:
+                            self.fail(process.communicate()[1].decode())
+                        time.sleep(0.05)
+                else:
+                    self.fail('Disposable Nginx did not start')
+                # Only the disposable master is paused; its old workers keep serving.
+                os.kill(process.pid, signal.SIGSTOP)
+                for attempt in range(50):
+                    status = Path('/proc/' + str(process.pid) + '/status').read_text()
+                    if any(line.startswith('State:') and 'T' in line for line in status.splitlines()):
+                        break
+                    time.sleep(0.01)
+                else:
+                    self.fail('Disposable master did not stop')
+                path.write_text(config(candidate))
+                os.kill(process.pid, signal.SIGHUP)
+                # This is the same asynchronous acknowledgement as systemd's kill -HUP.
+                self.assertEqual(fetch()[1], '301')
+                observations = []
+                def local_request(host, uri, tls, resolve, budget):
+                    self.assertEqual((host, uri, tls, resolve),
+                                     (m.HOST, '/.well-known/acme-challenge/proof', False, True))
+                    value = fetch(budget)
+                    observations.append(value[1])
+                    return value
+                timer = threading.Timer(0.15, lambda: os.kill(process.pid, signal.SIGCONT))
+                timer.start()
+                with patch.object(m, 'request', side_effect=local_request):
+                    m.wait_ready(lambda budget: m.verify_challenge('proof', timeout=budget),
+                                 timeout=3, interval=0.05)
+                self.assertEqual(observations[0], '301')
+                self.assertEqual(observations[-1], '200')
+                self.assertEqual(fetch()[0], 'proof')
+            finally:
+                if timer is not None:
+                    timer.cancel()
+                    timer.join()
+                if process.poll() is None:
+                    os.kill(process.pid, signal.SIGCONT)
+                    process.terminate()
+                process.communicate(timeout=10)
+
     def test_actual_http_tls_proxy_assets_sessions_and_redirect_boundaries(self):
         def free_port():
             with socket.socket() as probe:
