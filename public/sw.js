@@ -128,8 +128,6 @@ self.addEventListener('sync', (event) => {
   
   if (event.tag === 'contact-form') {
     event.waitUntil(syncContactForms());
-  } else if (event.tag === 'analytics') {
-    event.waitUntil(syncAnalytics());
   }
 });
 
@@ -433,34 +431,6 @@ async function syncContactForms() {
     }
   } catch (error) {
     console.error('[SW] Background sync failed:', error);
-  }
-}
-
-async function syncAnalytics() {
-  try {
-    const store = await getIDBStore('analytics', 'readonly');
-    const events = await getAllFromStore(store);
-    
-    for (const event of events) {
-      try {
-        const response = await fetch('/api/analytics', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(event.data)
-        });
-        
-        if (response.ok) {
-          await removeFromStore('analytics', event.id);
-          console.log('[SW] Analytics event synced successfully:', event.id);
-        }
-      } catch (error) {
-        console.error('[SW] Failed to sync analytics event:', error);
-      }
-    }
-  } catch (error) {
-    console.error('[SW] Analytics sync failed:', error);
   }
 }
 

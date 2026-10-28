@@ -1,14 +1,22 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const { STATUS_SERVICES } = require('../src/lib/monitoring/statusCatalog.ts');
 const html = fs.readFileSync(path.join(process.cwd(), 'public/status/index.html'), 'utf8');
 const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
 const worker = fs.readFileSync(path.join(process.cwd(), 'public/status/service-worker.js'), 'utf8');
-const names = ['Astro Frontend', 'Directus CMS', 'PostgreSQL Database', 'Redis Cache', 'Nginx Reverse Proxy'];
+const checks = [
+  ['astro', 'Sitio ULTIMA MILLA'], ['sgi-web', 'SGI · acceso'], ['sgi-app', 'SGI · aplicación'],
+  ['sitrep-web', 'SITREP · aplicación'], ['sitrep-api', 'SITREP · API'], ['sitrep-app', 'SITREP · servicio'],
+  ['dge-web', 'DGE · acceso'], ['dge-bridge-login', 'DGE · puente de acceso'], ['dge-bridge-app', 'DGE · puente de aplicación'],
+  ['arca-web', 'Plantilla ARCA'], ['aceite-web', 'UMBot · Aceite'], ['plan-web', 'UMBot · Plan'], ['wiki-web', 'Wiki · Alcance'],
+  ['vecino-web', 'Vecino Rabioso · acceso'], ['vivero-web', 'Vivero · acceso'], ['gestion-web', 'Gestión Vivero'],
+  ['directus', 'Directus CMS'], ['postgres', 'PostgreSQL'], ['redis', 'Redis'], ['nginx', 'Nginx'], ['smtp-local', 'SMTP local'], ['smtp-vivero', 'SMTP Vivero'],
+];
 const flush = async () => { for (let i = 0; i < 20; i++) await Promise.resolve(); };
 const reading = () => ({
   success: true, timestamp: new Date().toISOString(), status: 'online', uptime_seconds: 3720,
-  services: names.map(name => ({name, status: 'online', type: 'tcp', responseTime: '12ms', lastCheck: new Date().toISOString()}))
+  services: checks.map(([id, name]) => ({id, name, status: 'online', type: 'tcp', responseTimeMs: 12, lastCheck: new Date().toISOString()}))
 });
 let fetchMock;
 let listeners;
@@ -36,10 +44,14 @@ test('initial HTML does not assert availability before a reading', () => {
   expect(html).not.toContain('99.5%');
   expect(html).not.toContain('45ms');
 });
+test('dashboard shows every service in the fixed API catalog', () => {
+  expect(checks.map(([id]) => id).sort()).toEqual(STATUS_SERVICES.map(service => service.id).sort());
+  expect(html).toContain('No inician sesión ni prueban operaciones de negocio');
+});
 test('uses current observations and only read requests', async () => {
   await start();
-  expect(text('overall-status')).toBe('Las 5 sondas respondieron');
-  expect(text('responding')).toBe('5 de 5');
+  expect(text('overall-status')).toBe(`Las ${checks.length} sondas respondieron`);
+  expect(text('responding')).toBe(`${checks.length} de ${checks.length} con respuesta · 0 sin respuesta`);
   expect(text('system-uptime')).toBe('0 d 1 h 2 min');
   expect(fetchMock).toHaveBeenCalledTimes(2);
   for (const [url, options] of fetchMock.mock.calls) {
@@ -68,7 +80,7 @@ test('missing services remain unknown and do not imply complete health', async (
   fetchMock.mockImplementation(async () => ({ok: true, json: async () => ({...reading(), services: reading().services.slice(1)})}));
   await start();
   expect(text('overall-status')).toContain('incompleta');
-  expect(text('responding')).toBe('4 de 5');
+  expect(text('responding')).toBe(`${checks.length - 1} de ${checks.length} con respuesta · 0 sin respuesta`);
   expect(document.querySelectorAll('[data-status="unknown"]')).toHaveLength(1);
 });
 test('distinguishes a failed probe from an unknown probe', async () => {
@@ -77,8 +89,8 @@ test('distinguishes a failed probe from an unknown probe', async () => {
     return {ok: true, json: async () => data};
   });
   await start();
-  expect(text('overall-status')).toBe('Hay sondas sin respuesta');
-  expect(text('responding')).toBe('4 de 5');
+  expect(text('overall-status')).toBe('Hay servicios sin respuesta');
+  expect(text('responding')).toBe(`${checks.length - 1} de ${checks.length} con respuesta · 1 sin respuesta`);
 });
 test('expires readings while a tab is hidden', async () => {
   await start();
@@ -105,17 +117,17 @@ test('reconnect queues a fresh reading when an old request is still pending', as
   release({ok: true, json: async () => reading()});
   await flush();
   expect(fetchMock).toHaveBeenCalledTimes(4);
-  expect(text('overall-status')).toBe('Las 5 sondas respondieron');
+  expect(text('overall-status')).toBe(`Las ${checks.length} sondas respondieron`);
 });
 function workerContext() {
   const handlers = {};
   const cache = {put: jest.fn()};
   const caches = {open: jest.fn(async () => cache), keys: jest.fn(async () => ['um-dashboard-v1', 'um-dashboard-v2-real-readings', 'um-public-v1.0.0', 'um-dashboard-other-app']), delete: jest.fn(async () => true), match: jest.fn()};
-  const self = {location: {origin: 'https://www.ultimamilla.com.ar'}, addEventListener: (name, fn) => { handlers[name] = fn; }, clients: {claim: jest.fn(async () => {}), matchAll: jest.fn(async () => [])}};
+  const self = {location: {origin: 'https://www.ultimamilla.com.ar'}, addEventListener: (name, fn) => { handlers[name] = fn; }, skipWaiting: jest.fn(async () => {}), clients: {claim: jest.fn(async () => {}), matchAll: jest.fn(async () => [])}};
   class Response { constructor(body, options) { this.body = body; this.status = options.status; } }
   const fetch = jest.fn();
   vm.runInNewContext(worker, {self, caches, fetch, URL, Response});
-  return {handlers, caches, fetch, self};
+  return {handlers, caches, fetch, self, cache};
 }
 test('worker does not serve a cached API success while offline', async () => {
   const {handlers, caches, fetch} = workerContext();
@@ -126,12 +138,27 @@ test('worker does not serve a cached API success while offline', async () => {
   expect(caches.match).not.toHaveBeenCalled();
   expect(caches.open).not.toHaveBeenCalled();
 });
+test('worker version fetches the updated status shell without caching API readings', async () => {
+  const {handlers, caches, fetch, cache} = workerContext();
+  const response = {ok: true, clone: jest.fn(() => ({shell: true}))};
+  fetch.mockResolvedValue(response);
+  let completed;
+  handlers.install({waitUntil: promise => { completed = promise; }});
+  await completed;
+  expect(caches.open).toHaveBeenCalledWith('um-dashboard-v3-application-catalog');
+  expect(fetch.mock.calls).toEqual([
+    ['/status/', {cache: 'reload'}],
+    ['/status/index.html', {cache: 'reload'}],
+    ['/status/manifest.json', {cache: 'reload'}],
+  ]);
+  expect(cache.put.mock.calls.map(([key]) => key)).toEqual(['/status/', '/status/index.html', '/status/manifest.json']);
+});
 test('worker migration preserves caches owned by other applications', async () => {
   const {handlers, caches} = workerContext();
   let completed;
   handlers.activate({waitUntil: promise => { completed = promise; }});
   await completed;
-  expect(caches.delete.mock.calls).toEqual([['um-dashboard-v1']]);
+  expect(caches.delete.mock.calls).toEqual([['um-dashboard-v1'], ['um-dashboard-v2-real-readings']]);
 });
 test('activation finishes before reload completes and does not navigate other applications', async () => {
   const {handlers, self} = workerContext();

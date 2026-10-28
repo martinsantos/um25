@@ -1,40 +1,67 @@
 const { EventEmitter } = require('node:events');
-const { createConnection } = require('node:net');
-const { GET } = require('../src/pages/api/monitoring/services.ts');
+const { STATUS_SERVICES } = require('../src/lib/monitoring/statusCatalog.ts');
 
 jest.mock('node:net', () => ({ createConnection: jest.fn() }));
 
 class TestResponse {
-  constructor(body, init = {}) {
-    this.body = body;
-    this.status = init.status || 200;
+  constructor(text, { status = 200, contentType = 'text/html; charset=utf-8' } = {}) {
+    this.status = status;
+    this.textBody = text;
+    this.headers = { get: name => name.toLowerCase() === 'content-type' ? contentType : null };
+    const bytes = Buffer.from(text);
+    let read = false;
+    this.body = {
+      getReader: () => ({
+        read: async () => {
+          if (read) return { done: true };
+          read = true;
+          return { done: false, value: bytes };
+        },
+        cancel: async () => undefined,
+      }),
+      cancel: async () => undefined,
+    };
   }
 
-  async json() {
-    return JSON.parse(this.body);
-  }
+  async json() { return JSON.parse(this.textBody); }
 }
 
-describe('monitoring services runtime port', () => {
+const html = '<!doctype html><html><head><title>Aplicación</title></head><body><main>Estado disponible</main></body></html>';
+const json = '{"status":"ok"}';
+
+function setupSockets(createConnection) {
+  createConnection.mockImplementation(() => {
+    const socket = new EventEmitter();
+    socket.setTimeout = jest.fn();
+    socket.destroy = jest.fn();
+    Promise.resolve().then(() => socket.emit('connect'));
+    return socket;
+  });
+}
+
+describe('monitoring services status API', () => {
   const originalPort = process.env.PORT;
   const originalResponse = global.Response;
   const originalFetch = global.fetch;
+  let GET;
+  let routeCreateConnection;
 
   beforeEach(() => {
+    jest.resetModules();
     global.Response = TestResponse;
-    global.fetch = jest.fn();
-    createConnection.mockImplementation(() => {
-      const socket = new EventEmitter();
-      socket.setTimeout = jest.fn();
-      socket.destroy = jest.fn();
-      Promise.resolve().then(() => socket.emit('connect'));
-      return socket;
+    global.fetch = jest.fn(async url => {
+      const isJson = url.includes('/api/health') || url.includes('/server/health');
+      return new TestResponse(isJson ? json : html, {
+        contentType: isJson ? 'application/json' : 'text/html; charset=utf-8',
+      });
     });
+    routeCreateConnection = require('node:net').createConnection;
+    setupSockets(routeCreateConnection);
+    GET = require('../src/pages/api/monitoring/services.ts').GET;
   });
 
   afterEach(() => {
-    if (originalPort === undefined) delete process.env.PORT;
-    else process.env.PORT = originalPort;
+    process.env.PORT = originalPort || '';
   });
 
   afterAll(() => {
@@ -42,40 +69,82 @@ describe('monitoring services runtime port', () => {
     global.fetch = originalFetch;
   });
 
-  async function expectHealthyOnPort(port) {
-    const frontendUrl = `http://127.0.0.1:${port}/`;
-    const available = [frontendUrl, 'http://127.0.0.1:8055/server/health', 'http://127.0.0.1:80/'];
-    global.fetch.mockImplementation(async url => {
-      if (!available.includes(url)) throw new Error('No listener on this port');
-      return { ok: true, status: 200 };
-    });
-
+  test('probes the allowlisted catalog and reports expected resources', async () => {
     const response = await GET();
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body.status).toBe('healthy');
-    expect(body.services).toHaveLength(5);
-    expect(body.services.find(service => service.name === 'Astro Frontend').status).toBe('online');
-    expect(global.fetch).toHaveBeenCalledWith(frontendUrl, expect.objectContaining({ signal: expect.anything() }));
-  }
+    expect(body.success).toBe(true);
+    expect(body.services).toHaveLength(STATUS_SERVICES.length);
+    expect(body.services.map(service => service.id)).toEqual(STATUS_SERVICES.map(service => service.id));
+    expect(body.services.every(service => service.status === 'online')).toBe(true);
+    expect(body.stats.unknown).toBe(0);
+    expect(body.services.find(service => service.id === 'sitrep-api').status).toBe('online');
+    expect(global.fetch).toHaveBeenCalledWith('https://sitrep.ultimamilla.com.ar/api/health', expect.objectContaining({
+      method: 'GET', redirect: 'manual', cache: 'no-store', signal: expect.anything(),
+    }));
+    expect(routeCreateConnection).toHaveBeenCalledWith({ host: '68.168.218.28', port: 587 });
+    expect(JSON.stringify(body)).not.toMatch(/127\.0\.0\.1|18191|18192|:3001|:3002/);
+  });
 
-  test('probes the active release port and reads PORT on each request', async () => {
+  test('uses the runtime port for Astro and refreshes when blue-green PORT changes', async () => {
     process.env.PORT = '4322';
-    await expectHealthyOnPort(4322);
+    await GET();
     process.env.PORT = '4323';
-    await expectHealthyOnPort(4323);
+    await GET();
+    expect(global.fetch).toHaveBeenCalledWith('http://127.0.0.1:4322/', expect.anything());
+    expect(global.fetch).toHaveBeenCalledWith('http://127.0.0.1:4323/', expect.anything());
     expect(global.fetch).not.toHaveBeenCalledWith('http://127.0.0.1:4321/', expect.anything());
   });
 
-  test.each(['1', '65535'])('accepts valid TCP port %s', async value => {
+  test.each(['1', '65535'])('accepts valid runtime TCP port %s', async value => {
     process.env.PORT = value;
-    await expectHealthyOnPort(Number(value));
+    await GET();
+    expect(global.fetch).toHaveBeenCalledWith(`http://127.0.0.1:${value}/`, expect.anything());
   });
 
-  test.each([undefined, '', '0', '-1', '65536', '4322.5', '4322x', '0x10', '1e3'])('falls back to development port for PORT=%s', async value => {
-    if (value === undefined) delete process.env.PORT;
-    else process.env.PORT = value;
-    await expectHealthyOnPort(4321);
+  test.each(['', '0', '-1', '65536', '4322.5', '4322x', '0x10', '1e3'])('falls back to development port for PORT=%s', async value => {
+    process.env.PORT = value;
+    await GET();
+    expect(global.fetch).toHaveBeenCalledWith('http://127.0.0.1:4321/', expect.anything());
+  });
+
+  test.each([404, 401, 500])('does not report HTTP %s as online', async status => {
+    global.fetch.mockImplementation(async () => new TestResponse(html, { status, contentType: 'text/html' }));
+    const body = await (await GET()).json();
+    expect(body.services.find(service => service.id === 'sgi-web').status).toBe('offline');
+  });
+
+  test('does not accept a 200 response with the wrong or empty body', async () => {
+    global.fetch.mockImplementation(async () => new TestResponse('<html><title>Not JSON</title></html>', { contentType: 'text/html' }));
+    let body = await (await GET()).json();
+    expect(body.services.find(service => service.id === 'sitrep-api').status).toBe('offline');
+
+    jest.resetModules();
+    GET = require('../src/pages/api/monitoring/services.ts').GET;
+    global.fetch.mockImplementation(async () => new TestResponse('', { contentType: 'text/html' }));
+    body = await (await GET()).json();
+    expect(body.services.find(service => service.id === 'sgi-web').status).toBe('offline');
+  });
+
+  test('reuses a recent snapshot and bounds concurrent HTTP probes', async () => {
+    let active = 0;
+    let peak = 0;
+    global.fetch.mockImplementation(async url => {
+      active += 1;
+      peak = Math.max(peak, active);
+      await new Promise(resolve => setTimeout(resolve, 1));
+      active -= 1;
+      const isJson = url.includes('/api/health') || url.includes('/server/health');
+      return new TestResponse(isJson ? json : html, { contentType: isJson ? 'application/json' : 'text/html' });
+    });
+
+    const first = await GET();
+    const fetchCount = global.fetch.mock.calls.length;
+    const second = await GET();
+    expect(await first.json()).toEqual(await second.json());
+    expect(global.fetch).toHaveBeenCalledTimes(fetchCount);
+    expect(peak).toBeGreaterThan(1);
+    expect(peak).toBeLessThanOrEqual(4);
   });
 });
