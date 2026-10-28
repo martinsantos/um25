@@ -6,6 +6,7 @@ on:
       - '.github/workflows/hostinger-sitrep-lock-rehearsal.yml'
       - 'scripts/ops/hostinger-migration/*sitrep*lock*.py'
       - 'scripts/ops/hostinger-migration/*sitrep*gate*.py'
+      - 'scripts/ops/hostinger-migration/*sitrep*swap*.py'
 
 permissions:
   contents: read
@@ -26,6 +27,7 @@ jobs:
         run: |
           python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sitrep_gate_config.py' -v
           python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sitrep_write_lock.py' -v
+          python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sitrep_database_swap.py' -v
       - name: Verify the actual PostgreSQL lock without network or persistent storage
         run: |
           docker run --detach --network none --tmpfs /var/lib/postgresql/data --name umsa-sitrep-lock-ci -e POSTGRES_USER=directus -e POSTGRES_PASSWORD=ci-only -e POSTGRES_DB=trazabilidad_rrpp postgres:15

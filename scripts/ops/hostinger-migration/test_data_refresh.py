@@ -37,6 +37,18 @@ class RefreshGuards(unittest.TestCase):
                 (root/'production.active').touch()
                 with self.assertRaisesRegex(RuntimeError,'after public cutover'):module.target_guard()
 
+    def test_sitrep_cutover_also_blocks_the_bulk_refresh(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            (root/'.target').write_text('179.198.115.115\n')
+            for marker in ('persist-rehearsal.complete','internal-rotation.complete'):(root/marker).touch()
+            with patch.object(module,'STAGE',root),patch.object(module.socket,'gethostname',return_value='srv2101069.hstgr.cloud'):
+                for marker in ('sitrep-final-refresh.started','sitrep-ingress-source-only.started','sitrep-public-activation.started'):
+                    with self.subTest(marker=marker):
+                        (root/marker).touch()
+                        with self.assertRaisesRegex(RuntimeError,'after public cutover'):module.target_guard()
+                        (root/marker).unlink()
+
     def test_wrong_host_cannot_refresh_any_data(self):
         with patch.object(module.socket,'gethostname',return_value='production-origin'):
             with self.assertRaisesRegex(RuntimeError,'Wrong destination'):module.target_guard()
