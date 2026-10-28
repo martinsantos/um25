@@ -49,7 +49,7 @@ jobs:
             required=false
             while IFS= read -r path; do
               case "$path" in
-                .github/workflows/hostinger-*.yml|scripts/ops/hostinger-migration/*|.github/workflows/production-deploy.yml|.github/workflows/server-storage-maintenance.yml|.github/workflows/preview.yml|scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|scripts/ops/compact-vivero-snapshots.py|scripts/ops/test_vivero_compaction.py|scripts/ops/clean-audited-storage.py|scripts/ops/test_audited_storage.py|scripts/ops/configure-offsite-backups.py|scripts/ops/test_offsite_backups.py) ;;
+                .github/workflows/hostinger-*.yml|.github/workflows/apply-umsans-font-headers.yml|.github/workflows/apply-www-canonical-nginx.yml|.github/workflows/cleanup-nginx-enabled-backups.yml|.github/workflows/install-llm-nginx-logging.yml|scripts/ops/hostinger-migration/*|.github/workflows/production-deploy.yml|.github/workflows/server-storage-maintenance.yml|.github/workflows/preview.yml|scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|scripts/ops/compact-vivero-snapshots.py|scripts/ops/test_vivero_compaction.py|scripts/ops/clean-audited-storage.py|scripts/ops/test_audited_storage.py|scripts/ops/configure-offsite-backups.py|scripts/ops/test_offsite_backups.py) ;;
                 *) required=true ;;
               esac
             done < <(git diff --name-only "$BEFORE" HEAD)
@@ -213,7 +213,7 @@ jobs:
               src/styles/font-service.css|src/styles/v4.css|\
               src/styles/cine-hero.css) ;;
               .github/workflows/production-deploy.yml|.github/workflows/community-demo-integrity.yml|\
-              .github/workflows/hostinger-*.yml|scripts/ops/hostinger-migration/*|\
+              .github/workflows/hostinger-*.yml|.github/workflows/apply-umsans-font-headers.yml|.github/workflows/apply-www-canonical-nginx.yml|.github/workflows/cleanup-nginx-enabled-backups.yml|.github/workflows/install-llm-nginx-logging.yml|scripts/ops/hostinger-migration/*|\
               .github/workflows/preview.yml|\
               .github/workflows/server-storage-maintenance.yml|\
               scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|\

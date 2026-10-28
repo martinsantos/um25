@@ -1,125 +1,13 @@
-name: Server Storage Maintenance
-
+name: Verify migrated storage
+# The one-off origin mutation is retired. This behavior is managed by
+# hostinger-production.yml and its versioned Nginx configuration.
 on:
-  pull_request:
-    paths:
-      - 'scripts/ops/prune-cold-dependencies.py'
-      - 'scripts/ops/test_cold_dependencies.py'
-      - 'scripts/ops/prune-package-caches.py'
-      - 'scripts/ops/test_package_caches.py'
-      - 'scripts/ops/deduplicate-directus-backups.py'
-      - 'scripts/ops/test_directus_backup_dedup.py'
-      - 'scripts/ops/compact-runtime-backups.py'
-      - 'scripts/ops/test_runtime_compaction.py'
-      - 'scripts/ops/compact-vivero-snapshots.py'
-      - 'scripts/ops/test_vivero_compaction.py'
-      - 'scripts/ops/clean-audited-storage.py'
-      - 'scripts/ops/test_audited_storage.py'
-      - 'scripts/ops/configure-offsite-backups.py'
-      - 'scripts/ops/test_offsite_backups.py'
-      - '.github/workflows/server-storage-maintenance.yml'
   workflow_dispatch:
-    inputs:
-      operation:
-        description: 'Audited dependencies, reproducible package caches or duplicate backups'
-        type: choice
-        options: [dependencies, caches, backups, runtime-backups, archive-blocks, uploads-backup, vivero-snapshots, volume-dependencies, temporary-archives, release-folders, directus-upload-duplicates, offsite-backups, cold-lot-20261023]
-        default: dependencies
-        required: true
-      mode:
-        description: 'plan (read-only) or apply the reviewed dependency cleanup'
-        type: choice
-        options: [plan, apply]
-        default: plan
-        required: true
-      plan_sha:
-        description: 'Exact plan_sha256 from the read-only audit; required for apply'
-        type: string
-        default: ''
-
 permissions:
   contents: read
-  actions: read
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
-concurrency:
-  group: server-storage-maintenance
-  cancel-in-progress: false
-
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - run: python3 -m unittest discover -s scripts/ops -p 'test_*.py' -v
-  maintenance:
-    needs: test
-    if: github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/master' || inputs.mode == 'plan')
-    runs-on: ubuntu-latest
-    environment: production
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v6
-      - uses: webfactory/ssh-agent@v0.10.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - name: Known host
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H 23.105.176.45 >> ~/.ssh/known_hosts
-      - name: Audit or apply verified cleanup
-        env:
-          MODE: ${{ inputs.mode }}
-          PLAN_SHA: ${{ inputs.plan_sha }}
-          OPERATION: ${{ inputs.operation }}
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          if [[ "$MODE" == apply && "$OPERATION" == cold-lot-20261023 ]]; then
-            for attempt in $(seq 1 40); do
-              busy=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow production-deploy.yml \
-                --limit 20 --json status --jq '[.[] | select(.status != "completed")] | length')
-              if [[ "$busy" == 0 ]]; then break; fi
-              if [[ "$attempt" == 40 ]]; then echo 'Publication still active; nothing removed'; exit 1; fi
-              sleep 15
-            done
-          fi
-          args=''
-          scope=''
-          case "$OPERATION" in
-            dependencies) script=scripts/ops/prune-cold-dependencies.py ;;
-            caches) script=scripts/ops/prune-package-caches.py ;;
-            backups) script=scripts/ops/deduplicate-directus-backups.py ;;
-            runtime-backups) script=scripts/ops/compact-runtime-backups.py ;;
-            uploads-backup) script=scripts/ops/compact-runtime-backups.py; scope=--uploads-backup ;;
-            archive-blocks) script=scripts/ops/compact-runtime-backups.py; scope=--archive-ranges ;;
-            vivero-snapshots) script=scripts/ops/compact-vivero-snapshots.py ;;
-            volume-dependencies|temporary-archives|release-folders|directus-upload-duplicates) script=scripts/ops/clean-audited-storage.py; scope="--operation $OPERATION" ;;
-            offsite-backups) script=scripts/ops/configure-offsite-backups.py ;;
-            cold-lot-20261023) script=scripts/ops/prune-cold-dependencies.py; scope=--audited-lot ;;
-            *) exit 2 ;;
-          esac
-          if [[ "$MODE" == apply ]]; then
-            [[ "$PLAN_SHA" =~ ^[0-9a-f]{64}$ ]]
-            args="--apply --expected-plan-sha $PLAN_SHA"
-          fi
-          # Keepalive: a long apply once left the runner waiting on a dead connection for 30 min.
-          ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=6 root@23.105.176.45 "ionice -c3 nice -n 19 python3 - $scope $args" \
-            < "$script" | tee storage-maintenance.jsonl
-      - name: Confirm storage and live sites
-        if: always()
-        run: |
-          ssh root@23.105.176.45 'df -h /; pm2 list'
-          for url in https://www.ultimamilla.com.ar/ https://sgi.ultimamilla.com.ar/ \
-            https://www.umbot.com.ar/ https://viveroloscocos.com.ar/ \
-            https://sitrep.ultimamilla.com.ar/; do
-            curl -fLsS --max-time 30 "$url" -o /dev/null
-          done
-      - uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: storage-maintenance-receipt
-          path: storage-maintenance.jsonl
-          retention-days: 30
+  migrated:
+    uses: ./.github/workflows/hostinger-runtime-audit.yml
+    with:
+      operation: storage
+    secrets: inherit
