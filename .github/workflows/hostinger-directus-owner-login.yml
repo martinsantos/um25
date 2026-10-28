@@ -1,0 +1,63 @@
+name: Reset only the existing Directus owner login
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-directus-owner-login.yml'
+      - 'scripts/ops/hostinger-migration/reset-directus-owner.py'
+      - 'scripts/ops/hostinger-migration/test_directus_owner_login.py'
+  workflow_dispatch:
+    inputs:
+      expected_snapshot_sha:
+        type: string
+        required: true
+      encrypted_credentials:
+        type: string
+        required: true
+        description: Short-lived RSA3072 OAEP-SHA256 envelope, never a plaintext password
+      acknowledgement:
+        type: string
+        required: true
+        description: Enter RESET-DIRECTUS-OWNER-LOGIN
+permissions:
+  contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+concurrency:
+  group: ${{ github.event_name == 'workflow_dispatch' && 'hostinger-migration-preparation' || github.run_id }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: scripts/ops/hostinger-migration
+          persist-credentials: false
+      - name: Test encrypted input, account scope, public login and recovery
+        run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts/ops/hostinger-migration -p test_directus_owner_login.py -v
+  reset:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'RESET-DIRECTUS-OWNER-LOGIN'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: scripts/ops/hostinger-migration
+          persist-credentials: false
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Update the existing account and verify a real public login
+        env:
+          SNAPSHOT: ${{ inputs.expected_snapshot_sha }}
+          ENVELOPE: ${{ inputs.encrypted_credentials }}
+        run: |
+          set -euo pipefail
+          [[ "$SNAPSHOT" =~ ^[a-f0-9]{64}$ ]]
+          [[ "$ENVELOPE" =~ ^[A-Za-z0-9+/]{512}$ ]]
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15)
+          ssh "${opts[@]}" root@179.198.115.115 "python3 - apply $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT $SNAPSHOT $ENVELOPE" < scripts/ops/hostinger-migration/reset-directus-owner.py
