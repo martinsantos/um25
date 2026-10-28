@@ -2,6 +2,7 @@
 """Read the migrated runtime instead of applying one-off edits to a retired layout."""
 import json
 from pathlib import Path
+import re
 import socket
 import subprocess
 import sys
@@ -26,14 +27,17 @@ def main(operation):
         data['backup_timer'] = run(['systemctl', 'is-active', 'umsa-active-backup.timer'])
         data['backup_policy'] = 'Historical versions are preserved; cleanup requires a new layout-specific reviewed plan.'
     elif operation == 'fonts':
-        import urllib.request
-        request = urllib.request.Request('https://www.ultimamilla.com.ar/fonts/um-sans/UMSans-Regular.woff2', method='HEAD')
-        with urllib.request.urlopen(request, timeout=20) as response:
-            data['font_status'] = response.status
-            data['cors'] = response.headers.get('Access-Control-Allow-Origin')
-            data['cache_control'] = response.headers.get('Cache-Control')
-            if response.status != 200 or data['cors'] != '*':
-                raise RuntimeError('Migrated font header contract failed')
+        # Check this exact origin rather than a cached CDN response or bot policy.
+        raw = run(['curl', '--noproxy', '*', '-sS', '-I', '--max-time', '20',
+                   '--resolve', 'www.ultimamilla.com.ar:443:179.198.115.115',
+                   'https://www.ultimamilla.com.ar/fonts/um-sans/UMSans-Regular.woff2'])
+        headers = {key.lower(): value.strip() for key, value in
+                   (line.split(':', 1) for line in raw.splitlines() if ':' in line)}
+        data['font_status'] = int(re.search(r'^HTTP/\S+ (\d{3})', raw).group(1))
+        data['cors'] = headers.get('access-control-allow-origin')
+        data['cache_control'] = headers.get('cache-control')
+        if data['font_status'] != 200 or data['cors'] != '*':
+            raise RuntimeError('Migrated font header contract failed')
     elif operation == 'canonical':
         data['root_route'] = run(['curl', '-sS', '--max-time', '20', '-o', '/dev/null',
                                   '-w', '%{http_code} %{redirect_url}', 'https://ultimamilla.com.ar/'])

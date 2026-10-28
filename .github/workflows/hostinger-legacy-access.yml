@@ -43,7 +43,7 @@ jobs:
               root=pathlib.Path(folder)
               subprocess.run(['openssl','req','-x509','-newkey','rsa:2048','-nodes','-days','1','-subj','/CN=example.invalid','-keyout',str(root/'privkey.pem'),'-out',str(root/'fullchain.pem')],check=True,capture_output=True)
               for secure in (False, True):
-                  text=m.render(secure).replace(str(m.ACME/'live'/m.LINEAGE),str(root))
+                  text=m.render(secure).replace(str(m.ACME/'live'/m.LINEAGE),str(root)).replace(m.TARGET+':','127.0.0.1:')
                   p=root/'nginx.conf'
                   p.write_text('error_log stderr; pid '+str(root/'nginx.pid')+'; events {} http {access_log off; '+text+'}')
                   subprocess.run(['nginx','-t','-p',str(root),'-c',str(p)],check=True)
