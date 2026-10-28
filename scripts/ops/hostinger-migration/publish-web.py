@@ -16,6 +16,8 @@ import time
 STAGE = Path('/srv/umsa-migration')
 RELEASES = Path('/srv/umsa-web-releases')
 FRONT = Path('/srv/umsa-clean-proxy/nginx/nginx.conf')
+PUBLIC_ROOT = Path('/srv/umsa-public-vhosts')
+PUBLIC_FRONT = STAGE / 'sitrep-public-ingress/40607817805-1/nginx.conf'
 STATE = STAGE / 'web-publication-state.json'
 INITIAL = {'port': 4321, 'unit': 'umsa-clean-astro-ultimamilla.service',
            'config': '/srv/umsa-clean-proxy/nginx',
@@ -63,6 +65,14 @@ def validate_archive(archive):
 def transform_config(text, previous, root, assets, port):
     return (text.replace(previous['config'], str(root)).replace(previous['assets'], str(assets))
         .replace('http://127.0.0.1:' + str(previous['port']) + ';', 'http://127.0.0.1:' + str(port) + ';'))
+
+
+def public_listeners(text):
+    text = re.sub(r'(?m)^\s*listen \[::1\]:(?:80|443)[^;]*;\s*\n', '\n', text)
+    text, count = re.subn(r'\blisten 127\.0\.0\.1:(80|443)\b', r'listen 179.198.115.115:\1', text)
+    if not count or re.search(r'\blisten\s+(?!179\.198\.115\.115:)', text):
+        raise RuntimeError('Unexpected public UMSA listener')
+    return text
 
 
 def atomic_text(path, text, mode=0o600):
@@ -159,6 +169,7 @@ def main(mode, revision, run_id, attempt, expected):
             raise RuntimeError('Persistent proxy dependencies differ from current web release')
         switched = False
         unit_switched = False
+        public_before = {}
         committed = False
         try:
             run(['systemctl', 'start', unit_name])
@@ -193,6 +204,25 @@ def main(mode, revision, run_id, attempt, expected):
             for route in ROUTES:
                 run(['curl', '-fsS', '--max-time', '20', '--resolve', 'www.ultimamilla.com.ar:443:127.0.0.1',
                     '-o', '/dev/null', 'https://www.ultimamilla.com.ar' + route])
+            # The live ingress has its own listeners. Switch both UMSA vhosts
+            # before retiring the previous Astro port; leave all other vhosts alone.
+            if PUBLIC_ROOT.is_symlink() or PUBLIC_FRONT.is_symlink() or not PUBLIC_FRONT.is_file():
+                raise RuntimeError('Public ingress is missing or unsafe')
+            for name in ('ultimamilla.com.ar', 'directus-admin'):
+                destination = PUBLIC_ROOT / (name + '.conf')
+                source = config / 'sites-enabled' / name
+                if destination.is_symlink() or not destination.is_file() or source.is_symlink() or not source.is_file():
+                    raise RuntimeError('Active public UMSA vhost is missing')
+                public_before[destination] = destination.read_text()
+                atomic_text(release / ('previous-public-' + name + '.conf'), public_before[destination])
+                atomic_text(destination, public_listeners(source.read_text()))
+            run(['/usr/sbin/nginx', '-t', '-c', str(PUBLIC_FRONT)])
+            run(['systemctl', 'reload', 'umsa-sitrep-ingress'])
+            for route in ROUTES:
+                run(['curl', '-fsS', '--max-time', '20', '--resolve', 'www.ultimamilla.com.ar:443:179.198.115.115',
+                     '-o', '/dev/null', 'https://www.ultimamilla.com.ar' + route])
+            run(['curl', '-fsS', '--max-time', '20', '--resolve', 'sitrep.ultimamilla.com.ar:443:179.198.115.115',
+                 '-o', '/dev/null', 'https://sitrep.ultimamilla.com.ar/api/health'])
             current = {'port': port, 'unit': unit_name, 'config': str(config), 'assets': str(assets)}
             run(['systemctl', 'enable', unit_name])
             atomic_text(release / 'previous-front.service', old_unit)
@@ -212,6 +242,11 @@ def main(mode, revision, run_id, attempt, expected):
             atomic_text(release / 'publication.complete', json.dumps(current) + '\n')
         except Exception:
             if not committed:
+                if public_before:
+                    for destination, text in public_before.items():
+                        atomic_text(destination, text)
+                    run(['/usr/sbin/nginx', '-t', '-c', str(PUBLIC_FRONT)])
+                    run(['systemctl', 'reload', 'umsa-sitrep-ingress'])
                 if unit_switched:
                     atomic_text(front_unit_path, old_unit, 0o644)
                     run(['systemctl', 'daemon-reload'])

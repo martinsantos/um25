@@ -54,6 +54,17 @@ class PublisherGuards(unittest.TestCase):
         self.assertIn('http://127.0.0.1:18191;',new)
         self.assertIn('http://127.0.0.1:3000;',new)
 
+    def test_public_config_tracks_the_same_new_web_port_without_changing_dge(self):
+        original = 'server {\n listen 127.0.0.1:443 ssl;\n listen [::1]:443 ssl;\n proxy_pass http://127.0.0.1:4321;\n proxy_pass http://127.0.0.1:18191;\n}\n'
+        private = module.transform_config(original, module.INITIAL, Path('/srv/new/nginx'), Path('/srv/new/assets'), 4322)
+        public = module.public_listeners(private)
+        self.assertIn('listen 179.198.115.115:443 ssl;', public)
+        self.assertNotIn('[::1]', public)
+        self.assertIn('http://127.0.0.1:4322;', public)
+        self.assertIn('http://127.0.0.1:18191;', public)
+        with self.assertRaises(RuntimeError):
+            module.public_listeners('server { listen 443 ssl; }')
+
     def test_state_cannot_redirect_publication_to_other_services(self):
         module.validate_previous(module.INITIAL)
         bad=dict(module.INITIAL, config='/etc/nginx')
