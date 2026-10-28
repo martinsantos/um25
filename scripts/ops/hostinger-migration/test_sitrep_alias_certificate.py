@@ -65,7 +65,10 @@ class AliasCertificateTests(unittest.TestCase):
         for name in m.NAMES:
             data = self.key_bytes if name == 'privkey.pem' else self.certificates['new']
             path = m.ARCHIVE / (name.removesuffix('.pem') + '2.pem')
-            path.write_bytes(data); path.chmod(0o600)
+            if name == 'privkey.pem':
+                path.symlink_to('privkey1.pem')
+            else:
+                path.write_bytes(data); path.chmod(0o600)
             link = m.LIVE / name
             link.unlink()
             link.symlink_to('../../archive/' + m.HOST + '/' + path.name)
@@ -96,6 +99,8 @@ class AliasCertificateTests(unittest.TestCase):
                 result = m.extend(before, folder)
             self.assertEqual(m.domains(m.LIVE / 'cert.pem'), {m.HOST, m.ALIAS})
             self.assertEqual((m.LIVE / 'privkey.pem').read_bytes(), self.key_bytes)
+            self.assertTrue((m.ARCHIVE / 'privkey2.pem').is_symlink())
+            self.assertEqual(os.readlink(m.ARCHIVE / 'privkey2.pem'), 'privkey1.pem')
             self.assertEqual((folder / 'privkey.pem.before').read_bytes(), self.key_bytes)
             self.assertEqual(folder.stat().st_mode & 0o777, 0o700)
             self.assertEqual((folder / 'privkey.pem.before').stat().st_mode & 0o777, 0o600)
@@ -109,7 +114,7 @@ class AliasCertificateTests(unittest.TestCase):
             self.assertTrue((m.ARCHIVE / 'cert1.pem').is_file())
 
     def test_hook_failure_restores_exact_original_links_renewal_and_keeps_new_archive(self):
-        for stage in ['hook', 'postcheck', 'key', 'issuance']:
+        for stage in ['hook', 'postcheck', 'key', 'issuance', 'readiness']:
             with self.subTest(stage=stage), tempfile.TemporaryDirectory() as directory, patch.multiple(m, **self.fixture(Path(directory).resolve())):
                 before = self.state()
                 original = m.lineage_view(before['lineage'])
@@ -121,7 +126,10 @@ class AliasCertificateTests(unittest.TestCase):
                         if stage == 'issuance':
                             raise subprocess.CalledProcessError(1, args)
                         if stage == 'key':
-                            (m.LIVE / 'privkey.pem').write_bytes(b'synthetic unexpected replacement key')
+                            key = m.ARCHIVE / 'privkey2.pem'
+                            key.unlink()
+                            key.write_bytes(b'synthetic unexpected replacement key')
+                            key.chmod(0o600)
                         return subprocess.CompletedProcess(args, 0, b'', b'')
                     if args == [str(m.HOOK)]:
                         hook_calls.append(args)
@@ -130,10 +138,15 @@ class AliasCertificateTests(unittest.TestCase):
                         return subprocess.CompletedProcess(args, 0, b'', b'')
                     return real_run(args)
                 def http(url, **kwargs):
+                    if stage == 'readiness' and url.startswith('https://' + m.ALIAS):
+                        raise subprocess.CalledProcessError(60, ['curl'])
                     if stage == 'postcheck' and url.endswith('/api/health'):
                         return b'\n__META__500\n'
                     return self.response(url, **kwargs)
-                with patch.object(m, 'same_context'), patch.object(m, 'curl', side_effect=http), patch.object(m, 'run', side_effect=execute):
+                clock = [0.0]
+                def sleep(seconds):
+                    clock[0] += seconds
+                with patch.object(m.time, 'monotonic', side_effect=lambda: clock[0]), patch.object(m.time, 'sleep', side_effect=sleep), patch.object(m, 'same_context'), patch.object(m, 'curl', side_effect=http), patch.object(m, 'run', side_effect=execute):
                     with self.assertRaises((RuntimeError, subprocess.CalledProcessError)):
                         m.extend(before, Path(directory))
                 self.assertEqual(m.lineage_view(m.lineage()), original)
@@ -228,6 +241,14 @@ class AliasCertificateTests(unittest.TestCase):
                     m.extend(before, Path(directory))
             self.assertEqual(m.lineage_view(m.lineage()), old_view)
             self.assertEqual(other_renewal.read_text(), 'concurrent unrelated renewal preserved\n')
+
+    def test_readiness_wait_retries_old_tls_once_before_accepting_new_certificate(self):
+        failure = subprocess.CalledProcessError(60, ['curl'])
+        with patch.object(m, 'redirect_probe', side_effect=[failure, None]) as probe, patch.object(m.time, 'sleep') as sleep:
+            m.wait_alias_ready()
+        self.assertEqual(probe.call_count, 2)
+        self.assertTrue(all(call.kwargs['timeout'] <= 1 for call in probe.call_args_list))
+        self.assertLessEqual(sleep.call_args.args[0], 0.25)
 
     def test_workflow_has_only_manual_production_extension_and_existing_identity(self):
         root = Path(__file__).parents[3]

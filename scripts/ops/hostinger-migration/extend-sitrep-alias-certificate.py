@@ -12,6 +12,7 @@ import ssl
 import stat
 import subprocess
 import sys
+import time
 from urllib.parse import quote
 
 HOST = 'sitrep.ultimamilla.com.ar'
@@ -60,8 +61,27 @@ def fingerprint(value):
     return digest(json.dumps(value, sort_keys=True, separators=(',', ':')).encode())
 
 
+
+def archive_key(path):
+    links = {}
+    if path.is_symlink():
+        info = path.lstat()
+        target = os.readlink(path)
+        if ((info.st_uid, info.st_gid) != OWNER or
+                not re.fullmatch(r'privkey[1-9][0-9]*\.pem', target) or target == path.name):
+            raise RuntimeError('Reused archive key link escapes its original lineage')
+        links[str(path)] = {'target': target, 'uid': info.st_uid, 'gid': info.st_gid}
+        path = ARCHIVE / target
+        if path.is_symlink():
+            raise RuntimeError('Unexpected nested reused archive key link')
+    record = regular(path)
+    if record['mode'] != 0o600:
+        raise RuntimeError('Existing or candidate private key must remain root-only mode0600')
+    return record, links
+
+
 def lineage():
-    links, files = {}, {}
+    links, files, key_links = {}, {}, {}
     for name in NAMES:
         path = LIVE / name
         info = path.lstat()
@@ -72,15 +92,16 @@ def lineage():
         if not re.fullmatch(r'\.\./\.\./archive/' + re.escape(HOST) + '/' + stem + r'[1-9][0-9]*\.pem', target):
             raise RuntimeError('Managed certificate link escapes its existing lineage')
         links[name] = target
-        files[name] = regular(ARCHIVE / Path(target).name)
-        if name == 'privkey.pem' and files[name]['mode'] != 0o600:
-            raise RuntimeError('Existing or candidate private key must remain root-only mode0600')
+        if name == 'privkey.pem':
+            files[name], key_links = archive_key(ARCHIVE / Path(target).name)
+        else:
+            files[name] = regular(ARCHIVE / Path(target).name)
     files['renewal'] = regular(RENEWAL)
-    return {'links': links, 'files': files}
+    return {'links': links, 'files': files, 'archive_key_links': key_links}
 
 
 def lineage_view(value):
-    return {'links': value['links'], 'files': inventory(value['files'])}
+    return {'links': value['links'], 'archive_key_links': value['archive_key_links'], 'files': inventory(value['files'])}
 
 
 def domains(path):
@@ -146,8 +167,8 @@ def same_context(before):
         raise RuntimeError('Concurrent ingress/publisher/renewal configuration change')
 
 
-def curl(url, resolve=True, follow=False, host_header=None):
-    args = ['curl', '--noproxy', '*', '--globoff', '--path-as-is', '-fsS', '--max-time', '20']
+def curl(url, resolve=True, follow=False, host_header=None, timeout=20):
+    args = ['curl', '--noproxy', '*', '--globoff', '--path-as-is', '-fsS', '--max-time', str(timeout)]
     if resolve:
         args += ['--resolve', ALIAS + ':80:' + TARGET, '--resolve', ALIAS + ':443:' + TARGET,
                  '--resolve', HOST + ':443:' + TARGET]
@@ -183,12 +204,29 @@ def challenge_probe(public=False):
             path.unlink()
 
 
-def redirect_probe(secure_alias=False):
+def redirect_probe(secure_alias=False, timeout=20):
     suffix = '/app/a%20b?x=%2F&filter[a]=b%2Fc'
     body, status, destination = split_response(curl('https://' + (ALIAS if secure_alias else HOST) + suffix,
-                                                   host_header=None if secure_alias else ALIAS))
+                                                   host_header=None if secure_alias else ALIAS, timeout=timeout))
     if status != '301' or destination != 'https://' + HOST + suffix:
         raise RuntimeError('Existing alias redirect did not preserve escaped path and query')
+
+
+
+def wait_alias_ready():
+    # Nginx HUP is asynchronous: old workers may briefly present the old SAN.
+    deadline = time.monotonic() + 10
+    last_failure = None
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise RuntimeError('Timed out waiting for the reloaded alias TLS certificate') from last_failure
+        try:
+            redirect_probe(True, timeout=min(1, remaining))
+            return
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired, RuntimeError) as failure:
+            last_failure = failure
+        time.sleep(min(0.25, max(0, deadline - time.monotonic())))
 
 
 def verify_certificate(original_key_sha):
@@ -284,6 +322,10 @@ def restore(before, expected):
     for name, record in before['lineage']['files'].items():
         if name != 'renewal' and regular(Path(record['path'])) != record:
             raise RuntimeError('Original archive replica changed; preserve private backup for review')
+    for path, entry in before['lineage']['archive_key_links'].items():
+        record, links = archive_key(Path(path))
+        if links != {path: entry} or record != before['lineage']['files']['privkey.pem']:
+            raise RuntimeError('Original reused archive key link changed; preserve private backup')
     for name, target in before['lineage']['links'].items():
         pending = LIVE / ('.sitrep-alias-' + secrets.token_hex(12))
         try:
@@ -319,6 +361,7 @@ def extend(before, folder):
             verify_renewal(before['lineage']['files']['renewal']['data'], installed['files']['renewal']['data'])
         same_context(before)
         run([str(HOOK)])
+        wait_alias_ready()
         redirect_probe(True)
         for path in ('/', '/app/', '/precrimen/', '/api/health'):
             if split_response(curl('https://' + HOST + path))[1] != '200':
