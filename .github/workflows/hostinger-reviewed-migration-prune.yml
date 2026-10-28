@@ -1,0 +1,80 @@
+name: Clean only the reviewed Hostinger migration artifacts
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-reviewed-migration-prune.yml'
+      - 'scripts/ops/hostinger-migration/prune-reviewed-migration.py'
+      - 'scripts/ops/hostinger-migration/test_reviewed_migration_prune.py'
+  workflow_dispatch:
+    inputs:
+      phase:
+        type: choice
+        options: [inspect, apply]
+        default: inspect
+        required: true
+        description: Inspect first; apply only the eight paths authorized on 2026-10-28
+      expected_snapshot_sha:
+        type: string
+        default: ''
+        description: Exact SHA256 returned by the successful read-only inspection
+      acknowledgement:
+        type: string
+        default: ''
+        description: Enter CLEAN-REVIEWED-16GB to apply the explicitly authorized batch
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+# Share the production publisher queue, including its upload/build phase.
+concurrency:
+  group: ${{ github.event_name == 'workflow_dispatch' && 'hostinger-umsa-production' || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - name: Verify exact scope, protected files, hardlinks and replacement races
+        run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_reviewed_migration_prune.py' -v
+
+  audited_batch:
+    needs: validate
+    if: >-
+      github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' &&
+      vars.UMSA_PRODUCTION_TARGET == 'hostinger' &&
+      (inputs.phase == 'inspect' || (inputs.phase == 'apply' && inputs.acknowledgement == 'CLEAN-REVIEWED-16GB'))
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Revalidate the exact batch and preserve all runtimes and backups
+        env:
+          PHASE: ${{ inputs.phase }}
+          SNAPSHOT_SHA: ${{ inputs.expected_snapshot_sha }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          [[ "$PHASE" == inspect || "$PHASE" == apply ]]
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          id="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          if [[ "$PHASE" == apply ]]; then
+            [[ "$SNAPSHOT_SHA" =~ ^[a-f0-9]{64}$ ]]
+            ssh "${opts[@]}" root@179.198.115.115 "env GITHUB_ACTIONS=true python3 - apply $id $SNAPSHOT_SHA" < scripts/ops/hostinger-migration/prune-reviewed-migration.py
+          else
+            ssh "${opts[@]}" root@179.198.115.115 "python3 - inspect $id" < scripts/ops/hostinger-migration/prune-reviewed-migration.py
+          fi
