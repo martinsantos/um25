@@ -20,6 +20,8 @@ on:
         description: Enter RETIRE-OLD-ACCESS after reviewing the seven DNS access names
 permissions:
   contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 concurrency:
   group: hostinger-migration-preparation
   cancel-in-progress: false
