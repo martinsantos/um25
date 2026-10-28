@@ -156,7 +156,9 @@ def backup():
                      Path('/srv/umsa-clean-containers/directus.env'), Path('/srv/umsa-clean-containers/arca.env'),
                      STAGE / 'sgi-dedicated-rehearsals' / candidate / 'root.cnf',
                      STAGE / 'sgi-dedicated-rehearsals' / candidate / 'root-pass',
-                     Path('/root/.ssh/umsa_offsite_20261027'), STAGE / 'backup-known-hosts']:
+                     Path('/root/.ssh/umsa_offsite_20261027'), STAGE / 'backup-known-hosts',
+                     Path('/etc/systemd/system/vivero-relay-hostinger.service'),
+                     Path('/usr/local/sbin/umsa-certificate-reload')]:
             if path.is_symlink() or not path.is_file():
                 raise RuntimeError('Expected active configuration is missing')
             shutil.copy2(path, config / path.as_posix().replace('/', '__'))

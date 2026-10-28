@@ -6,12 +6,19 @@ on:
       - '.github/workflows/hostinger-finalize-production.yml'
       - 'scripts/ops/hostinger-migration/finalize-production.py'
       - 'scripts/ops/hostinger-migration/test_finalization.py'
+      - 'scripts/ops/hostinger-migration/repair-mail-certificates.py'
+      - 'scripts/ops/hostinger-migration/test_mail_certificates.py'
   workflow_dispatch:
     inputs:
       acknowledgement:
         description: 'Enter FINALIZE after all service cutovers and public DNS changes pass'
         required: true
         type: string
+      operation:
+        description: 'Initial certificate finalization or align the existing mail certificate consumers'
+        type: choice
+        options: [certificates, mail-renewal]
+        default: certificates
 
 permissions:
   contents: read
@@ -32,6 +39,7 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: /scripts/ops/hostinger-migration/
       - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_finalization.py' -v
+      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_mail_certificates.py' -v
   finalize:
     needs: validate
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'FINALIZE'
@@ -55,10 +63,12 @@ jobs:
           target=root@179.198.115.115
           folder="/srv/umsa-migration/production-finalization-tooling/$id"
           ssh "${opts[@]}" "$target" "test ! -e $folder && install -d -m 0700 $folder"
-          for file in finalize-production.py public-vhost.py; do
+          script=finalize-production.py
+          if [[ '${{ inputs.operation }}' == mail-renewal ]]; then script=repair-mail-certificates.py; fi
+          for file in "$script" public-vhost.py; do
             scp "${opts[@]}" "scripts/ops/hostinger-migration/$file" "$target:$folder/"
             local_hash=$(sha256sum "scripts/ops/hostinger-migration/$file" | cut -d ' ' -f1)
             remote_hash=$(ssh "${opts[@]}" "$target" "sha256sum $folder/$file" | cut -d ' ' -f1)
             [[ "$local_hash" = "$remote_hash" ]]
           done
-          ssh "${opts[@]}" "$target" "python3 $folder/finalize-production.py $id"
+          ssh "${opts[@]}" "$target" "python3 $folder/$script $id"
