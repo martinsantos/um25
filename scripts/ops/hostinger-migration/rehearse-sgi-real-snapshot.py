@@ -17,6 +17,7 @@ import time
 STAGE = Path('/srv/umsa-migration')
 IMAGE = 'mariadb:10.11@sha256:d769e37960821dfdcf096954f6e7ac89f747e116c1bba98e48edd265dfc7deae'
 SOURCE = 'root@23.105.176.45'
+ENTRYPOINT_READY = b'MariaDB init process done. Ready for start up.'
 SQL = """SELECT CONCAT('T|',TABLE_NAME,'|',ENGINE) FROM information_schema.TABLES
  WHERE TABLE_SCHEMA='sgi_production' AND TABLE_TYPE='BASE TABLE'
  UNION ALL SELECT CONCAT('V|',TABLE_NAME,'|',DEFINER,'|',SECURITY_TYPE) FROM information_schema.VIEWS
@@ -82,6 +83,12 @@ def main(identifier):
             return subprocess.check_output(['docker', 'exec', name, 'mariadb', '--no-defaults', '-uroot',
                                             '-N', '-e', query], text=True, timeout=30)
         for _ in range(90):
+            logs = subprocess.run(['docker', 'logs', name], capture_output=True, timeout=10)
+            # The image starts and then stops a temporary initialization server.
+            # A successful SELECT there does not mean the final server is ready.
+            if ENTRYPOINT_READY not in logs.stdout + logs.stderr:
+                time.sleep(1)
+                continue
             try:
                 if target_query('SELECT 1;').strip() == '1':
                     break
