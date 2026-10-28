@@ -10,7 +10,6 @@ import re
 import socket
 import sys
 import time
-import urllib.parse
 import urllib.request
 
 STAGE = Path('/srv/umsa-migration')
@@ -23,7 +22,8 @@ CERTS = '/srv/umsa-clean-containers/arca-certs'
 OUTPUT = '/srv/umsa-clean-containers/arca-output'
 COMMAND = ['streamlit', 'run', 'src/web/streamlit_app.py', '--server.baseUrlPath', '/plantilla-arca']
 HEALTH = 'http://127.0.0.1:8501/plantilla-arca/_stcore/health'
-HOSTS = ['wsaahomo.afip.gov.ar', 'wswhomo.afip.gov.ar', 'wsaa.afip.gov.ar', 'ws.afip.gov.ar']
+HOMOLOGATION_HOSTS = ['wsaahomo.afip.gov.ar', 'wswhomo.afip.gov.ar']
+PRODUCTION_HOSTS = ['wsaa.afip.gov.ar', 'ws.afip.gov.ar']
 BACKUP = ('20261028T094123Z-ae3eaadb', 51645153,
           '6325ae56621bdc9098eca6ec850d36f15d5876468e9e868b364dad01f69d0622')
 
@@ -124,7 +124,15 @@ def wait_health(url=HEALTH):
     raise RuntimeError('ARCA did not become healthy through the unchanged bridge')
 
 
-def verify_network(api, container, hosts=HOSTS):
+def active_hosts(environment):
+    mode = next((entry.split('=', 1)[1] for entry in environment
+                 if entry.startswith('ARCA_HOMOLOGACION=')), 'true')
+    return HOMOLOGATION_HOSTS if mode.lower() == 'true' else PRODUCTION_HOSTS
+
+
+def verify_network(api, container, hosts=None):
+    if hosts is None:
+        hosts = active_hosts(api.inspect(container)['Config']['Env'])
     # DNS, TCP and certificate-verified TLS only: no HTTP request, WSAA login or invoice.
     code = ('import socket,ssl\n'
             'context=ssl.create_default_context()\n'
@@ -228,8 +236,11 @@ def verified_backup():
     if root.is_symlink() or receipt.is_symlink() or archive.is_symlink():
         raise RuntimeError('Unexpected operational backup type')
     data = json.loads(receipt.read_text())
+    checksum = hashlib.sha256()
     with archive.open('rb') as source:
-        actual = hashlib.file_digest(source, 'sha256').hexdigest()
+        for block in iter(lambda: source.read(1024 * 1024), b''):
+            checksum.update(block)
+    actual = checksum.hexdigest()
     if (archive.stat().st_size != size or actual != digest or data.get('sha256') != digest
             or data.get('archive') != archive.name or data.get('bytes') != size
             or data.get('database_files') != 9 or data.get('encrypted_offsite') is not True):

@@ -14,6 +14,11 @@ spec.loader.exec_module(arca)
 
 
 class ArcaEgressGuards(unittest.TestCase):
+    def test_only_configured_afip_environment_is_probed(self):
+        self.assertEqual(arca.active_hosts(['ARCA_HOMOLOGACION=true']), arca.HOMOLOGATION_HOSTS)
+        self.assertEqual(arca.active_hosts(['ARCA_HOMOLOGACION=false']), arca.PRODUCTION_HOSTS)
+        self.assertEqual(arca.active_hosts([]), arca.HOMOLOGATION_HOSTS)
+
     def fixture(self):
         return {'Id': arca.ORIGINAL, 'Image': arca.IMAGE, 'Name': '/arca_app',
                 'State': {'Running': True},
