@@ -49,7 +49,7 @@ jobs:
             required=false
             while IFS= read -r path; do
               case "$path" in
-                .github/workflows/hostinger-backup-receiver.yml|.github/workflows/hostinger-production.yml|.github/workflows/hostinger-migration.yml|.github/workflows/hostinger-vivero-mail-handoff.yml|scripts/ops/hostinger-migration/*|.github/workflows/production-deploy.yml|.github/workflows/server-storage-maintenance.yml|.github/workflows/preview.yml|scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|scripts/ops/compact-vivero-snapshots.py|scripts/ops/test_vivero_compaction.py|scripts/ops/clean-audited-storage.py|scripts/ops/test_audited_storage.py|scripts/ops/configure-offsite-backups.py|scripts/ops/test_offsite_backups.py) ;;
+                .github/workflows/hostinger-*.yml|scripts/ops/hostinger-migration/*|.github/workflows/production-deploy.yml|.github/workflows/server-storage-maintenance.yml|.github/workflows/preview.yml|scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|scripts/ops/deduplicate-directus-backups.py|scripts/ops/test_directus_backup_dedup.py|scripts/ops/compact-runtime-backups.py|scripts/ops/test_runtime_compaction.py|scripts/ops/compact-vivero-snapshots.py|scripts/ops/test_vivero_compaction.py|scripts/ops/clean-audited-storage.py|scripts/ops/test_audited_storage.py|scripts/ops/configure-offsite-backups.py|scripts/ops/test_offsite_backups.py) ;;
                 *) required=true ;;
               esac
             done < <(git diff --name-only "$BEFORE" HEAD)
@@ -213,6 +213,7 @@ jobs:
               src/styles/font-service.css|src/styles/v4.css|\
               src/styles/cine-hero.css) ;;
               .github/workflows/production-deploy.yml|.github/workflows/community-demo-integrity.yml|\
+              .github/workflows/hostinger-*.yml|scripts/ops/hostinger-migration/*|\
               .github/workflows/preview.yml|\
               .github/workflows/server-storage-maintenance.yml|\
               scripts/ops/prune-cold-dependencies.py|scripts/ops/test_cold_dependencies.py|scripts/ops/prune-package-caches.py|scripts/ops/test_package_caches.py|\
@@ -401,6 +402,7 @@ jobs:
           rsync -az --checksum dist/ "root@23.105.176.45:$STAGE/"
 
       - name: Swap verified runtime with automatic origin rollback
+        id: runtime_swap
         run: |
           ssh root@23.105.176.45 "bash -s -- '$RELEASE_ID' deploy" \
             < scripts/ops/deploy-scoped-dist.sh
@@ -584,7 +586,7 @@ jobs:
             < scripts/ops/compact-runtime-backups.py
 
       - name: Restore previous runtime after failed checks
-        if: failure() && steps.ssh_agent.outcome == 'success'
+        if: failure() && steps.ssh_agent.outcome == 'success' && (steps.runtime_swap.outcome == 'success' || steps.runtime_swap.outcome == 'failure')
         run: |
           ssh root@23.105.176.45 "bash -s -- '$RELEASE_ID' rollback" \
             < scripts/ops/deploy-scoped-dist.sh
