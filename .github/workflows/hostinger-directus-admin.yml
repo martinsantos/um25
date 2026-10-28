@@ -1,0 +1,65 @@
+name: Repair the dedicated Directus admin origin
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-directus-admin.yml'
+      - 'scripts/ops/hostinger-migration/repair-directus-admin.py'
+      - 'scripts/ops/hostinger-migration/test_directus_admin.py'
+  workflow_dispatch:
+    inputs:
+      phase:
+        type: choice
+        options: [prepare, activate]
+        required: true
+      expected_snapshot_sha:
+        type: string
+        required: true
+        description: SHA256 returned by the read-only inspect command for all reviewed configuration files
+      acknowledgement:
+        type: string
+        required: true
+        description: Enter REPAIR-DIRECTUS-ADMIN after reviewing the effective vhosts and publisher sources
+permissions:
+  contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+concurrency:
+  group: ${{ github.event_name == 'workflow_dispatch' && 'hostinger-migration-preparation' || github.run_id }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: scripts/ops/hostinger-migration
+      - name: Install disposable Nginx for route and TLS verification
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq nginx-light
+      - name: Test guards, rollback, publisher persistence and actual Nginx routing
+        run: DIRECTUS_ADMIN_NGINX_CI=1 python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_directus_admin.py' -v
+  repair:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'REPAIR-DIRECTUS-ADMIN'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: scripts/ops/hostinger-migration
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Apply only the reviewed admin phase with private backups and rollback
+        env:
+          PHASE: ${{ inputs.phase }}
+          SNAPSHOT_SHA: ${{ inputs.expected_snapshot_sha }}
+        run: |
+          set -euo pipefail
+          [[ "$PHASE" == prepare || "$PHASE" == activate ]]
+          [[ "$SNAPSHOT_SHA" =~ ^[a-f0-9]{64}$ ]]
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          ssh "${opts[@]}" root@179.198.115.115 "python3 - $PHASE $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT $SNAPSHOT_SHA" < scripts/ops/hostinger-migration/repair-directus-admin.py
