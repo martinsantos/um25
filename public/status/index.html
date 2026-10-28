@@ -135,8 +135,13 @@
   }
 
   function timestamp(value) {
+    const time = observedTimestamp(value);
+    return time && Date.now() - time < MAX_AGE ? time : 0;
+  }
+
+  function observedTimestamp(value) {
     const time = typeof value === 'string' ? Date.parse(value) : NaN;
-    return Number.isFinite(time) && Date.now() - time <= MAX_AGE && time - Date.now() <= 30000 ? time : 0;
+    return Number.isFinite(time) && time - Date.now() <= 30000 ? time : 0;
   }
 
   async function read(url) {
@@ -172,11 +177,18 @@
         detail.textContent = `${probe}${duration} · ${new Date(service.lastCheck).toLocaleString('es-AR', {hour12: false})}`;
       } else { detail.textContent = 'Sin evidencia reciente'; }
     }
-    servicesAt = timestamp(data.timestamp);
+    const observedTimes = data.services.map(service => observedTimestamp(service?.lastCheck)).filter(Boolean);
+    servicesAt = observedTimes.length ? Math.min(...observedTimes) : 0;
     byId('responding').textContent = checked ? `${online} de ${checks.length} con respuesta · ${offline} sin respuesta` : 'Sin comprobar';
     byId('response-time').textContent = `${Math.round(elapsed)} ms`;
-    byId('last-check').textContent = `Última consulta: ${new Date(servicesAt).toLocaleString('es-AR', {hour12: false})}`;
+    byId('last-check').textContent = servicesAt ? `Última consulta: ${new Date(servicesAt).toLocaleString('es-AR', {hour12: false})}` : 'Sin lectura reciente';
     byId('overall-status').textContent = offline ? 'Hay servicios sin respuesta' : checked === checks.length ? `Las ${checks.length} sondas respondieron` : checked ? 'Comprobación incompleta · hay estados desconocidos' : 'Estado desconocido · sin sondas verificables';
+    expireReadings();
+  }
+
+  function expireReadings() {
+    if (servicesAt && Date.now() - servicesAt >= MAX_AGE) unknownServices('Estado desconocido · la lectura venció');
+    if (healthAt && Date.now() - healthAt >= MAX_AGE) { healthAt = 0; byId('system-uptime').textContent = 'No disponible'; }
   }
 
   async function refresh() {
@@ -209,18 +221,17 @@
   unknownServices('Estado desconocido · aún sin comprobar');
   byId('refresh').addEventListener('click', refresh);
   setInterval(() => { if (!document.hidden) refresh(); }, 60000);
-  setInterval(() => {
-    if (servicesAt && Date.now() - servicesAt > MAX_AGE) unknownServices('Estado desconocido · la lectura venció');
-    if (healthAt && Date.now() - healthAt > MAX_AGE) { healthAt = 0; byId('system-uptime').textContent = 'No disponible'; }
-  }, 10000);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+  setInterval(expireReadings, 10000);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) { expireReadings(); refresh(); }
+  });
   window.addEventListener('offline', () => {
     generation++;
     healthAt = 0;
     unknownServices('Estado desconocido · sin conexión');
     byId('system-uptime').textContent = 'No disponible';
   });
-  window.addEventListener('online', refresh);
+  window.addEventListener('online', () => { expireReadings(); refresh(); });
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/status/service-worker.js').catch(() => {});
   }

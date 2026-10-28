@@ -71,25 +71,11 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate event - cleanup old caches
+// Activate the legacy worker without deleting caches owned by other apps.
 self.addEventListener('activate', (event) => {
   console.log('[SW] Activating Service Worker...');
-  
-  event.waitUntil(
-    Promise.all([
-      caches.keys().then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => {
-            if (cacheName !== CACHE_NAME && cacheName !== DYNAMIC_CACHE) {
-              console.log('[SW] Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            }
-          })
-        );
-      }),
-      self.clients.claim()
-    ])
-  );
+
+  event.waitUntil(self.clients.claim());
 });
 
 // Fetch event - handle requests with appropriate strategies

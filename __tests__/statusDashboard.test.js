@@ -104,6 +104,34 @@ test('expires readings while a tab is hidden', async () => {
   expect(text('overall-status')).toContain('venció');
   expect(text('system-uptime')).toBe('No disponible');
 });
+test('expires the whole snapshot 120 seconds after its oldest service observation', async () => {
+  fetchMock.mockImplementation(async () => {
+    const data = reading();
+    data.services = data.services.map(service => ({...service, lastCheck: new Date(Date.now() - 30000).toISOString()}));
+    return {ok: true, json: async () => data};
+  });
+  await start();
+  jest.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+  jest.advanceTimersByTime(89999);
+  expect(text('overall-status')).toBe(`Las ${checks.length} sondas respondieron`);
+  jest.advanceTimersByTime(1);
+  expect(text('overall-status')).toContain('venció');
+  expect(document.querySelectorAll('[data-status="online"]')).toHaveLength(0);
+});
+test.each(['visibilitychange', 'online'])('%s expires stale observations before requesting a refresh', async eventName => {
+  await start();
+  const oldTime = Date.now();
+  const hidden = eventName === 'visibilitychange' ? jest.spyOn(document, 'hidden', 'get').mockReturnValue(true) : null;
+  jest.setSystemTime(oldTime + 120000);
+  if (eventName === 'visibilitychange') {
+    hidden.mockReturnValue(false);
+    document.dispatchEvent(new Event('visibilitychange'));
+  } else {
+    window.dispatchEvent(new Event('online'));
+  }
+  expect(text('overall-status')).toContain('venció');
+  expect(document.querySelectorAll('[data-status="online"]')).toHaveLength(0);
+});
 test('going offline clears all previous observations immediately', async () => {
   await start();
   window.dispatchEvent(new Event('offline'));
