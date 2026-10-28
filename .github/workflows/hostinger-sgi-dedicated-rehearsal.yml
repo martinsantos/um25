@@ -32,15 +32,16 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: /scripts/ops/hostinger-migration/
       - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sgi_dedicated_db.py' -v
-      - name: Verify loopback-only access to an internal Docker network
+      - name: Verify a networkless MariaDB with a private Unix socket
         run: |
           set -euo pipefail
           name=umsa-sgi-dedicated-ci
           image='mariadb:10.11@sha256:d769e37960821dfdcf096954f6e7ac89f747e116c1bba98e48edd265dfc7deae'
-          docker network create --internal "$name"
-          trap 'docker stop --time 15 "$name" || true; docker network rm "$name" || true' EXIT
-          docker run -d --rm --name "$name" --network "$name" -p 127.0.0.1:13306:3306 --tmpfs /var/lib/mysql:rw,nosuid,size=1g -e MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=1 "$image"
-          SGI_DEDICATED_CI=1 python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sgi_dedicated_db.py' -v
+          socket_dir="$(mktemp -d)"
+          chmod 777 "$socket_dir"
+          trap 'docker stop --time 15 "$name" || true' EXIT
+          docker run -d --rm --name "$name" --network none -v "$socket_dir:/run/mysqld" --tmpfs /var/lib/mysql:rw,nosuid,size=1g -e MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=1 "$image"
+          SGI_DEDICATED_CI=1 SGI_DEDICATED_SOCKET="$socket_dir" python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sgi_dedicated_db.py' -v
   rehearse:
     needs: validate
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'REHEARSE'

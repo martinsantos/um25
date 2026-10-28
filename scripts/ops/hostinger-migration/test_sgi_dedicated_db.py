@@ -14,13 +14,14 @@ spec.loader.exec_module(module)
 
 
 class SgiDedicatedDatabaseTests(unittest.TestCase):
-    def test_environment_changes_only_the_destination_host_and_port(self):
+    def test_environment_adds_only_the_private_database_socket(self):
         original = 'DB_HOST="localhost"\nDB_PORT="3306"\nDB_USER="sgi_app"\nDB_PASS="example"\n'
-        self.assertEqual(module.override_environment(original),
-                         'DB_HOST=127.0.0.1\nDB_PORT=13306\nDB_USER="sgi_app"\nDB_PASS="example"\n')
-        for value in (original + 'DB_PORT=3307\n', 'DB_HOST=localhost\n'):
-            with self.assertRaises(RuntimeError):
-                module.override_environment(value)
+        socket_path = '/srv/umsa-migration/sgi-dedicated-rehearsals/42-1/socket/mysqld.sock'
+        self.assertEqual(module.override_environment(original, socket_path), original + 'DB_SOCKET=' + socket_path + '\n')
+        with self.assertRaises(RuntimeError):
+            module.override_environment(original + 'DB_SOCKET=/a\nDB_SOCKET=/b\n', socket_path)
+        with self.assertRaises(ValueError):
+            module.override_environment(original, '/tmp/untrusted.sock')
 
     def test_only_reviewed_app_credentials_are_accepted(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -31,19 +32,20 @@ class SgiDedicatedDatabaseTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 module.app_password(file)
 
-    @unittest.skipUnless(os.environ.get('SGI_DEDICATED_CI') == '1', 'requires isolated CI network')
-    def test_internal_docker_network_can_publish_only_to_host_loopback(self):
+    @unittest.skipUnless(os.environ.get('SGI_DEDICATED_CI') == '1', 'requires a disposable CI container')
+    def test_networkless_container_has_a_host_accessible_unix_socket(self):
         name = 'umsa-sgi-dedicated-ci'
-        network = json.loads(subprocess.check_output(['docker', 'network', 'inspect', name], text=True))[0]
         container = json.loads(subprocess.check_output(['docker', 'inspect', name], text=True))[0]
-        self.assertTrue(network['Internal'])
-        bindings = container['HostConfig']['PortBindings']['3306/tcp']
-        self.assertEqual(bindings, [{'HostIp': '127.0.0.1', 'HostPort': '13306'}])
+        self.assertEqual(container['HostConfig']['NetworkMode'], 'none')
+        self.assertFalse(container['HostConfig']['PortBindings'])
+        socket_path = os.environ['SGI_DEDICATED_SOCKET'] + '/mysqld.sock'
         for _ in range(90):
             logs = subprocess.run(['docker', 'logs', name], capture_output=True)
             if b'MariaDB init process done. Ready for start up.' in logs.stdout + logs.stderr:
                 try:
-                    with socket.create_connection(('127.0.0.1', 13306), timeout=1) as connection:
+                    with socket.socket(socket.AF_UNIX) as connection:
+                        connection.settimeout(1)
+                        connection.connect(socket_path)
                         if connection.recv(100):
                             break
                 except OSError:
