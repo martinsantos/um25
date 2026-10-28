@@ -1,0 +1,76 @@
+name: Prepare an isolated SGI database candidate
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-sgi-dedicated-rehearsal.yml'
+      - 'scripts/ops/hostinger-migration/rehearse-sgi-dedicated-db.py'
+      - 'scripts/ops/hostinger-migration/test_sgi_dedicated_db.py'
+  workflow_dispatch:
+    inputs:
+      acknowledgement:
+        description: 'Enter REHEARSE to prepare a private non-final SGI database candidate'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostinger-migration-${{ github.event_name == 'workflow_dispatch' && 'preparation' || github.run_id }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sgi_dedicated_db.py' -v
+      - name: Verify loopback-only access to an internal Docker network
+        run: |
+          set -euo pipefail
+          name=umsa-sgi-dedicated-ci
+          image='mariadb:10.11@sha256:d769e37960821dfdcf096954f6e7ac89f747e116c1bba98e48edd265dfc7deae'
+          docker network create --internal "$name"
+          trap 'docker stop --time 15 "$name" || true; docker network rm "$name" || true' EXIT
+          docker run -d --rm --name "$name" --network "$name" -p 127.0.0.1:13306:3306 --tmpfs /var/lib/mysql:rw,nosuid,size=1g -e MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=1 "$image"
+          SGI_DEDICATED_CI=1 python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sgi_dedicated_db.py' -v
+  rehearse:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'REHEARSE'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SSH_PRIVATE_KEY }}
+            ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Restore SGI into a separate private database
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          id="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          target=root@179.198.115.115
+          parent=/srv/umsa-migration/sgi-dedicated-tooling
+          folder="$parent/$id"
+          ssh "${opts[@]}" "$target" "test ! -L $parent && { test -d $parent || install -d -m 0700 $parent; } && test ! -e $folder && test ! -L $folder && install -d -m 0700 $folder"
+          for file in rehearse-sgi-dedicated-db.py rehearse-sgi-real-snapshot.py; do
+            scp "${opts[@]}" "scripts/ops/hostinger-migration/$file" "$target:$folder/"
+            local_hash=$(sha256sum "scripts/ops/hostinger-migration/$file" | cut -d ' ' -f1)
+            remote_hash=$(ssh "${opts[@]}" "$target" "sha256sum $folder/$file" | cut -d ' ' -f1)
+            [[ "$local_hash" = "$remote_hash" ]]
+          done
+          ssh -A "${opts[@]}" "$target" "python3 $folder/rehearse-sgi-dedicated-db.py $id"
