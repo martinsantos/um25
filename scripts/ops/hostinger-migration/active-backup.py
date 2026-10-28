@@ -57,10 +57,11 @@ def sha256(path):
     return value.hexdigest()
 
 
-def receiver_has_reserve(rounded_gib, incoming_bytes):
-    # The existing receiver reports df -BG, which rounds UP. Use a lower bound.
+def receiver_has_reserve(rounded_gib, incoming_bytes, exact_bytes=None):
+    # Legacy df -BG rounds UP. Keep its lower bound unless exact bytes exist.
     # Preserve at least 7 GiB after transfer, above its PSICOLE 5 GB requirement.
-    return (rounded_gib - 1) * GIB - incoming_bytes >= 7 * GIB
+    free_bytes = (rounded_gib - 1) * GIB if exact_bytes is None else exact_bytes
+    return free_bytes - incoming_bytes >= 7 * GIB
 
 
 def snapshot_files(destination):
@@ -214,7 +215,8 @@ def backup():
                '-i', '/root/.ssh/umsa_offsite_20261027']
         receiver = 'umbak@76.13.234.213'
         listing = subprocess.check_output(ssh + [receiver, 'listar'], text=True)
-        if not receiver_has_reserve(helper.available_gb(listing), archive.stat().st_size):
+        if not receiver_has_reserve(helper.available_gb(listing), archive.stat().st_size,
+                                    helper.available_bytes(listing)):
             raise RuntimeError('Local encrypted backup retained; offsite transfer cannot preserve 7 GiB reserve')
         subprocess.run(['rsync', '-a', '-e', shlex.join(ssh), str(archive), receiver + ':/opt/remote-backups/directus/'],
                        stdout=log, stderr=log, check=True, timeout=1200)
