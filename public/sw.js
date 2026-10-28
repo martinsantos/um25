@@ -71,25 +71,11 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate event - cleanup old caches
+// Activate the legacy worker without deleting caches owned by other apps.
 self.addEventListener('activate', (event) => {
   console.log('[SW] Activating Service Worker...');
-  
-  event.waitUntil(
-    Promise.all([
-      caches.keys().then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => {
-            if (cacheName !== CACHE_NAME && cacheName !== DYNAMIC_CACHE) {
-              console.log('[SW] Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            }
-          })
-        );
-      }),
-      self.clients.claim()
-    ])
-  );
+
+  event.waitUntil(self.clients.claim());
 });
 
 // Fetch event - handle requests with appropriate strategies
@@ -128,8 +114,6 @@ self.addEventListener('sync', (event) => {
   
   if (event.tag === 'contact-form') {
     event.waitUntil(syncContactForms());
-  } else if (event.tag === 'analytics') {
-    event.waitUntil(syncAnalytics());
   }
 });
 
@@ -433,34 +417,6 @@ async function syncContactForms() {
     }
   } catch (error) {
     console.error('[SW] Background sync failed:', error);
-  }
-}
-
-async function syncAnalytics() {
-  try {
-    const store = await getIDBStore('analytics', 'readonly');
-    const events = await getAllFromStore(store);
-    
-    for (const event of events) {
-      try {
-        const response = await fetch('/api/analytics', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(event.data)
-        });
-        
-        if (response.ok) {
-          await removeFromStore('analytics', event.id);
-          console.log('[SW] Analytics event synced successfully:', event.id);
-        }
-      } catch (error) {
-        console.error('[SW] Failed to sync analytics event:', error);
-      }
-    }
-  } catch (error) {
-    console.error('[SW] Analytics sync failed:', error);
   }
 }
 
