@@ -1,0 +1,84 @@
+name: Cut over SGI with one active database writer
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-sgi-cutover.yml'
+      - 'scripts/ops/hostinger-migration/sgi-source-cutover.py'
+      - 'scripts/ops/hostinger-migration/sgi-target-cutover.py'
+      - 'scripts/ops/hostinger-migration/public-vhost.py'
+      - 'scripts/ops/hostinger-migration/test_sgi_cutover.py'
+  workflow_dispatch:
+    inputs:
+      acknowledgement:
+        description: 'Enter APPROVED-SGI-MAINTENANCE only after user approves the brief SGI interruption'
+        required: true
+        type: string
+      candidate:
+        description: 'Completed private SGI candidate run, e.g. 123456789-1'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostinger-migration-${{ github.event_name == 'workflow_dispatch' && 'preparation' || github.run_id }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sgi_cutover.py' -v
+  cutover:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'APPROVED-SGI-MAINTENANCE'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SSH_PRIVATE_KEY }}
+            ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Fence old SGI and activate verified final data on Hostinger
+        env:
+          CANDIDATE: ${{ inputs.candidate }}
+        run: |
+          set -euo pipefail
+          [[ "$CANDIDATE" =~ ^[0-9]+-[0-9]+$ ]]
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          id="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          source=root@23.105.176.45
+          target=root@179.198.115.115
+          source_folder="/root/umsa-sgi-cutover-tooling/$id"
+          target_folder="/srv/umsa-migration/sgi-cutover-tooling/$id"
+          ssh "${opts[@]}" "$source" "test ! -e $source_folder && install -d -m 0700 $source_folder"
+          ssh "${opts[@]}" "$target" "test ! -e $target_folder && install -d -m 0700 $target_folder"
+          for file in sgi-source-cutover.py sgi-write-lock.py; do
+            scp "${opts[@]}" "scripts/ops/hostinger-migration/$file" "$source:$source_folder/"
+            local_hash=$(sha256sum "scripts/ops/hostinger-migration/$file" | cut -d ' ' -f1)
+            remote_hash=$(ssh "${opts[@]}" "$source" "sha256sum $source_folder/$file" | cut -d ' ' -f1)
+            [[ "$local_hash" = "$remote_hash" ]]
+          done
+          for file in sgi-target-cutover.py public-vhost.py rehearse-sgi-real-snapshot.py rehearse-streaming-recovery.py rehearse-encrypted-recovery.py offsite-recovery-public.asc; do
+            scp "${opts[@]}" "scripts/ops/hostinger-migration/$file" "$target:$target_folder/"
+            local_hash=$(sha256sum "scripts/ops/hostinger-migration/$file" | cut -d ' ' -f1)
+            remote_hash=$(ssh "${opts[@]}" "$target" "sha256sum $target_folder/$file" | cut -d ' ' -f1)
+            [[ "$local_hash" = "$remote_hash" ]]
+          done
+          ssh -A "${opts[@]}" "$target" "python3 $target_folder/sgi-target-cutover.py $id $CANDIDATE"
