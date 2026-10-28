@@ -19,6 +19,26 @@ class EncryptedRecoveryTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 module.available_gb(value)
 
+    def test_exact_space_is_optional_without_changing_legacy_readers(self):
+        self.assertIsNone(module.available_bytes('files\nlibre 8 GB\n'))
+        listing = 'files\nlibre 8 GB\nlibre_bytes 8405700608\n'
+        self.assertEqual(module.available_bytes(listing), 8405700608)
+        self.assertEqual(module.available_gb(listing), 8)
+        self.assertEqual(module.available_bytes('libre_bytes 0\n'), 0)
+
+    def test_present_exact_space_must_be_valid_and_unique(self):
+        for field in ('libre_bytes', 'libre_bytes ', 'libre_bytes -1',
+                      'libre_bytes +1', 'libre_bytes 1.5', 'libre_bytes unknown',
+                      'libre_bytes 1 GB', 'libre_bytes 1 ', ' libre_bytes 1',
+                      'libre_bytes\t1', 'libre_bytes_extra 1',
+                      'libre_bytes 1\r', 'libre_bytes 1\rignored',
+                      'ignored\rlibre_bytes 1', 'libre_bytes\r1',
+                      'libre_bytes 1\r\nlibre_bytes 2',
+                      'libre_bytes 1\nlibre_bytes 1',
+                      'libre_bytes 1\nlibre_bytes unknown'):
+            with self.subTest(field=field), self.assertRaises(RuntimeError):
+                module.available_bytes('libre 8 GB\n' + field + '\n')
+
     def test_manifest_detects_mutation_and_unreviewed_link(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

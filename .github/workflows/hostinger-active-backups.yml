@@ -6,6 +6,8 @@ on:
       - '.github/workflows/hostinger-active-backups.yml'
       - 'scripts/ops/hostinger-migration/active-backup.py'
       - 'scripts/ops/hostinger-migration/test_active_backup.py'
+      - 'scripts/ops/hostinger-migration/rehearse-encrypted-recovery.py'
+      - 'scripts/ops/hostinger-migration/test_encrypted_recovery.py'
   workflow_dispatch:
     inputs:
       acknowledgement:
@@ -31,7 +33,9 @@ jobs:
         with:
           sparse-checkout-cone-mode: false
           sparse-checkout: /scripts/ops/hostinger-migration/
-      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_active_backup.py' -v
+      - run: |
+          python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_active_backup.py' -v
+          python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_encrypted_recovery.py' -v
   install:
     needs: validate
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'BACKUP'
