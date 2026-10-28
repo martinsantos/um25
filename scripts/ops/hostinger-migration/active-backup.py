@@ -152,10 +152,27 @@ def backup():
                 if destination.execute('PRAGMA integrity_check').fetchone() != ('ok',):
                     raise RuntimeError('Active SQLite backup integrity failed')
         for path in [*STAGE.glob('*.environment'), Path('/srv/umsa-clean-containers/dge-runtime.json'),
-                     Path('/srv/umsa-clean-containers/directus.env'), Path('/srv/umsa-clean-containers/arca.env')]:
+                     Path('/srv/umsa-clean-containers/directus.env'), Path('/srv/umsa-clean-containers/arca.env'),
+                     STAGE / 'sgi-dedicated-rehearsals' / candidate / 'root.cnf',
+                     STAGE / 'sgi-dedicated-rehearsals' / candidate / 'root-pass',
+                     Path('/root/.ssh/umsa_offsite_20261027'), STAGE / 'backup-known-hosts']:
             if path.is_symlink() or not path.is_file():
                 raise RuntimeError('Expected active configuration is missing')
             shutil.copy2(path, config / path.as_posix().replace('/', '__'))
+        state = STAGE / 'web-publication-state.json'
+        if state.is_file() and not state.is_symlink():
+            value = json.loads(state.read_text())
+            environment = Path(value['config']).parent / 'web.environment'
+            if not re.fullmatch(r'/srv/umsa-web-releases/[0-9a-f]{40}-[0-9]+-[0-9]+/web\.environment', str(environment)):
+                raise RuntimeError('Unexpected active web release environment')
+            shutil.copy2(state, config / 'web-publication-state.json')
+            shutil.copy2(environment, config / 'active-web.environment')
+        capture(['docker', 'inspect', 'directus-admin-database-1', 'dge-demo-db', 'umsa-sgi-db-' + candidate,
+                 'directus-admin-directus-app-1', 'dge-demo-web', 'dge-demo-rollback-cf24407ee8ee', 'arca_app'],
+                config / 'containers.json')
+        for path in Path('/etc/systemd/system').glob('umsa-*.service'):
+            if path.is_file() and not path.is_symlink():
+                shutil.copy2(path, config / path.name)
         for path in (STAGE / 'internal-credentials', Path('/etc/letsencrypt-hostinger'),
                      Path('/etc/postfix'), Path('/etc/postfix-vivero'), Path('/etc/opendkim')):
             if path.is_symlink() or not path.is_dir():
