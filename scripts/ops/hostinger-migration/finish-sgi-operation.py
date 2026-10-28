@@ -166,6 +166,14 @@ def main(identifier):
         def db(sql):
             return subprocess.check_output(['docker', 'exec', container, 'mariadb',
                 '--defaults-extra-file=/run/secrets/root.cnf', '-N', '-e', sql], text=True, timeout=30).strip()
+        def ready(port):
+            for _ in range(30):
+                result = subprocess.run(['curl', '--noproxy', '*', '-fsS', '--max-time', '3', '-o', '/dev/null',
+                                         'http://127.0.0.1:' + str(port) + '/auth/login'], stdout=log, stderr=log)
+                if result.returncode == 0:
+                    return
+                time.sleep(1)
+            raise RuntimeError('SGI port did not become ready: ' + str(port))
         # This file must be new so rollback can remove only our own addition.
         run(['docker', 'exec', container, 'test', '!', '-e', timezone_inside])
         previous_zone = db('SELECT @@global.time_zone;')
@@ -189,14 +197,7 @@ def main(identifier):
             run(['systemctl', 'daemon-reload'])
             run(['systemctl', 'enable', '--now', 'umsa-operational-sgi'])
             run(['systemctl', 'is-enabled', '--quiet', 'umsa-operational-sgi'])
-            for attempt in range(30):
-                result = subprocess.run(['curl', '--noproxy', '*', '-fsS', '--max-time', '3', '-o', '/dev/null',
-                                         'http://127.0.0.1:3001/auth/login'], stdout=log, stderr=log)
-                if result.returncode == 0:
-                    break
-                time.sleep(1)
-            else:
-                raise RuntimeError('Operational SGI did not become ready')
+            ready(3001)
             for p in vhosts:
                 public.atomic(p, replacements[p], 0o600)
             public.atomic(front_unit, front_new, 0o644)
@@ -221,6 +222,7 @@ def main(identifier):
             # Keep the new instance available until old routing has been restored.
             # No source writer is ever restarted: both services use the target DB.
             run(['systemctl', 'enable', '--now', 'umsa-clean-sgi'])
+            ready(3000)
             for p, text in previous.items():
                 public.atomic(p, text, 0o644 if p == front_unit else 0o600)
             run(['systemctl', 'daemon-reload'])
