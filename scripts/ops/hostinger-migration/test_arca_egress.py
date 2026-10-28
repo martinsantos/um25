@@ -34,6 +34,13 @@ class ArcaEgressGuards(unittest.TestCase):
                 'NetworkSettings': {'Ports': {'8501/tcp': None},
                                     'Networks': {arca.INTERNAL: {'IPAddress': arca.ADDRESS}}}}
 
+    def test_mount_order_is_ignored_but_read_only_permissions_are_still_checked(self):
+        mounts = self.fixture()['Mounts']
+        self.assertTrue(arca.same_mounts(mounts, list(reversed(mounts))))
+        changed = copy.deepcopy(mounts)
+        changed[0]['RW'] = True
+        self.assertFalse(arca.same_mounts(mounts, changed))
+
     def test_replacement_preserves_environment_mounts_and_restart_policy_without_ports(self):
         original = self.fixture()
         expected = arca.contract()
@@ -143,10 +150,13 @@ class ArcaDockerRehearsal(unittest.TestCase):
         arca.wait_health()
 
     def test_failed_tls_rolls_back_exact_container_ip_bridge_and_data(self):
+        probe_calls = []
         def fail_tls(api, container):
+            probe_calls.append(container)
             raise RuntimeError('Injected outbound TLS failure')
         with self.assertRaisesRegex(RuntimeError, 'original container restored'):
             arca.restore(self.api, self.expected, '2-1', network_probe=fail_tls)
+        self.assertEqual(len(probe_calls), 1)
         original = self.api.inspect('arca_app')
         self.assertEqual(original['Id'], self.original)
         self.assertTrue(original['State']['Running'])

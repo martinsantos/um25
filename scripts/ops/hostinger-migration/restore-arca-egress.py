@@ -97,6 +97,11 @@ def validate_original(info, network, expected):
         raise RuntimeError('Duplicate ARCA environment keys')
 
 
+def same_mounts(left, right):
+    # Docker inspect builds this list from a map; order is not part of its contract.
+    return sorted(left, key=lambda m: m['Destination']) == sorted(right, key=lambda m: m['Destination'])
+
+
 def replacement(info, expected):
     result = copy.deepcopy(info['Config'])
     result['Image'] = expected['image']
@@ -194,7 +199,7 @@ def restore(api, expected, identifier, health=wait_health, network_probe=verify_
         api.call('POST', '/containers/' + candidate + '/start')
         actual = api.inspect(candidate)
         if (actual['Image'] != expected['image'] or actual['Config']['Env'] != info['Config']['Env']
-                or actual['Mounts'] != info['Mounts'] or actual['HostConfig'].get('PortBindings')
+                or not same_mounts(actual['Mounts'], info['Mounts']) or actual['HostConfig'].get('PortBindings')
                 or any(actual['NetworkSettings']['Ports'].values())
                 or set(actual['NetworkSettings']['Networks']) != {expected['internal'], expected['egress']}
                 or actual['NetworkSettings']['Networks'][expected['internal']]['IPAddress'] != expected['address']):
