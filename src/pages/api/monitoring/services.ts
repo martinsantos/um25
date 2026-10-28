@@ -61,12 +61,16 @@ async function checkHttpService(service: ServiceConfig): Promise<{ status: 'onli
 
 export const GET: APIRoute = async () => {
   try {
+    const configuredPort = process.env['PORT'] || '';
+    const runtimePort = /^\d+$/.test(configuredPort) ? Number(configuredPort) : 0;
+    const frontendPort = runtimePort > 0 && runtimePort <= 65535 ? runtimePort : 4321;
+
     // Service health check configurations
     const servicesConfig: ServiceConfig[] = [
       {
         name: 'Astro Frontend',
         host: '127.0.0.1',
-        port: 4321,
+        port: frontendPort,
         endpoint: '/',
         critical: true,
         timeout: 5000,
