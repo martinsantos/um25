@@ -62,11 +62,13 @@ class AliasCertificateTests(unittest.TestCase):
         return {'records': {}, 'lineage': cert, 'sans': {m.HOST}, 'view': view, 'sha256': m.fingerprint(view)}
 
     def issue(self):
+        generation = max(int(path.stem.removeprefix('cert')) for path in m.ARCHIVE.glob('cert[0-9]*.pem')) + 1
+        prior_key = (m.LIVE / 'privkey.pem').resolve().name
         for name in m.NAMES:
             data = self.key_bytes if name == 'privkey.pem' else self.certificates['new']
-            path = m.ARCHIVE / (name.removesuffix('.pem') + '2.pem')
+            path = m.ARCHIVE / (name.removesuffix('.pem') + str(generation) + '.pem')
             if name == 'privkey.pem':
-                path.symlink_to('privkey1.pem')
+                path.symlink_to(prior_key)
             else:
                 path.write_bytes(data); path.chmod(0o600)
             link = m.LIVE / name
@@ -110,6 +112,8 @@ class AliasCertificateTests(unittest.TestCase):
             self.assertNotIn('--nginx', command)
             self.assertNotIn('--force-renewal', command)
             self.assertEqual(command[-4:], ['-d', m.HOST, '-d', m.ALIAS])
+            self.assertEqual(json.loads(command[command.index('--webroot-map') + 1]),
+                             {m.HOST: str(m.WEBROOT), m.ALIAS: str(m.WEBROOT)})
             self.assertEqual(m.lineage_view(result), m.lineage_view(m.lineage()))
             self.assertTrue((m.ARCHIVE / 'cert1.pem').is_file())
 
@@ -148,7 +152,7 @@ class AliasCertificateTests(unittest.TestCase):
                     clock[0] += seconds
                 with patch.object(m.time, 'monotonic', side_effect=lambda: clock[0]), patch.object(m.time, 'sleep', side_effect=sleep), patch.object(m, 'same_context'), patch.object(m, 'curl', side_effect=http), patch.object(m, 'run', side_effect=execute):
                     with self.assertRaises((RuntimeError, subprocess.CalledProcessError)):
-                        m.extend(before, Path(directory))
+                        m.extend(before, Path(directory).resolve())
                 self.assertEqual(m.lineage_view(m.lineage()), original)
                 self.assertTrue((m.ARCHIVE / 'cert2.pem').exists())
                 self.assertEqual((m.LIVE / 'privkey.pem').read_bytes(), self.key_bytes)
@@ -170,7 +174,7 @@ class AliasCertificateTests(unittest.TestCase):
             m.RENEWAL.write_text(m.RENEWAL.read_text() + '# concurrent\n')
             with patch.object(m, 'same_context'), patch.object(m, 'run') as execute:
                 with self.assertRaisesRegex(RuntimeError, 'compare-and-swap'):
-                    m.extend(before, Path(directory))
+                    m.extend(before, Path(directory).resolve())
             execute.assert_not_called()
 
     def test_renewal_settings_allow_only_alias_map_and_existing_key_reuse(self):
@@ -238,7 +242,7 @@ class AliasCertificateTests(unittest.TestCase):
                 return real_run(args)
             with patch.object(m, 'same_context'), patch.object(m, 'curl', side_effect=self.response), patch.object(m, 'run', side_effect=execute):
                 with self.assertRaisesRegex(RuntimeError, 'Another certificate lineage'):
-                    m.extend(before, Path(directory))
+                    m.extend(before, Path(directory).resolve())
             self.assertEqual(m.lineage_view(m.lineage()), old_view)
             self.assertEqual(other_renewal.read_text(), 'concurrent unrelated renewal preserved\n')
 
@@ -249,6 +253,50 @@ class AliasCertificateTests(unittest.TestCase):
         self.assertEqual(probe.call_count, 2)
         self.assertTrue(all(call.kwargs['timeout'] <= 1 for call in probe.call_args_list))
         self.assertLessEqual(sleep.call_args.args[0], 0.25)
+
+    def test_vendor_map_regression_is_saved_before_strict_guard_rolls_it_back(self):
+        with tempfile.TemporaryDirectory() as directory, patch.multiple(m, **self.fixture(Path(directory).resolve())):
+            before = self.state()
+            original = m.lineage_view(before['lineage'])
+            real_run = m.run
+            def execute(args):
+                if args[0] == 'certbot':
+                    self.issue()
+                    m.RENEWAL.write_text(m.RENEWAL.read_text().replace(m.HOST + ' = /var/www/umsa-acme\n', ''))
+                    return subprocess.CompletedProcess(args, 0, b'', b'')
+                if args == [str(m.HOOK)]:
+                    return subprocess.CompletedProcess(args, 0, b'', b'')
+                return real_run(args)
+            with patch.object(m, 'same_context'), patch.object(m, 'run', side_effect=execute):
+                with self.assertRaisesRegex(RuntimeError, r'\[\[webroot_map\]\] ' + m.HOST):
+                    m.extend(before, Path(directory).resolve())
+            candidate = Path(directory) / 'post-issuance/renewal.before'
+            self.assertNotIn(m.HOST + ' = ', candidate.read_text())
+            self.assertIn(m.ALIAS + ' = ', candidate.read_text())
+            self.assertEqual(candidate.stat().st_mode & 0o777, 0o600)
+            self.assertEqual(m.lineage_view(m.lineage()), original)
+
+    def test_retry_keeps_issued_generation_two_and_creates_flat_reused_key_three(self):
+        with tempfile.TemporaryDirectory() as directory, patch.multiple(m, **self.fixture(Path(directory).resolve())):
+            before = self.state()
+            self.issue()
+            issued_two = (m.ARCHIVE / 'cert2.pem').read_bytes()
+            with patch.object(m, 'run'):
+                m.restore(before, m.lineage())
+            real_run = m.run
+            def execute(args):
+                if args[0] == 'certbot':
+                    self.issue()
+                    return subprocess.CompletedProcess(args, 0, b'', b'')
+                if args == [str(m.HOOK)]:
+                    return subprocess.CompletedProcess(args, 0, b'', b'')
+                return real_run(args)
+            with patch.object(m, 'same_context'), patch.object(m, 'curl', side_effect=self.response), patch.object(m, 'run', side_effect=execute):
+                m.extend(before, Path(directory).resolve())
+            self.assertEqual((m.ARCHIVE / 'cert2.pem').read_bytes(), issued_two)
+            self.assertEqual(os.readlink(m.ARCHIVE / 'privkey3.pem'), 'privkey1.pem')
+            self.assertEqual(os.readlink(m.LIVE / 'privkey.pem'), '../../archive/' + m.HOST + '/privkey3.pem')
+            self.assertEqual((m.LIVE / 'privkey.pem').read_bytes(), self.key_bytes)
 
     def test_workflow_has_only_manual_production_extension_and_existing_identity(self):
         root = Path(__file__).parents[3]
