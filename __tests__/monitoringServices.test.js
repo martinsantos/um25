@@ -56,8 +56,9 @@ describe('monitoring services status API', () => {
       if (target.endsWith('.entry.js')) return new TestResponse('', { contentType: 'application/javascript' });
       if (target.endsWith('.css')) return new TestResponse('', { contentType: 'text/css' });
       const isJson = target.includes('/api/health') || target.includes('/server/health');
+      const contentType = target.includes('/server/health') ? 'application/health+json; charset=utf-8' : isJson ? 'application/json; charset=utf-8' : 'text/html; charset=utf-8';
       return new TestResponse(isJson ? json : html, {
-        contentType: isJson ? 'application/json' : 'text/html; charset=utf-8',
+        contentType,
       });
     });
     routeCreateConnection = require('node:net').createConnection;
@@ -85,6 +86,7 @@ describe('monitoring services status API', () => {
     expect(body.services.every(service => service.status === 'online')).toBe(true);
     expect(body.stats.unknown).toBe(0);
     expect(body.services.find(service => service.id === 'sitrep-api').status).toBe('online');
+    expect(body.services.find(service => service.id === 'directus').status).toBe('online');
     expect(body.services.find(service => service.id === 'directus-ui').status).toBe('online');
     expect(global.fetch).toHaveBeenCalledWith('https://sitrep.ultimamilla.com.ar/api/health', expect.objectContaining({
       method: 'GET', redirect: 'manual', cache: 'no-store', signal: expect.anything(),
@@ -193,6 +195,30 @@ describe('monitoring services status API', () => {
     global.fetch.mockImplementation(async () => new TestResponse('', { contentType: 'text/html' }));
     body = await (await GET()).json();
     expect(body.services.find(service => service.id === 'sgi-web').status).toBe('offline');
+  });
+
+  test('accepts Directus application/health+json only with a positive body status', async () => {
+    global.fetch.mockImplementation(async url => {
+      const target = String(url);
+      if (target.includes('/server/health')) return new TestResponse('{"status":"ok"}', { contentType: 'application/health+json; charset=utf-8' });
+      if (target.includes('/api/health')) return new TestResponse(json, { contentType: 'application/json' });
+      if (target === 'https://admin.ultimamilla.com.ar/admin/') return new TestResponse(directusHtml);
+      if (target.endsWith('.entry.js')) return new TestResponse('', { contentType: 'application/javascript' });
+      if (target.endsWith('.css')) return new TestResponse('', { contentType: 'text/css' });
+      return new TestResponse(html, { contentType: 'text/html' });
+    });
+    const body = await (await GET()).json();
+    expect(body.services.find(service => service.id === 'directus').status).toBe('online');
+
+    jest.resetModules();
+    GET = require('../src/pages/api/monitoring/services.ts').GET;
+    global.fetch.mockImplementation(async url => {
+      if (String(url).includes('/server/health')) return new TestResponse('{"status":"down"}', { contentType: 'application/health+json; charset=utf-8' });
+      const isJson = String(url).includes('/api/health');
+      return new TestResponse(isJson ? json : html, { contentType: isJson ? 'application/json' : 'text/html' });
+    });
+    const unhealthy = await (await GET()).json();
+    expect(unhealthy.services.find(service => service.id === 'directus').status).toBe('offline');
   });
 
   test('reuses a recent snapshot and bounds concurrent HTTP probes', async () => {

@@ -96,7 +96,7 @@ async function checkHttp(probe: Extract<StatusProbe, { kind: 'http' }>): Promise
       return 'online';
     }
 
-    if (!contentType.includes('application/json')) return 'offline';
+    if (!/^application\/(?:[a-z0-9!#$&^_.+-]+\+)?json(?:\s*;|$)/i.test(contentType)) return 'offline';
     try {
       const json = JSON.parse(body) as Record<string, unknown>;
       if (!json || typeof json !== 'object' || Array.isArray(json)) return 'offline';
