@@ -39,11 +39,13 @@ def update_certificate_paths(text):
     return text
 
 
-def update_cms_token(text, token):
-    if not re.fullmatch(r'[A-Za-z0-9_-]{16,128}', token):
-        raise ValueError('Unexpected rotated CMS token')
-    result, count = re.subn(r'(proxy_set_header\s+Authorization\s+"Bearer )[^"\r\n]+(";)',
-                            lambda match: match[1] + token + match[2], text)
+def preserve_cms_client_authorization(text):
+    # These locations are public: never lend the SSR administrator identity to
+    # a caller. Forward only credentials supplied by that caller, including an
+    # empty value for anonymous requests. Accept our own output on a retry.
+    result, count = re.subn(
+        r'proxy_set_header\s+Authorization\s+(?:"Bearer [^"\r\n]+"|\$http_authorization);',
+        'proxy_set_header Authorization $http_authorization;', text)
     if count != 2:
         raise RuntimeError('Unexpected number of legacy CMS authorization directives')
     return result
@@ -76,7 +78,6 @@ def main(identifier):
               'umbot.com.ar', 'wiki.ultimamilla.com.ar', 'vecinorabioso')]
     if any(file.is_symlink() or not file.is_file() for file in files):
         raise RuntimeError('Expected active vhost is missing')
-    token = json.loads((STAGE / 'internal-credentials/vault.json').read_text())['directus_api']
     previous = {file: file.read_text() for file in files}
     modes = {file: file.stat().st_mode & 0o777 for file in files}
     for index, (file, text) in enumerate(previous.items()):
@@ -115,7 +116,7 @@ def main(identifier):
             for file, text in previous.items():
                 replacement = update_certificate_paths(text)
                 if file.name in ('ultimamilla.com.ar', 'ultimamilla.com.ar.conf'):
-                    replacement = update_cms_token(replacement, token)
+                    replacement = preserve_cms_client_authorization(replacement)
                 public.atomic(file, replacement, modes[file])
                 changed = True
             run(['/usr/sbin/nginx', '-t', '-c', str(PRIVATE / 'nginx.conf')])
@@ -126,6 +127,7 @@ def main(identifier):
                 public.probe(host, '/', {'200', '301', '302'})
             public.probe('www.ultimamilla.com.ar', '/dge/login', {'200'})
             public.probe('sitrep.ultimamilla.com.ar', '/api/health', {'200'})
+            public.probe('www.ultimamilla.com.ar', '/directus/users/me', {'401', '403'})
         except Exception:
             if changed:
                 for file, text in previous.items():
@@ -157,7 +159,7 @@ def main(identifier):
                       'public_challenges_passed': hosts}) + '\n')
         (root / 'finalization.complete.json').write_text(json.dumps({'run': identifier, 'certificates': PLANS,
             'cutovers': {key: value['run'] for key, value in receipts.items()}, 'renewal_timer': True,
-            'publisher_gate': True, 'cms_token_references_updated': True}, indent=2) + '\n')
+            'publisher_gate': True, 'cms_client_authorization_preserved': True}, indent=2) + '\n')
     print('Fresh certificates, renewal and the UMSA publisher gate are active; existing services stayed running.')
 
 

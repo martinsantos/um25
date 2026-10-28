@@ -17,15 +17,15 @@ class FinalizationTests(unittest.TestCase):
         self.assertIn('/etc/letsencrypt-hostinger/live/ultimamilla.com.ar-0001/privkey.pem', result)
         self.assertIn('/etc/letsencrypt/live/admin-other/fullchain.pem', result)
 
-    def test_rotated_cms_token_replaces_exactly_two_legacy_proxies(self):
-        source = ('proxy_set_header Authorization "Bearer old-token";\n' * 2)
-        result = module.update_cms_token(source, 'new_reviewed_token_12345')
-        self.assertNotIn('old-token', result)
-        self.assertEqual(result.count('new_reviewed_token_12345'), 2)
+    def test_public_proxies_never_lend_the_server_credentials(self):
+        source = ('proxy_set_header Authorization "Bearer administrator-secret";\n' * 2)
+        result = module.preserve_cms_client_authorization(source)
+        self.assertNotIn('administrator-secret', result)
+        self.assertNotIn('Bearer', result)
+        self.assertEqual(result.count('Authorization $http_authorization;'), 2)
+        self.assertEqual(module.preserve_cms_client_authorization(result), result)
         with self.assertRaises(RuntimeError):
-            module.update_cms_token(source + source, 'new_reviewed_token_12345')
-        with self.assertRaises(ValueError):
-            module.update_cms_token(source, 'unsafe;token')
+            module.preserve_cms_client_authorization(source + source)
 
 
 if __name__ == '__main__':
