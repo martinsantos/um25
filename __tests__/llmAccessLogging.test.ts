@@ -22,7 +22,7 @@ describe('LLM access logging operations', () => {
     expect(nginxSnippet).toContain('$http_x_forwarded_for');
   });
 
-  test('adds a guarded installer and manual workflow for production Nginx logging', () => {
+  test('preserves the historical installer and verifies logging on the migrated runtime', () => {
     const installer = fs.readFileSync(path.join(repoRoot, 'scripts/ops/install-llm-nginx-logging.sh'), 'utf8');
     const workflow = fs.readFileSync(path.join(repoRoot, '.github/workflows/install-llm-nginx-logging.yml'), 'utf8');
     const logrotate = fs.readFileSync(path.join(repoRoot, 'ops/logrotate.d/ultimamilla-llm-access'), 'utf8');
@@ -33,7 +33,10 @@ describe('LLM access logging operations', () => {
     expect(installer).toContain('/etc/logrotate.d/ultimamilla-llm-access');
     expect(installer).toContain('BACKUP_DIR=');
     expect(workflow).toContain('workflow_dispatch');
-    expect(workflow).toContain('scripts/ops/install-llm-nginx-logging.sh');
+    expect(workflow).toContain('./.github/workflows/hostinger-runtime-audit.yml');
+    expect(workflow).toContain('operation: logging');
+    expect(workflow).not.toContain('23.105.176.45');
+    expect(workflow).not.toContain('secrets.SSH_PRIVATE_KEY');
     expect(logrotate).toContain('/var/log/nginx/ultimamilla-llm-access.log');
     expect(logrotate).toContain('rotate 30');
     expect(logrotate).toContain('create 0640 nginx root');

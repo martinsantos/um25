@@ -4,7 +4,7 @@ import path from 'path';
 const repoRoot = process.cwd();
 
 describe('Nginx operational cleanup', () => {
-  test('ships a guarded cleanup for backup files accidentally enabled in Nginx', () => {
+  test('preserves the old cleanup and verifies the isolated migrated Nginx include', () => {
     const cleanup = fs.readFileSync(path.join(repoRoot, 'scripts/ops/cleanup-nginx-enabled-backups.sh'), 'utf8');
     const workflow = fs.readFileSync(path.join(repoRoot, '.github/workflows/cleanup-nginx-enabled-backups.yml'), 'utf8');
 
@@ -16,7 +16,10 @@ describe('Nginx operational cleanup', () => {
     expect(cleanup).toContain('*.bak');
     expect(cleanup).toContain('/etc/nginx/disabled-enabled-backups');
     expect(workflow).toContain('workflow_dispatch');
-    expect(workflow).toContain('cleanup-nginx-enabled-backups.sh');
+    expect(workflow).toContain('./.github/workflows/hostinger-runtime-audit.yml');
+    expect(workflow).toContain('operation: nginx');
+    expect(workflow).not.toContain('23.105.176.45');
+    expect(workflow).not.toContain('secrets.SSH_PRIVATE_KEY');
   });
 
   test('keeps the guarded www canonical script but leaves Nginx unchanged in the scoped release', () => {

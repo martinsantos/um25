@@ -1,0 +1,38 @@
+name: Verify migrated Hostinger runtime
+on:
+  workflow_call:
+    inputs:
+      operation:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      operation:
+        required: true
+        type: choice
+        options: [fonts, canonical, nginx, logging, storage]
+permissions:
+  contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+jobs:
+  audit:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: scripts/ops/hostinger-migration
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Verify migrated behavior without changing services
+        env:
+          OPERATION: ${{ inputs.operation }}
+        run: |
+          set -euo pipefail
+          case "$OPERATION" in fonts|canonical|nginx|logging|storage) ;; *) exit 2 ;; esac
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15)
+          ssh "${opts[@]}" root@179.198.115.115 "python3 - $OPERATION" < scripts/ops/hostinger-migration/runtime-audit.py

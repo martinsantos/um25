@@ -1,5 +1,20 @@
 # AGENTS.md
 
+## Current production routing — 28 October 2026
+
+Production has moved from `23.105.176.45` to **Hostinger `179.198.115.115`**. The old address and PM2 commands below are historical baseline documentation, not an authorized deployment or rollback destination. Never restore an old database or publish to the retired origin.
+
+- UMSA uses `hostinger-production.yml`, the `production.active` gate and versioned systemd releases. The Nginx ingress is `umsa-sitrep-ingress.service`; its active vhosts are `/srv/umsa-public-vhosts/`.
+- SITREP and SGI run on the new Hostinger; their older PM2 publishing scripts are incompatible with the migrated layout. Use only their reviewed Hostinger workflows.
+- **Vivero web and management stay on `68.168.218.28` (InterServer)**. Do not move them to Hostinger. Its SMTP relay uses179 as documented separately.
+- `76.13.234.213` retains independent preview, mailing, observation and offsite backups.
+- All production changes still require PR/CI/CD, verified backups and bounded rollback. No direct server edits or reactivation of old writers.
+
+See `docs/operations/origin-retirement-20261028.md` for retired access names and replacement tools. Preserve the immutable baseline tag and historical backups.
+
+---
+
+
 This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
 
 ---
