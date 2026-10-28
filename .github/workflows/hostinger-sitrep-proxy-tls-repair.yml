@@ -1,0 +1,82 @@
+name: Repair the fenced SITREP source proxy TLS chain
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-sitrep-proxy-tls-repair.yml'
+      - 'scripts/ops/hostinger-migration/*sitrep*.py'
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Completed SITREP fence run and attempt'
+        required: true
+        type: string
+      verified_sha256:
+        description: 'Independently verified final database backup SHA-256'
+        required: true
+        type: string
+      verified_files_sha256:
+        description: 'Independently verified final file backup SHA-256'
+        required: true
+        type: string
+      acknowledgement:
+        description: 'Enter REPAIR for the already authorized SITREP source proxy'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostinger-migration-${{ github.event_name == 'workflow_dispatch' && 'preparation' || github.run_id }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sitrep_*' -v
+      - name: Verify TLS depth with an isolated Nginx and test certificates
+        run: SITREP_TLS_CI=1 python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sitrep_tls_depth_integration.py' -v
+  repair:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'REPAIR'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Update only the reviewed SITREP gate and validate its proxy
+        env:
+          RUN_ID: ${{ inputs.run_id }}
+          VERIFIED_SHA256: ${{ inputs.verified_sha256 }}
+          VERIFIED_FILES_SHA256: ${{ inputs.verified_files_sha256 }}
+        run: |
+          set -euo pipefail
+          [[ "$RUN_ID" =~ ^[0-9]{1,20}-[0-9]{1,4}$ && "$VERIFIED_SHA256" =~ ^[0-9a-f]{64}$ && "$VERIFIED_FILES_SHA256" =~ ^[0-9a-f]{64}$ ]]
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15)
+          source=root@23.105.176.45
+          parent=/root/umsa-sitrep-proxy-repair
+          folder="$parent/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          ssh "${opts[@]}" "$source" "test ! -L $parent && { test -d $parent || install -d -m 0700 $parent; } && test ! -e $folder && test ! -L $folder && install -d -m 0700 $folder"
+          for file in sitrep-repair-proxy-tls.py sitrep-gate-config.py; do
+            scp "${opts[@]}" "scripts/ops/hostinger-migration/$file" "$source:$folder/"
+            local_hash=$(sha256sum "scripts/ops/hostinger-migration/$file" | cut -d ' ' -f1)
+            remote_hash=$(ssh "${opts[@]}" "$source" "sha256sum $folder/$file" | cut -d ' ' -f1)
+            [[ "$local_hash" = "$remote_hash" ]]
+          done
+          ssh "${opts[@]}" "$source" "python3 $folder/sitrep-repair-proxy-tls.py $RUN_ID $VERIFIED_SHA256 $VERIFIED_FILES_SHA256"

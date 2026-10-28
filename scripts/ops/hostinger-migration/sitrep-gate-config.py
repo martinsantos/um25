@@ -26,6 +26,7 @@ def render_gate(mode):
         proxy_ssl_server_name on;
         proxy_ssl_name {HOST};
         proxy_ssl_verify on;
+        proxy_ssl_verify_depth 4;
         proxy_ssl_trusted_certificate /etc/pki/tls/certs/ca-bundle.crt;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

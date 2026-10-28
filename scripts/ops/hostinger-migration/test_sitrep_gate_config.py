@@ -19,6 +19,7 @@ class SitrepGateTests(unittest.TestCase):
         config = module.render_gate('proxy')
         self.assertIn('proxy_pass https://179.198.115.115;', config)
         self.assertIn('proxy_ssl_verify on;', config)
+        self.assertIn('proxy_ssl_verify_depth 4;', config)
         self.assertIn('proxy_ssl_name sitrep.ultimamilla.com.ar;', config)
         self.assertIn('proxy_set_header CF-Connecting-IP $remote_addr;', config)
         self.assertIn('proxy_set_header X-Forwarded-For $remote_addr;', config)
