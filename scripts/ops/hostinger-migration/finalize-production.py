@@ -127,6 +127,7 @@ def main(identifier):
                 public.probe(host, '/', {'200', '301', '302'})
             public.probe('www.ultimamilla.com.ar', '/dge/login', {'200'})
             public.probe('sitrep.ultimamilla.com.ar', '/api/health', {'200'})
+            public.probe('www.ultimamilla.com.ar', '/directus/users/me', {'401', '403'})
         except Exception:
             if changed:
                 for file, text in previous.items():
