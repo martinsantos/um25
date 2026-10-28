@@ -262,7 +262,7 @@ class AliasCertificateTests(unittest.TestCase):
             def execute(args):
                 if args[0] == 'certbot':
                     self.issue()
-                    m.RENEWAL.write_text(m.RENEWAL.read_text().replace(m.HOST + ' = /var/www/umsa-acme\n', ''))
+                    m.RENEWAL.write_text(m.RENEWAL.read_text().replace('\n' + m.HOST + ' = /var/www/umsa-acme\n', '\n'))
                     return subprocess.CompletedProcess(args, 0, b'', b'')
                 if args == [str(m.HOOK)]:
                     return subprocess.CompletedProcess(args, 0, b'', b'')
@@ -271,7 +271,7 @@ class AliasCertificateTests(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, r'\[\[webroot_map\]\] ' + m.HOST):
                     m.extend(before, Path(directory).resolve())
             candidate = Path(directory) / 'post-issuance/renewal.before'
-            self.assertNotIn(m.HOST + ' = ', candidate.read_text())
+            self.assertNotIn('\n' + m.HOST + ' = ', candidate.read_text())
             self.assertIn(m.ALIAS + ' = ', candidate.read_text())
             self.assertEqual(candidate.stat().st_mode & 0o777, 0o600)
             self.assertEqual(m.lineage_view(m.lineage()), original)
