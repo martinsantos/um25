@@ -9,9 +9,9 @@ on:
     inputs:
       phase:
         type: choice
-        options: [prepare, extend]
+        options: [prepare, extend, recover]
         required: true
-        description: Prepare verifies the existing routes; root adds the DNS-only CNAME before extend
+        description: Recover reuses only the reviewed saved generation3, with no ACME issuance
       expected_snapshot_sha:
         type: string
         required: true
@@ -37,10 +37,14 @@ jobs:
           sparse-checkout: |
             scripts/ops/hostinger-migration
             .github/workflows
+      - name: Install disposable Nginx for the two-actor TLS race test
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq nginx-light
       - name: Test real certificate SAN/key reuse and isolated rollback without ACME or production access
         run: |
           test -f .github/workflows/hostinger-sitrep-alias-certificate.yml
-          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts/ops/hostinger-migration -p test_sitrep_alias_certificate.py -v
+          SITREP_ALIAS_NGINX_CI=1 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts/ops/hostinger-migration -p test_sitrep_alias_certificate.py -v
   certificate:
     needs: validate
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'EXTEND-SITREP-ALIAS-CERTIFICATE'
@@ -60,7 +64,7 @@ jobs:
           SNAPSHOT_SHA: ${{ inputs.expected_snapshot_sha }}
         run: |
           set -euo pipefail
-          [[ "$PHASE" == prepare || "$PHASE" == extend ]]
+          [[ "$PHASE" == prepare || "$PHASE" == extend || "$PHASE" == recover ]]
           [[ "$SNAPSHOT_SHA" =~ ^[a-f0-9]{64}$ ]]
           [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
           opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)

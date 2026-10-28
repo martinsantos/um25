@@ -213,19 +213,31 @@ def redirect_probe(secure_alias=False, timeout=20):
 
 
 
-def wait_alias_ready():
-    # Nginx HUP is asynchronous: old workers may briefly present the old SAN.
+def wait_alias_ready(evidence=None):
+    # HUP may briefly alternate old/new workers: require a stable sequence.
     deadline = time.monotonic() + 10
     last_failure = None
+    consecutive = 0
     while True:
         remaining = deadline - time.monotonic()
         if remaining <= 0:
-            raise RuntimeError('Timed out waiting for the reloaded alias TLS certificate') from last_failure
+            raise RuntimeError('Timed out waiting for three consecutive alias TLS probes') from last_failure
+        entry = {'success': False, 'consecutive': 0}
         try:
             redirect_probe(True, timeout=min(1, remaining))
-            return
+            consecutive += 1
+            entry = {'success': True, 'consecutive': consecutive}
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired, RuntimeError) as failure:
             last_failure = failure
+            consecutive = 0
+            detail = getattr(failure, 'stderr', b'') or b''
+            if isinstance(detail, bytes):
+                detail = detail.decode(errors='replace')
+            entry.update(curl_exit=getattr(failure, 'returncode', None), stderr=detail[:2048])
+        if evidence is not None:
+            evidence.append(entry)
+        if consecutive == 3:
+            return
         time.sleep(min(0.25, max(0, deadline - time.monotonic())))
 
 
@@ -316,7 +328,7 @@ def backup(before, folder):
     (folder / 'before.json').write_text(json.dumps(before['view'], sort_keys=True, indent=2) + '\n')
 
 
-def restore(before, expected):
+def restore(before, expected, reload=True):
     if lineage_view(lineage()) != lineage_view(expected):
         raise RuntimeError('Rollback refused to overwrite a concurrent lineage change')
     for name, record in before['lineage']['files'].items():
@@ -338,7 +350,8 @@ def restore(before, expected):
     if lineage_view(lineage()) != lineage_view(before['lineage']):
         raise RuntimeError('Original certificate lineage restoration failed')
     # Reuse the normal managed hook. Never restart an application or remove archive generations.
-    run([str(HOOK)])
+    if reload:
+        run([str(HOOK)])
 
 
 def capture_candidate(before, candidate, folder):
@@ -347,7 +360,7 @@ def capture_candidate(before, candidate, folder):
             'lineage': lineage_view(candidate)}}, folder / 'post-issuance')
 
 
-def extend(before, folder):
+def extend(before, folder, candidate=None):
     same_context(before)
     if lineage_view(lineage()) != lineage_view(before['lineage']):
         raise RuntimeError('Certificate compare-and-swap guard failed before issuance')
@@ -355,7 +368,9 @@ def extend(before, folder):
     installed = None
     others = other_lineages()
     try:
-        if before['sans'] != {HOST, ALIAS}:
+        if candidate is not None:
+            restore({'lineage': candidate}, before['lineage'], reload=False)
+        elif before['sans'] != {HOST, ALIAS}:
             run(['certbot', 'certonly', '--non-interactive', '--webroot', '-w', str(WEBROOT),
                  '--config-dir', str(ACME), '--work-dir', '/var/lib/letsencrypt-hostinger',
                  '--logs-dir', '/var/log/letsencrypt-hostinger', '--cert-name', HOST,
@@ -369,8 +384,15 @@ def extend(before, folder):
             verify_renewal(before['lineage']['files']['renewal']['data'], installed['files']['renewal']['data'])
         same_context(before)
         run([str(HOOK)])
-        wait_alias_ready()
-        redirect_probe(True)
+        probes = []
+        try:
+            wait_alias_ready(probes)
+        finally:
+            evidence = folder / 'tls-readiness.json'
+            with evidence.open('x') as output:
+                os.fchmod(output.fileno(), 0o600)
+                json.dump(probes, output, sort_keys=True)
+                output.write('\n')
         for path in ('/', '/app/', '/precrimen/', '/api/health'):
             if split_response(curl('https://' + HOST + path))[1] != '200':
                 raise RuntimeError('Existing canonical SITREP route failed after certificate reload')
@@ -395,13 +417,110 @@ def extend(before, folder):
         raise
 
 
+# This one-off recovery accepts only the vendor-written candidate already reviewed.
+REVIEWED_CANDIDATE_RUN = '40725738512-1'
+REVIEWED_CANDIDATE_MANIFEST_SHA = '713095d863fbd77b0dbc0dbab50e3d61d07060d1b6a85ce298d09f086ec0321a'
+REVIEWED_CANDIDATE_RENEWAL_SHA = '91e4d694ec49d5f4cb9860f1ba37ff50ccfb992216a4fa9b1aaa76083a3a486e'
+REVIEWED_CANDIDATE_BASELINE_SHA = '357b12626468c29b2722eaf93b2b52f29431558e65c0c918058fdc71b19b736d'
+REVIEWED_CANDIDATE_GENERATION = 3
+
+
+def load_reviewed_candidate(before):
+    """Read and validate the saved vendor candidate; perform no writes or issuance."""
+    if (before['sha256'] != REVIEWED_CANDIDATE_BASELINE_SHA or
+            before['sans'] != {HOST}):
+        raise RuntimeError('Recovery requires the exact reviewed original SITREP state')
+    same_context(before)
+    if lineage_view(lineage()) != lineage_view(before['lineage']):
+        raise RuntimeError('Current certificate changed before candidate recovery')
+    folder = STAGE / 'sitrep-alias-certificates' / REVIEWED_CANDIDATE_RUN / 'post-issuance'
+    if any(p.is_symlink() for p in (folder, *folder.parents)):
+        raise RuntimeError('Candidate recovery directory is symlinked')
+    for directory in (folder.parent.parent, folder.parent, folder):
+        info = directory.lstat()
+        if (not stat.S_ISDIR(info.st_mode) or
+                (info.st_uid, info.st_gid) != OWNER or
+                stat.S_IMODE(info.st_mode) != 0o700):
+            raise RuntimeError('Candidate recovery directory must remain private and owned')
+    manifest_record = regular(folder / 'before.json')
+    if (manifest_record['mode'] != 0o600 or
+            digest(manifest_record['data']) != REVIEWED_CANDIDATE_MANIFEST_SHA):
+        raise RuntimeError('Saved candidate manifest differs from the reviewed fingerprint')
+    manifest = json.loads(manifest_record['data'])
+    if (set(manifest) != {'context', 'lineage'} or
+            manifest['context'] != inventory(before['records'])):
+        raise RuntimeError('Saved candidate belongs to a different production context')
+    view = manifest['lineage']
+    if (set(view) != {'links', 'files', 'archive_key_links'} or
+            set(view['links']) != set(NAMES) or
+            set(view['files']) != {*NAMES, 'renewal'}):
+        raise RuntimeError('Saved candidate inventory is incomplete or unexpected')
+    generation = str(REVIEWED_CANDIDATE_GENERATION)
+    files, key_links = {}, {}
+    for name in NAMES:
+        stem = name.removesuffix('.pem')
+        archive_path = ARCHIVE / (stem + generation + '.pem')
+        if view['links'][name] != '../../archive/' + HOST + '/' + archive_path.name:
+            raise RuntimeError('Recovery is limited to the reviewed archive generation')
+        saved = regular(folder / (name + '.before'))
+        if saved['mode'] != 0o600:
+            raise RuntimeError('Saved candidate certificate/key must remain private')
+        if name == 'privkey.pem':
+            record, key_links = archive_key(archive_path)
+        else:
+            record = regular(archive_path)
+        if (saved['data'] != record['data'] or
+                inventory({name: record})[name] != view['files'][name]):
+            raise RuntimeError('Reviewed candidate archive or private backup changed: ' + name)
+        files[name] = record
+    if key_links != view['archive_key_links']:
+        raise RuntimeError('Reviewed candidate key link changed')
+    if (digest(files['privkey.pem']['data']) !=
+            digest(before['lineage']['files']['privkey.pem']['data'])):
+        raise RuntimeError('Recovery cannot replace the existing SITREP key')
+    renewal = regular(folder / 'renewal.before')
+    current_renewal = before['lineage']['files']['renewal']
+    expected_renewal = view['files']['renewal']
+    if (renewal['mode'] != 0o600 or
+            digest(renewal['data']) != REVIEWED_CANDIDATE_RENEWAL_SHA or
+            expected_renewal['path'] != str(RENEWAL) or
+            (expected_renewal['uid'], expected_renewal['gid']) != OWNER or
+            expected_renewal['mode'] != current_renewal['mode']):
+        raise RuntimeError('Saved candidate renewal or its permissions differ')
+    files['renewal'] = {**current_renewal, 'data': renewal['data']}
+    if inventory({'renewal': files['renewal']})['renewal'] != expected_renewal:
+        raise RuntimeError('Saved renewal metadata differs from the reviewed manifest')
+    verify_renewal(current_renewal['data'], renewal['data'])
+    cert = ARCHIVE / ('cert' + generation + '.pem')
+    chain = ARCHIVE / ('chain' + generation + '.pem')
+    fullchain = ARCHIVE / ('fullchain' + generation + '.pem')
+    key = ARCHIVE / ('privkey' + generation + '.pem')
+    if domains(cert) != {HOST, ALIAS}:
+        raise RuntimeError('Reviewed candidate SAN does not contain exactly both SITREP names')
+    run(['openssl', 'x509', '-in', str(cert), '-noout', '-checkend', '604800'])
+    for hostname in (HOST, ALIAS):
+        run(['openssl', 'verify', '-purpose', 'sslserver', '-verify_hostname', hostname,
+             '-untrusted', str(chain), str(cert)])
+    ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER).load_cert_chain(str(fullchain), str(key))
+    candidate = {'links': view['links'], 'files': files, 'archive_key_links': key_links}
+    if lineage_view(candidate) != view:
+        raise RuntimeError('Reviewed candidate reconstruction differs from its sealed manifest')
+    # Recheck all source files after the crypto checks; no mutable source was accepted.
+    same_context(before)
+    if lineage_view(lineage()) != lineage_view(before['lineage']):
+        raise RuntimeError('Current certificate changed while validating the candidate')
+    if regular(folder / 'before.json') != manifest_record:
+        raise RuntimeError('Saved candidate manifest changed while being validated')
+    return candidate
+
+
 def main(phase, identifier=None, expected=None):
     if phase == 'inspect' and identifier is None and expected is None:
         before = snapshot()
         print(json.dumps({'snapshot_sha256': before['sha256'], 'sans': sorted(before['sans']),
                           'files': before['view'], 'read_only': True}, sort_keys=True))
         return
-    if (phase not in ('prepare', 'extend') or not re.fullmatch('[0-9]+-[0-9]+', identifier or '')
+    if (phase not in ('prepare', 'extend', 'recover') or not re.fullmatch('[0-9]+-[0-9]+', identifier or '')
             or not re.fullmatch('[a-f0-9]{64}', expected or '')):
         raise RuntimeError('Unexpected reviewed phase, CI run or snapshot hash')
     os.umask(0o077)
@@ -410,12 +529,13 @@ def main(phase, identifier=None, expected=None):
         before = snapshot()
         if before['sha256'] != expected:
             raise RuntimeError('Reviewed identity/configuration/certificate snapshot changed')
+        candidate = load_reviewed_candidate(before) if phase == 'recover' else None
         folder = STAGE / 'sitrep-alias-certificates' / identifier
         backup(before, folder)
-        challenge_probe(public=phase == 'extend')
+        challenge_probe(public=phase != 'prepare')
         redirect_probe()
         same_context(before)
-        installed = extend(before, folder) if phase == 'extend' else before['lineage']
+        installed = extend(before, folder, candidate) if phase != 'prepare' else before['lineage']
         receipt = {'phase': phase, 'before_snapshot_sha256': expected,
                    'lineage': lineage_view(installed), 'ingress_unchanged': True,
                    'key_preserved': True, 'services_restarted': False}
