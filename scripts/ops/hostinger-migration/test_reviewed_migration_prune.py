@@ -41,6 +41,8 @@ class ReviewedArtifactPrune(unittest.TestCase):
         self.assertEqual(sum(path.name == 'application' for path in module.CANDIDATES), 3)
         for root in module.CANDIDATES:
             self.assertFalse(any(module.overlaps(root, keep) for keep in module.PROTECTED))
+        for live in module.LIVE_DATA:
+            self.assertTrue(any(live == keep or keep in live.parents for keep in module.PROTECTED))
         self.assertFalse(any(module.CURRENT in str(root) and root.name == 'application'
                              for root in module.CANDIDATES))
         self.assertFalse(any(module.PREVIOUS in str(root) and root.name == 'application'
@@ -141,6 +143,45 @@ class ReviewedArtifactPrune(unittest.TestCase):
                 (keep / 'backup.gpg').write_bytes(b'changed original')
                 with self.assertRaisesRegex(RuntimeError, 'preserved file changed'):
                     module.assert_preserved(before)
+
+    def test_live_database_can_write_without_weakening_backup_or_root_identity_checks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            live = root / 'sgi/data'
+            live.mkdir(parents=True)
+            log = live / 'ib_logfile0'
+            log.write_bytes(b'ongoing database writes')
+            backup = root / 'backup.gpg'
+            backup.write_bytes(b'preserved historical backup')
+            with patch.object(module, 'PROTECTED', (root,)), patch.object(module, 'LIVE_DATA', (live,)):
+                before = module.inventory((root,))
+                self.assertNotIn(str(log), before)
+                self.assertEqual(len(before[str(live)]['meta']), 5)
+                log.write_bytes(b'new normal database transaction')
+                self.assertEqual(module.inventory((root,)), before)
+                module.assert_preserved(before)
+                backup.write_bytes(b'altered backup')
+                with self.assertRaisesRegex(RuntimeError, 'preserved file changed'):
+                    module.assert_preserved(before)
+
+    def test_live_database_directory_replacement_or_symlink_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            protected = root / 'preserved'
+            live = protected / 'data'
+            live.mkdir(parents=True)
+            with patch.object(module, 'PROTECTED', (protected,)), patch.object(module, 'LIVE_DATA', (live,)):
+                before = module.inventory((protected,))
+                live.rename(root / 'saved-original')
+                live.mkdir()
+                with self.assertRaisesRegex(RuntimeError, 'preserved directory changed'):
+                    module.assert_preserved(before)
+                # Replace the empty test directory with a link using a preserved
+                # rename, so the test can prove the link is never traversed.
+                live.rename(root / 'saved-replacement')
+                live.symlink_to(root / 'saved-original', target_is_directory=True)
+                with self.assertRaisesRegex(RuntimeError, 'database root was redirected'):
+                    module.inventory((protected,))
 
     def test_apply_fails_closed_outside_ci_and_does_not_inspect_or_remove_anything(self):
         with patch.dict(module.os.environ, {}, clear=True), patch.object(module, 'snapshot') as inspect, \

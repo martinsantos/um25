@@ -30,6 +30,9 @@ PROTECTED = (STAGE / 'source', STAGE / 'trusted', STAGE / 'mutable-rehearsals',
              STAGE / 'offsite-encrypted-rehearsals', STAGE / 'sgi-dedicated-rehearsals',
              STAGE / 'dge-source-preservation', Path('/srv/umsa-operational-backups'),
              Path('/root/fumbling-field/backups'), RELEASES / CURRENT, RELEASES / PREVIOUS)
+# SGI's live database must keep writing normally. Its namespace remains protected;
+# pin the data directory identity and container mounts, not changing redo records.
+LIVE_DATA = (STAGE / 'sgi-dedicated-rehearsals/40616586516-1/data',)
 EXPECTED_FILES = 104906
 EXPECTED_DATA_BYTES = 16787042304
 MACHINE_SHA = '315fee7b2c6314049537fc82c6b2168500d14f416911a2b1226a3569aaf91c1c'
@@ -76,6 +79,11 @@ def inventory(roots, candidate=False):
             return  # Keyring sockets are not backup data.
         if candidate and (info.st_uid != 0 or kind != stat.S_IFLNK and info.st_mode & 0o022):
             raise RuntimeError('Artifact is not root-owned and immutable to other users')
+        if not candidate and path in LIVE_DATA:
+            if kind != stat.S_IFDIR:
+                raise RuntimeError('The protected live database root was redirected')
+            rows[str(path)] = {'meta': metadata(info)[:5], 'link': None}
+            return
         rows[str(path)] = {'meta': metadata(info), 'link': os.readlink(path) if kind == stat.S_IFLNK else None}
         if kind == stat.S_IFDIR:
             with os.scandir(path) as children:
@@ -153,7 +161,8 @@ def runtime():
     containers = json.loads(run(['docker', 'inspect', *ids]))
     timers = {name: run(['systemctl', 'show', name, '--property=ActiveState,UnitFileState']).strip()
               for name in ('umsa-active-backup.timer', 'umsa-certificate-renew.timer')}
-    return {'units': units, 'containers': {c['Id']: [c['State']['Status'], c['State']['StartedAt']]
+    return {'units': units, 'containers': {c['Id']: [c['State']['Status'], c['State']['StartedAt'],
+             sorted([[m['Type'], m['Source'], m['Destination'], m['RW']] for m in c['Mounts']])]
                                          for c in containers}, 'timers': timers}
 
 
@@ -364,6 +373,7 @@ def main(phase, identifier, expected=''):
                                                        for r in before['protected'].values()),
                        'active_release': CURRENT, 'previous_release': PREVIOUS,
                        'backups_preserved': True, 'runtime_unchanged': True,
+                       'live_database_roots_preserved': [str(p) for p in LIVE_DATA],
                        'services_restarted': False, 'stats': after_probes}
             (folder / 'complete.json').write_text(json.dumps(receipt, indent=2) + '\n')
             print(json.dumps(receipt))
