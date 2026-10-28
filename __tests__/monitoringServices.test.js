@@ -87,6 +87,19 @@ describe('monitoring services status API', () => {
     expect(JSON.stringify(body)).not.toMatch(/127\.0\.0\.1|18191|18192|:3001|:3002/);
   });
 
+  test('ignores caller-supplied targets and cannot be used as an SSRF proxy', async () => {
+    const request = { url: 'https://www.ultimamilla.com.ar/api/monitoring/services?url=http%3A%2F%2F127.0.0.1%3A1%2Fadmin&target=http%3A%2F%2F169.254.169.254%2Flatest%2Fmeta-data' };
+    const response = await GET({ request });
+    const body = await response.json();
+    const calledUrls = global.fetch.mock.calls.map(([url]) => url);
+
+    expect(response.status).toBe(200);
+    expect(body.services.map(service => service.id)).toEqual(STATUS_SERVICES.map(service => service.id));
+    expect(calledUrls).toEqual(expect.arrayContaining(STATUS_SERVICES.filter(service => service.probe.kind === 'http').map(service => service.probe.url)));
+    expect(calledUrls).not.toContain('http://127.0.0.1:1/admin');
+    expect(calledUrls).not.toContain('http://169.254.169.254/latest/meta-data');
+  });
+
   test('uses the runtime port for Astro and refreshes when blue-green PORT changes', async () => {
     process.env.PORT = '4322';
     await GET();
