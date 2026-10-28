@@ -264,7 +264,7 @@ def verify_renewal(before, after):
         raise RuntimeError('Alias webroot or deliberate existing-key reuse was not persisted for renewal')
     for key in previous.keys() | current.keys():
         if key not in (alias_key, reuse_key) and previous.get(key) != current.get(key):
-            raise RuntimeError('Unexpected unrelated certificate renewal setting changed')
+            raise RuntimeError('Unexpected unrelated certificate renewal setting changed: ' + key[0] + ' ' + key[1])
 
 
 def other_lineages():
@@ -341,6 +341,12 @@ def restore(before, expected):
     run([str(HOOK)])
 
 
+def capture_candidate(before, candidate, folder):
+    # Preserve the vendor-written renewal file before any guard can roll it back.
+    backup({'lineage': candidate, 'view': {'context': inventory(before['records']),
+            'lineage': lineage_view(candidate)}}, folder / 'post-issuance')
+
+
 def extend(before, folder):
     same_context(before)
     if lineage_view(lineage()) != lineage_view(before['lineage']):
@@ -354,8 +360,10 @@ def extend(before, folder):
                  '--config-dir', str(ACME), '--work-dir', '/var/lib/letsencrypt-hostinger',
                  '--logs-dir', '/var/log/letsencrypt-hostinger', '--cert-name', HOST,
                  '--expand', '--reuse-key', '--key-type', 'rsa', '--rsa-key-size', '3072',
+                 '--webroot-map', json.dumps({HOST: str(WEBROOT), ALIAS: str(WEBROOT)}, sort_keys=True),
                  '-d', HOST, '-d', ALIAS])
         installed = lineage()
+        capture_candidate(before, installed, folder)
         verify_certificate(key_sha)
         if before['sans'] != {HOST, ALIAS}:
             verify_renewal(before['lineage']['files']['renewal']['data'], installed['files']['renewal']['data'])
