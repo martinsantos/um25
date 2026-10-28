@@ -1,0 +1,63 @@
+name: Extend only the existing SITREP alias certificate
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-sitrep-alias-certificate.yml'
+      - 'scripts/ops/hostinger-migration/extend-sitrep-alias-certificate.py'
+      - 'scripts/ops/hostinger-migration/test_sitrep_alias_certificate.py'
+  workflow_dispatch:
+    inputs:
+      phase:
+        type: choice
+        options: [prepare, extend]
+        required: true
+        description: Prepare verifies the existing routes; root adds the DNS-only CNAME before extend
+      expected_snapshot_sha:
+        type: string
+        required: true
+        description: Fresh SHA-256 from the read-only inspect of SITREP configuration and managed lineage
+      acknowledgement:
+        type: string
+        required: true
+        description: Enter EXTEND-SITREP-ALIAS-CERTIFICATE after reviewing the exact snapshot
+permissions:
+  contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+concurrency:
+  group: ${{ github.event_name == 'workflow_dispatch' && 'hostinger-migration-preparation' || github.run_id }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: scripts/ops/hostinger-migration
+      - name: Test real certificate SAN/key reuse and isolated rollback without ACME or production access
+        run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts/ops/hostinger-migration -p test_sitrep_alias_certificate.py -v
+  certificate:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'EXTEND-SITREP-ALIAS-CERTIFICATE'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: scripts/ops/hostinger-migration
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Preserve the existing lineage and key; use only the normal managed reload hook
+        env:
+          PHASE: ${{ inputs.phase }}
+          SNAPSHOT_SHA: ${{ inputs.expected_snapshot_sha }}
+        run: |
+          set -euo pipefail
+          [[ "$PHASE" == prepare || "$PHASE" == extend ]]
+          [[ "$SNAPSHOT_SHA" =~ ^[a-f0-9]{64}$ ]]
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          ssh "${opts[@]}" root@179.198.115.115 "python3 - $PHASE $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT $SNAPSHOT_SHA" < scripts/ops/hostinger-migration/extend-sitrep-alias-certificate.py
