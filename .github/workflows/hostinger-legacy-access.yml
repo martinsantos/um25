@@ -46,7 +46,7 @@ jobs:
                   text=m.render(secure).replace(str(m.ACME/'live'/m.LINEAGE),str(root)).replace(m.TARGET+':','127.0.0.1:')
                   p=root/'nginx.conf'
                   p.write_text('error_log stderr; pid '+str(root/'nginx.pid')+'; events {} http {access_log off; '+text+'}')
-                  subprocess.run(['nginx','-t','-p',str(root),'-c',str(p)],check=True)
+                  subprocess.run(['sudo','nginx','-t','-p',str(root),'-c',str(p)],check=True)
           PY
   migrate:
     needs: validate
