@@ -151,7 +151,8 @@ def backup():
                 source.backup(destination)
                 if destination.execute('PRAGMA integrity_check').fetchone() != ('ok',):
                     raise RuntimeError('Active SQLite backup integrity failed')
-        for path in [*STAGE.glob('*.environment'), Path('/srv/umsa-clean-containers/dge-runtime.json'),
+        for path in [*STAGE.glob('*.environment'), receipts[0].parent / 'sgi-live.environment',
+                     Path('/srv/umsa-clean-containers/dge-runtime.json'),
                      Path('/srv/umsa-clean-containers/directus.env'), Path('/srv/umsa-clean-containers/arca.env'),
                      STAGE / 'sgi-dedicated-rehearsals' / candidate / 'root.cnf',
                      STAGE / 'sgi-dedicated-rehearsals' / candidate / 'root-pass',
@@ -170,9 +171,22 @@ def backup():
         capture(['docker', 'inspect', 'directus-admin-database-1', 'dge-demo-db', 'umsa-sgi-db-' + candidate,
                  'directus-admin-directus-app-1', 'dge-demo-web', 'dge-demo-rollback-cf24407ee8ee', 'arca_app'],
                 config / 'containers.json')
-        for path in Path('/etc/systemd/system').glob('umsa-*.service'):
-            if path.is_file() and not path.is_symlink():
-                shutil.copy2(path, config / path.name)
+        for pattern in ('umsa-*.service', 'umsa-*.timer'):
+            for path in Path('/etc/systemd/system').glob(pattern):
+                if path.is_file() and not path.is_symlink():
+                    shutil.copy2(path, config / path.name)
+        # Include the actual ingress and enabled vhosts, not just the app
+        # credentials. The active SGI environment above selects its isolated
+        # database socket; the earlier rehearsal environment is insufficient.
+        for directory, patterns in (
+                (Path('/srv/umsa-clean-proxy/nginx'), ('*.conf', 'mime.types', 'fastcgi_params', 'sites-enabled/*', 'conf.d/*.conf')),
+                (Path('/srv/umsa-public-vhosts'), ('*.conf',)),
+                (STAGE / 'sitrep-public-ingress/40607817805-1', ('nginx.conf',))):
+            for pattern in patterns:
+                for path in directory.glob(pattern):
+                    if path.is_symlink() or not path.is_file():
+                        raise RuntimeError('Unexpected active proxy configuration type')
+                    shutil.copy2(path, config / path.as_posix().replace('/', '__'))
         for path in (STAGE / 'internal-credentials', Path('/etc/letsencrypt-hostinger'),
                      Path('/etc/postfix'), Path('/etc/postfix-vivero'), Path('/etc/opendkim')):
             if path.is_symlink() or not path.is_dir():
