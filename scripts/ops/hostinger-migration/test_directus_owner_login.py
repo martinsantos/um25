@@ -135,6 +135,8 @@ class OwnerLoginTests(unittest.TestCase):
             self.assertNotIn('SET role', sql)
             self.assertNotIn('SET token', sql)
             self.assertIn('AND password=', sql)
+            self.assertIn('AND to_jsonb(directus_users) @>', sql)
+            self.assertIn('"token": "fixture-service-token"', sql)
         with patch.object(owner, 'account', return_value=dict(after, password='concurrent')), \
              patch.object(owner, 'pg') as pg:
             with self.assertRaises(RuntimeError):

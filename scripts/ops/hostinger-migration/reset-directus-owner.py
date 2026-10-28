@@ -121,6 +121,7 @@ def restore(before, expected):
     sql = ('UPDATE directus_users SET email=' + literal(before['email']) + ',password=' +
            literal(before['password']) + ' WHERE id=' + literal(USER) + ' AND email=' +
            literal(expected['email']) + ' AND password=' + literal(expected['password']) +
+           ' AND to_jsonb(directus_users) @> ' + literal(json.dumps(expected)) + '::jsonb' +
            ' RETURNING id;')
     if pg(sql).splitlines()[0] != USER or account() != before:
         raise RuntimeError('Private account recovery requires investigation')
