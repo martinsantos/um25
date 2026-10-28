@@ -139,7 +139,8 @@ def main(identifier):
             raise
         hook = Path('/usr/local/sbin/umsa-certificate-reload')
         hook_text = ('#!/usr/bin/env bash\nset -euo pipefail\n/usr/sbin/nginx -t -c ' + str(PRIVATE / 'nginx.conf') +
-                     '\n/usr/sbin/nginx -t -c ' + str(FRONT) + '\nsystemctl reload umsa-clean-front umsa-sitrep-ingress\n')
+                     '\n/usr/sbin/nginx -t -c ' + str(FRONT) + '\nsystemctl reload umsa-clean-front umsa-sitrep-ingress\n'
+                     'systemctl reload postfix vivero-relay-hostinger\n')
         public.atomic(hook, hook_text, 0o755)
         unit = Path('/etc/systemd/system/umsa-certificate-renew.service')
         timer = Path('/etc/systemd/system/umsa-certificate-renew.timer')
