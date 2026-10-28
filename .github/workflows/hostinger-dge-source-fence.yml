@@ -1,0 +1,99 @@
+name: Seal former DGE writer and preserve reconciliation snapshots
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-dge-source-fence.yml'
+      - 'scripts/ops/hostinger-migration/seal-dge-source.py'
+      - 'scripts/ops/hostinger-migration/test_dge_source_fence.py'
+  workflow_dispatch:
+    inputs:
+      acknowledgement:
+        description: Enter DGE-SINGLE-WRITER to stop only former DGE webs and seal their old database role
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: hostinger-migration-${{ github.event_name == 'workflow_dispatch' && 'preparation' || github.run_id }}
+  cancel-in-progress: false
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_dge_source_fence.py' -v
+      - name: Prove no-login, database read-only, old connection termination and retained rows
+        run: |
+          set -euo pipefail
+          container="dge-source-fence-ci-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          trap 'docker rm -f "$container" >/dev/null 2>&1 || true' EXIT
+          docker run -d --name "$container" --network none -e POSTGRES_HOST_AUTH_METHOD=trust postgres:15-alpine
+          for attempt in $(seq 1 60); do
+            if docker exec "$container" pg_isready -U postgres >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          DGE_SOURCE_FENCE_CI_CONTAINER="$container" python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_dge_source_fence.py' -v
+  seal:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'DGE-SINGLE-WRITER'
+    runs-on: ubuntu-24.04
+    environment: production
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SSH_PRIVATE_KEY }}
+            ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Preserve source DGE before sealing its role; never reactivate the old writer
+        run: |
+          set -euo pipefail
+          umask 077
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          id="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          opts=(-o BatchMode=yes -o ForwardAgent=no -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          source=root@23.105.176.45
+          target=root@179.198.115.115
+          source_tool="/root/umsa-dge-fence-tooling/$id"
+          target_tool="/srv/umsa-migration/dge-fence-tooling/$id"
+          source_data="/root/umsa-dge-single-writer/$id"
+          target_data="/srv/umsa-migration/dge-source-preservation/$id"
+          file=seal-dge-source.py
+          for destination in "$source:$source_tool" "$target:$target_tool"; do
+            host="${destination%%:*}"
+            folder="${destination#*:}"
+            ssh "${opts[@]}" "$host" "test ! -e $folder && install -d -m 0700 $folder"
+            scp "${opts[@]}" "scripts/ops/hostinger-migration/$file" "$host:$folder/"
+            local_hash=$(sha256sum "scripts/ops/hostinger-migration/$file" | cut -d ' ' -f1)
+            remote_hash=$(ssh "${opts[@]}" "$host" "sha256sum $folder/$file" | cut -d ' ' -f1)
+            [[ "$local_hash" = "$remote_hash" ]]
+          done
+          ssh "${opts[@]}" "$target" "python3 $target_tool/$file target-ready $id"
+          ssh "${opts[@]}" "$target" "test ! -e $target_data && install -d -m 0700 $target_data"
+          ssh "${opts[@]}" "$source" "python3 $source_tool/$file prepare $id"
+          transfer="$RUNNER_TEMP/dge-source-preservation"
+          install -d -m 0700 "$transfer"
+          for item in before-state.json before-fence.dump prepared.json; do
+            scp "${opts[@]}" "$source:$source_data/$item" "$transfer/$item"
+            scp "${opts[@]}" "$transfer/$item" "$target:$target_data/$item"
+          done
+          ssh "${opts[@]}" "$target" "python3 $target_tool/$file accept-before $id"
+          before_sha=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["dump"]["sha256"])' "$transfer/prepared.json")
+          [[ "$before_sha" =~ ^[0-9a-f]{64}$ ]]
+          ssh "${opts[@]}" "$source" "python3 $source_tool/$file seal $id $before_sha"
+          for item in after-state.json fenced-final.dump sealed.json; do
+            scp "${opts[@]}" "$source:$source_data/$item" "$transfer/$item"
+            scp "${opts[@]}" "$transfer/$item" "$target:$target_data/$item"
+          done
+          ssh "${opts[@]}" "$target" "python3 $target_tool/$file accept-final $id"
+          ssh "${opts[@]}" "$source" "python3 $source_tool/$file verify $id"
