@@ -34,12 +34,20 @@ class RemainingCutoverTests(unittest.TestCase):
             (root / 'front').mkdir()
             (root / 'fastcgi_params').write_text('fastcgi_param QUERY_STRING $query_string;\n')
             original = 'server {\n listen 127.0.0.1:80;\n server_name wiki.example;\n location / {\n include fastcgi_params;\n fastcgi_pass 127.0.0.1:9000;\n }\n}\n'
-            (root / 'front/vhost.conf').write_text(public.public_listeners(original))
             (root / 'front/nginx.conf').write_text('events {}\nhttp { include /workspace/front/vhost.conf; }\n')
-            subprocess.run(['docker', 'run', '--rm', '--network', 'none', '--entrypoint', 'nginx',
+            command = ['docker', 'run', '--rm', '--network', 'none', '--entrypoint', 'nginx',
                 '-v', str(root) + ':/workspace:ro', '-v', str(root / 'fastcgi_params') +
                 ':/srv/umsa-clean-proxy/nginx/fastcgi_params:ro', 'nginx:1.28-alpine',
-                '-t', '-c', '/workspace/front/nginx.conf'], check=True)
+                '-t', '-c', '/workspace/front/nginx.conf']
+            (root / 'front/vhost.conf').write_text(original)
+            broken = subprocess.run(command, capture_output=True)
+            self.assertNotEqual(broken.returncode, 0)
+            self.assertIn(b'fastcgi_params', broken.stderr)
+            # The isolated CI container does not own the VPS public address.
+            # Listener rendering is asserted separately; this test proves include resolution.
+            rendered = public.public_listeners(original).replace('listen 179.198.115.115:80;', 'listen 127.0.0.1:80;')
+            (root / 'front/vhost.conf').write_text(rendered)
+            subprocess.run(command, check=True)
 
     def test_read_lock_cannot_include_sgi_or_other_schemas(self):
         text = source.lock_sql([['vecinorabioso', 'wp_posts'], ['ultimami_wiki', 'page']])
