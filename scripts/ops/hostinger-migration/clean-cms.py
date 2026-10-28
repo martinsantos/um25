@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Stage official CMS distributions and verified site customizations in CI."""
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -22,7 +23,6 @@ PACKAGES = {
     'seo.tar.gz': ('https://registry.npmjs.org/directus-extension-seo/-/directus-extension-seo-1.5.11.tgz', '9015826fec09d8861a92dd9106bbf1bd4dc5d5bb263e9307f5645047b93c270b'),
 }
 CUSTOM = '0fadf46f3bd4d9df91373ed905c63649d3d400311365f592b0cc2e1417791379'
-WIKI_LOAD = '21f05f83d5607a9832f7b8bb291aa1ad870dcd324e7ee2dd15d914bdaf9be539'
 DIRECTUS = 'directus/directus@sha256:76ade668de9dd6f5c4e01b8cb13896c1f8c63dbc7140cd9ca98f471f41b18d72'
 DIRECTUS_CONFIG = 'sha256:3105ad1d6fcc077974bff62fffa2d12d37c3856a235a19c4a5cc162e907c372d'
 TARGET = 'root@179.198.115.115'
@@ -97,12 +97,9 @@ for sub in ('wp-content/themes/vecino-rabioso','wp-content/mu-plugins'):
   if f.is_file() and not f.is_symlink():rows.append((f.relative_to(p).as_posix(),hashlib.sha256(f.read_bytes()).hexdigest()))
 rows.sort()
 if len(rows)!=40 or hashlib.sha256(''.join(h+'  '+n+'\\n' for n,h in rows).encode()).hexdigest()!='CUSTOM':raise RuntimeError('Customizations changed')
-w=pathlib.Path('/home/wiki.ultimamilla.com.ar/load.php')
-if hashlib.sha256(w.read_bytes()).hexdigest()!='WIKI_LOAD':raise RuntimeError('Reviewed wiki compatibility file changed')
 with tarfile.open(fileobj=sys.stdout.buffer,mode='w|gz') as t:
  for name,h in rows:t.add(p/name,arcname=name,recursive=False)
- t.add(w,arcname='wiki-load.php',recursive=False)
-'''.replace('CUSTOM', CUSTOM).replace('WIKI_LOAD', WIKI_LOAD)
+'''.replace('CUSTOM', CUSTOM)
     with (root / 'custom.tar.gz').open('wb') as output:
         run(['ssh', *options, TARGET, 'python3', '-'], input=collector.encode(), stdout=output)
     custom = root / 'custom'
@@ -110,14 +107,21 @@ with tarfile.open(fileobj=sys.stdout.buffer,mode='w|gz') as t:
     rows = sorted((p.relative_to(custom).as_posix(), digest(p)) for p in (custom / 'wp-content').rglob('*') if p.is_file())
     if len(rows) != 40 or hashlib.sha256(''.join(h + '  ' + n + '\n' for n, h in rows).encode()).hexdigest() != CUSTOM:
         raise RuntimeError('Transferred customization fingerprint mismatch')
-    if digest(custom / 'wiki-load.php') != WIKI_LOAD:
-        raise RuntimeError('Transferred compatibility file differs')
     shutil.copytree(custom / 'wp-content', wp / 'wp-content', dirs_exist_ok=True)
-    shutil.copyfile(custom / 'wiki-load.php', bundle / 'wiki/load.php')
+    # Future builds use the same vendor entry point and exact two-line upstream PHP backport.
+    # Never reintroduce the inherited CSS-only load.php stub or fetch Wiki executable code from a runtime.
+    spec = importlib.util.spec_from_file_location('wiki_loader', Path(__file__).with_name('restore-wiki-loader.py'))
+    wiki_loader = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(wiki_loader)
+    unused_manifest, wiki_files = wiki_loader.official(root / 'wiki.tar.gz')
+    for name, data in wiki_files.items():
+        (bundle / 'wiki' / name).write_bytes(data)
     (wp / '.user.ini').write_text('file_uploads=On\nupload_max_filesize=10M\npost_max_size=12M\nmemory_limit=256M\nmax_file_uploads=5\nmax_execution_time=300\nmax_input_time=300\n')
     proof = dict(official_packages=PACKAGES, custom_fingerprint=CUSTOM,
         custom_review='Independent local Git/files; whitespace diffs reviewed; existing 33-line security guard reviewed',
-        wiki_compatibility_sha256=WIKI_LOAD, directus_image=DIRECTUS, directus_config=DIRECTUS_CONFIG,
+        wiki_loader_sha256={name: hashlib.sha256(data).hexdigest() for name, data in wiki_files.items()},
+        wiki_php_compatibility_patch=wiki_loader.UPSTREAM,
+        directus_image=DIRECTUS, directus_config=DIRECTUS_CONFIG,
         github_run=os.environ['GITHUB_RUN_ID'])
     (bundle / 'provenance.json').write_text(json.dumps(proof, indent=2) + '\n')
     package = root / 'cms.tar.gz'
