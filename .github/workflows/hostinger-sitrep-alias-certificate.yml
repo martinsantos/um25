@@ -34,9 +34,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          sparse-checkout: scripts/ops/hostinger-migration
+          sparse-checkout: |
+            scripts/ops/hostinger-migration
+            .github/workflows/hostinger-sitrep-alias-certificate.yml
       - name: Test real certificate SAN/key reuse and isolated rollback without ACME or production access
-        run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts/ops/hostinger-migration -p test_sitrep_alias_certificate.py -v
+        run: |
+          test -f .github/workflows/hostinger-sitrep-alias-certificate.yml
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts/ops/hostinger-migration -p test_sitrep_alias_certificate.py -v
   certificate:
     needs: validate
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'EXTEND-SITREP-ALIAS-CERTIFICATE'
