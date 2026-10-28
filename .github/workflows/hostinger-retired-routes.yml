@@ -1,0 +1,59 @@
+name: Repair retired API routes and persistent SGI source
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-retired-routes.yml'
+      - 'scripts/ops/hostinger-migration/repair-retired-routes.py'
+      - 'scripts/ops/hostinger-migration/test_retired_routes.py'
+  workflow_dispatch:
+    inputs:
+      expected_snapshot_sha:
+        type: string
+        required: true
+        description: SHA256 from the read-only inspect command covering all 11 reviewed files
+      acknowledgement:
+        type: string
+        required: true
+        description: Enter REPAIR-RETIRED-ROUTES after reviewing the seven retired families and current API passthrough
+permissions:
+  contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+concurrency:
+  group: ${{ github.event_name == 'workflow_dispatch' && 'hostinger-migration-preparation' || github.run_id }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: scripts/ops/hostinger-migration
+      - name: Install disposable Nginx
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq nginx-light
+      - name: Verify retirement boundaries, proxy methods and client credentials with real Nginx
+        run: RETIRED_ROUTES_NGINX_CI=1 python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_retired_routes.py' -v
+  repair:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'REPAIR-RETIRED-ROUTES'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: scripts/ops/hostinger-migration
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Repair only the reviewed route files with CAS, backup and graceful reload
+        env:
+          SNAPSHOT_SHA: ${{ inputs.expected_snapshot_sha }}
+        run: |
+          set -euo pipefail
+          [[ "$SNAPSHOT_SHA" =~ ^[a-f0-9]{64}$ ]]
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          ssh "${opts[@]}" root@179.198.115.115 "python3 - repair $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT $SNAPSHOT_SHA" < scripts/ops/hostinger-migration/repair-retired-routes.py
