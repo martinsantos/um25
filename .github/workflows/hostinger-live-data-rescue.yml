@@ -1,0 +1,67 @@
+name: Capture recent live database rescue snapshots
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-live-data-rescue.yml'
+      - 'scripts/ops/hostinger-migration/capture-live-data-rescue.py'
+      - 'scripts/ops/hostinger-migration/test_live_data_rescue.py'
+  workflow_dispatch:
+    inputs:
+      acknowledgement:
+        description: 'Enter RESCUE for non-final read-only snapshots and encrypted offsite backup'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostinger-migration-${{ github.event_name == 'workflow_dispatch' && 'preparation' || github.run_id }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_live_data_rescue.py' -v
+  capture:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'RESCUE'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SSH_PRIVATE_KEY }}
+            ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Snapshot running databases without changing services
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          id="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          target=root@179.198.115.115
+          parent=/srv/umsa-migration/live-rescue-tooling
+          folder="$parent/$id"
+          ssh "${opts[@]}" "$target" "test ! -L $parent && { test -d $parent || install -d -m 0700 $parent; } && test ! -e $folder && test ! -L $folder && install -d -m 0700 $folder"
+          for file in capture-live-data-rescue.py sqlite-snapshot.py rehearse-streaming-recovery.py rehearse-encrypted-recovery.py offsite-recovery-public.asc; do
+            scp "${opts[@]}" "scripts/ops/hostinger-migration/$file" "$target:$folder/"
+            local_hash=$(sha256sum "scripts/ops/hostinger-migration/$file" | cut -d ' ' -f1)
+            remote_hash=$(ssh "${opts[@]}" "$target" "sha256sum $folder/$file" | cut -d ' ' -f1)
+            [[ "$local_hash" = "$remote_hash" ]]
+          done
+          ssh -A "${opts[@]}" "$target" "python3 $folder/capture-live-data-rescue.py $id"
