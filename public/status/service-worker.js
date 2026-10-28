@@ -1,6 +1,7 @@
 // Only the status shell may be cached. Operational readings always need the network.
-const CACHE_NAME = 'um-dashboard-v2-real-readings';
+const CACHE_NAME = 'um-dashboard-v4-runtime-validation';
 const SHELL = ['/status/', '/status/index.html', '/status/manifest.json'];
+const PREVIOUS_STATUS_CACHES = new Set(['um-dashboard-v1', 'um-dashboard-v2-real-readings', 'um-dashboard-v3-application-catalog']);
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(async cache => {
@@ -16,9 +17,9 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const names = await caches.keys();
-    await Promise.all(names.filter(name => name === 'um-dashboard-v1').map(name => caches.delete(name)));
+    await Promise.all(names.filter(name => PREVIOUS_STATUS_CACHES.has(name)).map(name => caches.delete(name)));
     await self.clients.claim();
-    // Replace an already-open v1 shell, whose markup contained fixed metrics.
+    // Replace already-open status shells so catalog and probe semantics update.
     const clients = await self.clients.matchAll({type: 'window'});
     for (const client of clients) {
       const url = new URL(client.url);

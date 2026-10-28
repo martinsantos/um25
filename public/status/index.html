@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#111111">
-  <title>Estado de las sondas · ULTIMA MILLA</title>
+  <title>Estado de las aplicaciones · ULTIMA MILLA</title>
   <link rel="manifest" href="/status/manifest.json">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <style>
@@ -40,6 +40,7 @@
     .service-state[data-status='online'] { color: #166534; }
     .service-state[data-status='offline'] { color: #b91c1c; }
     .service-state[data-status='unknown'] { color: #555; }
+    .service-line strong::before { content: attr(data-group); display: block; color: #555; font-size: 14px; font-weight: 400; }
     .service-detail { margin: 8px 0 0; font-size: 16px; color: #555; }
     footer { font-size: 16px; }
     noscript p { margin: 24px 0; padding: 16px; border: 1px solid #b91c1c; background: #fff; }
@@ -52,11 +53,11 @@
   </style>
 </head>
 <body>
-<main data-status-version="20261026-real-readings">
+<main data-status-version="20261028-application-catalog">
   <header>
     <a class="eyebrow" href="/">ULTIMA MILLA</a>
-    <h1>Estado de las sondas</h1>
-    <p>Lecturas actuales de los puntos de comprobación del servidor.</p>
+    <h1>Estado de las aplicaciones</h1>
+    <p>Lecturas actuales de aplicaciones y servicios de ULTIMA MILLA.</p>
     <p class="summary" id="overall-status" role="status" aria-live="polite">Estado desconocido · aún sin comprobar</p>
   </header>
   <noscript><p>JavaScript está desactivado. No se realizaron comprobaciones; el estado permanece desconocido.</p></noscript>
@@ -67,11 +68,11 @@
   <dl class="metrics">
     <div class="metric"><dt>Sondas con respuesta</dt><dd id="responding">Sin comprobar</dd><p class="muted">Resultado de la última consulta, no disponibilidad histórica.</p></div>
     <div class="metric"><dt>Tiempo de la consulta</dt><dd id="response-time">No disponible</dd><p class="muted">Medido desde este navegador hasta recibir la consulta de sondas.</p></div>
-    <div class="metric"><dt>Proceso web activo desde hace</dt><dd id="system-uptime">No disponible</dd><p class="muted">Tiempo de actividad del proceso Astro, no del servidor completo.</p></div>
+    <div class="metric"><dt>Proceso web Astro activo desde hace</dt><dd id="system-uptime">No disponible</dd><p class="muted">Tiempo del proceso web que sirve este panel; no representa la disponibilidad histórica del servidor.</p></div>
   </dl>
   <section aria-labelledby="services-title">
     <h2 id="services-title">Comprobaciones actuales</h2>
-    <p class="muted">Las sondas HTTP y TCP comprueban respuesta o conexión. No certifican el funcionamiento completo de cada aplicación. Si una lectura falla o pierde vigencia, se muestra como desconocida.</p>
+    <p class="muted">Las sondas HTTP validan el código y tipo de contenido de un recurso; las sondas TCP validan que el puerto acepte una conexión. No inician sesión ni prueban operaciones de negocio o envío de correo. Si una lectura falla, falta o pierde vigencia, se muestra como desconocida.</p>
     <ul class="services" id="services-grid"></ul>
   </section>
   <section aria-labelledby="coverage-title">
@@ -85,7 +86,16 @@
 <script>
 (() => {
   const MAX_AGE = 120000;
-  const names = ['Astro Frontend', 'Directus CMS', 'PostgreSQL Database', 'Redis Cache', 'Nginx Reverse Proxy'];
+  const checks = [
+    ['astro', 'Sitio ULTIMA MILLA', 'Sitio principal'],
+    ['sgi-web', 'SGI · acceso', 'Aplicaciones'], ['sgi-app', 'SGI · aplicación', 'Aplicaciones'],
+    ['sitrep-web', 'SITREP · aplicación', 'Aplicaciones'], ['sitrep-api', 'SITREP · API', 'Aplicaciones'], ['sitrep-app', 'SITREP · servicio', 'Aplicaciones'],
+    ['dge-web', 'DGE · acceso', 'Aplicaciones'], ['dge-bridge-primary', 'DGE · puente principal', 'Aplicaciones'], ['dge-bridge-fallback', 'DGE · puente de respaldo', 'Aplicaciones'],
+    ['arca-web', 'Plantilla ARCA', 'Aplicaciones'], ['aceite-web', 'UMBot · Aceite', 'Aplicaciones'], ['plan-web', 'UMBot · Plan', 'Aplicaciones'],
+    ['wiki-web', 'Wiki · Alcance', 'Aplicaciones'], ['vecino-web', 'Vecino Rabioso · acceso', 'Aplicaciones'], ['vivero-web', 'Vivero · acceso', 'Aplicaciones'], ['gestion-web', 'Gestión Vivero', 'Aplicaciones'],
+    ['directus', 'Directus CMS', 'Infraestructura'], ['directus-ui', 'Directus · interfaz', 'Infraestructura'], ['postgres', 'PostgreSQL', 'Infraestructura'], ['redis', 'Redis', 'Infraestructura'], ['nginx', 'Nginx', 'Infraestructura'],
+    ['smtp-local', 'SMTP local', 'Correo'], ['smtp-vivero', 'SMTP Vivero', 'Correo']
+  ];
   const byId = id => document.getElementById(id);
   const rows = new Map();
   let servicesAt = 0;
@@ -94,12 +104,13 @@
   let refreshPending = false;
   let generation = 0;
 
-  for (const name of names) {
+  for (const [id, name, group] of checks) {
     const row = document.createElement('li');
     const line = document.createElement('div');
     line.className = 'service-line';
     const title = document.createElement('strong');
     title.textContent = name;
+    title.dataset.group = group;
     const state = document.createElement('span');
     state.className = 'service-state';
     const detail = document.createElement('p');
@@ -107,7 +118,7 @@
     line.append(title, state);
     row.append(line, detail);
     byId('services-grid').append(row);
-    rows.set(name, {state, detail});
+    rows.set(id, {state, detail});
   }
 
   function unknownServices(message = 'Estado desconocido · sin lectura reciente') {
@@ -124,13 +135,18 @@
   }
 
   function timestamp(value) {
+    const time = observedTimestamp(value);
+    return time && Date.now() - time < MAX_AGE ? time : 0;
+  }
+
+  function observedTimestamp(value) {
     const time = typeof value === 'string' ? Date.parse(value) : NaN;
-    return Number.isFinite(time) && Date.now() - time <= MAX_AGE && time - Date.now() <= 30000 ? time : 0;
+    return Number.isFinite(time) && time - Date.now() <= 30000 ? time : 0;
   }
 
   async function read(url) {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 12000);
+    const timer = setTimeout(() => controller.abort(), 35000);
     try {
       const response = await fetch(url, {cache: 'no-store', signal: controller.signal});
       if (!response.ok) throw new Error('No se obtuvo una lectura válida');
@@ -145,11 +161,11 @@
     let online = 0;
     let offline = 0;
     let checked = 0;
-    for (const name of names) {
-      const matches = data.services.filter(service => service.name === name);
+    for (const [id] of checks) {
+      const matches = data.services.filter(service => service.id === id);
       const service = matches.length === 1 ? matches[0] : null;
       const valid = service && timestamp(service.lastCheck) && ['online', 'offline'].includes(service.status);
-      const {state, detail} = rows.get(name);
+      const {state, detail} = rows.get(id);
       const status = valid ? service.status : 'unknown';
       state.dataset.status = status;
       state.textContent = status === 'online' ? 'Con respuesta' : status === 'offline' ? 'Sin respuesta' : 'Desconocido';
@@ -157,15 +173,22 @@
         checked++;
         if (status === 'online') online++; else offline++;
         const probe = service.type === 'tcp' ? 'Sonda TCP' : service.type === 'http' ? 'Sonda HTTP' : 'Sonda';
-        const duration = typeof service.responseTime === 'string' && /^\d+(?:\.\d+)?ms$/.test(service.responseTime) ? ` · ${service.responseTime}` : '';
+        const duration = Number.isFinite(service.responseTimeMs) && service.responseTimeMs >= 0 ? ` · ${Math.round(service.responseTimeMs)} ms` : '';
         detail.textContent = `${probe}${duration} · ${new Date(service.lastCheck).toLocaleString('es-AR', {hour12: false})}`;
       } else { detail.textContent = 'Sin evidencia reciente'; }
     }
-    servicesAt = timestamp(data.timestamp);
-    byId('responding').textContent = checked ? `${online} de ${names.length}` : 'Sin comprobar';
+    const observedTimes = data.services.map(service => observedTimestamp(service?.lastCheck)).filter(Boolean);
+    servicesAt = observedTimes.length ? Math.min(...observedTimes) : 0;
+    byId('responding').textContent = checked ? `${online} de ${checks.length} con respuesta · ${offline} sin respuesta` : 'Sin comprobar';
     byId('response-time').textContent = `${Math.round(elapsed)} ms`;
-    byId('last-check').textContent = `Última consulta: ${new Date(servicesAt).toLocaleString('es-AR', {hour12: false})}`;
-    byId('overall-status').textContent = offline ? 'Hay sondas sin respuesta' : checked === names.length ? 'Las 5 sondas respondieron' : checked ? 'Comprobación incompleta · hay estados desconocidos' : 'Estado desconocido · sin sondas verificables';
+    byId('last-check').textContent = servicesAt ? `Última consulta: ${new Date(servicesAt).toLocaleString('es-AR', {hour12: false})}` : 'Sin lectura reciente';
+    byId('overall-status').textContent = offline ? 'Hay servicios sin respuesta' : checked === checks.length ? `Las ${checks.length} sondas respondieron` : checked ? 'Comprobación incompleta · hay estados desconocidos' : 'Estado desconocido · sin sondas verificables';
+    expireReadings();
+  }
+
+  function expireReadings() {
+    if (servicesAt && Date.now() - servicesAt >= MAX_AGE) unknownServices('Estado desconocido · la lectura venció');
+    if (healthAt && Date.now() - healthAt >= MAX_AGE) { healthAt = 0; byId('system-uptime').textContent = 'No disponible'; }
   }
 
   async function refresh() {
@@ -198,18 +221,17 @@
   unknownServices('Estado desconocido · aún sin comprobar');
   byId('refresh').addEventListener('click', refresh);
   setInterval(() => { if (!document.hidden) refresh(); }, 60000);
-  setInterval(() => {
-    if (servicesAt && Date.now() - servicesAt > MAX_AGE) unknownServices('Estado desconocido · la lectura venció');
-    if (healthAt && Date.now() - healthAt > MAX_AGE) { healthAt = 0; byId('system-uptime').textContent = 'No disponible'; }
-  }, 10000);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+  setInterval(expireReadings, 10000);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) { expireReadings(); refresh(); }
+  });
   window.addEventListener('offline', () => {
     generation++;
     healthAt = 0;
     unknownServices('Estado desconocido · sin conexión');
     byId('system-uptime').textContent = 'No disponible';
   });
-  window.addEventListener('online', refresh);
+  window.addEventListener('online', () => { expireReadings(); refresh(); });
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/status/service-worker.js').catch(() => {});
   }
