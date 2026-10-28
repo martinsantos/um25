@@ -1,0 +1,75 @@
+name: Migrate retired access names to Hostinger
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-legacy-access.yml'
+      - 'scripts/ops/hostinger-migration/legacy-links.py'
+      - 'scripts/ops/hostinger-migration/test_legacy_links.py'
+  workflow_dispatch:
+    inputs:
+      phase:
+        type: choice
+        options: [prepare, activate]
+        required: true
+      expected_ingress_sha:
+        type: string
+        required: true
+      acknowledgement:
+        type: string
+        required: true
+        description: Enter RETIRE-OLD-ACCESS after reviewing the seven DNS access names
+permissions:
+  contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+concurrency:
+  group: hostinger-migration-preparation
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: scripts/ops/hostinger-migration
+      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_legacy_links.py' -v
+      - name: Parse both rendered configurations with real Nginx
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq nginx-light
+          python3 - <<'PY'
+          import importlib.util, pathlib, subprocess, tempfile
+          spec=importlib.util.spec_from_file_location('links','scripts/ops/hostinger-migration/legacy-links.py')
+          m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+          with tempfile.TemporaryDirectory() as folder:
+              root=pathlib.Path(folder)
+              subprocess.run(['openssl','req','-x509','-newkey','rsa:2048','-nodes','-days','1','-subj','/CN=example.invalid','-keyout',str(root/'privkey.pem'),'-out',str(root/'fullchain.pem')],check=True,capture_output=True)
+              for secure in (False, True):
+                  text=m.render(secure).replace(str(m.ACME/'live'/m.LINEAGE),str(root)).replace(m.TARGET+':','127.0.0.1:')
+                  p=root/'nginx.conf'
+                  p.write_text('error_log stderr; pid '+str(root/'nginx.pid')+'; events {} http {access_log off; '+text+'}')
+                  subprocess.run(['sudo','nginx','-t','-p',str(root),'-c',str(p)],check=True)
+          PY
+  migrate:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'RETIRE-OLD-ACCESS'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: scripts/ops/hostinger-migration
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Move only the reviewed retired access vhost
+        env:
+          PHASE: ${{ inputs.phase }}
+          INGRESS_SHA: ${{ inputs.expected_ingress_sha }}
+        run: |
+          set -euo pipefail
+          [[ "$PHASE" == prepare || "$PHASE" == activate ]]
+          [[ "$INGRESS_SHA" =~ ^[a-f0-9]{64}$ ]]
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          ssh "${opts[@]}" root@179.198.115.115 "python3 - $PHASE $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT $INGRESS_SHA" < scripts/ops/hostinger-migration/legacy-links.py

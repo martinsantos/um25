@@ -1,0 +1,60 @@
+name: Make Vivero HTTPS renewal independent of the retired origin
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/vivero-local-tls-renewal.yml'
+      - 'scripts/ops/hostinger-migration/repair-vivero-tls.py'
+      - 'scripts/ops/hostinger-migration/test_vivero_tls.py'
+  workflow_dispatch:
+    inputs:
+      acknowledgement:
+        description: Enter VIVERO-LOCAL-TLS to repair only Vivero TLS and retired HTTP origin trust on its existing VPS
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: vivero-maintenance-3709080
+  cancel-in-progress: false
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - name: Verify exact config scope, unchanged approvals and rollback
+        run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_vivero_tls.py' -v
+  repair:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'VIVERO-LOCAL-TLS'
+    runs-on: ubuntu-24.04
+    environment: production
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.VIVERO_CLIENT_SSH_KEY }}
+      - name: Preserve existing Vivero apps, database and SMTP; repair local ACME renewal
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          id="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          opts=(-o BatchMode=yes -o ForwardAgent=no -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          target=root@68.168.218.28
+          folder="/srv/vivero-migration/umsa-tls-tooling/$id"
+          ssh "${opts[@]}" "$target" "test ! -e $folder && install -d -m 0700 $folder"
+          file=repair-vivero-tls.py
+          scp "${opts[@]}" "scripts/ops/hostinger-migration/$file" "$target:$folder/"
+          local_hash=$(sha256sum "scripts/ops/hostinger-migration/$file" | cut -d ' ' -f1)
+          remote_hash=$(ssh "${opts[@]}" "$target" "sha256sum $folder/$file" | cut -d ' ' -f1)
+          [[ "$local_hash" = "$remote_hash" ]]
+          ssh "${opts[@]}" "$target" "python3 $folder/$file $id"
