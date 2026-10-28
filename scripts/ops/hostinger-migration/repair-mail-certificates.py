@@ -8,6 +8,7 @@ import re
 import socket
 import subprocess
 import sys
+import time
 
 STAGE = Path('/srv/umsa-migration')
 ACME = Path('/etc/letsencrypt-hostinger/live')
@@ -16,7 +17,7 @@ ACME = Path('/etc/letsencrypt-hostinger/live')
 def mail_config(text, lineage):
     result = text
     for setting, file in (('smtpd_tls_cert_file', 'fullchain.pem'), ('smtpd_tls_key_file', 'privkey.pem')):
-        pattern = r'(?m)^' + setting + r'\s*=\s*/etc/letsencrypt(?:-hostinger)?/live/' + re.escape(lineage) + '/' + file + r'\s*$'
+        pattern = r'(?m)^' + setting + r'\s*=\s*/etc/letsencrypt(?:-hostinger)?/live/' + re.escape(lineage) + '/' + re.escape(file) + r'\s*$'
         result, count = re.subn(pattern, setting + ' = ' + str(ACME / lineage / file), result)
         if count != 1:
             raise RuntimeError('Unexpected Postfix certificate directive: ' + setting)
@@ -25,9 +26,12 @@ def mail_config(text, lineage):
 
 def relay_unit(text):
     old = '/etc/letsencrypt/live/gestion.viveroloscocos.com.ar/'
+    new = str(ACME / 'ultimamilla.com.ar-0001') + '/'
+    if old not in text and text.count(new) == 2:
+        return text
     if text.count(old) != 2:
         raise RuntimeError('Unexpected relay certificate preflight')
-    return text.replace(old, str(ACME / 'ultimamilla.com.ar-0001') + '/')
+    return text.replace(old, new)
 
 
 def renewal_hook(text):
@@ -83,16 +87,19 @@ def main(identifier):
             run(['systemctl', 'reload', 'postfix', 'vivero-relay-hostinger'])
             for address, hostname, lineage in (('127.0.0.1:25', 'www.umbot.com.ar', 'www.umbot.com.ar'),
                     ('179.198.115.115:587', 'www.ultimamilla.com.ar', 'ultimamilla.com.ar-0001')):
-                response = subprocess.run(['openssl', 's_client', '-starttls', 'smtp', '-connect', address,
-                    '-servername', hostname, '-verify_hostname', hostname, '-verify_return_error', '-showcerts'],
-                    input=b'QUIT\r\n', capture_output=True, check=True, timeout=20)
-                match = re.search(rb'-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----', response.stdout, re.S)
-                if not match:
-                    raise RuntimeError('SMTP did not present a certificate')
-                actual = subprocess.check_output(['openssl', 'x509', '-noout', '-fingerprint', '-sha256'], input=match[0])
                 expected = subprocess.check_output(['openssl', 'x509', '-in', str(ACME / lineage / 'fullchain.pem'),
                     '-noout', '-fingerprint', '-sha256'])
-                if actual != expected:
+                for attempt in range(10):
+                    response = subprocess.run(['openssl', 's_client', '-starttls', 'smtp', '-connect', address,
+                        '-servername', hostname, '-verify_hostname', hostname, '-verify_return_error', '-showcerts'],
+                        input=b'QUIT\r\n', capture_output=True, timeout=20)
+                    match = re.search(rb'-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----', response.stdout, re.S)
+                    if response.returncode == 0 and match:
+                        actual = subprocess.check_output(['openssl', 'x509', '-noout', '-fingerprint', '-sha256'], input=match[0])
+                        if actual == expected:
+                            break
+                    time.sleep(0.5)
+                else:
                     raise RuntimeError('SMTP did not load its managed certificate')
         except Exception:
             for p, text in previous.items():
