@@ -14,7 +14,12 @@ ROOT = Path('/srv/umsa-public-vhosts')
 SITES = Path('/srv/umsa-clean-proxy/nginx/sites-enabled')
 FILES = {'sgi': ['sgi.ultimamilla.com.ar'], 'umbot': ['umbot.com.ar'],
          'umsa': ['ultimamilla.com.ar', 'directus-admin'],
-         'wiki': ['wiki.ultimamilla.com.ar']}
+         'wiki': ['wiki.ultimamilla.com.ar'], 'wordpress': ['vecinorabioso']}
+
+
+def site_source(name):
+    return (Path('/srv/umsa-clean-proxy/nginx/conf.d/vecinorabioso.conf')
+            if name == 'vecinorabioso' else SITES / name)
 
 
 def public_listeners(text):
@@ -74,7 +79,7 @@ def preflight(service, directory):
         raise RuntimeError('Unsupported preflight service or live ingress')
     parts = []
     for name in FILES[service]:
-        source = SITES / name
+        source = site_source(name)
         if source.is_symlink() or not source.is_file():
             raise RuntimeError('Reviewed vhost is missing')
         parts.append(public_listeners(source.read_text()))
@@ -105,7 +110,7 @@ def activate(service, directory):
     switched = False
     try:
         for name in FILES[service]:
-            source = SITES / name
+            source = site_source(name)
             if source.is_symlink() or not source.is_file():
                 raise RuntimeError('Reviewed private vhost is missing')
             file = ROOT / (name + '.conf')
@@ -120,7 +125,8 @@ def activate(service, directory):
         routes = {'sgi': ('sgi.ultimamilla.com.ar', '/', {'200', '302'}),
                   'umsa': ('www.ultimamilla.com.ar', '/', {'200'}),
                   'umbot': ('www.umbot.com.ar', '/aceite/', {'200'}),
-                  'wiki': ('wiki.ultimamilla.com.ar', '/wiki/Alcance', {'200'})}
+                  'wiki': ('wiki.ultimamilla.com.ar', '/wiki/Alcance', {'200'}),
+                  'wordpress': ('vecinorabioso.com.ar', '/', {'200', '301', '302'})}
         probe(*routes[service])
         (directory / 'public-vhost.complete.json').write_text(json.dumps({
             'service': service, 'files': FILES[service], 'sitrep_health': '200',

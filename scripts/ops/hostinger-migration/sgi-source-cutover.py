@@ -87,7 +87,7 @@ def lock_active(identifier):
     if command(['systemctl', 'is-active', '--quiet', 'umsa-sgi-fence-' + identifier], False).returncode:
         return False
     rows = query("SELECT COUNT(*) FROM information_schema.PROCESSLIST WHERE USER='root' "
-                 "AND INFO='SELECT SLEEP(28800)';")
+                 "AND DB IS NULL AND INFO='SELECT SLEEP(28800)';")
     return int(rows.strip()) == 1
 
 
