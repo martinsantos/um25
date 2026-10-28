@@ -163,7 +163,7 @@ def main(identifier):
         state = {'run': identifier, 'service': 'umsa-operational-sgi', 'port': 3001,
                  'same_session_secret': True, 'source_flags_restored': list(FLAGS),
                  'database_time_zone': '-03:00', 'outbound_integrations_enabled': True,
-                 'financial_operations_or_test_email_sent': False}
+                 'test_payment_or_email_requested': False}
         public.atomic(STAGE / 'sgi-production-state.json', json.dumps(state, indent=2) + '\n')
         (root / 'operation.complete.json').write_text(json.dumps(state, indent=2) + '\n')
     print('SGI production flags, network access and database clock restored; source remained fenced.')
