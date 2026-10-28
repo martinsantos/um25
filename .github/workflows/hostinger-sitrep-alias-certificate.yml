@@ -36,7 +36,7 @@ jobs:
         with:
           sparse-checkout: |
             scripts/ops/hostinger-migration
-            .github/workflows/hostinger-sitrep-alias-certificate.yml
+            .github/workflows
       - name: Test real certificate SAN/key reuse and isolated rollback without ACME or production access
         run: |
           test -f .github/workflows/hostinger-sitrep-alias-certificate.yml
