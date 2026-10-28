@@ -66,6 +66,19 @@ def available_gb(listing):
     return int(matches[0])
 
 
+def available_bytes(listing):
+    # Older receivers only advertise rounded GiB. A present exact field must
+    # be valid and unique; silently falling back would conceal a protocol error.
+    if '\r' in listing:
+        raise RuntimeError('Offsite exact free space could not be checked')
+    fields = [line for line in listing.split('\n') if line.lstrip().startswith('libre_bytes')]
+    if not fields:
+        return None
+    if len(fields) != 1 or not re.fullmatch(r'libre_bytes [0-9]+', fields[0]):
+        raise RuntimeError('Offsite exact free space could not be checked')
+    return int(fields[0].split()[1])
+
+
 def encrypted_archive(base, paths, certificate, output):
     # The private recovery key is not present on the destination or receiver.
     with output.open('xb') as stream:
