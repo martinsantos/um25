@@ -50,7 +50,10 @@ def target_guard():
     if (socket.gethostname() != 'srv2101069.hstgr.cloud' or STAGE.is_symlink()
             or (STAGE / '.target').read_text().strip() != '179.198.115.115'):
         raise RuntimeError('Wrong destination')
-    if (STAGE / 'production.active').exists() or (STAGE / 'web-publication-state.json').exists():
+    if any((STAGE / marker).exists() for marker in (
+            'production.active', 'web-publication-state.json',
+            'sitrep-final-refresh.started', 'sitrep-ingress-source-only.started',
+            'sitrep-public-activation.started')):
         raise RuntimeError('Refusing to replace data after public cutover')
     for marker in ('persist-rehearsal.complete', 'internal-rotation.complete'):
         if not (STAGE / marker).is_file():
