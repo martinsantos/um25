@@ -1,0 +1,84 @@
+name: Restore ARCA outbound DNS and TLS on Hostinger
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-arca-egress.yml'
+      - 'scripts/ops/hostinger-migration/restore-arca-egress.py'
+      - 'scripts/ops/hostinger-migration/test_arca_egress.py'
+  workflow_dispatch:
+    inputs:
+      acknowledgement:
+        description: Enter ARCA-EGRESS to recreate only ARCA with its existing image, data and bridge
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: hostinger-migration-${{ github.event_name == 'workflow_dispatch' && 'preparation' || github.run_id }}
+  cancel-in-progress: false
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - name: Validate immutable image, mount and no-published-port guards
+        run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_arca_egress.py' -v
+      - name: Rehearse both replacement and rollback on disposable Docker 29.1.3
+        run: |
+          set -euo pipefail
+          install -d "$RUNNER_TEMP/arca-engine" "$RUNNER_TEMP/arca-fixture"
+          docker run --privileged -d --name arca-egress-ci-daemon \
+            -e DOCKER_TLS_CERTDIR= \
+            -v "$RUNNER_TEMP/arca-engine:/engine" \
+            -v "$RUNNER_TEMP/arca-fixture:/fixture" \
+            docker:29.1.3-dind --host=unix:///engine/docker.sock
+          for attempt in $(seq 1 60); do
+            if docker exec arca-egress-ci-daemon docker -H unix:///engine/docker.sock info > /dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          docker exec arca-egress-ci-daemon docker -H unix:///engine/docker.sock info > /dev/null
+          docker exec arca-egress-ci-daemon docker -H unix:///engine/docker.sock pull python:3.10-alpine
+          docker run --rm --network container:arca-egress-ci-daemon \
+            -e ARCA_DOCKER_REHEARSAL=1 \
+            -v "$RUNNER_TEMP/arca-engine:/engine" \
+            -v "$RUNNER_TEMP/arca-fixture:/fixture" \
+            -v "$GITHUB_WORKSPACE/scripts/ops/hostinger-migration:/code:ro" \
+            python:3.10-alpine python -m unittest discover -s /code -p 'test_arca_egress.py' -v
+      - name: Retire only this disposable CI daemon
+        if: always()
+        run: docker rm -f arca-egress-ci-daemon || true
+  restore:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'ARCA-EGRESS'
+    runs-on: ubuntu-24.04
+    environment: production
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Restore ARCA egress while preserving the bridge and original container
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          id="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          target=root@179.198.115.115
+          folder="/srv/umsa-migration/arca-egress-tooling/$id"
+          ssh "${opts[@]}" "$target" "test ! -e $folder && install -d -m 0700 $folder"
+          file=restore-arca-egress.py
+          scp "${opts[@]}" "scripts/ops/hostinger-migration/$file" "$target:$folder/"
+          local_hash=$(sha256sum "scripts/ops/hostinger-migration/$file" | cut -d ' ' -f1)
+          remote_hash=$(ssh "${opts[@]}" "$target" "sha256sum $folder/$file" | cut -d ' ' -f1)
+          [[ "$local_hash" = "$remote_hash" ]]
+          ssh "${opts[@]}" "$target" "python3 $folder/$file $id"
