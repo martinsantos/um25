@@ -23,6 +23,70 @@ INITIAL = {'port': 4321, 'unit': 'umsa-clean-astro-ultimamilla.service',
            'config': '/srv/umsa-clean-proxy/nginx',
            'assets': '/srv/umsa-clean-apps/astro-ultimamilla/dist/client'}
 ROUTES = ('/', '/servicios', '/antecedentes', '/estilo/fuentes/plantilla', '/status/')
+PROC = Path('/proc')
+TRANSIENT_CURL_ERRORS = frozenset((7, 18, 28, 52, 55, 56, 92))
+
+
+def probe_after_reload(url, log, resolve):
+    """Allow transport drain after HUP; HTTP and certificate failures stay fatal."""
+    deadline = time.monotonic() + 10
+    last_error = 'deadline expired'
+    for attempt in range(4):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        budget = min(3, remaining)
+        args = ['curl', '--noproxy', '*', '--http1.1', '-fsS', '--max-time', str(budget),
+                '--resolve', resolve, '-o', '/dev/null', '-w', '%{http_code}', url]
+        try:
+            result = subprocess.run(args, stdout=subprocess.PIPE, stderr=log,
+                                    text=True, timeout=budget)
+            status = result.stdout.strip()
+            # An HTTP error is never a reason to retry, even with a stream error.
+            if re.fullmatch(r'[45][0-9]{2}', status):
+                raise RuntimeError('Publication probe returned HTTP ' + status + ': ' + url)
+            if result.returncode == 0:
+                if not re.fullmatch(r'[23][0-9]{2}', status):
+                    raise RuntimeError('Publication probe returned no valid HTTP status: ' + url)
+                return
+            if result.returncode not in TRANSIENT_CURL_ERRORS:
+                result.check_returncode()
+            last_error = 'curl ' + str(result.returncode)
+        except subprocess.TimeoutExpired as error:
+            partial = error.stdout or ''
+            if isinstance(partial, bytes):
+                partial = partial.decode(errors='replace')
+            if re.fullmatch(r'[45][0-9]{2}', partial.strip()):
+                raise RuntimeError('Publication probe returned HTTP ' + partial.strip() + ': ' + url) from error
+            last_error = 'curl timeout'
+        log.write(('Transport readiness attempt ' + str(attempt + 1) + ': ' + last_error + '\n').encode())
+        log.flush()
+        remaining = deadline - time.monotonic()
+        if attempt < 3 and remaining > 0:
+            time.sleep(min(0.25, remaining))
+    raise RuntimeError('Publication transport did not recover within 10s/4 attempts: ' + last_error + ': ' + url)
+
+
+def verify_web_runtime(unit, application, port, expected_pid=None):
+    """Tie the real listener to the exact candidate process and entry point."""
+    if port not in (4321, 4322):
+        raise RuntimeError('Unexpected candidate web port')
+    pid = subprocess.check_output(['systemctl', 'show', unit, '-p', 'MainPID', '--value'],
+                                  text=True).strip()
+    if not re.fullmatch(r'[1-9][0-9]*', pid) or (expected_pid is not None and pid != expected_pid):
+        raise RuntimeError('Candidate process is missing or changed during publication')
+    command = (PROC / pid / 'cmdline').read_bytes().split(b'\0')
+    if command and command[-1] == b'':
+        command.pop()
+    expected = [b'/usr/bin/node', str(application / 'dist/server/entry.mjs').encode()]
+    if command != expected:
+        raise RuntimeError('Candidate PID does not execute the reviewed release entry point')
+    listeners = subprocess.check_output(['ss', '-H', '-ltnp', 'sport = :' + str(port)], text=True)
+    rows = [line.split() for line in listeners.splitlines() if line.strip()]
+    if (len(rows) != 1 or len(rows[0]) < 6 or rows[0][3] != '127.0.0.1:' + str(port)
+            or not re.search(r'\bpid=' + pid + r',', ' '.join(rows[0][5:]))):
+        raise RuntimeError('Candidate PID does not own the expected loopback web listener')
+    return pid
 
 
 def validate_archive(archive):
@@ -181,6 +245,7 @@ def main(mode, revision, run_id, attempt, expected):
             else: raise RuntimeError('Candidate did not become ready')
             for route in ROUTES:
                 run(['curl', '-fsS', '--max-time', '20', '-o', '/dev/null', 'http://127.0.0.1:' + str(port) + route])
+            candidate_pid = verify_web_runtime(unit_name, application, port)
             config = release / 'nginx'
             shutil.copytree(previous['config'], config)
             changes = 0
@@ -202,8 +267,9 @@ def main(mode, revision, run_id, attempt, expected):
             switched = True
             run(['systemctl', 'reload', 'umsa-clean-front'])
             for route in ROUTES:
-                run(['curl', '-fsS', '--max-time', '20', '--resolve', 'www.ultimamilla.com.ar:443:127.0.0.1',
-                    '-o', '/dev/null', 'https://www.ultimamilla.com.ar' + route])
+                probe_after_reload('https://www.ultimamilla.com.ar' + route, log,
+                                   'www.ultimamilla.com.ar:443:127.0.0.1')
+            verify_web_runtime(unit_name, application, port, candidate_pid)
             # The live ingress has its own listeners. Switch both UMSA vhosts
             # before retiring the previous Astro port; leave all other vhosts alone.
             if PUBLIC_ROOT.is_symlink() or PUBLIC_FRONT.is_symlink() or not PUBLIC_FRONT.is_file():
@@ -219,10 +285,11 @@ def main(mode, revision, run_id, attempt, expected):
             run(['/usr/sbin/nginx', '-t', '-c', str(PUBLIC_FRONT)])
             run(['systemctl', 'reload', 'umsa-sitrep-ingress'])
             for route in ROUTES:
-                run(['curl', '-fsS', '--max-time', '20', '--resolve', 'www.ultimamilla.com.ar:443:179.198.115.115',
-                     '-o', '/dev/null', 'https://www.ultimamilla.com.ar' + route])
-            run(['curl', '-fsS', '--max-time', '20', '--resolve', 'sitrep.ultimamilla.com.ar:443:179.198.115.115',
-                 '-o', '/dev/null', 'https://sitrep.ultimamilla.com.ar/api/health'])
+                probe_after_reload('https://www.ultimamilla.com.ar' + route, log,
+                                   'www.ultimamilla.com.ar:443:179.198.115.115')
+            probe_after_reload('https://sitrep.ultimamilla.com.ar/api/health', log,
+                               'sitrep.ultimamilla.com.ar:443:179.198.115.115')
+            verify_web_runtime(unit_name, application, port, candidate_pid)
             current = {'port': port, 'unit': unit_name, 'config': str(config), 'assets': str(assets)}
             run(['systemctl', 'enable', unit_name])
             atomic_text(release / 'previous-front.service', old_unit)
