@@ -12,6 +12,7 @@ import ssl
 import stat
 import subprocess
 import sys
+import time
 from urllib.parse import urljoin
 
 TARGET = '179.198.115.115'
@@ -253,14 +254,52 @@ def transaction(records, steps, folder):
     return expected
 
 
-def request(host, path, tls=True, resolve=True):
+def request(host, path, tls=True, resolve=True, timeout=20):
     scheme, port = ('https', '443') if tls else ('http', '80')
-    args = ['curl', '--noproxy', '*', '--globoff', '--path-as-is', '-sS', '--max-time', '20']
+    args = ['curl', '--noproxy', '*', '--globoff', '--path-as-is', '-sS', '--max-time', str(timeout)]
     if resolve:
         args += ['--resolve', host + ':' + port + ':' + TARGET]
     result = run(args + ['-w', '\n%{http_code}\n%{content_type}', scheme + '://' + host + path])
     body, status, kind = result.stdout.rsplit('\n', 2)
     return body, status, kind
+
+
+def wait_ready(check, timeout=10, interval=0.25):
+    # systemd's HUP ExecReload returns before Nginx has replaced its workers.
+    # Each check receives its remaining (at most one second) request budget.
+    deadline = time.monotonic() + timeout
+    attempts = 0
+    last = 'no response'
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise RuntimeError('Nginx route readiness timed out: ' + last)
+        attempts += 1
+        try:
+            check(min(1, remaining))
+            if attempts > 1:
+                print('Nginx route readiness converged after ' + str(attempts) + ' probes.')
+            return
+        except (RuntimeError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
+            if isinstance(error, subprocess.CalledProcessError):
+                last = 'curl exit ' + str(error.returncode)
+            elif isinstance(error, subprocess.TimeoutExpired):
+                last = 'curl timeout'
+            else:
+                last = str(error)
+            if attempts == 1:
+                print('Waiting for the reloaded Nginx route: ' + last, flush=True)
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise RuntimeError('Nginx route readiness timed out: ' + last) from error
+            time.sleep(min(interval, remaining))
+
+
+def verify_challenge(marker, resolve=True, timeout=20):
+    body, status, _ = request(HOST, '/.well-known/acme-challenge/' + marker,
+                              False, resolve, timeout)
+    if status != '200' or body != marker:
+        raise RuntimeError('HTTP challenge mismatch (HTTP ' + status + ')')
 
 
 def verify_ui(host, tls=True):
@@ -294,12 +333,12 @@ def verify_existing(identity):
         raise RuntimeError('The existing Directus container identity/start time changed')
 
 
-def verify_redirect(path, destination, host='www.ultimamilla.com.ar'):
-    result = run(['curl', '--noproxy', '*', '--globoff', '--path-as-is', '-sS', '--max-time', '20',
+def verify_redirect(path, destination, host='www.ultimamilla.com.ar', timeout=20):
+    result = run(['curl', '--noproxy', '*', '--globoff', '--path-as-is', '-sS', '--max-time', str(timeout),
                   '--resolve', host + ':443:' + TARGET, '-o', '/dev/null',
                   '-w', '%{http_code}\n%{redirect_url}', 'https://' + host + path]).stdout
     if result != '302\n' + destination:
-        raise RuntimeError('Directus admin redirect did not preserve the expected URL')
+        raise RuntimeError('Directus admin redirect mismatch (HTTP ' + result.split('\n')[0] + ')')
 
 
 def certificate():
@@ -350,9 +389,7 @@ def main(phase, identifier=None, expected_sha=None):
                 if records['public_admin']['data'].decode() == render_admin(True):
                     raise RuntimeError('Preparation cannot downgrade an active TLS vhost')
                 def prepared():
-                    body, status, _ = request(HOST, '/.well-known/acme-challenge/' + marker, False)
-                    if status != '200' or body != marker:
-                        raise RuntimeError('Prepared HTTP challenge did not reach the local webroot')
+                    wait_ready(lambda timeout: verify_challenge(marker, timeout=timeout))
                     if request(HOST, '/admin/', False)[1] != '503':
                         raise RuntimeError('Prepared origin must wait for TLS before serving the panel')
                     verify_existing(identity)
@@ -365,10 +402,15 @@ def main(phase, identifier=None, expected_sha=None):
                     raise RuntimeError('Public DNS/challenge did not reach the prepared origin')
                 certificate()
                 def tls_ready():
+                    wait_ready(lambda timeout: verify_redirect(
+                        '/?from=panel', 'https://' + HOST + '/admin/?from=panel', HOST, timeout))
                     verify_ui(HOST)
                     verify_redirect('/?from=panel', 'https://' + HOST + '/admin/?from=panel', HOST)
                     verify_existing(identity)
                 def redirects_ready():
+                    wait_ready(lambda timeout: verify_redirect(
+                        '/directus/admin?next=%2Fcontent', 'https://' + HOST + '/admin?next=%2Fcontent',
+                        timeout=timeout))
                     for path, target in (('/directus/admin?next=%2Fcontent', '/admin?next=%2Fcontent'),
                                          ('/directus/admin/content/a%20b?x=%2F&y=1', '/admin/content/a%20b?x=%2F&y=1')):
                         verify_redirect(path, 'https://' + HOST + target)

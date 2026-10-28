@@ -1,0 +1,121 @@
+name: Restore exact MediaWiki ResourceLoader on Hostinger
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-wiki-loader.yml'
+      - 'scripts/ops/hostinger-migration/restore-wiki-loader.py'
+      - 'scripts/ops/hostinger-migration/test_wiki_loader.py'
+      - 'scripts/ops/hostinger-migration/wiki-loader-rehearsal.sh'
+      - 'scripts/ops/hostinger-migration/wiki-loader-smoke.php'
+      - 'scripts/ops/hostinger-migration/clean-cms.py'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Read-only preflight, then vendor entry point plus the exact two-line upstream PHP backport
+        required: true
+        type: choice
+        options: [preflight, apply]
+        default: preflight
+      expected_sha:
+        description: SHA-256 of the current load.php, compared before any changes
+        required: true
+        type: string
+        default: 21f05f83d5607a9832f7b8bb291aa1ad870dcd324e7ee2dd15d914bdaf9be539
+      acknowledgement:
+        description: Enter WIKI-VENDOR-LOADER for apply; preflight needs no acknowledgement
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: hostinger-migration-${{ github.event_name == 'workflow_dispatch' && 'preparation' || github.run_id }}
+  cancel-in-progress: false
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/workflows/hostinger-wiki-loader.yml
+            /scripts/ops/hostinger-migration/
+      - name: Validate guards, single-file replacement and rollback
+        run: sudo env PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts/ops/hostinger-migration -p test_wiki_loader.py -v
+      - name: Retrieve the exact previously reviewed official distribution
+        run: |
+          set -euo pipefail
+          curl --fail --location --proto '=https' --tlsv1.2 --retry 3 --max-time 120 --user-agent UMSA-Migration/1.0 https://releases.wikimedia.org/mediawiki/1.29/mediawiki-1.29.3.tar.gz -o "$RUNNER_TEMP/wiki.tar.gz"
+          echo "4f28a812694c95bd6778d1ac322ea80d3bbfedbda69c4562b75c8d450cc8d3f0  $RUNNER_TEMP/wiki.tar.gz" | sha256sum --check
+          python3 - <<'PY'
+          import importlib.util, os
+          from pathlib import Path
+          source = Path('scripts/ops/hostinger-migration/restore-wiki-loader.py')
+          spec = importlib.util.spec_from_file_location('wiki_loader', source)
+          helper = importlib.util.module_from_spec(spec); spec.loader.exec_module(helper)
+          manifest, files = helper.official(Path(os.environ['RUNNER_TEMP']) / 'wiki.tar.gz')
+          for name, data in files.items():
+              path = Path(os.environ['RUNNER_TEMP']) / 'wiki-candidate' / name
+              path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(data)
+          PY
+      - name: Rehearse the vendor entry point with PHP 7.4 and an isolated SQLite database
+        run: |
+          mkdir "$RUNNER_TEMP/wiki-results"
+          docker run --rm --network none \
+            --mount "type=bind,source=$RUNNER_TEMP/wiki.tar.gz,target=/package.tar.gz,readonly" \
+            --mount "type=bind,source=$RUNNER_TEMP/wiki-candidate,target=/candidate,readonly" \
+            --mount "type=bind,source=$RUNNER_TEMP/wiki-results,target=/results" \
+            --mount "type=bind,source=$GITHUB_WORKSPACE/scripts/ops/hostinger-migration,target=/tests,readonly" \
+            php@sha256:620a6b9f4d4feef2210026172570465e9d0c1de79766418d3affd09190a7fda5 bash /tests/wiki-loader-rehearsal.sh
+          node --check "$RUNNER_TEMP/wiki-results/startup.js"
+          node --check "$RUNNER_TEMP/wiki-results/modules.js"
+  restore:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && (inputs.mode == 'preflight' || inputs.acknowledgement == 'WIKI-VENDOR-LOADER')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    environment: production
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Restore only the three reviewed core files with CAS and private backups
+        env:
+          WIKI_LOADER_MODE: ${{ inputs.mode }}
+          WIKI_EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          python3 - <<'PY'
+          import base64, importlib.util, json, os, shlex, subprocess, tempfile, urllib.request
+          from pathlib import Path
+          source = Path('scripts/ops/hostinger-migration/restore-wiki-loader.py')
+          spec = importlib.util.spec_from_file_location('wiki_loader', source)
+          helper = importlib.util.module_from_spec(spec); spec.loader.exec_module(helper)
+          with tempfile.TemporaryDirectory() as folder:
+              archive = Path(folder) / 'wiki.tar.gz'
+              request = urllib.request.Request(helper.URL, headers={'User-Agent': 'UMSA-Migration/1.0'})
+              with urllib.request.urlopen(request, timeout=120) as response:
+                  archive.write_bytes(response.read())
+              manifest, files = helper.official(archive)
+          payload = {'mode': os.environ['WIKI_LOADER_MODE'], 'expected_sha': os.environ['WIKI_EXPECTED_SHA'],
+              'commit': os.environ['GITHUB_SHA'], 'run': os.environ['GITHUB_RUN_ID'] + '-' + os.environ['GITHUB_RUN_ATTEMPT'],
+              'manifest': manifest, 'files': {name: base64.b64encode(data).decode() for name, data in files.items()}}
+          command = shlex.join(['env', 'UMSA_EXECUTION_CONTEXT=github-actions', 'python3', '-c', source.read_text()])
+          result = subprocess.run(['ssh', '-o', 'BatchMode=yes', '-o', 'ForwardAgent=no',
+              '-o', 'StrictHostKeyChecking=yes', '-o', 'ConnectTimeout=15',
+              '-o', 'UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts',
+              'root@179.198.115.115', command], input=json.dumps(payload).encode(),
+              stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=480)
+          try:
+              receipt = json.loads(result.stdout)
+          except (ValueError, UnicodeError):
+              raise RuntimeError('Wiki transport failed; raw response withheld')
+          print(json.dumps(receipt, sort_keys=True))
+          if result.returncode or receipt.get('ok') is not True:
+              raise RuntimeError('Wiki restoration did not complete; preserve private rollback evidence')
+          PY
