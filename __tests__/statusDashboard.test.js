@@ -8,10 +8,10 @@ const worker = fs.readFileSync(path.join(process.cwd(), 'public/status/service-w
 const checks = [
   ['astro', 'Sitio ULTIMA MILLA'], ['sgi-web', 'SGI · acceso'], ['sgi-app', 'SGI · aplicación'],
   ['sitrep-web', 'SITREP · aplicación'], ['sitrep-api', 'SITREP · API'], ['sitrep-app', 'SITREP · servicio'],
-  ['dge-web', 'DGE · acceso'], ['dge-bridge-login', 'DGE · puente de acceso'], ['dge-bridge-app', 'DGE · puente de aplicación'],
+  ['dge-web', 'DGE · acceso'], ['dge-bridge-primary', 'DGE · puente principal'], ['dge-bridge-fallback', 'DGE · puente de respaldo'],
   ['arca-web', 'Plantilla ARCA'], ['aceite-web', 'UMBot · Aceite'], ['plan-web', 'UMBot · Plan'], ['wiki-web', 'Wiki · Alcance'],
   ['vecino-web', 'Vecino Rabioso · acceso'], ['vivero-web', 'Vivero · acceso'], ['gestion-web', 'Gestión Vivero'],
-  ['directus', 'Directus CMS'], ['postgres', 'PostgreSQL'], ['redis', 'Redis'], ['nginx', 'Nginx'], ['smtp-local', 'SMTP local'], ['smtp-vivero', 'SMTP Vivero'],
+  ['directus', 'Directus CMS'], ['directus-ui', 'Directus · interfaz'], ['postgres', 'PostgreSQL'], ['redis', 'Redis'], ['nginx', 'Nginx'], ['smtp-local', 'SMTP local'], ['smtp-vivero', 'SMTP Vivero'],
 ];
 const flush = async () => { for (let i = 0; i < 20; i++) await Promise.resolve(); };
 const reading = () => ({
@@ -59,6 +59,11 @@ test('uses current observations and only read requests', async () => {
     expect(options.cache).toBe('no-store');
     expect(options.method).toBeUndefined();
   }
+});
+test('client timeout covers the bounded multi-wave probe snapshot', () => {
+  expect(script).toMatch(/setTimeout\(\(\) => controller\.abort\(\), 35000\)/);
+  const maxProbeTimeout = Math.max(...STATUS_SERVICES.map(service => service.probe.timeoutMs));
+  expect(Math.ceil(STATUS_SERVICES.length / 4) * maxProbeTimeout).toBeLessThan(35000);
 });
 test('a failed refresh clears successful readings instead of retaining green state', async () => {
   await start();
@@ -122,7 +127,7 @@ test('reconnect queues a fresh reading when an old request is still pending', as
 function workerContext() {
   const handlers = {};
   const cache = {put: jest.fn()};
-  const caches = {open: jest.fn(async () => cache), keys: jest.fn(async () => ['um-dashboard-v1', 'um-dashboard-v2-real-readings', 'um-public-v1.0.0', 'um-dashboard-other-app']), delete: jest.fn(async () => true), match: jest.fn()};
+  const caches = {open: jest.fn(async () => cache), keys: jest.fn(async () => ['um-dashboard-v1', 'um-dashboard-v2-real-readings', 'um-dashboard-v3-application-catalog', 'um-public-v1.0.0', 'um-dashboard-other-app']), delete: jest.fn(async () => true), match: jest.fn()};
   const self = {location: {origin: 'https://www.ultimamilla.com.ar'}, addEventListener: (name, fn) => { handlers[name] = fn; }, skipWaiting: jest.fn(async () => {}), clients: {claim: jest.fn(async () => {}), matchAll: jest.fn(async () => [])}};
   class Response { constructor(body, options) { this.body = body; this.status = options.status; } }
   const fetch = jest.fn();
@@ -145,7 +150,7 @@ test('worker version fetches the updated status shell without caching API readin
   let completed;
   handlers.install({waitUntil: promise => { completed = promise; }});
   await completed;
-  expect(caches.open).toHaveBeenCalledWith('um-dashboard-v3-application-catalog');
+  expect(caches.open).toHaveBeenCalledWith('um-dashboard-v4-runtime-validation');
   expect(fetch.mock.calls).toEqual([
     ['/status/', {cache: 'reload'}],
     ['/status/index.html', {cache: 'reload'}],
@@ -158,7 +163,7 @@ test('worker migration preserves caches owned by other applications', async () =
   let completed;
   handlers.activate({waitUntil: promise => { completed = promise; }});
   await completed;
-  expect(caches.delete.mock.calls).toEqual([['um-dashboard-v1'], ['um-dashboard-v2-real-readings']]);
+  expect(caches.delete.mock.calls).toEqual([['um-dashboard-v1'], ['um-dashboard-v2-real-readings'], ['um-dashboard-v3-application-catalog']]);
 });
 test('activation finishes before reload completes and does not navigate other applications', async () => {
   const {handlers, self} = workerContext();

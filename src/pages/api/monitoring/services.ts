@@ -91,7 +91,9 @@ async function checkHttp(probe: Extract<StatusProbe, { kind: 'http' }>): Promise
       const isHtml = contentType.includes('text/html');
       const hasDocument = /<!doctype\s+html|<html\b/i.test(body);
       const hasPageContent = /<title\b|<main\b|<body\b/i.test(body);
-      return isHtml && hasDocument && hasPageContent ? 'online' : 'offline';
+      if (!isHtml || !hasDocument || !hasPageContent) return 'offline';
+      if (probe.verifyHtmlAssets && !(await verifyHtmlAssets(probe, body, controller.signal))) return 'offline';
+      return 'online';
     }
 
     if (!contentType.includes('application/json')) return 'offline';
@@ -99,7 +101,9 @@ async function checkHttp(probe: Extract<StatusProbe, { kind: 'http' }>): Promise
       const json = JSON.parse(body) as Record<string, unknown>;
       if (!json || typeof json !== 'object' || Array.isArray(json)) return 'offline';
       const healthStatus = String(json['status'] || '').toLowerCase();
-      if (json['success'] === false || json['ok'] === false || ['error', 'unhealthy', 'offline'].includes(healthStatus)) return 'offline';
+      if (json['success'] === false || json['ok'] === false) return 'offline';
+      const positiveHealthStatuses = ['ok', 'healthy', 'online', 'up'];
+      if (typeof json['status'] === 'string' && !positiveHealthStatuses.includes(healthStatus)) return 'offline';
       if (typeof json['status'] !== 'string' && json['success'] !== true && json['ok'] !== true) return 'offline';
       return 'online';
     } catch {
@@ -110,6 +114,58 @@ async function checkHttp(probe: Extract<StatusProbe, { kind: 'http' }>): Promise
   } finally {
     clearTimeout(timeout);
   }
+}
+
+function attribute(tag: string, name: string): string | undefined {
+  const match = tag.match(new RegExp(`\\b${name}\\s*=\\s*(["'])(.*?)\\1`, 'i'));
+  return match?.[2];
+}
+
+function requiredAssetUrls(probe: Extract<StatusProbe, { kind: 'http' }>, html: string): URL[] | null {
+  const assetPolicy = probe.verifyHtmlAssets;
+  if (!assetPolicy) return [];
+
+  const scriptTag = html.match(/<script\b[^>]*\bsrc\s*=\s*(["'][^"']+["'])[^>]*>/i)?.[0];
+  const stylesheetTag = [...html.matchAll(/<link\b[^>]*>/gi)].map((match) => match[0]).find((tag) =>
+    (attribute(tag, 'rel') || '').toLowerCase().split(/\s+/).includes('stylesheet') && attribute(tag, 'href'),
+  );
+  const scriptSrc = scriptTag && attribute(scriptTag, 'src');
+  const styleHref = stylesheetTag && attribute(stylesheetTag, 'href');
+  if (!scriptSrc || !styleHref) return null;
+
+  try {
+    const urls = [new URL(scriptSrc, probe.url), new URL(styleHref, probe.url)];
+    if (urls.some((url) => url.origin !== assetPolicy.origin || !url.pathname.startsWith(assetPolicy.assetPathPrefix))) return null;
+    return urls;
+  } catch {
+    return null;
+  }
+}
+
+async function verifyHtmlAssets(
+  probe: Extract<StatusProbe, { kind: 'http' }>,
+  html: string,
+  signal: AbortSignal,
+): Promise<boolean> {
+  const urls = requiredAssetUrls(probe, html);
+  if (!urls) return false;
+
+  const results = await Promise.all(urls.map(async (url, index) => {
+    try {
+      const response = await fetch(url, {
+        method: 'HEAD',
+        redirect: 'manual',
+        cache: 'no-store',
+        signal,
+        headers: { Accept: index === 0 ? 'application/javascript' : 'text/css' },
+      });
+      const contentType = response.headers.get('content-type')?.toLowerCase() || '';
+      return response.status === 200 && (index === 0 ? /javascript|ecmascript/.test(contentType) : contentType.includes('text/css'));
+    } catch {
+      return false;
+    }
+  }));
+  return results.every(Boolean);
 }
 
 function checkTcp(probe: Extract<StatusProbe, { kind: 'tcp' }>): Promise<ProbeStatus> {
@@ -176,6 +232,8 @@ async function mapWithConcurrency<T, R>(items: T[], limit: number, callback: (it
 }
 
 async function buildSnapshot(): Promise<StatusSnapshot> {
+  // Each of the ceil(services / concurrency) waves is bounded by the largest
+  // per-probe timeout (currently 5s), keeping the full snapshot under 30s.
   const services = await mapWithConcurrency(STATUS_SERVICES, MAX_CONCURRENT_PROBES, runProbe);
   const criticalServices = services.filter((service) => service.critical);
   const online = services.filter((service) => service.status === 'online').length;
@@ -183,7 +241,7 @@ async function buildSnapshot(): Promise<StatusSnapshot> {
 
   return {
     success: true,
-    status: criticalOnline === criticalServices.length ? 'healthy' : online === 0 ? 'offline' : 'degraded',
+    status: online === services.length ? 'healthy' : online === 0 ? 'offline' : 'degraded',
     services,
     stats: {
       total: services.length,

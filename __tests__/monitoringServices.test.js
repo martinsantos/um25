@@ -27,6 +27,7 @@ class TestResponse {
 }
 
 const html = '<!doctype html><html><head><title>Aplicación</title></head><body><main>Estado disponible</main></body></html>';
+const directusHtml = '<!doctype html><html><head><title>Directus</title><script type="module" src="./assets/index.entry.js"></script><link rel="stylesheet" href="./assets/index.css"></head><body><div id="app"></div></body></html>';
 const json = '{"status":"ok"}';
 
 function setupSockets(createConnection) {
@@ -50,7 +51,11 @@ describe('monitoring services status API', () => {
     jest.resetModules();
     global.Response = TestResponse;
     global.fetch = jest.fn(async url => {
-      const isJson = url.includes('/api/health') || url.includes('/server/health');
+      const target = String(url);
+      if (target === 'https://admin.ultimamilla.com.ar/admin/') return new TestResponse(directusHtml);
+      if (target.endsWith('.entry.js')) return new TestResponse('', { contentType: 'application/javascript' });
+      if (target.endsWith('.css')) return new TestResponse('', { contentType: 'text/css' });
+      const isJson = target.includes('/api/health') || target.includes('/server/health');
       return new TestResponse(isJson ? json : html, {
         contentType: isJson ? 'application/json' : 'text/html; charset=utf-8',
       });
@@ -80,10 +85,14 @@ describe('monitoring services status API', () => {
     expect(body.services.every(service => service.status === 'online')).toBe(true);
     expect(body.stats.unknown).toBe(0);
     expect(body.services.find(service => service.id === 'sitrep-api').status).toBe('online');
+    expect(body.services.find(service => service.id === 'directus-ui').status).toBe('online');
     expect(global.fetch).toHaveBeenCalledWith('https://sitrep.ultimamilla.com.ar/api/health', expect.objectContaining({
       method: 'GET', redirect: 'manual', cache: 'no-store', signal: expect.anything(),
     }));
-    expect(routeCreateConnection).toHaveBeenCalledWith({ host: '68.168.218.28', port: 587 });
+    expect(global.fetch).toHaveBeenCalledWith(new URL('https://admin.ultimamilla.com.ar/admin/assets/index.entry.js'), expect.objectContaining({
+      method: 'HEAD', redirect: 'manual', cache: 'no-store', signal: expect.anything(),
+    }));
+    expect(routeCreateConnection).toHaveBeenCalledWith({ host: '179.198.115.115', port: 587 });
     expect(JSON.stringify(body)).not.toMatch(/127\.0\.0\.1|18191|18192|:3001|:3002/);
   });
 
@@ -122,10 +131,56 @@ describe('monitoring services status API', () => {
     expect(global.fetch).toHaveBeenCalledWith('http://127.0.0.1:4321/', expect.anything());
   });
 
-  test.each([404, 401, 500])('does not report HTTP %s as online', async status => {
+  test.each([404, 401, 500, 503])('does not report HTTP %s as online', async status => {
     global.fetch.mockImplementation(async () => new TestResponse(html, { status, contentType: 'text/html' }));
     const body = await (await GET()).json();
     expect(body.services.find(service => service.id === 'sgi-web').status).toBe('offline');
+  });
+
+  test('rejects a Directus HTML shell when its allowlisted main asset is missing', async () => {
+    global.fetch.mockImplementation(async url => {
+      const target = String(url);
+      if (target.endsWith('.css')) return new TestResponse('', { status: 404, contentType: 'text/css' });
+      if (target === 'https://admin.ultimamilla.com.ar/admin/') return new TestResponse(directusHtml);
+      if (target.endsWith('.entry.js')) return new TestResponse('', { contentType: 'application/javascript' });
+      const isJson = target.includes('/api/health') || target.includes('/server/health');
+      return new TestResponse(isJson ? json : html, { contentType: isJson ? 'application/json' : 'text/html' });
+    });
+    const body = await (await GET()).json();
+    expect(body.services.find(service => service.id === 'directus-ui').status).toBe('offline');
+  });
+
+  test('does not request HTML assets outside the fixed origin and path prefix', async () => {
+    global.fetch.mockImplementation(async url => {
+      const target = String(url);
+      if (target === 'https://admin.ultimamilla.com.ar/admin/') {
+        return new TestResponse('<!doctype html><html><head><title>Directus</title><script src="http://169.254.169.254/latest/meta-data"></script><link rel="stylesheet" href="https://admin.ultimamilla.com.ar/outside/app.css"></head><body><main></main></body></html>');
+      }
+      const isJson = target.includes('/api/health') || target.includes('/server/health');
+      return new TestResponse(isJson ? json : html, { contentType: isJson ? 'application/json' : 'text/html' });
+    });
+    const body = await (await GET()).json();
+    const calledUrls = global.fetch.mock.calls.map(([url]) => String(url));
+    expect(body.services.find(service => service.id === 'directus-ui').status).toBe('offline');
+    expect(calledUrls).not.toContain('http://169.254.169.254/latest/meta-data');
+    expect(calledUrls).not.toContain('https://admin.ultimamilla.com.ar/outside/app.css');
+  });
+
+  test('requires a positive health status and degrades on any offline service', async () => {
+    global.fetch.mockImplementation(async url => {
+      const target = String(url);
+      if (target === 'https://admin.ultimamilla.com.ar/admin/') return new TestResponse(directusHtml);
+      if (target.endsWith('.entry.js')) return new TestResponse('', { contentType: 'application/javascript' });
+      if (target.endsWith('.css')) return new TestResponse('', { contentType: 'text/css' });
+      if (target.includes('/api/health')) return new TestResponse('{"success":true,"status":"down"}', { contentType: 'application/json' });
+      if (target.includes('/plantilla-arca')) return new TestResponse(html, { status: 404 });
+      const isJson = target.includes('/server/health');
+      return new TestResponse(isJson ? json : html, { contentType: isJson ? 'application/json' : 'text/html' });
+    });
+    const body = await (await GET()).json();
+    expect(body.services.find(service => service.id === 'sitrep-api').status).toBe('offline');
+    expect(body.services.find(service => service.id === 'arca-web').status).toBe('offline');
+    expect(body.status).toBe('degraded');
   });
 
   test('does not accept a 200 response with the wrong or empty body', async () => {

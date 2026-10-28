@@ -90,10 +90,10 @@
     ['astro', 'Sitio ULTIMA MILLA', 'Sitio principal'],
     ['sgi-web', 'SGI · acceso', 'Aplicaciones'], ['sgi-app', 'SGI · aplicación', 'Aplicaciones'],
     ['sitrep-web', 'SITREP · aplicación', 'Aplicaciones'], ['sitrep-api', 'SITREP · API', 'Aplicaciones'], ['sitrep-app', 'SITREP · servicio', 'Aplicaciones'],
-    ['dge-web', 'DGE · acceso', 'Aplicaciones'], ['dge-bridge-login', 'DGE · puente de acceso', 'Aplicaciones'], ['dge-bridge-app', 'DGE · puente de aplicación', 'Aplicaciones'],
+    ['dge-web', 'DGE · acceso', 'Aplicaciones'], ['dge-bridge-primary', 'DGE · puente principal', 'Aplicaciones'], ['dge-bridge-fallback', 'DGE · puente de respaldo', 'Aplicaciones'],
     ['arca-web', 'Plantilla ARCA', 'Aplicaciones'], ['aceite-web', 'UMBot · Aceite', 'Aplicaciones'], ['plan-web', 'UMBot · Plan', 'Aplicaciones'],
     ['wiki-web', 'Wiki · Alcance', 'Aplicaciones'], ['vecino-web', 'Vecino Rabioso · acceso', 'Aplicaciones'], ['vivero-web', 'Vivero · acceso', 'Aplicaciones'], ['gestion-web', 'Gestión Vivero', 'Aplicaciones'],
-    ['directus', 'Directus CMS', 'Infraestructura'], ['postgres', 'PostgreSQL', 'Infraestructura'], ['redis', 'Redis', 'Infraestructura'], ['nginx', 'Nginx', 'Infraestructura'],
+    ['directus', 'Directus CMS', 'Infraestructura'], ['directus-ui', 'Directus · interfaz', 'Infraestructura'], ['postgres', 'PostgreSQL', 'Infraestructura'], ['redis', 'Redis', 'Infraestructura'], ['nginx', 'Nginx', 'Infraestructura'],
     ['smtp-local', 'SMTP local', 'Correo'], ['smtp-vivero', 'SMTP Vivero', 'Correo']
   ];
   const byId = id => document.getElementById(id);
@@ -141,7 +141,7 @@
 
   async function read(url) {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 12000);
+    const timer = setTimeout(() => controller.abort(), 35000);
     try {
       const response = await fetch(url, {cache: 'no-store', signal: controller.signal});
       if (!response.ok) throw new Error('No se obtuvo una lectura válida');
