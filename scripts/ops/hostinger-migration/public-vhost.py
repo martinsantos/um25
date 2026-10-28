@@ -27,6 +27,10 @@ def public_listeners(text):
     text, count = re.subn(r'\blisten 127\.0\.0\.1:(80|443)\b', r'listen 179.198.115.115:\1', text)
     if not count or re.search(r'\blisten\s+(?!179\.198\.115\.115:)', text):
         raise RuntimeError('Unexpected public vhost listener')
+    # Nginx resolves relative includes against the main configuration's prefix.
+    # Public and preflight configurations live outside the original prefix.
+    text = re.sub(r'(?m)^(\s*include\s+)(fastcgi_params|fastcgi\.conf|uwsgi_params|scgi_params)(\s*;)',
+                  r'\1/srv/umsa-clean-proxy/nginx/\2\3', text)
     return text
 
 
