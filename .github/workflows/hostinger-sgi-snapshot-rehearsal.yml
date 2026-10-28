@@ -1,0 +1,70 @@
+name: Rehearse SGI schema restoration without network
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-sgi-snapshot-rehearsal.yml'
+      - 'scripts/ops/hostinger-migration/rehearse-sgi-real-snapshot.py'
+      - 'scripts/ops/hostinger-migration/test_sgi_real_snapshot.py'
+  workflow_dispatch:
+    inputs:
+      acknowledgement:
+        description: 'Enter REHEARSE to test a non-final source snapshot without changing services'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostinger-migration-${{ github.event_name == 'workflow_dispatch' && 'preparation' || github.run_id }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sgi_real_snapshot.py' -v
+      - name: Check the real disposable-container isolation metadata
+        run: |
+          set -euo pipefail
+          image='mariadb:10.11@sha256:d769e37960821dfdcf096954f6e7ac89f747e116c1bba98e48edd265dfc7deae'
+          docker run -d --rm --name umsa-sgi-snapshot-ci --network none --memory 1500m --pids-limit 256 --tmpfs /var/lib/mysql:rw,nosuid,size=1g -e MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=1 "$image"
+          trap 'docker stop --time 15 umsa-sgi-snapshot-ci || true' EXIT
+          SGI_SNAPSHOT_CI=1 python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_sgi_real_snapshot.py' -v
+  rehearse:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'REHEARSE'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SSH_PRIVATE_KEY }}
+            ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Restore current SGI data only inside a disposable container
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          id="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          target=root@179.198.115.115
+          file="/srv/umsa-migration/tooling/sgi-rehearsal-$id.py"
+          scp "${opts[@]}" scripts/ops/hostinger-migration/rehearse-sgi-real-snapshot.py "$target:$file"
+          local_hash=$(sha256sum scripts/ops/hostinger-migration/rehearse-sgi-real-snapshot.py | cut -d ' ' -f1)
+          remote_hash=$(ssh "${opts[@]}" "$target" "sha256sum $file" | cut -d ' ' -f1)
+          [[ "$local_hash" = "$remote_hash" ]]
+          ssh -A "${opts[@]}" "$target" "python3 $file $id"
