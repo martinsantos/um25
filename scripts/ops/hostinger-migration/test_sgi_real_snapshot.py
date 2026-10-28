@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import time
 import unittest
 
 spec = importlib.util.spec_from_file_location('sgi_real', Path(__file__).with_name('rehearse-sgi-real-snapshot.py'))
@@ -11,6 +12,12 @@ spec.loader.exec_module(module)
 
 
 class SgiSnapshotRehearsalTests(unittest.TestCase):
+    def test_temporary_mariadb_start_is_not_final_readiness(self):
+        temporary = b'Temporary server started; accepting connections'
+        final = temporary + b'\nMariaDB init process done. Ready for start up.'
+        self.assertNotIn(module.ENTRYPOINT_READY, temporary)
+        self.assertIn(module.ENTRYPOINT_READY, final)
+
     def test_networkless_tmpfs_container_is_required(self):
         safe = {'HostConfig': {'NetworkMode': 'none', 'Privileged': False, 'PortBindings': None,
                                'Tmpfs': {'/var/lib/mysql': 'rw'}}, 'Mounts': []}
@@ -39,6 +46,16 @@ class SgiSnapshotRehearsalTests(unittest.TestCase):
     def test_real_docker_metadata_matches_the_isolation_guard(self):
         details = json.loads(subprocess.check_output(['docker', 'inspect', 'umsa-sgi-snapshot-ci'], text=True))[0]
         module.assert_isolated(details)
+        for _ in range(90):
+            logs = subprocess.run(['docker', 'logs', 'umsa-sgi-snapshot-ci'], capture_output=True)
+            if module.ENTRYPOINT_READY in logs.stdout + logs.stderr:
+                query = subprocess.run(['docker', 'exec', 'umsa-sgi-snapshot-ci', 'mariadb', '--no-defaults',
+                                        '-uroot', '-N', '-e', 'SELECT 1'], capture_output=True)
+                if query.returncode == 0 and query.stdout.strip() == b'1':
+                    break
+            time.sleep(1)
+        else:
+            self.fail('The final disposable MariaDB did not become ready')
 
 
 if __name__ == '__main__':
