@@ -1,0 +1,71 @@
+name: Recover original DGE database ownership on Hostinger
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-dge-ownership.yml'
+      - 'scripts/ops/hostinger-migration/restore-dge-ownership.py'
+      - 'scripts/ops/hostinger-migration/test_dge_ownership.py'
+  workflow_dispatch:
+    inputs:
+      acknowledgement:
+        description: Enter DGE-OWNERSHIP to restore only the 23 source-proven DGE object owners
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: hostinger-migration-${{ github.event_name == 'workflow_dispatch' && 'preparation' || github.run_id }}
+  cancel-in-progress: false
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - run: python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_dge_ownership.py' -v
+      - name: Rehearse source ownership recovery on a disposable PostgreSQL database
+        run: |
+          set -euo pipefail
+          container="dge-ownership-ci-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          trap 'docker rm -f "$container" >/dev/null 2>&1 || true' EXIT
+          docker run -d --name "$container" --network none -e POSTGRES_HOST_AUTH_METHOD=trust postgres@sha256:f9d1e581cde3e4c8bc696b07e6f7b7aea1d41014b33a52b27990762daae61beb
+          for attempt in $(seq 1 60); do
+            if docker exec "$container" pg_isready -U postgres >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          docker exec "$container" pg_isready -U postgres >/dev/null
+          DGE_OWNERSHIP_DOCKER_REHEARSAL=1 DGE_OWNERSHIP_CI_CONTAINER="$container" python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_dge_ownership.py' -v
+  recover:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'DGE-OWNERSHIP'
+    runs-on: ubuntu-24.04
+    environment: production
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Recover original DGE ownership without changing credentials or sessions
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          id="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          target=root@179.198.115.115
+          folder="/srv/umsa-migration/dge-ownership-tooling/$id"
+          ssh "${opts[@]}" "$target" "test ! -e $folder && install -d -m 0700 $folder"
+          file=restore-dge-ownership.py
+          scp "${opts[@]}" "scripts/ops/hostinger-migration/$file" "$target:$folder/"
+          local_hash=$(sha256sum "scripts/ops/hostinger-migration/$file" | cut -d ' ' -f1)
+          remote_hash=$(ssh "${opts[@]}" "$target" "sha256sum $folder/$file" | cut -d ' ' -f1)
+          [[ "$local_hash" = "$remote_hash" ]]
+          ssh "${opts[@]}" "$target" "python3 $folder/$file $id"
