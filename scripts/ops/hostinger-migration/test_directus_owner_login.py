@@ -78,12 +78,26 @@ class OwnerLoginTests(unittest.TestCase):
     def test_changed_service_identity_triggers_recovery(self):
         self.exercise(identity_failure=True)
 
-    def exercise(self, login_failure=False, identity_failure=False):
+    def test_lost_patch_response_reads_back_and_recovers(self):
+        self.exercise(patch_failure=True)
+
+    def test_failed_logout_is_inside_recovery_scope(self):
+        self.exercise(logout_failure=True)
+
+    def test_transient_post_patch_read_failure_retries(self):
+        self.exercise(read_failure='transient')
+
+    def test_unavailable_readback_records_recovery_required_without_guessing(self):
+        self.exercise(read_failure='permanent')
+
+    def exercise(self, login_failure=False, identity_failure=False, patch_failure=False,
+                 logout_failure=False, read_failure=None):
         before = self.before()
         installed = copy.deepcopy(before)
         requested = {'email': 'owner@example.com', 'password': 'FixturePassword123'}
         calls = []
         restored = []
+        reads = []
 
         def fake_api(path, token=None, data=None, method=None, public=False):
             calls.append((path, token, data, method, public))
@@ -91,6 +105,8 @@ class OwnerLoginTests(unittest.TestCase):
                 self.assertEqual(path, '/users/' + owner.USER + '?fields=id')
                 self.assertEqual(set(data), {'email', 'password'})
                 installed.update(email=data['email'], password='new-fixture-hash')
+                if patch_failure:
+                    raise RuntimeError('Fixture PATCH applied but response lost')
                 return {'id': owner.USER}
             if path == '/auth/login':
                 self.assertTrue(public)
@@ -102,6 +118,8 @@ class OwnerLoginTests(unittest.TestCase):
             if path == '/auth/logout':
                 self.assertTrue(public)
                 self.assertEqual(data, {'refresh_token': 'fixture-refresh'})
+                if logout_failure:
+                    raise RuntimeError('Fixture logout transport failure')
                 return None
             return {'id': owner.USER}
 
@@ -110,18 +128,31 @@ class OwnerLoginTests(unittest.TestCase):
             self.assertEqual(expected, installed)
             restored.append(True)
 
+        def fake_account():
+            reads.append(True)
+            if read_failure and len(reads) == 2:
+                raise RuntimeError('Fixture transient database read failure')
+            if read_failure == 'permanent' and len(reads) > 1:
+                raise RuntimeError('Fixture database read remains unavailable')
+            return copy.deepcopy(installed)
+
         with patch.object(owner, 'api', side_effect=fake_api), \
-             patch.object(owner, 'account', side_effect=lambda: copy.deepcopy(installed)), \
+             patch.object(owner, 'account', side_effect=fake_account), \
              patch.object(owner, 'runtime', return_value=(('changed' if identity_failure else 'same'), 'unused')), \
-             patch.object(owner, 'restore', side_effect=fake_restore):
-            if login_failure or identity_failure:
+             patch.object(owner, 'restore', side_effect=fake_restore), \
+             tempfile.TemporaryDirectory() as temporary:
+            folder = Path(temporary)
+            if login_failure or identity_failure or patch_failure or logout_failure or read_failure == 'permanent':
                 with self.assertRaises(RuntimeError):
-                    owner.change(before, requested, 'same', 'fixture-service-token')
-                self.assertEqual(restored, [True])
+                    owner.change(before, requested, 'same', 'fixture-service-token', folder)
+                self.assertEqual(restored, [] if read_failure == 'permanent' else [True])
+                self.assertEqual(json.loads((folder / 'status.json').read_text())['phase'],
+                                 'recovery-required' if read_failure == 'permanent' else 'restored')
             else:
-                owner.change(before, requested, 'same', 'fixture-service-token')
+                owner.change(before, requested, 'same', 'fixture-service-token', folder)
                 self.assertEqual(restored, [])
                 self.assertEqual(calls[-1][0], '/auth/logout')
+                self.assertEqual(json.loads((folder / 'status.json').read_text())['phase'], 'verified')
 
     def test_restore_is_compare_and_swap_and_updates_only_login_fields(self):
         before = self.before()

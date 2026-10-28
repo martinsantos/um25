@@ -127,14 +127,30 @@ def restore(before, expected):
         raise RuntimeError('Private account recovery requires investigation')
 
 
-def change(before, requested, identity, token):
+def change(before, requested, identity, token, folder=None):
+    def record(phase):
+        if folder:
+            (folder / 'status.json').write_text(json.dumps({'phase': phase, 'user_id': USER}) + '\n')
+
     if api('/users/me?fields=id', token)['id'] != USER or account() != before:
         raise RuntimeError('Service account changed before reset')
     installed = None
     refresh = None
     try:
-        api('/users/' + USER + '?fields=id', token, requested, 'PATCH')
-        installed = account()
+        record('patch-pending')
+        try:
+            api('/users/' + USER + '?fields=id', token, requested, 'PATCH')
+        finally:
+            # A lost PATCH response is ambiguous. Always attempt private readback,
+            # including one transient retry, before deciding whether recovery is safe.
+            for attempt in range(2):
+                try:
+                    installed = account()
+                    break
+                except Exception:
+                    if attempt:
+                        raise
+                    time.sleep(0.1)
         if (installed['email'] != requested['email'] or installed['password'] == before['password'] or
                 not same_permissions(before, installed)):
             raise RuntimeError('Password reset changed an unexpected account field')
@@ -147,13 +163,27 @@ def change(before, requested, identity, token):
             raise RuntimeError('CMS or frontend service identity changed')
         if account() != installed:
             raise RuntimeError('Account changed during verification')
+        api('/auth/logout', data={'refresh_token': refresh}, public=True)
+        refresh = None
+        record('verified')
     except Exception:
-        if installed is not None and same_permissions(before, installed):
-            restore(before, installed)
-        raise
-    finally:
         if refresh:
-            api('/auth/logout', data={'refresh_token': refresh}, public=True)
+            try:
+                api('/auth/logout', data={'refresh_token': refresh}, public=True)
+            except Exception:
+                pass
+        if installed is not None and installed != before and same_permissions(before, installed):
+            try:
+                restore(before, installed)
+                record('restored')
+            except Exception:
+                record('recovery-required')
+                raise
+        else:
+            # If readback stays unavailable, never guess or overwrite another
+            # administrator's change. Persist the unresolved state and original.
+            record('unchanged' if installed == before else 'recovery-required')
+        raise
 
 
 def main(args):
@@ -188,7 +218,7 @@ def main(args):
             os.fsync(stream.fileno())
         if json.loads((folder / 'account.before.json').read_text()) != before:
             raise RuntimeError('Private original account backup did not verify')
-        change(before, requested, identity, token)
+        change(before, requested, identity, token, folder)
         receipt = {'run': args[1], 'user_id': USER, 'email': requested['email'],
                    'public_login_verified': True, 'role_and_api_token_preserved': True,
                    'services_restarted': False, 'plaintext_password_stored': False}
