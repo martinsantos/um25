@@ -333,6 +333,25 @@ const enableServiceWorker = import.meta.env.PUBLIC_ENABLE_SW === 'true';
       };
       bootReveal();
       document.addEventListener('astro:page-load', bootReveal);
+
+      // Videos de fondo (data-um-autoplay): arrancan solos únicamente en pantalla ancha,
+      // con conexión normal y sin movimiento reducido; en teléfono queda el póster.
+      const bootBackgroundVideos = () => {
+        const conn = (navigator as any).connection;
+        const limited = matchMedia('(prefers-reduced-motion: reduce)').matches
+          || Boolean(conn?.saveData)
+          || ['slow-2g', '2g', '3g'].includes(conn?.effectiveType)
+          || matchMedia('(max-width: 820px), (pointer: coarse)').matches;
+        if (limited) return;
+        document.querySelectorAll<HTMLVideoElement>('video[data-um-autoplay]:not([data-started])').forEach((video) => {
+          video.dataset.started = 'true';
+          video.preload = 'auto';
+          video.play().catch(() => { /* queda el póster */ });
+        });
+      };
+      if (document.readyState === 'complete') bootBackgroundVideos();
+      else addEventListener('load', bootBackgroundVideos, { once: true });
+      document.addEventListener('astro:page-load', bootBackgroundVideos);
     </script>
   </body>
 </html>

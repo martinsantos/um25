@@ -41,7 +41,12 @@ const first = items[0]?.scene || 'aeropuerto';
     const now = atlas.querySelector<HTMLElement>('.um-atlas__now span')!;
     const links = [...atlas.querySelectorAll<HTMLAnchorElement>('.um-atlas__list a')];
     const conn = (navigator as any).connection;
-    const limited = matchMedia('(prefers-reduced-motion: reduce)').matches || Boolean(conn?.saveData);
+    // Sin película automática en teléfono y tablet, con movimiento reducido, ahorro de datos
+    // o conexión lenta: queda el póster del sector y el botón de reproducir.
+    const limited = matchMedia('(prefers-reduced-motion: reduce)').matches
+      || Boolean(conn?.saveData)
+      || ['slow-2g', '2g', '3g'].includes(conn?.effectiveType)
+      || matchMedia('(max-width: 900px), (pointer: coarse)').matches;
     let scene = atlas.dataset.scene || 'aeropuerto', userPaused = limited, visible = false, timer: ReturnType<typeof setTimeout> | undefined;
     let fallbackTimer: ReturnType<typeof setTimeout> | undefined;
     const showFallback = () => { poster.src = `/cine/media/cine-${scene}-poster.avif`; poster.classList.add('is-on'); };

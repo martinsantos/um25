@@ -191,6 +191,8 @@ const displayCaseText = (value: unknown) => applyDisplayNameReplacements(value, 
 const TEMPLATE_PHRASES: Array<[RegExp, string]> = [
   [/(^|>)\s*Ejecución integral de\s+/gi, '$1'],
   [/,?\s*asegurando continuidad operativa y cumplimiento de estándares técnicos de calidad\.?/gi, '.'],
+  // Cola "Cliente: X. Sector: Y." de los registros importados: esos datos ya están en la ficha.
+  [/\s*Cliente:\s*[^.<]+\.?\s*(?:Sector:\s*[^.<]+\.?)?\s*(?=<|$)/gi, ''],
 ];
 const stripTemplatePhrases = (value: unknown): string => {
   let text = String(value || '');
@@ -199,6 +201,7 @@ const stripTemplatePhrases = (value: unknown): string => {
 };
 const comparableText = (value: unknown): string => cleanDisplayText(value)
   .toLowerCase()
+  .replace(/\(\d+\)/g, ' ')
   .replace(/[.,:;()]/g, ' ')
   .replace(/\s+/g, ' ')
   .trim();
@@ -217,7 +220,9 @@ const repeatsTitle = (text: string, title: unknown, client: unknown): boolean =>
 };
 const caseTitleText = cleanDisplayText(antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre);
 const strippedCaseBody = stripTemplatePhrases(antecedente.displayDescription || antecedente.Descripcion || antecedente.descripcion || '');
-const caseBodySource = repeatsTitle(strippedCaseBody, caseTitleText, antecedente.Cliente) ? '' : strippedCaseBody;
+const caseBodySource = repeatsTitle(strippedCaseBody, caseTitleText, antecedente.Cliente)
+  || repeatsTitle(strippedCaseBody, antecedente.Titulo || antecedente.Nombre, antecedente.Cliente)
+  ? '' : strippedCaseBody;
 const caseBodyPlain = plainTextFromHtml(caseBodySource, 4000);
 const caseDescriptionHtml = caseBodySource ? await renderEditorialBody(caseBodySource) : '';
 const caseHeroExcerpt = caseBodySource ? displayCaseText(excerptEditorialSentences(caseBodySource, 176, 3)) : '';
