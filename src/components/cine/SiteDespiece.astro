@@ -13,8 +13,11 @@ interface Props { scene: Scene; sectorSlug?: string; sectorName?: string; linkBa
 const { scene, sectorSlug, sectorName, linkBanner = true } = Astro.props;
 const SITE: Record<Scene, string> = { hospital: 'clinic', aeropuerto: 'terminal', bodega: 'winery', fachada: 'building', planta: 'plant' };
 const site = sectorSlug === 'mineria' ? 'mine' : SITE[scene];
-const files = import.meta.glob<string>('../../assets/cine/isometric/site-*-v2.svg', { eager: true, query: '?raw', import: 'default' });
-const markup = files[`../../assets/cine/isometric/site-${site}-v2.svg`];
+// La isometría (170 a 390 KB por sitio) no viaja en el HTML: se sirve desde /cine/iso/site-*-v2.svg
+// y el escenario la trae sólo en pantallas anchas, cuando la sección se acerca. En teléfono el dibujo
+// no se lee a 300 px de ancho, así que allí queda la lista de servicios sola.
+const files = import.meta.glob('../../assets/cine/isometric/site-*-v2.svg');
+const markup = files[`../../assets/cine/isometric/site-${site}-v2.svg`] ? `/cine/iso/site-${site}-v2.svg` : '';
 const cuts = sceneServiceCuts(scene);
 const byCode = new Map(NAV_SERVICES.map((s) => [s.code, s]));
 const title = SCENE_TITLES[scene];
@@ -28,8 +31,7 @@ const first = items[0];
       <p>La misma instalación{sectorName ? ` de ${sectorName.toLowerCase()}` : ''}, sistema por sistema. Elegí un servicio para ver su recorrido en el proyecto{linkBanner ? ' y cambiar el plano de la película de arriba' : ''}.</p>
     </div>
     <div class="um-desp__body">
-      <div class="um-desp__stage" data-project-floors={site === 'building' ? 3 : 1}>
-        <Fragment set:html={markup} />
+      <div class="um-desp__stage" data-project-floors={site === 'building' ? 3 : 1} data-despiece-src={markup}>
         <p class="um-desp__now" aria-live="polite">{first.svc?.name || first.cut.service}</p>
       </div>
       <ol class="um-desp__list">
@@ -47,15 +49,32 @@ const first = items[0];
 )}
 
 <script>
+  // El dibujo llena el escenario: el viewBox se ajusta al contenido real de la isometría.
+  const fitStage = (stage: HTMLElement) => {
+    const svg = stage.querySelector<SVGSVGElement>('svg');
+    const art = svg?.querySelector<SVGGraphicsElement>('.sp-root');
+    if (svg && art) { try { const b = art.getBBox(); const pad = Math.max(b.width, b.height) * 0.04; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); } catch { /* sin bbox */ } }
+  };
+  // La isometría se trae una sola vez, en pantallas anchas, cuando la sección se acerca a la vista.
+  const loadStage = (stage: HTMLElement) => {
+    const src = stage.dataset.despieceSrc;
+    if (!src || stage.dataset.loaded || !matchMedia('(min-width: 821px)').matches) return;
+    stage.dataset.loaded = 'true';
+    fetch(src).then((r) => (r.ok ? r.text() : '')).then((svg) => {
+      if (!svg) return;
+      stage.insertAdjacentHTML('afterbegin', svg);
+      fitStage(stage);
+    }).catch(() => { delete stage.dataset.loaded; });
+  };
   const bootDespiece = () => {
     const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
     document.querySelectorAll<HTMLElement>('[data-despiece]:not([data-bound])').forEach((root) => {
       root.dataset.bound = 'true';
       const now = root.querySelector<HTMLElement>('.um-desp__now')!;
-      // El dibujo llena el escenario: el viewBox se ajusta al contenido real de la isometría.
-      const svg = root.querySelector<SVGSVGElement>('.um-desp__stage svg');
-      const art = svg?.querySelector<SVGGraphicsElement>('.sp-root');
-      if (svg && art) { try { const b = art.getBBox(); const pad = Math.max(b.width, b.height) * 0.04; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); } catch (e) {} }
+      const stage = root.querySelector<HTMLElement>('.um-desp__stage');
+      if (stage) {
+        new IntersectionObserver(([e], io) => { if (e.isIntersecting) { loadStage(stage); io.disconnect(); } }, { rootMargin: '600px 0px' }).observe(stage);
+      }
       const items = [...root.querySelectorAll<HTMLAnchorElement>('[data-code]')];
       const banner = root.dataset.linkBanner === '0' ? null : document.querySelector<HTMLElement>('[data-umc]');
       let current = items[0] || null, timer: ReturnType<typeof setTimeout> | undefined;
@@ -68,12 +87,14 @@ const first = items[0];
         clearTimeout(timer);
         timer = setTimeout(() => banner?.dispatchEvent(new CustomEvent('umc:cut', { detail: item.dataset.cut })), 350);
       };
+      // En teléfono no hay escenario (ver CSS): la lista es una lista de enlaces y el toque navega.
+      const hasStage = matchMedia('(min-width: 821px)').matches;
       items.forEach((item) => {
         if (fine) {
           item.addEventListener('pointerenter', () => show(item));
           item.addEventListener('focus', () => show(item));
-        } else {
-          // Táctil: el primer toque activa, el segundo navega.
+        } else if (hasStage) {
+          // Táctil con escenario (tablet): el primer toque activa, el segundo navega.
           item.addEventListener('click', (event) => { if (current !== item) { event.preventDefault(); show(item); } });
         }
       });
@@ -119,10 +140,11 @@ const first = items[0];
   @media (max-width: 820px) {
     .um-desp__head { grid-template-columns: 1fr; }
     .um-desp__body { grid-template-columns: 1fr; }
-    .um-desp__stage { position: sticky; top: 63px; z-index: 1; aspect-ratio: 4 / 3; }
+    /* Teléfono: la isometría no se lee a este ancho; queda la lista, con su línea de detalle.
+       La indicación de elegir un servicio para ver el recorrido no aplica sin escenario. */
+    .um-desp__stage, .um-desp__head > p { display: none; }
     .um-desp__item { padding: 11px 0; }
     .um-desp__item strong { font-size: 1.0625rem; }
-    .um-desp__item span { display: none; }
   }
   @media (prefers-reduced-motion: reduce) { .um-desp :global(.sp-route path) { animation: none !important; } .um-desp :global(.sp-root), .um-desp :global(.sp-route), .um-desp :global(.sp-pin) { transition: none; } }
 </style>

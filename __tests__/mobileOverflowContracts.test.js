@@ -56,13 +56,19 @@ describe('mobile overflow production contracts', () => {
   });
 
   test('article and contact mobile headings use container-relative sizing', () => {
-    // Rediseño 2026-09: los H1 usan el token --x-fs-h1 (mínimo 48 px). En móvil se
-    // exige un tamaño relativo al ancho para que ninguna palabra desborde a 320 px.
+    // Rediseño 2026-09: el título de artículo usa un tamaño relativo al ancho en
+    // móvil para que ninguna palabra desborde a 320 px. Rediseño 2026-10-29: el H1
+    // de /contacto ya no define tamaño ni peso propios; lo gobierna el contrato
+    // global de v4.css (52 px en escritorio, 36 px bajo 640 px), igual que el hero
+    // del resto del sitio.
     const article = source('src/pages/blog/[slug].astro');
     const contact = source('src/pages/contacto.astro');
+    const v4 = source('src/styles/v4.css');
 
     expect(article).toMatch(/@media \(max-width: 680px\) \{[\s\S]*?\.bp-title \{ font-size: clamp\(2rem, 9\.4vw, 3rem\) !important; \}/);
-    expect(contact).toMatch(/@media \(max-width: 640px\) \{[\s\S]*?\.ctc-intro h1 \{ font-size: clamp\(2\.25rem, 11vw, 3rem\) !important; \}/);
+    expect(contact).not.toMatch(/\.ctc-intro h1 \{[^}]*font-size/);
+    expect(contact).not.toMatch(/\.ctc-intro h1 \{[^}]*font-weight/);
+    expect(v4).toMatch(/@media \(max-width: 640px\) \{\s*body main :where\(h1,[^{]*\{\s*font-size: 2\.25rem !important;/);
     expect(contact).toMatch(/@media \(max-width: 960px\) \{[\s\S]*?\.ctc-hero__grid \{ grid-template-columns: minmax\(0, 1fr\);/);
   });
 

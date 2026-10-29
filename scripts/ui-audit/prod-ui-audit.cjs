@@ -1,10 +1,14 @@
 // Auditoría UI de producción: capturas desktop/mobile y métricas por ruta (peso, LCP, CLS, DOM, texto <14px, chips).
 // Uso: node scripts/ui-audit/prod-ui-audit.cjs  (escribe results.json y PNG en el directorio actual; correr desde una carpeta temporal)
+// Local: AUDIT_BASE=http://localhost:4321 AUDIT_ROUTES=/,/contacto node scripts/ui-audit/prod-ui-audit.cjs
 // Requiere playwright + chromium instalados.
 const { chromium } = require('playwright');
 const fs = require('fs');
-const BASE = 'https://www.ultimamilla.com.ar';
-const routes = ['/', '/servicios', '/antecedentes', '/sectores', '/nosotros', '/contacto', '/blog', '/aeropuertos', '/bodegas'];
+// AUDIT_BASE apunta a otro origen (por ejemplo http://localhost:4321 para un preview local);
+// AUDIT_ROUTES, separado por comas, limita las rutas.
+const BASE = process.env.AUDIT_BASE || 'https://www.ultimamilla.com.ar';
+const DEFAULT_ROUTES = ['/', '/servicios', '/antecedentes', '/sectores', '/nosotros', '/contacto', '/blog', '/aeropuertos', '/bodegas'];
+const routes = process.env.AUDIT_ROUTES ? process.env.AUDIT_ROUTES.split(',').map((r) => r.trim()).filter(Boolean) : DEFAULT_ROUTES;
 const vps = [{ name: 'desktop', width: 1440, height: 900 }, { name: 'mobile', width: 390, height: 844 }];
 (async () => {
   const browser = await chromium.launch();
