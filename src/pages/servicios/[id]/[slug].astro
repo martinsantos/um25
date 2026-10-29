@@ -511,6 +511,12 @@ const fichaItems = [
               </li>
             ))}
           </ol>
+          {/* Ficha técnica (alcance, normas y entregables): se descarga, no se lee en la página; va al pie de lo que cubre, sin sección propia. */}
+          {serviceSpec && (datasheetHref || fichaPrintHref) && (
+            <p class="svc-ficha-line" id="ficha-tecnica">
+              {datasheetHref ? <a class="svc-textlink" href={datasheetHref} download>Descargar la ficha técnica (PDF)</a> : <a class="svc-textlink" href={fichaPrintHref}>Ver la ficha técnica</a>}
+            </p>
+          )}
         </div>
       </section>
     )}
@@ -522,7 +528,7 @@ const fichaItems = [
           <header class="svc-head svc-head--solo">
             <div><h2 id="svc-cases-title">Casos comparables.</h2></div>
           </header>
-          <ol class="svc-rows" data-rail="Casos comparables">
+          <ol class="svc-rows">
             {serviceCases.slice(0, 3).map((item) => (
               <li>
                 <a href={item.href}>
@@ -534,20 +540,6 @@ const fichaItems = [
             ))}
           </ol>
           <a class="svc-textlink" href="/antecedentes">Ver los {antecedentesTotal} antecedentes</a>
-        </div>
-      </section>
-    )}
-
-    <!-- 4b · Ficha técnica: se descarga, no se lee en la página -->
-    {serviceSpec && (
-      <section class="svc-section" id="ficha-tecnica" aria-labelledby="svc-spec-title">
-        <div class="svc-wrap">
-          <header class="svc-head svc-head--solo">
-            <div><h2 id="svc-spec-title">Alcance, normas y entregables de {serviceShortName}.</h2></div>
-          </header>
-          <p class="svc-ficha-line">
-            {datasheetHref ? <a class="svc-textlink" href={datasheetHref} download>Descargar la ficha técnica (PDF)</a> : fichaPrintHref ? <a class="svc-textlink" href={fichaPrintHref}>Ver la ficha técnica</a> : null}
-          </p>
         </div>
       </section>
     )}

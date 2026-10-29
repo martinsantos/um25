@@ -84,13 +84,4 @@ describe('mobile overflow production contracts', () => {
     expect(article).toMatch(/\.bp-layout--single \.bp-aside \{ display: none; \}/);
   });
 
-  test('sector and antecedentes rails are deliberately contained on mobile', () => {
-    const sectores = source('src/components/templates/SectorTemplateEditorial.astro');
-    const antecedentes = source('src/components/templates/AntecedentesTemplateEditorial.astro');
-
-    expect(sectores).toContain('max-width: 100%');
-    expect(sectores).toContain('scrollbar-width: none');
-    expect(antecedentes).toContain('max-width: 100%');
-    expect(antecedentes).toContain('scrollbar-width: none');
-  });
 });

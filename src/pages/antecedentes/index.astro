@@ -9,11 +9,6 @@ import { ANTECEDENTE_SECTOR_LABELS, getAntecedenteSectorLabel } from '../../util
 const PAGE_SIZE = 24;
 const catalogCount = getAntecedentesCatalogCount();
 
-const statusLabels: Record<string, string> = {
-  verificado: 'Verificado',
-  operativo: 'Operativo',
-  mantenimiento: 'Mantenimiento',
-};
 
 const antecedentes = await getAntecedentes({ limit: 1000 });
 const serviciosCatalog = await getServicios();
@@ -82,22 +77,12 @@ const sectors = Object.entries(ANTECEDENTE_SECTOR_LABELS)
   .map(([key, label]) => ({ key, label, count: sectorCounts.get(key) || 0 }))
   .filter((item) => item.count > 0);
 
-const serviceCounts = countBy(cases.flatMap((item) => item.serviceSlugs));
-const services = serviciosCatalog
-  .map((service) => ({ key: service.slug, label: service.name, count: serviceCounts.get(service.slug) || 0 }))
-  .filter((item) => item.count > 0);
-
 const yearCounts = countBy(cases.map((item) => item.year));
 const years = [...yearCounts.entries()]
   .sort((a, b) => Number(b[0]) - Number(a[0]))
   .map(([key, count]) => ({ key, label: key, count }));
 
-const statusCounts = countBy(cases.map((item) => item.status));
-const statuses = Object.entries(statusLabels)
-  .map(([key, label]) => ({ key, label, count: statusCounts.get(key) || 0 }))
-  .filter((item) => item.count > 0);
-
-// Período: tramos de años para buscar rápido sin recorrer año por año.
+// Período (tramos de años) para el filtro por URL (?periodo=).
 const periodOf = (year: string) => {
   const y = Number(year) || 0;
   if (y >= 2024) return '2024';
@@ -106,35 +91,17 @@ const periodOf = (year: string) => {
   if (y >= 2010) return '2010';
   return 'antes';
 };
-const periodLabels: Record<string, string> = { '2024': '2024 en adelante', '2020': '2020–2023', '2015': '2015–2019', '2010': '2010–2014', antes: 'Antes de 2010' };
-const periodCounts = countBy(cases.map((item) => periodOf(item.year)));
-const periods = Object.entries(periodLabels)
-  .map(([key, label]) => ({ key, label, count: periodCounts.get(key) || 0 }))
-  .filter((item) => item.count > 0);
-
-// Clientes con más de un proyecto (los más recurrentes primero).
+// Clave de cliente para el filtro por URL (?cliente=) y los enlaces existentes.
 const clientKeyOf = (client: string) => client.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-const clientCounts = new Map<string, { label: string; count: number }>();
-cases.forEach((item) => {
-  const key = clientKeyOf(item.client);
-  if (!key) return;
-  const entry = clientCounts.get(key) || { label: item.client, count: 0 };
-  entry.count += 1;
-  clientCounts.set(key, entry);
-});
-const clients = [...clientCounts.entries()]
-  .filter(([key, v]) => v.count > 2 && !/confidencial|reservado|sin-nombre|^n-?a$/.test(key))
-  .sort((a, b) => b[1].count - a[1].count || a[1].label.localeCompare(b[1].label, 'es'))
-  .slice(0, 16)
-  .map(([key, v]) => ({ key, label: v.label, count: v.count }));
 
+// Filtros visibles: sector y año. Servicio, período, cliente y estado siguen
+// aceptándose por URL (?servicio=, ?periodo=, ?cliente=, ?estado=) para los enlaces
+// que ya existen, pero no se ofrecen como controles: el período duplica al año,
+// el cliente ya se encuentra con el buscador y el dato de servicio del catálogo
+// no discrimina todavía.
 const filterGroups = [
   { type: 'sector', label: 'Sector', options: sectors },
-  { type: 'service', label: 'Servicio', options: services },
-  { type: 'period', label: 'Período', options: periods },
   { type: 'year', label: 'Año', options: years },
-  { type: 'client', label: 'Cliente', options: clients },
-  { type: 'status', label: 'Estado', options: statuses },
 ];
 
 // Cabecera: collage aleatorio en cada visita, fotos distintas y de sectores distintos; cada una lleva a su antecedente.

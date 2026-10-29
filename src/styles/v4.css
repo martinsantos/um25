@@ -2034,13 +2034,6 @@ body[data-skin] main :where(
 
 body[data-skin] main :where(
   .evidence-item--feature
-) {
-  background: #050505 !important;
-  color: #fff !important;
-}
-
-body[data-skin] main :where(
-  .evidence-item--feature
 ) :where(h2, h3, strong, dd, .evidence-item__cta) {
   color: #fff !important;
 }
@@ -2049,19 +2042,6 @@ body[data-skin] main :where(
   .evidence-item--feature
 ) :where(p, dt, em) {
   color: rgba(255,255,255,0.74) !important;
-}
-
-body[data-skin] main :where(
-  .evidence-item--feature .evidence-item__meta
-) {
-  border-color: rgba(255,255,255,0.18) !important;
-  background: rgba(255,255,255,0.16) !important;
-}
-
-body[data-skin] main :where(
-  .evidence-item--feature .evidence-item__meta div
-) {
-  background: rgba(0,0,0,0.28) !important;
 }
 
 /* Dark proof modules must keep their own contrast even in white/steel skins.
@@ -3297,33 +3277,6 @@ body[data-skin] main :where(.case-proof-strip__grid strong) {
 }
 
 @media (max-width: 640px) {
-  body[data-skin] main .ante-dossier .ante-dossier__hero h1 {
-    max-width: 17ch !important;
-    font-size: clamp(2rem, 6.2vw, 2.18rem) !important;
-    line-height: 1.14 !important;
-    text-wrap: pretty !important;
-  }
-
-  body[data-skin] main .ante-dossier .ante-dossier__actions a {
-    min-height: 44px !important;
-    font-size: 1rem !important;
-  }
-
-  body[data-skin] main .ante-dossier .ante-dossier__search input,
-  body[data-skin] main .ante-dossier .ante-dossier__search button {
-    min-height: 42px !important;
-    font-size: 1rem !important;
-  }
-
-  body[data-skin] main .ante-dossier .ante-dossier__sector-links {
-    gap: 14px !important;
-  }
-
-  body[data-skin] main .ante-dossier .ante-dossier__sector-links a,
-  body[data-skin] main .ante-dossier .ante-dossier__sector-links a em {
-    min-height: 38px !important;
-    font-size: 1rem !important;
-  }
 
   body[data-skin] main .case-detail-hero .case-detail-hero__copy h1 {
     font-size: clamp(2.125rem, 7vw, 2.45rem) !important;

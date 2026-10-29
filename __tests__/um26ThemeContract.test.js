@@ -9,7 +9,8 @@ describe('UM26 theme contract', () => {
     const template = read('src/components/templates/SectorIndexUM26.astro');
 
     expect(page).toContain("import SectorIndexUM26 from '../components/templates/SectorIndexUM26.astro'");
-    expect(page).toContain(": 'um26'");
+    // 2026-10-29: una sola plantilla; las variantes editorial y atlas se eliminaron.
+    expect(page).not.toContain('templateVariant');
     expect(page).toContain('<SectorIndexUM26');
     expect(page).not.toContain("?? 'editorial'");
     expect(template).toContain('class="sectors-demo"');
@@ -21,7 +22,8 @@ describe('UM26 theme contract', () => {
     const template = read('src/components/templates/SectorTemplateUM26.astro');
 
     expect(page).toContain("import SectorTemplateUM26 from '../components/templates/SectorTemplateUM26.astro'");
-    expect(page).toContain(": 'um26'");
+    // 2026-10-29: una sola plantilla; las variantes editorial y atlas se eliminaron.
+    expect(page).not.toContain('templateVariant');
     expect(page).toContain('<SectorTemplateUM26');
     expect(page).not.toContain("?? 'editorial'");
     expect(template).toContain('class="um26-sector"');

@@ -510,10 +510,32 @@ Hecho y medido en preview local con el mismo script (escritorio 1440×900, móvi
 - Fondo de `/nosotros` y `/contacto`: póster en móvil, película sólo en
   escritorio.
 
-Pendiente, en orden: paginación en servidor de `/antecedentes` y filtros
-reducidos a Sector y Año; home y sector sin isometría y con una sola
-plantilla (fase 4b); ficha técnica visible en la ficha de servicio (fase 5);
-consolidación de CSS (fase 6).
+Segunda tanda (mismo día):
+
+- Listado de antecedentes: controles visibles reducidos a Sector y Año.
+  Servicio, período, cliente y estado siguen aceptándose por URL para los
+  enlaces que ya existen. La paginación en servidor **no se hizo**: el
+  buscador y los filtros corren en el cliente sobre todas las fichas, y con
+  las miniaturas el listado ya pesa 1,4 MB en lugar de 5,2 MB.
+- Una plantilla por tipo: se eliminaron `SectorTemplateEditorial`,
+  `SectorTemplateAtlas`, `AntecedentesTemplateEditorial`,
+  `AntecedentesTemplateAtlas`, `EvidenceItem`, `EvidenceCaseRow` y el
+  parámetro `?template=` de desarrollo (6.300 líneas), con sus contratos de
+  test y las reglas CSS exclusivas en `v4.css`.
+- Sector en teléfono: la lista de proyectos ya no se convierte en carrusel
+  con tarjetas cortadas; es una lista. Lo mismo para "Casos comparables" en
+  la ficha de servicio.
+- Ficha de servicio: desaparece la sección "Alcance, normas y entregables"
+  que sólo contenía un enlace; el enlace a la ficha técnica va al pie de
+  "Qué cubre". Se respeta la decisión del 24/10 de que la ficha se descarga y
+  no se lee en pantalla.
+- La isometría del despiece **se conserva** en escritorio (cargada aparte);
+  el plan proponía quitarla, pero es una pieza de diseño propia y el costo
+  que tenía (392 KB inline, ilegible en móvil) ya está resuelto.
+
+Pendiente: consolidación de CSS (fase 6). `v4.css` sigue en 3.643 líneas
+con 566 `!important`: la mayoría de las reglas mezclan selectores de varias
+páginas en listas `:where(...)`, y limpiarlas pide revisar página por página.
 
 ## 9. Notas de traspaso
 
