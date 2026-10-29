@@ -18,7 +18,10 @@ const ENGINE = { planta: 'bodega' }; // el motor 3D usa la nave de la bodega par
 // Claves v4 "<escena>-<servicio>": la escena base define título y motor 3D.
 const baseOf = (scene) => String(scene || '').split('-')[0];
 const clean = (s) => String(s || '').replace(/\s*\/\s*DEMO\b/gi, '').replace(/\bDEMO\b\s*[·-]?\s*/gi, '').trim();
-const motionLimited = () => matchMedia('(prefers-reduced-motion: reduce)').matches || Boolean(navigator.connection?.saveData);
+// Sin película automática: movimiento reducido, ahorro de datos o conexión lenta.
+const motionLimited = () => matchMedia('(prefers-reduced-motion: reduce)').matches
+  || Boolean(navigator.connection?.saveData)
+  || ['slow-2g', '2g', '3g'].includes(navigator.connection?.effectiveType);
 const compact = () => innerWidth <= 820 || matchMedia('(pointer: coarse)').matches;
 const tracks = new Map();
 const loadTrack = (scene) => {
@@ -79,7 +82,10 @@ function banner(el) {
   const SQ = { x: 487, w: 1080, h: 1080 };
   const narrow = () => stage.clientWidth <= stage.clientHeight * 1.05;
   const src = (scene) => `/cine/media/cine-${scene}${narrow() ? '-sq' : ''}.mp4`;
-  let index = Math.min(Number(el.dataset.start) || 0, scenes.length - 1), active = va, idle = vb, track = null, visible = true, userPaused = motionLimited();
+  // En teléfono y tablet la película no arranca sola: queda el póster y el botón de reproducir.
+  // Así la portada no descarga 2 a 4 MB de video en datos móviles.
+  const autoplayOff = motionLimited() || compact();
+  let index = Math.min(Number(el.dataset.start) || 0, scenes.length - 1), active = va, idle = vb, track = null, visible = true, userPaused = autoplayOff;
   // El video no compite con el póster (LCP): arranca con la página ya cargada.
   let started = false;
   let shown = [], lastPick = 0, cutting = false, preloaded = -1, posNow = .5;
@@ -298,8 +304,9 @@ function banner(el) {
   document.addEventListener('visibilitychange', () => { play(); label(); });
   el.querySelector('[data-umc-3d]')?.addEventListener('click', () => explore(el.dataset.scene));
   useTrack(cutOf(index));
-  if (motionLimited()) showFallback();
-  setTimeout(() => { if (!active.classList.contains('is-on')) showFallback(); }, 4000);
+  if (autoplayOff) showFallback();
+  // Si la película no arrancó enseguida, el póster entra en lugar del cuadro negro.
+  setTimeout(() => { if (!active.classList.contains('is-on')) showFallback(); }, 1500);
   active.loop = !multi;
   const start = () => {
     if (started) return;
