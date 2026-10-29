@@ -1,0 +1,238 @@
+---
+/**
+ * Prototipo de portada "A la luz del lugar" (2026-10-29). Dirección humana: fotografía
+ * de los lugares reales a la hora de la luz, gente yendo a trabajar, Mendoza. Lectura
+ * tranquila, una idea por pantalla, mucho aire. Sin diagramas, sin contadores, sin HUD.
+ * Textos: sólo frases ya existentes en el sitio y datos del catálogo. No indexable.
+ */
+import { getAntecedentes } from '../lib/um26-directus';
+import { getAntecedenteSectorLabel } from '../utils/antecedenteSectorPresentation';
+import { getAntecedentesCatalogCount } from '../utils/verifiedProof';
+import { NAV_SERVICES } from '../data/navigation';
+import { SECTORS } from '../data/cine/scenes';
+
+export const prerender = false;
+
+const catalog = await getAntecedentes({ limit: 1000 });
+const total = getAntecedentesCatalogCount();
+const cleanText = (value: unknown) => String(value ?? '').replace(/\b(Rubro|Cliente|Sector|Área|Area)\s*:\s*/gi, '').replace(/\s*(\.{3}|…)\s*$/u, '').replace(/\s+/g, ' ').trim();
+const clientCase = (client: string) => client === client.toUpperCase()
+  ? client.toLowerCase().replace(/(^|\s)(\S)/g, (m: string) => m.toUpperCase()).replace(/\b(De|Del|La|Las|Los|Y|E|Sa|Srl)\b/g, (w: string) => (/^(Sa|Srl)$/.test(w) ? w.toUpperCase() : w.toLowerCase()))
+  : client;
+const cleanTitle = (raw: unknown, client: string) => {
+  let title = cleanText(raw);
+  if (title.includes('|')) title = title.split('|')[0].trim() || title;
+  const suffix = ` - ${client}`.toLowerCase();
+  if (client && title.toLowerCase().endsWith(suffix)) title = title.slice(0, -suffix.length).trim();
+  return title.replace(/\s*\(\d+\)\s*$/, '').replace(/\s+-\s+/g, ' · ');
+};
+const recent = [...catalog]
+  .sort((a, b) => (b.year - a.year) || (b.month - a.month) || (b.id - a.id))
+  .filter((c, i, arr) => arr.findIndex((o) => `${o.title}|${o.client}`.toLowerCase() === `${c.title}|${c.client}`.toLowerCase()) === i)
+  .slice(0, 6)
+  .map((c) => { const client = clientCase(cleanText(c.client)); return { href: `/antecedentes/${c.id}/${c.slug}`, client, title: cleanTitle(c.title, client), year: c.year, sector: getAntecedenteSectorLabel(c.sector_slug) || '' }; });
+
+const countOf = (slug: string) => catalog.filter((c) => c.sector_slug === slug).length;
+// El ensayo: cinco lugares, cinco fotos a la hora de la luz. Textos de la home y de sectores.
+const essay = [
+  { slug: 'bodegas', image: '/images/editorial/umsa-sector-bodegas.webp' },
+  { slug: 'aeropuertos', image: '/images/editorial/umsa-sector-aeropuertos.webp' },
+  { slug: 'salud', image: '/images/editorial/umsa-sector-salud.webp' },
+  { slug: 'mineria', image: '/images/editorial/umsa-sector-mineria.webp' },
+  { slug: 'constructoras', image: '/images/editorial/umsa-sector-constructoras.webp' },
+].map((e) => { const row = SECTORS.find((s) => s.slug === e.slug)!; return { ...e, name: row.name, text: row.text, href: `/${e.slug}`, count: countOf(e.slug) }; });
+const services = NAV_SERVICES;
+---
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>A la luz del lugar · Prototipo | ULTIMA MILLA</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" href="/fonts/um-sans/v2.0.0/UMSans2-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/fonts/um-sans/v2.0.0/um-sans.css" />
+    <style>
+      :root { --font: var(--um-font-family, 'UM Sans 2', 'UM Sans 1.2 Compatibility', Arial, system-ui, sans-serif); --bg: #faf8f4; --ink: #141414; --ink-2: #555; --ink-3: #8c8c8c; --line: rgba(20,20,20,.12); --red: #dc2626; --gutter: clamp(20px, 5vw, 96px); --measure: 34ch; }
+      * { box-sizing: border-box; }
+      html { background: var(--bg); color: var(--ink); font-family: var(--font); font-synthesis: none; -webkit-font-smoothing: antialiased; }
+      body { margin: 0; font-size: 1.125rem; line-height: 1.6; }
+      a { color: inherit; text-decoration: none; }
+      img { display: block; max-width: 100%; }
+      h1, h2, h3, p { margin: 0; }
+      h2 { font-weight: 600; letter-spacing: -.02em; text-wrap: balance; }
+      .dot { color: var(--red); }
+
+      header.top { position: absolute; z-index: 5; left: 0; right: 0; top: 0; display: flex; justify-content: space-between; align-items: center; padding: 22px var(--gutter); color: #fff; }
+      .logo { font-weight: 600; font-size: 1.25rem; letter-spacing: -.02em; }
+      .logo i { font-style: normal; font-weight: 700; color: var(--red); }
+      nav { display: flex; gap: clamp(16px, 2vw, 28px); font-size: 1rem; }
+      nav a { opacity: .9; } nav a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 5px; }
+
+      /* Apertura: la gente yendo al lugar, con la luz de la mañana. Una frase. */
+      .open { position: relative; min-height: 100svh; display: flex; align-items: flex-end; color: #fff; overflow: hidden; }
+      .open img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 50%; }
+      .open::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.28) 0%, transparent 30%, transparent 55%, rgba(0,0,0,.55) 100%); }
+      .open__copy { position: relative; z-index: 1; padding: 0 var(--gutter) clamp(40px, 8vh, 96px); }
+      .open__kicker { font-size: 1rem; opacity: .85; margin-bottom: 14px; }
+      .open h1 { max-width: 13ch; font-size: clamp(2.4rem, 5.6vw, 5.2rem); line-height: 1.0; font-weight: 600; letter-spacing: -.03em; text-wrap: balance; }
+
+      /* Lectura: un párrafo por pantalla, aire alrededor. */
+      .say { padding: clamp(80px, 14vh, 160px) var(--gutter); }
+      .say p { max-width: 30ch; font-size: clamp(1.6rem, 3vw, 2.6rem); line-height: 1.25; letter-spacing: -.02em; font-weight: 500; text-wrap: pretty; }
+      .say p + p { margin-top: 1.2em; font-size: 1.25rem; line-height: 1.5; font-weight: 400; color: var(--ink-2); max-width: 44ch; }
+
+      /* Ensayo: cinco lugares, cinco fotos grandes, un renglón. */
+      .place { display: grid; grid-template-columns: 1fr; gap: 18px; padding: 0 var(--gutter) clamp(56px, 9vh, 120px); }
+      .place figure { margin: 0; }
+      .place img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+      .place__cap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 32px; align-items: baseline; }
+      .place__cap h2 { font-size: clamp(1.4rem, 2.2vw, 1.9rem); }
+      .place__cap h2 small { display: block; font-size: 1.125rem; font-weight: 400; color: var(--ink-2); margin-top: 4px; }
+      .place__cap a { font-size: 1rem; color: var(--ink-2); white-space: nowrap; text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 5px; }
+      .place:nth-child(even) .place__cap { grid-template-columns: auto minmax(0, 1fr); }
+      .place:nth-child(even) .place__cap a { order: -1; }
+      .place:nth-child(even) .place__cap h2 { text-align: right; }
+
+      .band { padding: clamp(72px, 12vh, 150px) var(--gutter); border-top: 1px solid var(--line); }
+      .band > h2 { font-size: clamp(1.9rem, 3.4vw, 3rem); line-height: 1.1; max-width: 22ch; }
+      .band__lead { margin-top: 18px; max-width: 46ch; color: var(--ink-2); }
+      /* Qué hacemos: ocho frentes como texto, dos columnas, sin tarjetas. */
+      .services { list-style: none; margin: clamp(32px, 5vh, 56px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(32px, 6vw, 96px); }
+      .services li { padding: 20px 0; border-top: 1px solid var(--line); }
+      .services a { display: grid; gap: 4px; }
+      .services b { font-weight: 600; font-size: 1.25rem; }
+      .services span { color: var(--ink-2); }
+      .services a:hover b { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
+      /* Cómo trabajamos: cuatro palabras, en orden. */
+      .steps { list-style: none; margin: clamp(32px, 5vh, 56px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; counter-reset: paso; }
+      .steps li { padding-top: 16px; border-top: 1px solid var(--ink); font-size: 1.375rem; font-weight: 600; letter-spacing: -.01em; }
+      .steps li::before { counter-increment: paso; content: counter(paso, decimal-leading-zero); display: block; margin-bottom: 10px; font-size: 1rem; font-weight: 400; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+      /* Lo hecho: seis renglones. */
+      .rows { list-style: none; margin: clamp(32px, 5vh, 56px) 0 0; padding: 0; border-top: 1px solid var(--line); }
+      .rows a { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr) auto; gap: 8px 32px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+      .rows b { font-weight: 600; } .rows span { color: var(--ink-2); } .rows em { font-style: normal; color: var(--ink-3); white-space: nowrap; }
+      .rows a:hover b { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
+      .more { display: inline-block; margin-top: 24px; font-weight: 600; text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 5px; }
+      /* Desde Mendoza: la foto del campamento y dos renglones. */
+      .from { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 5vw, 80px); align-items: end; }
+      .from img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+      .from h2 { font-size: clamp(1.7rem, 2.8vw, 2.5rem); line-height: 1.12; }
+      .from p { margin-top: 16px; color: var(--ink-2); }
+      /* Contacto: una conversación, no un panel. */
+      .contact { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(32px, 6vw, 110px); }
+      .contact h2 { font-size: clamp(1.9rem, 3.2vw, 2.8rem); line-height: 1.1; }
+      .contact p { margin-top: 16px; color: var(--ink-2); max-width: 40ch; }
+      .contact__direct { margin: 32px 0 0; padding: 0; color: var(--ink-2); }
+      .contact__direct div { padding: 10px 0; border-top: 1px solid var(--line); }
+      .contact__direct dt { display: inline; color: var(--ink-3); } .contact__direct dd { display: inline; margin: 0 0 0 10px; color: var(--ink); }
+      form { display: grid; gap: 18px; }
+      label { display: grid; gap: 6px; font-size: 1rem; color: var(--ink-2); }
+      input, textarea { font: inherit; font-size: 1.125rem; padding: 12px 0; border: 0; border-bottom: 1px solid var(--ink); background: transparent; color: var(--ink); border-radius: 0; }
+      input:focus, textarea:focus { outline: none; border-bottom-color: var(--red); }
+      .btn { justify-self: start; display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 22px; background: var(--ink); color: #fff; font-weight: 600; font-size: 1rem; border: 0; cursor: pointer; }
+      .btn:hover { background: var(--red); }
+      footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding: 24px var(--gutter) 32px; border-top: 1px solid var(--line); font-size: 1rem; color: var(--ink-2); }
+
+      @media (max-width: 860px) {
+        nav a:not(.cta) { display: none; }
+        .open { min-height: 88svh; }
+        .open__copy { max-width: none; }
+        .place__cap, .place:nth-child(even) .place__cap { grid-template-columns: 1fr; }
+        .place:nth-child(even) .place__cap h2 { text-align: left; } .place:nth-child(even) .place__cap a { order: 0; }
+        .services, .steps { grid-template-columns: 1fr; }
+        .steps { gap: 14px; }
+        .rows a { grid-template-columns: 1fr; gap: 2px; }
+        .from, .contact { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <a class="logo" href="/">ultimamilla<i>.</i>com<i>.</i>ar</a>
+      <nav aria-label="Principal">
+        <a href="/servicios">Servicios</a><a href="/sectores">Sectores</a><a href="/antecedentes">Antecedentes</a><a href="/blog">Blog</a><a class="cta" href="/contacto">Contactar</a>
+      </nav>
+    </header>
+
+    <section class="open">
+      <img src="/images/editorial/umsa-about-engineering.webp" alt="" width="1672" height="941" fetchpriority="high" decoding="async" />
+      <div class="open__copy">
+        <p class="open__kicker">Más de 22 años de servicios IT · Mendoza, Argentina</p>
+        <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
+      </div>
+    </section>
+
+    <section class="say">
+      <p>ULTIMA MILLA integra infraestructura, comunicaciones, seguridad y software con criterio de continuidad operativa. Diseño, instalación y soporte trabajan en un mismo sistema.</p>
+      <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
+    </section>
+
+    <section aria-label="Lugares">
+      {essay.map((p) => (
+        <article class="place">
+          <figure><img src={p.image} alt="" width="1672" height="941" decoding="async" /></figure>
+          <div class="place__cap">
+            <h2>{p.name}<small>{p.text}</small></h2>
+            <a href={p.href}>{p.count} proyectos</a>
+          </div>
+        </article>
+      ))}
+    </section>
+
+    <section class="band" id="servicios">
+      <h2>Ocho frentes de servicio<span class="dot">.</span></h2>
+      <p class="band__lead">Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria.</p>
+      <ul class="services">
+        {services.map((s) => <li><a href={s.href}><b>{s.name}</b><span>{s.text}</span></a></li>)}
+      </ul>
+    </section>
+
+    <section class="band">
+      <h2>Cómo trabajamos<span class="dot">.</span></h2>
+      <p class="band__lead">Relevamos en el lugar y te decimos qué hace falta.</p>
+      <ol class="steps"><li>Relevamiento</li><li>Diseño</li><li>Ejecución</li><li>Prueba técnica</li></ol>
+    </section>
+
+    <section class="band">
+      <h2>{total} proyectos documentados<span class="dot">.</span></h2>
+      <ol class="rows">
+        {recent.map((c) => <li><a href={c.href}><b>{c.client}</b><span>{c.title}</span><em>{[c.sector, c.year].filter(Boolean).join(' · ')}</em></a></li>)}
+      </ol>
+      <a class="more" href="/antecedentes">Ver los {total} proyectos</a>
+    </section>
+
+    <section class="band from">
+      <img src="/images/editorial/umsa-sector-industria.webp" alt="" width="1672" height="941" loading="lazy" decoding="async" />
+      <div>
+        <h2>Desde Mendoza para Cuyo, Patagonia y el país<span class="dot">.</span></h2>
+        <p>Base técnica en Mendoza, con cobertura regional para proyectos, mantenimiento y soporte.</p>
+      </div>
+    </section>
+
+    <section class="band contact" id="contacto">
+      <div>
+        <h2>Contanos qué tiene que seguir funcionando<span class="dot">.</span></h2>
+        <p>Indicá qué necesitás, dónde y para cuándo. Un técnico te responde por email con el próximo paso: diagnóstico, relevamiento, propuesta o documentación.</p>
+        <dl class="contact__direct">
+          <div><dt>Email</dt><dd>contacto@ultimamilla.com.ar</dd></div>
+          <div><dt>Oficina</dt><dd>Houssay 1159, Guaymallén, Mendoza</dd></div>
+          <div><dt>Horario</dt><dd>Lunes a viernes, 8 a 18 h</dd></div>
+        </dl>
+      </div>
+      <form action="/contacto" method="get">
+        <label>Nombre<input type="text" name="name" autocomplete="name" placeholder="Nombre y apellido" required /></label>
+        <label>Email de trabajo<input type="email" name="email" autocomplete="email" placeholder="mail@empresa.com" required /></label>
+        <label>Empresa u organismo<input type="text" name="company" autocomplete="organization" placeholder="Opcional" /></label>
+        <label>Mensaje<textarea name="message" rows="3" placeholder="Contanos qué necesitás, en qué sede y para cuándo." required></textarea></label>
+        <button class="btn" type="submit">Enviar consulta <span aria-hidden="true">→</span></button>
+      </form>
+    </section>
+
+    <footer>
+      <span>ultimamilla.com.ar</span>
+      <span>Houssay 1159, Guaymallén, Mendoza · contacto@ultimamilla.com.ar · Lunes a viernes, 8 a 18 h</span>
+    </footer>
+  </body>
+</html>
