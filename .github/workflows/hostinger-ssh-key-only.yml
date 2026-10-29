@@ -38,7 +38,9 @@ jobs:
       - uses: actions/checkout@v6
         with:
           sparse-checkout-cone-mode: false
-          sparse-checkout: /scripts/ops/hostinger-migration/
+          sparse-checkout: |
+            /scripts/ops/hostinger-migration/
+            /.github/workflows/hostinger-ssh-key-only.yml
       - run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq openssh-server
@@ -102,3 +104,4 @@ jobs:
           assert r['effective']['passwordauthentication']=='no'
           print('Fresh CI public-key login verified; existing authorized keys preserved.')
           PY
+          fi
