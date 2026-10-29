@@ -6,9 +6,9 @@
  * piezas entre las fotos. Documento aislado del layout V4 para evaluar la dirección.
  * Textos: sólo frases ya existentes en el sitio y datos del catálogo. No indexable.
  */
-import { getAntecedentes, getServicios } from '../lib/um26-directus';
-import { getAntecedenteSectorLabel } from '../utils/antecedenteSectorPresentation';
-import { SCENE_TITLES, SECTORS, sectorBySlug } from '../data/cine/scenes';
+import { getAntecedentes, getServicios } from '../../lib/um26-directus';
+import { getAntecedenteSectorLabel } from '../../utils/antecedenteSectorPresentation';
+import { SCENE_TITLES, SECTORS, sectorBySlug } from '../../data/cine/scenes';
 
 export const prerender = false;
 
@@ -183,7 +183,7 @@ const sceneMap = Object.fromEntries(sectorsList.map((s) => [s.slug, s.scene]));
   </head>
   <body>
     <header class="top">
-      <a class="logo" href="/">ultimamilla<i>.</i>com<i>.</i>ar</a>
+      <a class="logo" href="/prototipo">ultimamilla<i>.</i>com<i>.</i>ar</a>
       <nav aria-label="Principal">
         <a href="/servicios">Servicios</a>
         <a href="/sectores">Sectores</a>
