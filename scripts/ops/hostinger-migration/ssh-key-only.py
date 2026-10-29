@@ -144,6 +144,9 @@ def rollback(operation):
     state = json.loads((folder / 'state.json').read_text())
     if (folder / 'confirmed.json').exists():
         return {'ok': True, 'rollback': 'not-required-after-confirmation'}
+    if (folder / 'rolled-back.json').exists():
+        # A retired timer must not undo a newer independently applied policy.
+        return json.loads((folder / 'rolled-back.json').read_text())
     if DROPIN.exists():
         safe(DROPIN)
         if DROPIN.read_bytes() != CONTENT:

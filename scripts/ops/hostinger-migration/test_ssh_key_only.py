@@ -148,6 +148,16 @@ class KeyOnlyTests(unittest.TestCase):
             m.execute('rollback', '100-1')
         self.assertTrue(self.dropin.exists())
 
+    def test_retired_rollback_never_undoes_a_newer_policy(self):
+        m.execute('apply', '100-1', 'a' * 64)
+        m.execute('rollback', '100-1')
+        self.dropin.write_bytes(m.CONTENT)
+        self.dropin.chmod(0o600)
+        self.calls.clear()
+        self.assertEqual(m.execute('rollback', '100-1')['rollback'], 'restored')
+        self.assertTrue(self.dropin.exists())
+        self.assertFalse(self.calls)
+
     def test_symlink_and_writable_policy_rejected(self):
         self.dropin.symlink_to(self.conf)
         with self.assertRaises(RuntimeError):
