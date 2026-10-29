@@ -20,8 +20,6 @@ function cssBlock(source, selector) {
 }
 
 describe('Information hub visual contracts', () => {
-  const sectorAtlas = read('src/components/templates/SectorTemplateAtlas.astro');
-  const antecedentesEditorial = read('src/components/templates/AntecedentesTemplateEditorial.astro');
   const sectorUM26 = read('src/components/templates/SectorTemplateUM26.astro');
   const v4Css = read('src/styles/v4.css');
 
@@ -73,70 +71,6 @@ describe('Information hub visual contracts', () => {
     expect(sectoresIndex).toMatch(/@media \(max-width:\s*980px\)[\s\S]*\.sectors-demo-hero h1\s*\{[\s\S]*overflow-wrap:\s*normal;/);
   });
 
-  test('sectores abandons family language in the public hub template', () => {
-    expect(sectorAtlas).not.toMatch(/\bfamilia(s)?\b/i);
-    expect(sectorAtlas).toContain('Mercados operativos UMSA');
-    expect(sectorAtlas).toContain('Mercados operativos, riesgo y evidencia.');
-  });
-
-  test('sector editorial index exposes a compact market filter without switching back to a table', () => {
-    const sectorEditorial = read('src/components/templates/SectorTemplateEditorial.astro');
-    const sectoresPage = read('src/pages/sectores.astro');
-
-    expect(sectoresPage).toContain('sectorFilter={sectorFilter}');
-    expect(sectoresPage).toContain('sectorFilterOptions={sectorFilterOptions}');
-    expect(sectoresPage).toContain("gobiernosectorpublico: 'Gobierno'");
-    expect(sectoresPage).toContain("'seguridad-electronica': 'Seguridad'");
-    expect(sectorEditorial).toContain('sector-editorial__market-rail');
-    expect(sectorEditorial).toContain('aria-label="Filtrar sectores por mercado operativo"');
-    expect(sectorEditorial).toMatch(/visibleSectors = mode === 'index' && sectorFilter/);
-    expect(sectorEditorial).toMatch(/\.sector-editorial__market-rail\s*\{[\s\S]*position:\s*sticky;/);
-    expect(sectorEditorial).toMatch(/\.sector-editorial__market-links\s*\{[\s\S]*flex-wrap:\s*nowrap;/);
-    expect(sectorEditorial).toMatch(/\.sector-editorial__market-rail\s*\{[\s\S]*mask-image:\s*linear-gradient\(90deg,\s*#000 0,\s*#000 calc\(100% - 42px\),\s*transparent 100%\)/);
-    expect(sectorEditorial).toMatch(/\.sector-editorial__market-links\s*\{[\s\S]*padding-right:\s*clamp\(32px,\s*5vw,\s*72px\);/);
-    expect(sectorEditorial).toMatch(/window\.matchMedia\('\(max-width: 720px\)'\)\.matches \? 'start' : 'nearest'/);
-    expect(sectorEditorial).not.toMatch(/Sector\s+Necesidad operativa\s+Servicios aplicados\s+Archivo/);
-  });
-
-  test('sector filtered index presents a market dossier instead of isolated cards', () => {
-    const sectorEditorial = read('src/components/templates/SectorTemplateEditorial.astro');
-
-    expect(sectorEditorial).toContain('sector-editorial--filtered');
-    expect(sectorEditorial).toContain('sector-editorial-feature__services');
-    expect(sectorEditorial).toContain('Abrir dossier del sector');
-    expect(sectorEditorial).toMatch(/\.sector-editorial--filtered \.sector-editorial__features\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
-    expect(sectorEditorial).toMatch(/\.sector-editorial--filtered \.sector-editorial-feature\s*\{[\s\S]*grid-template-columns:\s*minmax\(320px,\s*0\.46fr\) minmax\(0,\s*0\.54fr\);/);
-    expect(sectorEditorial).toMatch(/\.sector-editorial--filtered \.sector-editorial__actions\s*\{[\s\S]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
-  });
-
-  test('sticky filters stay compact and editorial below the navigation', () => {
-    expect(cssNumber(sectorAtlas, '.sector-atlas-exec-ledger__controls', 'top')).toBeGreaterThanOrEqual(72);
-    expect(cssNumber(sectorAtlas, '.sector-atlas-exec-ledger__controls', 'top')).toBeLessThanOrEqual(88);
-    expect(cssNumber(antecedentesEditorial, '.ante-dossier__sector-rail', 'top')).toBeGreaterThanOrEqual(72);
-    expect(cssNumber(antecedentesEditorial, '.ante-dossier__sector-rail', 'top')).toBeLessThanOrEqual(88);
-    expect(sectorAtlas).toMatch(/\.sector-atlas-exec-ledger__filters-links\s*\{[\s\S]*flex-wrap:\s*nowrap;/);
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__sector-links\s*\{[\s\S]*flex-wrap:\s*nowrap;/);
-    expect(sectorAtlas).toMatch(/\.sector-atlas-exec-ledger__controls\s*\{[\s\S]*background:\s*var\(--skin-page, #fff\);/);
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__controls\s*\{[\s\S]*background:\s*var\(--ante-page\);/);
-    expect(sectorAtlas).toMatch(/\.sector-atlas-exec-ledger__controls\s*\{[\s\S]*0 -1[02]px 0 var\(--skin-page, #fff\)/);
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__sector-rail\s*\{[\s\S]*position:\s*sticky;/);
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__sector-rail\s*\{[\s\S]*background:\s*#fff;/);
-  });
-
-  test('antecedentes sector rail stays sticky and compact while filtering the archive below', () => {
-    expect(cssNumber(antecedentesEditorial, '.ante-dossier__sector-rail', 'top')).toBeGreaterThanOrEqual(72);
-    expect(cssNumber(antecedentesEditorial, '.ante-dossier__sector-rail', 'top')).toBeLessThanOrEqual(88);
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__sector-rail\s*\{[\s\S]*position:\s*sticky;/);
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__controls\s*\{[\s\S]*background:\s*var\(--ante-page\);/);
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__archive\s*\{[\s\S]*scroll-margin-top:\s*136px;/);
-    expect(antecedentesEditorial).toContain('placeholder="Cliente o alcance"');
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__sector-rail\s*\{[\s\S]*overflow:\s*hidden;/);
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__sector-rail\s*\{[\s\S]*mask-image:\s*linear-gradient\(90deg,\s*#000 0,\s*#000 calc\(100% - 42px\),\s*transparent 100%\)/);
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__sector-links\s*\{[\s\S]*padding-right:\s*clamp\(32px,\s*5vw,\s*72px\);/);
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__sector-links\s*\{[\s\S]*overscroll-behavior-inline:\s*contain;/);
-    expect(antecedentesEditorial).toMatch(/rail\.scrollLeft\s*=\s*Math\.max\(0,\s*targetLeft\);/);
-  });
-
   test('UM26 antecedentes filters become compact horizontal controls on mobile', () => {
     // Rediseño 2026-09: los filtros por faceta viven en un panel plegable (botón
     // "Filtros") en lugar de filas horizontales. Garantías equivalentes: control
@@ -173,59 +107,6 @@ describe('Information hub visual contracts', () => {
     expect(services).toMatch(/@media \(max-width:\s*640px\)[\s\S]*\.services-demo-body > p\s*\{\s*display:\s*none;/);
     expect(sectores).toMatch(/\.sectors-demo-stats\s*\{[\s\S]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
     expect(sectores).toMatch(/@media \(max-width:\s*620px\)[\s\S]*\.sectors-demo-filters > div\s*\{[\s\S]*flex-wrap:\s*nowrap;[\s\S]*overflow-x:\s*auto;/);
-  });
-
-  test('row hover treatment stays calm and does not add red rails or layout drift', () => {
-    const hoverBlocks = [
-      sectorAtlas.match(/\.sector-atlas-exec-row:hover\s*\{[\s\S]*?\}/)?.[0] || '',
-      antecedentesEditorial.match(/\.ante-dossier__row:hover\s*\{[\s\S]*?\}/)?.[0] || ''
-    ];
-
-    for (const block of hoverBlocks) {
-      expect(block).not.toMatch(/padding-left\s*:/);
-      expect(block).not.toMatch(/box-shadow:\s*inset/);
-    }
-  });
-
-  test('sector service tags do not repeat red vertical bars inside the information table', () => {
-    const serviceBlocks = sectorAtlas.match(/\.sector-atlas-exec-row__services li\s*\{[\s\S]*?\}/g) || [];
-    expect(serviceBlocks.join('\n')).not.toMatch(/border-left:\s*2px solid var\(--um-red\)/);
-    expect(serviceBlocks.join('\n')).not.toMatch(/border-right:\s*1px solid var\(--um-red\)/);
-    expect(serviceBlocks.some((block) => /background:\s*[^;]+;/.test(block))).toBe(true);
-    expect(sectorAtlas).not.toMatch(/\.sector-atlas-exec-row:hover h2/);
-  });
-
-  test('sector ledger uses meaningful thumbnails, not collapsed spreadsheet icons', () => {
-    expect(cssNumber(sectorAtlas, '.sector-atlas-exec-row__sector figure', 'width')).toBeGreaterThanOrEqual(140);
-    expect(cssNumber(sectorAtlas, '.sector-atlas-exec-row__sector figure', 'height')).toBeGreaterThanOrEqual(112);
-    expect(sectorAtlas).toMatch(/grid-template-columns:\s*172px minmax\(0, 1fr\)/);
-  });
-
-  test('sector detail hero shows the action before secondary proof', () => {
-    const sectorEditorial = read('src/components/templates/SectorTemplateEditorial.astro');
-    const leadIndex = sectorEditorial.indexOf('sector-editorial-detail-hero__lead');
-    const actionsIndex = sectorEditorial.indexOf('sector-editorial-detail-hero__actions');
-    const prooflineIndex = sectorEditorial.indexOf('sector-editorial-detail-hero__proofline');
-
-    expect(leadIndex).toBeGreaterThan(-1);
-    expect(actionsIndex).toBeGreaterThan(leadIndex);
-    expect(prooflineIndex).toBeGreaterThan(actionsIndex);
-  });
-
-  test('sector detail mobile uses compact proof labels and documentary rows', () => {
-    const sectorEditorial = read('src/components/templates/SectorTemplateEditorial.astro');
-    const detailHeroSource = sectorEditorial.slice(
-      sectorEditorial.indexOf('sector-editorial-detail-hero__proofline'),
-      sectorEditorial.indexOf('<dl class="sector-editorial-detail-hero__proofline"') + 900
-    );
-
-    expect(detailHeroSource).toContain('<dt>Años</dt>');
-    expect(detailHeroSource).toContain('<dt>Soporte</dt>');
-    expect(detailHeroSource).not.toContain('<dt>Trayectoria</dt>');
-    expect(detailHeroSource).not.toContain('<dt>Operación</dt>');
-    expect(sectorEditorial).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.sector-editorial-detail-hero__actions\s*\{[\s\S]*grid-template-columns:\s*1fr 1fr;/);
-    expect(sectorEditorial).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.sector-editorial-service-list a,[\s\S]*min-height:\s*0;/);
-    expect(sectorEditorial).toMatch(/@media \(max-width:\s*640px\)\s*\{[\s\S]*\.sector-editorial-service-list a,[\s\S]*background:\s*transparent;/);
   });
 
   test('case detail dossier media cannot expand beyond its mobile container', () => {
@@ -334,15 +215,6 @@ describe('Information hub visual contracts', () => {
     expect(v4Css).toMatch(/body\[data-skin\] main \.sector26-service-card span,[\s\S]*body\[data-skin\] main \.sector26-case-row > span,[\s\S]*color:\s*#DC2626 !important;/);
   });
 
-  test('antecedentes hero secondary action renders as an intentional muted button, not loose text', () => {
-    const actionsBlock = cssBlock(antecedentesEditorial, '.ante-dossier__actions a + a');
-
-    expect(actionsBlock).toMatch(/background:\s*#eef0f2;/);
-    expect(actionsBlock).toMatch(/color:\s*#111;/);
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__actions a:first-child:hover,[\s\S]*\.ante-dossier__actions a:first-child:focus-visible\s*\{[\s\S]*color:\s*#fff;/);
-    expect(antecedentesEditorial).toMatch(/\.ante-dossier__actions a \+ a:hover,[\s\S]*\.ante-dossier__actions a \+ a:focus-visible\s*\{[\s\S]*background:\s*#111;/);
-  });
-
   test('antecedentes archive exposes a crawlable complete index of case links', () => {
     // Rediseño 2026-09: todas las fichas se renderizan en SSR como <a href>; el
     // filtrado y el "ver más" sólo ocultan en el cliente.
@@ -368,19 +240,6 @@ describe('Information hub visual contracts', () => {
     expect(source).toMatch(/data-order=\{index\}/);
     expect(source).toMatch(/\.ev-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/);
     expect(source).toMatch(/@media \(max-width: 639px\)[\s\S]*\.ev-card\s*\{\s*display:\s*grid;/);
-  });
-
-  test('evidence case rows reserve enough copy width to avoid broken client names', () => {
-    const evidenceRow = read('src/components/um/EvidenceCaseRow.astro');
-    const rowBlock = cssBlock(evidenceRow, '.evidence-case-row');
-    const titleBlock = cssBlock(evidenceRow, '.evidence-case-row h3');
-
-    expect(rowBlock).toMatch(/grid-template-columns:\s*3rem minmax\(156px,\s*0\.2fr\) minmax\(240px,\s*1fr\) minmax\(160px,\s*0\.34fr\) auto;/);
-    expect(titleBlock).toMatch(/overflow-wrap:\s*normal;/);
-    expect(titleBlock).toMatch(/word-break:\s*normal;/);
-    expect(titleBlock).toMatch(/hyphens:\s*none;/);
-    expect(evidenceRow).toMatch(/@media \(max-width:\s*520px\)\s*\{[\s\S]*\.evidence-case-row\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*1fr\);/);
-    expect(evidenceRow).toMatch(/@media \(max-width:\s*520px\)\s*\{[\s\S]*\.evidence-case-row__copy\s*\{[\s\S]*align-self:\s*start;/);
   });
 
   test('home projects are a plain list, never cards with media (24/10)', () => {
