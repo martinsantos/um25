@@ -1,0 +1,359 @@
+---
+/**
+ * Prototipo "La pared" (2026-10-29). Propuesta de portada: la página es el catálogo
+ * de proyectos reales. Sectores, servicios y años son lentes que filtran en vivo; la
+ * cifra del título se recompone con los datos; los recorridos de Blender entran como
+ * piezas entre las fotos. Documento aislado del layout V4 para evaluar la dirección.
+ * Textos: sólo frases ya existentes en el sitio y datos del catálogo. No indexable.
+ */
+import { getAntecedentes, getServicios } from '../lib/um26-directus';
+import { getAntecedenteSectorLabel } from '../utils/antecedenteSectorPresentation';
+import { SCENE_TITLES, SECTORS, sectorBySlug } from '../data/cine/scenes';
+
+export const prerender = false;
+
+const catalog = await getAntecedentes({ limit: 1000 });
+const servicios = await getServicios();
+
+const thumbOf = (image: string) =>
+  /^\/images\/antecedentes\/generated\/.+-principal\.webp$/.test(image) ? image.replace(/-principal\.webp$/, '-principal-480.webp') : image;
+
+const cleanText = (value: unknown) => String(value ?? '').replace(/\b(Rubro|Cliente|Sector|Área|Area)\s*:\s*/gi, '').replace(/\s*(\.{3}|…)\s*$/u, '').replace(/\s+/g, ' ').trim();
+// Cliente en caja normal si el registro viene en mayúsculas (misma regla que la home).
+const clientCase = (client: string) => client === client.toUpperCase()
+  ? client.toLowerCase().replace(/(^|\s)(\S)/g, (m: string) => m.toUpperCase()).replace(/\b(De|Del|La|Las|Los|Y|E|Sa|Srl)\b/g, (w: string) => (/^(Sa|Srl)$/.test(w) ? w.toUpperCase() : w.toLowerCase()))
+  : client;
+const cleanTitle = (raw: unknown, client: string) => {
+  let title = cleanText(raw);
+  if (title.includes('|')) title = title.split('|')[0].trim() || title;
+  const suffix = ` - ${client}`.toLowerCase();
+  if (client && title.toLowerCase().endsWith(suffix)) title = title.slice(0, -suffix.length).trim();
+  return title.replace(/\s*\(\d+\)\s*$/, '').replace(/\s+-\s+/g, ' · ');
+};
+
+// Clave de póster por servicio (misma convención que los archivos de /cine/media).
+const SERVICE_KEY: Record<number, string> = { 101: 'redes', 102: 'seguridad', 103: 'telecom', 104: 'software', 105: 'soporte', 106: 'consultoria', 107: 'incendios', 108: 'electricos' };
+const servicesList = servicios.map((s) => ({ code: s.code, name: s.name, key: SERVICE_KEY[s.code] || '' }));
+const sectorsList = SECTORS.map((s) => ({ slug: s.slug, name: s.name, scene: s.scene }));
+
+const items = [...catalog]
+  .sort((a, b) => (b.year - a.year) || (b.month - a.month) || (b.id - a.id))
+  .map((item) => {
+    const client = clientCase(cleanText(item.client));
+    return {
+      id: item.id,
+      href: `/antecedentes/${item.id}/${item.slug}`,
+      client,
+      title: cleanTitle(item.title, client),
+      year: item.year,
+      sector: item.sector_slug,
+      sectorLabel: getAntecedenteSectorLabel(item.sector_slug) || '',
+      services: item.service_codes.join(' '),
+      image: item.image ? thumbOf(item.image) : '',
+      photo: Boolean(item.image && item.image.startsWith('/images/antecedentes/')),
+    };
+  });
+
+const total = items.length;
+const years = [...new Set(items.map((i) => i.year))].filter(Boolean).sort((a, b) => a - b);
+const yearCounts = Object.fromEntries(years.map((y) => [y, items.filter((i) => i.year === y).length]));
+const maxYear = Math.max(...Object.values(yearCounts));
+const firstYear = years[0];
+const lastYear = years[years.length - 1];
+
+// Recorridos (renders) intercalados: la escena del sector activo, o del primero.
+const defaultScene = 'fachada';
+const sceneTitles = SCENE_TITLES;
+const sceneOf = (slug: string) => sectorBySlug(slug)?.scene || defaultScene;
+const sceneMap = Object.fromEntries(sectorsList.map((s) => [s.slug, s.scene]));
+---
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Prototipo · La pared | ULTIMA MILLA</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" href="/fonts/um-sans/v2.0.0/UMSans2-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/fonts/um-sans/v2.0.0/um-sans.css" />
+    <style>
+      :root {
+        --paper: #f2f0eb;
+        --ink: #0b0b0c;
+        --ink-2: #4a4a4c;
+        --ink-3: #8a8a8d;
+        --line: rgba(11, 11, 12, .14);
+        --red: #dc2626;
+        --font: var(--um-font-family, 'UM Sans 2', 'UM Sans 1.2 Compatibility', Arial, system-ui, sans-serif);
+        --gutter: clamp(16px, 3vw, 40px);
+        --bar-h: 60px;
+      }
+      * { box-sizing: border-box; }
+      html { background: var(--paper); color: var(--ink); font-family: var(--font); font-synthesis: none; -webkit-font-smoothing: antialiased; }
+      body { margin: 0; font-size: 1rem; line-height: 1.5; }
+      a { color: inherit; text-decoration: none; }
+      button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+      :focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+
+      /* Barra superior */
+      .top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 24px; height: var(--bar-h); padding: 0 var(--gutter); background: var(--paper); border-bottom: 1px solid var(--line); }
+      .logo { font-weight: 600; font-size: 1.25rem; letter-spacing: -.02em; }
+      .logo i { font-style: normal; color: var(--red); }
+      .top nav { display: flex; gap: clamp(14px, 2vw, 28px); font-size: 1rem; }
+      .top nav a { padding: 8px 0; border-bottom: 2px solid transparent; }
+      .top nav a:hover { border-bottom-color: var(--ink); }
+      .top nav a.cta { font-weight: 600; color: var(--red); }
+
+      /* Lentes */
+      .lenses { position: sticky; top: var(--bar-h); z-index: 19; background: var(--paper); border-bottom: 1px solid var(--line); }
+      .lenses__row { display: flex; align-items: center; gap: 8px; padding: 10px var(--gutter); overflow-x: auto; scrollbar-width: none; }
+      .lenses__row::-webkit-scrollbar { display: none; }
+      .lenses__row + .lenses__row { padding-top: 0; }
+      .lenses__label { flex: none; width: 76px; font-size: 1rem; color: var(--ink-3); }
+      .lens { flex: none; min-height: 40px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: 1rem; white-space: nowrap; transition: background .2s ease, border-color .2s ease, color .2s ease; }
+      .lens:hover { border-color: var(--ink); }
+      .lens[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+      .lens[aria-pressed="true"]::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 8px; background: var(--red); vertical-align: 1px; }
+      .lens[disabled] { opacity: .3; cursor: default; }
+
+      /* Cuerpo: panel fijo + pared */
+      .body { display: grid; grid-template-columns: minmax(300px, 34fr) minmax(0, 66fr); gap: clamp(24px, 4vw, 64px); padding: 0 var(--gutter) 64px; }
+      .panel { position: sticky; top: calc(var(--bar-h) + 116px); align-self: start; padding-top: clamp(24px, 4vw, 56px); }
+      .count { margin: 0; font-size: clamp(5.5rem, 13vw, 12rem); line-height: .9; font-weight: 700; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+      .count i { font-style: normal; color: var(--red); }
+      .sentence { margin: 18px 0 0; font-size: clamp(1.5rem, 2.4vw, 2.25rem); line-height: 1.12; font-weight: 600; letter-spacing: -.02em; text-wrap: balance; max-width: 16ch; }
+      .lead { margin: 22px 0 0; max-width: 40ch; font-size: 1.125rem; line-height: 1.5; color: var(--ink-2); }
+      .kicker { margin: 28px 0 0; font-size: 1rem; color: var(--ink-3); }
+      .btn { display: inline-flex; align-items: center; gap: 10px; min-height: 52px; margin-top: 28px; padding: 0 22px; background: var(--red); color: #fff; font-weight: 600; font-size: 1rem; }
+      .btn:hover { background: #b91c1c; }
+      .clear { display: none; margin-top: 18px; font-size: 1rem; color: var(--ink-2); text-decoration: underline; text-underline-offset: 4px; }
+      .clear.is-on { display: inline-block; }
+
+      /* Años: regla de barras clicable */
+      .years { margin-top: 36px; }
+      .years__bars { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 3px; align-items: end; height: 64px; }
+      .years__bars button { position: relative; height: 100%; display: flex; align-items: end; }
+      .years__bars button b { display: block; width: 100%; background: var(--ink); opacity: .22; transition: opacity .2s ease; }
+      .years__bars button:hover b, .years__bars button[aria-pressed="true"] b { opacity: 1; }
+      .years__bars button[aria-pressed="true"] b { background: var(--red); }
+      .years__axis { display: flex; justify-content: space-between; margin-top: 6px; font-size: 1rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+      /* Pared */
+      .wall { padding-top: clamp(24px, 4vw, 56px); }
+      .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px 18px; }
+      .tile { display: grid; gap: 8px; min-width: 0; }
+      .tile[hidden] { display: none; }
+      .tile figure { margin: 0; aspect-ratio: 16 / 10; overflow: hidden; background: #e3e0d9; }
+      .tile img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+      .tile a:hover img { transform: scale(1.03); }
+      .tile b { display: block; font-weight: 600; font-size: 1rem; line-height: 1.3; }
+      .tile span { display: block; font-size: 1rem; line-height: 1.35; color: var(--ink-2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+      .tile em { display: block; font-style: normal; font-size: 1rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+      /* Recorrido: el render del sector activo, entre las fotos */
+      .tile--scene { grid-column: span 2; }
+      .tile--scene figure { aspect-ratio: 16 / 9; background: #0b0b0c; }
+      .tile--scene img { opacity: .96; }
+      .tile--scene b { color: var(--ink); }
+      .tile--scene b::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 8px; background: var(--red); }
+      .empty { display: none; padding: 48px 0; font-size: 1.25rem; color: var(--ink-2); }
+      .empty.is-on { display: block; }
+
+      /* Cierre y pie */
+      .close { margin: 0 var(--gutter); padding: clamp(40px, 6vw, 72px) 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: center; }
+      .close h2 { margin: 0; font-size: clamp(1.75rem, 3vw, 2.5rem); line-height: 1.1; font-weight: 600; letter-spacing: -.02em; }
+      .close p { margin: 8px 0 0; font-size: 1.125rem; color: var(--ink-2); }
+      .close .btn { margin-top: 0; }
+      footer { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; padding: 20px var(--gutter) 28px; border-top: 1px solid var(--line); font-size: 1rem; color: var(--ink-2); }
+
+      @media (max-width: 1100px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+      @media (max-width: 860px) {
+        .top nav a:not(.cta) { display: none; }
+        .body { grid-template-columns: 1fr; gap: 8px; }
+        .panel { position: static; padding-top: 24px; }
+        .count { font-size: clamp(5rem, 24vw, 7.5rem); }
+        .sentence { max-width: none; }
+        .lenses__label { width: 64px; }
+        .grid { gap: 18px 12px; }
+        .tile--scene { grid-column: 1 / -1; }
+        .close { grid-template-columns: 1fr; }
+      }
+      @media (prefers-reduced-motion: reduce) { .tile img { transition: none; } }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <a class="logo" href="/">ultimamilla<i>.</i>com<i>.</i>ar</a>
+      <nav aria-label="Principal">
+        <a href="/servicios">Servicios</a>
+        <a href="/sectores">Sectores</a>
+        <a href="/antecedentes">Antecedentes</a>
+        <a href="/blog">Blog</a>
+        <a class="cta" href="/contacto">Contactar</a>
+      </nav>
+    </header>
+
+    <div class="lenses" data-lenses>
+      <div class="lenses__row" role="group" aria-label="Filtrar por sector">
+        <span class="lenses__label">Sector</span>
+        {sectorsList.map((s) => <button class="lens" type="button" data-lens="sector" data-value={s.slug} aria-pressed="false">{s.name}</button>)}
+      </div>
+      <div class="lenses__row" role="group" aria-label="Filtrar por servicio">
+        <span class="lenses__label">Servicio</span>
+        {servicesList.map((s) => <button class="lens" type="button" data-lens="service" data-value={String(s.code)} aria-pressed="false">{s.name}</button>)}
+      </div>
+    </div>
+
+    <main class="body" data-wall data-total={total} data-scenes={JSON.stringify(sceneMap)} data-scene-titles={JSON.stringify(sceneTitles)} data-service-keys={JSON.stringify(SERVICE_KEY)} data-sector-names={JSON.stringify(Object.fromEntries(sectorsList.map((s) => [s.slug, s.name])))} data-service-names={JSON.stringify(Object.fromEntries(servicesList.map((s) => [String(s.code), s.name])))}>
+      <aside class="panel">
+        <p class="kicker">Más de 22 años de servicios IT · Mendoza, Argentina</p>
+        <h1 class="count"><span data-count>{total}</span><i>.</i></h1>
+        <p class="sentence" data-sentence>proyectos documentados</p>
+        <p class="lead">Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
+        <a class="btn" href="/contacto">Pedir un relevamiento <span aria-hidden="true">↗</span></a>
+        <div class="years">
+          <div class="years__bars" role="group" aria-label="Filtrar por año">
+            {years.map((y) => (
+              <button type="button" data-lens="year" data-value={String(y)} aria-pressed="false" aria-label={`${y}: ${yearCounts[y]} proyectos`} title={`${y} · ${yearCounts[y]}`}>
+                <b style={`height:${Math.max(6, Math.round((yearCounts[y] / maxYear) * 100))}%`}></b>
+              </button>
+            ))}
+          </div>
+          <div class="years__axis" aria-hidden="true"><span>{firstYear}</span><span>{lastYear}</span></div>
+        </div>
+        <button class="clear" type="button" data-clear>Ver los {total} proyectos</button>
+      </aside>
+
+      <section class="wall" aria-label="Proyectos">
+        <ol class="grid" data-grid>
+          {items.map((item, index) => (
+            <>
+              {(index === 0 || index === 18 || index === 60) && (
+                <li class="tile tile--scene" data-scene-tile>
+                  <a href={`/${sectorsList.find((s) => s.scene === (index === 0 ? 'fachada' : index === 18 ? 'aeropuerto' : 'bodega'))?.slug || 'sectores'}`} data-scene-link>
+                    <figure><img src={`/cine/media/cine-${index === 0 ? 'fachada' : index === 18 ? 'aeropuerto' : 'bodega'}-poster.avif`} alt="" width="1920" height="1080" loading={index === 0 ? 'eager' : 'lazy'} decoding="async" data-scene-img data-slot={index === 0 ? '0' : index === 18 ? '1' : '2'} /></figure>
+                    <b data-scene-caption>Recorrido · {sceneTitles[index === 0 ? 'fachada' : index === 18 ? 'aeropuerto' : 'bodega']}</b>
+                  </a>
+                </li>
+              )}
+              <li class="tile" data-tile data-sector={item.sector} data-services={item.services} data-year={String(item.year)}>
+                <a href={item.href}>
+                  <figure>{item.image && <img src={item.image} alt="" width="480" height="300" loading={index < 9 ? 'eager' : 'lazy'} decoding="async" />}</figure>
+                  <b>{item.client}</b>
+                  <span>{item.title}</span>
+                  <em>{[item.sectorLabel, item.year].filter(Boolean).join(' · ')}</em>
+                </a>
+              </li>
+            </>
+          ))}
+        </ol>
+        <p class="empty" data-empty>Sin proyectos para esta combinación.</p>
+      </section>
+    </main>
+
+    <section class="close">
+      <div>
+        <h2>Contanos qué tiene que seguir funcionando.</h2>
+        <p>Relevamos en el lugar y te decimos qué hace falta.</p>
+      </div>
+      <a class="btn" href="/contacto">Pedir un relevamiento</a>
+    </section>
+    <footer>
+      <span>ultimamilla.com.ar</span>
+      <span>Houssay 1159, Guaymallén, Mendoza · contacto@ultimamilla.com.ar · Lunes a viernes, 8 a 18 h</span>
+    </footer>
+
+    <script>
+      const root = document.querySelector<HTMLElement>('[data-wall]')!;
+      const total = Number(root.dataset.total || 0);
+      const scenes = JSON.parse(root.dataset.scenes || '{}') as Record<string, string>;
+      const sceneTitles = JSON.parse(root.dataset.sceneTitles || '{}') as Record<string, string>;
+      const serviceKeys = JSON.parse(root.dataset.serviceKeys || '{}') as Record<string, string>;
+      const sectorNames = JSON.parse(root.dataset.sectorNames || '{}') as Record<string, string>;
+      const serviceNames = JSON.parse(root.dataset.serviceNames || '{}') as Record<string, string>;
+      const tiles = [...document.querySelectorAll<HTMLElement>('[data-tile]')];
+      const lenses = [...document.querySelectorAll<HTMLButtonElement>('[data-lens]')];
+      const sceneTiles = [...document.querySelectorAll<HTMLElement>('[data-scene-tile]')];
+      const countEl = document.querySelector<HTMLElement>('[data-count]')!;
+      const sentenceEl = document.querySelector<HTMLElement>('[data-sentence]')!;
+      const emptyEl = document.querySelector<HTMLElement>('[data-empty]')!;
+      const clearEl = document.querySelector<HTMLButtonElement>('[data-clear]')!;
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const state: Record<string, string> = { sector: '', service: '', year: '' };
+      const PARAM: Record<string, string> = { sector: 'sector', service: 'servicio', year: 'anio' };
+      const DEFAULT_SCENES = ['fachada', 'aeropuerto', 'bodega'];
+
+      // La cifra pasa de un valor al otro en medio segundo; nunca salta.
+      let shown = total, raf = 0;
+      const tween = (to: number) => {
+        cancelAnimationFrame(raf);
+        if (reduce) { shown = to; countEl.textContent = String(to); return; }
+        const from = shown, t0 = performance.now(), dur = 520;
+        const step = (now: number) => {
+          const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+          shown = Math.round(from + (to - from) * e);
+          countEl.textContent = String(shown);
+          if (k < 1) raf = requestAnimationFrame(step);
+        };
+        raf = requestAnimationFrame(step);
+      };
+
+      // Frase compuesta con los nombres del catálogo, sin redacción nueva.
+      const sentence = (n: number) => {
+        const parts = ['proyectos'];
+        if (state.service) parts.push(`de ${serviceNames[state.service] || ''}`);
+        if (state.sector) parts.push(`en ${sectorNames[state.sector] || ''}`);
+        if (state.year) parts.push(`en ${state.year}`);
+        if (!state.service && !state.sector && !state.year) parts.push('documentados');
+        return n === 1 ? parts.join(' ').replace(/^proyectos/, 'proyecto') : parts.join(' ');
+      };
+
+      const apply = (push = true) => {
+        let n = 0;
+        tiles.forEach((tile) => {
+          const ok = (!state.sector || tile.dataset.sector === state.sector)
+            && (!state.service || (tile.dataset.services || '').split(' ').includes(state.service))
+            && (!state.year || tile.dataset.year === state.year);
+          tile.hidden = !ok;
+          if (ok) n += 1;
+        });
+        lenses.forEach((b) => b.setAttribute('aria-pressed', String(state[b.dataset.lens!] === b.dataset.value)));
+        tween(n);
+        sentenceEl.textContent = sentence(n);
+        emptyEl.classList.toggle('is-on', n === 0);
+        const active = Boolean(state.sector || state.service || state.year);
+        clearEl.classList.toggle('is-on', active);
+        // Recorridos: la escena del sector activo (o las tres por defecto), con el servicio activo si lo hay.
+        const svc = state.service ? serviceKeys[state.service] : '';
+        sceneTiles.forEach((tile, i) => {
+          const scene = state.sector ? (scenes[state.sector] || DEFAULT_SCENES[i]) : DEFAULT_SCENES[i];
+          const img = tile.querySelector<HTMLImageElement>('[data-scene-img]')!;
+          const cap = tile.querySelector<HTMLElement>('[data-scene-caption]')!;
+          const link = tile.querySelector<HTMLAnchorElement>('[data-scene-link]')!;
+          const src = `/cine/media/cine-${scene}${svc ? `-${svc}` : ''}-poster.avif`;
+          if (!img.src.endsWith(src)) img.src = src;
+          cap.textContent = `Recorrido · ${sceneTitles[scene] || ''}${svc ? ` · ${serviceNames[state.service]}` : ''}`;
+          link.href = state.sector ? `/${state.sector}` : `/${Object.keys(scenes).find((s) => scenes[s] === scene) || 'sectores'}`;
+          // Con un sector activo, un solo recorrido alcanza.
+          tile.hidden = Boolean(state.sector) && i > 0;
+        });
+        if (push) {
+          const url = new URL(location.href);
+          Object.entries(PARAM).forEach(([k, p]) => { if (state[k]) url.searchParams.set(p, state[k]); else url.searchParams.delete(p); });
+          history.replaceState(null, '', url);
+        }
+      };
+
+      lenses.forEach((b) => b.addEventListener('click', () => {
+        const kind = b.dataset.lens!, value = b.dataset.value!;
+        state[kind] = state[kind] === value ? '' : value;
+        apply();
+      }));
+      clearEl.addEventListener('click', () => { state.sector = ''; state.service = ''; state.year = ''; apply(); });
+
+      const params = new URL(location.href).searchParams;
+      Object.entries(PARAM).forEach(([k, p]) => { const v = params.get(p); if (v && lenses.some((b) => b.dataset.lens === k && b.dataset.value === v)) state[k] = v; });
+      apply(false);
+    </script>
+  </body>
+</html>
