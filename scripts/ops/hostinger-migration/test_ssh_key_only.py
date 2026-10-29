@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import textwrap
 import time
 import unittest
 from unittest.mock import patch
@@ -13,6 +14,24 @@ from unittest.mock import patch
 spec = importlib.util.spec_from_file_location('ssh_keys', Path(__file__).with_name('ssh-key-only.py'))
 m = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m)
+
+
+class WorkflowSyntaxTests(unittest.TestCase):
+    def script(self):
+        workflow = Path(__file__).resolve().parents[3] / '.github/workflows/hostinger-ssh-key-only.yml'
+        if not workflow.exists():
+            self.skipTest('Sparse unrelated checkout; the SSH workflow includes its own source')
+        section = workflow.read_text().split('      - name: Preserve both administrative keys and all current sessions\n', 1)[1]
+        return textwrap.dedent(section.split('        run: |\n', 1)[1])
+
+    def test_actual_workflow_shell_has_valid_conditional_and_heredoc_syntax(self):
+        r = subprocess.run(['bash', '-n'], input=self.script(), text=True, capture_output=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
+
+    def test_missing_final_conditional_is_rejected_by_real_bash(self):
+        broken = self.script().rstrip().removesuffix('fi')
+        r = subprocess.run(['bash', '-n'], input=broken, text=True, capture_output=True)
+        self.assertNotEqual(r.returncode, 0)
 
 
 class KeyOnlyTests(unittest.TestCase):
