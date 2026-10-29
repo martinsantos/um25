@@ -537,39 +537,7 @@ Pendiente: consolidación de CSS (fase 6). `v4.css` sigue en 3.643 líneas
 con 566 `!important`: la mayoría de las reglas mezclan selectores de varias
 páginas en listas `:where(...)`, y limpiarlas pide revisar página por página.
 
-## 9. Visión (prototipo navegable en `/prototipo`)
-
-Una sola idea para todo el sitio: **el cliente tiene un lugar que no puede
-parar; nosotros somos los sistemas que corren por dentro.** De esa idea salen
-tres piezas, y con tres piezas se arma todo el sitio.
-
-1. **El lugar** (`/prototipo`). La portada es un lugar en corte: edificio,
-   bodega, terminal, hospital, planta. Los ocho sistemas se encienden en el
-   dibujo al elegirlos y, al lado, aparecen las obras reales donde ya se
-   hizo, con la cuenta exacta. "Ver el recorrido" abre la película de ese
-   lugar y ese sistema. Pregunta de apertura: "¿Qué tiene que seguir
-   funcionando?" (derivada del cierre actual, única frase no literal).
-2. **La ficha única** (`/prototipo/sistema/101`, `/prototipo/proyecto/3622`).
-   Un solo formato para sistema, lugar y proyecto: a la izquierda los datos
-   fijos (qué, dónde, cuándo, con qué sistemas) y la acción; a la derecha la
-   imagen y el contenido en filas. Sin códigos en el título, sin filas que
-   repitan el título, sin texto de plantilla.
-3. **La pared** (`/prototipo/proyectos`). El catálogo completo con lentes
-   (sector, sistema, año) y URL compartible. Es la vista "ver todos" de
-   cualquier ficha y reemplaza al listado de antecedentes.
-
-Navegación en cinco palabras, cuatro de ellas ya usadas en el sitio:
-Sistemas · Lugares · Proyectos · Notas · Contactar. Las mismas tres piezas
-visuales en todas las páginas: corte isométrico, filas y mosaico de fotos.
-Fondo papel; los renders quedan como tablero oscuro dentro de la página.
-
-Lo que falta para que sea producto: menú móvil, lugar "Minería" con su
-propio corte, formulario de contacto conectado a `/api/contact`, pared con
-carga parcial, fichas de lugar (hoy enlazan a la pared filtrada), y decidir
-si las fichas de sistema muestran la ficha técnica en pantalla (el prototipo
-lo hace; la decisión del 24/10 decía descarga).
-
-## 10. Notas de traspaso
+## 9. Notas de traspaso
 
 - El documento `RETOMA-REDISENO-UMSA-20261029.md` citado en el pedido vive en
   una ruta local del Mac y no está en el repositorio; este plan se hizo sin él.
