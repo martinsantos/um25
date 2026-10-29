@@ -38,6 +38,12 @@ function cleanTitle(raw: unknown, client: string): string {
   return title.replace(/\s+-\s+/g, ' · ');
 }
 
+/** Miniatura de 480 px (scripts/antecedentes_images/make-thumbs.mjs) para tarjetas y mosaico; la imagen completa queda para la ficha. */
+function thumbOf(image: string): string {
+  return /^\/images\/antecedentes\/generated\/.+-principal\.webp$/.test(image) ? image.replace(/-principal\.webp$/, '-principal-480.webp') : image;
+}
+const CARD_SIZES = '(max-width: 639px) 132px, (max-width: 1100px) 50vw, 33vw';
+
 // Destacados: los 4 proyectos reales con imagen curada; el resto sigue por fecha.
 const leadOrder = [3065, 3075, 3064, 3334];
 const orderedLead = leadOrder.map((id) => antecedentesById.get(id)).filter(Boolean);
@@ -165,7 +171,7 @@ for (const pass of [true, false]) {
           {heroTiles.map((item, i) => (
             <li class={`ev-collage__tile ev-collage__tile--${i}`}>
               <a href={item.href} aria-label={`${item.client}: ${item.title}`} data-case-link>
-                <img src={item.image} alt="" width="800" height="500" loading={i < 5 ? 'eager' : 'lazy'} decoding="async" />
+                <img src={thumbOf(item.image)} srcset={thumbOf(item.image) !== item.image ? `${thumbOf(item.image)} 480w, ${item.image} 1600w` : undefined} sizes={i === 0 ? '(max-width: 639px) 50vw, 400px' : '(max-width: 639px) 25vw, 200px'} alt="" width="800" height="500" loading={i < 5 ? 'eager' : 'lazy'} decoding="async" />
                 <span>{item.sector} · {item.year}</span>
               </a>
             </li>
@@ -246,13 +252,13 @@ for (const pass of [true, false]) {
           >
             <a class="ev-card" href={item.href}>
               <div class="ev-card__media">
-                <img src={item.image} alt="" width="800" height="500" loading={index < 4 ? 'eager' : 'lazy'} decoding="async" />
+                <img src={thumbOf(item.image)} srcset={thumbOf(item.image) !== item.image ? `${thumbOf(item.image)} 480w, ${item.image} 1600w` : undefined} sizes={CARD_SIZES} alt="" width="800" height="500" loading={index < 4 ? 'eager' : 'lazy'} decoding="async" />
               </div>
               <div class="ev-card__body">
                 <p class="ev-card__client">{item.client}</p>
                 <h3 class="ev-card__title">{item.title}</h3>
                 <p class="ev-card__meta">
-                  <span>{item.sector}</span><span aria-hidden="true">·</span><span>{item.year}</span><span aria-hidden="true">·</span><span>#{item.id}</span>
+                  <span>{item.sector}</span><span aria-hidden="true">·</span><span>{item.year}</span>
                 </p>
               </div>
             </a>
@@ -720,7 +726,7 @@ for (const pass of [true, false]) {
       border-radius: 4px;
       background: var(--x-text);
       color: var(--x-ink);
-      font-size: 13px;
+      font-size: 1rem;
       font-weight: 600;
       line-height: 1.2;
       text-align: center;
@@ -773,7 +779,7 @@ for (const pass of [true, false]) {
       margin: 0;
       padding-top: 8px;
       color: var(--x-muted);
-      font-size: 13px;
+      font-size: 1rem;
       font-weight: 600;
       letter-spacing: 0.12em;
       text-transform: uppercase;
@@ -807,7 +813,7 @@ for (const pass of [true, false]) {
 
     .ev-chip span {
       color: var(--x-muted);
-      font-size: 13px;
+      font-size: 1rem;
       font-variant-numeric: tabular-nums;
     }
 
@@ -840,7 +846,7 @@ for (const pass of [true, false]) {
     .ev-status p {
       margin: 0;
       color: var(--x-muted);
-      font-size: var(--x-fs-meta);
+      font-size: 1rem;
       line-height: 1.45;
     }
 
@@ -958,7 +964,7 @@ for (const pass of [true, false]) {
       margin: 0;
       overflow: hidden;
       color: var(--x-muted);
-      font-size: 14px;
+      font-size: 1rem;
       line-height: 1.4;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -989,7 +995,7 @@ for (const pass of [true, false]) {
       padding-top: 12px;
       border-top: 1px solid var(--x-line);
       color: var(--x-muted);
-      font-size: 13px;
+      font-size: 1rem;
       line-height: 1.45;
       font-variant-numeric: tabular-nums;
     }
@@ -1038,7 +1044,7 @@ for (const pass of [true, false]) {
       background: transparent;
       color: var(--x-text);
       font: inherit;
-      font-size: 15px;
+      font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
       transition: background-color 160ms var(--x-ease), border-color 160ms var(--x-ease);
@@ -1128,7 +1134,7 @@ for (const pass of [true, false]) {
       border-radius: 0;
       background: var(--x-red);
       color: #fff;
-      font-size: 15px;
+      font-size: 1rem;
       font-weight: 600;
       text-decoration: none;
       transition: background-color 160ms var(--x-ease);
@@ -1254,7 +1260,7 @@ for (const pass of [true, false]) {
         width: 100%;
         justify-content: center;
         padding: 12px 16px;
-        font-size: 14px;
+        font-size: 1rem;
       }
 
       /* El email puede cortar en teléfonos angostos (320 px) sin desbordar el panel. */
@@ -1286,12 +1292,12 @@ for (const pass of [true, false]) {
     .ev-collage__tile--0 { grid-column: span 2; grid-row: span 2; }
     .ev-collage__tile a { display: block; width: 100%; height: 100%; color: #fff; text-decoration: none; }
     .ev-collage__tile img { width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(0.85) brightness(0.82); transition: filter 300ms var(--x-ease); }
-    .ev-collage__tile span { position: absolute; left: 8px; bottom: 6px; right: 8px; font-size: 12px; line-height: 1.3; color: #fff; opacity: 0; transform: translateY(4px); transition: opacity 200ms var(--x-ease), transform 200ms var(--x-ease); text-shadow: 0 1px 6px rgba(0,0,0,0.8); }
+    .ev-collage__tile span { position: absolute; left: 8px; bottom: 6px; right: 8px; font-size: 1rem; line-height: 1.3; color: #fff; opacity: 0; transform: translateY(4px); transition: opacity 200ms var(--x-ease), transform 200ms var(--x-ease); text-shadow: 0 1px 6px rgba(0,0,0,0.8); }
     .ev-collage__tile a:hover img, .ev-collage__tile a:focus-visible img { filter: none; }
     .ev-collage__tile a:hover span, .ev-collage__tile a:focus-visible span { opacity: 1; transform: none; }
     .ev .ev-panel { margin-top: 12px; padding: 16px 20px; gap: 10px; }
     .ev .ev-panel__row { grid-template-columns: 84px 1fr; gap: 12px; }
-    .ev .ev-panel__label { text-transform: none; letter-spacing: 0; font-size: 14px; padding-top: 7px; }
+    .ev .ev-panel__label { text-transform: none; letter-spacing: 0; font-size: 1rem; padding-top: 7px; }
     .ev .ev-panel__chips { gap: 6px; }
     .ev .ev-chip { min-height: 32px; padding: 0 10px; }
     @media (max-width: 1023px) {
@@ -1312,7 +1318,7 @@ for (const pass of [true, false]) {
       .ev-status { margin-top: 20px; }
       .ev .ev-panel { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 12px; }
       .ev .ev-panel__row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 5px; min-width: 0; }
-      .ev .ev-panel__label { padding: 0; font-size: 12px; line-height: 1.2; }
+      .ev .ev-panel__label { padding: 0; font-size: 1rem; line-height: 1.2; }
       .ev .ev-panel__chips { display: none; }
       .ev .ev-filter-select { display: grid; min-width: 0; }
       .ev .ev-filter-select select { width: 100%; min-width: 0; min-height: 44px; padding: 8px 28px 8px 10px; border: 1px solid var(--x-line); border-radius: 3px; color: var(--x-text); background: var(--x-panel); font: inherit; font-size: 16px; }

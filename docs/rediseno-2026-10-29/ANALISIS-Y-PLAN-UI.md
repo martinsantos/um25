@@ -469,7 +469,53 @@ Archivos: `src/styles/v4.css` y los `<style>` de los componentes que sobreviven.
 
 ---
 
-## 8. Notas de traspaso
+## 8. Estado de ejecución (2026-10-29, rama `feature/rediseno-umsa-20261029`)
+
+Hecho y medido en preview local con el mismo script (escritorio 1440×900, móvil 390×844):
+
+| Ruta | Transferido móvil antes → ahora | HTML antes → ahora |
+|---|---:|---:|
+| `/` | 4,4 MB → 1,3 MB | 461 KB → 72 KB |
+| `/servicios` | 3,9 MB → 1,3 MB | — |
+| `/servicios/101/…` | 3,3 MB → 1,1 MB | 274 KB → ~70 KB |
+| `/aeropuertos` | 3,8 MB → 1,2 MB | 263 KB → 66 KB |
+| `/nosotros` | 5,4 MB → 0,6 MB | — |
+| `/contacto` | 6,5 MB → 0,9 MB | — |
+
+- Fase 0: páginas desactivadas, resource forks de macOS, `sudoers.py` y
+  `.DS_Store` fuera del índice.
+- Fase 1: película del banner sólo en escritorio con conexión normal; póster
+  a 1,5 s si no arranca; sin leyenda de escena; sin aviso de instalación.
+  El modal de contacto **se conserva** (intercepta los enlaces a `/contacto`
+  y guarda el origen del pedido; quitarlo era perder esa trazabilidad).
+- Fase 2: H1 a 52 px / 700 en escritorio y 36 px en móvil en todas las rutas,
+  incluidas `/nosotros`, `/contacto` y `/blog`. Los siete bloques de cierre
+  **no se unificaron** en un componente: tienen el mismo texto y botón, y
+  varios contratos de test cubren cada uno; se deja para la fase 6 de CSS.
+- Fase 3 (ficha): sin "Área registrada", "Tipo de trabajo", "Coincidencia",
+  "Clasificación pendiente" ni código en el encabezado; la referencia pasa a
+  la ficha de datos (el `<title>` la conserva para distinguir obras repetidas).
+  Sin bajada ni "Qué se hizo" cuando la descripción es la fórmula de
+  plantilla o repite el título. Sin "Alcance técnico". La imagen realista por
+  antecedente **se conserva** (pedido del dueño del 25/10).
+- Fase 3 (listado): miniaturas de 480 px para tarjetas y mosaico
+  (`scripts/antecedentes_images/make-thumbs.mjs`, 518 archivos, 8 MB en
+  total); metadatos a 16 px; sin `#id` en las tarjetas. La paginación en
+  servidor queda pendiente: el filtro cliente actual necesita todas las
+  tarjetas en el DOM.
+- Fase 4a: la isometría del despiece no viaja en el HTML; se carga desde
+  `/cine/iso/site-*-v2.svg` sólo en pantallas anchas. En teléfono no se
+  muestra el dibujo y la lista navega con un toque. El atlas de sectores
+  muestra el póster en móvil en lugar del panel negro.
+- Fondo de `/nosotros` y `/contacto`: póster en móvil, película sólo en
+  escritorio.
+
+Pendiente, en orden: paginación en servidor de `/antecedentes` y filtros
+reducidos a Sector y Año; home y sector sin isometría y con una sola
+plantilla (fase 4b); ficha técnica visible en la ficha de servicio (fase 5);
+consolidación de CSS (fase 6).
+
+## 9. Notas de traspaso
 
 - El documento `RETOMA-REDISENO-UMSA-20261029.md` citado en el pedido vive en
   una ruta local del Mac y no está en el repositorio; este plan se hizo sin él.
