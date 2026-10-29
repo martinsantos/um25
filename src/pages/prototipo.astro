@@ -145,8 +145,9 @@ const sceneMap = Object.fromEntries(sectorsList.map((s) => [s.slug, s.scene]));
       .tile { display: grid; gap: 8px; min-width: 0; }
       .tile[hidden] { display: none; }
       .tile figure { margin: 0; aspect-ratio: 16 / 10; overflow: hidden; background: #e3e0d9; }
-      .tile img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
-      .tile a:hover img { transform: scale(1.03); }
+      .tile img { display: block; width: 100%; height: 100%; object-fit: cover; }
+      /* Sin zoom al pasar el puntero: imágenes estables (contrato UMSA). El foco va por el texto. */
+      .tile a:hover b { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; }
       .tile b { display: block; font-weight: 600; font-size: 1rem; line-height: 1.3; }
       .tile span { display: block; font-size: 1rem; line-height: 1.35; color: var(--ink-2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
       .tile em { display: block; font-style: normal; font-size: 1rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }
@@ -178,7 +179,6 @@ const sceneMap = Object.fromEntries(sectorsList.map((s) => [s.slug, s.scene]));
         .tile--scene { grid-column: 1 / -1; }
         .close { grid-template-columns: 1fr; }
       }
-      @media (prefers-reduced-motion: reduce) { .tile img { transition: none; } }
     </style>
   </head>
   <body>
