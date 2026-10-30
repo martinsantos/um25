@@ -885,7 +885,7 @@ DECODIFICANDO INFORMACIÓN EMPRESARIAL...
   showFortune(args) {
     const fortunes = [
       "En ULTIMA MILLA, cada conexión es una oportunidad de innovar 🚀",
-      "22 años conectando el futuro, un proyecto a la vez ⚡",
+      "24 años conectando el futuro, un proyecto a la vez ⚡",
       "La mejor tecnología es la que conecta personas y oportunidades 🌟",
       "En el networking, como en la vida, la calidad supera a la cantidad 🔗",
       "Cada cable tendido es un puente hacia el futuro 🌉",

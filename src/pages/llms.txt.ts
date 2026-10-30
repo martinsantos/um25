@@ -23,7 +23,7 @@ export const GET: APIRoute = async () => {
     `ULTIMA MILLA S.A. es una empresa argentina de servicios IT integrales con sede en ${BUSINESS_ADDRESS.addressLocality}, Mendoza. Diseña, instala, documenta y mantiene infraestructura tecnológica para empresas y organismos públicos: redes, seguridad electrónica, telecomunicaciones, software, soporte, consultoría, detección de incendios y energía para IT.`,
     '',
     '## Datos verificables',
-    '- Trayectoria: 22+ años.',
+    '- Trayectoria: 24+ años.',
     `- Antecedentes técnicos publicados: ${count} (${SITE_URL}/antecedentes).`,
     '- Frentes de servicio: 8.',
     '- Soporte: 24/7 con abono.',

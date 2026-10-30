@@ -122,7 +122,7 @@ class UMTerminalEngine {
 
 📊 ESTADÍSTICAS:
    • 469+ proyectos completados
-   • 22 años de experiencia
+   • 24 años de experiencia
    • 150+ clientes activos
    • Cobertura en toda Mendoza
 
@@ -404,9 +404,9 @@ visitante@ultimamilla.com.ar
     return `<div class="command-info">
 ⏱️  TIEMPO DE FUNCIONAMIENTO - ULTIMA MILLA
 
-🖥️  Servidor web: 99.8% uptime (22 años)
+🖥️  Servidor web: 99.8% uptime (24 años)
 🌐 Sitio web: Operativo desde 2000
-💼 Empresa: 22 años en funcionamiento
+💼 Empresa: 24 años en funcionamiento
 🔧 Último mantenimiento: Ayer 02:00 AM
 
 📊 Estadísticas de rendimiento:
@@ -483,7 +483,7 @@ class UMCliPlugin {
               <pre class="um-ascii-art"></pre>
               <div class="um-welcome-info">
                 <p>🚀 Bienvenido al <strong>ULTIMA MILLA CLI</strong> - Terminal interactivo</p>
-                <p>📊 Datos reales: 201+ proyectos, 150+ clientes, 22 años de experiencia</p>
+                <p>📊 Datos reales: 201+ proyectos, 150+ clientes, 24 años de experiencia</p>
                 <p>💡 Escribe <code>help</code> para comandos disponibles</p>
                 <p>⚡ Prueba <code>sudo ultimamilla.py --demo</code> para demo completa</p>
               </div>
@@ -854,7 +854,7 @@ class UMCliPlugin {
 ║              ULTIMA MILLA                  ║
 ║       Conectando el futuro desde 2003      ║
 ║                                            ║
-║     22 años de experiencia técnica         ║
+║     24 años de experiencia técnica         ║
 ║     +469 proyectos publicados              ║
 ║     150+ clientes y organismos             ║
 ║     comandos para explorar evidencia       ║

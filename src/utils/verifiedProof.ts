@@ -89,7 +89,7 @@ export function getTopClienteRecords(limit = 6): { name: string; count: number; 
 export function getInstitutionalProofLines(): string[] {
   return [
     getAntecedentesCountExactPhrase(),
-    '22+ años de trayectoria',
+    '24+ años de trayectoria',
     '8 frentes de servicio',
     'Soporte y operación 24/7',
   ];
