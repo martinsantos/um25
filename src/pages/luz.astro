@@ -1,9 +1,11 @@
 ---
 /**
- * Prototipo de portada "A la luz del lugar" (2026-10-29). Dirección humana: fotografía
- * de los lugares reales a la hora de la luz, gente yendo a trabajar, Mendoza. Lectura
- * tranquila, una idea por pantalla, mucho aire. Sin diagramas, sin contadores, sin HUD.
- * Textos: sólo frases ya existentes en el sitio y datos del catálogo. No indexable.
+ * Portada "A la luz del lugar" · v2 con diseño de interacción (2026-10-30).
+ * Dirección humana: fotografía de lugares reales a la hora de la luz, gente yendo a trabajar,
+ * Mendoza. Movimiento con sentido, nunca decorativo: la apertura respira y elige la foto según
+ * la hora de Mendoza; el texto se enciende al leerlo; los lugares son una pila fija que cambia al
+ * bajar; los frentes son un carril; la línea de trabajo se dibuja; el contacto es una conversación.
+ * Todo respeta prefers-reduced-motion. Textos: sólo frases ya existentes en el sitio. No indexable.
  */
 import { getAntecedentes } from '../lib/um26-directus';
 import { getAntecedenteSectorLabel } from '../utils/antecedenteSectorPresentation';
@@ -31,17 +33,31 @@ const recent = [...catalog]
   .filter((c, i, arr) => arr.findIndex((o) => `${o.title}|${o.client}`.toLowerCase() === `${c.title}|${c.client}`.toLowerCase()) === i)
   .slice(0, 6)
   .map((c) => { const client = clientCase(cleanText(c.client)); return { href: `/antecedentes/${c.id}/${c.slug}`, client, title: cleanTitle(c.title, client), year: c.year, sector: getAntecedenteSectorLabel(c.sector_slug) || '' }; });
-
 const countOf = (slug: string) => catalog.filter((c) => c.sector_slug === slug).length;
-// El ensayo: cinco lugares, cinco fotos a la hora de la luz. Textos de la home y de sectores.
-const essay = [
+
+// Apertura según la hora de Mendoza: mañana, día o atardecer. La misma frase, otra luz.
+const hour = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: 'America/Argentina/Mendoza' }).format(new Date()));
+const openings = {
+  manana: { image: '/images/editorial/umsa-about-engineering.webp', pos: '60% 50%' },
+  dia: { image: '/images/editorial/umsa-sector-constructoras.webp', pos: '55% 40%' },
+  tarde: { image: '/images/editorial/umsa-sector-bodegas.webp', pos: '50% 60%' },
+};
+const openingKey = hour >= 6 && hour < 12 ? 'manana' : hour >= 12 && hour < 18 ? 'dia' : 'tarde';
+const opening = openings[openingKey];
+
+const places = [
   { slug: 'bodegas', image: '/images/editorial/umsa-sector-bodegas.webp' },
   { slug: 'aeropuertos', image: '/images/editorial/umsa-sector-aeropuertos.webp' },
   { slug: 'salud', image: '/images/editorial/umsa-sector-salud.webp' },
   { slug: 'mineria', image: '/images/editorial/umsa-sector-mineria.webp' },
+  { slug: 'industria', image: '/images/editorial/umsa-sector-industria.webp' },
   { slug: 'constructoras', image: '/images/editorial/umsa-sector-constructoras.webp' },
 ].map((e) => { const row = SECTORS.find((s) => s.slug === e.slug)!; return { ...e, name: row.name, text: row.text, href: `/${e.slug}`, count: countOf(e.slug) }; });
-const services = NAV_SERVICES;
+
+const SERVICE_IMAGE: Record<string, string> = { '101': 'redes', '102': 'seguridad-electronica', '103': 'telecomunicaciones', '104': 'software-a-medida', '105': 'soporte-247', '106': 'consultoria-it', '107': 'deteccion-incendios', '108': 'electricos-it' };
+const services = NAV_SERVICES.map((s) => ({ ...s, image: `/images/editorial/umsa-service-${SERVICE_IMAGE[s.code]}.webp` }));
+const statement = 'ULTIMA MILLA integra infraestructura, comunicaciones, seguridad y software con criterio de continuidad operativa. Diseño, instalación y soporte trabajan en un mismo sistema.';
+const statementWords = statement.split(' ');
 ---
 <!doctype html>
 <html lang="es-AR">
@@ -54,165 +70,220 @@ const services = NAV_SERVICES;
     <link rel="preload" href="/fonts/um-sans/v2.0.0/UMSans2-Variable.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/fonts/um-sans/v2.0.0/um-sans.css" />
     <style>
-      :root { --font: var(--um-font-family, 'UM Sans 2', 'UM Sans 1.2 Compatibility', Arial, system-ui, sans-serif); --bg: #faf8f4; --ink: #141414; --ink-2: #555; --ink-3: #8c8c8c; --line: rgba(20,20,20,.12); --red: #dc2626; --gutter: clamp(20px, 5vw, 96px); --measure: 34ch; }
+      :root { --font: var(--um-font-family, 'UM Sans 2', 'UM Sans 1.2 Compatibility', Arial, system-ui, sans-serif); --bg: #faf8f4; --ink: #141414; --ink-2: #555; --ink-3: #8c8c8c; --line: rgba(20,20,20,.12); --red: #dc2626; --gutter: clamp(20px, 5vw, 96px); --ease: cubic-bezier(.2, .8, .2, 1); }
       * { box-sizing: border-box; }
       html { background: var(--bg); color: var(--ink); font-family: var(--font); font-synthesis: none; -webkit-font-smoothing: antialiased; }
-      body { margin: 0; font-size: 1.125rem; line-height: 1.6; }
+      body { margin: 0; font-size: 1.125rem; line-height: 1.6; overflow-x: hidden; }
       a { color: inherit; text-decoration: none; }
       img { display: block; max-width: 100%; }
       h1, h2, h3, p { margin: 0; }
       h2 { font-weight: 600; letter-spacing: -.02em; text-wrap: balance; }
       .dot { color: var(--red); }
+      .u { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 5px; text-decoration-thickness: 1.5px; }
 
-      header.top { position: absolute; z-index: 5; left: 0; right: 0; top: 0; display: flex; justify-content: space-between; align-items: center; padding: 22px var(--gutter); color: #fff; }
+      /* Barra: sobre la foto es blanca; cuando empieza la lectura, se vuelve tinta sobre papel. */
+      .top { position: fixed; z-index: 20; left: 0; right: 0; top: 0; display: flex; justify-content: space-between; align-items: center; padding: 20px var(--gutter); color: #fff; transition: color .4s var(--ease), background .4s var(--ease); }
+      .top.is-ink { color: var(--ink); background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); }
       .logo { font-weight: 600; font-size: 1.25rem; letter-spacing: -.02em; }
       .logo i { font-style: normal; font-weight: 700; color: var(--red); }
       nav { display: flex; gap: clamp(16px, 2vw, 28px); font-size: 1rem; }
-      nav a { opacity: .9; } nav a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 5px; }
+      nav a { position: relative; padding: 6px 0; }
+      nav a::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1.5px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform .35s var(--ease); }
+      nav a:hover::after { transform: scaleX(1); }
 
-      /* Apertura: la gente yendo al lugar, con la luz de la mañana. Una frase. */
-      .open { position: relative; min-height: 100svh; display: flex; align-items: flex-end; color: #fff; overflow: hidden; }
-      .open img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 50%; }
-      .open::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.28) 0%, transparent 30%, transparent 55%, rgba(0,0,0,.55) 100%); }
+      /* Apertura: la foto respira (zoom lento), se queda atrás al bajar; la frase llega palabra a palabra. */
+      .open { position: relative; height: 100svh; overflow: hidden; color: #fff; display: flex; align-items: flex-end; }
+      .open__img { position: absolute; inset: -6% 0 0; height: 112%; width: 100%; object-fit: cover; transform-origin: 50% 50%; animation: breathe 16s var(--ease) both; will-change: transform; }
+      @keyframes breathe { from { transform: scale(1.08); } to { transform: scale(1); } }
+      .open::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.3) 0%, transparent 28%, transparent 55%, rgba(0,0,0,.6) 100%); }
       .open__copy { position: relative; z-index: 1; padding: 0 var(--gutter) clamp(40px, 8vh, 96px); }
       .open__kicker { font-size: 1rem; opacity: .85; margin-bottom: 14px; }
-      .open h1 { max-width: 13ch; font-size: clamp(2.4rem, 5.6vw, 5.2rem); line-height: 1.0; font-weight: 600; letter-spacing: -.03em; text-wrap: balance; }
+      .open h1 { max-width: 13ch; font-size: clamp(2.4rem, 5.6vw, 5.2rem); line-height: 1.0; font-weight: 600; letter-spacing: -.03em; }
+      .open h1 .w { display: inline-block; opacity: 0; transform: translateY(.6em); animation: rise .9s var(--ease) forwards; }
+      @keyframes rise { to { opacity: 1; transform: none; } }
+      .open__cue { position: absolute; right: var(--gutter); bottom: 28px; z-index: 1; width: 1px; height: 56px; background: rgba(255,255,255,.5); overflow: hidden; }
+      .open__cue::after { content: ''; position: absolute; left: 0; top: -100%; width: 100%; height: 100%; background: #fff; animation: cue 1.8s ease-in-out infinite; }
+      @keyframes cue { to { top: 100%; } }
 
-      /* Lectura: un párrafo por pantalla, aire alrededor. */
-      .say { padding: clamp(80px, 14vh, 160px) var(--gutter); }
-      .say p { max-width: 30ch; font-size: clamp(1.6rem, 3vw, 2.6rem); line-height: 1.25; letter-spacing: -.02em; font-weight: 500; text-wrap: pretty; }
-      .say p + p { margin-top: 1.2em; font-size: 1.25rem; line-height: 1.5; font-weight: 400; color: var(--ink-2); max-width: 44ch; }
+      /* Lectura: cada palabra se enciende con el scroll. */
+      .say { padding: clamp(90px, 16vh, 180px) var(--gutter); }
+      .say p { max-width: 30ch; font-size: clamp(1.7rem, 3.2vw, 2.8rem); line-height: 1.22; letter-spacing: -.02em; font-weight: 500; text-wrap: pretty; }
+      .say .w { color: var(--ink-3); transition: color .25s linear; }
+      .say .w.on { color: var(--ink); }
+      .say p + p { margin-top: 1.6em; font-size: 1.25rem; line-height: 1.5; font-weight: 400; color: var(--ink-2); max-width: 44ch; }
 
-      /* Ensayo: cinco lugares, cinco fotos grandes, un renglón. */
-      .place { display: grid; grid-template-columns: 1fr; gap: 18px; padding: 0 var(--gutter) clamp(56px, 9vh, 120px); }
-      .place figure { margin: 0; }
-      .place img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
-      .place__cap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 32px; align-items: baseline; }
-      .place__cap h2 { font-size: clamp(1.4rem, 2.2vw, 1.9rem); }
-      .place__cap h2 small { display: block; font-size: 1.125rem; font-weight: 400; color: var(--ink-2); margin-top: 4px; }
-      .place__cap a { font-size: 1rem; color: var(--ink-2); white-space: nowrap; text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 5px; }
-      .place:nth-child(even) .place__cap { grid-template-columns: auto minmax(0, 1fr); }
-      .place:nth-child(even) .place__cap a { order: -1; }
-      .place:nth-child(even) .place__cap h2 { text-align: right; }
+      /* Lugares: pila fija. La foto llena la pantalla y cambia al bajar; la lista marca dónde estás. */
+      .stack { position: relative; }
+      .stack__stage { position: sticky; top: 0; height: 100svh; overflow: hidden; background: #111; }
+      .stack__stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.06); transition: opacity 1s var(--ease), transform 7s var(--ease); }
+      .stack__stage img.on { opacity: 1; transform: scale(1); }
+      .stack__stage::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.15) 45%, transparent 70%), linear-gradient(0deg, rgba(0,0,0,.35) 0%, transparent 30%); pointer-events: none; }
+      .stack__list { position: absolute; left: var(--gutter); top: 50%; transform: translateY(-50%); z-index: 2; color: #fff; list-style: none; margin: 0; padding: 0; }
+      .stack__list li { padding: 8px 0; }
+      .stack__list a { display: grid; gap: 2px; font-size: clamp(1.25rem, 2.4vw, 2rem); font-weight: 600; letter-spacing: -.02em; opacity: .4; transition: opacity .5s var(--ease), transform .5s var(--ease); transform: translateX(0); }
+      .stack__list a small { font-size: 1rem; font-weight: 400; opacity: 0; max-height: 0; overflow: hidden; transition: opacity .5s var(--ease), max-height .5s var(--ease); }
+      .stack__list a span { font-size: 1rem; font-weight: 400; opacity: 0; transition: opacity .5s var(--ease) .1s; }
+      .stack__list li.on a { opacity: 1; transform: translateX(12px); }
+      .stack__list li.on small, .stack__list li.on span { opacity: .9; max-height: 3em; }
+      .stack__steps { position: relative; z-index: 1; }
+      .stack__step { height: 70svh; }
+      .stack__step:first-child { margin-top: -100svh; }
+      .stack__count { position: absolute; right: var(--gutter); bottom: 40px; z-index: 2; color: #fff; font-size: 1rem; opacity: .9; }
 
-      .band { padding: clamp(72px, 12vh, 150px) var(--gutter); border-top: 1px solid var(--line); }
+      .band { padding: clamp(80px, 13vh, 160px) var(--gutter); border-top: 1px solid var(--line); }
       .band > h2 { font-size: clamp(1.9rem, 3.4vw, 3rem); line-height: 1.1; max-width: 22ch; }
       .band__lead { margin-top: 18px; max-width: 46ch; color: var(--ink-2); }
-      /* Qué hacemos: ocho frentes como texto, dos columnas, sin tarjetas. */
-      .services { list-style: none; margin: clamp(32px, 5vh, 56px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(32px, 6vw, 96px); }
-      .services li { padding: 20px 0; border-top: 1px solid var(--line); }
-      .services a { display: grid; gap: 4px; }
-      .services b { font-weight: 600; font-size: 1.25rem; }
-      .services span { color: var(--ink-2); }
-      .services a:hover b { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
-      /* Cómo trabajamos: cuatro palabras, en orden. */
-      .steps { list-style: none; margin: clamp(32px, 5vh, 56px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; counter-reset: paso; }
-      .steps li { padding-top: 16px; border-top: 1px solid var(--ink); font-size: 1.375rem; font-weight: 600; letter-spacing: -.01em; }
+      .reveal { opacity: 0; transform: translateY(16px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+      .reveal.in { opacity: 1; transform: none; }
+
+      /* Frentes: un carril. Se arrastra, se desliza, se recorre con teclado. La foto aparece al acercarse. */
+      .rail { margin-top: clamp(32px, 5vh, 56px); display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 0 var(--gutter); margin-left: calc(var(--gutter) * -1); margin-right: calc(var(--gutter) * -1); cursor: grab; }
+      .rail::-webkit-scrollbar { display: none; }
+      .rail.is-drag { cursor: grabbing; scroll-snap-type: none; }
+      .card { position: relative; flex: 0 0 min(360px, 78vw); aspect-ratio: 3 / 4; scroll-snap-align: start; overflow: hidden; background: #e9e6df; color: #fff; display: flex; align-items: flex-end; }
+      .card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: filter .6s var(--ease); filter: saturate(.8) brightness(.92); }
+      .card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.2) 45%, transparent 70%); }
+      .card__copy { position: relative; z-index: 1; padding: 22px; display: grid; gap: 6px; }
+      .card b { font-size: 1.375rem; font-weight: 600; letter-spacing: -.01em; }
+      .card span { font-size: 1rem; opacity: .85; max-height: 0; overflow: hidden; transition: max-height .5s var(--ease), opacity .5s var(--ease); opacity: 0; }
+      .card:hover img, .card:focus-visible img { filter: saturate(1) brightness(1); }
+      .card:hover span, .card:focus-visible span { max-height: 4em; opacity: .9; }
+      .rail__hint { margin-top: 16px; font-size: 1rem; color: var(--ink-3); }
+
+      /* Cómo trabajamos: la línea se dibuja mientras bajás; cada paso se enciende en orden. */
+      .steps { position: relative; list-style: none; margin: clamp(32px, 5vh, 56px) 0 0; padding: 18px 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; counter-reset: paso; }
+      .steps::before { content: ''; position: absolute; left: 0; top: 0; height: 1.5px; width: 100%; background: var(--line); }
+      .steps::after { content: ''; position: absolute; left: 0; top: 0; height: 1.5px; width: calc(var(--p, 0) * 100%); background: var(--ink); transition: width .2s linear; }
+      .steps li { font-size: 1.375rem; font-weight: 600; letter-spacing: -.01em; color: var(--ink-3); transition: color .4s var(--ease); }
+      .steps li.on { color: var(--ink); }
       .steps li::before { counter-increment: paso; content: counter(paso, decimal-leading-zero); display: block; margin-bottom: 10px; font-size: 1rem; font-weight: 400; color: var(--ink-3); font-variant-numeric: tabular-nums; }
-      /* Lo hecho: seis renglones. */
+
+      /* Lo hecho: seis renglones que llegan uno a uno. */
       .rows { list-style: none; margin: clamp(32px, 5vh, 56px) 0 0; padding: 0; border-top: 1px solid var(--line); }
+      .rows li { opacity: 0; transform: translateY(10px); transition: opacity .6s var(--ease), transform .6s var(--ease); }
+      .rows li.in { opacity: 1; transform: none; }
       .rows a { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr) auto; gap: 8px 32px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
       .rows b { font-weight: 600; } .rows span { color: var(--ink-2); } .rows em { font-style: normal; color: var(--ink-3); white-space: nowrap; }
       .rows a:hover b { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
-      .more { display: inline-block; margin-top: 24px; font-weight: 600; text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 5px; }
-      /* Desde Mendoza: la foto del campamento y dos renglones. */
-      .from { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 5vw, 80px); align-items: end; }
-      .from img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
-      .from h2 { font-size: clamp(1.7rem, 2.8vw, 2.5rem); line-height: 1.12; }
-      .from p { margin-top: 16px; color: var(--ink-2); }
-      /* Contacto: una conversación, no un panel. */
+      .more { display: inline-block; margin-top: 24px; font-weight: 600; }
+      .num { font-variant-numeric: tabular-nums; }
+
+      /* Contacto: una conversación. La línea del campo se enciende al escribir. */
       .contact { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(32px, 6vw, 110px); }
       .contact h2 { font-size: clamp(1.9rem, 3.2vw, 2.8rem); line-height: 1.1; }
       .contact p { margin-top: 16px; color: var(--ink-2); max-width: 40ch; }
       .contact__direct { margin: 32px 0 0; padding: 0; color: var(--ink-2); }
       .contact__direct div { padding: 10px 0; border-top: 1px solid var(--line); }
       .contact__direct dt { display: inline; color: var(--ink-3); } .contact__direct dd { display: inline; margin: 0 0 0 10px; color: var(--ink); }
-      form { display: grid; gap: 18px; }
-      label { display: grid; gap: 6px; font-size: 1rem; color: var(--ink-2); }
-      input, textarea { font: inherit; font-size: 1.125rem; padding: 12px 0; border: 0; border-bottom: 1px solid var(--ink); background: transparent; color: var(--ink); border-radius: 0; }
-      input:focus, textarea:focus { outline: none; border-bottom-color: var(--red); }
-      .btn { justify-self: start; display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 22px; background: var(--ink); color: #fff; font-weight: 600; font-size: 1rem; border: 0; cursor: pointer; }
-      .btn:hover { background: var(--red); }
+      form { display: grid; gap: 22px; }
+      .field { position: relative; display: grid; gap: 6px; font-size: 1rem; color: var(--ink-2); }
+      .field input, .field textarea { font: inherit; font-size: 1.125rem; padding: 12px 0; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--ink); border-radius: 0; }
+      .field input:focus, .field textarea:focus { outline: none; }
+      .field::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1.5px; background: var(--ink); transform: scaleX(0); transform-origin: left; transition: transform .4s var(--ease); }
+      .field:focus-within::after { transform: scaleX(1); }
+      .btn { justify-self: start; display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 22px; background: var(--ink); color: #fff; font-weight: 600; font-size: 1rem; border: 0; cursor: pointer; transition: background .3s var(--ease), gap .3s var(--ease); }
+      .btn:hover { background: var(--red); gap: 16px; }
       footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding: 24px var(--gutter) 32px; border-top: 1px solid var(--line); font-size: 1rem; color: var(--ink-2); }
+
+      /* Etiqueta que sigue al puntero sobre lugares y frentes (sólo con puntero fino). */
+      .cursor { position: fixed; z-index: 30; left: 0; top: 0; pointer-events: none; padding: 8px 12px; background: var(--ink); color: #fff; font-size: 1rem; white-space: nowrap; opacity: 0; transform: translate(-50%, -140%) scale(.9); transition: opacity .2s var(--ease), transform .2s var(--ease); }
+      .cursor.on { opacity: 1; transform: translate(-50%, -140%) scale(1); }
+      @media (hover: none) { .cursor { display: none; } }
 
       @media (max-width: 860px) {
         nav a:not(.cta) { display: none; }
-        .open { min-height: 88svh; }
-        .open__copy { max-width: none; }
-        .place__cap, .place:nth-child(even) .place__cap { grid-template-columns: 1fr; }
-        .place:nth-child(even) .place__cap h2 { text-align: left; } .place:nth-child(even) .place__cap a { order: 0; }
-        .services, .steps { grid-template-columns: 1fr; }
-        .steps { gap: 14px; }
+        .open { height: 88svh; }
+        .say p { max-width: none; }
+        .stack__stage { height: 100svh; }
+        .stack__list { top: auto; bottom: 64px; transform: none; right: var(--gutter); }
+        .stack__list li { padding: 4px 0; }
+        .stack__list li:not(.on) { display: none; }
+        .stack__list li.on a { transform: none; }
+        .stack__count { bottom: 28px; left: var(--gutter); right: auto; }
+        .stack__step { height: 60svh; }
+        .steps { grid-template-columns: 1fr 1fr; gap: 18px; }
         .rows a { grid-template-columns: 1fr; gap: 2px; }
-        .from, .contact { grid-template-columns: 1fr; }
+        .contact { grid-template-columns: 1fr; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .open__img, .open h1 .w, .open__cue::after { animation: none; }
+        .open h1 .w { opacity: 1; transform: none; }
+        .say .w { color: var(--ink); }
+        .stack__stage img { transition: opacity .3s linear; transform: none; }
+        .reveal, .rows li { opacity: 1; transform: none; transition: none; }
+        .card span, .steps::after, .field::after, nav a::after, .btn { transition: none; }
       }
     </style>
   </head>
   <body>
-    <header class="top">
+    <header class="top" data-top>
       <a class="logo" href="/">ultimamilla<i>.</i>com<i>.</i>ar</a>
       <nav aria-label="Principal">
-        <a href="/servicios">Servicios</a><a href="/sectores">Sectores</a><a href="/antecedentes">Antecedentes</a><a href="/blog">Blog</a><a class="cta" href="/contacto">Contactar</a>
+        <a href="/servicios">Servicios</a><a href="/sectores">Sectores</a><a href="/antecedentes">Antecedentes</a><a href="/blog">Blog</a><a class="cta" href="#contacto">Contactar</a>
       </nav>
     </header>
 
-    <section class="open">
-      <img src="/images/editorial/umsa-about-engineering.webp" alt="" width="1672" height="941" fetchpriority="high" decoding="async" />
+    <section class="open" data-open>
+      <img class="open__img" src={opening.image} style={`object-position:${opening.pos}`} alt="" width="1672" height="941" fetchpriority="high" decoding="async" />
       <div class="open__copy">
         <p class="open__kicker">Más de 22 años de servicios IT · Mendoza, Argentina</p>
-        <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
+        <h1>{'Servicios IT para operaciones que no pueden detenerse'.split(' ').map((w, i) => <><span class="w" style={`animation-delay:${0.15 + i * 0.07}s`}>{w}</span>{' '}</>)}<span class="w dot" style="animation-delay:.75s">.</span></h1>
       </div>
+      <span class="open__cue" aria-hidden="true"></span>
     </section>
 
-    <section class="say">
-      <p>ULTIMA MILLA integra infraestructura, comunicaciones, seguridad y software con criterio de continuidad operativa. Diseño, instalación y soporte trabajan en un mismo sistema.</p>
-      <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
+    <section class="say" data-say>
+      <p>{statementWords.map((w) => <><span class="w">{w}</span>{' '}</>)}</p>
+      <p class="reveal">Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
     </section>
 
-    <section aria-label="Lugares">
-      {essay.map((p) => (
-        <article class="place">
-          <figure><img src={p.image} alt="" width="1672" height="941" decoding="async" /></figure>
-          <div class="place__cap">
-            <h2>{p.name}<small>{p.text}</small></h2>
-            <a href={p.href}>{p.count} proyectos</a>
-          </div>
-        </article>
-      ))}
+    <section class="stack" data-stack aria-label="Lugares">
+      <div class="stack__stage">
+        {places.map((p, i) => <img src={p.image} alt="" width="1672" height="941" class:list={[{ on: i === 0 }]} data-stage-img={p.slug} decoding="async" loading={i === 0 ? 'eager' : 'lazy'} />)}
+        <ol class="stack__list">
+          {places.map((p, i) => (
+            <li class:list={[{ on: i === 0 }]} data-stage-item={p.slug}>
+              <a href={p.href} data-cursor={`Ver ${p.count} proyectos`}>{p.name}<small>{p.text}</small><span class="num">{p.count} proyectos →</span></a>
+            </li>
+          ))}
+        </ol>
+        <p class="stack__count num" aria-hidden="true"><span data-stage-index>01</span> / {String(places.length).padStart(2, '0')}</p>
+      </div>
+      <div class="stack__steps">
+        {places.map((p) => <div class="stack__step" data-step={p.slug}></div>)}
+      </div>
     </section>
 
     <section class="band" id="servicios">
-      <h2>Ocho frentes de servicio<span class="dot">.</span></h2>
-      <p class="band__lead">Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria.</p>
-      <ul class="services">
-        {services.map((s) => <li><a href={s.href}><b>{s.name}</b><span>{s.text}</span></a></li>)}
-      </ul>
+      <h2 class="reveal">Ocho frentes de servicio<span class="dot">.</span></h2>
+      <p class="band__lead reveal">Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria.</p>
+      <div class="rail" data-rail>
+        {services.map((s) => (
+          <a class="card" href={s.href} data-cursor="Ver">
+            <img src={s.image} alt="" width="1672" height="941" loading="lazy" decoding="async" />
+            <div class="card__copy"><b>{s.name}</b><span>{s.text}</span></div>
+          </a>
+        ))}
+      </div>
+      <p class="rail__hint reveal">Deslizá para ver los ocho.</p>
     </section>
 
     <section class="band">
-      <h2>Cómo trabajamos<span class="dot">.</span></h2>
-      <p class="band__lead">Relevamos en el lugar y te decimos qué hace falta.</p>
-      <ol class="steps"><li>Relevamiento</li><li>Diseño</li><li>Ejecución</li><li>Prueba técnica</li></ol>
+      <h2 class="reveal">Cómo trabajamos<span class="dot">.</span></h2>
+      <p class="band__lead reveal">Relevamos en el lugar y te decimos qué hace falta.</p>
+      <ol class="steps" data-steps><li>Relevamiento</li><li>Diseño</li><li>Ejecución</li><li>Prueba técnica</li></ol>
     </section>
 
     <section class="band">
-      <h2>{total} proyectos documentados<span class="dot">.</span></h2>
-      <ol class="rows">
+      <h2 class="reveal"><span class="num" data-count={total}>{total}</span> proyectos documentados<span class="dot">.</span></h2>
+      <ol class="rows" data-rows>
         {recent.map((c) => <li><a href={c.href}><b>{c.client}</b><span>{c.title}</span><em>{[c.sector, c.year].filter(Boolean).join(' · ')}</em></a></li>)}
       </ol>
-      <a class="more" href="/antecedentes">Ver los {total} proyectos</a>
-    </section>
-
-    <section class="band from">
-      <img src="/images/editorial/umsa-sector-industria.webp" alt="" width="1672" height="941" loading="lazy" decoding="async" />
-      <div>
-        <h2>Desde Mendoza para Cuyo, Patagonia y el país<span class="dot">.</span></h2>
-        <p>Base técnica en Mendoza, con cobertura regional para proyectos, mantenimiento y soporte.</p>
-      </div>
+      <a class="more u reveal" href="/antecedentes">Ver los {total} proyectos</a>
     </section>
 
     <section class="band contact" id="contacto">
-      <div>
+      <div class="reveal">
         <h2>Contanos qué tiene que seguir funcionando<span class="dot">.</span></h2>
         <p>Indicá qué necesitás, dónde y para cuándo. Un técnico te responde por email con el próximo paso: diagnóstico, relevamiento, propuesta o documentación.</p>
         <dl class="contact__direct">
@@ -221,11 +292,11 @@ const services = NAV_SERVICES;
           <div><dt>Horario</dt><dd>Lunes a viernes, 8 a 18 h</dd></div>
         </dl>
       </div>
-      <form action="/contacto" method="get">
-        <label>Nombre<input type="text" name="name" autocomplete="name" placeholder="Nombre y apellido" required /></label>
-        <label>Email de trabajo<input type="email" name="email" autocomplete="email" placeholder="mail@empresa.com" required /></label>
-        <label>Empresa u organismo<input type="text" name="company" autocomplete="organization" placeholder="Opcional" /></label>
-        <label>Mensaje<textarea name="message" rows="3" placeholder="Contanos qué necesitás, en qué sede y para cuándo." required></textarea></label>
+      <form class="reveal" action="/contacto" method="get">
+        <label class="field">Nombre<input type="text" name="name" autocomplete="name" placeholder="Nombre y apellido" required /></label>
+        <label class="field">Email de trabajo<input type="email" name="email" autocomplete="email" placeholder="mail@empresa.com" required /></label>
+        <label class="field">Empresa u organismo<input type="text" name="company" autocomplete="organization" placeholder="Opcional" /></label>
+        <label class="field">Mensaje<textarea name="message" rows="3" placeholder="Contanos qué necesitás, en qué sede y para cuándo." required></textarea></label>
         <button class="btn" type="submit">Enviar consulta <span aria-hidden="true">→</span></button>
       </form>
     </section>
@@ -234,5 +305,85 @@ const services = NAV_SERVICES;
       <span>ultimamilla.com.ar</span>
       <span>Houssay 1159, Guaymallén, Mendoza · contacto@ultimamilla.com.ar · Lunes a viernes, 8 a 18 h</span>
     </footer>
+    <div class="cursor" data-cursor-label aria-hidden="true"></div>
+
+    <script>
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const top = document.querySelector<HTMLElement>('[data-top]')!;
+      const open = document.querySelector<HTMLElement>('[data-open]')!;
+      const openImg = open.querySelector<HTMLImageElement>('.open__img')!;
+
+      // Barra y parallax de apertura, en un solo manejador de scroll.
+      const onScroll = () => {
+        const y = window.scrollY;
+        top.classList.toggle('is-ink', y > open.offsetHeight - 80);
+        if (!reduce && y < open.offsetHeight) openImg.style.translate = `0 ${Math.round(y * 0.35)}px`;
+      };
+      addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+      // Texto que se enciende: la proporción de palabras encendidas sigue la posición del párrafo en pantalla.
+      const say = document.querySelector<HTMLElement>('[data-say] p')!;
+      const words = [...say.querySelectorAll<HTMLElement>('.w')];
+      const light = () => {
+        const r = say.getBoundingClientRect(), vh = innerHeight;
+        const p = Math.min(1, Math.max(0, (vh * 0.85 - r.top) / (r.height + vh * 0.35)));
+        const n = Math.round(p * words.length);
+        words.forEach((w, i) => w.classList.toggle('on', i < n));
+      };
+      if (!reduce) { addEventListener('scroll', light, { passive: true }); light(); }
+
+      // Pila de lugares: cada paso del scroll activa su foto y su nombre.
+      const stage = document.querySelector<HTMLElement>('[data-stack]')!;
+      const imgs = [...stage.querySelectorAll<HTMLImageElement>('[data-stage-img]')];
+      const items = [...stage.querySelectorAll<HTMLElement>('[data-stage-item]')];
+      const index = stage.querySelector<HTMLElement>('[data-stage-index]')!;
+      const steps = [...stage.querySelectorAll<HTMLElement>('[data-step]')];
+      const show = (slug: string) => {
+        imgs.forEach((im) => im.classList.toggle('on', im.dataset.stageImg === slug));
+        items.forEach((li) => li.classList.toggle('on', li.dataset.stageItem === slug));
+        index.textContent = String(steps.findIndex((s) => s.dataset.step === slug) + 1).padStart(2, '0');
+      };
+      new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) show(e.target.getAttribute('data-step') || ''); }), { rootMargin: '-45% 0px -45% 0px' }).observe(steps[0]);
+      steps.forEach((s) => new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) show(s.dataset.step || ''); }), { rootMargin: '-45% 0px -45% 0px' }).observe(s));
+
+      // Revelado sobrio al entrar en pantalla.
+      const io = new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.15 });
+      document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+      document.querySelectorAll<HTMLElement>('[data-rows] li').forEach((li, i) => { li.style.transitionDelay = `${i * 70}ms`; io.observe(li); });
+
+      // Carril: arrastrar con el puntero en escritorio.
+      const rail = document.querySelector<HTMLElement>('[data-rail]')!;
+      let down = false, startX = 0, startLeft = 0, moved = false;
+      rail.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') return; down = true; moved = false; startX = e.clientX; startLeft = rail.scrollLeft; rail.classList.add('is-drag'); });
+      addEventListener('pointermove', (e) => { if (!down) return; const dx = e.clientX - startX; if (Math.abs(dx) > 4) moved = true; rail.scrollLeft = startLeft - dx; });
+      addEventListener('pointerup', () => { down = false; rail.classList.remove('is-drag'); });
+      rail.addEventListener('click', (e) => { if (moved) { e.preventDefault(); moved = false; } });
+
+      // La línea de trabajo se dibuja al bajar y enciende cada paso.
+      const stepsEl = document.querySelector<HTMLElement>('[data-steps]')!;
+      const stepItems = [...stepsEl.children] as HTMLElement[];
+      const draw = () => {
+        const r = stepsEl.getBoundingClientRect();
+        const p = Math.min(1, Math.max(0, (innerHeight * 0.8 - r.top) / (innerHeight * 0.5)));
+        stepsEl.style.setProperty('--p', String(p));
+        stepItems.forEach((li, i) => li.classList.toggle('on', p >= (i + 1) / stepItems.length - 0.05));
+      };
+      if (!reduce) { addEventListener('scroll', draw, { passive: true }); draw(); } else { stepsEl.style.setProperty('--p', '1'); stepItems.forEach((li) => li.classList.add('on')); }
+
+      // La cifra cuenta una vez, cuando se ve.
+      const counter = document.querySelector<HTMLElement>('[data-count]');
+      if (counter && !reduce) {
+        const to = Number(counter.dataset.count || 0);
+        new IntersectionObserver((entries, ob) => entries.forEach((e) => { if (!e.isIntersecting) return; ob.disconnect(); const t0 = performance.now(); const step = (now: number) => { const k = Math.min(1, (now - t0) / 1200); counter.textContent = String(Math.round(to * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }), { threshold: 0.5 }).observe(counter);
+      }
+
+      // Etiqueta que sigue al puntero.
+      const label = document.querySelector<HTMLElement>('[data-cursor-label]')!;
+      document.querySelectorAll<HTMLElement>('[data-cursor]').forEach((el) => {
+        el.addEventListener('pointerenter', () => { label.textContent = el.dataset.cursor || ''; label.classList.add('on'); });
+        el.addEventListener('pointerleave', () => label.classList.remove('on'));
+      });
+      addEventListener('pointermove', (e) => { label.style.transform = ''; label.style.left = `${e.clientX}px`; label.style.top = `${e.clientY}px`; }, { passive: true });
+    </script>
   </body>
 </html>
