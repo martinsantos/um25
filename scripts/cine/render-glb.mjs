@@ -250,6 +250,10 @@ const dispositivos = pines.filter((p) => p.d).map((p) => `<g data-project-device
 const pinesSvg = pines.map((p) => `<g class="sp-pin sp-pin--${p.code}" data-project-pin="${p.code}" data-x="${f1(p.cx)}" data-y="${f1(p.cy)}"><circle cx="${f1(p.cx)}" cy="${f1(p.cy)}" r="5.2" fill="#dc2626"/><circle cx="${f1(p.cx)}" cy="${f1(p.cy)}" r="9" fill="none" stroke="#a2a8af" stroke-opacity=".55" stroke-width=".65"/></g>`).join('');
 const focus = pines.map((p) => `<g data-project-focus="${p.code}" data-x="${f1(p.cx - 30)}" data-y="${f1(p.cy - 30)}" data-width="60" data-height="60"/>`).join('');
 const nombre = entrada.split('/').pop().replace(/\.glb$/, '');
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" class="sp-scene pt-svg" data-fit="1" role="img" aria-labelledby="sp-${nombre}-title sp-${nombre}-desc"><title id="sp-${nombre}-title">${nombre}</title><desc id="sp-${nombre}-desc">Isometría del modelo ${nombre}, con sus sistemas.</desc><g class="sp-root">${grupos[0]}${dispositivos}${grupos.slice(1).join('')}${focus}${pinesSvg}</g></svg>\n`;
+let vx0 = Infinity, vy0 = Infinity, vx1 = -Infinity, vy1 = -Infinity;
+for (const segs of lineas.values()) for (const g of segs) { vx0 = Math.min(vx0, g[0], g[2]); vx1 = Math.max(vx1, g[0], g[2]); vy0 = Math.min(vy0, g[1], g[3]); vy1 = Math.max(vy1, g[1], g[3]); }
+const aire = Math.max(vx1 - vx0, vy1 - vy0) * 0.02;
+const VB = `${f1(vx0 - aire)} ${f1(vy0 - aire)} ${f1(vx1 - vx0 + 2 * aire)} ${f1(vy1 - vy0 + 2 * aire)}`;
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${VB}" preserveAspectRatio="xMidYMid meet" class="sp-scene pt-svg" data-fit="1" role="img" aria-labelledby="sp-${nombre}-title sp-${nombre}-desc"><title id="sp-${nombre}-title">${nombre}</title><desc id="sp-${nombre}-desc">Isometría del modelo ${nombre}, con sus sistemas.</desc><g class="sp-root">${grupos[0]}${dispositivos}${grupos.slice(1).join('')}${focus}${pinesSvg}</g></svg>\n`;
 writeFileSync(salida, svg);
 console.error(`${salida}: ${svg.length} bytes`);
