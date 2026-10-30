@@ -19,6 +19,8 @@ a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 img, video { max-width: 100%; }
 :focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.saltar { position: absolute; left: var(--gutter); top: -100px; z-index: 30; padding: 10px 14px; background: var(--red); color: #fff; font-weight: 600; }
+.saltar:focus { top: 12px; outline-color: #fff; }
 h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -.03em; line-height: 1.05; text-wrap: balance; }
 h1 { font-size: clamp(2.4rem, 4.6vw, 4.4rem); }
 h2 { font-size: clamp(1.9rem, 3.2vw, 3rem); }
@@ -146,6 +148,40 @@ p { margin: 0; }
 .ficha--rec figure { aspect-ratio: 16 / 8; }
 .more { margin-top: var(--s4); }
 
+/* Partes del despiece (sprite /cine/iso/partes.svg): los colores viajan por variables hasta el <use>. */
+.parte { display: block; --p-paper: var(--bg-2); --p-face: #15181c; --p-top: #1c2025; --p-s0: #0b0c0f; --p-s1: #0e1013; --p-s2: #121418; --p-s3: #171a1f; --p-lit-top: #2a1416; --p-lit-shade: #1d1012; --p-hi: var(--ink-2); --p-mid: var(--ink-3); --p-lo: #4a4f56; --p-faint: #2d3137; --p-lit: var(--red); --p-dot: var(--ink); --p-weight: .6px; }
+.ficha__partes { display: flex; flex-wrap: wrap; gap: 4px; align-items: flex-end; min-height: 36px; margin: 2px 0; }
+.ficha__parte { position: relative; display: block; }
+.ficha__parte i { position: absolute; right: -2px; top: -4px; font-style: normal; font-size: .72rem; line-height: 1; padding: 2px 4px; background: var(--red); color: #fff; font-weight: 600; }
+.ficha__partes--alcance { opacity: .7; }
+
+/* Lo instalado en un sector o con un servicio: partes con cuántos proyectos las nombran. */
+.instalado { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s4) var(--s3); }
+.instalado li { display: grid; gap: 6px; padding-top: var(--s2); border-top: 1px solid var(--line-2); }
+.instalado b { font-weight: 600; }
+.instalado .parte { margin-bottom: 6px; }
+@media (max-width: 900px) { .instalado { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Ficha isométrica: el lugar con los servicios del proyecto encendidos y el despiece al lado. */
+.fiso { position: relative; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s3) clamp(28px, 4vw, 72px); align-items: start; }
+.fiso__lugar { aspect-ratio: 5 / 3; padding: 3%; background: var(--bg-2); }
+.fiso__lugar svg { width: 100%; height: 100%; display: block; }
+.fiso__lugar :is(.sp-route) { opacity: .08; }
+.fiso.on .fiso__lugar :is(.sp-route path) { stroke-dashoffset: 0; }
+.fiso__partes { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.fiso__partes li { position: relative; display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 14px; align-items: center; padding: 10px 0 10px 18px; border-bottom: 1px solid var(--line-2); transition: color .3s; }
+.fiso__partes .p { position: absolute; left: 0; top: 50%; width: 7px; height: 7px; margin-top: -3px; background: var(--ink-3); transition: background .3s; }
+.fiso__partes li.on .p { background: var(--red); }
+.fiso__txt { display: grid; gap: 2px; }
+.fiso__txt b { font-weight: 600; line-height: 1.3; }
+.fiso__lineas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.fiso__lineas line { stroke: var(--line); stroke-width: 1; transition: stroke .3s; }
+.fiso__lineas circle { fill: var(--ink-3); transition: fill .3s; }
+.fiso__lineas g.on line { stroke: var(--red); }
+.fiso__lineas g.on circle { fill: var(--red); }
+.fiso__nota { grid-column: 1 / -1; color: var(--ink-3); margin: 0; }
+@media (max-width: 900px) { .fiso { grid-template-columns: 1fr; } .fiso__lineas { display: none; } .fiso__partes li { padding-left: 0; } .fiso__partes .p { display: none; } }
+
 /* Cierre y pie. */
 .cierre { border-top: 1px solid var(--line-2); padding-block: var(--s6); }
 .cierre__grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: start; }
@@ -174,6 +210,8 @@ p { margin: 0; }
   .dentro__stage { position: relative; top: auto; }
   .fichas { grid-template-columns: 1fr 1fr; gap: var(--s3) var(--s2); }
   .ficha--rec { grid-column: 1 / -1; }
+  .ficha__parte .parte { width: 28px; height: 28px; }
+  .ficha__partes { min-height: 28px; }
 }
 @media (prefers-reduced-motion: reduce) { .iso *, .xray * { transition-duration: .01s !important; } }
 
@@ -184,6 +222,7 @@ p { margin: 0; }
 .field > span { color: var(--ink-2); font-size: .9375rem; }
 .field input, .field select, .field textarea { width: 100%; padding: 14px 16px; background: var(--bg-2); border: 1px solid var(--line); color: var(--ink); font: inherit; border-radius: 0; }
 .field input:focus, .field select:focus, .field textarea:focus { outline: 0; border-color: var(--ink-2); }
+.field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible { outline: 2px solid var(--red); outline-offset: -1px; border-color: var(--red); }
 .field textarea { min-height: 150px; resize: vertical; }
 .field select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--ink-3) 50%), linear-gradient(135deg, var(--ink-3) 50%, transparent 50%); background-position: calc(100% - 22px) 50%, calc(100% - 16px) 50%; background-size: 6px 6px; background-repeat: no-repeat; }
 .checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 20px; }

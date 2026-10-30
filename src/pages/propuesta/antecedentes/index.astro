@@ -32,7 +32,7 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       .count i { font-style: normal; color: var(--red); }
       .sentence { font-size: 1.2rem; font-weight: 600; letter-spacing: -.02em; margin-top: 6px; }
       .grupo { display: grid; gap: 6px; }
-      .grupo h3 { font-size: .9375rem; font-weight: 500; color: var(--ink-3); }
+      .grupo h2 { font-size: .9375rem; font-weight: 500; color: var(--ink-3); }
       .anios { display: flex; flex-wrap: wrap; gap: 6px; }
       .anios button { padding: 6px 10px; border: 1px solid var(--line); color: var(--ink-2); font-size: .9375rem; }
       .anios button[aria-pressed="true"] { border-color: var(--red); color: var(--ink); }
@@ -48,16 +48,16 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
   <body>
     <Top current="antecedentes" />
 
-    <main class="wrap muro" data-muro>
+    <main class="wrap muro" id="contenido" data-muro>
       <aside class="panel">
         <div>
           <span class="small">24 años de servicios IT. Mendoza, Argentina.</span>
           <h1 class="count"><span data-count>{total}</span><i>.</i></h1>
-          <p class="sentence" data-sentence>proyectos documentados</p>
+          <p class="sentence" data-sentence aria-live="polite">proyectos documentados</p>
         </div>
-        <div class="grupo"><h3>Sector</h3><ul class="servicios">{sectors.map((s) => <li><button type="button" data-lens="sector" data-value={s.slug} aria-pressed="false">{s.name}<span data-n>{s.count}</span><i></i></button></li>)}</ul></div>
-        <div class="grupo"><h3>Servicio</h3><ul class="servicios">{svcs.map((s) => <li><button type="button" data-lens="service" data-value={s.code} aria-pressed="false">{s.name}<span data-n>{s.count}</span><i></i></button></li>)}</ul></div>
-        <div class="grupo"><h3>Año</h3><div class="anios">{years.map((y) => <button type="button" data-lens="year" data-value={String(y)} aria-pressed="false">{y}</button>)}</div></div>
+        <div class="grupo"><h2>Sector</h2><ul class="servicios">{sectors.map((s) => <li><button type="button" data-lens="sector" data-value={s.slug} aria-pressed="false">{s.name}<span data-n>{s.count}</span><i></i></button></li>)}</ul></div>
+        <div class="grupo"><h2>Servicio</h2><ul class="servicios">{svcs.map((s) => <li><button type="button" data-lens="service" data-value={s.code} aria-pressed="false">{s.name}<span data-n>{s.count}</span><i></i></button></li>)}</ul></div>
+        <div class="grupo"><h2>Año</h2><div class="anios">{years.map((y) => <button type="button" data-lens="year" data-value={String(y)} aria-pressed="false">{y}</button>)}</div></div>
         <button class="clear" type="button" data-clear>Ver los {total} proyectos</button>
       </aside>
 

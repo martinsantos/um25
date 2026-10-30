@@ -5,7 +5,11 @@
  *
  * - Los atributos de presentación repetidos en todos los hijos de un grupo suben al grupo.
  * - Los valores por defecto (fill-opacity="1", stroke-opacity="1") se quitan.
- * - Las coordenadas se redondean a una decimal (la caja es de 1200 unidades).
+ * - Las coordenadas se redondean a una decimal (la caja es de 1200 unidades; en pantalla
+ *   el dibujo nunca supera esa medida, así que el redondeo queda por debajo del píxel).
+ * - Los atributos que llevan casi todas las figuras (vector-effect, stroke-linejoin,
+ *   stroke-linecap) pasan a una regla <style> del propio SVG, bajo la clase de su raíz; las
+ *   pocas figuras que no lo tenían reciben el valor por defecto de forma explícita.
  * - Se quitan saltos de línea y espacios entre etiquetas.
  *
  * Uso: node scripts/cine/optimizar-iso.mjs [--check] archivo.svg [...]
@@ -24,6 +28,8 @@ const HEREDABLES = {
   'stroke-linejoin': 'miter',
   'stroke-linecap': 'butt',
 };
+// Atributos que, cuando los lleva casi toda figura, pasan a una regla <style> del SVG.
+const A_ESTILO = Object.fromEntries(Object.entries({ 'vector-effect': 'none', 'stroke-linejoin': 'miter', 'stroke-linecap': 'butt' }).filter(([k]) => !process.env.ISO_ESTILO || process.env.ISO_ESTILO.split(',').includes(k)));
 const NUMERICOS = new Set(['points', 'd', 'cx', 'cy', 'r', 'rx', 'ry', 'x', 'y', 'x1', 'y1', 'x2', 'y2', 'width', 'height']);
 
 const DECIMALES = Number(process.env.ISO_DECIMALES ?? 1);
@@ -56,13 +62,16 @@ function parse(xml) {
   return root;
 }
 
-function optimizar(node) {
+function optimizar(node, heredados = new Set()) {
   if (node.tag === '#text') return;
   for (const [k, v] of Object.entries(node.attrs)) {
     if (NUMERICOS.has(k)) node.attrs[k] = redondear(v);
-    if ((k === 'fill-opacity' || k === 'stroke-opacity') && Number(v) === 1) delete node.attrs[k];
+    // Un valor por defecto explícito sólo sobra si ningún ancestro declara ese atributo.
+    if ((k === 'fill-opacity' || k === 'stroke-opacity') && Number(v) === 1 && !heredados.has(k)) delete node.attrs[k];
   }
-  node.children.forEach(optimizar);
+  const propios = new Set(heredados);
+  if (node.tag === 'g') for (const k of Object.keys(node.attrs)) if (k in HEREDABLES) propios.add(k);
+  node.children.forEach((c) => optimizar(c, propios));
   const hijos = node.children.filter((c) => c.tag !== '#text');
   if (node.tag === 'g' && hijos.length >= 3 && hijos.every((c) => SHAPES.has(c.tag))) {
     for (const [attr, porDefecto] of Object.entries(HEREDABLES)) {
@@ -81,6 +90,38 @@ function optimizar(node) {
   }
 }
 
+const figuras = (node, out = []) => { if (SHAPES.has(node.tag)) out.push(node); node.children?.forEach((c) => figuras(c, out)); return out; };
+const grupos = (node, out = []) => { if (node.tag === 'g') out.push(node); node.children?.forEach((c) => grupos(c, out)); return out; };
+
+/** Los atributos que llevan ≥ 70 % de las figuras pasan a una regla <style>; el resto los declara explícitos. */
+function aEstilo(svg) {
+  const clase = (svg.attrs.class || '').split(/\s+/)[0];
+  if (!clase) return;
+  const todas = figuras(svg);
+  const reglas = [];
+  for (const [attr, porDefecto] of Object.entries(A_ESTILO)) {
+    const cuenta = new Map();
+    // El valor efectivo de cada figura: el propio, o el del grupo más cercano que lo declare, o el default.
+    const efectivo = (fig, cadena) => fig.attrs[attr] ?? [...cadena].reverse().find((g) => attr in g.attrs)?.attrs[attr] ?? porDefecto;
+    const recorrer = (node, cadena, visitar) => { node.children?.forEach((c) => { if (SHAPES.has(c.tag)) visitar(c, cadena); else if (c.tag === 'g') recorrer(c, [...cadena, c], visitar); }); };
+    recorrer(svg, [], (fig, cadena) => { const v = efectivo(fig, cadena); cuenta.set(v, (cuenta.get(v) || 0) + 1); });
+    const [valor, n] = [...cuenta.entries()].sort((a, b) => b[1] - a[1])[0] || [];
+    if (!valor || valor === porDefecto || n < todas.length * 0.7) continue;
+    recorrer(svg, [], (fig, cadena) => {
+      const v = efectivo(fig, cadena);
+      delete fig.attrs[attr];
+      // Una regla CSS pesa más que un atributo de presentación: la minoría lo declara en style="".
+      if (v !== valor) fig.attrs.style = `${fig.attrs.style ? fig.attrs.style.replace(/;?$/, ';') : ''}${attr}:${v}`;
+    });
+    for (const g of grupos(svg)) delete g.attrs[attr];
+    reglas.push(`.${clase} :is(${[...SHAPES].join(',')}){${attr}:${valor}}`);
+  }
+  if (!reglas.length) return;
+  const style = { tag: 'style', attrs: {}, children: [{ tag: '#text', text: reglas.join('') }] };
+  const i = svg.children.findIndex((c) => c.tag !== 'title' && c.tag !== 'desc');
+  svg.children.splice(Math.max(0, i), 0, style);
+}
+
 function serializar(node) {
   if (node.tag === '#text') return node.text.trim();
   if (node.tag === '#root') return node.children.map(serializar).join('');
@@ -92,6 +133,8 @@ function serializar(node) {
 export function optimizarSvg(xml) {
   const tree = parse(xml);
   optimizar(tree);
+  const svg = tree.children.find((c) => c.tag === 'svg');
+  if (svg && !svg.children.some((c) => c.tag === 'style')) aEstilo(svg);
   return serializar(tree) + '\n';
 }
 

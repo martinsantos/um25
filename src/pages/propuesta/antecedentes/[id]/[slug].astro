@@ -8,8 +8,9 @@ import '../../../../styles/proto-despiece.css';
 import Head from '../../../../components/proto/Head.astro';
 import Top from '../../../../components/proto/Top.astro';
 import Ficha from '../../../../components/proto/Ficha.astro';
+import FichaIso from '../../../../components/proto/FichaIso.astro';
 import Cierre from '../../../../components/proto/Cierre.astro';
-import { loadStories, readIso, services, posterOf, SITE_OF } from '../../../../components/proto/isoData';
+import { loadStories, services, posterOf } from '../../../../components/proto/isoData';
 
 export const prerender = false;
 const id = Number(Astro.params.id);
@@ -18,8 +19,6 @@ const index = stories.findIndex((c) => c.id === id);
 if (index < 0) return new Response(null, { status: 404 });
 const c = stories[index];
 if (Astro.params.slug !== c.slug) return Astro.redirect(c.href, 301);
-const site = SITE_OF[c.sectorSlug] || 'building';
-const iso = readIso(site);
 const svcs = services.filter((s) => c.serviceCodes.includes(s.code));
 const months = ['', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 const when = [c.month ? months[c.month] : '', c.year].filter(Boolean).join(' ');
@@ -40,12 +39,6 @@ const photo = c.image && c.image.startsWith('/images/antecedentes/');
       .obra { display: grid; gap: var(--s3); }
       .obra figure { margin: 0; aspect-ratio: 16 / 9; overflow: hidden; background: var(--bg-2); }
       .obra img { width: 100%; height: 100%; object-fit: cover; display: block; }
-      .desp { position: relative; aspect-ratio: 5 / 3; padding: 4%; background: var(--bg-2); }
-      .desp :global(.sp-route path) { stroke-dashoffset: 2400; }
-      .desp.on :global(.sp-route path) { stroke-dashoffset: 0; }
-      .desp .cap { position: absolute; left: 20px; bottom: 16px; color: var(--ink-2); }
-      .marcas { position: absolute; inset: 0; pointer-events: none; }
-      .marcas :global(i) { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--red); }
       .datos { display: grid; gap: var(--s3); }
       .datos h1 { font-size: clamp(1.8rem, 2.8vw, 2.6rem); }
       .datos .quien { font-size: 1.15rem; font-weight: 600; }
@@ -57,13 +50,12 @@ const photo = c.image && c.image.startsWith('/images/antecedentes/');
       .tabla dd { margin: 0; font-weight: 500; }
       .tabla dd a { border-bottom: 1px solid var(--red); }
       .tabla dd a + a::before { content: ', '; border: 0; }
-      @media (max-width: 900px) { .marcas { display: none; } }
     </style>
   </head>
   <body>
     <Top current="antecedentes" />
 
-    <main class="wrap">
+    <main id="contenido" class="wrap">
       <nav class="nav" aria-label="Proyectos">
         <a href="/propuesta/antecedentes">← Todos los proyectos</a>
         <span>{prev && <a href={prev.href}>← Anterior</a>}{prev && next && ' · '}{next && <a href={next.href}>Siguiente →</a>}</span>
@@ -71,11 +63,6 @@ const photo = c.image && c.image.startsWith('/images/antecedentes/');
       <div class="proyecto cols cols-7-5">
         <div class="obra">
           {photo && <figure><img src={c.image} alt="" width="1200" height="675" fetchpriority="high" /></figure>}
-          <div class="desp iso" data-desp data-svcs={c.serviceCodes.join(' ')}>
-            <div set:html={iso} />
-            <div class="marcas" data-marcas></div>
-            <span class="cap">{svcs.map((s) => s.name).join(' · ')}</span>
-          </div>
         </div>
         <div class="datos">
           <h1>{c.title}<span class="dot">.</span></h1>
@@ -93,6 +80,13 @@ const photo = c.image && c.image.startsWith('/images/antecedentes/');
       </div>
     </main>
 
+    <section class="sec">
+      <div class="wrap">
+        <div class="sec__head"><h2>Lo que se instaló<span class="dot">.</span></h2><p>{svcs.map((s) => s.name).join(' · ')}</p></div>
+        <FichaIso story={c} />
+      </div>
+    </section>
+
     {sameClient.length > 0 && (
       <section class="sec"><div class="wrap"><div class="sec__head"><h2>Más proyectos para {c.client}<span class="dot">.</span></h2></div><ol class="fichas">{sameClient.map((o) => <Ficha story={o} />)}</ol></div></section>
     )}
@@ -101,25 +95,5 @@ const photo = c.image && c.image.startsWith('/images/antecedentes/');
     )}
 
     <Cierre />
-
-    <script>
-      const desp = document.querySelector<HTMLElement>('[data-desp]')!;
-      const svg = desp.querySelector<SVGSVGElement>('svg')!;
-      const box = desp.querySelector<HTMLElement>('[data-marcas]')!;
-      const codes = (desp.dataset.svcs || '').split(' ').filter(Boolean);
-      const place = () => {
-        box.innerHTML = '';
-        const b = desp.getBoundingClientRect();
-        codes.forEach((code) => {
-          const pin = svg.querySelector<SVGGraphicsElement>(`.sp-pin--${code}`); if (!pin) return;
-          const r = pin.getBoundingClientRect();
-          const el = document.createElement('i');
-          el.style.left = `${r.left + r.width / 2 - b.left}px`; el.style.top = `${r.top + r.height / 2 - b.top}px`;
-          box.appendChild(el);
-        });
-      };
-      new IntersectionObserver(([e], io) => { if (e.isIntersecting) { desp.classList.add('on'); place(); io.disconnect(); } }, { threshold: .2 }).observe(desp);
-      addEventListener('resize', place);
-    </script>
   </body>
 </html>

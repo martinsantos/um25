@@ -24,7 +24,7 @@ const summaries: Record<string, string> = { '101': 'Structured cabling, switchin
   </head>
   <body>
     <Top lang="en" current="services" />
-    <main class="wrap">
+    <main id="contenido" class="wrap">
       <div class="cabecera"><h1>Integrated IT services for operational continuity<span class="dot">.</span></h1><p>We design, deploy and operate infrastructure for organizations that need stable networks, physical security, operational software and accountable field support.</p></div>
       <ol class="lista-sv">{services.map((s, i) => <li class="sv"><a href={`/propuesta/servicios/${s.code}`}><figure><img src={SERVICE_PHOTO[s.code]} alt="" width="1672" height="941" loading={i < 2 ? 'eager' : 'lazy'} /></figure><h2>{titles[s.code]}<span class="dot">.</span></h2><p>{summaries[s.code]}</p><span class="small">View service (ES) →</span></a></li>)}</ol>
     </main>

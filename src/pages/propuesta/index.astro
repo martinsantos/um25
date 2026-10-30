@@ -10,12 +10,11 @@ import Top from '../../components/proto/Top.astro';
 import Apertura from '../../components/proto/Apertura.astro';
 import Casos from '../../components/proto/Casos.astro';
 import Cierre from '../../components/proto/Cierre.astro';
-import { loadStories, readIso, services, posterOf } from '../../components/proto/isoData';
+import { loadStories, services, posterOf } from '../../components/proto/isoData';
 import { EMPRESA, CUMPLIMIENTO, CASOS } from '../../components/proto/relato';
 
 export const prerender = false;
 const { total, places, stories } = await loadStories();
-const building = readIso('building');
 const clientes = Object.values(stories.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count).slice(0, 16);
 ---
 <!doctype html>
@@ -42,8 +41,9 @@ const clientes = Object.values(stories.reduce<Record<string, { name: string; cou
   </head>
   <body>
     <Top />
+    <main id="contenido">
 
-    <Apertura label="Portada" iso={building} image={posterOf('constructoras')} film="/cine/media/cine-fachada.mp4" open>
+    <Apertura label="Portada" isoSrc="/cine/iso/site-building-v2.svg" image={posterOf('constructoras')} film="/cine/media/cine-fachada.mp4" open>
       <span class="small">24 años de servicios IT. Mendoza, Argentina.</span>
       <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
       <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
@@ -96,6 +96,8 @@ const clientes = Object.values(stories.reduce<Record<string, { name: string; cou
         <div class="cols cols-3">{CUMPLIMIENTO.map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div>
       </div>
     </section>
+
+    </main>
 
     <Cierre />
   </body>

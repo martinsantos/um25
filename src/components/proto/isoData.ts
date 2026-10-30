@@ -82,7 +82,7 @@ export async function loadStories() {
     .map((c) => {
       const client = nombreCliente(c.client);
       const title = tituloProyecto(c.title, c.client, c.summary);
-      const sectorReal = sectorDe(c.client, c.sector_slug);
+      const sectorReal = sectorDe(c.client, c.sector_slug, `${c.title} ${c.summary}`);
       // El catálogo dice "gobierno"; la navegación del sitio, "gobiernosectorpublico".
       const sectorSlug = sectorReal === 'gobierno' ? 'gobiernosectorpublico' : sectorReal;
       return {
@@ -102,7 +102,7 @@ export async function loadStories() {
         status: c.status,
       };
     });
-  const countOf = (slug: string) => catalog.filter((c) => sectorDe(c.client, c.sector_slug) === slug).length;
+  const countOf = (slug: string) => catalog.filter((c) => sectorDe(c.client, c.sector_slug, `${c.title} ${c.summary}`) === slug).length;
   const places = PLACES.map((p) => {
     const row = SECTORS.find((s) => s.slug === p.slug)!;
     return { ...p, name: row.name, text: row.text, href: `/${p.slug}`, count: countOf(p.slug), stories: stories.filter((s) => s.sectorSlug === p.slug).slice(0, 3) };

@@ -1,14 +1,21 @@
 ---
-/** Ficha de proyecto: foto, cliente, qué se hizo, sector y año. */
+/** Ficha de proyecto: foto, cliente, qué se hizo, el despiece de lo instalado, sector y año. */
 import { thumbOf, type Story } from './isoData';
+import { despieceDe } from './despiece';
+import Parte from './Parte.astro';
 interface Props { story: Story; eager?: boolean; showSector?: boolean }
 const { story: c, eager = false, showSector = true } = Astro.props;
+const { partes, origen } = despieceDe(c.title, c.summary, c.serviceCodes);
+const fila = partes.slice(0, 5);
 ---
 <li class="ficha" data-ficha data-sector={c.sectorSlug} data-services={c.serviceCodes.join(' ')} data-year={String(c.year)}>
   <a href={c.href}>
     <figure>{c.image && <img src={thumbOf(c.image)} alt="" width="480" height="300" loading={eager ? 'eager' : 'lazy'} decoding="async" />}</figure>
     <b>{c.client}</b>
     <span class="t">{c.title}</span>
+    <span class:list={['ficha__partes', { 'ficha__partes--alcance': origen === 'servicio' }]} aria-label={fila.map((p) => (p.qty ? `${p.qty} ${p.label}` : p.label)).join(', ')}>
+      {fila.map((p) => <span class="ficha__parte"><Parte k={p.key} size={36} />{p.qty && <i>{p.qty}</i>}</span>)}
+    </span>
     <span class="small">{[showSector ? c.sector : '', c.year || ''].filter(Boolean).join(' · ')}</span>
   </a>
 </li>

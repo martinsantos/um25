@@ -1,0 +1,65 @@
+---
+/**
+ * Ficha isométrica de un proyecto: el lugar por dentro con los recorridos de sus servicios
+ * encendidos y, al lado, el despiece de lo que el registro dice que se instaló (cantidad
+ * incluida cuando la dice). Cada parte se une con una línea guía al punto de su servicio
+ * en el despiece del lugar. Cuando el registro no nombra equipos, se muestran las partes del
+ * alcance publicado del servicio, con la leyenda que lo aclara.
+ */
+import Parte from './Parte.astro';
+import { despieceDe } from './despiece';
+import { services, SITE_OF, type Story } from './isoData';
+interface Props { story: Story }
+const { story: c } = Astro.props;
+const site = SITE_OF[c.sectorSlug] || 'building';
+const { partes, origen } = despieceDe(c.title, c.summary, c.serviceCodes);
+const byCode = new Map(services.map((s) => [s.code, s.name]));
+const codes = [...new Set([...c.serviceCodes, ...partes.map((p) => p.code)])];
+---
+<div class="fiso" data-fiso data-svcs={codes.join(' ')}>
+  <div class="fiso__lugar iso" data-svcs={codes.join(' ')} data-src={`/cine/iso/site-${site}-v2.svg`}></div>
+  <ol class="fiso__partes" data-partes>
+    {partes.map((p) => (
+      <li data-code={p.code}><span class="p"></span><Parte k={p.key} size={56} /><span class="fiso__txt"><b>{p.qty ? `${p.qty} × ` : ''}{p.label}</b><span class="small">{byCode.get(p.code)}</span></span></li>
+    ))}
+  </ol>
+  <svg class="fiso__lineas" data-lineas aria-hidden="true"></svg>
+  <p class="fiso__nota small">{origen === 'registro' ? 'Equipamiento nombrado en el registro del proyecto.' : `Alcance del servicio ${partes.map((p) => byCode.get(p.code)).filter((v, i, a) => v && a.indexOf(v) === i).join(' y ')}; el registro no detalla equipos.`}</p>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-fiso]').forEach((root) => {
+    const lugar = root.querySelector<HTMLElement>('.fiso__lugar')!;
+    const lineas = root.querySelector<SVGSVGElement>('[data-lineas]')!;
+    const items = [...root.querySelectorAll<HTMLElement>('[data-partes] li')];
+    const fit = (svg: SVGSVGElement) => { if (svg.dataset.fit) return; try { const b = svg.getBBox(); const pad = Math.max(b.width, b.height) * .05; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); svg.dataset.fit = '1'; } catch { /* sin bbox */ } };
+    const draw = () => {
+      const svg = lugar.querySelector<SVGSVGElement>('svg'); if (!svg) return;
+      fit(svg);
+      const box = root.getBoundingClientRect();
+      lineas.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`);
+      lineas.innerHTML = '';
+      if (matchMedia('(max-width: 900px)').matches) return;
+      items.forEach((li, i) => {
+        const pin = svg.querySelector<SVGGraphicsElement>(`.sp-pin--${li.dataset.code}`);
+        const dot = li.querySelector<HTMLElement>('.p')!.getBoundingClientRect();
+        const x2 = dot.left + dot.width / 2 - box.left, y2 = dot.top + dot.height / 2 - box.top;
+        let x1: number, y1: number;
+        if (pin) { const r = pin.getBoundingClientRect(); x1 = r.left + r.width / 2 - box.left; y1 = r.top + r.height / 2 - box.top; }
+        else { const a = lugar.getBoundingClientRect(); x1 = a.left + a.width * .5 - box.left; y1 = a.top + a.height * .5 - box.top; }
+        const mid = x1 + (x2 - x1) * (.62 + (i % 3) * .08);
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.innerHTML = `<circle cx="${x1}" cy="${y1}" r="3"/><line x1="${x1}" y1="${y1}" x2="${mid}" y2="${y1}"/><line x1="${mid}" y1="${y1}" x2="${mid}" y2="${y2}"/><line x1="${mid}" y1="${y2}" x2="${x2}" y2="${y2}"/>`;
+        g.dataset.i = String(i);
+        lineas.appendChild(g);
+      });
+    };
+    fetch(lugar.dataset.src!).then((r) => (r.ok ? r.text() : '')).then((markup) => { if (!markup) return; lugar.innerHTML = markup; requestAnimationFrame(() => { root.classList.add('on'); draw(); }); });
+    items.forEach((li, i) => {
+      const on = () => { items.forEach((o, j) => o.classList.toggle('on', i === j)); lineas.querySelectorAll('g').forEach((g) => g.classList.toggle('on', g.dataset.i === String(i))); lugar.dataset.svc = li.dataset.code; };
+      li.addEventListener('pointerenter', on); li.addEventListener('focusin', on);
+    });
+    root.addEventListener('pointerleave', () => { items.forEach((o) => o.classList.remove('on')); lineas.querySelectorAll('g').forEach((g) => g.classList.remove('on')); delete lugar.dataset.svc; });
+    addEventListener('resize', draw);
+  });
+</script>

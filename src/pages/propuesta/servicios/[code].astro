@@ -12,7 +12,9 @@ import Ficha from '../../../components/proto/Ficha.astro';
 import Casos from '../../../components/proto/Casos.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import { getServicioByCode } from '../../../lib/um26-directus';
-import { loadStories, readIso, readDevice, services, SERVICE_KEY, SERVICE_PHOTO, type IsoSite } from '../../../components/proto/isoData';
+import { loadStories, readDevice, services, SERVICE_KEY, SERVICE_PHOTO, type IsoSite } from '../../../components/proto/isoData';
+import { despieceAgregado, KIT_DE_SERVICIO } from '../../../components/proto/despiece';
+import Parte from '../../../components/proto/Parte.astro';
 import { CASOS_SERVICIO, casosDe } from '../../../components/proto/relato';
 import { SERVICE_SPECS } from '../../../data/serviceSpecs';
 import { SECTORS, SERVICE_SCENES } from '../../../data/cine/scenes';
@@ -27,8 +29,10 @@ const { stories } = await loadStories();
 const own = stories.filter((c) => c.serviceCodes.includes(code));
 const scene = (SERVICE_SCENES[code] || SERVICE_SCENES['101'])!.scene;
 const SITE: Record<string, IsoSite> = { fachada: 'building', aeropuerto: 'terminal', bodega: 'winery', hospital: 'clinic', planta: 'plant' };
-const iso = readIso(SITE[scene] || 'building');
+const site = SITE[scene] || 'building';
 const device = code === '106' ? '' : readDevice(code);
+const agregado = new Map(despieceAgregado(own).map((p) => [p.key, p]));
+const kit = (KIT_DE_SERVICIO[code] || []).map(([key, label]) => ({ key, label, n: agregado.get(key)?.proyectos || 0, u: agregado.get(key)?.unidades || 0 }));
 const photo = SERVICE_PHOTO[code];
 const poster = `/cine/media/cine-${scene}-${SERVICE_KEY[code]}-poster.avif`;
 const casos = casosDe(CASOS_SERVICIO[code] || []);
@@ -63,8 +67,9 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
   </head>
   <body>
     <Top current="servicios" />
+    <main id="contenido">
 
-    <Apertura label={servicio.name} iso={iso} svc={code} image={photo}>
+    <Apertura label={servicio.name} isoSrc={`/cine/iso/site-${site}-v2.svg`} svc={code} image={photo}>
       <h1>{servicio.name}<span class="dot">.</span></h1>
       <p class="tag">{servicio.tagline}</p>
       <p>{servicio.description}</p>
@@ -104,6 +109,15 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       </div>
     </section>
 
+    {kit.length > 0 && (
+      <section class="sec">
+        <div class="wrap">
+          <div class="sec__head"><h2>Con qué se hace<span class="dot">.</span></h2><p>Las partes del alcance de {lower} y en cuántos de los {own.length} proyectos el registro las nombra.</p></div>
+          <ol class="instalado">{kit.map((p) => <li><Parte k={p.key} size={64} /><b>{p.label}</b><span class="small">{p.n > 0 ? `${p.n} ${p.n === 1 ? 'proyecto' : 'proyectos'}${p.u > 0 ? ` · ${p.u} unidades` : ''}` : 'Alcance del servicio'}</span></li>)}</ol>
+        </div>
+      </section>
+    )}
+
     {bySector.length > 0 && (
       <section class="sec">
         <div class="wrap cols cols-5-7">
@@ -125,6 +139,8 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
         </div>
       </section>
     )}
+
+    </main>
 
     <Cierre />
 

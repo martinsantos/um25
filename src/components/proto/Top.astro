@@ -6,6 +6,7 @@ const es: [string, string, string][] = [['Servicios', '/propuesta/servicios', 's
 const en: [string, string, string][] = [['Services', '/propuesta/en/services', 'services'], ['About', '/propuesta/en/about', 'about']];
 const items = lang === 'en' ? en : es;
 ---
+<a class="saltar" href="#contenido">{lang === 'en' ? 'Skip to content' : 'Saltar al contenido'}</a>
 <header class="top">
   <a class="logo" href={lang === 'en' ? '/propuesta/en' : '/propuesta'}>ultimamilla<i>.</i>com<i>.</i>ar</a>
   <nav aria-label={lang === 'en' ? 'Main' : 'Principal'}>{items.map(([n, h, k]) => <a href={h} aria-current={k === current ? 'page' : undefined}>{n}</a>)}<a class="cta" href={lang === 'en' ? '/propuesta/en/contact' : '/propuesta/contacto'}>{lang === 'en' ? 'Contact' : 'Contactar'}</a></nav>
