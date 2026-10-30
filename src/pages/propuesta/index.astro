@@ -11,8 +11,7 @@ import Top from '../../components/proto/Top.astro';
 import Apertura from '../../components/proto/Apertura.astro';
 import Casos from '../../components/proto/Casos.astro';
 import Cierre from '../../components/proto/Cierre.astro';
-import Parte from '../../components/proto/Parte.astro';
-import Banco from '../../components/proto/Banco.astro';
+import Partes from '../../components/proto/Partes.astro';
 import { loadStories, services, posterOf, SECTOR_PHOTO, isoSrc } from '../../components/proto/isoData';
 import { EMPRESA, CUMPLIMIENTO, CASOS, sectorRelato } from '../../components/proto/relato';
 import { despieceAgregado } from '../../components/proto/despiece';
@@ -108,10 +107,7 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
       <section class="sec" id="instalado">
         <div class="wrap">
           <div class="sec__head"><h2>Lo que instalamos<span class="dot">.</span></h2></div>
-          <div class="despiece">
-            <Banco items={instalado.map((p) => ({ key: p.key }))} label="Lo instalado en los proyectos documentados" />
-            <ol class="partes-lista">{instalado.map((p) => <li><Parte k={p.key} size={48} /><span><b>{p.label}</b><span class="small">{byCode.get(p.code)}</span></span><span class="n">{p.proyectos} proyectos{p.unidades > 0 ? ` · ${p.unidades} u.` : ''}</span></li>)}</ol>
-          </div>
+          <Partes items={instalado.map((p) => ({ key: p.key, label: p.label, meta: byCode.get(p.code), n: `${p.proyectos} proyectos${p.unidades > 0 ? ` · ${p.unidades} unidades` : ''}` }))} />
         </div>
       </section>
     )}

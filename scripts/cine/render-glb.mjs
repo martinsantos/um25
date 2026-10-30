@@ -20,7 +20,7 @@ const args = process.argv.slice(2);
 const opt = (name, def) => { const i = args.indexOf(name); return i > 0 ? Number(args[i + 1]) : def; };
 const [entrada, salida] = args.filter((a) => !a.startsWith('--') && !/^[\d.]+$/.test(a));
 const RES = opt('--res', 2.5);          // píxeles del z-buffer por unidad del viewBox
-const ANGULO = opt('--angle', 32);      // umbral de pliegue, en grados
+const ANGULO = opt('--angle', 40);      // umbral de pliegue, en grados
 const YAW = (opt('--yaw', 0) * Math.PI) / 180;   // giro del modelo sobre z, para elegir qué frente mira al espectador
 const TRANSPARENTES = new Set(['glass']);          // materiales que no tapan (sí se dibujan sus aristas)
 const skipIdx = args.indexOf('--skip');
@@ -151,6 +151,7 @@ for (const m of nodos) {
     const x0 = pr[a * 3], y0 = pr[a * 3 + 1], d0 = pr[a * 3 + 2], x1 = pr[b * 3], y1 = pr[b * 3 + 1], d1 = pr[b * 3 + 2];
     const len = Math.hypot(x1 - x0, y1 - y0);
     if (len < 0.35) continue;
+    const segAntes = seg.length;
     const n = Math.max(2, Math.ceil(len * RES * 0.8));
     const recorrer = (test, dest) => {
       let run = null;
@@ -158,10 +159,24 @@ for (const m of nodos) {
         const t = i / n, x = x0 + (x1 - x0) * t, y = y0 + (y1 - y0) * t, d = d0 + (d1 - d0) * t;
         const v = test(x, y, d, ts[0], ts[1] ?? -1); muestras++; if (v) visibles++;
         if (v && !run) run = [x, y];
-        if ((!v || i === n) && run) { const ex = v ? x : x0 + (x1 - x0) * ((i - 1) / n), ey = v ? y : y0 + (y1 - y0) * ((i - 1) / n); if (Math.hypot(ex - run[0], ey - run[1]) >= 0.6) dest.push([run[0], run[1], ex, ey]); run = null; }
+        if ((!v || i === n) && run) { const ex = v ? x : x0 + (x1 - x0) * ((i - 1) / n), ey = v ? y : y0 + (y1 - y0) * ((i - 1) / n); if (Math.hypot(ex - run[0], ey - run[1]) >= 1.2) dest.push([run[0], run[1], ex, ey]); run = null; }
       }
     };
     recorrer(vis, seg);
+    // ¿Es contorno? A ambos lados de la arista, en pantalla, ¿hay fondo o algo bastante más lejos?
+    if (seg.length > segAntes) {
+      const mx = (x0 + x1) / 2, my = (y0 + y1) / 2, md = (d0 + d1) / 2;
+      const nx = -(y1 - y0) / len, ny = (x1 - x0) / len;
+      let contorno = false;
+      for (const sgn of [1, -1]) {
+        const px = Math.floor((mx + nx * sgn * 1.6) * RES), py = Math.floor((my + ny * sgn * 1.6) * RES);
+        if (px < 0 || py < 0 || px >= BW || py >= BH) { contorno = true; break; }
+        const zb = zbuf[py * BW + px];
+        if (zb === -Infinity || zb < md - 0.9) { contorno = true; break; }
+      }
+      if (contorno) for (let i = segAntes; i < seg.length; i++) seg[i].c = true;
+    }
+    for (let i = segAntes; i < seg.length; i++) seg[i].d = (d0 + d1) / 2;
     if (SERVICIO[m.system]) recorrer(visServ, enteras.get(m.system) || enteras.set(m.system, []).get(m.system));
   }
   const sys = m.system;
@@ -170,7 +185,7 @@ for (const m of nodos) {
 }
 
 // ——— Enlace de tramos consecutivos en polilíneas y salida.
-const f1 = (v) => (Math.round(v * 10) / 10).toString();
+const f1 = (v) => (Math.round(v * 2) / 2).toString();
 const polilineas = (segs) => {
   // Encadena tramos cuyo final coincide con el inicio del siguiente (tolerancia 0,15 px).
   const porInicio = new Map();
@@ -203,9 +218,23 @@ for (const [sys, segs] of lineas) {
 }
 for (const [sys, segs] of enteras) { const code = SERVICIO[sys]; const r = rutas[code] ||= []; for (const sg of segs) r.push(sg); }
 console.error(`tramos visibles ${total}`);
-const tonoDe = (sys) => (sys === 'Furniture-context' ? 'lo' : 'mid');
-// Estructura por sistema, para poder atenuar el mobiliario.
-const porSistema = [...lineas].filter(([sys]) => !SERVICIO[sys]).map(([sys, segs]) => `<path class="pt-line" data-tone="${tonoDe(sys)}" data-system="${sys}" d="${polilineas(segs)}"/>`).join('');
+// Estructura por sistema y por jerarquía: contornos en tono alto y trazo más grueso; detalle en tono medio; mobiliario en tono bajo.
+// Profundidad: lo que queda atrás se atenúa (tres bandas), para que el frente se lea primero.
+const todosD = [...lineas].filter(([sys]) => !SERVICIO[sys]).flatMap(([, segs]) => segs.map((g) => g.d)).sort((a, b) => a - b);
+const dLejos = todosD[Math.floor(todosD.length * 0.33)] ?? 0, dMedio = todosD[Math.floor(todosD.length * 0.66)] ?? 0;
+const banda = (g) => (g.d < dLejos ? 'lejos' : g.d < dMedio ? 'medio' : 'cerca');
+const porSistema = [...lineas].filter(([sys]) => !SERVICIO[sys]).map(([sys, segs]) => {
+  const mueble = sys === 'Furniture-context';
+  const out = [];
+  for (const b of ['lejos', 'medio', 'cerca']) {
+    const en = segs.filter((g) => banda(g) === b);
+    const cont = en.filter((g) => g.c), det = en.filter((g) => !g.c);
+    const tono = { lejos: ['lo', 'faint'], medio: ['mid', 'lo'], cerca: ['hi', 'mid'] }[b];
+    if (cont.length) out.push(`<path class="pt-line pt-contorno" data-tone="${mueble ? tono[1] : tono[0]}" data-system="${sys}" data-banda="${b}" d="${polilineas(cont)}"/>`);
+    if (det.length && !mueble) out.push(`<path class="pt-line" data-tone="${tono[1]}" data-system="${sys}" data-banda="${b}" d="${polilineas(det)}"/>`);
+  }
+  return out.join('');
+}).join('');
 grupos.push(`<g class="sp-structure" fill="none" stroke-linecap="round" stroke-linejoin="round">${porSistema}</g>`);
 const pines = [];
 for (const [code, segs] of Object.entries(rutas)) {
@@ -221,6 +250,6 @@ const dispositivos = pines.filter((p) => p.d).map((p) => `<g data-project-device
 const pinesSvg = pines.map((p) => `<g class="sp-pin sp-pin--${p.code}" data-project-pin="${p.code}" data-x="${f1(p.cx)}" data-y="${f1(p.cy)}"><circle cx="${f1(p.cx)}" cy="${f1(p.cy)}" r="5.2" fill="#dc2626"/><circle cx="${f1(p.cx)}" cy="${f1(p.cy)}" r="9" fill="none" stroke="#a2a8af" stroke-opacity=".55" stroke-width=".65"/></g>`).join('');
 const focus = pines.map((p) => `<g data-project-focus="${p.code}" data-x="${f1(p.cx - 30)}" data-y="${f1(p.cy - 30)}" data-width="60" data-height="60"/>`).join('');
 const nombre = entrada.split('/').pop().replace(/\.glb$/, '');
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="sp-scene pt-svg" data-fit="1" role="img" aria-labelledby="sp-${nombre}-title sp-${nombre}-desc"><title id="sp-${nombre}-title">${nombre}</title><desc id="sp-${nombre}-desc">Isometría del modelo ${nombre}, con sus sistemas.</desc><g class="sp-root">${grupos[0]}${dispositivos}${grupos.slice(1).join('')}${focus}${pinesSvg}</g></svg>\n`;
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" class="sp-scene pt-svg" data-fit="1" role="img" aria-labelledby="sp-${nombre}-title sp-${nombre}-desc"><title id="sp-${nombre}-title">${nombre}</title><desc id="sp-${nombre}-desc">Isometría del modelo ${nombre}, con sus sistemas.</desc><g class="sp-root">${grupos[0]}${dispositivos}${grupos.slice(1).join('')}${focus}${pinesSvg}</g></svg>\n`;
 writeFileSync(salida, svg);
 console.error(`${salida}: ${svg.length} bytes`);

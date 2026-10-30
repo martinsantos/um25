@@ -1,0 +1,10 @@
+---
+/** Las partes de un despiece, una por una: figura grande, nombre, servicio y en cuántos proyectos aparece. */
+import Parte from './Parte.astro';
+import type { ParteKey } from './despiece';
+interface Props { items: { key: ParteKey; label: string; meta?: string; n?: string; code?: string }[]; interactivo?: boolean }
+const { items, interactivo = false } = Astro.props;
+---
+<ol class="partes" data-partes={interactivo ? '' : undefined}>
+  {items.map((p) => <li data-code={p.code}><Parte k={p.key} size={132} /><b>{p.label}</b>{p.meta && <span class="small">{p.meta}</span>}{p.n && <span class="n">{p.n}</span>}</li>)}
+</ol>

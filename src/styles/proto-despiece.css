@@ -76,7 +76,8 @@ p { margin: 0; }
 .copy .tag { color: var(--ink); font-size: 1.2rem; font-weight: 500; }
 .copy .u { margin-top: var(--s1); width: max-content; }
 .xray { position: relative; aspect-ratio: 5 / 3; width: 100%; background: var(--bg-2); overflow: hidden; }
-.xray__iso { position: absolute; inset: 0; display: grid; place-items: center; }
+.xray__iso { position: absolute; inset: 3%; display: grid; place-items: center; }
+.xray__iso svg { width: 100%; height: 100%; }
 .xray__foto { position: absolute; inset: 0; clip-path: inset(0 0 calc(100% - var(--cut, 100) * 1%) 0); }
 .xray__foto img, .xray__foto video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .xray__ghost { position: absolute; inset: 0; opacity: .14; pointer-events: none; }
@@ -151,7 +152,8 @@ p { margin: 0; }
 .more { margin-top: var(--s4); }
 
 /* Partes del despiece (sprite /cine/iso/partes.svg): los colores viajan por variables hasta el <use>. */
-.sp-scene.pt-svg { --p-weight: 1.25px; }
+.sp-scene.pt-svg { --p-weight: 1px; }
+.sp-scene.pt-svg .pt-contorno { stroke-width: 1.7px; }
 .parte, .banco, .sp-scene { display: block; --p-paper: var(--bg); --p-face: #15181c; --p-top: #1a1d22; --p-s0: #0a0b0d; --p-s1: #0e1013; --p-s2: #121418; --p-s3: #171a1f; --p-lit-top: #2a1416; --p-lit-shade: #1d1012; --p-hi: #e6e8eb; --p-mid: #a0a6ad; --p-lo: #5c636b; --p-faint: #2f343a; --p-lit: var(--red); --p-dot: var(--ink); --p-weight: 1px; }
 /* El banco: las partes a escala sobre una base, en línea clara sobre el fondo, como las isometrías de sitio. */
 .banco { width: 100%; max-width: 760px; height: auto; margin: 0 auto; }
@@ -193,14 +195,14 @@ p { margin: 0; }
 .clientes a:hover { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; }
 
 /* El despiece: el banco sobre papel y, al lado, la lista de partes con sus cantidades. */
-.despiece { display: grid; gap: var(--s3); }
-.despiece .papel img { width: 100%; max-width: 760px; height: auto; display: block; margin: 0 auto; }
-.partes-lista { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); columns: 3; column-gap: clamp(28px, 4vw, 72px); }
-.partes-lista li { break-inside: avoid; display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line-2); }
-.partes-lista b { font-weight: 600; line-height: 1.3; display: block; }
-.partes-lista .small { display: block; }
-.partes-lista .n { color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; font-size: .95rem; }
-.despiece__nota { grid-column: 1 / -1; color: var(--ink-3); margin: 0; }
+/* Partes de un despiece, una por una: figura grande en línea clara, nombre, servicio, cuántos proyectos. */
+.partes { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: var(--s4) var(--s3); border-top: 1px solid var(--line); padding-top: var(--s3); }
+.partes li { display: grid; gap: 4px; align-content: start; }
+.partes .parte { width: 132px; height: 132px; margin: 0 0 10px -8px; }
+.partes b { font-weight: 600; line-height: 1.3; }
+.partes .small { color: var(--ink-3); }
+.partes .n { color: var(--ink-2); font-size: .95rem; font-variant-numeric: tabular-nums; }
+.partes li.on b { color: var(--red); }
 
 /* Lo instalado en un sector o con un servicio: partes con cuántos proyectos las nombran. */
 .instalado { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s4) var(--s3); }
@@ -216,8 +218,6 @@ p { margin: 0; }
 .fiso__lugar .ahora { position: absolute; left: 20px; bottom: 16px; color: var(--ink-2); }
 .fiso__lugar :is(.sp-route) { opacity: .08; }
 .fiso.on .fiso__lugar :is(.sp-route path) { stroke-dashoffset: 0; }
-.partes-lista li.on b { color: var(--ink); }
-.partes-lista li.on .parte { --p-lit: var(--red); }
 
 /* Cierre y pie. */
 .cierre { border-top: 1px solid var(--line-2); padding-block: var(--s6); }
@@ -234,7 +234,7 @@ p { margin: 0; }
 .pie nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
 .pie nav a:hover { color: var(--ink); }
 
-@media (max-width: 1100px) { .partes-lista { columns: 2; } .cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fichas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .clientes { columns: 2; } }
+@media (max-width: 1100px) { .cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fichas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .clientes { columns: 2; } }
 @media (max-width: 900px) {
   .top nav a:not(.cta) { display: none; }
   .lugar { height: 130vh; }
@@ -243,7 +243,8 @@ p { margin: 0; }
   .copy { order: 2; }
   .copy > p { display: none; }
   .cols-2, .cols-3, .cols-4, .cols-5-7, .cols-7-5, .dentro, .caso, .cierre__grid { grid-template-columns: 1fr; }
-  .partes-lista { columns: 1; }
+  .partes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3) var(--s2); }
+  .partes .parte { width: 108px; height: 108px; }
   .cifras { max-width: none; }
   .clientes { columns: 1; }
   .clientes li:nth-child(n+13):not(.mas) { display: none; }

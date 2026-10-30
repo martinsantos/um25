@@ -5,8 +5,7 @@
  * recorridos de sus servicios encendidos. Cuando el registro no nombra equipos, se muestran
  * las partes del alcance publicado del servicio, con la leyenda que lo aclara.
  */
-import Parte from './Parte.astro';
-import Banco from './Banco.astro';
+import Partes from './Partes.astro';
 import { despieceDe } from './despiece';
 import { services, SITE_OF, type Story, isoSrc } from './isoData';
 interface Props { story: Story }
@@ -15,15 +14,9 @@ const site = SITE_OF[c.sectorSlug] || 'building';
 const { partes, origen } = despieceDe(c.title, c.summary, c.serviceCodes);
 const byCode = new Map(services.map((s) => [s.code, s.name]));
 const codes = [...new Set([...c.serviceCodes, ...partes.map((p) => p.code)])];
-const nombre = partes.map((p) => (p.qty ? `${p.qty} × ` : '') + p.label).join(', ');
 ---
 <div class="fiso" data-fiso>
-  <div class="despiece">
-    <Banco items={partes.map((p) => ({ key: p.key, qty: p.qty }))} label={nombre} />
-    <ol class="partes-lista" data-partes>
-      {partes.map((p) => <li data-code={p.code}><Parte k={p.key} size={48} /><span><b>{p.qty ? `${p.qty} × ` : ''}{p.label}</b><span class="small">{byCode.get(p.code)}</span></span></li>)}
-    </ol>
-  </div>
+  <Partes interactivo items={partes.map((p) => ({ key: p.key, code: p.code, label: (p.qty ? `${p.qty} × ` : '') + p.label, meta: byCode.get(p.code) }))} />
   <div class="fiso__lugar iso" data-svcs={codes.join(' ')} data-src={isoSrc(site)}><span class="ahora">{codes.map((k) => byCode.get(k)).filter(Boolean).join(' · ')}</span></div>
 </div>
 
