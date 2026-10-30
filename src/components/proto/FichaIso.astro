@@ -31,7 +31,7 @@ const nombre = partes.map((p) => (p.qty ? `${p.qty} × ` : '') + p.label).join('
   document.querySelectorAll<HTMLElement>('[data-fiso]').forEach((root) => {
     const lugar = root.querySelector<HTMLElement>('.fiso__lugar')!;
     const items = [...root.querySelectorAll<HTMLElement>('[data-partes] li')];
-    const fit = (svg: SVGSVGElement) => { try { const b = svg.getBBox(); const pad = Math.max(b.width, b.height) * .05; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); } catch { /* sin bbox */ } };
+    const fit = (svg: SVGSVGElement) => { if (svg.dataset.fit) return; try { const b = svg.getBBox(); const pad = Math.max(b.width, b.height) * .05; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); } catch { /* sin bbox */ } };
     new IntersectionObserver(([e], io) => {
       if (!e.isIntersecting) return; io.disconnect();
       fetch(lugar.dataset.src!).then((r) => (r.ok ? r.text() : '')).then((markup) => { if (!markup) return; lugar.insertAdjacentHTML('afterbegin', markup); const svg = lugar.querySelector<SVGSVGElement>('svg'); if (svg) fit(svg); requestAnimationFrame(() => root.classList.add('on')); });
