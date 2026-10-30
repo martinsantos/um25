@@ -1,10 +1,10 @@
 ---
 /** Barra superior común. */
-interface Props { current?: string; over?: boolean }
-const { current = '', over = true } = Astro.props;
+interface Props { current?: string }
+const { current = '' } = Astro.props;
 const items: [string, string, string][] = [['Servicios', '/servicios', 'servicios'], ['Sectores', '/sectores', 'sectores'], ['Antecedentes', '/propuesta/antecedentes', 'antecedentes'], ['Blog', '/blog', 'blog']];
 ---
-<header class:list={['top', { 'top--over': over }]}>
+<header class="top">
   <a class="logo" href="/propuesta">ultimamilla<i>.</i>com<i>.</i>ar</a>
   <nav aria-label="Principal">{items.map(([n, h, k]) => <a href={h} aria-current={k === current ? 'page' : undefined}>{n}</a>)}<a class="cta" href="#contacto">Contactar</a></nav>
 </header>
