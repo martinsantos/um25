@@ -83,10 +83,11 @@ p { margin: 0; }
 .xray__ghost img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1); }
 .xray__linea { position: absolute; left: 0; right: 0; top: calc(var(--cut, 100) * 1%); height: 1px; background: linear-gradient(90deg, transparent, var(--red) 12%, var(--red) 88%, transparent); opacity: var(--linea, 1); transition: opacity .4s; }
 .lugar .sp-route path { stroke-dashoffset: 2400; }
-.lugar[data-fase="2"] .sp-route, .lugar[data-fase="3"] .sp-route { opacity: .9; }
+.lugar[data-fase="2"] .iso:not([data-svc]) .sp-route, .lugar[data-fase="3"] .iso:not([data-svc]) .sp-route { opacity: .9; }
 .lugar[data-fase="2"] .sp-route path, .lugar[data-fase="3"] .sp-route path { stroke-dashoffset: 0; }
-.lugar[data-fase="3"] .sp-pin, .lugar[data-fase="3"] .sp-effect { opacity: 1; }
-.lugar[data-fase="2"] [data-project-device], .lugar[data-fase="3"] [data-project-device] { stroke: #fff; stroke-opacity: .8; }
+.lugar[data-fase="3"] .iso:not([data-svc]) .sp-pin, .lugar[data-fase="3"] .sp-effect { opacity: 1; }
+.lugar[data-fase="2"] .iso:not([data-svc]) [data-project-device], .lugar[data-fase="3"] .iso:not([data-svc]) [data-project-device] { stroke: #fff; stroke-opacity: .8; }
+.lugar .iso[data-svc] .sp-route { transition: opacity 1.2s var(--ease); }
 
 /* Isometría: trazas apagadas; el servicio activo enciende su recorrido. */
 .iso svg { width: 100%; height: 100%; display: block; overflow: visible; }

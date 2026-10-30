@@ -53,11 +53,14 @@ const aPantalla = (x, y, z) => { const [sx, sy, d] = proyectar(x, y, z); return 
 // ——— Triángulos proyectados y z-buffer.
 const BW = Math.ceil(W * RES), BH = Math.ceil(H * RES);
 const zbuf = new Float32Array(BW * BH).fill(-Infinity);
-const idbuf = new Int32Array(BW * BW > 0 ? BW * BH : 0).fill(-1);
+const idbuf = new Int32Array(BW * BH).fill(-1);
+const zserv = new Float32Array(BW * BH).fill(-Infinity);
+const idserv = new Int32Array(BW * BH).fill(-1);
 const tris = [];   // { n: nodo, a,b,c: índices, p: [[x,y,d]×3], frente: bool, nrm }
 let id = 0;
 for (const m of nodos) {
   const P = m.positions, I = m.indices;
+  const esServicio = Boolean(SERVICIO[m.system]);
   m.proj = new Float32Array((P.length / 3) * 3);
   for (let i = 0; i < P.length; i += 3) { const [x, y, d] = aPantalla(P[i], P[i + 1], P[i + 2]); m.proj[i] = x; m.proj[i + 1] = y; m.proj[i + 2] = d; }
   m.triIds = new Int32Array(I.length / 3);
@@ -91,6 +94,7 @@ for (const m of nodos) {
           const d = l1 * ad + l2 * bd + l3 * cd;
           const k = py * BW + px;
           if (d > zbuf[k]) { zbuf[k] = d; idbuf[k] = id; }
+          if (esServicio && d > zserv[k]) { zserv[k] = d; idserv[k] = id; }
         }
       }
     }
@@ -110,15 +114,15 @@ if (process.env.ZBUF) {
 const cosUmbral = Math.cos((ANGULO * Math.PI) / 180);
 const lineas = new Map();   // sistema → [[x0,y0,x1,y1], …] (con líneas ocultas quitadas)
 const enteras = new Map();  // sistema de servicio → todas sus aristas, sin ocultar (la ruta que el rayos X revela)
-const vis = (x, y, d, tA, tB) => {
+const visEn = (zb, ib) => (x, y, d, tA, tB) => {
   if (process.env.NOHLR) return true;
   const px = Math.floor(x * RES), py = Math.floor(y * RES);
   if (px < 0 || py < 0 || px >= BW || py >= BH) return false;
   const k = py * BW + px;
-  const buf = zbuf[k];
-  if (idbuf[k] === tA || idbuf[k] === tB) return true;
-  return d >= buf - 0.06;   // tolerancia en unidades de profundidad del mundo
+  if (ib[k] === tA || ib[k] === tB) return true;
+  return d >= zb[k] - 0.06;   // tolerancia en unidades de profundidad del mundo
 };
+const vis = visEn(zbuf, idbuf), visServ = visEn(zserv, idserv);
 for (const m of nodos) {
   const I = m.indices, pr = m.proj, P = m.positions;
   const aristas = new Map();  // clave "a_b" → [tri, tri]
@@ -147,15 +151,18 @@ for (const m of nodos) {
     const x0 = pr[a * 3], y0 = pr[a * 3 + 1], d0 = pr[a * 3 + 2], x1 = pr[b * 3], y1 = pr[b * 3 + 1], d1 = pr[b * 3 + 2];
     const len = Math.hypot(x1 - x0, y1 - y0);
     if (len < 0.35) continue;
-    if (SERVICIO[m.system]) (enteras.get(m.system) || enteras.set(m.system, []).get(m.system)).push([x0, y0, x1, y1]);
     const n = Math.max(2, Math.ceil(len * RES * 0.8));
-    let run = null;
-    for (let i = 0; i <= n; i++) {
-      const t = i / n, x = x0 + (x1 - x0) * t, y = y0 + (y1 - y0) * t, d = d0 + (d1 - d0) * t;
-      const v = vis(x, y, d, ts[0], ts[1] ?? -1); muestras++; if (v) visibles++;
-      if (v && !run) run = [x, y];
-      if ((!v || i === n) && run) { const ex = v ? x : x0 + (x1 - x0) * ((i - 1) / n), ey = v ? y : y0 + (y1 - y0) * ((i - 1) / n); if (Math.hypot(ex - run[0], ey - run[1]) >= 0.6) seg.push([run[0], run[1], ex, ey]); run = null; }
-    }
+    const recorrer = (test, dest) => {
+      let run = null;
+      for (let i = 0; i <= n; i++) {
+        const t = i / n, x = x0 + (x1 - x0) * t, y = y0 + (y1 - y0) * t, d = d0 + (d1 - d0) * t;
+        const v = test(x, y, d, ts[0], ts[1] ?? -1); muestras++; if (v) visibles++;
+        if (v && !run) run = [x, y];
+        if ((!v || i === n) && run) { const ex = v ? x : x0 + (x1 - x0) * ((i - 1) / n), ey = v ? y : y0 + (y1 - y0) * ((i - 1) / n); if (Math.hypot(ex - run[0], ey - run[1]) >= 0.6) dest.push([run[0], run[1], ex, ey]); run = null; }
+      }
+    };
+    recorrer(vis, seg);
+    if (SERVICIO[m.system]) recorrer(visServ, enteras.get(m.system) || enteras.set(m.system, []).get(m.system));
   }
   const sys = m.system;
   if (process.env.DEBUG) console.error(m.name, 'aristas', aristas.size, 'candidatas', cand, 'muestras', muestras, 'visibles', visibles, 'tramos', seg.length);
@@ -203,7 +210,7 @@ grupos.push(`<g class="sp-structure" fill="none" stroke-linecap="round" stroke-l
 const pines = [];
 for (const [code, segs] of Object.entries(rutas)) {
   const d = polilineas(segs);
-  grupos.push(`<g class="sp-route sp-route--${code}" data-project-route="${code}" fill="none" stroke="#dc2626" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="${d}" pathLength="100"/></g>`);
+  grupos.push(`<g class="sp-route sp-route--${code}" data-project-route="${code}" fill="none" stroke="#dc2626" stroke-width=".9" stroke-linecap="round" stroke-linejoin="round"><path d="${d}" pathLength="100"/></g>`);
   // El pin, sobre el equipo visible más alto del sistema (o el centro de la ruta si nada se ve desde fuera).
   const vistos = equipos[code] || [];
   let mx = 0, my = 0; const base = vistos.length ? vistos : segs; for (const s of base) { mx += s[0] + s[2]; my += s[1] + s[3]; }

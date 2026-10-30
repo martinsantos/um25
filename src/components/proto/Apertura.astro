@@ -1,14 +1,14 @@
 ---
 /** Apertura común: texto a la izquierda, la imagen real que se abre hasta el despiece a la derecha. */
-interface Props { label: string; iso?: string; isoSrc?: string; svc?: string; image: string; ghost?: string; film?: string; open?: boolean; eager?: boolean }
-const { label, iso, isoSrc, svc, image, ghost, film, open = false, eager = true } = Astro.props;
+interface Props { label: string; iso?: string; isoSrc?: string; svc?: string; ciclo?: boolean; image: string; ghost?: string; film?: string; open?: boolean; eager?: boolean }
+const { label, iso, isoSrc, svc, ciclo = false, image, ghost, film, open = false, eager = true } = Astro.props;
 ---
 <section class:list={['lugar', { 'lugar--open': open }]} data-lugar data-fase="0" aria-label={label}>
   <div class="lugar__pin">
     <div class="copy"><slot /></div>
     <div class="xray">
       <div class="xray__ghost"><img src={ghost || image} alt="" width="1672" height="941" loading={eager ? 'eager' : 'lazy'} /></div>
-      {iso ? <div class="xray__iso iso" data-svc={svc} set:html={iso} /> : <div class="xray__iso iso" data-svc={svc} data-src={isoSrc}></div>}
+      {iso ? <div class="xray__iso iso" data-svc={svc} data-ciclo={ciclo ? "" : undefined} set:html={iso} /> : <div class="xray__iso iso" data-svc={svc} data-ciclo={ciclo ? "" : undefined} data-src={isoSrc}></div>}
       <div class="xray__foto">
         {film ? <video muted playsinline loop preload="none" poster={image} data-film={film} width="1920" height="1080"></video> : <img src={image} alt="" width="1672" height="941" loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : 'auto'} decoding="async" />}
       </div>

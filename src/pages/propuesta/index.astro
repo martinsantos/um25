@@ -70,7 +70,7 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
     <Top />
     <main id="contenido">
 
-    <Apertura label="Portada" isoSrc={isoSrc('building')} image={posterOf('constructoras')} open>
+    <Apertura label="Portada" isoSrc={isoSrc('building')} image={posterOf('constructoras')} open ciclo>
       <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
       <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
       <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>

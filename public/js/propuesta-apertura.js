@@ -15,6 +15,14 @@
     film.addEventListener('ended', () => { film.currentTime = desde; film.play().catch(() => {}); });
     film.src = film.dataset.film; film.play().catch(() => {});
   }
+  // Un sistema por vez: el despiece recorre sus servicios de a uno, cada 2,6 s, desde la fase 3.
+  const ciclo = (lugar, fase) => {
+    const iso = lugar.querySelector('.xray__iso[data-ciclo]'); if (!iso) return;
+    if (fase < 3) { clearInterval(iso._t); iso._t = 0; return; }
+    if (iso._t) return;
+    const paso = () => { const codes = [...iso.querySelectorAll('.sp-route')].map((r) => r.dataset.projectRoute).filter(Boolean); if (!codes.length) return; const i = (codes.indexOf(iso.dataset.svc) + 1) % codes.length; iso.dataset.svc = codes[i]; };
+    paso(); iso._t = setInterval(paso, 2600);
+  };
   let raf = 0;
   const update = () => {
     raf = 0;
@@ -27,7 +35,7 @@
       el.style.setProperty('--cut', String(100 - k * 100));
       el.style.setProperty('--linea', p < .02 || p > .57 ? '0' : '1');
       const fase = p < .1 ? 0 : p < .55 ? 1 : p < .82 ? 2 : 3;
-      if (el.dataset.fase !== String(fase)) el.dataset.fase = String(fase);
+      if (el.dataset.fase !== String(fase)) { el.dataset.fase = String(fase); ciclo(el, fase); }
     });
   };
   addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
