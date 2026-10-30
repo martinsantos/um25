@@ -10,7 +10,7 @@ import Top from '../../../../components/proto/Top.astro';
 import Ficha from '../../../../components/proto/Ficha.astro';
 import FichaIso from '../../../../components/proto/FichaIso.astro';
 import Cierre from '../../../../components/proto/Cierre.astro';
-import { loadStories, services, posterOf } from '../../../../components/proto/isoData';
+import { loadStories, services } from '../../../../components/proto/isoData';
 
 export const prerender = false;
 const id = Number(Astro.params.id);
@@ -35,19 +35,19 @@ const photo = c.image && c.image.startsWith('/images/antecedentes/');
     <style>
       .nav { display: flex; justify-content: space-between; gap: 16px; padding: var(--s3) 0 0; color: var(--ink-3); font-size: .9375rem; }
       .nav a:hover { color: var(--ink); }
-      .proyecto { padding-block: var(--s4) var(--s6); }
-      .obra { display: grid; gap: var(--s3); }
-      .obra figure { margin: 0; aspect-ratio: 16 / 9; overflow: hidden; background: var(--bg-2); }
-      .obra img { width: 100%; height: 100%; object-fit: cover; display: block; }
-      .datos { display: grid; gap: var(--s3); }
-      .datos h1 { font-size: clamp(1.8rem, 2.8vw, 2.6rem); }
+      .proyecto { padding-block: var(--s4) var(--s5); display: grid; gap: var(--s4); }
+      .datos { display: grid; gap: var(--s2); max-width: 64ch; }
+      .datos h1 { font-size: clamp(1.9rem, 3.2vw, 3rem); }
       .datos .quien { font-size: 1.15rem; font-weight: 600; }
       .datos .quien span { color: var(--ink-3); font-weight: 400; }
       .datos .resumen { color: var(--ink-2); font-size: 1.125rem; }
-      .tabla { margin: 0; border-top: 1px solid var(--line); }
-      .tabla div { display: grid; grid-template-columns: 120px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line-2); }
-      .tabla dt { color: var(--ink-3); }
+      .obra { margin: 0; aspect-ratio: 21 / 9; overflow: hidden; background: var(--bg-2); }
+      .obra img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .tabla { margin: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--s2) var(--s3); padding-top: var(--s2); border-top: 1px solid var(--line); }
+      .tabla div { display: grid; gap: 4px; }
+      .tabla dt { color: var(--ink-3); font-size: .9375rem; }
       .tabla dd { margin: 0; font-weight: 500; }
+      @media (max-width: 900px) { .obra { aspect-ratio: 4 / 3; } .tabla { grid-template-columns: 1fr 1fr; } }
       .tabla dd a { border-bottom: 1px solid var(--red); }
       .tabla dd a + a::before { content: ', '; border: 0; }
     </style>
@@ -60,23 +60,20 @@ const photo = c.image && c.image.startsWith('/images/antecedentes/');
         <a href="/propuesta/antecedentes">← Todos los proyectos</a>
         <span>{prev && <a href={prev.href}>← Anterior</a>}{prev && next && ' · '}{next && <a href={next.href}>Siguiente →</a>}</span>
       </nav>
-      <div class="proyecto cols cols-7-5">
-        <div class="obra">
-          {photo && <figure><img src={c.image} alt="" width="1200" height="675" fetchpriority="high" /></figure>}
-        </div>
+      <div class="proyecto">
         <div class="datos">
           <h1>{c.title}<span class="dot">.</span></h1>
           <div class="quien">{c.client}{when && <span> · {when}</span>}</div>
           {c.summary && <p class="resumen">{c.summary}</p>}
-          <dl class="tabla">
+        </div>
+        {photo && <figure class="obra"><img src={c.image} alt="" width="1200" height="514" fetchpriority="high" /></figure>}
+        <dl class="tabla">
             <div><dt>Cliente</dt><dd>{c.client}</dd></div>
             {c.sector && <div><dt>Sector</dt><dd><a href={`/propuesta/sectores/${c.sectorSlug}`}>{c.sector}</a></dd></div>}
             {when && <div><dt>Fecha</dt><dd>{when}</dd></div>}
             {svcs.length > 0 && <div><dt>Servicios</dt><dd>{svcs.map((s) => <a href={`/propuesta/servicios/${s.code}`}>{s.name}</a>)}</dd></div>}
             <div><dt>Referencia</dt><dd>UM-{c.id}</dd></div>
-          </dl>
-          {svcs[0] && c.sector && <a class="pelicula" href={`/propuesta/sectores/${c.sectorSlug}`}><figure><img src={posterOf(c.sectorSlug, svcs[0].code)} alt="" width="640" height="360" loading="lazy" /></figure><span class="small">{c.sector} por dentro, en movimiento</span></a>}
-        </div>
+        </dl>
       </div>
     </main>
 

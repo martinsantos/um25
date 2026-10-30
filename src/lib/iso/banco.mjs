@@ -102,7 +102,10 @@ export function bancoSvg(items, { width = 1200, height = 540, maxScale = 6.4, mi
     out.push(`<g transform="translate(${(t[0] - o[0]).toFixed(1)} ${(t[1] - o[1]).toFixed(1)})">${i === mayor ? svg : apagar(svg)}</g>`);
   }
   const nombre = label || items.map((it) => (it.qty ? `${it.qty} × ` : '') + (NOMBRES[it.key] || it.key)).join(', ');
-  return `<svg class="banco pt-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${nombre.replace(/"/g, '&quot;')}">${renombrar(out.join(''))}</svg>`;
+  // La caja se ciñe a lo dibujado: así el banco no deja aire de más ni arriba ni abajo.
+  const flat = puntos.map((p) => k.iso(p, P));
+  const y0 = Math.min(...flat.map(([, y]) => y)) - 18, y1 = Math.max(...flat.map(([, y]) => y)) + 10;
+  return `<svg class="banco pt-svg" viewBox="0 ${y0.toFixed(1)} ${width} ${(y1 - y0).toFixed(1)}" role="img" aria-label="${nombre.replace(/"/g, '&quot;')}">${renombrar(out.join(''))}</svg>`;
 }
 
 const TOKENS = {

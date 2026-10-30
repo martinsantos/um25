@@ -43,6 +43,7 @@ p { margin: 0; }
 .cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .cols-5-7 { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: start; }
+.cols--centro { align-items: center; }
 .cols-7-5 { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: start; }
 
 /* Texto corrido y listas. */
@@ -151,7 +152,7 @@ p { margin: 0; }
 /* Partes del despiece (sprite /cine/iso/partes.svg): los colores viajan por variables hasta el <use>. */
 .parte, .banco { display: block; --p-paper: var(--bg-2); --p-face: #15181c; --p-top: #1c2025; --p-s0: #0b0c0f; --p-s1: #0e1013; --p-s2: #121418; --p-s3: #171a1f; --p-lit-top: #2a1416; --p-lit-shade: #1d1012; --p-hi: var(--ink-2); --p-mid: var(--ink-3); --p-lo: #4a4f56; --p-faint: #2d3137; --p-lit: var(--red); --p-dot: var(--ink); --p-weight: 1px; }
 /* El banco: las partes a escala sobre una base, como hoja técnica sobre papel. */
-.banco { width: 100%; height: auto; }
+.banco { width: 100%; max-width: 760px; height: auto; margin: 0 auto; }
 .banco--papel { --p-paper: #fbfbfa; --p-face: #ffffff; --p-top: #ffffff; --p-s0: #d9d9d6; --p-s1: #e3e3e0; --p-s2: #ececea; --p-s3: #f3f3f1; --p-lit-top: #ffffff; --p-lit-shade: #f4e4e4; --p-hi: #26262a; --p-mid: #7d7d82; --p-lo: #b0b0b4; --p-faint: #d6d6d8; --p-lit: var(--red); --p-dot: #3a3a3e; }
 .papel { background: #f2f2ef; padding: clamp(16px, 2.5vw, 36px); }
 .papel .banco { --p-weight: 1px; }
@@ -191,10 +192,10 @@ p { margin: 0; }
 .clientes a:hover { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; }
 
 /* El despiece: el banco sobre papel y, al lado, la lista de partes con sus cantidades. */
-.despiece { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s3) clamp(28px, 4vw, 72px); align-items: start; }
-.despiece .papel img { width: 100%; height: auto; display: block; }
-.partes-lista { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
-.partes-lista li { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line-2); }
+.despiece { display: grid; gap: var(--s3); }
+.despiece .papel img { width: 100%; max-width: 760px; height: auto; display: block; margin: 0 auto; }
+.partes-lista { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); columns: 3; column-gap: clamp(28px, 4vw, 72px); }
+.partes-lista li { break-inside: avoid; display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line-2); }
 .partes-lista b { font-weight: 600; line-height: 1.3; display: block; }
 .partes-lista .small { display: block; }
 .partes-lista .n { color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; font-size: .95rem; }
@@ -232,7 +233,7 @@ p { margin: 0; }
 .pie nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
 .pie nav a:hover { color: var(--ink); }
 
-@media (max-width: 1100px) { .cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fichas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .clientes { columns: 2; } }
+@media (max-width: 1100px) { .partes-lista { columns: 2; } .cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fichas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .clientes { columns: 2; } }
 @media (max-width: 900px) {
   .top nav a:not(.cta) { display: none; }
   .lugar { height: 130vh; }
@@ -240,7 +241,8 @@ p { margin: 0; }
   .lugar .xray { height: auto; max-height: none; width: 100%; margin: 0; aspect-ratio: 1; }
   .copy { order: 2; }
   .copy > p { display: none; }
-  .cols-2, .cols-3, .cols-4, .cols-5-7, .cols-7-5, .dentro, .caso, .cierre__grid, .despiece { grid-template-columns: 1fr; }
+  .cols-2, .cols-3, .cols-4, .cols-5-7, .cols-7-5, .dentro, .caso, .cierre__grid { grid-template-columns: 1fr; }
+  .partes-lista { columns: 1; }
   .cifras { max-width: none; }
   .clientes { columns: 1; }
   .clientes li:nth-child(n+13):not(.mas) { display: none; }

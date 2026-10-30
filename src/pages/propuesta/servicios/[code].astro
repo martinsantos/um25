@@ -140,7 +140,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
 
     {bySector.length > 0 && (
       <section class="sec">
-        <div class="wrap cols cols-5-7">
+        <div class="wrap cols cols-5-7 cols--centro">
           <div class="item">
             <h2>Dónde lo hicimos<span class="dot">.</span></h2>
             <p class="frase">{bySector.map((s, i) => <><a href={`/propuesta/sectores/${s.slug}`}><b>{s.name}</b></a>{` (${s.count} ${s.count === 1 ? 'proyecto' : 'proyectos'})`}{i < bySector.length - 2 ? ', ' : i === bySector.length - 2 ? ' y ' : '.'}</>)}</p>
