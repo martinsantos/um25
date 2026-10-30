@@ -1,0 +1,244 @@
+---
+/**
+ * Propuesta B · "El plano" (2026-10-30). El sitio como un juego de planos de ingeniería:
+ * hojas blancas con marco, grilla fina y cajetín. En la hoja 01 el despiece lleva llamadas
+ * numeradas (01 a 08), una por frente de servicio; cada llamada enciende su recorrido en la
+ * isometría. Hoja 02: lista de equipos con el despiece de cada uno. Hoja 03: registro de
+ * antecedentes. Hoja 04: lugares. Hoja 05: contacto. Textos: sólo frases existentes. No indexable.
+ */
+import { loadStories, readIso, readDevice, services } from '../../components/proto/isoData';
+
+export const prerender = false;
+const { total, stories, places, firstYear, lastYear } = await loadStories();
+const building = readIso('building');
+const devices = Object.fromEntries(services.filter((s) => s.code !== '106').map((s) => [s.code, readDevice(s.code)]));
+const registro = stories.slice(0, 12);
+const sheets = ['Portada', 'Equipos', 'Registro', 'Lugares', 'Contacto'];
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>El plano · Propuesta B · ULTIMA MILLA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      :root { --paper: #ffffff; --ink: #111316; --ink-2: #4b4f56; --ink-3: #8a8f97; --line: #d9dbdf; --grid: rgba(17, 19, 22, .055); --red: #dc2626; --gutter: clamp(16px, 3vw, 48px); --mono: 'JetBrains Mono', ui-monospace, monospace; --ease: cubic-bezier(.22, 1, .36, 1); }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; background: #ececee; color: var(--ink); font: 400 16px/1.5 Manrope, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+      a { color: inherit; text-decoration: none; }
+      h1, h2 { margin: 0; font-weight: 700; letter-spacing: -.03em; line-height: 1; text-wrap: balance; }
+      .mono { font-family: var(--mono); font-size: .78rem; letter-spacing: .02em; text-transform: uppercase; color: var(--ink-3); }
+      .top { position: sticky; top: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; padding: 14px var(--gutter); background: #ececee; border-bottom: 1px solid var(--line); }
+      .logo { font-weight: 700; font-size: 1.1rem; letter-spacing: -.02em; }
+      .logo i { font-style: normal; color: var(--red); }
+      nav { display: flex; gap: 26px; font-size: .95rem; font-weight: 500; }
+      nav .cta { padding: 8px 14px; border: 1px solid var(--ink); }
+
+      /* Cada sección es una hoja: marco, grilla y cajetín. */
+      .hoja { position: relative; margin: 16px var(--gutter); background: var(--paper); border: 1px solid var(--ink); background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 48px 48px; min-height: 60vh; display: grid; grid-template-rows: auto 1fr auto; }
+      .hoja__head { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--ink); background: var(--paper); }
+      .hoja > * { min-width: 0; }
+      .hoja__body { padding: clamp(24px, 4vw, 56px) 20px; overflow-x: auto; }
+      .cajetin { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid var(--ink); background: var(--paper); }
+      .cajetin div { padding: 10px 14px; border-right: 1px solid var(--line); min-width: 0; }
+      .cajetin div:last-child { border-right: 0; }
+      .cajetin b { display: block; margin-top: 2px; font-weight: 600; font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+      /* Hoja 01: el despiece con llamadas. */
+      .portada { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(20px, 3vw, 56px); align-items: center; }
+      .portada h1 { font-size: clamp(2.2rem, 4.2vw, 4rem); }
+      .portada__lead { margin: 20px 0 0; max-width: 36ch; color: var(--ink-2); font-size: 1.02rem; }
+      .leyenda { list-style: none; margin: 28px 0 0; padding: 0; border-top: 1px solid var(--ink); }
+      .leyenda li a { display: grid; grid-template-columns: 34px 1fr; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); color: var(--ink-2); font-weight: 500; transition: color .3s; }
+      .leyenda li a i { font: 500 .78rem var(--mono); width: 26px; height: 26px; border: 1px solid var(--ink); border-radius: 50%; display: grid; place-items: center; transition: background .3s, color .3s, border-color .3s; }
+      .leyenda li a.on, .leyenda li a:hover { color: var(--ink); }
+      .leyenda li a.on i { background: var(--red); border-color: var(--red); color: #fff; }
+      .plano { position: relative; }
+      .plano :global(svg) { width: 100%; height: auto; display: block; overflow: visible; }
+      .plano :global(.sp-route) { opacity: .1; transition: opacity .7s var(--ease); }
+      .plano :global(.sp-pin), .plano :global(.sp-leader), .plano :global(.sp-effect) { opacity: 0; transition: opacity .6s var(--ease); }
+      .plano :global(.sp-floor-label text) { fill: var(--ink-3); }
+      .plano[data-svc="106"] :global(.sp-route) { opacity: .75; }
+      .plano[data-svc="101"] :global(.sp-route--101), .plano[data-svc="102"] :global(.sp-route--102), .plano[data-svc="103"] :global(.sp-route--103), .plano[data-svc="104"] :global(.sp-route--104), .plano[data-svc="105"] :global(.sp-route--105), .plano[data-svc="107"] :global(.sp-route--107), .plano[data-svc="108"] :global(.sp-route--108) { opacity: 1; }
+      .plano[data-svc="101"] :global([data-project-device="101"]), .plano[data-svc="102"] :global([data-project-device="102"]), .plano[data-svc="104"] :global([data-project-device="104"]), .plano[data-svc="107"] :global([data-project-device="107"]), .plano[data-svc="108"] :global([data-project-device="108"]) { stroke: var(--red); stroke-opacity: 1; stroke-width: 1.2; }
+      .plano :global(.llamada) { position: absolute; transform: translate(-50%, -50%); width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); font: 500 .74rem var(--mono); display: grid; place-items: center; cursor: pointer; padding: 0; transition: background .3s, color .3s, border-color .3s; }
+      .plano :global(.llamada::after) { content: ''; position: absolute; left: 50%; top: 100%; width: 1px; height: 18px; background: var(--ink); }
+      .plano :global(.llamada.on) { background: var(--red); border-color: var(--red); color: #fff; }
+      .plano :global(.llamada.on::after) { background: var(--red); }
+      .nota { position: absolute; left: 0; bottom: 0; font: 400 .78rem var(--mono); color: var(--ink-3); text-transform: uppercase; letter-spacing: .02em; }
+
+      /* Hoja 02: lista de equipos (despiece de cada uno). */
+      .equipos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+      .equipo { background: var(--paper); padding: 18px; display: grid; gap: 10px; align-content: start; min-height: 300px; }
+      .equipo__art { aspect-ratio: 4 / 3; display: grid; place-items: center; }
+      .equipo__art :global(svg) { width: 86%; height: auto; display: block; }
+      .equipo b { font-size: 1.08rem; font-weight: 600; overflow-wrap: anywhere; }
+      .equipo p { margin: 0; color: var(--ink-2); font-size: .95rem; }
+
+      /* Hoja 03: registro. */
+      table { width: 100%; border-collapse: collapse; font-size: .98rem; }
+      th { text-align: left; font: 500 .74rem var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); padding: 10px 12px; border-bottom: 1px solid var(--ink); }
+      td { padding: 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+      td.n { font-family: var(--mono); font-size: .82rem; color: var(--ink-3); white-space: nowrap; }
+      tr:hover td { background: #fafafa; }
+      td b { font-weight: 600; }
+      .more { display: inline-block; margin-top: 20px; padding-bottom: 2px; border-bottom: 2px solid var(--red); font-weight: 600; }
+
+      /* Hoja 04: lugares. */
+      .lugares { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+      .lugares li { display: grid; }
+      .lugar { background: var(--paper); padding: 18px; display: grid; gap: 8px; align-content: start; }
+      .lugar img { width: 100%; aspect-ratio: 5 / 3; object-fit: cover; display: block; filter: invert(1) hue-rotate(180deg) contrast(.92); }
+      .lugar b { font-size: 1.2rem; font-weight: 600; }
+      .lugar span { color: var(--ink-2); font-size: .98rem; }
+
+      /* Hoja 05: contacto. */
+      .contacto { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: clamp(28px, 5vw, 80px); }
+      .contacto h2 { font-size: clamp(2rem, 3.4vw, 3.2rem); }
+      .contacto p { color: var(--ink-2); max-width: 44ch; }
+      .btn { display: inline-flex; gap: 10px; align-items: center; margin-top: 24px; padding: 15px 22px; background: var(--ink); color: #fff; font-weight: 600; }
+      .h2 { font-size: clamp(1.8rem, 3vw, 2.8rem); margin-bottom: 20px; }
+      .lead { margin: -8px 0 24px; color: var(--ink-2); max-width: 56ch; }
+
+      @media (max-width: 900px) {
+        nav a:not(.cta) { display: none; }
+        .hoja { margin: 12px; }
+        .portada { grid-template-columns: 1fr; }
+        .cajetin { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .cajetin div { border-bottom: 1px solid var(--line); }
+        .equipos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .lugares { grid-template-columns: 1fr; }
+        .contacto { grid-template-columns: 1fr; }
+        th:nth-child(4), td:nth-child(4) { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <a class="logo" href="/">ultimamilla<i>.</i>com<i>.</i>ar</a>
+      <nav aria-label="Principal"><a href="/servicios">Servicios</a><a href="/sectores">Sectores</a><a href="/antecedentes">Antecedentes</a><a href="/blog">Blog</a><a class="cta" href="#contacto">Contactar</a></nav>
+    </header>
+
+    <section class="hoja" aria-label="Hoja 01">
+      <div class="hoja__head"><span class="mono">Servicios IT · Mendoza, Argentina</span><span class="mono">Hoja 01 / {pad(sheets.length)} · {sheets[0]}</span></div>
+      <div class="hoja__body portada">
+        <div>
+          <h1>Servicios IT para operaciones que no pueden detenerse<span style="color:var(--red)">.</span></h1>
+          <p class="portada__lead">Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
+          <ol class="leyenda" data-leyenda>{services.map((s, i) => <li><a href={s.href} data-code={s.code} class:list={{ on: i === 0 }}><i>{pad(i + 1)}</i>{s.name}</a></li>)}</ol>
+        </div>
+        <div class="plano" data-plano data-svc="101">
+          <div set:html={building} />
+          <span class="nota">Despiece · edificio de tres plantas · escala libre</span>
+        </div>
+      </div>
+      <div class="cajetin">
+        <div><span class="mono">Empresa</span><b>ULTIMA MILLA</b></div>
+        <div><span class="mono">Experiencia</span><b>24 años</b></div>
+        <div><span class="mono">Proyectos documentados</span><b>{total}</b></div>
+        <div><span class="mono">Período</span><b>{firstYear}–{lastYear}</b></div>
+        <div><span class="mono">Oficina</span><b>Houssay 1159, Guaymallén, Mendoza</b></div>
+      </div>
+    </section>
+
+    <section class="hoja" id="servicios" aria-label="Hoja 02">
+      <div class="hoja__head"><span class="mono">Ocho frentes de servicio</span><span class="mono">Hoja 02 / {pad(sheets.length)} · {sheets[1]}</span></div>
+      <div class="hoja__body">
+        <h2 class="h2">Ocho frentes de servicio<span style="color:var(--red)">.</span></h2>
+        <p class="lead">Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria.</p>
+        <div class="equipos">
+          {services.map((s, i) => (
+            <a class="equipo" href={s.href}>
+              <span class="mono">{pad(i + 1)}</span>
+              {devices[s.code] ? <div class="equipo__art" set:html={devices[s.code]} /> : <div class="equipo__art"><span class="mono">Arquitectura · auditoría · roadmap</span></div>}
+              <b>{s.name}</b>
+              <p>{s.text}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+      <div class="cajetin"><div><span class="mono">Hoja</span><b>Equipos</b></div><div><span class="mono">Frentes</span><b>{services.length}</b></div><div></div><div></div><div><span class="mono">Empresa</span><b>ULTIMA MILLA</b></div></div>
+    </section>
+
+    <section class="hoja" id="antecedentes" aria-label="Hoja 03">
+      <div class="hoja__head"><span class="mono">Registro de proyectos</span><span class="mono">Hoja 03 / {pad(sheets.length)} · {sheets[2]}</span></div>
+      <div class="hoja__body">
+        <h2 class="h2">{total} proyectos documentados<span style="color:var(--red)">.</span></h2>
+        <table>
+          <thead><tr><th>Nº</th><th>Cliente</th><th>Proyecto</th><th>Sector</th><th>Año</th></tr></thead>
+          <tbody>{registro.map((c) => <tr><td class="n">{pad(c.id)}</td><td><a href={c.href}><b>{c.client}</b></a></td><td><a href={c.href}>{c.title}</a></td><td>{c.sector}</td><td class="n">{c.year}</td></tr>)}</tbody>
+        </table>
+        <a class="more" href="/antecedentes">Ver los {total} proyectos</a>
+      </div>
+      <div class="cajetin"><div><span class="mono">Hoja</span><b>Registro</b></div><div><span class="mono">Filas</span><b>{registro.length} de {total}</b></div><div></div><div></div><div><span class="mono">Empresa</span><b>ULTIMA MILLA</b></div></div>
+    </section>
+
+    <section class="hoja" id="sectores" aria-label="Hoja 04">
+      <div class="hoja__head"><span class="mono">Lugares</span><span class="mono">Hoja 04 / {pad(sheets.length)} · {sheets[3]}</span></div>
+      <div class="hoja__body">
+        <ul class="lugares">
+          {places.map((p, i) => <li><a class="lugar" href={p.href}><span class="mono">{pad(i + 1)}</span><img src={`/cine/iso/site-${p.site}-v2.svg`} alt="" loading="lazy" /><b>{p.name}</b><span>{p.text}</span>{p.count > 0 && <span class="mono">{p.count} proyectos</span>}</a></li>)}
+        </ul>
+      </div>
+      <div class="cajetin"><div><span class="mono">Hoja</span><b>Lugares</b></div><div><span class="mono">Obras</span><b>{places.length}</b></div><div></div><div></div><div><span class="mono">Empresa</span><b>ULTIMA MILLA</b></div></div>
+    </section>
+
+    <section class="hoja" id="contacto" aria-label="Hoja 05">
+      <div class="hoja__head"><span class="mono">Contacto</span><span class="mono">Hoja 05 / {pad(sheets.length)} · {sheets[4]}</span></div>
+      <div class="hoja__body contacto">
+        <div>
+          <h2>Contanos qué tiene que seguir funcionando<span style="color:var(--red)">.</span></h2>
+          <p>Indicá qué necesitás, dónde y para cuándo. Un técnico te responde por email con el próximo paso: diagnóstico, relevamiento, propuesta o documentación.</p>
+          <a class="btn" href="/contacto">Enviar consulta <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="cajetin" style="border:1px solid var(--ink);grid-template-columns:1fr;align-self:start">
+          <div style="border-bottom:1px solid var(--line)"><span class="mono">Email</span><b>contacto@ultimamilla.com.ar</b></div>
+          <div style="border-bottom:1px solid var(--line)"><span class="mono">Oficina</span><b>Houssay 1159, Guaymallén, Mendoza</b></div>
+          <div><span class="mono">Horario</span><b>Lunes a viernes, 8 a 18 h</b></div>
+        </div>
+      </div>
+      <div class="cajetin"><div><span class="mono">Hoja</span><b>Contacto</b></div><div></div><div></div><div></div><div><span class="mono">Empresa</span><b>ULTIMA MILLA</b></div></div>
+    </section>
+
+    <script>
+      const plano = document.querySelector<HTMLElement>('[data-plano]')!;
+      const svg = plano.querySelector<SVGSVGElement>('svg')!;
+      const items = [...document.querySelectorAll<HTMLAnchorElement>('[data-leyenda] [data-code]')];
+      const codes = items.map((a) => a.dataset.code!);
+      const llamadas = new Map<string, HTMLButtonElement>();
+      let auto: ReturnType<typeof setInterval> | undefined, idx = 0;
+      const show = (code: string) => {
+        plano.dataset.svc = code;
+        items.forEach((a) => a.classList.toggle('on', a.dataset.code === code));
+        llamadas.forEach((b, c) => b.classList.toggle('on', c === code));
+        idx = Math.max(0, codes.indexOf(code));
+      };
+      // Una llamada por frente, sobre el pin del servicio en la isometría.
+      const place = () => {
+        const box = plano.getBoundingClientRect();
+        codes.forEach((code, i) => {
+          const pin = svg.querySelector<SVGGraphicsElement>(`.sp-pin--${code}`);
+          if (!pin) return;
+          const r = pin.getBoundingClientRect();
+          let b = llamadas.get(code);
+          if (!b) {
+            b = document.createElement('button'); b.type = 'button'; b.className = 'llamada'; b.textContent = String(i + 1).padStart(2, '0'); b.setAttribute('aria-label', items[i].textContent || '');
+            b.addEventListener('pointerenter', () => { clearInterval(auto); show(code); }); b.addEventListener('click', () => { clearInterval(auto); show(code); });
+            plano.appendChild(b); llamadas.set(code, b);
+          }
+          b.style.left = `${r.left + r.width / 2 - box.left}px`; b.style.top = `${r.top + r.height / 2 - box.top - 22}px`;
+        });
+      };
+      place(); addEventListener('resize', place);
+      items.forEach((a) => { a.addEventListener('pointerenter', () => { clearInterval(auto); show(a.dataset.code!); }); a.addEventListener('focus', () => show(a.dataset.code!)); });
+      // Sin interacción, las llamadas se recorren solas.
+      auto = setInterval(() => show(codes[(idx + 1) % codes.length]), 2600);
+      show(codes[0]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,32 @@
+---
+/** Índice de las propuestas de portada con despieces (2026-10-30). No indexable. */
+export const prerender = false;
+const variants = [
+  { href: '/propuesta/obra', letter: 'A', name: 'La obra', text: 'Negro. El edificio en despiece ocupa la portada y se construye solo al bajar, en el orden en que trabajamos: estructura, espacios, equipos, recorridos, pruebas.' },
+  { href: '/propuesta/plano', letter: 'B', name: 'El plano', text: 'Blanco. El sitio como un juego de planos de ingeniería: hojas con marco, grilla y cajetín; el despiece con llamadas numeradas, lista de equipos y registro de proyectos.' },
+  { href: '/propuesta/historias', letter: 'C', name: 'Rayos X', text: 'Cada lugar en dos capas: la foto real y, debajo, su despiece. Al bajar, un corte recorre la foto y deja ver los sistemas que sostienen la operación.' },
+];
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="robots" content="noindex, nofollow" />
+    <title>Propuestas de portada · ULTIMA MILLA</title>
+    <style>
+      body { margin: 0; background: #0a0b0d; color: #f4f4f5; font: 400 17px/1.5 system-ui, sans-serif; padding: clamp(32px, 8vh, 120px) clamp(20px, 5vw, 80px); }
+      h1 { margin: 0 0 8px; font-size: clamp(1.8rem, 4vw, 3rem); letter-spacing: -.03em; }
+      p { color: #b4b6bb; max-width: 60ch; }
+      ul { list-style: none; margin: 40px 0 0; padding: 0; display: grid; gap: 1px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.14); }
+      a { display: grid; grid-template-columns: 64px 1fr; gap: 24px; padding: 28px; background: #0a0b0d; color: inherit; text-decoration: none; }
+      a:hover { background: #111316; }
+      a i { font-style: normal; font-size: 2.4rem; font-weight: 700; color: #dc2626; letter-spacing: -.04em; }
+      a b { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+      a span { color: #b4b6bb; }
+    </style>
+  </head>
+  <body>
+    <h1>Tres portadas con despiece</h1>
+    <p>Tres direcciones distintas sobre el mismo material: las isometrías, las fotos y los proyectos documentados. Las tres usan sólo textos ya existentes en el sitio.</p>
+    <ul>{variants.map((v) => <li><a href={v.href}><i>{v.letter}</i><div><b>{v.name}</b><span>{v.text}</span></div></a></li>)}</ul>
+  </body>
+</html>
