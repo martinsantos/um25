@@ -42,15 +42,15 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
       .frentes .n { color: var(--ink-3); font-size: .9375rem; white-space: nowrap; grid-column: 2; grid-row: 1; }
       .frentes a:hover b { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
 
-      /* Los lugares: foto, nombre, en qué consiste, cuántos proyectos. */
-      .lugares { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s4) var(--s3); }
-      .lugares a { display: grid; gap: 8px; }
-      .lugares figure { margin: 0; aspect-ratio: 16 / 10; overflow: hidden; background: var(--bg-2); }
+      /* Los lugares: filas con miniatura, nombre, en qué consiste y cuántos proyectos. */
+      .lugares { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+      .lugares a { display: grid; grid-template-columns: 180px minmax(0, 1fr) auto; gap: 6px clamp(20px, 3vw, 48px); align-items: center; padding: 16px 0; border-bottom: 1px solid var(--line-2); }
+      .lugares figure { margin: 0; aspect-ratio: 16 / 10; overflow: hidden; background: var(--bg-2); grid-row: 1 / 3; }
       .lugares img { width: 100%; height: 100%; object-fit: cover; display: block; }
-      .lugares h3 { font-size: 1.5rem; padding-top: 8px; border-top: 1px solid var(--line-2); }
+      .lugares h3 { font-size: 1.5rem; align-self: end; grid-column: 2; grid-row: 1; }
       .lugares h3 i { color: var(--red); font-style: normal; }
-      .lugares p { margin: 0; color: var(--ink-2); }
-      .lugares .n { color: var(--ink-3); font-size: .9375rem; }
+      .lugares p { margin: 0; color: var(--ink-2); align-self: start; grid-column: 2; grid-row: 2; }
+      .lugares .n { color: var(--ink-3); font-size: .9375rem; white-space: nowrap; grid-column: 3; grid-row: 1 / 3; }
       .lugares a:hover h3 { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
 
       /* La empresa: principios e historia. */
@@ -62,8 +62,8 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
       .pelicula--ancha { margin-top: var(--s5); }
       .pelicula--ancha video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-      @media (max-width: 1100px) { .historia { grid-template-columns: 1fr 1fr; } .lugares { grid-template-columns: 1fr 1fr; } }
-      @media (max-width: 900px) { .frentes, .historia, .lugares { grid-template-columns: 1fr; } }
+      @media (max-width: 1100px) { .historia { grid-template-columns: 1fr 1fr; } }
+      @media (max-width: 900px) { .frentes, .historia { grid-template-columns: 1fr; } .lugares a { grid-template-columns: 120px minmax(0, 1fr); } .lugares .n { grid-row: auto; grid-column: 2; } }
     </style>
   </head>
   <body>
