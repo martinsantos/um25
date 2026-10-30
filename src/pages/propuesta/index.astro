@@ -12,6 +12,7 @@ import Apertura from '../../components/proto/Apertura.astro';
 import Casos from '../../components/proto/Casos.astro';
 import Cierre from '../../components/proto/Cierre.astro';
 import Parte from '../../components/proto/Parte.astro';
+import Banco from '../../components/proto/Banco.astro';
 import { loadStories, services, posterOf, SECTOR_PHOTO } from '../../components/proto/isoData';
 import { EMPRESA, CUMPLIMIENTO, CASOS, sectorRelato } from '../../components/proto/relato';
 import { despieceAgregado, KIT_DE_SERVICIO } from '../../components/proto/despiece';
@@ -33,25 +34,13 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
   <head>
     <Head title="Servicios IT para operaciones que no pueden detenerse · ULTIMA MILLA" />
     <style>
-      /* Apertura: la prueba debajo del titular. */
-      .cifras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px clamp(20px, 2.6vw, 40px); margin: 6px 0 2px; padding-top: 16px; border-top: 1px solid var(--line); max-width: 420px; }
-      .cifras div { display: grid; gap: 2px; }
-      .cifras b { font-size: clamp(1.5rem, 2.2vw, 2.1rem); font-weight: 700; letter-spacing: -.03em; line-height: 1; }
-      .cifras span { color: var(--ink-3); font-size: .875rem; white-space: nowrap; }
-
-      /* Para quién lo hicimos: el muro de clientes, con cuántos trabajos cada uno. */
-      .clientes { margin: 0; padding: 0; list-style: none; columns: 3; column-gap: clamp(28px, 4vw, 72px); border-top: 1px solid var(--line); }
-      .clientes li { display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-bottom: 1px solid var(--line-2); break-inside: avoid; font-size: 1.05rem; }
-      .clientes li:nth-child(-n+6) { font-size: 1.25rem; font-weight: 600; }
-      .clientes span { color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
-      .clientes .mas { color: var(--ink-3); }
-
       /* Ocho frentes: nombre, qué cubre, sus partes y cuántos proyectos. */
       .frentes { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 clamp(20px, 2.5vw, 40px); border-top: 1px solid var(--line); }
       .frentes a { display: grid; grid-template-rows: auto auto 1fr auto; gap: 10px; padding: 22px 0 24px; border-bottom: 1px solid var(--line-2); min-height: 100%; }
       .frentes b { font-size: 1.3rem; font-weight: 600; letter-spacing: -.015em; line-height: 1.2; }
       .frentes p { margin: 0; color: var(--ink-2); font-size: .95rem; }
-      .frentes .partes { display: flex; gap: 2px; align-self: end; padding-top: 10px; }
+      .frentes .papel { align-self: end; padding: 6px; margin-top: 6px; }
+      .frentes .papel img { width: 100%; height: auto; display: block; }
       .frentes .n { color: var(--ink-3); font-size: .9rem; }
       .frentes a:hover b { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
 
@@ -75,8 +64,8 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
       .pelicula--ancha { margin-top: var(--s5); }
       .pelicula--ancha video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-      @media (max-width: 1100px) { .frentes { grid-template-columns: repeat(2, minmax(0, 1fr)); } .clientes { columns: 2; } .historia { grid-template-columns: 1fr 1fr; } .lugares { grid-template-columns: 1fr 1fr; } }
-      @media (max-width: 900px) { .cifras { max-width: none; } .clientes { columns: 1; } .clientes li:nth-child(n+13):not(.mas) { display: none; } .frentes, .historia, .lugares { grid-template-columns: 1fr; } }
+      @media (max-width: 1100px) { .frentes { grid-template-columns: repeat(2, minmax(0, 1fr)); } .historia { grid-template-columns: 1fr 1fr; } .lugares { grid-template-columns: 1fr 1fr; } }
+      @media (max-width: 900px) { .frentes, .historia, .lugares { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
@@ -104,7 +93,7 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
     <section class="sec" id="servicios">
       <div class="wrap">
         <div class="sec__head"><h2>Ocho frentes de servicio<span class="dot">.</span></h2><p>Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria.</p></div>
-        <ol class="frentes">{frentes.map((s) => <li><a href={`/propuesta/servicios/${s.code}`}><b>{s.name}</b><p>{s.text}</p><span class="partes" aria-hidden="true">{s.partes.map(([k]) => <Parte k={k} size={54} />)}</span><span class="n">{s.count} proyectos</span></a></li>)}</ol>
+        <ol class="frentes">{frentes.map((s) => <li><a href={`/propuesta/servicios/${s.code}`}><b>{s.name}</b><p>{s.text}</p><span class="papel papel--mini"><img src={`/cine/iso/banco-servicio-${s.code}.svg`} alt="" width="1200" height="540" loading="lazy" decoding="async" /></span><span class="n">{s.count} proyectos</span></a></li>)}</ol>
       </div>
     </section>
 
@@ -121,8 +110,11 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
     {instalado.length > 0 && (
       <section class="sec" id="instalado">
         <div class="wrap">
-          <div class="sec__head"><h2>Lo que instalamos<span class="dot">.</span></h2><p>Equipamiento nombrado en los registros de los {total} proyectos, y en cuántos aparece cada parte.</p></div>
-          <ol class="instalado">{instalado.map((p) => <li><Parte k={p.key} size={64} /><b>{p.label}</b><span class="small">{p.proyectos} proyectos{p.unidades > 0 ? ` · ${p.unidades} unidades` : ''} · {byCode.get(p.code)}</span></li>)}</ol>
+          <div class="sec__head"><h2>Lo que instalamos<span class="dot">.</span></h2><p>Las partes que nombran los registros de los {total} proyectos, a escala, y en cuántos aparece cada una.</p></div>
+          <div class="despiece">
+            <Banco items={instalado.map((p) => ({ key: p.key }))} label="Lo instalado en los proyectos documentados" />
+            <ol class="partes-lista">{instalado.map((p) => <li><Parte k={p.key} size={48} /><span><b>{p.label}</b><span class="small">{byCode.get(p.code)}</span></span><span class="n">{p.proyectos} proyectos{p.unidades > 0 ? ` · ${p.unidades} u.` : ''}</span></li>)}</ol>
+          </div>
         </div>
       </section>
     )}

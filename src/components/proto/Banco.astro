@@ -1,0 +1,12 @@
+---
+/**
+ * El banco de un despiece, dibujado al servir la página: las partes de un proyecto o de un
+ * sector a escala sobre una base, como hoja técnica sobre papel.
+ */
+import { bancoSvg } from '../../lib/iso/banco.mjs';
+import type { ParteKey } from './despiece';
+interface Props { items: { key: ParteKey; qty?: number }[]; label?: string; papel?: boolean; class?: string }
+const { items, label, papel = true, class: cls } = Astro.props;
+const svg = bancoSvg(items, { label }).replace('class="banco pt-svg"', `class="banco pt-svg${papel ? ' banco--papel' : ''}"`);
+---
+{svg && <div class:list={[papel ? 'papel' : 'banco-oscuro', cls]} set:html={svg} />}

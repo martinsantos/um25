@@ -149,11 +149,56 @@ p { margin: 0; }
 .more { margin-top: var(--s4); }
 
 /* Partes del despiece (sprite /cine/iso/partes.svg): los colores viajan por variables hasta el <use>. */
-.parte { display: block; --p-paper: var(--bg-2); --p-face: #15181c; --p-top: #1c2025; --p-s0: #0b0c0f; --p-s1: #0e1013; --p-s2: #121418; --p-s3: #171a1f; --p-lit-top: #2a1416; --p-lit-shade: #1d1012; --p-hi: var(--ink-2); --p-mid: var(--ink-3); --p-lo: #4a4f56; --p-faint: #2d3137; --p-lit: var(--red); --p-dot: var(--ink); --p-weight: .6px; }
+.parte, .banco { display: block; --p-paper: var(--bg-2); --p-face: #15181c; --p-top: #1c2025; --p-s0: #0b0c0f; --p-s1: #0e1013; --p-s2: #121418; --p-s3: #171a1f; --p-lit-top: #2a1416; --p-lit-shade: #1d1012; --p-hi: var(--ink-2); --p-mid: var(--ink-3); --p-lo: #4a4f56; --p-faint: #2d3137; --p-lit: var(--red); --p-dot: var(--ink); --p-weight: 1px; }
+/* El banco: las partes a escala sobre una base, como hoja técnica sobre papel. */
+.banco { width: 100%; height: auto; }
+.banco--papel { --p-paper: #fbfbfa; --p-face: #ffffff; --p-top: #ffffff; --p-s0: #d9d9d6; --p-s1: #e3e3e0; --p-s2: #ececea; --p-s3: #f3f3f1; --p-lit-top: #ffffff; --p-lit-shade: #f4e4e4; --p-hi: #26262a; --p-mid: #7d7d82; --p-lo: #b0b0b4; --p-faint: #d6d6d8; --p-lit: var(--red); --p-dot: #3a3a3e; }
+.papel { background: #f2f2ef; padding: clamp(16px, 2.5vw, 36px); }
+.papel .banco { --p-weight: 1px; }
+/* Clases del sprite y del banco (las mismas que lleva partes.svg adentro). */
+.pt-svg path, .pt-svg circle { vector-effect: non-scaling-stroke; }
+.pt-fill { fill: var(--p-paper); stroke: none; }
+.pt-solid[data-lit] > .pt-fill { fill: var(--p-face); }
+.pt-shade, .pt-top { stroke: none; }
+.pt-shade[data-shade="0"] { fill: var(--p-s0); } .pt-shade[data-shade="1"] { fill: var(--p-s1); } .pt-shade[data-shade="2"] { fill: var(--p-s2); } .pt-shade[data-shade="3"] { fill: var(--p-s3); }
+.pt-top { fill: var(--p-top); }
+.pt-solid[data-lit] > .pt-top { fill: var(--p-lit-top); } .pt-solid[data-lit] > .pt-shade { fill: var(--p-lit-shade); }
+.pt-solid[data-lit] > .pt-edge { stroke: var(--p-lit); }
+.pt-line { fill: none; stroke: var(--p-lo); stroke-width: var(--p-weight); stroke-linecap: round; stroke-linejoin: round; }
+.pt-line[data-tone="hi"] { stroke: var(--p-hi); } .pt-line[data-tone="mid"] { stroke: var(--p-mid); } .pt-line[data-tone="lo"] { stroke: var(--p-lo); } .pt-line[data-tone="faint"] { stroke: var(--p-faint); } .pt-line[data-tone="lit"] { stroke: var(--p-lit); }
+.pt-dots circle { fill: var(--p-dot); stroke: none; opacity: .35; }
+.pt-dots[data-tone="hi"] circle { opacity: .85; } .pt-dots[data-tone="mid"] circle { opacity: .5; } .pt-dots[data-tone="lo"] circle { opacity: .25; } .pt-dots[data-tone="lit"] circle { fill: var(--p-lit); opacity: 1; }
+/* Las isometrías de sitio: trazo de .45 a 1× deja bordes rotos; se sube al píxel. */
+.iso .sp-structure, .xray__iso .sp-structure { stroke-width: .8; }
+.iso .sp-structure path, .xray__iso .sp-structure path { stroke-width: 1; }
 .ficha__partes { display: flex; flex-wrap: wrap; gap: 4px; align-items: flex-end; min-height: 36px; margin: 2px 0; }
 .ficha__parte { position: relative; display: block; }
 .ficha__parte i { position: absolute; right: -2px; top: -4px; font-style: normal; font-size: .72rem; line-height: 1; padding: 2px 4px; background: var(--red); color: #fff; font-weight: 600; }
 .ficha__partes--alcance { opacity: .7; }
+
+/* Cifras bajo un titular: cuántos proyectos, clientes, sectores, desde cuándo. */
+.cifras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px clamp(20px, 2.6vw, 40px); margin: 6px 0 2px; padding-top: 16px; border-top: 1px solid var(--line); max-width: 420px; }
+.cifras div { display: grid; gap: 2px; }
+.cifras b { font-size: clamp(1.5rem, 2.2vw, 2.1rem); font-weight: 700; letter-spacing: -.03em; line-height: 1; }
+.cifras span { color: var(--ink-3); font-size: .875rem; white-space: nowrap; }
+
+/* El muro de clientes, con cuántos trabajos cada uno. */
+.clientes { margin: 0; padding: 0; list-style: none; columns: 3; column-gap: clamp(28px, 4vw, 72px); border-top: 1px solid var(--line); }
+.clientes li { display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-bottom: 1px solid var(--line-2); break-inside: avoid; font-size: 1.05rem; }
+.clientes li:nth-child(-n+6) { font-size: 1.25rem; font-weight: 600; }
+.clientes span { color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.clientes .mas { color: var(--ink-3); }
+.clientes a:hover { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; }
+
+/* El despiece: el banco sobre papel y, al lado, la lista de partes con sus cantidades. */
+.despiece { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s3) clamp(28px, 4vw, 72px); align-items: start; }
+.despiece .papel img { width: 100%; height: auto; display: block; }
+.partes-lista { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.partes-lista li { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line-2); }
+.partes-lista b { font-weight: 600; line-height: 1.3; display: block; }
+.partes-lista .small { display: block; }
+.partes-lista .n { color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; font-size: .95rem; }
+.despiece__nota { grid-column: 1 / -1; color: var(--ink-3); margin: 0; }
 
 /* Lo instalado en un sector o con un servicio: partes con cuántos proyectos las nombran. */
 .instalado { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s4) var(--s3); }
@@ -162,25 +207,15 @@ p { margin: 0; }
 .instalado .parte { margin-bottom: 6px; }
 @media (max-width: 900px) { .instalado { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
-/* Ficha isométrica: el lugar con los servicios del proyecto encendidos y el despiece al lado. */
-.fiso { position: relative; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s3) clamp(28px, 4vw, 72px); align-items: start; }
-.fiso__lugar { aspect-ratio: 5 / 3; padding: 3%; background: var(--bg-2); }
+/* Ficha isométrica: el banco con lo instalado y, debajo, el lugar con los servicios del proyecto encendidos. */
+.fiso { display: grid; gap: var(--s4); }
+.fiso__lugar { position: relative; aspect-ratio: 2 / 1; padding: 2%; background: var(--bg-2); }
 .fiso__lugar svg { width: 100%; height: 100%; display: block; }
+.fiso__lugar .ahora { position: absolute; left: 20px; bottom: 16px; color: var(--ink-2); }
 .fiso__lugar :is(.sp-route) { opacity: .08; }
 .fiso.on .fiso__lugar :is(.sp-route path) { stroke-dashoffset: 0; }
-.fiso__partes { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
-.fiso__partes li { position: relative; display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 14px; align-items: center; padding: 10px 0 10px 18px; border-bottom: 1px solid var(--line-2); transition: color .3s; }
-.fiso__partes .p { position: absolute; left: 0; top: 50%; width: 7px; height: 7px; margin-top: -3px; background: var(--ink-3); transition: background .3s; }
-.fiso__partes li.on .p { background: var(--red); }
-.fiso__txt { display: grid; gap: 2px; }
-.fiso__txt b { font-weight: 600; line-height: 1.3; }
-.fiso__lineas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
-.fiso__lineas line { stroke: var(--line); stroke-width: 1; transition: stroke .3s; }
-.fiso__lineas circle { fill: var(--ink-3); transition: fill .3s; }
-.fiso__lineas g.on line { stroke: var(--red); }
-.fiso__lineas g.on circle { fill: var(--red); }
-.fiso__nota { grid-column: 1 / -1; color: var(--ink-3); margin: 0; }
-@media (max-width: 900px) { .fiso { grid-template-columns: 1fr; } .fiso__lineas { display: none; } .fiso__partes li { padding-left: 0; } .fiso__partes .p { display: none; } }
+.partes-lista li.on b { color: var(--ink); }
+.partes-lista li.on .parte { --p-lit: var(--red); }
 
 /* Cierre y pie. */
 .cierre { border-top: 1px solid var(--line-2); padding-block: var(--s6); }
@@ -197,7 +232,7 @@ p { margin: 0; }
 .pie nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
 .pie nav a:hover { color: var(--ink); }
 
-@media (max-width: 1100px) { .cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fichas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 1100px) { .cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fichas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .clientes { columns: 2; } }
 @media (max-width: 900px) {
   .top nav a:not(.cta) { display: none; }
   .lugar { height: 160vh; }
@@ -205,7 +240,10 @@ p { margin: 0; }
   .lugar .xray { height: auto; max-height: none; width: 100%; margin: 0; aspect-ratio: 1; }
   .copy { order: 2; }
   .copy > p { display: none; }
-  .cols-2, .cols-3, .cols-4, .cols-5-7, .cols-7-5, .dentro, .caso, .cierre__grid { grid-template-columns: 1fr; }
+  .cols-2, .cols-3, .cols-4, .cols-5-7, .cols-7-5, .dentro, .caso, .cierre__grid, .despiece { grid-template-columns: 1fr; }
+  .cifras { max-width: none; }
+  .clientes { columns: 1; }
+  .clientes li:nth-child(n+13):not(.mas) { display: none; }
   .caso:nth-child(even) figure { order: 0; }
   .dentro__stage { position: relative; top: auto; }
   .fichas { grid-template-columns: 1fr 1fr; gap: var(--s3) var(--s2); }

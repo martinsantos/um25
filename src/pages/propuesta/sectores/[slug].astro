@@ -1,7 +1,8 @@
 ---
 /**
- * Sector (2026-10-30, v5). Le habla a quien opera ese lugar: qué le resolvemos, qué hicimos
- * ahí, el lugar por dentro, cómo trabajamos y para quién. Frases completas del sitio. No indexable.
+ * Sector (2026-10-30, v6). La prueba primero: la apertura con las cifras del sector, para quién,
+ * qué se instaló (el banco con las partes que nombran los registros), los casos, el lugar por
+ * dentro, los proyectos. Frases completas del sitio. No indexable.
  */
 import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
@@ -10,10 +11,11 @@ import Apertura from '../../../components/proto/Apertura.astro';
 import Ficha from '../../../components/proto/Ficha.astro';
 import Casos from '../../../components/proto/Casos.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
+import Banco from '../../../components/proto/Banco.astro';
+import Parte from '../../../components/proto/Parte.astro';
 import { getSectorBySlug } from '../../../lib/um26-directus';
 import { loadStories, services, posterOf, SITE_OF, SECTOR_PHOTO, SCENE_OF } from '../../../components/proto/isoData';
 import { despieceAgregado } from '../../../components/proto/despiece';
-import Parte from '../../../components/proto/Parte.astro';
 import { CASOS_SECTOR, casosDe, sectorRelato, EMPRESA } from '../../../components/proto/relato';
 import { SECTORS } from '../../../data/cine/scenes';
 
@@ -35,10 +37,13 @@ const lower = name.toLowerCase();
 const voz = relato.faqs.map((f) => f.answer.replace(/^Sí,\s*/i, '').replace(/^(\w)/, (m) => m.toUpperCase()));
 const byService = services.map((s) => ({ ...s, count: own.filter((c) => c.serviceCodes.includes(s.code)).length })).filter((s) => s.count > 0 || sector.services.includes(Number(s.code))).sort((a, b) => b.count - a.count);
 const maxSvc = Math.max(1, ...byService.map((s) => s.count));
-const clientes = Object.values(own.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count).slice(0, 10);
+const byCode = new Map(services.map((s) => [s.code, s.name]));
+const clientes = Object.values(own.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
+const anios = own.map((c) => c.year).filter(Boolean);
+const desde = anios.length ? Math.min(...anios) : 0;
 const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'Aeropuerto', bodega: 'Bodega', hospital: 'Centro de salud', planta: 'Planta' };
 const instalado = despieceAgregado(own).slice(0, 8);
-const byCode = new Map(services.map((s) => [s.code, s.name]));
+const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos documentados'], [String(clientes.length), clientes.length === 1 ? 'cliente' : 'clientes'], [String(byService.filter((s) => s.count > 0).length), 'frentes de servicio'], [String(desde), 'primer proyecto']] : [];
 ---
 <!doctype html>
 <html lang="es">
@@ -48,9 +53,11 @@ const byCode = new Map(services.map((s) => [s.code, s.name]));
     <main id="contenido">
 
     <Apertura label={name} isoSrc={`/cine/iso/site-${site}-v2.svg`} image={photo}>
+      <span class="small">{name}</span>
       <h1 style="font-size:clamp(2rem,3.6vw,3.6rem)">{relato.headline || name}<span class="dot">.</span></h1>
-      <p class="tag">{relato.summary || sector.description}</p>
-      <a class="u" href={`/propuesta/antecedentes?sector=${slug}`}>{own.length > 0 ? `${own.length} proyectos documentados en ${lower}` : 'Ver todos los proyectos'}</a>
+      <p>{relato.summary || sector.description}</p>
+      {cifras.length > 0 && <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>}
+      <a class="u" href={own.length > 0 ? `/propuesta/antecedentes?sector=${slug}` : '/propuesta/antecedentes'}>{own.length > 0 ? `Ver los ${own.length} proyectos en ${lower}` : 'Ver todos los proyectos'}</a>
     </Apertura>
 
     <section class="sec">
@@ -64,16 +71,31 @@ const byCode = new Map(services.map((s) => [s.code, s.name]));
       </div>
     </section>
 
-    <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} fallbackImage={photo} />
+    {clientes.length > 0 && (
+      <section class="sec">
+        <div class="wrap">
+          <div class="sec__head"><h2>Para quién lo hicimos en {lower}<span class="dot">.</span></h2><p>{clientes.length} {clientes.length === 1 ? 'cliente' : 'clientes'} desde {desde}, con la cantidad de proyectos documentados de cada uno.</p></div>
+          <ol class="clientes">
+            {clientes.slice(0, 18).map((c) => <li><a href={`/propuesta/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
+            {clientes.length > 18 && <li class="mas"><a href={`/propuesta/antecedentes?sector=${slug}`}>Y {clientes.length - 18} más</a><span></span></li>}
+          </ol>
+        </div>
+      </section>
+    )}
 
     {instalado.length > 0 && (
       <section class="sec">
         <div class="wrap">
-          <div class="sec__head"><h2>Lo que instalamos en {lower}<span class="dot">.</span></h2><p>Equipamiento nombrado en los registros de los {own.length} proyectos.</p></div>
-          <ol class="instalado">{instalado.map((p) => <li><Parte k={p.key} size={64} /><b>{p.label}</b><span class="small">{p.proyectos} {p.proyectos === 1 ? 'proyecto' : 'proyectos'}{p.unidades > 0 ? ` · ${p.unidades} unidades` : ''} · {byCode.get(p.code)}</span></li>)}</ol>
+          <div class="sec__head"><h2>Lo que instalamos en {lower}<span class="dot">.</span></h2><p>Las partes que nombran los registros de los {own.length} proyectos, a escala, y en cuántos aparece cada una.</p></div>
+          <div class="despiece">
+            <Banco items={instalado.map((p) => ({ key: p.key }))} label={`Lo instalado en ${lower}`} />
+            <ol class="partes-lista">{instalado.map((p) => <li><Parte k={p.key} size={48} /><span><b>{p.label}</b><span class="small">{byCode.get(p.code)}</span></span><span class="n">{p.proyectos} {p.proyectos === 1 ? 'proyecto' : 'proyectos'}{p.unidades > 0 ? ` · ${p.unidades} u.` : ''}</span></li>)}</ol>
+          </div>
         </div>
       </section>
     )}
+
+    <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} fallbackImage={photo} />
 
     <section class="sec">
       <div class="wrap">
@@ -88,22 +110,6 @@ const byCode = new Map(services.map((s) => [s.code, s.name]));
       </div>
     </section>
 
-    <section class="sec">
-      <div class="wrap cols cols-5-7">
-        <h2>Cómo trabajamos<span class="dot">.</span></h2>
-        <div class="cols cols-2">{EMPRESA.principios.map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div>
-      </div>
-    </section>
-
-    {clientes.length > 0 && (
-      <section class="sec">
-        <div class="wrap">
-          <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2></div>
-          <p class="frase">{clientes.map((c, i) => <><b>{c.name}</b>{c.count > 1 ? ` (${c.count} proyectos)` : ''}{i < clientes.length - 2 ? ', ' : i === clientes.length - 2 ? ' y ' : '.'}</>)}</p>
-        </div>
-      </section>
-    )}
-
     {own.length > 0 && (
       <section class="sec">
         <div class="wrap">
@@ -114,8 +120,14 @@ const byCode = new Map(services.map((s) => [s.code, s.name]));
       </section>
     )}
 
-    </main>
+    <section class="sec">
+      <div class="wrap cols cols-5-7">
+        <h2>Cómo trabajamos<span class="dot">.</span></h2>
+        <div class="cols cols-2">{EMPRESA.principios.map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div>
+      </div>
+    </section>
 
+    </main>
     <Cierre />
   </body>
 </html>
