@@ -1,15 +1,17 @@
 ---
 /**
- * Página de servicio (2026-10-30), sistema Despiece. Apertura con la película de ese servicio
- * en su escena, que se abre hasta el despiece con sólo ese recorrido encendido. Después, el
- * equipo del servicio en despiece junto a lo que cubre (llamadas), el alcance como cajetín,
- * los cuatro pasos y las fichas de proyectos con ese servicio. Textos: los del servicio en el
- * catálogo y frases existentes. No indexable.
+ * Landing de servicio (2026-10-30, v2), sistema Despiece. La foto editorial del servicio a pleno
+ * se abre hasta el despiece del lugar con sólo ese recorrido encendido. Después: el equipo en
+ * despiece, grande, con llamadas y líneas de referencia a cada cosa que cubre; la infografía de
+ * sus proyectos (por sector y por año, clicable hacia el muro) junto al recorrido de Blender; el
+ * alcance como hoja; los cuatro pasos; las fichas. Textos: los del catálogo. No indexable.
  */
 import '../../../styles/proto-despiece.css';
+import Ficha from '../../../components/proto/Ficha.astro';
+import Cierre from '../../../components/proto/Cierre.astro';
 import { getServicioByCode } from '../../../lib/um26-directus';
-import { loadStories, readIso, readDevice, services, SERVICE_KEY, type IsoSite } from '../../../components/proto/isoData';
-import { SERVICE_SCENES, SOFTWARE_FILM } from '../../../data/cine/scenes';
+import { loadStories, readIso, readDevice, services, SERVICE_KEY, SERVICE_PHOTO, type IsoSite } from '../../../components/proto/isoData';
+import { SECTORS, SERVICE_SCENES } from '../../../data/cine/scenes';
 
 export const prerender = false;
 const code = String(Astro.params.code);
@@ -22,12 +24,15 @@ const scene = (SERVICE_SCENES[code] || SERVICE_SCENES['101'])!.scene;
 const SITE: Record<string, IsoSite> = { fachada: 'building', aeropuerto: 'terminal', bodega: 'winery', hospital: 'clinic', planta: 'plant' };
 const iso = readIso(SITE[scene] || 'building');
 const device = code === '106' ? '' : readDevice(code);
-// Software: la película de transparencias ya es rayos X; su póster es el despiece del equipo.
-const poster = code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}-poster.avif` : `/cine/media/cine-${scene}-${SERVICE_KEY[code]}-poster.avif`;
-const fallback = `/cine/media/cine-${scene}-poster.avif`;
+const photo = SERVICE_PHOTO[code];
+const poster = `/cine/media/cine-${scene}-${SERVICE_KEY[code]}-poster.avif`;
 const n = services.findIndex((s) => s.code === code) + 1;
-const thumbOf = (image: string) => /^\/images\/antecedentes\/generated\/.+-principal\.webp$/.test(image) ? image.replace(/-principal\.webp$/, '-principal-480.webp') : image;
+const bySector = SECTORS.map((s) => ({ slug: s.slug, name: s.name, count: own.filter((c) => c.sectorSlug === s.slug).length })).filter((s) => s.count > 0).sort((a, b) => b.count - a.count);
+const years = [...new Set(own.map((c) => c.year).filter(Boolean))].sort((a, b) => a - b);
+const yearCounts = Object.fromEntries(years.map((y) => [y, own.filter((c) => c.year === y).length]));
+const maxYear = Math.max(1, ...Object.values(yearCounts));
 const pad = (v: number) => String(v).padStart(2, '0');
+const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'Aeropuerto', bodega: 'Bodega', hospital: 'Centro de salud', planta: 'Planta' };
 ---
 <!doctype html>
 <html lang="es">
@@ -39,26 +44,30 @@ const pad = (v: number) => String(v).padStart(2, '0');
     <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <style>
-      .lugar { position: relative; height: 200vh; }
-      .lugar__pin { position: sticky; top: 0; height: 100vh; height: 100svh; display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(20px, 3vw, 56px); align-items: center; padding: 0 var(--gutter); overflow: hidden; }
-      .lugar .xray { max-height: 80vh; }
-      .lugar :global(.sp-route path) { stroke-dashoffset: 2400; }
-      .lugar[data-fase="2"] :global(.sp-route path), .lugar[data-fase="3"] :global(.sp-route path) { stroke-dashoffset: 0; }
-      .lugar[data-fase="3"] :global(.sp-effect) { opacity: 1; }
-      .copy { display: grid; gap: 14px; align-content: center; }
-      .copy h1 { font-size: clamp(2.4rem, 4.4vw, 4.4rem); }
-      .copy .tag { margin: 0; font-size: 1.2rem; font-weight: 600; color: var(--ink-2); }
-      .copy > p { margin: 0; color: var(--ink-2); font-size: 1.02rem; max-width: 42ch; }
-
-      .band { padding: clamp(80px, 12vh, 160px) var(--gutter) 0; }
-      .band h2 { font-size: clamp(2rem, 3.4vw, 3.2rem); }
-      .cubre { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 4vw, 64px); align-items: center; margin-top: 32px; }
-      .equipo { aspect-ratio: 4 / 3; display: grid; place-items: center; background: var(--bg-2); padding: 8%; position: relative; }
-      .equipo :global(svg) { width: 100%; height: auto; display: block; }
-      .equipo .mono { position: absolute; left: 14px; bottom: 12px; }
+      /* Qué cubre: el equipo en despiece con líneas de referencia a cada capacidad. */
+      .cubre { position: relative; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 80px); align-items: center; margin-top: 32px; }
+      .equipo { position: relative; aspect-ratio: 4 / 3; display: grid; place-items: center; padding: 8% 12%; }
+      .equipo > div { width: 100%; height: 100%; display: grid; place-items: center; }
+      .equipo :global(svg) { width: 100%; height: 100%; display: block; overflow: visible; }
+      .equipo .mono { position: absolute; left: 0; bottom: 0; }
       .caps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-      .caps li { display: grid; grid-template-columns: 26px 1fr; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--line-2); align-items: center; font-size: 1.05rem; }
-      .alcance { margin-top: 32px; }
+      .caps li { display: grid; grid-template-columns: 26px 1fr; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--line-2); align-items: center; font-size: 1.05rem; color: var(--ink-2); transition: color .3s; }
+      .caps li.on { color: var(--ink); }
+      .lineas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+      .lineas :global(line) { stroke: var(--ink-3); stroke-width: 1; transition: stroke .3s; }
+      .lineas :global(circle) { fill: var(--red); }
+      .lineas :global(.on) { stroke: var(--red); }
+
+      /* Infografía de proyectos + recorrido. */
+      .info { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 4vw, 80px); align-items: start; margin-top: 32px; }
+      .info__data { display: grid; gap: 26px; }
+      .rec { display: grid; gap: 10px; }
+      .rec figure { margin: 0; aspect-ratio: 16 / 9; background: var(--bg-2); overflow: hidden; }
+      .rec img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .rec__cap { display: flex; justify-content: space-between; }
+
+      /* Alcance y pasos. */
+      .alcance { margin-top: clamp(48px, 7vh, 80px); }
       .alcance .hoja__body { padding: 0; }
       .alcance dl { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .alcance dl div { padding: 14px 20px; border-bottom: 1px solid var(--line-2); border-right: 1px solid var(--line-2); }
@@ -69,33 +78,12 @@ const pad = (v: number) => String(v).padStart(2, '0');
       .pasos li::before { counter-increment: paso; content: counter(paso, decimal-leading-zero); font: 500 .76rem var(--mono); color: var(--ink-3); }
       .pasos b { font-weight: 600; font-size: 1.05rem; }
       .pasos p { margin: 0; color: var(--ink-2); font-size: .95rem; }
-      .grid { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line-2); border: 1px solid var(--line-2); }
-      .ficha { background: var(--bg); padding: 14px; min-width: 0; }
-      .ficha > a { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
-      .ficha > a > * { min-width: 0; }
-      .ficha__head { display: flex; justify-content: space-between; gap: 8px; }
-      .ficha__head .mono { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .ficha figure { margin: 0; aspect-ratio: 16 / 10; background: var(--bg-2); overflow: hidden; }
-      .ficha img { width: 100%; height: 100%; object-fit: cover; display: block; }
-      .ficha b { font-weight: 600; font-size: 1rem; line-height: 1.3; }
-      .ficha .t { color: var(--ink-2); font-size: .95rem; line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-      .ficha:hover b { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; }
-      .more { display: inline-block; margin-top: 24px; }
-      .cierre { margin: clamp(80px, 12vh, 160px) var(--gutter) 0; }
-      .cierre .hoja__body { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 64px); align-items: end; }
-      .cierre h2 { font-size: clamp(2rem, 3.4vw, 3.2rem); }
-      .cierre p { color: var(--ink-2); max-width: 44ch; margin: 14px 0 0; }
-      .cierre .btn { justify-self: start; }
-      @media (max-width: 1100px) { .grid, .pasos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+      .grid { margin-top: 32px; }
+      @media (max-width: 1100px) { .pasos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
       @media (max-width: 900px) {
-        .lugar { height: 170vh; }
-        .lugar__pin { grid-template-columns: 1fr; align-content: start; padding-top: 80px; gap: 16px; }
-        .lugar .xray { max-height: 40vh; }
-        .copy h1 { font-size: 2.2rem; }
-        .copy > p { display: none; }
-        .cubre { grid-template-columns: 1fr; }
+        .cubre, .info { grid-template-columns: 1fr; }
+        .lineas { display: none; }
         .alcance dl { grid-template-columns: 1fr; }
-        .cierre .hoja__body { grid-template-columns: 1fr; }
       }
     </style>
   </head>
@@ -112,12 +100,13 @@ const pad = (v: number) => String(v).padStart(2, '0');
           <h1>{servicio.name}<span class="dot">.</span></h1>
           <p class="tag">{servicio.tagline}</p>
           <p>{servicio.description}</p>
+          <ol class="fases mono" data-fases>{servicio.proceso.map((s) => <li>{s.titulo}</li>)}</ol>
           <a class="u" href={`/propuesta/antecedentes?service=${code}`}>{own.length > 0 ? `${own.length} proyectos documentados` : 'Ver el muro'}</a>
         </div>
         <div class="xray">
-          <div class="xray__ghost"><img src={poster} alt="" width="1920" height="1080" onerror={`this.src='${fallback}'`} /></div>
+          <div class="xray__ghost"><img src={photo} alt="" width="1672" height="941" /></div>
           <div class="xray__iso iso" data-svc={code} set:html={iso} />
-          <div class="xray__foto"><img src={poster} alt="" width="1920" height="1080" fetchpriority="high" onerror={`this.src='${fallback}'`} /></div>
+          <div class="xray__foto"><img src={photo} alt="" width="1672" height="941" fetchpriority="high" /></div>
           <div class="xray__linea"></div>
         </div>
       </div>
@@ -125,10 +114,41 @@ const pad = (v: number) => String(v).padStart(2, '0');
 
     <section class="band" id="cubre">
       <h2>Qué cubre {servicio.name}<span class="dot">.</span></h2>
-      <div class="cubre">
-        <div class="equipo">{device ? <div set:html={device} /> : <span style="color:var(--ink-3)">{servicio.tagline}</span>}<span class="mono">Equipo · despiece</span></div>
-        <ol class="caps">{servicio.capabilities.map((c, i) => <li><span class="llamada">{pad(i + 1)}</span>{c}</li>)}</ol>
+      <div class="cubre" data-cubre>
+        <div class="equipo" data-equipo>{device ? <div set:html={device} /> : <div class="iso" data-src={`/cine/iso/site-building-v2.svg`}></div>}<span class="mono">Equipo · despiece</span></div>
+        <ol class="caps" data-caps>{servicio.capabilities.map((c, i) => <li><span class="llamada">{pad(i + 1)}</span>{c}</li>)}</ol>
+        <svg class="lineas" data-lineas aria-hidden="true"></svg>
       </div>
+    </section>
+
+    {own.length > 0 && (
+      <section class="band" id="proyectos">
+        <h2>{own.length} proyectos con {servicio.name.toLowerCase()}<span class="dot">.</span></h2>
+        <div class="info">
+          <div class="info__data">
+            <div class="lens">
+              <h3 class="mono">Por sector</h3>
+              {bySector.map((s) => <a class="no-n" href={`/propuesta/antecedentes?service=${code}&sector=${s.slug}`} style={`--w:${Math.round((s.count / own.length) * 100)}`}>{s.name}<b>{s.count}</b><i></i></a>)}
+            </div>
+            <div>
+              <h3 class="mono" style="margin-bottom:8px">Por año</h3>
+              <div class="years">{years.map((y) => <a href={`/propuesta/antecedentes?service=${code}&year=${y}`} aria-label={`${y}: ${yearCounts[y]} proyectos`} title={`${y} · ${yearCounts[y]}`}><i style={`--h:${Math.max(4, Math.round((yearCounts[y] / maxYear) * 100))}`}></i></a>)}</div>
+              <div class="axis mono" aria-hidden="true"><span>{years[0]}</span><span>{years[years.length - 1]}</span></div>
+            </div>
+          </div>
+          <a class="rec" href={`/${bySector[0]?.slug || 'sectores'}`}>
+            <figure><img src={poster} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure>
+            <div class="rec__cap"><span class="mono">Recorrido · {servicio.name}</span><span class="mono">{sceneTitle[scene]}</span></div>
+          </a>
+        </div>
+        <ol class="grid grid--4">{own.slice(0, 8).map((c, i) => <Ficha story={c} eager={i < 4} />)}</ol>
+        <a class="u more" href={`/propuesta/antecedentes?service=${code}`}>Ver los {own.length} proyectos</a>
+      </section>
+    )}
+
+    <section class="band" id="alcance">
+      <h2>De la medición al resultado<span class="dot">.</span></h2>
+      <ol class="pasos">{servicio.proceso.map((s) => <li><b>{s.titulo}</b><p>{s.desc}</p></li>)}</ol>
       {servicio.scope_operativo.length > 0 && (
         <div class="alcance hoja">
           <div class="hoja__head"><span class="mono">Alcance operativo</span><span class="mono">{servicio.name}</span></div>
@@ -138,37 +158,7 @@ const pad = (v: number) => String(v).padStart(2, '0');
       )}
     </section>
 
-    {servicio.proceso.length > 0 && (
-      <section class="band">
-        <h2>De la medición al resultado<span class="dot">.</span></h2>
-        <ol class="pasos">{servicio.proceso.map((s) => <li><b>{s.titulo}</b><p>{s.desc}</p></li>)}</ol>
-      </section>
-    )}
-
-    {own.length > 0 && (
-      <section class="band" id="proyectos">
-        <h2>{own.length} proyectos con {servicio.name.toLowerCase()}<span class="dot">.</span></h2>
-        <ol class="grid">
-          {own.slice(0, 12).map((c, i) => (
-            <li class="ficha"><a href={c.href}><div class="ficha__head"><span class="mono">UM-{c.id}</span><span class="mono">{[c.sector, c.year].filter(Boolean).join(' · ')}</span></div><figure>{c.image && <img src={thumbOf(c.image)} alt="" width="480" height="300" loading={i < 4 ? 'eager' : 'lazy'} decoding="async" />}</figure><b>{c.client}</b><span class="t">{c.title}</span></a></li>
-          ))}
-        </ol>
-        <a class="u more" href={`/propuesta/antecedentes?service=${code}`}>Ver los {own.length} proyectos</a>
-      </section>
-    )}
-
-    <section class="cierre hoja" id="contacto">
-      <div class="hoja__head"><span class="mono">Contacto</span><span class="mono">ULTIMA MILLA · Mendoza</span></div>
-      <div class="hoja__body">
-        <div>
-          <h2>Contanos qué tiene que seguir funcionando<span class="dot">.</span></h2>
-          <p>Indicá qué necesitás, dónde y para cuándo. Un técnico te responde por email con el próximo paso: diagnóstico, relevamiento, propuesta o documentación.</p>
-        </div>
-        <a class="btn" href="/contacto">Enviar consulta <span aria-hidden="true">→</span></a>
-      </div>
-      <div class="cajetin" style="--cols:3"><div><span class="mono">Email</span><b>contacto@ultimamilla.com.ar</b></div><div><span class="mono">Oficina</span><b>Houssay 1159, Guaymallén, Mendoza</b></div><div><span class="mono">Horario</span><b>Lunes a viernes, 8 a 18 h</b></div></div>
-    </section>
-    <footer class="pie"><span>ultimamilla.com.ar</span><span>Houssay 1159, Guaymallén, Mendoza · contacto@ultimamilla.com.ar</span></footer>
+    <Cierre />
 
     <script>
       const lugar = document.querySelector<HTMLElement>('[data-lugar]')!;
@@ -181,10 +171,49 @@ const pad = (v: number) => String(v).padStart(2, '0');
         lugar.style.setProperty('--linea', p < .02 || p > .52 ? '0' : '1');
         const fase = p < .12 ? 0 : p < .5 ? 1 : p < .78 ? 2 : 3;
         if (lugar.dataset.fase !== String(fase)) lugar.dataset.fase = String(fase);
+        lugar.querySelectorAll<HTMLElement>('[data-fases] li').forEach((li, i) => li.classList.toggle('on', i < fase || (fase === 3 && i === 3)));
       };
       addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
       addEventListener('resize', update);
       update();
+
+      // Líneas de referencia: de cada llamada a un punto del equipo, como en un despiece de catálogo.
+      const cubre = document.querySelector<HTMLElement>('[data-cubre]')!;
+      const equipo = cubre.querySelector<HTMLElement>('[data-equipo]')!;
+      const lineas = cubre.querySelector<SVGSVGElement>('[data-lineas]')!;
+      const items = [...cubre.querySelectorAll<HTMLElement>('[data-caps] li')];
+      const lazy = equipo.querySelector<HTMLElement>('[data-src]');
+      if (lazy) fetch(lazy.dataset.src!).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) { lazy.innerHTML = svg; draw(); } });
+      // El dibujo llena su marco: el viewBox se ajusta al contenido real del despiece.
+      const fit = (svg: SVGSVGElement) => { if (svg.dataset.fit) return; try { const b = svg.getBBox(); const pad = Math.max(b.width, b.height) * .06; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); svg.dataset.fit = '1'; } catch { /* sin bbox */ } };
+      const draw = () => {
+        const svg = equipo.querySelector<SVGSVGElement>('svg'); if (!svg) return;
+        fit(svg);
+        const box = cubre.getBoundingClientRect();
+        const art = svg.getBoundingClientRect();
+        lineas.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`);
+        lineas.innerHTML = '';
+        const cx = art.left + art.width / 2 - box.left, cy = art.top + art.height / 2 - box.top;
+        items.forEach((li, i) => {
+          const c = li.querySelector<HTMLElement>('.llamada')!.getBoundingClientRect();
+          const x2 = c.left - box.left - 4, y2 = c.top + c.height / 2 - box.top;
+          // Punto de anclaje sobre el contorno del equipo, repartido en el lado derecho.
+          const t = items.length > 1 ? i / (items.length - 1) : .5;
+          const ang = (-.42 + t * .84) * Math.PI;
+          const x1 = cx + Math.cos(ang) * art.width * .34, y1 = cy + Math.sin(ang) * art.height * .34;
+          const mid = x1 + (x2 - x1) * .55;
+          const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          g.innerHTML = `<circle cx="${x1}" cy="${y1}" r="3"/><line x1="${x1}" y1="${y1}" x2="${mid}" y2="${y1}"/><line x1="${mid}" y1="${y1}" x2="${mid}" y2="${y2}"/><line x1="${mid}" y1="${y2}" x2="${x2}" y2="${y2}"/>`;
+          g.dataset.i = String(i);
+          lineas.appendChild(g);
+        });
+      };
+      items.forEach((li, i) => {
+        const on = () => { items.forEach((o, j) => o.classList.toggle('on', i === j)); lineas.querySelectorAll('g').forEach((g) => g.querySelectorAll('line').forEach((l) => l.classList.toggle('on', g.dataset.i === String(i)))); };
+        li.addEventListener('pointerenter', on);
+      });
+      draw(); addEventListener('resize', draw);
+      new IntersectionObserver(([e]) => { if (e.isIntersecting) draw(); }, { threshold: .2 }).observe(cubre);
     </script>
   </body>
 </html>

@@ -1,24 +1,27 @@
 ---
 /**
- * El muro (2026-10-30), sistema Despiece. Los proyectos documentados como pared de fichas.
- * Sector, servicio y año son lentes que filtran en vivo y se dibujan como infografía: barras
- * con la cuenta de cada lente, que se recomponen con el filtro activo. La cifra del título
- * se recompone con los datos. Entre las fichas, los recorridos de Blender del sector activo.
+ * El muro (2026-10-30, v2), sistema Despiece. Los proyectos documentados como pared de fichas
+ * de trabajo. Sector, servicio y año son lentes que filtran en vivo y se dibujan como infografía:
+ * barras con la cuenta de cada lente, que se recomponen con el filtro activo. La cifra del título
+ * se recompone con los datos. Entre las fichas, los recorridos de Blender. Filtro en la URL.
  * Textos: sólo frases existentes y datos del catálogo. No indexable.
  */
 import '../../../styles/proto-despiece.css';
+import Ficha from '../../../components/proto/Ficha.astro';
 import { loadStories, services, posterOf, SCENE_OF } from '../../../components/proto/isoData';
 import { SECTORS } from '../../../data/cine/scenes';
 
 export const prerender = false;
-const { total, stories } = await loadStories();
+const { stories } = await loadStories();
+const total = stories.length;
 const pad = (n: number) => String(n).padStart(2, '0');
-const thumbOf = (image: string) => /^\/images\/antecedentes\/generated\/.+-principal\.webp$/.test(image) ? image.replace(/-principal\.webp$/, '-principal-480.webp') : image;
 const sectors = SECTORS.map((s) => ({ slug: s.slug, name: s.name, count: stories.filter((c) => c.sectorSlug === s.slug).length })).filter((s) => s.count > 0);
 const svcs = services.map((s) => ({ code: s.code, name: s.name, count: stories.filter((c) => c.serviceCodes.includes(s.code)).length }));
 const years = [...new Set(stories.map((c) => c.year).filter(Boolean))].sort((a, b) => a - b);
 const yearCounts = Object.fromEntries(years.map((y) => [y, stories.filter((c) => c.year === y).length]));
+const maxYear = Math.max(...Object.values(yearCounts));
 const recorridos = ['constructoras', 'aeropuertos', 'bodegas', 'salud'];
+const recAt = [0, 18, 60, 120];
 const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'Aeropuerto', bodega: 'Bodega', hospital: 'Centro de salud', planta: 'Planta' };
 ---
 <!doctype html>
@@ -34,58 +37,16 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       .muro { margin: 16px var(--gutter) 0; }
       .muro .hoja__body { display: grid; grid-template-columns: minmax(280px, 4fr) minmax(0, 8fr); gap: clamp(24px, 4vw, 64px); align-items: start; padding-top: clamp(24px, 3vw, 40px); }
       .panel { position: sticky; top: 80px; display: grid; gap: 22px; }
-      .count { font-size: clamp(4.5rem, 9vw, 8rem); line-height: .9; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
-      .count i { font-style: normal; color: var(--red); }
       .sentence { margin: 0; font-size: 1.25rem; font-weight: 600; letter-spacing: -.02em; }
       .lead { margin: 0; color: var(--ink-2); max-width: 40ch; }
-      /* Lentes como infografía: cada fila es una barra con su cuenta. */
-      .lens { display: grid; gap: 4px; }
-      .lens h3 { font-size: .76rem; margin-bottom: 6px; }
-      .lens button { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 6px 0; text-align: left; color: var(--ink-2); font-size: .95rem; position: relative; }
-      .lens button i { position: absolute; left: 0; bottom: 0; height: 1px; background: var(--ink-3); width: calc(var(--w) * 1%); transition: width .5s var(--ease), background .3s; }
-      .lens button b { font: 500 .78rem var(--mono); color: var(--ink-3); font-variant-numeric: tabular-nums; }
-      .lens button:hover { color: var(--ink); }
-      .lens button[aria-pressed="true"] { color: var(--ink); }
-      .lens button[aria-pressed="true"] i { background: var(--red); height: 2px; }
-      .lens button[aria-pressed="true"] b { color: var(--red); }
-      .lens button[data-zero] { opacity: .3; }
-      .years { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 3px; align-items: end; height: 56px; }
-      .years button { position: relative; height: 100%; display: flex; align-items: end; }
-      .years button i { display: block; width: 100%; background: var(--ink-3); opacity: .5; transition: height .5s var(--ease), background .3s, opacity .3s; height: calc(var(--h) * 1%); min-height: 2px; }
-      .years button:hover i, .years button[aria-pressed="true"] i { opacity: 1; }
-      .years button[aria-pressed="true"] i { background: var(--red); }
-      .axis { display: flex; justify-content: space-between; margin-top: 6px; }
       .clear { display: none; color: var(--ink-2); text-decoration: underline; text-underline-offset: 4px; width: max-content; }
       .clear.on { display: inline-block; }
-
-      /* Pared de fichas */
-      .grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line-2); border: 1px solid var(--line-2); }
-      .ficha { display: grid; grid-template-rows: auto auto 1fr auto; gap: 8px; background: var(--bg); padding: 14px; min-width: 0; min-height: 100%; }
-      .ficha[hidden] { display: none; }
-      .ficha__head { display: flex; justify-content: space-between; gap: 8px; }
-      .ficha figure { margin: 0; aspect-ratio: 16 / 10; background: var(--bg-2); overflow: hidden; }
-      .ficha img { width: 100%; height: 100%; object-fit: cover; display: block; }
-      .ficha b { display: block; font-weight: 600; font-size: 1rem; line-height: 1.3; }
-      .ficha .t { display: block; color: var(--ink-2); font-size: .95rem; line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-      .ficha > a { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr auto; gap: 8px; min-width: 0; }
-      .ficha > a > * { min-width: 0; }
-      .ficha__head .mono { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .ficha__head .mono:first-child { flex: none; }
-      .ficha__head .mono:last-child { min-width: 0; }
-      .ficha:hover b { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; }
-      .ficha--rec { grid-column: span 2; }
-      .ficha--rec figure { aspect-ratio: 16 / 8; }
-      .ficha--rec b::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 8px; background: var(--red); }
       .empty { display: none; padding: 48px 0; color: var(--ink-2); }
       .empty.on { display: block; }
-
-      @media (max-width: 1100px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
       @media (max-width: 900px) {
         .muro { margin: 12px; }
         .muro .hoja__body { grid-template-columns: 1fr; }
         .panel { position: static; }
-        .grid { grid-template-columns: 1fr 1fr; }
-        .ficha--rec { grid-column: 1 / -1; }
       }
     </style>
   </head>
@@ -95,62 +56,57 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       <nav aria-label="Principal"><a href="/servicios">Servicios</a><a href="/sectores">Sectores</a><a href="/propuesta/antecedentes" aria-current="page">Antecedentes</a><a href="/blog">Blog</a><a class="cta" href="/contacto">Contactar</a></nav>
     </header>
 
-    <main class="muro hoja" data-muro data-total={total}>
-      <div class="hoja__head"><span class="mono">Proyectos documentados · {years[0]}–{years[years.length - 1]}</span><span class="mono" data-sheet>Muro · {stories.length} fichas</span></div>
+    <main class="muro hoja" data-muro>
+      <div class="hoja__head"><span class="mono">Proyectos documentados · {years[0]}–{years[years.length - 1]}</span><span class="mono" data-sheet>Muro · {total} fichas</span></div>
       <div class="hoja__body">
         <aside class="panel">
           <div>
             <span class="mono">24 años de servicios IT · Mendoza, Argentina</span>
-            <h1 class="count"><span data-count>{stories.length}</span><i>.</i></h1>
+            <h1 class="count"><span data-count>{total}</span><i>.</i></h1>
             <p class="sentence" data-sentence>proyectos documentados</p>
           </div>
           <p class="lead">Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
           <div class="lens" data-lens-group="sector">
             <h3 class="mono">Sector</h3>
-            {sectors.map((s) => <button type="button" data-lens="sector" data-value={s.slug} aria-pressed="false" style={`--w:${Math.round((s.count / total) * 100)}`}>{s.name}<b data-n>{s.count}</b><i></i></button>)}
+            {sectors.map((s) => <button class="no-n" type="button" data-lens="sector" data-value={s.slug} aria-pressed="false" style={`--w:${Math.round((s.count / total) * 100)}`}>{s.name}<b data-n>{s.count}</b><i></i></button>)}
           </div>
           <div class="lens" data-lens-group="service">
             <h3 class="mono">Servicio</h3>
-            {svcs.map((s) => <button type="button" data-lens="service" data-value={s.code} aria-pressed="false" style={`--w:${Math.round((s.count / total) * 100)}`}>{s.name}<b data-n>{s.count}</b><i></i></button>)}
+            {svcs.map((s) => <button type="button" data-lens="service" data-value={s.code} aria-pressed="false" style={`--w:${Math.round((s.count / total) * 100)}`}><span class="llamada">{pad(Number(s.code) - 100)}</span>{s.name}<b data-n>{s.count}</b><i></i></button>)}
           </div>
           <div>
             <h3 class="mono" style="margin-bottom:8px">Año</h3>
             <div class="years" role="group" aria-label="Filtrar por año">
-              {years.map((y) => <button type="button" data-lens="year" data-value={String(y)} aria-pressed="false" aria-label={`${y}: ${yearCounts[y]} proyectos`} title={`${y} · ${yearCounts[y]}`}><i style={`--h:${Math.max(4, Math.round((yearCounts[y] / Math.max(...Object.values(yearCounts))) * 100))}`}></i></button>)}
+              {years.map((y) => <button type="button" data-lens="year" data-value={String(y)} aria-pressed="false" aria-label={`${y}: ${yearCounts[y]} proyectos`} title={`${y} · ${yearCounts[y]}`}><i style={`--h:${Math.max(4, Math.round((yearCounts[y] / maxYear) * 100))}`}></i></button>)}
             </div>
             <div class="axis mono" aria-hidden="true"><span>{years[0]}</span><span>{years[years.length - 1]}</span></div>
           </div>
-          <button class="clear" type="button" data-clear>Ver los {stories.length} proyectos</button>
+          <button class="clear" type="button" data-clear>Ver los {total} proyectos</button>
         </aside>
 
         <section aria-label="Fichas">
           <ol class="grid" data-grid>
             {stories.map((c, index) => (
               <>
-                {(index === 0 || index === 18 || index === 60 || index === 120) && (() => { const slug = recorridos[[0, 18, 60, 120].indexOf(index)]; const scene = SCENE_OF[slug]; return (
+                {recAt.includes(index) && (() => { const slug = recorridos[recAt.indexOf(index)]; const scene = SCENE_OF[slug]; return (
                   <li class="ficha ficha--rec" data-rec>
-                    <a href={`/${slug}`}>
+                    <a href={`/propuesta/sectores/${slug}`}>
                       <div class="ficha__head"><span class="mono">Recorrido</span><span class="mono">{sceneTitle[scene]}</span></div>
-                      <figure><img src={posterOf(slug)} alt="" width="1920" height="1080" loading={index === 0 ? 'eager' : 'lazy'} decoding="async" data-rec-img /></figure>
-                      <b data-rec-caption>Recorrido · {sceneTitle[scene]}</b>
+                      <figure><img src={posterOf(slug)} alt="" width="1920" height="1080" loading={index === 0 ? 'eager' : 'lazy'} decoding="async" /></figure>
+                      <b>Recorrido · {sceneTitle[scene]}</b>
+                      <span class="t"></span>
+                      <div class="ficha__foot"><span class="mono">Película</span></div>
                     </a>
                   </li>
                 ); })()}
-                <li class="ficha" data-ficha data-sector={c.sectorSlug} data-services={c.serviceCodes.join(' ')} data-year={String(c.year)}>
-                  <a href={c.href}>
-                    <div class="ficha__head"><span class="mono">UM-{c.id}</span><span class="mono">{[c.sector, c.year].filter(Boolean).join(' · ')}</span></div>
-                    <figure>{c.image && <img src={thumbOf(c.image)} alt="" width="480" height="300" loading={index < 9 ? 'eager' : 'lazy'} decoding="async" />}</figure>
-                    <b>{c.client}</b>
-                    <span class="t">{c.title}</span>
-                  </a>
-                </li>
+                <Ficha story={c} eager={index < 9} />
               </>
             ))}
           </ol>
           <p class="empty" data-empty>Sin proyectos para esta combinación.</p>
         </section>
       </div>
-      <div class="cajetin" style="--cols:4"><div><span class="mono">Hoja</span><b>Muro</b></div><div><span class="mono">Fichas</span><b data-count-foot>{stories.length}</b></div><div><span class="mono">Filtro</span><b data-filter-foot>Todos</b></div><div><span class="mono">Empresa</span><b>ULTIMA MILLA</b></div></div>
+      <div class="cajetin" style="--cols:4"><div><span class="mono">Hoja</span><b>Muro</b></div><div><span class="mono">Fichas</span><b data-count-foot>{total}</b></div><div><span class="mono">Filtro</span><b data-filter-foot>Todos</b></div><div><span class="mono">Empresa</span><b>ULTIMA MILLA</b></div></div>
     </main>
     <footer class="pie"><span>ultimamilla.com.ar</span><span>Houssay 1159, Guaymallén, Mendoza · contacto@ultimamilla.com.ar</span></footer>
 
@@ -161,25 +117,26 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       const recs = [...root.querySelectorAll<HTMLElement>('[data-rec]')];
       const lenses = [...root.querySelectorAll<HTMLButtonElement>('[data-lens]')];
       const state: Record<string, string> = {};
-      const names = (kind: string, value: string) => lenses.find((b) => b.dataset.lens === kind && b.dataset.value === value)?.firstChild?.textContent || value;
+      const nameOf = (b: HTMLButtonElement) => [...b.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').trim();
+      const names = (kind: string, value: string) => { const b = lenses.find((x) => x.dataset.lens === kind && x.dataset.value === value); return b ? nameOf(b) || value : value; };
       const matches = (el: HTMLElement, skip?: string) =>
         (skip === 'sector' || !state.sector || el.dataset.sector === state.sector) &&
         (skip === 'service' || !state.service || (el.dataset.services || '').split(' ').includes(state.service)) &&
         (skip === 'year' || !state.year || el.dataset.year === state.year);
       const params = new URLSearchParams(location.search);
-      if (params.get('sector')) state.sector = params.get('sector')!;
+      ['sector', 'service', 'year'].forEach((k) => { if (params.get(k)) state[k] = params.get(k)!; });
       const apply = () => {
         let n = 0;
         fichas.forEach((el) => { const ok = matches(el); el.hidden = !ok; if (ok) n++; });
         recs.forEach((el) => { el.hidden = Boolean(state.year) || n < 12; });
         lenses.forEach((b) => { b.setAttribute('aria-pressed', String(state[b.dataset.lens!] === b.dataset.value)); });
-        // Las barras se recomponen con el filtro: cuántos quedan en cada lente, dado lo demás.
         ['sector', 'service', 'year'].forEach((kind) => {
           const base = fichas.filter((el) => matches(el, kind));
+          const yearMax = Math.max(1, ...lenses.filter((x) => x.dataset.lens === 'year').map((x) => base.filter((el) => el.dataset.year === x.dataset.value).length));
           lenses.filter((b) => b.dataset.lens === kind).forEach((b) => {
             const c = base.filter((el) => kind === 'service' ? (el.dataset.services || '').split(' ').includes(b.dataset.value!) : el.dataset[kind] === b.dataset.value).length;
             const num = b.querySelector('[data-n]'); if (num) num.textContent = String(c);
-            if (kind === 'year') (b.firstElementChild as HTMLElement).style.setProperty('--h', String(Math.max(4, Math.round((c / Math.max(1, ...lenses.filter((x) => x.dataset.lens === 'year').map((x) => base.filter((el) => el.dataset.year === x.dataset.value).length))) * 100))));
+            if (kind === 'year') (b.firstElementChild as HTMLElement).style.setProperty('--h', String(Math.max(4, Math.round((c / yearMax) * 100))));
             else b.style.setProperty('--w', String(Math.round((c / Math.max(1, base.length)) * 100)));
             b.toggleAttribute('data-zero', c === 0 && state[kind] !== b.dataset.value);
           });
@@ -187,9 +144,9 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
         const parts = [state.sector && names('sector', state.sector), state.service && names('service', state.service), state.year].filter(Boolean) as string[];
         root.querySelector('[data-count]')!.textContent = String(n);
         root.querySelector('[data-count-foot]')!.textContent = String(n);
-        root.querySelector('[data-sentence]')!.textContent = n === total ? 'proyectos documentados' : `proyectos · ${parts.join(' · ')}`;
+        root.querySelector('[data-sentence]')!.textContent = parts.length ? `proyectos · ${parts.join(' · ')}` : 'proyectos documentados';
         root.querySelector('[data-filter-foot]')!.textContent = parts.length ? parts.join(' · ') : 'Todos';
-        root.querySelector('[data-sheet]')!.textContent = `Muro · ${n} de ${total} fichas`;
+        root.querySelector('[data-sheet]')!.textContent = parts.length ? `Muro · ${n} de ${total} fichas` : `Muro · ${total} fichas`;
         root.querySelector('[data-clear]')!.classList.toggle('on', parts.length > 0);
         root.querySelector('[data-empty]')!.classList.toggle('on', n === 0);
         const url = new URL(location.href); ['sector', 'service', 'year'].forEach((k) => state[k] ? url.searchParams.set(k, state[k]) : url.searchParams.delete(k)); history.replaceState(null, '', url);

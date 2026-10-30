@@ -1,0 +1,16 @@
+---
+/** Mini ficha de trabajo para la pared: número, sector y año, foto, cliente, título y los servicios como llamadas. */
+import { thumbOf, type Story } from './isoData';
+interface Props { story: Story; eager?: boolean; showSector?: boolean }
+const { story: c, eager = false, showSector = true } = Astro.props;
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+<li class="ficha" data-ficha data-sector={c.sectorSlug} data-services={c.serviceCodes.join(' ')} data-year={String(c.year)}>
+  <a href={c.href}>
+    <div class="ficha__head"><span class="mono">UM-{c.id}</span><span class="mono">{[showSector ? c.sector : '', c.year].filter(Boolean).join(' · ')}</span></div>
+    <figure>{c.image && <img src={thumbOf(c.image)} alt="" width="480" height="300" loading={eager ? 'eager' : 'lazy'} decoding="async" />}</figure>
+    <b>{c.client}</b>
+    <span class="t">{c.title}</span>
+    <div class="ficha__foot">{c.serviceCodes.map((code) => <span class="llamada" title={code}>{pad(Number(code) - 100)}</span>)}<span class="mono">Ficha</span></div>
+  </a>
+</li>
