@@ -37,12 +37,21 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       .anios button { padding: 6px 10px; border: 1px solid var(--line); color: var(--ink-2); font-size: .9375rem; }
       .anios button[aria-pressed="true"] { border-color: var(--red); color: var(--ink); }
       .servicios [data-zero] { opacity: .35; }
+      .filtros { display: grid; gap: var(--s4); }
+      .filtros summary { display: none; }
       .clear { display: none; color: var(--ink-2); text-decoration: underline; text-underline-offset: 4px; width: max-content; }
       .clear.on { display: inline-block; }
       .empty { display: none; padding: var(--s4) 0; color: var(--ink-2); }
       .empty.on { display: block; }
       .fichas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      @media (max-width: 900px) { .muro { grid-template-columns: 1fr; } .panel { position: static; } .fichas { grid-template-columns: 1fr 1fr; } }
+      @media (max-width: 900px) {
+        .muro { grid-template-columns: 1fr; } .panel { position: static; gap: var(--s3); } .fichas { grid-template-columns: 1fr 1fr; }
+        .filtros summary { display: block; list-style: none; cursor: pointer; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line-2); color: var(--ink); font-weight: 500; }
+        .filtros summary::-webkit-details-marker { display: none; }
+        .filtros summary::after { content: '+'; float: right; color: var(--ink-3); }
+        .filtros[open] summary::after { content: '–'; }
+        .filtros[open] { gap: var(--s3); }
+      }
     </style>
   </head>
   <body>
@@ -55,9 +64,12 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
           <h1 class="count"><span data-count>{total}</span><i>.</i></h1>
           <p class="sentence" data-sentence aria-live="polite">proyectos documentados</p>
         </div>
+        <details class="filtros" data-filtros open>
+        <summary>Filtrar por sector, servicio o año</summary>
         <div class="grupo"><h2>Sector</h2><ul class="servicios">{sectors.map((s) => <li><button type="button" data-lens="sector" data-value={s.slug} aria-pressed="false">{s.name}<span data-n>{s.count}</span><i></i></button></li>)}</ul></div>
         <div class="grupo"><h2>Servicio</h2><ul class="servicios">{svcs.map((s) => <li><button type="button" data-lens="service" data-value={s.code} aria-pressed="false">{s.name}<span data-n>{s.count}</span><i></i></button></li>)}</ul></div>
         <div class="grupo"><h2>Año</h2><div class="anios">{years.map((y) => <button type="button" data-lens="year" data-value={String(y)} aria-pressed="false">{y}</button>)}</div></div>
+        </details>
         <button class="clear" type="button" data-clear>Ver los {total} proyectos</button>
       </aside>
 
@@ -86,6 +98,9 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
 
     <script>
       const root = document.querySelector<HTMLElement>('[data-muro]')!;
+      // En móvil los filtros arrancan plegados; en escritorio, siempre abiertos.
+      const filtros = root.querySelector<HTMLDetailsElement>('[data-filtros]');
+      if (filtros && matchMedia('(max-width: 900px)').matches && !location.search) filtros.open = false;
       const fichas = [...root.querySelectorAll<HTMLElement>('[data-ficha]')];
       const total = fichas.length;
       const recs = [...root.querySelectorAll<HTMLElement>('[data-rec]')];

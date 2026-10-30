@@ -9,7 +9,12 @@
   }), { rootMargin: '900px 0px' });
   document.querySelectorAll('.xray__iso[data-src]').forEach((el) => io.observe(el));
   const film = document.querySelector('video[data-film]');
-  if (film && matchMedia('(min-width: 900px)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) { film.src = film.dataset.film; film.play().catch(() => {}); }
+  if (film && matchMedia('(min-width: 900px)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const desde = Number(film.dataset.desde || 0);
+    film.addEventListener('loadedmetadata', () => { if (desde) film.currentTime = desde; });
+    film.addEventListener('ended', () => { film.currentTime = desde; film.play().catch(() => {}); });
+    film.src = film.dataset.film; film.play().catch(() => {});
+  }
   let raf = 0;
   const update = () => {
     raf = 0;

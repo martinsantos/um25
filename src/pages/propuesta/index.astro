@@ -126,7 +126,7 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
           </div>
           <div class="cols cols-2">{EMPRESA.principios.map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div>
         </div>
-        <a class="pelicula pelicula--ancha" href="/propuesta/sectores/constructoras"><figure><video muted playsinline loop preload="none" poster={posterOf('constructoras')} data-film="/cine/media/cine-fachada.mp4" width="1920" height="1080"></video></figure><span class="small">Un edificio por dentro, en movimiento</span></a>
+        <a class="pelicula pelicula--ancha" href="/propuesta/sectores/constructoras"><figure><video muted playsinline preload="none" poster={posterOf('constructoras')} data-film="/cine/media/cine-fachada.mp4" data-desde="1" width="1920" height="1080"></video></figure><span class="small">Un edificio por dentro, en movimiento</span></a>
         <ol class="historia">{EMPRESA.historia.map(([y, t, d]) => <li><span class="small">{y}</span><h3>{t}</h3><p class="muted">{d}</p></li>)}</ol>
       </div>
     </section>
