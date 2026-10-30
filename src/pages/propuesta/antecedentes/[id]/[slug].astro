@@ -1,0 +1,152 @@
+---
+/**
+ * Ficha de trabajo (2026-10-30), sistema Despiece. Un antecedente como hoja de plano: cajetín
+ * con los datos fijos (cliente, sector, año, servicios, referencia), la foto del trabajo y el
+ * despiece del lugar con los recorridos de los servicios de ese proyecto encendidos, cada uno
+ * con su llamada numerada. Debajo, el recorrido de Blender de ese sector y servicio, y las
+ * fichas relacionadas (mismo cliente, mismo sector). Textos: datos del catálogo. No indexable.
+ */
+import '../../../../styles/proto-despiece.css';
+import { loadStories, readIso, services, posterOf, SITE_OF } from '../../../../components/proto/isoData';
+
+export const prerender = false;
+const id = Number(Astro.params.id);
+const { stories } = await loadStories();
+const index = stories.findIndex((c) => c.id === id);
+if (index < 0) return new Response(null, { status: 404 });
+const c = stories[index];
+if (Astro.params.slug !== c.slug) return Astro.redirect(c.href, 301);
+const site = SITE_OF[c.sectorSlug] || 'building';
+const iso = readIso(site);
+const svcs = services.filter((s) => c.serviceCodes.includes(s.code));
+const months = ['', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const when = [c.month ? months[c.month] : '', c.year].filter(Boolean).join(' ');
+const sameClient = stories.filter((o) => o.id !== c.id && o.client.toLowerCase() === c.client.toLowerCase()).slice(0, 4);
+const sameSector = stories.filter((o) => o.id !== c.id && o.sectorSlug === c.sectorSlug && !sameClient.includes(o)).slice(0, 4);
+const prev = stories[index + 1];
+const next = stories[index - 1];
+const photo = c.image && c.image.startsWith('/images/antecedentes/');
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{c.title} · {c.client} · Ficha UM-{c.id} · ULTIMA MILLA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      .ficha { margin: 16px var(--gutter) 0; }
+      .ficha .hoja__body { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 64px); align-items: start; }
+      .obra { display: grid; gap: 1px; background: var(--line-2); border: 1px solid var(--line-2); }
+      .obra > * { background: var(--bg); }
+      .obra figure { margin: 0; aspect-ratio: 16 / 9; overflow: hidden; }
+      .obra figure img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .desp { position: relative; aspect-ratio: 5 / 3; padding: 4%; }
+      .desp :global(.sp-route path) { stroke-dashoffset: 2400; }
+      .desp.on :global(.sp-route path) { stroke-dashoffset: 0; }
+      .desp__cap { position: absolute; left: 14px; bottom: 12px; }
+      .llamadas { position: absolute; inset: 0; pointer-events: none; }
+      .llamadas :global(.llamada) { position: absolute; transform: translate(-50%, -50%); background: var(--bg); }
+      .llamadas :global(.llamada::after) { content: ''; position: absolute; left: 50%; top: 100%; width: 1px; height: 16px; background: var(--ink-2); }
+      .datos { display: grid; gap: 18px; }
+      .datos h1 { font-size: clamp(1.8rem, 2.8vw, 2.6rem); }
+      .datos .cliente { margin: 0; font-size: 1.15rem; font-weight: 600; color: var(--ink-2); }
+      .datos .resumen { margin: 0; color: var(--ink-2); line-height: 1.6; }
+      .tabla { border-top: 1px solid var(--line); }
+      .tabla div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line-2); align-items: baseline; }
+      .tabla dd { margin: 0; font-weight: 500; }
+      .tabla dd ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+      .tabla dd ol li { display: flex; gap: 10px; align-items: center; }
+      .rec { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: center; border: 1px solid var(--line-2); padding: 10px; }
+      .rec img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
+      .rec b { display: block; font-weight: 600; }
+      .rec span { color: var(--ink-3); font-size: .9rem; }
+      .rel { margin-top: clamp(32px, 5vh, 56px); padding: 0 20px 28px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(24px, 4vw, 64px); }
+      .rel h2 { font-size: 1rem; margin-bottom: 8px; }
+      .rel ol { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+      .rel a { display: grid; grid-template-columns: 70px 1fr auto; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line-2); align-items: baseline; }
+      .rel a b { font-weight: 600; font-size: .98rem; }
+      .rel a span { color: var(--ink-3); font-size: .9rem; }
+      .rel a:hover b { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; }
+      .nav { display: flex; justify-content: space-between; gap: 16px; margin: 20px var(--gutter) 0; }
+      .nav a { color: var(--ink-2); }
+      .nav a:hover { color: var(--ink); }
+      @media (max-width: 900px) {
+        .ficha { margin: 12px; }
+        .ficha .hoja__body { grid-template-columns: 1fr; }
+        .rel { grid-template-columns: 1fr; }
+        .llamadas { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <a class="logo" href="/propuesta">ultimamilla<i>.</i>com<i>.</i>ar</a>
+      <nav aria-label="Principal"><a href="/servicios">Servicios</a><a href="/sectores">Sectores</a><a href="/propuesta/antecedentes" aria-current="page">Antecedentes</a><a href="/blog">Blog</a><a class="cta" href="/contacto">Contactar</a></nav>
+    </header>
+
+    <nav class="nav mono" aria-label="Fichas">
+      <a href="/propuesta/antecedentes">← Volver al muro</a>
+      <span>{prev && <a href={prev.href}>← UM-{prev.id}</a>}{prev && next && ' · '}{next && <a href={next.href}>UM-{next.id} →</a>}</span>
+    </nav>
+
+    <main class="ficha hoja">
+      <div class="hoja__head"><span class="mono">Ficha de trabajo · UM-{c.id}</span><span class="mono">{[c.sector, when].filter(Boolean).join(' · ')}</span></div>
+      <div class="hoja__body">
+        <div class="obra">
+          {photo && <figure><img src={c.image} alt="" width="1200" height="675" fetchpriority="high" /></figure>}
+          <div class="desp iso" data-desp data-svcs={c.serviceCodes.join(' ')}>
+            <div set:html={iso} />
+            <div class="llamadas" data-llamadas></div>
+            <span class="desp__cap mono">Despiece · {c.sector || 'Lugar'} · {svcs.length ? svcs.map((s, i) => `${pad(i + 1)} ${s.name}`).join(' · ') : 'Sistemas'}</span>
+          </div>
+        </div>
+        <div class="datos">
+          <h1>{c.title}<span class="dot">.</span></h1>
+          <p class="cliente">{c.client}</p>
+          {c.summary && <p class="resumen">{c.summary}</p>}
+          <dl class="tabla">
+            <div><dt class="mono">Cliente</dt><dd>{c.client}</dd></div>
+            {c.sector && <div><dt class="mono">Sector</dt><dd><a class="u" href={`/propuesta/antecedentes?sector=${c.sectorSlug}`}>{c.sector}</a></dd></div>}
+            {when && <div><dt class="mono">Fecha</dt><dd>{when}</dd></div>}
+            {svcs.length > 0 && <div><dt class="mono">Servicios</dt><dd><ol>{svcs.map((s, i) => <li><span class="llamada on" data-code={s.code}>{pad(i + 1)}</span><a href={s.href}>{s.name}</a></li>)}</ol></dd></div>}
+            <div><dt class="mono">Referencia</dt><dd>UM-{c.id}</dd></div>
+          </dl>
+          {svcs[0] && <a class="rec" href={`/${c.sectorSlug}`}><img src={posterOf(c.sectorSlug, svcs[0].code)} alt="" width="320" height="180" loading="lazy" /><div><b>Recorrido · {svcs[0].name}</b><span>{c.sector}</span></div></a>}
+        </div>
+      </div>
+      {(sameClient.length > 0 || sameSector.length > 0) && (
+        <section class="rel" aria-label="Relacionadas">
+          {sameClient.length > 0 && <div><h2 class="mono">Mismo cliente</h2><ol>{sameClient.map((o) => <li><a href={o.href}><span class="mono">UM-{o.id}</span><b>{o.title}</b><span>{o.year}</span></a></li>)}</ol></div>}
+          {sameSector.length > 0 && <div><h2 class="mono">Mismo sector</h2><ol>{sameSector.map((o) => <li><a href={o.href}><span class="mono">UM-{o.id}</span><b>{o.client} · {o.title}</b><span>{o.year}</span></a></li>)}</ol></div>}
+        </section>
+      )}
+      <div class="cajetin" style="--cols:4"><div><span class="mono">Hoja</span><b>Ficha de trabajo</b></div><div><span class="mono">Nº</span><b>UM-{c.id}</b></div><div><span class="mono">Cliente</span><b>{c.client}</b></div><div><span class="mono">Empresa</span><b>ULTIMA MILLA</b></div></div>
+    </main>
+    <footer class="pie"><span>ultimamilla.com.ar</span><span>Houssay 1159, Guaymallén, Mendoza · contacto@ultimamilla.com.ar</span></footer>
+
+    <script>
+      // El despiece dibuja sus recorridos al entrar, y pone una llamada sobre el pin de cada servicio del proyecto.
+      const desp = document.querySelector<HTMLElement>('[data-desp]')!;
+      const svg = desp.querySelector<SVGSVGElement>('svg')!;
+      const box = desp.querySelector<HTMLElement>('[data-llamadas]')!;
+      const codes = (desp.dataset.svcs || '').split(' ').filter(Boolean);
+      const place = () => {
+        box.innerHTML = '';
+        const b = desp.getBoundingClientRect();
+        codes.forEach((code, i) => {
+          const pin = svg.querySelector<SVGGraphicsElement>(`.sp-pin--${code}`); if (!pin) return;
+          const r = pin.getBoundingClientRect();
+          const el = document.createElement('span'); el.className = 'llamada on'; el.textContent = String(i + 1).padStart(2, '0');
+          el.style.left = `${r.left + r.width / 2 - b.left}px`; el.style.top = `${r.top + r.height / 2 - b.top - 20}px`;
+          box.appendChild(el);
+        });
+      };
+      new IntersectionObserver(([e], io) => { if (e.isIntersecting) { desp.classList.add('on'); place(); io.disconnect(); } }, { threshold: .2 }).observe(desp);
+      addEventListener('resize', place);
+    </script>
+  </body>
+</html>

@@ -47,7 +47,32 @@ const cleanTitle = (raw: unknown, client: string) => {
   return title.replace(/\s*\(\d+\)\s*$/, '').replace(/\s+-\s+/g, ' · ');
 };
 
-export type Story = { id: number; href: string; client: string; title: string; year: number; sector: string; sectorSlug: string; services: string[]; image: string };
+export type Story = { id: number; slug: string; href: string; client: string; title: string; year: number; month: number; sector: string; sectorSlug: string; serviceCodes: string[]; services: string[]; image: string; summary: string; status: string };
+
+const TEMPLATE_PHRASES: Array<[RegExp, string]> = [
+  [/(^|>)\s*Ejecución integral de\s+/gi, '$1'],
+  [/,?\s*asegurando continuidad operativa y cumplimiento de estándares técnicos de calidad\.?/gi, '.'],
+  [/\s*Cliente:\s*[^.<]+\.?\s*(?:Sector:\s*[^.<]+\.?)?\s*(?=<|$)/gi, ''],
+];
+const comparable = (v: string) => v.toLowerCase().replace(/\(\d+\)/g, ' ').replace(/[.,:;()·|-]/g, ' ').replace(/\s+/g, ' ').trim();
+/** Descripción sin plantillas ni repeticiones del título; vacía si no aporta nada. */
+export const cleanSummary = (raw: unknown, title: string, client: string): string => {
+  let text = String(raw ?? '').replace(/<[^>]+>/g, ' ');
+  for (const [re, rep] of TEMPLATE_PHRASES) text = text.replace(re, rep);
+  text = text.replace(/\.\s*\./g, '.').replace(/\s+/g, ' ').trim();
+  const body = comparable(text);
+  if (!body || body === comparable(title) || body === comparable(`${client} ${title}`) || body === comparable(`${title} ${client}`)) return '';
+  return text;
+};
+
+/** Escena de película y clave de servicio, con la convención de /cine/media. */
+export const SCENE_OF: Record<string, string> = { bodegas: 'bodega', aeropuertos: 'aeropuerto', salud: 'hospital', mineria: 'planta', industria: 'planta', constructoras: 'fachada', gobiernosectorpublico: 'fachada', 'seguridad-electronica': 'aeropuerto', software: 'fachada' };
+export const SERVICE_KEY: Record<string, string> = { '101': 'redes', '102': 'seguridad', '103': 'telecom', '104': 'software', '105': 'soporte', '106': 'consultoria', '107': 'incendios', '108': 'electricos' };
+export const SITE_OF: Record<string, IsoSite> = { bodegas: 'winery', aeropuertos: 'terminal', salud: 'clinic', mineria: 'mine', industria: 'plant', constructoras: 'building', gobiernosectorpublico: 'building', 'seguridad-electronica': 'terminal', software: 'building' };
+export const posterOf = (sectorSlug: string, code?: string) => {
+  const scene = SCENE_OF[sectorSlug] || 'fachada';
+  return `/cine/media/cine-${scene}${code && SERVICE_KEY[code] ? `-${SERVICE_KEY[code]}` : ''}-poster.avif`;
+};
 
 export async function loadStories() {
   const catalog = await getAntecedentes({ limit: 1000 });
@@ -58,16 +83,22 @@ export async function loadStories() {
     .filter((c, i, arr) => arr.findIndex((o) => `${o.title}|${o.client}`.toLowerCase() === `${c.title}|${c.client}`.toLowerCase()) === i)
     .map((c) => {
       const client = clientCase(cleanText(c.client));
+      const title = cleanTitle(c.title, client);
       return {
         id: c.id,
-        href: `/antecedentes/${c.id}/${c.slug}`,
+        slug: c.slug,
+        href: `/propuesta/antecedentes/${c.id}/${c.slug}`,
         client,
-        title: cleanTitle(c.title, client),
+        title,
         year: c.year,
+        month: c.month,
         sector: getAntecedenteSectorLabel(c.sector_slug) || '',
         sectorSlug: c.sector_slug,
+        serviceCodes: c.service_codes.map(String),
         services: c.service_codes.map((code) => byCode.get(String(code)) || '').filter(Boolean),
         image: c.image,
+        summary: cleanSummary(c.summary, title, client),
+        status: c.status,
       };
     });
   const countOf = (slug: string) => catalog.filter((c) => c.sector_slug === slug).length;
