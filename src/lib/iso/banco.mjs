@@ -60,21 +60,23 @@ function disponer(list) {
 /** Una sola pieza encendida por banco: las demás pierden su acento. */
 const apagar = (svg) => svg.replace(/ data-lit=""/g, '').replace(/data-tone="lit"/g, 'data-tone="hi"');
 
-export function bancoSvg(items, { width = 1200, height = 540, maxScale = 6.4, minScale = 2.6, label = '' } = {}) {
+/** Misma escala en todos los bancos: un detector mide lo mismo en cualquier página. */
+const ESCALA = 5.2;
+
+export function bancoSvg(items, { width = 1200, height = 540, escala = ESCALA, label = '' } = {}) {
   const list = instancias(items);
   if (!list.length) return '';
   const { placed, plan } = disponer(list);
   const zTop = Math.max(...placed.map((i) => i.h)) + ALTO_BASE + ALTO_PATA;
   const puntos = [...k.boxCorners(plan, 0, ALTO_BASE + ALTO_PATA), [plan.x + plan.w / 2, plan.y + plan.d / 2, zTop]];
   const P = k.fitProjection(puntos, width, height, { pad: 22, ...CAM });
-  if (P.scale > maxScale || P.scale < minScale) {
-    const scale = Math.max(minScale, Math.min(maxScale, P.scale));
-    const unit = { origin: [0, 0], scale, azimuth: P.azimuth, elevation: P.elevation };
-    const flat = puntos.map((p) => k.iso(p, unit));
-    const xs = flat.map(([x]) => x), ys = flat.map(([, y]) => y);
-    P.scale = scale;
-    P.origin = [width / 2 - (Math.min(...xs) + Math.max(...xs)) / 2, height / 2 - (Math.min(...ys) + Math.max(...ys)) / 2];
-  }
+  // Escala fija salvo que el banco no entre a lo ancho.
+  const scale = Math.min(escala, P.scale);
+  const unit = { origin: [0, 0], scale, azimuth: P.azimuth, elevation: P.elevation };
+  const flat0 = puntos.map((p) => k.iso(p, unit));
+  const xs0 = flat0.map(([x]) => x), ys0 = flat0.map(([, y]) => y);
+  P.scale = scale;
+  P.origin = [width / 2 - (Math.min(...xs0) + Math.max(...xs0)) / 2, height / 2 - (Math.min(...ys0) + Math.max(...ys0)) / 2];
   const S = (paths, style = {}) => k.solidSvg(paths, { crease: 'faint', ...style });
   const L = (d, style = {}) => k.lineSvg(d, style);
   const D = (pts, style = {}) => k.dotsSvg(pts, style);

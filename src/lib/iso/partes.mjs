@@ -274,16 +274,19 @@ export const PARTES = {
     ].join(''), ext };
   },
   maletin(P) {
-    const body = plan(-10, -3.5, 20, 7, 1.2);
-    const ext = fitArgs(extremos([[body, 0, 17]]), 5); if (!P) return { ext };
+    // Caja de herramientas apaisada: cuerpo, tapa con bisel, asa en arco y dos cierres al frente.
+    const body = plan(-14, -6, 28, 12, 1.2);
+    const ext = fitArgs(extremos([[body, 0, 16]]), 5); if (!P) return { ext };
     const yF = body.y + body.d + 0.01;
+    const asa = (z0, z1) => k.pathOf([[-5, 0, z0], [-5, 0, z1], [5, 0, z1], [5, 0, z0]].map((q) => k.iso(q, P)));
     return { svg: [
-      S(k.slabOf(body, 0, 13, P, 4, 0.8), { tone: 'mid', inner: L(k.sideSeam(body, 9, P, 4), { tone: 'faint' }) }),
-      S(k.slabOf(plan(-3.5, -1.2, 7, 2.4, 1), 13, 2.6, P, 4, 0.6), { tone: 'hi' }),
-      ...[-6, 5].map((x) => S(k.slabOf(plan(x, yF - 0.4, 2, 0.6, 0.2), 8, 2.2, P, 2, 0), { tone: 'hi', crease: 'none' })),
-      L(ventana(P, body, -3, 3, 2.5, 6), { tone: 'faint' }),
-      L([5.2, 4.2, 3.2].map((z, i) => k.segment([-2.2, yF, z], [i === 1 ? 1 : 2.2, yF, z], P)).join(''), { tone: 'lo', free: true }),
-      D([k.iso([0, yF, 10.5], P)], { size: 0.5, tone: 'lit' }),
+      S(k.slabOf(body, 0, 8, P, 4, 0.6), { tone: 'mid' }),
+      S(k.slabOf(body, 8, 3.2, P, 4, 1), { tone: 'hi', inner: L(k.sideSeam(body, 8, P, 4), { tone: 'lo' }) }),
+      ...[-8, 7].map((x) => S(k.slabOf(plan(x, yF - 0.5, 2.4, 0.8, 0.2), 6.6, 2.8, P, 2, 0), { tone: 'hi', crease: 'none' })),
+      S(k.slabOf(plan(-6, -1.2, 12, 2.4, 1.2), 11.2, 1, P, 4, 0.4), { tone: 'mid', crease: 'none' }),
+      L(asa(12.2, 15.2), { tone: 'hi' }),
+      L(k.segment([-5, 0, 15.2], [5, 0, 15.2], P), { tone: 'hi' }),
+      D([k.iso([0, yF, 4], P)], { size: 0.5, tone: 'lit' }),
     ].join(''), ext };
   },
   disco(P) {
@@ -326,16 +329,17 @@ export const PARTES = {
     ].join(''), ext };
   },
   detector(P) {
+    // Detector de humo: base plana, cuerpo bajo con ranuras de entrada de humo y una cúpula baja con LED.
     const tile = plan(-11, -11, 22, 22, 0.4);
-    const ext = fitArgs(extremos([[tile, 0, 7]]), 6); if (!P) return { ext };
+    const ext = fitArgs(extremos([[tile, 0, 5]]), 6); if (!P) return { ext };
+    const ranuras = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => { const a = (i / 8) * Math.PI * 2; const r0 = 5.6, r1 = 7.6; return k.pathOf([k.iso([Math.cos(a) * r0, Math.sin(a) * r0, 2.2], P), k.iso([Math.cos(a) * r1, Math.sin(a) * r1, 2.2], P)]); }).join('');
     return { svg: [
-      S(k.slabOf(tile, 0, 0.8, P, 2, 0), { tone: 'lo', crease: 'none' }),
-      S(k.cylinder(0, 0, 8.5, 0.8, 1.2, P, 24), { tone: 'mid' }),
-      S(k.cylinder(0, 0, 7.4, 2, 3, P, 24), { tone: 'hi', crease: 'none' }),
-      L([3, 4].map((z) => k.sideArc(0, 0, 7.4, z, P, 20)).join(''), { tone: 'faint' }),
-      S(k.cylinder(0, 0, 5, 5, 1, P, 32), { tone: 'hi' }),
-      L(k.ring(0, 0, 3.2, 6.01, P, 24), { tone: 'faint' }),
-      D([k.iso([3.6, 2.2, 6.02], P)], { size: 0.6, tone: 'lit' }),
+      S(k.slabOf(tile, 0, 0.6, P, 2, 0), { tone: 'lo', crease: 'none' }),
+      S(k.cylinder(0, 0, 9, 0.6, 0.9, P, 28), { tone: 'mid' }),
+      S(k.cylinder(0, 0, 8.4, 1.5, 1.6, P, 28, 0.6), { tone: 'hi' }),
+      L(ranuras, { tone: 'lo', free: true }),
+      S(k.cylinder(0, 0, 4.6, 3.1, 1.1, P, 24, 0.8), { tone: 'hi', crease: 'none' }),
+      D([k.iso([3, 2, 4.21], P)], { size: 0.7, tone: 'lit' }),
     ].join(''), ext };
   },
   pulsador(P) {
