@@ -134,7 +134,7 @@ p { margin: 0; }
 
 /* Fichas de proyecto. */
 .fichas { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s4) var(--s3); }
-.ficha { display: grid; gap: 8px; min-width: 0; }
+.ficha { display: grid; gap: 8px; min-width: 0; content-visibility: auto; contain-intrinsic-size: auto 360px; }
 .ficha > a { display: grid; gap: 8px; }
 .ficha figure + b { padding-top: 6px; border-top: 1px solid var(--line-2); margin-top: 2px; }
 .ficha[hidden] { display: none; }

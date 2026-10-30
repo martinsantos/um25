@@ -1,21 +1,50 @@
 ---
-/** Ficha de proyecto: foto, cliente, qué se hizo, el despiece de lo instalado, sector y año. */
+/**
+ * Ficha de proyecto: foto, cliente, qué se hizo, el despiece de lo instalado, sector y año.
+ * Con `lazy`, la fila de partes viaja como datos y se dibuja al acercarse (el muro tiene 500 fichas).
+ */
 import { thumbOf, type Story } from './isoData';
 import { despieceDe } from './despiece';
 import Parte from './Parte.astro';
-interface Props { story: Story; eager?: boolean; showSector?: boolean }
-const { story: c, eager = false, showSector = true } = Astro.props;
+interface Props { story: Story; eager?: boolean; showSector?: boolean; lazy?: boolean }
+const { story: c, eager = false, showSector = true, lazy = false } = Astro.props;
 const { partes, origen } = despieceDe(c.title, c.summary, c.serviceCodes);
 const fila = partes.slice(0, 5);
+const nombre = fila.map((p) => (p.qty ? `${p.qty} ${p.label}` : p.label)).join(', ');
 ---
 <li class="ficha" data-ficha data-sector={c.sectorSlug} data-services={c.serviceCodes.join(' ')} data-year={String(c.year)}>
   <a href={c.href}>
     <figure>{c.image && <img src={thumbOf(c.image)} alt="" width="480" height="300" loading={eager ? 'eager' : 'lazy'} decoding="async" />}</figure>
     <b>{c.client}</b>
     <span class="t">{c.title}</span>
-    <span class:list={['ficha__partes', { 'ficha__partes--alcance': origen === 'servicio' }]} aria-label={fila.map((p) => (p.qty ? `${p.qty} ${p.label}` : p.label)).join(', ')}>
-      {fila.map((p) => <span class="ficha__parte"><Parte k={p.key} size={36} />{p.qty && <i>{p.qty}</i>}</span>)}
-    </span>
+    {lazy
+      ? <span class:list={['ficha__partes', { 'ficha__partes--alcance': origen === 'servicio' }]} aria-label={nombre} data-partes={fila.map((p) => p.key + (p.qty ? `:${p.qty}` : '')).join(' ')}></span>
+      : <span class:list={['ficha__partes', { 'ficha__partes--alcance': origen === 'servicio' }]} aria-label={nombre}>
+          {fila.map((p) => <span class="ficha__parte"><Parte k={p.key} size={36} />{p.qty && <i>{p.qty}</i>}</span>)}
+        </span>}
     <span class="small">{[showSector ? c.sector : '', c.year || ''].filter(Boolean).join(' · ')}</span>
   </a>
 </li>
+
+<script>
+  // Dibuja las filas de partes diferidas cuando la ficha se acerca a la pantalla.
+  const NS = 'http://www.w3.org/2000/svg';
+  const dibujar = (el: HTMLElement) => {
+    (el.dataset.partes || '').split(' ').filter(Boolean).forEach((tok) => {
+      const [k, q] = tok.split(':');
+      const wrap = document.createElement('span'); wrap.className = 'ficha__parte';
+      const svg = document.createElementNS(NS, 'svg');
+      svg.setAttribute('class', 'parte'); svg.setAttribute('viewBox', '0 0 64 64'); svg.setAttribute('width', '36'); svg.setAttribute('height', '36'); svg.setAttribute('aria-hidden', 'true');
+      const use = document.createElementNS(NS, 'use'); use.setAttribute('href', `/cine/iso/partes.svg#p-${k}`);
+      svg.appendChild(use); wrap.appendChild(svg);
+      if (q) { const i = document.createElement('i'); i.textContent = q; wrap.appendChild(i); }
+      el.appendChild(wrap);
+    });
+    delete el.dataset.partes;
+  };
+  const pendientes = document.querySelectorAll<HTMLElement>('[data-partes]');
+  if (pendientes.length) {
+    const io = new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) { io.unobserve(e.target); dibujar(e.target as HTMLElement); } }), { rootMargin: '800px 0px' });
+    pendientes.forEach((el) => io.observe(el));
+  }
+</script>

@@ -74,7 +74,7 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
                   </a>
                 </li>
               ); })()}
-              <Ficha story={c} eager={index < 9} />
+              <Ficha story={c} eager={index < 9} lazy={index >= 24} />
             </>
           ))}
         </ol>
