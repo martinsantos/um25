@@ -7,10 +7,11 @@ import Cierre from '../../../components/proto/Cierre.astro';
 import { loadStories, SECTOR_PHOTO } from '../../../components/proto/isoData';
 import { sectorRelato } from '../../../components/proto/relato';
 import { SECTORS } from '../../../data/cine/scenes';
+import { CLASIFICACIONES_DE_SERVICIO } from '../../../components/proto/sectorReal';
 
 export const prerender = false;
 const { stories } = await loadStories();
-const items = SECTORS.map((s) => { const r = sectorRelato(s.slug); return { ...s, photo: SECTOR_PHOTO[s.slug] || SECTOR_PHOTO.constructoras, headline: r.headline || s.name, summary: r.summary || s.text, count: stories.filter((c) => c.sectorSlug === s.slug).length }; });
+const items = SECTORS.filter((s) => !CLASIFICACIONES_DE_SERVICIO.has(s.slug)).map((s) => { const r = sectorRelato(s.slug); return { ...s, photo: SECTOR_PHOTO[s.slug] || SECTOR_PHOTO.constructoras, headline: r.headline || s.name, summary: r.summary || s.text, count: stories.filter((c) => c.sectorSlug === s.slug).length }; });
 ---
 <!doctype html>
 <html lang="es">

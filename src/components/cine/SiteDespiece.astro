@@ -13,7 +13,7 @@ interface Props { scene: Scene; sectorSlug?: string; sectorName?: string; linkBa
 const { scene, sectorSlug, sectorName, linkBanner = true } = Astro.props;
 const SITE: Record<Scene, string> = { hospital: 'clinic', aeropuerto: 'terminal', bodega: 'winery', fachada: 'building', planta: 'plant' };
 const site = sectorSlug === 'mineria' ? 'mine' : SITE[scene];
-// La isometría (170 a 390 KB por sitio) no viaja en el HTML: se sirve desde /cine/iso/site-*-v2.svg
+// La isometría (100 a 230 KB por sitio, 13 a 29 KB comprimida) no viaja en el HTML: se sirve desde /cine/iso/site-*-v2.svg
 // y el escenario la trae sólo en pantallas anchas, cuando la sección se acerca. En teléfono el dibujo
 // no se lee a 300 px de ancho, así que allí queda la lista de servicios sola.
 const files = import.meta.glob('../../assets/cine/isometric/site-*-v2.svg');

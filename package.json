@@ -65,6 +65,7 @@
     "blog:covers:diversify": "node scripts/blog-cover-diversity-backfill.mjs",
     "audit:visual": "node scripts/visual-contrast-audit.mjs",
     "audit:css": "node scripts/css-contract-audit.mjs",
+    "optimize:iso": "node scripts/cine/optimizar-iso.mjs public/cine/iso/*.svg",
     "audit:hover": "node scripts/hover-contract-audit.mjs",
     "audit:vitals": "node scripts/core-web-vitals-audit.mjs",
     "audit:visual:strict": "VISUAL_AUDIT_STRICT=1 node scripts/visual-contrast-audit.mjs",

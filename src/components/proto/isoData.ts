@@ -11,6 +11,7 @@ import { NAV_SERVICES } from '../../data/navigation';
 import { SECTORS } from '../../data/cine/scenes';
 import { descripcionDeOrigen } from './relato';
 import { nombreCliente, tituloProyecto } from './titulos';
+import { resolverSector } from './sectorReal';
 
 export type IsoSite = 'building' | 'winery' | 'terminal' | 'clinic' | 'mine' | 'plant';
 
@@ -58,12 +59,12 @@ export const cleanSummary = (raw: unknown, title: string, client: string): strin
 };
 
 /** Escena de película y clave de servicio, con la convención de /cine/media. */
-export const SCENE_OF: Record<string, string> = { bodegas: 'bodega', aeropuertos: 'aeropuerto', salud: 'hospital', mineria: 'planta', industria: 'planta', constructoras: 'fachada', gobiernosectorpublico: 'fachada', 'seguridad-electronica': 'aeropuerto', software: 'fachada' };
+export const SCENE_OF: Record<string, string> = { bodegas: 'bodega', aeropuertos: 'aeropuerto', salud: 'hospital', mineria: 'planta', industria: 'planta', constructoras: 'fachada', gobiernosectorpublico: 'fachada', gobierno: 'fachada' };
 export const SERVICE_KEY: Record<string, string> = { '101': 'redes', '102': 'seguridad', '103': 'telecom', '104': 'software', '105': 'soporte', '106': 'consultoria', '107': 'incendios', '108': 'electricos' };
-export const SITE_OF: Record<string, IsoSite> = { bodegas: 'winery', aeropuertos: 'terminal', salud: 'clinic', mineria: 'mine', industria: 'plant', constructoras: 'building', gobiernosectorpublico: 'building', 'seguridad-electronica': 'terminal', software: 'building' };
+export const SITE_OF: Record<string, IsoSite> = { bodegas: 'winery', aeropuertos: 'terminal', salud: 'clinic', mineria: 'mine', industria: 'plant', constructoras: 'building', gobiernosectorpublico: 'building', gobierno: 'building' };
 /** Fotos editoriales: la imagen a pleno de cada servicio y de cada sector. */
 export const SERVICE_PHOTO: Record<string, string> = { '101': '/images/editorial/umsa-service-redes.webp', '102': '/images/editorial/umsa-service-seguridad-electronica.webp', '103': '/images/editorial/umsa-service-telecomunicaciones.webp', '104': '/images/editorial/umsa-service-software-a-medida.webp', '105': '/images/editorial/umsa-service-soporte-247.webp', '106': '/images/editorial/umsa-service-consultoria-it.webp', '107': '/images/editorial/umsa-service-deteccion-incendios.webp', '108': '/images/editorial/umsa-service-electricos-it.webp' };
-export const SECTOR_PHOTO: Record<string, string> = { bodegas: '/images/editorial/umsa-sector-bodegas.webp', aeropuertos: '/images/editorial/umsa-sector-aeropuertos.webp', salud: '/images/editorial/umsa-sector-salud.webp', mineria: '/images/editorial/umsa-sector-mineria.webp', industria: '/images/editorial/umsa-sector-industria.webp', constructoras: '/images/editorial/umsa-sector-constructoras.webp', gobiernosectorpublico: '/images/editorial/umsa-sector-gobierno.webp', 'seguridad-electronica': '/images/editorial/umsa-sector-seguridad-electronica.webp', software: '/images/editorial/umsa-sector-software.webp' };
+export const SECTOR_PHOTO: Record<string, string> = { bodegas: '/images/editorial/umsa-sector-bodegas.webp', aeropuertos: '/images/editorial/umsa-sector-aeropuertos.webp', salud: '/images/editorial/umsa-sector-salud.webp', mineria: '/images/editorial/umsa-sector-mineria.webp', industria: '/images/editorial/umsa-sector-industria.webp', constructoras: '/images/editorial/umsa-sector-constructoras.webp', gobiernosectorpublico: '/images/editorial/umsa-sector-gobierno.webp', gobierno: '/images/editorial/umsa-sector-gobierno.webp' };
 export const thumbOf = (image: string) => /^\/images\/antecedentes\/generated\/.+-principal\.webp$/.test(image) ? image.replace(/-principal\.webp$/, '-principal-480.webp') : image;
 export const posterOf = (sectorSlug: string, code?: string) => {
   const scene = SCENE_OF[sectorSlug] || 'fachada';
@@ -74,12 +75,16 @@ export async function loadStories() {
   const catalog = await getAntecedentes({ limit: 1000 });
   const total = getAntecedentesCatalogCount();
   const byCode = new Map(NAV_SERVICES.map((s) => [s.code, s.name]));
+  const sectorDe = resolverSector(catalog.map((c) => ({ client: c.client, sector: c.sector_slug })));
   const stories: Story[] = [...catalog]
     .sort((a, b) => (b.year - a.year) || (b.month - a.month) || (b.id - a.id))
     .filter((c, i, arr) => arr.findIndex((o) => `${o.title}|${o.client}`.toLowerCase() === `${c.title}|${c.client}`.toLowerCase()) === i)
     .map((c) => {
       const client = nombreCliente(c.client);
       const title = tituloProyecto(c.title, c.client, c.summary);
+      const sectorReal = sectorDe(c.client, c.sector_slug);
+      // El catálogo dice "gobierno"; la navegación del sitio, "gobiernosectorpublico".
+      const sectorSlug = sectorReal === 'gobierno' ? 'gobiernosectorpublico' : sectorReal;
       return {
         id: c.id,
         slug: c.slug,
@@ -88,8 +93,8 @@ export async function loadStories() {
         title,
         year: c.year,
         month: c.month,
-        sector: getAntecedenteSectorLabel(c.sector_slug) || '',
-        sectorSlug: c.sector_slug,
+        sector: sectorReal ? getAntecedenteSectorLabel(sectorReal) || '' : '',
+        sectorSlug,
         serviceCodes: c.service_codes.map(String),
         services: c.service_codes.map((code) => byCode.get(String(code)) || '').filter(Boolean),
         image: c.image,
@@ -97,7 +102,7 @@ export async function loadStories() {
         status: c.status,
       };
     });
-  const countOf = (slug: string) => catalog.filter((c) => c.sector_slug === slug).length;
+  const countOf = (slug: string) => catalog.filter((c) => sectorDe(c.client, c.sector_slug) === slug).length;
   const places = PLACES.map((p) => {
     const row = SECTORS.find((s) => s.slug === p.slug)!;
     return { ...p, name: row.name, text: row.text, href: `/${p.slug}`, count: countOf(p.slug), stories: stories.filter((s) => s.sectorSlug === p.slug).slice(0, 3) };

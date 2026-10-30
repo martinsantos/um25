@@ -16,6 +16,9 @@ import { CASOS_SECTOR, casosDe, sectorRelato, EMPRESA } from '../../../component
 import { SECTORS } from '../../../data/cine/scenes';
 
 export const prerender = false;
+// Seguridad electrónica y software son servicios, no lugares: su página es la del servicio.
+const SERVICIO_DE: Record<string, string> = { 'seguridad-electronica': '102', software: '104' };
+if (SERVICIO_DE[String(Astro.params.slug)]) return Astro.redirect(`/propuesta/servicios/${SERVICIO_DE[String(Astro.params.slug)]}`, 301);
 const slug = Astro.params.slug === 'gobierno' ? 'gobiernosectorpublico' : String(Astro.params.slug);
 const sector = await getSectorBySlug(slug === 'gobiernosectorpublico' ? 'gobierno' : slug);
 if (!sector) return new Response(null, { status: 404 });
