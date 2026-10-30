@@ -105,8 +105,9 @@ p { margin: 0; }
 
 /* El lugar por dentro: despiece fijo + lista de servicios que lo encienden. */
 .dentro { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: start; }
-.dentro__stage { position: sticky; top: 80px; aspect-ratio: 5 / 3; padding: 0; }
-.dentro__stage .ahora { position: absolute; left: 20px; bottom: 16px; color: var(--ink-2); }
+.dentro__stage { position: sticky; top: 80px; padding: 0; display: grid; gap: 12px; }
+.dentro__stage svg { width: 100%; height: auto; max-height: calc(100vh - 160px); display: block; }
+.dentro__stage .ahora { color: var(--ink-2); }
 .dentro__side { display: grid; gap: var(--s4); }
 .servicios { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
 .servicios a, .servicios button { display: flex; justify-content: space-between; gap: 16px; width: 100%; padding: 16px 0; border-bottom: 1px solid var(--line-2); color: var(--ink-2); font-size: 1.15rem; font-weight: 500; text-align: left; position: relative; transition: color .3s; }
@@ -214,9 +215,9 @@ p { margin: 0; }
 
 /* Ficha isométrica: el banco con lo instalado y, debajo, el lugar con los servicios del proyecto encendidos. */
 .fiso { display: grid; gap: var(--s4); }
-.fiso__lugar { position: relative; aspect-ratio: 2 / 1; padding: 0; }
-.fiso__lugar svg { width: 100%; height: 100%; display: block; }
-.fiso__lugar .ahora { position: absolute; left: 20px; bottom: 16px; color: var(--ink-2); }
+.fiso__lugar { display: grid; gap: 12px; justify-items: center; }
+.fiso__lugar svg { width: 100%; height: auto; max-height: 72vh; display: block; }
+.fiso__lugar .ahora { color: var(--ink-2); justify-self: start; }
 .fiso__lugar :is(.sp-route) { opacity: .08; }
 .fiso.on .fiso__lugar :is(.sp-route path) { stroke-dashoffset: 0; }
 
@@ -244,8 +245,11 @@ p { margin: 0; }
   .copy { order: 2; }
   .copy > p { display: none; }
   .cols-2, .cols-3, .cols-4, .cols-5-7, .cols-7-5, .dentro, .caso, .cierre__grid { grid-template-columns: 1fr; }
-  .partes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3) var(--s2); }
-  .partes .parte { width: 108px; height: 108px; }
+  .partes { grid-template-columns: 1fr; gap: 0; padding-top: 0; }
+  .partes li { grid-template-columns: 84px minmax(0, 1fr); grid-template-rows: auto auto auto; column-gap: 14px; row-gap: 2px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line-2); }
+  .partes .parte { width: 84px; height: 84px; margin: 0; grid-row: 1 / 4; }
+  .partes b, .partes .small, .partes .n { grid-column: 2; }
+  .fiso__lugar svg, .dentro__stage svg { max-height: none; }
   .cifras { max-width: none; }
   .clientes { columns: 1; }
   .clientes li:nth-child(n+13):not(.mas) { display: none; }
