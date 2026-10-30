@@ -110,11 +110,11 @@ export function bancoSvg(items, { width = 1200, height = 540, maxScale = 6.4, mi
 
 const TOKENS = {
   papel: '--p-paper:#fbfbfa;--p-face:#ffffff;--p-top:#ffffff;--p-s0:#d9d9d6;--p-s1:#e3e3e0;--p-s2:#ececea;--p-s3:#f3f3f1;--p-lit-top:#ffffff;--p-lit-shade:#f4e4e4;--p-hi:#26262a;--p-mid:#7d7d82;--p-lo:#b0b0b4;--p-faint:#d6d6d8;--p-lit:#dc2626;--p-dot:#3a3a3e;--p-weight:1px',
-  oscuro: '--p-paper:#111316;--p-face:#15181c;--p-top:#1c2025;--p-s0:#0b0c0f;--p-s1:#0e1013;--p-s2:#121418;--p-s3:#171a1f;--p-lit-top:#2a1416;--p-lit-shade:#1d1012;--p-hi:#c4c7cc;--p-mid:#81878e;--p-lo:#4a4f56;--p-faint:#2d3137;--p-lit:#dc2626;--p-dot:#e6e8eb;--p-weight:1px',
+  oscuro: '--p-paper:#0a0b0d;--p-face:#15181c;--p-top:#1a1d22;--p-s0:#0a0b0d;--p-s1:#0e1013;--p-s2:#121418;--p-s3:#171a1f;--p-lit-top:#2a1416;--p-lit-shade:#1d1012;--p-hi:#e6e8eb;--p-mid:#a0a6ad;--p-lo:#5c636b;--p-faint:#2f343a;--p-lit:#dc2626;--p-dot:#e6e8eb;--p-weight:1px',
 };
 
 /** El banco como archivo SVG independiente (para <img>): lleva su CSS y sus colores adentro. */
-export function bancoArchivo(items, { theme = 'papel', ...opts } = {}) {
+export function bancoArchivo(items, { theme = 'oscuro', ...opts } = {}) {
   const svg = bancoSvg(items, opts);
   if (!svg) return '';
   return svg.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ').replace('">', `"><style>svg{${TOKENS[theme] || TOKENS.papel}}${CSS.replace(/\n/g, '')}</style>`) + '\n';

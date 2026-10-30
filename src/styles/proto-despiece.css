@@ -103,7 +103,7 @@ p { margin: 0; }
 
 /* El lugar por dentro: despiece fijo + lista de servicios que lo encienden. */
 .dentro { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: start; }
-.dentro__stage { position: sticky; top: 80px; aspect-ratio: 5 / 3; padding: 3%; background: var(--bg-2); }
+.dentro__stage { position: sticky; top: 80px; aspect-ratio: 5 / 3; padding: 0; }
 .dentro__stage .ahora { position: absolute; left: 20px; bottom: 16px; color: var(--ink-2); }
 .dentro__side { display: grid; gap: var(--s4); }
 .servicios { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
@@ -150,12 +150,10 @@ p { margin: 0; }
 .more { margin-top: var(--s4); }
 
 /* Partes del despiece (sprite /cine/iso/partes.svg): los colores viajan por variables hasta el <use>. */
-.parte, .banco { display: block; --p-paper: var(--bg-2); --p-face: #15181c; --p-top: #1c2025; --p-s0: #0b0c0f; --p-s1: #0e1013; --p-s2: #121418; --p-s3: #171a1f; --p-lit-top: #2a1416; --p-lit-shade: #1d1012; --p-hi: var(--ink-2); --p-mid: var(--ink-3); --p-lo: #4a4f56; --p-faint: #2d3137; --p-lit: var(--red); --p-dot: var(--ink); --p-weight: 1px; }
-/* El banco: las partes a escala sobre una base, como hoja técnica sobre papel. */
+.parte, .banco { display: block; --p-paper: var(--bg); --p-face: #15181c; --p-top: #1a1d22; --p-s0: #0a0b0d; --p-s1: #0e1013; --p-s2: #121418; --p-s3: #171a1f; --p-lit-top: #2a1416; --p-lit-shade: #1d1012; --p-hi: #e6e8eb; --p-mid: #a0a6ad; --p-lo: #5c636b; --p-faint: #2f343a; --p-lit: var(--red); --p-dot: var(--ink); --p-weight: 1px; }
+/* El banco: las partes a escala sobre una base, en línea clara sobre el fondo, como las isometrías de sitio. */
 .banco { width: 100%; max-width: 760px; height: auto; margin: 0 auto; }
-.banco--papel { --p-paper: #fbfbfa; --p-face: #ffffff; --p-top: #ffffff; --p-s0: #d9d9d6; --p-s1: #e3e3e0; --p-s2: #ececea; --p-s3: #f3f3f1; --p-lit-top: #ffffff; --p-lit-shade: #f4e4e4; --p-hi: #26262a; --p-mid: #7d7d82; --p-lo: #b0b0b4; --p-faint: #d6d6d8; --p-lit: var(--red); --p-dot: #3a3a3e; }
-.papel { background: #f2f2ef; padding: clamp(16px, 2.5vw, 36px); }
-.papel .banco { --p-weight: 1px; }
+.papel { padding: 0; }
 /* Clases del sprite y del banco (las mismas que lleva partes.svg adentro). */
 .pt-svg path, .pt-svg circle { vector-effect: non-scaling-stroke; }
 .pt-fill { fill: var(--p-paper); stroke: none; }
@@ -210,7 +208,7 @@ p { margin: 0; }
 
 /* Ficha isométrica: el banco con lo instalado y, debajo, el lugar con los servicios del proyecto encendidos. */
 .fiso { display: grid; gap: var(--s4); }
-.fiso__lugar { position: relative; aspect-ratio: 2 / 1; padding: 2%; background: var(--bg-2); }
+.fiso__lugar { position: relative; aspect-ratio: 2 / 1; padding: 0; }
 .fiso__lugar svg { width: 100%; height: 100%; display: block; }
 .fiso__lugar .ahora { position: absolute; left: 20px; bottom: 16px; color: var(--ink-2); }
 .fiso__lugar :is(.sp-route) { opacity: .08; }

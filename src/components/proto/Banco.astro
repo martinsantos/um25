@@ -5,8 +5,8 @@
  */
 import { bancoSvg } from '../../lib/iso/banco.mjs';
 import type { ParteKey } from './despiece';
-interface Props { items: { key: ParteKey; qty?: number }[]; label?: string; papel?: boolean; class?: string }
-const { items, label, papel = true, class: cls } = Astro.props;
-const svg = bancoSvg(items, { label }).replace('class="banco pt-svg"', `class="banco pt-svg${papel ? ' banco--papel' : ''}"`);
+interface Props { items: { key: ParteKey; qty?: number }[]; label?: string; class?: string }
+const { items, label, class: cls } = Astro.props;
+const svg = bancoSvg(items, { label });
 ---
-{svg && <div class:list={[papel ? 'papel' : 'banco-oscuro', cls]} set:html={svg} />}
+{svg && <div class:list={['papel', cls]} set:html={svg} />}
