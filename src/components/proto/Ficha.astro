@@ -1,5 +1,5 @@
 ---
-/** Ficha de proyecto para la pared: foto, cliente, qué se hizo, año y servicios. */
+/** Ficha de proyecto: foto, cliente, qué se hizo, sector y año. */
 import { thumbOf, type Story } from './isoData';
 interface Props { story: Story; eager?: boolean; showSector?: boolean }
 const { story: c, eager = false, showSector = true } = Astro.props;
@@ -9,6 +9,6 @@ const { story: c, eager = false, showSector = true } = Astro.props;
     <figure>{c.image && <img src={thumbOf(c.image)} alt="" width="480" height="300" loading={eager ? 'eager' : 'lazy'} decoding="async" />}</figure>
     <b>{c.client}</b>
     <span class="t">{c.title}</span>
-    <div class="ficha__foot"><span class="mono">{[showSector ? c.sector : '', c.year || ''].filter(Boolean).join(' · ')}</span></div>
+    <span class="small">{[showSector ? c.sector : '', c.year || ''].filter(Boolean).join(' · ')}</span>
   </a>
 </li>

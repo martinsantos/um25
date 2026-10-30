@@ -1,182 +1,102 @@
 ---
 /**
- * Portada (2026-10-30, v3), sistema Despiece. Cuenta la empresa con sus propios datos: quiénes
- * son y cómo trabajan (de /nosotros), los lugares por dentro (foto real que se abre hasta el
- * despiece), los casos con descripción técnica completa (del registro de antecedentes), los
- * clientes con más proyectos, los ocho frentes y la documentación que entregan (de
- * /certificaciones). Sin etiquetas internas. No indexable.
+ * Portada (2026-10-30, v4). Cuenta la empresa con sus propios datos: quiénes son y cómo
+ * trabajan (de Nosotros), los lugares por dentro, los casos con el alcance real, los clientes,
+ * los ocho frentes y la documentación que entregan (de Certificaciones). No indexable.
  */
 import '../../styles/proto-despiece.css';
-import Cierre from '../../components/proto/Cierre.astro';
+import Head from '../../components/proto/Head.astro';
+import Top from '../../components/proto/Top.astro';
+import Apertura from '../../components/proto/Apertura.astro';
 import Casos from '../../components/proto/Casos.astro';
-import { loadStories, readIso, services, posterOf, SECTOR_PHOTO } from '../../components/proto/isoData';
+import Cierre from '../../components/proto/Cierre.astro';
+import { loadStories, readIso, services, posterOf } from '../../components/proto/isoData';
 import { EMPRESA, CUMPLIMIENTO, CASOS } from '../../components/proto/relato';
 
 export const prerender = false;
 const { total, places, stories } = await loadStories();
 const building = readIso('building');
-const clientes = Object.values(stories.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count).slice(0, 24);
+const clientes = Object.values(stories.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count).slice(0, 16);
 ---
 <!doctype html>
 <html lang="es">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex, nofollow" />
-    <title>Servicios IT para operaciones que no pueden detenerse · ULTIMA MILLA</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <Head title="Servicios IT para operaciones que no pueden detenerse · ULTIMA MILLA" />
     <style>
-      .lugar--open { height: 230vh; }
-      .lugar { height: 170vh; }
-      .rows { list-style: none; margin: 10px 0 0; padding: 0; border-top: 1px solid var(--line); }
+      .historia { margin: var(--s5) 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3) clamp(20px, 3vw, 48px); border-top: 1px solid var(--line); }
+      .historia li { padding-top: var(--s2); display: grid; gap: 6px; align-content: start; }
+      .historia .small { color: var(--ink); }
+      .sedes { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; padding: 0; list-style: none; color: var(--ink-2); }
+      .sedes b { color: var(--ink); font-weight: 600; margin-right: 8px; }
+      .rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
       .rows a { display: grid; gap: 2px; padding: 11px 0; border-bottom: 1px solid var(--line-2); }
       .rows b { font-weight: 600; font-size: 1rem; }
       .rows .t { color: var(--ink-3); font-size: .9rem; }
-      .copy .u { margin-top: 10px; }
-
-      /* Quiénes somos */
-      .empresa { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 5vw, 96px); align-items: start; }
-      .empresa__lead { margin: 18px 0 0; font-size: 1.2rem; line-height: 1.5; color: var(--ink-2); max-width: 40ch; }
-      .empresa__cob { margin: 18px 0 0; color: var(--ink-3); }
-      .principios { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line-2); border: 1px solid var(--line-2); counter-reset: p; }
-      .principios li { background: var(--bg); padding: 22px; display: grid; gap: 8px; align-content: start; }
-      .principios li::before { counter-increment: p; content: counter(p, decimal-leading-zero); font: 500 .76rem var(--mono); color: var(--ink-3); }
-      .principios b { font-size: 1.15rem; font-weight: 600; }
-      .principios p { margin: 0; color: var(--ink-2); font-size: .98rem; }
-      .historia { list-style: none; margin: clamp(40px, 6vh, 72px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 24px; border-top: 1px solid var(--line); }
-      .historia li { padding-top: 16px; display: grid; gap: 8px; align-content: start; position: relative; }
-      .historia li::before { content: ''; position: absolute; top: -1px; left: 0; width: 28px; height: 2px; background: var(--red); }
-      .historia .mono { color: var(--ink); }
-      .historia b { font-weight: 600; font-size: 1.05rem; }
-      .historia p { margin: 0; color: var(--ink-2); font-size: .95rem; }
-      .sedes { display: flex; flex-wrap: wrap; gap: 10px 32px; margin: 28px 0 0; padding: 0; list-style: none; color: var(--ink-2); }
-      .sedes b { color: var(--ink); font-weight: 600; margin-right: 8px; }
-
-
-
-      /* Frentes y documentación */
-      .frentes { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(24px, 4vw, 64px); border-top: 1px solid var(--line); }
-      .frentes a { display: grid; grid-template-columns: 1fr; gap: 4px; padding: 16px 0; border-bottom: 1px solid var(--line-2); }
+      .frentes { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(28px, 4vw, 72px); border-top: 1px solid var(--line); }
+      .frentes a { display: grid; gap: 4px; padding: 18px 0; border-bottom: 1px solid var(--line-2); }
       .frentes b { font-weight: 600; font-size: 1.15rem; }
-      .frentes .t { color: var(--ink-2); font-size: 1rem; }
-      .doc { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1px; background: var(--line-2); border: 1px solid var(--line-2); counter-reset: d; }
-      .doc li { background: var(--bg); padding: 20px; display: grid; gap: 10px; align-content: start; }
-      .doc li::before { counter-increment: d; content: counter(d, decimal-leading-zero); font: 500 .76rem var(--mono); color: var(--ink-3); }
-      .doc b { font-weight: 600; font-size: 1.05rem; }
-      .doc p { margin: 0; color: var(--ink-2); font-size: .95rem; }
-
-      @media (max-width: 1100px) { .doc { grid-template-columns: repeat(2, minmax(0, 1fr)); } .clientes { grid-template-columns: repeat(2, minmax(0, 1fr)); } .historia { grid-template-columns: 1fr 1fr; gap: 24px; } }
-      @media (max-width: 900px) {
-        .lugar { height: 150vh; }
-        .rows a:nth-child(n+3) { display: none; }
-        .empresa, .caso, .principios, .frentes { grid-template-columns: 1fr; }
-        .caso:nth-child(even) figure { order: 0; }
-        .doc, .clientes { grid-template-columns: 1fr; }
-      }
+      .frentes span { color: var(--ink-2); }
+      @media (max-width: 1100px) { .historia { grid-template-columns: 1fr 1fr; } }
+      @media (max-width: 900px) { .historia, .frentes { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
-    <header class="top top--over">
-      <a class="logo" href="/propuesta">ultimamilla<i>.</i>com<i>.</i>ar</a>
-      <nav aria-label="Principal"><a href="/servicios">Servicios</a><a href="/sectores">Sectores</a><a href="/propuesta/antecedentes">Antecedentes</a><a href="/blog">Blog</a><a class="cta" href="#contacto">Contactar</a></nav>
-    </header>
+    <Top />
 
-    <section class="lugar lugar--open" data-lugar data-fase="0" aria-label="Portada">
-      <div class="lugar__pin">
-        <div class="copy">
-          <span class="mono">24 años de servicios IT. Mendoza, Argentina.</span>
-          <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
-          <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
-          <a class="u" href="/propuesta/antecedentes">{total} proyectos documentados</a>
-        </div>
-        <div class="xray">
-          <div class="xray__ghost"><img src={posterOf('constructoras')} alt="" width="1920" height="1080" /></div>
-          <div class="xray__iso iso" set:html={building} />
-          <div class="xray__foto"><video muted playsinline loop preload="none" poster={posterOf('constructoras')} data-film="/cine/media/cine-fachada.mp4" width="1920" height="1080"></video></div>
-          <div class="xray__linea"></div>
-        </div>
-      </div>
-    </section>
+    <Apertura label="Portada" iso={building} image={posterOf('constructoras')} film="/cine/media/cine-fachada.mp4" open>
+      <span class="small">24 años de servicios IT. Mendoza, Argentina.</span>
+      <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
+      <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
+      <a class="u" href="/propuesta/antecedentes">{total} proyectos documentados</a>
+    </Apertura>
 
-    <section class="band" id="empresa">
-      <div class="empresa">
-        <div>
-          <h2>{EMPRESA.titulo}<span class="dot">.</span></h2>
-          <p class="empresa__lead">{EMPRESA.lead}</p>
-          <p class="empresa__cob">{EMPRESA.cobertura} {EMPRESA.coberturaDetalle}</p>
-          <ul class="sedes">{EMPRESA.sedes.map((s) => <li><b>{s.name}</b>{s.detail || s.role}</li>)}</ul>
+    <section class="sec" id="empresa">
+      <div class="wrap">
+        <div class="cols cols-5-7">
+          <div class="prosa">
+            <h2>{EMPRESA.titulo}<span class="dot">.</span></h2>
+            <p class="lead">{EMPRESA.lead}</p>
+            <p>{EMPRESA.cobertura} {EMPRESA.coberturaDetalle}</p>
+            <ul class="sedes">{EMPRESA.sedes.map((s) => <li><b>{s.name}</b>{s.detail || s.role}</li>)}</ul>
+          </div>
+          <div class="cols cols-2">{EMPRESA.principios.map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div>
         </div>
-        <ol class="principios">{EMPRESA.principios.map(([t, d]) => <li><b>{t}</b><p>{d}</p></li>)}</ol>
+        <ol class="historia">{EMPRESA.historia.map(([y, t, d]) => <li><span class="small">{y}</span><h3>{t}</h3><p class="muted">{d}</p></li>)}</ol>
       </div>
-      <ol class="historia">{EMPRESA.historia.map(([y, t, d]) => <li><span class="mono">{y}</span><b>{t}</b><p>{d}</p></li>)}</ol>
     </section>
 
     {places.map((p, i) => (
-      <section class="lugar" data-lugar data-fase="0" aria-label={p.name}>
-        <div class="lugar__pin">
-          <div class="copy">
-            <h2>{p.name}<span class="dot">.</span></h2>
-            <p>{p.text}</p>
-            {p.stories.length > 0 && <ol class="rows">{p.stories.map((c) => <li><a href={c.href}><b>{c.client}</b><span class="t">{c.title}{c.year ? ` · ${c.year}` : ''}</span></a></li>)}</ol>}
-            <a class="u" href={p.count > 0 ? `/propuesta/antecedentes?sector=${p.slug}` : `/propuesta/sectores/${p.slug}`}>{p.count > 0 ? `${p.count} proyectos en ${p.name.toLowerCase()}` : p.name}</a>
-          </div>
-          <div class="xray">
-            <div class="xray__ghost"><img src={p.image} alt="" width="1672" height="941" loading="lazy" /></div>
-            <div class="xray__iso iso" data-src={`/cine/iso/site-${p.site}-v2.svg`}></div>
-            <div class="xray__foto"><img src={p.image} alt="" width="1672" height="941" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" /></div>
-            <div class="xray__linea"></div>
-          </div>
-        </div>
-      </section>
+      <Apertura label={p.name} isoSrc={`/cine/iso/site-${p.site}-v2.svg`} image={p.image} eager={i === 0}>
+        <h2>{p.name}<span class="dot">.</span></h2>
+        <p>{p.text}</p>
+        {p.stories.length > 0 && <ol class="rows">{p.stories.map((c) => <li><a href={c.href}><b>{c.client}</b><span class="t">{c.title}{c.year ? ` · ${c.year}` : ''}</span></a></li>)}</ol>}
+        <a class="u" href={p.count > 0 ? `/propuesta/antecedentes?sector=${p.slug}` : `/propuesta/sectores/${p.slug}`}>{p.count > 0 ? `${p.count} proyectos en ${p.name.toLowerCase()}` : p.name}</a>
+      </Apertura>
     ))}
 
     <Casos casos={CASOS} stories={stories} title="Lo que hicimos, con el alcance de cada obra" max={6} />
 
-    <section class="band" id="clientes">
-      <h2>Clientes con más proyectos documentados<span class="dot">.</span></h2>
-      <ol class="clientes">{clientes.map((c) => <li><b>{c.name}</b><span>{c.count}</span></li>)}</ol>
+    <section class="sec" id="clientes">
+      <div class="wrap">
+        <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2></div>
+        <p class="frase">{clientes.map((c, i) => <><b>{c.name}</b>{c.count > 1 ? ` (${c.count} proyectos)` : ''}{i < clientes.length - 2 ? ', ' : i === clientes.length - 2 ? ' y ' : '.'}</>)}</p>
+      </div>
     </section>
 
-    <section class="band" id="servicios">
-      <h2>Ocho frentes de servicio<span class="dot">.</span></h2>
-      <p class="band__lead">Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria.</p>
-      <ul class="frentes">{services.map((s, i) => <li><a href={`/propuesta/servicios/${s.code}`}><b>{s.name}</b><span class="t">{s.text}</span></a></li>)}</ul>
+    <section class="sec" id="servicios">
+      <div class="wrap">
+        <div class="sec__head"><h2>Ocho frentes de servicio<span class="dot">.</span></h2><p>Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria.</p></div>
+        <ul class="frentes">{services.map((s) => <li><a href={`/propuesta/servicios/${s.code}`}><b>{s.name}</b><span>{s.text}</span></a></li>)}</ul>
+      </div>
     </section>
 
-    <section class="band" id="documentacion">
-      <h2>Cada obra se entrega medida, documentada y trazable<span class="dot">.</span></h2>
-      <ol class="doc">{CUMPLIMIENTO.map(([t, d]) => <li><b>{t}</b><p>{d}</p></li>)}</ol>
+    <section class="sec" id="documentacion">
+      <div class="wrap">
+        <div class="sec__head"><h2>Cada obra se entrega medida, documentada y trazable<span class="dot">.</span></h2></div>
+        <div class="cols cols-3">{CUMPLIMIENTO.map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div>
+      </div>
     </section>
 
     <Cierre />
-
-    <script>
-      const lugares = [...document.querySelectorAll<HTMLElement>('[data-lugar]')];
-      const io = new IntersectionObserver((entries) => entries.forEach((e) => {
-        if (!e.isIntersecting) return;
-        const el = e.target as HTMLElement; io.unobserve(el);
-        fetch(el.dataset.src!).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) el.innerHTML = svg; });
-      }), { rootMargin: '900px 0px' });
-      document.querySelectorAll<HTMLElement>('.xray__iso[data-src]').forEach((el) => io.observe(el));
-      const film = document.querySelector<HTMLVideoElement>('video[data-film]');
-      if (film && matchMedia('(min-width: 900px)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) { film.src = film.dataset.film!; film.play().catch(() => {}); }
-      let raf = 0;
-      const update = () => {
-        raf = 0;
-        lugares.forEach((el) => {
-          const r = el.getBoundingClientRect();
-          if (r.bottom < 0 || r.top > innerHeight) return;
-          const p = Math.min(1, Math.max(0, -r.top / (r.height - innerHeight)));
-          el.style.setProperty('--cut', String(100 - Math.min(1, p / .5) * 100));
-          el.style.setProperty('--linea', p < .02 || p > .52 ? '0' : '1');
-          const fase = p < .12 ? 0 : p < .5 ? 1 : p < .78 ? 2 : 3;
-          if (el.dataset.fase !== String(fase)) el.dataset.fase = String(fase);
-        });
-      };
-      addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
-      addEventListener('resize', update);
-      update();
-    </script>
   </body>
 </html>

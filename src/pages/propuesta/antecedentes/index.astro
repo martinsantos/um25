@@ -1,25 +1,22 @@
 ---
 /**
- * El muro (2026-10-30, v2), sistema Despiece. Los proyectos documentados como pared de fichas
- * de trabajo. Sector, servicio y año son lentes que filtran en vivo y se dibujan como infografía:
- * barras con la cuenta de cada lente, que se recomponen con el filtro activo. La cifra del título
- * se recompone con los datos. Entre las fichas, los recorridos de Blender. Filtro en la URL.
- * Textos: sólo frases existentes y datos del catálogo. No indexable.
+ * Los proyectos (2026-10-30, v3). Pared de fichas. Sector, servicio y año filtran en vivo; la
+ * cifra se recompone. Entre las fichas, los lugares por dentro. Filtro en la URL. No indexable.
  */
 import '../../../styles/proto-despiece.css';
+import Head from '../../../components/proto/Head.astro';
+import Top from '../../../components/proto/Top.astro';
 import Ficha from '../../../components/proto/Ficha.astro';
+import Cierre from '../../../components/proto/Cierre.astro';
 import { loadStories, services, posterOf, SCENE_OF } from '../../../components/proto/isoData';
 import { SECTORS } from '../../../data/cine/scenes';
 
 export const prerender = false;
 const { stories } = await loadStories();
 const total = stories.length;
-const pad = (n: number) => String(n).padStart(2, '0');
 const sectors = SECTORS.map((s) => ({ slug: s.slug, name: s.name, count: stories.filter((c) => c.sectorSlug === s.slug).length })).filter((s) => s.count > 0);
 const svcs = services.map((s) => ({ code: s.code, name: s.name, count: stories.filter((c) => c.serviceCodes.includes(s.code)).length }));
-const years = [...new Set(stories.map((c) => c.year).filter(Boolean))].sort((a, b) => a - b);
-const yearCounts = Object.fromEntries(years.map((y) => [y, stories.filter((c) => c.year === y).length]));
-const maxYear = Math.max(...Object.values(yearCounts));
+const years = [...new Set(stories.map((c) => c.year).filter(Boolean))].sort((a, b) => b - a);
 const recorridos = ['constructoras', 'aeropuertos', 'bodegas', 'salud'];
 const recAt = [0, 18, 60, 120];
 const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'Aeropuerto', bodega: 'Bodega', hospital: 'Centro de salud', planta: 'Planta' };
@@ -27,87 +24,65 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
 <!doctype html>
 <html lang="es">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex, nofollow" />
-    <title>El muro · Proyectos documentados · ULTIMA MILLA</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <Head title="Proyectos documentados · ULTIMA MILLA" />
     <style>
-      .muro { margin: 16px var(--gutter) 0; }
-      .muro .hoja__body { display: grid; grid-template-columns: minmax(280px, 4fr) minmax(0, 8fr); gap: clamp(24px, 4vw, 64px); align-items: start; padding-top: clamp(24px, 3vw, 40px); }
-      .panel { position: sticky; top: 80px; display: grid; gap: 22px; }
-      .sentence { margin: 0; font-size: 1.25rem; font-weight: 600; letter-spacing: -.02em; }
-      .lead { margin: 0; color: var(--ink-2); max-width: 40ch; }
+      .muro { display: grid; grid-template-columns: minmax(260px, 3fr) minmax(0, 9fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: start; padding-block: var(--s4) var(--s6); }
+      .panel { position: sticky; top: 80px; display: grid; gap: var(--s4); }
+      .count { font-size: clamp(4rem, 7vw, 6.5rem); line-height: .9; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+      .count i { font-style: normal; color: var(--red); }
+      .sentence { font-size: 1.2rem; font-weight: 600; letter-spacing: -.02em; margin-top: 6px; }
+      .grupo { display: grid; gap: 6px; }
+      .grupo h3 { font-size: .9375rem; font-weight: 500; color: var(--ink-3); }
+      .anios { display: flex; flex-wrap: wrap; gap: 6px; }
+      .anios button { padding: 6px 10px; border: 1px solid var(--line); color: var(--ink-2); font-size: .9375rem; }
+      .anios button[aria-pressed="true"] { border-color: var(--red); color: var(--ink); }
+      .servicios [data-zero] { opacity: .35; }
       .clear { display: none; color: var(--ink-2); text-decoration: underline; text-underline-offset: 4px; width: max-content; }
       .clear.on { display: inline-block; }
-      .empty { display: none; padding: 48px 0; color: var(--ink-2); }
+      .empty { display: none; padding: var(--s4) 0; color: var(--ink-2); }
       .empty.on { display: block; }
-      @media (max-width: 900px) {
-        .muro { margin: 12px; }
-        .muro .hoja__body { grid-template-columns: 1fr; }
-        .panel { position: static; }
-      }
+      .fichas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      @media (max-width: 900px) { .muro { grid-template-columns: 1fr; } .panel { position: static; } .fichas { grid-template-columns: 1fr 1fr; } }
     </style>
   </head>
   <body>
-    <header class="top">
-      <a class="logo" href="/propuesta">ultimamilla<i>.</i>com<i>.</i>ar</a>
-      <nav aria-label="Principal"><a href="/servicios">Servicios</a><a href="/sectores">Sectores</a><a href="/propuesta/antecedentes" aria-current="page">Antecedentes</a><a href="/blog">Blog</a><a class="cta" href="/contacto">Contactar</a></nav>
-    </header>
+    <Top current="antecedentes" over={false} />
 
-    <main class="muro hoja" data-muro>
-      <div class="hoja__head"><span class="mono">Proyectos documentados · {years[0]}–{years[years.length - 1]}</span><span class="mono" data-sheet>{total} proyectos</span></div>
-      <div class="hoja__body">
-        <aside class="panel">
-          <div>
-            <span class="mono">24 años de servicios IT · Mendoza, Argentina</span>
-            <h1 class="count"><span data-count>{total}</span><i>.</i></h1>
-            <p class="sentence" data-sentence>proyectos documentados</p>
-          </div>
-          <p class="lead">Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
-          <div class="lens" data-lens-group="sector">
-            <h3 class="mono">Sector</h3>
-            {sectors.map((s) => <button class="no-n" type="button" data-lens="sector" data-value={s.slug} aria-pressed="false" style={`--w:${Math.round((s.count / total) * 100)}`}>{s.name}<b data-n>{s.count}</b><i></i></button>)}
-          </div>
-          <div class="lens" data-lens-group="service">
-            <h3 class="mono">Servicio</h3>
-            {svcs.map((s) => <button class="no-n" type="button" data-lens="service" data-value={s.code} aria-pressed="false" style={`--w:${Math.round((s.count / total) * 100)}`}>{s.name}<b data-n>{s.count}</b><i></i></button>)}
-          </div>
-          <div>
-            <h3 class="mono" style="margin-bottom:8px">Año</h3>
-            <div class="years" role="group" aria-label="Filtrar por año">
-              {years.map((y) => <button type="button" data-lens="year" data-value={String(y)} aria-pressed="false" aria-label={`${y}: ${yearCounts[y]} proyectos`} title={`${y} · ${yearCounts[y]}`}><i style={`--h:${Math.max(4, Math.round((yearCounts[y] / maxYear) * 100))}`}></i></button>)}
-            </div>
-            <div class="axis mono" aria-hidden="true"><span>{years[0]}</span><span>{years[years.length - 1]}</span></div>
-          </div>
-          <button class="clear" type="button" data-clear>Ver los {total} proyectos</button>
-        </aside>
+    <main class="wrap muro" data-muro>
+      <aside class="panel">
+        <div>
+          <span class="small">24 años de servicios IT. Mendoza, Argentina.</span>
+          <h1 class="count"><span data-count>{total}</span><i>.</i></h1>
+          <p class="sentence" data-sentence>proyectos documentados</p>
+        </div>
+        <div class="grupo"><h3>Sector</h3><ul class="servicios">{sectors.map((s) => <li><button type="button" data-lens="sector" data-value={s.slug} aria-pressed="false">{s.name}<span data-n>{s.count}</span><i></i></button></li>)}</ul></div>
+        <div class="grupo"><h3>Servicio</h3><ul class="servicios">{svcs.map((s) => <li><button type="button" data-lens="service" data-value={s.code} aria-pressed="false">{s.name}<span data-n>{s.count}</span><i></i></button></li>)}</ul></div>
+        <div class="grupo"><h3>Año</h3><div class="anios">{years.map((y) => <button type="button" data-lens="year" data-value={String(y)} aria-pressed="false">{y}</button>)}</div></div>
+        <button class="clear" type="button" data-clear>Ver los {total} proyectos</button>
+      </aside>
 
-        <section aria-label="Fichas">
-          <ol class="grid" data-grid>
-            {stories.map((c, index) => (
-              <>
-                {recAt.includes(index) && (() => { const slug = recorridos[recAt.indexOf(index)]; const scene = SCENE_OF[slug]; return (
-                  <li class="ficha ficha--rec" data-rec>
-                    <a href={`/propuesta/sectores/${slug}`}>
-                      <div class="ficha__head"><span class="mono">{sceneTitle[scene]}</span><span class="mono"></span></div>
-                      <figure><img src={posterOf(slug)} alt="" width="1920" height="1080" loading={index === 0 ? 'eager' : 'lazy'} decoding="async" /></figure>
-                      <b>{sceneTitle[scene]} por dentro</b>
-                      <span class="t"></span>
-                      <div class="ficha__foot"><span class="mono">{SECTORS.find((s) => s.slug === slug)?.name}</span></div>
-                    </a>
-                  </li>
-                ); })()}
-                <Ficha story={c} eager={index < 9} />
-              </>
-            ))}
-          </ol>
-          <p class="empty" data-empty>Sin proyectos para esta combinación.</p>
-        </section>
-      </div>
+      <section aria-label="Proyectos">
+        <ol class="fichas" data-grid>
+          {stories.map((c, index) => (
+            <>
+              {recAt.includes(index) && (() => { const slug = recorridos[recAt.indexOf(index)]; const scene = SCENE_OF[slug]; return (
+                <li class="ficha ficha--rec" data-rec>
+                  <a href={`/propuesta/sectores/${slug}`}>
+                    <figure><img src={posterOf(slug)} alt="" width="1920" height="1080" loading={index === 0 ? 'eager' : 'lazy'} decoding="async" /></figure>
+                    <b>{sceneTitle[scene]} por dentro</b>
+                    <span class="small">{SECTORS.find((s) => s.slug === slug)?.name}</span>
+                  </a>
+                </li>
+              ); })()}
+              <Ficha story={c} eager={index < 9} />
+            </>
+          ))}
+        </ol>
+        <p class="empty" data-empty>Sin proyectos para esta combinación.</p>
+      </section>
     </main>
-    <footer class="pie"><span>ultimamilla.com.ar</span><span>Houssay 1159, Guaymallén, Mendoza · contacto@ultimamilla.com.ar</span></footer>
+
+    <Cierre />
 
     <script>
       const root = document.querySelector<HTMLElement>('[data-muro]')!;
@@ -128,22 +103,19 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
         let n = 0;
         fichas.forEach((el) => { const ok = matches(el); el.hidden = !ok; if (ok) n++; });
         recs.forEach((el) => { el.hidden = Boolean(state.year) || n < 12; });
-        lenses.forEach((b) => { b.setAttribute('aria-pressed', String(state[b.dataset.lens!] === b.dataset.value)); });
-        ['sector', 'service', 'year'].forEach((kind) => {
+        lenses.forEach((b) => b.setAttribute('aria-pressed', String(state[b.dataset.lens!] === b.dataset.value)));
+        ['sector', 'service'].forEach((kind) => {
           const base = fichas.filter((el) => matches(el, kind));
-          const yearMax = Math.max(1, ...lenses.filter((x) => x.dataset.lens === 'year').map((x) => base.filter((el) => el.dataset.year === x.dataset.value).length));
           lenses.filter((b) => b.dataset.lens === kind).forEach((b) => {
             const c = base.filter((el) => kind === 'service' ? (el.dataset.services || '').split(' ').includes(b.dataset.value!) : el.dataset[kind] === b.dataset.value).length;
             const num = b.querySelector('[data-n]'); if (num) num.textContent = String(c);
-            if (kind === 'year') (b.firstElementChild as HTMLElement).style.setProperty('--h', String(Math.max(4, Math.round((c / yearMax) * 100))));
-            else b.style.setProperty('--w', String(Math.round((c / Math.max(1, base.length)) * 100)));
+            b.style.setProperty('--w', String(Math.round((c / Math.max(1, base.length)) * 100)));
             b.toggleAttribute('data-zero', c === 0 && state[kind] !== b.dataset.value);
           });
         });
         const parts = [state.sector && names('sector', state.sector), state.service && names('service', state.service), state.year].filter(Boolean) as string[];
         root.querySelector('[data-count]')!.textContent = String(n);
         root.querySelector('[data-sentence]')!.textContent = parts.length ? `proyectos · ${parts.join(' · ')}` : 'proyectos documentados';
-        root.querySelector('[data-sheet]')!.textContent = parts.length ? `${n} de ${total} proyectos` : `${total} proyectos`;
         root.querySelector('[data-clear]')!.classList.toggle('on', parts.length > 0);
         root.querySelector('[data-empty]')!.classList.toggle('on', n === 0);
         const url = new URL(location.href); ['sector', 'service', 'year'].forEach((k) => state[k] ? url.searchParams.set(k, state[k]) : url.searchParams.delete(k)); history.replaceState(null, '', url);

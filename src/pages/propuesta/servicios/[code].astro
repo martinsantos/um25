@@ -1,11 +1,13 @@
 ---
 /**
- * Vertical de servicio (2026-10-30, v4). Le habla a quien necesita ese servicio: qué es, qué
- * cubre, qué hicimos, cómo lo hacemos, qué entrega y dónde. Frases completas del catálogo, de la
- * ficha técnica y del registro de antecedentes. Sin rótulos ni numeraciones. La foto real se
- * abre hasta el despiece con sólo ese recorrido encendido. No indexable.
+ * Servicio (2026-10-30, v5). Le habla a quien necesita ese servicio: qué es, qué cubre, qué
+ * hicimos, cómo lo hacemos, qué entregamos y dónde. Frases del catálogo y la ficha técnica.
+ * No indexable.
  */
 import '../../../styles/proto-despiece.css';
+import Head from '../../../components/proto/Head.astro';
+import Top from '../../../components/proto/Top.astro';
+import Apertura from '../../../components/proto/Apertura.astro';
 import Ficha from '../../../components/proto/Ficha.astro';
 import Casos from '../../../components/proto/Casos.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
@@ -34,138 +36,99 @@ const lower = servicio.name.toLowerCase();
 const bySector = SECTORS.map((s) => ({ slug: s.slug, name: s.name, count: own.filter((c) => c.sectorSlug === s.slug).length })).filter((s) => s.count > 0).sort((a, b) => b.count - a.count);
 const sceneTitle: Record<string, string> = { fachada: 'edificio', aeropuerto: 'aeropuerto', bodega: 'bodega', hospital: 'centro de salud', planta: 'planta' };
 const meta = Object.fromEntries(servicio.metadata.map((m) => [m.label, m.value]));
-const condiciones = ['Implementación', 'Garantía', 'Cobertura'].filter((k) => meta[k]).map((k) => `${k.toLowerCase()}: ${meta[k]}`).join(' · ');
+const condiciones = ['Implementación', 'Garantía', 'Cobertura'].filter((k) => meta[k]).map((k) => `${k}: ${meta[k]}`).join('. ');
+const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
 ---
 <!doctype html>
 <html lang="es">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex, nofollow" />
-    <title>{servicio.name} · {servicio.tagline} · ULTIMA MILLA</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <Head title={`${servicio.name} · ${servicio.tagline} · ULTIMA MILLA`} />
     <style>
-      .cubre { position: relative; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 80px); align-items: center; margin-top: 32px; }
+      .cubre { position: relative; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: center; }
       .equipo { position: relative; aspect-ratio: 4 / 3; display: grid; place-items: center; padding: 8% 12%; }
       .equipo > div { width: 100%; height: 100%; display: grid; place-items: center; }
       .equipo :global(svg) { width: 100%; height: 100%; display: block; overflow: visible; }
       .caps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-      .caps li { display: grid; grid-template-columns: 14px 1fr; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--line-2); align-items: center; font-size: 1.1rem; color: var(--ink-2); transition: color .3s; }
+      .caps li { display: grid; grid-template-columns: 10px 1fr; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--line-2); align-items: center; font-size: 1.1rem; color: var(--ink-2); transition: color .3s; }
+      .caps li .p { width: 10px; height: 10px; background: var(--ink-3); transition: background .3s; }
       .caps li.on { color: var(--ink); }
+      .caps li.on .p { background: var(--red); }
       .lineas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
       .lineas :global(line) { stroke: var(--ink-3); stroke-width: 1; transition: stroke .3s; }
       .lineas :global(circle) { fill: var(--red); }
       .lineas :global(.on) { stroke: var(--red); }
-      .como { list-style: none; margin: 28px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px clamp(28px, 4vw, 64px); }
-      .como li { display: grid; gap: 6px; }
-      .como b { font-size: 1.2rem; font-weight: 600; }
-      .como p { margin: 0; color: var(--ink-2); line-height: 1.55; }
-      .entrega { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px clamp(28px, 4vw, 64px); margin-top: 28px; }
-      .entrega h3 { font-size: 1.2rem; font-weight: 600; margin-bottom: 10px; }
-      .entrega ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; color: var(--ink-2); font-size: 1.05rem; line-height: 1.5; }
-      .entrega ul li::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 10px; background: var(--red); vertical-align: 1px; }
-      .condiciones { margin: 28px 0 0; color: var(--ink-3); font-size: 1rem; }
-      .donde { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 4vw, 80px); align-items: start; margin-top: 28px; }
-      .rec { display: grid; gap: 10px; }
-      .rec figure { margin: 0; aspect-ratio: 16 / 9; background: var(--bg-2); overflow: hidden; }
-      .rec img { width: 100%; height: 100%; object-fit: cover; display: block; }
-      .grid { margin-top: clamp(28px, 4vh, 48px); }
-      @media (max-width: 900px) {
-        .cubre, .como, .entrega, .donde { grid-template-columns: 1fr; }
-        .lineas { display: none; }
-      }
+      .condiciones { margin-top: var(--s4); color: var(--ink-3); }
+      @media (max-width: 900px) { .cubre { grid-template-columns: 1fr; } .lineas { display: none; } }
     </style>
   </head>
   <body>
-    <header class="top top--over">
-      <a class="logo" href="/propuesta">ultimamilla<i>.</i>com<i>.</i>ar</a>
-      <nav aria-label="Principal"><a href="/servicios" aria-current="page">Servicios</a><a href="/sectores">Sectores</a><a href="/propuesta/antecedentes">Antecedentes</a><a href="/blog">Blog</a><a class="cta" href="#contacto">Contactar</a></nav>
-    </header>
+    <Top current="servicios" />
 
-    <section class="lugar" data-lugar data-fase="0" aria-label={servicio.name}>
-      <div class="lugar__pin">
-        <div class="copy">
-          <h1>{servicio.name}<span class="dot">.</span></h1>
-          <p class="tag">{servicio.tagline}</p>
-          <p>{servicio.description}</p>
-          <a class="u" href={`/propuesta/antecedentes?service=${code}`}>{own.length > 0 ? `${own.length} proyectos documentados` : 'Ver todos los proyectos'}</a>
-        </div>
-        <div class="xray">
-          <div class="xray__ghost"><img src={photo} alt="" width="1672" height="941" /></div>
-          <div class="xray__iso iso" data-svc={code} set:html={iso} />
-          <div class="xray__foto"><img src={photo} alt="" width="1672" height="941" fetchpriority="high" /></div>
-          <div class="xray__linea"></div>
-        </div>
-      </div>
-    </section>
+    <Apertura label={servicio.name} iso={iso} svc={code} image={photo}>
+      <h1>{servicio.name}<span class="dot">.</span></h1>
+      <p class="tag">{servicio.tagline}</p>
+      <p>{servicio.description}</p>
+      <a class="u" href={`/propuesta/antecedentes?service=${code}`}>{own.length > 0 ? `${own.length} proyectos documentados` : 'Ver todos los proyectos'}</a>
+    </Apertura>
 
-    <section class="band" id="cubre">
-      <h2>Qué cubre<span class="dot">.</span></h2>
-      <div class="cubre" data-cubre>
-        <div class="equipo" data-equipo>{device ? <div set:html={device} /> : <div class="iso" data-src={`/cine/iso/site-building-v2.svg`}></div>}</div>
-        <ol class="caps" data-caps>{servicio.capabilities.map((c) => <li><span class="llamada"></span>{c}</li>)}</ol>
-        <svg class="lineas" data-lineas aria-hidden="true"></svg>
+    <section class="sec">
+      <div class="wrap">
+        <div class="sec__head"><h2>Qué cubre<span class="dot">.</span></h2></div>
+        <div class="cubre" data-cubre>
+          <div class="equipo" data-equipo>{device ? <div set:html={device} /> : <div class="iso" data-src="/cine/iso/site-building-v2.svg"></div>}</div>
+          <ol class="caps" data-caps>{servicio.capabilities.map((c) => <li><span class="p"></span>{c}</li>)}</ol>
+          <svg class="lineas" data-lineas aria-hidden="true"></svg>
+        </div>
       </div>
     </section>
 
     <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} fallbackImage={photo} />
 
-    <section class="band" id="como">
-      <h2>Cómo lo hacemos<span class="dot">.</span></h2>
-      <ol class="como">{servicio.proceso.map((s) => <li><b>{s.titulo}</b><p>{s.desc}</p></li>)}</ol>
+    <section class="sec">
+      <div class="wrap cols cols-5-7">
+        <h2>Cómo lo hacemos<span class="dot">.</span></h2>
+        <div class="cols cols-2">{servicio.proceso.map((s) => <div class="item"><h3>{s.titulo}</h3><p>{s.desc}</p></div>)}</div>
+      </div>
     </section>
 
-    <section class="band" id="entrega">
-      <h2>Qué entregamos<span class="dot">.</span></h2>
-      <div class="entrega">
-        <div><h3>Alcance</h3><ul>{spec.scope.map((s) => <li>{s}</li>)}</ul></div>
-        <div><h3>Normas y criterios</h3><ul>{spec.standards.map((s) => <li>{s}</li>)}</ul></div>
-        <div><h3>Documentación que recibís</h3><ul>{spec.deliverables.map((s) => <li>{s}</li>)}</ul></div>
-        <div><h3>Después de la obra</h3><ul>{spec.serviceLevel.map((s) => <li>{s.replace(/\s*desde el frente 10\d/i, '')}</li>)}</ul></div>
+    <section class="sec">
+      <div class="wrap">
+        <div class="sec__head"><h2>Qué entregamos<span class="dot">.</span></h2></div>
+        <div class="cols cols-4">
+          <div class="item"><h3>Alcance</h3><ul class="lista">{spec.scope.map((s) => <li>{s}</li>)}</ul></div>
+          <div class="item"><h3>Normas y criterios</h3><ul class="lista">{spec.standards.map((s) => <li>{s}</li>)}</ul></div>
+          <div class="item"><h3>Documentación que recibís</h3><ul class="lista">{spec.deliverables.map((s) => <li>{s}</li>)}</ul></div>
+          <div class="item"><h3>Después de la obra</h3><ul class="lista">{spec.serviceLevel.map((s) => <li>{limpio(s)}</li>)}</ul></div>
+        </div>
+        {condiciones && <p class="condiciones">{condiciones}.</p>}
       </div>
-      {condiciones && <p class="condiciones">{condiciones.charAt(0).toUpperCase() + condiciones.slice(1)}.</p>}
     </section>
 
     {bySector.length > 0 && (
-      <section class="band" id="donde">
-        <h2>Dónde lo hicimos<span class="dot">.</span></h2>
-        <div class="donde">
-          <p class="clientes-prosa">{bySector.map((s, i) => <><a href={`/propuesta/sectores/${s.slug}`}><b>{s.name}</b></a>{' '}({s.count} {s.count === 1 ? 'proyecto' : 'proyectos'}){i < bySector.length - 2 ? ', ' : i === bySector.length - 2 ? ' y ' : '.'}</>)}</p>
-          <a class="rec" href={`/propuesta/sectores/${bySector[0].slug}`}>
-            <figure><img src={poster} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure>
-            <span class="mono">{servicio.name} en {sceneTitle[scene]}, en movimiento</span>
-          </a>
+      <section class="sec">
+        <div class="wrap cols cols-5-7">
+          <div class="item">
+            <h2>Dónde lo hicimos<span class="dot">.</span></h2>
+            <p class="frase">{bySector.map((s, i) => <><a href={`/propuesta/sectores/${s.slug}`}><b>{s.name}</b></a>{` (${s.count} ${s.count === 1 ? 'proyecto' : 'proyectos'})`}{i < bySector.length - 2 ? ', ' : i === bySector.length - 2 ? ' y ' : '.'}</>)}</p>
+          </div>
+          <a class="pelicula" href={`/propuesta/sectores/${bySector[0].slug}`}><figure><img src={poster} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure><span class="small">{servicio.name} en {sceneTitle[scene]}, en movimiento</span></a>
         </div>
       </section>
     )}
 
     {own.length > 0 && (
-      <section class="band" id="proyectos">
-        <h2>{own.length} proyectos con {lower}<span class="dot">.</span></h2>
-        <ol class="grid grid--4">{own.slice(0, 8).map((c, i) => <Ficha story={c} eager={i < 4} />)}</ol>
-        <a class="u more" href={`/propuesta/antecedentes?service=${code}`}>Ver los {own.length} proyectos</a>
+      <section class="sec">
+        <div class="wrap">
+          <div class="sec__head"><h2>{own.length} proyectos con {lower}<span class="dot">.</span></h2></div>
+          <ol class="fichas">{own.slice(0, 8).map((c, i) => <Ficha story={c} eager={i < 4} />)}</ol>
+          <a class="u more" href={`/propuesta/antecedentes?service=${code}`}>Ver los {own.length} proyectos</a>
+        </div>
       </section>
     )}
 
     <Cierre />
 
     <script>
-      const lugar = document.querySelector<HTMLElement>('[data-lugar]')!;
-      let raf = 0;
-      const update = () => {
-        raf = 0;
-        const r = lugar.getBoundingClientRect();
-        const p = Math.min(1, Math.max(0, -r.top / (r.height - innerHeight)));
-        lugar.style.setProperty('--cut', String(100 - Math.min(1, p / .5) * 100));
-        lugar.style.setProperty('--linea', p < .02 || p > .52 ? '0' : '1');
-        const fase = p < .12 ? 0 : p < .5 ? 1 : p < .78 ? 2 : 3;
-        if (lugar.dataset.fase !== String(fase)) lugar.dataset.fase = String(fase);
-      };
-      addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
-      addEventListener('resize', update);
-      update();
-
       const cubre = document.querySelector<HTMLElement>('[data-cubre]')!;
       const equipo = cubre.querySelector<HTMLElement>('[data-equipo]')!;
       const lineas = cubre.querySelector<SVGSVGElement>('[data-lineas]')!;
@@ -181,7 +144,7 @@ const condiciones = ['Implementación', 'Garantía', 'Cobertura'].filter((k) => 
         lineas.innerHTML = '';
         const cx = art.left + art.width / 2 - box.left, cy = art.top + art.height / 2 - box.top;
         items.forEach((li, i) => {
-          const c = li.querySelector<HTMLElement>('.llamada')!.getBoundingClientRect();
+          const c = li.querySelector<HTMLElement>('.p')!.getBoundingClientRect();
           const x2 = c.left - box.left - 2, y2 = c.top + c.height / 2 - box.top;
           const t = items.length > 1 ? i / (items.length - 1) : .5;
           const ang = (-.42 + t * .84) * Math.PI;
@@ -194,10 +157,7 @@ const condiciones = ['Implementación', 'Garantía', 'Cobertura'].filter((k) => 
         });
       };
       if (lazy) fetch(lazy.dataset.src!).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) { lazy.innerHTML = svg; draw(); } });
-      items.forEach((li, i) => {
-        const on = () => { items.forEach((o, j) => o.classList.toggle('on', i === j)); lineas.querySelectorAll('g').forEach((g) => g.querySelectorAll('line').forEach((l) => l.classList.toggle('on', g.dataset.i === String(i)))); };
-        li.addEventListener('pointerenter', on);
-      });
+      items.forEach((li, i) => li.addEventListener('pointerenter', () => { items.forEach((o, j) => o.classList.toggle('on', i === j)); lineas.querySelectorAll('g').forEach((g) => g.querySelectorAll('line').forEach((l) => l.classList.toggle('on', g.dataset.i === String(i)))); }));
       draw(); addEventListener('resize', draw);
       new IntersectionObserver(([e]) => { if (e.isIntersecting) draw(); }, { threshold: .2 }).observe(cubre);
     </script>
