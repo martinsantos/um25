@@ -12,7 +12,7 @@ import Ficha from '../../../components/proto/Ficha.astro';
 import Casos from '../../../components/proto/Casos.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import { getServicioByCode } from '../../../lib/um26-directus';
-import { loadStories, readDevice, services, SERVICE_KEY, SERVICE_PHOTO, type IsoSite } from '../../../components/proto/isoData';
+import { loadStories, readDevice, services, SERVICE_KEY, SERVICE_PHOTO, type IsoSite, isoSrc } from '../../../components/proto/isoData';
 import { despieceAgregado, KIT_DE_SERVICIO } from '../../../components/proto/despiece';
 import Parte from '../../../components/proto/Parte.astro';
 import { CASOS_SERVICIO, casosDe } from '../../../components/proto/relato';
@@ -73,7 +73,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
     <Top current="servicios" />
     <main id="contenido">
 
-    <Apertura label={servicio.name} isoSrc={`/cine/iso/site-${site}-v2.svg`} svc={code} image={photo}>
+    <Apertura label={servicio.name} isoSrc={isoSrc(site)} svc={code} image={photo}>
       <h1>{servicio.name}<span class="dot">.</span></h1>
       <p class="tag">{servicio.tagline}</p>
       <p>{servicio.description}</p>
@@ -85,7 +85,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       <div class="wrap">
         <div class="sec__head"><h2>Qué cubre<span class="dot">.</span></h2></div>
         <div class="cubre" data-cubre>
-          <div class="equipo" data-equipo>{device ? <div set:html={device} /> : <div class="iso" data-src="/cine/iso/site-building-v2.svg"></div>}</div>
+          <div class="equipo" data-equipo>{device ? <div set:html={device} /> : <div class="iso" data-src={isoSrc('building')}></div>}</div>
           <ol class="caps" data-caps>{servicio.capabilities.map((c) => <li><span class="p"></span>{c}</li>)}</ol>
           <svg class="lineas" data-lineas aria-hidden="true"></svg>
         </div>

@@ -14,7 +14,7 @@ import Cierre from '../../../components/proto/Cierre.astro';
 import Banco from '../../../components/proto/Banco.astro';
 import Parte from '../../../components/proto/Parte.astro';
 import { getSectorBySlug } from '../../../lib/um26-directus';
-import { loadStories, services, posterOf, SITE_OF, SECTOR_PHOTO, SCENE_OF } from '../../../components/proto/isoData';
+import { loadStories, services, posterOf, SITE_OF, SECTOR_PHOTO, SCENE_OF, isoSrc } from '../../../components/proto/isoData';
 import { despieceAgregado } from '../../../components/proto/despiece';
 import { CASOS_SECTOR, casosDe, sectorRelato, EMPRESA } from '../../../components/proto/relato';
 import { SECTORS } from '../../../data/cine/scenes';
@@ -51,7 +51,7 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
     <Top current="sectores" />
     <main id="contenido">
 
-    <Apertura label={name} isoSrc={`/cine/iso/site-${site}-v2.svg`} image={photo}>
+    <Apertura label={name} isoSrc={isoSrc(site)} image={photo}>
       <h1 style="font-size:clamp(2rem,3.6vw,3.6rem)">{relato.headline || name}<span class="dot">.</span></h1>
       <p>{relato.summary || sector.description}</p>
       {cifras.length > 0 && <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>}
@@ -97,7 +97,7 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
       <div class="wrap">
         <div class="sec__head"><h2>{name} por dentro<span class="dot">.</span></h2></div>
         <div class="dentro" data-dentro>
-          <div class="dentro__stage iso" data-svc={byService[0]?.code} data-src={`/cine/iso/site-${site}-v2.svg`}><span class="ahora">{byService[0]?.name}</span></div>
+          <div class="dentro__stage iso" data-svc={byService[0]?.code} data-src={isoSrc(site)}><span class="ahora">{byService[0]?.name}</span></div>
           <div class="dentro__side">
             <ul class="servicios">{byService.map((s, i) => <li><a href={s.count > 0 ? `/propuesta/antecedentes?sector=${slug}&service=${s.code}` : `/propuesta/servicios/${s.code}`} data-code={s.code} data-name={s.name} class:list={{ on: i === 0 }} style={`--w:${Math.round((s.count / maxSvc) * 100)}`}>{s.name}<span>{s.count ? `${s.count} ${s.count === 1 ? 'proyecto' : 'proyectos'}` : ''}</span><i></i></a></li>)}</ul>
             <a class="pelicula" href={`/propuesta/sectores/${slug}`}><figure><img src={posterOf(slug)} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure><span class="small">{sceneTitle[SCENE_OF[slug] || 'fachada']} por dentro, en movimiento</span></a>

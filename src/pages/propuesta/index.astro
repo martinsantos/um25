@@ -13,7 +13,7 @@ import Casos from '../../components/proto/Casos.astro';
 import Cierre from '../../components/proto/Cierre.astro';
 import Parte from '../../components/proto/Parte.astro';
 import Banco from '../../components/proto/Banco.astro';
-import { loadStories, services, posterOf, SECTOR_PHOTO } from '../../components/proto/isoData';
+import { loadStories, services, posterOf, SECTOR_PHOTO, isoSrc } from '../../components/proto/isoData';
 import { EMPRESA, CUMPLIMIENTO, CASOS, sectorRelato } from '../../components/proto/relato';
 import { despieceAgregado } from '../../components/proto/despiece';
 import { SECTORS } from '../../data/cine/scenes';
@@ -70,7 +70,7 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
     <Top />
     <main id="contenido">
 
-    <Apertura label="Portada" isoSrc="/cine/iso/site-building-v2.svg" image={posterOf('constructoras')} open>
+    <Apertura label="Portada" isoSrc={isoSrc('building')} image={posterOf('constructoras')} open>
       <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
       <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
       <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>

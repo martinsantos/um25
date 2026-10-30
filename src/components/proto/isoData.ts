@@ -15,9 +15,13 @@ import { resolverSector } from './sectorReal';
 
 export type IsoSite = 'building' | 'winery' | 'terminal' | 'clinic' | 'mine' | 'plant';
 
+/** Sitios ya redibujados con el kit (v3); los demás siguen en v2. */
+const V3: ReadonlySet<IsoSite> = new Set<IsoSite>(['building']);
+export const isoSrc = (site: IsoSite): string => `/cine/iso/site-${site}-${V3.has(site) ? 'v3' : 'v2'}.svg`;
+
 /** La isometría completa (SVG) de un sitio, para incrustar en el HTML. */
 export const readIso = (site: IsoSite): string =>
-  readFileSync(new URL(`../../../public/cine/iso/site-${site}-v2.svg`, import.meta.url), 'utf8')
+  readFileSync(new URL(`../../../public${isoSrc(site)}`, import.meta.url), 'utf8')
     .replace(/<\?xml[^>]*>/, '')
     .replace(/ id="sp-[a-z]+-(title|desc)"/g, '')
     .replace(/ aria-labelledby="[^"]*"/, ' aria-hidden="true"');

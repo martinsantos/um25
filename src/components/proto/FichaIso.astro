@@ -8,7 +8,7 @@
 import Parte from './Parte.astro';
 import Banco from './Banco.astro';
 import { despieceDe } from './despiece';
-import { services, SITE_OF, type Story } from './isoData';
+import { services, SITE_OF, type Story, isoSrc } from './isoData';
 interface Props { story: Story }
 const { story: c } = Astro.props;
 const site = SITE_OF[c.sectorSlug] || 'building';
@@ -24,7 +24,7 @@ const nombre = partes.map((p) => (p.qty ? `${p.qty} × ` : '') + p.label).join('
       {partes.map((p) => <li data-code={p.code}><Parte k={p.key} size={48} /><span><b>{p.qty ? `${p.qty} × ` : ''}{p.label}</b><span class="small">{byCode.get(p.code)}</span></span></li>)}
     </ol>
   </div>
-  <div class="fiso__lugar iso" data-svcs={codes.join(' ')} data-src={`/cine/iso/site-${site}-v2.svg`}><span class="ahora">{codes.map((k) => byCode.get(k)).filter(Boolean).join(' · ')}</span></div>
+  <div class="fiso__lugar iso" data-svcs={codes.join(' ')} data-src={isoSrc(site)}><span class="ahora">{codes.map((k) => byCode.get(k)).filter(Boolean).join(' · ')}</span></div>
 </div>
 
 <script>

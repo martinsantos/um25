@@ -96,10 +96,10 @@ p { margin: 0; }
 .iso[data-svc="106"] .sp-route { opacity: .7; }
 .iso[data-svc="101"] .sp-route--101, .iso[data-svc="102"] .sp-route--102, .iso[data-svc="103"] .sp-route--103, .iso[data-svc="104"] .sp-route--104, .iso[data-svc="105"] .sp-route--105, .iso[data-svc="107"] .sp-route--107, .iso[data-svc="108"] .sp-route--108 { opacity: .95; }
 .iso[data-svc="101"] .sp-pin--101, .iso[data-svc="102"] .sp-pin--102, .iso[data-svc="103"] .sp-pin--103, .iso[data-svc="104"] .sp-pin--104, .iso[data-svc="105"] .sp-pin--105, .iso[data-svc="106"] .sp-pin--106, .iso[data-svc="107"] .sp-pin--107, .iso[data-svc="108"] .sp-pin--108 { opacity: 1; }
-.iso[data-svc="101"] [data-project-device="101"], .iso[data-svc="102"] [data-project-device="102"], .iso[data-svc="104"] [data-project-device="104"], .iso[data-svc="107"] [data-project-device="107"], .iso[data-svc="108"] [data-project-device="108"] { stroke: #fff; stroke-opacity: 1; }
+.iso[data-svc="101"] [data-project-device="101"], .iso[data-svc="102"] [data-project-device="102"], .iso[data-svc="103"] [data-project-device="103"], .iso[data-svc="104"] [data-project-device="104"], .iso[data-svc="105"] [data-project-device="105"], .iso[data-svc="106"] [data-project-device="106"], .iso[data-svc="107"] [data-project-device="107"], .iso[data-svc="108"] [data-project-device="108"] { stroke: #fff; stroke-opacity: 1; --p-hi: #fff; --p-mid: #d0d4d8; --p-lo: #9aa0a6; --p-faint: #6b7178; }
 .iso[data-svcs~="101"] .sp-route--101, .iso[data-svcs~="102"] .sp-route--102, .iso[data-svcs~="103"] .sp-route--103, .iso[data-svcs~="104"] .sp-route--104, .iso[data-svcs~="105"] .sp-route--105, .iso[data-svcs~="107"] .sp-route--107, .iso[data-svcs~="108"] .sp-route--108 { opacity: .95; }
 .iso[data-svcs~="101"] .sp-pin--101, .iso[data-svcs~="102"] .sp-pin--102, .iso[data-svcs~="103"] .sp-pin--103, .iso[data-svcs~="104"] .sp-pin--104, .iso[data-svcs~="105"] .sp-pin--105, .iso[data-svcs~="106"] .sp-pin--106, .iso[data-svcs~="107"] .sp-pin--107, .iso[data-svcs~="108"] .sp-pin--108 { opacity: 1; }
-.iso[data-svcs~="101"] [data-project-device="101"], .iso[data-svcs~="102"] [data-project-device="102"], .iso[data-svcs~="104"] [data-project-device="104"], .iso[data-svcs~="107"] [data-project-device="107"], .iso[data-svcs~="108"] [data-project-device="108"] { stroke: #fff; stroke-opacity: 1; }
+.iso[data-svcs~="101"] [data-project-device="101"], .iso[data-svcs~="102"] [data-project-device="102"], .iso[data-svcs~="103"] [data-project-device="103"], .iso[data-svcs~="104"] [data-project-device="104"], .iso[data-svcs~="105"] [data-project-device="105"], .iso[data-svcs~="106"] [data-project-device="106"], .iso[data-svcs~="107"] [data-project-device="107"], .iso[data-svcs~="108"] [data-project-device="108"] { stroke: #fff; stroke-opacity: 1; --p-hi: #fff; --p-mid: #d0d4d8; --p-lo: #9aa0a6; --p-faint: #6b7178; }
 
 /* El lugar por dentro: despiece fijo + lista de servicios que lo encienden. */
 .dentro { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: start; }
@@ -150,7 +150,7 @@ p { margin: 0; }
 .more { margin-top: var(--s4); }
 
 /* Partes del despiece (sprite /cine/iso/partes.svg): los colores viajan por variables hasta el <use>. */
-.parte, .banco { display: block; --p-paper: var(--bg); --p-face: #15181c; --p-top: #1a1d22; --p-s0: #0a0b0d; --p-s1: #0e1013; --p-s2: #121418; --p-s3: #171a1f; --p-lit-top: #2a1416; --p-lit-shade: #1d1012; --p-hi: #e6e8eb; --p-mid: #a0a6ad; --p-lo: #5c636b; --p-faint: #2f343a; --p-lit: var(--red); --p-dot: var(--ink); --p-weight: 1px; }
+.parte, .banco, .sp-scene { display: block; --p-paper: var(--bg); --p-face: #15181c; --p-top: #1a1d22; --p-s0: #0a0b0d; --p-s1: #0e1013; --p-s2: #121418; --p-s3: #171a1f; --p-lit-top: #2a1416; --p-lit-shade: #1d1012; --p-hi: #e6e8eb; --p-mid: #a0a6ad; --p-lo: #5c636b; --p-faint: #2f343a; --p-lit: var(--red); --p-dot: var(--ink); --p-weight: 1px; }
 /* El banco: las partes a escala sobre una base, en línea clara sobre el fondo, como las isometrías de sitio. */
 .banco { width: 100%; max-width: 760px; height: auto; margin: 0 auto; }
 .papel { padding: 0; }
@@ -167,9 +167,10 @@ p { margin: 0; }
 .pt-line[data-tone="hi"] { stroke: var(--p-hi); } .pt-line[data-tone="mid"] { stroke: var(--p-mid); } .pt-line[data-tone="lo"] { stroke: var(--p-lo); } .pt-line[data-tone="faint"] { stroke: var(--p-faint); } .pt-line[data-tone="lit"] { stroke: var(--p-lit); }
 .pt-dots circle { fill: var(--p-dot); stroke: none; opacity: .35; }
 .pt-dots[data-tone="hi"] circle { opacity: .85; } .pt-dots[data-tone="mid"] circle { opacity: .5; } .pt-dots[data-tone="lo"] circle { opacity: .25; } .pt-dots[data-tone="lit"] circle { fill: var(--p-lit); opacity: 1; }
-/* Las isometrías de sitio: trazo de .45 a 1× deja bordes rotos; se sube al píxel. */
+/* Las isometrías de sitio v2: trazo de .45 a 1× deja bordes rotos; se sube al píxel. */
 .iso .sp-structure, .xray__iso .sp-structure { stroke-width: .8; }
-.iso .sp-structure path, .xray__iso .sp-structure path { stroke-width: 1; }
+.iso .sp-structure path:not(.pt-line), .xray__iso .sp-structure path:not(.pt-line) { stroke-width: 1; }
+.lugar[data-fase="2"] .sp-scene [data-project-device], .lugar[data-fase="3"] .sp-scene [data-project-device] { --p-hi: #fff; --p-mid: #d0d4d8; --p-lo: #9aa0a6; }
 .ficha__partes { display: flex; flex-wrap: wrap; gap: 4px; align-items: flex-end; min-height: 36px; margin: 2px 0; }
 .ficha__parte { position: relative; display: block; }
 .ficha__parte i { position: absolute; right: -2px; top: -4px; font-style: normal; font-size: .72rem; line-height: 1; padding: 2px 4px; background: var(--red); color: #fff; font-weight: 600; }
