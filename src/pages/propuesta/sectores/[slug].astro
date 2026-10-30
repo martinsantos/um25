@@ -66,7 +66,7 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
           <div class="dentro__stage iso" data-svc={byService[0]?.code} data-src={`/cine/iso/site-${site}-v2.svg`}><span class="ahora">{byService[0]?.name}</span></div>
           <div class="dentro__side">
             <ul class="servicios">{byService.map((s, i) => <li><a href={s.count > 0 ? `/propuesta/antecedentes?sector=${slug}&service=${s.code}` : `/propuesta/servicios/${s.code}`} data-code={s.code} data-name={s.name} class:list={{ on: i === 0 }} style={`--w:${Math.round((s.count / maxSvc) * 100)}`}>{s.name}<span>{s.count ? `${s.count} ${s.count === 1 ? 'proyecto' : 'proyectos'}` : ''}</span><i></i></a></li>)}</ul>
-            <a class="pelicula" href={`/${slug}`}><figure><img src={posterOf(slug)} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure><span class="small">{sceneTitle[SCENE_OF[slug] || 'fachada']} por dentro, en movimiento</span></a>
+            <a class="pelicula" href={`/propuesta/sectores/${slug}`}><figure><img src={posterOf(slug)} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure><span class="small">{sceneTitle[SCENE_OF[slug] || 'fachada']} por dentro, en movimiento</span></a>
           </div>
         </div>
       </div>

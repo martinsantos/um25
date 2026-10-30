@@ -2,7 +2,7 @@
 /** Barra superior común. */
 interface Props { current?: string }
 const { current = '' } = Astro.props;
-const items: [string, string, string][] = [['Servicios', '/servicios', 'servicios'], ['Sectores', '/sectores', 'sectores'], ['Antecedentes', '/propuesta/antecedentes', 'antecedentes'], ['Blog', '/blog', 'blog']];
+const items: [string, string, string][] = [['Servicios', '/propuesta/servicios', 'servicios'], ['Sectores', '/propuesta/sectores', 'sectores'], ['Antecedentes', '/propuesta/antecedentes', 'antecedentes'], ['Blog', '/blog', 'blog']];
 ---
 <header class="top">
   <a class="logo" href="/propuesta">ultimamilla<i>.</i>com<i>.</i>ar</a>
