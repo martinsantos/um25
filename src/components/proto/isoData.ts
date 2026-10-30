@@ -16,7 +16,7 @@ import { resolverSector } from './sectorReal';
 export type IsoSite = 'building' | 'winery' | 'terminal' | 'clinic' | 'mine' | 'plant';
 
 /** Sitios ya redibujados con el kit (v3); los demás siguen en v2. */
-const V3: ReadonlySet<IsoSite> = new Set<IsoSite>([]);   // ningún sitio aprobado todavía: todos en v2
+const V3: ReadonlySet<IsoSite> = new Set<IsoSite>(['building']);   // sitios renderizados desde su modelo 3D
 export const isoSrc = (site: IsoSite): string => `/cine/iso/site-${site}-${V3.has(site) ? 'v3' : 'v2'}.svg`;
 
 /** La isometría completa (SVG) de un sitio, para incrustar en el HTML. */
