@@ -255,6 +255,7 @@ export function sitioSvg(site = 'building') {
   out.push(L(cotas.join(''), { tone: 'mid' }));
 
   // ——— Pines, cajas de foco y nombres de planta (los recorridos ya están en cada planta).
+  const cab = Object.fromEntries(Object.entries(CAB).map(([c, key]) => [c, equipos.find((e) => e.key === key)]));
   // Recorridos por encima de la estructura, de cada equipo al montante por el cielorraso de su planta y de ahí a la cabecera.
   const rutas = {};
   for (const e of equipos) {
@@ -268,7 +269,6 @@ export function sitioSvg(site = 'building') {
     (rutas[e.code] ||= []).push(`<path d="${k.pathOf(pts.map(at))}" pathLength="100"/>`);
   }
   const rutasSvg = Object.entries(rutas).map(([code, paths]) => `<g class="sp-route sp-route--${code}" data-project-route="${code}" fill="none" stroke="#dc2626" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round">${paths.join('')}</g>`).join('');
-  const cab = Object.fromEntries(Object.entries(CAB).map(([c, key]) => [c, equipos.find((e) => e.key === key)]));
   const pinDe = {};
   for (const e of equipos) if (!pinDe[e.code] || cab[e.code] === e) pinDe[e.code] = e;
   const pinesSvg = Object.entries(pinDe).map(([code, e]) => { const [x, y] = at([e.c[0], e.c[1], e.c[2] + e.top + 2]); return `<g class="sp-pin sp-pin--${code}" data-project-pin="${code}" data-x="${x.toFixed(1)}" data-y="${y.toFixed(1)}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5.2" fill="#dc2626"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9" fill="none" stroke="#a2a8af" stroke-opacity=".55" stroke-width=".65"/></g>`; }).join('');
