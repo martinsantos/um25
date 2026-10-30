@@ -18,7 +18,7 @@ const nombre = fila.map((p) => (p.qty ? `${p.qty} ${p.label}` : p.label)).join('
     <b>{c.client}</b>
     <span class="t">{c.title}</span>
     {lazy
-      ? <span class:list={['ficha__partes', { 'ficha__partes--alcance': origen === 'servicio' }]} aria-label={nombre} data-partes={fila.map((p) => p.key + (p.qty ? `:${p.qty}` : '')).join(' ')}></span>
+      ? <span class:list={['ficha__partes', { 'ficha__partes--alcance': origen === 'servicio' }]} data-partes={fila.map((p) => p.key + (p.qty ? `:${p.qty}` : '')).join(' ')}></span>
       : <span class:list={['ficha__partes', { 'ficha__partes--alcance': origen === 'servicio' }]} aria-label={nombre}>
           {fila.map((p) => <span class="ficha__parte"><Parte k={p.key} size={36} />{p.qty && <i>{p.qty}</i>}</span>)}
         </span>}
@@ -29,8 +29,11 @@ const nombre = fila.map((p) => (p.qty ? `${p.qty} ${p.label}` : p.label)).join('
 <script>
   // Dibuja las filas de partes diferidas cuando la ficha se acerca a la pantalla.
   const NS = 'http://www.w3.org/2000/svg';
+  const NOMBRE: Record<string, string> = { rack: 'Rack', switch: 'Switch', patch: 'Patch panel', fibra: 'Fibra óptica', ap: 'Access point', cableado: 'Cableado estructurado', canalizacion: 'Canalización', camara: 'Cámara CCTV', nvr: 'Grabador NVR', acceso: 'Control de acceso', alarma: 'Alarma de intrusión', 'central-ip': 'Central telefónica IP', telefono: 'Teléfono IP', antena: 'Enlace de radio', parlante: 'Voceo y amplificación', pantalla: 'Sistema a medida', servidor: 'Servidor y servicios', puesto: 'Puesto de trabajo', maletin: 'Soporte técnico', disco: 'Respaldo', plano: 'Ingeniería', central: 'Central de detección', detector: 'Detector', pulsador: 'Pulsador manual', sirena: 'Sirena', modulo: 'Módulo', tablero: 'Tablero eléctrico', ups: 'UPS', bateria: 'Batería', tierra: 'Puesta a tierra', generador: 'Grupo electrógeno' };
   const dibujar = (el: HTMLElement) => {
-    (el.dataset.partes || '').split(' ').filter(Boolean).forEach((tok) => {
+    const toks = (el.dataset.partes || '').split(' ').filter(Boolean);
+    el.setAttribute('aria-label', toks.map((t) => { const [k, q] = t.split(':'); return (q ? `${q} ` : '') + (NOMBRE[k] || k); }).join(', '));
+    toks.forEach((tok) => {
       const [k, q] = tok.split(':');
       const wrap = document.createElement('span'); wrap.className = 'ficha__parte';
       const svg = document.createElementNS(NS, 'svg');
