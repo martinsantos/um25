@@ -96,9 +96,10 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       const matches = (el: HTMLElement, skip?: string) =>
         (skip === 'sector' || !state.sector || el.dataset.sector === state.sector) &&
         (skip === 'service' || !state.service || (el.dataset.services || '').split(' ').includes(state.service)) &&
-        (skip === 'year' || !state.year || el.dataset.year === state.year);
+        (skip === 'year' || !state.year || el.dataset.year === state.year) &&
+        (!state.cliente || el.dataset.client === state.cliente.toLowerCase());
       const params = new URLSearchParams(location.search);
-      ['sector', 'service', 'year'].forEach((k) => { if (params.get(k)) state[k] = params.get(k)!; });
+      ['sector', 'service', 'year', 'cliente'].forEach((k) => { if (params.get(k)) state[k] = params.get(k)!; });
       const apply = () => {
         let n = 0;
         fichas.forEach((el) => { const ok = matches(el); el.hidden = !ok; if (ok) n++; });
@@ -113,12 +114,12 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
             b.toggleAttribute('data-zero', c === 0 && state[kind] !== b.dataset.value);
           });
         });
-        const parts = [state.sector && names('sector', state.sector), state.service && names('service', state.service), state.year].filter(Boolean) as string[];
+        const parts = [state.cliente, state.sector && names('sector', state.sector), state.service && names('service', state.service), state.year].filter(Boolean) as string[];
         root.querySelector('[data-count]')!.textContent = String(n);
         root.querySelector('[data-sentence]')!.textContent = parts.length ? `proyectos · ${parts.join(' · ')}` : 'proyectos documentados';
         root.querySelector('[data-clear]')!.classList.toggle('on', parts.length > 0);
         root.querySelector('[data-empty]')!.classList.toggle('on', n === 0);
-        const url = new URL(location.href); ['sector', 'service', 'year'].forEach((k) => state[k] ? url.searchParams.set(k, state[k]) : url.searchParams.delete(k)); history.replaceState(null, '', url);
+        const url = new URL(location.href); ['sector', 'service', 'year', 'cliente'].forEach((k) => state[k] ? url.searchParams.set(k, state[k]) : url.searchParams.delete(k)); history.replaceState(null, '', url);
       };
       lenses.forEach((b) => b.addEventListener('click', () => { const k = b.dataset.lens!; state[k] = state[k] === b.dataset.value ? '' : b.dataset.value!; apply(); }));
       root.querySelector('[data-clear]')!.addEventListener('click', () => { Object.keys(state).forEach((k) => delete state[k]); apply(); });

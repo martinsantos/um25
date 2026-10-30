@@ -1,8 +1,9 @@
 ---
 /**
- * Portada (2026-10-30, v4). Cuenta la empresa con sus propios datos: quiénes son y cómo
- * trabajan (de Nosotros), los lugares por dentro, los casos con el alcance real, los clientes,
- * los ocho frentes y la documentación que entregan (de Certificaciones). No indexable.
+ * Portada (2026-10-30, v5). Siete pantallas, la prueba primero: la apertura con el edificio
+ * por dentro y los números reales; los clientes; los ocho frentes con sus partes; los seis
+ * lugares; los casos con el alcance de cada obra; lo instalado según los registros; la
+ * empresa y lo que entrega. Todo el texto es del sitio. No indexable.
  */
 import '../../styles/proto-despiece.css';
 import Head from '../../components/proto/Head.astro';
@@ -10,45 +11,121 @@ import Top from '../../components/proto/Top.astro';
 import Apertura from '../../components/proto/Apertura.astro';
 import Casos from '../../components/proto/Casos.astro';
 import Cierre from '../../components/proto/Cierre.astro';
-import { loadStories, services, posterOf } from '../../components/proto/isoData';
-import { EMPRESA, CUMPLIMIENTO, CASOS } from '../../components/proto/relato';
+import Parte from '../../components/proto/Parte.astro';
+import { loadStories, services, posterOf, SECTOR_PHOTO } from '../../components/proto/isoData';
+import { EMPRESA, CUMPLIMIENTO, CASOS, sectorRelato } from '../../components/proto/relato';
+import { despieceAgregado, KIT_DE_SERVICIO } from '../../components/proto/despiece';
+import { SECTORS } from '../../data/cine/scenes';
+import { CLASIFICACIONES_DE_SERVICIO } from '../../components/proto/sectorReal';
 
 export const prerender = false;
-const { total, places, stories } = await loadStories();
-const clientes = Object.values(stories.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count).slice(0, 16);
+const { total, stories, firstYear } = await loadStories();
+const clientes = Object.values(stories.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
+const frentes = services.map((s) => ({ ...s, count: stories.filter((c) => c.serviceCodes.includes(s.code)).length, partes: (KIT_DE_SERVICIO[s.code] || []).slice(0, 4) }));
+const lugares = SECTORS.filter((s) => !CLASIFICACIONES_DE_SERVICIO.has(s.slug)).map((s) => ({ ...s, count: stories.filter((c) => c.sectorSlug === s.slug).length, photo: SECTOR_PHOTO[s.slug] || SECTOR_PHOTO.constructoras, headline: sectorRelato(s.slug).headline || s.text })).filter((s) => s.count > 0).sort((a, b) => b.count - a.count);
+const instalado = despieceAgregado(stories).slice(0, 8);
+const byCode = new Map(services.map((s) => [s.code, s.name]));
+const anios = new Date().getFullYear() - 2003 + 1;
+const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [String(total), 'proyectos documentados'], [String(clientes.length), 'clientes'], [String(lugares.filter((l) => l.count > 0).length), 'sectores']];
 ---
 <!doctype html>
 <html lang="es">
   <head>
     <Head title="Servicios IT para operaciones que no pueden detenerse · ULTIMA MILLA" />
     <style>
+      /* Apertura: la prueba debajo del titular. */
+      .cifras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px clamp(20px, 2.6vw, 40px); margin: 6px 0 2px; padding-top: 16px; border-top: 1px solid var(--line); max-width: 420px; }
+      .cifras div { display: grid; gap: 2px; }
+      .cifras b { font-size: clamp(1.5rem, 2.2vw, 2.1rem); font-weight: 700; letter-spacing: -.03em; line-height: 1; }
+      .cifras span { color: var(--ink-3); font-size: .875rem; white-space: nowrap; }
+
+      /* Para quién lo hicimos: el muro de clientes, con cuántos trabajos cada uno. */
+      .clientes { margin: 0; padding: 0; list-style: none; columns: 3; column-gap: clamp(28px, 4vw, 72px); border-top: 1px solid var(--line); }
+      .clientes li { display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-bottom: 1px solid var(--line-2); break-inside: avoid; font-size: 1.05rem; }
+      .clientes li:nth-child(-n+6) { font-size: 1.25rem; font-weight: 600; }
+      .clientes span { color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .clientes .mas { color: var(--ink-3); }
+
+      /* Ocho frentes: nombre, qué cubre, sus partes y cuántos proyectos. */
+      .frentes { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 clamp(20px, 2.5vw, 40px); border-top: 1px solid var(--line); }
+      .frentes a { display: grid; grid-template-rows: auto auto 1fr auto; gap: 10px; padding: 22px 0 24px; border-bottom: 1px solid var(--line-2); min-height: 100%; }
+      .frentes b { font-size: 1.3rem; font-weight: 600; letter-spacing: -.015em; line-height: 1.2; }
+      .frentes p { margin: 0; color: var(--ink-2); font-size: .95rem; }
+      .frentes .partes { display: flex; gap: 2px; align-self: end; padding-top: 10px; }
+      .frentes .n { color: var(--ink-3); font-size: .9rem; }
+      .frentes a:hover b { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
+
+      /* Los lugares: foto, nombre, en qué consiste, cuántos proyectos. */
+      .lugares { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s4) var(--s3); }
+      .lugares a { display: grid; gap: 8px; }
+      .lugares figure { margin: 0; aspect-ratio: 16 / 10; overflow: hidden; background: var(--bg-2); }
+      .lugares img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .lugares h3 { font-size: 1.5rem; padding-top: 8px; border-top: 1px solid var(--line-2); }
+      .lugares h3 i { color: var(--red); font-style: normal; }
+      .lugares p { margin: 0; color: var(--ink-2); }
+      .lugares .n { color: var(--ink-3); font-size: .9375rem; }
+      .lugares a:hover h3 { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
+
+      /* La empresa: principios e historia. */
       .historia { margin: var(--s5) 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3) clamp(20px, 3vw, 48px); border-top: 1px solid var(--line); }
       .historia li { padding-top: var(--s2); display: grid; gap: 6px; align-content: start; }
       .historia .small { color: var(--ink); }
       .sedes { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; padding: 0; list-style: none; color: var(--ink-2); }
       .sedes b { color: var(--ink); font-weight: 600; margin-right: 8px; }
-      .rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-      .rows a { display: grid; gap: 2px; padding: 11px 0; border-bottom: 1px solid var(--line-2); }
-      .rows b { font-weight: 600; font-size: 1rem; }
-      .rows .t { color: var(--ink-3); font-size: .9rem; }
-      .frentes { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(28px, 4vw, 72px); border-top: 1px solid var(--line); }
-      .frentes a { display: grid; gap: 4px; padding: 18px 0; border-bottom: 1px solid var(--line-2); }
-      .frentes b { font-weight: 600; font-size: 1.15rem; }
-      .frentes span { color: var(--ink-2); }
-      @media (max-width: 1100px) { .historia { grid-template-columns: 1fr 1fr; } }
-      @media (max-width: 900px) { .historia, .frentes { grid-template-columns: 1fr; } }
+      .pelicula--ancha { margin-top: var(--s5); }
+      .pelicula--ancha video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+      @media (max-width: 1100px) { .frentes { grid-template-columns: repeat(2, minmax(0, 1fr)); } .clientes { columns: 2; } .historia { grid-template-columns: 1fr 1fr; } .lugares { grid-template-columns: 1fr 1fr; } }
+      @media (max-width: 900px) { .cifras { max-width: none; } .clientes { columns: 1; } .clientes li:nth-child(n+13):not(.mas) { display: none; } .frentes, .historia, .lugares { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
     <Top />
     <main id="contenido">
 
-    <Apertura label="Portada" isoSrc="/cine/iso/site-building-v2.svg" image={posterOf('constructoras')} film="/cine/media/cine-fachada.mp4" open>
-      <span class="small">24 años de servicios IT. Mendoza, Argentina.</span>
+    <Apertura label="Portada" isoSrc="/cine/iso/site-building-v2.svg" image={posterOf('constructoras')} open>
+      <span class="small">Mendoza, Argentina. Desde 2003.</span>
       <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
       <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
-      <a class="u" href="/propuesta/antecedentes">{total} proyectos documentados</a>
+      <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>
+      <a class="u" href="/propuesta/antecedentes">Ver los {total} proyectos</a>
     </Apertura>
+
+    <section class="sec" id="clientes">
+      <div class="wrap">
+        <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2><p>{clientes.length} clientes desde {firstYear}, con la cantidad de proyectos documentados de cada uno.</p></div>
+        <ol class="clientes">
+          {clientes.slice(0, 30).map((c) => <li><a href={`/propuesta/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
+          <li class="mas"><a href="/propuesta/antecedentes">Y {clientes.length - 30} más</a><span></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="sec" id="servicios">
+      <div class="wrap">
+        <div class="sec__head"><h2>Ocho frentes de servicio<span class="dot">.</span></h2><p>Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria.</p></div>
+        <ol class="frentes">{frentes.map((s) => <li><a href={`/propuesta/servicios/${s.code}`}><b>{s.name}</b><p>{s.text}</p><span class="partes" aria-hidden="true">{s.partes.map(([k]) => <Parte k={k} size={54} />)}</span><span class="n">{s.count} proyectos</span></a></li>)}</ol>
+      </div>
+    </section>
+
+    <section class="sec" id="lugares">
+      <div class="wrap">
+        <div class="sec__head"><h2>Los lugares donde trabajamos<span class="dot">.</span></h2><p>{EMPRESA.cobertura} {EMPRESA.coberturaDetalle}</p></div>
+        <ol class="lugares">{lugares.map((l) => <li><a href={`/propuesta/sectores/${l.slug}`}><figure><img src={l.photo} alt="" width="800" height="500" loading="lazy" decoding="async" /></figure><h3>{l.name}<i>.</i></h3><p>{l.headline}</p><span class="n">{l.count} proyectos documentados</span></a></li>)}</ol>
+        <a class="u more" href="/propuesta/sectores">Todos los sectores, incluida minería</a>
+      </div>
+    </section>
+
+    <Casos casos={CASOS} stories={stories} title="Lo que hicimos, con el alcance de cada obra" max={4} />
+
+    {instalado.length > 0 && (
+      <section class="sec" id="instalado">
+        <div class="wrap">
+          <div class="sec__head"><h2>Lo que instalamos<span class="dot">.</span></h2><p>Equipamiento nombrado en los registros de los {total} proyectos, y en cuántos aparece cada parte.</p></div>
+          <ol class="instalado">{instalado.map((p) => <li><Parte k={p.key} size={64} /><b>{p.label}</b><span class="small">{p.proyectos} proyectos{p.unidades > 0 ? ` · ${p.unidades} unidades` : ''} · {byCode.get(p.code)}</span></li>)}</ol>
+        </div>
+      </section>
+    )}
 
     <section class="sec" id="empresa">
       <div class="wrap">
@@ -56,37 +133,12 @@ const clientes = Object.values(stories.reduce<Record<string, { name: string; cou
           <div class="prosa">
             <h2>{EMPRESA.titulo}<span class="dot">.</span></h2>
             <p class="lead">{EMPRESA.lead}</p>
-            <p>{EMPRESA.cobertura} {EMPRESA.coberturaDetalle}</p>
             <ul class="sedes">{EMPRESA.sedes.map((s) => <li><b>{s.name}</b>{s.detail || s.role}</li>)}</ul>
           </div>
           <div class="cols cols-2">{EMPRESA.principios.map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div>
         </div>
+        <a class="pelicula pelicula--ancha" href="/propuesta/sectores/constructoras"><figure><video muted playsinline loop preload="none" poster={posterOf('constructoras')} data-film="/cine/media/cine-fachada.mp4" width="1920" height="1080"></video></figure><span class="small">Un edificio por dentro, en movimiento</span></a>
         <ol class="historia">{EMPRESA.historia.map(([y, t, d]) => <li><span class="small">{y}</span><h3>{t}</h3><p class="muted">{d}</p></li>)}</ol>
-      </div>
-    </section>
-
-    {places.map((p, i) => (
-      <Apertura label={p.name} isoSrc={`/cine/iso/site-${p.site}-v2.svg`} image={p.image} eager={i === 0}>
-        <h2>{p.name}<span class="dot">.</span></h2>
-        <p>{p.text}</p>
-        {p.stories.length > 0 && <ol class="rows">{p.stories.map((c) => <li><a href={c.href}><b>{c.client}</b><span class="t">{c.title}{c.year ? ` · ${c.year}` : ''}</span></a></li>)}</ol>}
-        <a class="u" href={p.count > 0 ? `/propuesta/antecedentes?sector=${p.slug}` : `/propuesta/sectores/${p.slug}`}>{p.count > 0 ? `${p.count} proyectos en ${p.name.toLowerCase()}` : p.name}</a>
-      </Apertura>
-    ))}
-
-    <Casos casos={CASOS} stories={stories} title="Lo que hicimos, con el alcance de cada obra" max={6} />
-
-    <section class="sec" id="clientes">
-      <div class="wrap">
-        <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2></div>
-        <p class="frase">{clientes.map((c, i) => <><b>{c.name}</b>{c.count > 1 ? ` (${c.count} proyectos)` : ''}{i < clientes.length - 2 ? ', ' : i === clientes.length - 2 ? ' y ' : '.'}</>)}</p>
-      </div>
-    </section>
-
-    <section class="sec" id="servicios">
-      <div class="wrap">
-        <div class="sec__head"><h2>Ocho frentes de servicio<span class="dot">.</span></h2><p>Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria.</p></div>
-        <ul class="frentes">{services.map((s) => <li><a href={`/propuesta/servicios/${s.code}`}><b>{s.name}</b><span>{s.text}</span></a></li>)}</ul>
       </div>
     </section>
 

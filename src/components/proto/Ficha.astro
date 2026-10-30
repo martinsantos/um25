@@ -12,7 +12,7 @@ const { partes, origen } = despieceDe(c.title, c.summary, c.serviceCodes);
 const fila = partes.slice(0, 5);
 const nombre = fila.map((p) => (p.qty ? `${p.qty} ${p.label}` : p.label)).join(', ');
 ---
-<li class="ficha" data-ficha data-sector={c.sectorSlug} data-services={c.serviceCodes.join(' ')} data-year={String(c.year)}>
+<li class="ficha" data-ficha data-sector={c.sectorSlug} data-services={c.serviceCodes.join(' ')} data-year={String(c.year)} data-client={c.client.toLowerCase()}>
   <a href={c.href}>
     <figure>{c.image && <img src={thumbOf(c.image)} alt="" width="480" height="300" loading={eager ? 'eager' : 'lazy'} decoding="async" />}</figure>
     <b>{c.client}</b>
