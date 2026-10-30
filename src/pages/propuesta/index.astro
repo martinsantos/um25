@@ -1,20 +1,27 @@
 ---
 /**
- * Portada "Rayos X" (2026-10-30), versión refinada del sistema Despiece. Cada lugar en dos
- * capas: la imagen real (en la apertura, la película de Blender del edificio; después, la
- * foto de cada sector) y, debajo, su despiece. Al bajar, un corte fino recorre la imagen y
- * deja ver los sistemas; la foto queda como un fantasma leve, el lugar no desaparece.
- * Sólo la primera isometría viaja en el HTML; las demás se traen cuando se acercan.
- * Textos: sólo frases existentes. No indexable.
+ * Portada (2026-10-30, v3), sistema Despiece. Cuenta la empresa con sus propios datos: quiénes
+ * son y cómo trabajan (de /nosotros), los lugares por dentro (foto real que se abre hasta el
+ * despiece), los casos con descripción técnica completa (del registro de antecedentes), los
+ * clientes con más proyectos, los ocho frentes y la documentación que entregan (de
+ * /certificaciones). Sin etiquetas internas. No indexable.
  */
 import '../../styles/proto-despiece.css';
-import { loadStories, readIso, services, posterOf } from '../../components/proto/isoData';
+import Cierre from '../../components/proto/Cierre.astro';
+import { loadStories, readIso, services, posterOf, SECTOR_PHOTO } from '../../components/proto/isoData';
+import { EMPRESA, CUMPLIMIENTO, CASOS } from '../../components/proto/relato';
 
 export const prerender = false;
-const { total, places } = await loadStories();
+const { total, places, stories } = await loadStories();
 const building = readIso('building');
 const steps = ['Relevamiento', 'Diseño', 'Ejecución', 'Prueba técnica'];
 const pad = (n: number) => String(n).padStart(2, '0');
+const byCode = new Map(services.map((s) => [s.code, s]));
+const casos = CASOS.slice(0, 6).map((c) => {
+  const pub = c.publicado ? stories.find((s) => s.id === c.publicado) : undefined;
+  return { ...c, href: pub ? pub.href : `/propuesta/antecedentes?sector=${c.sector}`, image: pub?.image && pub.image.startsWith('/images/antecedentes/') ? pub.image : SECTOR_PHOTO[c.sector], serviceNames: c.servicios.map((code) => byCode.get(code)?.name).filter(Boolean) as string[] };
+});
+const clientes = Object.values(stories.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count).slice(0, 24);
 ---
 <!doctype html>
 <html lang="es">
@@ -22,61 +29,75 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>Rayos X · Portada · ULTIMA MILLA</title>
+    <title>Servicios IT para operaciones que no pueden detenerse · ULTIMA MILLA</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <style>
-      /* Cada lugar: escenario fijo mientras el corte baja. */
-      .lugar { position: relative; height: 190vh; }
       .lugar--open { height: 230vh; }
-      .lugar__pin { position: sticky; top: 0; height: 100vh; height: 100svh; display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(20px, 3vw, 56px); align-items: center; padding: 0 var(--gutter); overflow: hidden; }
-      .lugar .xray { max-height: 80vh; }
-      .lugar :global(.sp-route path) { stroke-dashoffset: 2400; }
-      .lugar[data-fase="2"] :global(.sp-route), .lugar[data-fase="3"] :global(.sp-route) { opacity: .9; }
-      .lugar[data-fase="2"] :global(.sp-route path), .lugar[data-fase="3"] :global(.sp-route path) { stroke-dashoffset: 0; }
-      .lugar[data-fase="3"] :global(.sp-pin), .lugar[data-fase="3"] :global(.sp-effect) { opacity: 1; }
-      .lugar[data-fase="2"] :global([data-project-device]), .lugar[data-fase="3"] :global([data-project-device]) { stroke: #fff; stroke-opacity: .8; }
-      .copy { display: grid; gap: 14px; align-content: center; }
-      .copy h1 { font-size: clamp(2.4rem, 4.4vw, 4.4rem); }
-      .copy h2 { font-size: clamp(2.2rem, 4vw, 4rem); }
-      .copy > p { margin: 0; color: var(--ink-2); font-size: 1.08rem; max-width: 36ch; }
-      .fases { display: flex; gap: 16px; margin: 6px 0 0; padding: 0; list-style: none; }
-      .fases li { transition: color .4s; }
-      .fases li.on { color: var(--ink); }
-      .rows { list-style: none; margin: 14px 0 0; padding: 0; border-top: 1px solid var(--line); }
-      .rows a { display: grid; grid-template-columns: 72px 1fr; gap: 2px 12px; padding: 11px 0; border-bottom: 1px solid var(--line-2); align-items: baseline; }
-      .rows a .mono { grid-row: 1 / span 2; padding-top: 3px; }
-      .rows b { grid-column: 2; font-weight: 600; font-size: 1rem; }
-      .rows .t { grid-column: 2; color: var(--ink-3); font-size: .9rem; }
-      .copy .u { margin-top: 12px; }
-      .n { position: absolute; left: var(--gutter); bottom: 24px; }
+      .lugar { height: 170vh; }
+      .rows { list-style: none; margin: 10px 0 0; padding: 0; border-top: 1px solid var(--line); }
+      .rows a { display: grid; gap: 2px; padding: 11px 0; border-bottom: 1px solid var(--line-2); }
+      .rows b { font-weight: 600; font-size: 1rem; }
+      .rows .t { color: var(--ink-3); font-size: .9rem; }
+      .copy .u { margin-top: 10px; }
 
-      /* Frentes y cierre */
-      .band { padding: clamp(80px, 12vh, 160px) var(--gutter) 0; }
-      .band h2 { font-size: clamp(2rem, 3.4vw, 3.2rem); }
-      .band__lead { margin: 14px 0 0; max-width: 52ch; color: var(--ink-2); font-size: 1.05rem; }
+      /* Quiénes somos */
+      .empresa { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 5vw, 96px); align-items: start; }
+      .empresa__lead { margin: 18px 0 0; font-size: 1.2rem; line-height: 1.5; color: var(--ink-2); max-width: 40ch; }
+      .empresa__cob { margin: 18px 0 0; color: var(--ink-3); }
+      .principios { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line-2); border: 1px solid var(--line-2); counter-reset: p; }
+      .principios li { background: var(--bg); padding: 22px; display: grid; gap: 8px; align-content: start; }
+      .principios li::before { counter-increment: p; content: counter(p, decimal-leading-zero); font: 500 .76rem var(--mono); color: var(--ink-3); }
+      .principios b { font-size: 1.15rem; font-weight: 600; }
+      .principios p { margin: 0; color: var(--ink-2); font-size: .98rem; }
+      .historia { list-style: none; margin: clamp(40px, 6vh, 72px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 24px; border-top: 1px solid var(--line); }
+      .historia li { padding-top: 16px; display: grid; gap: 8px; align-content: start; position: relative; }
+      .historia li::before { content: ''; position: absolute; top: -1px; left: 0; width: 28px; height: 2px; background: var(--red); }
+      .historia .mono { color: var(--ink); }
+      .historia b { font-weight: 600; font-size: 1.05rem; }
+      .historia p { margin: 0; color: var(--ink-2); font-size: .95rem; }
+      .sedes { display: flex; flex-wrap: wrap; gap: 10px 32px; margin: 28px 0 0; padding: 0; list-style: none; color: var(--ink-2); }
+      .sedes b { color: var(--ink); font-weight: 600; margin-right: 8px; }
+
+      /* Casos */
+      .casos { display: grid; gap: clamp(48px, 8vh, 112px); margin-top: clamp(32px, 5vh, 56px); }
+      .caso { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 72px); align-items: center; }
+      .caso:nth-child(even) figure { order: 2; }
+      .caso figure { margin: 0; aspect-ratio: 16 / 10; overflow: hidden; background: var(--bg-2); }
+      .caso img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .caso__copy { display: grid; gap: 12px; }
+      .caso h3 { font-size: clamp(1.5rem, 2.4vw, 2.1rem); font-weight: 600; letter-spacing: -.02em; line-height: 1.12; }
+      .caso .cliente { font-weight: 600; color: var(--ink); }
+      .caso p { margin: 0; color: var(--ink-2); line-height: 1.6; }
+      .caso .svc { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--ink-2); font-size: .95rem; }
+      .caso .svc span::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 8px; background: var(--red); vertical-align: 1px; }
+
+      /* Clientes */
+      .clientes { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line-2); border: 1px solid var(--line-2); }
+      .clientes li { background: var(--bg); padding: 16px 18px; display: flex; justify-content: space-between; gap: 12px; align-items: baseline; min-width: 0; }
+      .clientes b { font-weight: 600; font-size: 1rem; line-height: 1.3; }
+      .clientes span { font: 500 .78rem var(--mono); color: var(--ink-3); white-space: nowrap; }
+
+      /* Frentes y documentación */
       .frentes { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(24px, 4vw, 64px); border-top: 1px solid var(--line); }
       .frentes a { display: grid; grid-template-columns: 26px 1fr; gap: 4px 14px; padding: 16px 0; border-bottom: 1px solid var(--line-2); align-items: center; }
       .frentes a .llamada { grid-row: 1 / span 2; }
       .frentes b { grid-column: 2; font-weight: 600; font-size: 1.1rem; }
       .frentes .t { grid-column: 2; color: var(--ink-3); font-size: .95rem; }
       .frentes a:hover .llamada { background: var(--red); border-color: var(--red); color: #fff; }
-      .cierre { margin: clamp(80px, 12vh, 160px) var(--gutter) 0; }
-      .cierre .hoja__body { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 64px); align-items: end; }
-      .cierre h2 { font-size: clamp(2rem, 3.4vw, 3.2rem); }
-      .cierre p { color: var(--ink-2); max-width: 44ch; margin: 14px 0 0; }
-      .cierre .btn { justify-self: start; }
+      .doc { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1px; background: var(--line-2); border: 1px solid var(--line-2); counter-reset: d; }
+      .doc li { background: var(--bg); padding: 20px; display: grid; gap: 10px; align-content: start; }
+      .doc li::before { counter-increment: d; content: counter(d, decimal-leading-zero); font: 500 .76rem var(--mono); color: var(--ink-3); }
+      .doc b { font-weight: 600; font-size: 1.05rem; }
+      .doc p { margin: 0; color: var(--ink-2); font-size: .95rem; }
 
+      @media (max-width: 1100px) { .doc { grid-template-columns: repeat(2, minmax(0, 1fr)); } .clientes { grid-template-columns: repeat(2, minmax(0, 1fr)); } .historia { grid-template-columns: 1fr 1fr; gap: 24px; } }
       @media (max-width: 900px) {
-        .lugar { height: 170vh; }
-        .lugar__pin { grid-template-columns: 1fr; align-content: start; padding-top: 80px; gap: 16px; }
-        .lugar .xray { max-height: 40vh; }
-        .copy h1 { font-size: 2.2rem; }
-        .copy h2 { font-size: 2rem; }
+        .lugar { height: 150vh; }
         .rows a:nth-child(n+3) { display: none; }
-        .n { display: none; }
-        .frentes { grid-template-columns: 1fr; }
-        .cierre .hoja__body { grid-template-columns: 1fr; }
+        .empresa, .caso, .principios, .frentes { grid-template-columns: 1fr; }
+        .caso:nth-child(even) figure { order: 0; }
+        .doc, .clientes { grid-template-columns: 1fr; }
       }
     </style>
   </head>
@@ -86,7 +107,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
       <nav aria-label="Principal"><a href="/servicios">Servicios</a><a href="/sectores">Sectores</a><a href="/propuesta/antecedentes">Antecedentes</a><a href="/blog">Blog</a><a class="cta" href="#contacto">Contactar</a></nav>
     </header>
 
-    {/* Apertura: la película del edificio se abre hasta su despiece. */}
     <section class="lugar lugar--open" data-lugar data-fase="0" aria-label="Portada">
       <div class="lugar__pin">
         <div class="copy">
@@ -99,25 +119,33 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <div class="xray">
           <div class="xray__ghost"><img src={posterOf('constructoras')} alt="" width="1920" height="1080" /></div>
           <div class="xray__iso iso" set:html={building} />
-          <div class="xray__foto">
-            <video muted playsinline loop preload="none" poster={posterOf('constructoras')} data-film="/cine/media/cine-fachada.mp4" width="1920" height="1080"></video>
-          </div>
+          <div class="xray__foto"><video muted playsinline loop preload="none" poster={posterOf('constructoras')} data-film="/cine/media/cine-fachada.mp4" width="1920" height="1080"></video></div>
           <div class="xray__linea"></div>
         </div>
-        <span class="n mono">00 / {pad(places.length)} · Edificio</span>
       </div>
+    </section>
+
+    <section class="band" id="empresa">
+      <div class="empresa">
+        <div>
+          <h2>{EMPRESA.titulo}<span class="dot">.</span></h2>
+          <p class="empresa__lead">{EMPRESA.lead}</p>
+          <p class="empresa__cob">{EMPRESA.cobertura} {EMPRESA.coberturaDetalle}</p>
+          <ul class="sedes">{EMPRESA.sedes.map((s) => <li><b>{s.name}</b>{s.detail || s.role}</li>)}</ul>
+        </div>
+        <ol class="principios">{EMPRESA.principios.map(([t, d]) => <li><b>{t}</b><p>{d}</p></li>)}</ol>
+      </div>
+      <ol class="historia">{EMPRESA.historia.map(([y, t, d]) => <li><span class="mono">{y}</span><b>{t}</b><p>{d}</p></li>)}</ol>
     </section>
 
     {places.map((p, i) => (
       <section class="lugar" data-lugar data-fase="0" aria-label={p.name}>
         <div class="lugar__pin">
           <div class="copy">
-            <span class="mono">{pad(i + 1)} / {pad(places.length)}</span>
             <h2>{p.name}<span class="dot">.</span></h2>
             <p>{p.text}</p>
-            <ol class="fases mono" data-fases>{steps.map((s) => <li>{s}</li>)}</ol>
-            {p.stories.length > 0 && <ol class="rows">{p.stories.map((c) => <li><a href={c.href}><span class="mono">UM-{c.id}</span><b>{c.client}</b><span class="t">{c.title}{c.year ? ` · ${c.year}` : ''}</span></a></li>)}</ol>}
-            <a class="u" href={`/propuesta/antecedentes?sector=${p.slug}`}>{p.count > 0 ? `${p.count} proyectos` : `Ver ${p.name.toLowerCase()}`}</a>
+            {p.stories.length > 0 && <ol class="rows">{p.stories.map((c) => <li><a href={c.href}><b>{c.client}</b><span class="t">{c.title}{c.year ? ` · ${c.year}` : ''}</span></a></li>)}</ol>}
+            <a class="u" href={p.count > 0 ? `/propuesta/antecedentes?sector=${p.slug}` : `/propuesta/sectores/${p.slug}`}>{p.count > 0 ? `${p.count} proyectos en ${p.name.toLowerCase()}` : p.name}</a>
           </div>
           <div class="xray">
             <div class="xray__ghost"><img src={p.image} alt="" width="1672" height="941" loading="lazy" /></div>
@@ -129,38 +157,53 @@ const pad = (n: number) => String(n).padStart(2, '0');
       </section>
     ))}
 
+    <section class="band" id="casos">
+      <h2>Lo que hicimos, con el alcance de cada obra<span class="dot">.</span></h2>
+      <div class="casos">
+        {casos.map((c) => (
+          <article class="caso">
+            <figure><img src={c.image} alt="" width="1200" height="750" loading="lazy" decoding="async" /></figure>
+            <div class="caso__copy">
+              <span class="mono">{c.year}</span>
+              <h3><a href={c.href}>{c.titulo}</a></h3>
+              <span class="cliente">{c.cliente}</span>
+              <p>{c.texto}</p>
+              {c.serviceNames.length > 0 && <div class="svc">{c.serviceNames.map((n) => <span>{n}</span>)}</div>}
+            </div>
+          </article>
+        ))}
+      </div>
+      <a class="u more" href="/propuesta/antecedentes">Ver los {total} proyectos</a>
+    </section>
+
+    <section class="band" id="clientes">
+      <h2>Clientes con más proyectos documentados<span class="dot">.</span></h2>
+      <ol class="clientes">{clientes.map((c) => <li><b>{c.name}</b><span>{c.count}</span></li>)}</ol>
+    </section>
+
     <section class="band" id="servicios">
       <h2>Ocho frentes de servicio<span class="dot">.</span></h2>
       <p class="band__lead">Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria.</p>
-      <ul class="frentes">{services.map((s, i) => <li><a href={s.href}><span class="llamada">{pad(i + 1)}</span><b>{s.name}</b><span class="t">{s.text}</span></a></li>)}</ul>
+      <ul class="frentes">{services.map((s, i) => <li><a href={`/propuesta/servicios/${s.code}`}><span class="llamada">{pad(i + 1)}</span><b>{s.name}</b><span class="t">{s.text}</span></a></li>)}</ul>
     </section>
 
-    <section class="cierre hoja" id="contacto">
-      <div class="hoja__head"><span class="mono">Contacto</span><span class="mono">ULTIMA MILLA · Mendoza</span></div>
-      <div class="hoja__body">
-        <div>
-          <h2>Contanos qué tiene que seguir funcionando<span class="dot">.</span></h2>
-          <p>Indicá qué necesitás, dónde y para cuándo. Un técnico te responde por email con el próximo paso: diagnóstico, relevamiento, propuesta o documentación.</p>
-        </div>
-        <a class="btn" href="/contacto">Enviar consulta <span aria-hidden="true">→</span></a>
-      </div>
-      <div class="cajetin" style="--cols:3"><div><span class="mono">Email</span><b>contacto@ultimamilla.com.ar</b></div><div><span class="mono">Oficina</span><b>Houssay 1159, Guaymallén, Mendoza</b></div><div><span class="mono">Horario</span><b>Lunes a viernes, 8 a 18 h</b></div></div>
+    <section class="band" id="documentacion">
+      <h2>Cada obra se entrega medida, documentada y trazable<span class="dot">.</span></h2>
+      <ol class="doc">{CUMPLIMIENTO.map(([t, d]) => <li><b>{t}</b><p>{d}</p></li>)}</ol>
     </section>
-    <footer class="pie"><span>ultimamilla.com.ar</span><span>Houssay 1159, Guaymallén, Mendoza · contacto@ultimamilla.com.ar</span></footer>
+
+    <Cierre />
 
     <script>
       const lugares = [...document.querySelectorAll<HTMLElement>('[data-lugar]')];
-      // Las isometrías de los lugares se traen cuando se acercan; la primera ya viene en el HTML.
       const io = new IntersectionObserver((entries) => entries.forEach((e) => {
         if (!e.isIntersecting) return;
         const el = e.target as HTMLElement; io.unobserve(el);
         fetch(el.dataset.src!).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) el.innerHTML = svg; });
       }), { rootMargin: '900px 0px' });
       document.querySelectorAll<HTMLElement>('.xray__iso[data-src]').forEach((el) => io.observe(el));
-      // La película de la apertura sólo en pantallas anchas y sin movimiento reducido.
       const film = document.querySelector<HTMLVideoElement>('video[data-film]');
       if (film && matchMedia('(min-width: 900px)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) { film.src = film.dataset.film!; film.play().catch(() => {}); }
-
       let raf = 0;
       const update = () => {
         raf = 0;
@@ -168,8 +211,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
           const r = el.getBoundingClientRect();
           if (r.bottom < 0 || r.top > innerHeight) return;
           const p = Math.min(1, Math.max(0, -r.top / (r.height - innerHeight)));
-          const cut = 100 - Math.min(1, p / .5) * 100;
-          el.style.setProperty('--cut', String(cut));
+          el.style.setProperty('--cut', String(100 - Math.min(1, p / .5) * 100));
           el.style.setProperty('--linea', p < .02 || p > .52 ? '0' : '1');
           const fase = p < .12 ? 0 : p < .5 ? 1 : p < .78 ? 2 : 3;
           if (el.dataset.fase !== String(fase)) el.dataset.fase = String(fase);

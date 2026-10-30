@@ -23,7 +23,6 @@ const own = stories.filter((c) => c.sectorSlug === slug);
 const site = SITE_OF[slug] || 'building';
 const iso = readIso(site);
 const photo = SECTOR_PHOTO[slug] || SECTOR_PHOTO.constructoras;
-const n = SECTORS.findIndex((s) => s.slug === slug) + 1;
 const byService = services.map((s) => ({ ...s, count: own.filter((c) => c.serviceCodes.includes(s.code)).length })).filter((s) => s.count > 0 || sector.services.includes(Number(s.code)));
 const maxSvc = Math.max(1, ...byService.map((s) => s.count));
 const years = [...new Set(own.map((c) => c.year).filter(Boolean))].sort((a, b) => a - b);
@@ -69,7 +68,6 @@ const steps = ['Relevamiento', 'Diseño', 'Ejecución', 'Prueba técnica'];
     <section class="lugar" data-lugar data-fase="0" aria-label={sector.name}>
       <div class="lugar__pin">
         <div class="copy">
-          <span class="mono">Sector · {pad(n)} / {pad(SECTORS.length)}</span>
           <h1>{sector.name}<span class="dot">.</span></h1>
           <p>{sector.description}</p>
           {sector.highlights.length > 0 && <ul class="hl">{sector.highlights.map((h) => <li>{h}</li>)}</ul>}
@@ -105,7 +103,7 @@ const steps = ['Relevamiento', 'Diseño', 'Ejecución', 'Prueba técnica'];
           )}
           <a class="rec" href={`/${slug}`}>
             <figure><img src={posterOf(slug)} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure>
-            <div class="rec__cap"><span class="mono">Recorrido · {sector.name}</span><span class="mono">{sceneTitle[SCENE_OF[slug] || 'fachada']}</span></div>
+            <div class="rec__cap"><span class="mono">{sector.name} por dentro</span><span class="mono">{sceneTitle[SCENE_OF[slug] || 'fachada']}</span></div>
           </a>
         </div>
       </div>

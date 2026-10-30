@@ -89,19 +89,19 @@ const pad = (n: number) => String(n).padStart(2, '0');
     </header>
 
     <nav class="nav mono" aria-label="Fichas">
-      <a href="/propuesta/antecedentes">← Volver al muro</a>
-      <span>{prev && <a href={prev.href}>← UM-{prev.id}</a>}{prev && next && ' · '}{next && <a href={next.href}>UM-{next.id} →</a>}</span>
+      <a href="/propuesta/antecedentes">← Todos los proyectos</a>
+      <span>{prev && <a href={prev.href}>← Anterior</a>}{prev && next && ' · '}{next && <a href={next.href}>Siguiente →</a>}</span>
     </nav>
 
     <main class="ficha hoja">
-      <div class="hoja__head"><span class="mono">Ficha de trabajo · UM-{c.id}</span><span class="mono">{[c.sector, when].filter(Boolean).join(' · ')}</span></div>
+      <div class="hoja__head"><span class="mono">{c.client}</span><span class="mono">{[c.sector, when].filter(Boolean).join(' · ')}</span></div>
       <div class="hoja__body">
         <div class="obra">
           {photo && <figure><img src={c.image} alt="" width="1200" height="675" fetchpriority="high" /></figure>}
           <div class="desp iso" data-desp data-svcs={c.serviceCodes.join(' ')}>
             <div set:html={iso} />
             <div class="llamadas" data-llamadas></div>
-            <span class="desp__cap mono">Despiece · {c.sector || 'Lugar'} · {svcs.length ? svcs.map((s, i) => `${pad(i + 1)} ${s.name}`).join(' · ') : 'Sistemas'}</span>
+            <span class="desp__cap mono">{svcs.map((s, i) => `${pad(i + 1)} ${s.name}`).join(' · ')}</span>
           </div>
         </div>
         <div class="datos">
@@ -115,7 +115,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
             {svcs.length > 0 && <div><dt class="mono">Servicios</dt><dd><ol>{svcs.map((s, i) => <li><span class="llamada on" data-code={s.code}>{pad(i + 1)}</span><a href={s.href}>{s.name}</a></li>)}</ol></dd></div>}
             <div><dt class="mono">Referencia</dt><dd>UM-{c.id}</dd></div>
           </dl>
-          {svcs[0] && <a class="rec" href={`/${c.sectorSlug}`}><img src={posterOf(c.sectorSlug, svcs[0].code)} alt="" width="320" height="180" loading="lazy" /><div><b>Recorrido · {svcs[0].name}</b><span>{c.sector}</span></div></a>}
+          {svcs[0] && c.sector && <a class="rec" href={`/propuesta/sectores/${c.sectorSlug}`}><img src={posterOf(c.sectorSlug, svcs[0].code)} alt="" width="320" height="180" loading="lazy" /><div><b>{c.sector} por dentro</b><span>{svcs[0].name}</span></div></a>}
         </div>
       </div>
       {(sameClient.length > 0 || sameSector.length > 0) && (
@@ -124,7 +124,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
           {sameSector.length > 0 && <div><h2 class="mono">Mismo sector</h2><ol>{sameSector.map((o) => <li><a href={o.href}><span class="mono">UM-{o.id}</span><b>{o.client} · {o.title}</b><span>{o.year}</span></a></li>)}</ol></div>}
         </section>
       )}
-      <div class="cajetin" style="--cols:4"><div><span class="mono">Hoja</span><b>Ficha de trabajo</b></div><div><span class="mono">Nº</span><b>UM-{c.id}</b></div><div><span class="mono">Cliente</span><b>{c.client}</b></div><div><span class="mono">Empresa</span><b>ULTIMA MILLA</b></div></div>
     </main>
     <footer class="pie"><span>ultimamilla.com.ar</span><span>Houssay 1159, Guaymallén, Mendoza · contacto@ultimamilla.com.ar</span></footer>
 

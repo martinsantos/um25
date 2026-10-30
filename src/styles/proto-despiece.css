@@ -156,7 +156,7 @@ h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -.03em; line-height: 1
 .ficha .t { display: block; color: var(--ink-2); font-size: .95rem; line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .ficha__foot { display: flex; gap: 6px; align-items: center; margin: 4px -14px 0; padding: 8px 14px; border-top: 1px solid var(--line-2); }
 .ficha__foot .llamada { width: 22px; height: 22px; font-size: .64rem; border-color: var(--ink-3); color: var(--ink-2); }
-.ficha__foot .mono { margin-left: auto; }
+.ficha__foot .mono { margin-left: auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ficha:hover b { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; }
 .ficha--rec { grid-column: span 2; }
 .ficha--rec figure { aspect-ratio: 16 / 8; }

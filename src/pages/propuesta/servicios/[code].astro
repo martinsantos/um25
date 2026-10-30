@@ -26,7 +26,6 @@ const iso = readIso(SITE[scene] || 'building');
 const device = code === '106' ? '' : readDevice(code);
 const photo = SERVICE_PHOTO[code];
 const poster = `/cine/media/cine-${scene}-${SERVICE_KEY[code]}-poster.avif`;
-const n = services.findIndex((s) => s.code === code) + 1;
 const bySector = SECTORS.map((s) => ({ slug: s.slug, name: s.name, count: own.filter((c) => c.sectorSlug === s.slug).length })).filter((s) => s.count > 0).sort((a, b) => b.count - a.count);
 const years = [...new Set(own.map((c) => c.year).filter(Boolean))].sort((a, b) => a - b);
 const yearCounts = Object.fromEntries(years.map((y) => [y, own.filter((c) => c.year === y).length]));
@@ -96,7 +95,6 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
     <section class="lugar" data-lugar data-fase="0" aria-label={servicio.name}>
       <div class="lugar__pin">
         <div class="copy">
-          <span class="mono">Servicio · {pad(n)} / {pad(services.length)}</span>
           <h1>{servicio.name}<span class="dot">.</span></h1>
           <p class="tag">{servicio.tagline}</p>
           <p>{servicio.description}</p>
@@ -115,7 +113,7 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
     <section class="band" id="cubre">
       <h2>Qué cubre {servicio.name}<span class="dot">.</span></h2>
       <div class="cubre" data-cubre>
-        <div class="equipo" data-equipo>{device ? <div set:html={device} /> : <div class="iso" data-src={`/cine/iso/site-building-v2.svg`}></div>}<span class="mono">Equipo · despiece</span></div>
+        <div class="equipo" data-equipo>{device ? <div set:html={device} /> : <div class="iso" data-src={`/cine/iso/site-building-v2.svg`}></div>}</div>
         <ol class="caps" data-caps>{servicio.capabilities.map((c, i) => <li><span class="llamada">{pad(i + 1)}</span>{c}</li>)}</ol>
         <svg class="lineas" data-lineas aria-hidden="true"></svg>
       </div>
@@ -138,7 +136,7 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
           </div>
           <a class="rec" href={`/${bySector[0]?.slug || 'sectores'}`}>
             <figure><img src={poster} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure>
-            <div class="rec__cap"><span class="mono">Recorrido · {servicio.name}</span><span class="mono">{sceneTitle[scene]}</span></div>
+            <div class="rec__cap"><span class="mono">{servicio.name} en {sceneTitle[scene].toLowerCase()}</span><span class="mono"></span></div>
           </a>
         </div>
         <ol class="grid grid--4">{own.slice(0, 8).map((c, i) => <Ficha story={c} eager={i < 4} />)}</ol>
@@ -151,9 +149,9 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       <ol class="pasos">{servicio.proceso.map((s) => <li><b>{s.titulo}</b><p>{s.desc}</p></li>)}</ol>
       {servicio.scope_operativo.length > 0 && (
         <div class="alcance hoja">
-          <div class="hoja__head"><span class="mono">Alcance operativo</span><span class="mono">{servicio.name}</span></div>
+          <div class="hoja__head"><span class="mono">Alcance operativo</span><span class="mono"></span></div>
           <div class="hoja__body"><dl>{servicio.scope_operativo.map((p) => <div><dt class="mono">{p.label || p.titulo}</dt><dd>{p.value || p.desc}</dd></div>)}</dl></div>
-          <div class="cajetin" style="--cols:1"><div><span class="mono">Alcance</span><b>{servicio.alcance_operativo}</b></div></div>
+          <div class="cajetin" style="--cols:1"><div><b>{servicio.alcance_operativo}</b></div></div>
         </div>
       )}
     </section>
