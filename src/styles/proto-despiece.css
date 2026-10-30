@@ -76,8 +76,8 @@ p { margin: 0; }
 .copy .tag { color: var(--ink); font-size: 1.2rem; font-weight: 500; }
 .copy .u { margin-top: var(--s1); width: max-content; }
 .xray { position: relative; aspect-ratio: 5 / 3; width: 100%; background: var(--bg-2); overflow: hidden; }
-.xray__iso { position: absolute; inset: 3%; display: grid; place-items: center; }
-.xray__iso svg { width: 100%; height: 100%; }
+.xray__iso { position: absolute; inset: 3%; }
+.xray__iso svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .xray__foto { position: absolute; inset: 0; clip-path: inset(0 0 calc(100% - var(--cut, 100) * 1%) 0); }
 .xray__foto img, .xray__foto video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .xray__ghost { position: absolute; inset: 0; opacity: .14; pointer-events: none; }
