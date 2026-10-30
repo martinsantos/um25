@@ -15,14 +15,14 @@ import Parte from '../../components/proto/Parte.astro';
 import Banco from '../../components/proto/Banco.astro';
 import { loadStories, services, posterOf, SECTOR_PHOTO } from '../../components/proto/isoData';
 import { EMPRESA, CUMPLIMIENTO, CASOS, sectorRelato } from '../../components/proto/relato';
-import { despieceAgregado, KIT_DE_SERVICIO } from '../../components/proto/despiece';
+import { despieceAgregado } from '../../components/proto/despiece';
 import { SECTORS } from '../../data/cine/scenes';
 import { CLASIFICACIONES_DE_SERVICIO } from '../../components/proto/sectorReal';
 
 export const prerender = false;
 const { total, stories, firstYear } = await loadStories();
 const clientes = Object.values(stories.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
-const frentes = services.map((s) => ({ ...s, count: stories.filter((c) => c.serviceCodes.includes(s.code)).length, partes: (KIT_DE_SERVICIO[s.code] || []).slice(0, 4) }));
+const frentes = services.map((s) => ({ ...s, count: stories.filter((c) => c.serviceCodes.includes(s.code)).length }));
 const lugares = SECTORS.filter((s) => !CLASIFICACIONES_DE_SERVICIO.has(s.slug)).map((s) => ({ ...s, count: stories.filter((c) => c.sectorSlug === s.slug).length, photo: SECTOR_PHOTO[s.slug] || SECTOR_PHOTO.constructoras, headline: sectorRelato(s.slug).headline || s.text })).filter((s) => s.count > 0).sort((a, b) => b.count - a.count);
 const instalado = despieceAgregado(stories).slice(0, 8);
 const byCode = new Map(services.map((s) => [s.code, s.name]));
@@ -34,14 +34,12 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
   <head>
     <Head title="Servicios IT para operaciones que no pueden detenerse · ULTIMA MILLA" />
     <style>
-      /* Ocho frentes: nombre, qué cubre, sus partes y cuántos proyectos. */
-      .frentes { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 clamp(20px, 2.5vw, 40px); border-top: 1px solid var(--line); }
-      .frentes a { display: grid; grid-template-rows: auto auto 1fr auto; gap: 10px; padding: 22px 0 24px; border-bottom: 1px solid var(--line-2); min-height: 100%; }
-      .frentes b { font-size: 1.3rem; font-weight: 600; letter-spacing: -.015em; line-height: 1.2; }
-      .frentes p { margin: 0; color: var(--ink-2); font-size: .95rem; }
-      .frentes .papel { align-self: end; padding: 6px; margin-top: 6px; }
-      .frentes .papel img { width: 100%; height: auto; display: block; }
-      .frentes .n { color: var(--ink-3); font-size: .9rem; }
+      /* Ocho frentes: nombre, qué cubre y cuántos proyectos. */
+      .frentes { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(28px, 4vw, 72px); border-top: 1px solid var(--line); }
+      .frentes a { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 24px; align-items: baseline; padding: 18px 0; border-bottom: 1px solid var(--line-2); }
+      .frentes b { font-weight: 600; font-size: 1.15rem; grid-column: 1; grid-row: 1; }
+      .frentes p { margin: 0; color: var(--ink-2); grid-column: 1; grid-row: 2; }
+      .frentes .n { color: var(--ink-3); font-size: .9375rem; white-space: nowrap; grid-column: 2; grid-row: 1; }
       .frentes a:hover b { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
 
       /* Los lugares: foto, nombre, en qué consiste, cuántos proyectos. */
@@ -64,7 +62,7 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
       .pelicula--ancha { margin-top: var(--s5); }
       .pelicula--ancha video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-      @media (max-width: 1100px) { .frentes { grid-template-columns: repeat(2, minmax(0, 1fr)); } .historia { grid-template-columns: 1fr 1fr; } .lugares { grid-template-columns: 1fr 1fr; } }
+      @media (max-width: 1100px) { .historia { grid-template-columns: 1fr 1fr; } .lugares { grid-template-columns: 1fr 1fr; } }
       @media (max-width: 900px) { .frentes, .historia, .lugares { grid-template-columns: 1fr; } }
     </style>
   </head>
@@ -73,7 +71,6 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
     <main id="contenido">
 
     <Apertura label="Portada" isoSrc="/cine/iso/site-building-v2.svg" image={posterOf('constructoras')} open>
-      <span class="small">Mendoza, Argentina. Desde 2003.</span>
       <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
       <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
       <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>
@@ -82,7 +79,7 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
 
     <section class="sec" id="clientes">
       <div class="wrap">
-        <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2><p>{clientes.length} clientes desde {firstYear}, con la cantidad de proyectos documentados de cada uno.</p></div>
+        <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2></div>
         <ol class="clientes">
           {clientes.slice(0, 30).map((c) => <li><a href={`/propuesta/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
           <li class="mas"><a href="/propuesta/antecedentes">Y {clientes.length - 30} más</a><span></span></li>
@@ -92,14 +89,14 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
 
     <section class="sec" id="servicios">
       <div class="wrap">
-        <div class="sec__head"><h2>Ocho frentes de servicio<span class="dot">.</span></h2><p>Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria.</p></div>
-        <ol class="frentes">{frentes.map((s) => <li><a href={`/propuesta/servicios/${s.code}`}><b>{s.name}</b><p>{s.text}</p><span class="papel papel--mini"><img src={`/cine/iso/banco-servicio-${s.code}.svg`} alt="" width="1200" height="540" loading="lazy" decoding="async" /></span><span class="n">{s.count} proyectos</span></a></li>)}</ol>
+        <div class="sec__head"><h2>Ocho frentes de servicio<span class="dot">.</span></h2></div>
+        <ol class="frentes">{frentes.map((s) => <li><a href={`/propuesta/servicios/${s.code}`}><b>{s.name}</b><span class="n">{s.count} proyectos</span><p>{s.text}</p></a></li>)}</ol>
       </div>
     </section>
 
     <section class="sec" id="lugares">
       <div class="wrap">
-        <div class="sec__head"><h2>Los lugares donde trabajamos<span class="dot">.</span></h2><p>{EMPRESA.cobertura} {EMPRESA.coberturaDetalle}</p></div>
+        <div class="sec__head"><h2>Los lugares donde trabajamos<span class="dot">.</span></h2></div>
         <ol class="lugares">{lugares.map((l) => <li><a href={`/propuesta/sectores/${l.slug}`}><figure><img src={l.photo} alt="" width="800" height="500" loading="lazy" decoding="async" /></figure><h3>{l.name}<i>.</i></h3><p>{l.headline}</p><span class="n">{l.count} proyectos documentados</span></a></li>)}</ol>
         <a class="u more" href="/propuesta/sectores">Todos los sectores, incluida minería</a>
       </div>
@@ -110,7 +107,7 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
     {instalado.length > 0 && (
       <section class="sec" id="instalado">
         <div class="wrap">
-          <div class="sec__head"><h2>Lo que instalamos<span class="dot">.</span></h2><p>Las partes que nombran los registros de los {total} proyectos, a escala, y en cuántos aparece cada una.</p></div>
+          <div class="sec__head"><h2>Lo que instalamos<span class="dot">.</span></h2></div>
           <div class="despiece">
             <Banco items={instalado.map((p) => ({ key: p.key }))} label="Lo instalado en los proyectos documentados" />
             <ol class="partes-lista">{instalado.map((p) => <li><Parte k={p.key} size={48} /><span><b>{p.label}</b><span class="small">{byCode.get(p.code)}</span></span><span class="n">{p.proyectos} proyectos{p.unidades > 0 ? ` · ${p.unidades} u.` : ''}</span></li>)}</ol>

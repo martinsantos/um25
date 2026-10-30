@@ -55,14 +55,14 @@ const capacidades = ['Redes, fibra, switching, WiFi corporativo y radioenlaces',
 
     <section class="sec">
       <div class="wrap">
-        <div class="sec__head"><h2>La trayectoria importa cuando el sitio, el edificio o la planta ya están funcionando<span class="dot">.</span></h2><p>Muchos proyectos se definen en condiciones reales: ventanas de intervención cortas, edificios ocupados, equipos de terceros, documentación incompleta y urgencia operativa. Ahí la experiencia deja cada sistema instalado, documentado y operable desde el primer día.</p></div>
+        <div class="sec__head"><h2>La trayectoria importa cuando el sitio, el edificio o la planta ya están funcionando<span class="dot">.</span></h2></div>
         <ol class="historia">{EMPRESA.historia.map(([y, t, d]) => <li><span class="small">{y}</span><h3>{t}</h3><p class="muted">{d}</p></li>)}</ol>
       </div>
     </section>
 
     <section class="sec">
       <div class="wrap">
-        <div class="sec__head"><h2>{EMPRESA.cobertura.replace(/\.$/, '')}<span class="dot">.</span></h2><p>{EMPRESA.coberturaDetalle}</p></div>
+        <div class="sec__head"><h2>{EMPRESA.cobertura.replace(/\.$/, '')}<span class="dot">.</span></h2></div>
         <ul class="sedes">{EMPRESA.sedes.map((s) => <li><b>{s.name}</b><span>{s.detail || s.role}</span></li>)}</ul>
       </div>
     </section>

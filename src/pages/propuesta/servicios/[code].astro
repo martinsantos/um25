@@ -117,7 +117,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
     {kit.length > 0 && (
       <section class="sec">
         <div class="wrap">
-          <div class="sec__head"><h2>Con qué se hace<span class="dot">.</span></h2><p>Las partes del alcance de {lower}, a escala, y en cuántos de los {own.length} proyectos el registro las nombra.</p></div>
+          <div class="sec__head"><h2>Con qué se hace<span class="dot">.</span></h2></div>
           <div class="despiece">
             <div class="papel"><img src={`/cine/iso/banco-servicio-${code}.svg`} alt={`Partes de ${lower}: ${kit.map((p) => p.label).join(', ')}`} width="1200" height="540" loading="lazy" decoding="async" /></div>
             <ol class="partes-lista">{kit.map((p) => <li><Parte k={p.key} size={48} /><span><b>{p.label}</b><span class="small">{servicio.name}</span></span><span class="n">{p.n > 0 ? `${p.n} ${p.n === 1 ? 'proyecto' : 'proyectos'}${p.u > 0 ? ` · ${p.u} u.` : ''}` : 'Alcance'}</span></li>)}</ol>
@@ -129,7 +129,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
     {clientes.length > 0 && (
       <section class="sec">
         <div class="wrap">
-          <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2><p>{clientes.length} {clientes.length === 1 ? 'cliente' : 'clientes'} con {lower} desde {desde}, con la cantidad de proyectos de cada uno.</p></div>
+          <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2></div>
           <ol class="clientes">
             {clientes.slice(0, 18).map((c) => <li><a href={`/propuesta/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
             {clientes.length > 18 && <li class="mas"><a href={`/propuesta/antecedentes?service=${code}`}>Y {clientes.length - 18} más</a><span></span></li>}

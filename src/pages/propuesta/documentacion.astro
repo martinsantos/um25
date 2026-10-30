@@ -35,13 +35,13 @@ const fichas = SERVICE_SPEC_LIST.map((s) => ({ ...s, pdf: getDatasheetPublicPath
     </main>
     <section class="sec">
       <div class="wrap">
-        <div class="sec__head"><h2>Cada obra se entrega medida, documentada y trazable<span class="dot">.</span></h2><p>Dossiers para licitaciones y auditorías de proveedor, bajo solicitud comercial.</p></div>
+        <div class="sec__head"><h2>Cada obra se entrega medida, documentada y trazable<span class="dot">.</span></h2></div>
         <div class="cols cols-3">{CUMPLIMIENTO.map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div>
       </div>
     </section>
     <section class="sec">
       <div class="wrap">
-        <div class="sec__head"><h2>Fichas técnicas por servicio<span class="dot">.</span></h2><p>Alcance, normas, entregables y nivel de servicio de cada frente, para adjuntar a un pliego o una evaluación de proveedor.</p></div>
+        <div class="sec__head"><h2>Fichas técnicas por servicio<span class="dot">.</span></h2></div>
         <ol class="fichas-tec">{fichas.map((f) => <li><b>{f.name}</b><span>{f.keyDeliverable}</span><span class="small">{f.keyStandard}</span>{f.pdf ? <a href={f.pdf} download>Descargar PDF</a> : <a href={`/propuesta/servicios/${f.code}`}>Ver servicio</a>}</li>)}</ol>
       </div>
     </section>

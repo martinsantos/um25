@@ -23,7 +23,6 @@ const nombre = partes.map((p) => (p.qty ? `${p.qty} × ` : '') + p.label).join('
     <ol class="partes-lista" data-partes>
       {partes.map((p) => <li data-code={p.code}><Parte k={p.key} size={48} /><span><b>{p.qty ? `${p.qty} × ` : ''}{p.label}</b><span class="small">{byCode.get(p.code)}</span></span></li>)}
     </ol>
-    <p class="despiece__nota small">{origen === 'registro' ? 'Equipamiento nombrado en el registro del proyecto.' : `Alcance del servicio ${partes.map((p) => byCode.get(p.code)).filter((v, i, a) => v && a.indexOf(v) === i).join(' y ')}; el registro no detalla equipos.`}</p>
   </div>
   <div class="fiso__lugar iso" data-svcs={codes.join(' ')} data-src={`/cine/iso/site-${site}-v2.svg`}><span class="ahora">{codes.map((k) => byCode.get(k)).filter(Boolean).join(' · ')}</span></div>
 </div>

@@ -34,7 +34,6 @@ const relato = sectorRelato(slug);
 const casos = casosDe(CASOS_SECTOR[slug] || []);
 const name = SECTORS.find((s) => s.slug === slug)?.name || sector.name;
 const lower = name.toLowerCase();
-const voz = relato.faqs.map((f) => f.answer.replace(/^Sí,\s*/i, '').replace(/^(\w)/, (m) => m.toUpperCase()));
 const byService = services.map((s) => ({ ...s, count: own.filter((c) => c.serviceCodes.includes(s.code)).length })).filter((s) => s.count > 0 || sector.services.includes(Number(s.code))).sort((a, b) => b.count - a.count);
 const maxSvc = Math.max(1, ...byService.map((s) => s.count));
 const byCode = new Map(services.map((s) => [s.code, s.name]));
@@ -53,7 +52,6 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
     <main id="contenido">
 
     <Apertura label={name} isoSrc={`/cine/iso/site-${site}-v2.svg`} image={photo}>
-      <span class="small">{name}</span>
       <h1 style="font-size:clamp(2rem,3.6vw,3.6rem)">{relato.headline || name}<span class="dot">.</span></h1>
       <p>{relato.summary || sector.description}</p>
       {cifras.length > 0 && <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>}
@@ -65,8 +63,6 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
         <h2>Lo que tiene que seguir funcionando<span class="dot">.</span></h2>
         <div class="prosa">
           <p class="lead">{relato.need} {relato.proof}</p>
-          <p>{sector.description}</p>
-          {voz.map((p) => <p>{p}</p>)}
         </div>
       </div>
     </section>
@@ -74,7 +70,7 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
     {clientes.length > 0 && (
       <section class="sec">
         <div class="wrap">
-          <div class="sec__head"><h2>Para quién lo hicimos en {lower}<span class="dot">.</span></h2><p>{clientes.length} {clientes.length === 1 ? 'cliente' : 'clientes'} desde {desde}, con la cantidad de proyectos documentados de cada uno.</p></div>
+          <div class="sec__head"><h2>Para quién lo hicimos en {lower}<span class="dot">.</span></h2></div>
           <ol class="clientes">
             {clientes.slice(0, 18).map((c) => <li><a href={`/propuesta/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
             {clientes.length > 18 && <li class="mas"><a href={`/propuesta/antecedentes?sector=${slug}`}>Y {clientes.length - 18} más</a><span></span></li>}
@@ -86,7 +82,7 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
     {instalado.length > 0 && (
       <section class="sec">
         <div class="wrap">
-          <div class="sec__head"><h2>Lo que instalamos en {lower}<span class="dot">.</span></h2><p>Las partes que nombran los registros de los {own.length} proyectos, a escala, y en cuántos aparece cada una.</p></div>
+          <div class="sec__head"><h2>Lo que instalamos en {lower}<span class="dot">.</span></h2></div>
           <div class="despiece">
             <Banco items={instalado.map((p) => ({ key: p.key }))} label={`Lo instalado en ${lower}`} />
             <ol class="partes-lista">{instalado.map((p) => <li><Parte k={p.key} size={48} /><span><b>{p.label}</b><span class="small">{byCode.get(p.code)}</span></span><span class="n">{p.proyectos} {p.proyectos === 1 ? 'proyecto' : 'proyectos'}{p.unidades > 0 ? ` · ${p.unidades} u.` : ''}</span></li>)}</ol>
@@ -99,7 +95,7 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
 
     <section class="sec">
       <div class="wrap">
-        <div class="sec__head"><h2>{name} por dentro<span class="dot">.</span></h2><p>La misma instalación, sistema por sistema. Elegí un servicio para ver su recorrido en el proyecto.</p></div>
+        <div class="sec__head"><h2>{name} por dentro<span class="dot">.</span></h2></div>
         <div class="dentro" data-dentro>
           <div class="dentro__stage iso" data-svc={byService[0]?.code} data-src={`/cine/iso/site-${site}-v2.svg`}><span class="ahora">{byService[0]?.name}</span></div>
           <div class="dentro__side">
