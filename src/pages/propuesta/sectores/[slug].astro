@@ -1,10 +1,9 @@
 ---
 /**
- * Vertical de sector (2026-10-30, v3), sistema Despiece. Cuenta el sector con los datos del
- * sitio: la cabecera y la necesidad operativa de la página de sector, la descripción y los
- * destacados del catálogo, los casos con alcance técnico completo del registro, el despiece con
- * sus proyectos por servicio y por año, los clientes del sector, las preguntas frecuentes y las
- * fichas. La foto real del sector se abre hasta el despiece. No indexable.
+ * Vertical de sector (2026-10-30, v4). Le habla a quien opera ese lugar: qué le resolvemos, qué
+ * hicimos ahí, cómo trabajamos y para quién. Todo en frases completas que ya existen en el sitio
+ * (página de sector, catálogo, preguntas frecuentes, registro de antecedentes, Nosotros). Sin
+ * rótulos ni numeraciones. La foto real se abre hasta el despiece del lugar. No indexable.
  */
 import '../../../styles/proto-despiece.css';
 import Ficha from '../../../components/proto/Ficha.astro';
@@ -12,7 +11,7 @@ import Casos from '../../../components/proto/Casos.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import { getSectorBySlug } from '../../../lib/um26-directus';
 import { loadStories, readIso, services, posterOf, SITE_OF, SECTOR_PHOTO, SCENE_OF } from '../../../components/proto/isoData';
-import { CASOS_SECTOR, casosDe, sectorRelato } from '../../../components/proto/relato';
+import { CASOS_SECTOR, casosDe, sectorRelato, EMPRESA } from '../../../components/proto/relato';
 import { SECTORS } from '../../../data/cine/scenes';
 
 export const prerender = false;
@@ -26,16 +25,14 @@ const iso = readIso(site);
 const photo = SECTOR_PHOTO[slug] || SECTOR_PHOTO.constructoras;
 const relato = sectorRelato(slug);
 const casos = casosDe(CASOS_SECTOR[slug] || []);
-const byService = services.map((s) => ({ ...s, count: own.filter((c) => c.serviceCodes.includes(s.code)).length })).filter((s) => s.count > 0 || sector.services.includes(Number(s.code)));
-const maxSvc = Math.max(1, ...byService.map((s) => s.count));
-const years = [...new Set(own.map((c) => c.year).filter(Boolean))].sort((a, b) => a - b);
-const yearCounts = Object.fromEntries(years.map((y) => [y, own.filter((c) => c.year === y).length]));
-const maxYear = Math.max(1, ...Object.values(yearCounts));
-const clientes = Object.values(own.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count).slice(0, 12);
-const pad = (v: number) => String(v).padStart(2, '0');
-const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'Aeropuerto', bodega: 'Bodega', hospital: 'Centro de salud', planta: 'Planta' };
-const steps = ['Relevamiento', 'Diseño', 'Ejecución', 'Prueba técnica'];
 const name = SECTORS.find((s) => s.slug === slug)?.name || sector.name;
+const lower = name.toLowerCase();
+// Las respuestas a lo que nos preguntan, dichas de corrido.
+const voz = relato.faqs.map((f) => f.answer.replace(/^Sí,\s*/i, '').replace(/^(\w)/, (m) => m.toUpperCase()));
+const byService = services.map((s) => ({ ...s, count: own.filter((c) => c.serviceCodes.includes(s.code)).length })).filter((s) => s.count > 0 || sector.services.includes(Number(s.code))).sort((a, b) => b.count - a.count);
+const maxSvc = Math.max(1, ...byService.map((s) => s.count));
+const clientes = Object.values(own.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count).slice(0, 10);
+const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'Aeropuerto', bodega: 'Bodega', hospital: 'Centro de salud', planta: 'Planta' };
 ---
 <!doctype html>
 <html lang="es">
@@ -45,23 +42,24 @@ const name = SECTORS.find((s) => s.slug === slug)?.name || sector.name;
     <meta name="robots" content="noindex, nofollow" />
     <title>{relato.headline || name} · ULTIMA MILLA</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
       .copy h1 { font-size: clamp(2rem, 3.6vw, 3.6rem); }
       .copy .tag { font-size: 1.15rem; color: var(--ink-2); font-weight: 500; }
-      .desc { font-size: clamp(1.35rem, 2.1vw, 1.9rem); font-weight: 500; letter-spacing: -.02em; line-height: 1.3; max-width: 62ch; color: var(--ink); }
       .info { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 80px); align-items: start; margin-top: 32px; }
       .info__stage { position: sticky; top: 80px; aspect-ratio: 5 / 3; padding: 3%; background: var(--bg-2); }
-      .info__stage .mono { position: absolute; left: 14px; bottom: 12px; }
+      .info__stage .mono { position: absolute; left: 14px; bottom: 12px; color: var(--ink-2); }
       .info__data { display: grid; gap: 26px; }
-      .count { font-size: clamp(3.5rem, 6vw, 5.5rem); }
       .rec { display: grid; gap: 10px; }
       .rec figure { margin: 0; aspect-ratio: 16 / 9; background: var(--bg-2); overflow: hidden; }
       .rec img { width: 100%; height: 100%; object-fit: cover; display: block; }
-      .rec__cap { display: flex; justify-content: space-between; }
-      .grid { margin-top: clamp(32px, 5vh, 56px); }
+      .como { list-style: none; margin: 28px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px clamp(28px, 4vw, 64px); }
+      .como li { display: grid; gap: 6px; }
+      .como b { font-size: 1.2rem; font-weight: 600; }
+      .como p { margin: 0; color: var(--ink-2); line-height: 1.55; }
+      .grid { margin-top: clamp(28px, 4vh, 48px); }
       @media (max-width: 900px) {
-        .info { grid-template-columns: 1fr; }
+        .info, .como { grid-template-columns: 1fr; }
         .info__stage { position: relative; top: auto; }
       }
     </style>
@@ -75,11 +73,9 @@ const name = SECTORS.find((s) => s.slug === slug)?.name || sector.name;
     <section class="lugar" data-lugar data-fase="0" aria-label={name}>
       <div class="lugar__pin">
         <div class="copy">
-          <span class="mono">{name}</span>
           <h1>{relato.headline || name}<span class="dot">.</span></h1>
           <p class="tag">{relato.summary || sector.description}</p>
-          <ol class="fases mono" data-fases>{steps.map((s) => <li>{s}</li>)}</ol>
-          <a class="u" href={`/propuesta/antecedentes?sector=${slug}`}>{own.length > 0 ? `${own.length} proyectos documentados` : 'Ver todos los proyectos'}</a>
+          <a class="u" href={`/propuesta/antecedentes?sector=${slug}`}>{own.length > 0 ? `${own.length} proyectos documentados en ${lower}` : 'Ver todos los proyectos'}</a>
         </div>
         <div class="xray">
           <div class="xray__ghost"><img src={photo} alt="" width="1672" height="941" /></div>
@@ -90,60 +86,49 @@ const name = SECTORS.find((s) => s.slug === slug)?.name || sector.name;
       </div>
     </section>
 
-    <section class="band" id="necesidad">
-      <h2 class="desc">{sector.description}</h2>
-      <ol class="tabla3">
-        <li><span class="mono">Lo que tiene que operar</span><b>{relato.need}</b></li>
-        <li><span class="mono">Lo que resolvemos</span><p>{relato.proof}</p></li>
-        <li><span class="mono">Frentes en {name.toLowerCase()}</span><ul>{sector.highlights.map((h) => <li>{h}</li>)}</ul></li>
-      </ol>
+    <section class="band" id="que-hacemos">
+      <h2>Lo que tiene que seguir funcionando<span class="dot">.</span></h2>
+      <div class="prosa">
+        <p class="lead">{relato.need} {relato.proof}</p>
+        <p>{sector.description}</p>
+        {voz.map((p) => <p>{p}</p>)}
+      </div>
     </section>
 
-    <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${name.toLowerCase()}`} fallbackImage={photo} />
+    <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} fallbackImage={photo} />
 
-    <section class="band" id="frentes">
+    <section class="band" id="por-dentro">
       <h2>{name} por dentro<span class="dot">.</span></h2>
       <p class="band__lead">La misma instalación, sistema por sistema. Elegí un servicio para ver su recorrido en el proyecto.</p>
       <div class="info" data-info>
         <div class="info__stage iso" data-svc={byService[0]?.code} data-src={`/cine/iso/site-${site}-v2.svg`}><span class="mono" data-now>{byService[0]?.name}</span></div>
         <div class="info__data">
-          {own.length > 0 && <div><h3 class="count"><span>{own.length}</span><i>.</i></h3><span class="mono">proyectos documentados en {name.toLowerCase()}</span></div>}
           <div class="lens" data-lens>
-            <h3 class="mono">Por servicio</h3>
-            {byService.map((s, i) => <a href={s.count > 0 ? `/propuesta/antecedentes?sector=${slug}&service=${s.code}` : `/propuesta/servicios/${s.code}`} data-code={s.code} class:list={{ on: i === 0 }} style={`--w:${Math.round((s.count / maxSvc) * 100)}`}><span class="llamada">{pad(Number(s.code) - 100)}</span>{s.name}<b>{s.count || ''}</b><i></i></a>)}
+            {byService.map((s, i) => <a href={s.count > 0 ? `/propuesta/antecedentes?sector=${slug}&service=${s.code}` : `/propuesta/servicios/${s.code}`} data-code={s.code} class:list={{ on: i === 0 }} style={`--w:${Math.round((s.count / maxSvc) * 100)}`}>{s.name}<b>{s.count ? `${s.count} ${s.count === 1 ? 'proyecto' : 'proyectos'}` : ''}</b><i></i></a>)}
           </div>
-          {years.length > 1 && (
-            <div>
-              <h3 class="mono" style="margin-bottom:8px">Por año</h3>
-              <div class="years">{years.map((y) => <a href={`/propuesta/antecedentes?sector=${slug}&year=${y}`} aria-label={`${y}: ${yearCounts[y]} proyectos`} title={`${y} · ${yearCounts[y]}`}><i style={`--h:${Math.max(4, Math.round((yearCounts[y] / maxYear) * 100))}`}></i></a>)}</div>
-              <div class="axis mono" aria-hidden="true"><span>{years[0]}</span><span>{years[years.length - 1]}</span></div>
-            </div>
-          )}
-          <a class="rec" href={`/${slug === 'gobiernosectorpublico' ? 'gobiernosectorpublico' : slug}`}>
+          <a class="rec" href={`/${slug}`}>
             <figure><img src={posterOf(slug)} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure>
-            <div class="rec__cap"><span class="mono">{sceneTitle[SCENE_OF[slug] || 'fachada']} por dentro</span><span class="mono"></span></div>
+            <span class="mono">{sceneTitle[SCENE_OF[slug] || 'fachada']} por dentro, en movimiento</span>
           </a>
         </div>
       </div>
     </section>
 
+    <section class="band" id="como">
+      <h2>Cómo trabajamos<span class="dot">.</span></h2>
+      <ol class="como">{EMPRESA.principios.map(([t, d]) => <li><b>{t}</b><p>{d}</p></li>)}</ol>
+    </section>
+
     {clientes.length > 0 && (
       <section class="band" id="clientes">
-        <h2>Clientes en {name.toLowerCase()}<span class="dot">.</span></h2>
-        <ol class="clientes">{clientes.map((c) => <li><b>{c.name}</b><span>{c.count}</span></li>)}</ol>
-      </section>
-    )}
-
-    {relato.faqs.length > 0 && (
-      <section class="band" id="preguntas">
-        <h2>Lo que nos preguntan<span class="dot">.</span></h2>
-        <ol class="preguntas">{relato.faqs.map((f) => <li><b>{f.question}</b><p>{f.answer}</p></li>)}</ol>
+        <h2>Para quién lo hicimos<span class="dot">.</span></h2>
+        <p class="clientes-prosa">{clientes.map((c, i) => <><b>{c.name}</b>{c.count > 1 ? ` (${c.count} proyectos)` : ''}{i < clientes.length - 2 ? ', ' : i === clientes.length - 2 ? ' y ' : '.'}</>)}</p>
       </section>
     )}
 
     {own.length > 0 && (
       <section class="band" id="proyectos">
-        <h2>{own.length} proyectos documentados<span class="dot">.</span></h2>
+        <h2>{own.length} proyectos documentados en {lower}<span class="dot">.</span></h2>
         <ol class="grid grid--4">{own.slice(0, 8).map((c, i) => <Ficha story={c} eager={i < 4} showSector={false} />)}</ol>
         <a class="u more" href={`/propuesta/antecedentes?sector=${slug}`}>Ver los {own.length} proyectos</a>
       </section>
@@ -162,7 +147,6 @@ const name = SECTORS.find((s) => s.slug === slug)?.name || sector.name;
         lugar.style.setProperty('--linea', p < .02 || p > .52 ? '0' : '1');
         const fase = p < .12 ? 0 : p < .5 ? 1 : p < .78 ? 2 : 3;
         if (lugar.dataset.fase !== String(fase)) lugar.dataset.fase = String(fase);
-        lugar.querySelectorAll<HTMLElement>('[data-fases] li').forEach((li, i) => li.classList.toggle('on', i < fase || (fase === 3 && i === 3)));
       };
       addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
       addEventListener('resize', update);
@@ -174,7 +158,7 @@ const name = SECTORS.find((s) => s.slug === slug)?.name || sector.name;
       new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); fetch(stage.dataset.src!).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) stage.insertAdjacentHTML('afterbegin', svg); }); } }, { rootMargin: '900px 0px' }).observe(stage);
       const items = [...info.querySelectorAll<HTMLAnchorElement>('[data-lens] [data-code]')];
       const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
-      const show = (a: HTMLAnchorElement) => { stage.dataset.svc = a.dataset.code!; now.textContent = a.textContent!.replace(/^\d+/, '').replace(/\d+$/, '').trim(); items.forEach((i) => i.classList.toggle('on', i === a)); };
+      const show = (a: HTMLAnchorElement) => { stage.dataset.svc = a.dataset.code!; now.textContent = a.firstChild?.textContent?.trim() || ''; items.forEach((i) => i.classList.toggle('on', i === a)); };
       items.forEach((a) => {
         if (fine) { a.addEventListener('pointerenter', () => show(a)); a.addEventListener('focus', () => show(a)); }
         else a.addEventListener('click', (e) => { if (stage.dataset.svc !== a.dataset.code) { e.preventDefault(); show(a); } });

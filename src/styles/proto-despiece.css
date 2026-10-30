@@ -222,3 +222,44 @@ h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -.03em; line-height: 1
   .caso, .tabla3, .ficha-tec dl, .preguntas li, .clientes { grid-template-columns: 1fr; }
   .caso:nth-child(even) figure { order: 0; }
 }
+
+/* ——— Relato (2026-10-30, tarde): sin rótulos de plano. Las etiquetas pasan a texto normal, pequeño y gris;
+   los números de llamada desaparecen de las listas; la lectura va en una columna de prosa. */
+.mono { font-family: inherit; font-size: .95rem; letter-spacing: 0; text-transform: none; color: var(--ink-3); }
+.hoja { background-image: none; border: 0; }
+.hoja__head { display: none; }
+.cajetin { border-top: 1px solid var(--line-2); }
+.cajetin > div { border-right: 0; padding: 14px 0 0; }
+.cajetin .mono { display: block; }
+.cajetin b { white-space: normal; }
+.cierre { border-top: 1px solid var(--line); padding-top: clamp(40px, 6vh, 64px); }
+.cierre .hoja__body { padding: 0; }
+.prosa { max-width: 68ch; }
+.prosa p { margin: 0 0 1.1em; color: var(--ink-2); font-size: 1.15rem; line-height: 1.65; }
+.prosa p.lead { color: var(--ink); font-size: clamp(1.35rem, 2vw, 1.75rem); line-height: 1.35; font-weight: 500; letter-spacing: -.015em; margin-bottom: 1.2em; }
+.prosa p:last-child { margin-bottom: 0; }
+.band + .band { padding-top: clamp(64px, 10vh, 128px); }
+.band h2 { margin-bottom: 8px; }
+.band h2 + .prosa { margin-top: 24px; }
+/* Lista de servicios del lugar: nombres, sin números. */
+.lens button, .lens a { grid-template-columns: 1fr auto; font-size: 1.05rem; padding: 10px 0 11px; }
+.lens .llamada { display: none; }
+.lens b { font-family: inherit; font-size: .95rem; }
+.lens h3 { font-size: .95rem; text-transform: none; letter-spacing: 0; margin-bottom: 4px; }
+/* Fichas: foto, cliente, qué se hizo, año. */
+.ficha__head { display: none; }
+.ficha__foot .llamada { display: none; }
+.ficha__foot { margin: 0 -14px; padding: 8px 14px 10px; }
+.ficha__foot .mono { margin-left: 0; white-space: normal; }
+.ficha > a { grid-template-rows: auto auto 1fr auto; padding-top: 14px; }
+/* Casos: el año va con el cliente. */
+.caso__copy > .mono { display: none; }
+.caso .cliente .anio { color: var(--ink-3); font-weight: 400; }
+/* Pasos y principios: sin numeración. */
+.pasos li::before, .doc li::before, .principios li::before { display: none; }
+/* Clientes en prosa. */
+.clientes-prosa { margin: 24px 0 0; max-width: 80ch; font-size: clamp(1.15rem, 1.8vw, 1.5rem); line-height: 1.55; color: var(--ink-2); }
+.clientes-prosa b { color: var(--ink); font-weight: 600; }
+/* Qué cubre: puntos en lugar de números. */
+.caps .llamada { width: 10px; height: 10px; border: 0; background: var(--ink-3); font-size: 0; }
+.caps li.on .llamada { background: var(--red); }

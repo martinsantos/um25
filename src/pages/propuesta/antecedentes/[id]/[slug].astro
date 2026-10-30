@@ -101,7 +101,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
           <div class="desp iso" data-desp data-svcs={c.serviceCodes.join(' ')}>
             <div set:html={iso} />
             <div class="llamadas" data-llamadas></div>
-            <span class="desp__cap mono">{svcs.map((s, i) => `${pad(i + 1)} ${s.name}`).join(' · ')}</span>
+            <span class="desp__cap mono">{svcs.map((s) => s.name).join(' · ')}</span>
           </div>
         </div>
         <div class="datos">
@@ -112,7 +112,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
             <div><dt class="mono">Cliente</dt><dd>{c.client}</dd></div>
             {c.sector && <div><dt class="mono">Sector</dt><dd><a class="u" href={`/propuesta/antecedentes?sector=${c.sectorSlug}`}>{c.sector}</a></dd></div>}
             {when && <div><dt class="mono">Fecha</dt><dd>{when}</dd></div>}
-            {svcs.length > 0 && <div><dt class="mono">Servicios</dt><dd><ol>{svcs.map((s, i) => <li><span class="llamada on" data-code={s.code}>{pad(i + 1)}</span><a href={s.href}>{s.name}</a></li>)}</ol></dd></div>}
+            {svcs.length > 0 && <div><dt class="mono">Servicios</dt><dd><ol>{svcs.map((s, i) => <li><a href={s.href}>{s.name}</a></li>)}</ol></dd></div>}
             <div><dt class="mono">Referencia</dt><dd>UM-{c.id}</dd></div>
           </dl>
           {svcs[0] && c.sector && <a class="rec" href={`/propuesta/sectores/${c.sectorSlug}`}><img src={posterOf(c.sectorSlug, svcs[0].code)} alt="" width="320" height="180" loading="lazy" /><div><b>{c.sector} por dentro</b><span>{svcs[0].name}</span></div></a>}
@@ -139,7 +139,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
         codes.forEach((code, i) => {
           const pin = svg.querySelector<SVGGraphicsElement>(`.sp-pin--${code}`); if (!pin) return;
           const r = pin.getBoundingClientRect();
-          const el = document.createElement('span'); el.className = 'llamada on'; el.textContent = String(i + 1).padStart(2, '0');
+          const el = document.createElement('span'); el.className = 'llamada on'; el.textContent = '';
           el.style.left = `${r.left + r.width / 2 - b.left}px`; el.style.top = `${r.top + r.height / 2 - b.top - 20}px`;
           box.appendChild(el);
         });

@@ -1,11 +1,9 @@
 ---
 /**
- * Vertical de servicio (2026-10-30, v3), sistema Despiece. Cuenta el servicio con los datos del
- * sitio: descripción y capacidades del catálogo, los casos con alcance técnico completo del
- * registro, la ficha técnica (alcance, normas, entregables, nivel de servicio, equipamiento,
- * implementación, garantía y cobertura), el proceso, sus proyectos por sector y por año, los
- * sectores donde tiene casos y las fichas. La foto real se abre hasta el despiece con sólo ese
- * recorrido encendido. No indexable.
+ * Vertical de servicio (2026-10-30, v4). Le habla a quien necesita ese servicio: qué es, qué
+ * cubre, qué hicimos, cómo lo hacemos, qué entrega y dónde. Frases completas del catálogo, de la
+ * ficha técnica y del registro de antecedentes. Sin rótulos ni numeraciones. La foto real se
+ * abre hasta el despiece con sólo ese recorrido encendido. No indexable.
  */
 import '../../../styles/proto-despiece.css';
 import Ficha from '../../../components/proto/Ficha.astro';
@@ -32,14 +30,11 @@ const device = code === '106' ? '' : readDevice(code);
 const photo = SERVICE_PHOTO[code];
 const poster = `/cine/media/cine-${scene}-${SERVICE_KEY[code]}-poster.avif`;
 const casos = casosDe(CASOS_SERVICIO[code] || []);
+const lower = servicio.name.toLowerCase();
 const bySector = SECTORS.map((s) => ({ slug: s.slug, name: s.name, count: own.filter((c) => c.sectorSlug === s.slug).length })).filter((s) => s.count > 0).sort((a, b) => b.count - a.count);
-const years = [...new Set(own.map((c) => c.year).filter(Boolean))].sort((a, b) => a - b);
-const yearCounts = Object.fromEntries(years.map((y) => [y, own.filter((c) => c.year === y).length]));
-const maxYear = Math.max(1, ...Object.values(yearCounts));
-const pad = (v: number) => String(v).padStart(2, '0');
-const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'Aeropuerto', bodega: 'Bodega', hospital: 'Centro de salud', planta: 'Planta' };
+const sceneTitle: Record<string, string> = { fachada: 'edificio', aeropuerto: 'aeropuerto', bodega: 'bodega', hospital: 'centro de salud', planta: 'planta' };
 const meta = Object.fromEntries(servicio.metadata.map((m) => [m.label, m.value]));
-const sectoresConCasos = spec.sectorSlugs.map((s) => SECTORS.find((x) => x.slug === s)).filter(Boolean) as typeof SECTORS;
+const condiciones = ['Implementación', 'Garantía', 'Cobertura'].filter((k) => meta[k]).map((k) => `${k.toLowerCase()}: ${meta[k]}`).join(' · ');
 ---
 <!doctype html>
 <html lang="es">
@@ -49,31 +44,35 @@ const sectoresConCasos = spec.sectorSlugs.map((s) => SECTORS.find((x) => x.slug 
     <meta name="robots" content="noindex, nofollow" />
     <title>{servicio.name} · {servicio.tagline} · ULTIMA MILLA</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
       .cubre { position: relative; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 80px); align-items: center; margin-top: 32px; }
       .equipo { position: relative; aspect-ratio: 4 / 3; display: grid; place-items: center; padding: 8% 12%; }
       .equipo > div { width: 100%; height: 100%; display: grid; place-items: center; }
       .equipo :global(svg) { width: 100%; height: 100%; display: block; overflow: visible; }
       .caps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-      .caps li { display: grid; grid-template-columns: 26px 1fr; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--line-2); align-items: center; font-size: 1.05rem; color: var(--ink-2); transition: color .3s; }
+      .caps li { display: grid; grid-template-columns: 14px 1fr; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--line-2); align-items: center; font-size: 1.1rem; color: var(--ink-2); transition: color .3s; }
       .caps li.on { color: var(--ink); }
       .lineas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
       .lineas :global(line) { stroke: var(--ink-3); stroke-width: 1; transition: stroke .3s; }
       .lineas :global(circle) { fill: var(--red); }
       .lineas :global(.on) { stroke: var(--red); }
-      .info { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 4vw, 80px); align-items: start; margin-top: 32px; }
-      .info__data { display: grid; gap: 26px; }
+      .como { list-style: none; margin: 28px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px clamp(28px, 4vw, 64px); }
+      .como li { display: grid; gap: 6px; }
+      .como b { font-size: 1.2rem; font-weight: 600; }
+      .como p { margin: 0; color: var(--ink-2); line-height: 1.55; }
+      .entrega { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px clamp(28px, 4vw, 64px); margin-top: 28px; }
+      .entrega h3 { font-size: 1.2rem; font-weight: 600; margin-bottom: 10px; }
+      .entrega ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; color: var(--ink-2); font-size: 1.05rem; line-height: 1.5; }
+      .entrega ul li::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 10px; background: var(--red); vertical-align: 1px; }
+      .condiciones { margin: 28px 0 0; color: var(--ink-3); font-size: 1rem; }
+      .donde { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 4vw, 80px); align-items: start; margin-top: 28px; }
       .rec { display: grid; gap: 10px; }
       .rec figure { margin: 0; aspect-ratio: 16 / 9; background: var(--bg-2); overflow: hidden; }
       .rec img { width: 100%; height: 100%; object-fit: cover; display: block; }
-      .rec__cap { display: flex; justify-content: space-between; }
-      .sectores { list-style: none; margin: 32px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
-      .sectores a { display: inline-block; padding: 10px 16px; border: 1px solid var(--line); color: var(--ink-2); }
-      .sectores a:hover { color: var(--ink); border-color: var(--ink); }
-      .grid { margin-top: 32px; }
+      .grid { margin-top: clamp(28px, 4vh, 48px); }
       @media (max-width: 900px) {
-        .cubre, .info { grid-template-columns: 1fr; }
+        .cubre, .como, .entrega, .donde { grid-template-columns: 1fr; }
         .lineas { display: none; }
       }
     </style>
@@ -87,11 +86,9 @@ const sectoresConCasos = spec.sectorSlugs.map((s) => SECTORS.find((x) => x.slug 
     <section class="lugar" data-lugar data-fase="0" aria-label={servicio.name}>
       <div class="lugar__pin">
         <div class="copy">
-          <span class="mono">{nav.text}</span>
           <h1>{servicio.name}<span class="dot">.</span></h1>
           <p class="tag">{servicio.tagline}</p>
           <p>{servicio.description}</p>
-          <ol class="fases mono" data-fases>{servicio.proceso.map((s) => <li>{s.titulo}</li>)}</ol>
           <a class="u" href={`/propuesta/antecedentes?service=${code}`}>{own.length > 0 ? `${own.length} proyectos documentados` : 'Ver todos los proyectos'}</a>
         </div>
         <div class="xray">
@@ -104,68 +101,50 @@ const sectoresConCasos = spec.sectorSlugs.map((s) => SECTORS.find((x) => x.slug 
     </section>
 
     <section class="band" id="cubre">
-      <h2>Qué cubre {servicio.name}<span class="dot">.</span></h2>
+      <h2>Qué cubre<span class="dot">.</span></h2>
       <div class="cubre" data-cubre>
         <div class="equipo" data-equipo>{device ? <div set:html={device} /> : <div class="iso" data-src={`/cine/iso/site-building-v2.svg`}></div>}</div>
-        <ol class="caps" data-caps>{servicio.capabilities.map((c, i) => <li><span class="llamada">{pad(i + 1)}</span>{c}</li>)}</ol>
+        <ol class="caps" data-caps>{servicio.capabilities.map((c) => <li><span class="llamada"></span>{c}</li>)}</ol>
         <svg class="lineas" data-lineas aria-hidden="true"></svg>
       </div>
     </section>
 
-    <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${servicio.name.toLowerCase()}`} fallbackImage={photo} />
+    <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} fallbackImage={photo} />
 
-    <section class="band" id="ficha">
-      <h2>Alcance, normas y entregables<span class="dot">.</span></h2>
-      <div class="ficha-tec hoja">
-        <div class="hoja__head"><span class="mono">{servicio.name}</span><span class="mono">{spec.keyStandard}</span></div>
-        <div class="hoja__body">
-          <dl>
-            <div><dt class="mono">Alcance</dt><dd><ul>{spec.scope.map((s) => <li>{s}</li>)}</ul></dd></div>
-            <div><dt class="mono">Normas y criterios</dt><dd><ul>{spec.standards.map((s) => <li>{s}</li>)}</ul></dd></div>
-            <div><dt class="mono">Entregables</dt><dd><ul>{spec.deliverables.map((s) => <li>{s}</li>)}</ul></dd></div>
-            <div><dt class="mono">Nivel de servicio</dt><dd><ul>{spec.serviceLevel.map((s) => <li>{s}</li>)}</ul></dd></div>
-            <div><dt class="mono">Equipamiento</dt><dd><ul>{spec.equipment.map((s) => <li>{s}</li>)}</ul></dd></div>
-            <div><dt class="mono">Entregable clave</dt><dd><ul><li>{spec.keyDeliverable}</li></ul></dd></div>
-          </dl>
-        </div>
-        <div class="cajetin" style="--cols:3">{['Implementación', 'Garantía', 'Cobertura'].filter((k) => meta[k]).map((k) => <div><span class="mono">{k}</span><b>{meta[k]}</b></div>)}</div>
+    <section class="band" id="como">
+      <h2>Cómo lo hacemos<span class="dot">.</span></h2>
+      <ol class="como">{servicio.proceso.map((s) => <li><b>{s.titulo}</b><p>{s.desc}</p></li>)}</ol>
+    </section>
+
+    <section class="band" id="entrega">
+      <h2>Qué entregamos<span class="dot">.</span></h2>
+      <div class="entrega">
+        <div><h3>Alcance</h3><ul>{spec.scope.map((s) => <li>{s}</li>)}</ul></div>
+        <div><h3>Normas y criterios</h3><ul>{spec.standards.map((s) => <li>{s}</li>)}</ul></div>
+        <div><h3>Documentación que recibís</h3><ul>{spec.deliverables.map((s) => <li>{s}</li>)}</ul></div>
+        <div><h3>Después de la obra</h3><ul>{spec.serviceLevel.map((s) => <li>{s.replace(/\s*desde el frente 10\d/i, '')}</li>)}</ul></div>
       </div>
+      {condiciones && <p class="condiciones">{condiciones.charAt(0).toUpperCase() + condiciones.slice(1)}.</p>}
     </section>
 
-    <section class="band" id="proceso">
-      <h2>De la medición al resultado<span class="dot">.</span></h2>
-      <ol class="pasos">{servicio.proceso.map((s) => <li><b>{s.titulo}</b><p>{s.desc}</p></li>)}</ol>
-    </section>
-
-    {own.length > 0 && (
-      <section class="band" id="proyectos">
-        <h2>{own.length} proyectos con {servicio.name.toLowerCase()}<span class="dot">.</span></h2>
-        <div class="info">
-          <div class="info__data">
-            <div class="lens">
-              <h3 class="mono">Por sector</h3>
-              {bySector.map((s) => <a class="no-n" href={`/propuesta/antecedentes?service=${code}&sector=${s.slug}`} style={`--w:${Math.round((s.count / own.length) * 100)}`}>{s.name}<b>{s.count}</b><i></i></a>)}
-            </div>
-            <div>
-              <h3 class="mono" style="margin-bottom:8px">Por año</h3>
-              <div class="years">{years.map((y) => <a href={`/propuesta/antecedentes?service=${code}&year=${y}`} aria-label={`${y}: ${yearCounts[y]} proyectos`} title={`${y} · ${yearCounts[y]}`}><i style={`--h:${Math.max(4, Math.round((yearCounts[y] / maxYear) * 100))}`}></i></a>)}</div>
-              <div class="axis mono" aria-hidden="true"><span>{years[0]}</span><span>{years[years.length - 1]}</span></div>
-            </div>
-          </div>
-          <a class="rec" href={`/propuesta/sectores/${bySector[0]?.slug || 'constructoras'}`}>
+    {bySector.length > 0 && (
+      <section class="band" id="donde">
+        <h2>Dónde lo hicimos<span class="dot">.</span></h2>
+        <div class="donde">
+          <p class="clientes-prosa">{bySector.map((s, i) => <><a href={`/propuesta/sectores/${s.slug}`}><b>{s.name}</b></a>{' '}({s.count} {s.count === 1 ? 'proyecto' : 'proyectos'}){i < bySector.length - 2 ? ', ' : i === bySector.length - 2 ? ' y ' : '.'}</>)}</p>
+          <a class="rec" href={`/propuesta/sectores/${bySector[0].slug}`}>
             <figure><img src={poster} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure>
-            <div class="rec__cap"><span class="mono">{servicio.name} en {sceneTitle[scene].toLowerCase()}</span><span class="mono"></span></div>
+            <span class="mono">{servicio.name} en {sceneTitle[scene]}, en movimiento</span>
           </a>
         </div>
-        <ol class="grid grid--4">{own.slice(0, 8).map((c, i) => <Ficha story={c} eager={i < 4} />)}</ol>
-        <a class="u more" href={`/propuesta/antecedentes?service=${code}`}>Ver los {own.length} proyectos</a>
       </section>
     )}
 
-    {sectoresConCasos.length > 0 && (
-      <section class="band" id="sectores">
-        <h2>Dónde lo hacemos<span class="dot">.</span></h2>
-        <ul class="sectores">{sectoresConCasos.map((s) => <li><a href={`/propuesta/sectores/${s.slug}`}>{s.name}</a></li>)}</ul>
+    {own.length > 0 && (
+      <section class="band" id="proyectos">
+        <h2>{own.length} proyectos con {lower}<span class="dot">.</span></h2>
+        <ol class="grid grid--4">{own.slice(0, 8).map((c, i) => <Ficha story={c} eager={i < 4} />)}</ol>
+        <a class="u more" href={`/propuesta/antecedentes?service=${code}`}>Ver los {own.length} proyectos</a>
       </section>
     )}
 
@@ -182,7 +161,6 @@ const sectoresConCasos = spec.sectorSlugs.map((s) => SECTORS.find((x) => x.slug 
         lugar.style.setProperty('--linea', p < .02 || p > .52 ? '0' : '1');
         const fase = p < .12 ? 0 : p < .5 ? 1 : p < .78 ? 2 : 3;
         if (lugar.dataset.fase !== String(fase)) lugar.dataset.fase = String(fase);
-        lugar.querySelectorAll<HTMLElement>('[data-fases] li').forEach((li, i) => li.classList.toggle('on', i < fase || (fase === 3 && i === 3)));
       };
       addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
       addEventListener('resize', update);
@@ -204,7 +182,7 @@ const sectoresConCasos = spec.sectorSlugs.map((s) => SECTORS.find((x) => x.slug 
         const cx = art.left + art.width / 2 - box.left, cy = art.top + art.height / 2 - box.top;
         items.forEach((li, i) => {
           const c = li.querySelector<HTMLElement>('.llamada')!.getBoundingClientRect();
-          const x2 = c.left - box.left - 4, y2 = c.top + c.height / 2 - box.top;
+          const x2 = c.left - box.left - 2, y2 = c.top + c.height / 2 - box.top;
           const t = items.length > 1 ? i / (items.length - 1) : .5;
           const ang = (-.42 + t * .84) * Math.PI;
           const x1 = cx + Math.cos(ang) * art.width * .34, y1 = cy + Math.sin(ang) * art.height * .34;

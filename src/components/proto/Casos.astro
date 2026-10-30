@@ -1,5 +1,5 @@
 ---
-/** Casos con el alcance real de cada obra: foto, año, título, cliente, texto del registro y servicios. */
+/** Casos con el alcance real de cada obra: foto, qué se hizo, para quién y cuándo, el alcance del registro y los servicios. */
 import type { Caso } from './relato';
 import { services, SECTOR_PHOTO, SERVICE_PHOTO, type Story } from './isoData';
 interface Props { casos: Caso[]; stories: Story[]; title?: string; max?: number; fallbackImage?: string }
@@ -19,9 +19,8 @@ const items = casos.slice(0, max).map((c) => {
         <article class="caso">
           <figure><img src={c.image} alt="" width="1200" height="750" loading="lazy" decoding="async" /></figure>
           <div class="caso__copy">
-            {c.year > 0 && <span class="mono">{c.year}</span>}
             <h3><a href={c.href}>{c.titulo}</a></h3>
-            <span class="cliente">{c.cliente}</span>
+            <span class="cliente">{c.cliente}{c.year > 0 && <span class="anio"> · {c.year}</span>}</span>
             <p>{c.texto}</p>
             {c.serviceNames.length > 0 && <div class="svc">{c.serviceNames.map((n) => <span>{n}</span>)}</div>}
           </div>

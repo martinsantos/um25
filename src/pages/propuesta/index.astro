@@ -15,8 +15,6 @@ import { EMPRESA, CUMPLIMIENTO, CASOS } from '../../components/proto/relato';
 export const prerender = false;
 const { total, places, stories } = await loadStories();
 const building = readIso('building');
-const steps = ['Relevamiento', 'Diseño', 'Ejecución', 'Prueba técnica'];
-const pad = (n: number) => String(n).padStart(2, '0');
 const clientes = Object.values(stories.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count).slice(0, 24);
 ---
 <!doctype html>
@@ -59,11 +57,9 @@ const clientes = Object.values(stories.reduce<Record<string, { name: string; cou
 
       /* Frentes y documentación */
       .frentes { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(24px, 4vw, 64px); border-top: 1px solid var(--line); }
-      .frentes a { display: grid; grid-template-columns: 26px 1fr; gap: 4px 14px; padding: 16px 0; border-bottom: 1px solid var(--line-2); align-items: center; }
-      .frentes a .llamada { grid-row: 1 / span 2; }
-      .frentes b { grid-column: 2; font-weight: 600; font-size: 1.1rem; }
-      .frentes .t { grid-column: 2; color: var(--ink-3); font-size: .95rem; }
-      .frentes a:hover .llamada { background: var(--red); border-color: var(--red); color: #fff; }
+      .frentes a { display: grid; grid-template-columns: 1fr; gap: 4px; padding: 16px 0; border-bottom: 1px solid var(--line-2); }
+      .frentes b { font-weight: 600; font-size: 1.15rem; }
+      .frentes .t { color: var(--ink-2); font-size: 1rem; }
       .doc { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1px; background: var(--line-2); border: 1px solid var(--line-2); counter-reset: d; }
       .doc li { background: var(--bg); padding: 20px; display: grid; gap: 10px; align-content: start; }
       .doc li::before { counter-increment: d; content: counter(d, decimal-leading-zero); font: 500 .76rem var(--mono); color: var(--ink-3); }
@@ -89,10 +85,9 @@ const clientes = Object.values(stories.reduce<Record<string, { name: string; cou
     <section class="lugar lugar--open" data-lugar data-fase="0" aria-label="Portada">
       <div class="lugar__pin">
         <div class="copy">
-          <span class="mono">24 años de servicios IT · Mendoza, Argentina</span>
+          <span class="mono">24 años de servicios IT. Mendoza, Argentina.</span>
           <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
           <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
-          <ol class="fases mono" data-fases>{steps.map((s) => <li>{s}</li>)}</ol>
           <a class="u" href="/propuesta/antecedentes">{total} proyectos documentados</a>
         </div>
         <div class="xray">
@@ -146,7 +141,7 @@ const clientes = Object.values(stories.reduce<Record<string, { name: string; cou
     <section class="band" id="servicios">
       <h2>Ocho frentes de servicio<span class="dot">.</span></h2>
       <p class="band__lead">Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria.</p>
-      <ul class="frentes">{services.map((s, i) => <li><a href={`/propuesta/servicios/${s.code}`}><span class="llamada">{pad(i + 1)}</span><b>{s.name}</b><span class="t">{s.text}</span></a></li>)}</ul>
+      <ul class="frentes">{services.map((s, i) => <li><a href={`/propuesta/servicios/${s.code}`}><b>{s.name}</b><span class="t">{s.text}</span></a></li>)}</ul>
     </section>
 
     <section class="band" id="documentacion">
@@ -177,7 +172,6 @@ const clientes = Object.values(stories.reduce<Record<string, { name: string; cou
           el.style.setProperty('--linea', p < .02 || p > .52 ? '0' : '1');
           const fase = p < .12 ? 0 : p < .5 ? 1 : p < .78 ? 2 : 3;
           if (el.dataset.fase !== String(fase)) el.dataset.fase = String(fase);
-          el.querySelectorAll<HTMLElement>('[data-fases] li').forEach((li, i) => li.classList.toggle('on', i < fase || (fase === 3 && i === 3)));
         });
       };
       addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });

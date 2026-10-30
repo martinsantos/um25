@@ -72,7 +72,7 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
           </div>
           <div class="lens" data-lens-group="service">
             <h3 class="mono">Servicio</h3>
-            {svcs.map((s) => <button type="button" data-lens="service" data-value={s.code} aria-pressed="false" style={`--w:${Math.round((s.count / total) * 100)}`}><span class="llamada">{pad(Number(s.code) - 100)}</span>{s.name}<b data-n>{s.count}</b><i></i></button>)}
+            {svcs.map((s) => <button class="no-n" type="button" data-lens="service" data-value={s.code} aria-pressed="false" style={`--w:${Math.round((s.count / total) * 100)}`}>{s.name}<b data-n>{s.count}</b><i></i></button>)}
           </div>
           <div>
             <h3 class="mono" style="margin-bottom:8px">Año</h3>
