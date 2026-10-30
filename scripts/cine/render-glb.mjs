@@ -26,7 +26,8 @@ const TRANSPARENTES = new Set(['glass']);          // materiales que no tapan (s
 const skipIdx = args.indexOf('--skip');
 const OMITIR = new Set(skipIdx > 0 ? args[skipIdx + 1].split(',') : []);   // materiales o sistemas que no se dibujan (corte)
 const W = 1200, H = 720, PAD = 28;
-const AZ = (42 * Math.PI) / 180, EL = (30 * Math.PI) / 180;
+const AZ = (opt('--az', 42) * Math.PI) / 180, EL = (opt('--el', 30) * Math.PI) / 180;
+const ZMAX = opt('--zmax', Infinity);   // corte horizontal: lo que queda por encima no se dibuja ni tapa
 
 /** Servicios del sitio por sistema del modelo. */
 const SERVICIO = { Data: '101', Fiber: '101', WiFi: '101', CCTV: '102', Security: '102', Telecom: '103', Intercom: '103', Software: '104', 'Fire-detection': '107', Power: '108' };
@@ -42,6 +43,12 @@ const proyectar = (x, y, z) => {
 };
 
 const nodos = (await leerGlb(entrada)).filter((m) => !OMITIR.has(m.material) && !OMITIR.has(m.system));
+if (ZMAX !== Infinity) for (const m of nodos) {
+  // Se descartan los triángulos con algún vértice por encima del corte.
+  const P = m.positions, I = m.indices, keep = [];
+  for (let t = 0; t < I.length; t += 3) if (P[I[t] * 3 + 2] <= ZMAX && P[I[t + 1] * 3 + 2] <= ZMAX && P[I[t + 2] * 3 + 2] <= ZMAX) keep.push(I[t], I[t + 1], I[t + 2]);
+  m.indices = Uint32Array.from(keep);
+}
 if (YAW) for (const m of nodos) { const P = m.positions, c = Math.cos(YAW), sn = Math.sin(YAW); for (let i = 0; i < P.length; i += 3) { const x = P[i], y = P[i + 1]; P[i] = x * c - y * sn; P[i + 1] = x * sn + y * c; } }
 // Encuadre.
 let minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
