@@ -1,10 +1,12 @@
 ---
 /** Barra superior común. */
-interface Props { current?: string }
-const { current = '' } = Astro.props;
-const items: [string, string, string][] = [['Servicios', '/propuesta/servicios', 'servicios'], ['Sectores', '/propuesta/sectores', 'sectores'], ['Antecedentes', '/propuesta/antecedentes', 'antecedentes'], ['Blog', '/blog', 'blog']];
+interface Props { current?: string; lang?: 'es' | 'en' }
+const { current = '', lang = 'es' } = Astro.props;
+const es: [string, string, string][] = [['Servicios', '/propuesta/servicios', 'servicios'], ['Sectores', '/propuesta/sectores', 'sectores'], ['Antecedentes', '/propuesta/antecedentes', 'antecedentes'], ['Blog', '/propuesta/blog', 'blog']];
+const en: [string, string, string][] = [['Services', '/propuesta/en/services', 'services'], ['About', '/propuesta/en/about', 'about']];
+const items = lang === 'en' ? en : es;
 ---
 <header class="top">
-  <a class="logo" href="/propuesta">ultimamilla<i>.</i>com<i>.</i>ar</a>
-  <nav aria-label="Principal">{items.map(([n, h, k]) => <a href={h} aria-current={k === current ? 'page' : undefined}>{n}</a>)}<a class="cta" href="#contacto">Contactar</a></nav>
+  <a class="logo" href={lang === 'en' ? '/propuesta/en' : '/propuesta'}>ultimamilla<i>.</i>com<i>.</i>ar</a>
+  <nav aria-label={lang === 'en' ? 'Main' : 'Principal'}>{items.map(([n, h, k]) => <a href={h} aria-current={k === current ? 'page' : undefined}>{n}</a>)}<a class="cta" href={lang === 'en' ? '/propuesta/en/contact' : '/propuesta/contacto'}>{lang === 'en' ? 'Contact' : 'Contactar'}</a></nav>
 </header>

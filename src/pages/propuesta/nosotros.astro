@@ -1,0 +1,79 @@
+---
+/** Nosotros (2026-10-30): la empresa con sus propias palabras (página Nosotros), su historia, dónde está y qué hace. No indexable. */
+import '../../styles/proto-despiece.css';
+import Head from '../../components/proto/Head.astro';
+import Top from '../../components/proto/Top.astro';
+import Apertura from '../../components/proto/Apertura.astro';
+import Cierre from '../../components/proto/Cierre.astro';
+import { loadStories, readIso, posterOf } from '../../components/proto/isoData';
+import { EMPRESA, CUMPLIMIENTO } from '../../components/proto/relato';
+
+export const prerender = false;
+const { total } = await loadStories();
+const building = readIso('building');
+const capacidades = ['Redes, fibra, switching, WiFi corporativo y radioenlaces', 'Seguridad electrónica, CCTV, accesos e intrusión', 'Telecomunicaciones, voz, datos, video y conectividad distribuida', 'Software a medida, SGI, APIs, tableros e integraciones', 'Soporte 24/7, mantenimiento preventivo y respuesta a incidentes', 'Detección de incendios y eléctricos dedicados para IT'];
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <Head title={`${EMPRESA.titulo} · ULTIMA MILLA`} />
+    <style>
+      .historia { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3) clamp(20px, 3vw, 48px); border-top: 1px solid var(--line); }
+      .historia li { padding-top: var(--s2); display: grid; gap: 6px; align-content: start; }
+      .historia .small { color: var(--ink); }
+      .sedes { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3); }
+      .sedes li { display: grid; gap: 4px; padding-top: var(--s2); border-top: 1px solid var(--line); }
+      .sedes b { font-size: 1.2rem; font-weight: 600; }
+      .sedes span { color: var(--ink-2); }
+      @media (max-width: 1100px) { .historia, .sedes { grid-template-columns: 1fr 1fr; } }
+      @media (max-width: 900px) { .historia, .sedes { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <Top />
+    <Apertura label="Nosotros" iso={building} image="/images/editorial/umsa-about-engineering.webp" ghost={posterOf('constructoras')}>
+      <span class="small">24 años de servicios IT. Mendoza, Argentina.</span>
+      <h1 style="font-size:clamp(2rem,3.6vw,3.6rem)">{EMPRESA.titulo}<span class="dot">.</span></h1>
+      <p class="tag">{EMPRESA.lead}</p>
+      <a class="u" href="/propuesta/antecedentes">{total} proyectos documentados</a>
+    </Apertura>
+
+    <section class="sec">
+      <div class="wrap cols cols-5-7">
+        <h2>Cómo trabajamos<span class="dot">.</span></h2>
+        <div class="cols cols-2">{EMPRESA.principios.map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="wrap cols cols-5-7">
+        <h2>Qué hacemos<span class="dot">.</span></h2>
+        <ul class="lista" style="font-size:1.125rem">{capacidades.map((c) => <li>{c}</li>)}</ul>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="wrap">
+        <div class="sec__head"><h2>La trayectoria importa cuando el sitio, el edificio o la planta ya están funcionando<span class="dot">.</span></h2><p>Muchos proyectos se definen en condiciones reales: ventanas de intervención cortas, edificios ocupados, equipos de terceros, documentación incompleta y urgencia operativa. Ahí la experiencia deja cada sistema instalado, documentado y operable desde el primer día.</p></div>
+        <ol class="historia">{EMPRESA.historia.map(([y, t, d]) => <li><span class="small">{y}</span><h3>{t}</h3><p class="muted">{d}</p></li>)}</ol>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="wrap">
+        <div class="sec__head"><h2>{EMPRESA.cobertura.replace(/\.$/, '')}<span class="dot">.</span></h2><p>{EMPRESA.coberturaDetalle}</p></div>
+        <ul class="sedes">{EMPRESA.sedes.map((s) => <li><b>{s.name}</b><span>{s.detail || s.role}</span></li>)}</ul>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="wrap">
+        <div class="sec__head"><h2>Cada obra se entrega medida, documentada y trazable<span class="dot">.</span></h2></div>
+        <div class="cols cols-3">{CUMPLIMIENTO.slice(0, 3).map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div>
+        <a class="u more" href="/propuesta/documentacion">Documentación técnica</a>
+      </div>
+    </section>
+
+    <Cierre />
+  </body>
+</html>

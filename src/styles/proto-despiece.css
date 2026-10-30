@@ -14,7 +14,7 @@
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 400 1.0625rem/1.6 Manrope, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 1.0625rem/1.6 'UM Sans 2', 'UM Sans 2 Signos', 'UM Sans 1.2 Compatibility', Arial, system-ui, sans-serif; font-kerning: normal; font-synthesis: none; -webkit-font-smoothing: antialiased; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 img, video { max-width: 100%; }
@@ -152,7 +152,10 @@ p { margin: 0; }
 .cierre__datos div { display: grid; gap: 4px; }
 .cierre__datos span { color: var(--ink-3); font-size: .9375rem; }
 .cierre__datos b { font-weight: 600; font-size: 1.05rem; }
-.pie { display: flex; justify-content: space-between; gap: var(--s2); flex-wrap: wrap; padding: var(--s3) var(--gutter); border-top: 1px solid var(--line-2); color: var(--ink-3); font-size: .9375rem; }
+.pie { padding: var(--s3) 0; border-top: 1px solid var(--line-2); color: var(--ink-3); font-size: .9375rem; }
+.pie__grid { display: flex; justify-content: space-between; gap: var(--s2) var(--s4); flex-wrap: wrap; }
+.pie nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+.pie nav a:hover { color: var(--ink); }
 
 @media (max-width: 1100px) { .cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fichas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 900px) {
@@ -168,3 +171,54 @@ p { margin: 0; }
   .ficha--rec { grid-column: 1 / -1; }
 }
 @media (prefers-reduced-motion: reduce) { .iso *, .xray * { transition-duration: .01s !important; } }
+
+/* ——— Formularios (contacto). */
+.form { display: grid; gap: var(--s3); }
+.form .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); }
+.field { display: grid; gap: 8px; }
+.field > span { color: var(--ink-2); font-size: .9375rem; }
+.field input, .field select, .field textarea { width: 100%; padding: 14px 16px; background: var(--bg-2); border: 1px solid var(--line); color: var(--ink); font: inherit; border-radius: 0; }
+.field input:focus, .field select:focus, .field textarea:focus { outline: 0; border-color: var(--ink-2); }
+.field textarea { min-height: 150px; resize: vertical; }
+.field select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--ink-3) 50%), linear-gradient(135deg, var(--ink-3) 50%, transparent 50%); background-position: calc(100% - 22px) 50%, calc(100% - 16px) 50%; background-size: 6px 6px; background-repeat: no-repeat; }
+.checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 20px; }
+.checks label { display: flex; gap: 10px; align-items: center; color: var(--ink-2); cursor: pointer; }
+.checks input { width: 16px; height: 16px; accent-color: var(--red); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.form__foot { display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; }
+.form .btn { border: 0; cursor: pointer; }
+.form .btn[disabled] { opacity: .6; cursor: default; }
+.aviso { display: none; padding: var(--s2) 0; color: var(--ink-2); }
+.aviso.on { display: block; }
+.aviso.ok { color: var(--ink); }
+.aviso a { border-bottom: 1px solid var(--red); }
+
+/* ——— Lectura (blog, textos legales). */
+.lectura { max-width: 68ch; font-size: 1.2rem; line-height: 1.65; color: var(--ink-2); }
+.lectura :is(p, h2, h3, ul, ol, blockquote, pre, table, figure):not(:first-child) { margin-top: 1.1em; }
+.lectura br + br { display: none; }
+.lectura h2 { font-size: clamp(1.5rem, 2.4vw, 2rem); color: var(--ink); margin-top: 2em !important; }
+.lectura h3 { font-size: 1.3rem; color: var(--ink); margin-top: 1.6em !important; }
+.lectura strong { color: var(--ink); font-weight: 600; }
+.lectura a { border-bottom: 1px solid var(--red); color: var(--ink); }
+.lectura ul, .lectura ol { padding-left: 1.2em; }
+.lectura li + li { margin-top: .4em; }
+.lectura blockquote { margin: 0; padding-left: 20px; border-left: 2px solid var(--red); color: var(--ink); }
+.lectura img { max-width: 100%; height: auto; display: block; }
+.lectura pre { overflow: auto; padding: 16px; background: var(--bg-2); font-size: .95rem; }
+.lectura code { font-size: .95em; }
+.lectura table { width: 100%; border-collapse: collapse; font-size: 1rem; }
+.lectura th, .lectura td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line-2); }
+.entradas { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.entrada { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 8px var(--s4); padding: var(--s3) 0; border-bottom: 1px solid var(--line-2); align-items: baseline; }
+.entrada .small { display: grid; gap: 2px; }
+.entrada h2 { font-size: clamp(1.3rem, 2vw, 1.7rem); }
+.entrada p { color: var(--ink-2); margin-top: 8px; }
+.entrada a:hover h2 { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips a { padding: 8px 14px; border: 1px solid var(--line); color: var(--ink-2); font-size: .95rem; }
+.chips a:hover, .chips a[aria-current="page"] { color: var(--ink); border-color: var(--ink); }
+.cabecera { padding-block: var(--s5) var(--s4); display: grid; gap: var(--s2); }
+.cabecera h1 { max-width: 18ch; }
+.cabecera p { max-width: 56ch; color: var(--ink-2); font-size: 1.2rem; }
+@media (max-width: 900px) { .form .row, .checks { grid-template-columns: 1fr; } .entrada { grid-template-columns: 1fr; gap: 6px; } }

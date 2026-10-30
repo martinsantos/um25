@@ -1,0 +1,33 @@
+---
+/** Privacidad (2026-10-30): el texto de la página de privacidad. No indexable. */
+import '../../styles/proto-despiece.css';
+import Head from '../../components/proto/Head.astro';
+import Top from '../../components/proto/Top.astro';
+import Cierre from '../../components/proto/Cierre.astro';
+export const prerender = false;
+const updatedAt = '31 de mayo de 2026';
+---
+<!doctype html>
+<html lang="es">
+  <head><Head title="Privacidad · ULTIMA MILLA" /></head>
+  <body>
+    <Top />
+    <main class="wrap">
+      <div class="cabecera">
+        <h1>Privacidad y tratamiento de consultas<span class="dot">.</span></h1>
+        <p>Actualizado: {updatedAt}</p>
+      </div>
+      <div class="lectura" style="padding-bottom: var(--s6)">
+        <h2>Datos que recibimos</h2>
+        <p>Cuando una persona completa el formulario de contacto, ULTIMA MILLA recibe los datos necesarios para responder la consulta: nombre, email, empresa y mensaje. No solicitamos contraseñas, datos bancarios ni información sensible desde este sitio público.</p>
+        <h2>Uso de la información</h2>
+        <p>Usamos la información enviada para evaluar el requerimiento, responder comercialmente, coordinar relevamientos y preparar documentación relacionada con servicios IT, obras, soporte o licitaciones.</p>
+        <h2>Analítica y operación del sitio</h2>
+        <p>El sitio puede utilizar medición de tráfico y registros técnicos para mejorar disponibilidad, seguridad y experiencia de navegación. Esa información se revisa de forma agregada y operativa.</p>
+        <h2>Contacto</h2>
+        <p>Para solicitar corrección o eliminación de una consulta enviada, escribir a <a href="mailto:contacto@ultimamilla.com.ar">contacto@ultimamilla.com.ar</a>.</p>
+      </div>
+    </main>
+    <Cierre />
+  </body>
+</html>

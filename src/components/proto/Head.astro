@@ -1,12 +1,14 @@
 ---
-/** Cabecera común de las páginas de la propuesta. */
-interface Props { title: string }
-const { title } = Astro.props;
+/** Cabecera común de las páginas de la propuesta. Tipografía: UM Sans 2, la de la casa. */
+interface Props { title: string; description?: string; lang?: string }
+const { title, description = '' } = Astro.props;
 ---
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex, nofollow" />
 <title>{title}</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+{description && <meta name="description" content={description} />}
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preload" href="/fonts/um-sans/v2.0.0/UMSans2-Variable.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/fonts/um-sans/v2.0.0/um-sans.css" />
 <script is:inline src="/js/propuesta-apertura.js" defer></script>

@@ -1,0 +1,40 @@
+---
+/** Blog (2026-10-30): la lista de entradas, con la categoría como filtro. Datos del blog real. No indexable. */
+import '../../../styles/proto-despiece.css';
+import Head from '../../../components/proto/Head.astro';
+import Top from '../../../components/proto/Top.astro';
+import Cierre from '../../../components/proto/Cierre.astro';
+import { fetchBlogListing } from '../../../utils/getBlogData';
+import { getCategoryLabel, formatBlogDateLong, sanitizeBlogExcerpt } from '../../../utils/blogUtils';
+
+export const prerender = false;
+const categoria = Astro.url.searchParams.get('categoria') || '';
+const { posts, total } = await fetchBlogListing(1, 60, categoria || undefined);
+const todas = categoria ? (await fetchBlogListing(1, 60)).posts : posts;
+const categorias = [...new Set(todas.map((p) => p.categoria))].sort();
+---
+<!doctype html>
+<html lang="es">
+  <head><Head title="Blog · ULTIMA MILLA" /></head>
+  <body>
+    <Top current="blog" />
+    <main class="wrap">
+      <div class="cabecera">
+        <h1>Blog<span class="dot">.</span></h1>
+        <p>Novedades de ULTIMA MILLA: servicios, proyectos y evolución de la empresa de servicios IT con sede en Guaymallén, Mendoza.</p>
+        <nav class="chips" aria-label="Categorías"><a href="/propuesta/blog" aria-current={categoria ? undefined : 'page'}>Todo</a>{categorias.map((c) => <a href={`/propuesta/blog?categoria=${c}`} aria-current={c === categoria ? 'page' : undefined}>{getCategoryLabel(c)}</a>)}</nav>
+      </div>
+      <ol class="entradas">
+        {posts.map((p) => (
+          <li class="entrada">
+            <span class="small"><span>{formatBlogDateLong(p.fecha_publicacion)}</span><span>{getCategoryLabel(p.categoria)}{p.tiempo_lectura ? ` · ${p.tiempo_lectura} min` : ''}</span></span>
+            <a href={`/propuesta/blog/${p.slug}`}><h2>{p.titulo}</h2><p>{sanitizeBlogExcerpt(p.resumen, 220)}</p></a>
+          </li>
+        ))}
+      </ol>
+      {posts.length === 0 && <p class="muted" style="padding: var(--s4) 0">No hay entradas en esta categoría.</p>}
+      <p class="small" style="padding: var(--s3) 0 var(--s6)">{total} {total === 1 ? 'entrada' : 'entradas'}</p>
+    </main>
+    <Cierre />
+  </body>
+</html>

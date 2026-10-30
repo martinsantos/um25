@@ -1,0 +1,33 @@
+---
+/** English overview (2026-10-30): the texts of the production English pages, in the same system. Not indexable. */
+import '../../../styles/proto-despiece.css';
+import Head from '../../../components/proto/Head.astro';
+import Top from '../../../components/proto/Top.astro';
+import Apertura from '../../../components/proto/Apertura.astro';
+import Cierre from '../../../components/proto/Cierre.astro';
+import { loadStories, readIso, posterOf } from '../../../components/proto/isoData';
+export const prerender = false;
+const { total } = await loadStories();
+const building = readIso('building');
+---
+<!doctype html>
+<html lang="en">
+  <head><Head title="ULTIMA MILLA · IT services for critical operations" /></head>
+  <body>
+    <Top lang="en" />
+    <Apertura label="Overview" iso={building} image={posterOf('constructoras')} film="/cine/media/cine-fachada.mp4" open>
+      <span class="small">24 years of IT services. Mendoza, Argentina.</span>
+      <h1>IT services for operations that cannot stop<span class="dot">.</span></h1>
+      <p>Networks, electronic security, telecom, custom software, energy and on-site support for organizations that need continuity, evidence and accountable delivery.</p>
+      <a class="u" href="/propuesta/antecedentes">{total} documented projects in catalog</a>
+    </Apertura>
+    <section class="sec"><div class="wrap cols cols-5-7">
+      <h2>Evidence<span class="dot">.</span></h2>
+      <div class="prosa">
+        <p class="lead">{total} documented projects in catalog. 24+ years operating infrastructure. 24/7 support for critical environments.</p>
+        <p>Detailed service and project pages are available in Spanish. <a class="u" href="/propuesta">Versión en español</a></p>
+      </div>
+    </div></section>
+    <Cierre lang="en" />
+  </body>
+</html>

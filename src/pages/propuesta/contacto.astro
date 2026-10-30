@@ -1,0 +1,110 @@
+---
+/** Contacto (2026-10-30): el formulario real (mismo contrato que /api/contact), los datos directos y qué conviene contar. No indexable. */
+import '../../styles/proto-despiece.css';
+import Head from '../../components/proto/Head.astro';
+import Top from '../../components/proto/Top.astro';
+import Cierre from '../../components/proto/Cierre.astro';
+import { services } from '../../components/proto/isoData';
+
+export const prerender = false;
+const checklist = ['Servicio principal o sistema afectado.', 'Sede, ciudad o cantidad de sitios.', 'Urgencia real, ventana de intervención o fecha de pliego.', 'Riesgo operativo: caída, seguridad, auditoría, crecimiento o mantenimiento.'];
+const urgencias = ['Sin urgencia', 'Esta semana', 'Este mes', 'Fecha de pliego'];
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <Head title="Contacto · ULTIMA MILLA" />
+    <style>
+      .contacto { padding-block: var(--s5) var(--s6); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--s5) clamp(28px, 4vw, 96px); align-items: start; }
+      .contacto__copy { display: grid; gap: var(--s4); }
+      .contacto__copy h1 { max-width: 14ch; }
+      .contacto__copy > p { color: var(--ink-2); font-size: 1.2rem; max-width: 44ch; }
+      .datos { display: grid; gap: var(--s3); }
+      .datos div { display: grid; gap: 4px; }
+      .datos span { color: var(--ink-3); font-size: .9375rem; }
+      .datos b { font-weight: 600; font-size: 1.05rem; }
+      .datos a.mapa { color: var(--ink-2); font-size: .9375rem; }
+      .datos a.mapa:hover { color: var(--ink); }
+      .que { display: grid; gap: 10px; }
+      .que h2 { font-size: 1.3rem; }
+      @media (max-width: 900px) { .contacto { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <Top />
+    <main class="wrap contacto">
+      <div class="contacto__copy">
+        <div>
+          <h1>Contanos qué tiene que seguir funcionando<span class="dot">.</span></h1>
+          <p style="margin-top:var(--s2)">Indicá qué necesitás, dónde y para cuándo. Un técnico te responde por email con el próximo paso: diagnóstico, relevamiento, propuesta o documentación.</p>
+        </div>
+        <div class="datos">
+          <div><span>Email</span><b><a href="mailto:contacto@ultimamilla.com.ar?subject=Consulta%20desde%20la%20web%20ULTIMA%20MILLA">contacto@ultimamilla.com.ar</a></b></div>
+          <div><span>Oficina</span><b>Houssay 1159, Guaymallén, Mendoza</b><a class="mapa" href="https://www.google.com/maps/search/?api=1&query=Houssay%201159%20Guaymallen%20Mendoza" target="_blank" rel="noopener">Ver en el mapa ↗</a></div>
+          <div><span>Horario</span><b>Lunes a viernes, 8 a 18 h</b><span>Clientes con abono: guardia 24/7.</span></div>
+        </div>
+        <div class="que">
+          <h2>Lo que ayuda a responder rápido</h2>
+          <ul class="lista">{checklist.map((c) => <li>{c}</li>)}</ul>
+        </div>
+      </div>
+
+      <form class="form" method="post" action="/api/contact" novalidate data-form>
+        <div class="row">
+          <label class="field"><span>Nombre</span><input type="text" name="name" required autocomplete="name" autocapitalize="words" placeholder="Nombre y apellido" /></label>
+          <label class="field"><span>Email de trabajo</span><input type="email" name="email" required autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="mail@empresa.com" /></label>
+        </div>
+        <div class="row">
+          <label class="field"><span>Empresa u organismo</span><input type="text" name="company" autocomplete="organization" placeholder="Opcional" /></label>
+          <label class="field"><span>Sede o ciudad</span><input type="text" name="site" autocomplete="address-level2" placeholder="Ej.: Mendoza, 3 sedes" /></label>
+        </div>
+        <fieldset class="field" style="border:0;padding:0;margin:0">
+          <span>Qué necesitás</span>
+          <div class="checks">{services.map((s, i) => <label><input type="checkbox" name="services" value={s.name} id={`svc-${i}`} />{s.name}</label>)}</div>
+        </fieldset>
+        <div class="row">
+          <label class="field"><span>Urgencia</span><select name="urgency">{urgencias.map((u) => <option value={u}>{u}</option>)}</select></label>
+        </div>
+        <label class="field"><span>Mensaje</span><textarea name="message" required rows="5" maxlength="1200" placeholder="Contanos qué necesitás, en qué sede y para cuándo."></textarea></label>
+        <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <input type="text" name="contact_phone" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <div class="form__foot">
+          <button class="btn" type="submit">Enviar consulta <span aria-hidden="true">→</span></button>
+          <span class="small">Te respondemos por email en horario de oficina.</span>
+        </div>
+        <p class="aviso" data-aviso aria-live="polite"></p>
+      </form>
+    </main>
+    <Cierre />
+
+    <script>
+      const form = document.querySelector<HTMLFormElement>('[data-form]')!;
+      const aviso = form.querySelector<HTMLElement>('[data-aviso]')!;
+      const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+      const startedAt = Date.now();
+      const say = (text: string, ok: boolean, html = '') => { aviso.textContent = text; if (html) aviso.insertAdjacentHTML('beforeend', html); aviso.className = `aviso on${ok ? ' ok' : ''}`; };
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = (n: string) => (form.elements.namedItem(n) as HTMLInputElement | null)?.value.trim() || '';
+        const name = f('name'), email = f('email'), text = f('message');
+        if (!name || !email || !text) { say('Faltan el nombre, el email o el mensaje.', false); return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { say('Revisá el email.', false); return; }
+        const services = [...form.querySelectorAll<HTMLInputElement>('input[name="services"]:checked')].map((i) => i.value);
+        const site = f('site'), urgency = f('urgency');
+        const header = [services.length ? `Servicios: ${services.join(', ')}` : '', site ? `Ciudad o sede: ${site}` : '', urgency && urgency !== 'Sin urgencia' ? `Urgencia: ${urgency}` : ''].filter(Boolean);
+        const payload = { name, email, company: f('company'), message: header.length ? `${header.join('\n')}\n\n${text}` : text, website: f('website'), contact_phone: f('contact_phone'), startedAt, originPath: location.pathname, originTitle: document.title, originLabel: services.join(', '), originIntent: services[0] || 'Consulta general', originHref: location.href };
+        btn.disabled = true; say('Enviando…', true);
+        try {
+          const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+          const result = await res.json().catch(() => ({}));
+          if (!res.ok || result.success === false) throw new Error(result.message || 'No se pudo enviar.');
+          say('Recibimos tu consulta. Un técnico te responde por email con el próximo paso.', true);
+          form.reset();
+        } catch (err) {
+          const body = encodeURIComponent(`${payload.message}\n\n${name} · ${email}${payload.company ? ` · ${payload.company}` : ''}`);
+          say(`${err instanceof Error && err.message ? err.message : 'No se pudo enviar.'} `, false, `<a href="mailto:contacto@ultimamilla.com.ar?subject=${encodeURIComponent('Consulta desde la web ULTIMA MILLA')}&body=${body}">Enviala por email</a>`);
+        } finally { btn.disabled = false; }
+      });
+    </script>
+  </body>
+</html>

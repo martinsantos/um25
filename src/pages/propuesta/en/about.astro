@@ -1,0 +1,21 @@
+---
+/** About (English). Not indexable. */
+import '../../../styles/proto-despiece.css';
+import Head from '../../../components/proto/Head.astro';
+import Top from '../../../components/proto/Top.astro';
+import Cierre from '../../../components/proto/Cierre.astro';
+export const prerender = false;
+const principles = [['Engineering first', 'Every decision is justified by availability, security, maintainability and operating cost.'], ['Field execution', 'We design with real knowledge of sites, technical rooms, racks, cabling and daily operations.'], ['Useful documentation', 'Every deliverable can be operated, audited and extended over time.'], ['Continuity by design', 'Support, maintenance and traceability are designed in from day one.']];
+const capabilities = ['Networks, fiber, switching, corporate WiFi and radio links', 'Electronic security, CCTV, access and intrusion', 'Telecom, voice, data, video and distributed connectivity', 'Custom software, SGI, APIs, dashboards and integrations', '24/7 support, preventive maintenance and incident response', 'Fire detection and dedicated electrical for IT'];
+---
+<!doctype html>
+<html lang="en">
+  <head><Head title="About ULTIMA MILLA · IT infrastructure Argentina" /></head>
+  <body>
+    <Top lang="en" current="about" />
+    <main class="wrap"><div class="cabecera"><h1>A technical company for operations that cannot stop<span class="dot">.</span></h1><p>ULTIMA MILLA integrates infrastructure, communications, security and software with an operational continuity mindset since 2003.</p></div></main>
+    <section class="sec"><div class="wrap cols cols-5-7"><h2>How we work<span class="dot">.</span></h2><div class="cols cols-2">{principles.map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div></div></section>
+    <section class="sec"><div class="wrap cols cols-5-7"><h2>What we do<span class="dot">.</span></h2><ul class="lista" style="font-size:1.125rem">{capabilities.map((c) => <li>{c}</li>)}</ul></div></section>
+    <Cierre lang="en" />
+  </body>
+</html>

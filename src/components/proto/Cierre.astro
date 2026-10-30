@@ -1,18 +1,28 @@
 ---
-/** Cierre común: contacto y pie. Sólo frases existentes. */
+/** Cierre común: contacto y pie con el mapa del sitio. Sólo frases existentes. */
+interface Props { lang?: 'es' | 'en' }
+const { lang = 'es' } = Astro.props;
+const es = { h: 'Contanos qué tiene que seguir funcionando', p: 'Indicá qué necesitás, dónde y para cuándo. Un técnico te responde por email con el próximo paso: diagnóstico, relevamiento, propuesta o documentación.', btn: 'Enviar consulta', href: '/propuesta/contacto', email: 'Email', office: 'Oficina', hours: 'Horario', hoursV: 'Lunes a viernes, 8 a 18 h', foot: '24 años de servicios IT. Mendoza, Argentina.', links: [['Nosotros', '/propuesta/nosotros'], ['Documentación técnica', '/propuesta/documentacion'], ['Blog', '/propuesta/blog'], ['Privacidad', '/propuesta/privacidad'], ['Tipografía', '/estilo/fuente'], ['English', '/propuesta/en']] };
+const en = { h: 'Tell us what has to keep running', p: 'For proposals, technical assessments or vendor qualification, use the Spanish contact form (same team, same SLA).', btn: 'Open contact form', href: '/propuesta/contacto', email: 'Email', office: 'Office', hours: 'Hours', hoursV: 'Monday to Friday, 8 am to 6 pm', foot: '24 years of IT services. Mendoza, Argentina.', links: [['About', '/propuesta/en/about'], ['Services', '/propuesta/en/services'], ['Versión en español', '/propuesta']] };
+const t = lang === 'en' ? en : es;
 ---
 <section class="cierre" id="contacto">
   <div class="wrap cierre__grid">
     <div class="cierre__copy">
-      <h2>Contanos qué tiene que seguir funcionando<span class="dot">.</span></h2>
-      <p>Indicá qué necesitás, dónde y para cuándo. Un técnico te responde por email con el próximo paso: diagnóstico, relevamiento, propuesta o documentación.</p>
-      <a class="btn" href="/contacto">Enviar consulta <span aria-hidden="true">→</span></a>
+      <h2>{t.h}<span class="dot">.</span></h2>
+      <p>{t.p}</p>
+      <a class="btn" href={t.href}>{t.btn} <span aria-hidden="true">→</span></a>
     </div>
     <div class="cierre__datos">
-      <div><span>Email</span><b>contacto@ultimamilla.com.ar</b></div>
-      <div><span>Oficina</span><b>Houssay 1159, Guaymallén, Mendoza</b></div>
-      <div><span>Horario</span><b>Lunes a viernes, 8 a 18 h</b></div>
+      <div><span>{t.email}</span><b><a href="mailto:contacto@ultimamilla.com.ar">contacto@ultimamilla.com.ar</a></b></div>
+      <div><span>{t.office}</span><b>Houssay 1159, Guaymallén, Mendoza</b></div>
+      <div><span>{t.hours}</span><b>{t.hoursV}</b></div>
     </div>
   </div>
 </section>
-<footer class="pie"><span>ultimamilla.com.ar</span><span>24 años de servicios IT. Mendoza, Argentina.</span></footer>
+<footer class="pie">
+  <div class="wrap pie__grid">
+    <span>ultimamilla.com.ar · {t.foot}</span>
+    <nav aria-label={lang === 'en' ? 'Site' : 'Sitio'}>{t.links.map(([n, h]) => <a href={h}>{n}</a>)}</nav>
+  </div>
+</footer>
