@@ -34,6 +34,8 @@ isometrías, pósters de película, servicios, catálogo limpio).
 | Portada | `/propuesta` | Apertura: la película del edificio se abre hasta su despiece. Después, los seis lugares (bodega, aeropuerto, salud, minería, industria, edificio), cada uno con su foto, su despiece, sus fases y tres fichas reales. Ocho frentes con llamada. Contacto como hoja. |
 | Muro | `/propuesta/antecedentes` | Los proyectos documentados como pared de fichas. Sector, servicio y año como lentes-infografía (barras con cuenta que se recomponen). La cifra se recompone. Entre las fichas, los recorridos de Blender. Filtro en la URL (`?sector=…`). |
 | Ficha de trabajo | `/propuesta/antecedentes/[id]/[slug]` | Un proyecto como hoja de plano: foto del trabajo, despiece del lugar con los servicios del proyecto encendidos y llamados, cajetín con cliente, sector, fecha, servicios y referencia `UM-id`. Recorrido de Blender del sector y servicio. Mismo cliente y mismo sector. |
+| Sector | `/propuesta/sectores/[slug]` | Apertura con la película del sector que se abre hasta su despiece; los frentes de ese sector encienden su recorrido; el muro filtrado al sector. |
+| Servicio | `/propuesta/servicios/[code]` | Apertura con la película del servicio en su escena y sólo ese recorrido encendido; el equipo en despiece junto a lo que cubre (llamadas); alcance como hoja; cuatro pasos; fichas con ese servicio. |
 | Variantes previas | `/propuesta/variantes` | Las tres direcciones del 30/10 (La obra, El plano, Rayos X) de las que sale este sistema. |
 
 ## Dónde van las películas de Blender y las transparencias
@@ -73,7 +75,7 @@ Pendiente de confirmar: la portada dice "24 años" (pedido del 30/10); el sitio 
    despiece) a componentes Astro.
 2. Reemplazar la portada, `/antecedentes` y `/antecedentes/[id]/[slug]` por estas tres páginas dentro del
    layout (cabecera y pie reales, SEO, `prerender` según corresponda).
-3. Sectores y servicios: misma apertura (película + corte + despiece) y el muro filtrado.
+3. Sectores y servicios: ya prototipados bajo `/propuesta/sectores` y `/propuesta/servicios`; llevarlos al layout real.
 4. Rendimiento: la portada incrusta sólo la primera isometría (390 KB) y trae las demás al acercarse;
    la ficha incrusta una (170–390 KB). Evaluar servir las isometrías comprimidas (`.svgz`) desde Nginx.
 5. Unificar "22" / "24" años en todo el sitio.

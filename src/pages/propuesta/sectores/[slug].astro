@@ -1,0 +1,183 @@
+---
+/**
+ * Página de sector (2026-10-30), sistema Despiece. Misma apertura que la portada: la película
+ * del sector como imagen real, que se abre hasta el despiece del lugar. Debajo, los frentes de
+ * servicio de ese sector encienden su recorrido en la isometría, y el muro filtrado a ese sector.
+ * Textos: los del sector en el catálogo y frases existentes. No indexable.
+ */
+import '../../../styles/proto-despiece.css';
+import { getSectorBySlug } from '../../../lib/um26-directus';
+import { loadStories, readIso, services, posterOf, SITE_OF } from '../../../components/proto/isoData';
+import { SECTORS } from '../../../data/cine/scenes';
+
+export const prerender = false;
+const slug = Astro.params.slug === 'gobierno' ? 'gobiernosectorpublico' : String(Astro.params.slug);
+const sector = await getSectorBySlug(slug);
+if (!sector) return new Response(null, { status: 404 });
+const { stories } = await loadStories();
+const own = stories.filter((c) => c.sectorSlug === slug);
+const site = SITE_OF[slug] || 'building';
+const iso = readIso(site);
+const row = SECTORS.find((s) => s.slug === slug);
+const n = SECTORS.findIndex((s) => s.slug === slug) + 1;
+const frentes = services.filter((s) => sector.services.includes(Number(s.code)));
+const thumbOf = (image: string) => /^\/images\/antecedentes\/generated\/.+-principal\.webp$/.test(image) ? image.replace(/-principal\.webp$/, '-principal-480.webp') : image;
+const pad = (v: number) => String(v).padStart(2, '0');
+const steps = ['Relevamiento', 'Diseño', 'Ejecución', 'Prueba técnica'];
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{sector.name} · Sector · ULTIMA MILLA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      .lugar { position: relative; height: 200vh; }
+      .lugar__pin { position: sticky; top: 0; height: 100vh; height: 100svh; display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(20px, 3vw, 56px); align-items: center; padding: 0 var(--gutter); overflow: hidden; }
+      .lugar .xray { max-height: 80vh; }
+      .lugar :global(.sp-route path) { stroke-dashoffset: 2400; }
+      .lugar[data-fase="2"] :global(.sp-route), .lugar[data-fase="3"] :global(.sp-route) { opacity: .9; }
+      .lugar[data-fase="2"] :global(.sp-route path), .lugar[data-fase="3"] :global(.sp-route path) { stroke-dashoffset: 0; }
+      .lugar[data-fase="3"] :global(.sp-pin), .lugar[data-fase="3"] :global(.sp-effect) { opacity: 1; }
+      .copy { display: grid; gap: 14px; align-content: center; }
+      .copy h1 { font-size: clamp(2.4rem, 4.4vw, 4.4rem); }
+      .copy > p { margin: 0; color: var(--ink-2); font-size: 1.05rem; max-width: 40ch; }
+      .fases { display: flex; gap: 16px; margin: 6px 0 0; padding: 0; list-style: none; }
+      .fases li.on { color: var(--ink); }
+      .hl { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 6px; color: var(--ink-2); }
+      .hl li::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 10px; background: var(--red); vertical-align: 1px; }
+
+      .band { padding: clamp(80px, 12vh, 160px) var(--gutter) 0; }
+      .band h2 { font-size: clamp(2rem, 3.4vw, 3.2rem); }
+      .band__lead { margin: 14px 0 0; max-width: 52ch; color: var(--ink-2); font-size: 1.05rem; }
+      .frentes { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 64px); align-items: start; margin-top: 32px; }
+      .frentes__stage { position: sticky; top: 80px; aspect-ratio: 5 / 3; background: var(--bg-2); padding: 4%; }
+      .frentes ol { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+      .frentes li a { display: grid; grid-template-columns: 26px 1fr; gap: 4px 14px; padding: 16px 0; border-bottom: 1px solid var(--line-2); align-items: center; color: var(--ink-3); }
+      .frentes li a .llamada { grid-row: 1 / span 2; }
+      .frentes li a b { grid-column: 2; font-weight: 600; font-size: 1.1rem; color: var(--ink-2); }
+      .frentes li a .t { grid-column: 2; font-size: .95rem; }
+      .frentes li a.on b, .frentes li a:hover b { color: var(--ink); }
+      .grid { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line-2); border: 1px solid var(--line-2); }
+      .ficha { background: var(--bg); padding: 14px; min-width: 0; }
+      .ficha > a { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+      .ficha > a > * { min-width: 0; }
+      .ficha__head { display: flex; justify-content: space-between; gap: 8px; }
+      .ficha__head .mono { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .ficha figure { margin: 0; aspect-ratio: 16 / 10; background: var(--bg-2); overflow: hidden; }
+      .ficha img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .ficha b { font-weight: 600; font-size: 1rem; line-height: 1.3; }
+      .ficha .t { color: var(--ink-2); font-size: .95rem; line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+      .ficha:hover b { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; }
+      .more { display: inline-block; margin-top: 24px; }
+      .cierre { margin: clamp(80px, 12vh, 160px) var(--gutter) 0; }
+      .cierre .hoja__body { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 64px); align-items: end; }
+      .cierre h2 { font-size: clamp(2rem, 3.4vw, 3.2rem); }
+      .cierre p { color: var(--ink-2); max-width: 44ch; margin: 14px 0 0; }
+      .cierre .btn { justify-self: start; }
+      @media (max-width: 1100px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+      @media (max-width: 900px) {
+        .lugar { height: 170vh; }
+        .lugar__pin { grid-template-columns: 1fr; align-content: start; padding-top: 80px; gap: 16px; }
+        .lugar .xray { max-height: 40vh; }
+        .copy h1 { font-size: 2.2rem; }
+        .hl { display: none; }
+        .frentes { grid-template-columns: 1fr; }
+        .frentes__stage { position: static; }
+        .cierre .hoja__body { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top top--over">
+      <a class="logo" href="/propuesta">ultimamilla<i>.</i>com<i>.</i>ar</a>
+      <nav aria-label="Principal"><a href="/servicios">Servicios</a><a href="/sectores" aria-current="page">Sectores</a><a href="/propuesta/antecedentes">Antecedentes</a><a href="/blog">Blog</a><a class="cta" href="#contacto">Contactar</a></nav>
+    </header>
+
+    <section class="lugar" data-lugar data-fase="0" aria-label={sector.name}>
+      <div class="lugar__pin">
+        <div class="copy">
+          <span class="mono">Sector · {pad(n)} / {pad(SECTORS.length)}</span>
+          <h1>{sector.name}<span class="dot">.</span></h1>
+          <p>{sector.description}</p>
+          {sector.highlights.length > 0 && <ul class="hl">{sector.highlights.map((h) => <li>{h}</li>)}</ul>}
+          <ol class="fases mono" data-fases>{steps.map((s) => <li>{s}</li>)}</ol>
+          <a class="u" href={`/propuesta/antecedentes?sector=${slug}`}>{own.length > 0 ? `${own.length} proyectos documentados` : 'Ver el muro'}</a>
+        </div>
+        <div class="xray">
+          <div class="xray__ghost"><img src={posterOf(slug)} alt="" width="1920" height="1080" /></div>
+          <div class="xray__iso iso" set:html={iso} />
+          <div class="xray__foto"><img src={posterOf(slug)} alt="" width="1920" height="1080" fetchpriority="high" /></div>
+          <div class="xray__linea"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="frentes">
+      <h2>{frentes.length === 8 ? 'Los ocho frentes' : `${frentes.length} frentes`} en {row ? row.name.toLowerCase() : sector.name.toLowerCase()}<span class="dot">.</span></h2>
+      <p class="band__lead">La misma instalación, sistema por sistema. Elegí un servicio para ver su recorrido en el proyecto.</p>
+      <div class="frentes" data-frentes>
+        <div class="frentes__stage iso" data-svc={frentes[0]?.code} data-src={`/cine/iso/site-${site}-v2.svg`}></div>
+        <ol>{frentes.map((s, i) => <li><a href={s.href} data-code={s.code} class:list={{ on: i === 0 }}><span class="llamada">{pad(i + 1)}</span><b>{s.name}</b><span class="t">{s.text}</span></a></li>)}</ol>
+      </div>
+    </section>
+
+    {own.length > 0 && (
+      <section class="band" id="proyectos">
+        <h2>{own.length} proyectos documentados<span class="dot">.</span></h2>
+        <ol class="grid">
+          {own.slice(0, 12).map((c, i) => (
+            <li class="ficha"><a href={c.href}><div class="ficha__head"><span class="mono">UM-{c.id}</span><span class="mono">{c.year}</span></div><figure>{c.image && <img src={thumbOf(c.image)} alt="" width="480" height="300" loading={i < 4 ? 'eager' : 'lazy'} decoding="async" />}</figure><b>{c.client}</b><span class="t">{c.title}</span></a></li>
+          ))}
+        </ol>
+        <a class="u more" href={`/propuesta/antecedentes?sector=${slug}`}>Ver los {own.length} proyectos</a>
+      </section>
+    )}
+
+    <section class="cierre hoja" id="contacto">
+      <div class="hoja__head"><span class="mono">Contacto</span><span class="mono">ULTIMA MILLA · Mendoza</span></div>
+      <div class="hoja__body">
+        <div>
+          <h2>Contanos qué tiene que seguir funcionando<span class="dot">.</span></h2>
+          <p>Indicá qué necesitás, dónde y para cuándo. Un técnico te responde por email con el próximo paso: diagnóstico, relevamiento, propuesta o documentación.</p>
+        </div>
+        <a class="btn" href="/contacto">Enviar consulta <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="cajetin" style="--cols:3"><div><span class="mono">Email</span><b>contacto@ultimamilla.com.ar</b></div><div><span class="mono">Oficina</span><b>Houssay 1159, Guaymallén, Mendoza</b></div><div><span class="mono">Horario</span><b>Lunes a viernes, 8 a 18 h</b></div></div>
+    </section>
+    <footer class="pie"><span>ultimamilla.com.ar</span><span>Houssay 1159, Guaymallén, Mendoza · contacto@ultimamilla.com.ar</span></footer>
+
+    <script>
+      const lugar = document.querySelector<HTMLElement>('[data-lugar]')!;
+      let raf = 0;
+      const update = () => {
+        raf = 0;
+        const r = lugar.getBoundingClientRect();
+        const p = Math.min(1, Math.max(0, -r.top / (r.height - innerHeight)));
+        lugar.style.setProperty('--cut', String(100 - Math.min(1, p / .5) * 100));
+        lugar.style.setProperty('--linea', p < .02 || p > .52 ? '0' : '1');
+        const fase = p < .12 ? 0 : p < .5 ? 1 : p < .78 ? 2 : 3;
+        if (lugar.dataset.fase !== String(fase)) lugar.dataset.fase = String(fase);
+        lugar.querySelectorAll<HTMLElement>('[data-fases] li').forEach((li, i) => li.classList.toggle('on', i < fase || (fase === 3 && i === 3)));
+      };
+      addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
+      addEventListener('resize', update);
+      update();
+
+      // Frentes: la isometría se trae al acercarse; cada ítem enciende su recorrido.
+      const frentes = document.querySelector<HTMLElement>('[data-frentes]')!;
+      const stage = frentes.querySelector<HTMLElement>('.frentes__stage')!;
+      new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); fetch(stage.dataset.src!).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) stage.insertAdjacentHTML('afterbegin', svg); }); } }, { rootMargin: '900px 0px' }).observe(stage);
+      const items = [...frentes.querySelectorAll<HTMLAnchorElement>('[data-code]')];
+      const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+      const show = (a: HTMLAnchorElement) => { stage.dataset.svc = a.dataset.code!; items.forEach((i) => i.classList.toggle('on', i === a)); };
+      items.forEach((a) => {
+        if (fine) { a.addEventListener('pointerenter', () => show(a)); a.addEventListener('focus', () => show(a)); }
+        else a.addEventListener('click', (e) => { if (stage.dataset.svc !== a.dataset.code) { e.preventDefault(); show(a); } });
+      });
+    </script>
+  </body>
+</html>
