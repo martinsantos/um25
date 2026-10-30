@@ -45,12 +45,12 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       .empty.on { display: block; }
       .fichas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       @media (max-width: 900px) {
-        .muro { grid-template-columns: 1fr; } .panel { position: static; gap: var(--s3); } .fichas { grid-template-columns: 1fr 1fr; }
+        .muro { grid-template-columns: 1fr; gap: var(--s3); } .panel { position: static; gap: var(--s3); } .fichas { grid-template-columns: 1fr 1fr; }
         .filtros summary { display: block; list-style: none; cursor: pointer; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line-2); color: var(--ink); font-weight: 500; }
         .filtros summary::-webkit-details-marker { display: none; }
         .filtros summary::after { content: '+'; float: right; color: var(--ink-3); }
         .filtros[open] summary::after { content: '–'; }
-        .filtros[open] { gap: var(--s3); }
+        .filtros[open] { gap: var(--s4); }
       }
     </style>
   </head>
