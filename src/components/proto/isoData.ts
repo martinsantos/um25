@@ -10,6 +10,7 @@ import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import { NAV_SERVICES } from '../../data/navigation';
 import { SECTORS } from '../../data/cine/scenes';
 import { descripcionDeOrigen } from './relato';
+import { nombreCliente, tituloProyecto } from './titulos';
 
 export type IsoSite = 'building' | 'winery' | 'terminal' | 'clinic' | 'mine' | 'plant';
 
@@ -37,19 +38,6 @@ export const PLACES: { slug: string; site: IsoSite; image: string }[] = [
 ];
 
 const cleanText = (value: unknown) => String(value ?? '').replace(/\b(Rubro|Cliente|Sector|Área|Area)\s*:\s*/gi, '').replace(/\s*(\.{3}|…)\s*$/u, '').replace(/\s+/g, ' ').trim();
-// Cliente en caja normal si el registro viene todo en mayúsculas o todo en minúsculas.
-const clientCase = (client: string) => (client === client.toUpperCase() || client === client.toLowerCase())
-  ? client.toLowerCase().replace(/(^|\s)(\S)/g, (m: string) => m.toUpperCase()).replace(/\b(De|Del|La|Las|Los|Y|E|Sa|Srl|S\.a\.|S\.r\.l\.)\b/gi, (w: string) => (/^(sa|srl|s\.a\.|s\.r\.l\.)$/i.test(w) ? w.toUpperCase() : w.toLowerCase()))
-  : client;
-const cleanTitle = (raw: unknown, client: string) => {
-  let title = cleanText(raw);
-  if (title.includes('|')) title = title.split('|')[0].trim() || title;
-  // El título importado repite el cliente y la fecha ("… - Cliente - Febrero 2025"): se quitan.
-  const MESES = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre';
-  title = title.replace(new RegExp(`\\s+-\\s+(${MESES})\\s+\\d{4}\\s*$`, 'i'), '');
-  if (client) { const re = new RegExp(`\\s+-\\s+${client.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}(?=\\s+-\\s+|\\s*$)`, 'i'); title = title.replace(re, ''); }
-  return title.replace(/\s*\(\d+\)\s*$/, '').replace(/\s+-\s+/g, ' · ').replace(/[.\s]+$/, '');
-};
 
 export type Story = { id: number; slug: string; href: string; client: string; title: string; year: number; month: number; sector: string; sectorSlug: string; serviceCodes: string[]; services: string[]; image: string; summary: string; status: string };
 
@@ -90,8 +78,8 @@ export async function loadStories() {
     .sort((a, b) => (b.year - a.year) || (b.month - a.month) || (b.id - a.id))
     .filter((c, i, arr) => arr.findIndex((o) => `${o.title}|${o.client}`.toLowerCase() === `${c.title}|${c.client}`.toLowerCase()) === i)
     .map((c) => {
-      const client = clientCase(cleanText(c.client));
-      const title = cleanTitle(c.title, client);
+      const client = nombreCliente(c.client);
+      const title = tituloProyecto(c.title, c.client, c.summary);
       return {
         id: c.id,
         slug: c.slug,

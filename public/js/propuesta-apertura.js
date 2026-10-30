@@ -17,9 +17,11 @@
       const r = el.getBoundingClientRect();
       if (r.bottom < 0 || r.top > innerHeight) return;
       const p = Math.min(1, Math.max(0, -r.top / (r.height - innerHeight)));
-      el.style.setProperty('--cut', String(100 - Math.min(1, p / .5) * 100));
-      el.style.setProperty('--linea', p < .02 || p > .52 ? '0' : '1');
-      const fase = p < .12 ? 0 : p < .5 ? 1 : p < .78 ? 2 : 3;
+      const e = Math.min(1, p / .55);
+      const k = e < .5 ? 2 * e * e : 1 - Math.pow(-2 * e + 2, 2) / 2;
+      el.style.setProperty('--cut', String(100 - k * 100));
+      el.style.setProperty('--linea', p < .02 || p > .57 ? '0' : '1');
+      const fase = p < .1 ? 0 : p < .55 ? 1 : p < .82 ? 2 : 3;
       if (el.dataset.fase !== String(fase)) el.dataset.fase = String(fase);
     });
   };

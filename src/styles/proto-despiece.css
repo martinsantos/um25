@@ -64,11 +64,11 @@ p { margin: 0; }
 .top nav a[aria-current="page"] { border-bottom: 2px solid var(--red); }
 
 /* Apertura: la imagen a pleno que se abre hasta el despiece. */
-.lugar { position: relative; height: 200vh; }
-.lugar--open { height: 230vh; }
-.lugar__pin { position: sticky; top: 64px; height: calc(100vh - 64px); height: calc(100svh - 64px); display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(24px, 3vw, 64px); align-items: center; padding: 0 var(--gutter); overflow: hidden; }
-.lugar .xray { max-height: 78vh; }
-.copy { display: grid; gap: var(--s2); align-content: center; }
+.lugar { position: relative; height: 175vh; }
+.lugar--open { height: 200vh; }
+.lugar__pin { position: sticky; top: 64px; height: calc(100vh - 64px); height: calc(100svh - 64px); display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(24px, 3vw, 64px); align-items: end; padding: var(--s4) var(--gutter) var(--s5); overflow: hidden; }
+.lugar .xray { height: 100%; max-height: calc(100svh - 64px - var(--s4) - var(--s5)); width: auto; max-width: 100%; margin-left: auto; aspect-ratio: 5 / 3; }
+.copy { display: grid; gap: var(--s2); align-content: end; padding-bottom: 4px; }
 .copy > p { color: var(--ink-2); font-size: 1.125rem; max-width: 40ch; }
 .copy .tag { color: var(--ink); font-size: 1.2rem; font-weight: 500; }
 .copy .u { margin-top: var(--s1); width: max-content; }
@@ -104,7 +104,7 @@ p { margin: 0; }
 .dentro__stage .ahora { position: absolute; left: 20px; bottom: 16px; color: var(--ink-2); }
 .dentro__side { display: grid; gap: var(--s4); }
 .servicios { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
-.servicios a, .servicios button { display: flex; justify-content: space-between; gap: 16px; width: 100%; padding: 14px 0; border-bottom: 1px solid var(--line-2); color: var(--ink-2); font-size: 1.05rem; text-align: left; position: relative; transition: color .3s; }
+.servicios a, .servicios button { display: flex; justify-content: space-between; gap: 16px; width: 100%; padding: 16px 0; border-bottom: 1px solid var(--line-2); color: var(--ink-2); font-size: 1.15rem; font-weight: 500; text-align: left; position: relative; transition: color .3s; }
 .servicios a i, .servicios button i { position: absolute; left: 0; bottom: -1px; height: 2px; width: calc(var(--w, 0) * 1%); background: transparent; transition: background .3s; }
 .servicios .on, .servicios a:hover, .servicios button:hover, .servicios [aria-pressed="true"] { color: var(--ink); }
 .servicios .on i, .servicios [aria-pressed="true"] i { background: var(--red); }
@@ -115,11 +115,13 @@ p { margin: 0; }
 
 /* Casos con el alcance real. */
 .casos { display: grid; gap: var(--s5); }
-.caso { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s3) clamp(28px, 4vw, 72px); align-items: center; }
+.caso { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s3) clamp(28px, 4vw, 72px); align-items: stretch; }
 .caso:nth-child(even) figure { order: 2; }
-.caso figure { margin: 0; aspect-ratio: 16 / 10; overflow: hidden; background: var(--bg-2); }
+.caso figure { margin: 0; min-height: 300px; max-height: 480px; overflow: hidden; background: var(--bg-2); }
+.caso figure img { position: absolute; inset: 0; }
+.caso figure { position: relative; }
 .caso img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.caso__copy { display: grid; gap: 12px; }
+.caso__copy { display: grid; gap: 12px; align-content: start; padding-top: 4px; }
 .caso h3 { font-size: clamp(1.5rem, 2.3vw, 2rem); }
 .caso .quien { font-weight: 600; }
 .caso .quien span { color: var(--ink-3); font-weight: 400; }
@@ -130,7 +132,9 @@ p { margin: 0; }
 
 /* Fichas de proyecto. */
 .fichas { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s4) var(--s3); }
-.ficha { display: grid; gap: 10px; min-width: 0; }
+.ficha { display: grid; gap: 8px; min-width: 0; }
+.ficha > a { display: grid; gap: 8px; }
+.ficha figure + b { padding-top: 6px; border-top: 1px solid var(--line-2); margin-top: 2px; }
 .ficha[hidden] { display: none; }
 .ficha figure { margin: 0; aspect-ratio: 16 / 10; background: var(--bg-2); overflow: hidden; }
 .ficha img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -160,9 +164,10 @@ p { margin: 0; }
 @media (max-width: 1100px) { .cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fichas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 900px) {
   .top nav a:not(.cta) { display: none; }
-  .lugar { height: 170vh; }
-  .lugar__pin { grid-template-columns: 1fr; align-content: center; gap: var(--s2); }
-  .lugar .xray { max-height: 42vh; }
+  .lugar { height: 160vh; }
+  .lugar__pin { grid-template-columns: 1fr; align-content: center; gap: var(--s3); padding: var(--s3) var(--gutter) var(--s4); }
+  .lugar .xray { height: auto; max-height: none; width: 100%; margin: 0; aspect-ratio: 1; }
+  .copy { order: 2; }
   .copy > p { display: none; }
   .cols-2, .cols-3, .cols-4, .cols-5-7, .cols-7-5, .dentro, .caso, .cierre__grid { grid-template-columns: 1fr; }
   .caso:nth-child(even) figure { order: 0; }
