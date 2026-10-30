@@ -8,6 +8,7 @@
  */
 import '../../styles/proto-despiece.css';
 import Cierre from '../../components/proto/Cierre.astro';
+import Casos from '../../components/proto/Casos.astro';
 import { loadStories, readIso, services, posterOf, SECTOR_PHOTO } from '../../components/proto/isoData';
 import { EMPRESA, CUMPLIMIENTO, CASOS } from '../../components/proto/relato';
 
@@ -16,11 +17,6 @@ const { total, places, stories } = await loadStories();
 const building = readIso('building');
 const steps = ['Relevamiento', 'Diseño', 'Ejecución', 'Prueba técnica'];
 const pad = (n: number) => String(n).padStart(2, '0');
-const byCode = new Map(services.map((s) => [s.code, s]));
-const casos = CASOS.slice(0, 6).map((c) => {
-  const pub = c.publicado ? stories.find((s) => s.id === c.publicado) : undefined;
-  return { ...c, href: pub ? pub.href : `/propuesta/antecedentes?sector=${c.sector}`, image: pub?.image && pub.image.startsWith('/images/antecedentes/') ? pub.image : SECTOR_PHOTO[c.sector], serviceNames: c.servicios.map((code) => byCode.get(code)?.name).filter(Boolean) as string[] };
-});
 const clientes = Object.values(stories.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count).slice(0, 24);
 ---
 <!doctype html>
@@ -59,24 +55,7 @@ const clientes = Object.values(stories.reduce<Record<string, { name: string; cou
       .sedes { display: flex; flex-wrap: wrap; gap: 10px 32px; margin: 28px 0 0; padding: 0; list-style: none; color: var(--ink-2); }
       .sedes b { color: var(--ink); font-weight: 600; margin-right: 8px; }
 
-      /* Casos */
-      .casos { display: grid; gap: clamp(48px, 8vh, 112px); margin-top: clamp(32px, 5vh, 56px); }
-      .caso { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 72px); align-items: center; }
-      .caso:nth-child(even) figure { order: 2; }
-      .caso figure { margin: 0; aspect-ratio: 16 / 10; overflow: hidden; background: var(--bg-2); }
-      .caso img { width: 100%; height: 100%; object-fit: cover; display: block; }
-      .caso__copy { display: grid; gap: 12px; }
-      .caso h3 { font-size: clamp(1.5rem, 2.4vw, 2.1rem); font-weight: 600; letter-spacing: -.02em; line-height: 1.12; }
-      .caso .cliente { font-weight: 600; color: var(--ink); }
-      .caso p { margin: 0; color: var(--ink-2); line-height: 1.6; }
-      .caso .svc { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--ink-2); font-size: .95rem; }
-      .caso .svc span::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 8px; background: var(--red); vertical-align: 1px; }
 
-      /* Clientes */
-      .clientes { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line-2); border: 1px solid var(--line-2); }
-      .clientes li { background: var(--bg); padding: 16px 18px; display: flex; justify-content: space-between; gap: 12px; align-items: baseline; min-width: 0; }
-      .clientes b { font-weight: 600; font-size: 1rem; line-height: 1.3; }
-      .clientes span { font: 500 .78rem var(--mono); color: var(--ink-3); white-space: nowrap; }
 
       /* Frentes y documentación */
       .frentes { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(24px, 4vw, 64px); border-top: 1px solid var(--line); }
@@ -157,24 +136,7 @@ const clientes = Object.values(stories.reduce<Record<string, { name: string; cou
       </section>
     ))}
 
-    <section class="band" id="casos">
-      <h2>Lo que hicimos, con el alcance de cada obra<span class="dot">.</span></h2>
-      <div class="casos">
-        {casos.map((c) => (
-          <article class="caso">
-            <figure><img src={c.image} alt="" width="1200" height="750" loading="lazy" decoding="async" /></figure>
-            <div class="caso__copy">
-              <span class="mono">{c.year}</span>
-              <h3><a href={c.href}>{c.titulo}</a></h3>
-              <span class="cliente">{c.cliente}</span>
-              <p>{c.texto}</p>
-              {c.serviceNames.length > 0 && <div class="svc">{c.serviceNames.map((n) => <span>{n}</span>)}</div>}
-            </div>
-          </article>
-        ))}
-      </div>
-      <a class="u more" href="/propuesta/antecedentes">Ver los {total} proyectos</a>
-    </section>
+    <Casos casos={CASOS} stories={stories} title="Lo que hicimos, con el alcance de cada obra" max={6} />
 
     <section class="band" id="clientes">
       <h2>Clientes con más proyectos documentados<span class="dot">.</span></h2>

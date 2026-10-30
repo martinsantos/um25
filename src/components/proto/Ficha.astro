@@ -7,7 +7,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 ---
 <li class="ficha" data-ficha data-sector={c.sectorSlug} data-services={c.serviceCodes.join(' ')} data-year={String(c.year)}>
   <a href={c.href}>
-    <div class="ficha__head"><span class="mono">{showSector ? c.sector : c.services[0] || ''}</span><span class="mono">{c.year || ''}</span></div>
+    <div class="ficha__head"><span class="mono">{showSector ? c.sector : ''}</span><span class="mono">{c.year || ''}</span></div>
     <figure>{c.image && <img src={thumbOf(c.image)} alt="" width="480" height="300" loading={eager ? 'eager' : 'lazy'} decoding="async" />}</figure>
     <b>{c.client}</b>
     <span class="t">{c.title}</span>

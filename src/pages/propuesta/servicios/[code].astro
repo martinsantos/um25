@@ -1,23 +1,28 @@
 ---
 /**
- * Landing de servicio (2026-10-30, v2), sistema Despiece. La foto editorial del servicio a pleno
- * se abre hasta el despiece del lugar con sólo ese recorrido encendido. Después: el equipo en
- * despiece, grande, con llamadas y líneas de referencia a cada cosa que cubre; la infografía de
- * sus proyectos (por sector y por año, clicable hacia el muro) junto al recorrido de Blender; el
- * alcance como hoja; los cuatro pasos; las fichas. Textos: los del catálogo. No indexable.
+ * Vertical de servicio (2026-10-30, v3), sistema Despiece. Cuenta el servicio con los datos del
+ * sitio: descripción y capacidades del catálogo, los casos con alcance técnico completo del
+ * registro, la ficha técnica (alcance, normas, entregables, nivel de servicio, equipamiento,
+ * implementación, garantía y cobertura), el proceso, sus proyectos por sector y por año, los
+ * sectores donde tiene casos y las fichas. La foto real se abre hasta el despiece con sólo ese
+ * recorrido encendido. No indexable.
  */
 import '../../../styles/proto-despiece.css';
 import Ficha from '../../../components/proto/Ficha.astro';
+import Casos from '../../../components/proto/Casos.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import { getServicioByCode } from '../../../lib/um26-directus';
 import { loadStories, readIso, readDevice, services, SERVICE_KEY, SERVICE_PHOTO, type IsoSite } from '../../../components/proto/isoData';
+import { CASOS_SERVICIO, casosDe } from '../../../components/proto/relato';
+import { SERVICE_SPECS } from '../../../data/serviceSpecs';
 import { SECTORS, SERVICE_SCENES } from '../../../data/cine/scenes';
 
 export const prerender = false;
 const code = String(Astro.params.code);
 const servicio = await getServicioByCode(Number(code));
 const nav = services.find((s) => s.code === code);
-if (!servicio || !nav) return new Response(null, { status: 404 });
+const spec = SERVICE_SPECS[code];
+if (!servicio || !nav || !spec) return new Response(null, { status: 404 });
 const { stories } = await loadStories();
 const own = stories.filter((c) => c.serviceCodes.includes(code));
 const scene = (SERVICE_SCENES[code] || SERVICE_SCENES['101'])!.scene;
@@ -26,12 +31,15 @@ const iso = readIso(SITE[scene] || 'building');
 const device = code === '106' ? '' : readDevice(code);
 const photo = SERVICE_PHOTO[code];
 const poster = `/cine/media/cine-${scene}-${SERVICE_KEY[code]}-poster.avif`;
+const casos = casosDe(CASOS_SERVICIO[code] || []);
 const bySector = SECTORS.map((s) => ({ slug: s.slug, name: s.name, count: own.filter((c) => c.sectorSlug === s.slug).length })).filter((s) => s.count > 0).sort((a, b) => b.count - a.count);
 const years = [...new Set(own.map((c) => c.year).filter(Boolean))].sort((a, b) => a - b);
 const yearCounts = Object.fromEntries(years.map((y) => [y, own.filter((c) => c.year === y).length]));
 const maxYear = Math.max(1, ...Object.values(yearCounts));
 const pad = (v: number) => String(v).padStart(2, '0');
 const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'Aeropuerto', bodega: 'Bodega', hospital: 'Centro de salud', planta: 'Planta' };
+const meta = Object.fromEntries(servicio.metadata.map((m) => [m.label, m.value]));
+const sectoresConCasos = spec.sectorSlugs.map((s) => SECTORS.find((x) => x.slug === s)).filter(Boolean) as typeof SECTORS;
 ---
 <!doctype html>
 <html lang="es">
@@ -39,16 +47,14 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>{servicio.name} · Servicio · ULTIMA MILLA</title>
+    <title>{servicio.name} · {servicio.tagline} · ULTIMA MILLA</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <style>
-      /* Qué cubre: el equipo en despiece con líneas de referencia a cada capacidad. */
       .cubre { position: relative; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 80px); align-items: center; margin-top: 32px; }
       .equipo { position: relative; aspect-ratio: 4 / 3; display: grid; place-items: center; padding: 8% 12%; }
       .equipo > div { width: 100%; height: 100%; display: grid; place-items: center; }
       .equipo :global(svg) { width: 100%; height: 100%; display: block; overflow: visible; }
-      .equipo .mono { position: absolute; left: 0; bottom: 0; }
       .caps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
       .caps li { display: grid; grid-template-columns: 26px 1fr; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--line-2); align-items: center; font-size: 1.05rem; color: var(--ink-2); transition: color .3s; }
       .caps li.on { color: var(--ink); }
@@ -56,33 +62,19 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       .lineas :global(line) { stroke: var(--ink-3); stroke-width: 1; transition: stroke .3s; }
       .lineas :global(circle) { fill: var(--red); }
       .lineas :global(.on) { stroke: var(--red); }
-
-      /* Infografía de proyectos + recorrido. */
       .info { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 4vw, 80px); align-items: start; margin-top: 32px; }
       .info__data { display: grid; gap: 26px; }
       .rec { display: grid; gap: 10px; }
       .rec figure { margin: 0; aspect-ratio: 16 / 9; background: var(--bg-2); overflow: hidden; }
       .rec img { width: 100%; height: 100%; object-fit: cover; display: block; }
       .rec__cap { display: flex; justify-content: space-between; }
-
-      /* Alcance y pasos. */
-      .alcance { margin-top: clamp(48px, 7vh, 80px); }
-      .alcance .hoja__body { padding: 0; }
-      .alcance dl { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .alcance dl div { padding: 14px 20px; border-bottom: 1px solid var(--line-2); border-right: 1px solid var(--line-2); }
-      .alcance dd { margin: 4px 0 0; color: var(--ink-2); font-size: .98rem; }
-      .alcance .cajetin b { white-space: normal; font-weight: 500; color: var(--ink-2); }
-      .pasos { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line-2); border: 1px solid var(--line-2); counter-reset: paso; }
-      .pasos li { background: var(--bg); padding: 18px; display: grid; gap: 8px; align-content: start; }
-      .pasos li::before { counter-increment: paso; content: counter(paso, decimal-leading-zero); font: 500 .76rem var(--mono); color: var(--ink-3); }
-      .pasos b { font-weight: 600; font-size: 1.05rem; }
-      .pasos p { margin: 0; color: var(--ink-2); font-size: .95rem; }
+      .sectores { list-style: none; margin: 32px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+      .sectores a { display: inline-block; padding: 10px 16px; border: 1px solid var(--line); color: var(--ink-2); }
+      .sectores a:hover { color: var(--ink); border-color: var(--ink); }
       .grid { margin-top: 32px; }
-      @media (max-width: 1100px) { .pasos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
       @media (max-width: 900px) {
         .cubre, .info { grid-template-columns: 1fr; }
         .lineas { display: none; }
-        .alcance dl { grid-template-columns: 1fr; }
       }
     </style>
   </head>
@@ -95,11 +87,12 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
     <section class="lugar" data-lugar data-fase="0" aria-label={servicio.name}>
       <div class="lugar__pin">
         <div class="copy">
+          <span class="mono">{nav.text}</span>
           <h1>{servicio.name}<span class="dot">.</span></h1>
           <p class="tag">{servicio.tagline}</p>
           <p>{servicio.description}</p>
           <ol class="fases mono" data-fases>{servicio.proceso.map((s) => <li>{s.titulo}</li>)}</ol>
-          <a class="u" href={`/propuesta/antecedentes?service=${code}`}>{own.length > 0 ? `${own.length} proyectos documentados` : 'Ver el muro'}</a>
+          <a class="u" href={`/propuesta/antecedentes?service=${code}`}>{own.length > 0 ? `${own.length} proyectos documentados` : 'Ver todos los proyectos'}</a>
         </div>
         <div class="xray">
           <div class="xray__ghost"><img src={photo} alt="" width="1672" height="941" /></div>
@@ -119,6 +112,31 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       </div>
     </section>
 
+    <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${servicio.name.toLowerCase()}`} fallbackImage={photo} />
+
+    <section class="band" id="ficha">
+      <h2>Alcance, normas y entregables<span class="dot">.</span></h2>
+      <div class="ficha-tec hoja">
+        <div class="hoja__head"><span class="mono">{servicio.name}</span><span class="mono">{spec.keyStandard}</span></div>
+        <div class="hoja__body">
+          <dl>
+            <div><dt class="mono">Alcance</dt><dd><ul>{spec.scope.map((s) => <li>{s}</li>)}</ul></dd></div>
+            <div><dt class="mono">Normas y criterios</dt><dd><ul>{spec.standards.map((s) => <li>{s}</li>)}</ul></dd></div>
+            <div><dt class="mono">Entregables</dt><dd><ul>{spec.deliverables.map((s) => <li>{s}</li>)}</ul></dd></div>
+            <div><dt class="mono">Nivel de servicio</dt><dd><ul>{spec.serviceLevel.map((s) => <li>{s}</li>)}</ul></dd></div>
+            <div><dt class="mono">Equipamiento</dt><dd><ul>{spec.equipment.map((s) => <li>{s}</li>)}</ul></dd></div>
+            <div><dt class="mono">Entregable clave</dt><dd><ul><li>{spec.keyDeliverable}</li></ul></dd></div>
+          </dl>
+        </div>
+        <div class="cajetin" style="--cols:3">{['Implementación', 'Garantía', 'Cobertura'].filter((k) => meta[k]).map((k) => <div><span class="mono">{k}</span><b>{meta[k]}</b></div>)}</div>
+      </div>
+    </section>
+
+    <section class="band" id="proceso">
+      <h2>De la medición al resultado<span class="dot">.</span></h2>
+      <ol class="pasos">{servicio.proceso.map((s) => <li><b>{s.titulo}</b><p>{s.desc}</p></li>)}</ol>
+    </section>
+
     {own.length > 0 && (
       <section class="band" id="proyectos">
         <h2>{own.length} proyectos con {servicio.name.toLowerCase()}<span class="dot">.</span></h2>
@@ -134,7 +152,7 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
               <div class="axis mono" aria-hidden="true"><span>{years[0]}</span><span>{years[years.length - 1]}</span></div>
             </div>
           </div>
-          <a class="rec" href={`/${bySector[0]?.slug || 'sectores'}`}>
+          <a class="rec" href={`/propuesta/sectores/${bySector[0]?.slug || 'constructoras'}`}>
             <figure><img src={poster} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure>
             <div class="rec__cap"><span class="mono">{servicio.name} en {sceneTitle[scene].toLowerCase()}</span><span class="mono"></span></div>
           </a>
@@ -144,17 +162,12 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       </section>
     )}
 
-    <section class="band" id="alcance">
-      <h2>De la medición al resultado<span class="dot">.</span></h2>
-      <ol class="pasos">{servicio.proceso.map((s) => <li><b>{s.titulo}</b><p>{s.desc}</p></li>)}</ol>
-      {servicio.scope_operativo.length > 0 && (
-        <div class="alcance hoja">
-          <div class="hoja__head"><span class="mono">Alcance operativo</span><span class="mono"></span></div>
-          <div class="hoja__body"><dl>{servicio.scope_operativo.map((p) => <div><dt class="mono">{p.label || p.titulo}</dt><dd>{p.value || p.desc}</dd></div>)}</dl></div>
-          <div class="cajetin" style="--cols:1"><div><b>{servicio.alcance_operativo}</b></div></div>
-        </div>
-      )}
-    </section>
+    {sectoresConCasos.length > 0 && (
+      <section class="band" id="sectores">
+        <h2>Dónde lo hacemos<span class="dot">.</span></h2>
+        <ul class="sectores">{sectoresConCasos.map((s) => <li><a href={`/propuesta/sectores/${s.slug}`}>{s.name}</a></li>)}</ul>
+      </section>
+    )}
 
     <Cierre />
 
@@ -175,14 +188,11 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       addEventListener('resize', update);
       update();
 
-      // Líneas de referencia: de cada llamada a un punto del equipo, como en un despiece de catálogo.
       const cubre = document.querySelector<HTMLElement>('[data-cubre]')!;
       const equipo = cubre.querySelector<HTMLElement>('[data-equipo]')!;
       const lineas = cubre.querySelector<SVGSVGElement>('[data-lineas]')!;
       const items = [...cubre.querySelectorAll<HTMLElement>('[data-caps] li')];
       const lazy = equipo.querySelector<HTMLElement>('[data-src]');
-      if (lazy) fetch(lazy.dataset.src!).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) { lazy.innerHTML = svg; draw(); } });
-      // El dibujo llena su marco: el viewBox se ajusta al contenido real del despiece.
       const fit = (svg: SVGSVGElement) => { if (svg.dataset.fit) return; try { const b = svg.getBBox(); const pad = Math.max(b.width, b.height) * .06; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); svg.dataset.fit = '1'; } catch { /* sin bbox */ } };
       const draw = () => {
         const svg = equipo.querySelector<SVGSVGElement>('svg'); if (!svg) return;
@@ -195,7 +205,6 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
         items.forEach((li, i) => {
           const c = li.querySelector<HTMLElement>('.llamada')!.getBoundingClientRect();
           const x2 = c.left - box.left - 4, y2 = c.top + c.height / 2 - box.top;
-          // Punto de anclaje sobre el contorno del equipo, repartido en el lado derecho.
           const t = items.length > 1 ? i / (items.length - 1) : .5;
           const ang = (-.42 + t * .84) * Math.PI;
           const x1 = cx + Math.cos(ang) * art.width * .34, y1 = cy + Math.sin(ang) * art.height * .34;
@@ -206,6 +215,7 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
           lineas.appendChild(g);
         });
       };
+      if (lazy) fetch(lazy.dataset.src!).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) { lazy.innerHTML = svg; draw(); } });
       items.forEach((li, i) => {
         const on = () => { items.forEach((o, j) => o.classList.toggle('on', i === j)); lineas.querySelectorAll('g').forEach((g) => g.querySelectorAll('line').forEach((l) => l.classList.toggle('on', g.dataset.i === String(i)))); };
         li.addEventListener('pointerenter', on);

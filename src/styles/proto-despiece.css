@@ -175,3 +175,50 @@ h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -.03em; line-height: 1
   .grid, .grid--4 { grid-template-columns: 1fr 1fr; }
   .ficha--rec { grid-column: 1 / -1; }
 }
+
+/* ——— Casos con alcance real (portada, sector, servicio). */
+.casos { display: grid; gap: clamp(48px, 8vh, 112px); margin-top: clamp(32px, 5vh, 56px); }
+.caso { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 72px); align-items: center; }
+.caso:nth-child(even) figure { order: 2; }
+.caso figure { margin: 0; aspect-ratio: 16 / 10; overflow: hidden; background: var(--bg-2); }
+.caso img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.caso__copy { display: grid; gap: 12px; }
+.caso h3 { font-size: clamp(1.5rem, 2.4vw, 2.1rem); font-weight: 600; letter-spacing: -.02em; line-height: 1.12; }
+.caso .cliente { font-weight: 600; color: var(--ink); }
+.caso p { margin: 0; color: var(--ink-2); line-height: 1.6; }
+.caso .svc { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--ink-2); font-size: .95rem; }
+.caso .svc span::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 8px; background: var(--red); vertical-align: 1px; }
+
+/* ——— Tablas de hoja (necesidad operativa, ficha técnica, preguntas). */
+.tabla3 { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line-2); border: 1px solid var(--line-2); }
+.tabla3 li { background: var(--bg); padding: 22px; display: grid; gap: 10px; align-content: start; }
+.tabla3 b { font-weight: 600; font-size: 1.15rem; }
+.tabla3 p { margin: 0; color: var(--ink-2); font-size: 1rem; line-height: 1.55; }
+.tabla3 ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; color: var(--ink-2); }
+.tabla3 ul li { background: none; padding: 0; display: block; }
+.tabla3 ul li::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 10px; background: var(--red); vertical-align: 1px; }
+.ficha-tec { margin-top: 32px; }
+.ficha-tec .hoja__body { padding: 0; }
+.ficha-tec dl { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ficha-tec dl div { padding: 18px 22px; border-bottom: 1px solid var(--line-2); border-right: 1px solid var(--line-2); }
+.ficha-tec dd { margin: 8px 0 0; }
+.ficha-tec dd ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; color: var(--ink-2); font-size: .98rem; }
+.ficha-tec dd ul li::before { content: ''; display: inline-block; width: 6px; height: 6px; margin-right: 10px; background: var(--red); vertical-align: 1px; }
+.preguntas { list-style: none; margin: 32px 0 0; padding: 0; border-top: 1px solid var(--line); }
+.preguntas li { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 12px clamp(24px, 4vw, 64px); padding: 20px 0; border-bottom: 1px solid var(--line-2); }
+.preguntas b { font-weight: 600; font-size: 1.1rem; }
+.preguntas p { margin: 0; color: var(--ink-2); line-height: 1.55; }
+.clientes { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line-2); border: 1px solid var(--line-2); }
+.clientes li { background: var(--bg); padding: 16px 18px; display: flex; justify-content: space-between; gap: 12px; align-items: baseline; min-width: 0; }
+.clientes b { font-weight: 600; font-size: 1rem; line-height: 1.3; }
+.clientes span { font: 500 .78rem var(--mono); color: var(--ink-3); white-space: nowrap; }
+.pasos { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line-2); border: 1px solid var(--line-2); counter-reset: paso; }
+.pasos li { background: var(--bg); padding: 18px; display: grid; gap: 8px; align-content: start; }
+.pasos li::before { counter-increment: paso; content: counter(paso, decimal-leading-zero); font: 500 .76rem var(--mono); color: var(--ink-3); }
+.pasos b { font-weight: 600; font-size: 1.05rem; }
+.pasos p { margin: 0; color: var(--ink-2); font-size: .95rem; }
+@media (max-width: 1100px) { .clientes, .pasos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 900px) {
+  .caso, .tabla3, .ficha-tec dl, .preguntas li, .clientes { grid-template-columns: 1fr; }
+  .caso:nth-child(even) figure { order: 0; }
+}
