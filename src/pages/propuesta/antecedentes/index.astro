@@ -1,25 +1,58 @@
 ---
 /**
- * Los proyectos (2026-10-30, v3). Pared de fichas. Sector, servicio y año filtran en vivo; la
- * cifra se recompone. Entre las fichas, los lugares por dentro. Filtro en la URL. No indexable.
+ * Los proyectos (2026-10-31, v4). Pared de fichas. Sector, servicio, año y cliente filtran; el
+ * filtro vive en la URL y el servidor ya lo aplica: la página llega con las primeras 48 fichas que
+ * cumplen, las cuentas de cada lente y la cifra, así nada cambia después de pintar. El resto de
+ * las fichas llega como datos (datos.json) cuando se filtra o se pide más, y se crean en el
+ * momento. Entre las fichas, los lugares por dentro. No indexable.
  */
 import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import Ficha from '../../../components/proto/Ficha.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
-import { loadStories, services, posterOf, SCENE_OF } from '../../../components/proto/isoData';
+import { loadStories, services, posterOf, SCENE_OF, type Story } from '../../../components/proto/isoData';
 import { SECTORS } from '../../../data/cine/scenes';
 
 export const prerender = false;
 const { stories } = await loadStories();
 const total = stories.length;
-const sectors = SECTORS.map((s) => ({ slug: s.slug, name: s.name, count: stories.filter((c) => c.sectorSlug === s.slug).length })).filter((s) => s.count > 0);
-const svcs = services.map((s) => ({ code: s.code, name: s.name, count: stories.filter((c) => c.serviceCodes.includes(s.code)).length }));
+const INICIAL = 48;
+const q = Astro.url.searchParams;
+const estado = { sector: q.get('sector') || '', service: q.get('service') || '', year: q.get('year') || '', cliente: q.get('cliente') || '' };
+// La misma regla que el guion del muro: cada lente cuenta dentro de lo que filtran las otras.
+const cumple = (c: Story, salvo?: string) =>
+  (salvo === 'sector' || !estado.sector || c.sectorSlug === estado.sector) &&
+  (salvo === 'service' || !estado.service || c.serviceCodes.includes(estado.service)) &&
+  (salvo === 'year' || !estado.year || String(c.year) === estado.year) &&
+  (!estado.cliente || c.client.toLowerCase() === estado.cliente.toLowerCase());
+const ok = stories.map((c) => cumple(c));
+const n = ok.filter(Boolean).length;
+const baseSector = stories.filter((c) => cumple(c, 'sector'));
+const baseService = stories.filter((c) => cumple(c, 'service'));
+const lente = (count: number, base: number, kind: 'sector' | 'service', value: string) => ({ count, w: Math.round((count / Math.max(1, base)) * 100), zero: count === 0 && estado[kind] !== value, on: estado[kind] === value });
+const sectors = SECTORS.filter((s) => stories.some((c) => c.sectorSlug === s.slug)).map((s) => ({ slug: s.slug, name: s.name, ...lente(baseSector.filter((c) => c.sectorSlug === s.slug).length, baseSector.length, 'sector', s.slug) }));
+const svcs = services.map((s) => ({ code: s.code, name: s.name, ...lente(baseService.filter((c) => c.serviceCodes.includes(s.code)).length, baseService.length, 'service', s.code) }));
 const years = [...new Set(stories.map((c) => c.year).filter(Boolean))].sort((a, b) => b - a);
+const partes = [estado.cliente, estado.sector && (sectors.find((s) => s.slug === estado.sector)?.name || estado.sector), estado.service && (svcs.find((s) => s.code === estado.service)?.name || estado.service), estado.year].filter(Boolean) as string[];
+const filtra = partes.length > 0;
+// Los lugares por dentro, antes de la ficha de ese índice del catálogo; sólo el del sector elegido; ninguno con año o cliente, ni con pocos resultados.
 const recorridos = ['constructoras', 'aeropuertos', 'bodegas', 'salud'];
 const recAt = [0, 18, 60, 120];
 const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'Aeropuerto', bodega: 'Bodega', hospital: 'Centro de salud', planta: 'Planta' };
+const recVisible = (slug: string) => !estado.year && !estado.cliente && n >= 12 && (!estado.sector || slug === estado.sector);
+type Pieza = { rec?: string; at?: number; oculto?: boolean; story?: Story; eager?: boolean };
+const piezas: Pieza[] = [];
+const puestos = new Set<string>();
+let r = 0, vistas = 0;
+for (let i = 0; i < stories.length && vistas < INICIAL; i++) {
+  if (!ok[i]) continue;
+  while (r < recAt.length && recAt[r] <= i) { if (recVisible(recorridos[r])) { piezas.push({ rec: recorridos[r], at: recAt[r] }); puestos.add(recorridos[r]); } r++; }
+  piezas.push({ story: stories[i], eager: vistas < 6 }); vistas++;
+}
+// Los lugares que no entran en la primera tanda viajan ocultos: el guion los pone en su sitio al pedir más.
+recorridos.forEach((slug, k) => { if (!puestos.has(slug)) piezas.push({ rec: slug, at: recAt[k], oculto: true }); });
+const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más de ${n}` : '';
 ---
 <!doctype html>
 <html lang="es">
@@ -38,7 +71,7 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       .anios { display: flex; flex-wrap: wrap; gap: 6px; }
       .anios button { padding: 6px 10px; border: 1px solid var(--line); color: var(--ink-2); font-size: .9375rem; }
       .anios button[aria-pressed="true"] { border-color: var(--red); color: var(--ink); }
-      .servicios [data-zero] { opacity: .35; }
+      .servicios [data-zero] { color: var(--ink-3); }
       .filtros { display: grid; gap: var(--s4); }
       .filtros__cuerpo { display: grid; gap: var(--s4); }
       .filtros__toggle { display: none; }
@@ -66,79 +99,113 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       <aside class="panel">
         <div>
           <span class="small">24 años de servicios IT. Mendoza, Argentina.</span>
-          <h1 class="count"><span data-count>{total}</span><i>.</i></h1>
-          <p class="sentence" data-sentence aria-live="polite">proyectos documentados</p>
+          <h1 class="count"><span data-count>{n}</span><i>.</i></h1>
+          <p class="sentence" data-sentence aria-live="polite">{filtra ? `proyectos · ${partes.join(' · ')}` : 'proyectos documentados'}</p>
         </div>
-        <div class:list={['filtros', { abierta: Boolean(Astro.url.search) }]} data-filtros>
-        <button class="filtros__toggle" type="button" data-toggle aria-expanded={Boolean(Astro.url.search) ? 'true' : 'false'} aria-controls="filtros-cuerpo">Filtrar por sector, servicio o año<i aria-hidden="true"></i></button>
+        <div class:list={['filtros', { abierta: filtra }]} data-filtros>
+        <button class="filtros__toggle" type="button" data-toggle aria-expanded={filtra ? 'true' : 'false'} aria-controls="filtros-cuerpo">Filtrar por sector, servicio o año<i aria-hidden="true"></i></button>
         <div class="filtros__cuerpo" id="filtros-cuerpo">
-        <div class="grupo"><h2>Sector</h2><ul class="servicios">{sectors.map((s) => <li><button type="button" data-lens="sector" data-value={s.slug} aria-pressed="false">{s.name}<span data-n>{s.count}</span><i></i></button></li>)}</ul></div>
-        <div class="grupo"><h2>Servicio</h2><ul class="servicios">{svcs.map((s) => <li><button type="button" data-lens="service" data-value={s.code} aria-pressed="false">{s.name}<span data-n>{s.count}</span><i></i></button></li>)}</ul></div>
-        <div class="grupo"><h2>Año</h2><div class="anios">{years.map((y) => <button type="button" data-lens="year" data-value={String(y)} aria-pressed="false">{y}</button>)}</div></div>
+        <div class="grupo"><h2>Sector</h2><ul class="servicios">{sectors.map((s) => <li><button type="button" data-lens="sector" data-value={s.slug} aria-pressed={s.on ? 'true' : 'false'} data-zero={s.zero || undefined} style={`--w:${s.w}`}>{s.name}<span data-n>{s.count}</span><i></i></button></li>)}</ul></div>
+        <div class="grupo"><h2>Servicio</h2><ul class="servicios">{svcs.map((s) => <li><button type="button" data-lens="service" data-value={s.code} aria-pressed={s.on ? 'true' : 'false'} data-zero={s.zero || undefined} style={`--w:${s.w}`}>{s.name}<span data-n>{s.count}</span><i></i></button></li>)}</ul></div>
+        <div class="grupo"><h2>Año</h2><div class="anios">{years.map((y) => <button type="button" data-lens="year" data-value={String(y)} aria-pressed={estado.year === String(y) ? 'true' : 'false'}>{y}</button>)}</div></div>
         </div>
         </div>
-        <button class="clear" type="button" data-clear>Ver los {total} proyectos</button>
+        <button class:list={['clear', { on: filtra }]} type="button" data-clear>Ver los {total} proyectos</button>
       </aside>
 
       <section aria-label="Proyectos">
-        <ol class="fichas" data-grid>
-          {stories.map((c, index) => (
-            <>
-              {recAt.includes(index) && (() => { const slug = recorridos[recAt.indexOf(index)]; const scene = SCENE_OF[slug]; return (
-                <li class="ficha ficha--rec" data-rec data-sector={slug}>
-                  <a href={`/propuesta/sectores/${slug}`}>
-                    <figure><img src={posterOf(slug)} alt="" width="1920" height="1080" loading={index === 0 ? 'eager' : 'lazy'} decoding="async" /></figure>
-                    <b>{sceneTitle[scene]} por dentro</b>
-                    <span class="small">{SECTORS.find((s) => s.slug === slug)?.name}</span>
-                  </a>
-                </li>
-              ); })()}
-              <Ficha story={c} eager={index < 9} lazy={index >= 24} />
-            </>
+        <ol class="fichas" data-grid data-datos="/propuesta/antecedentes/datos.json">
+          {piezas.map((p, index) => p.rec ? (
+            <li class="ficha ficha--rec" data-rec data-at={String(p.at)} data-sector={p.rec} hidden={p.oculto}>
+              <a href={`/propuesta/sectores/${p.rec}`}>
+                <figure><img src={posterOf(p.rec)} alt="" width="1920" height="1080" loading={index === 0 ? 'eager' : 'lazy'} fetchpriority={index === 0 ? 'high' : undefined} decoding="async" /></figure>
+                <b>{sceneTitle[SCENE_OF[p.rec]]} por dentro</b>
+                <span class="small">{SECTORS.find((s) => s.slug === p.rec)?.name}</span>
+              </a>
+            </li>
+          ) : (
+            <Ficha story={p.story!} eager={p.eager} primera={index === 0} />
           ))}
         </ol>
-        <p class="empty" data-empty>Sin proyectos para esta combinación.</p>
-        <button class="btn mas" type="button" data-mas hidden>Mostrar más</button>
+        <p class:list={['empty', { on: n === 0 }]} data-empty>Sin proyectos para esta combinación.</p>
+        <button class="btn mas" type="button" data-mas hidden={n <= INICIAL}>{masTexto}</button>
+        {/* Molde de ficha para las que se crean desde los datos; también asegura el guion del sistema al pasar el puntero. */}
+        <template data-molde><Ficha story={stories[0]} /></template>
       </section>
     </main>
 
     <Cierre />
 
     <script>
+      type Datos = { prefijo: string; sitios: Record<string, string>; fichas: { id: number; slug: string; cliente: string; titulo: string; sector: string; sectorSlug: string; servicios: string; anio: number; foto: string; sitio: string }[] };
+      type Item = { id: number; sector: string; services: string[]; year: string; client: string; el?: HTMLElement; crear: () => HTMLElement };
       const root = document.querySelector<HTMLElement>('[data-muro]')!;
       // En teléfono los filtros vienen plegados desde el HTML (abiertos si la URL ya filtra) y el botón los abre; en escritorio siempre están a la vista. Nada se pliega después de pintar: cero salto.
       const filtros = root.querySelector<HTMLElement>('[data-filtros]')!;
       const toggle = filtros.querySelector<HTMLButtonElement>('[data-toggle]');
       toggle?.addEventListener('click', () => { const abierta = filtros.classList.toggle('abierta'); toggle.setAttribute('aria-expanded', String(abierta)); });
-      const fichas = [...root.querySelectorAll<HTMLElement>('[data-ficha]')];
-      const total = fichas.length;
-      const recs = [...root.querySelectorAll<HTMLElement>('[data-rec]')];
+      const grid = root.querySelector<HTMLElement>('[data-grid]')!;
+      const molde = root.querySelector<HTMLTemplateElement>('[data-molde]')!;
+      const recs = [...root.querySelectorAll<HTMLElement>('[data-rec]')].sort((a, b) => Number(a.dataset.at) - Number(b.dataset.at));
       const lenses = [...root.querySelectorAll<HTMLButtonElement>('[data-lens]')];
-      const state: Record<string, string> = {};
-      const TANDA = matchMedia('(max-width: 900px)').matches ? 24 : 48;
-      let visibles = TANDA;
       const mas = root.querySelector<HTMLButtonElement>('[data-mas]')!;
+      const TANDA = 48;
+      let visibles = TANDA;
+      const state: Record<string, string> = {};
+      new URLSearchParams(location.search).forEach((v, k) => { if (['sector', 'service', 'year', 'cliente'].includes(k) && v) state[k] = v; });
+      const enDom = new Map<string, HTMLElement>();
+      root.querySelectorAll<HTMLElement>('[data-ficha][data-id]').forEach((el) => enDom.set(el.dataset.id!, el));
+      // Una ficha nueva se arma con el molde: el mismo HTML que las servidas, con sus datos.
+      const armar = (f: Datos['fichas'][number], d: Datos) => {
+        const li = molde.content.firstElementChild!.cloneNode(true) as HTMLElement;
+        Object.assign(li.dataset, { id: String(f.id), sector: f.sectorSlug, services: f.servicios, year: String(f.anio), client: f.cliente.toLowerCase(), site: d.sitios[f.sitio] || '' });
+        li.classList.remove('on');
+        li.querySelector('a')!.href = `/propuesta/antecedentes/${f.id}/${f.slug}`;
+        const img = li.querySelector('img'); if (img) { if (f.foto) { img.src = f.foto.startsWith('/') ? f.foto : d.prefijo + f.foto; img.loading = 'lazy'; img.removeAttribute('fetchpriority'); } else img.remove(); }
+        const sistema = li.querySelector<HTMLElement>('.ficha__sistema'); if (sistema) { sistema.dataset.svcs = f.servicios; sistema.innerHTML = ''; }
+        li.querySelector('b')!.textContent = f.cliente;
+        li.querySelector('.t')!.textContent = f.titulo;
+        li.querySelector('.small')!.textContent = [f.sector, f.anio || ''].filter(Boolean).join(' · ');
+        return li;
+      };
+      const desdeDatos = (d: Datos): Item[] => d.fichas.map((f) => ({ id: f.id, sector: f.sectorSlug, services: f.servicios.split(' ').filter(Boolean), year: String(f.anio), client: f.cliente.toLowerCase(), el: enDom.get(String(f.id)), crear: () => armar(f, d) }));
+      // Si los datos no llegan, el muro sigue con las fichas que ya tiene.
+      const desdeDom = (): Item[] => [...enDom.values()].map((el) => ({ id: Number(el.dataset.id), sector: el.dataset.sector || '', services: (el.dataset.services || '').split(' ').filter(Boolean), year: el.dataset.year || '', client: el.dataset.client || '', el, crear: () => el }));
+      let pedido: Promise<Item[]> | undefined;
+      const datos = () => (pedido ||= fetch(grid.dataset.datos!, { priority: 'low' } as RequestInit).then((r) => (r.ok ? r.json() : Promise.reject(r.status))).then(desdeDatos).catch(desdeDom));
       const nameOf = (b: HTMLButtonElement) => [...b.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').trim();
       const names = (kind: string, value: string) => { const b = lenses.find((x) => x.dataset.lens === kind && x.dataset.value === value); return b ? nameOf(b) || value : value; };
-      const matches = (el: HTMLElement, skip?: string) =>
-        (skip === 'sector' || !state.sector || el.dataset.sector === state.sector) &&
-        (skip === 'service' || !state.service || (el.dataset.services || '').split(' ').includes(state.service)) &&
-        (skip === 'year' || !state.year || el.dataset.year === state.year) &&
-        (!state.cliente || el.dataset.client === state.cliente.toLowerCase());
-      const params = new URLSearchParams(location.search);
-      ['sector', 'service', 'year', 'cliente'].forEach((k) => { if (params.get(k)) state[k] = params.get(k)!; });
-      const apply = () => {
-        let n = 0;
-        fichas.forEach((el) => { const ok = matches(el); if (ok) n++; el.hidden = !ok || n > visibles; });
+      const matches = (it: Item, skip?: string) =>
+        (skip === 'sector' || !state.sector || it.sector === state.sector) &&
+        (skip === 'service' || !state.service || it.services.includes(state.service)) &&
+        (skip === 'year' || !state.year || it.year === state.year) &&
+        (!state.cliente || it.client === state.cliente.toLowerCase());
+      // El muro se recompone en orden: las fichas que cumplen hasta el tope, con los lugares por dentro delante de la primera ficha que sigue a su índice. Lo que no va, sale del árbol y espera.
+      const recomponer = (quiero: HTMLElement[]) => {
+        const keep = new Set(quiero);
+        [...grid.children].forEach((el) => { if (!keep.has(el as HTMLElement)) el.remove(); });
+        quiero.forEach((el, i) => { el.hidden = false; if (grid.children[i] !== el) grid.insertBefore(el, grid.children[i] || null); });
+      };
+      const apply = async () => {
+        const items = await datos();
+        const ok = items.map((it) => matches(it));
+        const n = ok.filter(Boolean).length;
+        const recOk = (el: HTMLElement) => !state.year && !state.cliente && n >= 12 && (!state.sector || el.dataset.sector === state.sector);
+        const quiero: HTMLElement[] = [];
+        let r = 0, vistas = 0;
+        for (let i = 0; i < items.length && vistas < visibles; i++) {
+          if (!ok[i]) continue;
+          while (r < recs.length && Number(recs[r].dataset.at) <= i) { if (recOk(recs[r])) quiero.push(recs[r]); r++; }
+          const it = items[i]; if (!it.el) it.el = it.crear(); quiero.push(it.el); vistas++;
+        }
+        recomponer(quiero);
         mas.hidden = n <= visibles;
         mas.textContent = `Mostrar ${Math.min(TANDA, n - visibles)} más de ${n}`;
-        // Los lugares por dentro acompañan al filtro: sólo el del sector elegido; ninguno con año o cliente, ni con pocos resultados.
-        recs.forEach((el) => { el.hidden = Boolean(state.year) || Boolean(state.cliente) || n < 12 || (Boolean(state.sector) && el.dataset.sector !== state.sector); });
         lenses.forEach((b) => b.setAttribute('aria-pressed', String(state[b.dataset.lens!] === b.dataset.value)));
         ['sector', 'service'].forEach((kind) => {
-          const base = fichas.filter((el) => matches(el, kind));
+          const base = items.filter((it) => matches(it, kind));
           lenses.filter((b) => b.dataset.lens === kind).forEach((b) => {
-            const c = base.filter((el) => kind === 'service' ? (el.dataset.services || '').split(' ').includes(b.dataset.value!) : el.dataset[kind] === b.dataset.value).length;
+            const c = base.filter((it) => kind === 'service' ? it.services.includes(b.dataset.value!) : it.sector === b.dataset.value).length;
             const num = b.querySelector('[data-n]'); if (num) num.textContent = String(c);
             b.style.setProperty('--w', String(Math.round((c / Math.max(1, base.length)) * 100)));
             b.toggleAttribute('data-zero', c === 0 && state[kind] !== b.dataset.value);
@@ -154,7 +221,10 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       lenses.forEach((b) => b.addEventListener('click', () => { const k = b.dataset.lens!; state[k] = state[k] === b.dataset.value ? '' : b.dataset.value!; visibles = TANDA; apply(); }));
       mas.addEventListener('click', () => { visibles += TANDA; apply(); });
       root.querySelector('[data-clear]')!.addEventListener('click', () => { Object.keys(state).forEach((k) => delete state[k]); visibles = TANDA; apply(); });
-      apply();
+      // El servidor ya dejó el muro como pide la URL: no se recompone al cargar. Los datos se traen al primer gesto sobre el panel o cuando la página queda quieta.
+      const panel = root.querySelector<HTMLElement>('.panel')!;
+      ['pointerover', 'focusin', 'touchstart'].forEach((ev) => { panel.addEventListener(ev, () => datos(), { once: true, passive: true }); mas.addEventListener(ev, () => datos(), { once: true, passive: true }); });
+      addEventListener('load', () => (window.requestIdleCallback || ((f: () => void) => setTimeout(f, 2500)))(() => datos()), { once: true });
     </script>
   </body>
 </html>

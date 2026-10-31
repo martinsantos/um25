@@ -1,6 +1,8 @@
 /**
- * Variante de 960 px de cada foto principal de antecedente (1600 px, ~220 KB) para teléfonos y
- * columnas angostas: ~60 KB, elegida por srcset. Idempotente: sólo genera lo que falta.
+ * Variantes de las fotos: 960 px de cada foto principal de antecedente (1600 px, ~220 KB) para
+ * teléfonos y columnas angostas (~60 KB, elegida por srcset), y 480 px de cada foto editorial
+ * (1672 px, ~340 KB) para cuando hace de miniatura de ficha (~20 KB). Idempotente: sólo genera lo
+ * que falta.
  *
  *   node scripts/propuesta/imagenes-960.mjs
  */
@@ -21,3 +23,14 @@ for (const lote of readdirSync(raiz)) {
   }
 }
 console.log(`960 px: ${hechas} generadas, ${(bytes / 1024 / 1024).toFixed(1)} MB en total`);
+
+const editorial = 'public/images/editorial';
+let chicas = 0;
+for (const f of readdirSync(editorial)) {
+  if (!/^umsa-[a-z0-9-]+\.webp$/.test(f) || /-(480|960)\.webp$/.test(f)) continue;
+  const out = join(editorial, f.replace(/\.webp$/, '-480.webp'));
+  if (existsSync(out)) continue;
+  await sharp(join(editorial, f)).resize({ width: 480 }).webp({ quality: 76 }).toFile(out);
+  chicas++;
+}
+console.log(`480 px editoriales: ${chicas} generadas`);

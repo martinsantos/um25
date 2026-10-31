@@ -30,6 +30,7 @@ const PAGINAS = [
   { id: 'sector', path: '/propuesta/sectores/aeropuertos', max: { escritorio: 10, portatil: 12, telefono: 16 } },
   { id: 'servicio', from: 'a[href^="/propuesta/servicios/"][href!="/propuesta/servicios"]', max: { escritorio: 10, portatil: 12, telefono: 16 } },
   { id: 'proyectos', path: '/propuesta/antecedentes', max: { escritorio: 14, portatil: 16, telefono: 20 } },
+  { id: 'proyectos-filtro', path: '/propuesta/antecedentes?sector=bodegas&service=107', max: { escritorio: 6, portatil: 7, telefono: 10 } },
   { id: 'ficha', from: 'a[href^="/propuesta/antecedentes/"]', filtro: /\/propuesta\/antecedentes\/\d+\//, max: { escritorio: 8, portatil: 9.5, telefono: 14 } },
   // Secundarias: el mismo sistema, el mismo control.
   { id: 'servicios', path: '/propuesta/servicios', max: { escritorio: 6, portatil: 7, telefono: 11 } },

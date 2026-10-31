@@ -3,17 +3,18 @@
  * Ficha de proyecto: foto, cliente, qué se hizo, sector y año. Al pasar el puntero, la foto deja
  * ver el sistema: el lugar por dentro con los servicios del proyecto encendidos. El dibujo del
  * lugar se trae una sola vez por tipo de sitio y se monta sólo en la tarjeta bajo el puntero,
- * así el muro de 500 fichas no carga ni dibuja nada de más.
+ * así el muro de 500 fichas no carga ni dibuja nada de más. Los eventos van delegados en el
+ * documento: valen también para las fichas que el muro crea después desde los datos.
  */
 import { thumbOf, SITE_OF, isoSrc, type Story } from './isoData';
-interface Props { story: Story; eager?: boolean; showSector?: boolean; lazy?: boolean }
-const { story: c, eager = false, showSector = true } = Astro.props;
+interface Props { story: Story; eager?: boolean; showSector?: boolean; primera?: boolean }
+const { story: c, eager = false, showSector = true, primera = false } = Astro.props;
 const site = SITE_OF[c.sectorSlug] || 'building';
 ---
-<li class="ficha" data-ficha data-sector={c.sectorSlug} data-services={c.serviceCodes.join(' ')} data-year={String(c.year)} data-client={c.client.toLowerCase()} data-site={isoSrc(site)}>
+<li class="ficha" data-ficha data-id={String(c.id)} data-sector={c.sectorSlug} data-services={c.serviceCodes.join(' ')} data-year={String(c.year)} data-client={c.client.toLowerCase()} data-site={isoSrc(site)}>
   <a href={c.href}>
     <figure>
-      {c.image && <img src={thumbOf(c.image)} alt="" width="480" height="300" loading={eager ? 'eager' : 'lazy'} decoding="async" />}
+      {c.image && <img src={thumbOf(c.image)} alt="" width="480" height="300" loading={eager ? 'eager' : 'lazy'} fetchpriority={primera ? 'high' : undefined} decoding="async" />}
       <span class="ficha__sistema iso" data-svcs={c.serviceCodes.join(' ')} aria-hidden="true"></span>
     </figure>
     <b>{c.client}</b>
@@ -28,21 +29,23 @@ const site = SITE_OF[c.sectorSlug] || 'building';
     const cache = new Map<string, Promise<string>>();
     const traer = (src: string) => { if (!cache.has(src)) cache.set(src, fetch(src).then((r) => (r.ok ? r.text() : ''))); return cache.get(src)!; };
     const fit = (svg: SVGSVGElement) => { if (svg.dataset.fit) return; try { const b = svg.getBBox(); const pad = Math.max(b.width, b.height) * .05; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); } catch { /* sin bbox */ } };
-    document.querySelectorAll<HTMLElement>('[data-ficha][data-site]').forEach((li) => {
-      const caja = li.querySelector<HTMLElement>('.ficha__sistema')!;
-      let vivo = 0;
-      const entrar = () => {
-        const id = ++vivo;
-        traer(li.dataset.site!).then((markup) => {
-          if (id !== vivo || !markup) return;
-          if (!caja.firstElementChild) { caja.innerHTML = markup; const svg = caja.querySelector<SVGSVGElement>('svg'); if (svg) fit(svg); }
-          requestAnimationFrame(() => { if (id === vivo) li.classList.add('on'); });
-        });
-      };
-      const salir = () => { vivo++; li.classList.remove('on'); setTimeout(() => { if (!li.classList.contains('on')) caja.innerHTML = ''; }, 450); };
-      li.addEventListener('pointerenter', entrar); li.addEventListener('pointerleave', salir);
-      // Con teclado, el foco en el enlace muestra el sistema igual que el puntero.
-      li.addEventListener('focusin', entrar); li.addEventListener('focusout', salir);
-    });
+    const vivo = new WeakMap<HTMLElement, number>();
+    const entrar = (li: HTMLElement) => {
+      const id = (vivo.get(li) || 0) + 1; vivo.set(li, id);
+      const caja = li.querySelector<HTMLElement>('.ficha__sistema'); if (!caja || !li.dataset.site) return;
+      traer(li.dataset.site).then((markup) => {
+        if (vivo.get(li) !== id || !markup) return;
+        if (!caja.firstElementChild) { caja.innerHTML = markup; const svg = caja.querySelector<SVGSVGElement>('svg'); if (svg) fit(svg); }
+        requestAnimationFrame(() => { if (vivo.get(li) === id) li.classList.add('on'); });
+      });
+    };
+    const salir = (li: HTMLElement) => { vivo.set(li, (vivo.get(li) || 0) + 1); li.classList.remove('on'); setTimeout(() => { if (!li.classList.contains('on')) { const caja = li.querySelector('.ficha__sistema'); if (caja) caja.innerHTML = ''; } }, 450); };
+    const tarjeta = (t: EventTarget | null) => (t instanceof Element ? t.closest<HTMLElement>('[data-ficha][data-site]') : null);
+    const cruza = (e: PointerEvent | FocusEvent, li: HTMLElement) => !(e.relatedTarget instanceof Node && li.contains(e.relatedTarget));
+    document.addEventListener('pointerover', (e) => { const li = tarjeta(e.target); if (li && cruza(e, li)) entrar(li); });
+    document.addEventListener('pointerout', (e) => { const li = tarjeta(e.target); if (li && cruza(e, li)) salir(li); });
+    // Con teclado, el foco en el enlace muestra el sistema igual que el puntero.
+    document.addEventListener('focusin', (e) => { const li = tarjeta(e.target); if (li && cruza(e, li)) entrar(li); });
+    document.addEventListener('focusout', (e) => { const li = tarjeta(e.target); if (li && cruza(e, li)) salir(li); });
   }
 </script>

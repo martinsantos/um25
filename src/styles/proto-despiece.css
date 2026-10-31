@@ -1,6 +1,8 @@
 /* Sólo el preflight de Tailwind (unos 7 KB): el reset que la propuesta ya usaba cuando la hoja base global
    se inyectaba entera (68 KB con utilidades que nadie usaba). Las utilidades no entran. */
 @tailwind base;
+/* Lo que lleva hidden no se ve, aunque una clase (.btn, .ficha) fije su display. */
+[hidden] { display: none !important; }
 
 /*
  * Sistema Despiece (2026-10-30, reescrito). Una sola escala de espacio, una de tipografía, una
@@ -166,7 +168,6 @@ p { margin: 0; }
 /* Sin content-visibility en el muro: el alto de reserva (360 px) no coincide con el real en anchos medios y la página saltaba al pintar. 48 fichas por tanda se pintan sin problema. */
 .ficha > a { display: grid; gap: 8px; }
 .ficha figure + b { padding-top: 6px; border-top: 1px solid var(--line-2); margin-top: 2px; }
-.ficha[hidden] { display: none; }
 .ficha figure { margin: 0; aspect-ratio: 16 / 10; background: var(--bg-2); overflow: hidden; position: relative; }
 .ficha figure img { transition: opacity .35s var(--ease); }
 .ficha__sistema { position: absolute; inset: 0; display: grid; place-items: center; background: var(--bg); opacity: 0; transition: opacity .35s var(--ease); }

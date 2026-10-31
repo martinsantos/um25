@@ -87,7 +87,14 @@ export const SITE_OF: Record<string, IsoSite> = { bodegas: 'winery', aeropuertos
 /** Fotos editoriales: la imagen a pleno de cada servicio y de cada sector. */
 export const SERVICE_PHOTO: Record<string, string> = { '101': '/images/editorial/umsa-service-redes.webp', '102': '/images/editorial/umsa-service-seguridad-electronica.webp', '103': '/images/editorial/umsa-service-telecomunicaciones.webp', '104': '/images/editorial/umsa-service-software-a-medida.webp', '105': '/images/editorial/umsa-service-soporte-247.webp', '106': '/images/editorial/umsa-service-consultoria-it.webp', '107': '/images/editorial/umsa-service-deteccion-incendios.webp', '108': '/images/editorial/umsa-service-electricos-it.webp' };
 export const SECTOR_PHOTO: Record<string, string> = { bodegas: '/images/editorial/umsa-sector-bodegas.webp', aeropuertos: '/images/editorial/umsa-sector-aeropuertos.webp', salud: '/images/editorial/umsa-sector-salud.webp', mineria: '/images/editorial/umsa-sector-mineria.webp', industria: '/images/editorial/umsa-sector-industria.webp', constructoras: '/images/editorial/umsa-sector-constructoras.webp', gobiernosectorpublico: '/images/editorial/umsa-sector-gobierno.webp', gobierno: '/images/editorial/umsa-sector-gobierno.webp' };
-export const thumbOf = (image: string) => /^\/images\/antecedentes\/generated\/.+-principal\.webp$/.test(image) ? image.replace(/-principal\.webp$/, '-principal-480.webp') : image;
+/** Las variantes de ancho de una foto según su familia: de antecedente (1600 → 960 → 480) o editorial (1672 → 960 → 480). Sin familia, las tres son la misma y el ancho es 0. */
+export const variantes = (image: string) => {
+  if (/^\/images\/antecedentes\/generated\/.+-principal\.webp$/.test(image)) return { w480: image.replace(/-principal\.webp$/, '-principal-480.webp'), w960: image.replace(/-principal\.webp$/, '-principal-960.webp'), full: image, ancho: 1600 };
+  if (/^\/images\/editorial\/umsa-[a-z0-9-]+\.webp$/.test(image) && !/-(480|960)\.webp$/.test(image)) return { w480: image.replace(/\.webp$/, '-480.webp'), w960: image.replace(/\.webp$/, '-960.webp'), full: image, ancho: 1672 };
+  return { w480: image, w960: image, full: image, ancho: 0 };
+};
+/** La miniatura de ficha: la variante de 480 px. */
+export const thumbOf = (image: string) => variantes(image).w480;
 /** La película de Blender de la escena del sector, con su póster JPG (1920×1080). */
 export const filmOf = (sectorSlug: string) => { const scene = SCENE_OF[sectorSlug] || 'fachada'; return { film: `/cine/media/cine-${scene}.mp4`, poster: `/cine/media/cine-${scene}-poster.jpg` }; };
 export const posterOf = (sectorSlug: string, code?: string) => {
