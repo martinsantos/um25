@@ -176,15 +176,9 @@ p { margin: 0; }
 .sp-scene.pt-svg .pt-contorno { stroke-width: 1.8px; }
 .sp-scene.pt-svg .pt-line[data-banda="lejos"] { stroke-width: .8px; }
 .sp-scene .sp-route path { stroke-width: 1.5px; }
-.parte, .banco, .coleccion, .sp-scene { display: block; --p-paper: var(--bg); --p-face: #15181c; --p-top: #1a1d22; --p-s0: #0a0b0d; --p-s1: #0e1013; --p-s2: #121418; --p-s3: #171a1f; --p-lit-top: #2a1416; --p-lit-shade: #1d1012; --p-hi: #e6e8eb; --p-mid: #a0a6ad; --p-lo: #5c636b; --p-faint: #2f343a; --p-lit: var(--red); --p-dot: var(--ink); --p-weight: 1px; }
+.parte, .banco, .sp-scene { display: block; --p-paper: var(--bg); --p-face: #15181c; --p-top: #1a1d22; --p-s0: #0a0b0d; --p-s1: #0e1013; --p-s2: #121418; --p-s3: #171a1f; --p-lit-top: #2a1416; --p-lit-shade: #1d1012; --p-hi: #e6e8eb; --p-mid: #a0a6ad; --p-lo: #5c636b; --p-faint: #2f343a; --p-lit: var(--red); --p-dot: var(--ink); --p-weight: 1px; }
 /* El banco: las partes a escala sobre una base, en línea clara sobre el fondo, como las isometrías de sitio. */
 .banco { width: 100%; max-width: 760px; height: auto; margin: 0 auto; }
-/* La colección: esquema de sistema sobre una base fina; una lista al lado enciende un servicio y atenúa el resto. */
-.coleccion { width: 100%; height: auto; }
-.coleccion .co-ruta .pt-line { stroke-width: 1.2px; }
-.coleccion .co-pieza, .coleccion .co-ruta { transition: opacity .5s var(--ease); }
-.coleccion__marco[data-svc] .co-pieza, .coleccion__marco[data-svc] .co-ruta { opacity: .28; }
-.coleccion__marco[data-svc="101"] [data-code="101"], .coleccion__marco[data-svc="102"] [data-code="102"], .coleccion__marco[data-svc="103"] [data-code="103"], .coleccion__marco[data-svc="104"] [data-code="104"], .coleccion__marco[data-svc="105"] [data-code="105"], .coleccion__marco[data-svc="106"] [data-code="106"], .coleccion__marco[data-svc="107"] [data-code="107"], .coleccion__marco[data-svc="108"] [data-code="108"] { opacity: 1; }
 .papel { padding: 0; }
 /* Clases del sprite y del banco (las mismas que lleva partes.svg adentro). */
 .pt-svg path, .pt-svg circle { vector-effect: non-scaling-stroke; }
@@ -223,10 +217,11 @@ p { margin: 0; }
 .partes:not([data-partes]) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(28px, 4vw, 72px); }
 .cols .partes:not([data-partes]) { grid-template-columns: 1fr; }
 .partes b { overflow-wrap: anywhere; }
-.partes li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 20px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--line-2); }
-.partes b { font-weight: 600; line-height: 1.3; grid-column: 1; grid-row: 1; }
-.partes .small { color: var(--ink-3); grid-column: 1; grid-row: 2; }
-.partes .n { color: var(--ink-2); font-size: .95rem; font-variant-numeric: tabular-nums; white-space: nowrap; grid-column: 2; grid-row: 1; }
+.partes li { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; grid-template-rows: auto auto; gap: 0 16px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line-2); }
+.partes .parte { grid-column: 1; grid-row: 1 / 3; width: 72px; height: 72px; }
+.partes b { font-weight: 600; line-height: 1.3; grid-column: 2; grid-row: 1; align-self: end; }
+.partes .small { color: var(--ink-3); grid-column: 2; grid-row: 2; align-self: start; }
+.partes .n { color: var(--ink-2); font-size: .95rem; font-variant-numeric: tabular-nums; white-space: nowrap; grid-column: 3; grid-row: 1 / 3; }
 [data-partes] li { cursor: default; }
 .partes li.on b { color: var(--red); }
 
@@ -238,8 +233,7 @@ p { margin: 0; }
 @media (max-width: 900px) { .instalado { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* Ficha isométrica: el banco con lo instalado y, debajo, el lugar con los servicios del proyecto encendidos. */
-.fiso { display: grid; gap: var(--s5); }
-.fiso__head { margin-bottom: 0; }
+.fiso { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: start; }
 .fiso__lista { display: grid; gap: var(--s2); }
 .fiso__lugar { display: grid; gap: 12px; justify-items: center; }
 .fiso__lugar svg { width: 100%; height: auto; max-height: 64vh; display: block; }
@@ -278,7 +272,7 @@ p { margin: 0; }
   .copy > p { display: none; }
   .cols-2, .cols-3, .cols-4, .cols-5-7, .cols-7-5, .dentro, .caso, .cierre__grid { grid-template-columns: 1fr; }
   .partes { grid-template-columns: 1fr; gap: 0; padding-top: 0; }
-  .partes:not([data-partes]) { grid-template-columns: 1fr; }
+  .fiso, .partes:not([data-partes]) { grid-template-columns: 1fr; }
   .partes .parte { width: 84px; height: 84px; margin: 0; grid-row: 1 / 4; }
   .partes b, .partes .small, .partes .n { grid-column: 2; }
   .fiso__lugar svg, .dentro__stage svg { max-height: none; }

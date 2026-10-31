@@ -1,9 +1,0 @@
----
-/** La colección de un servicio, un sector o un proyecto, dibujada al servir la página como esquema de sistema. */
-import { coleccionSvg } from '../../lib/iso/coleccion.mjs';
-import type { ParteKey } from './despiece';
-interface Props { items: { key: ParteKey; code?: string; qty?: number }[]; label?: string; class?: string }
-const { items, label, class: cls } = Astro.props;
-const svg = coleccionSvg(items, { label });
----
-{svg && <div class:list={['coleccion__marco', cls]} data-coleccion set:html={svg} />}

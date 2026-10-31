@@ -1,13 +1,15 @@
 ---
 /**
- * Lo instalado, como inventario: una fila por parte, con nombre, servicio y en cuántos proyectos
- * aparece. Sin dibujos: las partes isométricas sólo se ven de a una (el lugar por dentro); juntas
- * se leían como un pesebre. `data-code` deja que la ficha encienda el recorrido al pasar.
+ * Lo instalado, fila por fila: la miniatura de la parte (una pieza sola, del sprite
+ * /cine/iso/partes.svg), el nombre, el servicio y en cuántos proyectos aparece. Nunca varias
+ * piezas en una misma escena: juntas se leían como un pesebre. `data-code` deja que la ficha
+ * encienda el recorrido del servicio al pasar.
  */
+import Parte from './Parte.astro';
 import type { ParteKey } from './despiece';
 interface Props { items: { key: ParteKey; label: string; meta?: string; n?: string; code?: string }[]; interactivo?: boolean }
 const { items, interactivo = false } = Astro.props;
 ---
 <ol class="partes" data-partes={interactivo ? '' : undefined}>
-  {items.map((p) => <li data-code={p.code}><b>{p.label}</b>{p.meta && <span class="small">{p.meta}</span>}{p.n && <span class="n">{p.n}</span>}</li>)}
+  {items.map((p) => <li data-code={p.code}><Parte k={p.key} size={72} /><b>{p.label}</b>{p.meta && <span class="small">{p.meta}</span>}{p.n && <span class="n">{p.n}</span>}</li>)}
 </ol>

@@ -15,7 +15,6 @@ import { getServicioByCode } from '../../../lib/um26-directus';
 import { loadStories, readDevice, services, SERVICE_KEY, SERVICE_PHOTO, type IsoSite, isoSrc } from '../../../components/proto/isoData';
 import { despieceAgregado, KIT_DE_SERVICIO } from '../../../components/proto/despiece';
 import Partes from '../../../components/proto/Partes.astro';
-import Coleccion from '../../../components/proto/Coleccion.astro';
 import { CASOS_SERVICIO, casosDe } from '../../../components/proto/relato';
 import { SERVICE_SPECS } from '../../../data/serviceSpecs';
 import { SECTORS, SERVICE_SCENES } from '../../../data/cine/scenes';
@@ -124,10 +123,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       <section class="sec">
         <div class="wrap">
           <div class="sec__head"><h2>Con qué se hace<span class="dot">.</span></h2></div>
-          <div class="cols cols-7-5 cols--centro">
-            <Coleccion items={kit.map((p) => ({ key: p.key, code, qty: p.u || p.n }))} label={`Con qué se hace ${servicio.name}`} />
-            <Partes items={kit.map((p) => ({ key: p.key, label: p.label, meta: servicio.name, n: p.n > 0 ? `${p.n} ${p.n === 1 ? 'proyecto' : 'proyectos'}${p.u > 0 ? ` · ${p.u} unidades` : ''}` : 'Alcance del servicio' }))} />
-          </div>
+          <Partes items={kit.map((p) => ({ key: p.key, label: p.label, meta: servicio.name, n: p.n > 0 ? `${p.n} ${p.n === 1 ? 'proyecto' : 'proyectos'}${p.u > 0 ? ` · ${p.u} unidades` : ''}` : 'Alcance del servicio' }))} />
         </div>
       </section>
     )}
