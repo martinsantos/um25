@@ -13,7 +13,7 @@ import Casos from '../../../components/proto/Casos.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import Partes from '../../../components/proto/Partes.astro';
 import { getSectorBySlug } from '../../../lib/um26-directus';
-import { loadStories, services, posterOf, SITE_OF, SECTOR_PHOTO, SCENE_OF, isoSrc } from '../../../components/proto/isoData';
+import { loadStories, services, posterOf, SITE_OF, SECTOR_PHOTO, SCENE_OF, isoSrc, filmOf } from '../../../components/proto/isoData';
 import { despieceAgregado } from '../../../components/proto/despiece';
 import { CASOS_SECTOR, casosDe, sectorRelato, EMPRESA } from '../../../components/proto/relato';
 import { SECTORS } from '../../../data/cine/scenes';
@@ -50,7 +50,7 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
     <Top current="sectores" />
     <main id="contenido">
 
-    <Apertura label={name} isoSrc={isoSrc(site)} image={photo} hero>
+    <Apertura label={name} isoSrc={isoSrc(site)} image={photo} film={filmOf(slug).film} poster={filmOf(slug).poster} hero>
       <h1 style="font-size:clamp(2rem,3.6vw,3.6rem)">{relato.headline || name}<span class="dot">.</span></h1>
       <p>{relato.summary || sector.description}</p>
       {cifras.length > 0 && <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>}

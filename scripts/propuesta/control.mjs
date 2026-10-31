@@ -53,10 +53,19 @@ for (const pag of PAGINAS) {
       const m = await page.evaluate(() => {
         const titles = [...document.querySelectorAll('svg title')].map((t) => t.textContent.trim()).filter(Boolean);
         const fuera = [...document.querySelectorAll('.iso svg, .xray__iso svg, .fiso__lugar svg, figure img')].map((e) => e.getBoundingClientRect()).filter((r) => r.width > 0 && (r.left < -1 || r.right > innerWidth + 1)).length;
-        return { titles, fuera, scrollW: document.documentElement.scrollWidth, innerW: innerWidth, alto: document.documentElement.scrollHeight, innerH: innerHeight };
+        const fondo = document.querySelector('.lugar--hero .lugar__fondo'), dib = document.querySelector('.lugar--hero .xray__iso');
+        const op = (e) => (e ? +getComputedStyle(e).opacity : null);
+        const poster = document.querySelector('.lugar__fondo video')?.getAttribute('poster') || null;
+        return { titles, fuera, scrollW: document.documentElement.scrollWidth, innerW: innerWidth, alto: document.documentElement.scrollHeight, innerH: innerHeight, fondo0: op(fondo), dib0: op(dib), poster };
       });
-      await page.evaluate(() => window.scrollTo(0, Math.round(innerHeight * 1.3))); await page.waitForTimeout(2800);
+      // Fin de la apertura: el último punto del pin del hero (o 1,3 pantallas si la página no tiene hero).
+      await page.evaluate(() => { const h = document.querySelector('.lugar--hero'); window.scrollTo(0, h ? h.offsetTop + h.offsetHeight - innerHeight : Math.round(innerHeight * 1.3)); }); await page.waitForTimeout(3200);
       await page.screenshot({ path: join(OUT, `${nombre}-2-apertura.png`) });
+      const fin = await page.evaluate(() => { const op = (q) => { const e = document.querySelector(q); return e ? +getComputedStyle(e).opacity : null; }; return { fondo: op('.lugar--hero .lugar__fondo'), dib: op('.lugar--hero .xray__iso') }; });
+      const posterOk = m.poster ? (await page.evaluate(async (u) => (await fetch(u, { method: 'HEAD' })).ok, m.poster)) : true;
+      // En pantalla ancha la película de fondo tiene que estar reproduciéndose al volver arriba.
+      await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(400);
+      const filmOk = v.w < 900 ? true : await page.evaluate(async () => { const f = document.querySelector('.lugar__fondo video'); if (!f) return true; for (let i = 0; i < 40; i++) { if (!f.paused && f.currentTime > 0) return true; await new Promise((r) => setTimeout(r, 100)); } return false; });
       for (let y = 0; y < m.alto; y += v.h) { await page.evaluate((yy) => window.scrollTo(0, yy), y); await page.waitForTimeout(80); }
       await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(400);
       await page.screenshot({ path: join(OUT, `${nombre}-3-completa.png`), fullPage: true });
@@ -66,6 +75,12 @@ for (const pag of PAGINAS) {
       if (m.scrollW > m.innerW + 1) problemas.push(`desborde horizontal: ${m.scrollW} > ${m.innerW}`);
       if (m.fuera) problemas.push(`${m.fuera} figura(s) fuera de la pantalla`);
       if (pantallas > max) problemas.push(`${pantallas} pantallas, presupuesto ${max}`);
+      if (m.fondo0 !== null && m.fondo0 < .99) problemas.push(`el fondo real no cubre al inicio (opacidad ${m.fondo0})`);
+      if (m.dib0 !== null && m.dib0 > .01) problemas.push(`el dibujo asoma sobre el fondo al inicio (opacidad ${m.dib0})`);
+      if (fin.fondo !== null && fin.fondo > .01) problemas.push(`el fondo real sigue al final de la apertura (opacidad ${fin.fondo})`);
+      if (fin.dib !== null && fin.dib < .99) problemas.push(`el dibujo no llega a opacidad plena (${fin.dib})`);
+      if (!posterOk) problemas.push(`el póster del video no responde: ${m.poster}`);
+      if (!filmOk) problemas.push('la película de fondo no arranca');
       filas.push(`| ${pag.id} | ${v.k} | ${pantallas} / ${max} | ${problemas.length ? '✗ ' + problemas.join('; ') : '✓'} |`);
       problemas.forEach((p) => fallos.push(`${nombre}: ${p}`));
     } catch (e) { fallos.push(`${nombre}: ${e.message.split('\n')[0]}`); filas.push(`| ${pag.id} | ${v.k} | — | ✗ ${e.message.split('\n')[0]} |`); }

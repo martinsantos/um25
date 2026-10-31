@@ -91,12 +91,15 @@ p { margin: 0; }
 .lugar .iso[data-svc] .sp-route { transition: opacity 1.2s var(--ease); }
 
 /* Hero de portada: a sangre. La foto real cubre la pantalla y se desvanece mientras el despiece se dibuja; el nombre del sistema activo, junto al dibujo. */
-.lugar--hero { height: 140vh; }
+.lugar--hero { height: 170vh; }
 .lugar--hero .lugar__pin { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center; padding-block: var(--s4); }
+.lugar__fondo { position: absolute; inset: 0; z-index: 0; pointer-events: none; background: var(--bg); opacity: clamp(0, (var(--cut, 100) - 40) / 60, 1); }
+.lugar__fondo img, .lugar__fondo video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lugar__fondo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10, 11, 13, .92) 0%, rgba(10, 11, 13, .55) 42%, rgba(10, 11, 13, .1) 70%), linear-gradient(0deg, var(--bg) 0%, transparent 35%); }
 .lugar--hero .copy, .lugar--hero .xray { position: relative; z-index: 1; }
 .lugar--hero .xray { aspect-ratio: auto; height: calc(100svh - 64px - 2 * var(--s4)); max-height: none; width: 100%; background: transparent; overflow: visible; }
 .lugar--hero .xray__ghost, .lugar--hero .xray__foto, .lugar--hero .xray__linea { display: none; }
-.lugar--hero .xray__iso { inset: 0; }
+.lugar--hero .xray__iso { inset: 0; opacity: clamp(0, (60 - var(--cut, 100)) / 55, 1); }
 .lugar--hero .copy h1 { font-size: clamp(2.6rem, 5.2vw, 5.4rem); }
 .lugar--hero .cifras { max-width: 520px; grid-template-columns: repeat(4, auto); justify-content: start; }
 .lugar--hero .cifras b { font-size: clamp(1.6rem, 2.4vw, 2.4rem); }
@@ -259,6 +262,7 @@ p { margin: 0; }
   .lugar--hero .xray { height: 52svh; }
   .lugar--hero .copy h1 { font-size: clamp(2rem, 9vw, 2.6rem); }
   .lugar--hero .cifras { grid-template-columns: 1fr 1fr; max-width: none; }
+  .lugar__fondo::after { background: linear-gradient(0deg, var(--bg) 0%, rgba(10, 11, 13, .6) 45%, rgba(10, 11, 13, .2) 100%); }
   .lugar__pin { grid-template-columns: 1fr; align-content: center; gap: var(--s3); padding: var(--s3) var(--gutter) var(--s4); }
   .lugar .xray { height: auto; max-height: none; width: 100%; margin: 0; aspect-ratio: 4 / 3; }
   .copy { order: 2; }

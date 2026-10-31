@@ -39,6 +39,8 @@
       const e = Math.min(1, p / .55);
       const k = e < .5 ? 2 * e * e : 1 - Math.pow(-2 * e + 2, 2) / 2;
       el.style.setProperty('--cut', String(100 - k * 100));
+      const fondo = el.querySelector('.lugar__fondo video');
+      if (fondo && fondo.src) { if (k > .62) { if (!fondo.paused) fondo.pause(); } else if (fondo.paused) fondo.play().catch(() => {}); }
       el.style.setProperty('--linea', p < .02 || p > .57 ? '0' : '1');
       const fase = p < .1 ? 0 : p < .55 ? 1 : p < .82 ? 2 : 3;
       if (el.dataset.fase !== String(fase)) { el.dataset.fase = String(fase); ciclo(el, fase); }
