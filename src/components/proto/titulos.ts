@@ -54,7 +54,9 @@ export const nombreCliente = (raw: unknown): string => {
   c = c.replace(/\bS\s*\.?\s*R\s*\.?\s*L\.?(?=\s|$)/gi, 'S.R.L.').replace(/\bS\s*\.?\s*A\.?(?=\s|$|\))/gi, 'S.A.').replace(/\bLTDA\.?/gi, 'Ltda.').replace(/\bCOOP\.?(?=\s)/gi, 'Coop.').replace(/\bSOCIEDAD ANONIMA\b/gi, 'S.A.');
   // Nombre propio: las palabras en minúsculas pasan a inicial mayúscula; las mixtas se respetan.
   c = caja(c).split(' ').map((w, i) => { const core = w.replace(/[^\p{L}]/gu, ''); if (!core || /\d/.test(w) || core !== core.toLowerCase()) return w; if (i > 0 && MINUSCULAS.has(sinTilde(core))) return w; return w.replace(/\p{L}/u, (ch) => ch.toUpperCase()); }).join(' ');
-  return c.replace(/\s+-\s*/g, ' · ').replace(/\s*\.\s*\./g, '.').replace(/\u00AD/g, '');
+  // Un guion con espacio a algún lado separa (sigla pegada incluida: "TDS- True" → "TDS · True");
+  // un guion sin espacios es parte de la palabra ("Godoy-Cruz") y se respeta.
+  return c.replace(/\s+-\s*|-\s+/g, ' · ').replace(/\s*\.\s*\./g, '.').replace(/\u00AD/g, '');
 };
 
 /** Título del proyecto: sin prefijos del CMS, sin cliente ni fecha repetidos, completo, en su caja. */
