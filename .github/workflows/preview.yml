@@ -4,10 +4,12 @@ name: Vista previa
 # Cloudflare (https://<algo>.trycloudflare.com) para revisarla desde cualquier equipo,
 # también el teléfono, sin tocar producción, el DNS ni el servidor. El link vive mientras
 # corre el job y se muestra en el resumen de la ejecución.
-# Dos formas: botón «Run workflow» (elegís rama y minutos) o subir una rama `preview/<nombre>`.
+# Dos formas: botón «Run workflow» (elegís rama y minutos) o subir una rama `preview/<nombre>` o
+# `feature/portada-<algo>`. Antes de abrir el túnel corre el control visual de la propuesta
+# (scripts/propuesta/control.mjs) y adjunta las capturas; su resultado va al resumen y al estado del commit.
 on:
   push:
-    branches: ['preview/**']
+    branches: ['preview/**', 'feature/portada-**']
   workflow_dispatch:
     inputs:
       ref:
@@ -61,12 +63,29 @@ jobs:
             echo '--- server.log'; cat server.log; exit 1
           fi
 
+      - name: Control visual de la propuesta
+        id: control
+        continue-on-error: true
+        run: |
+          npm install --prefix "$RUNNER_TEMP/um-control" --no-save --no-package-lock playwright@1.63.0 > /dev/null
+          "$RUNNER_TEMP/um-control/node_modules/.bin/playwright" install --with-deps chromium > /dev/null
+          PLAYWRIGHT_MODULE="file://$RUNNER_TEMP/um-control/node_modules/playwright/index.mjs" node scripts/propuesta/control.mjs --base http://127.0.0.1:4321 --out control-propuesta
+
+      - name: Adjuntar las capturas del control
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: control-propuesta
+          path: control-propuesta
+          if-no-files-found: ignore
+
       - name: Abrir el túnel y publicar el link
         id: tunel
         env:
           GH_TOKEN: ${{ github.token }}
           MINUTOS: ${{ inputs.minutos || '90' }}
           REF: ${{ inputs.ref || github.ref_name }}
+          CONTROL: ${{ steps.control.outcome }}
         run: |
           curl -fsSL -o cloudflared https://github.com/cloudflare/cloudflared/releases/download/2025.4.0/cloudflared-linux-amd64
           chmod +x cloudflared
@@ -81,13 +100,16 @@ jobs:
             echo "**$url**"
             echo ""
             echo "Abierta durante $min minutos. Para cerrarla antes, cancelá esta ejecución."
+            echo ""
+            if [ "$CONTROL" = "success" ]; then echo "Control visual: ✓ en orden."; else echo "Control visual: ✗ falló. Ver el informe en el artefacto \`control-propuesta\`."; fi
+            [ -f control-propuesta/informe.md ] && cat control-propuesta/informe.md
           } >> "$GITHUB_STEP_SUMMARY"
           echo "::notice title=Vista previa::$url"
           # El link también queda como estado del commit: se ve en el commit y en el PR al instante.
           sha=$(git rev-parse HEAD)
           curl -fsS -X POST -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' \
             "https://api.github.com/repos/${{ github.repository }}/statuses/$sha" \
-            -d "{\"state\":\"success\",\"context\":\"vista-previa\",\"target_url\":\"$url\",\"description\":\"Abierta $min minutos desde $(date -u +%H:%M) UTC\"}" > /dev/null
+            -d "{\"state\":\"success\",\"context\":\"vista-previa\",\"target_url\":\"$url\",\"description\":\"$([ \"$CONTROL\" = success ] && echo Control OK || echo Control FALLÓ) · abierta $min min desde $(date -u +%H:%M) UTC\"}" > /dev/null
           echo "min=$min" >> "$GITHUB_OUTPUT"
 
       # Paso aparte: así el link y el resumen ya se ven mientras la vista previa sigue abierta.

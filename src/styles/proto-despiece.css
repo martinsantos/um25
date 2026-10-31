@@ -168,8 +168,11 @@ p { margin: 0; }
 .more { margin-top: var(--s4); }
 
 /* Partes del despiece (sprite /cine/iso/partes.svg): los colores viajan por variables hasta el <use>. */
-.sp-scene.pt-svg { --p-weight: 1px; }
-.sp-scene.pt-svg .pt-contorno { stroke-width: 1.7px; }
+.sp-scene path, .sp-scene circle { vector-effect: non-scaling-stroke; shape-rendering: geometricPrecision; }
+.sp-scene.pt-svg { --p-weight: 1.1px; --p-faint: #3a4048; }
+.sp-scene.pt-svg .pt-contorno { stroke-width: 1.8px; }
+.sp-scene.pt-svg .pt-line[data-banda="lejos"] { stroke-width: .8px; }
+.sp-scene .sp-route path { stroke-width: 1.5px; }
 .parte, .banco, .sp-scene { display: block; --p-paper: var(--bg); --p-face: #15181c; --p-top: #1a1d22; --p-s0: #0a0b0d; --p-s1: #0e1013; --p-s2: #121418; --p-s3: #171a1f; --p-lit-top: #2a1416; --p-lit-shade: #1d1012; --p-hi: #e6e8eb; --p-mid: #a0a6ad; --p-lo: #5c636b; --p-faint: #2f343a; --p-lit: var(--red); --p-dot: var(--ink); --p-weight: 1px; }
 /* El banco: las partes a escala sobre una base, en línea clara sobre el fondo, como las isometrías de sitio. */
 .banco { width: 100%; max-width: 760px; height: auto; margin: 0 auto; }
@@ -187,9 +190,8 @@ p { margin: 0; }
 .pt-line[data-tone="hi"] { stroke: var(--p-hi); } .pt-line[data-tone="mid"] { stroke: var(--p-mid); } .pt-line[data-tone="lo"] { stroke: var(--p-lo); } .pt-line[data-tone="faint"] { stroke: var(--p-faint); } .pt-line[data-tone="lit"] { stroke: var(--p-lit); }
 .pt-dots circle { fill: var(--p-dot); stroke: none; opacity: .35; }
 .pt-dots[data-tone="hi"] circle { opacity: .85; } .pt-dots[data-tone="mid"] circle { opacity: .5; } .pt-dots[data-tone="lo"] circle { opacity: .25; } .pt-dots[data-tone="lit"] circle { fill: var(--p-lit); opacity: 1; }
-/* Las isometrías de sitio v2: trazo de .45 a 1× deja bordes rotos; se sube al píxel. */
-.iso .sp-structure, .xray__iso .sp-structure { stroke-width: .8; }
-.iso .sp-structure path:not(.pt-line), .xray__iso .sp-structure path:not(.pt-line) { stroke-width: 1; }
+/* Las isometrías de sitio v2 (clínica, mina, planta): trazo en píxeles de pantalla, como los v3. */
+.iso .sp-structure path:not(.pt-line), .xray__iso .sp-structure path:not(.pt-line) { stroke-width: 1.1px; }
 .lugar[data-fase="2"] .sp-scene [data-project-device], .lugar[data-fase="3"] .sp-scene [data-project-device] { --p-hi: #fff; --p-mid: #d0d4d8; --p-lo: #9aa0a6; }
 
 /* Cifras bajo un titular: cuántos proyectos, clientes, sectores, desde cuándo. */
