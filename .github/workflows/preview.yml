@@ -63,6 +63,12 @@ jobs:
             echo '--- server.log'; cat server.log; exit 1
           fi
 
+      # El sitio corre en Node 18, como producción; Playwright pide Node 20 o más, así que el control usa otro Node.
+      - name: Node 22 para el control
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.x'
+
       - name: Control visual de la propuesta
         id: control
         continue-on-error: true
