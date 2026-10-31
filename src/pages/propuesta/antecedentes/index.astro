@@ -28,7 +28,7 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
     <style>
       .muro { display: grid; grid-template-columns: minmax(260px, 3fr) minmax(0, 9fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: start; padding-block: var(--s4) var(--s6); }
       /* El panel se fija y, si es más alto que la pantalla, se desplaza por dentro: el año queda al alcance sin ir al final del muro. */
-      .panel { position: sticky; top: 80px; display: grid; gap: var(--s4); max-height: calc(100svh - 96px); overflow: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; padding-right: 6px; }
+      .panel { position: sticky; top: calc(var(--top-h) + 16px); display: grid; gap: var(--s4); max-height: calc(100svh - var(--top-h) - 32px); overflow: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; padding-right: 6px; }
       .grupo + .grupo { margin-top: var(--s4); }
       .count { font-size: clamp(4rem, 7vw, 6.5rem); line-height: .9; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
       .count i { font-style: normal; color: var(--red); }

@@ -1,5 +1,5 @@
 ---
-/** Barra superior común. */
+/** Barra superior común. En pantalla ancha, logo, enlaces y contacto en una fila; en teléfono, logo y contacto arriba y los enlaces en una segunda fila, siempre visibles, sin menú que abrir. */
 interface Props { current?: string; lang?: 'es' | 'en' }
 const { current = '', lang = 'es' } = Astro.props;
 const es: [string, string, string][] = [['Servicios', '/propuesta/servicios', 'servicios'], ['Sectores', '/propuesta/sectores', 'sectores'], ['Antecedentes', '/propuesta/antecedentes', 'antecedentes'], ['Blog', '/propuesta/blog', 'blog']];
@@ -9,5 +9,6 @@ const items = lang === 'en' ? en : es;
 <a class="saltar" href="#contenido">{lang === 'en' ? 'Skip to content' : 'Saltar al contenido'}</a>
 <header class="top">
   <a class="logo" href={lang === 'en' ? '/propuesta/en' : '/propuesta'}>ultimamilla<i>.</i>com<i>.</i>ar</a>
-  <nav aria-label={lang === 'en' ? 'Main' : 'Principal'}>{items.map(([n, h, k]) => <a href={h} aria-current={k === current ? 'page' : undefined}>{n}</a>)}<a class="cta" href={lang === 'en' ? '/propuesta/en/contact' : '/propuesta/contacto'}>{lang === 'en' ? 'Contact' : 'Contactar'}</a></nav>
+  <nav aria-label={lang === 'en' ? 'Main' : 'Principal'}>{items.map(([n, h, k]) => <a href={h} aria-current={k === current ? 'page' : undefined}>{n}</a>)}</nav>
+  <a class="cta" href={lang === 'en' ? '/propuesta/en/contact' : '/propuesta/contacto'}>{lang === 'en' ? 'Contact' : 'Contactar'}</a>
 </header>

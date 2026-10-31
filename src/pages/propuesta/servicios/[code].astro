@@ -61,7 +61,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       .condiciones { margin-top: var(--s4); color: var(--ink-3); }
       @media (max-width: 900px) {
         .cubre { grid-template-columns: 112px minmax(0, 1fr); gap: var(--s3); align-items: start; }
-        .equipo { aspect-ratio: 1; padding: 0; position: sticky; top: 80px; }
+        .equipo { aspect-ratio: 1; padding: 0; position: sticky; top: calc(var(--top-h) + 16px); }
         .caps li { font-size: 1rem; padding: 10px 0; }
       }
     </style>
