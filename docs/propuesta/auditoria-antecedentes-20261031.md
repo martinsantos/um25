@@ -11,14 +11,13 @@ Qué significa cada señal:
 
 SGI manda en fecha de inicio, fecha de cierre y estado de cada proyecto con ficha web (src/data/sgi/fechas.json). Las obras en curso sin ficha en el catálogo entran desde src/data/propuesta/antecedentes-extra.json.
 
-520 fichas servidas de 518 en el catálogo. Fichas limpias: 165. Señales:
+520 fichas servidas de 518 en el catálogo. Fichas limpias: 171. Señales:
 
 | Señal | Fichas |
 |---|---|
 | descripcion-corta | 313 |
 | sin-equipos-en-registro | 96 |
 | sin-sector | 24 |
-| titulo-repetido-en-cliente | 8 |
 | sin-foto-propia | 2 |
 | sin-servicio | 1 |
 | titulo-corto | 1 |
@@ -34,8 +33,6 @@ SGI tiene 524 proyectos; 519 tienen ficha web. Sin ficha web: 5 (el detalle qued
 | [9001](/propuesta/antecedentes/9001/escuela-eugenio-izsaky) | Estructuras Oeste S.A. | Escuela Eugenio Izsaky | descripcion-corta, sin-servicio, sin-foto-propia, sin-equipos-en-registro |
 | [3662](/propuesta/antecedentes/3662/venta-de-remanente-de-proyectos) | Sanjuan, Daniel Alberto | Venta de remanente de Proyectos | descripcion-corta, sin-sector, sin-equipos-en-registro |
 | [3066](/propuesta/antecedentes/3066/torre-thays-dispositivos-de-deteccion) | Consorcio Torre Thays | Torre Thays · Dispositivos de detección | descripcion-corta, sin-equipos-en-registro |
-| [3080](/propuesta/antecedentes/3080/implementacion-de-redes-de-datos-y-fibra-optica-aeropuertos-argentina-2000) | Aeropuertos Argentina 2000 | Implementación de Redes de Datos y Fibra Óptica · abril 2025 | descripcion-corta, titulo-repetido-en-cliente |
-| [3068](/propuesta/antecedentes/3068/implementacion-de-redes-de-datos-y-fibra-optica-aeropuertos-argentina-2000) | Aeropuertos Argentina 2000 | Implementación de Redes de Datos y Fibra Óptica · abril 2025 | descripcion-corta, titulo-repetido-en-cliente |
 | [3084](/propuesta/antecedentes/3084/servicio-por-desarrollo-y-puesta-en-marcha-de-proyecto) | TDS · True Digital Systems S.A. | Servicio por desarrollo y puesta en marcha de proyecto | descripcion-corta, sin-sector |
 | [3587](/propuesta/antecedentes/3587/configuracion-de-llaveros) | José Nucete e Hijos S.A. | Configuración de llaveros | descripcion-corta, sin-equipos-en-registro |
 | [3134](/propuesta/antecedentes/3134/reparacion-de-central-de-deteccion-de-incendio-firewarden-10) | Allex S.A. | Reparación de Central de detección de incendio Firewarden 100X | descripcion-corta, sin-sector |
@@ -71,3 +68,5 @@ SGI tiene 524 proyectos; 519 tienen ficha web. Sin ficha web: 5 (el detalle qued
 | [3307](/propuesta/antecedentes/3307/desarrollo-de-software-y-digitalizacion-de-procesos-flexcolor-s-r-l) | Flexcolor S.R.L. | Desarrollo de Software y Digitalización de Procesos | descripcion-corta, sin-sector |
 | [3316](/propuesta/antecedentes/3316/ssd-y-memoria-ram-8gb) | Construcciones | SSD y Memoria ram 8GB | descripcion-corta, sin-equipos-en-registro |
 | [3322](/propuesta/antecedentes/3322/implementacion-de-redes-de-datos-y-fibra-optica-municipalidad-de-gral-san-martin-3) | Municipalidad de Gral San Martín | 10 patchcord sc-lc monomodo y 3 botellones de 24 fibra | descripcion-corta, sin-equipos-en-registro |
+| [3627](/propuesta/antecedentes/3627/envio-de-correos-mailing) | Municipalidad Guaymallén | Envio de correos Mailing | descripcion-corta, sin-equipos-en-registro |
+| [3626](/propuesta/antecedentes/3626/insumos-de-informatica) | José Nucete e Hijos S.A. | Insumos de informática | descripcion-corta, sin-equipos-en-registro |

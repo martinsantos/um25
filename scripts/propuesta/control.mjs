@@ -34,6 +34,7 @@ const PAGINAS = [
   { id: 'blog', path: '/propuesta/blog', max: { escritorio: 4, portatil: 5, telefono: 8 } },
   { id: 'contacto', path: '/propuesta/contacto', max: { escritorio: 3, portatil: 3.5, telefono: 6 } },
   { id: 'en', path: '/propuesta/en', max: { escritorio: 5, portatil: 6, telefono: 9 } },
+  { id: 'entrada', from: 'a[href^="/propuesta/blog/"]', filtro: /^\/propuesta\/blog\/[a-z0-9-]+$/, max: { escritorio: 7, portatil: 8.5, telefono: 14 } },
 ];
 
 mkdirSync(OUT, { recursive: true });
@@ -43,6 +44,10 @@ const home = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 await home.goto(`${BASE}/propuesta`, { waitUntil: 'networkidle', timeout: 90000 });
 const enlaces = await home.$$eval('a[href]', (as) => as.map((a) => a.getAttribute('href')));
 await home.close();
+const blogPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+await blogPage.goto(`${BASE}/propuesta/blog`, { waitUntil: 'networkidle', timeout: 90000 });
+enlaces.push(...(await blogPage.$$eval('a[href^="/propuesta/blog/"]', (as) => as.map((a) => a.getAttribute('href')))));
+await blogPage.close();
 const resolver = (p) => p.path || enlaces.find((h) => h && h.startsWith(p.from.match(/\^="([^"]+)"/)[1]) && (!p.filtro || p.filtro.test(h)) && h !== p.from.match(/!="([^"]+)"/)?.[1]);
 
 for (const pag of PAGINAS) {
