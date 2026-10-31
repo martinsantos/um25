@@ -66,7 +66,12 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       .lineas :global(circle) { fill: var(--red); }
       .lineas :global(.on) { stroke: var(--red); }
       .condiciones { margin-top: var(--s4); color: var(--ink-3); }
-      @media (max-width: 900px) { .cubre { grid-template-columns: 1fr; } .lineas { display: none; } }
+      @media (max-width: 900px) {
+        .cubre { grid-template-columns: 112px minmax(0, 1fr); gap: var(--s3); align-items: start; }
+        .equipo { aspect-ratio: 1; padding: 0; position: sticky; top: 80px; }
+        .caps li { font-size: 1rem; padding: 10px 0; }
+        .lineas { display: none; }
+      }
     </style>
   </head>
   <body>

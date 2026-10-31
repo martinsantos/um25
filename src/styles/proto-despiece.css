@@ -264,7 +264,7 @@ p { margin: 0; }
   .lugar--hero .cifras { grid-template-columns: 1fr 1fr; max-width: none; }
   .lugar__fondo::after { background: linear-gradient(0deg, var(--bg) 0%, rgba(10, 11, 13, .5) 50%, transparent 80%); }
   .lugar__pin { grid-template-columns: 1fr; align-content: center; gap: var(--s3); padding: var(--s3) var(--gutter) var(--s4); }
-  .lugar .xray { height: auto; max-height: none; width: 100%; margin: 0; aspect-ratio: 1; }
+  .lugar .xray { height: auto; max-height: none; width: 100%; margin: 0; aspect-ratio: 4 / 3; }
   .copy { order: 2; }
   .copy > p { display: none; }
   .cols-2, .cols-3, .cols-4, .cols-5-7, .cols-7-5, .dentro, .caso, .cierre__grid { grid-template-columns: 1fr; }
