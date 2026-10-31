@@ -44,6 +44,11 @@ for (const pag of PAGINAS) {
   for (const v of ANCHOS) {
     const page = await browser.newPage({ viewport: { width: v.w, height: v.h }, deviceScaleFactor: 1 });
     const nombre = `${pag.id}-${v.k}`;
+    // Errores de consola y de página: cualquiera que no sea del CMS o del favicon es un defecto.
+    const errores = [];
+    const ignorar = (t) => /favicon|Directus|ECONNREFUSED|fetch failed|net::ERR_|Failed to load resource/i.test(t);
+    page.on('console', (msg) => { if (msg.type() === 'error' && !ignorar(msg.text())) errores.push(msg.text().slice(0, 140)); });
+    page.on('pageerror', (e) => { if (!ignorar(String(e))) errores.push(String(e).slice(0, 140)); });
     try {
       await page.goto(`${BASE}${path}`, { waitUntil: 'networkidle', timeout: 90000 });
       await page.waitForTimeout(1200);
@@ -91,6 +96,7 @@ for (const pag of PAGINAS) {
       if (!posterOk) problemas.push(`el póster del video no responde: ${m.poster}`);
       if (!filmOk) problemas.push('la película de fondo no arranca');
       if (!dentroOk) problemas.push('el lugar por dentro no recorre sus sistemas solo');
+      if (errores.length) problemas.push(`error de consola: ${errores[0]}`);
       // En el muro, con puntero fino, la primera ficha muestra su sistema al pasar.
       if (v.w >= 900 && pag.id === 'proyectos') {
         const ok = await page.evaluate(async () => { const li = document.querySelector('[data-ficha][data-site]'); if (!li) return false; li.scrollIntoView({ block: 'center' }); return true; });
