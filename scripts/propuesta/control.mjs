@@ -34,6 +34,9 @@ const PAGINAS = [
   { id: 'blog', path: '/propuesta/blog', max: { escritorio: 4, portatil: 5, telefono: 8 } },
   { id: 'contacto', path: '/propuesta/contacto', max: { escritorio: 3, portatil: 3.5, telefono: 6 } },
   { id: 'en', path: '/propuesta/en', max: { escritorio: 5, portatil: 6, telefono: 9 } },
+  { id: 'en-about', path: '/propuesta/en/about', max: { escritorio: 4, portatil: 5, telefono: 8 } },
+  { id: 'en-contact', path: '/propuesta/en/contact', max: { escritorio: 3, portatil: 3.5, telefono: 6 } },
+  { id: 'privacidad', path: '/propuesta/privacidad', max: { escritorio: 4, portatil: 5, telefono: 9 } },
   { id: 'entrada', from: 'a[href^="/propuesta/blog/"]', filtro: /^\/propuesta\/blog\/[a-z0-9-]+$/, max: { escritorio: 7, portatil: 8.5, telefono: 14 } },
 ];
 

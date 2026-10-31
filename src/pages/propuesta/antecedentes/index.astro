@@ -81,7 +81,7 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
           {stories.map((c, index) => (
             <>
               {recAt.includes(index) && (() => { const slug = recorridos[recAt.indexOf(index)]; const scene = SCENE_OF[slug]; return (
-                <li class="ficha ficha--rec" data-rec>
+                <li class="ficha ficha--rec" data-rec data-sector={slug}>
                   <a href={`/propuesta/sectores/${slug}`}>
                     <figure><img src={posterOf(slug)} alt="" width="1920" height="1080" loading={index === 0 ? 'eager' : 'lazy'} decoding="async" /></figure>
                     <b>{sceneTitle[scene]} por dentro</b>
@@ -127,7 +127,8 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
         fichas.forEach((el) => { const ok = matches(el); if (ok) n++; el.hidden = !ok || n > visibles; });
         mas.hidden = n <= visibles;
         mas.textContent = `Mostrar ${Math.min(TANDA, n - visibles)} más de ${n}`;
-        recs.forEach((el) => { el.hidden = Boolean(state.year) || n < 12; });
+        // Los lugares por dentro acompañan al filtro: sólo el del sector elegido; ninguno con año o cliente, ni con pocos resultados.
+        recs.forEach((el) => { el.hidden = Boolean(state.year) || Boolean(state.cliente) || n < 12 || (Boolean(state.sector) && el.dataset.sector !== state.sector); });
         lenses.forEach((b) => b.setAttribute('aria-pressed', String(state[b.dataset.lens!] === b.dataset.value)));
         ['sector', 'service'].forEach((kind) => {
           const base = fichas.filter((el) => matches(el, kind));
