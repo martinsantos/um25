@@ -50,17 +50,28 @@
   addEventListener('resize', update);
   update();
 
-  // El lugar por dentro: cada servicio enciende su recorrido en el despiece.
+  // El lugar por dentro: recorre sus servicios de a uno, cada 2,6 s, mientras está a la vista; el
+  // puntero sobre la lista toma el control y, al irse, el recorrido sigue. Nadie tiene que adivinar.
   document.querySelectorAll('[data-dentro]').forEach((root) => {
     const stage = root.querySelector('.dentro__stage');
     const now = root.querySelector('.ahora');
     if (stage && stage.dataset.src) new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); fetch(stage.dataset.src).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) stage.insertAdjacentHTML('afterbegin', svg); }); } }, { rootMargin: '900px 0px' }).observe(stage);
     const items = [...root.querySelectorAll('[data-code]')];
+    if (!items.length) return;
     const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
     const show = (a) => { stage.dataset.svc = a.dataset.code; if (now) now.textContent = a.dataset.name || ''; items.forEach((i) => i.classList.toggle('on', i === a)); };
+    let t = 0, quieto = false;
+    const paso = () => { const i = items.findIndex((a) => a.dataset.code === stage.dataset.svc); show(items[(i + 1) % items.length]); };
+    const andar = () => { if (!t && !quieto) t = setInterval(paso, 2600); };
+    const parar = () => { clearInterval(t); t = 0; };
+    new IntersectionObserver(([e]) => (e.isIntersecting ? andar() : parar()), { threshold: .25 }).observe(root);
+    // Sólo la lista detiene el recorrido: el puntero sobre el dibujo no cambia nada.
+    const lista = root.querySelector('.dentro__side') || root;
+    lista.addEventListener('pointerenter', () => { quieto = true; parar(); });
+    lista.addEventListener('pointerleave', () => { quieto = false; andar(); });
     items.forEach((a) => {
       if (fine) { a.addEventListener('pointerenter', () => show(a)); a.addEventListener('focus', () => show(a)); }
-      else a.addEventListener('click', (e) => { if (stage.dataset.svc !== a.dataset.code) { e.preventDefault(); show(a); } });
+      else a.addEventListener('click', (e) => { if (stage.dataset.svc !== a.dataset.code) { e.preventDefault(); show(a); parar(); quieto = true; } });
     });
   });
 })();

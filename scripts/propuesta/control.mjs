@@ -63,6 +63,15 @@ for (const pag of PAGINAS) {
       await page.screenshot({ path: join(OUT, `${nombre}-2-apertura.png`) });
       const fin = await page.evaluate(() => { const op = (q) => { const e = document.querySelector(q); return e ? +getComputedStyle(e).opacity : null; }; return { fondo: op('.lugar--hero .lugar__fondo'), dib: op('.lugar--hero .xray__iso') }; });
       const posterOk = m.poster ? (await page.evaluate(async (u) => (await fetch(u, { method: 'HEAD' })).ok, m.poster)) : true;
+      // El lugar por dentro (sector, ficha) cambia de sistema solo: en seis segundos a la vista tiene que haber pasado de uno a otro.
+      await page.mouse.move(2, 2);
+      const dentroOk = await page.evaluate(async () => {
+        const st = document.querySelector('.dentro__stage, .fiso__lugar'); if (!st) return true;
+        st.scrollIntoView({ block: 'center' }); await new Promise((r) => setTimeout(r, 700));
+        const vistos = new Set(); for (let i = 0; i < 60; i++) { if (st.dataset.svc) vistos.add(st.dataset.svc); if (vistos.size > 1) return true; await new Promise((r) => setTimeout(r, 100)); }
+        const codes = (st.dataset.svcs || '').split(' ').filter(Boolean); const n = document.querySelectorAll('[data-dentro] [data-code]').length;
+        return (codes.length || n) <= 1 && vistos.size >= 1;
+      });
       // En pantalla ancha la película de fondo tiene que estar reproduciéndose al volver arriba.
       await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(400);
       const filmOk = v.w < 900 ? true : await page.evaluate(async () => { const f = document.querySelector('.lugar__fondo video'); if (!f) return true; for (let i = 0; i < 40; i++) { if (!f.paused && f.currentTime > 0) return true; await new Promise((r) => setTimeout(r, 100)); } return false; });
@@ -81,6 +90,7 @@ for (const pag of PAGINAS) {
       if (fin.dib !== null && fin.dib < .99) problemas.push(`el dibujo no llega a opacidad plena (${fin.dib})`);
       if (!posterOk) problemas.push(`el póster del video no responde: ${m.poster}`);
       if (!filmOk) problemas.push('la película de fondo no arranca');
+      if (!dentroOk) problemas.push('el lugar por dentro no recorre sus sistemas solo');
       filas.push(`| ${pag.id} | ${v.k} | ${pantallas} / ${max} | ${problemas.length ? '✗ ' + problemas.join('; ') : '✓'} |`);
       problemas.forEach((p) => fallos.push(`${nombre}: ${p}`));
     } catch (e) { fallos.push(`${nombre}: ${e.message.split('\n')[0]}`); filas.push(`| ${pag.id} | ${v.k} | — | ✗ ${e.message.split('\n')[0]} |`); }

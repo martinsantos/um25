@@ -57,20 +57,12 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       .equipo > div { width: 100%; height: 100%; display: grid; place-items: center; }
       .equipo :global(svg) { width: 100%; height: 100%; display: block; overflow: visible; }
       .caps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-      .caps li { display: grid; grid-template-columns: 10px 1fr; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--line-2); align-items: center; font-size: 1.1rem; color: var(--ink-2); transition: color .3s; }
-      .caps li .p { width: 10px; height: 10px; background: var(--ink-3); transition: background .3s; }
-      .caps li.on { color: var(--ink); }
-      .caps li.on .p { background: var(--red); }
-      .lineas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
-      .lineas :global(line) { stroke: var(--ink-3); stroke-width: 1; transition: stroke .3s; }
-      .lineas :global(circle) { fill: var(--red); }
-      .lineas :global(.on) { stroke: var(--red); }
+      .caps li { padding: 13px 0; border-bottom: 1px solid var(--line-2); font-size: 1.1rem; color: var(--ink); }
       .condiciones { margin-top: var(--s4); color: var(--ink-3); }
       @media (max-width: 900px) {
         .cubre { grid-template-columns: 112px minmax(0, 1fr); gap: var(--s3); align-items: start; }
         .equipo { aspect-ratio: 1; padding: 0; position: sticky; top: 80px; }
         .caps li { font-size: 1rem; padding: 10px 0; }
-        .lineas { display: none; }
       }
     </style>
   </head>
@@ -91,8 +83,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
         <div class="sec__head"><h2>Qué cubre<span class="dot">.</span></h2></div>
         <div class="cubre" data-cubre>
           <div class="equipo" data-equipo>{device ? <div set:html={device} /> : <div class="iso" data-src={isoSrc('building')}></div>}</div>
-          <ol class="caps" data-caps>{servicio.capabilities.map((c) => <li><span class="p"></span>{c}</li>)}</ol>
-          <svg class="lineas" data-lineas aria-hidden="true"></svg>
+          <ol class="caps" data-caps>{servicio.capabilities.map((c) => <li>{c}</li>)}</ol>
         </div>
       </div>
     </section>
@@ -167,37 +158,13 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
     <Cierre />
 
     <script>
-      const cubre = document.querySelector<HTMLElement>('[data-cubre]')!;
-      const equipo = cubre.querySelector<HTMLElement>('[data-equipo]')!;
-      const lineas = cubre.querySelector<SVGSVGElement>('[data-lineas]')!;
-      const items = [...cubre.querySelectorAll<HTMLElement>('[data-caps] li')];
+      // El equipo del servicio, solo: se encuadra a su dibujo. Sin líneas guía hacia la lista; señalaban puntos que no existían.
+      const equipo = document.querySelector<HTMLElement>('[data-equipo]')!;
       const lazy = equipo.querySelector<HTMLElement>('[data-src]');
       const fit = (svg: SVGSVGElement) => { if (svg.dataset.fit) return; try { const b = svg.getBBox(); const pad = Math.max(b.width, b.height) * .06; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); svg.dataset.fit = '1'; } catch { /* sin bbox */ } };
-      const draw = () => {
-        const svg = equipo.querySelector<SVGSVGElement>('svg'); if (!svg) return;
-        fit(svg);
-        const box = cubre.getBoundingClientRect();
-        const art = svg.getBoundingClientRect();
-        lineas.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`);
-        lineas.innerHTML = '';
-        const cx = art.left + art.width / 2 - box.left, cy = art.top + art.height / 2 - box.top;
-        items.forEach((li, i) => {
-          const c = li.querySelector<HTMLElement>('.p')!.getBoundingClientRect();
-          const x2 = c.left - box.left - 2, y2 = c.top + c.height / 2 - box.top;
-          const t = items.length > 1 ? i / (items.length - 1) : .5;
-          const ang = (-.42 + t * .84) * Math.PI;
-          const x1 = cx + Math.cos(ang) * art.width * .34, y1 = cy + Math.sin(ang) * art.height * .34;
-          const mid = x1 + (x2 - x1) * .55;
-          const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-          g.innerHTML = `<circle cx="${x1}" cy="${y1}" r="3"/><line x1="${x1}" y1="${y1}" x2="${mid}" y2="${y1}"/><line x1="${mid}" y1="${y1}" x2="${mid}" y2="${y2}"/><line x1="${mid}" y1="${y2}" x2="${x2}" y2="${y2}"/>`;
-          g.dataset.i = String(i);
-          lineas.appendChild(g);
-        });
-      };
+      const draw = () => { const svg = equipo.querySelector<SVGSVGElement>('svg'); if (svg) fit(svg); };
       if (lazy) fetch(lazy.dataset.src!).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) { lazy.innerHTML = svg; draw(); } });
-      items.forEach((li, i) => li.addEventListener('pointerenter', () => { items.forEach((o, j) => o.classList.toggle('on', i === j)); lineas.querySelectorAll('g').forEach((g) => g.querySelectorAll('line').forEach((l) => l.classList.toggle('on', g.dataset.i === String(i)))); }));
-      draw(); addEventListener('resize', draw);
-      new IntersectionObserver(([e]) => { if (e.isIntersecting) draw(); }, { threshold: .2 }).observe(cubre);
+      draw();
     </script>
   </body>
 </html>
