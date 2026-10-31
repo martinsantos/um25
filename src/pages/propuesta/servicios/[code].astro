@@ -163,7 +163,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       const lazy = equipo.querySelector<HTMLElement>('[data-src]');
       const fit = (svg: SVGSVGElement) => { if (svg.dataset.fit) return; try { const b = svg.getBBox(); const pad = Math.max(b.width, b.height) * .06; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); svg.dataset.fit = '1'; } catch { /* sin bbox */ } };
       const draw = () => { const svg = equipo.querySelector<SVGSVGElement>('svg'); if (svg) fit(svg); };
-      if (lazy) fetch(lazy.dataset.src!).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) { lazy.innerHTML = svg; draw(); } });
+      if (lazy) fetch(lazy.dataset.src!, { priority: 'low' } as RequestInit).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) { lazy.innerHTML = svg; draw(); } });
       draw();
     </script>
   </body>

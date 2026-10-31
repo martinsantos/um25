@@ -5,8 +5,10 @@
  * foto, y se retira con el scroll; recién entonces se dibuja la isometría, sola. Nunca los dos a la
  * vez: salen de cámaras distintas y superpuestos se leían como dos edificios.
  */
+import { variantes } from './isoData';
 interface Props { label: string; iso?: string; isoSrc?: string; svc?: string; ciclo?: boolean; nombres?: Record<string, string>; image: string; ghost?: string; film?: string; poster?: string; open?: boolean; hero?: boolean; eager?: boolean }
 const { label, iso, isoSrc, svc, ciclo = false, nombres, image, ghost, film, poster, open = false, hero = false, eager = true } = Astro.props;
+const foto = variantes(image);
 const nombresAttr = nombres ? Object.entries(nombres).map(([k, v]) => `${k}:${v}`).join('|') : undefined;
 ---
 <section class:list={['lugar', { 'lugar--open': open, 'lugar--hero': hero }]} data-lugar data-fase="0" aria-label={label}>
@@ -18,7 +20,7 @@ const nombresAttr = nombres ? Object.entries(nombres).map(([k, v]) => `${k}:${v}
               <picture>{(poster || image).endsWith('.jpg') && <source type="image/avif" srcset={(poster || image).replace(/\.jpg$/, '.avif')} />}<img src={poster || image} alt="" width="1920" height="1080" loading="eager" fetchpriority="high" decoding="async" /></picture>
               <video muted playsinline loop preload="none" data-film={film} width="1920" height="1080"></video>
             </>
-          : <img src={image} srcset={/^\/images\/editorial\/.+\.webp$/.test(image) ? `${image.replace(/\.webp$/, '-960.webp')} 960w, ${image} 1672w` : undefined} sizes="100vw" alt="" width="1672" height="941" loading="eager" fetchpriority="high" decoding="async" />}
+          : <picture>{foto.avif && <source type="image/avif" srcset={foto.avif} sizes="100vw" />}<img src={foto.w960} srcset={foto.ancho ? `${foto.w960} 960w, ${foto.full} ${foto.ancho}w` : undefined} sizes="100vw" alt="" width="1672" height="941" loading="eager" fetchpriority="high" decoding="async" /></picture>}
       </div>
     )}
     <div class="copy"><slot /></div>

@@ -85,7 +85,8 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
         .muro { grid-template-columns: 1fr; gap: var(--s3); } .panel { position: static; gap: var(--s3); max-height: none; overflow: visible; padding-right: 0; } .fichas { grid-template-columns: 1fr 1fr; }
         .filtros { gap: 0; }
         .filtros__toggle { display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line-2); color: var(--ink); font-weight: 500; }
-        .filtros__toggle i::before { content: '+'; color: var(--ink-3); font-style: normal; }
+        .filtros__toggle i { font-style: normal; }
+        .filtros__toggle i::before { content: '+'; color: var(--ink-3); }
         .filtros.abierta .filtros__toggle i::before { content: '–'; }
         .filtros__cuerpo { display: none; }
         .filtros.abierta .filtros__cuerpo { display: grid; padding-top: var(--s4); }
@@ -161,7 +162,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
         Object.assign(li.dataset, { id: String(f.id), sector: f.sectorSlug, services: f.servicios, year: String(f.anio), client: f.cliente.toLowerCase(), site: d.sitios[f.sitio] || '' });
         li.classList.remove('on');
         li.querySelector('a')!.href = `/propuesta/antecedentes/${f.id}/${f.slug}`;
-        const img = li.querySelector('img'); if (img) { if (f.foto) { img.src = f.foto.startsWith('/') ? f.foto : d.prefijo + f.foto; img.loading = 'lazy'; img.removeAttribute('fetchpriority'); } else img.remove(); }
+        const img = li.querySelector('img'); if (img) { if (f.foto) { const src = f.foto.startsWith('/') ? f.foto : d.prefijo + f.foto; img.src = src; if (/-480\.webp$/.test(src)) img.srcset = `${src} 480w, ${src.replace(/-480\.webp$/, '-960.webp')} 960w`; else img.removeAttribute('srcset'); img.loading = 'lazy'; img.removeAttribute('fetchpriority'); } else img.remove(); }
         const sistema = li.querySelector<HTMLElement>('.ficha__sistema'); if (sistema) { sistema.dataset.svcs = f.servicios; sistema.innerHTML = ''; }
         li.querySelector('b')!.textContent = f.cliente;
         li.querySelector('.t')!.textContent = f.titulo;

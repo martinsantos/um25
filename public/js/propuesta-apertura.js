@@ -5,7 +5,7 @@
   const io = new IntersectionObserver((entries) => entries.forEach((e) => {
     if (!e.isIntersecting) return;
     const el = e.target; io.unobserve(el);
-    fetch(el.dataset.src).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) el.innerHTML = svg; });
+    fetch(el.dataset.src, { priority: 'low' }).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) el.innerHTML = svg; });
   }), { rootMargin: '900px 0px' });
   document.querySelectorAll('.xray__iso[data-src]').forEach((el) => io.observe(el));
   const film = document.querySelector('video[data-film]');
@@ -56,7 +56,7 @@
   document.querySelectorAll('[data-dentro]').forEach((root) => {
     const stage = root.querySelector('.dentro__stage');
     const now = root.querySelector('.ahora');
-    if (stage && stage.dataset.src) new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); fetch(stage.dataset.src).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) (stage.querySelector('.iso__caja') || stage).insertAdjacentHTML('afterbegin', svg); }); } }, { rootMargin: '900px 0px' }).observe(stage);
+    if (stage && stage.dataset.src) new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); fetch(stage.dataset.src, { priority: 'low' }).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) (stage.querySelector('.iso__caja') || stage).insertAdjacentHTML('afterbegin', svg); }); } }, { rootMargin: '900px 0px' }).observe(stage);
     const items = [...root.querySelectorAll('[data-code]')];
     if (!items.length) return;
     const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;

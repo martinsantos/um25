@@ -1,7 +1,7 @@
 ---
 /** Casos con el alcance real de cada obra: foto, qué se hizo, para quién y cuándo, el texto del registro y los servicios. */
 import type { Caso } from './relato';
-import { services, SECTOR_PHOTO, SERVICE_PHOTO, type Story } from './isoData';
+import { services, SECTOR_PHOTO, SERVICE_PHOTO, srcsetDe, type Story } from './isoData';
 interface Props { casos: Caso[]; stories: Story[]; title?: string; max?: number; fallbackImage?: string }
 const { casos, stories, title, max = 4, fallbackImage } = Astro.props;
 const byCode = new Map(services.map((s) => [s.code, s]));
@@ -18,7 +18,7 @@ const items = casos.slice(0, max).map((c) => {
       <div class="casos">
         {items.map((c) => (
           <article class="caso">
-            <figure><img src={c.image} srcset={/-principal\.webp$/.test(c.image) ? `${c.image.replace(/-principal\.webp$/, '-principal-480.webp')} 480w, ${c.image.replace(/-principal\.webp$/, '-principal-960.webp')} 960w, ${c.image} 1600w` : undefined} sizes="(max-width: 900px) 100vw, 58vw" alt="" width="1200" height="750" loading="lazy" decoding="async" /></figure>
+            <figure><img src={c.image} srcset={srcsetDe(c.image)} sizes="(max-width: 900px) 112px, 55vw" alt="" width="1200" height="750" loading="lazy" decoding="async" /></figure>
             <div class="caso__copy">
               <h3><a href={c.href}>{c.titulo}</a></h3>
               <div class="quien">{c.cliente}{c.year > 0 && <span> · {c.year}</span>}</div>

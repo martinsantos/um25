@@ -42,7 +42,7 @@ const codes = [...new Set([...c.serviceCodes, ...partes.map((p) => p.code)])];
     if (ahora) ahora.dataset.todos = ahora.textContent || '';
     new IntersectionObserver(([e], io) => {
       if (!e.isIntersecting) return; io.disconnect();
-      fetch(lugar.dataset.src!).then((r) => (r.ok ? r.text() : '')).then((markup) => { if (!markup) return; (lugar.querySelector('.iso__caja') || lugar).insertAdjacentHTML('afterbegin', markup); const svg = lugar.querySelector<SVGSVGElement>('svg'); if (svg) fit(svg); requestAnimationFrame(() => { root.classList.add('on'); listo = true; if (codes.length) show(codes[0]); andar(); }); });
+      fetch(lugar.dataset.src!, { priority: 'low' } as RequestInit).then((r) => (r.ok ? r.text() : '')).then((markup) => { if (!markup) return; (lugar.querySelector('.iso__caja') || lugar).insertAdjacentHTML('afterbegin', markup); const svg = lugar.querySelector<SVGSVGElement>('svg'); if (svg) fit(svg); requestAnimationFrame(() => { root.classList.add('on'); listo = true; if (codes.length) show(codes[0]); andar(); }); });
     }, { rootMargin: '600px 0px' }).observe(lugar);
     new IntersectionObserver(([e]) => (e.isIntersecting ? andar() : parar()), { threshold: .25 }).observe(root);
     const lista = root.querySelector<HTMLElement>('.fiso__lista') || root;

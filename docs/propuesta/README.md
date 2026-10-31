@@ -81,15 +81,25 @@ nuevo tarda unos veinte minutos.
 
 Además del control, sobre la compilación de producción:
 - html-validate (reglas recomendadas) en diez páginas: sin errores.
-- Lighthouse móvil (4G lento simulado, sin compresión del servidor, con el control corriendo a la
-  vez): portada 96, ficha 90, sector 88, servicio 85, muro 84 (filtrado, 100); accesibilidad 100 y
-  buenas prácticas 100 en todas; CLS 0 en todas. SEO queda en 58 sólo por el noindex deliberado de
-  la propuesta. El muro servía las 520 fichas en 400 KB de HTML y daba 66: ahora sirve 48 (55 KB) y
-  el resto como datos (197 KB, 25 KB con gzip) que se piden recién al filtrar o pedir más. Lo que
-  le queda por encima es el guion de Sentry (127 KB, prioridad alta) compitiendo con la imagen de
-  apertura en 4G lento.
-- Las fotos editoriales que hacen de miniatura de ficha (obras en curso, fichas sin foto propia)
-  tienen variante de 480 px (`scripts/propuesta/imagenes-960.mjs`): 20 KB en lugar de 340.
+- Lighthouse móvil (4G lento simulado, sin compresión del servidor): portada 90, servicio 87,
+  muro 90 (filtrado, 100), ficha 91, sector 88, nosotros 91; accesibilidad 100 y buenas prácticas
+  100 en todas; CLS 0 en todas. SEO queda en 58 sólo por el noindex deliberado de la propuesta. El
+  muro servía las 520 fichas en 400 KB de HTML y daba 66: ahora sirve 48 (55 KB) y el resto como
+  datos (197 KB, 25 KB con gzip) que se piden recién al filtrar o pedir más. Lo que queda por
+  encima en todas las páginas es el guion de Sentry (127 KB, 44 KB con gzip, prioridad alta)
+  compitiendo con la imagen de apertura en 4G lento; incluye el rastreo de rendimiento
+  (`tracesSampleRate` 1.0): sólo errores pesaría un tercio menos. Es monitoreo de producción y se
+  deja; decisión del equipo.
+- Las fotos editoriales (`scripts/propuesta/imagenes-960.mjs`): variante de 480 px para cuando
+  hacen de miniatura de ficha (20 KB en lugar de 340), y AVIF a 960 y 1672 px para la apertura,
+  donde son el elemento LCP (la mitad del peso del WebP a tamaño completo, que es lo que eligen los
+  teléfonos de alta densidad). Quien no lee AVIF ignora la precarga por su `type` y recibe el WebP
+  del `<picture>`.
+- Las miniaturas de ficha llevan `srcset` 480/960 con el tamaño real del hueco: nítidas en
+  pantallas de alta densidad sin que el teléfono pase de la de 480.
+- Las isometrías se piden con prioridad baja (`fetch(…, { priority: 'low' })`): nunca antes que la
+  foto de apertura. Un `<i>` vacío del botón de filtros hacía descargar la fuente itálica (22 KB)
+  en teléfono: ya no.
 - Elemento LCP medido con aceleración propia (4G lento, CPU ×4): portada 1,3 s, sector 1,6 s, ficha
   1,6 s. Antes de precargar la imagen de apertura y servir variantes de 960 px: 2,1 / 1,6 / 3,3 s.
 - Comparación píxel a píxel contra capturas de referencia tras cambios de base: once páginas del sitio
