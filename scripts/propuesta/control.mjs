@@ -160,6 +160,21 @@ for (const pag of PAGINAS) {
   }
 }
 
+// Rastreo: ningún enlace interno, imagen ni medio de las páginas del sistema devuelve error.
+{
+  const pg = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const enlaces = new Set(), medios = new Set();
+  const semillas = ['/propuesta', '/propuesta/sectores', '/propuesta/sectores/aeropuertos', '/propuesta/servicios', '/propuesta/servicios/101', '/propuesta/antecedentes', '/propuesta/nosotros', '/propuesta/documentacion', '/propuesta/blog', '/propuesta/contacto', '/propuesta/en', '/propuesta/en/services', '/propuesta/privacidad'];
+  for (const u of semillas) {
+    try { await pg.goto(`${BASE}${u}`, { waitUntil: 'networkidle', timeout: 90000 }); } catch { continue; }
+    const r = await pg.evaluate(() => ({ a: [...document.querySelectorAll('a[href]')].map((a) => a.getAttribute('href')), m: [...document.querySelectorAll('img')].flatMap((i) => [i.getAttribute('src'), ...(i.getAttribute('srcset') || '').split(',').map((x) => x.trim().split(' ')[0])]).concat([...document.querySelectorAll('video[data-film], source[srcset], [data-src]')].map((e) => e.getAttribute('data-film') || e.getAttribute('srcset') || e.getAttribute('data-src'))).filter(Boolean) }));
+    r.a.forEach((h) => { if (h.startsWith('/') && !h.startsWith('//')) enlaces.add(h.split('#')[0]); }); r.m.forEach((h) => { if (h.startsWith('/')) medios.add(h); });
+  }
+  await pg.close();
+  const probar = async (set, nombre) => { const rotos = []; const arr = [...set]; for (let i = 0; i < arr.length; i += 12) await Promise.all(arr.slice(i, i + 12).map(async (h) => { try { const r = await fetch(`${BASE}${h}`, { redirect: 'manual' }); if (r.status >= 400) rotos.push(`${h} → ${r.status}`); } catch (e) { rotos.push(`${h} → ${e.message}`); } })); filas.push(`| ${nombre} | — | ${arr.length} probados | ${rotos.length ? '✗ ' + rotos.slice(0, 5).join('; ') : '✓'} |`); rotos.forEach((x) => fallos.push(`${nombre}: ${x}`)); };
+  await probar(enlaces, 'enlaces internos'); await probar(medios, 'imágenes y medios');
+}
+
 // Auditoría de los antecedentes y muestra de fichas: las cuatro con más señales y cuatro limpias, a dos anchos.
 let auditoria = '';
 try {
