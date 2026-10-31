@@ -55,7 +55,7 @@
   document.querySelectorAll('[data-dentro]').forEach((root) => {
     const stage = root.querySelector('.dentro__stage');
     const now = root.querySelector('.ahora');
-    if (stage && stage.dataset.src) new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); fetch(stage.dataset.src).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) stage.insertAdjacentHTML('afterbegin', svg); }); } }, { rootMargin: '900px 0px' }).observe(stage);
+    if (stage && stage.dataset.src) new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); fetch(stage.dataset.src).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) (stage.querySelector('.iso__caja') || stage).insertAdjacentHTML('afterbegin', svg); }); } }, { rootMargin: '900px 0px' }).observe(stage);
     const items = [...root.querySelectorAll('[data-code]')];
     if (!items.length) return;
     const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;

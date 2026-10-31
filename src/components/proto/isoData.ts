@@ -35,6 +35,14 @@ export const readIso = (site: IsoSite): string =>
     .replace(/ id="sp-[a-z]+-(title|desc)"/g, '')
     .replace(/ aria-labelledby="[^"]*"/, ' aria-hidden="true"');
 
+/** Proporción ancho/alto del dibujo de un sitio, leída de su viewBox: la caja se reserva antes de que llegue el SVG y la página no salta. */
+const RATIO: Partial<Record<IsoSite, number>> = {};
+export const isoRatio = (site: IsoSite): number => {
+  if (RATIO[site]) return RATIO[site]!;
+  try { const vb = readFileSync(new URL(`../../../public${isoSrc(site)}`, import.meta.url), 'utf8').match(/viewBox="([-\d.]+) ([-\d.]+) ([-\d.]+) ([-\d.]+)"/); RATIO[site] = vb ? Number(vb[3]) / Number(vb[4]) : 1; } catch { RATIO[site] = 1; }
+  return RATIO[site]!;
+};
+
 /** El despiece de un equipo (switch, cámara, panel…), por código de servicio. */
 export const readDevice = (code: string): string =>
   readFileSync(new URL(`../../../public/cine/iso/service-${code}.svg`, import.meta.url), 'utf8').replace(/<\?xml[^>]*>/, '');

@@ -19,7 +19,7 @@ const OUT = arg('--out', 'control-propuesta');
 const { chromium } = process.env.PLAYWRIGHT_MODULE ? await import(process.env.PLAYWRIGHT_MODULE) : createRequire(import.meta.url)('playwright');
 
 // Presupuesto de altura en pantallas (alto de la ventana), por página y por ancho.
-const ANCHOS = [{ w: 1440, h: 900, k: 'escritorio' }, { w: 1310, h: 680, k: 'portatil' }, { w: 390, h: 844, k: 'telefono' }];
+const ANCHOS = [{ w: 1440, h: 900, k: 'escritorio' }, { w: 1310, h: 680, k: 'portatil' }, { w: 1024, h: 768, k: 'tablet' }, { w: 390, h: 844, k: 'telefono' }];
 const PAGINAS = [
   { id: 'portada', path: '/propuesta', max: { escritorio: 7, portatil: 8.5, telefono: 11 } },
   { id: 'sectores', path: '/propuesta/sectores', max: { escritorio: 5, portatil: 6, telefono: 9 } },
@@ -51,6 +51,7 @@ for (const pag of PAGINAS) {
   for (const v of ANCHOS) {
     const page = await browser.newPage({ viewport: { width: v.w, height: v.h }, deviceScaleFactor: 1 });
     const nombre = `${pag.id}-${v.k}`;
+    const problemasExtra = [];
     // Errores de consola y de página: cualquiera que no sea del CMS o del favicon es un defecto.
     const errores = [];
     const ignorar = (t) => /favicon|Directus|ECONNREFUSED|fetch failed|net::ERR_|Failed to load resource/i.test(t);
@@ -89,9 +90,12 @@ for (const pag of PAGINAS) {
       const filmOk = v.w < 900 ? true : await page.evaluate(async () => { const f = document.querySelector('.lugar__fondo video'); if (!f) return true; for (let i = 0; i < 40; i++) { if (!f.paused && f.currentTime > 0) return true; await new Promise((r) => setTimeout(r, 100)); } return false; });
       for (let y = 0; y < m.alto; y += v.h) { await page.evaluate((yy) => window.scrollTo(0, yy), y); await page.waitForTimeout(80); }
       await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(400);
+      // La página no cambia de alto al recorrerla: si lo hace, algo se pinta tarde y el contenido salta.
+      const altoFinal = await page.evaluate(() => document.documentElement.scrollHeight);
+      if (Math.abs(altoFinal - m.alto) > v.h * .15) problemasExtra.push(`la página cambia de alto al recorrerla (${m.alto} → ${altoFinal})`);
       await page.screenshot({ path: join(OUT, `${nombre}-3-completa.png`), fullPage: true });
-      const pantallas = +(m.alto / v.h).toFixed(1), max = pag.max[v.k];
-      const problemas = [];
+      const pantallas = +(m.alto / v.h).toFixed(1), max = pag.max[v.k] ?? Math.round(pag.max.portatil * 1.25 * 2) / 2;
+      const problemas = [...problemasExtra];
       if (m.titles.length) problemas.push(`SVG con <title>: ${m.titles.slice(0, 3).join(', ')}`);
       if (m.scrollW > m.innerW + 1) problemas.push(`desborde horizontal: ${m.scrollW} > ${m.innerW}`);
       if (m.fuera) problemas.push(`${m.fuera} figura(s) fuera de la pantalla`);

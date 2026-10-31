@@ -7,7 +7,7 @@
  */
 import Partes from './Partes.astro';
 import { despieceDe } from './despiece';
-import { services, SITE_OF, type Story, isoSrc } from './isoData';
+import { services, SITE_OF, type Story, isoSrc, isoRatio } from './isoData';
 interface Props { story: Story }
 const { story: c } = Astro.props;
 const site = SITE_OF[c.sectorSlug] || 'building';
@@ -20,7 +20,7 @@ const codes = [...new Set([...c.serviceCodes, ...partes.map((p) => p.code)])];
     <Partes interactivo items={partes.map((p) => ({ key: p.key, code: p.code, label: (p.qty ? `${p.qty} × ` : '') + p.label, meta: byCode.get(p.code) }))} />
     {origen === 'servicio' && <p class="small">Alcance publicado del servicio; el registro no detalla equipos.</p>}
   </div>
-  <div class="fiso__lugar iso" data-svcs={codes.join(' ')} data-src={isoSrc(site)}><span class="ahora">{codes.map((k) => byCode.get(k)).filter(Boolean).join(' · ')}</span></div>
+  <div class="fiso__lugar iso" data-svcs={codes.join(' ')} data-src={isoSrc(site)}><div class="iso__caja" style={`--r:${isoRatio(site).toFixed(3)}`}></div><span class="ahora">{codes.map((k) => byCode.get(k)).filter(Boolean).join(' · ')}</span></div>
 </div>
 
 <script>
@@ -41,7 +41,7 @@ const codes = [...new Set([...c.serviceCodes, ...partes.map((p) => p.code)])];
     if (ahora) ahora.dataset.todos = ahora.textContent || '';
     new IntersectionObserver(([e], io) => {
       if (!e.isIntersecting) return; io.disconnect();
-      fetch(lugar.dataset.src!).then((r) => (r.ok ? r.text() : '')).then((markup) => { if (!markup) return; lugar.insertAdjacentHTML('afterbegin', markup); const svg = lugar.querySelector<SVGSVGElement>('svg'); if (svg) fit(svg); requestAnimationFrame(() => { root.classList.add('on'); listo = true; if (codes.length) show(codes[0]); andar(); }); });
+      fetch(lugar.dataset.src!).then((r) => (r.ok ? r.text() : '')).then((markup) => { if (!markup) return; (lugar.querySelector('.iso__caja') || lugar).insertAdjacentHTML('afterbegin', markup); const svg = lugar.querySelector<SVGSVGElement>('svg'); if (svg) fit(svg); requestAnimationFrame(() => { root.classList.add('on'); listo = true; if (codes.length) show(codes[0]); andar(); }); });
     }, { rootMargin: '600px 0px' }).observe(lugar);
     new IntersectionObserver(([e]) => (e.isIntersecting ? andar() : parar()), { threshold: .25 }).observe(root);
     const lista = root.querySelector<HTMLElement>('.fiso__lista') || root;
