@@ -5,10 +5,9 @@ import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import Apertura from '../../../components/proto/Apertura.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
-import { loadStories, readIso, posterOf } from '../../../components/proto/isoData';
+import { loadStories, isoSrc, filmOf } from '../../../components/proto/isoData';
 export const prerender = false;
 const { total } = await loadStories();
-const building = readIso('building');
 ---
 <!doctype html>
 <html lang="en">
@@ -16,7 +15,7 @@ const building = readIso('building');
   <body>
     <Top lang="en" />
     <main id="contenido">
-    <Apertura label="Overview" iso={building} image={posterOf('constructoras')} film="/cine/media/cine-fachada.mp4" open>
+    <Apertura label="Overview" isoSrc={isoSrc('building')} image={filmOf('constructoras').poster} film={filmOf('constructoras').film} poster={filmOf('constructoras').poster} hero>
       <span class="small">24 years of IT services. Mendoza, Argentina.</span>
       <h1>IT services for operations that cannot stop<span class="dot">.</span></h1>
       <p>Networks, electronic security, telecom, custom software, energy and on-site support for organizations that need continuity, evidence and accountable delivery.</p>

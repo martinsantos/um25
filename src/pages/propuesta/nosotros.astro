@@ -5,12 +5,11 @@ import Head from '../../components/proto/Head.astro';
 import Top from '../../components/proto/Top.astro';
 import Apertura from '../../components/proto/Apertura.astro';
 import Cierre from '../../components/proto/Cierre.astro';
-import { loadStories, readIso, posterOf } from '../../components/proto/isoData';
+import { loadStories, isoSrc } from '../../components/proto/isoData';
 import { EMPRESA, CUMPLIMIENTO } from '../../components/proto/relato';
 
 export const prerender = false;
 const { total } = await loadStories();
-const building = readIso('building');
 const capacidades = ['Redes, fibra, switching, WiFi corporativo y radioenlaces', 'Seguridad electrónica, CCTV, accesos e intrusión', 'Telecomunicaciones, voz, datos, video y conectividad distribuida', 'Software a medida, SGI, APIs, tableros e integraciones', 'Soporte 24/7, mantenimiento preventivo y respuesta a incidentes', 'Detección de incendios y eléctricos dedicados para IT'];
 ---
 <!doctype html>
@@ -32,7 +31,7 @@ const capacidades = ['Redes, fibra, switching, WiFi corporativo y radioenlaces',
   <body>
     <Top />
     <main id="contenido">
-    <Apertura label="Nosotros" iso={building} image="/images/editorial/umsa-about-engineering.webp" ghost={posterOf('constructoras')}>
+    <Apertura label="Nosotros" isoSrc={isoSrc('building')} image="/images/editorial/umsa-about-engineering.webp" hero>
       <span class="small">24 años de servicios IT. Mendoza, Argentina.</span>
       <h1 style="font-size:clamp(2rem,3.6vw,3.6rem)">{EMPRESA.titulo}<span class="dot">.</span></h1>
       <p class="tag">{EMPRESA.lead}</p>
