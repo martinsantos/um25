@@ -131,6 +131,10 @@ export function desambiguarTitulos<T extends { client: string; title: string; su
     const otra = new Map<string, T[]>();
     g.forEach((i) => { const k = i.title.toLowerCase(); otra.set(k, [...(otra.get(k) || []), i]); });
     for (const h of otra.values()) if (h.length > 1) h.forEach((i) => { if (i.year) i.title = `${i.title} · ${i.month ? MES_NOMBRE[i.month] + ' ' : ''}${i.year}`; });
+    // Si además comparten el mes, el día del registro los separa (SGI lo tiene).
+    const tercera = new Map<string, T[]>();
+    g.forEach((i) => { const k = i.title.toLowerCase(); tercera.set(k, [...(tercera.get(k) || []), i]); });
+    for (const h of tercera.values()) if (h.length > 1) h.forEach((i) => { const dia = (i as T & { inicio?: string }).inicio?.slice(8, 10); if (dia && i.month) i.title = i.title.replace(new RegExp(` · ${MES_NOMBRE[i.month]} ${i.year}$`), ` · ${Number(dia)} de ${MES_NOMBRE[i.month]} de ${i.year}`); });
   }
   return items;
 }

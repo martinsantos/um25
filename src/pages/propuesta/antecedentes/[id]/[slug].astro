@@ -95,7 +95,7 @@ const cajetin: [string, string][] = [
       </nav>
       <div class="hoja-cab"><span>Ficha de trabajo · <b>{ref}</b>{enCurso && <i class="curso">En curso</i>}</span><span>{[c.sector, periodo].filter(Boolean).join(' · ')}</span></div>
       <div class:list={['proyecto', { 'proyecto--sinfoto': !photo }]}>
-        {photo && <figure class="obra"><img src={c.image} alt="" width="1200" height="900" fetchpriority="high" /></figure>}
+        {photo && <figure class="obra"><img src={c.image} alt={`${c.title}, ${c.client}`} width="1200" height="900" fetchpriority="high" /></figure>}
         <div class="datos">
           <h1>{c.title}<span class="dot">.</span></h1>
           <div class="quien">{c.client}{when && <span> · {when}</span>}</div>
