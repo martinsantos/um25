@@ -6,6 +6,7 @@
  * registro no nombra equipos, se lista el alcance publicado del servicio, con la leyenda que lo aclara.
  */
 import Partes from './Partes.astro';
+import Coleccion from './Coleccion.astro';
 import { despieceDe } from './despiece';
 import { services, SITE_OF, type Story, isoSrc } from './isoData';
 interface Props { story: Story }
@@ -16,16 +17,22 @@ const byCode = new Map(services.map((s) => [s.code, s.name]));
 const codes = [...new Set([...c.serviceCodes, ...partes.map((p) => p.code)])];
 ---
 <div class="fiso" data-fiso>
-  <div class="fiso__lista">
-    <Partes interactivo items={partes.map((p) => ({ key: p.key, code: p.code, label: (p.qty ? `${p.qty} × ` : '') + p.label, meta: byCode.get(p.code) }))} />
-    {origen === 'servicio' && <p class="small">Alcance publicado del servicio; el registro no detalla equipos.</p>}
+  <div class="cols cols-7-5 cols--centro">
+    <Coleccion items={partes.map((p) => ({ key: p.key, code: p.code, qty: p.qty }))} label={`Lo instalado en ${c.title}`} />
+    <div class="fiso__lista">
+      <Partes interactivo items={partes.map((p) => ({ key: p.key, code: p.code, label: (p.qty ? `${p.qty} × ` : '') + p.label, meta: byCode.get(p.code) }))} />
+      {origen === 'servicio' && <p class="small">Alcance publicado del servicio; el registro no detalla equipos.</p>}
+    </div>
   </div>
+  <div class="sec__head fiso__head"><h2>El lugar por dentro<span class="dot">.</span></h2></div>
   <div class="fiso__lugar iso" data-svcs={codes.join(' ')} data-src={isoSrc(site)}><span class="ahora">{codes.map((k) => byCode.get(k)).filter(Boolean).join(' · ')}</span></div>
 </div>
+
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-fiso]').forEach((root) => {
     const lugar = root.querySelector<HTMLElement>('.fiso__lugar')!;
+    const col = root.querySelector<HTMLElement>('[data-coleccion]');
     const items = [...root.querySelectorAll<HTMLElement>('[data-partes] li')];
     const fit = (svg: SVGSVGElement) => { if (svg.dataset.fit) return; try { const b = svg.getBBox(); const pad = Math.max(b.width, b.height) * .05; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); } catch { /* sin bbox */ } };
     new IntersectionObserver(([e], io) => {
@@ -33,9 +40,9 @@ const codes = [...new Set([...c.serviceCodes, ...partes.map((p) => p.code)])];
       fetch(lugar.dataset.src!).then((r) => (r.ok ? r.text() : '')).then((markup) => { if (!markup) return; lugar.insertAdjacentHTML('afterbegin', markup); const svg = lugar.querySelector<SVGSVGElement>('svg'); if (svg) fit(svg); requestAnimationFrame(() => root.classList.add('on')); });
     }, { rootMargin: '600px 0px' }).observe(lugar);
     items.forEach((li) => {
-      const on = () => { items.forEach((o) => o.classList.toggle('on', o === li)); lugar.dataset.svc = li.dataset.code; };
+      const on = () => { items.forEach((o) => o.classList.toggle('on', o === li)); lugar.dataset.svc = li.dataset.code; if (col) col.dataset.svc = li.dataset.code; };
       li.addEventListener('pointerenter', on); li.addEventListener('focusin', on);
     });
-    root.addEventListener('pointerleave', () => { items.forEach((o) => o.classList.remove('on')); delete lugar.dataset.svc; });
+    root.addEventListener('pointerleave', () => { items.forEach((o) => o.classList.remove('on')); delete lugar.dataset.svc; if (col) delete col.dataset.svc; });
   });
 </script>

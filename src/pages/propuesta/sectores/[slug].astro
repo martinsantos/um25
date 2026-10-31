@@ -12,6 +12,7 @@ import Ficha from '../../../components/proto/Ficha.astro';
 import Casos from '../../../components/proto/Casos.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import Partes from '../../../components/proto/Partes.astro';
+import Coleccion from '../../../components/proto/Coleccion.astro';
 import { getSectorBySlug } from '../../../lib/um26-directus';
 import { loadStories, services, posterOf, SITE_OF, SECTOR_PHOTO, SCENE_OF, isoSrc, filmOf } from '../../../components/proto/isoData';
 import { despieceAgregado } from '../../../components/proto/despiece';
@@ -82,7 +83,10 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
       <section class="sec">
         <div class="wrap">
           <div class="sec__head"><h2>Lo que instalamos en {lower}<span class="dot">.</span></h2></div>
-          <Partes items={instalado.map((p) => ({ key: p.key, label: p.label, meta: byCode.get(p.code), n: `${p.proyectos} ${p.proyectos === 1 ? 'proyecto' : 'proyectos'}${p.unidades > 0 ? ` · ${p.unidades} unidades` : ''}` }))} />
+          <div class="cols cols-7-5 cols--centro">
+            <Coleccion items={instalado.map((p) => ({ key: p.key, code: p.code, qty: p.unidades || p.proyectos }))} label={`Lo que instalamos en ${lower}`} />
+            <Partes items={instalado.map((p) => ({ key: p.key, label: p.label, meta: byCode.get(p.code), n: `${p.proyectos} ${p.proyectos === 1 ? 'proyecto' : 'proyectos'}${p.unidades > 0 ? ` · ${p.unidades} unidades` : ''}` }))} />
+          </div>
         </div>
       </section>
     )}
