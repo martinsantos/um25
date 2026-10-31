@@ -5,8 +5,13 @@
  * la propuesta sea el sitio, y hoy ya a la tarjeta que arma WhatsApp, Slack o LinkedIn al compartir
  * el enlace. La propuesta sigue sin indexarse.
  */
-interface Props { title: string; description?: string; image?: string; lang?: string }
-const { title, description = '', image = '/images/editorial/umsa-home-operations.webp', lang = 'es' } = Astro.props;
+interface Props { title: string; description?: string; image?: string; lang?: string; precargar?: boolean }
+const { title, description = '', image = '/images/editorial/umsa-home-operations.webp', lang = 'es', precargar = false } = Astro.props;
+// Variante de 960 px para teléfonos cuando existe (fotos editoriales); el póster de película se precarga en AVIF.
+const avif = image.endsWith('.jpg') ? image.replace(/\.jpg$/, '.avif') : '';
+const w960 = /^\/images\/editorial\/.+\.webp$/.test(image) ? image.replace(/\.webp$/, '-960.webp') : /-principal\.webp$/.test(image) ? image.replace(/-principal\.webp$/, '-principal-960.webp') : '';
+const wMax = /-principal\.webp$/.test(image) ? '1600w' : '1672w';
+const tam = /-principal\.webp$/.test(image) ? '(max-width: 900px) 100vw, 58vw' : '100vw';
 const abs = (p: string) => (p ? new URL(p, Astro.url.origin).href : '');
 ---
 <meta charset="utf-8" />
@@ -23,6 +28,9 @@ const abs = (p: string) => (p ? new URL(p, Astro.url.origin).href : '');
 <meta property="og:image" content={abs(image)} />
 <meta property="og:url" content={Astro.url.href} />
 <meta name="twitter:card" content="summary_large_image" />
+{precargar && avif && <link rel="preload" as="image" href={avif} type="image/avif" fetchpriority="high" />}
+{precargar && !avif && w960 && <link rel="preload" as="image" href={image} imagesrcset={`${w960} 960w, ${image} ${wMax}`} imagesizes={tam} fetchpriority="high" />}
+{precargar && !avif && !w960 && <link rel="preload" as="image" href={image} fetchpriority="high" />}
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="preload" href="/fonts/um-sans/v2.0.0/UMSans2-Variable.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" href="/fonts/um-sans/v2.0.0/um-sans-2.css" />

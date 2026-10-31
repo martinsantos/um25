@@ -97,7 +97,8 @@ export const posterOf = (sectorSlug: string, code?: string) => {
 
 export async function loadStories() {
   const catalog = await getAntecedentes({ limit: 1000 });
-  const total = getAntecedentesCatalogCount();
+  // El total que ve el sitio es el de las fichas servidas: catálogo más obras en curso de SGI. Así portada, nosotros y muro dicen lo mismo.
+  const totalCatalogo = getAntecedentesCatalogCount();
   const byCode = new Map(NAV_SERVICES.map((s) => [s.code, s.name]));
   // Obras de SGI que todavía no están en el catálogo web (en curso): entran con lo que SGI sabe.
   const slugDe = (t: string) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 90);
@@ -155,5 +156,5 @@ export async function loadStories() {
     return { ...p, name: row.name, text: row.text, href: `/${p.slug}`, count: countOf(p.slug), stories: stories.filter((s) => s.sectorSlug === p.slug).slice(0, 3) };
   });
   const years = catalog.map((c) => c.year).filter(Boolean);
-  return { total, stories, places, firstYear: Math.min(...years), lastYear: Math.max(...years) };
+  return { total: Math.max(totalCatalogo, stories.length), stories, places, firstYear: Math.min(...years), lastYear: Math.max(...years) };
 }

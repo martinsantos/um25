@@ -53,6 +53,9 @@ página, fondo que no cubre al inicio o no desaparece al final de la apertura, p
 arranca, lugar por dentro que no recorre sus sistemas solo, ficha del muro que no muestra su
 sistema al pasar, más de 1,8 MB de recursos en teléfono, cualquier enlace o imagen que devuelva error.
 
+Con `AXE_MODULE` apuntando a `@axe-core/playwright`, cada página y ancho pasa además por axe (WCAG
+2.1 AA y buenas prácticas) y cualquier violación es un defecto. El runner lo hace siempre.
+
 Deja las capturas y `informe.md` en la carpeta de salida. El informe incluye la auditoría de
 contenido de las fichas (`/propuesta/auditoria.json`) y el cruce con SGI en cantidades.
 
@@ -60,6 +63,26 @@ Corre solo en cada push a `feature/portada-*` (`.github/workflows/preview.yml`):
 el control, adjunta las capturas como artefacto `control-propuesta`, abre un túnel temporal y deja
 el veredicto y el link en el estado del commit. Cada push cancela la vista previa anterior; el link
 nuevo tarda unos veinte minutos.
+
+## Auditorías manuales que ya pasaron
+
+Además del control, sobre la compilación de producción:
+- html-validate (reglas recomendadas) en diez páginas: sin errores.
+- Lighthouse móvil (4G lento simulado, sin compresión del servidor, con el control corriendo a la
+  vez): portada 96, ficha 90, sector 88, servicio 85, muro 66; accesibilidad 100 y buenas prácticas
+  100 en todas; CLS 0 en todas. SEO queda en 58 sólo por el noindex deliberado de la propuesta. El
+  muro paga su HTML de 400 KB con las 520 fichas (unos 45 KB con gzip en producción); si hiciera
+  falta más, el paso siguiente es servir las primeras 48 fichas y traer el resto como datos.
+- Elemento LCP medido con aceleración propia (4G lento, CPU ×4): portada 1,3 s, sector 1,6 s, ficha
+  1,6 s. Antes de precargar la imagen de apertura y servir variantes de 960 px: 2,1 / 1,6 / 3,3 s.
+- Comparación píxel a píxel contra capturas de referencia tras cambios de base: once páginas del sitio
+  actual y doce de la propuesta, idénticas.
+
+La hoja base global de Tailwind ya no se inyecta: los layouts V4 traen `@tailwind` en `v4.css`, la
+propuesta sólo el preflight en su hoja, y las cuatro páginas sueltas que lo necesitan lo importan.
+Cualquier página nueva sin layout debe importar `@astrojs/tailwind/base.css` o traer su propio reset.
+El script de Sentry (130 KB) se carga en todas las páginas por la integración y es monitoreo de
+producción: se deja.
 
 ## Lo que no se resuelve por regla
 

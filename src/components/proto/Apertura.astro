@@ -18,16 +18,16 @@ const nombresAttr = nombres ? Object.entries(nombres).map(([k, v]) => `${k}:${v}
               <picture>{(poster || image).endsWith('.jpg') && <source type="image/avif" srcset={(poster || image).replace(/\.jpg$/, '.avif')} />}<img src={poster || image} alt="" width="1920" height="1080" loading="eager" fetchpriority="high" decoding="async" /></picture>
               <video muted playsinline loop preload="none" data-film={film} width="1920" height="1080"></video>
             </>
-          : <img src={image} alt="" width="1672" height="941" loading="eager" fetchpriority="high" decoding="async" />}
+          : <img src={image} srcset={/^\/images\/editorial\/.+\.webp$/.test(image) ? `${image.replace(/\.webp$/, '-960.webp')} 960w, ${image} 1672w` : undefined} sizes="100vw" alt="" width="1672" height="941" loading="eager" fetchpriority="high" decoding="async" />}
       </div>
     )}
     <div class="copy"><slot /></div>
     <div class="xray">
-      <div class="xray__ghost"><img src={ghost || image} alt="" width="1672" height="941" loading={eager ? 'eager' : 'lazy'} /></div>
+      {!hero && <div class="xray__ghost"><img src={ghost || image} alt="" width="1672" height="941" loading={eager ? 'eager' : 'lazy'} /></div>}
       {iso ? <div class="xray__iso iso" data-svc={svc} data-ciclo={ciclo ? "" : undefined} data-nombres={nombresAttr} set:html={iso} /> : <div class="xray__iso iso" data-svc={svc} data-ciclo={ciclo ? "" : undefined} data-nombres={nombresAttr} data-src={isoSrc}></div>}
-      <div class="xray__foto">
-        {film && !hero ? <video muted playsinline loop preload="none" poster={image} data-film={film} width="1920" height="1080"></video> : <img src={image} alt="" width="1672" height="941" loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : 'auto'} decoding="async" />}
-      </div>
+      {!hero && <div class="xray__foto">
+        {film ? <video muted playsinline loop preload="none" poster={image} data-film={film} width="1920" height="1080"></video> : <img src={image} alt="" width="1672" height="941" loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : 'auto'} decoding="async" />}
+      </div>}
       <div class="xray__linea"></div>
       {ciclo && <div class="xray__rotulo" data-rotulo aria-live="polite"></div>}
     </div>

@@ -17,6 +17,10 @@ const BASE = arg('--base', 'http://127.0.0.1:4321').replace(/\/$/, '');
 const OUT = arg('--out', 'control-propuesta');
 // En el runner, PLAYWRIGHT_MODULE apunta al módulo instalado aparte; localmente vale el playwright global.
 const { chromium } = process.env.PLAYWRIGHT_MODULE ? await import(process.env.PLAYWRIGHT_MODULE) : createRequire(import.meta.url)('playwright');
+// axe (WCAG 2.1 AA y buenas prácticas) cuando está instalado: AXE_MODULE apunta a @axe-core/playwright. Sin él, el control sigue sin esa prueba y lo anota.
+let AxeBuilder = null;
+if (process.env.AXE_MODULE) { try { const m = await import(process.env.AXE_MODULE); AxeBuilder = m.AxeBuilder || m.default?.AxeBuilder || null; } catch (e) { console.error('axe no disponible:', e.message); } }
+const axe = async (page) => { if (!AxeBuilder) return null; try { const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice']).exclude('astro-dev-toolbar').analyze(); return r.violations.map((v) => `${v.id} (${v.impact}, ${v.nodes.length})`); } catch (e) { return [`axe falló: ${e.message.slice(0, 80)}`]; } };
 
 // Presupuesto de altura en pantallas (alto de la ventana), por página y por ancho.
 const ANCHOS = [{ w: 1440, h: 900, k: 'escritorio' }, { w: 1310, h: 680, k: 'portatil' }, { w: 1024, h: 768, k: 'tablet' }, { w: 390, h: 844, k: 'telefono' }];
@@ -61,7 +65,8 @@ for (const pag of PAGINAS) {
     fallos.push(`${pag.id}: no se encontró un enlace en la portada`); continue;
   }
   for (const v of ANCHOS) {
-    const page = await browser.newPage({ viewport: { width: v.w, height: v.h }, deviceScaleFactor: 1 });
+    const ctx = await browser.newContext({ viewport: { width: v.w, height: v.h }, deviceScaleFactor: 1 });
+    const page = await ctx.newPage();
     const nombre = `${pag.id}-${v.k}`;
     const problemasExtra = [];
     // Errores de consola y de página: cualquiera que no sea del CMS o del favicon es un defecto.
@@ -120,6 +125,7 @@ for (const pag of PAGINAS) {
       if (!filmOk) problemas.push('la película de fondo no arranca');
       if (!dentroOk) problemas.push('el lugar por dentro no recorre sus sistemas solo');
       if (errores.length) problemas.push(`error de consola: ${errores[0]}`);
+      const viol = await axe(page); if (viol && viol.length) problemas.push(`axe: ${viol.join('; ')}`);
       // En el muro, con puntero fino, la primera ficha muestra su sistema al pasar.
       if (v.w >= 900 && pag.id === 'proyectos') {
         const ok = await page.evaluate(async () => { const li = document.querySelector('[data-ficha][data-site]'); if (!li) return false; li.scrollIntoView({ block: 'center' }); return true; });
@@ -128,7 +134,7 @@ for (const pag of PAGINAS) {
       filas.push(`| ${pag.id} | ${v.k} | ${pantallas} / ${max} | ${problemas.length ? '✗ ' + problemas.join('; ') : '✓'} |`);
       problemas.forEach((p) => fallos.push(`${nombre}: ${p}`));
     } catch (e) { fallos.push(`${nombre}: ${e.message.split('\n')[0]}`); filas.push(`| ${pag.id} | ${v.k} | — | ✗ ${e.message.split('\n')[0]} |`); }
-    await page.close();
+    await ctx.close();
   }
 }
 // Todos los servicios y todos los sectores, a escritorio y teléfono: errores, desborde, tooltips, alto y peso de recursos.
@@ -213,7 +219,7 @@ try {
   }
 } catch (e) { fallos.push(`auditoria: ${e.message.split('\n')[0]}`); }
 await browser.close();
-const informe = `# Control visual de la propuesta\n\nBase: ${BASE}\n\n| Página | Ancho | Pantallas / máx. | Resultado |\n|---|---|---|---|\n${filas.join('\n')}\n\n${fallos.length ? `## Falló\n\n${fallos.map((f) => `- ${f}`).join('\n')}` : 'Todo en orden.'}\n${auditoria}`;
+const informe = `# Control visual de la propuesta\n\nBase: ${BASE}${AxeBuilder ? ' · con axe (WCAG 2.1 AA)' : ' · sin axe (AXE_MODULE no definido)'}\n\n| Página | Ancho | Pantallas / máx. | Resultado |\n|---|---|---|---|\n${filas.join('\n')}\n\n${fallos.length ? `## Falló\n\n${fallos.map((f) => `- ${f}`).join('\n')}` : 'Todo en orden.'}\n${auditoria}`;
 writeFileSync(join(OUT, 'informe.md'), informe);
 console.log(informe);
 process.exit(fallos.length ? 1 : 0);
