@@ -27,7 +27,9 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
     <Head title="Proyectos documentados · ULTIMA MILLA" />
     <style>
       .muro { display: grid; grid-template-columns: minmax(260px, 3fr) minmax(0, 9fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: start; padding-block: var(--s4) var(--s6); }
-      .panel { position: sticky; top: 80px; display: grid; gap: var(--s4); }
+      /* El panel se fija y, si es más alto que la pantalla, se desplaza por dentro: el año queda al alcance sin ir al final del muro. */
+      .panel { position: sticky; top: 80px; display: grid; gap: var(--s4); max-height: calc(100svh - 96px); overflow: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; padding-right: 6px; }
+      .grupo + .grupo { margin-top: var(--s4); }
       .count { font-size: clamp(4rem, 7vw, 6.5rem); line-height: .9; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
       .count i { font-style: normal; color: var(--red); }
       .sentence { font-size: 1.2rem; font-weight: 600; letter-spacing: -.02em; margin-top: 6px; }
@@ -46,7 +48,7 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       .mas { margin-top: var(--s4); border: 0; cursor: pointer; }
       .fichas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       @media (max-width: 900px) {
-        .muro { grid-template-columns: 1fr; gap: var(--s3); } .panel { position: static; gap: var(--s3); } .fichas { grid-template-columns: 1fr 1fr; }
+        .muro { grid-template-columns: 1fr; gap: var(--s3); } .panel { position: static; gap: var(--s3); max-height: none; overflow: visible; padding-right: 0; } .fichas { grid-template-columns: 1fr 1fr; }
         .filtros summary { display: block; list-style: none; cursor: pointer; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line-2); color: var(--ink); font-weight: 500; }
         .filtros summary::-webkit-details-marker { display: none; }
         .filtros summary::after { content: '+'; float: right; color: var(--ink-3); }

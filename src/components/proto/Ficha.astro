@@ -1,17 +1,45 @@
 ---
 /**
- * Ficha de proyecto: foto, cliente, qué se hizo, sector y año. Lo instalado se lee adentro, en la
- * ficha completa; en la pared sólo la foto y el texto, para que las 500 fichas se lean como una.
+ * Ficha de proyecto: foto, cliente, qué se hizo, sector y año. Al pasar el puntero, la foto deja
+ * ver el sistema: el lugar por dentro con los servicios del proyecto encendidos. El dibujo del
+ * lugar se trae una sola vez por tipo de sitio y se monta sólo en la tarjeta bajo el puntero,
+ * así el muro de 500 fichas no carga ni dibuja nada de más.
  */
-import { thumbOf, type Story } from './isoData';
+import { thumbOf, SITE_OF, isoSrc, type Story } from './isoData';
 interface Props { story: Story; eager?: boolean; showSector?: boolean; lazy?: boolean }
 const { story: c, eager = false, showSector = true } = Astro.props;
+const site = SITE_OF[c.sectorSlug] || 'building';
 ---
-<li class="ficha" data-ficha data-sector={c.sectorSlug} data-services={c.serviceCodes.join(' ')} data-year={String(c.year)} data-client={c.client.toLowerCase()}>
+<li class="ficha" data-ficha data-sector={c.sectorSlug} data-services={c.serviceCodes.join(' ')} data-year={String(c.year)} data-client={c.client.toLowerCase()} data-site={isoSrc(site)}>
   <a href={c.href}>
-    <figure>{c.image && <img src={thumbOf(c.image)} alt="" width="480" height="300" loading={eager ? 'eager' : 'lazy'} decoding="async" />}</figure>
+    <figure>
+      {c.image && <img src={thumbOf(c.image)} alt="" width="480" height="300" loading={eager ? 'eager' : 'lazy'} decoding="async" />}
+      <span class="ficha__sistema iso" data-svcs={c.serviceCodes.join(' ')} aria-hidden="true"></span>
+    </figure>
     <b>{c.client}</b>
     <span class="t">{c.title}</span>
     <span class="small">{[showSector ? c.sector : '', c.year || ''].filter(Boolean).join(' · ')}</span>
   </a>
 </li>
+
+<script>
+  // El sistema de cada ficha, al pasar el puntero: un dibujo por tipo de lugar, en memoria, montado en una tarjeta por vez.
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    const cache = new Map<string, Promise<string>>();
+    const traer = (src: string) => { if (!cache.has(src)) cache.set(src, fetch(src).then((r) => (r.ok ? r.text() : ''))); return cache.get(src)!; };
+    const fit = (svg: SVGSVGElement) => { if (svg.dataset.fit) return; try { const b = svg.getBBox(); const pad = Math.max(b.width, b.height) * .05; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); } catch { /* sin bbox */ } };
+    document.querySelectorAll<HTMLElement>('[data-ficha][data-site]').forEach((li) => {
+      const caja = li.querySelector<HTMLElement>('.ficha__sistema')!;
+      let vivo = 0;
+      li.addEventListener('pointerenter', () => {
+        const id = ++vivo;
+        traer(li.dataset.site!).then((markup) => {
+          if (id !== vivo || !markup) return;
+          if (!caja.firstElementChild) { caja.innerHTML = markup; const svg = caja.querySelector<SVGSVGElement>('svg'); if (svg) fit(svg); }
+          requestAnimationFrame(() => { if (id === vivo) li.classList.add('on'); });
+        });
+      });
+      li.addEventListener('pointerleave', () => { vivo++; li.classList.remove('on'); setTimeout(() => { if (!li.classList.contains('on')) caja.innerHTML = ''; }, 450); });
+    });
+  }
+</script>

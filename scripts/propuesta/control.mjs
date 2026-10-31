@@ -91,6 +91,11 @@ for (const pag of PAGINAS) {
       if (!posterOk) problemas.push(`el póster del video no responde: ${m.poster}`);
       if (!filmOk) problemas.push('la película de fondo no arranca');
       if (!dentroOk) problemas.push('el lugar por dentro no recorre sus sistemas solo');
+      // En el muro, con puntero fino, la primera ficha muestra su sistema al pasar.
+      if (v.w >= 900 && pag.id === 'proyectos') {
+        const ok = await page.evaluate(async () => { const li = document.querySelector('[data-ficha][data-site]'); if (!li) return false; li.scrollIntoView({ block: 'center' }); return true; });
+        if (ok) { const li = await page.$('[data-ficha][data-site]'); await li.hover(); const sistema = await page.evaluate(async () => { for (let i = 0; i < 40; i++) { if (document.querySelector('[data-ficha].on .ficha__sistema svg')) return true; await new Promise((r) => setTimeout(r, 100)); } return false; }); if (!sistema) problemas.push('la ficha del muro no muestra su sistema al pasar el puntero'); else { await page.waitForTimeout(600); await page.screenshot({ path: join(OUT, `${nombre}-4-sistema.png`) }); } await page.mouse.move(2, 2); }
+      }
       filas.push(`| ${pag.id} | ${v.k} | ${pantallas} / ${max} | ${problemas.length ? '✗ ' + problemas.join('; ') : '✓'} |`);
       problemas.forEach((p) => fallos.push(`${nombre}: ${p}`));
     } catch (e) { fallos.push(`${nombre}: ${e.message.split('\n')[0]}`); filas.push(`| ${pag.id} | ${v.k} | — | ✗ ${e.message.split('\n')[0]} |`); }

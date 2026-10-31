@@ -160,7 +160,13 @@ p { margin: 0; }
 .ficha > a { display: grid; gap: 8px; }
 .ficha figure + b { padding-top: 6px; border-top: 1px solid var(--line-2); margin-top: 2px; }
 .ficha[hidden] { display: none; }
-.ficha figure { margin: 0; aspect-ratio: 16 / 10; background: var(--bg-2); overflow: hidden; }
+.ficha figure { margin: 0; aspect-ratio: 16 / 10; background: var(--bg-2); overflow: hidden; position: relative; }
+.ficha figure img { transition: opacity .35s var(--ease); }
+.ficha__sistema { position: absolute; inset: 0; display: grid; place-items: center; background: var(--bg); opacity: 0; transition: opacity .35s var(--ease); }
+.ficha__sistema svg { width: 90%; height: 90%; }
+.ficha.on figure img { opacity: 0; }
+.ficha.on .ficha__sistema { opacity: 1; }
+.ficha.on .ficha__sistema .sp-route path { stroke-dashoffset: 0; }
 .ficha img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .ficha b { display: block; font-weight: 600; line-height: 1.3; }
 .ficha .t { display: block; color: var(--ink-2); font-size: .95rem; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
