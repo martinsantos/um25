@@ -10,7 +10,7 @@ import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import { NAV_SERVICES } from '../../data/navigation';
 import { SECTORS } from '../../data/cine/scenes';
 import { descripcionDeOrigen } from './relato';
-import { nombreCliente, tituloProyecto } from './titulos';
+import { nombreCliente, tituloProyecto, desambiguarTitulos } from './titulos';
 import { resolverSector } from './sectorReal';
 
 export type IsoSite = 'building' | 'winery' | 'terminal' | 'clinic' | 'mine' | 'plant';
@@ -84,7 +84,6 @@ export async function loadStories() {
   const sectorDe = resolverSector(catalog.map((c) => ({ client: c.client, sector: c.sector_slug })));
   const stories: Story[] = [...catalog]
     .sort((a, b) => (b.year - a.year) || (b.month - a.month) || (b.id - a.id))
-    .filter((c, i, arr) => arr.findIndex((o) => `${o.title}|${o.client}`.toLowerCase() === `${c.title}|${c.client}`.toLowerCase()) === i)
     .map((c) => {
       const client = nombreCliente(c.client);
       const title = tituloProyecto(c.title, c.client, c.summary);
@@ -108,6 +107,10 @@ export async function loadStories() {
         status: c.status,
       };
     });
+  // Ningún proyecto se oculta por repetir título: se distingue por su descripción o por su fecha.
+  desambiguarTitulos(stories);
+  // Si la descripción no dice más que el título, la ficha no la repite.
+  stories.forEach((s) => { if (s.summary && comparable(s.summary) === comparable(s.title)) s.summary = ''; });
   const countOf = (slug: string) => catalog.filter((c) => sectorDe(c.client, c.sector_slug, `${c.title} ${c.summary}`) === slug).length;
   const places = PLACES.map((p) => {
     const row = SECTORS.find((s) => s.slug === p.slug)!;

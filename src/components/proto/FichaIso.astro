@@ -33,7 +33,7 @@ const codes = [...new Set([...c.serviceCodes, ...partes.map((p) => p.code)])];
     const codes = (lugar.dataset.svcs || '').split(' ').filter(Boolean);
     const nombre = (code: string) => items.find((li) => li.dataset.code === code)?.querySelector('.small')?.textContent || '';
     const fit = (svg: SVGSVGElement) => { if (svg.dataset.fit) return; try { const b = svg.getBBox(); const pad = Math.max(b.width, b.height) * .05; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); } catch { /* sin bbox */ } };
-    const show = (code: string) => { lugar.dataset.svc = code; items.forEach((o) => o.classList.toggle('on', o.dataset.code === code)); if (ahora) ahora.textContent = nombre(code) || ahora.dataset.todos || ''; };
+    const show = (code: string) => { lugar.dataset.svc = code; if (codes.length > 1) items.forEach((o) => o.classList.toggle('on', o.dataset.code === code)); if (ahora) ahora.textContent = nombre(code) || ahora.dataset.todos || ''; };
     let t = 0, quieto = false, listo = false;
     const paso = () => { if (!codes.length) return; const i = codes.indexOf(lugar.dataset.svc || ''); show(codes[(i + 1) % codes.length]); };
     const andar = () => { if (!t && !quieto && listo && codes.length > 1) t = setInterval(paso, 2600); };

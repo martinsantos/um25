@@ -102,8 +102,40 @@ for (const pag of PAGINAS) {
     await page.close();
   }
 }
+// Auditoría de los antecedentes y muestra de fichas: las cuatro con más señales y cuatro limpias, a dos anchos.
+let auditoria = '';
+try {
+  const res = await (await browser.newPage()).goto(`${BASE}/propuesta/auditoria.json`, { timeout: 90000 });
+  const a = await res.json();
+  const conFlags = a.filas.filter((f) => f.flags.length).sort((x, y) => y.flags.length - x.flags.length);
+  const limpias = a.filas.filter((f) => !f.flags.length);
+  const muestra = [...conFlags.slice(0, 4), ...limpias.filter((_, i) => i % Math.max(1, Math.floor(limpias.length / 4)) === 0).slice(0, 4)];
+  auditoria = `\n## Auditoría de antecedentes\n\n${a.fichas} fichas servidas de ${a.total} en el catálogo. Fichas limpias: ${limpias.length}. Señales:\n\n| Señal | Fichas |\n|---|---|\n${Object.entries(a.resumen).sort((x, y) => y[1] - x[1]).map(([k, n]) => `| ${k} | ${n} |`).join('\n')}\n\n### Las 40 fichas con más señales\n\n| Ficha | Cliente | Título | Señales |\n|---|---|---|---|\n${conFlags.slice(0, 40).map((f) => `| [${f.id}](${BASE}${f.href}) | ${f.client} | ${f.title} | ${f.flags.join(', ')} |`).join('\n')}\n`;
+  for (const f of muestra) {
+    for (const v of ANCHOS.filter((x) => x.k !== 'portatil')) {
+      const page = await browser.newPage({ viewport: { width: v.w, height: v.h }, deviceScaleFactor: 1 });
+      const nombre = `ficha-${f.id}-${v.k}`;
+      try {
+        await page.goto(`${BASE}${f.href}`, { waitUntil: 'networkidle', timeout: 90000 }); await page.waitForTimeout(800);
+        const m = await page.evaluate(() => {
+          const txt = document.body.innerText;
+          const img = document.querySelector('main figure img');
+          return { h1: (document.querySelector('h1')?.textContent || '').trim(), img: !!img && img.complete && img.naturalWidth > 0, filas: document.querySelectorAll('[data-partes] li').length, basura: /\b(undefined|NaN|null|\[object Object\])\b/.test(txt), scrollW: document.documentElement.scrollWidth, innerW: innerWidth, titles: document.querySelectorAll('svg title').length };
+        });
+        await page.evaluate(() => document.querySelector('.fiso__lugar')?.scrollIntoView({ block: 'center' })); await page.waitForTimeout(2500);
+        const iso = await page.evaluate(() => !!document.querySelector('.fiso__lugar svg'));
+        await page.screenshot({ path: join(OUT, `${nombre}.png`) });
+        const problemas = [];
+        if (!m.h1) problemas.push('sin título'); if (!m.img) problemas.push('la foto no carga'); if (!m.filas) problemas.push('inventario vacío'); if (m.basura) problemas.push('texto con undefined/NaN/null'); if (m.scrollW > m.innerW + 1) problemas.push('desborde horizontal'); if (m.titles) problemas.push('SVG con <title>'); if (!iso) problemas.push('el lugar por dentro no carga');
+        filas.push(`| ficha ${f.id} | ${v.k} | — | ${problemas.length ? '✗ ' + problemas.join('; ') : '✓'} |`);
+        problemas.forEach((p) => fallos.push(`${nombre}: ${p}`));
+      } catch (e) { fallos.push(`${nombre}: ${e.message.split('\n')[0]}`); filas.push(`| ficha ${f.id} | ${v.k} | — | ✗ ${e.message.split('\n')[0]} |`); }
+      await page.close();
+    }
+  }
+} catch (e) { fallos.push(`auditoria: ${e.message.split('\n')[0]}`); }
 await browser.close();
-const informe = `# Control visual de la propuesta\n\nBase: ${BASE}\n\n| Página | Ancho | Pantallas / máx. | Resultado |\n|---|---|---|---|\n${filas.join('\n')}\n\n${fallos.length ? `## Falló\n\n${fallos.map((f) => `- ${f}`).join('\n')}` : 'Todo en orden.'}\n`;
+const informe = `# Control visual de la propuesta\n\nBase: ${BASE}\n\n| Página | Ancho | Pantallas / máx. | Resultado |\n|---|---|---|---|\n${filas.join('\n')}\n\n${fallos.length ? `## Falló\n\n${fallos.map((f) => `- ${f}`).join('\n')}` : 'Todo en orden.'}\n${auditoria}`;
 writeFileSync(join(OUT, 'informe.md'), informe);
 console.log(informe);
 process.exit(fallos.length ? 1 : 0);
