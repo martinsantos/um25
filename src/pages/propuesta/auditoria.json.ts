@@ -6,7 +6,7 @@
  * No indexable.
  */
 import type { APIRoute } from 'astro';
-import { loadStories } from '../../components/proto/isoData';
+import { loadStories, SGI_RESUMEN } from '../../components/proto/isoData';
 import { despieceDe } from '../../components/proto/despiece';
 
 export const prerender = false;
@@ -34,5 +34,5 @@ export const GET: APIRoute = async () => {
   filas.forEach((f) => { if ((dup.get(`${f.client}|${f.title}`.toLowerCase()) || 0) > 1) f.flags.push('titulo-repetido-en-cliente'); });
   const resumen: Record<string, number> = {};
   filas.forEach((f) => f.flags.forEach((x) => { resumen[x] = (resumen[x] || 0) + 1; }));
-  return new Response(JSON.stringify({ total, fichas: filas.length, resumen, filas }), { headers: { 'content-type': 'application/json; charset=utf-8', 'x-robots-tag': 'noindex' } });
+  return new Response(JSON.stringify({ total, fichas: filas.length, resumen, filas, sgi: SGI_RESUMEN }), { headers: { 'content-type': 'application/json; charset=utf-8', 'x-robots-tag': 'noindex' } });
 };

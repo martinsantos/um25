@@ -24,6 +24,10 @@ if (Astro.params.slug !== c.slug) return Astro.redirect(c.href, 301);
 const svcs = services.filter((s) => c.serviceCodes.includes(s.code));
 const months = ['', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 const when = [c.month ? months[c.month] : '', c.year].filter(Boolean).join(' ');
+const mesAnio = (iso?: string) => { if (!iso) return ''; const [y, m] = iso.split('-').map(Number); return [m ? months[m] : '', y].filter(Boolean).join(' '); };
+const cierre = c.cierre && mesAnio(c.cierre) !== when ? mesAnio(c.cierre) : '';
+const enCurso = c.estado === 'en-curso';
+const periodo = cierre ? `${when} – ${cierre}` : when;
 const sameClient = stories.filter((o) => o.id !== c.id && o.client.toLowerCase() === c.client.toLowerCase()).slice(0, 4);
 const sameSector = stories.filter((o) => o.id !== c.id && o.sectorSlug === c.sectorSlug && !sameClient.includes(o)).slice(0, 4);
 const prev = stories[index + 1];
@@ -36,7 +40,7 @@ const cajetin: [string, string][] = [
   ['Referencia', ref],
   ['Cliente', c.client],
   ['Sector', c.sector || '—'],
-  ['Fecha', when || '—'],
+  ['Fecha', periodo || '—'],
   ['Empresa', `ULTIMA MILLA · ${sede ? sede.name : 'Mendoza'}`],
 ];
 ---
@@ -50,6 +54,7 @@ const cajetin: [string, string][] = [
       /* Cabecera de la hoja: la referencia a la izquierda, sector y fecha a la derecha, como un cajetín superior. */
       .hoja-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-top: var(--s3); padding-bottom: 10px; border-bottom: 1px solid var(--line); color: var(--ink-3); font-size: .9375rem; letter-spacing: .02em; }
       .hoja-cab b { color: var(--ink); font-weight: 600; }
+      .hoja-cab .curso { font-style: normal; margin-left: 12px; padding: 2px 8px; border: 1px solid var(--red); color: var(--ink); font-size: .8125rem; }
       .proyecto { padding-block: var(--s4) var(--s5); display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: start; }
       .obra { margin: 0; grid-row: span 2; aspect-ratio: 4 / 3; overflow: hidden; background: var(--bg-2); }
       .obra img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -87,7 +92,7 @@ const cajetin: [string, string][] = [
         <a href="/propuesta/antecedentes">← Todos los proyectos</a>
         <span>{prev && <a href={prev.href}>← Anterior</a>}{prev && next && ' · '}{next && <a href={next.href}>Siguiente →</a>}</span>
       </nav>
-      <div class="hoja-cab"><span>Ficha de trabajo · <b>{ref}</b></span><span>{[c.sector, when].filter(Boolean).join(' · ')}</span></div>
+      <div class="hoja-cab"><span>Ficha de trabajo · <b>{ref}</b>{enCurso && <i class="curso">En curso</i>}</span><span>{[c.sector, periodo].filter(Boolean).join(' · ')}</span></div>
       <div class="proyecto">
         {photo && <figure class="obra"><img src={c.image} alt="" width="1200" height="900" fetchpriority="high" /></figure>}
         <div class="datos">
@@ -98,7 +103,8 @@ const cajetin: [string, string][] = [
         <dl class="tabla">
             <div><dt>Cliente</dt><dd>{c.client}</dd></div>
             {c.sector && <div><dt>Sector</dt><dd><a href={`/propuesta/sectores/${c.sectorSlug}`}>{c.sector}</a></dd></div>}
-            {when && <div><dt>Fecha</dt><dd>{when}</dd></div>}
+            {when && <div><dt>{cierre ? 'Inicio' : 'Fecha'}</dt><dd>{when}</dd></div>}
+            {cierre && <div><dt>{enCurso ? 'Cierre previsto' : 'Cierre'}</dt><dd>{cierre}</dd></div>}
             <div><dt>Referencia</dt><dd>{ref}</dd></div>
             {svcs.length > 0 && <div class="ancho"><dt>Servicios</dt><dd>{svcs.map((s) => <a href={`/propuesta/servicios/${s.code}`}>{s.name}</a>)}</dd></div>}
         </dl>

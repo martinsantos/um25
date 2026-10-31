@@ -11,6 +11,15 @@ import { NAV_SERVICES } from '../../data/navigation';
 import { SECTORS } from '../../data/cine/scenes';
 import { descripcionDeOrigen } from './relato';
 import { nombreCliente, tituloProyecto, desambiguarTitulos } from './titulos';
+import sgiJson from '../../data/sgi/fechas.json';
+
+/** Lo que SGI sabe mejor que el catálogo web: cuándo empezó y cerró cada proyecto, y en qué estado está. Por id web; sin datos internos. */
+export type Estado = 'finalizado' | 'en-curso' | 'pendiente';
+type SgiFecha = { inicio: string | null; cierre: string | null; estado: Estado };
+const SGI_JSON = sgiJson as { sgiTotal: number; conFichaWeb: number; sinFichaWeb: number; fichasSinSgi: number; fechas: Record<string, SgiFecha> };
+export const SGI_RESUMEN = { total: SGI_JSON.sgiTotal, conFichaWeb: SGI_JSON.conFichaWeb, sinFichaWeb: SGI_JSON.sinFichaWeb, fichasSinSgi: SGI_JSON.fichasSinSgi };
+export const sgiDe = (id: number): SgiFecha | undefined => SGI_JSON.fechas[String(id)];
+
 import { resolverSector } from './sectorReal';
 
 export type IsoSite = 'building' | 'winery' | 'terminal' | 'clinic' | 'mine' | 'plant';
@@ -44,7 +53,7 @@ export const PLACES: { slug: string; site: IsoSite; image: string }[] = [
 
 const cleanText = (value: unknown) => String(value ?? '').replace(/\b(Rubro|Cliente|Sector|Área|Area)\s*:\s*/gi, '').replace(/\s*(\.{3}|…)\s*$/u, '').replace(/\s+/g, ' ').trim();
 
-export type Story = { id: number; slug: string; href: string; client: string; title: string; year: number; month: number; sector: string; sectorSlug: string; serviceCodes: string[]; services: string[]; image: string; summary: string; status: string };
+export type Story = { id: number; slug: string; href: string; client: string; title: string; year: number; month: number; inicio?: string; cierre?: string; estado?: Estado; sgiId?: string; sector: string; sectorSlug: string; serviceCodes: string[]; services: string[]; image: string; summary: string; status: string };
 
 const TEMPLATE_PHRASES: Array<[RegExp, string]> = [
   [/(^|>)\s*Ejecución integral de\s+/gi, '$1'],
@@ -90,14 +99,21 @@ export async function loadStories() {
       const sectorReal = sectorDe(c.client, c.sector_slug, `${c.title} ${c.summary}`);
       // El catálogo dice "gobierno"; la navegación del sitio, "gobiernosectorpublico".
       const sectorSlug = sectorReal === 'gobierno' ? 'gobiernosectorpublico' : sectorReal;
+      const sgi = sgiDe(c.id);
+      const inicio = sgi?.inicio || '';
       return {
         id: c.id,
         slug: c.slug,
         href: `/propuesta/antecedentes/${c.id}/${c.slug}`,
         client,
         title,
-        year: c.year,
-        month: c.month,
+        // SGI es el sistema de registro: su fecha de inicio manda sobre la del catálogo cuando existe.
+        year: inicio ? Number(inicio.slice(0, 4)) : c.year,
+        month: inicio ? Number(inicio.slice(5, 7)) : c.month,
+        inicio: inicio || undefined,
+        cierre: sgi?.cierre || undefined,
+        estado: sgi?.estado,
+        sgiId: sgi ? String(c.id) : undefined,
         sector: sectorReal ? getAntecedenteSectorLabel(sectorReal) || '' : '',
         sectorSlug,
         serviceCodes: c.service_codes.map(String),
@@ -107,6 +123,8 @@ export async function loadStories() {
         status: c.status,
       };
     });
+  // Con las fechas de SGI, el orden se rehace: lo más reciente primero.
+  stories.sort((a, b) => (b.year - a.year) || (b.month - a.month) || (b.id - a.id));
   // Ningún proyecto se oculta por repetir título: se distingue por su descripción o por su fecha.
   desambiguarTitulos(stories);
   // Si la descripción no dice más que el título, la ficha no la repite.

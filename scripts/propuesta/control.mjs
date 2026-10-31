@@ -116,7 +116,8 @@ try {
   const conFlags = a.filas.filter((f) => f.flags.length).sort((x, y) => y.flags.length - x.flags.length);
   const limpias = a.filas.filter((f) => !f.flags.length);
   const muestra = [...conFlags.slice(0, 4), ...limpias.filter((_, i) => i % Math.max(1, Math.floor(limpias.length / 4)) === 0).slice(0, 4)];
-  auditoria = `\n## Auditoría de antecedentes\n\n${a.fichas} fichas servidas de ${a.total} en el catálogo. Fichas limpias: ${limpias.length}. Señales:\n\n| Señal | Fichas |\n|---|---|\n${Object.entries(a.resumen).sort((x, y) => y[1] - x[1]).map(([k, n]) => `| ${k} | ${n} |`).join('\n')}\n\n### Las 40 fichas con más señales\n\n| Ficha | Cliente | Título | Señales |\n|---|---|---|---|\n${conFlags.slice(0, 40).map((f) => `| [${f.id}](${BASE}${f.href}) | ${f.client} | ${f.title} | ${f.flags.join(', ')} |`).join('\n')}\n`;
+  const sgi = a.sgi ? `\n### Cruce con SGI\n\nSGI tiene ${a.sgi.total} proyectos; ${a.sgi.conFichaWeb} tienen ficha web. Sin ficha web: ${a.sgi.sinFichaWeb} (el detalle queda en SGI, no en este informe). Fichas web sin proyecto en SGI: ${a.sgi.fichasSinSgi}.\n` : '';
+  auditoria = `\n## Auditoría de antecedentes\n\n${a.fichas} fichas servidas de ${a.total} en el catálogo. Fichas limpias: ${limpias.length}. Señales:\n\n| Señal | Fichas |\n|---|---|\n${Object.entries(a.resumen).sort((x, y) => y[1] - x[1]).map(([k, n]) => `| ${k} | ${n} |`).join('\n')}\n${sgi}\n### Las 40 fichas con más señales\n\n| Ficha | Cliente | Título | Señales |\n|---|---|---|---|\n${conFlags.slice(0, 40).map((f) => `| [${f.id}](${BASE}${f.href}) | ${f.client} | ${f.title} | ${f.flags.join(', ')} |`).join('\n')}\n`;
   for (const f of muestra) {
     for (const v of ANCHOS.filter((x) => x.k !== 'portatil')) {
       const page = await browser.newPage({ viewport: { width: v.w, height: v.h }, deviceScaleFactor: 1 });
