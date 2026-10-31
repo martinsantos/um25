@@ -12,6 +12,7 @@ import { SECTORS } from '../../data/cine/scenes';
 import { descripcionDeOrigen } from './relato';
 import { nombreCliente, tituloProyecto, desambiguarTitulos } from './titulos';
 import sgiJson from '../../data/sgi/fechas.json';
+import extraJson from '../../data/propuesta/antecedentes-extra.json';
 
 /** Lo que SGI sabe mejor que el catálogo web: cuándo empezó y cerró cada proyecto, y en qué estado está. Por id web; sin datos internos. */
 export type Estado = 'finalizado' | 'en-curso' | 'pendiente';
@@ -98,8 +99,14 @@ export async function loadStories() {
   const catalog = await getAntecedentes({ limit: 1000 });
   const total = getAntecedentesCatalogCount();
   const byCode = new Map(NAV_SERVICES.map((s) => [s.code, s.name]));
-  const sectorDe = resolverSector(catalog.map((c) => ({ client: c.client, sector: c.sector_slug })));
-  const stories: Story[] = [...catalog]
+  // Obras de SGI que todavía no están en el catálogo web (en curso): entran con lo que SGI sabe.
+  const slugDe = (t: string) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 90);
+  type Extra = { id: number; original_id: string; Titulo: string; Cliente: string; sector: string; servicios: string[]; inicio: string; cierre: string; estado: Estado; Descripcion: string };
+  const extras = (extraJson as { proyectos: Extra[] }).proyectos.filter((e) => !catalog.some((c) => c.id === e.id));
+  const EXTRA_DE = new Map(extras.map((e) => [e.id, e]));
+  const catalogoCompleto = [...catalog, ...extras.map((e) => ({ id: e.id, title: e.Titulo, slug: slugDe(e.Titulo), client: e.Cliente, sector_slug: e.sector, service_codes: e.servicios.map(Number), year: Number(e.inicio.slice(0, 4)), month: Number(e.inicio.slice(5, 7)), location: '', scope: [] as string[], status: 'operativo' as const, image: SECTOR_PHOTO[e.sector] || SECTOR_PHOTO.constructoras, summary: e.Descripcion, tags: [] as string[] }))];
+  const sectorDe = resolverSector(catalogoCompleto.map((c) => ({ client: c.client, sector: c.sector_slug })));
+  const stories: Story[] = [...catalogoCompleto]
     .sort((a, b) => (b.year - a.year) || (b.month - a.month) || (b.id - a.id))
     .map((c) => {
       const client = nombreCliente(c.client);
@@ -107,7 +114,8 @@ export async function loadStories() {
       const sectorReal = sectorDe(c.client, c.sector_slug, `${c.title} ${c.summary}`);
       // El catálogo dice "gobierno"; la navegación del sitio, "gobiernosectorpublico".
       const sectorSlug = sectorReal === 'gobierno' ? 'gobiernosectorpublico' : sectorReal;
-      const sgi = sgiDe(c.id);
+      const extra = EXTRA_DE.get(c.id);
+      const sgi = extra ? { inicio: extra.inicio, cierre: extra.cierre, estado: extra.estado } : sgiDe(c.id);
       const inicio = sgi?.inicio || '';
       return {
         id: c.id,
@@ -121,7 +129,7 @@ export async function loadStories() {
         inicio: inicio || undefined,
         cierre: sgi?.cierre || undefined,
         estado: sgi?.estado,
-        sgiId: sgi ? String(c.id) : undefined,
+        sgiId: extra ? extra.original_id : sgi ? String(c.id) : undefined,
         sector: sectorReal ? getAntecedenteSectorLabel(sectorReal) || '' : '',
         sectorSlug,
         serviceCodes: c.service_codes.map(String),
@@ -131,6 +139,10 @@ export async function loadStories() {
         status: c.status,
       };
     });
+  // Sector heredado por regla: si un cliente tiene sector en sus otras fichas, y uno solo, sus fichas sin sector lo toman.
+  const sectoresDe = new Map<string, Set<string>>();
+  stories.forEach((s) => { if (s.sectorSlug) { const k = s.client.toLowerCase(); sectoresDe.set(k, (sectoresDe.get(k) || new Set()).add(s.sectorSlug)); } });
+  stories.forEach((s) => { if (!s.sectorSlug) { const set = sectoresDe.get(s.client.toLowerCase()); if (set && set.size === 1) { s.sectorSlug = [...set][0]; s.sector = getAntecedenteSectorLabel(s.sectorSlug === 'gobiernosectorpublico' ? 'gobierno' : s.sectorSlug) || ''; } } });
   // Con las fechas de SGI, el orden se rehace: lo más reciente primero.
   stories.sort((a, b) => (b.year - a.year) || (b.month - a.month) || (b.id - a.id));
   // Ningún proyecto se oculta por repetir título: se distingue por su descripción o por su fecha.

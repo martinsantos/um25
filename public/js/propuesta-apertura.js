@@ -13,13 +13,14 @@
     const desde = Number(film.dataset.desde || 0);
     film.addEventListener('loadedmetadata', () => { if (desde) film.currentTime = desde; });
     film.addEventListener('ended', () => { film.currentTime = desde; film.play().catch(() => {}); });
+    film.addEventListener('playing', () => film.classList.add('andando'), { once: true });
     film.src = film.dataset.film; film.play().catch(() => {});
   }
   // Un sistema por vez: el despiece recorre sus servicios de a uno, cada 2,6 s, desde la fase 3.
   const ciclo = (lugar, fase) => {
     const iso = lugar.querySelector('.xray__iso[data-ciclo]'); if (!iso) return;
     if (fase < 3) { clearInterval(iso._t); iso._t = 0; return; }
-    if (iso._t) return;
+    if (iso._t || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const nombres = Object.fromEntries((iso.dataset.nombres || '').split('|').filter(Boolean).map((p) => p.split(':')));
     const rotulo = lugar.querySelector('[data-rotulo]');
     const paso = () => {
@@ -60,7 +61,8 @@
     if (!items.length) return;
     const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
     const show = (a) => { stage.dataset.svc = a.dataset.code; if (now) now.textContent = a.dataset.name || ''; items.forEach((i) => i.classList.toggle('on', i === a)); };
-    let t = 0, quieto = false;
+    const sinMovimiento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let t = 0, quieto = sinMovimiento;
     const paso = () => { const i = items.findIndex((a) => a.dataset.code === stage.dataset.svc); show(items[(i + 1) % items.length]); };
     const andar = () => { if (!t && !quieto) t = setInterval(paso, 2600); };
     const parar = () => { clearInterval(t); t = 0; };

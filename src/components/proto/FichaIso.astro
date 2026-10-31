@@ -18,7 +18,8 @@ const codes = [...new Set([...c.serviceCodes, ...partes.map((p) => p.code)])];
 <div class="fiso" data-fiso>
   <div class="fiso__lista">
     <Partes interactivo items={partes.map((p) => ({ key: p.key, code: p.code, label: (p.qty ? `${p.qty} × ` : '') + p.label, meta: byCode.get(p.code) }))} />
-    {origen === 'servicio' && <p class="small">Alcance publicado del servicio; el registro no detalla equipos.</p>}
+    {origen === 'servicio' && partes.length > 0 && <p class="small">Alcance publicado del servicio; el registro no detalla equipos.</p>}
+    {partes.length === 0 && <p class="small" data-sin-alcance>{c.estado === 'en-curso' ? 'Obra en curso: el alcance se documenta al cierre.' : 'El registro no detalla el alcance.'}</p>}
   </div>
   <div class="fiso__lugar iso" data-svcs={codes.join(' ')} data-src={isoSrc(site)}><div class="iso__caja" style={`--r:${isoRatio(site).toFixed(3)}`}></div><span class="ahora">{codes.map((k) => byCode.get(k)).filter(Boolean).join(' · ')}</span></div>
 </div>
@@ -34,7 +35,7 @@ const codes = [...new Set([...c.serviceCodes, ...partes.map((p) => p.code)])];
     const nombre = (code: string) => items.find((li) => li.dataset.code === code)?.querySelector('.small')?.textContent || '';
     const fit = (svg: SVGSVGElement) => { if (svg.dataset.fit) return; try { const b = svg.getBBox(); const pad = Math.max(b.width, b.height) * .05; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); } catch { /* sin bbox */ } };
     const show = (code: string) => { lugar.dataset.svc = code; if (codes.length > 1) items.forEach((o) => o.classList.toggle('on', o.dataset.code === code)); if (ahora) ahora.textContent = nombre(code) || ahora.dataset.todos || ''; };
-    let t = 0, quieto = false, listo = false;
+    let t = 0, quieto = matchMedia('(prefers-reduced-motion: reduce)').matches, listo = false;
     const paso = () => { if (!codes.length) return; const i = codes.indexOf(lugar.dataset.svc || ''); show(codes[(i + 1) % codes.length]); };
     const andar = () => { if (!t && !quieto && listo && codes.length > 1) t = setInterval(paso, 2600); };
     const parar = () => { clearInterval(t); t = 0; };

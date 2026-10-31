@@ -31,15 +31,18 @@ const site = SITE_OF[c.sectorSlug] || 'building';
     document.querySelectorAll<HTMLElement>('[data-ficha][data-site]').forEach((li) => {
       const caja = li.querySelector<HTMLElement>('.ficha__sistema')!;
       let vivo = 0;
-      li.addEventListener('pointerenter', () => {
+      const entrar = () => {
         const id = ++vivo;
         traer(li.dataset.site!).then((markup) => {
           if (id !== vivo || !markup) return;
           if (!caja.firstElementChild) { caja.innerHTML = markup; const svg = caja.querySelector<SVGSVGElement>('svg'); if (svg) fit(svg); }
           requestAnimationFrame(() => { if (id === vivo) li.classList.add('on'); });
         });
-      });
-      li.addEventListener('pointerleave', () => { vivo++; li.classList.remove('on'); setTimeout(() => { if (!li.classList.contains('on')) caja.innerHTML = ''; }, 450); });
+      };
+      const salir = () => { vivo++; li.classList.remove('on'); setTimeout(() => { if (!li.classList.contains('on')) caja.innerHTML = ''; }, 450); };
+      li.addEventListener('pointerenter', entrar); li.addEventListener('pointerleave', salir);
+      // Con teclado, el foco en el enlace muestra el sistema igual que el puntero.
+      li.addEventListener('focusin', entrar); li.addEventListener('focusout', salir);
     });
   }
 </script>

@@ -2,7 +2,6 @@ import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
 import mdx from '@astrojs/mdx';
 import tailwind from '@astrojs/tailwind';
-import alpinejs from '@astrojs/alpinejs';
 import sentry from '@sentry/astro';
 
 const sentryDsn = process.env.PUBLIC_SENTRY_DSN || process.env.SENTRY_DSN || '';
@@ -33,7 +32,6 @@ export default defineConfig({
     }),
     mdx(),
     tailwind(),
-    alpinejs(),
   ],
 
   // Configuración del servidor

@@ -18,7 +18,7 @@ const items = casos.slice(0, max).map((c) => {
       <div class="casos">
         {items.map((c) => (
           <article class="caso">
-            <figure><img src={c.image} alt="" width="1200" height="750" loading="lazy" decoding="async" /></figure>
+            <figure><img src={c.image} srcset={/-principal\.webp$/.test(c.image) ? `${c.image.replace(/-principal\.webp$/, '-principal-480.webp')} 480w, ${c.image} 1200w` : undefined} sizes="(max-width: 900px) 100vw, 58vw" alt="" width="1200" height="750" loading="lazy" decoding="async" /></figure>
             <div class="caso__copy">
               <h3><a href={c.href}>{c.titulo}</a></h3>
               <div class="quien">{c.cliente}{c.year > 0 && <span> · {c.year}</span>}</div>

@@ -5,29 +5,33 @@ Generada por el control visual (scripts/propuesta/control.mjs) a partir de /prop
 Qué significa cada señal:
 - descripcion-corta: el registro no describe el trabajo (vacío, o sólo repite el título o trae "Cliente: … Sector: …"). SGI no tiene descripciones: sus notas son automáticas de estado.
 - sin-equipos-en-registro: la descripción no nombra equipos; la ficha muestra el alcance publicado del servicio con su leyenda.
-- sin-sector: el cliente no tiene sector asignado ni se infiere del texto.
+- sin-sector: el cliente no tiene sector asignado ni se infiere del texto ni de sus otras fichas.
 - titulo-repetido-en-cliente: mismo cliente, mismo título, mismo mes; no hay dato que los distinga.
+- sin-foto-propia / sin-servicio: obras en curso de SGI publicadas con lo que SGI sabe; la foto y el alcance llegan al cierre.
 
-SGI manda en fecha de inicio, fecha de cierre y estado de cada proyecto con ficha web (src/data/sgi/fechas.json: sólo fechas y estado por id web; el volcado completo de SGI no entra al repo).
+SGI manda en fecha de inicio, fecha de cierre y estado de cada proyecto con ficha web (src/data/sgi/fechas.json). Las obras en curso sin ficha en el catálogo entran desde src/data/propuesta/antecedentes-extra.json.
 
-518 fichas servidas de 518 en el catálogo. Fichas limpias: 165. Señales:
+520 fichas servidas de 518 en el catálogo. Fichas limpias: 165. Señales:
 
 | Señal | Fichas |
 |---|---|
-| descripcion-corta | 312 |
-| sin-equipos-en-registro | 95 |
-| sin-sector | 25 |
+| descripcion-corta | 313 |
+| sin-equipos-en-registro | 96 |
+| sin-sector | 24 |
 | titulo-repetido-en-cliente | 8 |
+| sin-foto-propia | 2 |
+| sin-servicio | 1 |
 | titulo-corto | 1 |
 
 ### Cruce con SGI
 
-SGI tiene 524 proyectos; 517 tienen ficha web. Sin ficha web: 7 (el detalle queda en SGI, no en este informe). Fichas web sin proyecto en SGI: 1.
+SGI tiene 524 proyectos; 519 tienen ficha web. Sin ficha web: 5 (el detalle queda en SGI, no en este informe). Fichas web sin proyecto en SGI: 1.
 
 ### Las 40 fichas con más señales
 
 | Ficha | Cliente | Título | Señales |
 |---|---|---|---|
+| [9001](/propuesta/antecedentes/9001/escuela-eugenio-izsaky) | Estructuras Oeste S.A. | Escuela Eugenio Izsaky | descripcion-corta, sin-servicio, sin-foto-propia, sin-equipos-en-registro |
 | [3662](/propuesta/antecedentes/3662/venta-de-remanente-de-proyectos) | Sanjuan, Daniel Alberto | Venta de remanente de Proyectos | descripcion-corta, sin-sector, sin-equipos-en-registro |
 | [3066](/propuesta/antecedentes/3066/torre-thays-dispositivos-de-deteccion) | Consorcio Torre Thays | Torre Thays · Dispositivos de detección | descripcion-corta, sin-equipos-en-registro |
 | [3080](/propuesta/antecedentes/3080/implementacion-de-redes-de-datos-y-fibra-optica-aeropuertos-argentina-2000) | Aeropuertos Argentina 2000 | Implementación de Redes de Datos y Fibra Óptica · abril 2025 | descripcion-corta, titulo-repetido-en-cliente |
@@ -37,7 +41,6 @@ SGI tiene 524 proyectos; 517 tienen ficha web. Sin ficha web: 7 (el detalle qued
 | [3134](/propuesta/antecedentes/3134/reparacion-de-central-de-deteccion-de-incendio-firewarden-10) | Allex S.A. | Reparación de Central de detección de incendio Firewarden 100X | descripcion-corta, sin-sector |
 | [3076](/propuesta/antecedentes/3076/sistena-deteccion-de-incendios-aa2000-san-juan) | Procon S.R.L. | Sistema Detección de Incendios · AA2000 San Juan | descripcion-corta, sin-equipos-en-registro |
 | [3147](/propuesta/antecedentes/3147/proyecto-de-corrientes-debiles) | José Nucete e Hijos S.A. | Proyecto de | descripcion-corta, sin-equipos-en-registro |
-| [3590](/propuesta/antecedentes/3590/fuente-de-alimentacion) | RAC S.R.L. | Fuente de alimentacion | descripcion-corta, sin-sector |
 | [3156](/propuesta/antecedentes/3156/aeropuertos-telecomunicaciones-scanner-municipalidad-de-gral-san-martin) | Municipalidad de Gral San Martín | Scanner | titulo-corto, sin-equipos-en-registro |
 | [3165](/propuesta/antecedentes/3165/prestacion-de-servicio-de-internet-compartido-20mb-x-24-mese) | Fondo para la Transformación y el Crecimiento de Mendoza (FTyC) | Prestación de servicio de Internet compartido 20MB x 24 meses | descripcion-corta, sin-equipos-en-registro |
 | [3596](/propuesta/antecedentes/3596/insumo-de-informatica) | Procon S.R.L. | Insumo de informática | descripcion-corta, sin-equipos-en-registro |

@@ -119,6 +119,39 @@ for (const pag of PAGINAS) {
     await page.close();
   }
 }
+// Todos los servicios y todos los sectores, a escritorio y teléfono: errores, desborde, tooltips, alto y peso de recursos.
+{
+  const idx = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const lista = async (path, pref) => { await idx.goto(`${BASE}${path}`, { waitUntil: 'networkidle', timeout: 90000 }); return [...new Set(await idx.$$eval(`a[href^="${pref}"]`, (as, p) => as.map((a) => a.getAttribute('href')).filter((h) => h && h !== p && !h.includes('?')), pref))]; };
+  const todas = [...(await lista('/propuesta/servicios', '/propuesta/servicios/')).map((h) => ['servicio', h]), ...(await lista('/propuesta/sectores', '/propuesta/sectores/')).map((h) => ['sector', h])];
+  await idx.close();
+  for (const [tipo, href] of todas) {
+    for (const v of ANCHOS.filter((x) => x.k === 'escritorio' || x.k === 'telefono')) {
+      const ctx = await browser.newContext({ viewport: { width: v.w, height: v.h } }); const page = await ctx.newPage();
+      const nombre = `${tipo}-${href.split('/').pop()}-${v.k}`;
+      const errores = []; page.on('pageerror', (e) => errores.push(String(e).slice(0, 120))); page.on('console', (msg) => { if (msg.type() === 'error' && !/favicon|Directus|ECONNREFUSED|fetch failed|net::ERR_|Failed to load resource/i.test(msg.text())) errores.push(msg.text().slice(0, 120)); });
+      let bytes = 0; const req = {}; const cdp = await ctx.newCDPSession(page); await cdp.send('Network.enable'); cdp.on('Network.responseReceived', (e) => { req[e.requestId] = e.response.url; }); cdp.on('Network.loadingFinished', (e) => { const u = req[e.requestId] || ''; if (/\/(images|cine|fonts)\//.test(u)) bytes += e.encodedDataLength; });
+      try {
+        await page.goto(`${BASE}${href}`, { waitUntil: 'networkidle', timeout: 90000 }); await page.waitForTimeout(800);
+        const m = await page.evaluate(() => ({ titles: document.querySelectorAll('svg title').length, scrollW: document.documentElement.scrollWidth, innerW: innerWidth, alto: document.documentElement.scrollHeight, h1: !!document.querySelector('h1'), basura: /\b(undefined|NaN|null)\b/.test(document.body.innerText) }));
+        for (let y = 0; y < m.alto; y += v.h) { await page.evaluate((yy) => window.scrollTo(0, yy), y); await page.waitForTimeout(60); }
+        await page.waitForTimeout(600);
+        const altoFinal = await page.evaluate(() => document.documentElement.scrollHeight);
+        const kb = Math.round(bytes / 1024), max = tipo === 'servicio' ? (v.k === 'telefono' ? 16 : 10) : (v.k === 'telefono' ? 16 : 10);
+        const problemas = [];
+        if (!m.h1) problemas.push('sin título'); if (m.titles) problemas.push('SVG con <title>'); if (m.scrollW > m.innerW + 1) problemas.push('desborde horizontal'); if (m.basura) problemas.push('texto con undefined/NaN/null');
+        if (Math.abs(altoFinal - m.alto) > v.h * .15) problemas.push(`cambia de alto al recorrerla (${m.alto} → ${altoFinal})`);
+        if (m.alto / v.h > max) problemas.push(`${(m.alto / v.h).toFixed(1)} pantallas, presupuesto ${max}`);
+        if (v.k === 'telefono' && kb > 1800) problemas.push(`${kb} KB de imágenes, dibujos y fuentes en teléfono (máx. 1800)`);
+        if (errores.length) problemas.push(`error: ${errores[0]}`);
+        filas.push(`| ${tipo} ${href.split('/').pop()} | ${v.k} | ${(m.alto / v.h).toFixed(1)} / ${max} · ${kb} KB | ${problemas.length ? '✗ ' + problemas.join('; ') : '✓'} |`);
+        problemas.forEach((p) => fallos.push(`${nombre}: ${p}`));
+      } catch (e) { fallos.push(`${nombre}: ${e.message.split('\n')[0]}`); filas.push(`| ${tipo} ${href.split('/').pop()} | ${v.k} | — | ✗ ${e.message.split('\n')[0]} |`); }
+      await ctx.close();
+    }
+  }
+}
+
 // Auditoría de los antecedentes y muestra de fichas: las cuatro con más señales y cuatro limpias, a dos anchos.
 let auditoria = '';
 try {
@@ -138,13 +171,13 @@ try {
         const m = await page.evaluate(() => {
           const txt = document.body.innerText;
           const img = document.querySelector('main figure img');
-          return { h1: (document.querySelector('h1')?.textContent || '').trim(), img: !!img && img.complete && img.naturalWidth > 0, filas: document.querySelectorAll('[data-partes] li').length, basura: /\b(undefined|NaN|null|\[object Object\])\b/.test(txt), scrollW: document.documentElement.scrollWidth, innerW: innerWidth, titles: document.querySelectorAll('svg title').length };
+          return { h1: (document.querySelector('h1')?.textContent || '').trim(), img: !img || (img.complete && img.naturalWidth > 0), filas: document.querySelectorAll('[data-partes] li').length, sinAlcance: !!document.querySelector('[data-sin-alcance]'), basura: /\b(undefined|NaN|null|\[object Object\])\b/.test(txt), scrollW: document.documentElement.scrollWidth, innerW: innerWidth, titles: document.querySelectorAll('svg title').length };
         });
         await page.evaluate(() => document.querySelector('.fiso__lugar')?.scrollIntoView({ block: 'center' })); await page.waitForTimeout(2500);
         const iso = await page.evaluate(() => !!document.querySelector('.fiso__lugar svg'));
         await page.screenshot({ path: join(OUT, `${nombre}.png`) });
         const problemas = [];
-        if (!m.h1) problemas.push('sin título'); if (!m.img) problemas.push('la foto no carga'); if (!m.filas) problemas.push('inventario vacío'); if (m.basura) problemas.push('texto con undefined/NaN/null'); if (m.scrollW > m.innerW + 1) problemas.push('desborde horizontal'); if (m.titles) problemas.push('SVG con <title>'); if (!iso) problemas.push('el lugar por dentro no carga');
+        if (!m.h1) problemas.push('sin título'); if (!m.img) problemas.push('la foto no carga'); // una ficha sin foto propia va a una columna, y eso es válido if (!m.filas && !m.sinAlcance) problemas.push('inventario vacío'); if (m.basura) problemas.push('texto con undefined/NaN/null'); if (m.scrollW > m.innerW + 1) problemas.push('desborde horizontal'); if (m.titles) problemas.push('SVG con <title>'); if (!iso) problemas.push('el lugar por dentro no carga');
         filas.push(`| ficha ${f.id} | ${v.k} | — | ${problemas.length ? '✗ ' + problemas.join('; ') : '✓'} |`);
         problemas.forEach((p) => fallos.push(`${nombre}: ${p}`));
       } catch (e) { fallos.push(`${nombre}: ${e.message.split('\n')[0]}`); filas.push(`| ficha ${f.id} | ${v.k} | — | ✗ ${e.message.split('\n')[0]} |`); }

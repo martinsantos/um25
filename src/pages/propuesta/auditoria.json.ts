@@ -34,5 +34,5 @@ export const GET: APIRoute = async () => {
   filas.forEach((f) => { if ((dup.get(`${f.client}|${f.title}`.toLowerCase()) || 0) > 1) f.flags.push('titulo-repetido-en-cliente'); });
   const resumen: Record<string, number> = {};
   filas.forEach((f) => f.flags.forEach((x) => { resumen[x] = (resumen[x] || 0) + 1; }));
-  return new Response(JSON.stringify({ total, fichas: filas.length, resumen, filas, sgi: SGI_RESUMEN }), { headers: { 'content-type': 'application/json; charset=utf-8', 'x-robots-tag': 'noindex' } });
+  return new Response(JSON.stringify({ total, fichas: filas.length, resumen, filas, sgi: { ...SGI_RESUMEN, conFichaWeb: stories.filter((s) => s.sgiId).length, sinFichaWeb: SGI_RESUMEN.total - stories.filter((s) => s.sgiId).length, enCurso: stories.filter((s) => s.estado === 'en-curso').length } }), { headers: { 'content-type': 'application/json; charset=utf-8', 'x-robots-tag': 'noindex' } });
 };
