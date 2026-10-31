@@ -32,7 +32,7 @@ const abs = (p: string) => (p ? new URL(p, Astro.url.origin).href : '');
 <meta property="og:url" content={Astro.url.href} />
 <meta name="twitter:card" content="summary_large_image" />
 {precargar && avif && <link rel="preload" as="image" href={avif} type="image/avif" fetchpriority="high" />}
-{precargar && !avif && avifSet && <link rel="preload" as="image" imagesrcset={avifSet} imagesizes={tam} type="image/avif" fetchpriority="high" />}
+{precargar && !avif && avifSet && <link rel="preload" as="image" href={avifSet.split(' ')[0]} imagesrcset={avifSet} imagesizes={tam} type="image/avif" fetchpriority="high" />}
 {precargar && !avif && w960 && <link rel="preload" as="image" href={image} imagesrcset={`${w960} 960w, ${image} ${wMax}`} imagesizes={tam} fetchpriority="high" />}
 {precargar && !avif && !avifSet && !w960 && <link rel="preload" as="image" href={image} fetchpriority="high" />}
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
