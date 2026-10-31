@@ -90,6 +90,23 @@ p { margin: 0; }
 .lugar[data-fase="2"] .iso:not([data-svc]) [data-project-device], .lugar[data-fase="3"] .iso:not([data-svc]) [data-project-device] { stroke: #fff; stroke-opacity: .8; }
 .lugar .iso[data-svc] .sp-route { transition: opacity 1.2s var(--ease); }
 
+/* Hero de portada: a sangre. La foto real cubre la pantalla y se desvanece mientras el despiece se dibuja; el nombre del sistema activo, junto al dibujo. */
+.lugar--hero { height: 190vh; }
+.lugar--hero .lugar__pin { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center; padding-block: var(--s4); }
+.lugar__fondo { position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: calc(.16 + .84 * var(--cut, 100) / 100); }
+.lugar__fondo img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(calc(1 - var(--cut, 100) / 100)); }
+.lugar__fondo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--bg) 0%, rgba(10, 11, 13, .55) 40%, transparent 70%), linear-gradient(0deg, var(--bg) 0%, transparent 40%); }
+.lugar--hero .copy, .lugar--hero .xray { position: relative; z-index: 1; }
+.lugar--hero .xray { aspect-ratio: auto; height: calc(100svh - 64px - 2 * var(--s4)); max-height: none; width: 100%; background: transparent; overflow: visible; }
+.lugar--hero .xray__ghost, .lugar--hero .xray__foto, .lugar--hero .xray__linea { display: none; }
+.lugar--hero .xray__iso { inset: 0; opacity: calc(1 - .85 * var(--cut, 100) / 100); }
+.lugar--hero .copy h1 { font-size: clamp(2.6rem, 5.2vw, 5.4rem); }
+.lugar--hero .cifras { max-width: 520px; grid-template-columns: repeat(4, auto); justify-content: start; }
+.lugar--hero .cifras b { font-size: clamp(1.6rem, 2.4vw, 2.4rem); }
+.xray__rotulo { position: absolute; right: 0; bottom: 0; padding: 10px 14px; border-left: 2px solid var(--red); color: var(--ink); font-size: 1.1rem; font-weight: 600; letter-spacing: -.01em; opacity: 0; transform: translateY(6px); transition: opacity .6s var(--ease), transform .6s var(--ease); }
+.xray__rotulo.on { opacity: 1; transform: none; }
+.lugar--hero[data-fase="0"] .xray__rotulo, .lugar--hero[data-fase="1"] .xray__rotulo { opacity: 0; }
+
 /* Isometría: trazas apagadas; el servicio activo enciende su recorrido. */
 .iso svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .iso .sp-route { opacity: .08; transition: opacity .7s var(--ease); }
@@ -240,6 +257,12 @@ p { margin: 0; }
 @media (max-width: 900px) {
   .top nav a:not(.cta) { display: none; }
   .lugar { height: 130vh; }
+  .lugar--hero { height: 150vh; }
+  .lugar--hero .lugar__pin { grid-template-columns: 1fr; align-content: center; }
+  .lugar--hero .xray { height: 52svh; }
+  .lugar--hero .copy h1 { font-size: clamp(2rem, 9vw, 2.6rem); }
+  .lugar--hero .cifras { grid-template-columns: 1fr 1fr; max-width: none; }
+  .lugar__fondo::after { background: linear-gradient(0deg, var(--bg) 0%, rgba(10, 11, 13, .5) 50%, transparent 80%); }
   .lugar__pin { grid-template-columns: 1fr; align-content: center; gap: var(--s3); padding: var(--s3) var(--gutter) var(--s4); }
   .lugar .xray { height: auto; max-height: none; width: 100%; margin: 0; aspect-ratio: 1; }
   .copy { order: 2; }

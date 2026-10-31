@@ -20,7 +20,13 @@
     const iso = lugar.querySelector('.xray__iso[data-ciclo]'); if (!iso) return;
     if (fase < 3) { clearInterval(iso._t); iso._t = 0; return; }
     if (iso._t) return;
-    const paso = () => { const codes = [...iso.querySelectorAll('.sp-route')].map((r) => r.dataset.projectRoute).filter(Boolean); if (!codes.length) return; const i = (codes.indexOf(iso.dataset.svc) + 1) % codes.length; iso.dataset.svc = codes[i]; };
+    const nombres = Object.fromEntries((iso.dataset.nombres || '').split('|').filter(Boolean).map((p) => p.split(':')));
+    const rotulo = lugar.querySelector('[data-rotulo]');
+    const paso = () => {
+      const codes = [...iso.querySelectorAll('.sp-route')].map((r) => r.dataset.projectRoute).filter(Boolean); if (!codes.length) return;
+      const i = (codes.indexOf(iso.dataset.svc) + 1) % codes.length; iso.dataset.svc = codes[i];
+      if (rotulo) { rotulo.classList.remove('on'); rotulo.textContent = nombres[codes[i]] || ''; requestAnimationFrame(() => rotulo.classList.add('on')); }
+    };
     paso(); iso._t = setInterval(paso, 2600);
   };
   let raf = 0;

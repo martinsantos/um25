@@ -43,6 +43,7 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       .clear.on { display: inline-block; }
       .empty { display: none; padding: var(--s4) 0; color: var(--ink-2); }
       .empty.on { display: block; }
+      .mas { margin-top: var(--s4); border: 0; cursor: pointer; }
       .fichas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       @media (max-width: 900px) {
         .muro { grid-template-columns: 1fr; gap: var(--s3); } .panel { position: static; gap: var(--s3); } .fichas { grid-template-columns: 1fr 1fr; }
@@ -91,6 +92,7 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
           ))}
         </ol>
         <p class="empty" data-empty>Sin proyectos para esta combinación.</p>
+        <button class="btn mas" type="button" data-mas hidden>Mostrar más</button>
       </section>
     </main>
 
@@ -106,6 +108,9 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       const recs = [...root.querySelectorAll<HTMLElement>('[data-rec]')];
       const lenses = [...root.querySelectorAll<HTMLButtonElement>('[data-lens]')];
       const state: Record<string, string> = {};
+      const TANDA = matchMedia('(max-width: 900px)').matches ? 24 : 48;
+      let visibles = TANDA;
+      const mas = root.querySelector<HTMLButtonElement>('[data-mas]')!;
       const nameOf = (b: HTMLButtonElement) => [...b.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').trim();
       const names = (kind: string, value: string) => { const b = lenses.find((x) => x.dataset.lens === kind && x.dataset.value === value); return b ? nameOf(b) || value : value; };
       const matches = (el: HTMLElement, skip?: string) =>
@@ -117,7 +122,9 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
       ['sector', 'service', 'year', 'cliente'].forEach((k) => { if (params.get(k)) state[k] = params.get(k)!; });
       const apply = () => {
         let n = 0;
-        fichas.forEach((el) => { const ok = matches(el); el.hidden = !ok; if (ok) n++; });
+        fichas.forEach((el) => { const ok = matches(el); if (ok) n++; el.hidden = !ok || n > visibles; });
+        mas.hidden = n <= visibles;
+        mas.textContent = `Mostrar ${Math.min(TANDA, n - visibles)} más de ${n}`;
         recs.forEach((el) => { el.hidden = Boolean(state.year) || n < 12; });
         lenses.forEach((b) => b.setAttribute('aria-pressed', String(state[b.dataset.lens!] === b.dataset.value)));
         ['sector', 'service'].forEach((kind) => {
@@ -136,8 +143,9 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
         root.querySelector('[data-empty]')!.classList.toggle('on', n === 0);
         const url = new URL(location.href); ['sector', 'service', 'year', 'cliente'].forEach((k) => state[k] ? url.searchParams.set(k, state[k]) : url.searchParams.delete(k)); history.replaceState(null, '', url);
       };
-      lenses.forEach((b) => b.addEventListener('click', () => { const k = b.dataset.lens!; state[k] = state[k] === b.dataset.value ? '' : b.dataset.value!; apply(); }));
-      root.querySelector('[data-clear]')!.addEventListener('click', () => { Object.keys(state).forEach((k) => delete state[k]); apply(); });
+      lenses.forEach((b) => b.addEventListener('click', () => { const k = b.dataset.lens!; state[k] = state[k] === b.dataset.value ? '' : b.dataset.value!; visibles = TANDA; apply(); }));
+      mas.addEventListener('click', () => { visibles += TANDA; apply(); });
+      root.querySelector('[data-clear]')!.addEventListener('click', () => { Object.keys(state).forEach((k) => delete state[k]); visibles = TANDA; apply(); });
       apply();
     </script>
   </body>
