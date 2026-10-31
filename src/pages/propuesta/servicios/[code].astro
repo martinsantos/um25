@@ -78,7 +78,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
     <Top current="servicios" />
     <main id="contenido">
 
-    <Apertura label={servicio.name} isoSrc={isoSrc(site)} svc={code} image={photo}>
+    <Apertura label={servicio.name} isoSrc={isoSrc(site)} svc={code} image={photo} hero>
       <h1>{servicio.name}<span class="dot">.</span></h1>
       <p class="tag">{servicio.tagline}</p>
       <p>{servicio.description}</p>
@@ -133,8 +133,8 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
         <div class="wrap">
           <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2></div>
           <ol class="clientes">
-            {clientes.slice(0, 18).map((c) => <li><a href={`/propuesta/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
-            {clientes.length > 18 && <li class="mas"><a href={`/propuesta/antecedentes?service=${code}`}>Y {clientes.length - 18} más</a><span></span></li>}
+            {clientes.slice(0, 9).map((c) => <li><a href={`/propuesta/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
+            {clientes.length > 9 && <li class="mas"><a href={`/propuesta/antecedentes?service=${code}`}>Y {clientes.length - 9} más</a><span></span></li>}
           </ol>
         </div>
       </section>

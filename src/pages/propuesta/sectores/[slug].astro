@@ -50,7 +50,7 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
     <Top current="sectores" />
     <main id="contenido">
 
-    <Apertura label={name} isoSrc={isoSrc(site)} image={photo}>
+    <Apertura label={name} isoSrc={isoSrc(site)} image={photo} hero>
       <h1 style="font-size:clamp(2rem,3.6vw,3.6rem)">{relato.headline || name}<span class="dot">.</span></h1>
       <p>{relato.summary || sector.description}</p>
       {cifras.length > 0 && <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>}
@@ -71,8 +71,8 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
         <div class="wrap">
           <div class="sec__head"><h2>Para quién lo hicimos en {lower}<span class="dot">.</span></h2></div>
           <ol class="clientes">
-            {clientes.slice(0, 18).map((c) => <li><a href={`/propuesta/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
-            {clientes.length > 18 && <li class="mas"><a href={`/propuesta/antecedentes?sector=${slug}`}>Y {clientes.length - 18} más</a><span></span></li>}
+            {clientes.slice(0, 9).map((c) => <li><a href={`/propuesta/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
+            {clientes.length > 9 && <li class="mas"><a href={`/propuesta/antecedentes?sector=${slug}`}>Y {clientes.length - 9} más</a><span></span></li>}
           </ol>
         </div>
       </section>

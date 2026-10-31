@@ -9,13 +9,17 @@ import { getCategoryLabel, formatBlogDateLong, sanitizeBlogExcerpt } from '../..
 
 export const prerender = false;
 const categoria = Astro.url.searchParams.get('categoria') || '';
-const { posts, total } = await fetchBlogListing(1, 60, categoria || undefined);
+const POR_PAGINA = 12;
+const pagina = Math.max(1, Number(Astro.url.searchParams.get('p')) || 1);
+const { posts, total } = await fetchBlogListing(pagina, POR_PAGINA, categoria || undefined);
+const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
+const enlace = (p: number) => `/propuesta/blog?${categoria ? `categoria=${categoria}&` : ''}p=${p}`;
 const todas = categoria ? (await fetchBlogListing(1, 60)).posts : posts;
 const categorias = [...new Set(todas.map((p) => p.categoria))].sort();
 ---
 <!doctype html>
 <html lang="es">
-  <head><Head title="Blog · ULTIMA MILLA" /></head>
+  <head><Head title="Blog · ULTIMA MILLA" /><style>.paginas { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; padding: var(--s4) 0 var(--s6); } .paginas span:last-child { display: flex; gap: var(--s3); }</style></head>
   <body>
     <Top current="blog" />
     <main id="contenido" class="wrap">
@@ -33,7 +37,7 @@ const categorias = [...new Set(todas.map((p) => p.categoria))].sort();
         ))}
       </ol>
       {posts.length === 0 && <p class="muted" style="padding: var(--s4) 0">No hay entradas en esta categoría.</p>}
-      <p class="small" style="padding: var(--s3) 0 var(--s6)">{total} {total === 1 ? 'entrada' : 'entradas'}</p>
+      <nav class="paginas" aria-label="Páginas"><span class="small">{total} {total === 1 ? 'entrada' : 'entradas'} · página {pagina} de {paginas}</span><span>{pagina > 1 && <a class="u" href={enlace(pagina - 1)}>← Anteriores</a>}{pagina < paginas && <a class="u" href={enlace(pagina + 1)}>Siguientes →</a>}</span></nav>
     </main>
     <Cierre />
   </body>

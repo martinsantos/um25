@@ -80,8 +80,8 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
       <div class="wrap">
         <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2></div>
         <ol class="clientes">
-          {clientes.slice(0, 30).map((c) => <li><a href={`/propuesta/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
-          <li class="mas"><a href="/propuesta/antecedentes">Y {clientes.length - 30} más</a><span></span></li>
+          {clientes.slice(0, 12).map((c) => <li><a href={`/propuesta/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
+          <li class="mas"><a href="/propuesta/antecedentes">Y {clientes.length - 12} más</a><span></span></li>
         </ol>
       </div>
     </section>
