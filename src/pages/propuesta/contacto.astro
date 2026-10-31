@@ -52,14 +52,14 @@ const urgencias = ['Sin urgencia', 'Esta semana', 'Este mes', 'Fecha de pliego']
       <form class="form" method="post" action="/api/contact" novalidate data-form>
         <div class="row">
           <label class="field"><span>Nombre</span><input type="text" name="name" required autocomplete="name" autocapitalize="words" placeholder="Nombre y apellido" /></label>
-          <label class="field"><span>Email de trabajo</span><input type="email" name="email" required autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="mail@empresa.com" /></label>
+          <label class="field"><span>Email de trabajo</span><input type="email" name="email" required autocomplete="email" inputmode="email" spellcheck="false" placeholder="mail@empresa.com" /></label>
         </div>
         <div class="row">
           <label class="field"><span>Empresa u organismo</span><input type="text" name="company" autocomplete="organization" placeholder="Opcional" /></label>
           <label class="field"><span>Sede o ciudad</span><input type="text" name="site" autocomplete="address-level2" placeholder="Ej.: Mendoza, 3 sedes" /></label>
         </div>
         <fieldset class="field" style="border:0;padding:0;margin:0">
-          <span>Qué necesitás</span>
+          <legend>Qué necesitás</legend>
           <div class="checks">{services.map((s, i) => <label><input type="checkbox" name="services" value={s.name} id={`svc-${i}`} />{s.name}</label>)}</div>
         </fieldset>
         <div class="row">

@@ -88,7 +88,8 @@ const cajetin: [string, string][] = [
   <body class="hoja-trabajo">
     <Top current="antecedentes" />
 
-    <main id="contenido" class="wrap">
+    <main id="contenido">
+    <div class="wrap">
       <nav class="nav" aria-label="Proyectos">
         <a href="/propuesta/antecedentes">← Todos los proyectos</a>
         <span>{prev && <a href={prev.href}>← Anterior</a>}{prev && next && ' · '}{next && <a href={next.href}>Siguiente →</a>}</span>
@@ -110,8 +111,8 @@ const cajetin: [string, string][] = [
             {svcs.length > 0 && <div class="ancho"><dt>Servicios</dt><dd>{svcs.map((s) => <a href={`/propuesta/servicios/${s.code}`}>{s.name}</a>)}</dd></div>}
         </dl>
       </div>
-    </main>
 
+    </div>
     <section class="sec">
       <div class="wrap">
         <div class="sec__head"><h2>Lo que se instaló<span class="dot">.</span></h2></div>
@@ -121,7 +122,7 @@ const cajetin: [string, string][] = [
 
     <section class="sec">
       <div class="wrap">
-        <dl class="cajetin" aria-label="Datos de la hoja">{cajetin.map(([t, v]) => <div><dt>{t}</dt><dd>{v}</dd></div>)}</dl>
+        <dl class="cajetin">{cajetin.map(([t, v]) => <div><dt>{t}</dt><dd>{v}</dd></div>)}</dl>
       </div>
     </section>
 
@@ -131,6 +132,8 @@ const cajetin: [string, string][] = [
     {sameSector.length > 0 && c.sector && (
       <section class="sec"><div class="wrap"><div class="sec__head"><h2>Más proyectos en {c.sector.toLowerCase()}<span class="dot">.</span></h2></div><ol class="fichas">{sameSector.map((o) => <Ficha story={o} showSector={false} />)}</ol></div></section>
     )}
+
+    </main>
 
     <Cierre />
   </body>

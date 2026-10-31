@@ -6,6 +6,7 @@ const es = { h: 'Contanos qué tiene que seguir funcionando', p: 'Indicá qué n
 const en = { h: 'Tell us what has to keep running', p: 'For proposals, technical assessments or vendor qualification, use the Spanish contact form (same team, same SLA).', btn: 'Open contact form', href: '/propuesta/contacto', email: 'Email', office: 'Office', hours: 'Hours', hoursV: 'Monday to Friday, 8 am to 6 pm', foot: '24 years of IT services. Mendoza, Argentina.', links: [['About', '/propuesta/en/about'], ['Services', '/propuesta/en/services'], ['Versión en español', '/propuesta']] };
 const t = lang === 'en' ? en : es;
 ---
+<footer>
 <section class="cierre" id="contacto">
   <div class="wrap cierre__grid">
     <div class="cierre__copy">
@@ -20,9 +21,10 @@ const t = lang === 'en' ? en : es;
     </div>
   </div>
 </section>
-<footer class="pie">
+<div class="pie">
   <div class="wrap pie__grid">
     <span>ultimamilla.com.ar · {t.foot}</span>
     <nav aria-label={lang === 'en' ? 'Site' : 'Sitio'}>{t.links.map(([n, h]) => <a href={h}>{n}</a>)}</nav>
   </div>
+</div>
 </footer>

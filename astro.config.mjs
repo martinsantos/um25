@@ -31,7 +31,9 @@ export default defineConfig({
       },
     }),
     mdx(),
-    tailwind(),
+    // Sin la hoja base global: los 39 layouts V4 traen @tailwind en v4.css, y las páginas sueltas que la
+    // necesitan la importan ellas. Así la propuesta y el sitio no cargan 68 KB de utilidades ajenas.
+    tailwind({ applyBaseStyles: false }),
   ],
 
   // Configuración del servidor

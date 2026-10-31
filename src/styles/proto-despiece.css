@@ -1,3 +1,7 @@
+/* Sólo el preflight de Tailwind (unos 7 KB): el reset que la propuesta ya usaba cuando la hoja base global
+   se inyectaba entera (68 KB con utilidades que nadie usaba). Las utilidades no entran. */
+@tailwind base;
+
 /*
  * Sistema Despiece (2026-10-30, reescrito). Una sola escala de espacio, una de tipografía, una
  * grilla. Fondo de obra, tinta blanca, un solo rojo. Ningún rótulo, ninguna numeración.
@@ -311,7 +315,10 @@ p { margin: 0; }
 .form { display: grid; gap: var(--s3); }
 .form .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); }
 .field { display: grid; gap: 8px; }
-.field > span { color: var(--ink-2); font-size: .9375rem; }
+.field > span, .field > legend { color: var(--ink-2); font-size: .9375rem; }
+/* El grupo de casillas es un fieldset en bloque: la leyenda arriba, como el rótulo de cualquier campo, y las casillas debajo. */
+fieldset.field { display: block; min-width: 0; }
+.field > legend { display: block; padding: 0; margin: 0 0 8px; }
 .field input, .field select, .field textarea { width: 100%; padding: 14px 16px; background: var(--bg-2); border: 1px solid var(--line); color: var(--ink); font: inherit; border-radius: 0; }
 .field input:focus, .field select:focus, .field textarea:focus { outline: 0; border-color: var(--ink-2); }
 .field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible { outline: 2px solid var(--red); outline-offset: -1px; border-color: var(--red); }

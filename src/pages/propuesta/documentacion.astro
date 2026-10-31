@@ -27,12 +27,14 @@ const fichas = SERVICE_SPEC_LIST.map((s) => ({ ...s, pdf: getDatasheetPublicPath
   </head>
   <body>
     <Top />
-    <main id="contenido" class="wrap">
+    <main id="contenido">
+    <div class="wrap">
       <div class="cabecera">
         <h1>Documentación técnica para compras, auditorías y licitaciones<span class="dot">.</span></h1>
         <p>ULTIMA MILLA entrega con cada proyecto los protocolos, las mediciones y la documentación de obra que respaldan lo ejecutado, listos para compras, auditoría o pliego.</p>
       </div>
-    </main>
+    
+    </div>
     <section class="sec">
       <div class="wrap">
         <div class="sec__head"><h2>Cada obra se entrega medida, documentada y trazable<span class="dot">.</span></h2></div>
@@ -45,6 +47,8 @@ const fichas = SERVICE_SPEC_LIST.map((s) => ({ ...s, pdf: getDatasheetPublicPath
         <ol class="fichas-tec">{fichas.map((f) => <li><b>{f.name}</b><span>{f.keyDeliverable}</span><span class="small">{f.keyStandard}</span>{f.pdf ? <a href={f.pdf} download>Descargar PDF</a> : <a href={`/propuesta/servicios/${f.code}`}>Ver servicio</a>}</li>)}</ol>
       </div>
     </section>
+    </main>
+
     <Cierre />
   </body>
 </html>

@@ -34,7 +34,8 @@ const mas = posts.filter((p) => p.slug !== post.slug).slice(0, 4);
   </head>
   <body>
     <Top current="blog" />
-    <main id="contenido" class="wrap">
+    <main id="contenido">
+    <div class="wrap">
       <article class="post">
         <aside class="post__meta">
           <a href="/propuesta/blog">← Blog</a>
@@ -49,12 +50,15 @@ const mas = posts.filter((p) => p.slug !== post.slug).slice(0, 4);
           <div class="lectura" set:html={contenido} />
         </div>
       </article>
-    </main>
+    
     {mas.length > 0 && (
+    </div>
       <section class="sec"><div class="wrap"><div class="sec__head"><h2>Más en {getCategoryLabel(post.categoria).toLowerCase()}<span class="dot">.</span></h2></div>
         <ol class="entradas">{mas.map((p) => <li class="entrada"><span class="small"><span>{formatBlogDateLong(p.fecha_publicacion)}</span></span><a href={`/propuesta/blog/${p.slug}`}><h2>{p.titulo}</h2><p>{sanitizeBlogExcerpt(p.resumen, 180)}</p></a></li>)}</ol>
       </div></section>
     )}
+    </main>
+
     <Cierre />
   </body>
 </html>

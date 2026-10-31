@@ -13,9 +13,11 @@ const capabilities = ['Networks, fiber, switching, corporate WiFi and radio link
   <head><Head title="About ULTIMA MILLA · IT infrastructure Argentina" /></head>
   <body>
     <Top lang="en" current="about" />
-    <main id="contenido" class="wrap"><div class="cabecera"><h1>A technical company for operations that cannot stop<span class="dot">.</span></h1><p>ULTIMA MILLA integrates infrastructure, communications, security and software with an operational continuity mindset since 2003.</p></div></main>
+    <main id="contenido"><div class="wrap"><div class="cabecera"><h1>A technical company for operations that cannot stop<span class="dot">.</span></h1><p>ULTIMA MILLA integrates infrastructure, communications, security and software with an operational continuity mindset since 2003.</p></div></div>
     <section class="sec"><div class="wrap cols cols-5-7"><h2>How we work<span class="dot">.</span></h2><div class="cols cols-2">{principles.map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div></div></section>
     <section class="sec"><div class="wrap cols cols-5-7"><h2>What we do<span class="dot">.</span></h2><ul class="lista" style="font-size:1.125rem">{capabilities.map((c) => <li>{c}</li>)}</ul></div></section>
+    </main>
+
     <Cierre lang="en" />
   </body>
 </html>
