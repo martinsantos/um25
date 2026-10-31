@@ -55,7 +55,11 @@ const resolver = (p) => p.path || enlaces.find((h) => h && h.startsWith(p.from.m
 
 for (const pag of PAGINAS) {
   const path = resolver(pag);
-  if (!path) { fallos.push(`${pag.id}: no se encontró un enlace en la portada`); continue; }
+  if (!path) {
+    // El blog viene del CMS: en un entorno sin CMS ni copia no hay entradas, y eso no es un defecto del sitio.
+    if (pag.id === 'entrada') { filas.push('| entrada | — | — | – sin entradas de blog en este entorno |'); continue; }
+    fallos.push(`${pag.id}: no se encontró un enlace en la portada`); continue;
+  }
   for (const v of ANCHOS) {
     const page = await browser.newPage({ viewport: { width: v.w, height: v.h }, deviceScaleFactor: 1 });
     const nombre = `${pag.id}-${v.k}`;
