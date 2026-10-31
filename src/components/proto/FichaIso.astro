@@ -1,9 +1,9 @@
 ---
 /**
- * Ficha isométrica de un proyecto: el banco con lo que el registro dice que se instaló
- * (cantidad incluida cuando la dice), la lista de partes, y debajo el lugar por dentro con los
- * recorridos de sus servicios encendidos. Cuando el registro no nombra equipos, se muestran
- * las partes del alcance publicado del servicio, con la leyenda que lo aclara.
+ * Ficha isométrica de un proyecto: a la izquierda, el inventario de lo que el registro dice que
+ * se instaló (cantidad incluida cuando la dice); a la derecha, el lugar por dentro con los
+ * recorridos de sus servicios encendidos. Pasar por una parte enciende su servicio. Cuando el
+ * registro no nombra equipos, se lista el alcance publicado del servicio, con la leyenda que lo aclara.
  */
 import Partes from './Partes.astro';
 import { despieceDe } from './despiece';
@@ -16,7 +16,10 @@ const byCode = new Map(services.map((s) => [s.code, s.name]));
 const codes = [...new Set([...c.serviceCodes, ...partes.map((p) => p.code)])];
 ---
 <div class="fiso" data-fiso>
-  <Partes interactivo items={partes.map((p) => ({ key: p.key, code: p.code, label: (p.qty ? `${p.qty} × ` : '') + p.label, meta: byCode.get(p.code) }))} />
+  <div class="fiso__lista">
+    <Partes interactivo items={partes.map((p) => ({ key: p.key, code: p.code, label: (p.qty ? `${p.qty} × ` : '') + p.label, meta: byCode.get(p.code) }))} />
+    {origen === 'servicio' && <p class="small">Alcance publicado del servicio; el registro no detalla equipos.</p>}
+  </div>
   <div class="fiso__lugar iso" data-svcs={codes.join(' ')} data-src={isoSrc(site)}><span class="ahora">{codes.map((k) => byCode.get(k)).filter(Boolean).join(' · ')}</span></div>
 </div>
 

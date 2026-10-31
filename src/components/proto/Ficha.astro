@@ -1,53 +1,17 @@
 ---
 /**
- * Ficha de proyecto: foto, cliente, qué se hizo, el despiece de lo instalado, sector y año.
- * Con `lazy`, la fila de partes viaja como datos y se dibuja al acercarse (el muro tiene 500 fichas).
+ * Ficha de proyecto: foto, cliente, qué se hizo, sector y año. Lo instalado se lee adentro, en la
+ * ficha completa; en la pared sólo la foto y el texto, para que las 500 fichas se lean como una.
  */
 import { thumbOf, type Story } from './isoData';
-import { despieceDe } from './despiece';
-import Parte from './Parte.astro';
 interface Props { story: Story; eager?: boolean; showSector?: boolean; lazy?: boolean }
-const { story: c, eager = false, showSector = true, lazy = false } = Astro.props;
-const { partes, origen } = despieceDe(c.title, c.summary, c.serviceCodes);
-const fila = partes.slice(0, 5);
-const nombre = fila.map((p) => (p.qty ? `${p.qty} ${p.label}` : p.label)).join(', ');
+const { story: c, eager = false, showSector = true } = Astro.props;
 ---
 <li class="ficha" data-ficha data-sector={c.sectorSlug} data-services={c.serviceCodes.join(' ')} data-year={String(c.year)} data-client={c.client.toLowerCase()}>
   <a href={c.href}>
     <figure>{c.image && <img src={thumbOf(c.image)} alt="" width="480" height="300" loading={eager ? 'eager' : 'lazy'} decoding="async" />}</figure>
     <b>{c.client}</b>
     <span class="t">{c.title}</span>
-    {lazy
-      ? <span class:list={['ficha__partes', { 'ficha__partes--alcance': origen === 'servicio' }]} data-partes={fila.map((p) => p.key + (p.qty ? `:${p.qty}` : '')).join(' ')}></span>
-      : <span class:list={['ficha__partes', { 'ficha__partes--alcance': origen === 'servicio' }]} aria-label={nombre}>
-          {fila.map((p) => <span class="ficha__parte"><Parte k={p.key} size={36} />{p.qty && <i>{p.qty}</i>}</span>)}
-        </span>}
     <span class="small">{[showSector ? c.sector : '', c.year || ''].filter(Boolean).join(' · ')}</span>
   </a>
 </li>
-
-<script>
-  // Dibuja las filas de partes diferidas cuando la ficha se acerca a la pantalla.
-  const NS = 'http://www.w3.org/2000/svg';
-  const NOMBRE: Record<string, string> = { rack: 'Rack', switch: 'Switch', patch: 'Patch panel', fibra: 'Fibra óptica', ap: 'Access point', cableado: 'Cableado estructurado', canalizacion: 'Canalización', camara: 'Cámara CCTV', nvr: 'Grabador NVR', acceso: 'Control de acceso', alarma: 'Alarma de intrusión', 'central-ip': 'Central telefónica IP', telefono: 'Teléfono IP', antena: 'Enlace de radio', parlante: 'Voceo y amplificación', pantalla: 'Sistema a medida', servidor: 'Servidor y servicios', puesto: 'Puesto de trabajo', maletin: 'Soporte técnico', disco: 'Respaldo', plano: 'Ingeniería', central: 'Central de detección', detector: 'Detector', pulsador: 'Pulsador manual', sirena: 'Sirena', modulo: 'Módulo', tablero: 'Tablero eléctrico', ups: 'UPS', bateria: 'Batería', tierra: 'Puesta a tierra', generador: 'Grupo electrógeno' };
-  const dibujar = (el: HTMLElement) => {
-    const toks = (el.dataset.partes || '').split(' ').filter(Boolean);
-    el.setAttribute('aria-label', toks.map((t) => { const [k, q] = t.split(':'); return (q ? `${q} ` : '') + (NOMBRE[k] || k); }).join(', '));
-    toks.forEach((tok) => {
-      const [k, q] = tok.split(':');
-      const wrap = document.createElement('span'); wrap.className = 'ficha__parte';
-      const svg = document.createElementNS(NS, 'svg');
-      svg.setAttribute('class', 'parte'); svg.setAttribute('viewBox', '0 0 64 64'); svg.setAttribute('width', '36'); svg.setAttribute('height', '36'); svg.setAttribute('aria-hidden', 'true');
-      const use = document.createElementNS(NS, 'use'); use.setAttribute('href', `/cine/iso/partes.svg#p-${k}`);
-      svg.appendChild(use); wrap.appendChild(svg);
-      if (q) { const i = document.createElement('i'); i.textContent = q; wrap.appendChild(i); }
-      el.appendChild(wrap);
-    });
-    delete el.dataset.partes;
-  };
-  const pendientes = document.querySelectorAll<HTMLElement>('[data-partes]');
-  if (pendientes.length) {
-    const io = new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) { io.unobserve(e.target); dibujar(e.target as HTMLElement); } }), { rootMargin: '800px 0px' });
-    pendientes.forEach((el) => io.observe(el));
-  }
-</script>
