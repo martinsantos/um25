@@ -24,7 +24,7 @@ const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'A
 <!doctype html>
 <html lang="es">
   <head>
-    <Head title="Proyectos documentados · ULTIMA MILLA" />
+    <Head title="Proyectos documentados · ULTIMA MILLA" description={`${total} proyectos documentados de ULTIMA MILLA, filtrables por sector, servicio y año, con lo instalado en cada uno.`} image="/cine/media/cine-fachada-poster.jpg" />
     <style>
       .muro { display: grid; grid-template-columns: minmax(260px, 3fr) minmax(0, 9fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: start; padding-block: var(--s4) var(--s6); }
       /* El panel se fija y, si es más alto que la pantalla, se desplaza por dentro: el año queda al alcance sin ir al final del muro. */

@@ -47,7 +47,7 @@ const cajetin: [string, string][] = [
 <!doctype html>
 <html lang="es">
   <head>
-    <Head title={`${c.title} · ${c.client} · ULTIMA MILLA`} />
+    <Head title={`${c.title} · ${c.client} · ULTIMA MILLA`} description={c.summary || [c.client, c.sector, periodo].filter(Boolean).join(' · ')} image={c.image} />
     <style>
       .nav { display: flex; justify-content: space-between; gap: 16px; padding: var(--s3) 0 0; color: var(--ink-3); font-size: .9375rem; }
       .nav a:hover { color: var(--ink); }

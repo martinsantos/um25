@@ -1,13 +1,28 @@
 ---
-/** Cabecera común de las páginas de la propuesta. Tipografía: UM Sans 2, la de la casa. */
-interface Props { title: string; description?: string; lang?: string }
-const { title, description = '' } = Astro.props;
+/**
+ * Cabecera común de las páginas de la propuesta. Tipografía: UM Sans 2, la de la casa, sin la
+ * fuente de compatibilidad. Cada página trae su descripción y su imagen: sirven al buscador cuando
+ * la propuesta sea el sitio, y hoy ya a la tarjeta que arma WhatsApp, Slack o LinkedIn al compartir
+ * el enlace. La propuesta sigue sin indexarse.
+ */
+interface Props { title: string; description?: string; image?: string; lang?: string }
+const { title, description = '', image = '/images/editorial/umsa-home-operations.webp', lang = 'es' } = Astro.props;
+const abs = (p: string) => (p ? new URL(p, Astro.url.origin).href : '');
 ---
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#0a0b0d" />
 <title>{title}</title>
 {description && <meta name="description" content={description} />}
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="ULTIMA MILLA" />
+<meta property="og:locale" content={lang === 'en' ? 'en_US' : 'es_AR'} />
+<meta property="og:title" content={title} />
+{description && <meta property="og:description" content={description} />}
+<meta property="og:image" content={abs(image)} />
+<meta property="og:url" content={Astro.url.href} />
+<meta name="twitter:card" content="summary_large_image" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="preload" href="/fonts/um-sans/v2.0.0/UMSans2-Variable.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" href="/fonts/um-sans/v2.0.0/um-sans-2.css" />
