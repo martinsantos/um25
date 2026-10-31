@@ -1,8 +1,9 @@
 ---
 /**
- * Proyecto (2026-10-30, v3). Un antecedente: la foto del trabajo, qué se hizo, para quién,
- * cuándo y con qué servicios; el despiece del lugar con esos recorridos encendidos; el lugar en
- * movimiento; otros proyectos del mismo cliente y del mismo sector. No indexable.
+ * Ficha de trabajo (2026-10-31). Cada antecedente como hoja de trabajo: cabecera con la referencia
+ * UM, la foto de la obra y los datos; lo que se instaló (inventario con miniaturas) y el lugar por
+ * dentro que recorre sus sistemas; un cajetín al pie con los campos fijos, como un plano; y otros
+ * proyectos del mismo cliente y del mismo sector. Todo el texto es del catálogo. No indexable.
  */
 import '../../../../styles/proto-despiece.css';
 import Head from '../../../../components/proto/Head.astro';
@@ -11,6 +12,7 @@ import Ficha from '../../../../components/proto/Ficha.astro';
 import FichaIso from '../../../../components/proto/FichaIso.astro';
 import Cierre from '../../../../components/proto/Cierre.astro';
 import { loadStories, services } from '../../../../components/proto/isoData';
+import { EMPRESA } from '../../../../components/proto/relato';
 
 export const prerender = false;
 const id = Number(Astro.params.id);
@@ -27,6 +29,16 @@ const sameSector = stories.filter((o) => o.id !== c.id && o.sectorSlug === c.sec
 const prev = stories[index + 1];
 const next = stories[index - 1];
 const photo = c.image && c.image.startsWith('/images/antecedentes/');
+const ref = `UM-${c.id}`;
+const sede = EMPRESA.sedes[0];
+const cajetin: [string, string][] = [
+  ['Hoja', 'Ficha de trabajo'],
+  ['Referencia', ref],
+  ['Cliente', c.client],
+  ['Sector', c.sector || '—'],
+  ['Fecha', when || '—'],
+  ['Empresa', `ULTIMA MILLA · ${sede ? sede.name : 'Mendoza'}`],
+];
 ---
 <!doctype html>
 <html lang="es">
@@ -35,21 +47,36 @@ const photo = c.image && c.image.startsWith('/images/antecedentes/');
     <style>
       .nav { display: flex; justify-content: space-between; gap: 16px; padding: var(--s3) 0 0; color: var(--ink-3); font-size: .9375rem; }
       .nav a:hover { color: var(--ink); }
-      .proyecto { padding-block: var(--s4) var(--s5); display: grid; gap: var(--s4); }
-      .datos { display: grid; gap: var(--s2); max-width: 64ch; }
-      .datos h1 { font-size: clamp(1.9rem, 3.2vw, 3rem); }
-      .datos .quien { font-size: 1.15rem; font-weight: 600; }
-      .datos .quien span { color: var(--ink-3); font-weight: 400; }
-      .datos .resumen { color: var(--ink-2); font-size: 1.125rem; }
-      .obra { margin: 0; aspect-ratio: 21 / 9; overflow: hidden; background: var(--bg-2); }
+      /* Cabecera de la hoja: la referencia a la izquierda, sector y fecha a la derecha, como un cajetín superior. */
+      .hoja-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-top: var(--s3); padding-bottom: 10px; border-bottom: 1px solid var(--line); color: var(--ink-3); font-size: .9375rem; letter-spacing: .02em; }
+      .hoja-cab b { color: var(--ink); font-weight: 600; }
+      .proyecto { padding-block: var(--s4) var(--s5); display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: start; }
+      .obra { margin: 0; grid-row: span 2; aspect-ratio: 4 / 3; overflow: hidden; background: var(--bg-2); }
       .obra img { width: 100%; height: 100%; object-fit: cover; display: block; }
-      .tabla { margin: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--s2) var(--s3); padding-top: var(--s2); border-top: 1px solid var(--line); }
+      .datos { display: grid; gap: var(--s2); align-content: start; }
+      .datos h1 { font-size: clamp(1.7rem, 2.6vw, 2.4rem); }
+      .datos .quien { font-size: 1.1rem; font-weight: 600; }
+      .datos .quien span { color: var(--ink-3); font-weight: 400; }
+      .datos .resumen { color: var(--ink-2); font-size: 1.0625rem; }
+      .tabla { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2) var(--s3); padding-top: var(--s2); border-top: 1px solid var(--line); align-self: start; }
       .tabla div { display: grid; gap: 4px; }
       .tabla dt { color: var(--ink-3); font-size: .9375rem; }
       .tabla dd { margin: 0; font-weight: 500; }
-      @media (max-width: 900px) { .obra { aspect-ratio: 4 / 3; } .tabla { grid-template-columns: 1fr 1fr; } }
+      .tabla .ancho { grid-column: 1 / -1; }
       .tabla dd a { border-bottom: 1px solid var(--red); }
       .tabla dd a + a::before { content: ', '; border: 0; }
+      /* Cajetín al pie: los campos fijos de la hoja, en celdas con línea, como el rótulo de un plano. */
+      .cajetin { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border: 1px solid var(--line); margin-top: var(--s4); }
+      .cajetin div { padding: 12px 16px; border-right: 1px solid var(--line-2); min-width: 0; display: grid; gap: 3px; align-content: start; }
+      .cajetin div:last-child { border-right: 0; }
+      .cajetin dt { color: var(--ink-3); font-size: .8125rem; letter-spacing: .03em; text-transform: uppercase; }
+      .cajetin dd { margin: 0; font-weight: 600; font-size: .95rem; overflow: hidden; text-overflow: ellipsis; }
+      @media (max-width: 900px) {
+        .proyecto { grid-template-columns: 1fr; }
+        .obra { grid-row: auto; aspect-ratio: 4 / 3; }
+        .cajetin { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .cajetin div { border-bottom: 1px solid var(--line-2); }
+      }
     </style>
   </head>
   <body>
@@ -60,19 +87,20 @@ const photo = c.image && c.image.startsWith('/images/antecedentes/');
         <a href="/propuesta/antecedentes">← Todos los proyectos</a>
         <span>{prev && <a href={prev.href}>← Anterior</a>}{prev && next && ' · '}{next && <a href={next.href}>Siguiente →</a>}</span>
       </nav>
+      <div class="hoja-cab"><span>Ficha de trabajo · <b>{ref}</b></span><span>{[c.sector, when].filter(Boolean).join(' · ')}</span></div>
       <div class="proyecto">
+        {photo && <figure class="obra"><img src={c.image} alt="" width="1200" height="900" fetchpriority="high" /></figure>}
         <div class="datos">
           <h1>{c.title}<span class="dot">.</span></h1>
           <div class="quien">{c.client}{when && <span> · {when}</span>}</div>
           {c.summary && <p class="resumen">{c.summary}</p>}
         </div>
-        {photo && <figure class="obra"><img src={c.image} alt="" width="1200" height="514" fetchpriority="high" /></figure>}
         <dl class="tabla">
             <div><dt>Cliente</dt><dd>{c.client}</dd></div>
             {c.sector && <div><dt>Sector</dt><dd><a href={`/propuesta/sectores/${c.sectorSlug}`}>{c.sector}</a></dd></div>}
             {when && <div><dt>Fecha</dt><dd>{when}</dd></div>}
-            {svcs.length > 0 && <div><dt>Servicios</dt><dd>{svcs.map((s) => <a href={`/propuesta/servicios/${s.code}`}>{s.name}</a>)}</dd></div>}
-            <div><dt>Referencia</dt><dd>UM-{c.id}</dd></div>
+            <div><dt>Referencia</dt><dd>{ref}</dd></div>
+            {svcs.length > 0 && <div class="ancho"><dt>Servicios</dt><dd>{svcs.map((s) => <a href={`/propuesta/servicios/${s.code}`}>{s.name}</a>)}</dd></div>}
         </dl>
       </div>
     </main>
@@ -81,6 +109,12 @@ const photo = c.image && c.image.startsWith('/images/antecedentes/');
       <div class="wrap">
         <div class="sec__head"><h2>Lo que se instaló<span class="dot">.</span></h2></div>
         <FichaIso story={c} />
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="wrap">
+        <dl class="cajetin" aria-label="Datos de la hoja">{cajetin.map(([t, v]) => <div><dt>{t}</dt><dd>{v}</dd></div>)}</dl>
       </div>
     </section>
 
