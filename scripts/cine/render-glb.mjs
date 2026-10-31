@@ -11,7 +11,13 @@
  *    .sp-structure (arquitectura y mobiliario) y .sp-route.sp-route--<código> para los
  *    sistemas que son servicios; pines por sistema; cajas de foco.
  *
- * Uso: node scripts/cine/render-glb.mjs public/3d/models/facade.glb public/cine/iso/site-building-v3.svg [--res 2.5] [--angle 32]
+ * Uso: node scripts/cine/render-glb.mjs public/3d/models/facade.glb public/cine/iso/site-building-v3.svg [--res 2.5] [--angle 32] [--solido]
+ *
+ * Los tres sitios v3 se generan con:
+ *   facade.glb            site-building-v3.svg  --az 35 --el 18 --yaw 90 --solido
+ *   airport-connected.glb site-terminal-v3.svg  --solido
+ *   winery-connected.glb  site-winery-v3.svg    --yaw 90 --solido
+ * --solido escribe además site-<sitio>-v3-solido.webp (el z-buffer sombreado) y lo enlaza bajo las líneas.
  */
 import { writeFileSync } from 'node:fs';
 import { leerGlb } from './glb.mjs';
@@ -28,6 +34,7 @@ const OMITIR = new Set(skipIdx > 0 ? args[skipIdx + 1].split(',') : []);   // ma
 const W = 1200, H = 720, PAD = 28;
 const AZ = (opt('--az', 42) * Math.PI) / 180, EL = (opt('--el', 30) * Math.PI) / 180;
 const ZMAX = opt('--zmax', Infinity);   // corte horizontal: lo que queda por encima no se dibuja ni tapa
+const SOLIDO = args.includes('--solido'); // capa de sólidos: el z-buffer sombreado por normal, como imagen bajo las líneas (los volúmenes ocluyen y se leen)
 
 /** Servicios del sitio por sistema del modelo. */
 const SERVICIO = { Data: '101', Fiber: '101', WiFi: '101', CCTV: '102', Security: '102', Telecom: '103', Intercom: '103', Software: '104', 'Fire-detection': '107', Power: '108' };
@@ -109,6 +116,30 @@ for (const m of nodos) {
   }
 }
 console.error(`triángulos ${tris.length}, z-buffer ${BW}×${BH}`);
+
+// ——— Sólidos: cada píxel del z-buffer toma el tono de la cara que lo cubre (cenital, iluminada o en sombra),
+// sobre la paleta oscura del sistema, con las caras lejanas apenas más apagadas. Va como imagen bajo las líneas.
+let solidoHref = '';
+if (SOLIDO) {
+  const sharp = (await import('sharp')).default;
+  const luz = [-0.45, -0.35, 0.82]; const ll = Math.hypot(...luz); luz[0] /= ll; luz[1] /= ll; luz[2] /= ll;
+  const TONOS = { top: [0x26, 0x2b, 0x31], lit: [0x1c, 0x20, 0x25], face: [0x15, 0x17, 0x1b], shade: [0x0f, 0x11, 0x14] };
+  let lo = Infinity, hi = -Infinity; for (const v of zbuf) if (v !== -Infinity) { if (v < lo) lo = v; if (v > hi) hi = v; }
+  const rgba = Buffer.alloc(BW * BH * 4);
+  for (let k = 0; k < zbuf.length; k++) {
+    const t = idbuf[k] >= 0 ? tris[idbuf[k]] : null; if (!t) continue;
+    const n = t.nrm; const lam = n[0] * luz[0] + n[1] * luz[1] + n[2] * luz[2];
+    const tono = Math.abs(n[2]) > 0.8 ? TONOS.top : lam > 0.45 ? TONOS.lit : lam > 0.05 ? TONOS.face : TONOS.shade;
+    const prof = (zbuf[k] - lo) / (hi - lo || 1);         // 0 lejos … 1 cerca
+    const a = Math.round(255 * (0.82 + 0.18 * prof));     // lo lejano, apenas más apagado
+    const o = k * 4; rgba[o] = tono[0]; rgba[o + 1] = tono[1]; rgba[o + 2] = tono[2]; rgba[o + 3] = a;
+  }
+  const archivo = salida.replace(/\.svg$/, '-solido.webp');
+  await sharp(rgba, { raw: { width: BW, height: BH, channels: 4 } }).resize({ width: Math.round(W * 1.25) }).webp({ quality: 78, alphaQuality: 85 }).toFile(archivo);
+  // Ruta absoluta: el SVG se incrusta en línea en la página, y una ruta relativa resolvería contra la página, no contra el archivo.
+  solidoHref = archivo.includes('/public/') || archivo.startsWith('public/') ? '/' + archivo.replace(/^.*?public\//, '') : archivo.split('/').pop();
+  console.error(`sólidos: ${archivo}`);
+}
 if (process.env.ZBUF) {
   const sharp = (await import('sharp')).default;
   let lo = Infinity, hi = -Infinity; for (const v of zbuf) if (v !== -Infinity) { if (v < lo) lo = v; if (v > hi) hi = v; }
@@ -256,11 +287,13 @@ for (const [code, segs] of Object.entries(rutas)) {
 const dispositivos = pines.filter((p) => p.d).map((p) => `<g data-project-device="${p.code}"><path class="pt-line" data-tone="hi" d="${p.d}"/></g>`).join('');
 const pinesSvg = pines.map((p) => `<g class="sp-pin sp-pin--${p.code}" data-project-pin="${p.code}" data-x="${f1(p.cx)}" data-y="${f1(p.cy)}"><circle cx="${f1(p.cx)}" cy="${f1(p.cy)}" r="5.2" fill="#dc2626"/><circle cx="${f1(p.cx)}" cy="${f1(p.cy)}" r="9" fill="none" stroke="#a2a8af" stroke-opacity=".55" stroke-width=".65"/></g>`).join('');
 const focus = pines.map((p) => `<g data-project-focus="${p.code}" data-x="${f1(p.cx - 30)}" data-y="${f1(p.cy - 30)}" data-width="60" data-height="60"/>`).join('');
-const nombre = entrada.split('/').pop().replace(/\.glb$/, '');
+const NOMBRES_SITIO = { facade: 'edificio', 'airport-connected': 'aeropuerto', 'winery-connected': 'bodega', 'hospital-services': 'centro de salud' };
+const modelo = entrada.split('/').pop().replace(/\.glb$/, '');
+const nombre = NOMBRES_SITIO[modelo] || modelo;
 let vx0 = Infinity, vy0 = Infinity, vx1 = -Infinity, vy1 = -Infinity;
 for (const segs of lineas.values()) for (const g of segs) { vx0 = Math.min(vx0, g[0], g[2]); vx1 = Math.max(vx1, g[0], g[2]); vy0 = Math.min(vy0, g[1], g[3]); vy1 = Math.max(vy1, g[1], g[3]); }
 const aire = Math.max(vx1 - vx0, vy1 - vy0) * 0.02;
 const VB = `${f1(vx0 - aire)} ${f1(vy0 - aire)} ${f1(vx1 - vx0 + 2 * aire)} ${f1(vy1 - vy0 + 2 * aire)}`;
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${VB}" preserveAspectRatio="xMidYMid meet" class="sp-scene pt-svg" data-fit="1" role="img" aria-label="Isometría de ${nombre}, con sus sistemas"><g class="sp-root">${grupos[0]}${dispositivos}${grupos.slice(1).join('')}${focus}${pinesSvg}</g></svg>\n`;
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${VB}" preserveAspectRatio="xMidYMid meet" class="sp-scene pt-svg" data-fit="1" role="img" aria-label="Isometría de ${nombre}, con sus sistemas"><g class="sp-root">${solidoHref ? `<image class="sp-solido" href="${solidoHref}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none"/>` : ''}${grupos[0]}${dispositivos}${grupos.slice(1).join('')}${focus}${pinesSvg}</g></svg>\n`;
 writeFileSync(salida, svg);
 console.error(`${salida}: ${svg.length} bytes`);
