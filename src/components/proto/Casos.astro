@@ -2,13 +2,16 @@
 /** Casos con el alcance real de cada obra: foto, qué se hizo, para quién y cuándo, el texto del registro y los servicios. */
 import type { Caso } from './relato';
 import { services, SECTOR_PHOTO, SERVICE_PHOTO, srcsetDe, sinTitulo, type Story } from './isoData';
+import { tituloProyecto } from './titulos';
 interface Props { casos: Caso[]; stories: Story[]; title?: string; max?: number; fallbackImage?: string }
 const { casos, stories, title, max = 4, fallbackImage } = Astro.props;
 const byCode = new Map(services.map((s) => [s.code, s]));
 const items = casos.slice(0, max).map((c) => {
   const pub = c.publicado ? stories.find((s) => s.id === c.publicado) : undefined;
   const image = pub?.image && pub.image.startsWith('/images/antecedentes/') ? pub.image : (fallbackImage || SECTOR_PHOTO[c.sector] || SERVICE_PHOTO[c.servicios[0]] || SECTOR_PHOTO.constructoras);
-  return { ...c, texto: sinTitulo(c.texto, c.titulo, c.cliente), href: pub ? pub.href : (c.sector ? `/propuesta/antecedentes?sector=${c.sector}` : '/propuesta/antecedentes'), image, serviceNames: c.servicios.map((code) => byCode.get(code)?.name).filter(Boolean) as string[] };
+  // El título del relato pasa por la misma limpieza que los de las fichas (mayúsculas corridas, siglas, prefijos).
+  const titulo = tituloProyecto(c.titulo, c.cliente, c.texto) || c.titulo;
+  return { ...c, titulo, texto: sinTitulo(c.texto, titulo, c.cliente), href: pub ? pub.href : (c.sector ? `/propuesta/antecedentes?sector=${c.sector}` : '/propuesta/antecedentes'), image, serviceNames: c.servicios.map((code) => byCode.get(code)?.name).filter(Boolean) as string[] };
 });
 ---
 {items.length > 0 && (

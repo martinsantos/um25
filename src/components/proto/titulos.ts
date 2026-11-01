@@ -20,7 +20,9 @@ const sinTilde = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
 /** Una palabra en mayúsculas sostenidas pasa a su forma normal; las siglas se quedan. */
 const palabra = (w: string, primera: boolean): string => {
   const core = w.replace(/[^\p{L}\p{N}]/gu, '');
-  if (!core || /\d/.test(core) || core.length === 1) return w;
+  if (!core || /\d/.test(core)) return w;
+  // Una letra sola: la conjunción en mayúscula sostenida ('PREVENTIVO Y CORRECTIVO') baja; una sigla de una letra queda.
+  if (core.length === 1) return !primera && core === core.toUpperCase() && MINUSCULAS.has(core.toLowerCase()) ? w.toLowerCase() : w;
   if (SIGLAS.has(sinTilde(core).toUpperCase()) && core === core.toUpperCase()) return w;
   if (core !== core.toUpperCase()) return w;
   const low = w.toLowerCase();

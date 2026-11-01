@@ -3,6 +3,7 @@
 import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
+import { localImagePath } from '../../../utils/seoOgImage';
 import Cierre from '../../../components/proto/Cierre.astro';
 import { fetchBlogPost, fetchBlogListing } from '../../../utils/getBlogData';
 import { getCategoryLabel, formatBlogDateLong, addHeadingIds, sanitizeBlogExcerpt } from '../../../utils/blogUtils';
@@ -16,6 +17,8 @@ const { html } = await addHeadingIds(canonicalizeInternalBlogLinks(post.contenid
 const contenido = html.replace(/href="\/blog\//g, 'href="/propuesta/blog/');
 const { posts } = await fetchBlogListing(1, 6, post.categoria);
 const mas = posts.filter((p) => p.slug !== post.slug).slice(0, 4);
+// La portada, relativa al sitio: la ruta /blog/og/… la sirve esta misma compilación (la absoluta del CMS apunta al sitio vivo).
+const portada = post?.imagen_portada ? localImagePath(post.imagen_portada) || post.imagen_portada : '';
 ---
 <!doctype html>
 <html lang="es">
@@ -46,7 +49,7 @@ const mas = posts.filter((p) => p.slug !== post.slug).slice(0, 4);
         <div>
           <h1>{post.titulo}<span class="dot">.</span></h1>
           {post.resumen && <p class="resumen">{sanitizeBlogExcerpt(post.resumen, 300)}</p>}
-          {post.imagen_portada && <figure><img src={post.imagen_portada} alt={post.imagen_portada_alt || ''} width="1200" height="675" /></figure>}
+          {portada && <figure><img src={portada} alt={post.imagen_portada_alt || ''} width="1200" height="675" loading="lazy" decoding="async" /></figure>}
           <div class="lectura" set:html={contenido} />
         </div>
       </article>

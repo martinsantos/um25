@@ -48,9 +48,13 @@ export const cerrarTexto = (texto: string, cliente: string) => {
   const prefijo = `${limpiar(cliente)} - `;
   if (t.toLowerCase().startsWith(prefijo.toLowerCase())) t = t.slice(prefijo.length);
   if (/[.!?]$/.test(t)) return t;
-  const corte = Math.max(t.lastIndexOf('. '), t.lastIndexOf(', '), t.lastIndexOf('; '));
-  if (corte > t.length * .45) t = t.slice(0, corte);
-  else t = t.replace(/\s+\S*$/, '');
+  // El registro de origen no guarda el punto final de ninguna descripción (469 de 469) y corta las largas a 350 caracteres:
+  // sólo una descripción que llega al tope se trata como cortada (se cierra en la última cláusula o palabra entera); las demás, enteras.
+  if (t.length >= 340) {
+    const corte = Math.max(t.lastIndexOf('. '), t.lastIndexOf(', '), t.lastIndexOf('; '));
+    if (corte > t.length * .45) t = t.slice(0, corte);
+    else t = t.replace(/\s+\S*$/, '');
+  }
   t = t.replace(/[,;:\s-]+$/, '') + '.';
   return t.charAt(0).toUpperCase() + t.slice(1);
 };
@@ -73,6 +77,7 @@ const tituloDe = (r: Registro) => {
   const c = limpiar(r.Cliente);
   if (c && t.toLowerCase().startsWith(c.toLowerCase())) t = t.slice(c.length).replace(/^\s*[-–·.]\s*/, '');
   t = t.replace(/\.\s*Redes y comunicaciones\.?/gi, '').replace(/Corrientes Débiles|IncendiosCorr.*$/g, '').replace(/\s+/g, ' ').replace(/[\s.·-]+$/, '').trim();
+  for (let i = 0; i < 4; i++) t = t.replace(/\s+(de|del|la|el|y|e|o|u|en|para|por|con|a|un|una|las|los|al|sobre|sin)$/i, '').replace(/[.,:;·\s-]+$/, '');
   return t.charAt(0).toUpperCase() + t.slice(1);
 };
 /** Nombres de cliente tal como se presentan (el registro trae etiquetas de evento o caja irregular). */
@@ -94,8 +99,9 @@ const tituloFinal = (r: Registro, texto: string) => {
   const t = tituloDe(r);
   if (t.length >= 28 && !GENERICO.test(t)) return t;
   let f = texto.split(/[.;]\s/)[0].replace(/\s*-\s*/g, ' · ');
-  if (f.length > 110) f = f.slice(0, 110).replace(/\s+\S*$/, '');
-  f = f.replace(/\s+(de|del|la|el|y|o|u|en|para|por|con|a|un|una|las|los|al)$/i, '').replace(/[.,:;·\s]+$/, '');
+  if (f.length > 130) f = f.slice(0, 130).replace(/\s+\S*$/, '');
+  // Un título cortado no termina en conector ni en signo: se quitan de a uno hasta que termine en palabra plena.
+  for (let i = 0; i < 4; i++) f = f.replace(/\s+(de|del|la|el|y|e|o|u|en|para|por|con|a|un|una|las|los|al|sobre|sin)$/i, '').replace(/[.,:;·\s-]+$/, '');
   return f.replace(/\bSdi\b/g, 'SDI').replace(/\bCctv\b/gi, 'CCTV');
 };
 

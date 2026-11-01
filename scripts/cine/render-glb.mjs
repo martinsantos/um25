@@ -27,9 +27,10 @@
  *              --az 35 --el 18 --yaw 90 --zmin -0.3 --zmax 3.6 --solido --autonomo --nombre "la planta baja del edificio"
  * --vista x,y,ancho,alto (fracciones del dibujo) recorta el viewBox a un detalle del mismo dibujo (el raster
  *   de sólidos no gana resolución: para un detalle nítido conviene recortar el modelo con --bbox).
- * --autonomo: el SVG se basta solo (hoja de estilo y sólidos incrustados) para ir en un <img>, como los
- *   equipos de los servicios en el índice y en los pósters. Los dibujos de sitio, que van en línea
- *   en la página y comparten hoja, no lo necesitan.
+ * --autonomo: el SVG se basta solo (color y grosor de cada trazo como atributos, hoja de estilo y sólidos
+ *   incrustados) para ir en un <img> o rasterizarse con librsvg, como los equipos de los servicios en el
+ *   índice y en los pósters. Los dibujos de sitio, que van en línea en la página y comparten hoja, no lo
+ *   necesitan.
  *
  * Los tres sitios v3 se generan con:
  *   facade.glb            site-building-v3.svg  --az 35 --el 18 --yaw 90 --solido
@@ -287,6 +288,9 @@ console.error(`tramos visibles ${total}`);
 const todosD = [...lineas].filter(([sys]) => !SERVICIO[sys]).flatMap(([, segs]) => segs.map((g) => g.d)).sort((a, b) => a - b);
 const dLejos = todosD[Math.floor(todosD.length * 0.33)] ?? 0, dMedio = todosD[Math.floor(todosD.length * 0.66)] ?? 0;
 const banda = (g) => (g.d < dLejos ? 'lejos' : g.d < dMedio ? 'medio' : 'cerca');
+// Autónomo: color y grosor como atributos (la paleta de la propuesta), porque librsvg (pósters) y <img> no resuelven variables CSS.
+const PALETA = { hi: '#e6e8eb', mid: '#a0a6ad', lo: '#5c636b', faint: '#3a4048' };
+const atributos = (tono, banda, contorno) => (AUTONOMO ? ` stroke="${PALETA[tono] || PALETA.lo}" stroke-width="${contorno ? 1.8 : banda === 'lejos' ? 0.8 : 1.1}" vector-effect="non-scaling-stroke"` : '');
 const porSistema = [...lineas].filter(([sys]) => !SERVICIO[sys]).map(([sys, segs]) => {
   const mueble = sys === 'Furniture-context';
   const out = [];
@@ -294,12 +298,12 @@ const porSistema = [...lineas].filter(([sys]) => !SERVICIO[sys]).map(([sys, segs
     const en = segs.filter((g) => banda(g) === b);
     const cont = en.filter((g) => g.c), det = en.filter((g) => !g.c);
     const tono = { lejos: ['lo', 'faint'], medio: ['mid', 'lo'], cerca: ['hi', 'mid'] }[b];
-    if (cont.length) out.push(`<path class="pt-line pt-contorno" data-tone="${mueble ? tono[1] : tono[0]}" data-system="${sys}" data-banda="${b}" d="${polilineas(cont)}"/>`);
-    if (det.length && !mueble) out.push(`<path class="pt-line" data-tone="${tono[1]}" data-system="${sys}" data-banda="${b}" d="${polilineas(det)}"/>`);
+    if (cont.length) out.push(`<path class="pt-line pt-contorno" data-tone="${mueble ? tono[1] : tono[0]}" data-system="${sys}" data-banda="${b}"${atributos(mueble ? tono[1] : tono[0], b, true)} d="${polilineas(cont)}"/>`);
+    if (det.length && !mueble) out.push(`<path class="pt-line" data-tone="${tono[1]}" data-system="${sys}" data-banda="${b}"${atributos(tono[1], b, false)} d="${polilineas(det)}"/>`);
   }
   return out.join('');
 }).join('');
-grupos.push(`<g class="sp-structure" fill="none" stroke-linecap="round" stroke-linejoin="round">${porSistema}</g>`);
+grupos.push(`<g class="sp-structure" fill="none" stroke-linecap="round" stroke-linejoin="round"${AUTONOMO ? ' stroke="#5c636b"' : ''}>${porSistema}</g>`);
 const pines = [];
 for (const [code, segs] of Object.entries(rutas)) {
   const d = polilineas(segs);
