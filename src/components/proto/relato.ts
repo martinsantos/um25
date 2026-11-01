@@ -40,7 +40,9 @@ export const CUMPLIMIENTO = [
 
 type Registro = { id: number; Titulo?: string; Descripcion?: string; Cliente?: string; Fecha?: string; Area?: string };
 const registros = (Array.isArray(antecedentesCompletos) ? antecedentesCompletos : []) as Registro[];
-const limpiar = (v: unknown) => String(v ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+// Erratas del registro de origen que se corrigen sólo para mostrar.
+const ERRATAS: [RegExp, string][] = [[/\bHospita\b/g, 'Hospital'], [/\bwwwjusmendoza\b/g, 'www.jusmendoza']];
+const limpiar = (v: unknown) => ERRATAS.reduce((t, [re, por]) => t.replace(re, por), String(v ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
 
 /** El registro completo viene cortado a 300 caracteres: se cierra en la última frase entera. */
 export const cerrarTexto = (texto: string, cliente: string) => {
@@ -76,7 +78,7 @@ const tituloDe = (r: Registro) => {
   let t = limpiar(r.Titulo);
   const c = limpiar(r.Cliente);
   if (c && t.toLowerCase().startsWith(c.toLowerCase())) t = t.slice(c.length).replace(/^\s*[-–·.]\s*/, '');
-  t = t.replace(/\.\s*Redes y comunicaciones\.?/gi, '').replace(/Corrientes Débiles|IncendiosCorr.*$/g, '').replace(/\s+/g, ' ').replace(/[\s.·-]+$/, '').trim();
+  t = t.replace(/\.\s*Redes y comunicaciones\.?/gi, '').replace(/IncendiosCorr.*$/g, '').replace(/\s+/g, ' ').replace(/[\s.·-]+$/, '').trim();
   for (let i = 0; i < 4; i++) t = t.replace(/\s+(de|del|la|el|y|e|o|u|en|para|por|con|a|un|una|las|los|al|sobre|sin)$/i, '').replace(/[.,:;·\s-]+$/, '');
   return t.charAt(0).toUpperCase() + t.slice(1);
 };
@@ -95,10 +97,23 @@ const CLIENTE_PRESENTADO: Record<string, string> = {
 const clienteDe = (r: Registro) => { const c = limpiar(r.Cliente); if (CLIENTE_PRESENTADO[c]) return CLIENTE_PRESENTADO[c]; return c === c.toUpperCase() ? c.toLowerCase().replace(/(^|\s)(\S)/g, (m) => m.toUpperCase()).replace(/\b(Y|De|Del|La)\b/g, (w) => w.toLowerCase()) : c; };
 /** Si el título del registro es sólo la categoría ("SDI", "CCTV", "Redes y comunicaciones"), el título es la primera frase del alcance. */
 const GENERICO = /^(sdi|cctv|electrico|eléctrico|redes y comunicaciones|redes de cableado estructurado|cableado estructurado|sistema de cctv|detección|deteccion|redes y comunicaciones\.?\s*detección)$/i;
+/** Un alcance redactado como pedido ("En Quilmes hay que cotizar el tendido de…") se titula por lo que se hizo: sin el encabezado del pedido y, si sigue una lista de materiales, hasta antes de ella. */
+const SOLICITUD = /^(?:en\s+\S+(?:\s+\S+)?\s+)?(?:hay que|habr[ií]a que|se debe(?:n)?|se solicita|solicitan?|cotizar|presupuestar|adicional para presupuestar)\s+(?:cotizar\s+|presupuestar\s+)?(?:el|la|los|las|un|una)?\s*/i;
+const desdeSolicitud = (f: string) => {
+  let t = SOLICITUD.test(f) ? f.replace(SOLICITUD, '').trim() : f;
+  // Si la frase trae tres o más cifras (una lista de materiales: "1 cámara entrada, 2 días, 150 m de UTP"), el título queda antes de la primera cifra pasados los 24 caracteres; el detalle sigue en el texto.
+  const cifras = [...t.matchAll(/\s\d[\dx.,]*(?=\s|$)/g)];
+  if (cifras.length >= 3) { const corte = cifras.find((m) => (m.index || 0) >= 24); if (corte && corte.index) t = t.slice(0, corte.index); }
+  return t.charAt(0).toUpperCase() + t.slice(1);
+};
 const tituloFinal = (r: Registro, texto: string) => {
   const t = tituloDe(r);
   if (t.length >= 28 && !GENERICO.test(t)) return t;
-  let f = texto.split(/[.;]\s/)[0].replace(/\s*-\s*/g, ' · ');
+  // La primera frase, sin cortar en abreviaturas ("Hospital Dr. Juan…", "Av.", "Nº").
+  const primera = texto.replace(/\b(Dr|Dra|Sr|Sra|Ing|Lic|Arq|Av|Gral|Dpto|Depto|Cnel|Tte|Pcia|Nº|N°|SA|SRL|Ltda|Cía|Cia|etc|[A-ZÁÉÍÓÚ])\.\s/gi, '$1\u0001').split(/[.;]\s/)[0].replace(/\u0001/g, '. ');
+  // La coletilla de ubicación (", del departamento de…", ", de la provincia de…") no es parte del título; queda en el texto.
+  // Una coma del registro entre el objeto y su destino ("Cableado Estructurado, para el Hospital") no va.
+  let f = desdeSolicitud(primera).replace(/^([^,]{6,40}),\s+(para|en|de)\b/i, '$1 $2').replace(/,\s+(?:del?\s+(?:departamento|distrito|partido)|de la provincia|provincia de|de uspallata|de [A-ZÁÉÍÓÚ][\wáéíóú]+ de la provincia)\b[^,]*$/i, '').replace(/\s*-\s*/g, ' · ');
   if (f.length > 130) f = f.slice(0, 130).replace(/\s+\S*$/, '');
   // Un título cortado no termina en conector ni en signo: se quitan de a uno hasta que termine en palabra plena.
   for (let i = 0; i < 4; i++) f = f.replace(/\s+(de|del|la|el|y|e|o|u|en|para|por|con|a|un|una|las|los|al|sobre|sin)$/i, '').replace(/[.,:;·\s-]+$/, '');

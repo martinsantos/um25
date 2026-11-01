@@ -24,6 +24,7 @@ const palabra = (w: string, primera: boolean): string => {
   // Una letra sola: la conjunción en mayúscula sostenida ('PREVENTIVO Y CORRECTIVO') baja; una sigla de una letra queda.
   if (core.length === 1) return !primera && core === core.toUpperCase() && MINUSCULAS.has(core.toLowerCase()) ? w.toLowerCase() : w;
   if (SIGLAS.has(sinTilde(core).toUpperCase()) && core === core.toUpperCase()) return w;
+  if (/^[IVX]{2,4}$/.test(core)) return w; // número romano (Etapa IV)
   if (core !== core.toUpperCase()) return w;
   const low = w.toLowerCase();
   const fixed = TILDES[sinTilde(core.toLowerCase())];
@@ -89,7 +90,7 @@ export const tituloProyecto = (raw: unknown, clienteRaw: unknown, descripcionRaw
     const base = clienteOriginal.replace(/\s*\(.*\)\s*$/, '');
     if (base.length > 6) t = t.replace(new RegExp(`\\s*-\\s*${esc(base)}(?=\\s*-|\\s*$)`, 'i'), '');
   }
-  t = t.replace(/\s*\.\s*Redes y comunicaciones\.?/gi, '').replace(/IncendiosCorr\w*/g, 'Incendios').replace(/Corrientes Débiles\s*$/i, '').replace(/\s*&\s*/g, ' y ');
+  t = t.replace(/\s*\.\s*Redes y comunicaciones\.?/gi, '').replace(/IncendiosCorr\w*(?:\s+D[ée]biles)?/g, 'Incendios').replace(/(?<=Incendios)\s*Corrientes Débiles\s*$/i, '').replace(/\s*&\s*/g, ' y ');
   t = t.replace(/\s+-(?=\S)/g, ' · ').replace(/(?<=\S)-\s+/g, ' · ');
   if (t.replace(/[^\p{L}]/gu, '').length < 6) {
     const d = limpiar(descripcionRaw);
@@ -103,6 +104,8 @@ export const tituloProyecto = (raw: unknown, clienteRaw: unknown, descripcionRaw
   }
   t = caja(t).replace(/\s+-\s+/g, ' · ').replace(/\s*–\s*/g, ' · ').replace(/[.\s·-]+$/, '').replace(/\s+/g, ' ').trim();
   t = t.replace(/\s*:\s*$/, '');
+  // Un título que el registro cortó sin puntos suspensivos ("… Sala de Bombas y") no termina en conector.
+  for (let i = 0; i < 4; i++) t = t.replace(/\s+(de|del|la|el|y|e|o|u|en|para|por|con|a|un|una|las|los|al|sobre|sin)$/i, '').replace(/[,;:·\s-]+$/, '');
   const sigla = SIGLA_SOLA[t.toLowerCase()]; if (sigla) t = sigla;
   return mayusculaInicial(t);
 };

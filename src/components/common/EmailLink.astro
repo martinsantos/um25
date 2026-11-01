@@ -27,7 +27,6 @@ const hasSlot = Astro.slots.has('default');
   data-email-user={user}
   data-email-domain={domain}
   data-email-subject={subject}
-  aria-label={`Escribir a ${user} arroba ${domain}`}
 >
   {hasSlot ? (
     <slot />
@@ -35,7 +34,7 @@ const hasSlot = Astro.slots.has('default');
     label
   ) : (
     <>
-      <span>{user}</span><span aria-hidden="true">&#64;</span><span>{domain}</span>
+      <span>{user}</span><span>&#64;</span><span>{domain}</span>
     </>
   )}
 </a>
