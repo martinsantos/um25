@@ -3,6 +3,22 @@
 1 de noviembre de 2026. Rama `feature/integracion-despiece-20261101`, PR 541 en borrador.
 Vista de revisión: http://127.0.0.1:4381/ . **No publicar hasta la revisión del usuario.**
 
+## Cierre documentado de descripciones y clasificaciones
+
+Esta pasada revisa las 252 fichas que reunían al menos una señal pendiente: 91 descripciones breves, 68 servicios ausentes y 160 sectores ausentes. Tres agentes económicos contrastaron las descripciones, servicios y sectores; una segunda revisión independiente verificó identidad, fechas SGI y alcance de los cruces históricos. No hubo escrituras en Directus, push, merge ni despliegue.
+
+Se incorporan decisiones para 104 fichas en `src/data/propuesta/catalog-completions.json`: 91 resúmenes (90 de los breves y la cotización web 3648), nueve títulos explícitos, once servicios y cuatro sectores. La desambiguación existente aprovecha los resúmenes corregidos y actualiza 44 títulos visibles en total. Dos resúmenes ya coincidían con la presentación previa; 102 fichas cambian en el índice de búsqueda. Los resúmenes iguales al título no se duplican en pantalla.
+
+Cada campo lleva cita y registro de origen. La aplicación exige coincidencia del cliente, título, descripción y año actuales; una edición posterior de Directus invalida esa corrección. Las 30 fichas anónimas sólo admiten evidencia literal ya presente en su propio registro vivo; no recuperan nombres históricos del snapshot. Los cruces con registros completos conservan la explicación y la prueba SGI. Excepción explícita: 3320 usa cliente y fragmento de alcance único para completar el texto; las fechas no coinciden y no se usan ni modifican.
+
+Resultados del cotejo de las 520 fichas: mismos IDs, clientes, slugs/enlaces, fotografías, años y estados. Sólo cambian textos, las once asignaciones de servicio, cuatro sectores y las ilustraciones derivadas de esas clasificaciones. La cotización 3648 se identifica como cotización estimativa, sin afirmar una implementación. Se corrigió una regresión del normalizador que quitaba Software al cambiar «actualización sistema de ventas» por «actualización del sistema de ventas».
+
+Validación local: build, lint, tipos, contrato CSS (avisos existentes), 47 pruebas focales y smoke de 37 rutas/520 fichas/614 recursos. Chromium: 118 vistas de las 104 fichas revisadas, incluyendo 14 en móvil; 56 capturas en las 28 vistas seleccionadas. Sin respuestas fallidas, imágenes rotas, desbordes, errores JavaScript ni rótulos internos detectados. Se inspeccionaron capturas de los cruces históricos, fichas anónimas y la cotización web. Evidencia temporal: `/private/tmp/umsa-completion-visual/`, `/private/tmp/umsa-completion-parity.json` y `/private/tmp/umsa-completion-smoke.log`.
+
+Límites: quedan 57 fichas sin servicio y 156 sin sector asignable con la evidencia/taxonomía disponibles. El [registro de pendientes](catalog-completion-pending.json) explica 214 campos pendientes en 184 fichas, incluida 9001 sin alcance suficiente. La auditoría de longitud marca ahora 57 descripciones breves: muchas son textos suficientes o se omiten por repetir el título; no se rellenan hasta llegar a 60 caracteres. La auditoría evalúa la introducción visible de los casos destacados, no su resumen interno. Esto no declara editorialmente completos todos los antecedentes.
+
+El JSON `mode: local-only` documenta el estado de entrega; no es un bloqueo técnico de publicación. La restricción se cumple manteniendo los cambios en esta rama y el preview local, pendientes de revisión del usuario.
+
 ## Control posterior a la recuperación de Directus
 
 Las ocho imágenes ya se recuperaron por CI/CD en el run [41354989262](https://github.com/martinsantos/um25/actions/runs/41354989262), conservando UUID y referencias. Las notas siguientes sobre archivos todavía ausentes describen el diagnóstico anterior a esa ejecución. No se publicó el rediseño.

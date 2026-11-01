@@ -1,7 +1,7 @@
 /**
  * Datos compartidos de las propuestas de portada con despieces (2026-10-30).
  * Sólo reúne lo que ya existe en el sitio: las isometrías de /cine/iso, las fotos editoriales,
- * los ocho servicios de la navegación y el catálogo de antecedentes. Ningún texto nuevo.
+ * los ocho servicios de la navegación y el catálogo de antecedentes. La curaduría cita registros existentes.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { getAntecedentes } from '../../lib/um26-directus';
@@ -14,6 +14,8 @@ import { SECTORS, SOFTWARE_FILM } from '../../data/cine/scenes';
 import { descripcionDeOrigen } from './relato';
 import { addEvidenceBackedService, addEvidenceBackedSector, correctCuratedClassification, CURATED_CLASSIFICATION_CORRECTIONS, curateCatalogImage, withholdUnverifiedSector } from './catalogEditorial';
 import { publicCaseFor } from './casePresentation';
+import { documentedCompletion, type CompletionEntry } from './catalogCompletion';
+import completionJson from '../../data/propuesta/catalog-completions.json';
 import { nombreCliente, tituloProyecto, desambiguarTitulos } from './titulos';
 import sgiJson from '../../data/sgi/fechas.json';
 import extraJson from '../../data/propuesta/antecedentes-extra.json';
@@ -97,7 +99,7 @@ const cleanText = (value: unknown) => String(value ?? '').replace(/\b(Rubro|Clie
 export type Story = { id: number; slug: string; href: string; client: string; title: string; year: number; month: number; inicio?: string; cierre?: string; estado?: Estado; sgiId?: string; sector: string; sectorSlug: string; serviceCodes: string[]; services: string[]; image: string; summary: string; status: string };
 
 const SOFTWARE_GENERIC_TITLE = /^desarrollo de software y digitalizacion de procesos\b/i;
-const SOFTWARE_SCOPE_EVIDENCE = /\b(software|digitalizaci[oó]n|aplicaci[oó]n|plataforma|erp|web|api|programaci[oó]n|desarrollos? y actualizaci[oó]n sistema de ventas)\b/i;
+const SOFTWARE_SCOPE_EVIDENCE = /\b(software|digitalizaci[oó]n|aplicaci[oó]n|plataforma|erp|web|api|programaci[oó]n|desarrollos? y actualizaci[oó]n (?:del )?sistema de ventas)\b/i;
 const normalizeEvidence = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
 /**
@@ -197,13 +199,16 @@ export async function loadStories() {
   const catalogoCompleto = [...catalog, ...extras.map((e) => ({ id: e.id, title: e.Titulo, slug: slugDe(e.Titulo), client: e.Cliente, sector_slug: e.sector, service_codes: e.servicios.map(Number), year: Number(e.inicio.slice(0, 4)), month: Number(e.inicio.slice(5, 7)), location: '', scope: [] as string[], status: 'operativo' as const, image: SECTOR_PHOTO[e.sector] || SECTOR_PHOTO['constructoras'], summary: e.Descripcion, tags: [] as string[] }))];
   const tituloOrigenPorId = new Map(catalogoCompleto.map((c) => [c.id, c.title]));
   const origenPorId = new Map(catalogoCompleto.map((c) => [c.id, c]));
+  // Correcciones locales revisadas: una edición posterior del CMS invalida la clave completa.
+  const completions = new Map(catalogoCompleto.map((c) => [c.id, documentedCompletion(c.id, c, completionJson.entries as CompletionEntry[])]));
   const sectorDe = resolverSector(catalogoCompleto.map((c) => ({ client: c.client, sector: c.sector_slug })));
   const stories: Story[] = [...catalogoCompleto]
     .sort((a, b) => (b.year - a.year) || (b.month - a.month) || (b.id - a.id))
     .map((c) => {
       const client = nombreCliente(c.client);
-      const title = tituloProyecto(c.title, c.client, c.summary);
-      const summary = sinTitulo(descripcionDeOrigen(c.id), title, client) || cleanSummary(c.summary, title, client);
+      const completion = completions.get(c.id);
+      const title = completion?.title ?? tituloProyecto(c.title, c.client, c.summary);
+      const summary = completion?.summary ?? (sinTitulo(descripcionDeOrigen(c.id), title, client) || cleanSummary(c.summary, title, client));
       const publicCase = publicCaseFor({ id: c.id, client: c.client });
       const sourceEvidence = publicCase ? verifiedClassificationSource(c.id, c.client) : '';
       const inferredSector = addEvidenceBackedSector(c.id, c.title, c.summary, sectorDe(c.client, c.sector_slug, `${c.title} ${c.summary}`));
@@ -267,10 +272,13 @@ export async function loadStories() {
       ? correctCuratedClassification(story.id, evidenceText, '', story.sectorSlug, serviceCodes)
       : { sector: story.sectorSlug, services: serviceCodes };
     classification.sector = withholdUnverifiedSector(story.id, origin?.client || story.client, `${origin?.title || ''} ${origin?.summary || ''}`, classification.sector);
+    const completion = completions.get(story.id);
+    if (completion?.sector !== undefined) classification.sector = completion.sector;
     story.sectorSlug = classification.sector;
     story.sector = classification.sector ? getAntecedenteSectorLabel(classification.sector === 'gobiernosectorpublico' ? 'gobierno' : classification.sector) || '' : '';
     story.serviceCodes = classification.services;
     story.serviceCodes = addEvidenceBackedService(story.id, origin?.title || '', origin?.summary || '', story.serviceCodes);
+    if (!story.serviceCodes.length && completion?.services) story.serviceCodes = [...completion.services];
     story.services = story.serviceCodes.map((code) => byCode.get(code) || '').filter(Boolean);
   });
   // Si la descripción no dice más que el título, la ficha no la repite.

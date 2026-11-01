@@ -4,6 +4,14 @@ jest.mock('../src/lib/um26-directus', () => ({
 }));
 
 describe('service tags after curating generic CMS titles', () => {
+  test('preserves software classification after correcting the grammar of a sales-system description', async () => {
+    const { reconcileGeneratedSoftwareService } = await import('../src/components/proto/isoData');
+    expect(reconcileGeneratedSoftwareService(
+      'Desarrollo de Software y Digitalización de Procesos - La casa del Aroma SA (2)',
+      'Etapa 1 de desarrollo y actualización del sistema de ventas',
+      '', ['103', '104'],
+    )).toEqual(['103', '104']);
+  });
   test('removes the inherited software tag from the CCTV scope of antecedent 3140', async () => {
     const { reconcileGeneratedSoftwareService } = await import('../src/components/proto/isoData');
     const serviceCodes = reconcileGeneratedSoftwareService(

@@ -8,6 +8,7 @@
 import type { APIRoute } from 'astro';
 import { loadStories, SGI_RESUMEN } from '../../components/proto/isoData';
 import { despieceDe } from '../../components/proto/despiece';
+import { publicCaseFor } from '../../components/proto/casePresentation';
 
 export const prerender = false;
 
@@ -16,7 +17,7 @@ export const GET: APIRoute = async () => {
   const filas = stories.map((s) => {
     const { partes, origen } = despieceDe(s.title, s.summary, s.serviceCodes);
     const flags: string[] = [];
-    const t = (s.title || '').trim(), d = (s.summary || '').trim();
+    const t = (s.title || '').trim(), d = (publicCaseFor(s)?.introduction || s.summary || '').trim();
     if (t.length < 8) flags.push('titulo-corto');
     if (/^[^a-z]{12,}$/.test(t)) flags.push('titulo-mayusculas');
     if (/(\.\.\.|…)$/.test(t)) flags.push('titulo-cortado');
