@@ -4,6 +4,8 @@ Entrega de origen: `55c900ff1c2078dbfb87a6438487e60b61184d59`.
 Integración: `feature/integracion-despiece-20261101`, mediante PR a develop y luego master.
 **No publicar hasta que el usuario revise la vista previa final.**
 
+Cierre de navegación visual y Directus autenticado: [cierre-editorial-20261101.md](cierre-editorial-20261101.md).
+
 Revisión final de paridad, correcciones y límites: [revision-paridad-20261101.md](revision-paridad-20261101.md).
 
 ## Ejecución y controles
@@ -53,7 +55,7 @@ Validación: build, lint (sin errores; avisos preexistentes), tipos, auditoría 
 548 pruebas; revisión responsive a 1440/1280/834/390/360 px, axe en escritorio y
 móvil, navegación y contacto. Evidencias locales fuera del repositorio:
 `/private/tmp/umsa-final-acceptance-20261101/`. La revisión sigue siendo local;
-no sustituye el control autenticado de Directus en el futuro despliegue.
+el cierre posterior incorpora además la lectura autenticada de Directus desde esta Mac.
 
 ## Alcance de la publicación
 
@@ -76,10 +78,18 @@ El paquete contiene `dist`, dependencias y manifiestos: las isometrías se leen 
 
 ## Contenido pendiente de la entrega
 
-313 fichas sin descripción, 142 sin sector y 93 sin servicio en las fuentes;
-fotografías reales que sustituyan imágenes editoriales; renders ortográficos de
-Blender para rayos X; decisión sobre el rastreo completo de Sentry.
-No se inventan datos para rellenarlos ni se cambia Sentry en esta integración.
+El corte vivo local contiene 520 fichas: 155 sin sector asignable, 68 sin servicio y
+91 con resumen inferior a 60 caracteres. Este último umbral no demuestra por sí
+solo que un texto sea incorrecto. Se recuperaron 32 servicios con evidencia de
+origen; no se inventaron alcances para cerrar cifras. Los proyectos 9001/9002 usan
+imágenes contextuales identificadas como tales. Las imágenes editoriales del
+catálogo no sustituyen fotografías documentales de obra.
+
+Datos y criterios: [catalogo-evidencia-editorial-20261101.md](catalogo-evidencia-editorial-20261101.md).
+Directus ya se comprobó autenticado en el preview local; `/assets` aún devuelve
+403 y productos sigue usando snapshot. Las páginas revisadas usan medios locales.
+Los renders ortográficos de Blender y la decisión sobre rastreo completo de
+Sentry siguen fuera de este cierre.
 
 ## Reglas del sistema
 

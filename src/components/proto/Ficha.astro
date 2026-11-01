@@ -6,12 +6,12 @@
  * así el muro de 500 fichas no carga ni dibuja nada de más. Los eventos van delegados en el
  * documento: valen también para las fichas que el muro crea después desde los datos.
  */
-import { thumbOf, variantes, SITE_OF, isoSrc, type Story } from './isoData';
+import { thumbOf, variantes, illustrationSiteFor, isoSrc, type Story } from './isoData';
 interface Props { story: Story; eager?: boolean; showSector?: boolean; primera?: boolean }
 const { story: c, eager = false, showSector = true, primera = false } = Astro.props;
-const site = SITE_OF[c.sectorSlug] || 'building';
+const site = illustrationSiteFor(c);
 ---
-<li class="ficha" data-ficha data-id={String(c.id)} data-sector={c.sectorSlug} data-services={c.serviceCodes.join(' ')} data-year={String(c.year)} data-client={c.client.toLowerCase()} data-site={isoSrc(site)} data-status={c.status} data-search={[c.client, c.title, c.sector, ...c.services, c.summary].join(' ')}>
+<li class="ficha" data-ficha data-id={String(c.id)} data-sector={c.sectorSlug} data-services={c.serviceCodes.join(' ')} data-year={String(c.year)} data-client={c.client.toLowerCase()} data-site={site ? isoSrc(site) : undefined} data-status={c.status} data-search={[c.client, c.title, c.sector, ...c.services, c.summary].join(' ')}>
   <a href={c.href}>
     <figure>
       {c.image && <img src={thumbOf(c.image)} srcset={variantes(c.image).ancho ? `${variantes(c.image).w480} 480w, ${variantes(c.image).w960} 960w` : undefined} sizes="(max-width: 900px) 40vw, (max-width: 1100px) 32vw, 22vw" alt="" width="480" height="300" loading={eager ? 'eager' : 'lazy'} fetchpriority={primera ? 'high' : undefined} decoding="async" />}

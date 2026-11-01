@@ -22,6 +22,8 @@ import { serviceSingleDemoCopy, serviceSingleDemoCapabilities } from '../../../d
 import { SERVICE_SPECS } from '../../../data/serviceSpecs';
 import { SECTORS, SOFTWARE_FILM } from '../../../data/cine/scenes';
 
+import { isNamedClient } from '../../../components/proto/catalogEditorial';
+
 export const prerender = false;
 const code = String(Astro.params.code);
 const servicio = await getServicioByCode(Number(code));
@@ -40,15 +42,58 @@ const photo = SERVICE_PHOTO[code];
 const casos = casosDe(CASOS_SERVICIO[code] || []);
 const lower = servicio.name.toLowerCase();
 const bySector = SECTORS.map((s) => ({ slug: s.slug, name: s.name, count: own.filter((c) => c.sectorSlug === s.slug).length })).filter((s) => s.count > 0).sort((a, b) => b.count - a.count);
-const clientes = Object.values(own.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
+const clientes = Object.values(own.filter(s => isNamedClient(s.client)).reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
 const anios = own.map((c) => c.year).filter(Boolean);
 const desde = anios.length ? Math.min(...anios) : 0;
-const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos documentados'], [String(clientes.length), clientes.length === 1 ? 'cliente' : 'clientes'], [String(bySector.length), bySector.length === 1 ? 'sector' : 'sectores'], [String(desde), 'primer proyecto']] : [];
+const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos documentados'], [String(clientes.length), clientes.length === 1 ? 'cliente identificado' : 'clientes identificados'], [String(bySector.length), bySector.length === 1 ? 'sector' : 'sectores'], [String(desde), 'primer proyecto']] : [];
 const meta = Object.fromEntries(servicio.metadata.map((m) => [m.label, m.value]));
 const condiciones = ['Implementación', 'Garantía', 'Cobertura'].filter((k) => meta[k]).map((k) => `${k}: ${meta[k]}`).join('. ');
 const capabilities = serviceSingleDemoCapabilities[Number(code)] || [];
 const copy = serviceSingleDemoCopy[Number(code)]!;
 const limpio = (s: string) => s.replace(/(?:desde|con) el frente 105/gi, 'con el equipo de soporte').replace(/\bfrente 10\d\b/gi, 'equipo técnico');
+const cierrePorServicio: Record<string, { heading: string; description: string; ctaText: string }> = {
+  '101': {
+    heading: 'Planifiquemos tu red',
+    description: 'Indicá qué sedes necesitás conectar, dónde están y cuántos puestos deben cubrirse.',
+    ctaText: 'Consultar por redes',
+  },
+  '102': {
+    heading: 'Definamos qué necesita cubrir la seguridad',
+    description: 'Contanos qué espacios necesitás cubrir, qué equipos ya están instalados y en qué horarios opera el sitio.',
+    ctaText: 'Consultar seguridad',
+  },
+  '103': {
+    heading: 'Conectemos tus sedes',
+    description: 'Decinos qué sedes necesitás enlazar, dónde están y qué equipos deben conectarse.',
+    ctaText: 'Consultar conectividad',
+  },
+  '104': {
+    heading: 'Contanos qué proceso querés mejorar',
+    description: 'Describí el proceso, los sistemas existentes y qué información necesitás integrar.',
+    ctaText: 'Consultar por software',
+  },
+  '105': {
+    heading: 'Definamos cómo sostener tu operación',
+    description: 'Contanos qué sedes y equipos requieren soporte, y en qué horarios trabaja la operación.',
+    ctaText: 'Consultar soporte 24/7',
+  },
+  '106': {
+    heading: 'Ordenemos tus decisiones tecnológicas',
+    description: 'Compartí las sedes, equipos y sistemas actuales, y la decisión técnica que necesitás resolver.',
+    ctaText: 'Consultar por consultoría',
+  },
+  '107': {
+    heading: 'Revisemos qué espacios necesitan detección',
+    description: 'Indicá qué sectores necesitás cubrir y qué sistema o equipamiento ya existe.',
+    ctaText: 'Enviar consulta',
+  },
+  '108': {
+    heading: 'Revisemos la energía de tu infraestructura',
+    description: 'Compartí dónde están los equipos, qué instalación existe y qué puntos necesitás alimentar.',
+    ctaText: 'Consultar energía IT',
+  },
+};
+const cierre = cierrePorServicio[code];
 ---
 <!doctype html>
 <html lang="es">
@@ -164,7 +209,7 @@ const limpio = (s: string) => s.replace(/(?:desde|con) el frente 105/gi, 'con el
 
     </main>
 
-    <Cierre />
+    <Cierre heading={cierre?.heading} description={cierre?.description} ctaText={cierre?.ctaText} />
 
 
   </body>

@@ -11,6 +11,7 @@ import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import { NAV_SERVICES } from '../../data/navigation';
 import { SECTORS, SOFTWARE_FILM } from '../../data/cine/scenes';
 import { descripcionDeOrigen } from './relato';
+import { addEvidenceBackedService, addEvidenceBackedSector, curateCatalogImage } from './catalogEditorial';
 import { nombreCliente, tituloProyecto, desambiguarTitulos } from './titulos';
 import sgiJson from '../../data/sgi/fechas.json';
 import extraJson from '../../data/propuesta/antecedentes-extra.json';
@@ -137,6 +138,11 @@ export const cleanSummary = (raw: unknown, title: string, client: string): strin
 export const SCENE_OF: Record<string, string> = { bodegas: 'bodega', aeropuertos: 'aeropuerto', salud: 'hospital', mineria: 'planta', industria: 'planta', constructoras: 'fachada', gobiernosectorpublico: 'fachada', gobierno: 'fachada' };
 export const SERVICE_KEY: Record<string, string> = { '101': 'redes', '102': 'seguridad', '103': 'telecom', '104': 'software', '105': 'soporte', '106': 'consultoria', '107': 'incendios', '108': 'electricos' };
 export const SITE_OF: Record<string, IsoSite> = { bodegas: 'winery', aeropuertos: 'terminal', salud: 'clinic', mineria: 'mine', industria: 'plant', constructoras: 'building', gobiernosectorpublico: 'building', gobierno: 'building' };
+/** A place cutaway needs both a known setting and a physical system. */
+export function illustrationSiteFor(story: Pick<Story, 'sectorSlug' | 'serviceCodes'>): IsoSite | undefined {
+  return story.serviceCodes.some(code => ['101', '102', '103', '107', '108'].includes(code))
+    ? SITE_OF[story.sectorSlug] : undefined;
+}
 /** Fotos editoriales: la imagen a pleno de cada servicio y de cada sector. */
 export const SERVICE_PHOTO: Record<string, string> = { '101': '/images/editorial/umsa-service-redes.webp', '102': '/images/editorial/umsa-service-seguridad-electronica.webp', '103': '/images/editorial/umsa-service-telecomunicaciones.webp', '104': '/images/editorial/umsa-service-software-a-medida.webp', '105': '/images/editorial/umsa-service-soporte-247.webp', '106': '/images/editorial/umsa-service-consultoria-it.webp', '107': '/images/editorial/umsa-service-deteccion-incendios.webp', '108': '/images/editorial/umsa-service-electricos-it.webp' };
 export const SECTOR_PHOTO: Record<string, string> = { software: `/cine/media/cine-${SOFTWARE_FILM}-poster.avif`, 'seguridad-electronica': '/images/editorial/umsa-sector-seguridad-electronica.webp', bodegas: '/images/editorial/umsa-sector-bodegas.webp', aeropuertos: '/images/editorial/umsa-sector-aeropuertos.webp', salud: '/images/editorial/umsa-sector-salud.webp', mineria: '/images/editorial/umsa-sector-mineria.webp', industria: '/images/editorial/umsa-sector-industria.webp', constructoras: '/images/editorial/umsa-sector-constructoras.webp', gobiernosectorpublico: '/images/editorial/umsa-sector-gobierno.webp', gobierno: '/images/editorial/umsa-sector-gobierno.webp' };
@@ -175,6 +181,7 @@ export async function loadStories() {
   const EXTRA_DE = new Map(extras.map((e) => [e.id, e]));
   const catalogoCompleto = [...catalog, ...extras.map((e) => ({ id: e.id, title: e.Titulo, slug: slugDe(e.Titulo), client: e.Cliente, sector_slug: e.sector, service_codes: e.servicios.map(Number), year: Number(e.inicio.slice(0, 4)), month: Number(e.inicio.slice(5, 7)), location: '', scope: [] as string[], status: 'operativo' as const, image: SECTOR_PHOTO[e.sector] || SECTOR_PHOTO['constructoras'], summary: e.Descripcion, tags: [] as string[] }))];
   const tituloOrigenPorId = new Map(catalogoCompleto.map((c) => [c.id, c.title]));
+  const origenPorId = new Map(catalogoCompleto.map((c) => [c.id, c]));
   const sectorDe = resolverSector(catalogoCompleto.map((c) => ({ client: c.client, sector: c.sector_slug })));
   const stories: Story[] = [...catalogoCompleto]
     .sort((a, b) => (b.year - a.year) || (b.month - a.month) || (b.id - a.id))
@@ -182,7 +189,7 @@ export async function loadStories() {
       const client = nombreCliente(c.client);
       const title = tituloProyecto(c.title, c.client, c.summary);
       const summary = sinTitulo(descripcionDeOrigen(c.id), title, client) || cleanSummary(c.summary, title, client);
-      const sectorReal = sectorDe(c.client, c.sector_slug, `${c.title} ${c.summary}`);
+      const sectorReal = addEvidenceBackedSector(c.id, c.title, c.summary, sectorDe(c.client, c.sector_slug, `${c.title} ${c.summary}`));
       // El catálogo dice "gobierno"; la navegación del sitio, "gobiernosectorpublico".
       const sectorSlug = sectorReal === 'gobierno' ? 'gobiernosectorpublico' : sectorReal;
       const extra = EXTRA_DE.get(c.id);
@@ -201,11 +208,11 @@ export async function loadStories() {
         cierre: sgi?.cierre || undefined,
         estado: sgi?.estado,
         sgiId: extra ? extra.original_id : sgi ? String(c.id) : undefined,
-        sector: sectorReal ? getAntecedenteSectorLabel(sectorReal) || '' : '',
+        sector: sectorReal ? getAntecedenteSectorLabel(sectorReal === 'gobiernosectorpublico' ? 'gobierno' : sectorReal) || '' : '',
         sectorSlug,
         serviceCodes: c.service_codes.map(String),
         services: c.service_codes.map((code) => byCode.get(String(code)) || '').filter(Boolean),
-        image: c.image || '',
+        image: curateCatalogImage(c.id, c.image || ''),
         summary,
         status: c.status,
       };
@@ -233,8 +240,9 @@ export async function loadStories() {
       story.summary,
       story.serviceCodes,
     );
-    story.serviceCodes = serviceCodes;
-    story.services = serviceCodes.map((code) => byCode.get(code) || '').filter(Boolean);
+    const origin = origenPorId.get(story.id);
+    story.serviceCodes = addEvidenceBackedService(story.id, origin?.title || '', origin?.summary || '', serviceCodes);
+    story.services = story.serviceCodes.map((code) => byCode.get(code) || '').filter(Boolean);
   });
   // Si la descripción no dice más que el título, la ficha no la repite.
   stories.forEach((s) => { if (s.summary && comparable(s.summary) === comparable(s.title)) s.summary = ''; });

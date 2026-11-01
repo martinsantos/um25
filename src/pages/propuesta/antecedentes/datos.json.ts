@@ -5,7 +5,7 @@
  * orden que el muro.
  */
 import type { APIRoute } from 'astro';
-import { loadStories, thumbOf, isoSrc, SITE_OF, type IsoSite } from '../../../components/proto/isoData';
+import { loadStories, thumbOf, isoSrc, illustrationSiteFor } from '../../../components/proto/isoData';
 
 export const prerender = false;
 
@@ -15,8 +15,8 @@ export const GET: APIRoute = async () => {
   const { stories } = await loadStories();
   const sitios: Record<string, string> = {};
   const fichas = stories.map((c) => {
-    const sitio: IsoSite = SITE_OF[c.sectorSlug] || 'building';
-    sitios[sitio] = isoSrc(sitio);
+    const sitio = illustrationSiteFor(c) || '';
+    if (sitio) sitios[sitio] = isoSrc(sitio);
     return { id: c.id, slug: c.slug, cliente: c.client, titulo: c.title, sector: c.sector, sectorSlug: c.sectorSlug, servicios: c.serviceCodes.join(' '), anio: c.year || 0, foto: c.image ? thumbOf(c.image).replace(PREFIJO, '') : '', sitio, estado: c.status, busqueda: [c.client, c.title, c.sector, ...c.services, c.summary].join(' ') };
   });
   return new Response(JSON.stringify({ prefijo: PREFIJO, sitios, fichas }), { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=600', 'x-robots-tag': 'noindex' } });

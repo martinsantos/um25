@@ -86,3 +86,14 @@ describe('service tags after curating generic CMS titles', () => {
     expect(cctv.services).not.toContain('Software a medida');
   });
 });
+
+// A technical service alone does not identify the building in which it operates.
+describe('project illustrations respect the documented setting and scope', () => {
+  test('shows site cutaways only for physical systems in a known sector', async () => {
+    const { illustrationSiteFor, SITE_OF } = await import('../src/components/proto/isoData');
+    expect(illustrationSiteFor({ sectorSlug: 'aeropuertos', serviceCodes: ['101', '102'] })).toBe(SITE_OF.aeropuertos);
+    expect(illustrationSiteFor({ sectorSlug: 'gobiernosectorpublico', serviceCodes: ['104', '105'] })).toBeUndefined();
+    expect(illustrationSiteFor({ sectorSlug: '', serviceCodes: ['101'] })).toBeUndefined();
+    expect(illustrationSiteFor({ sectorSlug: 'constructoras', serviceCodes: [] })).toBeUndefined();
+  });
+});

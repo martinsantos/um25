@@ -56,8 +56,17 @@ planta de José Nucete deja de heredar Aeropuertos por su área de telecomunicac
 
 No equivale a una lectura manual de cada una de las 520 fichas y cada nota. Se verificó el índice completo, el acceso a recursos, plantillas de página y muestras de contenido.
 
-La vista local accede al blog público y al respaldo del catálogo cuando la API de Directus devuelve 403 desde esta Mac. La conectividad autenticada y el contenido vivo de Directus requieren el control de despliegue en su entorno; este recorrido local no sustituye ese control.
+Actualización del cierre: el preview local ya consulta Servicios, Antecedentes y blog_posts autenticados, con respuestas 200 y sin fallback HTML del blog. Ver `directus-validacion-20261101.md`. `/assets` sigue denegado por Directus y productos conserva su snapshot; las páginas revisadas usan imágenes locales.
 
-El catálogo conserva carencias de origen: 155 fichas con señal de sector faltante, 91 con descripción corta, 12 con servicio faltante y dos sin foto propia. No se inventaron textos ni fotografías para ocultarlas. Minería conserva su página y acceso al catálogo, pero no presenta las obras de otros rubros que la versión anterior mezclaba en ese sector.
+El corte autenticado final conserva carencias de origen: 155 fichas sin sector, 91 con resumen inferior a 60 caracteres, 68 sin servicio y dos imágenes fuera de la familia de antecedentes. Las 32 asignaciones recuperadas de servicio están respaldadas por texto de origen; el contador anterior de 12 no representaba el catálogo final reconciliado. La señal de imagen inspecciona su ruta y no acredita que sea una fotografía real de obra. No se inventaron textos ni fotografías para ocultarlas. Minería conserva su página y acceso al catálogo, pero no presenta las obras de otros rubros que la versión anterior mezclaba en ese sector.
 
 No se publicó ni se fusionó a master. La siguiente publicación debe hacerse por feature → develop → master y CI/CD, después de la revisión final del usuario.
+
+## Cierre de navegación visual y conexión viva
+
+Los menús incorporan miniaturas relacionadas con sus ocho servicios y nueve
+sectores; móvil permite desplegar ambos grupos sin pasar por el índice. Se
+repitieron 95 vistas y dos menús sobre el runtime autenticado: 97 controles
+aprobados, con 38 auditorías axe en 1440/390. También pasó la prueba de paridad
+interactiva. El informe actual es `cierre-editorial-20261101.md`; las cifras de
+pruebas precedentes de este documento describen etapas anteriores.

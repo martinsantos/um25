@@ -7,22 +7,24 @@
  */
 import Partes from './Partes.astro';
 import { despieceDe } from './despiece';
-import { services, SITE_OF, type Story, isoSrc, isoRatio } from './isoData';
+import { services, illustrationSiteFor, type Story, isoSrc, isoRatio } from './isoData';
 interface Props { story: Story }
 const { story: c } = Astro.props;
-const site = SITE_OF[c.sectorSlug] || 'building';
+const site = illustrationSiteFor(c);
 const { partes, origen } = despieceDe(c.title, c.summary, c.serviceCodes);
 const byCode = new Map(services.map((s) => [s.code, s.name]));
 const codes = [...new Set([...c.serviceCodes, ...partes.map((p) => p.code)])];
 ---
-<div class="fiso" data-fiso>
+<div class:list={["fiso", {"fiso--scope": !site}]} data-fiso={site ? true : undefined}>
   <div class="fiso__lista">
-    <Partes interactivo items={partes.map((p) => ({ key: p.key, code: p.code, label: (p.qty ? `${p.qty} × ` : '') + p.label, meta: byCode.get(p.code) }))} />
-    {origen === 'servicio' && partes.length > 0 && <p class="small">Alcance publicado del servicio; el registro no detalla equipos.</p>}
+    <Partes interactivo={Boolean(site)} items={partes.map((p) => ({ key: p.key, code: p.code, label: (p.qty ? `${p.qty} × ` : '') + p.label, meta: byCode.get(p.code) }))} />
+    {origen === 'servicio' && partes.length > 0 && <p class="small">Capacidades de los servicios vinculados a este proyecto.</p>}
     {partes.length === 0 && <p class="small" data-sin-alcance>{c.estado === 'en-curso' ? 'Obra en curso: el alcance se documenta al cierre.' : 'El registro no detalla el alcance.'}</p>}
   </div>
-  <div class="fiso__lugar iso" data-svcs={codes.join(' ')} data-src={isoSrc(site)}><div class="iso__caja" style={`--r:${isoRatio(site).toFixed(3)}`}></div><span class="ahora">{codes.map((k) => byCode.get(k)).filter(Boolean).join(' · ')}</span></div>
+  {site && <div class="fiso__lugar iso" data-svcs={codes.join(' ')} data-src={isoSrc(site)}><div class="iso__caja" style={`--r:${isoRatio(site).toFixed(3)}`}></div><span class="ahora">{codes.map((k) => byCode.get(k)).filter(Boolean).join(' · ')}</span></div>}
 </div>
+
+<style>.fiso--scope { grid-template-columns: minmax(0, 1fr); }</style>
 
 <script>
   // El lugar por dentro recorre los servicios del proyecto de a uno, cada 2,6 s, mientras está a la

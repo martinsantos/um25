@@ -16,13 +16,15 @@ import { EMPRESA, CUMPLIMIENTO, CASOS, sectorRelato } from '../../components/pro
 import { SECTORS } from '../../data/cine/scenes';
 import { matchesCatalog } from '../../components/proto/catalogFilters';
 
+import { isNamedClient } from '../../components/proto/catalogEditorial';
+
 export const prerender = false;
 const { total, stories } = await loadStories();
-const clientes = Object.values(stories.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
+const clientes = Object.values(stories.filter(s => isNamedClient(s.client)).reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
 const frentes = services.map((s) => ({ ...s, count: stories.filter((c) => c.serviceCodes.includes(s.code)).length }));
 const lugares = SECTORS.map((s) => ({ ...s, count: stories.filter((c) => matchesCatalog({sector: c.sectorSlug, services: c.serviceCodes, year: String(c.year), client: c.client, search: '', status: c.status}, {sector: s.slug})).length, headline: sectorRelato(s.slug).headline || s.text })).sort((a, b) => b.count - a.count);
 const anios = new Date().getFullYear() - 2003 + 1;
-const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [String(total), 'proyectos documentados'], [String(clientes.length), 'clientes'], [String(lugares.length), 'sectores']];
+const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [String(total), 'proyectos documentados'], [String(clientes.length), 'clientes identificados'], [String(lugares.length), 'sectores']];
 ---
 <!doctype html>
 <html lang="es">
