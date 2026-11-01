@@ -1,7 +1,4 @@
 ---
-import { SOFTWARE_FILM } from '../../data/cine/scenes';
-import SoftwareFilmTone from '../cine/SoftwareFilmTone.astro';
-import MotionIcon from './MotionIcon.astro';
 const product = '/software/gestion-de-comunidades-profesionales';
 ---
 <section class="software-use" aria-labelledby="software-use-title">
@@ -27,19 +24,6 @@ const product = '/software/gestion-de-comunidades-profesionales';
     </div>
   </div>
 </section>
-<section class="software-system" aria-labelledby="software-system-title">
-  <div class="software-use__shell">
-    <details data-software-explanation>
-      <summary><span><h2 id="software-system-title">El sistema por dentro.</h2><span>Pantallas, permisos y datos conectados.</span></span><span aria-hidden="true">+</span></summary>
-      <SoftwareFilmTone />
-      <div class="software-system__film" data-software-film>
-        <video data-software-explanation-video poster={`/cine/media/cine-${SOFTWARE_FILM}-poster.avif`} data-src={`/cine/media/cine-${SOFTWARE_FILM}.mp4`} muted playsinline loop preload="none" width="1920" height="1080" aria-label="Recorrido conceptual de las pantallas, los permisos y los datos de un sistema"></video>
-        <button type="button" data-software-explanation-play aria-label="Reproducir recorrido conceptual"><MotionIcon /></button>
-      </div>
-      <p class="software-system__note">Recorrido conceptual de la arquitectura de una aplicación.</p>
-    </details>
-  </div>
-</section>
 <style>
   .software-use { --skin-text: #171b1c; --skin-muted: #454d4e; --skin-line: #c8cecb; --skin-panel: #fff; background: #f4f4f1; color: #171b1c; padding-block: clamp(40px,6vw,80px); }
   .software-use__shell { width: min(1400px,calc(100% - var(--um-page-gutter,24px) * 2)); margin-inline: auto; }
@@ -62,30 +46,5 @@ const product = '/software/gestion-de-comunidades-profesionales';
   .software-use__link { color: #171b1c; font-size: 1rem; font-weight: 600; min-height: 44px; padding-block: 10px; border-bottom: 1px solid #171b1c; text-decoration: none; }
   .software-use .software-use__note { font-size: 1rem; }
   .software-use a:focus-visible { outline: 3px solid #171b1c; outline-offset: 4px; }
-  .software-system { padding-block: 40px; background: #0a0b0d; color: #f4f4f5; }
-  .software-system summary { cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 20px; border-bottom: 1px solid #50545b; }
-  .software-system summary::-webkit-details-marker { display: none; }
-  .software-system summary > span:last-child { font-size: 2rem; }
-  .software-system details[open] summary > span:last-child { transform: rotate(45deg); }
-  .software-system h2 { font-size: clamp(1.5rem,3vw,2rem); color: #f4f4f5; margin: 0 0 8px; }
-  .software-system summary span span, .software-system__note { color: #b9bbc0; font-size: 1rem; }
-  .software-system__film { max-width: 1000px; margin: 24px auto; }
-  .software-system video { display: block; width: 100%; height: auto; }
-  .software-system button { display: grid; place-items: center; width: 48px; height: 48px; margin: 12px 0 0 auto; border: 1px solid #b9bbc0; background: transparent; color: #fff; cursor: pointer; }
-  .software-system :is(button,summary):focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
   @media (max-width:900px) { .software-use__product { grid-template-columns: 1fr; }.software-use__intro { margin-bottom: 28px; } }
 </style>
-<script>
-  document.querySelectorAll<HTMLDetailsElement>('[data-software-explanation]').forEach(details => {
-    const video = details.querySelector<HTMLVideoElement>('video')!;
-    const button = details.querySelector<HTMLButtonElement>('button')!;
-    const update = () => { button.dataset.motionPlaying = String(!video.paused); button.setAttribute('aria-label', video.paused ? 'Reproducir recorrido conceptual' : 'Pausar recorrido conceptual'); };
-    button.addEventListener('click', () => {
-      if (!video.getAttribute('src')) video.src = video.dataset.src!;
-      if (video.paused) video.play().catch(update); else video.pause();
-    });
-    video.addEventListener('loadeddata', () => { video.dataset.frameReady = 'true'; });
-    video.addEventListener('play', update); video.addEventListener('pause', update);
-    details.addEventListener('toggle', () => { if (!details.open) video.pause(); });
-  });
-</script>

@@ -23,7 +23,7 @@ import { CASOS_SERVICIO, casosDe } from '../../../components/proto/relato';
 import { getDatasheetPublicPath } from '../../../utils/datasheets';
 import { serviceSingleDemoCopy, serviceSingleDemoCapabilities } from '../../../data/serviceSingleDemoSystem';
 import { SERVICE_SPECS } from '../../../data/serviceSpecs';
-import { SECTORS } from '../../../data/cine/scenes';
+import { SECTORS, SOFTWARE_FILM } from '../../../data/cine/scenes';
 
 import { isNamedClient } from '../../../components/proto/catalogEditorial';
 
@@ -117,6 +117,7 @@ const cierre = cierrePorServicio[code];
       .cubre.cubre--editorial { display: block; }
       .cubre--editorial .caps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s4); }
       .cubre--editorial .caps li { padding-block: 24px; }
+      .service-process__photo { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; margin-bottom: var(--s4); }
       .condiciones { margin-top: var(--s4); color: var(--ink-3); }
       @media (max-width: 900px) {
         .cubre--editorial .caps { grid-template-columns: minmax(0, 1fr); }
@@ -129,7 +130,7 @@ const cierre = cierrePorServicio[code];
     <Top current="servicios" />
     <main id="contenido">
 
-    <Hero label={servicio.name} image={code === '104' ? '/images/software-comunidades/comunidad-rosario.jpg' : photo} naturalPhoto={code === '104'} imageAlt={code === '104' ? 'Personas colaborando con computadoras durante un hackatón en Rosario' : ''}>
+    <Hero label={servicio.name} image={photo} film={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}.mp4` : undefined} poster={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}-poster.avif` : undefined}>
       <h1 style={code === '103' ? 'font-size:clamp(2rem,3.6vw,3.5rem)' : undefined}>{servicio.name}<span class="dot">.</span></h1>
       <p class="tag">{copy.headline}</p>
       <p>{copy.paragraph}</p>
@@ -155,7 +156,10 @@ const cierre = cierrePorServicio[code];
     <section class="sec">
       <div class="wrap cols cols-5-7">
         <h2>Cómo lo hacemos<span class="dot">.</span></h2>
-        <div class="cols cols-2">{servicio.proceso.map((s) => <div class="item"><h3>{s.titulo}</h3><p>{s.desc}</p></div>)}</div>
+        <div class:list={["service-process", { "service-process--human": code === '106' }]}>
+          {code === '106' && <img class="service-process__photo" src="/images/software-comunidades/comunidad-rosario.jpg" alt="Personas colaborando con computadoras durante un hackatón en Rosario" width="1800" height="1200" loading="lazy" decoding="async" />}
+          <div class="cols cols-2">{servicio.proceso.map((s) => <div class="item"><h3>{s.titulo}</h3><p>{s.desc}</p></div>)}</div>
+        </div>
       </div>
     </section>
 
@@ -214,7 +218,7 @@ const cierre = cierrePorServicio[code];
       </section>
     )}
 
-    {code === '104' && <SoftwarePhotoCredit />}
+    {code === '106' && <SoftwarePhotoCredit />}
     </main>
 
     <Cierre heading={cierre?.heading} description={cierre?.description} ctaText={cierre?.ctaText} />

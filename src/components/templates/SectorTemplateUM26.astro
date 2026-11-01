@@ -1,7 +1,6 @@
 ---
 import { isShowcaseProject, pageCaseCandidates } from '../proto/caseSelection';
 import SoftwareExperience from '../proto/SoftwareExperience.astro';
-import SoftwarePhotoCredit from '../proto/SoftwarePhotoCredit.astro';
 import { loadStories, SECTOR_PHOTO, srcsetDe } from '../proto/isoData';
 import { generateSlug } from '../../utils/slugUtils';
 import { truncateEditorialText } from '../../utils/editorialContent';
@@ -141,7 +140,7 @@ const areaLabel = (area: unknown) => {
 ---
 
 <div class="um26-sector">
-  {isSecurity || isSoftware ? (
+  {isSecurity ? (
     <section class="sector26-context sector26-shell" aria-labelledby="sector26-title">
       <div>
         <a class="sector26-context__back" href="/sectores">← Todos los sectores</a>
@@ -149,7 +148,7 @@ const areaLabel = (area: unknown) => {
         <p>{sectorSummary}</p>
         <a class="sector26-context__cta" href="/contacto">Pedir un relevamiento</a>
       </div>
-      {isSoftware ? <figure class="sector26-human-photo"><img src="/images/software-comunidades/comunidad-rosario.jpg" alt="Personas colaborando con computadoras durante un hackatón en Rosario" width="1800" height="1200" fetchpriority="high" /></figure> : <img src={sectorImage || '/images/editorial/umsa-sector-seguridad-electronica.webp'} alt="" width="1672" height="941" fetchpriority="high" decoding="async" />}
+      <img src={sectorImage || '/images/editorial/umsa-sector-seguridad-electronica.webp'} alt="" width="1672" height="941" fetchpriority="high" decoding="async" />
     </section>
   ) : <CineBanner
     variant="sector"
@@ -200,7 +199,6 @@ const areaLabel = (area: unknown) => {
       </div>
     </div>
   </section>
-  {isSoftware && <SoftwarePhotoCredit />}
 </div>
 
 {!isSoftware && !isSecurity && <SnapRail />}
@@ -214,7 +212,6 @@ const areaLabel = (area: unknown) => {
   .sector26-context__cta { display: inline-flex; padding: 16px 24px; background: #f4f4f5; color: #0a0a0b; margin-top: 28px; font-weight: 600; }
   .sector26-context img { display: block; width: 100%; height: auto; }
   .sector26-evidence-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px 32px; list-style: none; margin: 0; padding: 0; }
-  .sector26-human-photo { margin: 0; }
   .sector26-evidence-grid--software li { padding-top: 24px; border-top: 1px solid #50545b; }
   .sector26-evidence-card { display: grid; gap: 12px; color: #f4f4f5; text-decoration: none; }
   .sector26-evidence-card img { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; }
