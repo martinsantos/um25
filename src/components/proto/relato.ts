@@ -137,26 +137,28 @@ const CASOS_BASE: Omit<Caso, 'texto' | 'year'>[] = [
   { id: 11176, publicado: 3099, titulo: 'Red de datos y fibra óptica para las sucursales de Mendoza y San Juan', cliente: 'Headcomm S.A', sector: 'industria', servicios: ['101'] },
 ];
 /** Más registros con alcance técnico completo, por sector y por servicio (ids del registro de origen). */
+// Las solicitudes 10877 (cotizar) y 10881 (trabajo futuro) se conservan en origen,
+// pero no prueban una obra ejecutada y no forman parte de la vitrina comercial.
 export const CASOS_SECTOR: Record<string, number[]> = {
   aeropuertos: [11146, 10737, 11158, 11166],
   salud: [11173, 11179, 11174, 11145],
-  gobiernosectorpublico: [10728, 10881, 11141, 10817, 10778, 10792],
+  gobiernosectorpublico: [10728, 11141, 10817, 10778, 10792],
   constructoras: [11154, 11152, 10740, 11141],
   industria: [10878, 10927, 11176, 10776],
   bodegas: [10798, 10813, 10771, 11162, 10903],
   mineria: [],
   software: [10817, 10778, 10779, 10792, 10813],
-  'seguridad-electronica': [11158, 11166, 10877, 11154],
+  'seguridad-electronica': [11158, 11166, 11154],
 };
 export const CASOS_SERVICIO: Record<string, number[]> = {
-  '101': [10728, 11173, 11145, 10881, 11176, 11179],
-  '102': [11154, 11158, 11166, 10877, 10740],
+  '101': [10728, 11173, 11145, 11176, 11179],
+  '102': [11154, 11158, 11166, 10740],
   '103': [10728, 10740, 11145, 10798],
   '104': [10817, 10778, 10813, 10792, 10779],
   '105': [10903, 10744, 10728, 10778],
   '106': [11152, 10776, 10771],
   '107': [11146, 10737, 10914, 10804, 10903],
-  '108': [11141, 10878, 10881],
+  '108': [11141, 10878],
 };
 const SECTOR_DE: Record<number, string> = { 11146: 'aeropuertos', 10737: 'aeropuertos', 11158: 'aeropuertos', 11166: 'aeropuertos', 11173: 'salud', 11179: 'salud', 11174: 'salud', 11145: 'salud', 10728: 'gobiernosectorpublico', 10881: 'gobiernosectorpublico', 11141: 'gobiernosectorpublico', 10817: 'gobiernosectorpublico', 10778: 'gobiernosectorpublico', 10792: 'gobiernosectorpublico', 11154: 'constructoras', 11152: 'constructoras', 10740: 'constructoras', 10878: 'industria', 10927: 'industria', 11176: 'industria', 10776: 'industria', 10798: 'bodegas', 10813: 'bodegas', 10771: 'bodegas', 11162: 'bodegas', 10903: 'bodegas', 10744: 'bodegas', 10779: 'software', 10877: 'bodegas', 10914: 'industria', 10804: 'constructoras' };
 const SERVICIOS_DE: Record<number, string[]> = { 11146: ['107'], 10737: ['107'], 11158: ['102'], 11166: ['102'], 11173: ['101'], 11179: ['101'], 11174: ['101'], 11145: ['101', '103'], 10728: ['101', '103', '105'], 10881: ['101', '108'], 11141: ['108'], 10817: ['104'], 10778: ['104', '105'], 10792: ['104'], 11154: ['102', '101'], 11152: ['106'], 10740: ['101', '103', '102'], 10878: ['108'], 10927: ['102'], 11176: ['101'], 10776: ['106', '101'], 10798: ['101', '103', '102', '107'], 10813: ['104'], 10771: ['106', '101'], 11162: ['101'], 10903: ['105', '107'], 10744: ['105'], 10779: ['104'], 10877: ['102'], 10914: ['107'], 10804: ['107'] };

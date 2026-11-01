@@ -1,3 +1,4 @@
+import { isSoftwareSectorCase } from '../sectorSoftwareRelevance';
 import antecedentesSnapshot from '../../data/snapshots/antecedentes.json';
 import { generateSlug } from '../../utils/slugUtils.js';
 import type { Antecedente, AntecedenteStatus, SectorSlug, ServiceCode } from './types';
@@ -55,9 +56,8 @@ const SERVICIO_POR_TEXTO: [ServiceCode, RegExp][] = [
   [101, /\b(cableado|fibra|red(es)? de datos|switch|rack|patch|wifi|access point|radioenlace)/],
   [102, /\b(cctv|camara|videovigilancia|control de acceso|alarma|intrusion|seguridad electronica)/],
   [103, /\b(telefon|central telef|voip|radio|telecomunicacion|enlace|antena|intercomunicador|amplificador)/],
-  [104, /\b(software|sistema|aplicacion|desarrollo|plataforma|digitalizacion)\b/],
   [105, /\b(soporte|mantenimiento|mesa de ayuda|servicio tecnico|abono)/],
-  [106, /\b(consultor|auditoria|relevamiento|ingenieria|proyecto ejecutivo)/],
+  [106, /\b(consultoria|consultor(?:es)?|auditoria|relevamiento|ingenieria|proyecto ejecutivo)\b/],
   [107, /\b(incendio|deteccion|detector|sdi|humo|sirena|pulsador)/],
   [108, /\b(electric|ups|tablero|energia|puesta a tierra|grupo electrogeno)/],
 ];
@@ -83,7 +83,15 @@ function serviciosDe(registro: Registro, contenido: string): ServiceCode[] {
   const codigos = new Set<ServiceCode>();
   const porArea = SERVICIO_POR_AREA[texto(registro.Area)];
   if (porArea) codigos.add(porArea);
-  for (const [codigo, regla] of SERVICIO_POR_TEXTO) if (regla.test(contenido)) codigos.add(codigo);
+  if (isSoftwareSectorCase({ Titulo: registro.Titulo, Descripcion: registro.Descripcion, Area: registro.Area })) codigos.add(104);
+  // Directus agrega esta misma frase a fichas de rubros distintos. No es evidencia de
+  // consultoría; se elimina sólo del texto usado para inferir servicios y se conservan
+  // menciones concretas de ingeniería en el título o alcance.
+  const evidenciaServicios = contenido.replace(
+    /\bsolucion implementada por el equipo de ingenieria de ultima milla\b/g,
+    ' ',
+  );
+  for (const [codigo, regla] of SERVICIO_POR_TEXTO) if (regla.test(evidenciaServicios)) codigos.add(codigo);
   // Sin evidencia no se inventa un servicio: la ficha dice que el registro no detalla el alcance.
   return [...codigos].slice(0, 3);
 }

@@ -1,4 +1,5 @@
 ---
+import MotionIcon from './MotionIcon.astro';
 import SoftwareFilmTone from '../cine/SoftwareFilmTone.astro';
 import { variantes } from './isoData';
 interface Props { label: string; image: string; film?: string; poster?: string }
@@ -11,7 +12,7 @@ const photo = variantes(image);
   <div class="service-editorial__visual">
     {film ? <>
       <video data-service-film={film} poster={poster || image} muted playsinline loop preload="none" width="1920" height="1080" aria-label={`Película de ${label}`}></video>
-      <button type="button" data-service-play aria-label="Reproducir película">Reproducir película</button>
+      <button type="button" data-service-play aria-label="Reproducir película"><MotionIcon /></button>
     </> : <picture>{photo.avif && <source type="image/avif" srcset={photo.avif} sizes="(max-width: 900px) 100vw, 55vw" />}<img src={photo.w960} alt="" width="1672" height="941" fetchpriority="high" decoding="async" /></picture>}
   </div>
 </section>
@@ -24,7 +25,7 @@ const photo = variantes(image);
   .service-editorial__copy :global(.tag) { color: var(--ink); }
   .service-editorial__visual { position: relative; min-width: 0; }
   .service-editorial__visual img, .service-editorial__visual video { width: 100%; height: auto; display: block; aspect-ratio: 16 / 9; object-fit: contain; }
-  .service-editorial__visual button { display: block; margin-top: 16px; margin-left: auto; padding: 8px 0; border-bottom: 1px solid var(--ink-3); font-size: .9375rem; }
+  .service-editorial__visual button { display: grid; place-items: center; margin-top: 16px; margin-left: auto; width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 50%; }
   @media (max-width: 900px) {
     .service-editorial { grid-template-columns: minmax(0, 1fr); gap: 32px; }
     .service-editorial__visual { grid-row: 2; }
@@ -34,7 +35,7 @@ const photo = variantes(image);
 <script>
   document.querySelectorAll<HTMLVideoElement>('video[data-service-film]').forEach((video) => {
     const button = video.parentElement!.querySelector<HTMLButtonElement>('[data-service-play]')!;
-    const update = () => { const label = video.paused ? 'Reproducir película' : 'Pausar película'; button.textContent = label; button.setAttribute('aria-label', label); };
+    const update = () => { const label = video.paused ? 'Reproducir película' : 'Pausar película'; button.dataset.motionPlaying = String(!video.paused); button.setAttribute('aria-label', label); };
     const play = () => { if (!video.getAttribute('src')) video.src = video.dataset.serviceFilm!; video.play().catch(update); };
     button.addEventListener('click', () => video.paused ? play() : video.pause());
     video.addEventListener('loadeddata', () => { video.dataset.frameReady = 'true'; });

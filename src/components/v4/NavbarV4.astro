@@ -58,7 +58,7 @@ const isActive = (href: string) => {
                 {item.mega === 'servicios' ? (
                   <>
                     <div class="um-ops-mega__intro">
-                      <p class="um-ops-mega__kicker"><i></i>{t.megaServices.kicker}</p>
+                      <p class="um-ops-mega__kicker">{t.megaServices.kicker}</p>
                       <p class="um-ops-mega__lead">{t.megaServices.lead}</p>
                       <a class="um-ops-mega__all" href={routes.services}>{t.megaServices.all} <span aria-hidden="true">→</span></a>
                     </div>
@@ -77,7 +77,7 @@ const isActive = (href: string) => {
                 ) : (
                   <>
                     <div class="um-ops-mega__intro">
-                      <p class="um-ops-mega__kicker"><i></i>{t.megaSectors.kicker}</p>
+                      <p class="um-ops-mega__kicker">{t.megaSectors.kicker}</p>
                       <p class="um-ops-mega__lead">{t.megaSectors.lead}</p>
                       <a class="um-ops-mega__all" href={routes.sectors}>{lang === 'en' ? t.destinationLabel(t.megaSectors.all) : t.megaSectors.all} <span aria-hidden="true">→</span></a>
                     </div>
@@ -85,7 +85,6 @@ const isActive = (href: string) => {
                       {NAV_SECTORS.map((s) => (
                         <li>
                           <a href={s.href} class:list={[{ 'is-active': isActive(s.href) }]}>
-                            <span class="um-ops-mega__code" aria-label={s.count ? (lang === 'en' ? `${s.count} documented projects` : `${s.count} casos documentados`) : undefined}>{s.count ?? '—'}</span>
                             <span class="um-ops-mega__name">{lang === 'en' ? t.destinationLabel(shellSectorCopy(lang, s.slug, s.name, s.text).name) : s.name}</span>
                             <span class="um-ops-mega__text">{shellSectorCopy(lang, s.slug, s.name, s.text).text}</span>
                           </a>
@@ -388,6 +387,9 @@ const isActive = (href: string) => {
     top: 100%;
     z-index: var(--um-z-header-menu);
     padding: 28px 0 34px;
+    max-height: calc(100dvh - 66px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     background: #0b0b0c;
     border-top: 1px solid rgba(220,38,38,0.42);
     border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -407,7 +409,7 @@ const isActive = (href: string) => {
 
   .um-ops-mega__inner {
     display: grid;
-    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+    grid-template-columns: minmax(210px, 260px) minmax(0, 1fr);
     gap: clamp(28px, 4vw, 64px);
     align-items: start;
   }
@@ -432,7 +434,7 @@ const isActive = (href: string) => {
 
   .um-ops-mega__lead {
     margin: 14px 0 0;
-    color: #a1a1aa;
+    color: #c4c7cc;
     font-size: 1rem;
     line-height: 1.55;
     max-width: 30ch;
@@ -476,14 +478,21 @@ const isActive = (href: string) => {
 
   .um-ops-mega__grid a {
     display: grid;
-    grid-template-columns: 52px minmax(0, 1fr);
+    grid-template-columns: 3ch minmax(0, 1fr);
     grid-template-areas: "code name" "code text";
-    column-gap: 10px;
-    padding: 13px 10px 14px 0;
+    column-gap: 14px;
+    align-content: start;
+    height: 100%;
+    padding: 16px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
     color: #fff;
     text-decoration: none;
     transition: background-color 0.15s ease;
+  }
+
+  .um-ops-mega__grid--sectors a {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "name" "text";
   }
 
   .um-ops-mega__grid a:hover,
@@ -503,14 +512,13 @@ const isActive = (href: string) => {
     font-size: 1rem;
     font-weight: 600;
     line-height: 1.3;
-    color: #71717a;
+    color: #c4c7cc;
     font-variant-numeric: tabular-nums;
-    padding-top: 1px;
   }
 
   .um-ops-mega__grid a:hover .um-ops-mega__code,
   .um-ops-mega__grid a.is-active .um-ops-mega__code {
-    color: #dc2626;
+    color: #fff;
   }
 
   .um-ops-mega__name {
@@ -522,8 +530,8 @@ const isActive = (href: string) => {
 
   .um-ops-mega__text {
     grid-area: text;
-    margin-top: 3px;
-    color: #a1a1aa;
+    margin-top: 6px;
+    color: #c4c7cc;
     font-size: 1rem;
     line-height: 1.45;
   }
@@ -1042,7 +1050,7 @@ const isActive = (href: string) => {
     }
 
     .um-ops-container {
-      width: min(100% - 32px, var(--um-container-wide));
+      width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
     }
 
     .um-ops-logo {

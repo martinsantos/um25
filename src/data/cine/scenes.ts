@@ -97,8 +97,8 @@ const SERVICE_LABEL_BY_SLUG: Record<string, string> = {
 /** Rótulo del plano: "Hospital" para una escena base, "Hospital · Software a medida" para un recorrido v4.
  *  Mismo texto que escribe el reproductor (/cine/cine-banner-v4.js) en cada corte. */
 /** Película propia de Software: pantallas de interfaz con transparencias (Blender, v27). Ya publicada en
- *  /cine/media/cine-software-system-v27{,-sq}.mp4; la piden /software y el servicio 104 (dueño, 25/10). */
-export const SOFTWARE_FILM = 'software-system-v27';
+ *  /cine/media/cine-software-system-v27-clean{,-sq}.mp4; la piden /software y el servicio 104 (dueño, 25/10). */
+export const SOFTWARE_FILM = 'software-system-v27-clean';
 
 export const cutCaption = (key: string): string => {
   if (key === SOFTWARE_FILM) return 'Software a medida';

@@ -18,7 +18,7 @@ import { despieceAgregado, KIT_DE_SERVICIO } from '../../../components/proto/des
 import Partes from '../../../components/proto/Partes.astro';
 import { CASOS_SERVICIO, casosDe } from '../../../components/proto/relato';
 import { getDatasheetPublicPath } from '../../../utils/datasheets';
-import { serviceSingleDemoCapabilities } from '../../../data/serviceSingleDemoSystem';
+import { serviceSingleDemoCopy, serviceSingleDemoCapabilities } from '../../../data/serviceSingleDemoSystem';
 import { SERVICE_SPECS } from '../../../data/serviceSpecs';
 import { SECTORS, SOFTWARE_FILM } from '../../../data/cine/scenes';
 
@@ -47,12 +47,13 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
 const meta = Object.fromEntries(servicio.metadata.map((m) => [m.label, m.value]));
 const condiciones = ['Implementación', 'Garantía', 'Cobertura'].filter((k) => meta[k]).map((k) => `${k}: ${meta[k]}`).join('. ');
 const capabilities = serviceSingleDemoCapabilities[Number(code)] || [];
-const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
+const copy = serviceSingleDemoCopy[Number(code)]!;
+const limpio = (s: string) => s.replace(/(?:desde|con) el frente 105/gi, 'con el equipo de soporte').replace(/\bfrente 10\d\b/gi, 'equipo técnico');
 ---
 <!doctype html>
 <html lang="es">
   <head>
-    <Head title={`${servicio.name} · ${servicio.tagline} · ULTIMA MILLA`} description={`${servicio.tagline}. ${servicio.description}`} image={photo} precargar />
+    <Head title={`${servicio.name} · ULTIMA MILLA`} description={copy.paragraph} image={photo} precargar />
     <style>
       .service-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin-block: 24px; }
       .cubre { position: relative; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: center; }
@@ -79,8 +80,8 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
 
     <Hero label={servicio.name} image={photo} film={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}.mp4` : undefined} poster={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}-poster.avif` : undefined}>
       <h1 style={code === '103' ? 'font-size:clamp(2rem,3.6vw,3.5rem)' : undefined}>{servicio.name}<span class="dot">.</span></h1>
-      <p class="tag">{servicio.tagline}</p>
-      <p>{servicio.description}</p>
+      <p class="tag">{copy.headline}</p>
+      <p>{copy.paragraph}</p>
       {cifras.length > 0 && <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>}
       <div class="service-actions"><a class="btn" href="/contacto">Pedir un relevamiento</a><a class="u" href={pdf || `/servicios/${code}/ficha`} download={pdf ? true : undefined}>{pdf ? 'Descargar ficha técnica (PDF)' : 'Ficha técnica · imprimir o guardar PDF'}</a></div>
       <a class="u" href={`/antecedentes?service=${code}`}>{own.length > 0 ? `Ver los ${own.length} proyectos` : 'Ver todos los proyectos'}</a>

@@ -38,6 +38,10 @@ export function resolverSector(catalogo: Fila[]): (client: string, sector: strin
     porCliente.set(k, cuenta);
   }
   return (client, sector, texto = '') => {
+    // El área «Aeropuertos & Telecomunicaciones» mezcla lugar y servicio.
+    // Los registros de José Nucete describen selectoras de aceitunas y planta
+    // (antecedentes_completos.js), no un aeropuerto. Conservar un lugar explícito.
+    if (/\bjose nucete e hijos\b/.test(llano(client)) && (sector === 'aeropuertos' || CLASIFICACIONES_DE_SERVICIO.has(sector)) && !/\baeropuerto\b/.test(llano(texto))) return 'industria';
     if (!CLASIFICACIONES_DE_SERVICIO.has(sector)) return sector;
     const k = llano(client);
     const cuenta = porCliente.get(k);

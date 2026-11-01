@@ -30,6 +30,31 @@ Comprueba los cinco equipos en 1440, 834, 390 y 360 px, teclado, pausa,
 progresión automática y movimiento reducido. Revisión local del 1/11: 20 casos
 correctos; axe sin infracciones WCAG A/AA en las cinco páginas a 1440 y 390 px.
 
+## Cierre visual y cotejo de contenido
+
+Revisión del 1/11/2026: ocho servicios, nueve sectores y ambos índices. Cabecera,
+desplegables, aperturas y contenido comparten eje lateral también en móvil y en
+las páginas especializadas Software/Seguridad. Los códigos del menú llevan
+padding propio; título y descripción comparten columna. Los controles de movimiento
+son iconos con nombre accesible, sin rótulos de reproducción visibles.
+
+Las cabeceras usan el texto comercial vigente en producción, sin las métricas
+antiguas incrustadas en descripciones. El catálogo conserva las 520 fichas; la
+clasificación ya no considera consultoría la frase genérica «equipo de ingeniería
+de Última Milla», ni software cualquier «sistema» de detección. Cuando un título genérico de
+Software contradice el alcance histórico concreto, prevalece este último para
+la etiqueta del servicio; se comprobó el caso 3140 y otros diez casos concretos. Las solicitudes
+10877 y 10881 siguen en las fuentes, pero no se presentan como obras ejecutadas.
+Los contadores ambiguos del desplegable de sectores se retiran; las páginas y el
+archivo usan los registros del mismo catálogo. Se conservan las seis capacidades
+completas de cada servicio, fichas PDF, productos y enlaces públicos.
+
+Validación: build, lint (sin errores; avisos preexistentes), tipos, auditoría CSS y
+548 pruebas; revisión responsive a 1440/1280/834/390/360 px, axe en escritorio y
+móvil, navegación y contacto. Evidencias locales fuera del repositorio:
+`/private/tmp/umsa-final-acceptance-20261101/`. La revisión sigue siendo local;
+no sustituye el control autenticado de Directus en el futuro despliegue.
+
 ## Alcance de la publicación
 
 Los componentes permanecen en `src/pages/propuesta`, pero `src/middleware.ts` sirve
@@ -213,3 +238,19 @@ El control de paridad verifica reproducción, pausa, inicio manual con movimient
 - El fondo horneado del video de Software y de sus pósters se normaliza mediante `SoftwareFilmTone.astro`, con filtros separados para el MP4 y el AVIF. La mezcla se hace contra el fondo real de la página; no se recorta el contenido ni se modifican los originales. La captura de navegador verifica RGB 10/11/13 tanto fuera como dentro del fondo del video y del póster.
 
 Validación local: 19 rutas por cinco anchos (1440, 1280, 834, 390 y 360), 95 combinaciones sin desbordes ni imágenes rotas; compilación, tipos, lint y 534 pruebas; smoke de 37 rutas y 600 recursos. Capturas y resultados detallados fuera del repositorio en `/private/tmp/umsa-service-sector-20261101`. Las imágenes editoriales existentes son ilustraciones generadas, no una afirmación de fotografía documental de cada obra. Sigue pendiente la aprobación de publicación; producción no fue modificada.
+
+## Película de Software sin rótulos de autoría
+
+La fuente v27 y sus dependencias se recuperaron del commit `a334e802` en
+`scripts/cine/`. El render limpio es el predeterminado; `--inspection-overlays`
+permite volver a mostrar cotas y etiquetas únicamente para inspección. Las
+pantallas, su contenido funcional y el movimiento se conservan. Las fuentes
+para Blender se preparan con `prepare-blender-fonts.py` en una carpeta temporal,
+sin alterar las tipografías web. Blender 5 usa el motor `BLENDER_EEVEE`.
+
+Los archivos `cine-software-system-v27-clean*` conservan 20 segundos a 60 fps,
+1920×1080 en escritorio y 1080×1080 en la composición móvil. El nombre nuevo
+impide reutilizar los videos anteriores desde la caché. La variante anterior se
+conserva. Para regenerar: `render-software-system-v27.py --start 0 --end 1199
+--width 1920 --samples 8 --font-dir <fuentes-preparadas> --output <frames>`;
+para móvil, agregar `--composition mobile --width 1080`.

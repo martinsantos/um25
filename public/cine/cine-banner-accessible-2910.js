@@ -26,7 +26,7 @@ const compact = () => innerWidth <= 820 || matchMedia('(pointer: coarse)').match
 const tracks = new Map();
 const loadTrack = (scene) => {
   // Software v27 is an interface film: it has no Blender equipment tracking data.
-  if (scene === 'software-system-v27') return Promise.resolve(null);
+  if (scene === 'software-system-v27' || scene === 'software-system-v27-clean') return Promise.resolve(null);
   if (!tracks.has(scene)) tracks.set(scene, fetch(`/cine/media/cine-${scene}-ar.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
   return tracks.get(scene);
 };

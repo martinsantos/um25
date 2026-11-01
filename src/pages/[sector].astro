@@ -11,6 +11,7 @@ import GeoHubDossier from '../components/templates/GeoHubDossier.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getSectorBySlug, getAntecedentesForSector } from '../utils/sectoresHelpers.ts';
 import { getFAQSchema } from '../data/sectorFAQs';
+import { filterSoftwareSectorCases, softwareSectorCandidateKeywords } from '../lib/sectorSoftwareRelevance';
 import { getSectorVisualSpec } from '../data/sectorVisualSystem';
 import { editorialImageDimensions, editorialImages, getSectorEditorialImage } from '../data/editorialImageSystem';
 import { resolveCmsImageUrl } from '../utils/directusImageResolver';
@@ -62,7 +63,11 @@ const pageHeadline = isReplicaIdenticalCopy()
   ? resolveReplicaH1(`/${publicSectorSlug}`, seo_title || editorialHeadline)
   : editorialHeadline;
 const pageSummary = visual?.summary || descripcion;
-const antecedentes = geoHub ? [] : await getAntecedentesForSector(keywords, nombre);
+const antecedentes = geoHub ? [] : sectorSlug === 'software'
+  ? filterSoftwareSectorCases(
+    await getAntecedentesForSector(softwareSectorCandidateKeywords(keywords), nombre, 500),
+  )
+  : await getAntecedentesForSector(keywords, nombre);
 const sanitizeSectorStats = (items: any[] = []) => items.map((stat: any) => {
   const label = String(stat?.label || '');
   const value = String(stat?.value || '');
@@ -140,3 +145,19 @@ const sectorStructuredData = geoHub ? [] : [
   />
 </LayoutV4>
 )}
+
+<style is:global>
+  body:has(.um26-sector) {
+    --um-container-wide: 1400px;
+    --um-page-gutter: clamp(20px, 4vw, 64px);
+  }
+
+  body:has(.um26-sector) .um-ops-container,
+  body:has(.um26-sector) .sector26-shell {
+    width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
+  }
+
+  body:has(.um26-sector) .um26-sector .umc {
+    --umc-gutter: max(var(--um-page-gutter), calc((100vw - var(--um-container-wide)) / 2));
+  }
+</style>

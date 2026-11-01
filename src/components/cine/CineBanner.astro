@@ -40,7 +40,7 @@ const dot = title.endsWith('.');
 const heading = dot ? title.slice(0, -1) : title;
 const rail = HOME_SCENES.filter((s) => scenes.includes(s.scene));
 const fallbackFor = (key: string) => key === SOFTWARE_FILM
-  ? '/cine/media/cine-software-system-v27-poster.avif'
+  ? `/cine/media/cine-${SOFTWARE_FILM}-poster.avif`
   : V4_CUTS[key]?.poster || `/cine/media/cine-${key.split('-')[0]}-poster.avif`;
 const fallbackKeys = [...new Set([...scenes, ...Object.values(variants).flat()])];
 const fallbacks = Object.fromEntries(fallbackKeys.map((key) => [key, fallbackFor(key)]));

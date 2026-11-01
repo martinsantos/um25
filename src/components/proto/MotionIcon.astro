@@ -1,0 +1,10 @@
+<svg class="motion-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+  <path class="motion-icon__play" d="m8 5 11 7-11 7Z" fill="currentColor" />
+  <path class="motion-icon__pause" d="M8 5v14M16 5v14" fill="none" stroke="currentColor" stroke-width="3" />
+</svg>
+<style>
+  .motion-icon { display: block; flex: none; }
+  .motion-icon__pause { display: none; }
+  :global([data-motion-playing="true"]) .motion-icon__play { display: none; }
+  :global([data-motion-playing="true"]) .motion-icon__pause { display: block; }
+</style>

@@ -9,7 +9,7 @@ import { getAntecedenteSectorLabel } from '../../utils/antecedenteSectorPresenta
 import { curateAntecedente } from '../../utils/antecedentesCuration';
 import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import { NAV_SERVICES } from '../../data/navigation';
-import { SECTORS } from '../../data/cine/scenes';
+import { SECTORS, SOFTWARE_FILM } from '../../data/cine/scenes';
 import { descripcionDeOrigen } from './relato';
 import { nombreCliente, tituloProyecto, desambiguarTitulos } from './titulos';
 import sgiJson from '../../data/sgi/fechas.json';
@@ -80,6 +80,27 @@ const cleanText = (value: unknown) => String(value ?? '').replace(/\b(Rubro|Clie
 
 export type Story = { id: number; slug: string; href: string; client: string; title: string; year: number; month: number; inicio?: string; cierre?: string; estado?: Estado; sgiId?: string; sector: string; sectorSlug: string; serviceCodes: string[]; services: string[]; image: string; summary: string; status: string };
 
+const SOFTWARE_GENERIC_TITLE = /^desarrollo de software y digitalizacion de procesos\b/i;
+const SOFTWARE_SCOPE_EVIDENCE = /\b(software|digitalizaci[oó]n|aplicaci[oó]n|plataforma|erp|web|api|programaci[oó]n|desarrollos? y actualizaci[oó]n sistema de ventas)\b/i;
+const normalizeEvidence = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+/**
+ * El CMS usa un título genérico de software en algunos registros de otros rubros.
+ * Si el título y el resumen ya curados describen un alcance concreto sin evidencia
+ * de software, no mostramos el código 104 que sólo pudo venir de ese título genérico.
+ */
+export function reconcileGeneratedSoftwareService(
+  sourceTitle: string,
+  curatedTitle: string,
+  curatedSummary: string,
+  serviceCodes: string[],
+): string[] {
+  if (!SOFTWARE_GENERIC_TITLE.test(normalizeEvidence(sourceTitle))) return serviceCodes;
+  if (!serviceCodes.includes('104')) return serviceCodes;
+  if (SOFTWARE_SCOPE_EVIDENCE.test(`${curatedTitle} ${curatedSummary}`)) return serviceCodes;
+  return serviceCodes.filter((code) => code !== '104');
+}
+
 const TEMPLATE_PHRASES: Array<[RegExp, string]> = [
   [/(^|>)\s*Ejecución integral de\s+/gi, '$1'],
   [/,?\s*asegurando continuidad operativa y cumplimiento de estándares técnicos de calidad\.?/gi, '.'],
@@ -118,7 +139,7 @@ export const SERVICE_KEY: Record<string, string> = { '101': 'redes', '102': 'seg
 export const SITE_OF: Record<string, IsoSite> = { bodegas: 'winery', aeropuertos: 'terminal', salud: 'clinic', mineria: 'mine', industria: 'plant', constructoras: 'building', gobiernosectorpublico: 'building', gobierno: 'building' };
 /** Fotos editoriales: la imagen a pleno de cada servicio y de cada sector. */
 export const SERVICE_PHOTO: Record<string, string> = { '101': '/images/editorial/umsa-service-redes.webp', '102': '/images/editorial/umsa-service-seguridad-electronica.webp', '103': '/images/editorial/umsa-service-telecomunicaciones.webp', '104': '/images/editorial/umsa-service-software-a-medida.webp', '105': '/images/editorial/umsa-service-soporte-247.webp', '106': '/images/editorial/umsa-service-consultoria-it.webp', '107': '/images/editorial/umsa-service-deteccion-incendios.webp', '108': '/images/editorial/umsa-service-electricos-it.webp' };
-export const SECTOR_PHOTO: Record<string, string> = { software: '/cine/media/cine-software-system-v27-poster.avif', 'seguridad-electronica': '/images/editorial/umsa-sector-seguridad-electronica.webp', bodegas: '/images/editorial/umsa-sector-bodegas.webp', aeropuertos: '/images/editorial/umsa-sector-aeropuertos.webp', salud: '/images/editorial/umsa-sector-salud.webp', mineria: '/images/editorial/umsa-sector-mineria.webp', industria: '/images/editorial/umsa-sector-industria.webp', constructoras: '/images/editorial/umsa-sector-constructoras.webp', gobiernosectorpublico: '/images/editorial/umsa-sector-gobierno.webp', gobierno: '/images/editorial/umsa-sector-gobierno.webp' };
+export const SECTOR_PHOTO: Record<string, string> = { software: `/cine/media/cine-${SOFTWARE_FILM}-poster.avif`, 'seguridad-electronica': '/images/editorial/umsa-sector-seguridad-electronica.webp', bodegas: '/images/editorial/umsa-sector-bodegas.webp', aeropuertos: '/images/editorial/umsa-sector-aeropuertos.webp', salud: '/images/editorial/umsa-sector-salud.webp', mineria: '/images/editorial/umsa-sector-mineria.webp', industria: '/images/editorial/umsa-sector-industria.webp', constructoras: '/images/editorial/umsa-sector-constructoras.webp', gobiernosectorpublico: '/images/editorial/umsa-sector-gobierno.webp', gobierno: '/images/editorial/umsa-sector-gobierno.webp' };
 /** Las variantes de ancho de una foto según su familia: de antecedente (1600 → 960 → 480) o editorial (1672 → 960 → 480, y AVIF a 960 y 1672 para la apertura). Sin familia, las tres son la misma y el ancho es 0. */
 export const variantes = (image: string) => {
   if (/^\/images\/antecedentes\/generated\/.+-principal\.webp$/.test(image)) return { w480: image.replace(/-principal\.webp$/, '-principal-480.webp'), w960: image.replace(/-principal\.webp$/, '-principal-960.webp'), full: image, ancho: 1600, avif: '' };
@@ -153,12 +174,14 @@ export async function loadStories() {
   const extras = (extraJson as { proyectos: Extra[] }).proyectos.filter((e) => !catalog.some((c) => c.id === e.id));
   const EXTRA_DE = new Map(extras.map((e) => [e.id, e]));
   const catalogoCompleto = [...catalog, ...extras.map((e) => ({ id: e.id, title: e.Titulo, slug: slugDe(e.Titulo), client: e.Cliente, sector_slug: e.sector, service_codes: e.servicios.map(Number), year: Number(e.inicio.slice(0, 4)), month: Number(e.inicio.slice(5, 7)), location: '', scope: [] as string[], status: 'operativo' as const, image: SECTOR_PHOTO[e.sector] || SECTOR_PHOTO['constructoras'], summary: e.Descripcion, tags: [] as string[] }))];
+  const tituloOrigenPorId = new Map(catalogoCompleto.map((c) => [c.id, c.title]));
   const sectorDe = resolverSector(catalogoCompleto.map((c) => ({ client: c.client, sector: c.sector_slug })));
   const stories: Story[] = [...catalogoCompleto]
     .sort((a, b) => (b.year - a.year) || (b.month - a.month) || (b.id - a.id))
     .map((c) => {
       const client = nombreCliente(c.client);
       const title = tituloProyecto(c.title, c.client, c.summary);
+      const summary = sinTitulo(descripcionDeOrigen(c.id), title, client) || cleanSummary(c.summary, title, client);
       const sectorReal = sectorDe(c.client, c.sector_slug, `${c.title} ${c.summary}`);
       // El catálogo dice "gobierno"; la navegación del sitio, "gobiernosectorpublico".
       const sectorSlug = sectorReal === 'gobierno' ? 'gobiernosectorpublico' : sectorReal;
@@ -183,7 +206,7 @@ export async function loadStories() {
         serviceCodes: c.service_codes.map(String),
         services: c.service_codes.map((code) => byCode.get(String(code)) || '').filter(Boolean),
         image: c.image || '',
-        summary: sinTitulo(descripcionDeOrigen(c.id), title, client) || cleanSummary(c.summary, title, client),
+        summary,
         status: c.status,
       };
     });
@@ -201,9 +224,21 @@ export async function loadStories() {
   stories.sort((a, b) => (b.year - a.year) || (b.month - a.month) || (b.id - a.id));
   // Ningún proyecto se oculta por repetir título: se distingue por su descripción o por su fecha.
   desambiguarTitulos(stories);
+  // El título concreto de algunas fichas se obtiene al desambiguar descripciones que
+  // comparten el rótulo genérico del CMS. Reconciliar antes dejaba heredar Software.
+  stories.forEach((story) => {
+    const serviceCodes = reconcileGeneratedSoftwareService(
+      tituloOrigenPorId.get(story.id) || '',
+      story.title,
+      story.summary,
+      story.serviceCodes,
+    );
+    story.serviceCodes = serviceCodes;
+    story.services = serviceCodes.map((code) => byCode.get(code) || '').filter(Boolean);
+  });
   // Si la descripción no dice más que el título, la ficha no la repite.
   stories.forEach((s) => { if (s.summary && comparable(s.summary) === comparable(s.title)) s.summary = ''; });
-  const countOf = (slug: string) => catalog.filter((c) => sectorDe(c.client, c.sector_slug, `${c.title} ${c.summary}`) === slug).length;
+  const countOf = (slug: string) => stories.filter((c) => c.sectorSlug === slug).length;
   const places = PLACES.map((p) => {
     const row = SECTORS.find((s) => s.slug === p.slug)!;
     return { ...p, name: row.name, text: row.text, href: `/sectores/${p.slug}`, count: countOf(p.slug), stories: stories.filter((s) => s.sectorSlug === p.slug).slice(0, 3) };

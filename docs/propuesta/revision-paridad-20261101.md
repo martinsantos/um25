@@ -36,6 +36,22 @@ Se compararon las 40 rutas principales, sus encabezados, enlaces, imágenes y co
 
 Artefactos de esta sesión: `/private/tmp/umsa-final-parity-20261101/` (comparación HTML, sitemaps, informes JSON, capturas y control descargado de CI). CI del barrido amplio: https://github.com/martinsantos/um25/actions/runs/41312061490 . Su paso visual aparece verde, pero el informe adjunto sí registra los cinco avisos de altura; se revisó el informe y no sólo el estado del job.
 
+## Control final de servicios y sectores
+
+Se corrigieron los ejes laterales, el padding de cada entrada del desplegable,
+la distancia código/título, el contraste de subtítulos y la alineación de las
+etiquetas de cifras cuando ocupan dos líneas. Se recorrieron los 19 destinos
+(ocho servicios, nueve sectores y dos índices) en cinco anchos: 95 vistas,
+además de ambos menús abiertos y 25 vistas específicas de las últimas correcciones.
+Sin desbordes, imágenes rotas ni errores de accesibilidad en los controles ejecutados.
+Las 548 pruebas en 73 suites pasan. Evidencias: `/private/tmp/umsa-final-acceptance-20261101/`.
+
+Los ocho servicios mantienen sus seis capacidades completas. Se corrigió la
+inferencia que asignaba Consultoría por una frase genérica de ingeniería y
+Software por cualquier mención a «sistema». Las solicitudes 10877/10881 se
+conservan en el archivo pero no figuran como obras ejecutadas destacadas. La
+planta de José Nucete deja de heredar Aeropuertos por su área de telecomunicaciones.
+
 ## Límites y datos editoriales pendientes
 
 No equivale a una lectura manual de cada una de las 520 fichas y cada nota. Se verificó el índice completo, el acceso a recursos, plantillas de página y muestras de contenido.
