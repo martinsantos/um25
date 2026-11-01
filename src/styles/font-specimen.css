@@ -63,6 +63,7 @@
 .sp-weight-italic { font-style: italic; }
 .sp-text-input { display: grid; gap: 10px; font-size: 1.125rem; }
 .sp-text-input input { width: 100%; background: transparent; color: inherit; padding: 14px 18px; border: 1px solid #7b7d80; border-radius: 0; }
+#um-specimen .sp-dark :where(label, output, .sp-install li) { color: #fff !important; }
 .sp-lab-controls { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 32px; margin-top: 28px; }
 .sp-lab-controls label { display: grid; grid-template-columns: 1fr auto; gap: 12px 8px; font-size: 1.125rem; }
 .sp-lab-controls output { font-variant-numeric: tabular-nums; }
@@ -112,6 +113,7 @@
 .sp-number-proof span { display: block; font-size: 1rem; color: #c4c7cc; margin-bottom: 16px; }
 #um-specimen .sp-number-proof p { font-size: clamp(1.5rem,2.7vw,2.5rem); line-height: 1.5; }
 .sp-table-wrap { max-width: 100%; overflow-x: auto; }
+#um-specimen .sp-table-wrap:focus-visible { outline: 3px solid #1974d2; outline-offset: 3px; }
 #um-specimen table { width: 100%; border-collapse: collapse; font-size: 1.25rem; font-variant-numeric: tabular-nums; }
 #um-specimen :is(th,td) { padding: 16px 18px; border-bottom: 1px solid var(--sp-line); text-align: right; }
 #um-specimen :is(th,td):first-child { text-align: left; }
