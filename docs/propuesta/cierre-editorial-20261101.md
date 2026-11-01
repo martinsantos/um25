@@ -3,6 +3,18 @@
 1 de noviembre de 2026. Rama `feature/integracion-despiece-20261101`, PR 541 en borrador.
 Vista de revisión: http://127.0.0.1:4381/ . **No publicar hasta la revisión del usuario.**
 
+## Último cierre: ocho imágenes e inventarios de los casos
+
+La pasada más reciente valida ocho PNG de Servicios por hash, decodificación completa y respuesta HTTP local con MIME correcto. El manifiesto y el verificador offline permiten reproducir un bundle fuera del repositorio. La metadata original dice JPEG: la futura restauración en Directus debe conservar las referencias y corregir MIME/nombres. El volumen del CMS no se ha restaurado y no se ha ensayado una carga API; la resolución local sí está comprobada.
+
+Los doce casos destacados usan ahora inventarios explícitos cotejados con sus fuentes. Se retiran inferencias de software, tableros o kits de incendio que no estaban respaldadas; se separan racks de distinto modelo y se distinguen cantidades, capacidades y longitudes. Los dibujos de puestos de datos representan cableado, no computadoras. La curaduría conserva la comprobación del cliente público actual.
+
+Validación de esta pasada: `npm run check` completo (617 pruebas en 84 suites, lint, tipos, contrato CSS y build); inventarios HTML de 12/12 fichas iguales a los datos revisados; las tres imágenes de portada coinciden con sus fichas; smoke de 37 rutas, 520 fichas indexadas y 614 recursos. El runtime 4381 se recompiló y reinició con este resultado. No hay publicación ni escrituras en producción.
+
+QA independiente: 24/24 vistas de los doce casos a 1440 y 390 px, respuestas 200, consola limpia, sin desbordes ni infracciones de axe WCAG 2.1 A/AA. Este resultado comprueba las pantallas y reglas automatizadas ensayadas; no afirma accesibilidad universal ni completa la curaduría pendiente de los otros antecedentes.
+
+Evidencia temporal: `/private/tmp/umsa-case-recovery-check.log`, `/private/tmp/umsa-case-recovery-http.json`, `/private/tmp/umsa-case-recovery-smoke.log` y `/private/tmp/umsa-cases-equipment-final-20261101/`. Detalle de restauración: [causa raíz y preparación](directus-causa-raiz-20261101.md); inventarios: [evidencia de los doce casos](casos-destacados-evidencia-20261101.md).
+
 ## Cambios para revisar
 
 - Desplegables con miniaturas relacionadas con cada uno de los ocho servicios y nueve sectores. Encabezado común, ejes alineados, códigos junto al título y subtítulos legibles. Se conservan todos los destinos originales.

@@ -1,4 +1,4 @@
-import { publicCaseFor, samePublicClient } from '../src/components/proto/casePresentation';
+import { caseEquipmentFor, publicCaseFor, samePublicClient } from '../src/components/proto/casePresentation';
 import { CASOS_DESTACADOS } from '../src/data/propuesta/casos-destacados';
 
 describe('public identity in editorial cases', () => {
@@ -16,5 +16,12 @@ describe('public identity in editorial cases', () => {
     expect(publicCaseFor({ id: record.id, client: 'Cliente Confidencial' })).toBeUndefined();
     expect(publicCaseFor({ id: record.id, client: 'Otro cliente' })).toBeUndefined();
     expect(publicCaseFor({ id: 3552, client: 'Cliente Confidencial' })).toBeUndefined();
+  });
+  test('equipment does not leak across a changed or anonymized CMS identity', () => {
+    const record = CASOS_DESTACADOS[0];
+    const story = { id: record.id, client: record.client, title: 'Proyecto', summary: '', serviceCodes: [] };
+    expect(caseEquipmentFor(story).partes).toEqual(record.parts);
+    expect(caseEquipmentFor({ ...story, client: 'Cliente Confidencial' }).partes).toEqual([]);
+    expect(caseEquipmentFor({ ...story, client: 'Otro cliente' }).partes).toEqual([]);
   });
 });

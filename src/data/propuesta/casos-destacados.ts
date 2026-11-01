@@ -1,4 +1,6 @@
 /** Curaduría local respaldada por el catálogo vivo, SGI y registros existentes. */
+import type { Parte } from '../../components/proto/despiece';
+
 export interface CasoDestacado {
   id: number;
   client: string;
@@ -7,6 +9,7 @@ export interface CasoDestacado {
   introduction: string;
   scope: string[];
   evidence: Array<{ value: string; label: string }>;
+  parts: Parte[];
   sourceRefs: string[];
   imageKind: 'illustration' | 'documented-photo';
   outcome?: string;
@@ -28,6 +31,11 @@ export const CASOS_DESTACADOS: readonly CasoDestacado[] = [
       { value: '3', label: 'placas de red Notifier NC-NCM-SF' },
       { value: '3', label: 'detectores Notifier FSP-951 base B501' },
     ],
+    parts: [
+      { key: 'central', code: '107', label: 'Central Notifier NFS-320-SP', qty: 3 },
+      { key: 'modulo', code: '107', label: 'Placa de red Notifier NC-NCM-SF', qty: 3 },
+      { key: 'detector', code: '107', label: 'Detector Notifier FSP-951 base B501', qty: 3 },
+    ],
     sourceRefs: ['auditoría viva: ficha 3126', 'src/data/sgi/fechas.json#3126', 'src/data/snapshots/antecedentes.json#3126', 'src/data/antecedentes_completos.js#11146'],
     imageKind: 'illustration',
   },
@@ -48,6 +56,12 @@ export const CASOS_DESTACADOS: readonly CasoDestacado[] = [
       { value: '4 × 9U', label: 'racks murales' },
       { value: '4', label: 'fibras monomodo tendidas' },
     ],
+    parts: [
+      { key: 'cableado', code: '101', label: 'Puestos de datos Cat. 6 LSZH', qty: 43 },
+      { key: 'cableado', code: '103', label: 'Puestos de telefonía Cat. 6 LSZH', qty: 18 },
+      { key: 'rack', code: '101', label: 'Racks murales de 9U', qty: 4 },
+      { key: 'fibra', code: '101', label: 'Fibras monomodo tendidas', qty: 4 },
+    ],
     sourceRefs: ['auditoría viva: ficha 3144', 'src/data/sgi/fechas.json#3144', 'src/data/snapshots/antecedentes.json#3144', 'src/data/antecedentes_completos.js#11145'],
     imageKind: 'illustration',
   },
@@ -63,8 +77,13 @@ export const CASOS_DESTACADOS: readonly CasoDestacado[] = [
     ],
     evidence: [
       { value: '8', label: 'tableros eléctricos' },
-      { value: '120', label: 'bocas en cada gabinete principal IP65' },
-      { value: '10', label: 'bocas en cada gabinete secundario' },
+      { value: '120', label: 'bocas de capacidad · gabinete principal IP65' },
+      { value: '10', label: 'bocas de capacidad · gabinete secundario' },
+    ],
+    parts: [
+      { key: 'tablero', code: '108', label: 'Tablero eléctrico', qty: 8 },
+      { key: 'tablero', code: '108', label: 'Gabinete principal IP65 · capacidad: 120 bocas' },
+      { key: 'tablero', code: '108', label: 'Gabinete secundario · capacidad: 10 bocas' },
     ],
     sourceRefs: ['auditoría viva: ficha 3119', 'src/data/sgi/fechas.json#3119', 'src/data/snapshots/antecedentes.json#3119', 'src/data/antecedentes_completos.js#11141'],
     imageKind: 'illustration',
@@ -86,6 +105,15 @@ export const CASOS_DESTACADOS: readonly CasoDestacado[] = [
       { value: '4', label: 'switches PoE' },
       { value: '1', label: 'DVR de 16 canales' },
     ],
+    parts: [
+      { key: 'telefono', code: '103', label: 'Frente de portero IP', qty: 1 },
+      { key: 'telefono', code: '103', label: 'Estaciones interiores', qty: 31 },
+      { key: 'camara', code: '102', label: 'Cámaras analógicas', qty: 13 },
+      { key: 'switch', code: '101', label: 'Switches PoE', qty: 4 },
+      { key: 'nvr', code: '102', label: 'DVR de 16 canales', qty: 1 },
+      { key: 'rack', code: '101', label: 'Rack mural con canal de tensión', qty: 1 },
+      { key: 'ups', code: '108', label: 'UPS' },
+    ],
     sourceRefs: ['auditoría viva: ficha 3588', 'src/data/sgi/fechas.json#3588', 'src/data/snapshots/antecedentes.json#3588', 'src/data/antecedentes_completos.js#11154'],
     imageKind: 'illustration',
   },
@@ -106,6 +134,12 @@ export const CASOS_DESTACADOS: readonly CasoDestacado[] = [
       { value: '1 × 40U', label: 'rack de piso · 1000 mm' },
       { value: '4 × 15U', label: 'racks murales · 500 mm' },
     ],
+    parts: [
+      { key: 'cableado', code: '101', label: 'Puestos simples de datos Cat. 6 LSZH', qty: 45 },
+      { key: 'cableado', code: '101', label: 'Puestos dobles de datos Cat. 6 LSZH', qty: 25 },
+      { key: 'rack', code: '101', label: 'Rack de piso · 40U · 1000 mm', qty: 1 },
+      { key: 'rack', code: '101', label: 'Racks murales · 15U · 500 mm', qty: 4 },
+    ],
     sourceRefs: ['auditoría viva: ficha 3102', 'src/data/sgi/fechas.json#3102', 'src/data/snapshots/antecedentes.json#3102', 'src/data/antecedentes_completos.js#11173'],
     imageKind: 'illustration',
   },
@@ -114,18 +148,25 @@ export const CASOS_DESTACADOS: readonly CasoDestacado[] = [
     client: 'Headcomm S.A.',
     kicker: 'Comercio mayorista · datos y fibra óptica',
     title: 'Red de datos y fibra óptica para sucursales de Yaguar',
-    introduction: 'El alcance de las sucursales de Yaguar en Mendoza y San Juan combina cableado Cat. 6, fibra monomodo entre racks, puntos de acceso y equipamiento de distribución.',
+    introduction: 'El alcance de las sucursales de Yaguar en Mendoza y San Juan combina 16 puestos de datos Cat. 6, fibra monomodo de 12 hilos entre racks y equipamiento de distribución.',
     scope: [
-      'Cableado Cat. 6 para puestos de datos y puntos de acceso.',
+      'Cableado Cat. 6 para 16 puestos de datos: 6 estándar y 10 destinados a AP.',
       'Tendido de fibra monomodo entre racks.',
       'Instalación de rack mural, ODF y fusionado de fibra.',
     ],
     evidence: [
       { value: '16', label: 'puestos de datos Cat. 6' },
       { value: '6', label: 'puestos estándar' },
-      { value: '10', label: 'puestos para AP' },
+      { value: '10', label: 'puestos de datos destinados a AP' },
       { value: '12 hilos', label: 'fibra monomodo entre racks' },
       { value: '12U', label: 'rack mural' },
+    ],
+    parts: [
+      { key: 'cableado', code: '101', label: 'Puestos de datos Cat. 6', qty: 16 },
+      { key: 'fibra', code: '101', label: 'Fibra monomodo entre racks · 12 hilos' },
+      { key: 'rack', code: '101', label: 'Rack mural de 12U' },
+      { key: 'canalizacion', code: '101', label: 'Cañería secundaria' },
+      { key: 'fibra', code: '101', label: 'ODF y fusionado de fibra' },
     ],
     sourceRefs: ['auditoría viva: ficha 3099', 'src/data/sgi/fechas.json#3099', 'src/data/snapshots/antecedentes.json#3099', 'src/data/antecedentes_completos.js#11176'],
     imageKind: 'illustration',
@@ -145,6 +186,11 @@ export const CASOS_DESTACADOS: readonly CasoDestacado[] = [
       { value: '33', label: 'puestos de datos Cat. 6 LSZH' },
       { value: '1 × 15U', label: 'rack mural' },
     ],
+    parts: [
+      { key: 'cableado', code: '101', label: 'Puestos simples de datos Cat. 6 LSZH', qty: 33 },
+      { key: 'canalizacion', code: '101', label: 'Canalización y cableado a puestos de trabajo' },
+      { key: 'rack', code: '101', label: 'Rack mural de 15U', qty: 1 },
+    ],
     sourceRefs: ['auditoría viva: ficha 3103', 'src/data/sgi/fechas.json#3103', 'src/data/snapshots/antecedentes.json#3103', 'src/data/antecedentes_completos.js#11174'],
     imageKind: 'illustration',
   },
@@ -153,14 +199,20 @@ export const CASOS_DESTACADOS: readonly CasoDestacado[] = [
     client: 'FUESMEN · Fundación Escuela Medicina Nuclear',
     kicker: 'Salud · Hospital Perrupato',
     title: 'Redes de datos y tableros para el Hospital Perrupato',
-    introduction: 'El cableado estructurado del Hospital Perrupato combina redes de datos y tableros eléctricos; el alcance de datos identifica puestos Cat. 6 LSZH simples y dobles.',
+    introduction: 'El proyecto del Hospital Perrupato reúne redes de datos y tableros eléctricos. El alcance de datos documenta puestos Cat. 6 LSZH simples y dobles.',
     scope: [
       'Cableado estructurado y redes de datos para el Hospital Perrupato.',
-      'Instalación de tableros eléctricos.',
+      'Tableros eléctricos.',
     ],
     evidence: [
       { value: '56', label: 'puestos simples Cat. 6 LSZH' },
       { value: '29', label: 'puestos dobles Cat. 6 LSZH' },
+    ],
+    parts: [
+      { key: 'cableado', code: '101', label: 'Puestos simples de datos Cat. 6 LSZH', qty: 56 },
+      { key: 'cableado', code: '101', label: 'Puestos dobles de datos Cat. 6 LSZH', qty: 29 },
+      { key: 'rack', code: '101', label: 'Racks murales de 15U' },
+      { key: 'tablero', code: '108', label: 'Tableros eléctricos' },
     ],
     sourceRefs: ['auditoría viva: ficha 3085', 'src/data/sgi/fechas.json#3085', 'src/data/snapshots/antecedentes.json#3085', 'src/data/antecedentes_completos.js#11179'],
     imageKind: 'illustration',
@@ -181,6 +233,11 @@ export const CASOS_DESTACADOS: readonly CasoDestacado[] = [
       { value: '150 m', label: 'UTP Cat. 6 interior · camarines' },
       { value: '150 m', label: 'UTP Cat. 6 interior · oficina de elaboración' },
     ],
+    parts: [
+      { key: 'camara', code: '102', label: 'Cámaras de seguridad', qty: 5 },
+      { key: 'cableado', code: '101', label: '150 m UTP Cat. 6 interior · camarines' },
+      { key: 'cableado', code: '101', label: '150 m UTP Cat. 6 interior · oficina de elaboración' },
+    ],
     sourceRefs: ['auditoría viva: ficha 3640', 'src/data/sgi/fechas.json#3640', 'src/data/snapshots/antecedentes.json#3640', 'src/data/antecedentes_completos.js#10927'],
     imageKind: 'illustration',
   },
@@ -196,6 +253,9 @@ export const CASOS_DESTACADOS: readonly CasoDestacado[] = [
       'Instalación, montaje, testeo, pruebas y control.',
     ],
     evidence: [],
+    parts: [
+      { key: 'acceso', code: '102', label: 'Control de acceso perimetral a activos de obra' },
+    ],
     sourceRefs: ['auditoría viva: ficha 3104', 'src/data/sgi/fechas.json#3104', 'src/data/snapshots/antecedentes.json#3104'],
     imageKind: 'illustration',
   },
@@ -210,6 +270,9 @@ export const CASOS_DESTACADOS: readonly CasoDestacado[] = [
       'Puesta en marcha en los mostradores de cobro del parking.',
     ],
     evidence: [],
+    parts: [
+      { key: 'camara', code: '102', label: 'Sistema CCTV · mostradores de cobro del parking' },
+    ],
     sourceRefs: ['auditoría viva: ficha 3140', 'src/data/sgi/fechas.json#3140', 'src/data/snapshots/antecedentes.json#3140', 'src/data/antecedentes_completos.js#11158'],
     imageKind: 'illustration',
   },
@@ -224,6 +287,10 @@ export const CASOS_DESTACADOS: readonly CasoDestacado[] = [
       'Provisión y configuración de un punto de acceso.',
     ],
     evidence: [],
+    parts: [
+      { key: 'cableado', code: '101', label: 'Cableado de datos para una suite' },
+      { key: 'ap', code: '101', label: 'Punto de acceso configurado' },
+    ],
     sourceRefs: ['auditoría viva: ficha 3116', 'src/data/sgi/fechas.json#3116', 'src/data/snapshots/antecedentes.json#3116', 'src/data/antecedentes_completos.js#11162'],
     imageKind: 'illustration',
   },

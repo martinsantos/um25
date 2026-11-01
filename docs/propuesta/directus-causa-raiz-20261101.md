@@ -4,7 +4,7 @@
 
 La respuesta `403 FORBIDDEN` de `/assets/{uuid}` no indica falta de permiso en el token usado para la lectura. Para las ocho imágenes referenciadas por la colección `Servicios`, Directus conserva la fila `directus_files`, pero no está el binario que indica `filename_disk` en el almacenamiento `local` montado por el contenedor activo. Como control positivo, cuatro archivos originales que sí existen en ese mismo volumen permiten `GET /assets/{uuid}` con el mismo token.
 
-Encontré ocho archivos locales plausibles como fuentes de recuperación bajo `public/images/services/productos/`. Para los ocho, el tamaño en bytes y las dimensiones coinciden exactamente con la metadata viva de Directus; las cinco imágenes que no tenían entrada en `image-local-map.json` también se inspeccionaron visualmente y representan sus servicios. Como el binario fuente ausente no está disponible para comparación, estos son candidatos de alta confianza, pero no afirmo igualdad binaria con el original de Directus.
+Encontré ocho archivos locales plausibles como fuentes de recuperación bajo `public/images/services/productos/`. Para los ocho, el tamaño en bytes y las dimensiones coinciden exactamente con la metadata viva de Directus. Las cinco fuentes adicionales inspeccionadas visualmente representan sus servicios. `image-local-map.json` ahora enlaza los ocho UUID a estas rutas. Como el binario fuente ausente no está disponible para comparación, son candidatos de alta confianza, pero no afirmo igualdad binaria con el original de Directus.
 
 La colección `productos` no está desplegada en la base que usa el contenedor Directus: no existe una tabla cuyo nombre coincida con `productos` sin distinguir mayúsculas, no hay registro equivalente en `directus_collections` ni permisos asociados. La API contesta `403 FORBIDDEN`; en este estado esa respuesta oculta que falta la colección/esquema.
 
@@ -34,16 +34,20 @@ Las ocho rutas siguientes están en `public/`. El tamaño en bytes reportado por
 
 | Servicio / UUID Directus | Ruta pública local | Bytes | SHA-256 local | Estado de mapa |
 | --- | --- | ---: | --- | --- |
-| 101 / `90813c10-237b-418f-9465-6f583a5c5468` | `/images/services/productos/infraestructura/1.png` | 3.057.902 | `574e7a05ae46fa53c5587078dbd049582539e9003fb6c6000325ffe77a612ab5` | Ya mapeado |
-| 102 / `6af30576-0301-4bae-80e7-37945241f72b` | `/images/services/productos/seguridad/2.png` | 2.252.858 | `0a77ff06e865a17da60ada68eb60886eae7443a63cce2f18a243075c2bc0271c` | Ya mapeado |
-| 103 / `9bb39733-39d4-4417-8502-7f65d6829e76` | `/images/services/productos/telecomunicaciones/3.png` | 1.246.083 | `3f5bd4a8a8987fac038f85d5f2cbad14540a3171b45d5ad2be99d71832356836` | Ya mapeado |
-| 104 / `755b2d22-a6e7-4997-b943-858d37abeee9` | `/images/services/productos/software/4.png` | 1.941.491 | `9e75e2d16db6be32ef95aa7c5206bea5bf78ae360b14d2f1cd01422d76893138` | Falta mapear |
-| 105 / `3ec5cc77-4edf-41ae-a1fd-e3a887531046` | `/images/services/productos/soporte/5.png` | 3.163.114 | `890180a50157339a5acab10d4859a1de8baee0d0ffc28c98d51ba7578c8213b5` | Falta mapear |
-| 106 / `cfd4ea67-fec9-4a92-b40b-227a76434a09` | `/images/services/productos/consultoria/6.png` | 2.132.960 | `d7164d263309b5db613d2313eacbebe27cbacb838f60feaaa05918180c5410b3` | Falta mapear |
-| 107 / `1b8b7cbd-b390-4d91-a3f7-57d1d8e05d20` | `/images/services/productos/incendios/7.png` | 2.459.576 | `0654d335aee6a3aa485067739e2feda7fd59211bc24fe8e304381dc1b51563cf` | Falta mapear |
-| 108 / `bf6a9e03-4b9d-4052-b860-ffc85240396f` | `/images/services/productos/electricos/8.png` | 2.268.609 | `898e8f2cd7270c61f6a1f82bf87b4b9d59ce39033a59cc81e23b57b69ac74584` | Falta mapear |
+| 101 / `90813c10-237b-418f-9465-6f583a5c5468` | `/images/services/productos/infraestructura/1.png` | 3.057.902 | `574e7a05ae46fa53c5587078dbd049582539e9003fb6c6000325ffe77a612ab5` | Mapeado |
+| 102 / `6af30576-0301-4bae-80e7-37945241f72b` | `/images/services/productos/seguridad/2.png` | 2.252.858 | `0a77ff06e865a17da60ada68eb60886eae7443a63cce2f18a243075c2bc0271c` | Mapeado |
+| 103 / `9bb39733-39d4-4417-8502-7f65d6829e76` | `/images/services/productos/telecomunicaciones/3.png` | 1.246.083 | `3f5bd4a8a8987fac038f85d5f2cbad14540a3171b45d5ad2be99d71832356836` | Mapeado |
+| 104 / `755b2d22-a6e7-4997-b943-858d37abeee9` | `/images/services/productos/software/4.png` | 1.941.491 | `9e75e2d16db6be32ef95aa7c5206bea5bf78ae360b14d2f1cd01422d76893138` | Mapeado |
+| 105 / `3ec5cc77-4edf-41ae-a1fd-e3a887531046` | `/images/services/productos/soporte/5.png` | 3.163.114 | `890180a50157339a5acab10d4859a1de8baee0d0ffc28c98d51ba7578c8213b5` | Mapeado |
+| 106 / `cfd4ea67-fec9-4a92-b40b-227a76434a09` | `/images/services/productos/consultoria/6.png` | 2.132.960 | `d7164d263309b5db613d2313eacbebe27cbacb838f60feaaa05918180c5410b3` | Mapeado |
+| 107 / `1b8b7cbd-b390-4d91-a3f7-57d1d8e05d20` | `/images/services/productos/incendios/7.png` | 2.459.576 | `0654d335aee6a3aa485067739e2feda7fd59211bc24fe8e304381dc1b51563cf` | Mapeado |
+| 108 / `bf6a9e03-4b9d-4052-b860-ffc85240396f` | `/images/services/productos/electricos/8.png` | 2.268.609 | `898e8f2cd7270c61f6a1f82bf87b4b9d59ce39033a59cc81e23b57b69ac74584` | Mapeado |
 
-Revisión visual sin transformar: las cinco rutas nuevas muestran software en laptop, soporte técnico con herramientas y equipo de diagnóstico, consultoría con tablero digital, detección de incendios con alarma/pulsador y servicios eléctricos con tablero/UPS. La revisión confirma correspondencia temática, no identidad binaria con el original de Directus.
+Revisión visual sin transformar de las cinco fuentes nuevas: software en laptop, soporte técnico con herramientas y equipo de diagnóstico, consultoría con tablero digital, detección de incendios con alarma/pulsador y servicios eléctricos con tablero/UPS. La revisión confirma correspondencia temática, no identidad binaria con el original de Directus.
+
+El manifiesto revisable está en `docs/propuesta/directus-assets-recuperacion-20261101.json`. El verificador `scripts/ops/validate_directus_asset_recovery.mjs` compara los ocho hashes, decodifica los PNG con `sharp`, comprueba las ocho relaciones de `image-local-map.json` y crea un tar.gz fuera del repositorio. No contiene llamadas de red ni código de restauración.
+
+Ejecución local completada: `node scripts/ops/validate_directus_asset_recovery.mjs --bundle /tmp/umsa-directus-assets-recovery-20261101-node.tar.gz`. Validó 8/8 candidatos y los bytes dentro del bundle; el tar.gz quedó en `/tmp` con 18.311.490 bytes. La comprobación no contactó Directus ni probó una restauración API; el bundle conserva PNGs con sus nombres/rutas locales y metadata para revisión.
 
 ### Shape agregado de `Servicios.Productos`
 
@@ -76,7 +80,7 @@ La base consultada fue la indicada por la configuración del contenedor Directus
 
 Para mantener la propuesta local, seguir sirviendo las imágenes editoriales, pósters y fallbacks locales ya validados. No ampliar permisos de Directus: el control positivo confirma que el endpoint responde con el permiso actual cuando el archivo existe.
 
-Para esta integración local, completar `image-local-map.json` con las cinco rutas candidatas y verificar las ocho rutas con una prueba local antes de cerrar el fallback. No escribir estas imágenes al servidor. Si se considera restaurarlas en Directus en el futuro, primero validar con revisión que cada fuente local es la apropiada; no presentarlas como byte-identical, cargar por el flujo aprobado y confirmar `/files` y `/assets` 200. No copiar archivos manualmente al volumen activo ni cambiar permisos en producción.
+Para esta integración local, `image-local-map.json` ya enlaza los ocho UUID y el verificador valida las rutas. Mantener los candidatos como PNG locales. La metadata viva registra `image/jpeg` y un `filename_download` que termina en `.jpg`, mientras que el contenido local tiene firma PNG y ruta `.png`. Si se considera restaurarlos en Directus en el futuro, una API/CI revisada debe preservar los UUID y actualizar tipo MIME y nombre coherentes con los bytes: declarar `image/png` y usar `.png`, o convertir a JPEG antes de usar `.jpg`. No afirmar igualdad binaria, no copiar PNG como JPEG, no escribir manualmente al volumen activo ni cambiar permisos en producción.
 
 Para el código local/CI, agregar una comprobación con fixtures: ante metadata existente pero asset no disponible, las rutas integradas deben renderizar la imagen local o el placeholder permitido, nunca depender de un `/assets/{uuid}` sin respaldo. El smoke test puede verificar que `/servicios`, `/antecedentes` y `/blog` no emitan assets de Directus para las imágenes locales validadas.
 

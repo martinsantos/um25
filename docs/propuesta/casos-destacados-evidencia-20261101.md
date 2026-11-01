@@ -44,6 +44,20 @@ Se mantienen sin cambio 3119 (Gobierno · 108) y 3085 (Salud · 101, 108). En 30
 
 Estas son correcciones locales de presentación; no cambian los registros del CMS ni se publican.
 
+## Segunda pasada: coherencia del despiece
+
+Se cotejaron las doce fichas renderizadas con sus fuentes, no sólo sus tarjetas de cifras. El inventario técnico de estos doce casos ahora se declara explícitamente en `parts` y usa la misma comprobación de identidad pública que el resto de la curaduría. No se extraen sus equipos de un título abreviado ni se fusionan filas por compartir el mismo dibujo.
+
+- 3126 conserva únicamente las tres familias documentadas (centrales, placas y detectores, tres de cada una). “Mantenimiento Central” es un área del aeropuerto: no acredita un servicio de soporte. Tampoco se agregan pulsadores ni sirenas a partir del nombre SDI.
+- 3102 separa un rack de piso 40U y cuatro racks murales 15U. 3103 y 3144 recuperan los puestos, racks y fibra indicados en sus fuentes; los títulos genéricos no añaden tableros eléctricos.
+- 3119 presenta ocho tableros y distingue la capacidad de sus gabinetes (120 y 10 bocas). “Diseño y desarrollo” no añade software al proyecto.
+- 3588 conserva portería IP, estaciones interiores, cámaras analógicas y DVR, con las cantidades de origen. Un portero no se rotula como teléfono.
+- 3099 distingue puestos de datos destinados a AP de equipos AP instalados; 12 hilos y 12U son características, no cantidades de unidades.
+- 3085 mantiene los tableros nombrados en el título público, sin afirmar una instalación que el detalle técnico no desarrolla. Se muestran racks sin cantidad por la ambigüedad del origen.
+- 3640 conserva ambos tramos de 150 m como longitudes y sólo las cinco cámaras como cantidad de equipos. 3116 incorpora también el cableado, sin inventar cantidades.
+
+Los puestos de cableado usan el dibujo de cableado, no el de una computadora que el alcance no incluye. Para los demás antecedentes, el fallback genérico de SDI se identifica como capacidades del servicio y ya no se atribuye como inventario instalado. Esta pasada editorial exhaustiva cubre los doce destacados; no acredita haber completado el contenido editorial de las otras 508 fichas.
+
 ## Imágenes y uso editorial
 
 Los doce elementos usan `imageKind: 'illustration'`. La auditoría calcula `sin-foto-propia` según la ruta y no comprueba autenticidad; por eso ninguna imagen existente se etiqueta como fotografía documentada de estos proyectos. `sourceRefs` son referencias de curación para revisión, no citas pensadas para mostrarse como texto de página.

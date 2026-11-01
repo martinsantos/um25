@@ -13,4 +13,13 @@ describe('equipment labels follow the recorded scope', () => {
   test('an explicit engineering scope remains visible', () => {
     expect(despieceDe('Ingeniería de red', 'Proyecto ejecutivo y relevamiento.', ['106']).partes.some(p => p.code === '106')).toBe(true);
   });
+  test('a generic SDI does not claim that every service-kit component was installed', () => {
+    expect(despieceDe('SDI', '', ['107']).origen).toBe('servicio');
+    const recorded = despieceDe('Sistema de detección de incendios', '3 centrales de incendio', ['107']);
+    expect(recorded.origen).toBe('registro');
+    expect(recorded.partes).toEqual([{ key: 'central', code: '107', label: 'Central de detección', qty: 3 }]);
+  });
+  test.each([['Portero IP', 'Portero IP'], ['Intercomunicador', 'Intercomunicador'], ['Teléfono', 'Teléfono'], ['Teléfono IP', 'Teléfono IP']])('does not change the technology of %s', (source, label) => {
+    expect(despieceDe(source, '', ['103']).partes.find(p => p.key === 'telefono')?.label).toBe(label);
+  });
 });

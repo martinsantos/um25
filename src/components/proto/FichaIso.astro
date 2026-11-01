@@ -6,12 +6,12 @@
  * registro no nombra equipos, se lista el alcance publicado del servicio, con la leyenda que lo aclara.
  */
 import Partes from './Partes.astro';
-import { despieceDe } from './despiece';
+import { caseEquipmentFor } from './casePresentation';
 import { services, illustrationSiteFor, type Story, isoSrc, isoRatio } from './isoData';
 interface Props { story: Story }
 const { story: c } = Astro.props;
 const site = illustrationSiteFor(c);
-const { partes, origen } = despieceDe(c.title, c.summary, c.serviceCodes);
+const { partes, origen } = caseEquipmentFor(c);
 const byCode = new Map(services.map((s) => [s.code, s.name]));
 const codes = [...new Set([...c.serviceCodes, ...partes.map((p) => p.code)])];
 ---

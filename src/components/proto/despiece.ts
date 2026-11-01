@@ -48,7 +48,7 @@ const REGLAS: Regla[] = [
   { key: 'alarma', code: '102', re: /\balarma(s)?\b|intrusi[oó]n|sensor(es)? de movimiento|\bpir\b/, label: 'Alarma de intrusión' },
   // Telecomunicaciones
   { key: 'central-ip', code: '103', re: /central(es)? telef[oó]nica(s)?|\bpbx\b|\bvoip\b|telefon[ií]a ip|\bcentral ip\b|\bdenwa\b/, label: 'Central telefónica IP' },
-  { key: 'telefono', code: '103', re: /\btel[eé]fono(s)?\b|\binterno(s)? telef|intercomunicador(es)?|\bportero(s)?\b/, label: 'Teléfono IP' },
+  { key: 'telefono', code: '103', re: /\btel[eé]fono(s)?(?: ip)?\b|\binterno(s)? telef|intercomunicador(es)?|\bportero(s)?(?: ip)?\b/, label: (m) => /portero/.test(m) ? (/ ip$/.test(m) ? 'Portero IP' : 'Portero') : /intercomunicador/.test(m) ? 'Intercomunicador' : / ip$/.test(m) ? 'Teléfono IP' : 'Teléfono' },
   { key: 'antena', code: '103', re: /\bantena(s)?\b|radioenlace(s)?|\benlace(s)?\b|\bradio(s)?\b|\btroncal/, label: 'Enlace de radio' },
   { key: 'parlante', code: '103', re: /amplificador(es)?|\bvoceo\b|\bparlante(s)?\b|\bpa\b|megafon[ií]a/, label: 'Voceo y amplificación' },
   // Detección de incendios
@@ -117,10 +117,8 @@ export function despieceDe(titulo: string, descripcion: string, serviceCodes: st
       if (re.lastIndex === m.index) re.lastIndex++;
     }
   }
-  // Un "SDI" o "sistema de detección" a secas nombra el sistema entero.
-  if (/\bsdi\b|sistema(s)? de deteccion/.test(texto) && ![...vistas.values()].some((p) => p.code === '107' && p.key !== 'central')) {
-    for (const [key, label] of KIT_DE_SERVICIO['107']) if (!vistas.has(key)) vistas.set(key, { key, code: '107', label });
-  }
+  // El nombre genérico del sistema no acredita cada equipo del kit. Si no hay
+  // partes explícitas, el fallback inferior se identifica como alcance del servicio.
   // Las partes de los servicios del registro primero; las demás, después.
   const propios = new Set(serviceCodes);
   const partes = [...vistas.values()].sort((a, b) => Number(propios.has(b.code)) - Number(propios.has(a.code)) || (b.qty || 0) - (a.qty || 0));
