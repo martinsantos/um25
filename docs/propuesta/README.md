@@ -1,32 +1,43 @@
-# La propuesta (/propuesta): cómo se opera
+# Despiece: integración para publicación
 
-Sistema "Despiece", octubre de 2026. Vive en `src/pages/propuesta`, `src/components/proto`,
-`src/styles/proto-despiece.css` y `public/js/propuesta-apertura.js`. No se indexa (robots noindex en
-cada página) hasta que reemplace al sitio.
+Entrega de origen: `55c900ff1c2078dbfb87a6438487e60b61184d59`.
+Integración: `feature/integracion-despiece-20261101`, mediante PR a develop y luego master.
+**No publicar hasta que el usuario revise la vista previa final.**
 
-## Entrega (1 de noviembre de 2026)
+## Ejecución y controles
 
-Estado de cierre en la rama `feature/portada-despiece-20261030`. Para migrar o desplegar desde otro
-entorno alcanza con esta rama: no depende de nada fuera del repositorio salvo lo que ya usa el
-sitio (Directus en producción, con copia en `src/data/snapshots/antecedentes.json` si no responde).
+Node 20.19.6, igual al publicador Hostinger. `npm ci && npm run check`.
+`UMSA_PREVIEW=1 HOST=127.0.0.1 PORT=4321 node dist/server/entry.mjs` sirve una
+vista previa no indexable. En producción no se establece `UMSA_PREVIEW`.
+`node scripts/propuesta/integration-smoke.mjs http://127.0.0.1:4321` comprueba
+rutas canónicas, redirecciones, imágenes y supervivencia de rutas auxiliares.
+El workflow Vista previa corre además las pruebas operativas y el control visual con axe.
+Las cifras históricas de Lighthouse de la entrega no sustituyen los controles de esta integración.
 
-- **Compilar y servir:** `npm ci && npm run build && node dist/server/entry.mjs` (Node 18 o más,
-  puerto `PORT`, 4321 por defecto). La propuesta vive bajo `/propuesta`; el sitio actual no cambia
-  de rutas. PM2 en producción: `ecosystem.config.js`.
-- **Verificar antes de publicar:** `npm test`, y el control visual (abajo) contra el sitio
-  levantado. En CI corre solo en cada push a `feature/portada-*`.
-- **Publicar la propuesta como sitio:** quitar el `noindex` de `src/components/proto/Head.astro`
-  y redirigir las rutas actuales a las de `/propuesta` (o mover `src/pages/propuesta` a la raíz).
-  No hace falta tocar datos.
-- **Regenerar dibujos:** comandos en la cabecera de `scripts/cine/render-glb.mjs`; variantes de
-  fotos con `scripts/propuesta/imagenes-960.mjs`; datos de SGI con `scripts/propuesta/sgi-exportar.mjs`.
-- **Medido al cierre** (Lighthouse móvil, compilación de producción): portada 90, servicio 88,
-  sector 88, muro 91, ficha 91, nosotros 92; accesibilidad y buenas prácticas 100; CLS 0; axe sin
-  violaciones en 124 páginas y anchos.
-- **Pendiente que no es código:** 313 fichas sin descripción, 142 sin sector y 93 sin servicio
-  (Directus o SGI); fotos de obra reales en lugar de las editoriales; renders ortográficos de
-  Blender (azimut 42°, elevación 30°) para superponer película y dibujo; decidir si el guion de
-  Sentry lleva rastreo completo (44 KB en cada página).
+## Alcance de la publicación
+
+Los componentes permanecen en `src/pages/propuesta`, pero `src/middleware.ts` sirve
+el diseño en `/`, `/servicios`, `/sectores`, `/antecedentes`, `/blog`, `/nosotros`,
+`/contacto`, `/documentacion`, `/privacidad` y las cuatro páginas de inglés.
+La lista exacta está en `src/lib/despieceRoutes.ts`: sólo GET/HEAD y rutas explícitas.
+Las URLs antiguas de propuesta, sectores y servicios redirigen 301 a su URL pública.
+API, CMS, DGE, ARCA, status, recursos de marca, plantillas, descargas y fichas PDF
+no se reescriben. Los parámetros de búsqueda se conservan.
+
+Producción se administra con systemd en Hostinger, mediante
+`.github/workflows/hostinger-production.yml`. No usar el antiguo despliegue PM2 ni
+el servidor LINEASDNS retirado. El publicador vigente conserva la versión anterior,
+valida la nueva antes del cambio y sólo sustituye el proceso web UMSA.
+No se modifican bases, secretos, DNS, nginx ni otros servicios con esta integración.
+El paquete contiene `dist`, dependencias y manifiestos: las isometrías se leen de
+`dist/client` en ejecución, y de `public` únicamente durante desarrollo.
+
+## Contenido pendiente de la entrega
+
+313 fichas sin descripción, 142 sin sector y 93 sin servicio en las fuentes;
+fotografías reales que sustituyan imágenes editoriales; renders ortográficos de
+Blender para rayos X; decisión sobre el rastreo completo de Sentry.
+No se inventan datos para rellenarlos ni se cambia Sentry en esta integración.
 
 ## Reglas del sistema
 

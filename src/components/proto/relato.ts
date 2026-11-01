@@ -115,7 +115,7 @@ const tituloFinal = (r: Registro, texto: string) => {
   if (t.length >= 28 && !GENERICO.test(t)) return t;
   // La primera frase, sin cortar en abreviaturas ("Hospital Dr. Juan…", "Av.", "Nº").
   // Abreviaturas, y una inicial sólo delante de un nombre ("Alfredo I. Perrupato"; "C.C.T.V. para" sí es fin de frase).
-  const primera = texto.replace(/\b(Dr|Dra|Sr|Sra|Ing|Lic|Arq|Av|Gral|Dpto|Depto|Cnel|Tte|Pcia|Nº|N°|SA|SRL|Ltda|Cía|Cia|etc)\.\s/gi, '$1\u0001').replace(/(\s[A-ZÁÉÍÓÚ])\.\s(?=[A-ZÁÉÍÓÚ][a-záéíóúñ])/g, '$1\u0001').split(/[.;]\s/)[0].replace(/\u0001/g, '. ');
+  const primera = texto.replace(/\b(Dr|Dra|Sr|Sra|Ing|Lic|Arq|Av|Gral|Dpto|Depto|Cnel|Tte|Pcia|Nº|N°|SA|SRL|Ltda|Cía|Cia|etc)\.\s/gi, '$1\u0001').replace(/(\s[A-ZÁÉÍÓÚ])\.\s(?=[A-ZÁÉÍÓÚ][a-záéíóúñ])/g, '$1\u0001').split(/[.;]\s/)[0]!.replace(/\u0001/g, '. ');
   // La coletilla de ubicación (", del departamento de…", ", de la provincia de…") no es parte del título; queda en el texto.
   // Una coma del registro entre el objeto y su destino ("Cableado Estructurado, para el Hospital") no va.
   let f = desdeSolicitud(primera).replace(/^([^,]{6,40}),\s+(para|en|de)\b/i, '$1 $2').replace(/,\s+(?:del?\s+(?:departamento|distrito|partido)|de la provincia|provincia de|de uspallata|de [A-ZÁÉÍÓÚ][\wáéíóú]+ de la provincia)\b[^,]*$/i, '').replace(/\s*-\s*/g, ' · ');

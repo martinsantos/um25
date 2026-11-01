@@ -3,7 +3,7 @@
  * Used by sector pages to generate JSON-LD FAQ rich snippets
  */
 
-interface FAQ {
+export interface FAQ {
   question: string;
   answer: string;
 }

@@ -144,7 +144,7 @@ describe('GEO discovery and commercial hub contracts', () => {
   test('the SEO audit gate enforces locale metadata on public English routes', () => {
     const auditSource = fs.readFileSync(path.join(repoRoot, 'scripts/seo-audit.mjs'), 'utf8');
 
-    for (const route of ['/en', '/en/services', '/en/about', '/en/contacto']) {
+    for (const route of ['/en', '/en/services', '/en/about', '/en/contact']) {
       expect(auditSource).toContain(route);
     }
 
@@ -214,7 +214,7 @@ describe('GEO discovery and commercial hub contracts', () => {
     expect(imageSitemap).toContain('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"');
     expect(imageSitemap).toContain('<image:loc>');
     expect(imageSitemap).toContain('getAntecedentesImageEvidenceEntriesFromDirectus');
-    expect(antecedentesSitemap).toContain('getAllAntecedentes');
+    expect(antecedentesSitemap).toContain('loadStories');
     expect(antecedentesSitemap).not.toContain('snapshots/antecedentes');
     expect(casesGeo).toContain("buildGeoResourceAsync('cases')");
     expect(imageEvidenceGeo).toContain("buildGeoResourceAsync('image-evidence')");
@@ -236,7 +236,7 @@ describe('GEO discovery and commercial hub contracts', () => {
   test('public English pages stay in the main sitemap and lab pages stay out', () => {
     const sitemap = fs.readFileSync(path.join(repoRoot, 'src/pages/sitemap.xml.ts'), 'utf8');
 
-    for (const route of ['/en', '/en/services', '/en/about', '/en/contacto']) {
+    for (const route of ['/en', '/en/services', '/en/about', '/en/contact']) {
       expect(sitemap).toContain(`{ loc: '${route}'`);
     }
     for (const route of ['/plantilla-arca', '/pretext-demo', '/banners', '/geo']) {

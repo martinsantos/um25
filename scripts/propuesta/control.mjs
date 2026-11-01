@@ -6,7 +6,7 @@
  * cada página dentro de su presupuesto. Escribe las capturas y un informe en --out y sale con 1
  * si algo no se cumple.
  *
- *   node scripts/propuesta/control.mjs --base http://127.0.0.1:4321 --out control-propuesta
+ *   node scripts/control.mjs --base http://127.0.0.1:4321 --out control-propuesta
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -25,36 +25,36 @@ const axe = async (page) => { if (!AxeBuilder) return null; try { const r = awai
 // Presupuesto de altura en pantallas (alto de la ventana), por página y por ancho.
 const ANCHOS = [{ w: 1440, h: 900, k: 'escritorio' }, { w: 1310, h: 680, k: 'portatil' }, { w: 1024, h: 768, k: 'tablet' }, { w: 390, h: 844, k: 'telefono' }];
 const PAGINAS = [
-  { id: 'portada', path: '/propuesta', max: { escritorio: 7, portatil: 8.5, telefono: 11 } },
-  { id: 'sectores', path: '/propuesta/sectores', max: { escritorio: 5, portatil: 6, telefono: 9 } },
-  { id: 'sector', path: '/propuesta/sectores/aeropuertos', max: { escritorio: 10, portatil: 12, telefono: 16 } },
-  { id: 'servicio', from: 'a[href^="/propuesta/servicios/"][href!="/propuesta/servicios"]', max: { escritorio: 10, portatil: 12, telefono: 16 } },
-  { id: 'proyectos', path: '/propuesta/antecedentes', max: { escritorio: 14, portatil: 16, telefono: 20 } },
-  { id: 'proyectos-filtro', path: '/propuesta/antecedentes?sector=bodegas&service=107', max: { escritorio: 6, portatil: 7, telefono: 10 } },
-  { id: 'ficha', from: 'a[href^="/propuesta/antecedentes/"]', filtro: /\/propuesta\/antecedentes\/\d+\//, max: { escritorio: 8, portatil: 9.5, telefono: 14 } },
+  { id: 'portada', path: '/', max: { escritorio: 7, portatil: 8.5, telefono: 11 } },
+  { id: 'sectores', path: '/sectores', max: { escritorio: 5, portatil: 6, telefono: 9 } },
+  { id: 'sector', path: '/sectores/aeropuertos', max: { escritorio: 10, portatil: 12, telefono: 16 } },
+  { id: 'servicio', from: 'a[href^="/servicios/"][href!="/servicios"]', max: { escritorio: 10, portatil: 12, telefono: 16 } },
+  { id: 'proyectos', path: '/antecedentes', max: { escritorio: 14, portatil: 16, telefono: 20 } },
+  { id: 'proyectos-filtro', path: '/antecedentes?sector=bodegas&service=107', max: { escritorio: 6, portatil: 7, telefono: 10 } },
+  { id: 'ficha', from: 'a[href^="/antecedentes/"]', filtro: /\/antecedentes\/\d+\//, max: { escritorio: 8, portatil: 9.5, telefono: 14 } },
   // Secundarias: el mismo sistema, el mismo control.
-  { id: 'servicios', path: '/propuesta/servicios', max: { escritorio: 6, portatil: 7, telefono: 11 } },
-  { id: 'nosotros', path: '/propuesta/nosotros', max: { escritorio: 6, portatil: 7, telefono: 11 } },
-  { id: 'documentacion', path: '/propuesta/documentacion', max: { escritorio: 4, portatil: 5, telefono: 8 } },
-  { id: 'blog', path: '/propuesta/blog', max: { escritorio: 4, portatil: 5, telefono: 8 } },
-  { id: 'contacto', path: '/propuesta/contacto', max: { escritorio: 3, portatil: 3.5, telefono: 6 } },
-  { id: 'en', path: '/propuesta/en', max: { escritorio: 5, portatil: 6, telefono: 9 } },
-  { id: 'en-about', path: '/propuesta/en/about', max: { escritorio: 4, portatil: 5, telefono: 8 } },
-  { id: 'en-contact', path: '/propuesta/en/contact', max: { escritorio: 3, portatil: 3.5, telefono: 6 } },
-  { id: 'privacidad', path: '/propuesta/privacidad', max: { escritorio: 4, portatil: 5, telefono: 9 } },
-  { id: 'entrada', from: 'a[href^="/propuesta/blog/"]', filtro: /^\/propuesta\/blog\/[a-z0-9-]+$/, max: { escritorio: 7, portatil: 8.5, telefono: 14 } },
+  { id: 'servicios', path: '/servicios', max: { escritorio: 6, portatil: 7, telefono: 11 } },
+  { id: 'nosotros', path: '/nosotros', max: { escritorio: 6, portatil: 7, telefono: 11 } },
+  { id: 'documentacion', path: '/documentacion', max: { escritorio: 4, portatil: 5, telefono: 8 } },
+  { id: 'blog', path: '/blog', max: { escritorio: 4, portatil: 5, telefono: 8 } },
+  { id: 'contacto', path: '/contacto', max: { escritorio: 3, portatil: 3.5, telefono: 6 } },
+  { id: 'en', path: '/en', max: { escritorio: 5, portatil: 6, telefono: 9 } },
+  { id: 'en-about', path: '/en/about', max: { escritorio: 4, portatil: 5, telefono: 8 } },
+  { id: 'en-contact', path: '/en/contact', max: { escritorio: 3, portatil: 3.5, telefono: 6 } },
+  { id: 'privacidad', path: '/privacidad', max: { escritorio: 4, portatil: 5, telefono: 9 } },
+  { id: 'entrada', from: 'a[href^="/blog/"]', filtro: /^\/blog\/[a-z0-9-]+$/, max: { escritorio: 7, portatil: 8.5, telefono: 14 } },
 ];
 
 mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch();
 const fallos = [], filas = [];
 const home = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-await home.goto(`${BASE}/propuesta`, { waitUntil: 'networkidle', timeout: 90000 });
+await home.goto(`${BASE}/`, { waitUntil: 'networkidle', timeout: 90000 });
 const enlaces = await home.$$eval('a[href]', (as) => as.map((a) => a.getAttribute('href')));
 await home.close();
 const blogPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-await blogPage.goto(`${BASE}/propuesta/blog`, { waitUntil: 'networkidle', timeout: 90000 });
-enlaces.push(...(await blogPage.$$eval('a[href^="/propuesta/blog/"]', (as) => as.map((a) => a.getAttribute('href')))));
+await blogPage.goto(`${BASE}/blog`, { waitUntil: 'networkidle', timeout: 90000 });
+enlaces.push(...(await blogPage.$$eval('a[href^="/blog/"]', (as) => as.map((a) => a.getAttribute('href')))));
 await blogPage.close();
 const resolver = (p) => p.path || enlaces.find((h) => h && h.startsWith(p.from.match(/\^="([^"]+)"/)[1]) && (!p.filtro || p.filtro.test(h)) && h !== p.from.match(/!="([^"]+)"/)?.[1]);
 
@@ -142,7 +142,7 @@ for (const pag of PAGINAS) {
 {
   const idx = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const lista = async (path, pref) => { await idx.goto(`${BASE}${path}`, { waitUntil: 'networkidle', timeout: 90000 }); return [...new Set(await idx.$$eval(`a[href^="${pref}"]`, (as, p) => as.map((a) => a.getAttribute('href')).filter((h) => h && h !== p && !h.includes('?')), pref))]; };
-  const todas = [...(await lista('/propuesta/servicios', '/propuesta/servicios/')).map((h) => ['servicio', h]), ...(await lista('/propuesta/sectores', '/propuesta/sectores/')).map((h) => ['sector', h])];
+  const todas = [...(await lista('/servicios', '/servicios/')).map((h) => ['servicio', h]), ...(await lista('/sectores', '/sectores/')).map((h) => ['sector', h])];
   await idx.close();
   for (const [tipo, href] of todas) {
     for (const v of ANCHOS.filter((x) => x.k === 'escritorio' || x.k === 'telefono')) {
@@ -175,7 +175,7 @@ for (const pag of PAGINAS) {
 {
   const pg = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const enlaces = new Set(), medios = new Set();
-  const semillas = ['/propuesta', '/propuesta/sectores', '/propuesta/sectores/aeropuertos', '/propuesta/servicios', '/propuesta/servicios/101', '/propuesta/antecedentes', '/propuesta/nosotros', '/propuesta/documentacion', '/propuesta/blog', '/propuesta/contacto', '/propuesta/en', '/propuesta/en/services', '/propuesta/privacidad'];
+  const semillas = ['/', '/sectores', '/sectores/aeropuertos', '/servicios', '/servicios/101', '/antecedentes', '/nosotros', '/documentacion', '/blog', '/contacto', '/en', '/en/services', '/privacidad'];
   for (const u of semillas) {
     try { await pg.goto(`${BASE}${u}`, { waitUntil: 'networkidle', timeout: 90000 }); } catch { continue; }
     const r = await pg.evaluate(() => ({ a: [...document.querySelectorAll('a[href]')].map((a) => a.getAttribute('href')), m: [...document.querySelectorAll('img')].flatMap((i) => [i.getAttribute('src'), ...(i.getAttribute('srcset') || '').split(',').map((x) => x.trim().split(' ')[0])]).concat([...document.querySelectorAll('source[srcset], link[rel="preload"][imagesrcset]')].flatMap((e) => (e.getAttribute('srcset') || e.getAttribute('imagesrcset') || '').split(',').map((x) => x.trim().split(' ')[0]))).concat([...document.querySelectorAll('video[data-film], [data-src], link[rel="preload"][href]')].map((e) => e.getAttribute('data-film') || e.getAttribute('data-src') || e.getAttribute('href'))).filter(Boolean) }));

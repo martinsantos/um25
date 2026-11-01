@@ -14,7 +14,7 @@ const slug = String(Astro.params.slug);
 const post = await fetchBlogPost(slug);
 if (!post) return new Response(null, { status: 404 });
 const { html } = await addHeadingIds(canonicalizeInternalBlogLinks(post.contenido || ''));
-const contenido = html.replace(/href="\/blog\//g, 'href="/propuesta/blog/');
+const contenido = html.replace(/href="\/blog\//g, 'href="/blog/');
 const { posts } = await fetchBlogListing(1, 6, post.categoria);
 const mas = posts.filter((p) => p.slug !== post.slug).slice(0, 4);
 // La portada, relativa al sitio: la ruta /blog/og/… la sirve esta misma compilación (la absoluta del CMS apunta al sitio vivo).
@@ -41,9 +41,9 @@ const portada = post?.imagen_portada ? localImagePath(post.imagen_portada) || po
     <div class="wrap">
       <article class="post">
         <aside class="post__meta">
-          <a href="/propuesta/blog">← Blog</a>
+          <a href="/blog">← Blog</a>
           <span>{formatBlogDateLong(post.fecha_publicacion)}</span>
-          <a href={`/propuesta/blog?categoria=${post.categoria}`}>{getCategoryLabel(post.categoria)}</a>
+          <a href={`/blog?categoria=${post.categoria}`}>{getCategoryLabel(post.categoria)}</a>
           {post.tiempo_lectura > 0 && <span>{post.tiempo_lectura} min de lectura</span>}
         </aside>
         <div>
@@ -54,10 +54,10 @@ const portada = post?.imagen_portada ? localImagePath(post.imagen_portada) || po
         </div>
       </article>
     
-    {mas.length > 0 && (
     </div>
+    {mas.length > 0 && (
       <section class="sec"><div class="wrap"><div class="sec__head"><h2>Más en {getCategoryLabel(post.categoria).toLowerCase()}<span class="dot">.</span></h2></div>
-        <ol class="entradas">{mas.map((p) => <li class="entrada"><span class="small"><span>{formatBlogDateLong(p.fecha_publicacion)}</span></span><a href={`/propuesta/blog/${p.slug}`}><h2>{p.titulo}</h2><p>{sanitizeBlogExcerpt(p.resumen, 180)}</p></a></li>)}</ol>
+        <ol class="entradas">{mas.map((p) => <li class="entrada"><span class="small"><span>{formatBlogDateLong(p.fecha_publicacion)}</span></span><a href={`/blog/${p.slug}`}><h2>{p.titulo}</h2><p>{sanitizeBlogExcerpt(p.resumen, 180)}</p></a></li>)}</ol>
       </div></section>
     )}
     </main>

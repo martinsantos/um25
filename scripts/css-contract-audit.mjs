@@ -181,7 +181,11 @@ for (const file of files) {
 
     for (const rule of rules) {
       if (scope === 'commercial' && isRuleExempt(file, rule.id)) continue;
-      if (rule.pattern.test(line)) {
+      // Despiece keeps #DC2626 for the brand. Its text token needs 4.5:1 on dark
+      // surfaces; allow only this declaration, not other off-brand reds.
+      const checkedLine = file === 'src/styles/proto-despiece.css' && rule.id === 'no-off-brand-red'
+        ? line.replace(/--red-text:\s*#ef4444\s*;/i, '') : line;
+      if (rule.pattern.test(checkedLine)) {
         findings.push({
           scope,
           severity: scope === 'commercial' ? rule.severity : 'warning',

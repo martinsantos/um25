@@ -44,7 +44,7 @@ const fichas = SERVICE_SPEC_LIST.map((s) => ({ ...s, pdf: getDatasheetPublicPath
     <section class="sec">
       <div class="wrap">
         <div class="sec__head"><h2>Fichas técnicas por servicio<span class="dot">.</span></h2></div>
-        <ol class="fichas-tec">{fichas.map((f) => <li><b>{f.name}</b><span>{f.keyDeliverable}</span><span class="small">{f.keyStandard}</span>{f.pdf ? <a href={f.pdf} download>Descargar PDF</a> : <a href={`/propuesta/servicios/${f.code}`}>Ver servicio</a>}</li>)}</ol>
+        <ol class="fichas-tec">{fichas.map((f) => <li><b>{f.name}</b><span>{f.keyDeliverable}</span><span class="small">{f.keyStandard}</span>{f.pdf ? <a href={f.pdf} download>Descargar PDF</a> : <a href={`/servicios/${f.code}`}>Ver servicio</a>}</li>)}</ol>
       </div>
     </section>
     </main>

@@ -80,7 +80,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       <p class="tag">{servicio.tagline}</p>
       <p>{servicio.description}</p>
       {cifras.length > 0 && <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>}
-      <a class="u" href={`/propuesta/antecedentes?service=${code}`}>{own.length > 0 ? `Ver los ${own.length} proyectos` : 'Ver todos los proyectos'}</a>
+      <a class="u" href={`/antecedentes?service=${code}`}>{own.length > 0 ? `Ver los ${own.length} proyectos` : 'Ver todos los proyectos'}</a>
     </Apertura>
 
     <section class="sec">
@@ -129,8 +129,8 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
         <div class="wrap">
           <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2></div>
           <ol class="clientes">
-            {clientes.slice(0, 9).map((c) => <li><a href={`/propuesta/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
-            {clientes.length > 9 && <li class="mas"><a href={`/propuesta/antecedentes?service=${code}`}>Y {clientes.length - 9} más</a><span></span></li>}
+            {clientes.slice(0, 9).map((c) => <li><a href={`/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
+            {clientes.length > 9 && <li class="mas"><a href={`/antecedentes?service=${code}`}>Y {clientes.length - 9} más</a><span></span></li>}
           </ol>
         </div>
       </section>
@@ -141,9 +141,9 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
         <div class="wrap cols cols-5-7 cols--centro">
           <div class="item">
             <h2>Dónde lo hicimos<span class="dot">.</span></h2>
-            <p class="frase">{bySector.map((s, i) => <><a href={`/propuesta/sectores/${s.slug}`}><b>{s.name}</b></a>{` (${s.count} ${s.count === 1 ? 'proyecto' : 'proyectos'})`}{i < bySector.length - 2 ? ', ' : i === bySector.length - 2 ? ' y ' : '.'}</>)}</p>
+            <p class="frase">{bySector.map((s, i) => <><a href={`/sectores/${s.slug}`}><b>{s.name}</b></a>{` (${s.count} ${s.count === 1 ? 'proyecto' : 'proyectos'})`}{i < bySector.length - 2 ? ', ' : i === bySector.length - 2 ? ' y ' : '.'}</>)}</p>
           </div>
-          <a class="pelicula" href={`/propuesta/sectores/${bySector[0].slug}`}><figure><img src={poster} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure><span class="small">{servicio.name} en {sceneTitle[scene]}, en movimiento</span></a>
+          <a class="pelicula" href={`/sectores/${bySector[0].slug}`}><figure><img src={poster} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure><span class="small">{servicio.name} en {sceneTitle[scene]}, en movimiento</span></a>
         </div>
       </section>
     )}
@@ -153,7 +153,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
         <div class="wrap">
           <div class="sec__head"><h2>{own.length} proyectos con {lower}<span class="dot">.</span></h2></div>
           <ol class="fichas">{destacados(own, 8).map((c, i) => <Ficha story={c} eager={i < 4} />)}</ol>
-          <a class="u more" href={`/propuesta/antecedentes?service=${code}`}>Ver los {own.length} proyectos</a>
+          <a class="u more" href={`/antecedentes?service=${code}`}>Ver los {own.length} proyectos</a>
         </div>
       </section>
     )}

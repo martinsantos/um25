@@ -21,7 +21,7 @@ import { SECTORS } from '../../../data/cine/scenes';
 export const prerender = false;
 // Seguridad electrónica y software son servicios, no lugares: su página es la del servicio.
 const SERVICIO_DE: Record<string, string> = { 'seguridad-electronica': '102', software: '104' };
-if (SERVICIO_DE[String(Astro.params.slug)]) return Astro.redirect(`/propuesta/servicios/${SERVICIO_DE[String(Astro.params.slug)]}`, 301);
+if (SERVICIO_DE[String(Astro.params.slug)]) return Astro.redirect(`/servicios/${SERVICIO_DE[String(Astro.params.slug)]}`, 301);
 const slug = Astro.params.slug === 'gobierno' ? 'gobiernosectorpublico' : String(Astro.params.slug);
 const sector = await getSectorBySlug(slug === 'gobiernosectorpublico' ? 'gobierno' : slug);
 if (!sector) return new Response(null, { status: 404 });
@@ -54,7 +54,7 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
       <h1 style="font-size:clamp(2rem,3.6vw,3.6rem)">{relato.headline || name}<span class="dot">.</span></h1>
       <p>{relato.summary || sector.description}</p>
       {cifras.length > 0 && <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>}
-      <a class="u" href={own.length > 0 ? `/propuesta/antecedentes?sector=${slug}` : '/propuesta/antecedentes'}>{own.length > 0 ? `Ver los ${own.length} proyectos en ${lower}` : 'Ver todos los proyectos'}</a>
+      <a class="u" href={own.length > 0 ? `/antecedentes?sector=${slug}` : '/antecedentes'}>{own.length > 0 ? `Ver los ${own.length} proyectos en ${lower}` : 'Ver todos los proyectos'}</a>
     </Apertura>
 
     <section class="sec">
@@ -71,8 +71,8 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
         <div class="wrap">
           <div class="sec__head"><h2>Para quién lo hicimos en {lower}<span class="dot">.</span></h2></div>
           <ol class="clientes">
-            {clientes.slice(0, 9).map((c) => <li><a href={`/propuesta/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
-            {clientes.length > 9 && <li class="mas"><a href={`/propuesta/antecedentes?sector=${slug}`}>Y {clientes.length - 9} más</a><span></span></li>}
+            {clientes.slice(0, 9).map((c) => <li><a href={`/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
+            {clientes.length > 9 && <li class="mas"><a href={`/antecedentes?sector=${slug}`}>Y {clientes.length - 9} más</a><span></span></li>}
           </ol>
         </div>
       </section>
@@ -95,8 +95,8 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
         <div class="dentro" data-dentro>
           <div class="dentro__stage iso" data-svc={byService[0]?.code} data-src={isoSrc(site)}><div class="iso__caja" style={`--r:${isoRatio(site).toFixed(3)}`}></div><span class="ahora">{byService[0]?.name}</span></div>
           <div class="dentro__side">
-            <ul class="servicios">{byService.map((s, i) => <li><a href={s.count > 0 ? `/propuesta/antecedentes?sector=${slug}&service=${s.code}` : `/propuesta/servicios/${s.code}`} data-code={s.code} data-name={s.name} class:list={{ on: i === 0 }} style={`--w:${Math.round((s.count / maxSvc) * 100)}`}>{s.name}<span>{s.count ? `${s.count} ${s.count === 1 ? 'proyecto' : 'proyectos'}` : ''}</span><i></i></a></li>)}</ul>
-            <a class="pelicula" href={`/propuesta/sectores/${slug}`}><figure><img src={posterOf(slug)} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure><span class="small">{sceneTitle[SCENE_OF[slug] || 'fachada']} por dentro, en movimiento</span></a>
+            <ul class="servicios">{byService.map((s, i) => <li><a href={s.count > 0 ? `/antecedentes?sector=${slug}&service=${s.code}` : `/servicios/${s.code}`} data-code={s.code} data-name={s.name} class:list={{ on: i === 0 }} style={`--w:${Math.round((s.count / maxSvc) * 100)}`}>{s.name}<span>{s.count ? `${s.count} ${s.count === 1 ? 'proyecto' : 'proyectos'}` : ''}</span><i></i></a></li>)}</ul>
+            <a class="pelicula" href={`/sectores/${slug}`}><figure><img src={posterOf(slug)} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure><span class="small">{sceneTitle[SCENE_OF[slug] || 'fachada']} por dentro, en movimiento</span></a>
           </div>
         </div>
       </div>
@@ -107,7 +107,7 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
         <div class="wrap">
           <div class="sec__head"><h2>{own.length} proyectos documentados en {lower}<span class="dot">.</span></h2></div>
           <ol class="fichas">{destacados(own, 8).map((c, i) => <Ficha story={c} eager={i < 4} showSector={false} />)}</ol>
-          <a class="u more" href={`/propuesta/antecedentes?sector=${slug}`}>Ver los {own.length} proyectos</a>
+          <a class="u more" href={`/antecedentes?sector=${slug}`}>Ver los {own.length} proyectos</a>
         </div>
       </section>
     )}

@@ -41,7 +41,7 @@ export function resolverSector(catalogo: Fila[]): (client: string, sector: strin
     if (!CLASIFICACIONES_DE_SERVICIO.has(sector)) return sector;
     const k = llano(client);
     const cuenta = porCliente.get(k);
-    if (cuenta) { const [top, n] = [...cuenta.entries()].sort((a, b) => b[1] - a[1])[0]; if (n >= 3 && n >= (totales.get(k) || 0) / 3) return top; }
+    if (cuenta) { const [top, n] = [...cuenta.entries()].sort((a, b) => b[1] - a[1])[0]!; if (n >= 3 && n >= (totales.get(k) || 0) / 3) return top; }
     const nombre = llano(client);
     if (PUBLICO.test(nombre)) return 'gobierno';
     const dicho = llano(`${client} ${texto}`);

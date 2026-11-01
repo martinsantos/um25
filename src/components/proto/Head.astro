@@ -3,8 +3,10 @@
  * Cabecera común de las páginas de la propuesta. Tipografía: UM Sans 2, la de la casa, sin la
  * fuente de compatibilidad. Cada página trae su descripción y su imagen: sirven al buscador cuando
  * la propuesta sea el sitio, y hoy ya a la tarjeta que arma WhatsApp, Slack o LinkedIn al compartir
- * el enlace. La propuesta sigue sin indexarse.
+ * el enlace. Las vistas previas siguen sin indexarse; las rutas públicas usan su URL canónica.
  */
+import { SITE_URL, SITE_NAME, BUSINESS_ADDRESS } from '../../config/seo';
+import { publicDespiecePath } from '../../lib/despieceRoutes';
 import { variantes } from './isoData';
 interface Props { title: string; description?: string; image?: string; lang?: string; precargar?: boolean }
 const { title, description = '', image = '/images/editorial/umsa-home-operations.webp', lang = 'es', precargar = false } = Astro.props;
@@ -15,11 +17,22 @@ const avifSet = v.avif;
 const w960 = !avifSet && v.ancho ? v.w960 : '';
 const wMax = `${v.ancho}w`;
 const tam = /-principal\.webp$/.test(image) ? '(max-width: 900px) 100vw, 58vw' : '100vw';
-const abs = (p: string) => (p ? new URL(p, Astro.url.origin).href : '');
+const publicPath = publicDespiecePath(Astro.url.pathname);
+const canonical = new URL(publicPath, SITE_URL).href;
+const noindex = process.env.UMSA_PREVIEW === '1' || Astro.response.status >= 400;
+const abs = (p: string) => (p ? new URL(p, SITE_URL).href : '');
+const structuredData = {
+  '@context': 'https://schema.org', '@graph': [
+    { '@type': 'Organization', '@id': SITE_URL + '/#organization', name: SITE_NAME, url: SITE_URL, address: { '@type': 'PostalAddress', ...BUSINESS_ADDRESS } },
+    { '@type': 'WebPage', '@id': canonical + '#webpage', url: canonical, name: title, description, inLanguage: lang === 'en' ? 'en' : 'es-AR', publisher: { '@id': SITE_URL + '/#organization' } },
+  ],
+};
 ---
 <meta charset="utf-8" />
+<script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')} />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="robots" content="noindex, nofollow" />
+<meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />
+<link rel="canonical" href={canonical} />
 <meta name="theme-color" content="#0a0b0d" />
 <title>{title}</title>
 {description && <meta name="description" content={description} />}
@@ -29,7 +42,7 @@ const abs = (p: string) => (p ? new URL(p, Astro.url.origin).href : '');
 <meta property="og:title" content={title} />
 {description && <meta property="og:description" content={description} />}
 <meta property="og:image" content={abs(image)} />
-<meta property="og:url" content={Astro.url.href} />
+<meta property="og:url" content={canonical} />
 <meta name="twitter:card" content="summary_large_image" />
 {precargar && avif && <link rel="preload" as="image" href={avif} type="image/avif" fetchpriority="high" />}
 {precargar && !avif && avifSet && <link rel="preload" as="image" href={avifSet.split(' ')[0]} imagesrcset={avifSet} imagesizes={tam} type="image/avif" fetchpriority="high" />}

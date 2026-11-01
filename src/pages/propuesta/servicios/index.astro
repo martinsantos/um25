@@ -43,7 +43,7 @@ const items = services.map((s) => { const full = catalogo.find((x) => String(x.c
       <ol class="filas">
         {items.map((s, i) => (
           <li class="fila">
-            <a href={`/propuesta/servicios/${s.code}`}>
+            <a href={`/servicios/${s.code}`}>
               <figure><img src={s.photo} alt="" width="1672" height="941" loading={i < 2 ? 'eager' : 'lazy'} decoding="async" /></figure>
               <div class="texto">
                 <h2>{s.name}<span class="dot">.</span></h2>

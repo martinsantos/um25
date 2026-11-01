@@ -11,7 +11,7 @@ const items = casos.slice(0, max).map((c) => {
   const image = pub?.image && pub.image.startsWith('/images/antecedentes/') ? pub.image : (fallbackImage || SECTOR_PHOTO[c.sector] || SERVICE_PHOTO[c.servicios[0]] || SECTOR_PHOTO.constructoras);
   // El título del relato pasa por la misma limpieza que los de las fichas (mayúsculas corridas, siglas, prefijos).
   const titulo = tituloProyecto(c.titulo, c.cliente, c.texto) || c.titulo;
-  return { ...c, titulo, texto: sinTitulo(c.texto, titulo, c.cliente), href: pub ? pub.href : (c.sector ? `/propuesta/antecedentes?sector=${c.sector}` : '/propuesta/antecedentes'), image, serviceNames: c.servicios.map((code) => byCode.get(code)?.name).filter(Boolean) as string[] };
+  return { ...c, titulo, texto: sinTitulo(c.texto, titulo, c.cliente), href: pub ? pub.href : (c.sector ? `/antecedentes?sector=${c.sector}` : '/antecedentes'), image, serviceNames: c.servicios.map((code) => byCode.get(code)?.name).filter(Boolean) as string[] };
 });
 ---
 {items.length > 0 && (

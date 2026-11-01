@@ -19,7 +19,7 @@ const { stories } = await loadStories();
 const total = stories.length;
 const INICIAL = 48;
 const q = Astro.url.searchParams;
-const estado = { sector: q.get('sector') || '', service: q.get('service') || '', year: q.get('year') || '', cliente: q.get('cliente') || '' };
+const estado = { sector: q.get('sector') || '', service: q.get('service') || q.get('servicio') || '', year: q.get('year') || q.get('anio') || '', cliente: q.get('cliente') || '' };
 // La misma regla que el guion del muro: cada lente cuenta dentro de lo que filtran las otras.
 const cumple = (c: Story, salvo?: string) =>
   (salvo === 'sector' || !estado.sector || c.sectorSlug === estado.sector) &&
@@ -115,10 +115,10 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
       </aside>
 
       <section aria-label="Proyectos">
-        <ol class="fichas" data-grid data-datos="/propuesta/antecedentes/datos.json">
+        <ol class="fichas" data-grid data-datos="/antecedentes/datos.json">
           {piezas.map((p, index) => p.rec ? (
             <li class="ficha ficha--rec" data-rec data-at={String(p.at)} data-sector={p.rec} hidden={p.oculto}>
-              <a href={`/propuesta/sectores/${p.rec}`}>
+              <a href={`/sectores/${p.rec}`}>
                 <figure><img src={posterOf(p.rec)} alt="" width="1920" height="1080" loading={index === 0 ? 'eager' : 'lazy'} fetchpriority={index === 0 ? 'high' : undefined} decoding="async" /></figure>
                 <b>{sceneTitle[SCENE_OF[p.rec]]} por dentro</b>
                 <span class="small">{SECTORS.find((s) => s.slug === p.rec)?.name}</span>
@@ -161,7 +161,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
         const li = molde.content.firstElementChild!.cloneNode(true) as HTMLElement;
         Object.assign(li.dataset, { id: String(f.id), sector: f.sectorSlug, services: f.servicios, year: String(f.anio), client: f.cliente.toLowerCase(), site: d.sitios[f.sitio] || '' });
         li.classList.remove('on');
-        li.querySelector('a')!.href = `/propuesta/antecedentes/${f.id}/${f.slug}`;
+        li.querySelector('a')!.href = `/antecedentes/${f.id}/${f.slug}`;
         const img = li.querySelector('img'); if (img) { if (f.foto) { const src = f.foto.startsWith('/') ? f.foto : d.prefijo + f.foto; img.src = src; if (/-480\.webp$/.test(src)) img.srcset = `${src} 480w, ${src.replace(/-480\.webp$/, '-960.webp')} 960w`; else img.removeAttribute('srcset'); img.loading = 'lazy'; img.removeAttribute('fetchpriority'); } else img.remove(); }
         const sistema = li.querySelector<HTMLElement>('.ficha__sistema'); if (sistema) { sistema.dataset.svcs = f.servicios; sistema.innerHTML = ''; }
         li.querySelector('b')!.textContent = f.cliente;

@@ -8,10 +8,10 @@ import '../../styles/proto-despiece.css';
 import Head from './Head.astro';
 import Top from './Top.astro';
 import Cierre from './Cierre.astro';
-const en = Astro.url.pathname.startsWith('/propuesta/en');
+const en = Astro.url.pathname.replace(/^\/propuesta/, '').startsWith('/en');
 const t = en
-  ? { title: 'Page not found · ULTIMA MILLA', h1: 'This page does not exist', p: 'The address changed or the page was never published. Everything on the site is reachable from these four places.', links: [['/propuesta/en', 'Home'], ['/propuesta/en/services', 'Services'], ['/propuesta/antecedentes', 'Projects (Spanish)'], ['/propuesta/en/contact', 'Contact']] }
-  : { title: 'Página no encontrada · ULTIMA MILLA', h1: 'Esta página no existe', p: 'La dirección cambió o la página nunca se publicó. Todo lo del sitio se alcanza desde estos cuatro lugares.', links: [['/propuesta/antecedentes', 'Los 520 proyectos'], ['/propuesta/servicios', 'Servicios'], ['/propuesta/sectores', 'Sectores'], ['/propuesta/contacto', 'Contacto']] };
+  ? { title: 'Page not found · ULTIMA MILLA', h1: 'This page does not exist', p: 'The address changed or the page was never published. Everything on the site is reachable from these four places.', links: [['/en', 'Home'], ['/en/services', 'Services'], ['/antecedentes', 'Projects (Spanish)'], ['/en/contact', 'Contact']] }
+  : { title: 'Página no encontrada · ULTIMA MILLA', h1: 'Esta página no existe', p: 'La dirección cambió o la página nunca se publicó. Todo lo del sitio se alcanza desde estos cuatro lugares.', links: [['/antecedentes', 'Los 520 proyectos'], ['/servicios', 'Servicios'], ['/sectores', 'Sectores'], ['/contacto', 'Contacto']] };
 ---
 <!doctype html>
 <html lang={en ? 'en' : 'es'}>

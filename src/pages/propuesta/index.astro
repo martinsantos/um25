@@ -67,15 +67,15 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
       <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
       <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
       <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>
-      <a class="u" href="/propuesta/antecedentes">Ver los {total} proyectos</a>
+      <a class="u" href="/antecedentes">Ver los {total} proyectos</a>
     </Apertura>
 
     <section class="sec" id="clientes">
       <div class="wrap">
         <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2></div>
         <ol class="clientes">
-          {clientes.slice(0, 12).map((c) => <li><a href={`/propuesta/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
-          <li class="mas"><a href="/propuesta/antecedentes">Y {clientes.length - 12} más</a><span></span></li>
+          {clientes.slice(0, 12).map((c) => <li><a href={`/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
+          <li class="mas"><a href="/antecedentes">Y {clientes.length - 12} más</a><span></span></li>
         </ol>
       </div>
     </section>
@@ -83,8 +83,8 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
     <section class="sec" id="servicios">
       <div class="wrap">
         <div class="sec__head"><h2>Ocho frentes de servicio, en los lugares donde no se puede parar<span class="dot">.</span></h2></div>
-        <ol class="frentes">{frentes.map((s) => <li><a href={`/propuesta/servicios/${s.code}`}><b>{s.name}</b><span class="n">{s.count} proyectos</span><p>{s.text}</p></a></li>)}</ol>
-        <ol class="lugares" id="lugares" aria-label="Sectores">{lugares.map((l) => <li><a href={`/propuesta/sectores/${l.slug}`}>{l.name}<span class="n">{l.count}</span></a></li>)}<li><a class="muted" href="/propuesta/sectores">Todos los sectores</a></li></ol>
+        <ol class="frentes">{frentes.map((s) => <li><a href={`/servicios/${s.code}`}><b>{s.name}</b><span class="n">{s.count} proyectos</span><p>{s.text}</p></a></li>)}</ol>
+        <ol class="lugares" id="lugares" aria-label="Sectores">{lugares.map((l) => <li><a href={`/sectores/${l.slug}`}>{l.name}<span class="n">{l.count}</span></a></li>)}<li><a class="muted" href="/sectores">Todos los sectores</a></li></ol>
       </div>
     </section>
 

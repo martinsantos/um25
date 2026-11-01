@@ -66,7 +66,7 @@ export const nombreCliente = (raw: unknown): string => {
 export const tituloProyecto = (raw: unknown, clienteRaw: unknown, descripcionRaw: unknown): string => {
   let t = limpiar(raw);
   const clienteOriginal = limpiar(clienteRaw);
-  if (t.includes('|')) t = t.split('|')[0].trim() || t;
+  if (t.includes('|')) t = t.split('|')[0]!.trim() || t;
   for (const p of PREFIJOS) t = t.replace(new RegExp(`^${esc(p)}:\\s*`, 'i'), '');
   t = t.replace(/\s*-\s*Cliente Confidencial(\s*\(\d+\))?/gi, '').replace(/^Cliente Confidencial\s*-\s*/i, '');
   t = t.replace(new RegExp(`\\s*-\\s*(${MESES})\\s+\\d{4}\\s*(\\(\\d+\\))?\\s*$`, 'i'), '');
@@ -80,7 +80,7 @@ export const tituloProyecto = (raw: unknown, clienteRaw: unknown, descripcionRaw
       let full = d.length > 120 ? d.slice(0, 120).replace(/\s+\S*$/, '') : d;
       // La descripción del registro también viene cortada (sin cierre, ~70 caracteres): se quita el fragmento final.
       if (!/[.)!?]$/.test(d)) { full = full.replace(/\s*[(,;:-]\s*$/, ''); const last = full.split(' ').pop() || ''; if (last.length <= 4 && !/\d/.test(last)) full = full.replace(/\s+\S*$/, ''); }
-      const frase = full.split(/(?<=[a-záéíóúñ0-9)])\.\s(?=[A-ZÁÉÍÓÚÑ])/)[0];
+      const frase = full.split(/(?<=[a-záéíóúñ0-9)])\.\s(?=[A-ZÁÉÍÓÚÑ])/)[0]!;
       t = (frase.length >= corto.length ? frase : full).replace(/[.\s]+$/, '');
     } else t = corto.replace(/\s+\S{1,3}$/, '');
   }
@@ -97,7 +97,7 @@ export const tituloProyecto = (raw: unknown, clienteRaw: unknown, descripcionRaw
     if (d) {
       let f = d.replace(/\s*Cliente:.*$/i, '').replace(/\s*-\s*Cliente Confidencial.*$/i, '');
       for (const p of PREFIJOS) f = f.replace(new RegExp(`^${esc(p)}:\\s*`, 'i'), '');
-      f = f.split(/(?<=[a-záéíóúñ0-9)])\.\s(?=[A-ZÁÉÍÓÚÑ])/)[0];
+      f = f.split(/(?<=[a-záéíóúñ0-9)])\.\s(?=[A-ZÁÉÍÓÚÑ])/)[0]!;
       if (f.length > 110) f = f.slice(0, 110).replace(/\s+\S*$/, '');
       if (f.replace(/[^\p{L}]/gu, '').length > t.replace(/[^\p{L}]/gu, '').length + 3) t = f;
     }
@@ -129,7 +129,7 @@ export function desambiguarTitulos<T extends { client: string; title: string; su
     if (g.length < 2) continue;
     for (const i of g) {
       let f = (i.summary || '').replace(/\s*Cliente:.*$/i, '').replace(/\s*Sector:.*$/i, '').trim();
-      f = f.split(/(?<=[a-záéíóúñ0-9)])\.\s(?=[A-ZÁÉÍÓÚÑ])/)[0].replace(/[.\s]+$/, '');
+      f = f.split(/(?<=[a-záéíóúñ0-9)])\.\s(?=[A-ZÁÉÍÓÚÑ])/)[0]!.replace(/[.\s]+$/, '');
       if (f.length >= 12 && f.length <= 90 && comparableT(f) !== comparableT(i.title) && !comparableT(f).startsWith(comparableT(i.title)) && !comparableT(f).includes(comparableT(i.client))) i.title = mayusculaInicial(caja(f));
     }
     // Los que siguen iguales llevan su fecha.

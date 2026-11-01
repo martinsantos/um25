@@ -9,7 +9,7 @@ name: Vista previa
 # (scripts/propuesta/control.mjs) y adjunta las capturas; su resultado va al resumen y al estado del commit.
 on:
   push:
-    branches: ['preview/**', 'feature/portada-**']
+    branches: ['preview/**', 'feature/portada-**', 'feature/integracion-despiece-*']
   workflow_dispatch:
     inputs:
       ref:
@@ -27,12 +27,12 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  NODE_VERSION: '18.x'
+  NODE_VERSION: '20.19.6'
 
 jobs:
   vista-previa:
     runs-on: ubuntu-latest
-    timeout-minutes: 320
+    timeout-minutes: 350
     permissions:
       contents: read
       statuses: write
@@ -49,6 +49,14 @@ jobs:
       - name: Instalar
         run: npm ci
 
+      - name: Controles de publicación
+        run: |
+          npm run lint
+          npm run typecheck
+          npm run audit:css
+          npm run test:ci
+          python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_*.py' -q
+
       - name: Compilar
         run: npm run build
         env:
@@ -56,14 +64,24 @@ jobs:
 
       - name: Levantar el sitio
         run: |
-          HOST=127.0.0.1 PORT=4321 nohup node dist/server/entry.mjs > server.log 2>&1 &
+          # Igual estructura que el tar de Hostinger: no existe public/ junto al servidor.
+          stage="$RUNNER_TEMP/umsa-runtime-check"
+          mkdir -p "$stage/dist"
+          cp -R dist/server "$stage/dist/server"
+          ln -s "$GITHUB_WORKSPACE/dist/client" "$stage/dist/client"
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$stage/node_modules"
+          cp package.json "$stage/package.json"
+          UMSA_PREVIEW=1 HOST=127.0.0.1 PORT=4321 nohup node "$stage/dist/server/entry.mjs" > server.log 2>&1 &
           for i in $(seq 1 60); do curl -fs -o /dev/null http://127.0.0.1:4321/ && break; sleep 2; done
           if ! curl -fs -o /dev/null -w 'Inicio: %{http_code}\n' http://127.0.0.1:4321/; then
             echo '--- respuesta de / (primeras líneas)'; curl -s http://127.0.0.1:4321/ | head -c 1500; echo
             echo '--- server.log'; cat server.log; exit 1
           fi
 
-      # El sitio corre en Node 18, como producción; Playwright pide Node 20 o más, así que el control usa otro Node.
+      - name: Verificar integración y paquete de producción
+        run: node scripts/propuesta/integration-smoke.mjs http://127.0.0.1:4321
+
+      # El sitio usa el mismo Node 20 que producción; el control de navegador usa Node 22.
       - name: Node 22 para el control
         uses: actions/setup-node@v6
         with:
@@ -89,7 +107,7 @@ jobs:
         id: tunel
         env:
           GH_TOKEN: ${{ github.token }}
-          MINUTOS: ${{ inputs.minutos || '90' }}
+          MINUTOS: ${{ inputs.minutos || '300' }}
           REF: ${{ inputs.ref || github.ref_name }}
           CONTROL: ${{ steps.control.outcome }}
         run: |
@@ -113,10 +131,10 @@ jobs:
           echo "::notice title=Vista previa::$url"
           # El link también queda como estado del commit: se ve en el commit y en el PR al instante.
           sha=$(git rev-parse HEAD)
-          if [ "$CONTROL" = "success" ]; then veredicto='Control OK'; else veredicto='Control FALLÓ'; fi
+          if [ "$CONTROL" = "success" ]; then veredicto='Control OK'; estado='success'; else veredicto='Control FALLÓ'; estado='failure'; fi
           curl -fsS -X POST -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' \
             "https://api.github.com/repos/${{ github.repository }}/statuses/$sha" \
-            -d "{\"state\":\"success\",\"context\":\"vista-previa\",\"target_url\":\"$url\",\"description\":\"$veredicto · abierta $min min desde $(date -u +%H:%M) UTC\"}" > /dev/null
+            -d "{\"state\":\"$estado\",\"context\":\"vista-previa\",\"target_url\":\"$url\",\"description\":\"$veredicto · abierta $min min desde $(date -u +%H:%M) UTC\"}" > /dev/null
           echo "min=$min" >> "$GITHUB_OUTPUT"
 
       # Paso aparte: así el link y el resumen ya se ven mientras la vista previa sigue abierta.

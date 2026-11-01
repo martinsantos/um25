@@ -30,9 +30,13 @@ export type IsoSite = 'building' | 'winery' | 'terminal' | 'clinic' | 'mine' | '
 const V3: ReadonlySet<IsoSite> = new Set<IsoSite>(['building', 'terminal', 'winery']);   // sitios renderizados desde su modelo 3D
 export const isoSrc = (site: IsoSite): string => `/cine/iso/site-${site}-${V3.has(site) ? 'v3' : 'v2'}.svg`;
 
-/** Un archivo de public/ leído en el servidor (desde este módulo la ruta resuelve bien también en la compilación, que lo deja en dist/server/chunks). */
-export const existePublico = (rel: string): boolean => existsSync(new URL(`../../../public/${rel}`, import.meta.url));
-export const leerPublico = (rel: string): string => (existePublico(rel) ? readFileSync(new URL(`../../../public/${rel}`, import.meta.url), 'utf8').replace(/<\?xml[^>]*>/, '') : '');
+/** El paquete CI contiene dist/client, no public/. Desarrollo conserva public/. */
+const archivoPublico = (rel: string): URL => {
+  const built = new URL(`../../client/${rel}`, import.meta.url);
+  return existsSync(built) ? built : new URL(`../../../public/${rel}`, import.meta.url);
+};
+export const existePublico = (rel: string): boolean => existsSync(archivoPublico(rel));
+export const leerPublico = (rel: string): string => (existePublico(rel) ? readFileSync(archivoPublico(rel), 'utf8').replace(/<\?xml[^>]*>/, '') : '');
 /** Proporción ancho/alto del viewBox de un SVG de public/, para reservar su caja antes de traerlo (sin salto). 1 si no se puede leer. */
 const RATIO_PUBLICO: Record<string, number> = {};
 export const ratioDe = (src: string): number => {
@@ -43,7 +47,7 @@ export const ratioDe = (src: string): number => {
 };
 /** La isometría completa (SVG) de un sitio, para incrustar en el HTML. */
 export const readIso = (site: IsoSite): string =>
-  readFileSync(new URL(`../../../public${isoSrc(site)}`, import.meta.url), 'utf8')
+  readFileSync(archivoPublico(isoSrc(site).slice(1)), 'utf8')
     .replace(/<\?xml[^>]*>/, '')
     .replace(/ id="sp-[a-z]+-(title|desc)"/g, '')
     .replace(/ aria-labelledby="[^"]*"/, ' aria-hidden="true"');
@@ -52,13 +56,13 @@ export const readIso = (site: IsoSite): string =>
 const RATIO: Partial<Record<IsoSite, number>> = {};
 export const isoRatio = (site: IsoSite): number => {
   if (RATIO[site]) return RATIO[site]!;
-  try { const vb = readFileSync(new URL(`../../../public${isoSrc(site)}`, import.meta.url), 'utf8').match(/viewBox="([-\d.]+) ([-\d.]+) ([-\d.]+) ([-\d.]+)"/); RATIO[site] = vb ? Number(vb[3]) / Number(vb[4]) : 1; } catch { RATIO[site] = 1; }
+  try { const vb = readFileSync(archivoPublico(isoSrc(site).slice(1)), 'utf8').match(/viewBox="([-\d.]+) ([-\d.]+) ([-\d.]+) ([-\d.]+)"/); RATIO[site] = vb ? Number(vb[3]) / Number(vb[4]) : 1; } catch { RATIO[site] = 1; }
   return RATIO[site]!;
 };
 
 /** El despiece de un equipo (switch, cámara, panel…), por código de servicio. */
 export const readDevice = (code: string): string =>
-  readFileSync(new URL(`../../../public/cine/iso/service-${code}.svg`, import.meta.url), 'utf8').replace(/<\?xml[^>]*>/, '');
+  readFileSync(archivoPublico(`cine/iso/service-${code}.svg`), 'utf8').replace(/<\?xml[^>]*>/, '');
 
 export const services = NAV_SERVICES;
 
@@ -148,7 +152,7 @@ export async function loadStories() {
   type Extra = { id: number; original_id: string; Titulo: string; Cliente: string; sector: string; servicios: string[]; inicio: string; cierre: string; estado: Estado; Descripcion: string };
   const extras = (extraJson as { proyectos: Extra[] }).proyectos.filter((e) => !catalog.some((c) => c.id === e.id));
   const EXTRA_DE = new Map(extras.map((e) => [e.id, e]));
-  const catalogoCompleto = [...catalog, ...extras.map((e) => ({ id: e.id, title: e.Titulo, slug: slugDe(e.Titulo), client: e.Cliente, sector_slug: e.sector, service_codes: e.servicios.map(Number), year: Number(e.inicio.slice(0, 4)), month: Number(e.inicio.slice(5, 7)), location: '', scope: [] as string[], status: 'operativo' as const, image: SECTOR_PHOTO[e.sector] || SECTOR_PHOTO.constructoras, summary: e.Descripcion, tags: [] as string[] }))];
+  const catalogoCompleto = [...catalog, ...extras.map((e) => ({ id: e.id, title: e.Titulo, slug: slugDe(e.Titulo), client: e.Cliente, sector_slug: e.sector, service_codes: e.servicios.map(Number), year: Number(e.inicio.slice(0, 4)), month: Number(e.inicio.slice(5, 7)), location: '', scope: [] as string[], status: 'operativo' as const, image: SECTOR_PHOTO[e.sector] || SECTOR_PHOTO['constructoras'], summary: e.Descripcion, tags: [] as string[] }))];
   const sectorDe = resolverSector(catalogoCompleto.map((c) => ({ client: c.client, sector: c.sector_slug })));
   const stories: Story[] = [...catalogoCompleto]
     .sort((a, b) => (b.year - a.year) || (b.month - a.month) || (b.id - a.id))
@@ -164,7 +168,7 @@ export async function loadStories() {
       return {
         id: c.id,
         slug: c.slug,
-        href: `/propuesta/antecedentes/${c.id}/${c.slug}`,
+        href: `/antecedentes/${c.id}/${c.slug}`,
         client,
         title,
         // SGI es el sistema de registro: su fecha de inicio manda sobre la del catálogo cuando existe.
@@ -178,7 +182,7 @@ export async function loadStories() {
         sectorSlug,
         serviceCodes: c.service_codes.map(String),
         services: c.service_codes.map((code) => byCode.get(String(code)) || '').filter(Boolean),
-        image: c.image,
+        image: c.image || '',
         summary: sinTitulo(descripcionDeOrigen(c.id), title, client) || cleanSummary(c.summary, title, client),
         status: c.status,
       };
@@ -190,7 +194,7 @@ export async function loadStories() {
   stories.forEach((s) => {
     if (s.sectorSlug) return;
     const k = s.client.toLowerCase(); const m = sectoresDe.get(k); if (!m) return;
-    const [top, n] = [...m.entries()].sort((a, b) => b[1] - a[1])[0];
+    const [top, n] = [...m.entries()].sort((a, b) => b[1] - a[1])[0]!;
     if (n >= 3 && n >= (fichasDe.get(k) || 0) / 3) { s.sectorSlug = top; s.sector = getAntecedenteSectorLabel(top === 'gobiernosectorpublico' ? 'gobierno' : top) || ''; }
   });
   // Con las fechas de SGI, el orden se rehace: lo más reciente primero.
@@ -202,7 +206,7 @@ export async function loadStories() {
   const countOf = (slug: string) => catalog.filter((c) => sectorDe(c.client, c.sector_slug, `${c.title} ${c.summary}`) === slug).length;
   const places = PLACES.map((p) => {
     const row = SECTORS.find((s) => s.slug === p.slug)!;
-    return { ...p, name: row.name, text: row.text, href: `/${p.slug}`, count: countOf(p.slug), stories: stories.filter((s) => s.sectorSlug === p.slug).slice(0, 3) };
+    return { ...p, name: row.name, text: row.text, href: `/sectores/${p.slug}`, count: countOf(p.slug), stories: stories.filter((s) => s.sectorSlug === p.slug).slice(0, 3) };
   });
   const years = catalog.map((c) => c.year).filter(Boolean);
   return { total: Math.max(totalCatalogo, stories.length), stories, places, firstYear: Math.min(...years), lastYear: Math.max(...years) };

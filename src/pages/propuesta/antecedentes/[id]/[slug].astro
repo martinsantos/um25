@@ -91,7 +91,7 @@ const cajetin: [string, string][] = [
     <main id="contenido">
     <div class="wrap">
       <nav class="nav" aria-label="Proyectos">
-        <a href="/propuesta/antecedentes">← Todos los proyectos</a>
+        <a href="/antecedentes">← Todos los proyectos</a>
         <span>{prev && <a href={prev.href}>← Anterior</a>}{prev && next && ' · '}{next && <a href={next.href}>Siguiente →</a>}</span>
       </nav>
       <div class="hoja-cab"><span>Ficha de trabajo · <b>{ref}</b>{enCurso && <i class="curso">En curso</i>}</span><span>{[c.sector, periodo].filter(Boolean).join(' · ')}</span></div>
@@ -104,11 +104,11 @@ const cajetin: [string, string][] = [
         </div>
         <dl class="tabla">
             <div><dt>Cliente</dt><dd>{c.client}</dd></div>
-            {c.sector && <div><dt>Sector</dt><dd><a href={`/propuesta/sectores/${c.sectorSlug}`}>{c.sector}</a></dd></div>}
+            {c.sector && <div><dt>Sector</dt><dd><a href={`/sectores/${c.sectorSlug}`}>{c.sector}</a></dd></div>}
             {when && <div><dt>{cierre ? 'Inicio' : 'Fecha'}</dt><dd>{when}</dd></div>}
             {cierre && <div><dt>{enCurso ? 'Cierre previsto' : 'Cierre'}</dt><dd>{cierre}</dd></div>}
             <div><dt>Referencia</dt><dd>{ref}</dd></div>
-            {svcs.length > 0 && <div class="ancho"><dt>Servicios</dt><dd>{svcs.map((s) => <a href={`/propuesta/servicios/${s.code}`}>{s.name}</a>)}</dd></div>}
+            {svcs.length > 0 && <div class="ancho"><dt>Servicios</dt><dd>{svcs.map((s) => <a href={`/servicios/${s.code}`}>{s.name}</a>)}</dd></div>}
         </dl>
       </div>
 

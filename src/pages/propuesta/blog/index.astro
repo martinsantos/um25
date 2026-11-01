@@ -13,7 +13,7 @@ const POR_PAGINA = 12;
 const pagina = Math.max(1, Number(Astro.url.searchParams.get('p')) || 1);
 const { posts, total } = await fetchBlogListing(pagina, POR_PAGINA, categoria || undefined);
 const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
-const enlace = (p: number) => `/propuesta/blog?${categoria ? `categoria=${categoria}&` : ''}p=${p}`;
+const enlace = (p: number) => `/blog?${categoria ? `categoria=${categoria}&` : ''}p=${p}`;
 const todas = categoria ? (await fetchBlogListing(1, 60)).posts : posts;
 const categorias = [...new Set(todas.map((p) => p.categoria))].sort();
 ---
@@ -26,13 +26,13 @@ const categorias = [...new Set(todas.map((p) => p.categoria))].sort();
       <div class="cabecera">
         <h1>Blog<span class="dot">.</span></h1>
         <p>Novedades de ULTIMA MILLA: servicios, proyectos y evolución de la empresa de servicios IT con sede en Guaymallén, Mendoza.</p>
-        <nav class="chips" aria-label="Categorías"><a href="/propuesta/blog" aria-current={categoria ? undefined : 'page'}>Todo</a>{categorias.map((c) => <a href={`/propuesta/blog?categoria=${c}`} aria-current={c === categoria ? 'page' : undefined}>{getCategoryLabel(c)}</a>)}</nav>
+        <nav class="chips" aria-label="Categorías"><a href="/blog" aria-current={categoria ? undefined : 'page'}>Todo</a>{categorias.map((c) => <a href={`/blog?categoria=${c}`} aria-current={c === categoria ? 'page' : undefined}>{getCategoryLabel(c)}</a>)}</nav>
       </div>
       <ol class="entradas">
         {posts.map((p) => (
           <li class="entrada">
             <span class="small"><span>{formatBlogDateLong(p.fecha_publicacion)}</span><span>{getCategoryLabel(p.categoria)}{p.tiempo_lectura ? ` · ${p.tiempo_lectura} min` : ''}</span></span>
-            <a href={`/propuesta/blog/${p.slug}`}><h2>{p.titulo}</h2><p>{sanitizeBlogExcerpt(p.resumen, 220)}</p></a>
+            <a href={`/blog/${p.slug}`}><h2>{p.titulo}</h2><p>{sanitizeBlogExcerpt(p.resumen, 220)}</p></a>
           </li>
         ))}
       </ol>
