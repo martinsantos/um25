@@ -3,6 +3,16 @@
 1 de noviembre de 2026. Rama `feature/integracion-despiece-20261101`, PR 541 en borrador.
 Vista de revisión: http://127.0.0.1:4381/ . **No publicar hasta la revisión del usuario.**
 
+## Control posterior a la recuperación de Directus
+
+Las ocho imágenes ya se recuperaron por CI/CD en el run [41354989262](https://github.com/martinsantos/um25/actions/runs/41354989262), conservando UUID y referencias. Las notas siguientes sobre archivos todavía ausentes describen el diagnóstico anterior a esa ejecución. No se publicó el rediseño.
+
+Control local posterior: 66 vistas Chromium (1440 y 390 px), con los ocho servicios, nueve destinos sectoriales, doce casos destacados y sus índices. Sin imágenes rotas, desbordes, errores JavaScript ni etiquetas internas visibles en esas vistas. Las miniaturas de los menús conservan 8 y 9 destinos; búsqueda de antecedentes y apertura de ficha comprobadas en ambos anchos. Se corrigió Escape para cerrar también un menú mantenido visible por hover.
+
+Se retiraron únicamente las etiquetas sectoriales no respaldadas de 3628, 3646, 3655, 3471 y 3194, mediante guardas de ID, cliente, texto y etiqueta previa. Se conservan sus servicios, fotos y fichas; no se inventa una vertical alternativa. Comparación del catálogo: mismos 520 IDs y mismas imágenes/servicios; sólo cambian esas cinco clasificaciones y su representación derivada. El smoke posterior valida 37 rutas y 614 recursos. Build, lint, tipos, contrato CSS y 51 pruebas focales aprobados.
+
+Este control no convierte las otras fichas históricas en casos editoriales terminados: quedan descripciones breves y clasificaciones sin evidencia suficiente. Las imágenes ilustrativas continúan identificadas como tales. Evidencia temporal en `/private/tmp/umsa-post-recovery-visual/`; versión servida en el puerto 4381.
+
 ## Último cierre: ocho imágenes e inventarios de los casos
 
 La pasada más reciente valida ocho PNG de Servicios por hash, decodificación completa y respuesta HTTP local con MIME correcto. El manifiesto y el verificador offline permiten reproducir un bundle fuera del repositorio. La metadata original dice JPEG: la futura restauración en Directus debe conservar las referencias y corregir MIME/nombres. El volumen del CMS no se ha restaurado y no se ha ensayado una carga API; la resolución local sí está comprobada.

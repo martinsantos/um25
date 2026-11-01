@@ -411,7 +411,7 @@ const isActive = (href: string) => {
     transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s linear 0.16s;
   }
 
-  .um-ops-mega:hover .um-ops-mega__panel,
+  .um-ops-mega:hover:not(.is-dismissed) .um-ops-mega__panel,
   .um-ops-mega.is-open .um-ops-mega__panel {
     opacity: 1;
     visibility: visible;
@@ -1128,6 +1128,7 @@ const isActive = (href: string) => {
       megas.forEach((m) => {
         if (m === except) return;
         m.classList.remove('is-open');
+        m.classList.toggle('is-dismissed', m.matches(':hover'));
         m.querySelector<HTMLButtonElement>('.um-ops-mega__toggle')?.setAttribute('aria-expanded', 'false');
       });
     };
@@ -1138,20 +1139,28 @@ const isActive = (href: string) => {
       const setOpen = (open: boolean) => {
         closeMegas(mega);
         mega.classList.toggle('is-open', open);
+        mega.classList.toggle('is-dismissed', !open && mega.matches(':hover'));
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       };
       toggle.addEventListener('click', () => setOpen(!mega.classList.contains('is-open')));
       link?.addEventListener('keydown', (event) => {
         if (event.key === 'ArrowDown') { event.preventDefault(); setOpen(true); mega.querySelector<HTMLAnchorElement>('.um-ops-mega__grid a')?.focus(); }
       });
-      mega.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && mega.classList.contains('is-open')) { event.preventDefault(); setOpen(false); toggle.focus(); }
-      });
       mega.addEventListener('focusout', (event) => {
         const next = event.relatedTarget as Node | null;
         if (next && !mega.contains(next)) setOpen(false);
       });
-      mega.addEventListener('mouseleave', () => { if (mega.classList.contains('is-open')) setOpen(false); });
+      mega.addEventListener('mouseenter', () => mega.classList.remove('is-dismissed'));
+      mega.addEventListener('mouseleave', () => { setOpen(false); mega.classList.remove('is-dismissed'); });
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      const opened = megas.find(m => m.classList.contains('is-open') || (m.matches(':hover') && !m.classList.contains('is-dismissed')));
+      if (!opened) return;
+      event.preventDefault();
+      const restoreFocus = opened.contains(document.activeElement);
+      closeMegas();
+      if (restoreFocus) opened.querySelector<HTMLButtonElement>('.um-ops-mega__toggle')?.focus();
     });
     document.addEventListener('click', (event) => {
       if (!megas.some((m) => m.contains(event.target as Node))) closeMegas();

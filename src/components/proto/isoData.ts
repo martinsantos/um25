@@ -12,7 +12,7 @@ import { NAV_SERVICES } from '../../data/navigation';
 import { antecedentesReales } from '../../data/antecedentes_completos.js';
 import { SECTORS, SOFTWARE_FILM } from '../../data/cine/scenes';
 import { descripcionDeOrigen } from './relato';
-import { addEvidenceBackedService, addEvidenceBackedSector, correctCuratedClassification, CURATED_CLASSIFICATION_CORRECTIONS, curateCatalogImage } from './catalogEditorial';
+import { addEvidenceBackedService, addEvidenceBackedSector, correctCuratedClassification, CURATED_CLASSIFICATION_CORRECTIONS, curateCatalogImage, withholdUnverifiedSector } from './catalogEditorial';
 import { publicCaseFor } from './casePresentation';
 import { nombreCliente, tituloProyecto, desambiguarTitulos } from './titulos';
 import sgiJson from '../../data/sgi/fechas.json';
@@ -266,6 +266,7 @@ export async function loadStories() {
     const classification = publicCase
       ? correctCuratedClassification(story.id, evidenceText, '', story.sectorSlug, serviceCodes)
       : { sector: story.sectorSlug, services: serviceCodes };
+    classification.sector = withholdUnverifiedSector(story.id, origin?.client || story.client, `${origin?.title || ''} ${origin?.summary || ''}`, classification.sector);
     story.sectorSlug = classification.sector;
     story.sector = classification.sector ? getAntecedenteSectorLabel(classification.sector === 'gobiernosectorpublico' ? 'gobierno' : classification.sector) || '' : '';
     story.serviceCodes = classification.services;

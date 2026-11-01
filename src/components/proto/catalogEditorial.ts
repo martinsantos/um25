@@ -87,6 +87,24 @@ export type SectorEvidence = {
   evidence: string;
 };
 
+/** Reviewed related records whose imported area mixes a service with a place.
+ * Their source does not substantiate the displayed vertical. Keep the projects,
+ * images and services, but withhold that badge instead of inventing another place.
+ */
+const UNVERIFIED_SECTOR_TAGS: Readonly<Record<number, { client: string; evidence: string; sector: string }>> = {
+  3628: { client: 'CERVECERIA Y MALTERIA QUILMES', evidence: 'Expansor de señal Hikvision', sector: 'aeropuertos' },
+  3646: { client: 'CERVECERIA Y MALTERIA QUILMES', evidence: 'cotizar tres días de trabajo', sector: 'aeropuertos' },
+  3655: { client: 'CERVECERIA Y MALTERIA QUILMES', evidence: 'En Quilmes hay que cotizar el tendido', sector: 'aeropuertos' },
+  3471: { client: 'CERVECERIA Y MALTERIA QUILMES', evidence: 'Soporte de Infraestructura IT de Alta Disponibilidad', sector: 'constructoras' },
+  3194: { client: 'Kristich Desarrollos', evidence: 'Hotel fuente Mayor Mendoza', sector: 'aeropuertos' },
+};
+
+export function withholdUnverifiedSector(id: number, client: string, text: string, sector: string): string {
+  const entry = UNVERIFIED_SECTOR_TAGS[id];
+  return entry && normalize(client) === normalize(entry.client)
+    && normalize(text).includes(normalize(entry.evidence)) && sector === entry.sector ? '' : sector;
+}
+
 export type ClassificationCorrection = {
   /** Exact wording retained in the current case text or its verified source crosswalk. */
   evidence: string;
