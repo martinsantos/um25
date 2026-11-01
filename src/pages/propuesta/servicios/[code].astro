@@ -12,7 +12,7 @@ import Ficha from '../../../components/proto/Ficha.astro';
 import Casos from '../../../components/proto/Casos.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import { getServicioByCode } from '../../../lib/um26-directus';
-import { loadStories, readDevice, services, SERVICE_KEY, SERVICE_PHOTO, type IsoSite, isoSrc } from '../../../components/proto/isoData';
+import { loadStories, services, SERVICE_KEY, SERVICE_PHOTO, type IsoSite, isoSrc } from '../../../components/proto/isoData';
 import { despieceAgregado, KIT_DE_SERVICIO } from '../../../components/proto/despiece';
 import Partes from '../../../components/proto/Partes.astro';
 import { CASOS_SERVICIO, casosDe } from '../../../components/proto/relato';
@@ -30,7 +30,8 @@ const own = stories.filter((c) => c.serviceCodes.includes(code));
 const scene = (SERVICE_SCENES[code] || SERVICE_SCENES['101'])!.scene;
 const SITE: Record<string, IsoSite> = { fachada: 'building', aeropuerto: 'terminal', bodega: 'winery', hospital: 'clinic', planta: 'plant' };
 const site = SITE[scene] || 'building';
-const device = code === '106' ? '' : readDevice(code);
+// El equipo del servicio se trae de public/cine/iso al cargar (prioridad baja): el de consultoría es el edificio entero.
+const deviceSrc = code === '106' ? isoSrc('building') : `/cine/iso/service-${code}.svg`;
 const agregado = new Map(despieceAgregado(own).map((p) => [p.key, p]));
 const kit = (KIT_DE_SERVICIO[code] || []).map(([key, label]) => ({ key, label, n: agregado.get(key)?.proyectos || 0, u: agregado.get(key)?.unidades || 0 }));
 const photo = SERVICE_PHOTO[code];
@@ -82,7 +83,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       <div class="wrap">
         <div class="sec__head"><h2>Qué cubre<span class="dot">.</span></h2></div>
         <div class="cubre" data-cubre>
-          <div class="equipo" data-equipo>{device ? <div set:html={device} /> : <div class="iso" data-src={isoSrc('building')}></div>}</div>
+          <div class="equipo" data-equipo><div class="iso" data-src={deviceSrc}></div></div>
           <ol class="caps" data-caps>{servicio.capabilities.map((c) => <li>{c}</li>)}</ol>
         </div>
       </div>
@@ -163,7 +164,8 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       const lazy = equipo.querySelector<HTMLElement>('[data-src]');
       const fit = (svg: SVGSVGElement) => { if (svg.dataset.fit) return; try { const b = svg.getBBox(); const pad = Math.max(b.width, b.height) * .06; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); svg.dataset.fit = '1'; } catch { /* sin bbox */ } };
       const draw = () => { const svg = equipo.querySelector<SVGSVGElement>('svg'); if (svg) fit(svg); };
-      if (lazy) fetch(lazy.dataset.src!, { priority: 'low' } as RequestInit).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) { lazy.innerHTML = svg; draw(); } });
+      // El dibujo del equipo pesa (la sala de servidores, medio megabyte): se trae cuando la sección se acerca a la pantalla y la página está quieta, nunca antes de pintar la apertura.
+      if (lazy) new IntersectionObserver((es, o) => { if (!es.some((e) => e.isIntersecting)) return; o.disconnect(); (window.requestIdleCallback || ((f: () => void) => setTimeout(f, 300)))(() => fetch(lazy.dataset.src!, { priority: 'low' } as RequestInit).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) { lazy.innerHTML = svg; draw(); } })); }, { rootMargin: '600px 0px' }).observe(equipo);
       draw();
     </script>
   </body>

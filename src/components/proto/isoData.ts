@@ -3,7 +3,7 @@
  * Sólo reúne lo que ya existe en el sitio: las isometrías de /cine/iso, las fotos editoriales,
  * los ocho servicios de la navegación y el catálogo de antecedentes. Ningún texto nuevo.
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { getAntecedentes } from '../../lib/um26-directus';
 import { getAntecedenteSectorLabel } from '../../utils/antecedenteSectorPresentation';
 import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
@@ -29,6 +29,9 @@ export type IsoSite = 'building' | 'winery' | 'terminal' | 'clinic' | 'mine' | '
 const V3: ReadonlySet<IsoSite> = new Set<IsoSite>(['building', 'terminal', 'winery']);   // sitios renderizados desde su modelo 3D
 export const isoSrc = (site: IsoSite): string => `/cine/iso/site-${site}-${V3.has(site) ? 'v3' : 'v2'}.svg`;
 
+/** Un archivo de public/ leído en el servidor (desde este módulo la ruta resuelve bien también en la compilación, que lo deja en dist/server/chunks). */
+export const existePublico = (rel: string): boolean => existsSync(new URL(`../../../public/${rel}`, import.meta.url));
+export const leerPublico = (rel: string): string => (existePublico(rel) ? readFileSync(new URL(`../../../public/${rel}`, import.meta.url), 'utf8').replace(/<\?xml[^>]*>/, '') : '');
 /** La isometría completa (SVG) de un sitio, para incrustar en el HTML. */
 export const readIso = (site: IsoSite): string =>
   readFileSync(new URL(`../../../public${isoSrc(site)}`, import.meta.url), 'utf8')

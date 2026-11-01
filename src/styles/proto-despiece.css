@@ -186,6 +186,7 @@ p { margin: 0; }
 
 /* Partes del despiece (sprite /cine/iso/partes.svg): los colores viajan por variables hasta el <use>. */
 .sp-scene path, .sp-scene circle { vector-effect: non-scaling-stroke; shape-rendering: geometricPrecision; }
+.sp-solido { pointer-events: none; }
 .sp-scene.pt-svg { --p-weight: 1.1px; --p-faint: #3a4048; }
 .sp-scene.pt-svg .pt-contorno { stroke-width: 1.8px; }
 .sp-scene.pt-svg .pt-line[data-banda="lejos"] { stroke-width: .8px; }

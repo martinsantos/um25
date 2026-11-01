@@ -16,6 +16,22 @@ cada página) hasta que reemplace al sitio.
 - **Un rojo.** El de marca (`--red`) para marcas, puntos y subrayados; el de texto (`--red-text`)
   cuando el rojo es texto, porque el de marca no llega a 4,5:1 sobre el fondo.
 
+## Dibujos
+
+Todas las isometrías salen de los modelos 3D de `public/3d/models` con `scripts/cine/render-glb.mjs`
+(líneas ocultas por z-buffer, sólidos sombreados debajo, un grupo por sistema). Nada dibujado a mano.
+
+| Dibujo | Modelo | Dónde se usa |
+|---|---|---|
+| `site-building-v3.svg`, `site-terminal-v3.svg`, `site-winery-v3.svg` | edificio, aeropuerto, bodega | apertura, sector por dentro, ficha, muro, sistema de cada servicio del sitio actual |
+| `site-building-v3-corte.svg`, `site-building-v3-planta.svg` | edificio cortado a dos plantas; la planta baja sola | consultoría, en el sitio actual |
+| `service-104.svg`, `service-105.svg` y sus `-detalle` | un puesto de trabajo; la sala de servidores (modelos del hospital) | equipo de software y de soporte, en la propuesta y en el sitio actual; índice de servicios; pósters |
+| `service-101/102/103/107/108.svg` | switch, cámara, radioenlace, central, UPS | ídem (generación anterior, con despiece en el sitio actual) |
+
+Los equipos van autónomos (`--autonomo`: hoja de estilo y sólidos incrustados) porque también se
+cargan como imagen; los sitios comparten la hoja de la propuesta. Los comandos exactos están en la
+cabecera del generador. Las láminas dibujadas a mano de consultoría, software y soporte se retiraron.
+
 ## Datos
 
 | Fuente | Qué aporta | Dónde |

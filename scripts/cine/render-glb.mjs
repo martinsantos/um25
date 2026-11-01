@@ -13,6 +13,24 @@
  *
  * Uso: node scripts/cine/render-glb.mjs public/3d/models/facade.glb public/cine/iso/site-building-v3.svg [--res 2.5] [--angle 32] [--solido]
  *
+ * Objetos (un equipo o un recinto, solos): --objeto dibuja todo como estructura, sin rutas ni pines;
+ * --bbox x0,y0,x1,y1 y --zmin/--zmax recortan el modelo a una caja del mundo (un puesto, una sala, un
+ * piso); --nombre "puesto de trabajo" da el nombre accesible. Así salen los equipos de los servicios
+ * que no son un aparato (software, soporte, consultoría) de los mismos modelos reales:
+ *   hospital-workstations.glb service-104.svg         --objeto --bbox -0.7,1.9,0.5,3.5 --solido --autonomo --ancho 720 --min 1.5 --nombre "puesto de trabajo"
+ *   hospital-workstations.glb service-104-detalle.svg --objeto --bbox -0.5,2.85,0.45,3.5 --zmin 0.75 --solido --autonomo --ancho 720 --min 1.5 --nombre "pantalla del puesto de trabajo"
+ *   hospital-walkthrough.glb  service-105.svg         --objeto --bbox 15,-0.5,19.6,2.8 --zmin -0.6 --zmax 3.7 --yaw 180 --skip Architecture,Power --solido --autonomo --ancho 720 --min 1.5 --nombre "sala de servidores"
+ *   hospital-walkthrough.glb  service-105-detalle.svg --objeto --bbox 16.65,1.2,17.45,2.1 --zmin -0.6 --zmax 3.7 --yaw 180 --skip Architecture,Power --solido --autonomo --ancho 720 --min 1.5 --nombre "rack de la sala de servidores"
+ *   facade.glb site-building-v3-corte.svg  --az 35 --el 18 --yaw 90 --zmax 7.2 --solido --nombre "las dos primeras plantas del edificio"
+ *   facade.glb site-building-v3-planta.svg --az 35 --el 18 --yaw 90 --zmin -0.3 --zmax 3.6 --solido --nombre "la planta baja del edificio"
+ *   facade.glb service-106.svg (consultoría: la planta baja con todos sus sistemas, autónoma para el índice y los pósters)
+ *              --az 35 --el 18 --yaw 90 --zmin -0.3 --zmax 3.6 --solido --autonomo --nombre "la planta baja del edificio"
+ * --vista x,y,ancho,alto (fracciones del dibujo) recorta el viewBox a un detalle del mismo dibujo (el raster
+ *   de sólidos no gana resolución: para un detalle nítido conviene recortar el modelo con --bbox).
+ * --autonomo: el SVG se basta solo (hoja de estilo y sólidos incrustados) para ir en un <img>, como los
+ *   equipos de los servicios en el índice y en los pósters. Los dibujos de sitio, que van en línea
+ *   en la página y comparten hoja, no lo necesitan.
+ *
  * Los tres sitios v3 se generan con:
  *   facade.glb            site-building-v3.svg  --az 35 --el 18 --yaw 90 --solido
  *   airport-connected.glb site-terminal-v3.svg  --solido
@@ -23,21 +41,30 @@ import { writeFileSync } from 'node:fs';
 import { leerGlb } from './glb.mjs';
 
 const args = process.argv.slice(2);
+const CON_VALOR = new Set(['--res', '--angle', '--yaw', '--az', '--el', '--zmax', '--zmin', '--bbox', '--skip', '--nombre', '--vista', '--ancho', '--min']);
 const opt = (name, def) => { const i = args.indexOf(name); return i > 0 ? Number(args[i + 1]) : def; };
-const [entrada, salida] = args.filter((a) => !a.startsWith('--') && !/^[\d.]+$/.test(a));
+const optTexto = (name, def) => { const i = args.indexOf(name); return i > 0 ? args[i + 1] : def; };
+const [entrada, salida] = args.filter((a, i) => !a.startsWith('--') && !CON_VALOR.has(args[i - 1]));
 const RES = opt('--res', 2.5);          // píxeles del z-buffer por unidad del viewBox
 const ANGULO = opt('--angle', 40);      // umbral de pliegue, en grados
 const YAW = (opt('--yaw', 0) * Math.PI) / 180;   // giro del modelo sobre z, para elegir qué frente mira al espectador
 const TRANSPARENTES = new Set(['glass']);          // materiales que no tapan (sí se dibujan sus aristas)
 const skipIdx = args.indexOf('--skip');
 const OMITIR = new Set(skipIdx > 0 ? args[skipIdx + 1].split(',') : []);   // materiales o sistemas que no se dibujan (corte)
-const W = 1200, H = 720, PAD = 28;
+const W = opt('--ancho', 1200), H = Math.round(W * 0.6), PAD = Math.round(W / 43); // --ancho: el lienzo; los objetos solos (equipos, salas) salen bien a 720 y pesan un tercio
 const AZ = (opt('--az', 42) * Math.PI) / 180, EL = (opt('--el', 30) * Math.PI) / 180;
 const ZMAX = opt('--zmax', Infinity);   // corte horizontal: lo que queda por encima no se dibuja ni tapa
+const ZMIN = opt('--zmin', -Infinity);  // y por debajo
+const BBOX = optTexto('--bbox', '').split(',').map(Number); // recorte en planta: x0,y0,x1,y1 del mundo
+const OBJETO = args.includes('--objeto'); // un objeto solo: todo es estructura, sin rutas ni pines
+const MIN_TRAMO = opt('--min', 0.35);     // aristas más cortas que esto (px del lienzo) no se dibujan; los equipos con muchas ranuras salen limpios y livianos con 1.5
+const AUTONOMO = args.includes('--autonomo'); // el SVG vale como imagen suelta (<img>): lleva su hoja de estilo y los sólidos incrustados
+const NOMBRE = optTexto('--nombre', '');
+const VISTA = optTexto('--vista', '').split(',').map(Number); // detalle: el viewBox se recorta a esa fracción del dibujo (x,y,ancho,alto en 0..1)
 const SOLIDO = args.includes('--solido'); // capa de sólidos: el z-buffer sombreado por normal, como imagen bajo las líneas (los volúmenes ocluyen y se leen)
 
 /** Servicios del sitio por sistema del modelo. */
-const SERVICIO = { Data: '101', Fiber: '101', WiFi: '101', CCTV: '102', Security: '102', Telecom: '103', Intercom: '103', Software: '104', 'Fire-detection': '107', Power: '108' };
+const SERVICIO = OBJETO ? {} : { Data: '101', Fiber: '101', WiFi: '101', CCTV: '102', Security: '102', Telecom: '103', Intercom: '103', Software: '104', 'Fire-detection': '107', Power: '108' };
 const ESTRUCTURA = new Set(['Architecture', 'Furniture-context', 'HVAC', 'Plumbing']);
 
 // ——— Cámara: la del kit (iso-kit: x·cos(az) − y·sin(az) en pantalla, profundidad hacia el espectador).
@@ -50,16 +77,20 @@ const proyectar = (x, y, z) => {
 };
 
 const nodos = (await leerGlb(entrada)).filter((m) => !OMITIR.has(m.material) && !OMITIR.has(m.system));
-if (ZMAX !== Infinity) for (const m of nodos) {
-  // Se descartan los triángulos con algún vértice por encima del corte.
-  const P = m.positions, I = m.indices, keep = [];
-  for (let t = 0; t < I.length; t += 3) if (P[I[t] * 3 + 2] <= ZMAX && P[I[t + 1] * 3 + 2] <= ZMAX && P[I[t + 2] * 3 + 2] <= ZMAX) keep.push(I[t], I[t + 1], I[t + 2]);
+if (ZMAX !== Infinity || ZMIN !== -Infinity || BBOX.length === 4) for (const m of nodos) {
+  // Se descartan los triángulos con algún vértice fuera de la caja (corte horizontal o recorte en planta).
+  const [bx0, by0, bx1, by1] = BBOX.length === 4 ? BBOX : [-Infinity, -Infinity, Infinity, Infinity];
+  const dentro = (i) => { const x = m.positions[i * 3], y = m.positions[i * 3 + 1], z = m.positions[i * 3 + 2]; return z <= ZMAX && z >= ZMIN && x >= bx0 && x <= bx1 && y >= by0 && y <= by1; };
+  const I = m.indices, keep = [];
+  for (let t = 0; t < I.length; t += 3) if (dentro(I[t]) && dentro(I[t + 1]) && dentro(I[t + 2])) keep.push(I[t], I[t + 1], I[t + 2]);
   m.indices = Uint32Array.from(keep);
 }
+for (const m of [...nodos]) if (m.indices.length === 0) nodos.splice(nodos.indexOf(m), 1);
 if (YAW) for (const m of nodos) { const P = m.positions, c = Math.cos(YAW), sn = Math.sin(YAW); for (let i = 0; i < P.length; i += 3) { const x = P[i], y = P[i + 1]; P[i] = x * c - y * sn; P[i + 1] = x * sn + y * c; } }
 // Encuadre.
 let minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
-for (const m of nodos) for (let i = 0; i < m.positions.length; i += 3) { const [sx, sy] = proyectar(m.positions[i], m.positions[i + 1], m.positions[i + 2]); if (sx < minX) minX = sx; if (sx > maxX) maxX = sx; if (sy < minY) minY = sy; if (sy > maxY) maxY = sy; }
+// Sólo los vértices que quedan en uso: con un recorte (--bbox, --zmin, --zmax) el objeto llena el cuadro y el raster de sólidos sale nítido.
+for (const m of nodos) for (let t = 0; t < m.indices.length; t++) { const i = m.indices[t] * 3; const [sx, sy] = proyectar(m.positions[i], m.positions[i + 1], m.positions[i + 2]); if (sx < minX) minX = sx; if (sx > maxX) maxX = sx; if (sy < minY) minY = sy; if (sy > maxY) maxY = sy; }
 const escala = Math.min((W - 2 * PAD) / (maxX - minX), (H - 2 * PAD) / (maxY - minY));
 const ox = W / 2 - ((minX + maxX) / 2) * escala, oy = H / 2 - ((minY + maxY) / 2) * escala;
 const aPantalla = (x, y, z) => { const [sx, sy, d] = proyectar(x, y, z); return [ox + sx * escala, oy + sy * escala, d]; };
@@ -119,9 +150,8 @@ console.error(`triángulos ${tris.length}, z-buffer ${BW}×${BH}`);
 
 // ——— Sólidos: cada píxel del z-buffer toma el tono de la cara que lo cubre (cenital, iluminada o en sombra),
 // sobre la paleta oscura del sistema, con las caras lejanas apenas más apagadas. Va como imagen bajo las líneas.
-let solidoHref = '';
+let solidoHref = '', solidoRgba = null;
 if (SOLIDO) {
-  const sharp = (await import('sharp')).default;
   const luz = [-0.45, -0.35, 0.82]; const ll = Math.hypot(...luz); luz[0] /= ll; luz[1] /= ll; luz[2] /= ll;
   const TONOS = { top: [0x26, 0x2b, 0x31], lit: [0x1c, 0x20, 0x25], face: [0x15, 0x17, 0x1b], shade: [0x0f, 0x11, 0x14] };
   let lo = Infinity, hi = -Infinity; for (const v of zbuf) if (v !== -Infinity) { if (v < lo) lo = v; if (v > hi) hi = v; }
@@ -134,11 +164,7 @@ if (SOLIDO) {
     const a = Math.round(255 * (0.82 + 0.18 * prof));     // lo lejano, apenas más apagado
     const o = k * 4; rgba[o] = tono[0]; rgba[o + 1] = tono[1]; rgba[o + 2] = tono[2]; rgba[o + 3] = a;
   }
-  const archivo = salida.replace(/\.svg$/, '-solido.webp');
-  await sharp(rgba, { raw: { width: BW, height: BH, channels: 4 } }).resize({ width: Math.round(W * 1.25) }).webp({ quality: 78, alphaQuality: 85 }).toFile(archivo);
-  // Ruta absoluta: el SVG se incrusta en línea en la página, y una ruta relativa resolvería contra la página, no contra el archivo.
-  solidoHref = archivo.includes('/public/') || archivo.startsWith('public/') ? '/' + archivo.replace(/^.*?public\//, '') : archivo.split('/').pop();
-  console.error(`sólidos: ${archivo}`);
+  solidoRgba = rgba;
 }
 if (process.env.ZBUF) {
   const sharp = (await import('sharp')).default;
@@ -188,7 +214,7 @@ for (const m of nodos) {
     // Muestreo de visibilidad a lo largo de la arista.
     const x0 = pr[a * 3], y0 = pr[a * 3 + 1], d0 = pr[a * 3 + 2], x1 = pr[b * 3], y1 = pr[b * 3 + 1], d1 = pr[b * 3 + 2];
     const len = Math.hypot(x1 - x0, y1 - y0);
-    if (len < 0.35) continue;
+    if (len < MIN_TRAMO) continue;
     const segAntes = seg.length;
     const n = Math.max(2, Math.ceil(len * RES * 0.8));
     const recorrer = (test, dest) => {
@@ -289,11 +315,30 @@ const pinesSvg = pines.map((p) => `<g class="sp-pin sp-pin--${p.code}" data-proj
 const focus = pines.map((p) => `<g data-project-focus="${p.code}" data-x="${f1(p.cx - 30)}" data-y="${f1(p.cy - 30)}" data-width="60" data-height="60"/>`).join('');
 const NOMBRES_SITIO = { facade: 'edificio', 'airport-connected': 'aeropuerto', 'winery-connected': 'bodega', 'hospital-services': 'centro de salud' };
 const modelo = entrada.split('/').pop().replace(/\.glb$/, '');
-const nombre = NOMBRES_SITIO[modelo] || modelo;
+const nombre = NOMBRE || NOMBRES_SITIO[modelo] || modelo;
 let vx0 = Infinity, vy0 = Infinity, vx1 = -Infinity, vy1 = -Infinity;
 for (const segs of lineas.values()) for (const g of segs) { vx0 = Math.min(vx0, g[0], g[2]); vx1 = Math.max(vx1, g[0], g[2]); vy0 = Math.min(vy0, g[1], g[3]); vy1 = Math.max(vy1, g[1], g[3]); }
 const aire = Math.max(vx1 - vx0, vy1 - vy0) * 0.02;
-const VB = `${f1(vx0 - aire)} ${f1(vy0 - aire)} ${f1(vx1 - vx0 + 2 * aire)} ${f1(vy1 - vy0 + 2 * aire)}`;
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${VB}" preserveAspectRatio="xMidYMid meet" class="sp-scene pt-svg" data-fit="1" role="img" aria-label="Isometría de ${nombre}, con sus sistemas"><g class="sp-root">${solidoHref ? `<image class="sp-solido" href="${solidoHref}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none"/>` : ''}${grupos[0]}${dispositivos}${grupos.slice(1).join('')}${focus}${pinesSvg}</g></svg>\n`;
+let VB = `${f1(vx0 - aire)} ${f1(vy0 - aire)} ${f1(vx1 - vx0 + 2 * aire)} ${f1(vy1 - vy0 + 2 * aire)}`;
+// Sólidos: el raster se recorta al encuadre del dibujo (no al lienzo entero), así el <image> coincide con el viewBox,
+// no desborda el SVG (un raster transparente que sobresale intercepta el puntero) y pesa lo justo.
+let solidoRect = '';
+if (solidoRgba) {
+  const sharp = (await import('sharp')).default;
+  const rx = Math.max(0, vx0 - aire), ry = Math.max(0, vy0 - aire), rw = Math.min(W, vx1 + aire) - rx, rh = Math.min(H, vy1 + aire) - ry;
+  const left = Math.floor(rx * RES), top = Math.floor(ry * RES), width = Math.min(BW - left, Math.ceil(rw * RES)), height = Math.min(BH - top, Math.ceil(rh * RES));
+  const archivo = salida.replace(/\.svg$/, '-solido.webp');
+  await sharp(solidoRgba, { raw: { width: BW, height: BH, channels: 4 } }).extract({ left, top, width, height }).resize({ width: Math.round(rw * 1.25) }).webp({ quality: 78, alphaQuality: 85 }).toFile(archivo);
+  solidoRect = `x="${f1(left / RES)}" y="${f1(top / RES)}" width="${f1(width / RES)}" height="${f1(height / RES)}"`;
+  // Ruta absoluta: el SVG se incrusta en línea en la página, y una ruta relativa resolvería contra la página, no contra el archivo.
+  solidoHref = archivo.includes('/public/') || archivo.startsWith('public/') ? '/' + archivo.replace(/^.*?public\//, '') : archivo.split('/').pop();
+  // Autónomo: incrustado, porque un SVG cargado como imagen no puede traer archivos externos.
+  if (AUTONOMO) { const fs = await import('node:fs'); solidoHref = `data:image/webp;base64,${fs.readFileSync(archivo).toString('base64')}`; fs.unlinkSync(archivo); }
+  console.error(`sólidos: ${archivo} (${width}×${height} px del z-buffer)`);
+}
+if (VISTA.length === 4) { const ancho = vx1 - vx0 + 2 * aire, alto = vy1 - vy0 + 2 * aire; VB = `${f1(vx0 - aire + ancho * VISTA[0])} ${f1(vy0 - aire + alto * VISTA[1])} ${f1(ancho * VISTA[2])} ${f1(alto * VISTA[3])}`; }
+// La misma paleta y los mismos trazos que la hoja de la propuesta (.sp-scene.pt-svg), para cuando el dibujo va solo.
+const ESTILO = AUTONOMO ? `<style>.sp-scene{--p-hi:#e6e8eb;--p-mid:#a0a6ad;--p-lo:#5c636b;--p-faint:#3a4048;--p-weight:1.1px}.pt-line{fill:none;stroke:var(--p-lo);stroke-width:var(--p-weight);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}.pt-line[data-tone=hi]{stroke:var(--p-hi)}.pt-line[data-tone=mid]{stroke:var(--p-mid)}.pt-line[data-tone=faint]{stroke:var(--p-faint)}.pt-contorno{stroke-width:1.8px}.pt-line[data-banda=lejos]{stroke-width:.8px}.sp-route path{stroke-width:1.5px;vector-effect:non-scaling-stroke}.sp-pin,.sp-leader,.sp-effect,.sp-floor-label{display:none}</style>` : '';
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${VB}" preserveAspectRatio="xMidYMid meet" class="sp-scene pt-svg" data-fit="1" role="img" aria-label="${OBJETO ? `Isometría de ${nombre}` : `Isometría de ${nombre}, con sus sistemas`}">${ESTILO}<g class="sp-root">${solidoHref ? `<image class="sp-solido" href="${solidoHref}" ${solidoRect} preserveAspectRatio="none" pointer-events="none"/>` : ''}${grupos[0]}${dispositivos}${grupos.slice(1).join('')}${focus}${pinesSvg}</g></svg>\n`;
 writeFileSync(salida, svg);
 console.error(`${salida}: ${svg.length} bytes`);
