@@ -96,6 +96,7 @@ const UNVERIFIED_SECTOR_TAGS: Readonly<Record<number, { client: string; evidence
   3646: { client: 'CERVECERIA Y MALTERIA QUILMES', evidence: 'cotizar tres días de trabajo', sector: 'aeropuertos' },
   3655: { client: 'CERVECERIA Y MALTERIA QUILMES', evidence: 'En Quilmes hay que cotizar el tendido', sector: 'aeropuertos' },
   3471: { client: 'CERVECERIA Y MALTERIA QUILMES', evidence: 'Soporte de Infraestructura IT de Alta Disponibilidad', sector: 'constructoras' },
+  3421: { client: 'Kristich Desarrollos', evidence: 'Torres calle Pedro J. Godoy', sector: 'aeropuertos' },
   3194: { client: 'Kristich Desarrollos', evidence: 'Hotel fuente Mayor Mendoza', sector: 'aeropuertos' },
 };
 

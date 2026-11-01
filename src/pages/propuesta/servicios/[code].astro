@@ -8,9 +8,12 @@ import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import DeviceExploded from '../../../components/proto/DeviceExploded.astro';
+import SoftwareExperience from '../../../components/proto/SoftwareExperience.astro';
+import SoftwarePhotoCredit from '../../../components/proto/SoftwarePhotoCredit.astro';
 import ServiceEditorialHero from '../../../components/proto/ServiceEditorialHero.astro';
 import Ficha from '../../../components/proto/Ficha.astro';
 import Casos from '../../../components/proto/Casos.astro';
+import { selectCaseProjects, remainingCaseProjects, pageCaseCandidates } from '../../../components/proto/caseSelection';
 import Cierre from '../../../components/proto/Cierre.astro';
 import { getServicioByCode } from '../../../lib/um26-directus';
 import { loadStories, services, SERVICE_PHOTO, destacados } from '../../../components/proto/isoData';
@@ -20,7 +23,7 @@ import { CASOS_SERVICIO, casosDe } from '../../../components/proto/relato';
 import { getDatasheetPublicPath } from '../../../utils/datasheets';
 import { serviceSingleDemoCopy, serviceSingleDemoCapabilities } from '../../../data/serviceSingleDemoSystem';
 import { SERVICE_SPECS } from '../../../data/serviceSpecs';
-import { SECTORS, SOFTWARE_FILM } from '../../../data/cine/scenes';
+import { SECTORS } from '../../../data/cine/scenes';
 
 import { isNamedClient } from '../../../components/proto/catalogEditorial';
 
@@ -40,7 +43,10 @@ const agregado = new Map(despieceAgregado(own).map((p) => [p.key, p]));
 const kit = (KIT_DE_SERVICIO[code] || []).map(([key, label]) => ({ key, label, n: agregado.get(key)?.proyectos || 0, u: agregado.get(key)?.unidades || 0 }));
 const photo = SERVICE_PHOTO[code];
 const casos = casosDe(CASOS_SERVICIO[code] || []);
-const lower = servicio.name.toLowerCase();
+const showcase = pageCaseCandidates(own, undefined, code);
+const selectedCases = selectCaseProjects(casos, stories, destacados(showcase, showcase.length));
+const moreCases = remainingCaseProjects(destacados(showcase, showcase.length), selectedCases).slice(0, 8);
+const lower = servicio.name.toLowerCase().replace(/\bit\b/g, 'IT');
 const bySector = SECTORS.map((s) => ({ slug: s.slug, name: s.name, count: own.filter((c) => c.sectorSlug === s.slug).length })).filter((s) => s.count > 0).sort((a, b) => b.count - a.count);
 const clientes = Object.values(own.filter(s => isNamedClient(s.client)).reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
 const anios = own.map((c) => c.year).filter(Boolean);
@@ -123,7 +129,7 @@ const cierre = cierrePorServicio[code];
     <Top current="servicios" />
     <main id="contenido">
 
-    <Hero label={servicio.name} image={photo} film={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}.mp4` : undefined} poster={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}-poster.avif` : undefined}>
+    <Hero label={servicio.name} image={code === '104' ? '/images/software-comunidades/comunidad-rosario.jpg' : photo} naturalPhoto={code === '104'} imageAlt={code === '104' ? 'Personas colaborando con computadoras durante un hackatón en Rosario' : ''}>
       <h1 style={code === '103' ? 'font-size:clamp(2rem,3.6vw,3.5rem)' : undefined}>{servicio.name}<span class="dot">.</span></h1>
       <p class="tag">{copy.headline}</p>
       <p>{copy.paragraph}</p>
@@ -131,6 +137,7 @@ const cierre = cierrePorServicio[code];
       <div class="service-actions"><a class="btn" href="/contacto">Pedir un relevamiento</a><a class="u" href={pdf || `/servicios/${code}/ficha`} download={pdf ? true : undefined}>{pdf ? 'Descargar ficha técnica (PDF)' : 'Ficha técnica · imprimir o guardar PDF'}</a></div>
       <a class="u" href={`/antecedentes?service=${code}`}>{own.length > 0 ? `Ver los ${own.length} proyectos` : 'Ver todos los proyectos'}</a>
     </Hero>
+    {code === '104' && <SoftwareExperience />}
 
     <section class="sec">
       <div class="wrap">
@@ -143,7 +150,7 @@ const cierre = cierrePorServicio[code];
       </div>
     </section>
 
-    <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} candidates={own} />
+    <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} selection={selectedCases} textOnly={code === '104'} />
 
     <section class="sec">
       <div class="wrap cols cols-5-7">
@@ -197,16 +204,17 @@ const cierre = cierrePorServicio[code];
       </section>
     )}
 
-    {own.length > 0 && (
+    {moreCases.length > 0 && (
       <section class="sec">
         <div class="wrap">
-          <div class="sec__head"><h2>{own.length} proyectos con {lower}<span class="dot">.</span></h2></div>
-          <ol class="fichas">{destacados(own, 8).map((c, i) => <Ficha story={c} eager={i < 4} />)}</ol>
+          <div class="sec__head"><h2>Más proyectos de {lower}<span class="dot">.</span></h2></div>
+          {code === '104' ? <ul class="software-project-list">{moreCases.map(c => <li><a href={c.href}><strong>{c.title}</strong><span>{c.client} · {c.year}</span><span aria-hidden="true">→</span></a></li>)}</ul> : <ol class:list={["fichas", { "fichas--short": moreCases.length < 3 }]} style={`--case-cols:${moreCases.length}`}>{moreCases.map((c, i) => <Ficha story={c} eager={i < 4} />)}</ol>}
           <a class="u more" href={`/antecedentes?service=${code}`}>Ver los {own.length} proyectos</a>
         </div>
       </section>
     )}
 
+    {code === '104' && <SoftwarePhotoCredit />}
     </main>
 
     <Cierre heading={cierre?.heading} description={cierre?.description} ctaText={cierre?.ctaText} />

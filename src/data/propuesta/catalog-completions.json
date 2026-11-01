@@ -126,14 +126,21 @@
       },
       "sources": [
         {
-          "file": "src/data/snapshots/antecedentes.json",
+          "file": "directus:Antecedentes",
+          "recordId": 3088,
+          "quote": "Provisión de Balun y  cableado de 5 cámaras de CCTV",
+          "field": "title"
+        },
+        {
+          "file": "directus:Antecedentes",
           "recordId": 3088,
           "quote": "Provisión de Balun y  cableado de 5 cámaras de CCTV",
           "field": "summary"
         }
       ],
-      "summary": "Provisión de balunes y cableado para cinco cámaras de CCTV.",
-      "reviewNote": "Reformulación concisa del texto de origen para eliminar el corte o la baja longitud; no se agregan resultados ni alcance ajeno a esta ficha."
+      "summary": "Provisión de balun y cableado de cinco cámaras CCTV.",
+      "reviewNote": "Título y síntesis derivados del alcance explícito de la ficha vigente; sin ampliar funciones ni interpretar cantidades ambiguas.",
+      "title": "Cableado de cinco cámaras CCTV y provisión de balun"
     },
     {
       "id": 3097,
@@ -696,14 +703,21 @@
       },
       "sources": [
         {
-          "file": "src/data/snapshots/antecedentes.json",
+          "file": "directus:Antecedentes",
           "recordId": 3318,
-          "quote": "Sistema para sirena con parlante con control remoto",
+          "quote": "Sistema para sirena con parlante con control remoto ",
+          "field": "title"
+        },
+        {
+          "file": "directus:Antecedentes",
+          "recordId": 3318,
+          "quote": "Sistema para sirena con parlante con control remoto ",
           "field": "summary"
         }
       ],
-      "summary": "Sistema para sirena con parlante y control remoto.",
-      "reviewNote": "Reformulación concisa del texto de origen para eliminar el corte o la baja longitud; no se agregan resultados ni alcance ajeno a esta ficha."
+      "summary": "Sistema de sirena con parlante y control remoto.",
+      "reviewNote": "Se usa sólo el alcance visible del registro actual y se elimina la terminación cortada. No se atribuyen instalaciones, destinatarios ni resultados adicionales.",
+      "title": "Sirena con parlante y control remoto"
     },
     {
       "id": 3319,
@@ -2132,6 +2146,136 @@
       ],
       "summary": "Comodato de central Denwa Soho con gateways de 8 FXO y 24 FXS.",
       "reviewNote": "El registro explicita central y gateways; se conserva la anonimización del cliente."
+    },
+    {
+      "id": 3064,
+      "match": {
+        "client": "Gobierno de Mendoza",
+        "title": "Desarrollo de Software y Digitalización de Procesos para el Gobierno de la Provincia de Mendoza",
+        "summary": "Desarrollo de un software trazabilidad para la SECRETARIA AMBIENTE del Gobierno de la Provincia de Mendoza.",
+        "year": 2026
+      },
+      "sources": [
+        {
+          "file": "directus:Antecedentes",
+          "recordId": 3064,
+          "quote": "Desarrollo de un software trazabilidad para la SECRETARIA AMBIENTE del Gobierno de la Provincia de Mendoza.",
+          "field": "title"
+        },
+        {
+          "file": "directus:Antecedentes",
+          "recordId": 3064,
+          "quote": "Desarrollo de un software trazabilidad para la SECRETARIA AMBIENTE del Gobierno de la Provincia de Mendoza.",
+          "field": "summary"
+        }
+      ],
+      "title": "Software de trazabilidad para la Secretaría de Ambiente de Mendoza",
+      "summary": "Desarrollo de software de trazabilidad para la Secretaría de Ambiente del Gobierno de Mendoza.",
+      "reviewNote": "Título y síntesis derivados del alcance explícito de la ficha vigente; sin ampliar funciones ni interpretar cantidades ambiguas."
+    },
+    {
+      "id": 3178,
+      "match": {
+        "client": "Municipalidad de Gral San Martín",
+        "title": "Desarrollo de Software y Digitalización de Procesos - Municipalidad de Gral San Martín",
+        "summary": "Sistema de Energía eléctrica ininterrumpida, detección de incendios",
+        "year": 2023
+      },
+      "sources": [
+        {
+          "file": "directus:Antecedentes",
+          "recordId": 3178,
+          "quote": "Sistema de Energía eléctrica ininterrumpida, detección de incendios",
+          "field": "title"
+        },
+        {
+          "file": "directus:Antecedentes",
+          "recordId": 3178,
+          "quote": "Sistema de Energía eléctrica ininterrumpida, detección de incendios",
+          "field": "summary"
+        }
+      ],
+      "title": "Energía eléctrica ininterrumpida y detección de incendios",
+      "summary": "Sistema de energía eléctrica ininterrumpida y detección de incendios.",
+      "reviewNote": "Título y síntesis derivados del alcance explícito de la ficha vigente; sin ampliar funciones ni interpretar cantidades ambiguas."
+    },
+    {
+      "id": 3396,
+      "match": {
+        "client": "Cela SA",
+        "title": "sdi nuevo sector casino.        100 mts caños 1 40 curvas 2...",
+        "summary": "sdi nuevo sector casino.        100 mts caños 1 40 curvas 20 cajas  ",
+        "year": 2019
+      },
+      "sources": [
+        {
+          "file": "directus:Antecedentes",
+          "recordId": 3396,
+          "quote": "sdi nuevo sector casino.        100 mts caños 1 40 curvas 20 cajas  ",
+          "field": "title"
+        },
+        {
+          "file": "directus:Antecedentes",
+          "recordId": 3396,
+          "quote": "sdi nuevo sector casino.        100 mts caños 1 40 curvas 20 cajas  ",
+          "field": "summary"
+        }
+      ],
+      "title": "Detección de incendios en un nuevo sector del casino",
+      "summary": "Sistema de detección de incendios para el nuevo sector del casino.",
+      "reviewNote": "Título y síntesis derivados del alcance explícito de la ficha vigente; sin ampliar funciones ni interpretar cantidades ambiguas."
+    },
+    {
+      "id": 3288,
+      "match": {
+        "client": "Irrigación",
+        "title": "Desarrollo de Software y Digitalización de Procesos - Cliente Confidencial (3)",
+        "summary": "Software para la administración de distribución de agua de riego en ",
+        "year": 2021
+      },
+      "sources": [
+        {
+          "file": "directus:Antecedentes",
+          "recordId": 3288,
+          "quote": "Software para la administración de distribución de agua de riego en ",
+          "field": "title"
+        },
+        {
+          "file": "directus:Antecedentes",
+          "recordId": 3288,
+          "quote": "Software para la administración de distribución de agua de riego en ",
+          "field": "summary"
+        }
+      ],
+      "title": "Software para administrar la distribución de agua de riego",
+      "summary": "Software para la administración de la distribución de agua de riego.",
+      "reviewNote": "Se usa sólo el alcance visible del registro actual y se elimina la terminación cortada. No se atribuyen instalaciones, destinatarios ni resultados adicionales."
+    },
+    {
+      "id": 3267,
+      "match": {
+        "client": "Administración Federal de Ingresos Públicos",
+        "title": "Desarrollo de Software y Digitalización de Procesos - Administración Federal de Ingresos Públicos",
+        "summary": "Adquisición de un sistema contra incendio y sistema de CCTV para el e",
+        "year": 2021
+      },
+      "sources": [
+        {
+          "file": "directus:Antecedentes",
+          "recordId": 3267,
+          "quote": "Adquisición de un sistema contra incendio y sistema de CCTV para el e",
+          "field": "title"
+        },
+        {
+          "file": "directus:Antecedentes",
+          "recordId": 3267,
+          "quote": "Adquisición de un sistema contra incendio y sistema de CCTV para el e",
+          "field": "summary"
+        }
+      ],
+      "title": "Adquisición de un sistema contra incendios y CCTV",
+      "summary": "Adquisición de un sistema contra incendios y un sistema de CCTV.",
+      "reviewNote": "Se usa sólo el alcance visible del registro actual y se elimina la terminación cortada. No se atribuyen instalaciones, destinatarios ni resultados adicionales."
     }
   ]
 }

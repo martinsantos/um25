@@ -1,0 +1,91 @@
+---
+import { SOFTWARE_FILM } from '../../data/cine/scenes';
+import SoftwareFilmTone from '../cine/SoftwareFilmTone.astro';
+import MotionIcon from './MotionIcon.astro';
+const product = '/software/gestion-de-comunidades-profesionales';
+---
+<section class="software-use" aria-labelledby="software-use-title">
+  <div class="software-use__shell">
+    <div class="software-use__intro">
+      <p class="software-use__eyebrow">Software que se puede recorrer</p>
+      <h2 id="software-use-title">Una comunidad.<br />Su gestión, en un solo lugar.</h2>
+      <p>Cuotas, credenciales, trámites y consultas: un producto para conectar a los colegios profesionales con sus matriculados.</p>
+    </div>
+    <div class="software-use__product">
+      <figure>
+        <a href={`${product}/demo/`} aria-label="Explorar la demo del portal de comunidades profesionales"><img src="/images/software-comunidades/portal-demo.webp" width="1280" height="860" alt="Portal del matriculado: resumen de cuenta, credencial digital y acceso a trámites. Datos de demostración." loading="lazy" decoding="async" /></a>
+        <figcaption>Captura del producto · datos de demostración</figcaption>
+      </figure>
+      <div class="software-use__copy">
+        <h3>Dos vistas del mismo proceso.</h3>
+        <p>El matriculado consulta su cuenta y sigue sus gestiones. La administración trabaja sobre esa misma actividad. Podés probar ambas vistas sin crear una cuenta.</p>
+        <ul><li>Cuenta y cuotas</li><li>Credencial digital</li><li>Trámites y consultas</li></ul>
+        <a class="software-use__button" href={`${product}/demo/`}>Explorar la demo <span aria-hidden="true">↗</span></a>
+        <a class="software-use__link" href={product}>Ver la solución para comunidades <span aria-hidden="true">→</span></a>
+        <p class="software-use__note">Entorno de prueba: no realiza cobros ni envía trámites reales.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="software-system" aria-labelledby="software-system-title">
+  <div class="software-use__shell">
+    <details data-software-explanation>
+      <summary><span><h2 id="software-system-title">El sistema por dentro.</h2><span>Pantallas, permisos y datos conectados.</span></span><span aria-hidden="true">+</span></summary>
+      <SoftwareFilmTone />
+      <div class="software-system__film" data-software-film>
+        <video data-software-explanation-video poster={`/cine/media/cine-${SOFTWARE_FILM}-poster.avif`} data-src={`/cine/media/cine-${SOFTWARE_FILM}.mp4`} muted playsinline loop preload="none" width="1920" height="1080" aria-label="Recorrido conceptual de las pantallas, los permisos y los datos de un sistema"></video>
+        <button type="button" data-software-explanation-play aria-label="Reproducir recorrido conceptual"><MotionIcon /></button>
+      </div>
+      <p class="software-system__note">Recorrido conceptual de la arquitectura de una aplicación.</p>
+    </details>
+  </div>
+</section>
+<style>
+  .software-use { --skin-text: #171b1c; --skin-muted: #454d4e; --skin-line: #c8cecb; --skin-panel: #fff; background: #f4f4f1; color: #171b1c; padding-block: clamp(40px,6vw,80px); }
+  .software-use__shell { width: min(1400px,calc(100% - var(--um-page-gutter,24px) * 2)); margin-inline: auto; }
+  .software-use__intro { max-width: 850px; margin-bottom: 40px; }
+  .software-use__eyebrow { font-size: 1rem; font-weight: 600; margin: 0 0 16px; }
+  .software-use h2 { font-size: clamp(2rem,4.3vw,3.7rem); line-height: 1.07; letter-spacing: -.035em; margin: 0 0 24px; color: #171b1c; }
+  .software-use p { color: #454d4e; font-size: 1.125rem; line-height: 1.6; }
+  :global(body main) .software-use__intro h2 { font-size: clamp(2rem,4.3vw,3.7rem) !important; line-height: 1.07 !important; }
+  .software-use__product { display: grid; grid-template-columns: minmax(0,1.6fr) minmax(0,1fr); gap: clamp(28px,4vw,56px); align-items: center; }
+  .software-use figure { margin: 0; min-width: 0; }
+  .software-use figure a { display: block; }
+  .software-use img { display: block; width: 100%; height: auto; border: 1px solid #c8cecb; }
+  .software-use figcaption { margin-top: 12px; color: #515b59; font-size: 1rem; }
+  .software-use__copy { display: grid; gap: 20px; }
+  .software-use h3 { margin: 0; font-size: clamp(1.6rem,2.4vw,2.1rem); line-height: 1.2; color: #171b1c; }
+  .software-use ul { list-style: none; margin: 0; padding: 0; }
+  .software-use li { padding-block: 12px; border-bottom: 1px solid #c8cecb; font-size: 1.125rem; }
+  .software-use__button { display: flex; justify-content: space-between; gap: 16px; padding: 16px 20px; background: #dc2626; color: #fff; font-weight: 600; font-size: 1rem; text-decoration: none; min-height: 52px; align-items: center; }
+  .software-use__button:hover { background: #b91c1c; }
+  .software-use__link { color: #171b1c; font-size: 1rem; font-weight: 600; min-height: 44px; padding-block: 10px; border-bottom: 1px solid #171b1c; text-decoration: none; }
+  .software-use .software-use__note { font-size: 1rem; }
+  .software-use a:focus-visible { outline: 3px solid #171b1c; outline-offset: 4px; }
+  .software-system { padding-block: 40px; background: #0a0b0d; color: #f4f4f5; }
+  .software-system summary { cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 20px; border-bottom: 1px solid #50545b; }
+  .software-system summary::-webkit-details-marker { display: none; }
+  .software-system summary > span:last-child { font-size: 2rem; }
+  .software-system details[open] summary > span:last-child { transform: rotate(45deg); }
+  .software-system h2 { font-size: clamp(1.5rem,3vw,2rem); color: #f4f4f5; margin: 0 0 8px; }
+  .software-system summary span span, .software-system__note { color: #b9bbc0; font-size: 1rem; }
+  .software-system__film { max-width: 1000px; margin: 24px auto; }
+  .software-system video { display: block; width: 100%; height: auto; }
+  .software-system button { display: grid; place-items: center; width: 48px; height: 48px; margin: 12px 0 0 auto; border: 1px solid #b9bbc0; background: transparent; color: #fff; cursor: pointer; }
+  .software-system :is(button,summary):focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+  @media (max-width:900px) { .software-use__product { grid-template-columns: 1fr; }.software-use__intro { margin-bottom: 28px; } }
+</style>
+<script>
+  document.querySelectorAll<HTMLDetailsElement>('[data-software-explanation]').forEach(details => {
+    const video = details.querySelector<HTMLVideoElement>('video')!;
+    const button = details.querySelector<HTMLButtonElement>('button')!;
+    const update = () => { button.dataset.motionPlaying = String(!video.paused); button.setAttribute('aria-label', video.paused ? 'Reproducir recorrido conceptual' : 'Pausar recorrido conceptual'); };
+    button.addEventListener('click', () => {
+      if (!video.getAttribute('src')) video.src = video.dataset.src!;
+      if (video.paused) video.play().catch(update); else video.pause();
+    });
+    video.addEventListener('loadeddata', () => { video.dataset.frameReady = 'true'; });
+    video.addEventListener('play', update); video.addEventListener('pause', update);
+    details.addEventListener('toggle', () => { if (!details.open) video.pause(); });
+  });
+</script>

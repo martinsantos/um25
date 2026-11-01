@@ -412,3 +412,15 @@ fieldset.field { display: block; min-width: 0; }
 .casos-archivo__grid article { display: grid; gap: 12px; align-content: start; }
 .casos-archivo__grid p { color: var(--ink-2); }
 .casos-archivo__meta { font-size: 1rem; }
+
+.casos--text { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 32px; }
+.casos--text .caso { grid-template-columns: 1fr; align-items: start; padding-top: 24px; }
+.casos--text .caso__copy { gap: 16px; }
+.software-project-list { padding: 0; margin: 0; list-style: none; }
+.software-project-list li { border-top: 1px solid var(--line); }
+.software-project-list a { display: grid; grid-template-columns: minmax(0,1.3fr) minmax(0,1fr) 24px; gap: 24px; padding-block: 20px; align-items: baseline; }
+.software-project-list span { color: var(--ink-2); }
+.software-project-list a:hover strong { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
+@media(max-width:900px) { .casos--text { grid-template-columns: 1fr; }.software-project-list a { grid-template-columns: minmax(0,1fr) 24px; gap: 8px; }.software-project-list a span:nth-child(2) { grid-row: 2; }.software-project-list a span:last-child { grid-column: 2; grid-row: 1; } }
+
+.fichas--short { grid-template-columns: repeat(var(--case-cols),minmax(0,1fr)); max-width: calc(var(--case-cols) * 420px); }

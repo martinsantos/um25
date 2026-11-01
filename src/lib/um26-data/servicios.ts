@@ -91,7 +91,7 @@ export const SERVICIOS: Servicio[] = [
     proceso: [
       { title: "Relevamiento de riesgo", description: "Mapeamos activos, zonas críticas, líneas de visión y vectores de intrusión." },
       { title: "Diseño y certificación", description: "Definimos cobertura, integración PSIM y cumplimiento normativo." },
-      { title: "Instalación y comisión", description: "Tendemos cámaras, lectores y sensores sin detener la operación." },
+      { title: "Instalación y puesta en marcha", description: "Tendemos cámaras, lectores y sensores sin detener la operación." },
       { title: "Monitoreo y respuesta", description: "NOC 24/7 vigila, escala y documenta cada incidente detectado." },
     ],
     metadata: [
@@ -139,7 +139,7 @@ export const SERVICIOS: Servicio[] = [
     ],
     proceso: [
       { title: "Relevamiento de sitio", description: "Medimos línea de vista, interferencia y disponibilidad de banda." },
-      { title: "Diseño y licencia", description: "Proyectamos enlaces, gestionamos permisos y certificamos disponibilidad." },
+      { title: "Diseño y permisos", description: "Proyectamos enlaces, gestionamos permisos y certificamos disponibilidad." },
       { title: "Instalación y alineación", description: "Montamos torres, radios y antenas con alineación milimétrica." },
       { title: "Monitoreo y mantenimiento", description: "Vigilamos cada enlace y mantenemos torres y cableados." },
     ],
@@ -327,7 +327,7 @@ export const SERVICIOS: Servicio[] = [
       { title: "Relevamiento de riesgo", description: "Identificamos zonas, cargas de fuego y rutas de evacuación." },
       { title: "Diseño y certificación", description: "Proyectamos la central y detectores con planos y memoria de cálculo." },
       { title: "Instalación y pruebas", description: "Tendemos circuitos, instalamos detectores y ejecutamos pruebas." },
-      { title: "Mantenimiento y response", description: "Plan de pruebas periódicas y guardia 24/7 para fallas." },
+      { title: "Mantenimiento y atención", description: "Plan de pruebas periódicas y guardia 24/7 para fallas." },
     ],
     metadata: [
       { label: "Implementación", value: "2-6 semanas" },
@@ -374,7 +374,7 @@ export const SERVICIOS: Servicio[] = [
     proceso: [
       { title: "Relevamiento de carga", description: "Medimos consumo actual, proyectamos crecimiento y cargas críticas." },
       { title: "Diseño eléctrico", description: "Proyectamos tableros, UPS y tierras con memoria de cálculo." },
-      { title: "Instalación y comisión", description: "Tendemos circuitos, montamos equipos y configuramos telemetría." },
+      { title: "Instalación y puesta en marcha", description: "Tendemos circuitos, montamos equipos y configuramos telemetría." },
       { title: "Mantenimiento y monitoreo", description: "Mantenemos equipos y vigilamos la energía en tiempo real." },
     ],
     metadata: [

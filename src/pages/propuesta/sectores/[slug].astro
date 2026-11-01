@@ -10,6 +10,7 @@ import Top from '../../../components/proto/Top.astro';
 import ServiceEditorialHero from '../../../components/proto/ServiceEditorialHero.astro';
 import Ficha from '../../../components/proto/Ficha.astro';
 import Casos from '../../../components/proto/Casos.astro';
+import { selectCaseProjects, remainingCaseProjects, pageCaseCandidates } from '../../../components/proto/caseSelection';
 import Cierre from '../../../components/proto/Cierre.astro';
 import Partes from '../../../components/proto/Partes.astro';
 import { getSectorBySlug } from '../../../lib/um26-directus';
@@ -34,6 +35,9 @@ const site = slug === 'gobiernosectorpublico' ? undefined : SITE_OF[slug];
 const photo = SECTOR_PHOTO[slug] || SECTOR_PHOTO.constructoras;
 const relato = sectorRelato(slug);
 const casos = casosDe(CASOS_SECTOR[slug] || []);
+const showcase = pageCaseCandidates(own, slug);
+const selectedCases = selectCaseProjects(casos, stories, destacados(showcase, showcase.length));
+const moreCases = remainingCaseProjects(destacados(showcase, showcase.length), selectedCases).slice(0, 8);
 const name = SECTORS.find((s) => s.slug === slug)?.name || sector.name;
 const lower = name.toLowerCase();
 const byService = services.map((s) => ({ ...s, count: own.filter((c) => c.serviceCodes.includes(s.code)).length })).filter((s) => s.count > 0 || sector.services.includes(Number(s.code))).sort((a, b) => b.count - a.count);
@@ -93,7 +97,7 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
       </section>
     )}
 
-    <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} candidates={own} />
+    <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} selection={selectedCases} />
 
     <section class="sec">
       <div class="wrap">
@@ -107,11 +111,11 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
       </div>
     </section>
 
-    {own.length > 0 && (
+    {moreCases.length > 0 && (
       <section class="sec">
         <div class="wrap">
-          <div class="sec__head"><h2>{own.length} proyectos documentados en {lower}<span class="dot">.</span></h2></div>
-          <ol class="fichas">{destacados(own, 8).map((c, i) => <Ficha story={c} eager={i < 4} showSector={false} />)}</ol>
+          <div class="sec__head"><h2>Más proyectos en {lower}<span class="dot">.</span></h2></div>
+          <ol class:list={["fichas", { "fichas--short": moreCases.length < 3 }]} style={`--case-cols:${moreCases.length}`}>{moreCases.map((c, i) => <Ficha story={c} eager={i < 4} showSector={false} />)}</ol>
           <a class="u more" href={`/antecedentes?sector=${slug}`}>Ver los {own.length} proyectos</a>
         </div>
       </section>

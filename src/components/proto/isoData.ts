@@ -115,7 +115,9 @@ export function reconcileGeneratedSoftwareService(
 ): string[] {
   if (!SOFTWARE_GENERIC_TITLE.test(normalizeEvidence(sourceTitle))) return serviceCodes;
   if (!serviceCodes.includes('104')) return serviceCodes;
-  if (SOFTWARE_SCOPE_EVIDENCE.test(`${curatedTitle} ${curatedSummary}`)) return serviceCodes;
+  const titleEvidence = SOFTWARE_GENERIC_TITLE.test(normalizeEvidence(curatedTitle)) ? '' : curatedTitle;
+  if (!titleEvidence && !curatedSummary) return serviceCodes;
+  if (SOFTWARE_SCOPE_EVIDENCE.test(`${titleEvidence} ${curatedSummary}`)) return serviceCodes;
   return serviceCodes.filter((code) => code !== '104');
 }
 
@@ -124,7 +126,7 @@ const TEMPLATE_PHRASES: Array<[RegExp, string]> = [
   [/,?\s*asegurando continuidad operativa y cumplimiento de estándares técnicos de calidad\.?/gi, '.'],
   [/\s*Cliente:\s*[^.<]+\.?\s*(?:Sector:\s*[^.<]+\.?)?\s*(?=<|$)/gi, ''],
 ];
-const comparable = (v: string) => v.toLowerCase().replace(/\(\d+\)/g, ' ').replace(/[.,:;()·|-]/g, ' ').replace(/\s+/g, ' ').trim();
+const comparable = (v: string) => v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\(\d+\)/g, ' ').replace(/[.,:;()·|-]/g, ' ').replace(/\s+/g, ' ').trim();
 /** Si un texto empieza repitiendo el título, se queda con lo que sigue ("… para el sector de parking."); si no queda nada que valga, vacío. */
 export const sinTitulo = (text: string, title: string, client = ''): string => {
   // Comparación sin puntos ni signos: "C.C.T.V." y "CCTV" son lo mismo.
@@ -145,10 +147,16 @@ export const sinTitulo = (text: string, title: string, client = ''): string => {
 export const cleanSummary = (raw: unknown, title: string, client: string): string => {
   let text = String(raw ?? '').replace(/<[^>]+>/g, ' ');
   for (const [re, rep] of TEMPLATE_PHRASES) text = text.replace(re, rep);
+  text = text.replace(/\s*Solución implementada por el equipo de ingeniería de Última Milla\.?/gi, '');
+  if (comparable(text) === comparable(`Para ${client}`)) return '';
   text = text.replace(/\.\s*\./g, '.').replace(/\s+/g, ' ').trim();
   const body = comparable(text);
   if (!body || body === comparable(title) || body === comparable(`${client} ${title}`) || body === comparable(`${title} ${client}`)) return '';
-  return sinTitulo(text, title, client);
+  const result = sinTitulo(text, title, client);
+  const remaining = comparable(result).replace(/^para\s+/, '');
+  const identity = comparable(client);
+  const residue = remaining.split(identity || '\u0000').join(' ').replace(/\b(?:para|enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|de|del|\d+)\b/g, '').replace(/\s+/g, '').trim();
+  return !residue || remaining === identity || remaining === `${identity} para ${identity}` ? '' : result;
 };
 
 /** Escena de película y clave de servicio, con la convención de /cine/media. */
@@ -277,6 +285,8 @@ export async function loadStories() {
     story.sectorSlug = classification.sector;
     story.sector = classification.sector ? getAntecedenteSectorLabel(classification.sector === 'gobiernosectorpublico' ? 'gobierno' : classification.sector) || '' : '';
     story.serviceCodes = classification.services;
+    // Reviewed live identity plus the guarded 10903 → 3410 source crosswalk.
+    if (story.id === 3410 && normalizeIdentity(story.client) === 'bodega caro' && completion?.title === 'Mantenimiento de un sistema de detección') story.serviceCodes = ['105', '107'];
     story.serviceCodes = addEvidenceBackedService(story.id, origin?.title || '', origin?.summary || '', story.serviceCodes);
     if (!story.serviceCodes.length && completion?.services) story.serviceCodes = [...completion.services];
     story.services = story.serviceCodes.map((code) => byCode.get(code) || '').filter(Boolean);
