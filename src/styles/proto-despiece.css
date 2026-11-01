@@ -296,7 +296,9 @@ p { margin: 0; }
   .partes { grid-template-columns: 1fr; gap: 0; padding-top: 0; }
   .fiso, .partes:not([data-partes]) { grid-template-columns: 1fr; }
   .partes .parte { width: 84px; height: 84px; margin: 0; grid-row: 1 / 4; }
+  .partes li { grid-template-rows: auto auto auto; }
   .partes b, .partes .small, .partes .n { grid-column: 2; }
+  .partes .n { grid-row: 3; white-space: normal; padding-top: 2px; }
   .fiso__lugar svg, .dentro__stage svg { max-height: none; }
   .cifras { max-width: none; }
   .clientes { columns: 1; }

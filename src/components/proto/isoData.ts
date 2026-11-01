@@ -6,6 +6,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { getAntecedentes } from '../../lib/um26-directus';
 import { getAntecedenteSectorLabel } from '../../utils/antecedenteSectorPresentation';
+import { curateAntecedente } from '../../utils/antecedentesCuration';
 import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import { NAV_SERVICES } from '../../data/navigation';
 import { SECTORS } from '../../data/cine/scenes';
@@ -32,6 +33,14 @@ export const isoSrc = (site: IsoSite): string => `/cine/iso/site-${site}-${V3.ha
 /** Un archivo de public/ leído en el servidor (desde este módulo la ruta resuelve bien también en la compilación, que lo deja en dist/server/chunks). */
 export const existePublico = (rel: string): boolean => existsSync(new URL(`../../../public/${rel}`, import.meta.url));
 export const leerPublico = (rel: string): string => (existePublico(rel) ? readFileSync(new URL(`../../../public/${rel}`, import.meta.url), 'utf8').replace(/<\?xml[^>]*>/, '') : '');
+/** Proporción ancho/alto del viewBox de un SVG de public/, para reservar su caja antes de traerlo (sin salto). 1 si no se puede leer. */
+const RATIO_PUBLICO: Record<string, number> = {};
+export const ratioDe = (src: string): number => {
+  if (RATIO_PUBLICO[src]) return RATIO_PUBLICO[src];
+  const vb = leerPublico(src.replace(/^\//, '')).match(/viewBox="([-\d.]+) ([-\d.]+) ([-\d.]+) ([-\d.]+)"/);
+  RATIO_PUBLICO[src] = vb && Number(vb[4]) > 0 ? Number(vb[3]) / Number(vb[4]) : 1;
+  return RATIO_PUBLICO[src];
+};
 /** La isometría completa (SVG) de un sitio, para incrustar en el HTML. */
 export const readIso = (site: IsoSite): string =>
   readFileSync(new URL(`../../../public${isoSrc(site)}`, import.meta.url), 'utf8')
@@ -73,6 +82,18 @@ const TEMPLATE_PHRASES: Array<[RegExp, string]> = [
   [/\s*Cliente:\s*[^.<]+\.?\s*(?:Sector:\s*[^.<]+\.?)?\s*(?=<|$)/gi, ''],
 ];
 const comparable = (v: string) => v.toLowerCase().replace(/\(\d+\)/g, ' ').replace(/[.,:;()·|-]/g, ' ').replace(/\s+/g, ' ').trim();
+/** Si un texto empieza repitiendo el título, se queda con lo que sigue ("… para el sector de parking."); si no queda nada que valga, vacío. */
+export const sinTitulo = (text: string, title: string, client = ''): string => {
+  const body = comparable(text), t = comparable(title);
+  if (!t || !body.startsWith(t) || body === t) return body === t ? '' : text;
+  // Se avanza por palabras del texto original hasta cubrir el título comparable ("C.C.T.V." es una palabra del texto y cuatro del título comparado).
+  let i = 0; const re = /\S+/g; let m: RegExpExecArray | null;
+  while ((m = re.exec(text))) { i = m.index + m[0].length; if (comparable(text.slice(0, i)).length >= t.length) break; }
+  const resto = text.slice(i).replace(/^[\s.,:;·()-]+/, '');
+  const rc = comparable(resto);
+  if (rc.length < 20 || rc === comparable(client)) return '';
+  return resto.charAt(0).toUpperCase() + resto.slice(1);
+};
 /** Descripción sin plantillas ni repeticiones del título; vacía si no aporta nada. */
 export const cleanSummary = (raw: unknown, title: string, client: string): string => {
   let text = String(raw ?? '').replace(/<[^>]+>/g, ' ');
@@ -80,7 +101,7 @@ export const cleanSummary = (raw: unknown, title: string, client: string): strin
   text = text.replace(/\.\s*\./g, '.').replace(/\s+/g, ' ').trim();
   const body = comparable(text);
   if (!body || body === comparable(title) || body === comparable(`${client} ${title}`) || body === comparable(`${title} ${client}`)) return '';
-  return text;
+  return sinTitulo(text, title, client);
 };
 
 /** Escena de película y clave de servicio, con la convención de /cine/media. */
@@ -98,6 +119,12 @@ export const variantes = (image: string) => {
 };
 /** El srcset de una foto con variantes, o nada. */
 export const srcsetDe = (image: string) => { const v = variantes(image); return v.ancho ? `${v.w480} 480w, ${v.w960} 960w, ${v.full} ${v.ancho}w` : undefined; };
+/** Las fichas que mejor representan un conjunto, con la curaduría del sitio (utils/antecedentesCuration): los casos fuertes primero, las ventas de insumos y los registros con error al final; dentro de cada grupo, las más recientes. Para las ocho tarjetas de un servicio o un sector. */
+const ORDEN_CALIDAD: Record<string, number> = { 'strong-case': 0, 'needs-editorial-review': 1, 'low-value-candidate': 2, 'data-error-candidate': 3 };
+export const destacados = (lista: Story[], n: number): Story[] => {
+  const rango = (c: Story) => ORDEN_CALIDAD[curateAntecedente({ id: c.id, Titulo: c.title, Descripcion: c.summary, Cliente: c.client, Area: c.sector, Fecha: c.inicio || (c.year ? `${c.year}-${String(c.month || 1).padStart(2, '0')}-01` : '') }).curation.quality] ?? 1;
+  return lista.map((c, i) => ({ c, i, r: rango(c) })).sort((a, b) => a.r - b.r || a.i - b.i).slice(0, n).map((x) => x.c);
+};
 /** La miniatura de ficha: la variante de 480 px. */
 export const thumbOf = (image: string) => variantes(image).w480;
 /** La película de Blender de la escena del sector, con su póster JPG (1920×1080). */
@@ -148,14 +175,20 @@ export async function loadStories() {
         serviceCodes: c.service_codes.map(String),
         services: c.service_codes.map((code) => byCode.get(String(code)) || '').filter(Boolean),
         image: c.image,
-        summary: descripcionDeOrigen(c.id) || cleanSummary(c.summary, title, client),
+        summary: sinTitulo(descripcionDeOrigen(c.id), title, client) || cleanSummary(c.summary, title, client),
         status: c.status,
       };
     });
-  // Sector heredado por regla: si un cliente tiene sector en sus otras fichas, y uno solo, sus fichas sin sector lo toman.
-  const sectoresDe = new Map<string, Set<string>>();
-  stories.forEach((s) => { if (s.sectorSlug) { const k = s.client.toLowerCase(); sectoresDe.set(k, (sectoresDe.get(k) || new Set()).add(s.sectorSlug)); } });
-  stories.forEach((s) => { if (!s.sectorSlug) { const set = sectoresDe.get(s.client.toLowerCase()); if (set && set.size === 1) { s.sectorSlug = [...set][0]; s.sector = getAntecedenteSectorLabel(s.sectorSlug === 'gobiernosectorpublico' ? 'gobierno' : s.sectorSlug) || ''; } } });
+  // Sector heredado por regla: las fichas sin sector toman el de su cliente sólo si la evidencia pesa (tres o más con ese sector, un tercio o más de todas las del cliente).
+  const sectoresDe = new Map<string, Map<string, number>>();
+  const fichasDe = new Map<string, number>();
+  stories.forEach((s) => { const k = s.client.toLowerCase(); fichasDe.set(k, (fichasDe.get(k) || 0) + 1); if (s.sectorSlug) { const m = sectoresDe.get(k) || new Map<string, number>(); m.set(s.sectorSlug, (m.get(s.sectorSlug) || 0) + 1); sectoresDe.set(k, m); } });
+  stories.forEach((s) => {
+    if (s.sectorSlug) return;
+    const k = s.client.toLowerCase(); const m = sectoresDe.get(k); if (!m) return;
+    const [top, n] = [...m.entries()].sort((a, b) => b[1] - a[1])[0];
+    if (n >= 3 && n >= (fichasDe.get(k) || 0) / 3) { s.sectorSlug = top; s.sector = getAntecedenteSectorLabel(top === 'gobiernosectorpublico' ? 'gobierno' : top) || ''; }
+  });
   // Con las fechas de SGI, el orden se rehace: lo más reciente primero.
   stories.sort((a, b) => (b.year - a.year) || (b.month - a.month) || (b.id - a.id));
   // Ningún proyecto se oculta por repetir título: se distingue por su descripción o por su fecha.

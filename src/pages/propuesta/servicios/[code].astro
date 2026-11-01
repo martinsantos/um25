@@ -12,7 +12,7 @@ import Ficha from '../../../components/proto/Ficha.astro';
 import Casos from '../../../components/proto/Casos.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import { getServicioByCode } from '../../../lib/um26-directus';
-import { loadStories, services, SERVICE_KEY, SERVICE_PHOTO, type IsoSite, isoSrc } from '../../../components/proto/isoData';
+import { loadStories, services, SERVICE_KEY, SERVICE_PHOTO, type IsoSite, isoSrc, destacados, ratioDe } from '../../../components/proto/isoData';
 import { despieceAgregado, KIT_DE_SERVICIO } from '../../../components/proto/despiece';
 import Partes from '../../../components/proto/Partes.astro';
 import { CASOS_SERVICIO, casosDe } from '../../../components/proto/relato';
@@ -32,6 +32,8 @@ const SITE: Record<string, IsoSite> = { fachada: 'building', aeropuerto: 'termin
 const site = SITE[scene] || 'building';
 // El equipo del servicio se trae de public/cine/iso al cargar (prioridad baja): el de consultoría es el edificio entero.
 const deviceSrc = code === '106' ? isoSrc('building') : `/cine/iso/service-${code}.svg`;
+// La caja del equipo se reserva con la proporción de su dibujo: cuando llega, no mueve nada.
+const deviceRatio = ratioDe(deviceSrc);
 const agregado = new Map(despieceAgregado(own).map((p) => [p.key, p]));
 const kit = (KIT_DE_SERVICIO[code] || []).map(([key, label]) => ({ key, label, n: agregado.get(key)?.proyectos || 0, u: agregado.get(key)?.unidades || 0 }));
 const photo = SERVICE_PHOTO[code];
@@ -54,15 +56,17 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
     <Head title={`${servicio.name} · ${servicio.tagline} · ULTIMA MILLA`} description={`${servicio.tagline}. ${servicio.description}`} image={photo} precargar />
     <style>
       .cubre { position: relative; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: center; }
-      .equipo { position: relative; aspect-ratio: 4 / 3; display: grid; place-items: center; padding: 8% 12%; }
-      .equipo > div { width: 100%; height: 100%; display: grid; place-items: center; }
-      .equipo :global(svg) { width: 100%; height: 100%; display: block; overflow: visible; }
+      .equipo { position: relative; aspect-ratio: var(--r, 4 / 3); max-height: 80vh; }
+      .equipo > div { position: absolute; inset: 3%; }
+      /* El dibujo ocupa la caja reservada, pase lo que pase con su viewBox: un hijo absoluto resuelve el 100 % contra la caja, un ítem de grilla no. */
+      .equipo :global(svg) { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
       .caps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
       .caps li { padding: 13px 0; border-bottom: 1px solid var(--line-2); font-size: 1.1rem; color: var(--ink); }
       .condiciones { margin-top: var(--s4); color: var(--ink-3); }
       @media (max-width: 900px) {
         .cubre { grid-template-columns: 112px minmax(0, 1fr); gap: var(--s3); align-items: start; }
-        .equipo { aspect-ratio: 1; padding: 0; position: sticky; top: calc(var(--top-h) + 16px); }
+        .equipo { aspect-ratio: 1; max-height: none; position: sticky; top: calc(var(--top-h) + 16px); }
+        .equipo > div { inset: 0; }
         .caps li { font-size: 1rem; padding: 10px 0; }
       }
     </style>
@@ -83,7 +87,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       <div class="wrap">
         <div class="sec__head"><h2>Qué cubre<span class="dot">.</span></h2></div>
         <div class="cubre" data-cubre>
-          <div class="equipo" data-equipo><div class="iso" data-src={deviceSrc}></div></div>
+          <div class="equipo" data-equipo style={`--r:${deviceRatio.toFixed(3)}`}><div class="iso" data-src={deviceSrc}></div></div>
           <ol class="caps" data-caps>{servicio.capabilities.map((c) => <li>{c}</li>)}</ol>
         </div>
       </div>
@@ -115,7 +119,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       <section class="sec">
         <div class="wrap">
           <div class="sec__head"><h2>Con qué se hace<span class="dot">.</span></h2></div>
-          <Partes items={kit.map((p) => ({ key: p.key, label: p.label, meta: servicio.name, n: p.n > 0 ? `${p.n} ${p.n === 1 ? 'proyecto' : 'proyectos'}${p.u > 0 ? ` · ${p.u} unidades` : ''}` : 'Alcance del servicio' }))} />
+          <Partes items={kit.map((p) => ({ key: p.key, label: p.label, meta: servicio.name, n: p.n > 0 ? `${p.n} ${p.n === 1 ? 'proyecto' : 'proyectos'}` : 'Alcance del servicio' }))} />
         </div>
       </section>
     )}
@@ -148,7 +152,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       <section class="sec">
         <div class="wrap">
           <div class="sec__head"><h2>{own.length} proyectos con {lower}<span class="dot">.</span></h2></div>
-          <ol class="fichas">{own.slice(0, 8).map((c, i) => <Ficha story={c} eager={i < 4} />)}</ol>
+          <ol class="fichas">{destacados(own, 8).map((c, i) => <Ficha story={c} eager={i < 4} />)}</ol>
           <a class="u more" href={`/propuesta/antecedentes?service=${code}`}>Ver los {own.length} proyectos</a>
         </div>
       </section>

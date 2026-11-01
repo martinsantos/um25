@@ -13,7 +13,7 @@ import Casos from '../../../components/proto/Casos.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import Partes from '../../../components/proto/Partes.astro';
 import { getSectorBySlug } from '../../../lib/um26-directus';
-import { loadStories, services, posterOf, SITE_OF, SECTOR_PHOTO, SCENE_OF, isoSrc, filmOf, isoRatio } from '../../../components/proto/isoData';
+import { loadStories, services, posterOf, SITE_OF, SECTOR_PHOTO, SCENE_OF, isoSrc, filmOf, isoRatio, destacados } from '../../../components/proto/isoData';
 import { despieceAgregado } from '../../../components/proto/despiece';
 import { CASOS_SECTOR, casosDe, sectorRelato, EMPRESA } from '../../../components/proto/relato';
 import { SECTORS } from '../../../data/cine/scenes';
@@ -82,7 +82,7 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
       <section class="sec">
         <div class="wrap">
           <div class="sec__head"><h2>Lo que instalamos en {lower}<span class="dot">.</span></h2></div>
-          <Partes items={instalado.map((p) => ({ key: p.key, label: p.label, meta: byCode.get(p.code), n: `${p.proyectos} ${p.proyectos === 1 ? 'proyecto' : 'proyectos'}${p.unidades > 0 ? ` · ${p.unidades} unidades` : ''}` }))} />
+          <Partes items={instalado.map((p) => ({ key: p.key, label: p.label, meta: byCode.get(p.code), n: `${p.proyectos} ${p.proyectos === 1 ? 'proyecto' : 'proyectos'}` }))} />
         </div>
       </section>
     )}
@@ -106,7 +106,7 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos
       <section class="sec">
         <div class="wrap">
           <div class="sec__head"><h2>{own.length} proyectos documentados en {lower}<span class="dot">.</span></h2></div>
-          <ol class="fichas">{own.slice(0, 8).map((c, i) => <Ficha story={c} eager={i < 4} showSector={false} />)}</ol>
+          <ol class="fichas">{destacados(own, 8).map((c, i) => <Ficha story={c} eager={i < 4} showSector={false} />)}</ol>
           <a class="u more" href={`/propuesta/antecedentes?sector=${slug}`}>Ver los {own.length} proyectos</a>
         </div>
       </section>

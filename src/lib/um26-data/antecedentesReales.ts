@@ -62,12 +62,13 @@ const SERVICIO_POR_TEXTO: [ServiceCode, RegExp][] = [
   [108, /\b(electric|ups|tablero|energia|puesta a tierra|grupo electrogeno)/],
 ];
 
+// "Soluciones Tecnológicas" es el área comodín del catálogo (110 registros, de los que sólo 22 hablan de software):
+// no dice qué servicio fue. El servicio sale del texto o no sale.
 const SERVICIO_POR_AREA: Record<string, ServiceCode> = {
   'Conectividad & Redes': 101,
   'Video Vigilancia & Seguridad': 102,
   'Seguridad Electrónica & SDI': 102,
   'Aeropuertos & Telecomunicaciones': 103,
-  'Soluciones Tecnológicas': 104,
   'Servicios Corporativos': 105,
   'Detección de Incendios & Seguridad': 107,
   'Infraestructura de Data Center': 108,
@@ -83,7 +84,7 @@ function serviciosDe(registro: Registro, contenido: string): ServiceCode[] {
   const porArea = SERVICIO_POR_AREA[texto(registro.Area)];
   if (porArea) codigos.add(porArea);
   for (const [codigo, regla] of SERVICIO_POR_TEXTO) if (regla.test(contenido)) codigos.add(codigo);
-  if (!codigos.size) codigos.add(104);
+  // Sin evidencia no se inventa un servicio: la ficha dice que el registro no detalla el alcance.
   return [...codigos].slice(0, 3);
 }
 

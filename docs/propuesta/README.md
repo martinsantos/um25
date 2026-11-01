@@ -42,9 +42,13 @@ cabecera del generador. Las láminas dibujadas a mano de consultoría, software 
 | Obras en curso de SGI sin ficha en el catálogo | Título, cliente, fechas, sector y servicios leídos del título | `src/data/propuesta/antecedentes-extra.json` (se retiran cuando entran al catálogo) |
 | Relato de la empresa, principios, casos destacados | Portada, nosotros, sectores | `src/components/proto/relato.ts` |
 
-Reglas aplicadas al servir, en `titulos.ts` e `isoData.ts`: limpieza de títulos y clientes, títulos
-repetidos distinguidos por descripción, mes o día, sector heredado del cliente cuando es único,
-siglas solas escritas completas.
+Reglas aplicadas al servir, en `titulos.ts`, `sectorReal.ts` e `isoData.ts`: limpieza de títulos y
+clientes, títulos repetidos distinguidos por descripción, mes o día, siglas solas escritas completas,
+descripciones que repiten el título recortadas a lo que agregan. El sector de una ficha sin lugar se
+toma del cliente sólo cuando la evidencia pesa (tres fichas o más con ese sector, un tercio o más de
+todas las del cliente); el
+servicio sale del área del catálogo cuando el área es un servicio, o del texto; el área comodín
+("Soluciones Tecnológicas") no cuenta como software, y sin evidencia la ficha queda sin servicio.
 
 ## El muro
 
