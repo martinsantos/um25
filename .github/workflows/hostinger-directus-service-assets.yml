@@ -1,0 +1,93 @@
+name: Recover eight Directus service images
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-directus-service-assets.yml'
+      - 'scripts/ops/hostinger-migration/recover-directus-service-assets.py'
+      - 'scripts/ops/hostinger-migration/test_directus_service_assets.py'
+  workflow_dispatch:
+    inputs:
+      expected_snapshot_sha:
+        type: string
+        required: true
+        description: SHA256 from the read-only inspection of the eight files and active runtime
+      acknowledgement:
+        type: string
+        required: true
+        description: Enter RECOVER-EIGHT-DIRECTUS-IMAGES
+permissions:
+  contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+concurrency:
+  group: ${{ github.event_name == 'workflow_dispatch' && 'hostinger-migration-preparation' || github.run_id }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: |
+            scripts/ops/hostinger-migration
+            public/images/services/productos
+          persist-credentials: false
+      - name: Test bounded scope, payload and rollback guards
+        run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts/ops/hostinger-migration -p test_directus_service_assets.py -v
+      - name: Start disposable Directus matching production
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/umsa-directus-test-uploads"
+          sudo chown 1000:1000 "$RUNNER_TEMP/umsa-directus-test-uploads"
+          docker run -d --name directus-image-test -p 127.0.0.1:18055:8055 \
+            -v "$RUNNER_TEMP/umsa-directus-test-uploads:/directus/uploads" \
+            -e SECRET=isolated-ci-recovery-test-20261101 \
+            -e ADMIN_EMAIL=recovery@example.test -e 'ADMIN_PASSWORD=Test-recovery-20261101!' \
+            -e DB_CLIENT=sqlite3 -e DB_FILENAME=/tmp/recovery-test.db \
+            -e TELEMETRY=false directus/directus:11.13.4
+          for attempt in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:18055/server/ping >/dev/null; then
+              version="$(docker exec directus-image-test node -p 'require("/directus/package.json").version')"
+              [[ "$version" == 11.13.4 ]]
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs --tail 50 directus-image-test
+          exit 1
+      - name: Exercise actual uploads, originals, thumbnails and metadata recovery
+        env:
+          DIRECTUS_RECOVERY_TEST_URL: http://127.0.0.1:18055
+          DIRECTUS_RECOVERY_TEST_UPLOADS: ${{ runner.temp }}/umsa-directus-test-uploads
+        run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts/ops/hostinger-migration -p test_directus_service_assets.py -v
+  recover:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'RECOVER-EIGHT-DIRECTUS-IMAGES'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: |
+            scripts/ops/hostinger-migration
+            public/images/services/productos
+          persist-credentials: false
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Back up metadata, recover only eight UUIDs and verify without restarting
+        env:
+          SNAPSHOT: ${{ inputs.expected_snapshot_sha }}
+        run: |
+          set -euo pipefail
+          [[ "$SNAPSHOT" =~ ^[a-f0-9]{64}$ ]]
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          run_id="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          payload="$RUNNER_TEMP/directus-service-images.tar.gz"
+          payload_sha="$(python3 scripts/ops/hostinger-migration/recover-directus-service-assets.py pack "$payload")"
+          [[ "$payload_sha" =~ ^[a-f0-9]{64}$ ]]
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          ssh "${opts[@]}" root@179.198.115.115 "umask 077; set -C; cat > /tmp/umsa-directus-recovery-$run_id.tar.gz" < "$payload"
+          ssh "${opts[@]}" root@179.198.115.115 "python3 - apply $run_id $SNAPSHOT $payload_sha" < scripts/ops/hostinger-migration/recover-directus-service-assets.py
