@@ -45,10 +45,13 @@ const ERRATAS: [RegExp, string][] = [[/\bHospita\b/g, 'Hospital'], [/\bwwwjusmen
 const limpiar = (v: unknown) => ERRATAS.reduce((t, [re, por]) => t.replace(re, por), String(v ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
 
 /** El registro completo viene cortado a 300 caracteres: se cierra en la última frase entera. */
+const SOLICITUD = /^(?:en\s+\S+(?:\s+\S+)?\s+)?(?:hay que|habr[ií]a que|se debe(?:n)?|se solicita|solicitan?|cotizar|presupuestar|adicional para presupuestar)\s+(?:cotizar\s+|presupuestar\s+)?(?:el|la|los|las|un|una)?\s*/i;
 export const cerrarTexto = (texto: string, cliente: string) => {
   let t = limpiar(texto);
   const prefijo = `${limpiar(cliente)} - `;
   if (t.toLowerCase().startsWith(prefijo.toLowerCase())) t = t.slice(prefijo.length);
+  // Un alcance redactado como pedido ("En Quilmes hay que cotizar el tendido…") se cuenta por lo que se hizo.
+  if (SOLICITUD.test(t)) { t = t.replace(SOLICITUD, '').trim(); t = t.charAt(0).toUpperCase() + t.slice(1); }
   if (/[.!?]$/.test(t)) return t;
   // El registro de origen no guarda el punto final de ninguna descripción (469 de 469) y corta las largas a 350 caracteres:
   // sólo una descripción que llega al tope se trata como cortada (se cierra en la última cláusula o palabra entera); las demás, enteras.
@@ -57,7 +60,9 @@ export const cerrarTexto = (texto: string, cliente: string) => {
     if (corte > t.length * .45) t = t.slice(0, corte);
     else t = t.replace(/\s+\S*$/, '');
   }
-  t = t.replace(/[,;:\s-]+$/, '') + '.';
+  // Lo que queda no termina en conector ("… en altura y con") ni en signo.
+  for (let i = 0; i < 4; i++) t = t.replace(/\s+(de|del|la|el|y|e|o|u|en|para|por|con|a|un|una|las|los|al|sobre|sin|que|se)$/i, '').replace(/[,;:\s-]+$/, '');
+  t += '.';
   return t.charAt(0).toUpperCase() + t.slice(1);
 };
 
@@ -98,7 +103,6 @@ const clienteDe = (r: Registro) => { const c = limpiar(r.Cliente); if (CLIENTE_P
 /** Si el título del registro es sólo la categoría ("SDI", "CCTV", "Redes y comunicaciones"), el título es la primera frase del alcance. */
 const GENERICO = /^(sdi|cctv|electrico|eléctrico|redes y comunicaciones|redes de cableado estructurado|cableado estructurado|sistema de cctv|detección|deteccion|redes y comunicaciones\.?\s*detección)$/i;
 /** Un alcance redactado como pedido ("En Quilmes hay que cotizar el tendido de…") se titula por lo que se hizo: sin el encabezado del pedido y, si sigue una lista de materiales, hasta antes de ella. */
-const SOLICITUD = /^(?:en\s+\S+(?:\s+\S+)?\s+)?(?:hay que|habr[ií]a que|se debe(?:n)?|se solicita|solicitan?|cotizar|presupuestar|adicional para presupuestar)\s+(?:cotizar\s+|presupuestar\s+)?(?:el|la|los|las|un|una)?\s*/i;
 const desdeSolicitud = (f: string) => {
   let t = SOLICITUD.test(f) ? f.replace(SOLICITUD, '').trim() : f;
   // Si la frase trae tres o más cifras (una lista de materiales: "1 cámara entrada, 2 días, 150 m de UTP"), el título queda antes de la primera cifra pasados los 24 caracteres; el detalle sigue en el texto.
@@ -110,7 +114,8 @@ const tituloFinal = (r: Registro, texto: string) => {
   const t = tituloDe(r);
   if (t.length >= 28 && !GENERICO.test(t)) return t;
   // La primera frase, sin cortar en abreviaturas ("Hospital Dr. Juan…", "Av.", "Nº").
-  const primera = texto.replace(/\b(Dr|Dra|Sr|Sra|Ing|Lic|Arq|Av|Gral|Dpto|Depto|Cnel|Tte|Pcia|Nº|N°|SA|SRL|Ltda|Cía|Cia|etc|[A-ZÁÉÍÓÚ])\.\s/gi, '$1\u0001').split(/[.;]\s/)[0].replace(/\u0001/g, '. ');
+  // Abreviaturas, y una inicial sólo delante de un nombre ("Alfredo I. Perrupato"; "C.C.T.V. para" sí es fin de frase).
+  const primera = texto.replace(/\b(Dr|Dra|Sr|Sra|Ing|Lic|Arq|Av|Gral|Dpto|Depto|Cnel|Tte|Pcia|Nº|N°|SA|SRL|Ltda|Cía|Cia|etc)\.\s/gi, '$1\u0001').replace(/(\s[A-ZÁÉÍÓÚ])\.\s(?=[A-ZÁÉÍÓÚ][a-záéíóúñ])/g, '$1\u0001').split(/[.;]\s/)[0].replace(/\u0001/g, '. ');
   // La coletilla de ubicación (", del departamento de…", ", de la provincia de…") no es parte del título; queda en el texto.
   // Una coma del registro entre el objeto y su destino ("Cableado Estructurado, para el Hospital") no va.
   let f = desdeSolicitud(primera).replace(/^([^,]{6,40}),\s+(para|en|de)\b/i, '$1 $2').replace(/,\s+(?:del?\s+(?:departamento|distrito|partido)|de la provincia|provincia de|de uspallata|de [A-ZÁÉÍÓÚ][\wáéíóú]+ de la provincia)\b[^,]*$/i, '').replace(/\s*-\s*/g, ' · ');

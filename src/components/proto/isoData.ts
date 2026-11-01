@@ -84,14 +84,18 @@ const TEMPLATE_PHRASES: Array<[RegExp, string]> = [
 const comparable = (v: string) => v.toLowerCase().replace(/\(\d+\)/g, ' ').replace(/[.,:;()·|-]/g, ' ').replace(/\s+/g, ' ').trim();
 /** Si un texto empieza repitiendo el título, se queda con lo que sigue ("… para el sector de parking."); si no queda nada que valga, vacío. */
 export const sinTitulo = (text: string, title: string, client = ''): string => {
-  const body = comparable(text), t = comparable(title);
+  // Comparación sin puntos ni signos: "C.C.T.V." y "CCTV" son lo mismo.
+  const llano = (v: string) => v.toLowerCase().replace(/[.·]/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  const body = llano(text), t = llano(title);
   if (!t || !body.startsWith(t) || body === t) return body === t ? '' : text;
-  // Se avanza por palabras del texto original hasta cubrir el título comparable ("C.C.T.V." es una palabra del texto y cuatro del título comparado).
+  // Se avanza por palabras del texto original hasta cubrir el título.
   let i = 0; const re = /\S+/g; let m: RegExpExecArray | null;
-  while ((m = re.exec(text))) { i = m.index + m[0].length; if (comparable(text.slice(0, i)).length >= t.length) break; }
+  while ((m = re.exec(text))) { i = m.index + m[0].length; if (llano(text.slice(0, i)).length >= t.length) break; }
   const resto = text.slice(i).replace(/^[\s.,:;·()-]+/, '');
   const rc = comparable(resto);
   if (rc.length < 20 || rc === comparable(client)) return '';
+  // Si lo que sigue no arranca como frase (un conector o mayúscula), el título salió de las primeras palabras del texto y el texto va entero.
+  if (!/^(para|en|con|sobre|y|e)\b|^[A-ZÁÉÍÓÚÑ]/.test(resto)) return text;
   return resto.charAt(0).toUpperCase() + resto.slice(1);
 };
 /** Descripción sin plantillas ni repeticiones del título; vacía si no aporta nada. */
