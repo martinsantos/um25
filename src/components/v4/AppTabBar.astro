@@ -17,7 +17,7 @@ const tabLabel: Record<string, string> = { '/': t.tabs.home, '/servicios': t.tab
 const isActive = (href: string) => {
   const target = (tabHref[href] || href).replace(/\/$/, '') || '/';
   if (target === '/' || target === '/en') return clean === target;
-  return clean.startsWith(target);
+  return clean === target || clean.startsWith(`${target}/`);
 };
 
 const ICONS: Record<(typeof APP_TABS)[number]['icon'], string> = {
@@ -95,7 +95,15 @@ const ICONS: Record<(typeof APP_TABS)[number]['icon'], string> = {
     }
 
     .um-tabbar__item.is-active {
-      color: #fff;
+      background: #f4f4f5;
+      color: #111;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .um-tabbar__item:hover:not(.is-active) {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.08);
+      }
     }
 
     .um-tabbar__item.is-active::before {
@@ -108,13 +116,13 @@ const ICONS: Record<(typeof APP_TABS)[number]['icon'], string> = {
       background: #dc2626;
     }
 
-    .um-tabbar__item:active {
+    .um-tabbar__item:active:not(.is-active) {
       background: rgba(255, 255, 255, 0.05);
     }
 
     .um-tabbar__item:focus-visible {
-      outline: 2px solid #dc2626;
-      outline-offset: -2px;
+      outline: 2px solid currentColor;
+      outline-offset: -4px;
     }
 
     /* El contenido y el pie dejan lugar a la barra (el layout fija body

@@ -71,8 +71,9 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
       .grupo { display: grid; gap: 6px; }
       .grupo h2 { font-size: 1rem; font-weight: 500; color: var(--ink-3); }
       .anios { display: flex; flex-wrap: wrap; gap: 6px; }
-      .anios button { padding: 6px 10px; border: 1px solid var(--line); color: var(--ink-2); font-size: 1rem; }
-      .anios button[aria-pressed="true"] { border-color: var(--red); color: var(--ink); }
+      .anios button { min-height: 44px; padding: 6px 10px; border: 1px solid var(--line); color: var(--ink-2); font-size: 1rem; }
+      .anios button[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--bg); font-weight: 600; }
+      .anios button:hover:not([aria-pressed="true"]) { border-color: var(--ink-2); background: var(--bg-2); }
       .servicios [data-zero] { color: var(--ink-3); }
       .filtros { display: grid; gap: var(--s4); }
       .filtros__cuerpo { display: grid; gap: var(--s4); }

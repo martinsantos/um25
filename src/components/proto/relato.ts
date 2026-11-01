@@ -177,6 +177,7 @@ const PUBLICADO_DE: Record<number, number> = {
   11179: 3085,
   11174: 3103,
   11162: 3116,
+  10903: 3410, // Bodega Caro: same client, SGI start 2019-05-31 and fire-system maintenance scope.
 };
 const BASE_POR_ID = new Map(CASOS_BASE.map((c) => [c.id, c]));
 export const casoDe = (id: number): Caso | null => {

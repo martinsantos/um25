@@ -32,12 +32,13 @@ const moreItems = [
 const isActive = (href: string) => {
   let clean = currentPath.replace(/\/$/, '') || '/';
   const target = href.replace(/\/$/, '') || '/';
+  const matchesPath = (path: string, base: string) => path === base || path.startsWith(`${base}/`);
   if (target === '/' || target === '/en') return clean === target;
   const service = target.match(/^\/servicios\/(10[1-8])(?:\/|$)/);
-  if (service) return new RegExp(`^/servicios/${service[1]}(?:/|$)`).test(clean);
+  if (service) return matchesPath(clean, `/servicios/${service[1]}`);
   // Los destinos históricos /bodegas, etc. conservan su selección en /sectores/bodegas.
   if (target !== '/sectores') clean = clean.replace(/^\/sectores\//, '/');
-  return clean.startsWith(target);
+  return matchesPath(clean, target);
 };
 
 ---
@@ -317,6 +318,12 @@ const isActive = (href: string) => {
     color: #fff;
   }
 
+  .um-ops-nav__link:focus-visible,
+  .um-ops-cta:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+
   .um-ops-nav__link.is-active::after,
   .um-ops-more.is-active .um-ops-more__trigger::after,
   .um-ops-more:hover .um-ops-more__trigger::after {
@@ -344,9 +351,9 @@ const isActive = (href: string) => {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
+    width: 44px;
     min-height: 44px;
-    margin-right: 6px;
+    margin-right: 0;
     border: 0;
     background: transparent;
     color: #a1a1aa;
@@ -373,8 +380,8 @@ const isActive = (href: string) => {
   }
 
   .um-ops-mega__toggle:focus-visible {
-    outline: 2px solid #dc2626;
-    outline-offset: -2px;
+    outline: 2px solid #fff;
+    outline-offset: 2px;
   }
 
   .um-ops-mega:hover .um-ops-mega__link,
@@ -476,6 +483,11 @@ const isActive = (href: string) => {
   .um-ops-mega__all:focus-visible {
     color: #fff;
     border-bottom-color: #fff;
+  }
+
+  .um-ops-mega__all:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
   }
 
   .um-ops-mega__grid {
@@ -663,7 +675,7 @@ const isActive = (href: string) => {
   }
 
   .um-ops-lang:focus-visible {
-    outline: 2px solid #dc2626;
+    outline: 2px solid #fff;
     outline-offset: 2px;
   }
 
@@ -696,6 +708,11 @@ const isActive = (href: string) => {
     background: transparent;
     color: #fff;
     cursor: pointer;
+  }
+
+  .um-ops-menu-toggle:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
   }
 
   .um-ops-menu-toggle span {
@@ -953,6 +970,14 @@ const isActive = (href: string) => {
   .um-ops-mobile__primary a:hover {
     color: #fff;
   }
+
+  .um-ops-mobile__primary a.is-active,
+  .um-ops-mobile__secondary a.is-active { background: #f4f4f5; color: #111; padding-inline: 12px; border-left: 3px solid #dc2626; }
+  .um-ops-mobile__primary a:focus-visible,
+  .um-ops-mobile__secondary a:focus-visible,
+  .um-ops-mobile__explore:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  .um-ops-mobile__primary a.is-active:focus-visible,
+  .um-ops-mobile__secondary a.is-active:focus-visible { outline-color: #111; outline-offset: -5px; }
 
   .um-ops-mobile__destination { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .um-ops-mobile__destination > a { flex: 1; }
