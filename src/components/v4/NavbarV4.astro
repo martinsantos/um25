@@ -30,9 +30,13 @@ const moreItems = [
 ];
 
 const isActive = (href: string) => {
-  const clean = currentPath.replace(/\/$/, '') || '/';
+  let clean = currentPath.replace(/\/$/, '') || '/';
   const target = href.replace(/\/$/, '') || '/';
   if (target === '/' || target === '/en') return clean === target;
+  const service = target.match(/^\/servicios\/(10[1-8])(?:\/|$)/);
+  if (service) return new RegExp(`^/servicios/${service[1]}(?:/|$)`).test(clean);
+  // Los destinos históricos /bodegas, etc. conservan su selección en /sectores/bodegas.
+  if (target !== '/sectores') clean = clean.replace(/^\/sectores\//, '/');
   return clean.startsWith(target);
 };
 
@@ -66,7 +70,7 @@ const isActive = (href: string) => {
                     <ul class="um-ops-mega__grid um-ops-mega__grid--services">
                       {NAV_SERVICES.map((s) => (
                         <li>
-                          <a href={s.href} class:list={[{ 'is-active': currentPath.startsWith(`/servicios/${s.code}`) }]}>
+                          <a href={s.href} class:list={[{ 'is-active': isActive(s.href) }]} aria-current={isActive(s.href) ? 'page' : undefined}>
                             <img class="um-ops-mega__thumb" src={SERVICE_NAV_MEDIA[s.code]} width="112" height="84" alt="" loading="lazy" decoding="async" />
                             <span class="um-ops-mega__code">{s.code}</span>
                             <span class="um-ops-mega__name">{lang === 'en' ? t.destinationLabel(shellServiceCopy(lang, s.code, s.name, s.text).name) : s.name}</span>
@@ -86,7 +90,7 @@ const isActive = (href: string) => {
                     <ul class="um-ops-mega__grid um-ops-mega__grid--sectors">
                       {NAV_SECTORS.map((s) => (
                         <li>
-                          <a href={s.href} class:list={[{ 'is-active': isActive(s.href) }]}>
+                          <a href={s.href} class:list={[{ 'is-active': isActive(s.href) }]} aria-current={isActive(s.href) ? 'page' : undefined}>
                             <img class="um-ops-mega__thumb" src={SECTOR_NAV_MEDIA[s.slug]} width="112" height="84" alt="" loading="lazy" decoding="async" />
                             <span class="um-ops-mega__name">{lang === 'en' ? t.destinationLabel(shellSectorCopy(lang, s.slug, s.name, s.text).name) : s.name}</span>
                             <span class="um-ops-mega__text">{shellSectorCopy(lang, s.slug, s.name, s.text).text}</span>
@@ -147,7 +151,7 @@ const isActive = (href: string) => {
             {item.mega && <button type="button" class="um-ops-mobile__explore" data-mobile-group-toggle aria-expanded="false" aria-controls={`mobile-${item.mega}`} aria-label={`${lang === 'en' ? 'Explore' : 'Explorar'} ${item.label.toLowerCase()}`}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></button>}
           </div>
           {item.mega && <ul class="um-ops-mobile__destinations" id={`mobile-${item.mega}`} hidden>
-            {(item.mega === 'servicios' ? NAV_SERVICES.map(s => ({key:s.code,href:s.href,image:SERVICE_NAV_MEDIA[s.code],...shellServiceCopy(lang,s.code,s.name,s.text)})) : NAV_SECTORS.map(s => ({key:s.slug,href:s.href,image:SECTOR_NAV_MEDIA[s.slug],...shellSectorCopy(lang,s.slug,s.name,s.text)}))).map(s => <li><a href={s.href}>
+            {(item.mega === 'servicios' ? NAV_SERVICES.map(s => ({key:s.code,href:s.href,image:SERVICE_NAV_MEDIA[s.code],...shellServiceCopy(lang,s.code,s.name,s.text)})) : NAV_SECTORS.map(s => ({key:s.slug,href:s.href,image:SECTOR_NAV_MEDIA[s.slug],...shellSectorCopy(lang,s.slug,s.name,s.text)}))).map(s => <li><a href={s.href} aria-current={isActive(s.href) ? 'page' : undefined}>
               <img src={s.image} width="64" height="64" alt="" loading="lazy" decoding="async" />
               <span><strong>{lang === 'en' ? t.destinationLabel(s.name) : s.name}</strong><span>{s.text}</span></span>
             </a></li>)}
@@ -398,7 +402,7 @@ const isActive = (href: string) => {
     right: 0;
     top: 100%;
     z-index: var(--um-z-header-menu);
-    padding: 28px 0 34px;
+    padding: 20px 0 24px;
     max-height: calc(100dvh - 66px);
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -422,7 +426,7 @@ const isActive = (href: string) => {
   .um-ops-mega__inner {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
+    gap: 16px;
     align-items: start;
   }
 
@@ -479,12 +483,16 @@ const isActive = (href: string) => {
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 0 24px;
+    gap: 4px 12px;
     border-top: 1px solid rgba(255,255,255,0.1);
   }
 
   .um-ops-mega__grid--services {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 1360px) {
+    .um-ops-mega__grid--services { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
 
   .um-ops-mega__grid--sectors {
@@ -493,41 +501,56 @@ const isActive = (href: string) => {
 
   .um-ops-mega__grid a {
     display: grid;
-    grid-template-columns: 112px 3ch minmax(0, 1fr);
+    grid-template-columns: 80px 3ch minmax(0, 1fr);
     grid-template-areas: "image code name" "image . text";
     grid-template-rows: min-content 1fr;
-    column-gap: 12px;
+    column-gap: 10px;
     align-content: start;
     height: 100%;
-    padding: 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 12px;
+    border: 1px solid transparent;
+    border-left-width: 3px;
+    border-bottom-color: rgba(255,255,255,0.14);
     color: #fff;
     text-decoration: none;
-    transition: background-color 0.15s ease;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
   }
 
   .um-ops-mega__grid--sectors a {
-    grid-template-columns: 96px minmax(0, 1fr);
+    grid-template-columns: 80px minmax(0, 1fr);
     grid-template-areas: "image name" "image text";
   }
 
-  .um-ops-mega__thumb { grid-area: image; width: 100%; height: 84px; object-fit: cover; align-self: center; }
-  .um-ops-mega__grid--sectors .um-ops-mega__thumb { height: 76px; }
+  .um-ops-mega__thumb { grid-area: image; width: 100%; height: 64px; object-fit: cover; align-self: start; }
   @media (max-width: 1279px) {
-    .um-ops-mega__grid a { grid-template-columns: 88px 3ch minmax(0,1fr); }
-    .um-ops-mega__grid--sectors a { grid-template-columns: 80px minmax(0,1fr); }
+    .um-ops-mega__grid a { grid-template-columns: 72px 3ch minmax(0,1fr); }
+    .um-ops-mega__grid--sectors a { grid-template-columns: 64px minmax(0,1fr); }
   }
 
   .um-ops-mega__grid a:hover,
-  .um-ops-mega__grid a:focus-visible,
+  .um-ops-mega__grid a:focus-visible {
+    background: #303034;
+    border-color: #74747e;
+    border-left-color: #dc2626;
+  }
+
   .um-ops-mega__grid a.is-active {
-    background: rgba(255,255,255,0.045);
+    background: #f4f4f5;
+    border-color: #f4f4f5;
+    border-left-color: #dc2626;
+    color: #111;
+  }
+
+  .um-ops-mega__grid a.is-active :is(.um-ops-mega__code, .um-ops-mega__name, .um-ops-mega__text) {
+    color: #111;
   }
 
   .um-ops-mega__grid a:focus-visible {
-    outline: 2px solid #dc2626;
-    outline-offset: -2px;
+    outline: 2px solid #fff;
+    outline-offset: -4px;
   }
+
+  .um-ops-mega__grid a.is-active:focus-visible { outline-color: #111; }
 
   .um-ops-mega__code {
     grid-area: code;
@@ -539,8 +562,7 @@ const isActive = (href: string) => {
     font-variant-numeric: tabular-nums;
   }
 
-  .um-ops-mega__grid a:hover .um-ops-mega__code,
-  .um-ops-mega__grid a.is-active .um-ops-mega__code {
+  .um-ops-mega__grid a:hover:not(.is-active) .um-ops-mega__code {
     color: #fff;
   }
 
@@ -553,8 +575,8 @@ const isActive = (href: string) => {
 
   .um-ops-mega__text {
     grid-area: text;
-    margin-top: 6px;
-    color: #c4c7cc;
+    margin-top: 4px;
+    color: #d4d4d8;
     font-size: 1rem;
     line-height: 1.45;
   }
@@ -944,6 +966,8 @@ const isActive = (href: string) => {
   .um-ops-mobile__destinations img { width: 64px; height: 64px; object-fit: cover; }
   .um-ops-mobile__destinations strong { display: block; font-size: 1rem; font-weight: 600; color: #fff; }
   .um-ops-mobile__destinations strong + span { display: block; margin-top: 4px; color: #c4c7cc; font-weight: 400; }
+  .um-ops-mobile__primary .um-ops-mobile__destinations a[aria-current="page"] { background: #f4f4f5; border-left: 3px solid #dc2626; padding-inline: 12px; }
+  .um-ops-mobile__destinations a[aria-current="page"] :is(strong, span) { color: #111; }
 
   .um-ops-mobile__foot {
     margin-top: auto;
