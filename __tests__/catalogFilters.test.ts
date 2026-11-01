@@ -27,3 +27,11 @@ test('sorting preserves the original list for reset and handles chronological or
   expect(source).toEqual([airport, government]);
   expect(orderCatalog(source, 'client')).toEqual([airport, government]);
 });
+
+test('production client links survive editorial accents and legal-suffix punctuation', () => {
+  const client = { ...airport, client: 'José Nucete e Hijos S.A.' };
+  expect(matchesCatalog(client, { cliente: 'Jose Nucete e Hijos SA' })).toBe(true);
+  expect(matchesCatalog(client, { cliente: 'jose-nucete-e-hijos-s-a' })).toBe(true);
+  expect(matchesCatalog({ ...airport, client: 'Procon S.R.L.' }, { cliente: 'PROCON SRL' })).toBe(true);
+  expect(matchesCatalog(client, { cliente: 'Otra empresa SA' })).toBe(false);
+});

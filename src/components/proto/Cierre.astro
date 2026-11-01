@@ -1,5 +1,8 @@
 ---
 /** Cierre común: contacto y pie con el mapa del sitio. Sólo frases existentes. */
+import ContactModal from '../um/ContactModal.astro';
+import AppTabBar from '../v4/AppTabBar.astro';
+import { publicDespiecePath } from '../../lib/despieceRoutes';
 import { commercialHubLinkItems } from '../../data/strategicLinkGraph';
 interface Props { lang?: 'es' | 'en' }
 const { lang = 'es' } = Astro.props;
@@ -29,3 +32,6 @@ const t = lang === 'en' ? en : es;
   </div>
 </div>
 </footer>
+
+<ContactModal />
+<AppTabBar currentPath={publicDespiecePath(Astro.url.pathname)} />

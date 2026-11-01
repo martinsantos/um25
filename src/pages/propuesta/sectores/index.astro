@@ -22,8 +22,8 @@ const items = SECTORS.map((s) => { const r = sectorRelato(s.slug); return { ...s
       .intro h1 { max-width: 16ch; }
       .intro p { margin-top: var(--s2); max-width: 52ch; color: var(--ink-2); font-size: 1.2rem; }
       .filas { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); padding-bottom: var(--s6); }
-      .fila a { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--s3) clamp(28px, 4vw, 72px); align-items: center; padding: var(--s4) 0; border-bottom: 1px solid var(--line-2); }
-      .fila figure { margin: 0; aspect-ratio: 16 / 10; overflow: hidden; background: var(--bg-2); }
+      .fila a { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--s3) clamp(28px, 4vw, 72px); align-items: center; padding: 36px 0; border-bottom: 1px solid var(--line-2); }
+      .fila figure { margin: 0; aspect-ratio: 16 / 9; overflow: hidden; background: var(--bg-2); }
       .fila img { width: 100%; height: 100%; object-fit: cover; display: block; }
       .fila .texto { display: grid; gap: 10px; }
       .fila h2 { font-size: clamp(1.7rem, 2.6vw, 2.4rem); }

@@ -161,11 +161,24 @@ async function fetchPublicBlogSlugs(categoria?: string): Promise<string[]> {
   if (cached && Date.now() - cached.at < PUBLIC_CACHE_TTL_MS) return cached.promise;
 
   const promise = (async () => {
+    // The public archive has more than 30 listing pages. Its sitemap supplies
+    // the complete, date-ordered index in one request for local CMS fallbacks.
+    if (!categoria) {
+      try {
+        const response = await publicFetch(`${PUBLIC_SITE_URL}/sitemap-blog.xml`);
+        if (response.ok) {
+          const xml = await response.text();
+          const slugs = [...xml.matchAll(/<loc>https:\/\/www\.ultimamilla\.com\.ar\/blog\/([a-z0-9-]+)<\/loc>/g)]
+            .map((match) => match[1]!).filter(isCanonicalBlogSlug);
+          if (slugs.length) return [...new Set(slugs)];
+        }
+      } catch { /* Fall back to the visible paginated archive. */ }
+    }
     const allSlugs: string[] = [];
     const seen = new Set<string>();
     const basePath = categoria ? `/blog/categoria/${encodeURIComponent(categoria)}` : '/blog';
 
-    for (let page = 1; page <= 30; page += 1) {
+    for (let page = 1; page <= 200; page += 1) {
       const url = `${PUBLIC_SITE_URL}${basePath}${page === 1 ? '' : `?page=${page}`}`;
       const res = await publicFetch(url);
       if (!res.ok) break;

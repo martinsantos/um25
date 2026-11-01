@@ -11,9 +11,10 @@ import {
 interface Props {
   class?: string;
   locale?: 'es' | 'en';
+  dark?: boolean;
 }
 
-const { class: className = '', locale = 'es' } = Astro.props;
+const { class: className = '', locale = 'es', dark = false } = Astro.props;
 const COPY = {
   es: {
     eyebrow: 'Evidencia verificable',
@@ -57,7 +58,7 @@ const catalogCount = getAntecedentesCatalogCount();
 const clientRecords = getTopClienteRecords(6);
 ---
 
-<section class:list={['um-trust-strip', className]} aria-labelledby="trust-strip-title">
+<section class:list={['um-trust-strip', className, { 'um-trust-strip--dark': dark }]} aria-labelledby="trust-strip-title">
   <div class="um-trust-strip__inner">
     <header class="um-trust-strip__head">
       <span class="um-trust-strip__rule" aria-hidden="true"></span>
@@ -107,6 +108,15 @@ const clientRecords = getTopClienteRecords(6);
 </section>
 
 <style>
+  .um-trust-strip--dark {
+    --skin-section: var(--bg);
+    --skin-text: var(--ink);
+    --skin-muted: var(--ink-2);
+    --um-red: var(--red-text);
+  }
+  .um-trust-strip--dark .um-trust-strip__inner { width: min(var(--max), calc(100% - var(--gutter) * 2)); }
+  .um-trust-strip--dark :is(.um-trust-strip__ledger-head, .um-trust-strip__client, .um-trust-strip__docs) { border-color: var(--line); }
+
   .um-trust-strip {
     background: var(--skin-section, #fff);
     padding: clamp(48px, 5.2vw, 78px) 0;

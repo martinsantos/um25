@@ -28,6 +28,26 @@ try {
   const productionLinks = ['/software', '/seguridad-electronica', '/certificaciones', '/terminos', '/servicios-it-empresas-mendoza', '/presupuesto-servicios-it-empresas', '/proyectos-ingenieria-it-mendoza', '/servicios-it-empresas-argentina', '/cctvai'];
   for (const href of productionLinks) assert.ok(await page.locator(`a[href="${href}"]`).count(), `Missing navigation ${href}`);
   await overflow();
+  // The production quick-contact flow must survive the shell integration.
+  await go('/');
+  await page.locator('.cierre .btn').click();
+  assert.ok(await page.locator('[data-contact-modal]').isVisible());
+  await page.getByRole('button', { name: 'Mensaje guiado', exact: true }).click();
+  assert.ok(await page.locator('[data-contact-guides]').isVisible());
+  await page.keyboard.press('Escape');
+  assert.ok(await page.locator('[data-contact-modal]').isHidden());
+  assert.ok(await page.locator('.cierre .btn').evaluate(el => el === document.activeElement), 'Modal restores focus');
+  for (const path of ['/en', '/en/services']) {
+    await go(path);
+    assert.equal(await page.locator('.um-trust-strip__client').count(), 6);
+    assert.equal(await page.locator('.um-trust-strip__docs article').count(), 3);
+    assert.ok(await page.getByRole('link', { name: 'Request assessment', exact: true }).isVisible());
+  }
+  for (const code of Array.from({length: 8}, (_, i) => String(101 + i))) {
+    await go('/servicios/' + code);
+    assert.equal(await page.locator('[data-caps] h3').count(), 6, 'Full production service scope: ' + code);
+    assert.equal(await page.locator('[data-caps] p').count(), 6);
+  }
   await go('/antecedentes');
   const total = Number(await page.locator('[data-count]').innerText());
   assert.ok(total >= 518);
@@ -56,6 +76,12 @@ try {
   await page.waitForFunction(() => new URL(location.href).searchParams.get('orden') === 'client');
   assert.ok((await page.locator('[data-grid] [data-ficha]').evaluateAll(els => els.map(e => ({ year: e.dataset.year, services: e.dataset.services.split(' ') })))).every(c => c.year === '2024' && c.services.includes('107')));
   for (const path of ['/software', '/seguridad-electronica', '/sectores', '/servicios/101', '/blog', '/contacto']) { await go(path); await overflow(); }
+  await go('/blog');
+  for (const category of ['noticias', 'proyectos', 'tecnico', 'tecnologia', 'empresa']) {
+    assert.equal(await page.locator(`nav[aria-label="Categorías"] a[href="/blog?categoria=${category}"]`).count(), 1, 'Preserved blog category: ' + category);
+  }
+  await go('/antecedentes?cliente=Jose%20Nucete%20e%20Hijos%20SA');
+  assert.ok(Number(await page.locator('[data-count]').innerText()) > 0, 'Original client links survive name formatting');
   await go('/software');
   await page.locator('[data-umc-motion]').click();
   await page.waitForFunction(() => [...document.querySelectorAll('video')].some(v => v.readyState >= 2), { timeout: 30000 });
@@ -99,16 +125,18 @@ try {
   // Invalid contact forms stay in the browser; no email is sent.
   await page.route('**/api/contact', route => { throw new Error('Invalid form attempted a network submission'); });
   await page.getByRole('button', { name: 'Enviar consulta' }).click();
-  assert.ok(await page.locator('[data-error-for="name"]').innerText());
-  assert.ok(await page.locator('select[name="topic"]').count());
+  assert.ok(await page.locator('main [data-error-for="name"]').innerText());
+  assert.ok(await page.locator('main select[name="topic"]').count());
   await page.screenshot({ path: out + '/contacto.png' });
   for (const width of [390, 360]) {
     await page.setViewportSize({ width, height: 844 });
     await go('/');
+    assert.ok(await page.locator('.um-tabbar').isVisible(), 'Production mobile navigation');
     const toggle = page.locator('#menuToggle');
     await toggle.click();
     assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
     assert.ok(await page.locator('#mobileMenu').isVisible());
+    assert.ok(await page.locator('.um-tabbar').isHidden(), 'Tab bar must not overlap the expanded menu');
     assert.equal(await page.locator('main').getAttribute('inert'), '');
     await page.waitForFunction(() => getComputedStyle(document.querySelector('#mobileMenu')).opacity === '1');
     await page.screenshot({ path: `${out}/mobile-${width}-menu.png` });
@@ -119,6 +147,8 @@ try {
     await go('/antecedentes');
     await page.locator('[data-toggle]').click();
     assert.equal(await page.locator('[data-toggle]').getAttribute('aria-expanded'), 'true');
+    await overflow();
+    await go('/en/services');
     await overflow();
     await go('/contacto');
     await overflow();

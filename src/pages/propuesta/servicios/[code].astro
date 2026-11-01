@@ -17,6 +17,7 @@ import { despieceAgregado, KIT_DE_SERVICIO } from '../../../components/proto/des
 import Partes from '../../../components/proto/Partes.astro';
 import { CASOS_SERVICIO, casosDe } from '../../../components/proto/relato';
 import { getDatasheetPublicPath } from '../../../utils/datasheets';
+import { serviceSingleDemoCapabilities } from '../../../data/serviceSingleDemoSystem';
 import { SERVICE_SPECS } from '../../../data/serviceSpecs';
 import { SECTORS, SOFTWARE_FILM } from '../../../data/cine/scenes';
 
@@ -48,6 +49,7 @@ const desde = anios.length ? Math.min(...anios) : 0;
 const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos documentados'], [String(clientes.length), clientes.length === 1 ? 'cliente' : 'clientes'], [String(bySector.length), bySector.length === 1 ? 'sector' : 'sectores'], [String(desde), 'primer proyecto']] : [];
 const meta = Object.fromEntries(servicio.metadata.map((m) => [m.label, m.value]));
 const condiciones = ['Implementación', 'Garantía', 'Cobertura'].filter((k) => meta[k]).map((k) => `${k}: ${meta[k]}`).join('. ');
+const capabilities = serviceSingleDemoCapabilities[Number(code)] || [];
 const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
 ---
 <!doctype html>
@@ -62,7 +64,11 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       /* El dibujo ocupa la caja reservada, pase lo que pase con su viewBox: un hijo absoluto resuelve el 100 % contra la caja, un ítem de grilla no. */
       .equipo :global(svg) { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
       .caps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-      .caps li { padding: 13px 0; border-bottom: 1px solid var(--line-2); font-size: 1.1rem; color: var(--ink); }
+      .caps h3 { font-size: 1.2rem; line-height: 1.3; }
+      .caps p { margin: 8px 0 0; color: var(--ink-2); font-size: 1rem; line-height: 1.6; }
+      .technical-scope { margin-top: var(--s4); }
+      .technical-scope summary { cursor: pointer; font-weight: 600; padding-block: 12px; }
+      .caps li { padding: 18px 0; border-bottom: 1px solid var(--line-2); font-size: 1.1rem; color: var(--ink); }
       .cubre.cubre--editorial { display: block; }
       .cubre--editorial .caps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s4); }
       .cubre--editorial .caps li { padding-block: 24px; }
@@ -94,8 +100,9 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
         <div class="sec__head"><h2>Qué cubre<span class="dot">.</span></h2></div>
         <div class:list={['cubre', { 'cubre--editorial': editorial }]} data-cubre>
           {!editorial && <div class="equipo" data-equipo style={`--r:${deviceRatio.toFixed(3)}`}><div class="iso" data-src={deviceSrc}></div></div>}
-          <ol class="caps" data-caps>{servicio.capabilities.map((c) => <li>{c}</li>)}</ol>
+          <ol class="caps" data-caps>{capabilities.map((c) => <li><h3>{c.title}</h3><p>{c.description}</p></li>)}</ol>
         </div>
+        <details class="technical-scope"><summary>Especificaciones adicionales</summary><ul class="lista">{servicio.capabilities.map((c) => <li>{c}</li>)}</ul></details>
       </div>
     </section>
 

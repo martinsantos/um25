@@ -11,7 +11,7 @@ export function despieceRoute(path: string, method = 'GET'): { redirect?: string
   if (p === '/propuesta/auditoria.json') return null;
   if (p === '/propuesta' || p.startsWith('/propuesta/')) {
     const target = publicDespiecePath(p);
-    return despieceRoute(target) ? { redirect: target } : null;
+    return despieceRoute(target) || /^\/blog\/[a-z0-9-]+$/.test(target) ? { redirect: target } : null;
   }
   if (sectors.has(p.slice(1))) return { redirect: '/sectores' + p };
   if (p === '/sectores/software') return { redirect: '/software' };
@@ -23,9 +23,10 @@ export function despieceRoute(path: string, method = 'GET'): { redirect?: string
   const sector = p.match(/^\/sectores\/([^/]+)$/);
   if (fixed.has(p) || /^\/servicios\/10[1-8]$/.test(p) ||
       (sector && sectors.has(sector[1]!)) ||
-      /^\/antecedentes\/\d+\/[^/]+$/.test(p) ||
-      /^\/blog\/[a-z0-9-]+$/.test(p)) {
+      /^\/antecedentes\/\d+\/[^/]+$/.test(p)) {
     return { rewrite: '/propuesta' + (p === '/' ? '' : p) };
   }
+  // Keep the production article renderer: TOC, contextual links, previous/next,
+  // FAQ/BlogPosting metadata and editorial normalization are already integrated there.
   return null;
 }

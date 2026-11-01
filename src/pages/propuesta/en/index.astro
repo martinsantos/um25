@@ -4,6 +4,7 @@ import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import Apertura from '../../../components/proto/Apertura.astro';
+import TrustStrip from '../../../components/um/TrustStrip.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import { loadStories, isoSrc, filmOf } from '../../../components/proto/isoData';
 export const prerender = false;
@@ -19,6 +20,7 @@ const { total } = await loadStories();
       <span class="small">24 years of IT services. Mendoza, Argentina.</span>
       <h1>IT services for operations that cannot stop<span class="dot">.</span></h1>
       <p>Networks, electronic security, telecom, custom software, energy and on-site support for organizations that need continuity, evidence and accountable delivery.</p>
+      <div class="action-links"><a class="btn" href="/en/contact">Request assessment</a><a class="u" href="/en/services">Services</a><a class="u" href="/en/about">About us</a></div>
       <a class="u" href="/antecedentes">{total} documented projects in catalog</a>
     </Apertura>
     <section class="sec"><div class="wrap cols cols-5-7">
@@ -28,6 +30,7 @@ const { total } = await loadStories();
         <p>Detailed service and project pages are available in Spanish. <a class="u" href="/">Versión en español</a></p>
       </div>
     </div></section>
+    <TrustStrip locale="en" dark />
     </main>
     <Cierre lang="en" />
   </body>

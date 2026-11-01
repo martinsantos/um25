@@ -4,6 +4,8 @@ Entrega de origen: `55c900ff1c2078dbfb87a6438487e60b61184d59`.
 Integración: `feature/integracion-despiece-20261101`, mediante PR a develop y luego master.
 **No publicar hasta que el usuario revise la vista previa final.**
 
+Revisión final de paridad, correcciones y límites: [revision-paridad-20261101.md](revision-paridad-20261101.md).
+
 ## Ejecución y controles
 
 Node 20.19.6, igual al publicador Hostinger. `npm ci && npm run check`.
@@ -19,6 +21,7 @@ Las cifras históricas de Lighthouse de la entrega no sustituyen los controles d
 Los componentes permanecen en `src/pages/propuesta`, pero `src/middleware.ts` sirve
 el diseño en `/`, `/servicios`, `/sectores`, `/antecedentes`, `/blog`, `/nosotros`,
 `/contacto`, `/documentacion`, `/privacidad` y las cuatro páginas de inglés.
+El índice del blog usa el diseño integrado; sus artículos conservan el lector completo de producción (índice, enlaces temáticos y metadatos).
 La lista exacta está en `src/lib/despieceRoutes.ts`: sólo GET/HEAD y rutas explícitas.
 Las URLs antiguas de propuesta, sectores y servicios redirigen 301 a su URL pública.
 API, CMS, DGE, ARCA, status, recursos de marca, plantillas, descargas y fichas PDF
