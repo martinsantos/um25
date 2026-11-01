@@ -87,6 +87,49 @@ export type SectorEvidence = {
   evidence: string;
 };
 
+export type ClassificationCorrection = {
+  /** Exact wording retained in the current case text or its verified source crosswalk. */
+  evidence: string;
+  sourceRecordId?: number;
+  sector?: string;
+  services?: string[];
+};
+
+/** Narrow corrections for curated cases where the current tags conflict with the named scope. */
+export const CURATED_CLASSIFICATION_CORRECTIONS: Readonly<Record<number, ClassificationCorrection>> = {
+  3588: { sourceRecordId: 11154, sector: 'constructoras', services: ['103', '102'], evidence: 'complejo de departamentos del Marqués' },
+  3126: { sourceRecordId: 11146, services: ['107'], evidence: 'Sistema de Detección de Incendios en Balizamiento' },
+  3144: { sourceRecordId: 11145, services: ['101', '103'], evidence: 'puestos simple Cat.6 LSZH para datos 18 dieciocho puestos simples Cat.6 LSZH para telefonía' },
+  3102: { sourceRecordId: 11173, services: ['101'], evidence: 'puestos simples para datos Categoría 6 LSZH' },
+  3103: { sourceRecordId: 11174, services: ['101'], evidence: 'puestos simples para datos Categoría 6 LSZH' },
+  3085: { sourceRecordId: 11179, services: ['101', '108'], evidence: 'puestos simples para datos Categoría 6 LSZH' },
+  3104: { sector: 'aeropuertos', services: ['102'], evidence: 'control de acceso para pañol y taller de trabajo en campo de vuelo para Aeropuertos Argentina 2000' },
+  3140: { sourceRecordId: 11158, services: ['102'], evidence: 'Sistema de Video Cámaras de Seguridad o C.C.T.V. para el sector de mostradores de cobros de parking' },
+  3116: { sourceRecordId: 11162, sector: 'bodegas', services: ['101'], evidence: 'Bodega Sur de los Andes' },
+  3640: { sourceRecordId: 10927, sector: 'industria', services: ['102'], evidence: 'oficina de elaboración' },
+  // Mayorista is explicit; none of the available sector filters describes retail/wholesale.
+  // Do not turn a networking service into an unsupported construction-sector claim.
+  3099: { sourceRecordId: 11176, sector: '', services: ['101'], evidence: 'Mayorista Yaguar' },
+};
+
+/** Apply a per-case correction only while its specific source wording is still present. */
+export function correctCuratedClassification(
+  id: number,
+  title: string,
+  summary: string,
+  sector: string,
+  services: string[],
+): { sector: string; services: string[] } {
+  const correction = CURATED_CLASSIFICATION_CORRECTIONS[id];
+  if (!correction || !normalize(`${title} ${summary}`).includes(normalize(correction.evidence))) {
+    return { sector, services };
+  }
+  return {
+    sector: correction.sector ?? sector,
+    services: correction.services ? [...correction.services] : services,
+  };
+}
+
 /** Exact, in-record place/institution wording for currently unclassified records. */
 export const SECTOR_EVIDENCE: Readonly<Record<number, SectorEvidence>> = {
   3633: { sector: 'gobiernosectorpublico', evidence: 'Cliente: Municipalidad Guaymallén' },

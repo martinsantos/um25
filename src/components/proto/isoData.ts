@@ -9,9 +9,11 @@ import { getAntecedenteSectorLabel } from '../../utils/antecedenteSectorPresenta
 import { curateAntecedente } from '../../utils/antecedentesCuration';
 import { getAntecedentesCatalogCount } from '../../utils/verifiedProof';
 import { NAV_SERVICES } from '../../data/navigation';
+import { antecedentesReales } from '../../data/antecedentes_completos.js';
 import { SECTORS, SOFTWARE_FILM } from '../../data/cine/scenes';
 import { descripcionDeOrigen } from './relato';
-import { addEvidenceBackedService, addEvidenceBackedSector, curateCatalogImage } from './catalogEditorial';
+import { addEvidenceBackedService, addEvidenceBackedSector, correctCuratedClassification, CURATED_CLASSIFICATION_CORRECTIONS, curateCatalogImage } from './catalogEditorial';
+import { publicCaseFor } from './casePresentation';
 import { nombreCliente, tituloProyecto, desambiguarTitulos } from './titulos';
 import sgiJson from '../../data/sgi/fechas.json';
 import extraJson from '../../data/propuesta/antecedentes-extra.json';
@@ -22,6 +24,19 @@ type SgiFecha = { inicio: string | null; cierre: string | null; estado: Estado }
 const SGI_JSON = sgiJson as { sgiTotal: number; conFichaWeb: number; sinFichaWeb: number; fichasSinSgi: number; fechas: Record<string, SgiFecha> };
 export const SGI_RESUMEN = { total: SGI_JSON.sgiTotal, conFichaWeb: SGI_JSON.conFichaWeb, sinFichaWeb: SGI_JSON.sinFichaWeb, fichasSinSgi: SGI_JSON.fichasSinSgi };
 export const sgiDe = (id: number): SgiFecha | undefined => SGI_JSON.fechas[String(id)];
+
+const SOURCE_RECORDS = new Map((antecedentesReales as { id: number; Titulo?: string; Descripcion?: string; Cliente?: string; Fecha?: string }[]).map((row) => [row.id, row]));
+const normalizeIdentity = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\bmza\b/g, 'mendoza').replace(/[^a-z0-9]+/g, ' ').trim();
+const sameIdentity = (a: string, b: string) => normalizeIdentity(a) === normalizeIdentity(b);
+/** Full source wording is admitted to a curated correction only on exact client and SGI start-date match. */
+const verifiedClassificationSource = (id: number, client: string): string => {
+  const sourceId = CURATED_CLASSIFICATION_CORRECTIONS[id]?.sourceRecordId;
+  if (!sourceId) return '';
+  const source = SOURCE_RECORDS.get(sourceId);
+  const start = sgiDe(id)?.inicio;
+  if (!source || !source.Cliente || !start || source.Fecha !== start || !sameIdentity(client, source.Cliente)) return '';
+  return `${source.Titulo || ''} ${source.Descripcion || ''}`;
+};
 
 import { resolverSector } from './sectorReal';
 
@@ -189,7 +204,12 @@ export async function loadStories() {
       const client = nombreCliente(c.client);
       const title = tituloProyecto(c.title, c.client, c.summary);
       const summary = sinTitulo(descripcionDeOrigen(c.id), title, client) || cleanSummary(c.summary, title, client);
-      const sectorReal = addEvidenceBackedSector(c.id, c.title, c.summary, sectorDe(c.client, c.sector_slug, `${c.title} ${c.summary}`));
+      const publicCase = publicCaseFor({ id: c.id, client: c.client });
+      const sourceEvidence = publicCase ? verifiedClassificationSource(c.id, c.client) : '';
+      const inferredSector = addEvidenceBackedSector(c.id, c.title, c.summary, sectorDe(c.client, c.sector_slug, `${c.title} ${c.summary}`));
+      const sectorReal = publicCase
+        ? correctCuratedClassification(c.id, c.title, `${c.title} ${c.summary} ${summary} ${sourceEvidence}`, inferredSector, c.service_codes.map(String)).sector
+        : inferredSector;
       // El catálogo dice "gobierno"; la navegación del sitio, "gobiernosectorpublico".
       const sectorSlug = sectorReal === 'gobierno' ? 'gobiernosectorpublico' : sectorReal;
       const extra = EXTRA_DE.get(c.id);
@@ -241,7 +261,15 @@ export async function loadStories() {
       story.serviceCodes,
     );
     const origin = origenPorId.get(story.id);
-    story.serviceCodes = addEvidenceBackedService(story.id, origin?.title || '', origin?.summary || '', serviceCodes);
+    const publicCase = publicCaseFor({ id: story.id, client: origin?.client || story.client });
+    const evidenceText = `${origin?.title || ''} ${origin?.summary || ''} ${story.title} ${story.summary} ${publicCase ? verifiedClassificationSource(story.id, origin?.client || story.client) : ''}`;
+    const classification = publicCase
+      ? correctCuratedClassification(story.id, evidenceText, '', story.sectorSlug, serviceCodes)
+      : { sector: story.sectorSlug, services: serviceCodes };
+    story.sectorSlug = classification.sector;
+    story.sector = classification.sector ? getAntecedenteSectorLabel(classification.sector === 'gobiernosectorpublico' ? 'gobierno' : classification.sector) || '' : '';
+    story.serviceCodes = classification.services;
+    story.serviceCodes = addEvidenceBackedService(story.id, origin?.title || '', origin?.summary || '', story.serviceCodes);
     story.services = story.serviceCodes.map((code) => byCode.get(code) || '').filter(Boolean);
   });
   // Si la descripción no dice más que el título, la ficha no la repite.

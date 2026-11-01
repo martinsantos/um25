@@ -43,7 +43,7 @@ const REGLAS: Regla[] = [
   // Seguridad electrónica
   { key: 'modulo', code: '102', re: /\bbalun(s|es)?( cctv)?\b/, label: 'Balun CCTV' },
   { key: 'camara', code: '102', re: /\bc[aá]mara(s)?\b|(?<!balun )\bcctv\b|\bdomo(s)?\b|\bbullet\b|videovigilancia|video vigilancia|seguridad electr[oó]nica/, label: 'Cámara CCTV' },
-  { key: 'nvr', code: '102', re: /\bnvr\b|\bdvr\b|grabador(es|a)?\b|\bvms\b/, label: 'Grabador NVR' },
+  { key: 'nvr', code: '102', re: /\bnvr\b|\bdvr\b|grabador(es|a)?\b|\bvms\b/, label: (m) => m === 'dvr' ? 'Grabador DVR' : m === 'nvr' ? 'Grabador NVR' : m === 'vms' ? 'Gestión de video (VMS)' : 'Grabador de video' },
   { key: 'acceso', code: '102', re: /control(es)? de acceso|\blector(es)?\b|\bmolinete(s)?\b|\bbarrera(s)?\b|\bcerradura(s)?\b|\bbiometr/, label: 'Control de acceso' },
   { key: 'alarma', code: '102', re: /\balarma(s)?\b|intrusi[oó]n|sensor(es)? de movimiento|\bpir\b/, label: 'Alarma de intrusión' },
   // Telecomunicaciones
@@ -100,7 +100,8 @@ function cantidad(texto: string, inicio: number, fin: number): number | undefine
 
 /** El despiece de un registro a partir de su título, su descripción y sus servicios. */
 export function despieceDe(titulo: string, descripcion: string, serviceCodes: string[]): Despiece {
-  const texto = llano(`${titulo}. ${descripcion}`).replace(PLANTILLA, ' ');
+  const texto = llano(`${titulo}. ${descripcion}`).replace(PLANTILLA, ' ')
+    .replace(/\bsolucion implementada por el equipo de ingenieria de ultima milla\b/g, ' ');
   const vistas = new Map<string, Parte>();
   for (const regla of REGLAS) {
     const re = new RegExp(regla.re.source, 'g');

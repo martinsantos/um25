@@ -1,17 +1,27 @@
 ---
 /** Casos con el alcance real de cada obra: foto, qué se hizo, para quién y cuándo, el texto del registro y los servicios. */
 import type { Caso } from './relato';
+import { isNamedClient } from './catalogEditorial';
+import PruebaProyecto from './PruebaProyecto.astro';
+import { publicCaseFor } from './casePresentation';
 import { services, SECTOR_PHOTO, SERVICE_PHOTO, srcsetDe, sinTitulo, type Story } from './isoData';
 import { tituloProyecto } from './titulos';
 interface Props { casos: Caso[]; stories: Story[]; title?: string; max?: number; fallbackImage?: string }
 const { casos, stories, title, max = 4, fallbackImage } = Astro.props;
 const byCode = new Map(services.map((s) => [s.code, s]));
-const items = casos.slice(0, max).map((c) => {
+// The live public identity wins over historical editorial records.
+const safeCases = casos.filter((c) => {
   const pub = c.publicado ? stories.find((s) => s.id === c.publicado) : undefined;
+  return !c.publicado || Boolean(pub && isNamedClient(pub.client));
+});
+const items = safeCases.slice(0, max).map((c) => {
+  const pub = c.publicado ? stories.find((s) => s.id === c.publicado) : undefined;
+  const serviceCodes = pub?.serviceCodes || c.servicios;
   const image = pub?.image && pub.image.startsWith('/images/antecedentes/') ? pub.image : (fallbackImage || SECTOR_PHOTO[c.sector] || SERVICE_PHOTO[c.servicios[0]] || SECTOR_PHOTO.constructoras);
+  const destacado = pub ? publicCaseFor(pub) : undefined;
   // El título del relato pasa por la misma limpieza que los de las fichas (mayúsculas corridas, siglas, prefijos).
-  const titulo = tituloProyecto(c.titulo, c.cliente, c.texto) || c.titulo;
-  return { ...c, titulo, texto: sinTitulo(c.texto, titulo, c.cliente), href: pub ? pub.href : (c.sector ? `/antecedentes?sector=${c.sector}` : '/antecedentes'), image, serviceNames: c.servicios.map((code) => byCode.get(code)?.name).filter(Boolean) as string[] };
+  const titulo = destacado?.title || tituloProyecto(c.titulo, c.cliente, c.texto) || c.titulo;
+  return { ...c, cliente: pub?.client || c.cliente, titulo, destacado, texto: destacado?.introduction || sinTitulo(c.texto, titulo, c.cliente), href: pub ? pub.href : (c.sector ? `/antecedentes?sector=${c.sector}` : '/antecedentes'), image, serviceNames: serviceCodes.map((code) => byCode.get(code)?.name).filter(Boolean) as string[] };
 });
 ---
 {items.length > 0 && (
@@ -20,13 +30,15 @@ const items = casos.slice(0, max).map((c) => {
       {title && <div class="sec__head"><h2>{title}<span class="dot">.</span></h2></div>}
       <div class="casos">
         {items.map((c) => (
-          <article class="caso">
-            <figure><img src={c.image} srcset={srcsetDe(c.image)} sizes="(max-width: 900px) 112px, 55vw" alt="" width="1200" height="750" loading="lazy" decoding="async" /></figure>
+          <article class:list={["caso", { "caso--documentado": c.destacado }]} data-case-id={c.publicado}>
+            <figure><img src={c.image} srcset={srcsetDe(c.image)} sizes="(max-width: 900px) 112px, 55vw" alt="" width="1200" height="750" loading="lazy" decoding="async" /><figcaption>{c.destacado?.imageKind === "documented-photo" ? "Registro del proyecto" : "Imagen ilustrativa"}</figcaption></figure>
             <div class="caso__copy">
               <h3><a href={c.href}>{c.titulo}</a></h3>
               <div class="quien">{c.cliente}{c.year > 0 && <span> · {c.year}</span>}</div>
               {c.texto && <p>{c.texto}</p>}
+              {c.destacado && c.destacado.evidence.length > 0 && <PruebaProyecto items={c.destacado.evidence.slice(0, 2)} compact />}
               {c.serviceNames.length > 0 && <div class="svc">{c.serviceNames.map((n) => <span>{n}</span>)}</div>}
+            <a class="caso__enlace" href={c.href}>{c.publicado ? "Ver alcance del proyecto" : "Explorar proyectos del sector"} <span aria-hidden="true">→</span></a>
             </div>
           </article>
         ))}

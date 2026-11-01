@@ -12,7 +12,10 @@ import Apertura from '../../components/proto/Apertura.astro';
 import Casos from '../../components/proto/Casos.astro';
 import Cierre from '../../components/proto/Cierre.astro';
 import { loadStories, services, isoSrc } from '../../components/proto/isoData';
-import { EMPRESA, CUMPLIMIENTO, CASOS, sectorRelato } from '../../components/proto/relato';
+import { EMPRESA, CUMPLIMIENTO, sectorRelato } from '../../components/proto/relato';
+import { PORTADA_CASOS_IDS } from '../../data/propuesta/casos-destacados';
+import type { Caso } from '../../components/proto/relato';
+import { publicCaseFor } from '../../components/proto/casePresentation';
 import { SECTORS } from '../../data/cine/scenes';
 import { matchesCatalog } from '../../components/proto/catalogFilters';
 
@@ -20,6 +23,11 @@ import { isNamedClient } from '../../components/proto/catalogEditorial';
 
 export const prerender = false;
 const { total, stories } = await loadStories();
+const casosPortada: Caso[] = PORTADA_CASOS_IDS.flatMap((id) => {
+  const story = stories.find((s) => s.id === id);
+  const detail = story && publicCaseFor(story);
+  return story && detail ? [{ id, publicado: id, titulo: detail.title, cliente: story.client, sector: story.sectorSlug, servicios: story.serviceCodes, year: story.year, texto: detail.introduction }] : [];
+});
 const clientes = Object.values(stories.filter(s => isNamedClient(s.client)).reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
 const frentes = services.map((s) => ({ ...s, count: stories.filter((c) => c.serviceCodes.includes(s.code)).length }));
 const lugares = SECTORS.map((s) => ({ ...s, count: stories.filter((c) => matchesCatalog({sector: c.sectorSlug, services: c.serviceCodes, year: String(c.year), client: c.client, search: '', status: c.status}, {sector: s.slug})).length, headline: sectorRelato(s.slug).headline || s.text })).sort((a, b) => b.count - a.count);
@@ -91,7 +99,7 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
       </div>
     </section>
 
-    <Casos casos={CASOS} stories={stories} title="Lo que hicimos, con el alcance de cada obra" max={3} />
+    <Casos casos={casosPortada} stories={stories} title="Proyectos que muestran cómo trabajamos" max={3} />
 
     <section class="sec" id="empresa">
       <div class="wrap">
