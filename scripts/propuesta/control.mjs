@@ -211,7 +211,12 @@ try {
         const iso = await page.evaluate(() => !!document.querySelector('.fiso__lugar svg'));
         await page.screenshot({ path: join(OUT, `${nombre}.png`) });
         const problemas = [];
-        if (!m.h1) problemas.push('sin título'); if (!m.img) problemas.push('la foto no carga'); // una ficha sin foto propia va a una columna, y eso es válido if (!m.filas && !m.sinAlcance) problemas.push('inventario vacío'); if (m.basura) problemas.push('texto con undefined/NaN/null'); if (m.scrollW > m.innerW + 1) problemas.push('desborde horizontal'); if (m.titles) problemas.push('SVG con <title>'); if (!iso) problemas.push('el lugar por dentro no carga');
+        if (!m.h1) problemas.push('sin título');
+        if (!m.img) problemas.push('la foto no carga');
+        if (m.basura) problemas.push('texto con undefined/NaN/null');
+        if (m.scrollW > m.innerW + 1) problemas.push('desborde horizontal');
+        if (m.titles) problemas.push('SVG con <title>');
+        if (!iso) problemas.push('el lugar por dentro no carga');
         filas.push(`| ficha ${f.id} | ${v.k} | — | ${problemas.length ? '✗ ' + problemas.join('; ') : '✓'} |`);
         problemas.forEach((p) => fallos.push(`${nombre}: ${p}`));
       } catch (e) { fallos.push(`${nombre}: ${e.message.split('\n')[0]}`); filas.push(`| ficha ${f.id} | ${v.k} | — | ✗ ${e.message.split('\n')[0]} |`); }
@@ -219,6 +224,19 @@ try {
     }
   }
 } catch (e) { fallos.push(`auditoria: ${e.message.split('\n')[0]}`); }
+// Narrow phones: long service names must not expand the nested case-study grid.
+{
+  const page = await browser.newPage({ viewport: { width: 360, height: 800 } });
+  for (const path of ['/', '/antecedentes', ...Array.from({ length: 8 }, (_, i) => `/servicios/${101 + i}`)]) {
+    try {
+      await page.goto(`${BASE}${path}`, { waitUntil: 'networkidle', timeout: 90000 });
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
+      filas.push(`| ${path} | 360 px | — | ${overflow ? '✗ desborde horizontal' : '✓'} |`);
+      if (overflow) fallos.push(`${path} 360px: desborde horizontal`);
+    } catch (e) { fallos.push(`${path} 360px: ${e.message.split('\n')[0]}`); }
+  }
+  await page.close();
+}
 await browser.close();
 const informe = `# Control visual de la propuesta\n\nBase: ${BASE}${AxeBuilder ? ' · con axe (WCAG 2.1 AA)' : ' · sin axe (AXE_MODULE no definido)'}\n\n| Página | Ancho | Pantallas / máx. | Resultado |\n|---|---|---|---|\n${filas.join('\n')}\n\n${fallos.length ? `## Falló\n\n${fallos.map((f) => `- ${f}`).join('\n')}` : 'Todo en orden.'}\n${auditoria}`;
 writeFileSync(join(OUT, 'informe.md'), informe);
