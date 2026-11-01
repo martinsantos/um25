@@ -5,6 +5,7 @@
 // El 3D interactivo se abre sólo a pedido (/cine/cine-banner-accessible-2910.js; v5 = v4 + evento umc:cut desde el despiece).
 // 2910: en teléfono y conexiones lentas la película no arranca sola (póster + botón); sin leyenda de escena.
 import '../../styles/cine-banner.css';
+import SoftwareFilmTone from './SoftwareFilmTone.astro';
 import { HOME_SCENES, V4_CUTS, SOFTWARE_FILM } from '../../data/cine/scenes';
 
 interface Stat { label: string; value: string }
@@ -45,7 +46,8 @@ const fallbackKeys = [...new Set([...scenes, ...Object.values(variants).flat()])
 const fallbacks = Object.fromEntries(fallbackKeys.map((key) => [key, fallbackFor(key)]));
 const firstFallback = fallbackFor(first);
 ---
-<section class:list={['umc', `umc--${variant}`]} data-umc data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} data-fallbacks={JSON.stringify(fallbacks)} aria-labelledby={titleId}>
+{first === SOFTWARE_FILM && <SoftwareFilmTone />}
+<section data-software-film={first === SOFTWARE_FILM ? true : undefined} class:list={['umc', `umc--${variant}`]} data-umc data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} data-fallbacks={JSON.stringify(fallbacks)} aria-labelledby={titleId}>
   <div class="umc-stage" aria-hidden="true">
     {/* Visible desde el primer cuadro; el reproductor la retira cuando la película está lista. */}
     <img class="umc-poster" src={firstFallback} data-default={firstFallback} alt="" width="1920" height="1080" decoding="async" />

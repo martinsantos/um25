@@ -1,14 +1,18 @@
 ---
+import SoftwareFilmTone from '../cine/SoftwareFilmTone.astro';
+import { variantes } from './isoData';
 interface Props { label: string; image: string; film?: string; poster?: string }
 const { label, image, film, poster } = Astro.props;
+const photo = variantes(image);
 ---
-<section class="service-editorial wrap" aria-label={label}>
+{film && <SoftwareFilmTone />}
+<section class="service-editorial wrap" aria-label={label} data-software-film={film ? true : undefined}>
   <div class="service-editorial__copy"><slot /></div>
   <div class="service-editorial__visual">
     {film ? <>
       <video data-service-film={film} poster={poster || image} muted playsinline loop preload="none" width="1920" height="1080" aria-label={`Película de ${label}`}></video>
       <button type="button" data-service-play aria-label="Reproducir película">Reproducir película</button>
-    </> : <img src={image} alt="" width="1672" height="941" fetchpriority="high" decoding="async" />}
+    </> : <picture>{photo.avif && <source type="image/avif" srcset={photo.avif} sizes="(max-width: 900px) 100vw, 55vw" />}<img src={photo.w960} alt="" width="1672" height="941" fetchpriority="high" decoding="async" /></picture>}
   </div>
 </section>
 <style>
@@ -16,6 +20,7 @@ const { label, image, film, poster } = Astro.props;
   .service-editorial__copy { display: grid; gap: var(--s2); }
   .service-editorial__copy :global(h1) { font-size: clamp(2.8rem, 5.4vw, 5.4rem); }
   .service-editorial__copy :global(p) { color: var(--ink-2); max-width: 45ch; font-size: 1.125rem; }
+  .service-editorial__copy :global(.u) { width: fit-content; max-width: 100%; }
   .service-editorial__copy :global(.tag) { color: var(--ink); }
   .service-editorial__visual { position: relative; min-width: 0; }
   .service-editorial__visual img, .service-editorial__visual video { width: 100%; height: auto; display: block; aspect-ratio: 16 / 9; object-fit: contain; }
@@ -23,6 +28,7 @@ const { label, image, film, poster } = Astro.props;
   @media (max-width: 900px) {
     .service-editorial { grid-template-columns: minmax(0, 1fr); gap: 32px; }
     .service-editorial__visual { grid-row: 2; }
+    .service-editorial__copy :global(h1) { font-size: clamp(2rem, 8.3vw, 2.8rem); }
   }
 </style>
 <script>
@@ -31,6 +37,7 @@ const { label, image, film, poster } = Astro.props;
     const update = () => { const label = video.paused ? 'Reproducir película' : 'Pausar película'; button.textContent = label; button.setAttribute('aria-label', label); };
     const play = () => { if (!video.getAttribute('src')) video.src = video.dataset.serviceFilm!; video.play().catch(update); };
     button.addEventListener('click', () => video.paused ? play() : video.pause());
+    video.addEventListener('loadeddata', () => { video.dataset.frameReady = 'true'; });
     video.addEventListener('play', update);
     video.addEventListener('pause', update);
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');

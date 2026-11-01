@@ -7,9 +7,16 @@
  */
 import Parte from './Parte.astro';
 import type { ParteKey } from './despiece';
-interface Props { items: { key: ParteKey; label: string; meta?: string; n?: string; code?: string }[]; interactivo?: boolean }
-const { items, interactivo = false } = Astro.props;
+interface Props { items: { key: ParteKey; label: string; meta?: string; n?: string; code?: string }[]; interactivo?: boolean; illustrated?: boolean }
+const { items, interactivo = false, illustrated = true } = Astro.props;
 ---
-<ol class="partes" data-partes={interactivo ? '' : undefined}>
-  {items.map((p) => <li data-code={p.code}><Parte k={p.key} size={72} /><b>{p.label}</b>{p.meta && <span class="small">{p.meta}</span>}{p.n && <span class="n">{p.n}</span>}</li>)}
+<ol class:list={['partes', { 'partes--text': !illustrated }]} data-partes={interactivo ? '' : undefined}>
+  {items.map((p) => <li data-code={p.code}>{illustrated && <Parte k={p.key} size={72} />}<b>{p.label}</b>{p.meta && <span class="small">{p.meta}</span>}{p.n && <span class="n">{p.n}</span>}</li>)}
 </ol>
+
+<style>
+  .partes--text li { grid-template-columns: minmax(0, 1fr) auto; padding-block: 18px; }
+  .partes--text b, .partes--text .small { grid-column: 1; }
+  .partes--text .n { grid-column: 2; }
+  @media (max-width: 900px) { .partes--text .n { grid-column: 1; } }
+</style>

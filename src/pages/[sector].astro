@@ -4,6 +4,7 @@
  * Handles all sector slugs using Directus data.
  */
 
+import { SECTOR_PHOTO } from '../components/proto/isoData';
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import SectorTemplateUM26 from '../components/templates/SectorTemplateUM26.astro';
 import GeoHubDossier from '../components/templates/GeoHubDossier.astro';
@@ -54,7 +55,7 @@ const {
 } = sectorData || {};
 
 const visual = getSectorVisualSpec(publicSectorSlug) || getSectorVisualSpec(sectorSlug);
-const heroImage = resolveCmsImageUrl(hero_image, visual?.image || getSectorEditorialImage(sectorSlug));
+const heroImage = ['software', 'seguridad-electronica'].includes(sectorSlug) ? SECTOR_PHOTO[sectorSlug] : resolveCmsImageUrl(hero_image, visual?.image || getSectorEditorialImage(sectorSlug));
 const editorialHeadline = visual?.headline || `Tecnología para ${nombre}`;
 const editorialSeoTitle = getReplicaProdEntry(`/${publicSectorSlug}`)?.title || seo_title || editorialHeadline;
 const pageHeadline = isReplicaIdenticalCopy()

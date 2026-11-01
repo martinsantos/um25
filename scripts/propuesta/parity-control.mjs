@@ -78,13 +78,22 @@ try {
     assert.ok(await page.locator('.service-editorial__visual img').evaluate(img => img.complete && img.naturalWidth > 0));
   }
   await go('/servicios/101');
-  assert.equal(await page.locator('[data-lugar]').count(), 1, 'Physical installations retain their explanatory diagram');
+  assert.equal(await page.locator('[data-lugar]').count(), 0, 'Service openings do not force a building reveal');
+  assert.equal(await page.locator('[data-equipo]').count(), 1, 'Physical installations retain their own equipment diagram');
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await go('/servicios/104');
   assert.ok(await page.locator('video[data-service-film]').evaluate(v => v.paused && !v.getAttribute('src')));
   await page.getByRole('button', { name: 'Reproducir película', exact: true }).click();
   await page.waitForFunction(() => document.querySelector('video[data-service-film]').readyState >= 2);
   await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await go('/sectores/bodegas');
+  const scheme = page.locator('[data-dentro]');
+  await scheme.scrollIntoViewIfNeeded();
+  assert.equal(await scheme.locator('[data-code="104"], [data-code="105"], [data-code="106"]').count(), 0, 'Professional services must not activate a fictitious physical circuit');
+  await scheme.locator('[data-code="101"]').hover();
+  await page.waitForFunction(() => document.querySelector('.dentro__stage').dataset.svc === '101');
+  assert.equal(await scheme.locator('.ahora').innerText(), 'Redes');
+
 
   await go('/contacto');
   // Invalid contact forms stay in the browser; no email is sent.

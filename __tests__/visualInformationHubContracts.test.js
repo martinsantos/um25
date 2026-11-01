@@ -180,7 +180,7 @@ describe('Information hub visual contracts', () => {
     expect(coverage).not.toMatch(/outline:\s*(none|0)/);
   });
 
-  test('sector page keeps four blocks: banner, despiece, project list, contact (24/10)', () => {
+  test('sector page uses contextual visuals, illustrated projects and contact', () => {
     const markup = sectorUM26.split('<style>')[0];
     expect(markup).toContain('<SiteDespiece scene={cineScene}');
     expect(markup).not.toContain('<SystemsStory');
@@ -188,8 +188,10 @@ describe('Information hub visual contracts', () => {
     expect(markup).not.toContain('sector26-criteria');
     expect(markup).not.toContain('sector26-feature-case');
     expect(markup).not.toContain('sector26-kicker');
-    expect(markup).toContain('<ol class="sector26-case-list"');
-    expect(markup).toContain('class="sector26-case-row"');
+    expect(markup).toContain('<ol class="sector26-evidence-grid"');
+    expect(markup).toContain('src={caseImage(item)}');
+    expect(markup).toContain('!isSoftware && !isSecurity && <SiteDespiece');
+    expect(markup).toContain('class="sector26-evidence-card"');
     expect(markup).not.toMatch(/sector26-case-row"[^>]*>\s*<span>\{String/);
     expect(sectorUM26).toMatch(/\.sector26-case-list \.sector26-case-row\s*\{[\s\S]*display:\s*grid;/);
     expect(sectorUM26).toMatch(/\.sector26-case-list a:hover b,[\s\S]*text-decoration-color:\s*#dc2626;/);

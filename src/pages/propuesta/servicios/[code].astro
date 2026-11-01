@@ -7,19 +7,18 @@
 import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
-import Apertura from '../../../components/proto/Apertura.astro';
 import ServiceEditorialHero from '../../../components/proto/ServiceEditorialHero.astro';
 import Ficha from '../../../components/proto/Ficha.astro';
 import Casos from '../../../components/proto/Casos.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import { getServicioByCode } from '../../../lib/um26-directus';
-import { loadStories, services, SERVICE_KEY, SERVICE_PHOTO, type IsoSite, isoSrc, destacados, ratioDe } from '../../../components/proto/isoData';
+import { loadStories, services, SERVICE_PHOTO, destacados, ratioDe } from '../../../components/proto/isoData';
 import { despieceAgregado, KIT_DE_SERVICIO } from '../../../components/proto/despiece';
 import Partes from '../../../components/proto/Partes.astro';
 import { CASOS_SERVICIO, casosDe } from '../../../components/proto/relato';
 import { getDatasheetPublicPath } from '../../../utils/datasheets';
 import { SERVICE_SPECS } from '../../../data/serviceSpecs';
-import { SECTORS, SERVICE_SCENES, SOFTWARE_FILM } from '../../../data/cine/scenes';
+import { SECTORS, SOFTWARE_FILM } from '../../../data/cine/scenes';
 
 export const prerender = false;
 const code = String(Astro.params.code);
@@ -29,13 +28,10 @@ const spec = SERVICE_SPECS[code];
 if (!servicio || !nav || !spec) return new Response(null, { status: 404 });
 // Software y servicios profesionales se explican con pantallas, trabajo y resultados.
 const editorial = ['104', '105', '106'].includes(code);
-const Hero = editorial ? ServiceEditorialHero : Apertura;
+const Hero = ServiceEditorialHero;
 const pdf = getDatasheetPublicPath(spec.slug);
 const { stories } = await loadStories();
 const own = stories.filter((c) => c.serviceCodes.includes(code));
-const scene = (SERVICE_SCENES[code] || SERVICE_SCENES['101'])!.scene;
-const SITE: Record<string, IsoSite> = { fachada: 'building', aeropuerto: 'terminal', bodega: 'winery', hospital: 'clinic', planta: 'plant' };
-const site = SITE[scene] || 'building';
 // Sólo los servicios de instalaciones necesitan un dibujo de equipo.
 const deviceSrc = `/cine/iso/service-${code}.svg`;
 // La caja del equipo se reserva con la proporción de su dibujo: cuando llega, no mueve nada.
@@ -43,7 +39,6 @@ const deviceRatio = editorial ? 1 : ratioDe(deviceSrc);
 const agregado = new Map(despieceAgregado(own).map((p) => [p.key, p]));
 const kit = (KIT_DE_SERVICIO[code] || []).map(([key, label]) => ({ key, label, n: agregado.get(key)?.proyectos || 0, u: agregado.get(key)?.unidades || 0 }));
 const photo = SERVICE_PHOTO[code];
-const poster = `/cine/media/cine-${scene}-${SERVICE_KEY[code]}-poster.avif`;
 const casos = casosDe(CASOS_SERVICIO[code] || []);
 const lower = servicio.name.toLowerCase();
 const bySector = SECTORS.map((s) => ({ slug: s.slug, name: s.name, count: own.filter((c) => c.sectorSlug === s.slug).length })).filter((s) => s.count > 0).sort((a, b) => b.count - a.count);
@@ -51,7 +46,6 @@ const clientes = Object.values(own.reduce<Record<string, { name: string; count: 
 const anios = own.map((c) => c.year).filter(Boolean);
 const desde = anios.length ? Math.min(...anios) : 0;
 const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos documentados'], [String(clientes.length), clientes.length === 1 ? 'cliente' : 'clientes'], [String(bySector.length), bySector.length === 1 ? 'sector' : 'sectores'], [String(desde), 'primer proyecto']] : [];
-const sceneTitle: Record<string, string> = { fachada: 'edificio', aeropuerto: 'aeropuerto', bodega: 'bodega', hospital: 'centro de salud', planta: 'planta' };
 const meta = Object.fromEntries(servicio.metadata.map((m) => [m.label, m.value]));
 const condiciones = ['Implementación', 'Garantía', 'Cobertura'].filter((k) => meta[k]).map((k) => `${k}: ${meta[k]}`).join('. ');
 const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
@@ -86,8 +80,8 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
     <Top current="servicios" />
     <main id="contenido">
 
-    <Hero label={servicio.name} isoSrc={isoSrc(site)} svc={code} image={photo} film={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}.mp4` : undefined} poster={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}-poster.avif` : undefined} hero>
-      <h1>{servicio.name}<span class="dot">.</span></h1>
+    <Hero label={servicio.name} image={photo} film={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}.mp4` : undefined} poster={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}-poster.avif` : undefined}>
+      <h1 style={code === '103' ? 'font-size:clamp(2rem,3.6vw,3.5rem)' : undefined}>{servicio.name}<span class="dot">.</span></h1>
       <p class="tag">{servicio.tagline}</p>
       <p>{servicio.description}</p>
       {cifras.length > 0 && <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>}
@@ -131,7 +125,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       <section class="sec">
         <div class="wrap">
           <div class="sec__head"><h2>Con qué se hace<span class="dot">.</span></h2></div>
-          <Partes items={kit.map((p) => ({ key: p.key, label: p.label, meta: servicio.name, n: p.n > 0 ? `${p.n} ${p.n === 1 ? 'proyecto' : 'proyectos'}` : 'Alcance del servicio' }))} />
+          <Partes illustrated={false} items={kit.map((p) => ({ key: p.key, label: p.label, meta: servicio.name, n: p.n > 0 ? `${p.n} ${p.n === 1 ? 'proyecto' : 'proyectos'}` : 'Alcance del servicio' }))} />
         </div>
       </section>
     )}
@@ -150,12 +144,11 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
 
     {bySector.length > 0 && (
       <section class="sec">
-        <div class:list={['wrap', { 'cols cols-5-7 cols--centro': !editorial }]}>
+        <div class="wrap">
           <div class="item">
             <h2>Dónde lo hicimos<span class="dot">.</span></h2>
             <p class="frase">{bySector.map((s, i) => <><a href={`/sectores/${s.slug}`}><b>{s.name}</b></a>{` (${s.count} ${s.count === 1 ? 'proyecto' : 'proyectos'})`}{i < bySector.length - 2 ? ', ' : i === bySector.length - 2 ? ' y ' : '.'}</>)}</p>
           </div>
-          {!editorial && <a class="pelicula" href={`/sectores/${bySector[0].slug}`}><figure><img src={poster} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure><span class="small">{servicio.name} en {sceneTitle[scene]}, en movimiento</span></a>}
         </div>
       </section>
     )}
