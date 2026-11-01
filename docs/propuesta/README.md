@@ -4,6 +4,30 @@ Sistema "Despiece", octubre de 2026. Vive en `src/pages/propuesta`, `src/compone
 `src/styles/proto-despiece.css` y `public/js/propuesta-apertura.js`. No se indexa (robots noindex en
 cada página) hasta que reemplace al sitio.
 
+## Entrega (1 de noviembre de 2026)
+
+Estado de cierre en la rama `feature/portada-despiece-20261030`. Para migrar o desplegar desde otro
+entorno alcanza con esta rama: no depende de nada fuera del repositorio salvo lo que ya usa el
+sitio (Directus en producción, con copia en `src/data/snapshots/antecedentes.json` si no responde).
+
+- **Compilar y servir:** `npm ci && npm run build && node dist/server/entry.mjs` (Node 18 o más,
+  puerto `PORT`, 4321 por defecto). La propuesta vive bajo `/propuesta`; el sitio actual no cambia
+  de rutas. PM2 en producción: `ecosystem.config.js`.
+- **Verificar antes de publicar:** `npm test`, y el control visual (abajo) contra el sitio
+  levantado. En CI corre solo en cada push a `feature/portada-*`.
+- **Publicar la propuesta como sitio:** quitar el `noindex` de `src/components/proto/Head.astro`
+  y redirigir las rutas actuales a las de `/propuesta` (o mover `src/pages/propuesta` a la raíz).
+  No hace falta tocar datos.
+- **Regenerar dibujos:** comandos en la cabecera de `scripts/cine/render-glb.mjs`; variantes de
+  fotos con `scripts/propuesta/imagenes-960.mjs`; datos de SGI con `scripts/propuesta/sgi-exportar.mjs`.
+- **Medido al cierre** (Lighthouse móvil, compilación de producción): portada 90, servicio 88,
+  sector 88, muro 91, ficha 91, nosotros 92; accesibilidad y buenas prácticas 100; CLS 0; axe sin
+  violaciones en 124 páginas y anchos.
+- **Pendiente que no es código:** 313 fichas sin descripción, 142 sin sector y 93 sin servicio
+  (Directus o SGI); fotos de obra reales en lugar de las editoriales; renders ortográficos de
+  Blender (azimut 42°, elevación 30°) para superponer película y dibujo; decidir si el guion de
+  Sentry lleva rastreo completo (44 KB en cada página).
+
 ## Reglas del sistema
 
 - **Un medio por pantalla.** La apertura muestra el lugar real a pantalla completa (película de
