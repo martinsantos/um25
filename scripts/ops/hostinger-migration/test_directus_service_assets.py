@@ -250,7 +250,7 @@ class TestDirectusServiceAssetIntegration(unittest.TestCase):
         if cls.uploads.is_symlink() or not cls.uploads.is_dir():
             raise AssertionError('test uploads must be an existing regular directory')
 
-        email = os.environ.get('DIRECTUS_RECOVERY_TEST_EMAIL', 'recovery@example.test')
+        email = os.environ.get('DIRECTUS_RECOVERY_TEST_EMAIL', 'recovery@example.com')
         password = os.environ.get('DIRECTUS_RECOVERY_TEST_PASSWORD', 'Test-recovery-20261101!')
         status, login = fixture_request(cls.base, '/auth/login', method='POST',
                                         payload={'email': email, 'password': password})

@@ -43,10 +43,14 @@ jobs:
           docker run -d --name directus-image-test -p 127.0.0.1:18055:8055 \
             -v "$RUNNER_TEMP/umsa-directus-test-uploads:/directus/uploads" \
             -e SECRET=isolated-ci-recovery-test-20261101 \
-            -e ADMIN_EMAIL=recovery@example.test -e 'ADMIN_PASSWORD=Test-recovery-20261101!' \
+            -e ADMIN_EMAIL=recovery@example.com -e 'ADMIN_PASSWORD=Test-recovery-20261101!' \
             -e DB_CLIENT=sqlite3 -e DB_FILENAME=/tmp/recovery-test.db \
             -e TELEMETRY=false directus/directus:11.13.4
           for attempt in $(seq 1 90); do
+            if [[ "$(docker inspect --format '{{.State.Running}}' directus-image-test)" != true ]]; then
+              docker logs --tail 60 directus-image-test
+              exit 1
+            fi
             if curl -fsS http://127.0.0.1:18055/server/ping >/dev/null; then
               version="$(docker exec directus-image-test node -p 'require("/directus/package.json").version')"
               [[ "$version" == 11.13.4 ]]
