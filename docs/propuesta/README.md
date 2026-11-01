@@ -172,3 +172,12 @@ producción: se deja.
 - Clientes sin sector: asignar en Directus.
 - Fotos de obra reales: hoy son imágenes editoriales generadas.
 - Un túnel con nombre fijo para la vista previa: requiere cuenta de Cloudflare.
+
+
+### Integración local: paridad con producción (1 de noviembre)
+
+La rama `feature/integracion-despiece-20261101` permanece en revisión, sin publicación. Reutiliza la navegación y el formulario de contacto de producción, conserva las nueve secciones y las rutas especializadas, y recupera búsqueda, orden y filtros del catálogo. `scripts/propuesta/parity-control.mjs` comprueba estas interacciones en escritorio y teléfono, incluida la persistencia al recargar URLs antiguas.
+
+La película `cine-software-system-v27` no estaba en el repositorio ni en el runtime público vigente (404). Se recuperaron sus seis archivos de la copia conservada de la migración, verificando sus SHA-256 antes de procesarlos. Los MP4 originales eran 4K; las copias para web conservan los 20 segundos completos en H.264, a 1920 píxeles y 1080 píxeles (cuadrada), CRF 23 y faststart. Las copias originales y los backups del servidor no se modificaron. SHA-256 del original horizontal: `d37a4e0e273d6fe968450e92e8950b27a707f3dec101f714ed0e1d542a36d518`; cuadrado: `5e0750430878ca7cfe969610e55ebec01d948fe6cc2e6f97324d4f5773f0bbb6`.
+
+Las credenciales del CMS permanecen en producción. El acceso autenticado desde el runtime activo respondió 200 para Servicios, Antecedentes y blog_posts; las vistas previas sin credenciales usan el respaldo del catálogo y el contenido público del blog. Esto no sustituye el control del runtime autenticado previo a publicar.

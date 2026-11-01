@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 const base = process.argv[2] || 'http://127.0.0.1:4321';
 const request = (path, options = {}) => fetch(new URL(path, base), { signal: AbortSignal.timeout(45000), ...options });
-const routes = ['/', '/servicios', ...Array.from({ length: 8 }, (_, i) => `/servicios/${101 + i}`), '/sectores', ...['aeropuertos', 'bodegas', 'constructoras', 'gobiernosectorpublico', 'industria', 'mineria', 'salud'].map(s => `/sectores/${s}`), '/antecedentes', '/nosotros', '/contacto', '/documentacion', '/privacidad', '/blog', '/en', '/en/services', '/en/about', '/en/contact'];
+const routes = ['/', '/servicios', ...Array.from({ length: 8 }, (_, i) => `/servicios/${101 + i}`), '/sectores', ...['aeropuertos', 'bodegas', 'constructoras', 'gobiernosectorpublico', 'industria', 'mineria', 'salud'].map(s => `/sectores/${s}`), '/antecedentes', '/nosotros', '/contacto', '/documentacion', '/privacidad', '/blog', '/en', '/en/services', '/en/about', '/en/contact', '/software', '/seguridad-electronica', '/cctvai', '/certificaciones', '/terminos', '/servicios-it-empresas-mendoza', '/presupuesto-servicios-it-empresas', '/proyectos-ingenieria-it-mendoza', '/servicios-it-empresas-argentina'];
 const assets = new Set();
 for (const path of routes) {
   const response = await request(path);

@@ -259,7 +259,8 @@ describe('Information hub visual contracts', () => {
 
     expect(home).toContain('<CineBanner');
     // 24/10: ningún cuadro fijo delante del video; la película arranca en su propio primer cuadro.
-    expect(banner).toContain('class="umc-poster is-hidden"');
+    expect(banner).toContain('class="umc-poster"');
+    expect(banner).not.toContain('class="umc-poster is-hidden"');
     expect(banner).toContain('data-fallbacks={JSON.stringify(fallbacks)}');
     expect(banner).not.toMatch(/cine-\$\{first\}-poster/);
     // 24/10: el escenario es la película del servicio activo y las miniaturas son su corte cuadrado.

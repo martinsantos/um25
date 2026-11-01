@@ -6,17 +6,17 @@ import Top from '../../../components/proto/Top.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import { loadStories, SECTOR_PHOTO } from '../../../components/proto/isoData';
 import { sectorRelato } from '../../../components/proto/relato';
+import { matchesCatalog } from '../../../components/proto/catalogFilters';
 import { SECTORS } from '../../../data/cine/scenes';
-import { CLASIFICACIONES_DE_SERVICIO } from '../../../components/proto/sectorReal';
 
 export const prerender = false;
 const { stories } = await loadStories();
-const items = SECTORS.filter((s) => !CLASIFICACIONES_DE_SERVICIO.has(s.slug)).map((s) => { const r = sectorRelato(s.slug); return { ...s, photo: SECTOR_PHOTO[s.slug] || SECTOR_PHOTO.constructoras, headline: r.headline || s.name, summary: r.summary || s.text, count: stories.filter((c) => c.sectorSlug === s.slug).length }; });
+const items = SECTORS.map((s) => { const r = sectorRelato(s.slug); return { ...s, photo: SECTOR_PHOTO[s.slug] || SECTOR_PHOTO.constructoras, headline: r.headline || s.name, summary: r.summary || s.text, count: stories.filter((c) => matchesCatalog({sector: c.sectorSlug, services: c.serviceCodes, year: String(c.year), client: c.client, search: '', status: c.status}, {sector: s.slug})).length }; });
 ---
 <!doctype html>
 <html lang="es">
   <head>
-    <Head title="Sectores · ULTIMA MILLA" description="Aeropuertos, bodegas, constructoras, gobierno, industria, minería y salud: los lugares donde ULTIMA MILLA trabaja, con los proyectos documentados en cada uno." image="/images/editorial/umsa-sector-aeropuertos.webp" />
+    <Head title="Sectores · ULTIMA MILLA" description="Aeropuertos, bodegas, constructoras, gobierno, industria, minería, salud, seguridad electrónica y software: los lugares donde ULTIMA MILLA trabaja, con los proyectos documentados en cada uno." image="/images/editorial/umsa-sector-aeropuertos.webp" />
     <style>
       .intro { padding-block: var(--s5) var(--s4); }
       .intro h1 { max-width: 16ch; }

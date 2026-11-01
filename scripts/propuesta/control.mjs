@@ -141,7 +141,7 @@ for (const pag of PAGINAS) {
 // Todos los servicios y todos los sectores, a escritorio y teléfono: errores, desborde, tooltips, alto y peso de recursos.
 {
   const idx = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-  const lista = async (path, pref) => { await idx.goto(`${BASE}${path}`, { waitUntil: 'networkidle', timeout: 90000 }); return [...new Set(await idx.$$eval(`a[href^="${pref}"]`, (as, p) => as.map((a) => a.getAttribute('href')).filter((h) => h && h !== p && !h.includes('?')), pref))]; };
+  const lista = async (path, pref) => { await idx.goto(`${BASE}${path}`, { waitUntil: 'networkidle', timeout: 90000 }); return [...new Set(await idx.$$eval(`a[href^="${pref}"]`, (as, p) => as.map((a) => a.getAttribute('href')).filter((h) => h && h !== p && !h.includes('?')).map(h => h.replace(/^\/servicios\/(10[1-8])\/(?!ficha$)[^/]+$/, '/servicios/$1')), pref))]; };
   const todas = [...(await lista('/servicios', '/servicios/')).map((h) => ['servicio', h]), ...(await lista('/sectores', '/sectores/')).map((h) => ['sector', h])];
   await idx.close();
   for (const [tipo, href] of todas) {

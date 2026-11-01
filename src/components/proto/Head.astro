@@ -31,6 +31,10 @@ const structuredData = {
 };
 ---
 <meta charset="utf-8" />
+{!noindex && <>
+  <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-S2376K1GED"></script>
+  <script is:inline>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-S2376K1GED');</script>
+</>}
 <script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')} />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />

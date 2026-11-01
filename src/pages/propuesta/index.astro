@@ -14,13 +14,13 @@ import Cierre from '../../components/proto/Cierre.astro';
 import { loadStories, services, isoSrc } from '../../components/proto/isoData';
 import { EMPRESA, CUMPLIMIENTO, CASOS, sectorRelato } from '../../components/proto/relato';
 import { SECTORS } from '../../data/cine/scenes';
-import { CLASIFICACIONES_DE_SERVICIO } from '../../components/proto/sectorReal';
+import { matchesCatalog } from '../../components/proto/catalogFilters';
 
 export const prerender = false;
 const { total, stories } = await loadStories();
 const clientes = Object.values(stories.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
 const frentes = services.map((s) => ({ ...s, count: stories.filter((c) => c.serviceCodes.includes(s.code)).length }));
-const lugares = SECTORS.filter((s) => !CLASIFICACIONES_DE_SERVICIO.has(s.slug)).map((s) => ({ ...s, count: stories.filter((c) => c.sectorSlug === s.slug).length, headline: sectorRelato(s.slug).headline || s.text })).filter((s) => s.count > 0).sort((a, b) => b.count - a.count);
+const lugares = SECTORS.map((s) => ({ ...s, count: stories.filter((c) => matchesCatalog({sector: c.sectorSlug, services: c.serviceCodes, year: String(c.year), client: c.client, search: '', status: c.status}, {sector: s.slug})).length, headline: sectorRelato(s.slug).headline || s.text })).sort((a, b) => b.count - a.count);
 const anios = new Date().getFullYear() - 2003 + 1;
 const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [String(total), 'proyectos documentados'], [String(clientes.length), 'clientes'], [String(lugares.length), 'sectores']];
 ---
@@ -67,6 +67,7 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
       <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
       <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
       <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>
+      <a class="btn" href="/contacto">Pedir un relevamiento</a>
       <a class="u" href="/antecedentes">Ver los {total} proyectos</a>
     </Apertura>
 
@@ -84,7 +85,7 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
       <div class="wrap">
         <div class="sec__head"><h2>Ocho frentes de servicio, en los lugares donde no se puede parar<span class="dot">.</span></h2></div>
         <ol class="frentes">{frentes.map((s) => <li><a href={`/servicios/${s.code}`}><b>{s.name}</b><span class="n">{s.count} proyectos</span><p>{s.text}</p></a></li>)}</ol>
-        <ol class="lugares" id="lugares" aria-label="Sectores">{lugares.map((l) => <li><a href={`/sectores/${l.slug}`}>{l.name}<span class="n">{l.count}</span></a></li>)}<li><a class="muted" href="/sectores">Todos los sectores</a></li></ol>
+        <ol class="lugares" id="lugares" aria-label="Sectores">{lugares.map((l) => <li><a href={`/sectores/${l.slug}`}>{l.name}{l.count > 0 && <span class="n">{l.count}</span>}</a></li>)}<li><a class="muted" href="/sectores">Todos los sectores</a></li></ol>
       </div>
     </section>
 

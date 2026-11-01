@@ -1,6 +1,7 @@
 // El listado usa el catálogo real (snapshot de Directus); um26-data/antecedentes.ts era un mock.
 import { ANTECEDENTES_REALES as ANTECEDENTES, mapearAntecedentes } from './um26-data/antecedentesReales';
-import { getAllAntecedentes } from './directus';
+import { getAllAntecedentes, getServiciosV4 } from './directus';
+import { plainTextFromHtml, sanitizeEditorialText } from '../utils/editorialContent';
 import { BLOG_POSTS } from './um26-data/blog';
 import { assignAntecedenteThumbnails, getAntecedenteImage, getSectorCover, getServiceCover } from './um26-data/images';
 import { SECTORES } from './um26-data/sectores';
@@ -178,7 +179,13 @@ function normalizeRouteSlug(slug: string) {
 }
 
 export async function getServicios(): Promise<Servicio[]> {
-  return SERVICIOS.map(toServicio).sort((a, b) => a.code - b.code);
+  const current = await getServiciosV4();
+  const text = (value: unknown) => sanitizeEditorialText(plainTextFromHtml(String(value || '')));
+  return SERVICIOS.map(toServicio).map(base => {
+    const cms = current.find(item => Number(item.id) === base.code);
+    if (!cms) return base;
+    return { ...base, tagline: text(cms.subtitulo) || base.tagline, description: text(cms.Descripcion) || base.description };
+  }).sort((a, b) => a.code - b.code);
 }
 
 export async function getServicioByCode(code: number): Promise<Servicio | null> {

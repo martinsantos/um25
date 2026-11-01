@@ -347,7 +347,7 @@ function fixLiteralMarkdownHeadingsInParagraph(inner: string): string {
   while ((match = headingRegex.exec(inner)) !== null) {
     const before = inner.slice(cursor, match.index);
     blocks.push(htmlBlockFromLiteralMarkdown(before));
-    blocks.push(`<h2>${match[1].trim()}</h2>`);
+    blocks.push(`<h2>${match[1]!.trim()}</h2>`);
     cursor = match.index + match[0].length;
   }
 

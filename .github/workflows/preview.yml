@@ -71,7 +71,7 @@ jobs:
           ln -s "$GITHUB_WORKSPACE/dist/client" "$stage/dist/client"
           ln -s "$GITHUB_WORKSPACE/node_modules" "$stage/node_modules"
           cp package.json "$stage/package.json"
-          UMSA_PREVIEW=1 HOST=127.0.0.1 PORT=4321 nohup node "$stage/dist/server/entry.mjs" > server.log 2>&1 &
+          (cd "$stage" && UMSA_PREVIEW=1 UMSA_USE_PUBLIC_BLOG_FALLBACK=1 PUBLIC_DIRECTUS_URL=https://admin.ultimamilla.com.ar HOST=127.0.0.1 PORT=4321 nohup node dist/server/entry.mjs > "$GITHUB_WORKSPACE/server.log" 2>&1 & )
           for i in $(seq 1 60); do curl -fs -o /dev/null http://127.0.0.1:4321/ && break; sleep 2; done
           if ! curl -fs -o /dev/null -w 'Inicio: %{http_code}\n' http://127.0.0.1:4321/; then
             echo '--- respuesta de / (primeras líneas)'; curl -s http://127.0.0.1:4321/ | head -c 1500; echo
@@ -93,6 +93,7 @@ jobs:
         run: |
           npm install --prefix "$RUNNER_TEMP/um-control" --no-save --no-package-lock playwright@1.63.0 @axe-core/playwright > /dev/null
           "$RUNNER_TEMP/um-control/node_modules/.bin/playwright" install --with-deps chromium > /dev/null
+          BASE_URL=http://127.0.0.1:4321 QA_OUT=control-propuesta/parity PLAYWRIGHT_MODULE="file://$RUNNER_TEMP/um-control/node_modules/playwright/index.mjs" node scripts/propuesta/parity-control.mjs
           PLAYWRIGHT_MODULE="file://$RUNNER_TEMP/um-control/node_modules/playwright/index.mjs" AXE_MODULE="file://$RUNNER_TEMP/um-control/node_modules/@axe-core/playwright/dist/index.js" node scripts/propuesta/control.mjs --base http://127.0.0.1:4321 --out control-propuesta
 
       - name: Adjuntar las capturas del control

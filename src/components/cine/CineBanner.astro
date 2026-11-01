@@ -39,7 +39,7 @@ const dot = title.endsWith('.');
 const heading = dot ? title.slice(0, -1) : title;
 const rail = HOME_SCENES.filter((s) => scenes.includes(s.scene));
 const fallbackFor = (key: string) => key === SOFTWARE_FILM
-  ? '/cine/iso/service-104.svg'
+  ? '/cine/media/cine-software-system-v27-poster.avif'
   : V4_CUTS[key]?.poster || `/cine/media/cine-${key.split('-')[0]}-poster.avif`;
 const fallbackKeys = [...new Set([...scenes, ...Object.values(variants).flat()])];
 const fallbacks = Object.fromEntries(fallbackKeys.map((key) => [key, fallbackFor(key)]));
@@ -47,8 +47,8 @@ const firstFallback = fallbackFor(first);
 ---
 <section class:list={['umc', `umc--${variant}`]} data-umc data-scenes={scenes.join(',')} data-systems={systems.join(',')} data-scene={first} data-start={startIndex} data-variants={variantsAttr} data-fallbacks={JSON.stringify(fallbacks)} aria-labelledby={titleId}>
   <div class="umc-stage" aria-hidden="true">
-    {/* Oculta durante el inicio normal; alternativa para movimiento reducido o video no disponible. */}
-    <img class="umc-poster is-hidden" src={firstFallback} data-default={firstFallback} alt="" width="1920" height="1080" decoding="async" />
+    {/* Visible desde el primer cuadro; el reproductor la retira cuando la película está lista. */}
+    <img class="umc-poster" src={firstFallback} data-default={firstFallback} alt="" width="1920" height="1080" decoding="async" />
     <noscript><img class="umc-poster" src={firstFallback} alt="" width="1920" height="1080" /></noscript>
     <video class="umc-video" muted playsinline preload="none" disablepictureinpicture></video>
     <video class="umc-video" muted playsinline preload="none" disablepictureinpicture></video>

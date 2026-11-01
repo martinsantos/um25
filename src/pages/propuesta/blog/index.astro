@@ -4,22 +4,23 @@ import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
+import { blogPostImageUrl } from '../../../utils/blogHelpers';
 import { fetchBlogListing } from '../../../utils/getBlogData';
 import { getCategoryLabel, formatBlogDateLong, sanitizeBlogExcerpt } from '../../../utils/blogUtils';
 
 export const prerender = false;
 const categoria = Astro.url.searchParams.get('categoria') || '';
 const POR_PAGINA = 12;
-const pagina = Math.max(1, Number(Astro.url.searchParams.get('p')) || 1);
+const pagina = Math.max(1, Number(Astro.url.searchParams.get('p') || Astro.url.searchParams.get('page')) || 1);
 const { posts, total } = await fetchBlogListing(pagina, POR_PAGINA, categoria || undefined);
 const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
 const enlace = (p: number) => `/blog?${categoria ? `categoria=${categoria}&` : ''}p=${p}`;
-const todas = categoria ? (await fetchBlogListing(1, 60)).posts : posts;
+const todas = (await fetchBlogListing(1, 60)).posts;
 const categorias = [...new Set(todas.map((p) => p.categoria))].sort();
 ---
 <!doctype html>
 <html lang="es">
-  <head><Head title="Blog · ULTIMA MILLA" description="Novedades de ULTIMA MILLA: servicios, proyectos y evolución de la empresa de servicios IT con sede en Guaymallén, Mendoza." /><style>.paginas { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; padding: var(--s4) 0 var(--s6); } .paginas span:last-child { display: flex; gap: var(--s3); }</style></head>
+  <head><Head title="Blog · ULTIMA MILLA" description="Novedades de ULTIMA MILLA: servicios, proyectos y evolución de la empresa de servicios IT con sede en Guaymallén, Mendoza." /><style>.entradas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; } .entrada { display: flex; flex-direction: column; gap: 16px; } .entrada .small { display: flex; flex-wrap: wrap; gap: 8px 20px; } @media(max-width: 700px) { .entradas { grid-template-columns: 1fr; } } .entrada__image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 24px; } .paginas { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; padding: var(--s4) 0 var(--s6); } .paginas span:last-child { display: flex; gap: var(--s3); }</style></head>
   <body>
     <Top current="blog" />
     <main id="contenido" class="wrap">
@@ -32,7 +33,7 @@ const categorias = [...new Set(todas.map((p) => p.categoria))].sort();
         {posts.map((p) => (
           <li class="entrada">
             <span class="small"><span>{formatBlogDateLong(p.fecha_publicacion)}</span><span>{getCategoryLabel(p.categoria)}{p.tiempo_lectura ? ` · ${p.tiempo_lectura} min` : ''}</span></span>
-            <a href={`/blog/${p.slug}`}><h2>{p.titulo}</h2><p>{sanitizeBlogExcerpt(p.resumen, 220)}</p></a>
+            <a href={`/blog/${p.slug}`}><img class="entrada__image" src={blogPostImageUrl(p)} alt={p.imagen_portada_alt || p.titulo} width="960" height="540" loading="lazy" /><h2>{p.titulo}</h2><p>{sanitizeBlogExcerpt(p.resumen, 220)}</p></a>
           </li>
         ))}
       </ol>

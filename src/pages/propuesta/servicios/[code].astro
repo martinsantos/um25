@@ -16,8 +16,9 @@ import { loadStories, services, SERVICE_KEY, SERVICE_PHOTO, type IsoSite, isoSrc
 import { despieceAgregado, KIT_DE_SERVICIO } from '../../../components/proto/despiece';
 import Partes from '../../../components/proto/Partes.astro';
 import { CASOS_SERVICIO, casosDe } from '../../../components/proto/relato';
+import { getDatasheetPublicPath } from '../../../utils/datasheets';
 import { SERVICE_SPECS } from '../../../data/serviceSpecs';
-import { SECTORS, SERVICE_SCENES } from '../../../data/cine/scenes';
+import { SECTORS, SERVICE_SCENES, SOFTWARE_FILM } from '../../../data/cine/scenes';
 
 export const prerender = false;
 const code = String(Astro.params.code);
@@ -25,6 +26,7 @@ const servicio = await getServicioByCode(Number(code));
 const nav = services.find((s) => s.code === code);
 const spec = SERVICE_SPECS[code];
 if (!servicio || !nav || !spec) return new Response(null, { status: 404 });
+const pdf = getDatasheetPublicPath(spec.slug);
 const { stories } = await loadStories();
 const own = stories.filter((c) => c.serviceCodes.includes(code));
 const scene = (SERVICE_SCENES[code] || SERVICE_SCENES['101'])!.scene;
@@ -55,6 +57,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
   <head>
     <Head title={`${servicio.name} · ${servicio.tagline} · ULTIMA MILLA`} description={`${servicio.tagline}. ${servicio.description}`} image={photo} precargar />
     <style>
+      .service-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin-block: 24px; }
       .cubre { position: relative; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: center; }
       .equipo { position: relative; aspect-ratio: var(--r, 4 / 3); max-height: 80vh; }
       .equipo > div { position: absolute; inset: 3%; }
@@ -64,7 +67,8 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       .caps li { padding: 13px 0; border-bottom: 1px solid var(--line-2); font-size: 1.1rem; color: var(--ink); }
       .condiciones { margin-top: var(--s4); color: var(--ink-3); }
       @media (max-width: 900px) {
-        .cubre { grid-template-columns: 112px minmax(0, 1fr); gap: var(--s3); align-items: start; }
+        .service-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin-block: 24px; }
+      .cubre { grid-template-columns: 112px minmax(0, 1fr); gap: var(--s3); align-items: start; }
         .equipo { aspect-ratio: 1; max-height: none; position: sticky; top: calc(var(--top-h) + 16px); }
         .equipo > div { inset: 0; }
         .caps li { font-size: 1rem; padding: 10px 0; }
@@ -75,11 +79,12 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
     <Top current="servicios" />
     <main id="contenido">
 
-    <Apertura label={servicio.name} isoSrc={isoSrc(site)} svc={code} image={photo} hero>
+    <Apertura label={servicio.name} isoSrc={isoSrc(site)} svc={code} image={photo} film={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}.mp4` : undefined} poster={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}-poster.avif` : undefined} hero>
       <h1>{servicio.name}<span class="dot">.</span></h1>
       <p class="tag">{servicio.tagline}</p>
       <p>{servicio.description}</p>
       {cifras.length > 0 && <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>}
+      <div class="service-actions"><a class="btn" href="/contacto">Pedir un relevamiento</a><a class="u" href={pdf || `/servicios/${code}/ficha`} download={pdf ? true : undefined}>{pdf ? 'Descargar ficha técnica (PDF)' : 'Ficha técnica · imprimir o guardar PDF'}</a></div>
       <a class="u" href={`/antecedentes?service=${code}`}>{own.length > 0 ? `Ver los ${own.length} proyectos` : 'Ver todos los proyectos'}</a>
     </Apertura>
 

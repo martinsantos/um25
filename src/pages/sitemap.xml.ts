@@ -21,6 +21,8 @@ function generateSitemapXml(): string {
         { loc: '/cctvai', priority: '0.9', changefreq: 'weekly' },
         { loc: '/antecedentes', priority: '0.8', changefreq: 'weekly' },
         { loc: '/blog', priority: '0.8', changefreq: 'daily' },
+        { loc: '/software', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/seguridad-electronica', priority: '0.7', changefreq: 'monthly' },
         { loc: '/sectores', priority: '0.7', changefreq: 'monthly' },
         { loc: '/nosotros', priority: '0.6', changefreq: 'monthly' },
         { loc: '/documentacion', priority: '0.6', changefreq: 'monthly' },

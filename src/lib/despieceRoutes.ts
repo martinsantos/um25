@@ -14,8 +14,8 @@ export function despieceRoute(path: string, method = 'GET'): { redirect?: string
     return despieceRoute(target) ? { redirect: target } : null;
   }
   if (sectors.has(p.slice(1))) return { redirect: '/sectores' + p };
-  if (p === '/software' || p === '/sectores/software') return { redirect: '/servicios/104' };
-  if (p === '/seguridad-electronica' || p === '/sectores/seguridad-electronica') return { redirect: '/servicios/102' };
+  if (p === '/sectores/software') return { redirect: '/software' };
+  if (p === '/sectores/seguridad-electronica') return { redirect: '/seguridad-electronica' };
   if (p === '/sectores/gobierno') return { redirect: '/sectores/gobiernosectorpublico' };
   if (p === '/en/contacto') return { redirect: '/en/contact' };
   const oldService = p.match(/^\/servicios\/(10[1-8])\/([^/]+)$/);
