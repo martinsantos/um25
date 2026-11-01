@@ -1,0 +1,127 @@
+---
+/** The original equipment drawings, opened into their actual construction layers. */
+import { ISOMETRIC_STUDIES } from '../../data/cine/isometric';
+interface Props { code: string }
+const { code } = Astro.props;
+const study = ISOMETRIC_STUDIES[code]!;
+const objects = import.meta.glob<string>('../../assets/cine/isometric/*-object.svg', { eager: true, query: '?raw', import: 'default' });
+const details = import.meta.glob<string>('../../assets/cine/isometric/*-detail.svg', { eager: true, query: '?raw', import: 'default' });
+const object = objects[`../../assets/cine/isometric/${study.asset}-object.svg`];
+const detail = details[`../../assets/cine/isometric/${study.asset}-detail.svg`];
+const views = study.views.slice(1);
+---
+<figure class="device" data-device data-state="1" data-equipo aria-label={`Despiece interactivo: ${study.name}`}>
+  <div class="device__heading"><span>{study.object}</span><button type="button" data-device-play aria-pressed="false" hidden>Reproducir recorrido</button></div>
+  <div class="device__frame">
+    <div class="device__object" data-device-object set:html={object} />
+    <div class="device__detail" data-device-detail hidden set:html={detail} />
+  </div>
+  <div class="device__controls" role="group" aria-label={`Vistas de ${study.name.toLowerCase()}`} data-device-controls hidden>
+    {views.map((view, i) => <button type="button" data-device-view={i} data-title={view.title} data-description={view.description} aria-pressed={String(i === 1)}>{view.label}</button>)}
+  </div>
+  <figcaption class="device__caption" aria-live="off">
+    <h3 data-device-title>{views[1]!.title}</h3>
+    <p data-device-description>{views[1]!.description}</p>
+  </figcaption>
+</figure>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-device]').forEach(root => {
+    const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-device-view]')];
+    const play = root.querySelector<HTMLButtonElement>('[data-device-play]')!;
+    const object = root.querySelector<HTMLElement>('[data-device-object]')!;
+    const detail = root.querySelector<HTMLElement>('[data-device-detail]')!;
+    const caption = root.querySelector<HTMLElement>('figcaption')!;
+    // Frame both assembled and exploded bounds once, without resizing during playback.
+    const svg = object.querySelector<SVGSVGElement>('svg');
+    const lid = object.querySelector<SVGGraphicsElement>('.iso-lid');
+    if (svg && lid) {
+      lid.style.transition = 'none';
+      lid.style.transform = 'translate(0, 0)';
+      const closed = svg.getBBox();
+      lid.style.transform = 'translate(95px, -170px)';
+      const opened = svg.getBBox();
+      const x = Math.min(closed.x, opened.x), y = Math.min(closed.y, opened.y);
+      const w = Math.max(closed.x + closed.width, opened.x + opened.width) - x;
+      const h = Math.max(closed.y + closed.height, opened.y + opened.height) - y;
+      const pad = Math.max(w, h) * .035;
+      svg.setAttribute('viewBox', `${x-pad} ${y-pad} ${w+pad*2} ${h+pad*2}`);
+      lid.style.removeProperty('transform'); lid.style.removeProperty('transition');
+    }
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    let selected = 1, visible = false, playing = !reduced.matches, timer: ReturnType<typeof setTimeout> | undefined;
+    const clear = () => { clearTimeout(timer); timer = undefined; };
+    const paint = (index: number, manual = false) => {
+      selected = index;
+      root.dataset.state = String(index);
+      object.hidden = index === 2;
+      detail.hidden = index !== 2;
+      buttons.forEach((button, i) => button.setAttribute('aria-pressed', String(i === index)));
+      caption.setAttribute('aria-live', manual ? 'polite' : 'off');
+      root.querySelector('[data-device-title]')!.textContent = buttons[index]!.dataset.title!;
+      root.querySelector('[data-device-description]')!.textContent = buttons[index]!.dataset.description!;
+    };
+    const sync = () => {
+      clear();
+      play.textContent = playing ? 'Pausar recorrido' : 'Reproducir recorrido';
+      play.setAttribute('aria-pressed', String(playing));
+      root.dataset.playing = String(playing && visible && !document.hidden);
+      if (playing && visible && !document.hidden) timer = setTimeout(() => { paint((selected + 1) % buttons.length); sync(); }, selected === 1 ? 6500 : 4000);
+    };
+    buttons.forEach((button, i) => {
+      button.addEventListener('click', () => { playing = false; paint(i, true); sync(); });
+      button.addEventListener('keydown', event => {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (i + (event.key === 'ArrowRight' ? 1 : -1) + buttons.length) % buttons.length;
+        buttons[next]!.focus(); buttons[next]!.click();
+      });
+    });
+    play.hidden = false;
+    root.querySelector<HTMLElement>('[data-device-controls]')!.hidden = false;
+    play.addEventListener('click', () => { playing = !playing; sync(); });
+    // Enter assembled, then open the shell. Once out of view, the timer stops.
+    if (!reduced.matches) paint(0);
+    let entered = false;
+    const observer = new IntersectionObserver(entries => {
+      visible = entries[0]!.isIntersecting;
+      if (visible && !entered) { entered = true; if (playing) paint(1); }
+      sync();
+    }, { threshold: .25 });
+    observer.observe(root);
+    const visibility = () => sync();
+    const motion = () => { playing = false; paint(1); sync(); };
+    document.addEventListener('visibilitychange', visibility);
+    reduced.addEventListener('change', motion);
+    document.addEventListener('astro:before-swap', () => { clear(); observer.disconnect(); document.removeEventListener('visibilitychange', visibility); reduced.removeEventListener('change', motion); }, { once: true });
+    sync();
+  });
+</script>
+<style>
+  .device { margin: 0; min-width: 0; position: sticky; top: calc(var(--top-h) + 24px); align-self: start; }
+  .device__heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: var(--ink-2); font-size: 1rem; line-height: 1.4; }
+  .device__heading span { max-width: 28ch; }
+  .device__heading button { min-height: 44px; color: var(--ink); text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 6px; white-space: nowrap; }
+  .device__frame { position: relative; height: clamp(320px, 52vh, 480px); margin-block: 18px; }
+  .device__object, .device__detail { position: absolute; inset: 0; }
+  .device__frame :global(svg) { width: 100%; height: 100%; display: block; overflow: visible; }
+  .device__object :global(.iso-lid) { transform: translate(0, 0); transition: transform 1100ms cubic-bezier(.22,1,.36,1), opacity 800ms ease; }
+  .device[data-state="1"] :global(.iso-lid) { transform: translate(95px, -170px); opacity: .4; }
+  .device__object :global(.iso-internals), .device__object :global(.iso-guides) { opacity: 0; transition: opacity 850ms ease; }
+  .device[data-state="1"] :global(.iso-internals), .device[data-state="1"] :global(.iso-guides) { opacity: 1; }
+  .device__frame :global([stroke]) { stroke-width: .9px; }
+  .device__object :global(.iso-internals [stroke]:not([stroke="none"])) { stroke: #c4c7cc; }
+  .device__object :global(.iso-guides [stroke]) { stroke: var(--red-text); }
+  @media (max-height: 800px) { .device { position: relative; top: auto; } }
+  .device__detail { animation: device-detail 600ms ease both; }
+  @keyframes device-detail { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .device__controls { display: flex; gap: 24px; border-bottom: 1px solid var(--line); }
+  .device__controls button { position: relative; min-height: 48px; padding-block: 12px; color: var(--ink-2); }
+  .device__controls button[aria-pressed="true"] { color: var(--ink); }
+  .device__controls button[aria-pressed="true"]::after { content: ''; position: absolute; inset: auto 0 -1px; height: 2px; background: var(--red); }
+  .device__controls button:hover { color: var(--ink); }
+  .device__caption { padding-top: 22px; min-height: 160px; }
+  .device__caption h3 { font-size: 1.2rem; line-height: 1.3; }
+  .device__caption p { margin: 10px 0 0; max-width: 58ch; color: var(--ink-2); font-size: 1rem; line-height: 1.6; }
+  @media (max-width: 900px) { .device { position: relative; top: auto; } .device__frame { height: clamp(260px, 66vw, 400px); } .device__heading { flex-wrap: wrap; gap: 4px 16px; } }
+  @media (prefers-reduced-motion: reduce) { .device__object :global(.iso-lid), .device__object :global(.iso-internals), .device__object :global(.iso-guides) { transition: none; } .device__detail { animation: none; } }
+</style>

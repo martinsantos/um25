@@ -7,12 +7,13 @@
 import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
+import DeviceExploded from '../../../components/proto/DeviceExploded.astro';
 import ServiceEditorialHero from '../../../components/proto/ServiceEditorialHero.astro';
 import Ficha from '../../../components/proto/Ficha.astro';
 import Casos from '../../../components/proto/Casos.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import { getServicioByCode } from '../../../lib/um26-directus';
-import { loadStories, services, SERVICE_PHOTO, destacados, ratioDe } from '../../../components/proto/isoData';
+import { loadStories, services, SERVICE_PHOTO, destacados } from '../../../components/proto/isoData';
 import { despieceAgregado, KIT_DE_SERVICIO } from '../../../components/proto/despiece';
 import Partes from '../../../components/proto/Partes.astro';
 import { CASOS_SERVICIO, casosDe } from '../../../components/proto/relato';
@@ -33,10 +34,6 @@ const Hero = ServiceEditorialHero;
 const pdf = getDatasheetPublicPath(spec.slug);
 const { stories } = await loadStories();
 const own = stories.filter((c) => c.serviceCodes.includes(code));
-// Sólo los servicios de instalaciones necesitan un dibujo de equipo.
-const deviceSrc = `/cine/iso/service-${code}.svg`;
-// La caja del equipo se reserva con la proporción de su dibujo: cuando llega, no mueve nada.
-const deviceRatio = editorial ? 1 : ratioDe(deviceSrc);
 const agregado = new Map(despieceAgregado(own).map((p) => [p.key, p]));
 const kit = (KIT_DE_SERVICIO[code] || []).map(([key, label]) => ({ key, label, n: agregado.get(key)?.proyectos || 0, u: agregado.get(key)?.unidades || 0 }));
 const photo = SERVICE_PHOTO[code];
@@ -59,10 +56,6 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
     <style>
       .service-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin-block: 24px; }
       .cubre { position: relative; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: center; }
-      .equipo { position: relative; aspect-ratio: var(--r, 4 / 3); max-height: 80vh; }
-      .equipo > div { position: absolute; inset: 3%; }
-      /* El dibujo ocupa la caja reservada, pase lo que pase con su viewBox: un hijo absoluto resuelve el 100 % contra la caja, un ítem de grilla no. */
-      .equipo :global(svg) { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
       .caps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
       .caps h3 { font-size: 1.2rem; line-height: 1.3; }
       .caps p { margin: 8px 0 0; color: var(--ink-2); font-size: 1rem; line-height: 1.6; }
@@ -75,9 +68,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       .condiciones { margin-top: var(--s4); color: var(--ink-3); }
       @media (max-width: 900px) {
         .cubre--editorial .caps { grid-template-columns: minmax(0, 1fr); }
-        .cubre { grid-template-columns: 112px minmax(0, 1fr); gap: var(--s3); align-items: start; }
-        .equipo { aspect-ratio: 1; max-height: none; position: sticky; top: calc(var(--top-h) + 16px); }
-        .equipo > div { inset: 0; }
+        .cubre { grid-template-columns: minmax(0, 1fr); gap: var(--s4); align-items: start; }
         .caps li { font-size: 1rem; padding: 10px 0; }
       }
     </style>
@@ -99,7 +90,7 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       <div class="wrap">
         <div class="sec__head"><h2>Qué cubre<span class="dot">.</span></h2></div>
         <div class:list={['cubre', { 'cubre--editorial': editorial }]} data-cubre>
-          {!editorial && <div class="equipo" data-equipo style={`--r:${deviceRatio.toFixed(3)}`}><div class="iso" data-src={deviceSrc}></div></div>}
+          {!editorial && <DeviceExploded code={code} />}
           <ol class="caps" data-caps>{capabilities.map((c) => <li><h3>{c.title}</h3><p>{c.description}</p></li>)}</ol>
         </div>
         <details class="technical-scope"><summary>Especificaciones adicionales</summary><ul class="lista">{servicio.capabilities.map((c) => <li>{c}</li>)}</ul></details>
@@ -174,17 +165,6 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
 
     <Cierre />
 
-    <script>
-      // El equipo del servicio, solo: se encuadra a su dibujo. Sin líneas guía hacia la lista; señalaban puntos que no existían.
-      const equipo = document.querySelector<HTMLElement>('[data-equipo]');
-      if (equipo) {
-      const lazy = equipo.querySelector<HTMLElement>('[data-src]');
-      const fit = (svg: SVGSVGElement) => { if (svg.dataset.fit) return; try { const b = svg.getBBox(); const pad = Math.max(b.width, b.height) * .06; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); svg.dataset.fit = '1'; } catch { /* sin bbox */ } };
-      const draw = () => { const svg = equipo.querySelector<SVGSVGElement>('svg'); if (svg) fit(svg); };
-      // El dibujo del equipo pesa (la sala de servidores, medio megabyte): se trae cuando la sección se acerca a la pantalla y la página está quieta, nunca antes de pintar la apertura.
-      if (lazy) new IntersectionObserver((es, o) => { if (!es.some((e) => e.isIntersecting)) return; o.disconnect(); (window.requestIdleCallback || ((f: () => void) => setTimeout(f, 300)))(() => fetch(lazy.dataset.src!, { priority: 'low' } as RequestInit).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) { lazy.innerHTML = svg; draw(); } })); }, { rootMargin: '600px 0px' }).observe(equipo);
-      draw();
-      }
-    </script>
+
   </body>
 </html>

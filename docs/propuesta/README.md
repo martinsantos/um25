@@ -16,6 +16,20 @@ rutas canónicas, redirecciones, imágenes y supervivencia de rutas auxiliares.
 El workflow Vista previa corre además las pruebas operativas y el control visual con axe.
 Las cifras históricas de Lighthouse de la entrega no sustituyen los controles de esta integración.
 
+## Despieces interactivos de equipos
+
+Redes (101), Seguridad (102), Telecomunicaciones (103), Incendios (107) y
+Eléctricos (108) reutilizan sus dibujos originales con tres vistas: equipo,
+despiece y detalle. El recorrido se pausa al elegir una vista, salir de pantalla
+o esconder la pestaña. Con movimiento reducido arranca abierto y sin reproducción.
+Software conserva su película; los servicios profesionales no reciben equipos genéricos.
+
+`BASE_URL=http://127.0.0.1:4381 node scripts/propuesta/device-control.mjs`
+requiere Playwright (o `PLAYWRIGHT_MODULE` apuntando al módulo instalado).
+Comprueba los cinco equipos en 1440, 834, 390 y 360 px, teclado, pausa,
+progresión automática y movimiento reducido. Revisión local del 1/11: 20 casos
+correctos; axe sin infracciones WCAG A/AA en las cinco páginas a 1440 y 390 px.
+
 ## Alcance de la publicación
 
 Los componentes permanecen en `src/pages/propuesta`, pero `src/middleware.ts` sirve
