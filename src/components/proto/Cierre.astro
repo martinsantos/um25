@@ -6,18 +6,19 @@ import { publicDespiecePath } from '../../lib/despieceRoutes';
 import { commercialHubLinkItems } from '../../data/strategicLinkGraph';
 interface Props {
   lang?: 'es' | 'en';
+  withContact?: boolean;
   heading?: string;
   description?: string;
   ctaText?: string;
 }
-const { lang = 'es', heading, description, ctaText } = Astro.props;
+const { lang = 'es', heading, description, ctaText, withContact = true } = Astro.props;
 const es = { h: 'Contanos qué tiene que seguir funcionando', p: 'Indicá qué necesitás, dónde y para cuándo. Un técnico te responde por email con el próximo paso: diagnóstico, relevamiento, propuesta o documentación.', btn: 'Enviar consulta', href: '/contacto', email: 'Email', office: 'Oficina', hours: 'Horario', hoursV: 'Lunes a viernes, 8 a 18 h', foot: '24 años de servicios IT. Mendoza, Argentina.', links: [['Nosotros', '/nosotros'], ['Documentación técnica', '/documentacion'], ['Blog', '/blog'], ['Certificaciones', '/certificaciones'], ['UMSA CCTV AI', '/cctvai'], ['Privacidad', '/privacidad'], ['Términos', '/terminos'], ...commercialHubLinkItems.map((link) => [link.label, link.href]), ['Tipografía', '/estilo/fuente'], ['English', '/en']] };
 const en = { h: 'Tell us what has to keep running', p: 'For proposals, technical assessments or vendor qualification, use the Spanish contact form (same team, same SLA).', btn: 'Open contact form', href: '/contacto', email: 'Email', office: 'Office', hours: 'Hours', hoursV: 'Monday to Friday, 8 am to 6 pm', foot: '24 years of IT services. Mendoza, Argentina.', links: [['About', '/en/about'], ['Services', '/en/services'], ['Versión en español', '/']] };
 const base = lang === 'en' ? en : es;
 const t = { ...base, h: heading ?? base.h, p: description ?? base.p, btn: ctaText ?? base.btn };
 ---
 <footer>
-<section class="cierre" id="contacto">
+{withContact && <section class="cierre" id="contacto">
   <div class="wrap cierre__grid">
     <div class="cierre__copy">
       <h2>{t.h}<span class="dot">.</span></h2>
@@ -30,7 +31,7 @@ const t = { ...base, h: heading ?? base.h, p: description ?? base.p, btn: ctaTex
       <div><span>{t.hours}</span><b>{t.hoursV}</b></div>
     </div>
   </div>
-</section>
+</section>}
 <div class="pie">
   <div class="wrap pie__grid">
     <span>ultimamilla.com.ar · {t.foot}</span>

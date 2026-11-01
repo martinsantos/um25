@@ -29,7 +29,7 @@ const code = String(Astro.params.code);
 const servicio = await getServicioByCode(Number(code));
 const nav = services.find((s) => s.code === code);
 const spec = SERVICE_SPECS[code];
-if (!servicio || !nav || !spec) return new Response(null, { status: 404 });
+if (!servicio || !nav || !spec) return Astro.rewrite('/404');
 // Software y servicios profesionales se explican con pantallas, trabajo y resultados.
 const editorial = ['104', '105', '106'].includes(code);
 const Hero = ServiceEditorialHero;

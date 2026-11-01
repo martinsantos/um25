@@ -20,7 +20,7 @@ export const prerender = false;
 const id = Number(Astro.params.id);
 const { stories } = await loadStories();
 const index = stories.findIndex((c) => c.id === id);
-if (index < 0) return new Response(null, { status: 404 });
+if (index < 0) return Astro.rewrite('/404');
 const c = stories[index];
 if (Astro.params.slug !== c.slug) return Astro.redirect(c.href, 301);
 const svcs = services.filter((s) => c.serviceCodes.includes(s.code));

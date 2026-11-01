@@ -59,7 +59,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
   <head>
     <Head title="Proyectos documentados · ULTIMA MILLA" description={`${total} proyectos documentados de ULTIMA MILLA, filtrables por sector, servicio y año, con lo instalado en cada uno.`} image="/cine/media/cine-fachada-poster.jpg" />
     <style>
-      .catalog-control { display: grid; gap: 6px; min-width: 0; color: var(--ink-2); font-size: .9375rem; }
+      .catalog-control { display: grid; gap: 6px; min-width: 0; color: var(--ink-2); font-size: 1rem; }
       .catalog-control input, .catalog-control select { width: 100%; min-width: 0; padding: 12px; background: var(--bg-2); color: var(--ink); border: 1px solid var(--line); font: inherit; }
       .muro { display: grid; grid-template-columns: minmax(260px, 3fr) minmax(0, 9fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: start; padding-block: var(--s4) var(--s6); }
       /* El panel se fija y, si es más alto que la pantalla, se desplaza por dentro: el año queda al alcance sin ir al final del muro. */
@@ -69,9 +69,9 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
       .count i { font-style: normal; color: var(--red); }
       .sentence { font-size: 1.2rem; font-weight: 600; letter-spacing: -.02em; margin-top: 6px; }
       .grupo { display: grid; gap: 6px; }
-      .grupo h2 { font-size: .9375rem; font-weight: 500; color: var(--ink-3); }
+      .grupo h2 { font-size: 1rem; font-weight: 500; color: var(--ink-3); }
       .anios { display: flex; flex-wrap: wrap; gap: 6px; }
-      .anios button { padding: 6px 10px; border: 1px solid var(--line); color: var(--ink-2); font-size: .9375rem; }
+      .anios button { padding: 6px 10px; border: 1px solid var(--line); color: var(--ink-2); font-size: 1rem; }
       .anios button[aria-pressed="true"] { border-color: var(--red); color: var(--ink); }
       .servicios [data-zero] { color: var(--ink-3); }
       .filtros { display: grid; gap: var(--s4); }

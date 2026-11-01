@@ -348,13 +348,23 @@ export async function fetchBlogListing(
       directusFetch(`${DIRECTUS_URL}/items/blog_posts?${countParams.toString()}`),
     ]);
 
-    const [itemsData, countData] = await Promise.all([itemsRes.json(), countRes.json()]);
-    const contextPosts = ((itemsData.data || []) as EntradaBlog[]).filter((post) => isCanonicalBlogSlug(post.slug));
-    const posts = (diversifyBlogPostCovers(contextPosts) as EntradaBlog[]).slice(offset, offset + limit);
-    const total = Number(countData.data?.[0]?.count?.id || 0);
+    if (!itemsRes.ok || !countRes.ok) {
+      throw new Error(`Directus blog listing failed (${itemsRes.status}/${countRes.status})`);
+    }
 
-    if (posts.length > 0) return { posts, total: Math.max(posts.length, total) };
-    throw new Error('empty');
+    const [itemsData, countData] = await Promise.all([itemsRes.json(), countRes.json()]);
+    if (!Array.isArray(itemsData?.data) || !Array.isArray(countData?.data)) {
+      throw new Error('Directus blog listing returned an invalid payload');
+    }
+    const rawTotal = countData.data[0]?.count?.id;
+    const total = Number(rawTotal);
+    if (rawTotal === undefined || !Number.isFinite(total) || total < 0) {
+      throw new Error('Directus blog listing returned an invalid count');
+    }
+
+    const contextPosts = (itemsData.data as EntradaBlog[]).filter((post) => isCanonicalBlogSlug(post.slug));
+    const posts = (diversifyBlogPostCovers(contextPosts) as EntradaBlog[]).slice(offset, offset + limit);
+    return { posts, total: Math.max(posts.length, total) };
   } catch {
     const publicListing = await fetchPublicBlogListing(page, limit, categoria);
     if (publicListing && publicListing.posts.length > 0) return publicListing;

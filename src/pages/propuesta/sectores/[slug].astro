@@ -26,7 +26,7 @@ const SERVICIO_DE: Record<string, string> = { 'seguridad-electronica': '102', so
 if (SERVICIO_DE[String(Astro.params.slug)]) return Astro.redirect(`/${Astro.params.slug}`, 301);
 const slug = Astro.params.slug === 'gobierno' ? 'gobiernosectorpublico' : String(Astro.params.slug);
 const sector = await getSectorBySlug(slug === 'gobiernosectorpublico' ? 'gobierno' : slug);
-if (!sector) return new Response(null, { status: 404 });
+if (!sector) return Astro.rewrite('/404');
 const { stories } = await loadStories();
 const own = stories.filter((c) => c.sectorSlug === slug);
 // Gobierno es una operación distribuida: no se representa con un edificio genérico.

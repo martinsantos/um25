@@ -21,6 +21,10 @@ describe('404 SEO contracts', () => {
     'src/pages/antecedentes/[id]/index.astro',
     'src/pages/blog/[slug].astro',
     'src/pages/blog/categoria/[cat].astro',
+    'src/pages/propuesta/antecedentes/[id]/[slug].astro',
+    'src/pages/propuesta/servicios/[code].astro',
+    'src/pages/propuesta/sectores/[slug].astro',
+    'src/pages/propuesta/blog/[slug].astro',
   ])('%s rewrites missing content to the real 404 page', (relativePath) => {
     const route = source(relativePath);
     expect(route).toContain("Astro.rewrite('/404')");

@@ -4,23 +4,30 @@ import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
+import { resolveBlogListingRoute } from '../../../lib/blogListingRoute';
 import { blogPostImageUrl } from '../../../utils/blogHelpers';
 import { fetchBlogListing } from '../../../utils/getBlogData';
 import { getCategoryLabel, formatBlogDateLong, sanitizeBlogExcerpt } from '../../../utils/blogUtils';
 
 export const prerender = false;
-const categoria = Astro.url.searchParams.get('categoria') || '';
+const route = resolveBlogListingRoute(Astro.url);
+if (route.invalidCategory) return Astro.rewrite('/404');
+if (route.redirectTo) return Astro.redirect(route.redirectTo, 301);
+const categoria = route.category || '';
 const POR_PAGINA = 10;
-const pagina = Math.max(1, Number(Astro.url.searchParams.get('p') || Astro.url.searchParams.get('page')) || 1);
+const pagina = route.page;
 const { posts, total } = await fetchBlogListing(pagina, POR_PAGINA, categoria || undefined);
 const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
-const enlace = (p: number) => `/blog?${categoria ? `categoria=${categoria}&` : ''}p=${p}`;
+if (pagina > paginas) return Astro.rewrite('/404');
+const enlace = (p: number) => `/blog?${categoria ? `categoria=${categoria}&` : ''}page=${p}`;
+const canonicalPath = route.canonicalPath || '/blog';
+const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina > 1 ? [`Página ${pagina}`] : []), 'ULTIMA MILLA'].join(' · ');
 // Keep every production category visible, even if the latest page has no posts in it.
 const categorias = ['noticias', 'proyectos', 'tecnico', 'tecnologia', 'empresa'];
 ---
 <!doctype html>
 <html lang="es">
-  <head><Head title="Blog · ULTIMA MILLA" description="Novedades de ULTIMA MILLA: servicios, proyectos y evolución de la empresa de servicios IT con sede en Guaymallén, Mendoza." /><style>.entradas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; } .entrada { display: flex; flex-direction: column; gap: 16px; } .entrada h2 { font-size: clamp(1.4rem, 1.8vw, 1.8rem); line-height: 1.2; } .entrada .small { display: flex; flex-wrap: wrap; gap: 8px 20px; } @media(max-width: 1100px) { .entradas { grid-template-columns: repeat(2, minmax(0, 1fr)); } } @media(max-width: 700px) { .entradas { grid-template-columns: 1fr; } } .entrada__image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 24px; } .paginas { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; padding: var(--s4) 0 var(--s6); } .paginas span:last-child { display: flex; gap: var(--s3); }</style></head>
+  <head><Head title={pageTitle} description="Novedades de ULTIMA MILLA: servicios, proyectos y evolución de la empresa de servicios IT con sede en Guaymallén, Mendoza." canonicalPath={canonicalPath} /><style>.entradas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; } .entrada { display: flex; flex-direction: column; gap: 16px; padding-block: 16px; } .entrada h2 { font-size: clamp(1.4rem, 1.8vw, 1.8rem); line-height: 1.2; } .entrada .small { display: flex; flex-wrap: wrap; gap: 8px 20px; } @media(max-width: 1100px) { .entradas { grid-template-columns: repeat(2, minmax(0, 1fr)); } } @media(max-width: 700px) { .entradas { grid-template-columns: 1fr; } } .entrada__image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 24px; } .paginas { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; padding: var(--s4) 0 var(--s6); } .paginas span:last-child { display: flex; gap: var(--s3); }</style></head>
   <body>
     <Top current="blog" />
     <main id="contenido" class="wrap">

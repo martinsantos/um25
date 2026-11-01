@@ -4,7 +4,7 @@ Entrega de origen: `55c900ff1c2078dbfb87a6438487e60b61184d59`.
 Integración: `feature/integracion-despiece-20261101`, mediante PR a develop y luego master.
 **No publicar hasta que el usuario revise la vista previa final.**
 
-Cierre de navegación visual y Directus autenticado: [cierre-editorial-20261101.md](cierre-editorial-20261101.md).
+Cierre de navegación visual, páginas secundarias, errores 404, blog y Directus autenticado: [cierre-editorial-20261101.md](cierre-editorial-20261101.md).
 
 Revisión final de paridad, correcciones y límites: [revision-paridad-20261101.md](revision-paridad-20261101.md).
 

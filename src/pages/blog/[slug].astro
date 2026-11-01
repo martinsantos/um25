@@ -76,6 +76,7 @@ const hardenBodyImages = (html: string): string => html.replace(/<img\b([^>]*)>/
 
 const normalizedContent = normalizeArticleContent(post.contenido || '');
 const { html: headingHtml, headings } = await addHeadingIds(normalizedContent);
+const hasArticleTOC = headings.filter((heading) => heading.level === 2 || heading.level === 3).length > 1;
 // Mapa temático: clusters de servicio y sector de esta nota, según su propio texto.
 const topics = resolveBlogTopics(post);
 // Enlaces contextuales: hasta 2, primera aparición de una frase clara del cluster.
@@ -341,6 +342,12 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
       </aside>
 
       <div class="bp-main">
+        {hasArticleTOC && (
+          <details class="bp-mobile-toc">
+            <summary>En esta nota</summary>
+            <BlogTOC headings={headings} />
+          </details>
+        )}
         <div class="prose" set:html={contentHtml} />
 
         {post.tags && post.tags.length > 0 && (
@@ -473,6 +480,14 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
   .bp-layout--single { grid-template-columns: minmax(0, 68ch); }
   .bp-layout--single .bp-aside { display: none; }
   .bp-main { min-width: 0; }
+  .bp-mobile-toc { display: none; }
+  .bp-mobile-toc summary { min-height: 52px; padding: 14px 16px; color: var(--x-text); font-size: 1rem; font-weight: 600; line-height: 1.4; cursor: pointer; }
+  .bp-mobile-toc summary:focus-visible { outline: 2px solid var(--x-red); outline-offset: 3px; }
+  .bp-mobile-toc[open] summary { border-bottom: 1px solid var(--x-line); }
+  .bp-mobile-toc :global(.btoc) { position: static; max-height: none; overflow: visible; padding: 8px 16px 16px; }
+  .bp-mobile-toc :global(.btoc__label) { display: none; }
+  .bp-mobile-toc :global(.btoc__list) { border-left: 0; }
+  .bp-mobile-toc :global(.btoc__link) { min-height: 44px; padding: 12px 4px; font-size: 1rem; line-height: 1.45; }
 
   .prose {
     font-family: var(--um-font-editorial);
@@ -565,6 +580,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
   @media (max-width: 1100px) {
     .bp-layout { grid-template-columns: minmax(0, 68ch); }
     .bp-aside { display: none; }
+    .bp-mobile-toc { display: block; margin: 0 0 24px; border: 1px solid var(--x-line); background: var(--x-panel); }
     .bp-related__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 680px) {

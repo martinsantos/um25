@@ -12,7 +12,7 @@ import { canonicalizeInternalBlogLinks } from '../../../utils/blogCanonicalLinks
 export const prerender = false;
 const slug = String(Astro.params.slug);
 const post = await fetchBlogPost(slug);
-if (!post) return new Response(null, { status: 404 });
+if (!post) return Astro.rewrite('/404');
 const { html } = await addHeadingIds(canonicalizeInternalBlogLinks(post.contenido || ''));
 const contenido = html.replace(/href="\/blog\//g, 'href="/blog/');
 const { posts } = await fetchBlogListing(1, 6, post.categoria);

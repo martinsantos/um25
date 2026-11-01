@@ -72,7 +72,7 @@ const currentUrl = canonical
 
 const pathname = Astro.url.pathname;
 const pageOverride = getPageMetaOverride(pathname);
-const shouldNoindex = noindex || isInternalPath(pathname);
+const shouldNoindex = noindex || isInternalPath(pathname) || process.env.UMSA_PREVIEW === '1';
 const pageLang = resolvePageLanguage(pathname);
 const pageLanguageTag = pageLang === 'en' ? 'en' : 'es-AR';
 const dcLanguage = pageLang === 'en' ? 'en' : 'es';

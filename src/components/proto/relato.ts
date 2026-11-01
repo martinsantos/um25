@@ -47,19 +47,27 @@ const limpiar = (v: unknown) => ERRATAS.reduce((t, [re, por]) => t.replace(re, p
 /** El registro completo viene cortado a 300 caracteres: se cierra en la última frase entera. */
 const SOLICITUD = /^(?:en\s+\S+(?:\s+\S+)?\s+)?(?:hay que|habr[ií]a que|se debe(?:n)?|se solicita|solicitan?|cotizar|presupuestar|adicional para presupuestar)\s+(?:cotizar\s+|presupuestar\s+)?(?:el|la|los|las|un|una)?\s*/i;
 export const cerrarTexto = (texto: string, cliente: string) => {
-  let t = limpiar(texto);
+  const origen = limpiar(texto);
+  const registroCortado = origen.length >= 340;
+  let t = origen;
   const prefijo = `${limpiar(cliente)} - `;
   if (t.toLowerCase().startsWith(prefijo.toLowerCase())) t = t.slice(prefijo.length);
   // Un alcance redactado como pedido ("En Quilmes hay que cotizar el tendido…") se cuenta por lo que se hizo.
   if (SOLICITUD.test(t)) { t = t.replace(SOLICITUD, '').trim(); t = t.charAt(0).toUpperCase() + t.slice(1); }
-  if (/[.!?]$/.test(t)) return t;
   // El registro de origen no guarda el punto final de ninguna descripción (469 de 469) y corta las largas a 350 caracteres:
-  // sólo una descripción que llega al tope se trata como cortada (se cierra en la última cláusula o palabra entera); las demás, enteras.
-  if (t.length >= 340) {
-    const corte = Math.max(t.lastIndexOf('. '), t.lastIndexOf(', '), t.lastIndexOf('; '));
-    if (corte > t.length * .45) t = t.slice(0, corte);
-    else t = t.replace(/\s+\S*$/, '');
+  // detectarlo antes de quitar el prefijo del cliente: de otro modo un registro de 350 chars
+  // puede caer debajo del umbral y cerrar una palabra cortada como "WI." o "Detec.".
+  if (registroCortado) {
+    const inicioLista = t.search(/\s-\sCantidad\b/i);
+    if (inicioLista > t.length * .25) {
+      t = t.slice(0, inicioLista);
+    } else {
+      const corte = Math.max(t.lastIndexOf('. '), t.lastIndexOf(', '), t.lastIndexOf('; '));
+      if (corte > t.length * .25) t = t.slice(0, corte);
+      else t = t.replace(/\s+\S*$/, '');
+    }
   }
+  if (/[.!?]$/.test(t)) return t;
   // Lo que queda no termina en conector ("… en altura y con") ni en signo.
   for (let i = 0; i < 4; i++) t = t.replace(/\s+(de|del|la|el|y|e|o|u|en|para|por|con|a|un|una|las|los|al|sobre|sin|que|se)$/i, '').replace(/[,;:\s-]+$/, '');
   t += '.';
@@ -162,7 +170,14 @@ export const CASOS_SERVICIO: Record<string, number[]> = {
 };
 const SECTOR_DE: Record<number, string> = { 11146: 'aeropuertos', 10737: 'aeropuertos', 11158: 'aeropuertos', 11166: 'aeropuertos', 11173: 'salud', 11179: 'salud', 11174: 'salud', 11145: 'salud', 10728: 'gobiernosectorpublico', 10881: 'gobiernosectorpublico', 11141: 'gobiernosectorpublico', 10817: 'gobiernosectorpublico', 10778: 'gobiernosectorpublico', 10792: 'gobiernosectorpublico', 11154: 'constructoras', 11152: 'constructoras', 10740: 'constructoras', 10878: 'industria', 10927: 'industria', 11176: 'industria', 10776: 'industria', 10798: 'bodegas', 10813: 'bodegas', 10771: 'bodegas', 11162: 'bodegas', 10903: 'bodegas', 10744: 'bodegas', 10779: 'software', 10877: 'bodegas', 10914: 'industria', 10804: 'constructoras' };
 const SERVICIOS_DE: Record<number, string[]> = { 11146: ['107'], 10737: ['107'], 11158: ['102'], 11166: ['102'], 11173: ['101'], 11179: ['101'], 11174: ['101'], 11145: ['101', '103'], 10728: ['101', '103', '105'], 10881: ['101', '108'], 11141: ['108'], 10817: ['104'], 10778: ['104', '105'], 10792: ['104'], 11154: ['102', '101'], 11152: ['106'], 10740: ['101', '103', '102'], 10878: ['108'], 10927: ['102'], 11176: ['101'], 10776: ['106', '101'], 10798: ['101', '103', '102', '107'], 10813: ['104'], 10771: ['106', '101'], 11162: ['101'], 10903: ['105', '107'], 10744: ['105'], 10779: ['104'], 10877: ['102'], 10914: ['107'], 10804: ['107'] };
-const PUBLICADO_DE: Record<number, number> = Object.fromEntries(Object.entries(DESCRIPCION_ORIGEN).map(([pub, orig]) => [orig, Number(pub)]));
+/** Crosswalks verified by same client, exact SGI start date, and matching scope in both records. */
+const PUBLICADO_DE: Record<number, number> = {
+  ...Object.fromEntries(Object.entries(DESCRIPCION_ORIGEN).map(([pub, orig]) => [orig, Number(pub)])),
+  11158: 3140,
+  11179: 3085,
+  11174: 3103,
+  11162: 3116,
+};
 const BASE_POR_ID = new Map(CASOS_BASE.map((c) => [c.id, c]));
 export const casoDe = (id: number): Caso | null => {
   const r = registros.find((x) => x.id === id); if (!r) return null;

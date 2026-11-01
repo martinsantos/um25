@@ -11,7 +11,7 @@ import Cierre from './Cierre.astro';
 const en = Astro.url.pathname.replace(/^\/propuesta/, '').startsWith('/en');
 const t = en
   ? { title: 'Page not found · ULTIMA MILLA', h1: 'This page does not exist', p: 'The address changed or the page was never published. Everything on the site is reachable from these four places.', links: [['/en', 'Home'], ['/en/services', 'Services'], ['/antecedentes', 'Projects (Spanish)'], ['/en/contact', 'Contact']] }
-  : { title: 'Página no encontrada · ULTIMA MILLA', h1: 'Esta página no existe', p: 'La dirección cambió o la página nunca se publicó. Todo lo del sitio se alcanza desde estos cuatro lugares.', links: [['/antecedentes', 'Los 520 proyectos'], ['/servicios', 'Servicios'], ['/sectores', 'Sectores'], ['/contacto', 'Contacto']] };
+  : { title: 'Página no encontrada · ULTIMA MILLA', h1: 'Esta página no existe', p: 'La dirección cambió o la página nunca se publicó. Podés continuar desde estos accesos.', links: [['/antecedentes', 'Ver proyectos'], ['/servicios', 'Servicios'], ['/sectores', 'Sectores'], ['/contacto', 'Contacto']] };
 ---
 <!doctype html>
 <html lang={en ? 'en' : 'es'}>
@@ -22,7 +22,6 @@ const t = en
       .noexiste p { max-width: 52ch; color: var(--ink-2); font-size: 1.125rem; }
       .noexiste ul { list-style: none; margin: var(--s2) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px 28px; }
       .noexiste a { border-bottom: 2px solid var(--red); padding-bottom: 2px; font-weight: 500; }
-      .noexiste code { color: var(--ink-3); font-size: .9375rem; word-break: break-all; }
     </style>
   </head>
   <body>
@@ -30,7 +29,6 @@ const t = en
     <main id="contenido" class="wrap noexiste">
       <h1>{t.h1}<span class="dot">.</span></h1>
       <p>{t.p}</p>
-      <code>{Astro.url.pathname}</code>
       <ul>{t.links.map(([href, label]) => <li><a href={href}>{label}</a></li>)}</ul>
     </main>
     <Cierre lang={en ? 'en' : 'es'} />

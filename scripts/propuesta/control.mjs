@@ -42,6 +42,9 @@ const PAGINAS = [
   { id: 'en-about', path: '/en/about', max: { escritorio: 4, portatil: 5, telefono: 8 } },
   { id: 'en-contact', path: '/en/contact', max: { escritorio: 3, portatil: 3.5, telefono: 6 } },
   { id: 'privacidad', path: '/privacidad', max: { escritorio: 4, portatil: 5, telefono: 9 } },
+  // La nota conserva el cuerpo completo de producción: la referencia histórica de altura se midió
+  // con un lector recortado. Para esta ruta se informa el alto completo como advertencia y se
+  // comprueba cuerpo/índice; no se traslada esta excepción al resto de páginas.
   { id: 'entrada', from: 'a[href^="/blog/"]', filtro: /^\/blog\/[a-z0-9-]+$/, max: { escritorio: 7, portatil: 8.5, telefono: 14 } },
 ];
 
@@ -89,6 +92,22 @@ for (const pag of PAGINAS) {
         const poster = document.querySelector('.lugar__fondo video')?.getAttribute('poster') || null;
         return { titles, fuera, scrollW: document.documentElement.scrollWidth, innerW: innerWidth, alto: document.documentElement.scrollHeight, innerH: innerHeight, fondo0: op(fondo), dib0: op(dib), poster };
       });
+      const lectura = pag.id === 'entrada' ? await page.evaluate(() => {
+        const cuerpo = document.querySelector('.bp-main .prose');
+        const texto = (cuerpo?.textContent || '').replace(/\s+/g, ' ').trim();
+        const headings = [...(cuerpo?.querySelectorAll('h2, h3') || [])].filter((heading) => heading.id);
+        const toc = document.querySelector(innerWidth <= 1100 ? '.bp-mobile-toc .btoc' : '.bp-aside .btoc');
+        const enlacesToc = [...(toc?.querySelectorAll('a[href^="#"]') || [])];
+        const tocIds = enlacesToc.map((link) => decodeURIComponent(link.getAttribute('href').slice(1)));
+        const portada = document.querySelector('.bp-cover img');
+        return {
+          palabras: texto ? texto.split(/\s+/).length : 0,
+          encabezados: headings.length,
+          enlacesToc: enlacesToc.length,
+          tocCompleto: enlacesToc.length === headings.length && tocIds.every((id) => headings.some((heading) => heading.id === id)),
+          portadaCargada: !portada || (portada.complete && portada.naturalWidth > 0),
+        };
+      }) : null;
       // Fin de la apertura: el último punto del pin del hero (o 1,3 pantallas si la página no tiene hero).
       await page.evaluate(() => { const h = document.querySelector('.lugar--hero'); window.scrollTo(0, h ? h.offsetTop + h.offsetHeight - innerHeight : Math.round(innerHeight * 1.3)); }); await page.waitForTimeout(3200);
       await page.screenshot({ path: join(OUT, `${nombre}-2-apertura.png`) });
@@ -117,7 +136,12 @@ for (const pag of PAGINAS) {
       if (m.titles.length) problemas.push(`SVG con <title>: ${m.titles.slice(0, 3).join(', ')}`);
       if (m.scrollW > m.innerW + 1) problemas.push(`desborde horizontal: ${m.scrollW} > ${m.innerW}`);
       if (m.fuera) problemas.push(`${m.fuera} figura(s) fuera de la pantalla`);
-      if (pantallas > max) problemas.push(`${pantallas} pantallas, presupuesto ${max}`);
+      if (pag.id !== 'entrada' && pantallas > max) problemas.push(`${pantallas} pantallas, presupuesto ${max}`);
+      if (lectura) {
+        if (!lectura.palabras) problemas.push('el cuerpo de lectura está vacío');
+        if (lectura.encabezados > 1 && !lectura.tocCompleto) problemas.push(`índice incompleto (${lectura.enlacesToc}/${lectura.encabezados} encabezados)`);
+        if (!lectura.portadaCargada) problemas.push('la imagen de portada del artículo no carga');
+      }
       if (m.fondo0 !== null && m.fondo0 < .99) problemas.push(`el fondo real no cubre al inicio (opacidad ${m.fondo0})`);
       if (m.dib0 !== null && m.dib0 > .01) problemas.push(`el dibujo asoma sobre el fondo al inicio (opacidad ${m.dib0})`);
       if (fin.fondo !== null && fin.fondo > .01) problemas.push(`el fondo real sigue al final de la apertura (opacidad ${fin.fondo})`);
@@ -132,7 +156,14 @@ for (const pag of PAGINAS) {
         const ok = await page.evaluate(async () => { const li = document.querySelector('[data-ficha][data-site]'); if (!li) return false; li.scrollIntoView({ block: 'center' }); return true; });
         if (ok) { const li = await page.$('[data-ficha][data-site]'); await li.hover(); const sistema = await page.evaluate(async () => { for (let i = 0; i < 40; i++) { if (document.querySelector('[data-ficha].on .ficha__sistema svg')) return true; await new Promise((r) => setTimeout(r, 100)); } return false; }); if (!sistema) problemas.push('la ficha del muro no muestra su sistema al pasar el puntero'); else { await page.waitForTimeout(600); await page.screenshot({ path: join(OUT, `${nombre}-4-sistema.png`) }); } await page.mouse.move(2, 2); }
       }
-      filas.push(`| ${pag.id} | ${v.k} | ${pantallas} / ${max} | ${problemas.length ? '✗ ' + problemas.join('; ') : '✓'} |`);
+      const medidaAltura = pag.id === 'entrada'
+        ? `${pantallas} (texto completo; referencia lectora previa ${max})`
+        : `${pantallas} / ${max}`;
+      const advertenciaAltura = pag.id === 'entrada' && pantallas > max
+        ? ` · aviso: altura del artículo completo ${pantallas} pantallas (referencia previa ${max})`
+        : '';
+      const medidaLectura = lectura ? ` · cuerpo ${lectura.palabras} palabras; índice ${lectura.enlacesToc}/${lectura.encabezados}` : '';
+      filas.push(`| ${pag.id} | ${v.k} | ${medidaAltura} | ${problemas.length ? '✗ ' + problemas.join('; ') : '✓'}${advertenciaAltura}${medidaLectura} |`);
       problemas.forEach((p) => fallos.push(`${nombre}: ${p}`));
     } catch (e) { fallos.push(`${nombre}: ${e.message.split('\n')[0]}`); filas.push(`| ${pag.id} | ${v.k} | — | ✗ ${e.message.split('\n')[0]} |`); }
     await ctx.close();
@@ -208,7 +239,10 @@ try {
           return { h1: (document.querySelector('h1')?.textContent || '').trim(), img: !img || (img.complete && img.naturalWidth > 0), filas: document.querySelectorAll('[data-partes] li').length, sinAlcance: !!document.querySelector('[data-sin-alcance]'), basura: /\b(undefined|NaN|null|\[object Object\])\b/.test(txt), scrollW: document.documentElement.scrollWidth, innerW: innerWidth, titles: document.querySelectorAll('svg title').length };
         });
         await page.evaluate(() => document.querySelector('.fiso__lugar')?.scrollIntoView({ block: 'center' })); await page.waitForTimeout(2500);
-        const iso = await page.evaluate(() => !!document.querySelector('.fiso__lugar svg'));
+        const iso = await page.evaluate(() => {
+          const lugar = document.querySelector('.fiso__lugar[data-src]');
+          return { requerido: Boolean(lugar), cargado: Boolean(lugar?.querySelector('svg')) };
+        });
         await page.screenshot({ path: join(OUT, `${nombre}.png`) });
         const problemas = [];
         if (!m.h1) problemas.push('sin título');
@@ -216,7 +250,7 @@ try {
         if (m.basura) problemas.push('texto con undefined/NaN/null');
         if (m.scrollW > m.innerW + 1) problemas.push('desborde horizontal');
         if (m.titles) problemas.push('SVG con <title>');
-        if (!iso) problemas.push('el lugar por dentro no carga');
+        if (iso.requerido && !iso.cargado) problemas.push('el lugar por dentro no carga');
         filas.push(`| ficha ${f.id} | ${v.k} | — | ${problemas.length ? '✗ ' + problemas.join('; ') : '✓'} |`);
         problemas.forEach((p) => fallos.push(`${nombre}: ${p}`));
       } catch (e) { fallos.push(`${nombre}: ${e.message.split('\n')[0]}`); filas.push(`| ficha ${f.id} | ${v.k} | — | ✗ ${e.message.split('\n')[0]} |`); }
