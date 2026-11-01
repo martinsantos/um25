@@ -12,6 +12,11 @@ for (const path of routes) {
   assert.ok(!/href="\/propuesta(?:\/|["?#])/.test(html), `internal navigation ${path}`);
   assert.match(html, /<h1\b/, `heading ${path}`);
   assert.match(html, /application\/ld\+json/, `structured data ${path}`);
+  if (['/', '/en', '/servicios', '/en/services', '/nosotros', '/en/about', '/contacto', '/en/contact'].includes(path)) {
+    assert.match(html, /hreflang="es-AR"/, `Spanish alternate ${path}`);
+    assert.match(html, /hreflang="en"/, `English alternate ${path}`);
+    assert.ok(!html.includes('hreflang="en" href="https://www.ultimamilla.com.ar/en/contacto"'), `canonical English contact ${path}`);
+  }
   for (const match of html.matchAll(/(?:src|poster)="(\/(?:images|cine|_astro)[^"?#]+)"/g)) assets.add(match[1]);
 }
 for (const [from, to] of [['/propuesta', '/'], ['/propuesta/servicios/101', '/servicios/101'], ['/aeropuertos', '/sectores/aeropuertos'], ['/servicios/101/redes', '/servicios/101'], ['/en/contacto', '/en/contact']]) {
