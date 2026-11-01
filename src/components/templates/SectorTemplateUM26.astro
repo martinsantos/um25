@@ -141,7 +141,7 @@ const areaLabel = (area: unknown) => {
     back={{ href: '/sectores', label: '← Todos los sectores' }}
   />
 
-  <SiteDespiece scene={cineScene} sectorSlug={sectorDataSlug} sectorName={sectorName} linkBanner={!isSoftware} />
+  {!isSoftware && <SiteDespiece scene={cineScene} sectorSlug={sectorDataSlug} sectorName={sectorName} linkBanner />}
 
   <section class="sector26-evidence" aria-label="Proyectos del sector">
     <div class="sector26-shell">

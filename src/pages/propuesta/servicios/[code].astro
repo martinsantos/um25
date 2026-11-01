@@ -8,6 +8,7 @@ import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import Apertura from '../../../components/proto/Apertura.astro';
+import ServiceEditorialHero from '../../../components/proto/ServiceEditorialHero.astro';
 import Ficha from '../../../components/proto/Ficha.astro';
 import Casos from '../../../components/proto/Casos.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
@@ -26,16 +27,19 @@ const servicio = await getServicioByCode(Number(code));
 const nav = services.find((s) => s.code === code);
 const spec = SERVICE_SPECS[code];
 if (!servicio || !nav || !spec) return new Response(null, { status: 404 });
+// Software y servicios profesionales se explican con pantallas, trabajo y resultados.
+const editorial = ['104', '105', '106'].includes(code);
+const Hero = editorial ? ServiceEditorialHero : Apertura;
 const pdf = getDatasheetPublicPath(spec.slug);
 const { stories } = await loadStories();
 const own = stories.filter((c) => c.serviceCodes.includes(code));
 const scene = (SERVICE_SCENES[code] || SERVICE_SCENES['101'])!.scene;
 const SITE: Record<string, IsoSite> = { fachada: 'building', aeropuerto: 'terminal', bodega: 'winery', hospital: 'clinic', planta: 'plant' };
 const site = SITE[scene] || 'building';
-// El equipo del servicio se trae de public/cine/iso al cargar (prioridad baja): el de consultoría es el edificio entero.
-const deviceSrc = code === '106' ? isoSrc('building') : `/cine/iso/service-${code}.svg`;
+// Sólo los servicios de instalaciones necesitan un dibujo de equipo.
+const deviceSrc = `/cine/iso/service-${code}.svg`;
 // La caja del equipo se reserva con la proporción de su dibujo: cuando llega, no mueve nada.
-const deviceRatio = ratioDe(deviceSrc);
+const deviceRatio = editorial ? 1 : ratioDe(deviceSrc);
 const agregado = new Map(despieceAgregado(own).map((p) => [p.key, p]));
 const kit = (KIT_DE_SERVICIO[code] || []).map(([key, label]) => ({ key, label, n: agregado.get(key)?.proyectos || 0, u: agregado.get(key)?.unidades || 0 }));
 const photo = SERVICE_PHOTO[code];
@@ -65,10 +69,13 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
       .equipo :global(svg) { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
       .caps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
       .caps li { padding: 13px 0; border-bottom: 1px solid var(--line-2); font-size: 1.1rem; color: var(--ink); }
+      .cubre.cubre--editorial { display: block; }
+      .cubre--editorial .caps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s4); }
+      .cubre--editorial .caps li { padding-block: 24px; }
       .condiciones { margin-top: var(--s4); color: var(--ink-3); }
       @media (max-width: 900px) {
-        .service-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin-block: 24px; }
-      .cubre { grid-template-columns: 112px minmax(0, 1fr); gap: var(--s3); align-items: start; }
+        .cubre--editorial .caps { grid-template-columns: minmax(0, 1fr); }
+        .cubre { grid-template-columns: 112px minmax(0, 1fr); gap: var(--s3); align-items: start; }
         .equipo { aspect-ratio: 1; max-height: none; position: sticky; top: calc(var(--top-h) + 16px); }
         .equipo > div { inset: 0; }
         .caps li { font-size: 1rem; padding: 10px 0; }
@@ -79,20 +86,20 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
     <Top current="servicios" />
     <main id="contenido">
 
-    <Apertura label={servicio.name} isoSrc={isoSrc(site)} svc={code} image={photo} film={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}.mp4` : undefined} poster={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}-poster.avif` : undefined} hero>
+    <Hero label={servicio.name} isoSrc={isoSrc(site)} svc={code} image={photo} film={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}.mp4` : undefined} poster={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}-poster.avif` : undefined} hero>
       <h1>{servicio.name}<span class="dot">.</span></h1>
       <p class="tag">{servicio.tagline}</p>
       <p>{servicio.description}</p>
       {cifras.length > 0 && <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>}
       <div class="service-actions"><a class="btn" href="/contacto">Pedir un relevamiento</a><a class="u" href={pdf || `/servicios/${code}/ficha`} download={pdf ? true : undefined}>{pdf ? 'Descargar ficha técnica (PDF)' : 'Ficha técnica · imprimir o guardar PDF'}</a></div>
       <a class="u" href={`/antecedentes?service=${code}`}>{own.length > 0 ? `Ver los ${own.length} proyectos` : 'Ver todos los proyectos'}</a>
-    </Apertura>
+    </Hero>
 
     <section class="sec">
       <div class="wrap">
         <div class="sec__head"><h2>Qué cubre<span class="dot">.</span></h2></div>
-        <div class="cubre" data-cubre>
-          <div class="equipo" data-equipo style={`--r:${deviceRatio.toFixed(3)}`}><div class="iso" data-src={deviceSrc}></div></div>
+        <div class:list={['cubre', { 'cubre--editorial': editorial }]} data-cubre>
+          {!editorial && <div class="equipo" data-equipo style={`--r:${deviceRatio.toFixed(3)}`}><div class="iso" data-src={deviceSrc}></div></div>}
           <ol class="caps" data-caps>{servicio.capabilities.map((c) => <li>{c}</li>)}</ol>
         </div>
       </div>
@@ -114,13 +121,13 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
           <div class="item"><h3>Alcance</h3><ul class="lista">{spec.scope.map((s) => <li>{s}</li>)}</ul></div>
           <div class="item"><h3>Normas y criterios</h3><ul class="lista">{spec.standards.map((s) => <li>{s}</li>)}</ul></div>
           <div class="item"><h3>Documentación que recibís</h3><ul class="lista">{spec.deliverables.map((s) => <li>{s}</li>)}</ul></div>
-          <div class="item"><h3>Después de la obra</h3><ul class="lista">{spec.serviceLevel.map((s) => <li>{limpio(s)}</li>)}</ul></div>
+          <div class="item"><h3>{editorial ? 'Continuidad y acompañamiento' : 'Después de la obra'}</h3><ul class="lista">{spec.serviceLevel.map((s) => <li>{limpio(s)}</li>)}</ul></div>
         </div>
         {condiciones && <p class="condiciones">{condiciones}.</p>}
       </div>
     </section>
 
-    {kit.length > 0 && (
+    {!editorial && kit.length > 0 && (
       <section class="sec">
         <div class="wrap">
           <div class="sec__head"><h2>Con qué se hace<span class="dot">.</span></h2></div>
@@ -143,12 +150,12 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
 
     {bySector.length > 0 && (
       <section class="sec">
-        <div class="wrap cols cols-5-7 cols--centro">
+        <div class:list={['wrap', { 'cols cols-5-7 cols--centro': !editorial }]}>
           <div class="item">
             <h2>Dónde lo hicimos<span class="dot">.</span></h2>
             <p class="frase">{bySector.map((s, i) => <><a href={`/sectores/${s.slug}`}><b>{s.name}</b></a>{` (${s.count} ${s.count === 1 ? 'proyecto' : 'proyectos'})`}{i < bySector.length - 2 ? ', ' : i === bySector.length - 2 ? ' y ' : '.'}</>)}</p>
           </div>
-          <a class="pelicula" href={`/sectores/${bySector[0].slug}`}><figure><img src={poster} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure><span class="small">{servicio.name} en {sceneTitle[scene]}, en movimiento</span></a>
+          {!editorial && <a class="pelicula" href={`/sectores/${bySector[0].slug}`}><figure><img src={poster} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure><span class="small">{servicio.name} en {sceneTitle[scene]}, en movimiento</span></a>}
         </div>
       </section>
     )}
@@ -169,13 +176,15 @@ const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
 
     <script>
       // El equipo del servicio, solo: se encuadra a su dibujo. Sin líneas guía hacia la lista; señalaban puntos que no existían.
-      const equipo = document.querySelector<HTMLElement>('[data-equipo]')!;
+      const equipo = document.querySelector<HTMLElement>('[data-equipo]');
+      if (equipo) {
       const lazy = equipo.querySelector<HTMLElement>('[data-src]');
       const fit = (svg: SVGSVGElement) => { if (svg.dataset.fit) return; try { const b = svg.getBBox(); const pad = Math.max(b.width, b.height) * .06; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); svg.dataset.fit = '1'; } catch { /* sin bbox */ } };
       const draw = () => { const svg = equipo.querySelector<SVGSVGElement>('svg'); if (svg) fit(svg); };
       // El dibujo del equipo pesa (la sala de servidores, medio megabyte): se trae cuando la sección se acerca a la pantalla y la página está quieta, nunca antes de pintar la apertura.
       if (lazy) new IntersectionObserver((es, o) => { if (!es.some((e) => e.isIntersecting)) return; o.disconnect(); (window.requestIdleCallback || ((f: () => void) => setTimeout(f, 300)))(() => fetch(lazy.dataset.src!, { priority: 'low' } as RequestInit).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) { lazy.innerHTML = svg; draw(); } })); }, { rootMargin: '600px 0px' }).observe(equipo);
       draw();
+      }
     </script>
   </body>
 </html>

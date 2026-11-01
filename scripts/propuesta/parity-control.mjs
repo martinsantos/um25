@@ -62,7 +62,30 @@ try {
   assert.ok(await page.locator('.umc-poster').getAttribute('src'));
   await page.screenshot({ path: out + '/software-recuperado.png' });
   await go('/servicios/104');
-  await page.waitForFunction(() => document.querySelector('video[data-film]')?.readyState >= 2);
+  await page.waitForFunction(() => document.querySelector('video[data-service-film]')?.readyState >= 2);
+  assert.equal(await page.locator('[data-lugar], [data-equipo]').count(), 0, 'Software must not turn into a building or device diagram');
+  await page.getByRole('button', { name: 'Pausar película', exact: true }).click();
+  assert.ok(await page.locator('video[data-service-film]').evaluate(v => v.paused));
+  await page.screenshot({ path: out + '/software-servicio.png' });
+  await page.getByRole('heading', { name: 'Qué cubre.' }).scrollIntoViewIfNeeded();
+  assert.equal(await page.locator('[data-equipo]').count(), 0);
+  await page.screenshot({ path: out + '/software-alcance.png' });
+  await page.getByRole('button', { name: 'Reproducir película', exact: true }).click();
+  await page.waitForFunction(() => !document.querySelector('video[data-service-film]').paused);
+  for (const code of ['105', '106']) {
+    await go('/servicios/' + code);
+    assert.equal(await page.locator('[data-lugar], [data-equipo]').count(), 0);
+    assert.ok(await page.locator('.service-editorial__visual img').evaluate(img => img.complete && img.naturalWidth > 0));
+  }
+  await go('/servicios/101');
+  assert.equal(await page.locator('[data-lugar]').count(), 1, 'Physical installations retain their explanatory diagram');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await go('/servicios/104');
+  assert.ok(await page.locator('video[data-service-film]').evaluate(v => v.paused && !v.getAttribute('src')));
+  await page.getByRole('button', { name: 'Reproducir película', exact: true }).click();
+  await page.waitForFunction(() => document.querySelector('video[data-service-film]').readyState >= 2);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+
   await go('/contacto');
   // Invalid contact forms stay in the browser; no email is sent.
   await page.route('**/api/contact', route => { throw new Error('Invalid form attempted a network submission'); });

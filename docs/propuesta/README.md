@@ -181,3 +181,9 @@ La rama `feature/integracion-despiece-20261101` permanece en revisión, sin publ
 La película `cine-software-system-v27` no estaba en el repositorio ni en el runtime público vigente (404). Se recuperaron sus seis archivos de la copia conservada de la migración, verificando sus SHA-256 antes de procesarlos. Los MP4 originales eran 4K; las copias para web conservan los 20 segundos completos en H.264, a 1920 píxeles y 1080 píxeles (cuadrada), CRF 23 y faststart. Las copias originales y los backups del servidor no se modificaron. SHA-256 del original horizontal: `d37a4e0e273d6fe968450e92e8950b27a707f3dec101f714ed0e1d542a36d518`; cuadrado: `5e0750430878ca7cfe969610e55ebec01d948fe6cc2e6f97324d4f5773f0bbb6`.
 
 Las credenciales del CMS permanecen en producción. El acceso autenticado desde el runtime activo respondió 200 para Servicios, Antecedentes y blog_posts; las vistas previas sin credenciales usan el respaldo del catálogo y el contenido público del blog. Esto no sustituye el control del runtime autenticado previo a publicar.
+
+### Tratamiento visual por servicio (1 de noviembre)
+
+Software (104) usa una apertura de película en flujo normal, con reproducción y pausa y respeto por movimiento reducido. No revela un edificio al desplazar la página ni repite monitores o inventarios de hardware. Soporte (105) y Consultoría (106) usan sus fotografías editoriales y el alcance del servicio; las instalaciones físicas conservan sus despieces. La ruta especializada `/software` también deja de insertar el edificio bajo la película. Se conservan los casos, proyectos, cifras, descargas y enlaces.
+
+El control de paridad verifica reproducción, pausa, inicio manual con movimiento reducido, ausencia de diagramas de instalación en los tres servicios profesionales y conservación del despiece en Redes. No se ha publicado esta revisión.
