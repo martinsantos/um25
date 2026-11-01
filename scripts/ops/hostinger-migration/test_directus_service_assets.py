@@ -74,6 +74,8 @@ class MemoryAPI:
         return 200, {}, b''
 
 
+@unittest.skipUnless(all((REPO / a['path']).is_file() for a in RECOVERY.ASSETS),
+                     'PNG fixtures are checked out by the dedicated image-recovery workflow')
 class TestDirectusServiceAssetGuards(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
