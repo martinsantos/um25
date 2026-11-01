@@ -195,7 +195,7 @@
   #um-specimen .sp-cover h1 { padding-block: 36px; font-size: 14vw !important; }
   #um-specimen .sp-cover-phrase { font-size: 1.75rem; }.sp-cover-bottom { padding-bottom: 36px; }
   .sp-facts { grid-template-columns: 1fr 1fr; }.sp-facts > div { padding-block: 18px; }.sp-facts dd { font-size: 1.125rem; }
-  .sp-index { top: 122px; }.sp-index .sp-shell { gap: 24px; }.sp-index a { min-height: 60px; }
+  .sp-index { position: static; }.sp-index .sp-shell { gap: 24px; }.sp-index a { min-height: 60px; }
   .sp-family-head { display: none; }.sp-weight { grid-template-columns: 1fr 1fr; gap: 12px 20px; }
   .sp-weight-label { grid-column: 1 / -1; grid-template-columns: auto 1fr auto; align-items: baseline; }
   #um-specimen .sp-weight-label h3 { grid-column: 2; grid-row: 1; }.sp-weight-label a { grid-column: 3; grid-row: 1; }

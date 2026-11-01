@@ -408,7 +408,7 @@ ${this.data.clientes.sectores.infraestructura_critica.map(c => `• ${c}`).join(
 
 🎯 OVERVIEW
 • Proyectos completados: ${this.data.estadisticas.proyectos_completados}
-• Años de experiencia: ${this.data.estadisticas.anos_experiencia} (2003-2024)
+• Años de experiencia: ${this.data.estadisticas.anos_experiencia} (2003-2026)
 • Clientes activos: ${this.data.estadisticas.clientes_activos}+
 • Alcance gestionado: proyectos de redes, software, seguridad y soporte
 
@@ -576,7 +576,7 @@ Para ayuda específica: help [comando]
       "La innovación distingue entre un líder y un seguidor. - Steve Jobs",
       "La tecnología es mejor cuando acerca a la gente. - Matt Mullenweg", 
       "En Ultima Milla, cada proyecto es una oportunidad de conectar el futuro.",
-      "22 años conectando sueños con realidad tecnológica.",
+      "24 años conectando sueños con realidad tecnológica.",
       "No hay problemas de redes que no podamos resolver. - Equipo UM",
       "El código limpio siempre parece que fue escrito por alguien que se preocupa. - Robert C. Martin"
     ];

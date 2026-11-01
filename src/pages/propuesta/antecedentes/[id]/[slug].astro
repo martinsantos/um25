@@ -1,0 +1,140 @@
+---
+/**
+ * Ficha de trabajo (2026-10-31). Cada antecedente como hoja de trabajo: cabecera con la referencia
+ * UM, la foto de la obra y los datos; lo que se instaló (inventario con miniaturas) y el lugar por
+ * dentro que recorre sus sistemas; un cajetín al pie con los campos fijos, como un plano; y otros
+ * proyectos del mismo cliente y del mismo sector. Todo el texto es del catálogo. No indexable.
+ */
+import '../../../../styles/proto-despiece.css';
+import Head from '../../../../components/proto/Head.astro';
+import Top from '../../../../components/proto/Top.astro';
+import Ficha from '../../../../components/proto/Ficha.astro';
+import FichaIso from '../../../../components/proto/FichaIso.astro';
+import Cierre from '../../../../components/proto/Cierre.astro';
+import { loadStories, services } from '../../../../components/proto/isoData';
+import { EMPRESA } from '../../../../components/proto/relato';
+
+export const prerender = false;
+const id = Number(Astro.params.id);
+const { stories } = await loadStories();
+const index = stories.findIndex((c) => c.id === id);
+if (index < 0) return new Response(null, { status: 404 });
+const c = stories[index];
+if (Astro.params.slug !== c.slug) return Astro.redirect(c.href, 301);
+const svcs = services.filter((s) => c.serviceCodes.includes(s.code));
+const months = ['', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const when = [c.month ? months[c.month] : '', c.year].filter(Boolean).join(' ');
+const mesAnio = (iso?: string) => { if (!iso) return ''; const [y, m] = iso.split('-').map(Number); return [m ? months[m] : '', y].filter(Boolean).join(' '); };
+const cierre = c.cierre && mesAnio(c.cierre) !== when ? mesAnio(c.cierre) : '';
+const enCurso = c.estado === 'en-curso';
+const periodo = cierre ? `${when} – ${cierre}` : when;
+const sameClient = stories.filter((o) => o.id !== c.id && o.client.toLowerCase() === c.client.toLowerCase()).slice(0, 4);
+const sameSector = stories.filter((o) => o.id !== c.id && o.sectorSlug === c.sectorSlug && !sameClient.includes(o)).slice(0, 4);
+const prev = stories[index + 1];
+const next = stories[index - 1];
+const photo = c.image && c.image.startsWith('/images/antecedentes/');
+const ref = `UM-${c.id}`;
+const sede = EMPRESA.sedes[0];
+const cajetin: [string, string][] = [
+  ['Hoja', 'Ficha de trabajo'],
+  ['Referencia', ref],
+  ['Cliente', c.client],
+  ['Sector', c.sector || '—'],
+  ['Fecha', periodo || '—'],
+  ['Empresa', `ULTIMA MILLA · ${sede ? sede.name : 'Mendoza'}`],
+];
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <Head title={`${c.title} · ${c.client} · ULTIMA MILLA`} description={c.summary || [c.client, c.sector, periodo].filter(Boolean).join(' · ')} image={c.image} precargar />
+    <style>
+      .nav { display: flex; justify-content: space-between; gap: 16px; padding: var(--s3) 0 0; color: var(--ink-3); font-size: .9375rem; }
+      .nav a:hover { color: var(--ink); }
+      /* Cabecera de la hoja: la referencia a la izquierda, sector y fecha a la derecha, como un cajetín superior. */
+      .hoja-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-top: var(--s3); padding-bottom: 10px; border-bottom: 1px solid var(--line); color: var(--ink-3); font-size: .9375rem; letter-spacing: .02em; }
+      .hoja-cab b { color: var(--ink); font-weight: 600; }
+      .hoja-cab .curso { font-style: normal; margin-left: 12px; padding: 2px 8px; border: 1px solid var(--red); color: var(--ink); font-size: .8125rem; }
+      .proyecto { padding-block: var(--s4) var(--s5); display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: start; }
+      .obra { margin: 0; grid-row: span 2; aspect-ratio: 4 / 3; overflow: hidden; background: var(--bg-2); }
+      .obra img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .datos { display: grid; gap: var(--s2); align-content: start; }
+      .datos h1 { font-size: clamp(1.7rem, 2.6vw, 2.4rem); }
+      .datos .quien { font-size: 1.1rem; font-weight: 600; }
+      .datos .quien span { color: var(--ink-3); font-weight: 400; }
+      .datos .resumen { color: var(--ink-2); font-size: 1.0625rem; }
+      .tabla { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2) var(--s3); padding-top: var(--s2); border-top: 1px solid var(--line); align-self: start; }
+      .tabla div { display: grid; gap: 4px; }
+      .tabla dt { color: var(--ink-3); font-size: .9375rem; }
+      .tabla dd { margin: 0; font-weight: 500; }
+      .tabla .ancho { grid-column: 1 / -1; }
+      .tabla dd a { border-bottom: 1px solid var(--red); }
+      .tabla dd a + a::before { content: ', '; border: 0; }
+      /* Cajetín al pie: los campos fijos de la hoja, en celdas con línea, como el rótulo de un plano. */
+      .cajetin { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border: 1px solid var(--line); margin-top: var(--s4); }
+      .cajetin div { padding: 12px 16px; border-right: 1px solid var(--line-2); min-width: 0; display: grid; gap: 3px; align-content: start; }
+      .cajetin div:last-child { border-right: 0; }
+      .cajetin dt { color: var(--ink-3); font-size: .8125rem; letter-spacing: .03em; text-transform: uppercase; }
+      .cajetin dd { margin: 0; font-weight: 600; font-size: .95rem; overflow: hidden; text-overflow: ellipsis; }
+      .proyecto--sinfoto { grid-template-columns: 1fr; max-width: 72ch; }
+      @media (max-width: 900px) {
+        .proyecto { grid-template-columns: 1fr; }
+        .obra { grid-row: auto; aspect-ratio: 4 / 3; }
+        .cajetin { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .cajetin div { border-bottom: 1px solid var(--line-2); }
+      }
+    </style>
+  </head>
+  <body class="hoja-trabajo">
+    <Top current="antecedentes" />
+
+    <main id="contenido">
+    <div class="wrap">
+      <nav class="nav" aria-label="Proyectos">
+        <a href="/propuesta/antecedentes">← Todos los proyectos</a>
+        <span>{prev && <a href={prev.href}>← Anterior</a>}{prev && next && ' · '}{next && <a href={next.href}>Siguiente →</a>}</span>
+      </nav>
+      <div class="hoja-cab"><span>Ficha de trabajo · <b>{ref}</b>{enCurso && <i class="curso">En curso</i>}</span><span>{[c.sector, periodo].filter(Boolean).join(' · ')}</span></div>
+      <div class:list={['proyecto', { 'proyecto--sinfoto': !photo }]}>
+        {photo && <figure class="obra"><img src={c.image} srcset={`${c.image.replace(/-principal\.webp$/, '-principal-480.webp')} 480w, ${c.image.replace(/-principal\.webp$/, '-principal-960.webp')} 960w, ${c.image} 1600w`} sizes="(max-width: 900px) 100vw, 58vw" alt={`${c.title}, ${c.client}`} width="1600" height="1000" fetchpriority="high" decoding="async" /></figure>}
+        <div class="datos">
+          <h1>{c.title}<span class="dot">.</span></h1>
+          <div class="quien">{c.client}{when && <span> · {when}</span>}</div>
+          {c.summary && <p class="resumen">{c.summary}</p>}
+        </div>
+        <dl class="tabla">
+            <div><dt>Cliente</dt><dd>{c.client}</dd></div>
+            {c.sector && <div><dt>Sector</dt><dd><a href={`/propuesta/sectores/${c.sectorSlug}`}>{c.sector}</a></dd></div>}
+            {when && <div><dt>{cierre ? 'Inicio' : 'Fecha'}</dt><dd>{when}</dd></div>}
+            {cierre && <div><dt>{enCurso ? 'Cierre previsto' : 'Cierre'}</dt><dd>{cierre}</dd></div>}
+            <div><dt>Referencia</dt><dd>{ref}</dd></div>
+            {svcs.length > 0 && <div class="ancho"><dt>Servicios</dt><dd>{svcs.map((s) => <a href={`/propuesta/servicios/${s.code}`}>{s.name}</a>)}</dd></div>}
+        </dl>
+      </div>
+
+    </div>
+    <section class="sec">
+      <div class="wrap">
+        <div class="sec__head"><h2>Lo que se instaló<span class="dot">.</span></h2></div>
+        <FichaIso story={c} />
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="wrap">
+        <dl class="cajetin">{cajetin.map(([t, v]) => <div><dt>{t}</dt><dd>{v}</dd></div>)}</dl>
+      </div>
+    </section>
+
+    {sameClient.length > 0 && (
+      <section class="sec"><div class="wrap"><div class="sec__head"><h2>Más proyectos para {c.client}<span class="dot">.</span></h2></div><ol class="fichas">{sameClient.map((o) => <Ficha story={o} />)}</ol></div></section>
+    )}
+    {sameSector.length > 0 && c.sector && (
+      <section class="sec"><div class="wrap"><div class="sec__head"><h2>Más proyectos en {c.sector.toLowerCase()}<span class="dot">.</span></h2></div><ol class="fichas">{sameSector.map((o) => <Ficha story={o} showSector={false} />)}</ol></div></section>
+    )}
+
+    </main>
+
+    <Cierre />
+  </body>
+</html>

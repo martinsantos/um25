@@ -1,0 +1,176 @@
+---
+/**
+ * Servicio (2026-10-30, v5). Le habla a quien necesita ese servicio: qué es, qué cubre, qué
+ * hicimos, cómo lo hacemos, qué entregamos y dónde. Frases del catálogo y la ficha técnica.
+ * No indexable.
+ */
+import '../../../styles/proto-despiece.css';
+import Head from '../../../components/proto/Head.astro';
+import Top from '../../../components/proto/Top.astro';
+import Apertura from '../../../components/proto/Apertura.astro';
+import Ficha from '../../../components/proto/Ficha.astro';
+import Casos from '../../../components/proto/Casos.astro';
+import Cierre from '../../../components/proto/Cierre.astro';
+import { getServicioByCode } from '../../../lib/um26-directus';
+import { loadStories, services, SERVICE_KEY, SERVICE_PHOTO, type IsoSite, isoSrc, destacados, ratioDe } from '../../../components/proto/isoData';
+import { despieceAgregado, KIT_DE_SERVICIO } from '../../../components/proto/despiece';
+import Partes from '../../../components/proto/Partes.astro';
+import { CASOS_SERVICIO, casosDe } from '../../../components/proto/relato';
+import { SERVICE_SPECS } from '../../../data/serviceSpecs';
+import { SECTORS, SERVICE_SCENES } from '../../../data/cine/scenes';
+
+export const prerender = false;
+const code = String(Astro.params.code);
+const servicio = await getServicioByCode(Number(code));
+const nav = services.find((s) => s.code === code);
+const spec = SERVICE_SPECS[code];
+if (!servicio || !nav || !spec) return new Response(null, { status: 404 });
+const { stories } = await loadStories();
+const own = stories.filter((c) => c.serviceCodes.includes(code));
+const scene = (SERVICE_SCENES[code] || SERVICE_SCENES['101'])!.scene;
+const SITE: Record<string, IsoSite> = { fachada: 'building', aeropuerto: 'terminal', bodega: 'winery', hospital: 'clinic', planta: 'plant' };
+const site = SITE[scene] || 'building';
+// El equipo del servicio se trae de public/cine/iso al cargar (prioridad baja): el de consultoría es el edificio entero.
+const deviceSrc = code === '106' ? isoSrc('building') : `/cine/iso/service-${code}.svg`;
+// La caja del equipo se reserva con la proporción de su dibujo: cuando llega, no mueve nada.
+const deviceRatio = ratioDe(deviceSrc);
+const agregado = new Map(despieceAgregado(own).map((p) => [p.key, p]));
+const kit = (KIT_DE_SERVICIO[code] || []).map(([key, label]) => ({ key, label, n: agregado.get(key)?.proyectos || 0, u: agregado.get(key)?.unidades || 0 }));
+const photo = SERVICE_PHOTO[code];
+const poster = `/cine/media/cine-${scene}-${SERVICE_KEY[code]}-poster.avif`;
+const casos = casosDe(CASOS_SERVICIO[code] || []);
+const lower = servicio.name.toLowerCase();
+const bySector = SECTORS.map((s) => ({ slug: s.slug, name: s.name, count: own.filter((c) => c.sectorSlug === s.slug).length })).filter((s) => s.count > 0).sort((a, b) => b.count - a.count);
+const clientes = Object.values(own.reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
+const anios = own.map((c) => c.year).filter(Boolean);
+const desde = anios.length ? Math.min(...anios) : 0;
+const cifras: [string, string][] = own.length ? [[String(own.length), 'proyectos documentados'], [String(clientes.length), clientes.length === 1 ? 'cliente' : 'clientes'], [String(bySector.length), bySector.length === 1 ? 'sector' : 'sectores'], [String(desde), 'primer proyecto']] : [];
+const sceneTitle: Record<string, string> = { fachada: 'edificio', aeropuerto: 'aeropuerto', bodega: 'bodega', hospital: 'centro de salud', planta: 'planta' };
+const meta = Object.fromEntries(servicio.metadata.map((m) => [m.label, m.value]));
+const condiciones = ['Implementación', 'Garantía', 'Cobertura'].filter((k) => meta[k]).map((k) => `${k}: ${meta[k]}`).join('. ');
+const limpio = (s: string) => s.replace(/\s*desde el frente 10\d/i, '');
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <Head title={`${servicio.name} · ${servicio.tagline} · ULTIMA MILLA`} description={`${servicio.tagline}. ${servicio.description}`} image={photo} precargar />
+    <style>
+      .cubre { position: relative; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: center; }
+      .equipo { position: relative; aspect-ratio: var(--r, 4 / 3); max-height: 80vh; }
+      .equipo > div { position: absolute; inset: 3%; }
+      /* El dibujo ocupa la caja reservada, pase lo que pase con su viewBox: un hijo absoluto resuelve el 100 % contra la caja, un ítem de grilla no. */
+      .equipo :global(svg) { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
+      .caps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+      .caps li { padding: 13px 0; border-bottom: 1px solid var(--line-2); font-size: 1.1rem; color: var(--ink); }
+      .condiciones { margin-top: var(--s4); color: var(--ink-3); }
+      @media (max-width: 900px) {
+        .cubre { grid-template-columns: 112px minmax(0, 1fr); gap: var(--s3); align-items: start; }
+        .equipo { aspect-ratio: 1; max-height: none; position: sticky; top: calc(var(--top-h) + 16px); }
+        .equipo > div { inset: 0; }
+        .caps li { font-size: 1rem; padding: 10px 0; }
+      }
+    </style>
+  </head>
+  <body>
+    <Top current="servicios" />
+    <main id="contenido">
+
+    <Apertura label={servicio.name} isoSrc={isoSrc(site)} svc={code} image={photo} hero>
+      <h1>{servicio.name}<span class="dot">.</span></h1>
+      <p class="tag">{servicio.tagline}</p>
+      <p>{servicio.description}</p>
+      {cifras.length > 0 && <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>}
+      <a class="u" href={`/propuesta/antecedentes?service=${code}`}>{own.length > 0 ? `Ver los ${own.length} proyectos` : 'Ver todos los proyectos'}</a>
+    </Apertura>
+
+    <section class="sec">
+      <div class="wrap">
+        <div class="sec__head"><h2>Qué cubre<span class="dot">.</span></h2></div>
+        <div class="cubre" data-cubre>
+          <div class="equipo" data-equipo style={`--r:${deviceRatio.toFixed(3)}`}><div class="iso" data-src={deviceSrc}></div></div>
+          <ol class="caps" data-caps>{servicio.capabilities.map((c) => <li>{c}</li>)}</ol>
+        </div>
+      </div>
+    </section>
+
+    <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} fallbackImage={photo} />
+
+    <section class="sec">
+      <div class="wrap cols cols-5-7">
+        <h2>Cómo lo hacemos<span class="dot">.</span></h2>
+        <div class="cols cols-2">{servicio.proceso.map((s) => <div class="item"><h3>{s.titulo}</h3><p>{s.desc}</p></div>)}</div>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="wrap">
+        <div class="sec__head"><h2>Qué entregamos<span class="dot">.</span></h2></div>
+        <div class="cols cols-4">
+          <div class="item"><h3>Alcance</h3><ul class="lista">{spec.scope.map((s) => <li>{s}</li>)}</ul></div>
+          <div class="item"><h3>Normas y criterios</h3><ul class="lista">{spec.standards.map((s) => <li>{s}</li>)}</ul></div>
+          <div class="item"><h3>Documentación que recibís</h3><ul class="lista">{spec.deliverables.map((s) => <li>{s}</li>)}</ul></div>
+          <div class="item"><h3>Después de la obra</h3><ul class="lista">{spec.serviceLevel.map((s) => <li>{limpio(s)}</li>)}</ul></div>
+        </div>
+        {condiciones && <p class="condiciones">{condiciones}.</p>}
+      </div>
+    </section>
+
+    {kit.length > 0 && (
+      <section class="sec">
+        <div class="wrap">
+          <div class="sec__head"><h2>Con qué se hace<span class="dot">.</span></h2></div>
+          <Partes items={kit.map((p) => ({ key: p.key, label: p.label, meta: servicio.name, n: p.n > 0 ? `${p.n} ${p.n === 1 ? 'proyecto' : 'proyectos'}` : 'Alcance del servicio' }))} />
+        </div>
+      </section>
+    )}
+
+    {clientes.length > 0 && (
+      <section class="sec">
+        <div class="wrap">
+          <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2></div>
+          <ol class="clientes">
+            {clientes.slice(0, 9).map((c) => <li><a href={`/propuesta/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
+            {clientes.length > 9 && <li class="mas"><a href={`/propuesta/antecedentes?service=${code}`}>Y {clientes.length - 9} más</a><span></span></li>}
+          </ol>
+        </div>
+      </section>
+    )}
+
+    {bySector.length > 0 && (
+      <section class="sec">
+        <div class="wrap cols cols-5-7 cols--centro">
+          <div class="item">
+            <h2>Dónde lo hicimos<span class="dot">.</span></h2>
+            <p class="frase">{bySector.map((s, i) => <><a href={`/propuesta/sectores/${s.slug}`}><b>{s.name}</b></a>{` (${s.count} ${s.count === 1 ? 'proyecto' : 'proyectos'})`}{i < bySector.length - 2 ? ', ' : i === bySector.length - 2 ? ' y ' : '.'}</>)}</p>
+          </div>
+          <a class="pelicula" href={`/propuesta/sectores/${bySector[0].slug}`}><figure><img src={poster} alt="" width="1920" height="1080" loading="lazy" decoding="async" /></figure><span class="small">{servicio.name} en {sceneTitle[scene]}, en movimiento</span></a>
+        </div>
+      </section>
+    )}
+
+    {own.length > 0 && (
+      <section class="sec">
+        <div class="wrap">
+          <div class="sec__head"><h2>{own.length} proyectos con {lower}<span class="dot">.</span></h2></div>
+          <ol class="fichas">{destacados(own, 8).map((c, i) => <Ficha story={c} eager={i < 4} />)}</ol>
+          <a class="u more" href={`/propuesta/antecedentes?service=${code}`}>Ver los {own.length} proyectos</a>
+        </div>
+      </section>
+    )}
+
+    </main>
+
+    <Cierre />
+
+    <script>
+      // El equipo del servicio, solo: se encuadra a su dibujo. Sin líneas guía hacia la lista; señalaban puntos que no existían.
+      const equipo = document.querySelector<HTMLElement>('[data-equipo]')!;
+      const lazy = equipo.querySelector<HTMLElement>('[data-src]');
+      const fit = (svg: SVGSVGElement) => { if (svg.dataset.fit) return; try { const b = svg.getBBox(); const pad = Math.max(b.width, b.height) * .06; svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`); svg.setAttribute('preserveAspectRatio', 'xMidYMid meet'); svg.dataset.fit = '1'; } catch { /* sin bbox */ } };
+      const draw = () => { const svg = equipo.querySelector<SVGSVGElement>('svg'); if (svg) fit(svg); };
+      // El dibujo del equipo pesa (la sala de servidores, medio megabyte): se trae cuando la sección se acerca a la pantalla y la página está quieta, nunca antes de pintar la apertura.
+      if (lazy) new IntersectionObserver((es, o) => { if (!es.some((e) => e.isIntersecting)) return; o.disconnect(); (window.requestIdleCallback || ((f: () => void) => setTimeout(f, 300)))(() => fetch(lazy.dataset.src!, { priority: 'low' } as RequestInit).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) { lazy.innerHTML = svg; draw(); } })); }, { rootMargin: '600px 0px' }).observe(equipo);
+      draw();
+    </script>
+  </body>
+</html>

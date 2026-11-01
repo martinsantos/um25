@@ -1,8 +1,12 @@
 ---
 import LayoutV4 from '../layouts/LayoutV4.astro';
+import NoEncontrada from '../components/proto/NoEncontrada.astro';
 
 Astro.response.status = 404;
+// Bajo /propuesta, la página que no existe se dice con el sistema de la propuesta.
+const propuesta = Astro.url.pathname.startsWith('/propuesta');
 ---
+{propuesta ? <NoEncontrada /> : (
 
 <LayoutV4
   title="Página no encontrada | ULTIMA MILLA"
@@ -33,3 +37,4 @@ Astro.response.status = 404;
     </div>
   </section>
 </LayoutV4>
+)}

@@ -26,7 +26,6 @@ import {
   formatDisplayName,
   plainTextFromHtml,
   renderEditorialBody,
-  sanitizeEditorialText,
   truncateEditorialText,
 } from '../../../utils/editorialContent';
 import { getAntecedenteSectorLabel } from '../../../utils/antecedenteSectorPresentation';
@@ -186,50 +185,49 @@ const cleanDisplayText = (value: unknown) => String(value || '')
 const displayClientName = formatDisplayName(antecedente.Cliente);
 const displayCaseText = (value: unknown) => applyDisplayNameReplacements(value, [antecedente.Cliente]);
 
-const caseBodySource = antecedente.displayDescription || antecedente.Descripcion || antecedente.descripcion || '';
+// Descripciones de plantilla del CMS ("Ejecución integral de X para Y, asegurando
+// continuidad operativa y cumplimiento de estándares técnicos de calidad."): se quita
+// la fórmula y, si lo que queda repite el título (con o sin el cliente), no se muestra.
+const TEMPLATE_PHRASES: Array<[RegExp, string]> = [
+  [/(^|>)\s*Ejecución integral de\s+/gi, '$1'],
+  [/,?\s*asegurando continuidad operativa y cumplimiento de estándares técnicos de calidad\.?/gi, '.'],
+  // Cola "Cliente: X. Sector: Y." de los registros importados: esos datos ya están en la ficha.
+  [/\s*Cliente:\s*[^.<]+\.?\s*(?:Sector:\s*[^.<]+\.?)?\s*(?=<|$)/gi, ''],
+];
+const stripTemplatePhrases = (value: unknown): string => {
+  let text = String(value || '');
+  for (const [pattern, replacement] of TEMPLATE_PHRASES) text = text.replace(pattern, replacement);
+  return text.replace(/\.\s*\./g, '.').trim();
+};
+const comparableText = (value: unknown): string => cleanDisplayText(value)
+  .toLowerCase()
+  .replace(/\(\d+\)/g, ' ')
+  .replace(/[.,:;()]/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim();
+const repeatsTitle = (text: string, title: unknown, client: unknown): boolean => {
+  const body = comparableText(text);
+  if (!body) return true;
+  const titleKey = comparableText(title);
+  const clientKey = comparableText(client);
+  const variants = new Set([
+    titleKey,
+    clientKey ? `${titleKey} para ${clientKey}` : '',
+    clientKey ? `${titleKey} cliente ${clientKey}` : '',
+    clientKey ? `${titleKey} ${clientKey}` : '',
+  ].filter(Boolean));
+  return variants.has(body);
+};
+const caseTitleText = cleanDisplayText(antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre);
+const strippedCaseBody = stripTemplatePhrases(antecedente.displayDescription || antecedente.Descripcion || antecedente.descripcion || '');
+const caseBodySource = repeatsTitle(strippedCaseBody, caseTitleText, antecedente.Cliente)
+  || repeatsTitle(strippedCaseBody, antecedente.Titulo || antecedente.Nombre, antecedente.Cliente)
+  ? '' : strippedCaseBody;
 const caseBodyPlain = plainTextFromHtml(caseBodySource, 4000);
-const caseDescriptionHtml = await renderEditorialBody(caseBodySource);
-const rawCaseHeroExcerpt = excerptEditorialSentences(caseBodySource, 176, 3)
-  || cleanDisplayText(antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre);
-const caseHeroExcerpt = displayCaseText(rawCaseHeroExcerpt);
-
-// La unidad de negocio se muestra sólo si agrega información (y nunca rótulos de importación).
-const isPublicBusinessUnit = (unit: unknown, area: unknown): boolean => {
-  const value = String(unit || '').trim();
-  return Boolean(value) && value !== String(area || '').trim() && !/import|sgi\b/i.test(value);
-};
-
-const buildStructuredScopeItems = (item: any): string[] => {
-  const rows = [
-    item.displayTitle || item.Titulo ? `Alcance: ${cleanDisplayText(item.displayTitle || item.Titulo)}` : '',
-    item.Cliente ? `Cliente: ${formatDisplayName(item.Cliente)}` : '',
-    item.Area ? `Área registrada: ${cleanDisplayText(item.Area)}` : '',
-    isPublicBusinessUnit(item.Unidad_de_negocio, item.Area) ? `Unidad: ${cleanDisplayText(item.Unidad_de_negocio)}` : '',
-    formatAntecedenteDate(item.Fecha) ? `Cierre: ${formatDate(item.Fecha)}` : '',
-  ].filter((row) => row.length > 8);
-  return rows.slice(0, 5);
-};
-
-const extractScopeItems = (descripcion: string): string[] => {
-  const plain = plainTextFromHtml(descripcion, 2000);
-  if (!plain) return [];
-  const sentences = plain
-    .split(/[.;]/)
-    .map((s) => sanitizeEditorialText(s))
-    .filter((s) => s.length > 12 && s.length < 160);
-  return sentences.slice(0, 5);
-};
-
-const scopeFromDescription = extractScopeItems(caseBodySource);
-const scopeItems = (() => {
-  const bodyNorm = caseBodyPlain.toLowerCase().replace(/\s+/g, ' ').trim();
-  const uniqueFromDesc = scopeFromDescription.filter((item) => {
-    const snippet = item.toLowerCase().replace(/\s+/g, ' ').trim();
-    return snippet.length > 20 && !bodyNorm.includes(snippet);
-  });
-  if (uniqueFromDesc.length >= 2) return uniqueFromDesc;
-  return buildStructuredScopeItems(antecedente);
-})();
+const caseDescriptionHtml = caseBodySource ? await renderEditorialBody(caseBodySource) : '';
+const caseHeroExcerpt = caseBodySource ? displayCaseText(excerptEditorialSentences(caseBodySource, 176, 3)) : '';
+// "Qué se hizo" sólo cuando la descripción dice más que la bajada del encabezado.
+const showCaseBody = Boolean(caseDescriptionHtml) && comparableText(caseBodyPlain) !== comparableText(caseHeroExcerpt);
 
 // Use the same catalog classification as the index. Area remains a separate source field.
 const [catalogCases, catalogServices] = await Promise.all([
@@ -239,7 +237,6 @@ const [catalogCases, catalogServices] = await Promise.all([
 const currentCatalogCase = catalogCases.find((item) => String(item.id) === String(id));
 const caseSectorSlug = currentCatalogCase?.sector_slug;
 const caseSectorLabel = getAntecedenteSectorLabel(caseSectorSlug);
-const sourceAreaLabel = cleanDisplayText(antecedente.Area || '');
 const serviceByCode = new Map(catalogServices.map((service) => [Number(service.code), service]));
 const relatedServices = (currentCatalogCase?.service_codes || [])
   .map((code) => serviceByCode.get(Number(code)))
@@ -291,7 +288,7 @@ const comparableCases = currentCatalogCase
       // Un solo caso por título+cliente: las obras repetidas en lotes no se duplican.
       .filter((c, i, arr) => arr.findIndex((o) => `${o.item.title}|${o.item.client}`.toLowerCase() === `${c.item.title}|${c.item.client}`.toLowerCase()) === i)
       .slice(0, 3)
-      .map(({ item, shared, sameSector }) => ({
+      .map(({ item }) => ({
         id: item.id,
         slug: item.slug,
         Titulo: item.title,
@@ -302,11 +299,15 @@ const comparableCases = currentCatalogCase
         imageUrl: item.image,
         Area: getAntecedenteSectorLabel(item.sector_slug) || '',
         Fecha: String(item.year || ''),
-        comparableWhy: [shared > 0 ? (shared === 1 ? 'mismo servicio' : `${shared} servicios en común`) : '', sameSector ? 'mismo sector' : ''].filter(Boolean).join(' · '),
       }))
   : [];
 const relatedAntecedentes = comparableCases;
-const comparablesAreScored = comparableCases.length > 0;
+// Resumen de un proyecto relacionado: sólo si no es la fórmula de plantilla ni repite su título.
+const relatedCaseSummary = (ant: any): string => {
+  const text = stripTemplatePhrases(ant.displayDescription || ant.Descripcion || '');
+  if (repeatsTitle(text, ant.displayTitle || ant.Titulo, ant.Cliente)) return '';
+  return applyDisplayNameReplacements(truncateEditorialText(text, 150), [ant.Cliente]);
+};
 
 const buildCaseHeadline = (item: any): string => {
   const title = cleanDisplayText(item.Titulo || item.Nombre || 'Proyecto técnico');
@@ -382,7 +383,6 @@ const caseSeoDescriptionSource = [
   antecedente.displayDescription || caseBodySource,
   caseRecordSummary,
   caseCalloutText,
-  scopeItems[0],
 ].filter(Boolean).join('. ');
 const caseSeo = buildCaseSeoMeta({
   title: antecedente.displayTitle || antecedente.Titulo || antecedente.Nombre,
@@ -460,13 +460,13 @@ const antecedentePageStructuredData = [
       <div class="case-shell caso-hero__grid">
         <div class="caso-hero__copy">
           <a class="case-back" href="/antecedentes" data-case-back>← Todos los antecedentes</a>
-          <div class:list={['case-detail-label', `is-${caseRecordTone}`]}>
-            <span class="case-detail-label__area">{caseSectorLabel || 'Clasificación pendiente'}</span>
-            <span class="case-detail-label__reference">{caseReference}</span>
-          </div>
+          {caseSectorLabel && (
+            <div class:list={['case-detail-label', `is-${caseRecordTone}`]}>
+              <span class="case-detail-label__area">{caseSectorLabel}</span>
+            </div>
+          )}
           <h1>{caseHeadline}</h1>
-          <p class="case-lead">{caseHeroExcerpt}</p>
-          <a class="case-btn" href="/contacto">Pedir un relevamiento</a>
+          {caseHeroExcerpt && <p class="case-lead">{caseHeroExcerpt}</p>}
         </div>
 
         <aside class="caso-dossier" aria-label="Ficha técnica del antecedente">
@@ -484,30 +484,21 @@ const antecedentePageStructuredData = [
           <dl class="case-ficha">
             {displayClientName && <div><dt>Cliente</dt><dd>{displayClientName}</dd></div>}
             {caseSectorLabel && <div><dt>Sector</dt><dd>{caseSectorLabel}</dd></div>}
-            {sourceAreaLabel && <div><dt>Área registrada</dt><dd>{sourceAreaLabel}</dd></div>}
             {caseDateLabel && <div><dt>Finalización</dt><dd>{caseDateLabel}</dd></div>}
-            <div><dt>Tipo de trabajo</dt><dd>{caseRecordLabel}</dd></div>
             {appliedServiceNames.length > 0 && <div><dt>Servicios relacionados</dt><dd>{appliedServiceNames.join(' · ')}</dd></div>}
+            <div><dt>Referencia</dt><dd><span class="case-detail-label__reference">{caseReference}</span></dd></div>
           </dl>
         </aside>
       </div>
     </section>
 
+    {(showCaseBody || relatedServices.length > 0) && (
     <section class="caso-main">
       <div class="case-shell case-body">
-        <h2>Qué se hizo.</h2>
-        {caseDescriptionHtml ? (
-          <div class="case-prose" set:html={caseDescriptionHtml} />
-        ) : (
-          <p class="case-prose">{caseHeroExcerpt}</p>
-        )}
-
-        {scopeItems.length > 0 && (
+        {showCaseBody && (
           <>
-            <h2>Alcance técnico.</h2>
-            <ul class="case-scope-list">
-              {scopeItems.map((item) => <li>{item}</li>)}
-            </ul>
+            <h2>Qué se hizo.</h2>
+            <div class="case-prose" set:html={caseDescriptionHtml} />
           </>
         )}
 
@@ -526,20 +517,20 @@ const antecedentePageStructuredData = [
         )}
       </div>
     </section>
+    )}
 
     {relatedAntecedentes.length > 0 && (
       <section class="caso-rel">
         <div class="case-shell">
-          <h2>{comparablesAreScored ? 'Proyectos relacionados por servicio o sector.' : 'Proyectos relacionados.'}</h2>
+          <h2>Proyectos relacionados.</h2>
           <div class="caso-rel__ledger">
             {relatedAntecedentes.map((ant) => {
               const year = formatAntecedenteYear(ant.Fecha);
               return (
                 <a class="caso-row" href={`/antecedentes/${ant.id}/${ant.slug}`} data-year={year} year={formatAntecedenteYear(ant.Fecha)}>
                   <b>{compactCaseTitle(ant.displayTitle || ant.Titulo || 'Proyecto', ant.Cliente)}</b>
-                  <span>{applyDisplayNameReplacements(truncateEditorialText(ant.displayDescription || ant.Descripcion || ant.Titulo, 150), [ant.Cliente])}</span>
-                  <em>{[ant.Area ? `Sector: ${ant.Area}` : '', year].filter(Boolean).join(' · ')}</em>
-                  {ant.comparableWhy && <small class="caso-row__reason">Coincidencia: {ant.comparableWhy}</small>}
+                  {relatedCaseSummary(ant) && <span>{relatedCaseSummary(ant)}</span>}
+                  <em>{[ant.Area, year].filter(Boolean).join(' · ')}</em>
                 </a>
               );
             })}
@@ -623,9 +614,6 @@ const antecedentePageStructuredData = [
   .case-body h2:first-child { margin-top: 8px; }
   .case-prose, .case-prose :global(p) { color: #c4c7cc; font-size: 1.0625rem; line-height: 1.6; }
   .case-prose :global(p) { margin: 0 0 14px; }
-  .case-scope-list { list-style: none; margin: 0; padding: 0; }
-  .case-scope-list li { padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.12); color: #c4c7cc; font-size: 1.0625rem; line-height: 1.5; }
-  .case-scope-list li:last-child { border-bottom: 1px solid rgba(255,255,255,0.12); }
   .case-services { list-style: none; margin: 0; padding: 0; }
   .case-services li { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 24px; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.12); }
   .case-services li:last-child { border-bottom: 1px solid rgba(255,255,255,0.12); }
@@ -636,7 +624,6 @@ const antecedentePageStructuredData = [
   .caso-rel__ledger { margin: 0 0 20px; border-top: 1px solid rgba(255,255,255,0.12); }
   .caso-row { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr) auto; gap: 24px; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.12); color: #fff; text-decoration: none; }
   .caso-row b { font-weight: 600; } .caso-row span { color: #c4c7cc; font-size: 1.0625rem; line-height: 1.45; } .caso-row em { font-style: normal; color: #9a9a9a; white-space: nowrap; }
-  .caso-row__reason { grid-column: 1 / -1; color: #9a9a9a; font-size: 0.875rem; line-height: 1.4; }
   .caso-row:hover b, .caso-row:focus-visible b { text-decoration: underline; text-decoration-color: #dc2626; }
   @media (max-width: 760px) { .caso-row { grid-template-columns: 1fr; gap: 4px; } .caso-row em { white-space: normal; } }
   .case-close { padding: 32px 0 64px; }

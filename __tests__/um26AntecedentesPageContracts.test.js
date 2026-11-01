@@ -60,7 +60,9 @@ describe('UM26 antecedentes index contracts', () => {
     expect(pageSource).toContain('data-filter-panel');
     expect(pageSource).toContain('data-more');
     expect(pageSource).toContain('data-clear');
-    for (const facet of ['sector', 'service', 'year', 'status']) {
+    // 2026-10-29: los controles visibles son sector y año; servicio, período,
+    // cliente y estado siguen aceptándose por URL.
+    for (const facet of ['sector', 'year']) {
       expect(pageSource).toContain(`type: '${facet}'`);
     }
   });

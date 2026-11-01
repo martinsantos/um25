@@ -1,23 +1,14 @@
 ---
 import LayoutV4 from '../layouts/LayoutV4.astro';
-import SectorTemplateEditorial from '../components/templates/SectorTemplateEditorial.astro';
-import SectorTemplateAtlas from '../components/templates/SectorTemplateAtlas.astro';
 import SectorIndexUM26 from '../components/templates/SectorIndexUM26.astro';
 import { sectorVisualOrder, sectorVisualSystem } from '../data/sectorVisualSystem';
 import { editorialImages, editorialImageDimensions } from '../data/editorialImageSystem';
-import { isReplicaIdenticalCopy } from '../utils/replicaProdCopy';
 import {
   buildSectorStrategicLinkGroups,
   buildStrategicWebPageStructuredData,
 } from '../data/strategicLinkGraph';
 
 const sectores = sectorVisualOrder.map((slug) => sectorVisualSystem[slug]);
-const devTemplateParam = import.meta.env.DEV && !isReplicaIdenticalCopy()
-  ? Astro.url.searchParams.get('template')
-  : null;
-const templateVariant = devTemplateParam === 'editorial' || devTemplateParam === 'atlas'
-  ? devTemplateParam
-  : 'um26';
 const requestedSector = new URL(Astro.request.url).searchParams.get('sector') || '';
 const sectorFilter = sectores.some((sector) => sector.slug === requestedSector) ? requestedSector : '';
 const compactSectorRailLabels: Record<string, string> = {
@@ -85,27 +76,9 @@ const structuredData = [
   imageHeight={editorialImageDimensions.height}
   structuredData={structuredData}
 >
-  {
-    templateVariant === 'um26' ? (
-      <SectorIndexUM26
-        sectors={sectores}
-        sectorFilter={sectorFilter}
-        sectorFilterOptions={sectorFilterOptions}
-      />
-    ) : templateVariant === 'atlas' ? (
-      <SectorTemplateAtlas
-        mode="index"
-        sectors={sectores}
-        sectorFilter={sectorFilter}
-        sectorFilterOptions={sectorFilterOptions}
-      />
-    ) : (
-      <SectorTemplateEditorial
-        mode="index"
-        sectors={sectores}
-        sectorFilter={sectorFilter}
-        sectorFilterOptions={sectorFilterOptions}
-      />
-    )
-  }
+  <SectorIndexUM26
+    sectors={sectores}
+    sectorFilter={sectorFilter}
+    sectorFilterOptions={sectorFilterOptions}
+  />
 </LayoutV4>

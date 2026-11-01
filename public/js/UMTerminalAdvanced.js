@@ -544,7 +544,7 @@ class UMTerminalAdvanced {
 - Selector de temas en la barra superior
 - Escribe 'grep [término]' para buscar información específica
 
-¡Explora 22 años de historia tecnológica! 🌟
+¡Explora 24 años de historia tecnológica! 🌟
             `
         };
     }
@@ -630,7 +630,7 @@ drwxr-xr-x 2 um um  4096 dic  1 10:00 📂 equipo/
 • Telecom (Telecomunicaciones)
 • Claro (Telecomunicaciones)
 
-💡 22 años construyendo confianza empresarial
+💡 24 años construyendo confianza empresarial
 💡 Usa 'grep [cliente]' para ver proyectos específicos
             `
         };
@@ -697,7 +697,7 @@ drwxr-xr-x 2 um um  4096 dic  1 10:00 📂 equipo/
 ╚════════════════════════════════════════════════════════════╝
 
 🏢 EMPRESA:           Ultima Milla S.R.L.
-📅 FUNDACIÓN:         2003 (22 años de experiencia)
+📅 FUNDACIÓN:         2003 (24 años de experiencia)
 📍 UBICACIÓN:         Mendoza, Argentina
 🌐 ALCANCE:           Nacional e Internacional
 
@@ -711,7 +711,7 @@ drwxr-xr-x 2 um um  4096 dic  1 10:00 📂 equipo/
 📊 NÚMEROS:
 • 469+ Proyectos Completados
 • 150+ Clientes Satisfechos
-• 22 Años de Experiencia
+• 24 Años de Experiencia
 • Continuidad operativa monitoreada
 
 🏆 CERTIFICACIONES:
@@ -791,7 +791,7 @@ class UltimaMilla:
             "status": "ready",
             "services": ["web", "mobile", "security", "networks"],
             "technologies": ["React", "Node.js", "Python", "AWS"],
-            "message": "22 años conectando el futuro"
+            "message": "24 años conectando el futuro"
         }
 
 if __name__ == "__main__":
@@ -810,7 +810,7 @@ if __name__ == "__main__":
 # ULTIMA MILLA - Terminal Interactivo
 
 ## 🚀 Descripción
-Terminal empresarial para explorar 22 años de proyectos, clientes
+Terminal empresarial para explorar 24 años de proyectos, clientes
 e infraestructura tecnológica.
 
 ## ⚡ Características
@@ -944,7 +944,7 @@ ${results.join('\n')}
 ═══════════════════════════════════════════════════════════
 
 🏢 INFORMACIÓN GENERAL:
-• Años Activos:           22 años (2003-2025)
+• Años Activos:           24 años (2003-2025)
 • Proyectos Completados:  ${this.servicios.length}+ 
 • Clientes Atendidos:     ${this.clientes.length}+
 • Sectores:               Público y Privado
@@ -981,7 +981,7 @@ ${results.join('\n')}
 
 ═══════════════════════════════════════════════════════════
 
-🚀 "22 años conectando el futuro" - Ultima Milla 2025
+🚀 "24 años conectando el futuro" - Ultima Milla 2025
             `
         };
     }
@@ -1010,7 +1010,7 @@ ${this.servicios.length}   P R O Y E C T O S   A C T I V O S
 ULTIMA MILLA - datos operativos
 ¿Ver historial técnico o volver al terminal? [H/v]
 
-HISTORIAL: 22 años de proyectos, redes y software
+HISTORIAL: 24 años de proyectos, redes y software
 VOLVER: Regresa al terminal normal
 
 CONECTANDO A LA RED DE DATOS ULTIMA MILLA...
@@ -1027,7 +1027,7 @@ Tip: el modo datos está activo en el fondo
             "La innovación distingue entre un líder y un seguidor. - Steve Jobs",
             "La tecnología es mejor cuando acerca a la gente. - Matt Mullenweg",
             "En Ultima Milla, cada proyecto es una oportunidad de conectar el futuro.",
-            "22 años conectando sueños con realidad tecnológica.",
+            "24 años conectando sueños con realidad tecnológica.",
             "No hay problemas de redes que no podamos resolver. - Equipo UM",
             "El código limpio siempre parece que fue escrito por alguien que se preocupa. - Robert C. Martin",
             "La continuidad operativa se construye proyecto a proyecto. - Ultima Milla",
@@ -1095,7 +1095,7 @@ Tema activo: ${this.currentTheme}
 • ISO 27001 (Seguridad de la Información)
 • Partner Microsoft & AWS
 
-22 años de infraestructura operativa
+24 años de infraestructura operativa
                 `
             };
         }

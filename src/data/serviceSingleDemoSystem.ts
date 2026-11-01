@@ -58,7 +58,7 @@ export const serviceSingleDemoCopy: Record<number, ServiceSingleCopy> = {
   },
   106: {
     headline: 'Consultoría IT con criterio de terreno.',
-    paragraph: 'Diagnóstico, arquitectura, roadmap e inversión basados en 22 años de obras reales, para decidir infraestructura con datos, riesgos claros y evidencia.',
+    paragraph: 'Diagnóstico, arquitectura, roadmap e inversión basados en 24 años de obras reales, para decidir infraestructura con datos, riesgos claros y evidencia.',
     capabilitiesIntro: 'Un mismo equipo releva, diseña, planifica y acompaña cada decisión de infraestructura con criterio técnico y evidencia.',
     approachHeading: 'Del relevamiento a la decisión respaldada.',
     approachIntro: 'No vendemos un informe genérico. Auditamos el sitio, ordenamos riesgos y entregamos un plan que se puede ejecutar y medir.',

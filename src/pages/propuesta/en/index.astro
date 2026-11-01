@@ -1,0 +1,34 @@
+---
+/** English overview (2026-10-30): the texts of the production English pages, in the same system. Not indexable. */
+import '../../../styles/proto-despiece.css';
+import Head from '../../../components/proto/Head.astro';
+import Top from '../../../components/proto/Top.astro';
+import Apertura from '../../../components/proto/Apertura.astro';
+import Cierre from '../../../components/proto/Cierre.astro';
+import { loadStories, isoSrc, filmOf } from '../../../components/proto/isoData';
+export const prerender = false;
+const { total } = await loadStories();
+---
+<!doctype html>
+<html lang="en">
+  <head><Head title="ULTIMA MILLA · IT services for critical operations" description="Networks, electronic security, telecom, custom software, energy and on-site support for organizations that need continuity, evidence and accountable delivery." image="/cine/media/cine-fachada-poster.jpg" lang="en" precargar /></head>
+  <body>
+    <Top lang="en" />
+    <main id="contenido">
+    <Apertura label="Overview" isoSrc={isoSrc('building')} image={filmOf('constructoras').poster} film={filmOf('constructoras').film} poster={filmOf('constructoras').poster} hero>
+      <span class="small">24 years of IT services. Mendoza, Argentina.</span>
+      <h1>IT services for operations that cannot stop<span class="dot">.</span></h1>
+      <p>Networks, electronic security, telecom, custom software, energy and on-site support for organizations that need continuity, evidence and accountable delivery.</p>
+      <a class="u" href="/propuesta/antecedentes">{total} documented projects in catalog</a>
+    </Apertura>
+    <section class="sec"><div class="wrap cols cols-5-7">
+      <h2>Evidence<span class="dot">.</span></h2>
+      <div class="prosa">
+        <p class="lead">{total} documented projects in catalog. 24+ years operating infrastructure. 24/7 support for critical environments.</p>
+        <p>Detailed service and project pages are available in Spanish. <a class="u" href="/propuesta">Versión en español</a></p>
+      </div>
+    </div></section>
+    </main>
+    <Cierre lang="en" />
+  </body>
+</html>

@@ -2,9 +2,10 @@
 // Banner cine: plano Cycles pre-renderizado (vuelo imposible por la escena, con cortes
 // "pop" entre edificio y esqueleto de sistemas) y etiquetas que siguen a los equipos.
 // Portada: encadena las escenas. Sector o servicio: una escena en bucle.
-// El 3D interactivo se abre sólo a pedido (/cine/cine-banner-accessible-2610.js; v5 = v4 + evento umc:cut desde el despiece).
+// El 3D interactivo se abre sólo a pedido (/cine/cine-banner-accessible-2910.js; v5 = v4 + evento umc:cut desde el despiece).
+// 2910: en teléfono y conexiones lentas la película no arranca sola (póster + botón); sin leyenda de escena.
 import '../../styles/cine-banner.css';
-import { HOME_SCENES, cutCaption, V4_CUTS, SOFTWARE_FILM } from '../../data/cine/scenes';
+import { HOME_SCENES, V4_CUTS, SOFTWARE_FILM } from '../../data/cine/scenes';
 
 interface Stat { label: string; value: string }
 interface Link { href: string; label: string }
@@ -37,7 +38,6 @@ const variantsAttr = Object.entries(variants).filter(([, v]) => v.length).map(([
 const dot = title.endsWith('.');
 const heading = dot ? title.slice(0, -1) : title;
 const rail = HOME_SCENES.filter((s) => scenes.includes(s.scene));
-const firstTitle = cutCaption(first);
 const fallbackFor = (key: string) => key === SOFTWARE_FILM
   ? '/cine/iso/service-104.svg'
   : V4_CUTS[key]?.poster || `/cine/media/cine-${key.split('-')[0]}-poster.avif`;
@@ -78,8 +78,6 @@ const firstFallback = fallbackFor(first);
           </button>
         ))}
       </div>
-    ) : (scenes.length > 1 || variantsAttr) ? (
-      <p class="umc-caption" data-umc-caption>{firstTitle}</p>
     ) : (
       <span class="umc-caption" aria-hidden="true"></span>
     )}
@@ -91,4 +89,4 @@ const firstFallback = fallbackFor(first);
     </div>
   </div>
 </section>
-<script src="/cine/cine-banner-accessible-2610.js" type="module" is:inline></script>
+<script src="/cine/cine-banner-accessible-2910.js" type="module" is:inline></script>
