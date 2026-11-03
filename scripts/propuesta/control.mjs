@@ -23,12 +23,15 @@ if (process.env.AXE_MODULE) { try { const m = await import(process.env.AXE_MODUL
 const axe = async (page) => { if (!AxeBuilder) return null; try { const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice']).exclude('astro-dev-toolbar').analyze(); return r.violations.map((v) => `${v.id} (${v.impact}, ${v.nodes.length})`); } catch (e) { return [`axe falló: ${e.message.slice(0, 80)}`]; } };
 
 // Presupuesto de altura en pantallas (alto de la ventana), por página y por ancho.
+// GO 3/11: Servicios añade 54 prestaciones ilustradas; Sectores, 47 integraciones.
+// Alturas aprobadas máximas: 10,69 pantallas a 1440 y 17,11 a 390; se conserva
+// un margen acotado y todos los controles de overflow, estabilidad, peso y accesibilidad.
 const ANCHOS = [{ w: 1440, h: 900, k: 'escritorio' }, { w: 1310, h: 680, k: 'portatil' }, { w: 1024, h: 768, k: 'tablet' }, { w: 390, h: 844, k: 'telefono' }];
 const PAGINAS = [
   { id: 'portada', path: '/', max: { escritorio: 7, portatil: 8.5, telefono: 11 } },
   { id: 'sectores', path: '/sectores', max: { escritorio: 5, portatil: 6, telefono: 9 } },
-  { id: 'sector', path: '/sectores/aeropuertos', max: { escritorio: 10, portatil: 12, telefono: 16 } },
-  { id: 'servicio', from: 'a[href^="/servicios/"][href!="/servicios"]', max: { escritorio: 10, portatil: 12, telefono: 16 } },
+  { id: 'sector', path: '/sectores/aeropuertos', max: { escritorio: 11.5, portatil: 14, telefono: 17 } },
+  { id: 'servicio', from: 'a[href^="/servicios/"][href!="/servicios"]', max: { escritorio: 11.5, portatil: 14, telefono: 18 } },
   { id: 'proyectos', path: '/antecedentes', max: { escritorio: 14, portatil: 16, telefono: 20 } },
   { id: 'proyectos-filtro', path: '/antecedentes?sector=bodegas&service=107', max: { escritorio: 6, portatil: 7, telefono: 10 } },
   { id: 'ficha', from: 'a[href^="/antecedentes/"]', filtro: /\/antecedentes\/\d+\//, max: { escritorio: 8, portatil: 9.5, telefono: 14 } },
@@ -116,11 +119,13 @@ for (const pag of PAGINAS) {
       // El lugar por dentro (sector, ficha) cambia de sistema solo: en seis segundos a la vista tiene que haber pasado de uno a otro.
       await page.mouse.move(2, 2);
       const dentroOk = await page.evaluate(async () => {
-        const st = document.querySelector('.dentro__stage, .fiso__lugar'); if (!st) return true;
+        const st = document.querySelector('[data-diagram-stage]'); if (!st) return true;
         st.scrollIntoView({ block: 'center' }); await new Promise((r) => setTimeout(r, 700));
         const vistos = new Set(); for (let i = 0; i < 60; i++) { if (st.dataset.svc) vistos.add(st.dataset.svc); if (vistos.size > 1) return true; await new Promise((r) => setTimeout(r, 100)); }
-        const codes = (st.dataset.svcs || '').split(' ').filter(Boolean); const n = document.querySelectorAll('[data-dentro] [data-code]').length;
-        return (codes.length || n) <= 1 && vistos.size >= 1;
+        const root = st.closest('[data-dentro], [data-fiso]');
+        const controls = [...(root?.querySelectorAll('[data-diagram-code]') || [])];
+        const codes = [...new Set(controls.length ? controls.map(button => button.dataset.diagramCode) : (st.dataset.svcs || '').split(' ').filter(Boolean))];
+        return codes.length <= 1 && vistos.size >= 1 && Boolean(st.querySelector('svg'));
       });
       // En pantalla ancha la película de fondo tiene que estar reproduciéndose al volver arriba.
       await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(400);
@@ -187,7 +192,7 @@ for (const pag of PAGINAS) {
         for (let y = 0; y < m.alto; y += v.h) { await page.evaluate((yy) => window.scrollTo(0, yy), y); await page.waitForTimeout(60); }
         await page.waitForTimeout(600);
         const altoFinal = await page.evaluate(() => document.documentElement.scrollHeight);
-        const kb = Math.round(bytes / 1024), max = tipo === 'servicio' ? (v.k === 'telefono' ? 16 : 10) : (v.k === 'telefono' ? 16 : 10);
+        const kb = Math.round(bytes / 1024), max = v.k === 'telefono' ? (tipo === 'servicio' ? 18 : 17) : 11.5;
         const problemas = [];
         if (!m.h1) problemas.push('sin título'); if (m.titles) problemas.push('SVG con <title>'); if (m.scrollW > m.innerW + 1) problemas.push('desborde horizontal'); if (m.basura) problemas.push('texto con undefined/NaN/null');
         if (Math.abs(altoFinal - m.alto) > v.h * .15) problemas.push(`cambia de alto al recorrerla (${m.alto} → ${altoFinal})`);

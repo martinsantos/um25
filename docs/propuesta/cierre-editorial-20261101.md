@@ -7,6 +7,8 @@ Las fotografías deficientes o dudosas, las tres fotografías de Commons todaví
 
 Validación del candidato: 698 pruebas en 95 suites, lint, tipos, CSS y build aprobados; 85 vistas y recorridos de interacción y paridad comprobados. El publicador conserva la versión anterior y verifica el candidato antes de activar el tráfico. La comprobación final corresponde al SHA que supere CI y quede activo en producción.
 
+El control visual de CI se actualizó al contrato compartido `data-diagram-stage` / `data-diagram-code` y al alto de las secciones añadidas por solicitud del usuario. Medición del diseño aprobado: máximos de 10,69 pantallas a 1440 px y 17,11 a 390 px; sin desbordes en los 30 recorridos. Los límites quedan en 11,5 pantallas de escritorio, 14 de portátil, 18 de móvil para Servicios y 17 para Sectores. Se mantienen controles de accesibilidad, carga, estabilidad, peso y navegación. La comprobación del recorrido automático pasó en Sector Aeropuertos y proyecto 3144 en escritorio y móvil.
+
 ## Alcance del GO local actualizado — 3 de noviembre
 
 ### Coherencia entre Sectores, Antecedentes y Servicios
