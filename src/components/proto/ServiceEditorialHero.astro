@@ -19,6 +19,7 @@ const photo = variantes(image);
 </section>
 <style>
   .service-editorial { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: center; gap: clamp(32px, 4vw, 72px); padding-block: clamp(40px, 7vw, 100px); }
+  .service-editorial__copy :global(.editorial-actions) { display: contents; }
   .service-editorial__copy { display: grid; gap: var(--s2); }
   .service-editorial__copy :global(h1) { font-size: clamp(2.8rem, 5.4vw, 5.4rem); }
   .service-editorial__copy :global(p) { color: var(--ink-2); max-width: 45ch; font-size: 1.125rem; }
@@ -29,9 +30,19 @@ const photo = variantes(image);
   .service-editorial__visual--photo img { aspect-ratio: 3 / 2; object-fit: cover; }
   .service-editorial__visual button { display: grid; place-items: center; margin-top: 16px; margin-left: auto; width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 50%; }
   @media (max-width: 900px) {
-    .service-editorial { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+    .service-editorial { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-block: 32px; }
+    .service-editorial__copy { gap: 20px; }
+    .service-editorial__copy :global(p) { font-size: 1.0625rem; line-height: 1.55; }
+    .service-editorial__copy :global(.editorial-actions) { display: grid; gap: 12px; order: 2; }
+    .service-editorial__copy :global(.service-actions) { display: grid; gap: 12px; margin: 0; }
+    .service-editorial__copy :global(.editorial-actions .u) { display: inline-flex; align-items: center; justify-content: center; justify-self: center; min-height: 44px; text-align: center; font-size: 1rem; line-height: 1.4; }
+    .service-editorial__copy :global(.service-actions .btn), .service-editorial__copy :global(.editorial-primary) { display: flex; justify-content: center; align-items: center; width: 100%; min-height: 52px; padding: 14px 20px; background: var(--red); color: #fff; border: 0; font-size: 1rem; line-height: 1.4; }
+    .service-editorial__copy :global(.cifras) { order: 3; margin: 4px 0 0; padding-top: 20px; gap: 16px 24px; }
+    .service-editorial__copy :global(.cifras b) { font-size: 1.5rem; line-height: 1.15; }
+    .service-editorial__copy :global(.sector-back) { min-height: 44px; display: inline-flex; align-items: center; margin: 0; font-size: 1rem; }
+
     .service-editorial__visual { grid-row: 2; }
-    .service-editorial__copy :global(h1) { font-size: clamp(2rem, 8.3vw, 2.8rem); }
+    .service-editorial__copy :global(h1) { font-size: clamp(2rem, 7.5vw, 2.6rem); line-height: 1.08; font-weight: 600; letter-spacing: -.025em; }
   }
 </style>
 <script>

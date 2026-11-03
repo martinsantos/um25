@@ -205,4 +205,13 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
   .bx-related { margin-top: var(--x-section); }
   @media (max-width: 1100px) { .bx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 680px) { .bx-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; } .bx-crumbs { margin-bottom: 32px; } }
+
+  @media (max-width: 900px) {
+    .bx { --x-gutter: 20px; --x-fs-meta: 1rem; --x-fs-kicker: 1rem; --x-fs-lead: 1.0625rem; }
+    .bx-hero { padding-block: 32px; }
+    .bx-title { font-size: clamp(2rem, 7.5vw, 2.6rem) !important; line-height: 1.08 !important; }
+    .bx-crumbs { align-items: center; gap: 0 8px; margin-bottom: 24px; }
+    .bx-crumbs a { display: inline-flex; align-items: center; min-height: 44px; }
+    .bx-kicker { letter-spacing: .04em; line-height: 1.4; }
+  }
 </style>

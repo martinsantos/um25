@@ -596,7 +596,12 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
     .bp-related__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 680px) {
-    .bp-crumbs { margin-bottom: 32px; }
+    .blog-reading { --x-gutter: 20px; --x-fs-meta: 1rem; --x-fs-kicker: 1rem; --x-fs-lead: 1.0625rem; padding-top: 32px; }
+    .bp-crumbs { margin-bottom: 24px; align-items: center; row-gap: 0; }
+    .bp-crumbs a { display: inline-flex; align-items: center; min-height: 44px; }
+    .bp-meta dt { letter-spacing: .04em; }
+    .prose :global(code) { font-size: .95em; }
+    .prose :global(pre) { font-size: 1rem; }
     /* H1 relativo al ancho: con 48 px fijos, palabras largas del título desbordaban a 320–360 px. */
     .bp-title { font-size: clamp(2rem, 8.6vw, 2.5rem) !important; }
     .bp-meta div { padding-right: 16px; margin-right: 16px; border-right: 0; }

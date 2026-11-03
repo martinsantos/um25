@@ -67,8 +67,10 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'anteceden
       <h1 style="font-size:clamp(2rem,3.6vw,3.6rem)">{relato.headline || name}<span class="dot">.</span></h1>
       <p>{relato.summary || sector.description}</p>
       {cifras.length > 0 && <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>}
-      <a class="u" href="#integracion">Ver cómo integramos los servicios</a>
+      <div class="editorial-actions">
+      <a class="u editorial-primary" href="#integracion">Ver cómo integramos los servicios</a>
       {own.length > 0 && <a class="u" href={`/antecedentes?sector=${slug}`}>Ver los {own.length} antecedentes en {lower}</a>}
+      </div>
     </ServiceEditorialHero>
 
     <section class="sec">

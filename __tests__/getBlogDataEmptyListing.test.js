@@ -50,4 +50,33 @@ describe('fetchBlogListing', () => {
     expect(post.titulo).toBe('Nota técnica');
   });
 
+  test('public category fallback excludes topic navigation and other nested blog routes', async () => {
+    jest.doMock('../src/config/runtime', () => ({
+      allowMockBlogFallback: () => false,
+      allowPublicBlogFallback: () => true,
+      getDirectusInternalUrl: () => 'https://directus.test',
+      getDirectusToken: () => '',
+      getPublicSiteUrl: () => 'https://www.ultimamilla.com.ar',
+    }));
+    const archive = `<a href="/blog/tema/redes-e-infraestructura">Redes</a>
+      <a href="/blog/categoria/proyectos">Proyectos</a><a href="/blog/og/nota-tecnica.jpg">Imagen</a>
+      <a href="/blog/rss.xml">RSS</a><a href="/blog/tema">Temas</a>
+      <a href="/blog/nota-tecnica">Nota</a><a href="/blog/nota-tecnica?origen=archivo">Nota</a>`;
+    global.fetch = jest.fn(async (url) => {
+      const path = new URL(url).pathname;
+      if (url.startsWith('https://directus.test')) return { ok: false, status: 403 };
+      if (path === '/blog/categoria/proyectos') return { ok: true, text: async () => archive };
+      if (path === '/blog/nota-tecnica') return { ok: true, text: async () => '<h1 class="article-title">Nota técnica</h1><meta property="article:section" content="Proyectos">' };
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    const { fetchBlogListing } = require('../src/utils/getBlogData');
+    const listing = await fetchBlogListing(1, 10, 'proyectos');
+    expect(listing.total).toBe(1);
+    expect(listing.posts.map((post) => post.slug)).toEqual(['nota-tecnica']);
+    const requestedPaths = global.fetch.mock.calls.map(([url]) => new URL(url).pathname);
+    expect(requestedPaths).not.toContain('/blog/tema');
+    expect(requestedPaths).not.toContain('/blog/og');
+    expect(requestedPaths).not.toContain('/blog/rss.xml');
+  });
+
 });

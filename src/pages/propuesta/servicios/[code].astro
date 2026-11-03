@@ -140,8 +140,10 @@ const cierre = cierrePorServicio[code];
       <p class="tag">{copy.headline}</p>
       <p>{copy.paragraph}</p>
       {cifras.length > 0 && <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>}
+      <div class="editorial-actions">
       <div class="service-actions"><a class="btn" href="/contacto">Pedir un relevamiento</a><a class="u" href={pdf || `/servicios/${code}/ficha`} download={pdf ? true : undefined}>{pdf ? 'Descargar ficha técnica (PDF)' : 'Ficha técnica · imprimir o guardar PDF'}</a></div>
       <a class="u" href={`/antecedentes?service=${code}`}>{own.length > 0 ? `Ver los ${own.length} antecedentes` : 'Ver todos los antecedentes'}</a>
+      </div>
     </Hero>
     <nav class="wrap service-sections" aria-label="En esta página">
       {provision.length > 0 && <a href="#provision">Qué proveemos</a>}

@@ -70,4 +70,5 @@ const first = items.find(item => physical.includes(item.code));
     .integration--text .integration__list { grid-template-columns: 1fr; }
     .integration__list > li { padding-block: 24px; }
   }
+  @media (max-width: 380px) { .integration__parts { flex-wrap: wrap; } figure { width: calc((100% - 16px) / 2); } }
 </style>

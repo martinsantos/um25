@@ -40,5 +40,7 @@ const { items } = Astro.props;
     .provision__list h3 { font-size: 1.125rem; }
     .provision__parts { gap: 16px; padding-top: 20px; }
     .provision__parts figure { width: calc((100% - 32px) / 3); }
+    .provision__parts figcaption { font-size: 1rem; }
   }
+  @media (max-width: 380px) { .provision__parts figure { width: calc((100% - 16px) / 2); } }
 </style>
