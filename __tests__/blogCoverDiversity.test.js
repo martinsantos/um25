@@ -2,6 +2,7 @@ const {
   BLOG_COVER_DIVERSITY_CANDIDATES,
   diversifyBlogPostCovers,
   normalizeBlogCoverUrl,
+  preserveBlogPostCovers,
   selectDiverseBlogCover,
 } = require('../src/utils/blogCoverDiversity.js');
 
@@ -27,6 +28,15 @@ describe('blog cover diversity', () => {
     expect(images[0]).toBe(repeatedCover);
     expect(new Set(images).size).toBe(posts.length);
     expect(images.slice(1).every((image) => String(image).startsWith('https://www.ultimamilla.com.ar/images/'))).toBe(true);
+  });
+
+  test('reading preserves assigned covers in full, filtered and single-note views', () => {
+    const posts = [{ slug: 'uno', imagen_portada: repeatedCover }, { slug: 'dos', imagen_portada: repeatedCover }];
+    const all = preserveBlogPostCovers(posts);
+    expect(all.map((p) => p.imagen_portada)).toEqual([repeatedCover, repeatedCover]);
+    expect(preserveBlogPostCovers([posts[1]])[0]).toEqual(all[1]);
+    expect(preserveBlogPostCovers([...posts].reverse()).reverse()).toEqual(all);
+    expect(posts[1].imagen_portada).toBe(repeatedCover);
   });
 
   test('uses a large internal candidate pool instead of cycling a few generic fallbacks', () => {

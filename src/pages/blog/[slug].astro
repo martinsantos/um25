@@ -282,7 +282,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
 ---
 
 <LayoutV4
-  skin="black"
+  skin="white"
   title={seoTitle}
   description={seoDesc}
   keywords={post.meta_keywords || (post.tags || []).slice(0, 6).join(', ')}
@@ -303,7 +303,13 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
 
   <div id="read-bar" class="bp-progress" aria-hidden="true"></div>
 
+  <div class="blog-reading">
   <article class="bp" aria-labelledby="bp-title">
+    <div class:list={['bp-layout', 'bp-shell', !hasArticleTOC && 'bp-layout--single']}>
+      <aside class="bp-aside">
+        <BlogTOC headings={headings} />
+      </aside>
+      <div class="bp-main">
     <header class="bp-head bp-shell">
       <nav class="bp-crumbs" aria-label="Migas de pan">
         <a href="/">Inicio</a><span aria-hidden="true">/</span>
@@ -336,12 +342,6 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
       </figure>
     )}
 
-    <div class:list={['bp-layout', 'bp-shell', headings.length < 2 && 'bp-layout--single']}>
-      <aside class="bp-aside">
-        <BlogTOC headings={headings} />
-      </aside>
-
-      <div class="bp-main">
         {hasArticleTOC && (
           <details class="bp-mobile-toc">
             <summary>En esta nota</summary>
@@ -411,6 +411,8 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
     />
   </div>
 
+  </div>
+
   <script>
     const bar = document.getElementById('read-bar');
     const body = document.querySelector<HTMLElement>('.bp-main');
@@ -436,27 +438,36 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
     z-index: var(--um-z-progress, 60); pointer-events: none;
   }
 
+  /* Restored white editorial reader (pre-September layout), scoped to notes. */
+  .blog-reading {
+    --x-ink: #fff; --x-panel: #f5f6f7; --x-panel-2: #eef0f2;
+    --x-text: #111; --x-text-2: #343a40; --x-muted: #535a62;
+    --x-line: #dde1e5; --x-line-strong: #aab0b7;
+    --x-fs-h2: clamp(1.75rem, 2.5vw, 2.25rem);
+    --x-fs-h3: clamp(1.25rem, 1.6vw, 1.5rem);
+    background: #fff; color: #111; padding-top: clamp(40px, 5vw, 68px);
+  }
   .bp, .bp-related, .bp-topic, .bp-intent { background: var(--x-ink); color: var(--x-text); }
-  .bp-shell { width: min(var(--um-container-wide, 1400px), calc(100% - 2 * var(--x-gutter))); margin-inline: auto; }
+  .bp-shell { width: min(1088px, calc(100% - 2 * var(--x-gutter))); margin-inline: auto; }
 
   /* Cabecera */
-  .bp-head { padding-block: clamp(32px, 4vw, 56px) 48px; }
-  .bp-crumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 48px; font-size: var(--x-fs-meta); color: var(--x-muted); }
+  .bp-head { width: 100%; padding: 0 0 24px; }
+  .bp-crumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; font-size: var(--x-fs-meta); color: var(--x-muted); }
   .bp-crumbs a { color: var(--x-text-2); text-decoration: none; transition: color 160ms var(--x-ease); }
   .bp-crumbs a:hover { color: var(--x-text); }
   .bp-kicker {
-    display: flex; align-items: center; gap: 12px; margin: 0 0 24px;
+    display: flex; align-items: center; gap: 12px; margin: 0 0 18px;
     font-size: var(--x-fs-kicker); font-weight: 600; line-height: 1.2; letter-spacing: .12em; text-transform: uppercase; color: var(--x-muted);
   }
   .bp-kicker::before { content: ''; flex: none; width: 28px; height: 2px; background: var(--x-red); }
   .bp-title {
-    margin: 0; max-width: 22ch;
+    margin: 0; max-width: 100%;
     font-family: var(--um-font-editorial);
-    font-size: var(--x-fs-h1) !important; line-height: 1.02 !important; font-weight: 600 !important; letter-spacing: -.025em !important;
+    font-size: clamp(2rem, 3vw, 2.72rem) !important; line-height: 1.12 !important; font-weight: 600 !important; letter-spacing: -.025em !important;
     color: var(--x-text); text-wrap: balance;
   }
-  .bp-lead { margin: 24px 0 0; max-width: 62ch; font-size: var(--x-fs-lead); line-height: 1.55; color: var(--x-text-2); }
-  .bp-meta { display: flex; flex-wrap: wrap; margin: 48px 0 0; padding: 0; border-top: 1px solid var(--x-line); }
+  .bp-lead { margin: 20px 0 0; max-width: 62ch; font-size: var(--x-fs-lead); line-height: 1.55; color: var(--x-text-2); }
+  .bp-meta { display: flex; flex-wrap: wrap; margin: 24px 0 0; padding: 0; border-top: 1px solid var(--x-line); }
   .bp-meta div { display: flex; flex-direction: column; gap: 4px; padding: 16px 24px 0 0; margin-right: 24px; border-right: 1px solid var(--x-line); }
   .bp-meta div:last-child { border-right: 0; margin-right: 0; }
   .bp-meta dt { font-size: var(--x-fs-kicker); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--x-muted); }
@@ -465,18 +476,19 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
   .bp-meta dd a:hover { text-decoration: underline; text-underline-offset: 4px; }
 
   /* Portada */
-  .bp-cover { margin-block: 0 clamp(48px, 6vw, 96px); }
-  .bp-cover img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; background: var(--x-panel); }
+  .bp-cover { width: 100%; margin-block: 0 28px; }
+  .bp-cover img { display: block; width: 100%; height: auto; max-height: 360px; aspect-ratio: 16 / 9; object-fit: cover; background: var(--x-panel); }
   .bp-cover figcaption { margin-top: 12px; font-size: var(--x-fs-meta); line-height: 1.45; color: var(--x-muted); }
 
   /* Cuerpo */
   .bp-layout {
     display: grid;
-    grid-template-columns: minmax(200px, 260px) minmax(0, 68ch);
+    grid-template-columns: minmax(160px, 204px) minmax(0, 68ch);
     justify-content: center;
-    gap: clamp(32px, 6vw, 96px);
+    gap: clamp(24px, 4vw, 52px);
     align-items: start;
   }
+  .bp-aside { position: sticky; top: 112px; }
   .bp-layout--single { grid-template-columns: minmax(0, 68ch); }
   .bp-layout--single .bp-aside { display: none; }
   .bp-main { min-width: 0; }
@@ -492,7 +504,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
   .prose {
     font-family: var(--um-font-editorial);
     font-size: 1.125rem;
-    line-height: 1.7;
+    line-height: 1.76;
     color: var(--x-text-2);
     overflow-wrap: break-word;
   }
@@ -586,7 +598,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
   @media (max-width: 680px) {
     .bp-crumbs { margin-bottom: 32px; }
     /* H1 relativo al ancho: con 48 px fijos, palabras largas del título desbordaban a 320–360 px. */
-    .bp-title { font-size: clamp(2rem, 9.4vw, 3rem) !important; }
+    .bp-title { font-size: clamp(2rem, 8.6vw, 2.5rem) !important; }
     .bp-meta div { padding-right: 16px; margin-right: 16px; border-right: 0; }
     .bp-pn { grid-template-columns: 1fr; }
     .bp-pn__item--next { grid-column: 1; }

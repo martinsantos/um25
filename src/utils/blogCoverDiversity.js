@@ -154,6 +154,14 @@ export function sortBlogPostsNewestFirst(posts) {
   ));
 }
 
+/** Read surfaces preserve the image stored on each note, independent of filters/order. */
+export function preserveBlogPostCovers(posts) {
+  return (Array.isArray(posts) ? posts : []).map((post) => ({
+    ...post,
+    imagen_portada: normalizeBlogCoverUrl(post?.imagen_portada) || null,
+  }));
+}
+
 export function diversifyBlogPostCovers(posts) {
   const usage = new Map();
 

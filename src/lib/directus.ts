@@ -10,7 +10,7 @@ import { getDirectusInternalUrl, getDirectusToken, isLocalProdReplica } from '..
 import { normalizeServicioRecord } from '../utils/normalizeServicioRecord';
 import { findPublishedEditorialProduct, isValidEmbeddedProductCatalog, normalizeEmbeddedProductCatalog, snapshotProductCatalog } from '../utils/directusProductCatalog';
 import { visibleBlogStatusDirectusFilter } from '../utils/blogPublishing';
-import { diversifyBlogPostCovers } from '../utils/blogCoverDiversity.js';
+import { preserveBlogPostCovers } from '../utils/blogCoverDiversity.js';
 import { isCanonicalBlogSlug } from '../data/seoRedirects';
 import { fetchWithTimeout, getFetchTimeoutMs, withTimeout } from '../utils/fetchWithTimeout';
 import { protectPublicCase } from '../utils/publicCasePrivacy.js';
@@ -250,7 +250,7 @@ async function getStaticBlogPosts(limite: number = 10): Promise<EntradaBlog[]> {
         blogSortTime(b.fecha_publicacion) - blogSortTime(a.fecha_publicacion),
       );
 
-    return diversifyBlogPostCovers(visibleCanonicalPosts).slice(0, limite) as EntradaBlog[];
+    return preserveBlogPostCovers(visibleCanonicalPosts).slice(0, limite) as EntradaBlog[];
   } catch {
     return [];
   }
@@ -274,7 +274,7 @@ export const getBlogPosts = async (limite: number = 10) => {
     const visibleCanonicalPosts = ((posts || []) as EntradaBlog[])
       .filter((post) => post?.slug && isCanonicalBlogSlug(post.slug));
     if (visibleCanonicalPosts.length > 0) {
-      return diversifyBlogPostCovers(visibleCanonicalPosts).slice(0, limite) as EntradaBlog[];
+      return preserveBlogPostCovers(visibleCanonicalPosts).slice(0, limite) as EntradaBlog[];
     }
   } catch (error) {
     console.error('[directus] Error fetching sorted blog_posts:', error);
