@@ -19,7 +19,7 @@ describe('blog image helpers', () => {
     expect(require('fs').existsSync(require('path').join(process.cwd(), 'public', image))).toBe(true);
   });
 
-  test.each([null, '', '/cine/iso/service-104.svg', '/cine/iso/site-bodega.svg', 'javascript:alert(1)', 'https://untrusted.example/cover.jpg'])('uses a packaged editorial cover when the assigned cover is absent or invalid: %s', imagen_portada => {
+  test.each(['https://images.unsplash.com/photo-1586281380349-6325315f36a2?w=1200&h=480&fit=crop&q=80', null, '', '/cine/iso/service-104.svg', '/cine/iso/site-bodega.svg', 'javascript:alert(1)', 'https://untrusted.example/cover.jpg'])('uses a packaged editorial cover when the assigned cover is absent or invalid: %s', imagen_portada => {
     const image = blogPostImageUrl({ imagen_portada, slug: 'nota-sin-portada', categoria: 'noticias' } as any);
     expect(image).toBe(DEFAULT_BLOG_COVER);
     expect(image).not.toContain('/cine/iso/');

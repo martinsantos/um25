@@ -3,6 +3,8 @@ import imageLocalMap from '../data/image-local-map.json';
 import antecedenteImages from '../data/antecedentes-generated-image-map.json';
 
 export const DEFAULT_BLOG_COVER = '/images/editorial/umsa-about-engineering.webp';
+// Existing external cover is gone (HTTP 404); keep a visible fallback pending photo review.
+const UNAVAILABLE_BLOG_COVER = 'https://images.unsplash.com/photo-1586281380349-6325315f36a2';
 
 const UUID_RE = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 const PUBLIC_BLOG_IMAGE_HOSTS = new Set(['ultimamilla.com.ar', 'www.ultimamilla.com.ar']);
@@ -46,6 +48,7 @@ export function blogImageUrl(value: string | null | undefined): string {
 
 export function blogPostImageUrl(post: Pick<EntradaBlog, 'imagen_portada' | 'slug' | 'categoria'> & Partial<Pick<EntradaBlog, 'titulo' | 'tags' | 'resumen'>>): string {
   const cover = blogImageUrl(post.imagen_portada);
+  if (cover.split('?')[0] === UNAVAILABLE_BLOG_COVER) return DEFAULT_BLOG_COVER;
   // Preserve the assigned cover. Historical project filenames may have been
   // shortened; the explicit ID map keeps the same source available in the package.
   const historicalId = cover.match(/^\/images\/antecedentes\/generated\/lote_\d+\/(\d+)-/)?.[1];
