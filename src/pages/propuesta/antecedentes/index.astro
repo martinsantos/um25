@@ -64,6 +64,8 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
       /* El panel se fija y, si es más alto que la pantalla, se desplaza por dentro: el año queda al alcance sin ir al final del muro. */
       .panel { position: sticky; top: calc(var(--top-h) + 16px); display: grid; gap: var(--s4); max-height: calc(100svh - var(--top-h) - 32px); overflow: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; padding-right: 6px; }
       .grupo + .grupo { margin-top: var(--s4); }
+      .catalog-title { font-size: 1rem; font-weight: 400; line-height: 1.6; letter-spacing: 0; color: var(--ink-3); }
+      .catalog-summary { display: contents; }
       .count { font-size: clamp(4rem, 7vw, 6.5rem); line-height: .9; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
       .count i { font-style: normal; color: var(--red); }
       .sentence { font-size: 1.2rem; font-weight: 600; letter-spacing: -.02em; margin-top: 6px; }
@@ -85,6 +87,11 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
       .fichas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       @media (max-width: 900px) {
         .muro { grid-template-columns: 1fr; gap: var(--s3); } .panel { position: static; gap: var(--s3); max-height: none; overflow: visible; padding-right: 0; } .fichas { grid-template-columns: 1fr 1fr; }
+        .muro { padding-top: 32px; }
+        .catalog-title { font-size: clamp(2rem, 7.5vw, 2.6rem); font-weight: 600; line-height: 1.08; letter-spacing: -.025em; color: var(--ink); }
+        .catalog-summary { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+        .count { font-size: 2rem; line-height: 1.1; }
+        .sentence { margin: 0; font-size: 1.0625rem; font-weight: 400; color: var(--ink-2); }
         .filtros { gap: 0; }
         .filtros__toggle { display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line-2); color: var(--ink); font-weight: 500; }
         .filtros__toggle i { font-style: normal; }
@@ -93,6 +100,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
         .filtros__cuerpo { display: none; }
         .filtros.abierta .filtros__cuerpo { display: grid; padding-top: var(--s4); }
       }
+      @media (max-width: 600px) { .fichas { grid-template-columns: minmax(0, 1fr); } }
     </style>
   </head>
   <body>
@@ -101,9 +109,11 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
     <main class="wrap muro" id="contenido" data-muro>
       <aside class="panel">
         <div>
-          <span class="small">Proyectos y antecedentes de Última Milla.</span>
-          <h1 class="count"><span data-count>{n}</span><i>.</i></h1>
+          <h1 class="catalog-title">Proyectos y antecedentes<span class="dot">.</span></h1>
+          <div class="catalog-summary">
+          <p class="count"><span data-count>{n}</span><i>.</i></p>
           <p class="sentence" data-sentence aria-live="polite">{filtra ? `antecedentes · ${partes.join(' · ')}` : 'antecedentes registrados'}</p>
+          </div>
         </div>
         <label class="catalog-control">Buscar antecedentes<input type="search" data-search value={estado.q} placeholder="Cliente, sector, servicio o alcance" /></label>
         <label class="catalog-control">Ordenar<select data-sort aria-label="Ordenar antecedentes">{[['recent', 'Destacados'], ['year-desc', 'Año, más reciente'], ['year-asc', 'Año, más antiguo'], ['client', 'Cliente A–Z']].map(([v, label]) => <option value={v} selected={estado.orden === v}>{label}</option>)}</select></label>
