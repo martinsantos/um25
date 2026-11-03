@@ -89,7 +89,6 @@ jobs:
 
       - name: Control visual de la propuesta
         id: control
-        continue-on-error: true
         run: |
           npm install --prefix "$RUNNER_TEMP/um-control" --no-save --no-package-lock playwright@1.63.0 @axe-core/playwright > /dev/null
           "$RUNNER_TEMP/um-control/node_modules/.bin/playwright" install --with-deps chromium > /dev/null

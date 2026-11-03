@@ -9,6 +9,8 @@ Validación del candidato: 698 pruebas en 95 suites, lint, tipos, CSS y build ap
 
 El control visual de CI se actualizó al contrato compartido `data-diagram-stage` / `data-diagram-code` y al alto de las secciones añadidas por solicitud del usuario. Medición del diseño aprobado: máximos de 10,69 pantallas a 1440 px y 17,11 a 390 px; sin desbordes en los 30 recorridos. Los límites quedan en 11,5 pantallas de escritorio, 14 de portátil, 18 de móvil para Servicios y 17 para Sectores. Se mantienen controles de accesibilidad, carga, estabilidad, peso y navegación. La comprobación del recorrido automático pasó en Sector Aeropuertos y proyecto 3144 en escritorio y móvil.
 
+El informe remoto detectó además nombres accesibles incompletos en siete botones de la ficha 3588 (WCAG 2.1 A): ahora incluyen el rótulo, el servicio y la cantidad visibles. El control de apertura móvil calculaba un scroll negativo cuando el hero tenía altura natural; ahora avanza al menos media pantalla para comprobar la transición existente. Se repiten las fichas 3588, 3144, 3126 y 9001 y las aperturas de Inicio, Nosotros e Inglés en cuatro anchos, incluyendo explícitamente WCAG 2.1 A. El workflow deja de tolerar fallos del control visual: un fallo detiene la ejecución y no publica un túnel con un paso aparentemente exitoso. No cambia el aspecto aprobado.
+
 ## Alcance del GO local actualizado — 3 de noviembre
 
 ### Coherencia entre Sectores, Antecedentes y Servicios
