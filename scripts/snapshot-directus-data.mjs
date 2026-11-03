@@ -12,9 +12,10 @@
  * Requires Directus to be running at http://localhost:8055
  */
 
-import { writeFileSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { protectSnapshotCase } from '../src/utils/publicCasePrivacy.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SNAPSHOTS_DIR = join(__dirname, '..', 'src', 'data', 'snapshots');
@@ -75,8 +76,13 @@ async function snapshotAntecedentes() {
     sort: ['-Fecha', '-id'],
     limit: -1,
   });
-  writeSnapshot('antecedentes.json', data);
-  return data;
+  const reviewed = JSON.parse(readFileSync(join(SNAPSHOTS_DIR, 'antecedentes.json'), 'utf8')).data;
+  const confidentiality = JSON.parse(readFileSync(join(__dirname, '..', 'src', 'data', 'propuesta', 'confidential-snapshot-ids.json'), 'utf8'));
+  const reviewedById = new Map(reviewed.map(item => [Number(item.id), item]));
+  const restrictedIds = new Set(confidentiality.ids.map(Number));
+  const safeData = data.map(item => protectSnapshotCase(item, reviewedById, restrictedIds));
+  writeSnapshot('antecedentes.json', safeData);
+  return safeData;
 }
 
 async function snapshotHero() {

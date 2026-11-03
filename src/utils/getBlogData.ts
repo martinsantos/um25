@@ -161,11 +161,24 @@ async function fetchPublicBlogSlugs(categoria?: string): Promise<string[]> {
   if (cached && Date.now() - cached.at < PUBLIC_CACHE_TTL_MS) return cached.promise;
 
   const promise = (async () => {
+    // The public archive has more than 30 listing pages. Its sitemap supplies
+    // the complete, date-ordered index in one request for local CMS fallbacks.
+    if (!categoria) {
+      try {
+        const response = await publicFetch(`${PUBLIC_SITE_URL}/sitemap-blog.xml`);
+        if (response.ok) {
+          const xml = await response.text();
+          const slugs = [...xml.matchAll(/<loc>https:\/\/www\.ultimamilla\.com\.ar\/blog\/([a-z0-9-]+)<\/loc>/g)]
+            .map((match) => match[1]!).filter(isCanonicalBlogSlug);
+          if (slugs.length) return [...new Set(slugs)];
+        }
+      } catch { /* Fall back to the visible paginated archive. */ }
+    }
     const allSlugs: string[] = [];
     const seen = new Set<string>();
     const basePath = categoria ? `/blog/categoria/${encodeURIComponent(categoria)}` : '/blog';
 
-    for (let page = 1; page <= 30; page += 1) {
+    for (let page = 1; page <= 200; page += 1) {
       const url = `${PUBLIC_SITE_URL}${basePath}${page === 1 ? '' : `?page=${page}`}`;
       const res = await publicFetch(url);
       if (!res.ok) break;
@@ -335,13 +348,23 @@ export async function fetchBlogListing(
       directusFetch(`${DIRECTUS_URL}/items/blog_posts?${countParams.toString()}`),
     ]);
 
-    const [itemsData, countData] = await Promise.all([itemsRes.json(), countRes.json()]);
-    const contextPosts = ((itemsData.data || []) as EntradaBlog[]).filter((post) => isCanonicalBlogSlug(post.slug));
-    const posts = (diversifyBlogPostCovers(contextPosts) as EntradaBlog[]).slice(offset, offset + limit);
-    const total = Number(countData.data?.[0]?.count?.id || 0);
+    if (!itemsRes.ok || !countRes.ok) {
+      throw new Error(`Directus blog listing failed (${itemsRes.status}/${countRes.status})`);
+    }
 
-    if (posts.length > 0) return { posts, total: Math.max(posts.length, total) };
-    throw new Error('empty');
+    const [itemsData, countData] = await Promise.all([itemsRes.json(), countRes.json()]);
+    if (!Array.isArray(itemsData?.data) || !Array.isArray(countData?.data)) {
+      throw new Error('Directus blog listing returned an invalid payload');
+    }
+    const rawTotal = countData.data[0]?.count?.id;
+    const total = Number(rawTotal);
+    if (rawTotal === undefined || !Number.isFinite(total) || total < 0) {
+      throw new Error('Directus blog listing returned an invalid count');
+    }
+
+    const contextPosts = (itemsData.data as EntradaBlog[]).filter((post) => isCanonicalBlogSlug(post.slug));
+    const posts = (diversifyBlogPostCovers(contextPosts) as EntradaBlog[]).slice(offset, offset + limit);
+    return { posts, total: Math.max(posts.length, total) };
   } catch {
     const publicListing = await fetchPublicBlogListing(page, limit, categoria);
     if (publicListing && publicListing.posts.length > 0) return publicListing;

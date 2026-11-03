@@ -44,7 +44,7 @@ export const SERVICE_SCENES: Record<string, { scene: Scene; systems: string[] }>
   '101': { scene: 'fachada', systems: ['Data', 'Fiber', 'WiFi'] },
   '102': { scene: 'aeropuerto', systems: ['CCTV', 'Security', 'Intercom'] },
   '103': { scene: 'planta', systems: ['Telecom', 'WiFi', 'Data'] },
-  '104': { scene: 'fachada', systems: ['Software'] }, // Software: el edificio en rayos X con las pantallas (pedido del dueño, 24/10)
+  '104': { scene: 'fachada', systems: ['Software'] }, // Compatibilidad de cortes históricos; las páginas de Software usan SOFTWARE_FILM.
   '105': { scene: 'aeropuerto', systems: [] },
   '106': { scene: 'fachada', systems: [] },
   '107': { scene: 'bodega', systems: ['Fire-detection'] },
@@ -97,8 +97,8 @@ const SERVICE_LABEL_BY_SLUG: Record<string, string> = {
 /** Rótulo del plano: "Hospital" para una escena base, "Hospital · Software a medida" para un recorrido v4.
  *  Mismo texto que escribe el reproductor (/cine/cine-banner-v4.js) en cada corte. */
 /** Película propia de Software: pantallas de interfaz con transparencias (Blender, v27). Ya publicada en
- *  /cine/media/cine-software-system-v27{,-sq}.mp4; la piden /software y el servicio 104 (dueño, 25/10). */
-export const SOFTWARE_FILM = 'software-system-v27';
+ *  /cine/media/cine-software-system-v27-clean{,-sq}.mp4; la piden /software y el servicio 104 (dueño, 25/10). */
+export const SOFTWARE_FILM = 'software-system-v27-clean';
 
 export const cutCaption = (key: string): string => {
   if (key === SOFTWARE_FILM) return 'Software a medida';

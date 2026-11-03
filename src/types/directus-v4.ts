@@ -68,7 +68,8 @@ export interface ServicioV4 {
  * Productos/soluciones específicas dentro de cada servicio
  */
 export interface ProductoV4 {
-  id: number;
+  /** JSON embebido en Servicios.Productos no aporta una identidad propia. */
+  id?: number;
 
   // Relación con Servicios (Many-to-One)
   servicio_id: number | ServicioV4; // Required - Foreign Key
@@ -81,6 +82,7 @@ export interface ProductoV4 {
   // Features y detalles
   features?: string[]; // JSON - Array de strings (características)
   destacado?: string; // Text - Texto destacado/diferenciador
+  servicio_asociado?: string;
   marcas?: string[]; // JSON - Array de strings (marcas relacionadas)
 
   // Campos comerciales para productos con template propio
@@ -97,6 +99,7 @@ export interface ProductoV4 {
   // Metadatos
   orden?: number; // Integer - Para ordenar productos (default: 0)
   estado?: EstadoPublicacion; // Dropdown - publicado|borrador
+  status?: 'published' | 'draft' | 'scheduled'; // Publicación en snapshot editorial legacy
 
   // Timestamps automáticos
   date_created?: string;

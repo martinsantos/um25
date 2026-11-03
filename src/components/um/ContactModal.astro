@@ -412,7 +412,7 @@ import EmailLink from '../common/EmailLink.astro';
       const pageForm = location.pathname.replace(/\/$/, '') === '/contacto' ? document.getElementById('formulario') : null;
       if (pageForm) {
         event.preventDefault();
-        pageForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        pageForm.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
         pageForm.querySelector('input[name="name"]')?.focus({ preventScroll: true });
         return;
       }

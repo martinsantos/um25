@@ -1,0 +1,7 @@
+---
+/** Una parte del despiece: un símbolo del sprite /cine/iso/partes.svg (31 equipos dibujados en isometría). */
+import type { ParteKey } from './despiece';
+interface Props { k: ParteKey; label?: string; size?: number; class?: string }
+const { k, label, size = 64, class: cls } = Astro.props;
+---
+<svg class:list={['parte', cls]} viewBox="0 0 64 64" width={size} height={size} role={label ? 'img' : undefined} aria-hidden={label ? undefined : 'true'} aria-label={label}><use href={`/cine/iso/partes.svg#p-${k}`} /></svg>

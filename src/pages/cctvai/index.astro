@@ -407,6 +407,7 @@ const {
 
 <style>
   .cctvai-hero {
+    --skin-muted: #c4c7cc;
     background: #070707;
     color: #fff;
     padding: 34px 0 54px;
@@ -450,6 +451,12 @@ const {
     letter-spacing: 0.08em;
     line-height: 1.3;
     text-transform: uppercase;
+  }
+
+  .cctvai-hero .cctvai-kicker,
+  .cctvai-demo .cctvai-kicker,
+  .cctvai-final .cctvai-kicker {
+    color: #fff !important;
   }
 
   .cctvai-hero h1 {
@@ -741,23 +748,29 @@ const {
     color: #fff;
   }
 
-  .cctvai-mode-card--market {
+  .cctvai-mode-grid .cctvai-mode-card--market {
+    --skin-muted: #535a62;
     background: #f4f4f4;
     color: #111;
     border-color: #d9d9d9;
   }
 
-  .cctvai-mode-card--umsa {
+  .cctvai-mode-card.cctvai-mode-card--market li {
+    opacity: 1;
+  }
+
+  .cctvai-mode-grid .cctvai-mode-card--umsa {
+    --skin-muted: #c4c7cc;
     background: #0b0b0b;
     border-color: #0b0b0b;
   }
 
-  .cctvai-mode-card--market:hover {
+  .cctvai-mode-grid .cctvai-mode-card--market:hover {
     background: #fff;
     border-color: #9a9a9a;
   }
 
-  .cctvai-mode-card--umsa:hover {
+  .cctvai-mode-grid .cctvai-mode-card--umsa:hover {
     background: #111;
     border-color: #dc2626;
   }
@@ -870,6 +883,7 @@ const {
   }
 
   .cctvai-demo {
+    --skin-muted: #c4c7cc;
     --cctvai-dark-text: #ffffff;
     --cctvai-dark-muted: rgba(255, 255, 255, 0.8);
     --cctvai-dark-meta: rgba(255, 255, 255, 0.72);
@@ -1196,6 +1210,7 @@ const {
   }
 
   .cctvai-final {
+    --skin-muted: #c4c7cc;
     background: #080808;
     color: #fff;
     padding: 54px 0;

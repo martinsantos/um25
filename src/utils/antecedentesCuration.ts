@@ -199,7 +199,7 @@ export function formatAntecedenteDate(value: unknown): string {
 }
 
 function buildDisplayTitle(item: Record<string, any>): string {
-  const title = fixKnownTextErrors(cleanAntecedenteText(item.Titulo || item.Nombre || 'Antecedente técnico'));
+  const title = fixKnownTextErrors(cleanAntecedenteText(item['Titulo'] || item['Nombre'] || 'Antecedente técnico'));
   return title
     .replace(/\s+\(\d+\)$/g, '')
     .replace(/\s+/g, ' ')
@@ -215,10 +215,10 @@ function humanizeTemplateDescription(title: string, description: string): string
 }
 
 function buildDisplayDescription(item: Record<string, any>, displayTitle: string): string {
-  const title = cleanAntecedenteText(item.Titulo || item.Nombre);
-  const description = fixKnownTextErrors(cleanAntecedenteText(item.Descripcion || item.descripcion || ''));
-  const client = cleanAntecedenteText(item.Cliente);
-  const sector = cleanAntecedenteText(item.Area || item.Unidad_de_negocio);
+  const title = cleanAntecedenteText(item['Titulo'] || item['Nombre']);
+  const description = fixKnownTextErrors(cleanAntecedenteText(item['Descripcion'] || item['descripcion'] || ''));
+  const client = cleanAntecedenteText(item['Cliente']);
+  const sector = cleanAntecedenteText(item['Area'] || item['Unidad_de_negocio']);
 
   if (description && isTemplateDescription(title, description)) {
     return humanizeTemplateDescription(displayTitle, description);
@@ -237,8 +237,8 @@ function buildDisplayDescription(item: Record<string, any>, displayTitle: string
 }
 
 export function getAntecedenteIssues(item: Record<string, any>): string[] {
-  const title = cleanAntecedenteText(item.Titulo || item.Nombre);
-  const description = cleanAntecedenteText(item.Descripcion || item.descripcion);
+  const title = cleanAntecedenteText(item['Titulo'] || item['Nombre']);
+  const description = cleanAntecedenteText(item['Descripcion'] || item['descripcion']);
   const combined = `${title} ${description}`;
   const issues: string[] = [];
 
@@ -268,15 +268,15 @@ export function getAntecedenteIssues(item: Record<string, any>): string[] {
 }
 
 function classifyAntecedente(item: Record<string, any>, issues: string[]): AntecedenteQuality {
-  const rawTitle = cleanAntecedenteText(item.Titulo || item.Nombre);
-  const rawDescription = cleanAntecedenteText(item.Descripcion || item.descripcion).replace(/\s+Cliente:\s+.+$/i, '');
+  const rawTitle = cleanAntecedenteText(item['Titulo'] || item['Nombre']);
+  const rawDescription = cleanAntecedenteText(item['Descripcion'] || item['descripcion']).replace(/\s+Cliente:\s+.+$/i, '');
   const contentText = `${rawTitle} ${rawDescription}`;
   const hasDataError = issues.some((issue) => issue.startsWith('typo:') || issue.startsWith('truncated:'));
   const hasLowValueSignal = issues.some((issue) => issue.startsWith('minor-supply:') || issue.startsWith('commercial-loan:'));
   const hasStrategicSignal = STRATEGIC_PATTERNS.some((pattern) => pattern.test(contentText));
-  const hasNamedClient = cleanAntecedenteText(item.Cliente).length >= 3;
-  const hasSector = cleanAntecedenteText(item.Area || item.Unidad_de_negocio).length >= 3;
-  const hasDate = formatAntecedenteYear(item.Fecha) !== 'sin fecha';
+  const hasNamedClient = cleanAntecedenteText(item['Cliente']).length >= 3;
+  const hasSector = cleanAntecedenteText(item['Area'] || item['Unidad_de_negocio']).length >= 3;
+  const hasDate = formatAntecedenteYear(item['Fecha']) !== 'sin fecha';
 
   if (hasDataError) return 'data-error-candidate';
   if (hasLowValueSignal && !hasStrategicSignal) return 'low-value-candidate';
@@ -292,8 +292,8 @@ export function curateAntecedente<T extends Record<string, any>>(item: T): Curat
   const recordTone = getAntecedenteRecordTone(quality);
   const displayTitle = buildDisplayTitle(item);
   const displayDescription = buildDisplayDescription(item, displayTitle);
-  const slug = generateSlug(cleanAntecedenteText(item.Titulo || item.Nombre || displayTitle));
-  const canonicalPath = `/antecedentes/${item.id}/${slug}`;
+  const slug = generateSlug(cleanAntecedenteText(item['Titulo'] || item['Nombre'] || displayTitle));
+  const canonicalPath = `/antecedentes/${item['id']}/${slug}`;
   const curation: AntecedenteCuration = {
     quality,
     issues,
@@ -303,7 +303,7 @@ export function curateAntecedente<T extends Record<string, any>>(item: T): Curat
     recordSummary: recordTone.summary,
     displayTitle,
     displayDescription,
-    displayYear: formatAntecedenteYear(item.Fecha),
+    displayYear: formatAntecedenteYear(item['Fecha']),
     canonicalPath,
   };
 
@@ -318,7 +318,7 @@ export function curateAntecedente<T extends Record<string, any>>(item: T): Curat
 }
 
 export function isPromotableAntecedente(item: Record<string, any>): boolean {
-  return item?.curation?.isPromotable === true || curateAntecedente(item).curation.isPromotable;
+  return item?.['curation']?.isPromotable === true || curateAntecedente(item)['curation'].isPromotable;
 }
 
 export function sortAntecedentesForPublicList<T extends Record<string, any>>(items: T[]): CuratedAntecedente<T>[] {
@@ -327,16 +327,16 @@ export function sortAntecedentesForPublicList<T extends Record<string, any>>(ite
     .sort((a, b) => {
       const qualityDiff = QUALITY_RANK[a.curation.quality] - QUALITY_RANK[b.curation.quality];
       if (qualityDiff !== 0) return qualityDiff;
-      const dateDiff = getDateTime(b.Fecha) - getDateTime(a.Fecha);
+      const dateDiff = getDateTime(b['Fecha']) - getDateTime(a['Fecha']);
       if (dateDiff !== 0) return dateDiff;
-      return Number(b.id || 0) - Number(a.id || 0);
+      return Number(b['id'] || 0) - Number(a['id'] || 0);
     });
 }
 
 export function buildAntecedenteListItemStructuredData(item: Record<string, any>, position: number) {
   const curated = 'curation' in item ? item as CuratedAntecedente : curateAntecedente(item);
-  const imageUrl = publicImageUrl(curated.imageUrl || curated.Imagen || '');
-  const datePublished = formatAntecedenteDate(curated.Fecha) ? cleanAntecedenteText(curated.Fecha) : undefined;
+  const imageUrl = publicImageUrl(curated['imageUrl'] || curated['Imagen'] || '');
+  const datePublished = formatAntecedenteDate(curated['Fecha']) ? cleanAntecedenteText(curated['Fecha']) : undefined;
 
   return {
     '@type': 'ListItem',
@@ -350,8 +350,8 @@ export function buildAntecedenteListItemStructuredData(item: Record<string, any>
       url: canonicalUrl(curated.canonicalPath),
       image: imageUrl || undefined,
       datePublished,
-      about: curated.Area ? { '@type': 'Thing', name: cleanAntecedenteText(curated.Area) } : undefined,
-      mentions: curated.Cliente ? [{ '@type': 'Organization', name: cleanAntecedenteText(curated.Cliente) }] : undefined,
+      about: curated['Area'] ? { '@type': 'Thing', name: cleanAntecedenteText(curated['Area']) } : undefined,
+      mentions: curated['Cliente'] ? [{ '@type': 'Organization', name: cleanAntecedenteText(curated['Cliente']) }] : undefined,
     },
   };
 }

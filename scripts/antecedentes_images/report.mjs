@@ -52,6 +52,7 @@ function readManifest(lote) {
 }
 
 function listLotes() {
+  if (!fs.existsSync(path.join(ROOT, 'lotes'))) return [];
   return fs.readdirSync(path.join(ROOT, 'lotes'))
     .filter((entry) => /^lote_\d+$/.test(entry))
     .sort((a, b) => Number(a.slice(5)) - Number(b.slice(5)));
@@ -163,11 +164,17 @@ function resolveRawPath(item) {
   const images = listRawImages(item.lote);
   const base = item.expected_filename;
   const exact = images.find((image) => path.parse(image.file).name === base);
-  if (exact) return exact.full;
-  return images[item.index]?.full || path.join(ROOT, 'generadas_crudas', item.lote, `${base}.png`);
+  // Posición y fecha de archivo no identifican el crudo; nunca adivinar una procedencia.
+  return exact?.full || null;
 }
 
-const rows = listLotes().flatMap(readManifest).map((item) => {
+const lotes = listLotes();
+if (!lotes.length) {
+  console.error(JSON.stringify({ error:'No se encontraron los manifiestos originales; no es posible comprobar prompts ni crudos históricos.', publishedUnique:Object.keys(generatedMap).length }, null, 2));
+  process.exit(1);
+}
+
+const rows = lotes.flatMap(readManifest).map((item) => {
   const id = String(item.antecedente_id);
   const imagePath = generatedMap[id] || '';
   const imageUrl = imagePath ? canonicalUrl(imagePath) : '';
@@ -186,7 +193,7 @@ const rows = listLotes().flatMap(readManifest).map((item) => {
     fecha: item.fecha,
     slug: item.slug,
     expected_filename: item.expected_filename,
-    raw_source_path: rawPath,
+    raw_source_path: rawPath || '',
     processed_webp_path: path.join(ROOT, 'salida_web', lote, expectedWebp),
     public_webp_path: path.join(PUBLIC_ROOT, lote, expectedWebp),
     public_url_path: imagePath,
@@ -204,7 +211,7 @@ const rows = listLotes().flatMap(readManifest).map((item) => {
     geo_image_evidence_imageUrl: imageUrl,
     meta_title: seo.title,
     meta_description: seo.description,
-    raw_exists: fs.existsSync(rawPath),
+    raw_exists: Boolean(rawPath && fs.existsSync(rawPath)),
     processed_exists: fs.existsSync(path.join(ROOT, 'salida_web', lote, expectedWebp)),
     public_exists: fs.existsSync(path.join(PUBLIC_ROOT, lote, expectedWebp)),
   };
@@ -218,9 +225,13 @@ fs.writeFileSync(outJson, `${JSON.stringify(rows, null, 2)}\n`, 'utf8');
 fs.writeFileSync(outCsv, `${headers.join(',')}\n${rows.map((row) => headers.map((header) => csvEscape(row[header])).join(',')).join('\n')}\n`, 'utf8');
 
 const missing = rows.filter((row) => !row.raw_exists || !row.processed_exists || !row.public_exists || !row.public_url_path);
+const manifestIds = new Set(rows.map((row) => row.id));
+const missingManifests = Object.keys(generatedMap).filter((id) => !manifestIds.has(id));
 console.log(JSON.stringify({
   rows: rows.length,
-  missing: missing.length,
+  missing: missing.length + missingManifests.length,
+  missingManifests: missingManifests.length,
   csv: outCsv,
   json: outJson,
 }, null, 2));
+if (missing.length || missingManifests.length) process.exitCode = 1;

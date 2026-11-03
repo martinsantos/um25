@@ -1,0 +1,27 @@
+<!-- Quita el color de fondo horneado del render, sin oscurecer sus blancos.
+     Umbrales RGB medidos en el navegador, con margen de compresión de un nivel. Screen integra el negro resultante
+     con el fondo real de cada página. Los originales se conservan intactos. -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;pointer-events:none">
+  <defs>
+    <filter id="software-film-tone" color-interpolation-filters="sRGB">
+      <feComponentTransfer>
+        <feFuncR type="linear" slope="1.075949" intercept="-0.075949" />
+        <feFuncG type="linear" slope="1.103896" intercept="-0.103896" />
+        <feFuncB type="linear" slope="1.128319" intercept="-0.128319" />
+      </feComponentTransfer>
+    </filter>
+    <filter id="software-poster-tone" color-interpolation-filters="sRGB">
+      <feComponentTransfer>
+        <feFuncR type="linear" slope="1.075949" intercept="-0.075949" />
+        <feFuncG type="linear" slope="1.113537" intercept="-0.113537" />
+        <feFuncB type="linear" slope="1.128319" intercept="-0.128319" />
+      </feComponentTransfer>
+    </filter>
+  </defs>
+</svg>
+<style is:global>
+  [data-software-film] .umc-video,
+  [data-software-film] video[data-frame-ready] { filter: url('#software-film-tone'); mix-blend-mode: screen; }
+  [data-software-film] .umc-poster,
+  [data-software-film] video:not([data-frame-ready]):not(.umc-video) { filter: url('#software-poster-tone'); mix-blend-mode: screen; }
+</style>

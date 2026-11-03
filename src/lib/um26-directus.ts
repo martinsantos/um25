@@ -1,10 +1,12 @@
 // El listado usa el catálogo real (snapshot de Directus); um26-data/antecedentes.ts era un mock.
 import { ANTECEDENTES_REALES as ANTECEDENTES, mapearAntecedentes } from './um26-data/antecedentesReales';
-import { getAllAntecedentes } from './directus';
+import { getAllAntecedentes, getServiciosV4 } from './directus';
+import { plainTextFromHtml, sanitizeEditorialText } from '../utils/editorialContent';
 import { BLOG_POSTS } from './um26-data/blog';
 import { assignAntecedenteThumbnails, getAntecedenteImage, getSectorCover, getServiceCover } from './um26-data/images';
 import { SECTORES } from './um26-data/sectores';
 import { SERVICIOS } from './um26-data/servicios';
+import type { ProductoV4 } from '../types/directus-v4';
 import type {
   Antecedente as SourceAntecedente,
   BlogPost as SourceBlogPost,
@@ -35,6 +37,7 @@ export type Servicio = {
   icon: string;
   sectors: string[];
   cover: string;
+  products: ProductoV4[];
 };
 
 export type Sector = {
@@ -101,6 +104,7 @@ function toServicio(servicio: SourceServicio): Servicio {
     icon: servicio.icon,
     sectors: servicio.sectorIds,
     cover: getServiceCover(servicio.code),
+    products: [],
   };
 }
 
@@ -178,7 +182,14 @@ function normalizeRouteSlug(slug: string) {
 }
 
 export async function getServicios(): Promise<Servicio[]> {
-  return SERVICIOS.map(toServicio).sort((a, b) => a.code - b.code);
+  const current = await getServiciosV4();
+  const text = (value: unknown) => sanitizeEditorialText(plainTextFromHtml(String(value || '')));
+  return SERVICIOS.map(toServicio).map(base => {
+    const cms = current.find(item => Number(item.id) === base.code);
+    if (!cms) return base;
+    return { ...base, tagline: text(cms.subtitulo) || base.tagline, description: text(cms.Descripcion) || base.description,
+      products: Array.isArray(cms.productos) ? cms.productos : [] };
+  }).sort((a, b) => a.code - b.code);
 }
 
 export async function getServicioByCode(code: number): Promise<Servicio | null> {

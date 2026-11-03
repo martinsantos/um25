@@ -2,15 +2,16 @@
  * Imágenes de sectores, servicios y antecedentes: pósters Blender propios
  * (recorridos v4 por escena y servicio).
  *
- * Antes se usaban portadas editoriales y una imagen por antecedente hechas con
- * ChatGPT Images; ninguna imagen generada queda en estas rutas.
+ * Las fotos revisadas tienen prioridad. Las miniaturas anteriores permanecen
+ * como respaldo mientras se revisa individualmente su reemplazo.
  */
 
 import type { SectorSlug, ServiceCode } from "./types";
 import { posterFor, posterForService } from "../../data/cine/posters";
 import antecedenteThumbs from "../../data/antecedentes-generated-image-map.json";
+import { casePhotograph } from "../../data/photography";
 
-/** Miniatura realista propia de cada antecedente (una por id, 518). Sólo para el mosaico de /antecedentes: pedido del dueño 25/10. */
+/** Mapa de miniaturas anteriores por antecedente. */
 const ANTECEDENTE_THUMBS = antecedenteThumbs as Record<string, string>;
 
 type ThumbnailSeed = {
@@ -42,14 +43,13 @@ export function getServiceCover(code: ServiceCode): string {
 }
 
 /**
- * Se mantiene la firma: las miniaturas únicas eran imágenes generadas y ya no
- * hace falta precalcularlas.
+ * Se mantiene la firma; las asociaciones se obtienen del mapa existente.
  */
 export function assignAntecedenteThumbnails(_seeds: ThumbnailSeed[]): void {}
 
 /** Imagen realista propia de un antecedente (mosaico y ficha), o vacío si no tiene. */
 export function getAntecedenteThumb(id: string | number | null | undefined): string {
-  return id === null || id === undefined || id === '' ? '' : ANTECEDENTE_THUMBS[String(id)] || '';
+  return id === null || id === undefined || id === '' ? '' : casePhotograph(id) || ANTECEDENTE_THUMBS[String(id)] || '';
 }
 
 /** Imagen de un antecedente en el mosaico: su miniatura realista propia; si no tiene, la isometría de su sector × servicio. */
@@ -58,7 +58,7 @@ export function getAntecedenteImage(
   serviceCodes: ServiceCode[],
   id: number,
 ): string {
-  return ANTECEDENTE_THUMBS[String(id)] || posterFor(sectorSlug, serviceCodes[0]);
+  return casePhotograph(id) || ANTECEDENTE_THUMBS[String(id)] || posterFor(sectorSlug, serviceCodes[0]);
 }
 
 /** Galería de un antecedente: un póster por servicio, dentro de su sector. */

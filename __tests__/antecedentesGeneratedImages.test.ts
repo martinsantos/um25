@@ -38,7 +38,7 @@ describe('generated antecedentes image integration', () => {
     }
   });
 
-  test('public antecedente surfaces use own isometrics, never generated images', () => {
+  test('the detail identifies contextual images and does not expose the Directus image gallery', () => {
     const directus = fs.readFileSync(path.join(repoRoot, 'src/lib/directus.ts'), 'utf8');
     const home = fs.readFileSync(path.join(repoRoot, 'src/pages/index.astro'), 'utf8');
     const index = fs.readFileSync(path.join(repoRoot, 'src/pages/antecedentes/index.astro'), 'utf8');
@@ -47,12 +47,15 @@ describe('generated antecedentes image integration', () => {
 
     expect(directus).toContain('posterForAntecedente(id)');
     expect(home).toContain('ANTECEDENTES_REALES');
-    for (const source of [directus, home, index, detail, evidence]) {
+    for (const source of [directus, home, index]) {
       expect(source).not.toMatch(/antecedentes\/generated\/|antecedentes\/curadas\/|umsa-about-engineering|antecedentes-generated-image-map/);
     }
+    expect(evidence).toContain('generatedAiImages');
     // La ficha no muestra la galería de Directus (eran imágenes generadas).
     expect(detail).not.toContain('case-gallery-grid">');
     expect(detail).toContain('const mainImageUrl = generatedMainImageUrl || BASE_POSTER');
+    expect(detail).toContain('Imagen ilustrativa generada con IA');
+    expect(detail).toContain('Fotografía de contexto');
   });
 
   test('every catalog case shows its own realistic thumbnail in the antecedentes mosaic', async () => {
@@ -62,7 +65,7 @@ describe('generated antecedentes image integration', () => {
     expect(ANTECEDENTES_REALES.length).toBeGreaterThanOrEqual(518);
     for (const item of ANTECEDENTES_REALES) {
       const image = getAntecedenteImage(item.sectorSlug, item.serviceCodes, item.id);
-      expect(image).toMatch(/^\/images\/antecedentes\/generated\/.+\.webp$|^\/cine\/iso\/(service-\d{3}|site-[a-z]+)\.svg$/);
+      expect(image).toMatch(/^\/images\/antecedentes\/generated\/.+\.webp$|^\/images\/photography\/[a-f0-9]+\.webp$|^\/cine\/iso\/(service-\d{3}|site-[a-z]+)\.svg$/);
       expect(fs.existsSync(path.join(repoRoot, 'public', image))).toBe(true);
     }
   });

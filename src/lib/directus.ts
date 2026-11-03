@@ -8,10 +8,12 @@ import type {
 } from '../types/directus-v4';
 import { getDirectusInternalUrl, getDirectusToken, isLocalProdReplica } from '../config/runtime';
 import { normalizeServicioRecord } from '../utils/normalizeServicioRecord';
+import { findPublishedEditorialProduct, isValidEmbeddedProductCatalog, normalizeEmbeddedProductCatalog, snapshotProductCatalog } from '../utils/directusProductCatalog';
 import { visibleBlogStatusDirectusFilter } from '../utils/blogPublishing';
 import { diversifyBlogPostCovers } from '../utils/blogCoverDiversity.js';
 import { isCanonicalBlogSlug } from '../data/seoRedirects';
 import { fetchWithTimeout, getFetchTimeoutMs, withTimeout } from '../utils/fetchWithTimeout';
+import { protectPublicCase } from '../utils/publicCasePrivacy.js';
 
 const readItemsAny = readItems as any;
 const readItemAny = readItem as any;
@@ -27,7 +29,6 @@ export const DIRECTUS_CONFIG = {
 type Colecciones = {
   Servicios: ServicioV4; // Nombre correcto con mayúscula (tabla real en DB)
   servicios: ServicioV4; // Alias por compatibilidad legacy
-  productos: ProductoV4; // Colección de productos (migrado de JSON a tabla separada)
   Antecedentes: AntecedenteV4; // Nombre correcto con mayúscula (tabla real en DB)
   antecedentes: AntecedenteV4; // Alias por compatibilidad legacy
   antecedentes_servicios: AntecedenteServicioRelation; // NUEVO M2M V4
@@ -102,6 +103,22 @@ function directusDataItem<T>(payload: { data?: T } | null): T | null {
   return payload?.data || null;
 }
 
+function isDirectusNotFound(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const candidate = error as {
+    status?: unknown;
+    statusCode?: unknown;
+    response?: { status?: unknown };
+    errors?: Array<{ extensions?: { status?: unknown } }>;
+    cause?: unknown;
+  };
+  if ([candidate.status, candidate.statusCode, candidate.response?.status].some((status) => Number(status) === 404)) {
+    return true;
+  }
+  if (candidate.errors?.some((item) => Number(item.extensions?.status) === 404)) return true;
+  return candidate.cause !== error && isDirectusNotFound(candidate.cause);
+}
+
 async function loadSnapshotData<T>(fileName: string): Promise<T[]> {
   const snapshot = await import(`../data/snapshots/${fileName}.json`);
   return (snapshot.data || snapshot.default?.data || []) as T[];
@@ -111,8 +128,24 @@ async function getServicioFromSnapshot(numId: number): Promise<ServicioV4 | null
   const allServicios = await loadSnapshotData<ServicioV4>('servicios');
   const servicio = allServicios.find((s) => Number(s.id) === numId);
   if (!servicio) return null;
-  const productos = await getProductosPorServicio(numId);
-  return normalizeServicioRecord({ ...servicio, productos });
+  const productos = await getSnapshotProductsForService(numId);
+  return normalizeServicioRecord({ ...servicio, productos, Productos: productos });
+}
+
+async function getSnapshotProductsForService(serviceId: number): Promise<ProductoV4[]> {
+  const [allProducts, services] = await Promise.all([
+    loadSnapshotData<ProductoV4>('productos'),
+    loadSnapshotData<ServicioV4 & { Productos?: unknown }>('servicios'),
+  ]);
+  // The service snapshot owns catalog membership, just like the live JSON.
+  // The separate product archive also contains editorial landings (CCTV AI).
+  return snapshotProductCatalog(services, allProducts, serviceId);
+}
+
+async function normalizeProductsWithSnapshot(catalog: unknown, serviceId: number): Promise<ProductoV4[] | null> {
+  if (!isValidEmbeddedProductCatalog(catalog)) return null;
+  const snapshotProducts = await getSnapshotProductsForService(serviceId);
+  return normalizeEmbeddedProductCatalog(catalog, serviceId, snapshotProducts);
 }
 
 async function getProductoFromSnapshotBySlug(slug: string): Promise<ProductoV4 | null> {
@@ -127,7 +160,7 @@ async function getProductoFromSnapshotBySlug(slug: string): Promise<ProductoV4 |
 }
 
 async function getAntecedentesFromSnapshot(): Promise<AntecedenteV4[]> {
-  return loadSnapshotData<AntecedenteV4>('antecedentes');
+  return (await loadSnapshotData<AntecedenteV4>('antecedentes')).map(protectPublicCase);
 }
 
 async function getAntecedenteFromSnapshot(id: number | string): Promise<AntecedenteV4 | null> {
@@ -259,7 +292,8 @@ export const getCasosExito = async (limite: number = 10) =>
 /**
  * Obtiene todos los servicios V4
  * Usado en páginas de listado de servicios
- * Nota: Productos se cargan por separado con getProductosPorServicio()
+ * Productos viene embebido en Servicios.Productos; solo se usa el snapshot
+ * cuando ese campo falta o no tiene el shape publicado.
  */
 export async function getServiciosV4(): Promise<ServicioV4[]> {
   try {
@@ -282,15 +316,25 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
       })
     );
 
-    const list = (response || []) as unknown as ServicioV4[];
-    if (list.length > 0) return list.map((item) => normalizeServicioRecord(item));
-
-    console.warn('[directus] Servicios vacíos desde API, usando snapshot');
-    return (await loadSnapshotData<ServicioV4>('servicios')).map((item) => normalizeServicioRecord(item));
-  } catch (error) {
-    console.error('Error fetching servicios V4, trying snapshot:', error);
+    if (!Array.isArray(response)) throw new Error('Respuesta de Servicios con formato inválido');
+    const list = response as unknown as ServicioV4[];
+    return Promise.all(list.map(async (item) => {
+        const productos = await normalizeProductsWithSnapshot((item as any).Productos ?? (item as any).productos, Number(item.id));
+        const finalProducts = productos ?? await getSnapshotProductsForService(Number(item.id));
+        return normalizeServicioRecord({
+          ...item,
+          productos: finalProducts,
+          Productos: finalProducts,
+        });
+    }));
+  } catch {
+    console.error('[directus] Error fetching servicios V4; trying snapshot.');
     try {
-      return (await loadSnapshotData<ServicioV4>('servicios')).map((item) => normalizeServicioRecord(item));
+      const snapshot = await loadSnapshotData<ServicioV4>('servicios');
+      return Promise.all(snapshot.map(async (item) => {
+        const productos = await getSnapshotProductsForService(Number(item.id));
+        return normalizeServicioRecord({ ...item, productos, Productos: productos });
+      }));
     } catch {
       return [];
     }
@@ -300,7 +344,7 @@ export async function getServiciosV4(): Promise<ServicioV4[]> {
 /**
  * Obtiene un servicio específico con todos sus productos
  * Usado en página de detalle de servicio (/servicios/[id]/[slug])
- * Carga productos desde colección separada con relación M2O
+ * Lee el JSON Productos incluido en el servicio, sin una segunda consulta.
  */
 export async function getServicioConProductos(id: number | string): Promise<ServicioV4 | null> {
   const numId = Number(id);
@@ -326,17 +370,22 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
     );
 
     if (!servicio) {
-      console.warn(`[directus] Servicio ${id} no encontrado en API, usando snapshot`);
-      return getServicioFromSnapshot(numId);
+      return null;
     }
 
-    const productos = await getProductosPorServicio(numId);
+    const productos = await normalizeProductsWithSnapshot(
+      (servicio as any).Productos ?? (servicio as any).productos,
+      numId,
+    );
+    const finalProducts = productos ?? await getSnapshotProductsForService(numId);
     return normalizeServicioRecord({
-      ...servicio,
-      productos,
+      ...(servicio as any),
+      productos: finalProducts,
+      Productos: finalProducts,
     });
   } catch (error) {
-    console.error(`Error fetching servicio ${id}, trying snapshot:`, error);
+    if (isDirectusNotFound(error)) return null;
+    console.error(`[directus] Error fetching servicio ${id}; trying snapshot.`);
     try {
       return getServicioFromSnapshot(numId);
     } catch {
@@ -346,62 +395,72 @@ export async function getServicioConProductos(id: number | string): Promise<Serv
 }
 
 /**
- * Obtiene los productos de un servicio específico.
- * Producción todavía no tiene la colección Directus "productos"; usar snapshot evita
- * 403 recurrentes hasta que se migre el schema CMS.
- * IMPORTANTE: Filtra duplicados basados en título para evitar mostrar productos repetidos
+ * Obtiene los productos del JSON embebido en Servicios.Productos.
+ * Un array válido vacío significa que el servicio no tiene productos; solo errores
+ * o datos con shape inválido habilitan el snapshot histórico.
  */
 export async function getProductosPorServicio(servicioId: number): Promise<ProductoV4[]> {
   try {
-    const allProductos = await loadSnapshotData<ProductoV4>('productos');
-    const productos = allProductos.filter((p: any) => p.servicio_id === servicioId);
-    const seen = new Set<string>();
-    return productos.filter((producto) => {
-      const titulo = producto.titulo?.toLowerCase().trim();
-      if (!titulo || seen.has(titulo)) return false;
-      seen.add(titulo);
-      return true;
-    });
-  } catch {
-    return [];
+    const response = await getClient().request(
+      readItemAny('Servicios', servicioId, { fields: ['id', 'Productos'] })
+    );
+    if (!response) return [];
+    const normalized = await normalizeProductsWithSnapshot(
+      (response as any)?.Productos ?? (response as any)?.productos,
+      servicioId,
+    );
+    if (normalized) return normalized;
+  } catch (error) {
+    if (isDirectusNotFound(error)) return [];
+    if (import.meta.env.DEV) console.warn(`[directus] Productos del servicio ${servicioId} no disponibles; usando snapshot.`);
   }
+  try { return await getSnapshotProductsForService(servicioId); } catch { return []; }
 }
 
 /**
  * Obtiene un producto comercial con template propio.
- * Directus-first cuando la colección/fields están disponibles; snapshot-first como
- * fallback controlado mientras se despliega el schema PRODUCTO en el CMS.
+ * Resuelve el producto editorial CCTV AI desde su registro publicado en snapshot.
+ * Los demás slugs se cotejan contra el JSON vivo del servicio; allí los productos no
+ * traen slug propio, así que se conserva solo un slug ya existente en snapshot.
  */
 export async function getProductoComercialBySlug(slug: string): Promise<ProductoV4 | null> {
   const fallback = await getProductoFromSnapshotBySlug(slug);
+  if (!fallback) return null;
+  const editorialProduct = findPublishedEditorialProduct(slug, [fallback]);
+  if (editorialProduct) return editorialProduct;
 
   try {
     const client = getClient();
+    const serviceId = typeof fallback.servicio_id === 'number'
+      ? fallback.servicio_id
+      : Number((fallback.servicio_id as ServicioV4)?.id);
     const response = await client.request(
-      readItemsAny('productos', {
-        filter: {
-          slug_producto: { _eq: slug }
-        },
-        limit: 1,
-        fields: ['*']
-      })
+      readItemAny('Servicios', serviceId, { fields: ['id', 'Productos'] })
     );
-
-    const [producto] = (response || []) as unknown as ProductoV4[];
-    if (!producto) return fallback;
-
-    return {
-      ...(fallback || {}),
-      ...producto,
-      contenido_producto: producto.contenido_producto || fallback?.contenido_producto,
-      opciones_comerciales: producto.opciones_comerciales || fallback?.opciones_comerciales,
-    } as ProductoV4;
+    if (!response) return null;
+    const liveProducts = await normalizeProductsWithSnapshot(
+      (response as any)?.Productos ?? (response as any)?.productos,
+      serviceId,
+    );
+    if (!liveProducts) return fallback;
+    const live = liveProducts.find((product) =>
+      product.id === fallback.id || normalizeProductTitle(product.titulo) === normalizeProductTitle(fallback.titulo)
+    );
+    if (!live) return null;
+    return { ...fallback, ...live };
   } catch (error) {
+    if (isDirectusNotFound(error)) return null;
     if (import.meta.env.DEV) {
-      console.warn(`[directus] Producto ${slug} no disponible desde API, usando snapshot`, error);
+      console.warn(`[directus] Producto ${slug} no disponible desde API, usando snapshot.`);
     }
     return fallback;
   }
+}
+
+function normalizeProductTitle(value: unknown): string {
+  return typeof value === 'string'
+    ? value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLocaleLowerCase('es')
+    : '';
 }
 
 /**
@@ -429,7 +488,8 @@ export async function getAntecedenteConServicios(id: number | string): Promise<A
       { allowMissing: true },
     );
 
-    return directusDataItem<AntecedenteV4>(payload);
+    const item = directusDataItem<AntecedenteV4>(payload);
+    return item ? protectPublicCase(item) : null;
   } catch (error) {
     console.error(`Error fetching antecedente ${id} with services from Directus, trying snapshot:`, error);
     return getAntecedenteFromSnapshot(id);
@@ -459,7 +519,7 @@ export async function getAntecedentesPorServicio(servicioId: number, limit: numb
       })
     );
 
-    return (response || []) as unknown as AntecedenteV4[];
+    return ((response || []) as unknown as AntecedenteV4[]).map(protectPublicCase);
   } catch (error) {
     console.error(`Error fetching antecedentes for servicio ${servicioId}:`, error);
     return [];
@@ -510,7 +570,16 @@ export async function buscarServicios(query: string, area?: string): Promise<Ser
       })
     );
 
-    return (response || []) as unknown as ServicioV4[];
+    const list = (response || []) as unknown as ServicioV4[];
+    return Promise.all(list.map(async (item) => {
+      const productos = await normalizeProductsWithSnapshot((item as any).Productos ?? (item as any).productos, Number(item.id));
+      const finalProducts = productos ?? await getSnapshotProductsForService(Number(item.id));
+      return normalizeServicioRecord({
+        ...item,
+        productos: finalProducts,
+        Productos: finalProducts,
+      });
+    }));
   } catch (error) {
     console.error('Error searching servicios:', error);
     return [];
@@ -518,21 +587,13 @@ export async function buscarServicios(query: string, area?: string): Promise<Ser
 }
 
 /**
- * Obtiene todos los productos de la colección productos
- * Útil para listados generales o análisis
+ * Obtiene el catálogo agregando los productos embebidos en Servicios.
+ * No consulta una colección productos inexistente en Directus.
  */
 export async function getAllProductos(): Promise<ProductoV4[]> {
   try {
-    const client = getClient();
-    const response = await client.request(
-      readItemsAny('productos', {
-        sort: ['servicio_id', 'orden'],
-        fields: ['*', 'imagen.*'],
-        limit: -1
-      })
-    );
-
-    return (response || []) as unknown as ProductoV4[];
+    const servicios = await getServiciosV4();
+    return servicios.flatMap((servicio) => Array.isArray(servicio.productos) ? servicio.productos : []);
   } catch (error) {
     console.error('Error fetching all productos:', error);
     return [];
@@ -693,7 +754,7 @@ export async function getAllAntecedentes(): Promise<AntecedenteV4[]> {
       `/items/Antecedentes?fields=${encodeURIComponent(fields)}&sort[]=-Fecha&sort[]=-id&limit=-1`,
     );
 
-    const list = directusDataArray<AntecedenteV4>(response);
+    const list = directusDataArray<AntecedenteV4>(response).map(protectPublicCase);
     if (list.length > 0) return list;
 
     console.warn('[directus] Antecedentes vacíos desde API, usando snapshot');

@@ -1,0 +1,50 @@
+---
+const product = '/software/gestion-de-comunidades-profesionales';
+---
+<section class="software-use" aria-labelledby="software-use-title">
+  <div class="software-use__shell">
+    <div class="software-use__intro">
+      <p class="software-use__eyebrow">Software que se puede recorrer</p>
+      <h2 id="software-use-title">Una comunidad.<br />Su gestión, en un solo lugar.</h2>
+      <p>Cuotas, credenciales, trámites y consultas: un producto para conectar a los colegios profesionales con sus matriculados.</p>
+    </div>
+    <div class="software-use__product">
+      <figure>
+        <a href={`${product}/demo/`} aria-label="Explorar la demo del portal de comunidades profesionales"><img src="/images/software-comunidades/portal-demo.webp" width="1280" height="860" alt="Portal del matriculado: resumen de cuenta, credencial digital y acceso a trámites. Datos de demostración." loading="lazy" decoding="async" /></a>
+        <figcaption>Captura del producto · datos de demostración</figcaption>
+      </figure>
+      <div class="software-use__copy">
+        <h3>Dos vistas del mismo proceso.</h3>
+        <p>El matriculado consulta su cuenta y sigue sus gestiones. La administración trabaja sobre esa misma actividad. Podés probar ambas vistas sin crear una cuenta.</p>
+        <ul><li>Cuenta y cuotas</li><li>Credencial digital</li><li>Trámites y consultas</li></ul>
+        <a class="software-use__button" href={`${product}/demo/`}>Explorar la demo <span aria-hidden="true">↗</span></a>
+        <a class="software-use__link" href={product}>Ver la solución para comunidades <span aria-hidden="true">→</span></a>
+        <p class="software-use__note">Entorno de prueba: no realiza cobros ni envía trámites reales.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+  .software-use { --skin-text: #171b1c; --skin-muted: #454d4e; --skin-line: #c8cecb; --skin-panel: #fff; background: #f4f4f1; color: #171b1c; padding-block: clamp(40px,6vw,80px); }
+  .software-use__shell { width: min(1400px,calc(100% - var(--um-page-gutter,24px) * 2)); margin-inline: auto; }
+  .software-use__intro { max-width: 850px; margin-bottom: 40px; }
+  .software-use__eyebrow { font-size: 1rem; font-weight: 600; margin: 0 0 16px; }
+  .software-use h2 { font-size: clamp(2rem,4.3vw,3.7rem); line-height: 1.07; letter-spacing: -.035em; margin: 0 0 24px; color: #171b1c; }
+  .software-use p { color: #454d4e; font-size: 1.125rem; line-height: 1.6; }
+  :global(body main) .software-use__intro h2 { font-size: clamp(2rem,4.3vw,3.7rem) !important; line-height: 1.07 !important; }
+  .software-use__product { display: grid; grid-template-columns: minmax(0,1.6fr) minmax(0,1fr); gap: clamp(28px,4vw,56px); align-items: center; }
+  .software-use figure { margin: 0; min-width: 0; }
+  .software-use figure a { display: block; }
+  .software-use img { display: block; width: 100%; height: auto; border: 1px solid #c8cecb; }
+  .software-use figcaption { margin-top: 12px; color: #515b59; font-size: 1rem; }
+  .software-use__copy { display: grid; gap: 20px; }
+  .software-use h3 { margin: 0; font-size: clamp(1.6rem,2.4vw,2.1rem); line-height: 1.2; color: #171b1c; }
+  .software-use ul { list-style: none; margin: 0; padding: 0; }
+  .software-use li { padding-block: 12px; border-bottom: 1px solid #c8cecb; font-size: 1.125rem; }
+  .software-use__button { display: flex; justify-content: space-between; gap: 16px; padding: 16px 20px; background: #dc2626; color: #fff; font-weight: 600; font-size: 1rem; text-decoration: none; min-height: 52px; align-items: center; }
+  .software-use__button:hover { background: #b91c1c; }
+  .software-use__link { color: #171b1c; font-size: 1rem; font-weight: 600; min-height: 44px; padding-block: 10px; border-bottom: 1px solid #171b1c; text-decoration: none; }
+  .software-use .software-use__note { font-size: 1rem; }
+  .software-use a:focus-visible { outline: 3px solid #171b1c; outline-offset: 4px; }
+  @media (max-width:900px) { .software-use__product { grid-template-columns: 1fr; }.software-use__intro { margin-bottom: 28px; } }
+</style>

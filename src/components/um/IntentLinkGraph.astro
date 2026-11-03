@@ -74,7 +74,6 @@ const actionLabel = (href: string) => {
           <a
             class={`um-click-surface um-intent-link-graph__item um-intent-link-graph__item--${item.kind || 'core'}`}
             href={item.href}
-            aria-label={`${item.label}. ${item.summary}`}
           >
             <span class="um-intent-link-graph__eyebrow">{categoryLabel(item.sourceTitle)}</span>
             <strong>{item.label}</strong>

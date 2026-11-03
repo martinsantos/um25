@@ -1,4 +1,8 @@
 ---
+import { isShowcaseProject, pageCaseCandidates } from '../proto/caseSelection';
+import SoftwareExperience from '../proto/SoftwareExperience.astro';
+import { loadStories, SECTOR_PHOTO, srcsetDe } from '../proto/isoData';
+import { generateSlug } from '../../utils/slugUtils';
 import { truncateEditorialText } from '../../utils/editorialContent';
 import SiteDespiece from '../cine/SiteDespiece.astro';
 import CineBanner from '../cine/CineBanner.astro';
@@ -30,17 +34,24 @@ const sectorDataSlug = sectorSlug === 'gobierno' ? 'gobiernosectorpublico' : sec
 const sectorName = sector.nombre || sector.label || sector.pageHeadline || 'Sector';
 const sectorTitle = sectorName;
 const sectorSummary = sector.pageSummary || sector.summary || sector.descripcion || '';
-const sectorImage = sector.heroImage || sector.image;
+const sectorImage = SECTOR_PHOTO[sectorDataSlug] || sector.heroImage || sector.image;
+const { stories } = await loadStories();
+const storyById = new Map(stories.map((story) => [story.id, story]));
+const caseImage = (item: any) => storyById.get(Number(item.id))?.image || sectorImage;
 const sectorServices = Array.isArray(sector.services) ? sector.services : [];
 const proofLabel = getAntecedentesCountShort();
 const sectorAntecedentesHref = sectorSlug
   ? `/antecedentes?sector=${encodeURIComponent(sectorSlug)}`
   : '/antecedentes';
-const caseHref = (item: any) => `/antecedentes/${item.id}/${item.slug || ''}`;
+const caseHref = (item: any) => storyById.get(Number(item.id))?.href || `/antecedentes/${item.id}/${item.slug || generateSlug(item.Titulo || 'proyecto')}`;
 const leadCase = antecedentes[0];
 // Seis proyectos sin repetir cliente+título.
 const seenCases = new Set<string>();
 const evidenceCases = antecedentes.filter((item: any) => {
+  const story = storyById.get(Number(item.id));
+  if (!story || !isShowcaseProject(story)) return false;
+  const service = sectorDataSlug === 'software' ? '104' : sectorDataSlug === 'seguridad-electronica' ? '102' : undefined;
+  if (service && !pageCaseCandidates([story], undefined, service).length) return false;
   const key = `${String(item.Cliente || '').toLowerCase()}|${String(item.Titulo || '').toLowerCase().split(/\s+[-–]\s+/)[0]}`;
   if (seenCases.has(key)) return false;
   seenCases.add(key);
@@ -97,12 +108,13 @@ const cineSector = sectorBySlug(sectorDataSlug);
 const cineScene = cineSector?.scene || 'fachada';
 // /software: el banner es la película propia de pantallas con transparencias, sin cortes por servicio.
 const isSoftware = sectorDataSlug === 'software';
+const isSecurity = sectorDataSlug === 'seguridad-electronica';
 const cineStats = [
   cineSector?.count
     ? { label: 'Casos en el sector', value: cineSector.count }
     : { label: 'Proyectos documentados', value: String(getAntecedentesCatalogCount()) },
   { label: 'Soporte', value: '24/7' },
-  { label: 'Trayectoria', value: '22+ años' },
+  { label: 'Trayectoria', value: '24+ años' },
 ];
 const nextLinks = strategicLinkGroups.flatMap((group: any) => group.links || []).slice(0, 4);
 const caseNameAcronyms = new Set(['SA', 'SRL', 'IT', 'CCTV', 'SDI', 'API', 'APIS', 'ERP']);
@@ -128,7 +140,17 @@ const areaLabel = (area: unknown) => {
 ---
 
 <div class="um26-sector">
-  <CineBanner
+  {isSecurity ? (
+    <section class="sector26-context sector26-shell" aria-labelledby="sector26-title">
+      <div>
+        <a class="sector26-context__back" href="/sectores">← Todos los sectores</a>
+        <h1 id="sector26-title">{sectorTitle}<span>.</span></h1>
+        <p>{sectorSummary}</p>
+        <a class="sector26-context__cta" href="/contacto">Pedir un relevamiento</a>
+      </div>
+      <img src={sectorImage || '/images/editorial/umsa-sector-seguridad-electronica.webp'} alt="" width="1672" height="941" fetchpriority="high" decoding="async" />
+    </section>
+  ) : <CineBanner
     variant="sector"
     scenes={[isSoftware ? SOFTWARE_FILM : cineScene]}
     variants={isSoftware ? {} : { [cineScene]: Object.keys(V4_CUTS).filter((k) => k.startsWith(`${cineScene}-`)) }}
@@ -139,23 +161,31 @@ const areaLabel = (area: unknown) => {
     primary={{ href: '/contacto', label: 'Pedir un relevamiento' }}
     stats={cineStats}
     back={{ href: '/sectores', label: '← Todos los sectores' }}
-  />
+  />}
 
-  <SiteDespiece scene={cineScene} sectorSlug={sectorDataSlug} sectorName={sectorName} linkBanner={!isSoftware} />
+  {isSoftware && <SoftwareExperience />}
+
+  {(isSoftware || isSecurity) && <section class="sector26-provision sector26-shell" aria-labelledby="sector26-provision-title">
+    <div><h2 id="sector26-provision-title">Qué proveemos<span>.</span></h2><p>Conocé los productos, prestaciones y componentes de {isSoftware ? 'Software a medida' : 'Seguridad electrónica'}, con el detalle de instalación, integración y soporte según el proyecto.</p></div>
+    <a href={`/servicios/${isSoftware ? '104' : '102'}#provision`}>Ver el desglose del servicio <span aria-hidden="true">→</span></a>
+  </section>}
+
+  {!isSoftware && !isSecurity && <SiteDespiece scene={cineScene} sectorSlug={sectorDataSlug} sectorName={sectorName} linkBanner />}
 
   <section class="sector26-evidence" aria-label="Proyectos del sector">
     <div class="sector26-shell">
       <div class="sector26-section-head sector26-section-head--split">
-        <h2>Lo que ya instalamos en {sectorName.toLowerCase()}.</h2>
+        <h2>Lo que hicimos en {sectorName.toLowerCase()}.</h2>
         <a href={sectorAntecedentesHref}>Ver todos los proyectos</a>
       </div>
-      <ol class="sector26-case-list" data-rail="Proyectos del sector">
+      <ol class:list={["sector26-evidence-grid", { "sector26-evidence-grid--software": isSoftware }]}>
         {evidenceCases.slice(0, 6).map((item: any) => (
           <li>
-            <a href={caseHref(item)} class="sector26-case-row">
-              <b>{formatCaseName(item.Cliente || item.Titulo, 'Proyecto')}</b>
-              <span>{cleanCaseTitle(item.Titulo) || cleanCmsText(item.Descripcion)}</span>
-              <em>{item.Fecha ? String(item.Fecha).slice(0, 4) : ''}</em>
+            <a href={caseHref(item)} class="sector26-evidence-card">
+              {!isSoftware && <img src={caseImage(item)} srcset={srcsetDe(caseImage(item))} sizes="(max-width: 900px) 100vw, 50vw" alt="" width="1200" height="750" loading="lazy" decoding="async" />}
+              <b>{formatCaseName(storyById.get(Number(item.id))?.client || item.Cliente || item.Titulo, 'Proyecto')}</b>
+              <span>{storyById.get(Number(item.id))?.title || cleanCaseTitle(item.Titulo) || cleanCmsText(item.Descripcion)}</span>
+              <em>{storyById.get(Number(item.id))?.year || (item.Fecha ? String(item.Fecha).slice(0, 4) : '')}</em>
             </a>
           </li>
         ))}
@@ -176,9 +206,32 @@ const areaLabel = (area: unknown) => {
   </section>
 </div>
 
-<SnapRail />
+{!isSoftware && !isSecurity && <SnapRail />}
 
 <style>
+  .sector26-provision { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 48px; align-items: center; padding-block: 48px; border-block: 1px solid #50545b; }
+  .sector26-provision h2 { font-size: clamp(1.75rem, 3vw, 2.5rem); }
+  .sector26-provision h2 span { color: #dc2626; }
+  .sector26-provision p { max-width: 70ch; margin-top: 16px; color: #c4c7cc; font-size: 1.125rem; line-height: 1.6; }
+  .sector26-provision a { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; font-size: 1rem; text-decoration: underline; text-underline-offset: 4px; }
+  @media (max-width: 900px) { .sector26-provision { grid-template-columns: 1fr; } }
+  .sector26-context { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: center; gap: clamp(28px, 4vw, 64px); padding-block: clamp(48px, 7vw, 100px); }
+  .sector26-context h1 { font-size: clamp(2.6rem, 5vw, 4.8rem); line-height: 1.05; margin-block: 24px; }
+  .sector26-context h1 span { color: #dc2626; }
+  .sector26-context p { font-size: 1.125rem; line-height: 1.6; color: #c4c7cc; }
+  .sector26-context__back { color: #c4c7cc; }
+  .sector26-context__cta { display: inline-flex; padding: 16px 24px; background: #f4f4f5; color: #0a0a0b; margin-top: 28px; font-weight: 600; }
+  .sector26-context img { display: block; width: 100%; height: auto; }
+  .sector26-evidence-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px 32px; list-style: none; margin: 0; padding: 0; }
+  .sector26-evidence-grid--software li { padding-top: 24px; border-top: 1px solid #50545b; }
+  .sector26-evidence-card { display: grid; gap: 12px; color: #f4f4f5; text-decoration: none; }
+  .sector26-evidence-card img { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; }
+  .sector26-evidence-card b { font-size: 1.25rem; font-weight: 600; }
+  .sector26-evidence-card span, .sector26-evidence-card em { font-size: 1.0625rem; color: #c4c7cc; font-style: normal; }
+  .sector26-evidence-card:focus-visible b { text-decoration: underline; text-decoration-color: #dc2626; }
+  @media (hover: hover) { .sector26-evidence-card:hover b { text-decoration: underline; text-decoration-color: #dc2626; } }
+  @media (max-width: 900px) { .sector26-context, .sector26-evidence-grid { grid-template-columns: minmax(0, 1fr); } }
+
   :global(body[data-skin]) main {
     background: #0a0a0b;
   }

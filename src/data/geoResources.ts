@@ -147,10 +147,11 @@ export function buildGeoImageEvidenceResource(
 ) {
   return {
     ...buildCommonGeoResource(),
-    role: 'Mapa verificable de imagenes generadas, aprobadas y asociadas a antecedentes publicos.',
+    role: 'Mapa de las imagenes asociadas a antecedentes publicos; pueden ser ilustraciones o fotografias de contexto.',
     policy: [
       'No inventar nombres de clientes, ubicaciones ni resultados a partir de la imagen.',
-      'Usar pageUrl como fuente canonica del antecedente y imageUrl como evidencia visual asociada.',
+      'Usar pageUrl como fuente canonica del antecedente. La imagen ilustra el alcance y no acredita por si sola la obra.',
+      'Los campos heredados generatedImages y missingGeneratedImages cuentan imagenes de cualquier tipo; generatedAiImages cuenta las ilustraciones del mapa de IA.',
       'Si un campo aparece como null, tratarlo como no publicado.',
     ],
     coverage,

@@ -1,33 +1,24 @@
 import type { APIRoute } from 'astro';
 
-import { generateSlug } from '../utils/slugUtils.js';
 import { canonicalUrl, escapeXml, formatSitemapDate, publicImageUrl } from '../utils/seoUrl';
-import { getAllAntecedentes, getAntecedenteImageUrl } from '../lib/directus';
+import { loadStories, type Story } from '../components/proto/isoData';
 
-function getImageUrl(item: any): string | null {
-    const imageUrl = getAntecedenteImageUrl(item);
-    if (!imageUrl || imageUrl.includes('default-background')) return null;
-    return publicImageUrl(imageUrl);
-}
-
-function generateSitemapXml(antecedentes: any[]): string {
+function generateSitemapXml(antecedentes: Story[]): string {
     const today = formatSitemapDate();
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
     ${antecedentes.map(item => {
-        const slug = generateSlug(item.Titulo || item.titulo || 'antecedente');
-        const id = item.id || item.ID || 'unknown';
-        const lastmod = item.Fecha ? formatSitemapDate(item.Fecha) : today;
-        const imageUrl = getImageUrl(item);
+        const lastmod = item.cierre ? formatSitemapDate(item.cierre) : today;
+        const imageUrl = item.image ? publicImageUrl(item.image) : null;
         const imageTag = imageUrl ? `
         <image:image>
             <image:loc>${escapeXml(imageUrl)}</image:loc>
         </image:image>` : '';
         return `
     <url>
-        <loc>${escapeXml(canonicalUrl(`/antecedentes/${id}/${slug}`))}</loc>
+        <loc>${escapeXml(canonicalUrl(item.href))}</loc>
         <lastmod>${lastmod}</lastmod>${imageTag}
     </url>`;
     }).join('')}
@@ -36,7 +27,7 @@ function generateSitemapXml(antecedentes: any[]): string {
 
 export const GET: APIRoute = async () => {
     try {
-        const antecedentes = await getAllAntecedentes();
+        const { stories: antecedentes } = await loadStories();
 
         const sitemap = generateSitemapXml(antecedentes);
 

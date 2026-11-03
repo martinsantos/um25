@@ -4,10 +4,12 @@ name: Vista previa
 # Cloudflare (https://<algo>.trycloudflare.com) para revisarla desde cualquier equipo,
 # también el teléfono, sin tocar producción, el DNS ni el servidor. El link vive mientras
 # corre el job y se muestra en el resumen de la ejecución.
-# Dos formas: botón «Run workflow» (elegís rama y minutos) o subir una rama `preview/<nombre>`.
+# Dos formas: botón «Run workflow» (elegís rama y minutos) o subir una rama `preview/<nombre>` o
+# `feature/portada-<algo>`. Antes de abrir el túnel corre el control visual de la propuesta
+# (scripts/propuesta/control.mjs) y adjunta las capturas; su resultado va al resumen y al estado del commit.
 on:
   push:
-    branches: ['preview/**']
+    branches: ['preview/**', 'feature/portada-**', 'feature/integracion-despiece-*']
   workflow_dispatch:
     inputs:
       ref:
@@ -25,12 +27,12 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  NODE_VERSION: '18.x'
+  NODE_VERSION: '20.19.6'
 
 jobs:
   vista-previa:
     runs-on: ubuntu-latest
-    timeout-minutes: 320
+    timeout-minutes: 350
     permissions:
       contents: read
       statuses: write
@@ -47,6 +49,14 @@ jobs:
       - name: Instalar
         run: npm ci
 
+      - name: Controles de publicación
+        run: |
+          npm run lint
+          npm run typecheck
+          npm run audit:css
+          npm run test:ci
+          python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_*.py' -q
+
       - name: Compilar
         run: npm run build
         env:
@@ -54,19 +64,53 @@ jobs:
 
       - name: Levantar el sitio
         run: |
-          HOST=127.0.0.1 PORT=4321 nohup node dist/server/entry.mjs > server.log 2>&1 &
+          # Igual estructura que el tar de Hostinger: no existe public/ junto al servidor.
+          stage="$RUNNER_TEMP/umsa-runtime-check"
+          mkdir -p "$stage/dist"
+          cp -R dist/server "$stage/dist/server"
+          ln -s "$GITHUB_WORKSPACE/dist/client" "$stage/dist/client"
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$stage/node_modules"
+          cp package.json "$stage/package.json"
+          (cd "$stage" && UMSA_PREVIEW=1 UMSA_USE_PUBLIC_BLOG_FALLBACK=1 PUBLIC_DIRECTUS_URL=https://admin.ultimamilla.com.ar HOST=127.0.0.1 PORT=4321 nohup node dist/server/entry.mjs > "$GITHUB_WORKSPACE/server.log" 2>&1 & )
           for i in $(seq 1 60); do curl -fs -o /dev/null http://127.0.0.1:4321/ && break; sleep 2; done
           if ! curl -fs -o /dev/null -w 'Inicio: %{http_code}\n' http://127.0.0.1:4321/; then
             echo '--- respuesta de / (primeras líneas)'; curl -s http://127.0.0.1:4321/ | head -c 1500; echo
             echo '--- server.log'; cat server.log; exit 1
           fi
 
+      - name: Verificar integración y paquete de producción
+        run: node scripts/propuesta/integration-smoke.mjs http://127.0.0.1:4321
+
+      # El sitio usa el mismo Node 20 que producción; el control de navegador usa Node 22.
+      - name: Node 22 para el control
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.x'
+
+      - name: Control visual de la propuesta
+        id: control
+        continue-on-error: true
+        run: |
+          npm install --prefix "$RUNNER_TEMP/um-control" --no-save --no-package-lock playwright@1.63.0 @axe-core/playwright > /dev/null
+          "$RUNNER_TEMP/um-control/node_modules/.bin/playwright" install --with-deps chromium > /dev/null
+          BASE_URL=http://127.0.0.1:4321 QA_OUT=control-propuesta/parity PLAYWRIGHT_MODULE="file://$RUNNER_TEMP/um-control/node_modules/playwright/index.mjs" node scripts/propuesta/parity-control.mjs
+          PLAYWRIGHT_MODULE="file://$RUNNER_TEMP/um-control/node_modules/playwright/index.mjs" AXE_MODULE="file://$RUNNER_TEMP/um-control/node_modules/@axe-core/playwright/dist/index.js" node scripts/propuesta/control.mjs --base http://127.0.0.1:4321 --out control-propuesta
+
+      - name: Adjuntar las capturas del control
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: control-propuesta
+          path: control-propuesta
+          if-no-files-found: ignore
+
       - name: Abrir el túnel y publicar el link
         id: tunel
         env:
           GH_TOKEN: ${{ github.token }}
-          MINUTOS: ${{ inputs.minutos || '90' }}
+          MINUTOS: ${{ inputs.minutos || '300' }}
           REF: ${{ inputs.ref || github.ref_name }}
+          CONTROL: ${{ steps.control.outcome }}
         run: |
           curl -fsSL -o cloudflared https://github.com/cloudflare/cloudflared/releases/download/2025.4.0/cloudflared-linux-amd64
           chmod +x cloudflared
@@ -81,13 +125,17 @@ jobs:
             echo "**$url**"
             echo ""
             echo "Abierta durante $min minutos. Para cerrarla antes, cancelá esta ejecución."
+            echo ""
+            if [ "$CONTROL" = "success" ]; then echo "Control visual: ✓ en orden."; else echo "Control visual: ✗ falló. Ver el informe en el artefacto \`control-propuesta\`."; fi
+            [ -f control-propuesta/informe.md ] && cat control-propuesta/informe.md
           } >> "$GITHUB_STEP_SUMMARY"
           echo "::notice title=Vista previa::$url"
           # El link también queda como estado del commit: se ve en el commit y en el PR al instante.
           sha=$(git rev-parse HEAD)
+          if [ "$CONTROL" = "success" ]; then veredicto='Control OK'; estado='success'; else veredicto='Control FALLÓ'; estado='failure'; fi
           curl -fsS -X POST -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' \
             "https://api.github.com/repos/${{ github.repository }}/statuses/$sha" \
-            -d "{\"state\":\"success\",\"context\":\"vista-previa\",\"target_url\":\"$url\",\"description\":\"Abierta $min minutos desde $(date -u +%H:%M) UTC\"}" > /dev/null
+            -d "{\"state\":\"$estado\",\"context\":\"vista-previa\",\"target_url\":\"$url\",\"description\":\"$veredicto · abierta $min min desde $(date -u +%H:%M) UTC\"}" > /dev/null
           echo "min=$min" >> "$GITHUB_OUTPUT"
 
       # Paso aparte: así el link y el resumen ya se ven mientras la vista previa sigue abierta.

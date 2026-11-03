@@ -1,0 +1,73 @@
+---
+import Parte from './Parte.astro';
+import { KIT_DE_SERVICIO } from './despiece';
+import { isoSrc, isoRatio } from './isoData';
+import { sectorIntegrationScope } from '../../data/propuesta/sector-integration';
+interface Props {
+  slug: string;
+  name: string;
+  site?: Parameters<typeof isoSrc>[0];
+  items: { code: string; name: string; count: number; text: string }[];
+}
+const { slug, name, site, items } = Astro.props;
+const physical = ['101', '102', '103', '107', '108'];
+const first = items.find(item => physical.includes(item.code));
+---
+<section class="sec integration" id="integracion" aria-labelledby="integration-title">
+  <div class="wrap">
+    <div class="sec__head">
+      <h2 id="integration-title">Cómo integramos los servicios<span class="dot">.</span></h2>
+      <p>Combinamos los sistemas según la operación de {name.toLowerCase()}. El alcance se define en cada proyecto; podés consultar la provisión completa y los antecedentes de cada servicio.</p>
+    </div>
+    <div class:list={['dentro', { 'integration--text': !site }]} data-dentro={site ? true : undefined}>
+      {site && <div class="dentro__stage">
+        <div class="iso" data-diagram-stage data-svc={first?.code} data-src={isoSrc(site)}>
+          <div class="iso__caja" style={`--r:${isoRatio(site).toFixed(3)}`} role="img" aria-label={`Esquema de integración para ${name.toLowerCase()}`}></div>
+          <span class="ahora">{first?.name}</span>
+        </div>
+        <div class="diagram-tools"><span>Esquema de integración</span><button type="button" data-diagram-toggle>Pausar recorrido</button></div>
+      </div>}
+      <div class="dentro__side">
+        <ol class="integration__list" id="servicios-sector">
+          {items.map(item => <li data-integration-service={item.code}>
+            <h3>{item.name}</h3>
+            <p>{sectorIntegrationScope(slug, item.code, item.text)}</p>
+            <div class="integration__parts">
+              {(KIT_DE_SERVICIO[item.code] || []).slice(0, 3).map(([key, label]) => <figure><Parte k={key} size={64} /><figcaption>{label}</figcaption></figure>)}
+            </div>
+            <div class="integration__links">
+              <a class="u" href={`/servicios/${item.code}#provision`}>Ver qué proveemos <span aria-hidden="true">→</span></a>
+              {item.count > 0 && <a class="u" href={`/antecedentes?sector=${slug}&service=${item.code}`}>Ver {item.count} {item.count === 1 ? 'antecedente' : 'antecedentes'}</a>}
+              {site && physical.includes(item.code) && <button type="button" data-diagram-code={item.code} data-name={item.name} aria-pressed={item.code === first?.code ? 'true' : 'false'}>Ver en el esquema</button>}
+            </div>
+          </li>)}
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+  .integration { scroll-margin-top: calc(var(--top-h, 66px) + 16px); }
+  .sec__head { max-width: 80ch; }
+  .sec__head p { margin-top: 16px; }
+  .integration__list { list-style: none; margin: 0; padding: 0; }
+  .integration__list > li { border-top: 1px solid var(--line); padding: 28px 0; }
+  .integration__list > li:first-child { padding-top: 24px; }
+  h3 { font-size: 1.25rem; line-height: 1.3; }
+  .integration__list p { color: var(--ink-2); margin-top: 12px; line-height: 1.6; }
+  .integration__parts { display: flex; gap: 16px; margin-top: 20px; }
+  figure { margin: 0; width: calc((100% - 32px) / 3); max-width: 144px; }
+  figcaption { margin-top: 8px; color: var(--ink-2); font-size: 1rem; line-height: 1.4; }
+  .integration__links { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; margin-top: 20px; }
+  .integration__links a, .integration__links button { min-height: 44px; display: inline-flex; align-items: center; font-size: 1rem; }
+  .integration__links button { color: var(--ink-2); border: 1px solid var(--line); padding: 8px 12px; text-align: left; }
+  .integration__links button[aria-pressed="true"] { color: var(--ink); border-color: var(--red); }
+  .diagram-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; color: var(--ink-2); font-size: 1rem; }
+  .diagram-tools button { padding-block: 10px; text-decoration: underline; text-underline-offset: 4px; min-height: 44px; }
+  .integration--text { grid-template-columns: 1fr; }
+  .integration--text .integration__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s4); }
+  @media (max-width: 900px) {
+    .integration--text .integration__list { grid-template-columns: 1fr; }
+    .integration__list > li { padding-block: 24px; }
+  }
+</style>

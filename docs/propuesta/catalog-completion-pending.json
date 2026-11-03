@@ -1,0 +1,1076 @@
+{
+  "reviewedAt": "2026-11-01",
+  "source": "Auditoría local: 91 descripciones breves, 68 servicios ausentes y 160 sectores ausentes; 252 fichas distintas.",
+  "pending": [
+    {
+      "id": 3071,
+      "reason": "El título describe seguridad/detección como servicio o equipamiento, sin sitio o destino físico inequívoco de la taxonomía. No infiero sector por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3077,
+      "reason": "El único destino identificable es un hotel; hotelería no pertenece a la taxonomía admitida. El cliente Cela es proveedor/consultor y no permite inferir el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3084,
+      "reason": "Las fuentes vinculadas no identifican un sitio físico o destino institucional admitido de forma inequívoca. Mantener pendiente evita inferir por el cliente, por el servicio o por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3090,
+      "reason": "Cruce exacto con registro 11189 (2025-02-11); el texto literal menciona «Hotel Sheraton de Mendoza», pero hotelería no pertenece a la taxonomía admitida. Mantener pendiente.",
+      "field": "sector"
+    },
+    {
+      "id": 3098,
+      "reason": "Cruce exacto con registro 11182 (2024-11-07); el texto literal menciona «Hotel Sheraton de Mendoza», pero hotelería no pertenece a la taxonomía admitida. Mantener pendiente.",
+      "field": "sector"
+    },
+    {
+      "id": 3099,
+      "reason": "Cruce exacto con registro 11176 (2024-10-09); el literal «Mayorista Yaguar de las Sucursal Mendoza y San Juan» apunta a comercio mayorista, fuera de la taxonomía admitida.",
+      "field": "sector"
+    },
+    {
+      "id": 3100,
+      "reason": "El título describe seguridad/detección como servicio o equipamiento, sin sitio o destino físico inequívoco de la taxonomía. No infiero sector por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3110,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3115,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3120,
+      "reason": "Cruce exacto con registro 11168 (2024-04-24); el texto literal menciona «Hotel Sheraton de Mendoza», pero hotelería no pertenece a la taxonomía admitida. Mantener pendiente.",
+      "field": "sector"
+    },
+    {
+      "id": 3121,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3124,
+      "reason": "El único destino identificable es un hotel; hotelería no pertenece a la taxonomía admitida. El cliente Cela es proveedor/consultor y no permite inferir el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3128,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11143 (2023-08-25), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3129,
+      "reason": "Cruce exacto con registro 11163 (2024-02-20); el texto literal menciona «Hotel Sheraton de Mendoza», pero hotelería no pertenece a la taxonomía admitida. Mantener pendiente.",
+      "field": "sector"
+    },
+    {
+      "id": 3134,
+      "reason": "El título describe seguridad/detección como servicio o equipamiento, sin sitio o destino físico inequívoco de la taxonomía. No infiero sector por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3136,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3138,
+      "reason": "Cruce cliente normalizado + inicio SGI exacto con registro 11157 (2023-12-21); el literal «Luna Maya - Sistema de portería IP, Bodega Sur de los Andes» describe portería IP en una bodega, pero el título actual es «Desarrollo de Software y Digitalización de Procesos - Luna Maya» y no hay coincidencia de alcance suficiente para trasladar ese destino.",
+      "field": "sector"
+    },
+    {
+      "id": 3142,
+      "reason": "Cruce exacto con registro 11149 (2023-09-25); el texto literal menciona «Hotel Sheraton de Mendoza», pero hotelería no pertenece a la taxonomía admitida. Mantener pendiente.",
+      "field": "sector"
+    },
+    {
+      "id": 3143,
+      "reason": "Las fuentes vinculadas no identifican un sitio físico o destino institucional admitido de forma inequívoca. Mantener pendiente evita inferir por el cliente, por el servicio o por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3146,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3147,
+      "reason": "El texto apunta a un ámbito o elemento, pero no identifica de forma inequívoca uno de los servicios de la taxonomía; no inferí servicio desde área compuesta ni del contexto del cliente.",
+      "field": "services"
+    },
+    {
+      "id": 3147,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3161,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11140 (2023-08-10), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3163,
+      "reason": "El texto apunta a un ámbito o elemento, pero no identifica de forma inequívoca uno de los servicios de la taxonomía; no inferí servicio desde área compuesta ni del contexto del cliente.",
+      "field": "services"
+    },
+    {
+      "id": 3163,
+      "reason": "El único destino identificable es un hotel; hotelería no pertenece a la taxonomía admitida. El cliente Cela es proveedor/consultor y no permite inferir el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3166,
+      "reason": "Cruce exacto con registro 11093 (2022-10-14) y alcance coincidente; el literal «Terminal de San Martin» identifica una terminal, destino que no corresponde por sí solo a los sectores admitidos.",
+      "field": "sector"
+    },
+    {
+      "id": 3167,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11130 (2023-05-04), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3176,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11128 (2023-04-30), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3180,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3181,
+      "reason": "El título describe seguridad/detección como servicio o equipamiento, sin sitio o destino físico inequívoco de la taxonomía. No infiero sector por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3185,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11115 (2023-02-24), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3193,
+      "reason": "Cruce exacto con registro 11081 (2022-08-11); el texto literal menciona «Hotel», pero hotelería no pertenece a la taxonomía admitida. Mantener pendiente.",
+      "field": "sector"
+    },
+    {
+      "id": 3194,
+      "reason": "Cruce exacto con registro 11113 (2023-02-13); el texto literal menciona «Hotel», pero hotelería no pertenece a la taxonomía admitida. Mantener pendiente.",
+      "field": "sector"
+    },
+    {
+      "id": 3200,
+      "reason": "El título describe seguridad/detección como servicio o equipamiento, sin sitio o destino físico inequívoco de la taxonomía. No infiero sector por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3204,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3205,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11106 (2022-11-15), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3209,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11082 (2022-08-11), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3214,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11088 (2022-09-09), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3215,
+      "reason": "El texto apunta a un ámbito o elemento, pero no identifica de forma inequívoca uno de los servicios de la taxonomía; no inferí servicio desde área compuesta ni del contexto del cliente.",
+      "field": "services"
+    },
+    {
+      "id": 3215,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3217,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11085 (2022-08-31), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3219,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3222,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11050 (2022-02-25), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3232,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3234,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3235,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11072 (2022-06-21), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3240,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11026 (2021-12-01), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3241,
+      "reason": "El texto apunta a un ámbito o elemento, pero no identifica de forma inequívoca uno de los servicios de la taxonomía; no inferí servicio desde área compuesta ni del contexto del cliente.",
+      "field": "services"
+    },
+    {
+      "id": 3242,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3245,
+      "reason": "El texto apunta a un ámbito o elemento, pero no identifica de forma inequívoca uno de los servicios de la taxonomía; no inferí servicio desde área compuesta ni del contexto del cliente.",
+      "field": "services"
+    },
+    {
+      "id": 3256,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3258,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3259,
+      "reason": "La descripción es amplia o ambigua y no nombra con suficiente precisión un servicio de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3261,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3270,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3292,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3297,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3299,
+      "reason": "Cruce exacto con registro 11008 (2021-06-08); el texto literal menciona «Hotel Fuente Mayor», pero hotelería no pertenece a la taxonomía admitida. Mantener pendiente.",
+      "field": "sector"
+    },
+    {
+      "id": 3302,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 10966 (2020-11-02), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3303,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11002 (2021-05-10), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3304,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3307,
+      "reason": "El título describe software/digitalización, que es un servicio y no prueba un destino físico. No infiero sector por cliente ni por área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3309,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 10996 (2021-04-06), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3312,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3312,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11000 (2021-04-20), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3313,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3313,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 10998 (2021-04-17), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3314,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3315,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3315,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3316,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3317,
+      "reason": "El texto apunta a un ámbito o elemento, pero no identifica de forma inequívoca uno de los servicios de la taxonomía; no inferí servicio desde área compuesta ni del contexto del cliente.",
+      "field": "services"
+    },
+    {
+      "id": 3321,
+      "reason": "La descripción es amplia o ambigua y no nombra con suficiente precisión un servicio de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3324,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 10983 (2021-03-31), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3325,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 10983 (2021-03-31), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3326,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3330,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3339,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3339,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3344,
+      "reason": "Las fuentes vinculadas no identifican un sitio físico o destino institucional admitido de forma inequívoca. Mantener pendiente evita inferir por el cliente, por el servicio o por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3348,
+      "reason": "Las fuentes vinculadas no identifican un sitio físico o destino institucional admitido de forma inequívoca. Mantener pendiente evita inferir por el cliente, por el servicio o por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3354,
+      "reason": "El título/descripción disponibles no nombran inequívocamente un servicio de la taxonomía; no inferí por cliente, sector ni área compuesta.",
+      "field": "services"
+    },
+    {
+      "id": 3361,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3363,
+      "reason": "Las fuentes vinculadas no identifican un sitio físico o destino institucional admitido de forma inequívoca. Mantener pendiente evita inferir por el cliente, por el servicio o por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3376,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 10935 (2019-11-30), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3381,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3390,
+      "reason": "El título describe software/digitalización, que es un servicio y no prueba un destino físico. No infiero sector por cliente ni por área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3396,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 10914 (2019-08-12), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3398,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3402,
+      "reason": "El título describe seguridad/detección como servicio o equipamiento, sin sitio o destino físico inequívoco de la taxonomía. No infiero sector por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3409,
+      "reason": "El título/descripción disponibles no nombran inequívocamente un servicio de la taxonomía; no inferí por cliente, sector ni área compuesta.",
+      "field": "services"
+    },
+    {
+      "id": 3409,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3413,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3417,
+      "reason": "El título describe seguridad/detección como servicio o equipamiento, sin sitio o destino físico inequívoco de la taxonomía. No infiero sector por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3427,
+      "reason": "El título describe seguridad/detección como servicio o equipamiento, sin sitio o destino físico inequívoco de la taxonomía. No infiero sector por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3429,
+      "reason": "Las fuentes vinculadas no identifican un sitio físico o destino institucional admitido de forma inequívoca. Mantener pendiente evita inferir por el cliente, por el servicio o por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3430,
+      "reason": "El título/descripción disponibles no nombran inequívocamente un servicio de la taxonomía; no inferí por cliente, sector ni área compuesta.",
+      "field": "services"
+    },
+    {
+      "id": 3432,
+      "reason": "Cruce exacto con registro 10888 (2019-03-06) y alcance coincidente («Finca Lecumberri SRL - 2 cámaras de CCTV analógicas»), pero no identifica una bodega o proceso vitivinícola; no inferir por el nombre del cliente.",
+      "field": "sector"
+    },
+    {
+      "id": 3438,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3441,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3454,
+      "reason": "El texto apunta a un ámbito o elemento, pero no identifica de forma inequívoca uno de los servicios de la taxonomía; no inferí servicio desde área compuesta ni del contexto del cliente.",
+      "field": "services"
+    },
+    {
+      "id": 3456,
+      "reason": "El título/descripción disponibles no nombran inequívocamente un servicio de la taxonomía; no inferí por cliente, sector ni área compuesta.",
+      "field": "services"
+    },
+    {
+      "id": 3459,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3470,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 10866 (2018-10-08), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3471,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 10847 (2018-05-03), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3472,
+      "reason": "Las fuentes vinculadas no identifican un sitio físico o destino institucional admitido de forma inequívoca. Mantener pendiente evita inferir por el cliente, por el servicio o por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3475,
+      "reason": "El título/descripción disponibles no nombran inequívocamente un servicio de la taxonomía; no inferí por cliente, sector ni área compuesta.",
+      "field": "services"
+    },
+    {
+      "id": 3475,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3480,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3483,
+      "reason": "El texto apunta a un ámbito o elemento, pero no identifica de forma inequívoca uno de los servicios de la taxonomía; no inferí servicio desde área compuesta ni del contexto del cliente.",
+      "field": "services"
+    },
+    {
+      "id": 3484,
+      "reason": "El título/descripción disponibles no nombran inequívocamente un servicio de la taxonomía; no inferí por cliente, sector ni área compuesta.",
+      "field": "services"
+    },
+    {
+      "id": 3484,
+      "reason": "Las fuentes vinculadas no identifican un sitio físico o destino institucional admitido de forma inequívoca. Mantener pendiente evita inferir por el cliente, por el servicio o por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3492,
+      "reason": "El título/descripción disponibles no nombran inequívocamente un servicio de la taxonomía; no inferí por cliente, sector ni área compuesta.",
+      "field": "services"
+    },
+    {
+      "id": 3493,
+      "reason": "Cruce exacto con registro 10841 (2018-04-17); el literal «autodromo de san juan El villicum Zona de Boxes y edificios externos» identifica un sitio, pero automovilismo no es una vertical admitida y el título actual indica otro alcance.",
+      "field": "sector"
+    },
+    {
+      "id": 3497,
+      "reason": "El título describe software/digitalización, que es un servicio y no prueba un destino físico. No infiero sector por cliente ni por área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3498,
+      "reason": "La descripción es amplia o ambigua y no nombra con suficiente precisión un servicio de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3499,
+      "reason": "El texto apunta a un ámbito o elemento, pero no identifica de forma inequívoca uno de los servicios de la taxonomía; no inferí servicio desde área compuesta ni del contexto del cliente.",
+      "field": "services"
+    },
+    {
+      "id": 3502,
+      "reason": "La descripción es amplia o ambigua y no nombra con suficiente precisión un servicio de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3502,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3504,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3505,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3507,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3508,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3510,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3511,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3512,
+      "reason": "El título/descripción disponibles no nombran inequívocamente un servicio de la taxonomía; no inferí por cliente, sector ni área compuesta.",
+      "field": "services"
+    },
+    {
+      "id": 3514,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3517,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3522,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3522,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3525,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3529,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3534,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3537,
+      "reason": "El título/descripción disponibles no nombran inequívocamente un servicio de la taxonomía; no inferí por cliente, sector ni área compuesta.",
+      "field": "services"
+    },
+    {
+      "id": 3538,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3540,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3541,
+      "reason": "La descripción es amplia o ambigua y no nombra con suficiente precisión un servicio de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3541,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3543,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3543,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3544,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3545,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3545,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3547,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3548,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3551,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3551,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3552,
+      "reason": "La descripción es amplia o ambigua y no nombra con suficiente precisión un servicio de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3552,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3555,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3556,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3559,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3561,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3564,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3565,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3567,
+      "reason": "El título describe seguridad/detección como servicio o equipamiento, sin sitio o destino físico inequívoco de la taxonomía. No infiero sector por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3569,
+      "reason": "El título/descripción disponibles no nombran inequívocamente un servicio de la taxonomía; no inferí por cliente, sector ni área compuesta.",
+      "field": "services"
+    },
+    {
+      "id": 3569,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3571,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3571,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3573,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3574,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3575,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3576,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3576,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3577,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3578,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3581,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3582,
+      "reason": "Cruce exacto con registro 11190 (2025-02-25); el texto literal menciona «Hotel Sheraton de Mendoza», pero hotelería no pertenece a la taxonomía admitida. Mantener pendiente.",
+      "field": "sector"
+    },
+    {
+      "id": 3587,
+      "reason": "El título/descripción disponibles no nombran inequívocamente un servicio de la taxonomía; no inferí por cliente, sector ni área compuesta.",
+      "field": "services"
+    },
+    {
+      "id": 3587,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3590,
+      "reason": "Las fuentes vinculadas no identifican un sitio físico o destino institucional admitido de forma inequívoca. Mantener pendiente evita inferir por el cliente, por el servicio o por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3592,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11123 (2023-03-31), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3593,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3596,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11116 (2023-03-08), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3606,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11079 (2022-07-29), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3612,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3612,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3614,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 11054 (2022-04-04), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3620,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3620,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3627,
+      "reason": "El título/descripción disponibles no nombran inequívocamente un servicio de la taxonomía; no inferí por cliente, sector ni área compuesta.",
+      "field": "services"
+    },
+    {
+      "id": 3628,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 10968 (2020-12-14), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3630,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 10963 (2020-10-31), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3632,
+      "reason": "El texto apunta a un ámbito o elemento, pero no identifica de forma inequívoca uno de los servicios de la taxonomía; no inferí servicio desde área compuesta ni del contexto del cliente.",
+      "field": "services"
+    },
+    {
+      "id": 3633,
+      "reason": "La descripción es amplia o ambigua y no nombra con suficiente precisión un servicio de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3633,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3636,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 10940 (2020-01-22), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3638,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3639,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3641,
+      "reason": "El título/descripción disponibles no nombran inequívocamente un servicio de la taxonomía; no inferí por cliente, sector ni área compuesta.",
+      "field": "services"
+    },
+    {
+      "id": 3642,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3646,
+      "reason": "Cruce exacto con registro 10917 (2019-08-31); el texto literal incluye «galpón norte», pero no identifica un proceso o planta productiva y no basta para industria. Mantener pendiente sin inferir por el cliente.",
+      "field": "sector"
+    },
+    {
+      "id": 3651,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3652,
+      "reason": "Cruce exacto cliente normalizado + inicio SGI con registro 10892 (2019-04-15), pero el registro coincidente no establece un sitio/destino de una vertical admitida. El área heredada describe servicios técnicos y no determina el sector.",
+      "field": "sector"
+    },
+    {
+      "id": 3653,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3655,
+      "reason": "El área heredada compuesta Aeropuertos & Telecomunicaciones no prueba que este trabajo ocurriera en un aeropuerto; el título no identifica un sitio físico admitido.",
+      "field": "sector"
+    },
+    {
+      "id": 3660,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3662,
+      "reason": "El título/descripción disponibles no nombran inequívocamente un servicio de la taxonomía; no inferí por cliente, sector ni área compuesta.",
+      "field": "services"
+    },
+    {
+      "id": 3662,
+      "reason": "Las fuentes vinculadas no identifican un sitio físico o destino institucional admitido de forma inequívoca. Mantener pendiente evita inferir por el cliente, por el servicio o por el área heredada.",
+      "field": "sector"
+    },
+    {
+      "id": 3666,
+      "reason": "La descripción es amplia o ambigua y no nombra con suficiente precisión un servicio de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3666,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3667,
+      "reason": "El texto describe provisión/equipamiento genérico o material; no acredita por sí mismo uno de los servicios de la taxonomía.",
+      "field": "services"
+    },
+    {
+      "id": 3667,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3668,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3669,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3670,
+      "reason": "El título/descripción disponibles no nombran inequívocamente un servicio de la taxonomía; no inferí por cliente, sector ni área compuesta.",
+      "field": "services"
+    },
+    {
+      "id": 3670,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3671,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3672,
+      "reason": "“Diagnóstico de infraestructura IT” no especifica el alcance de la intervención ni identifica de forma inequívoca consultoría frente a soporte; se deja sin clasificar.",
+      "field": "services"
+    },
+    {
+      "id": 3672,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 3673,
+      "reason": "El título y los datos auditados no establecen un destino físico admitido con certeza. No uso datos que revelarían al cliente confidencial ni una coincidencia por cliente/tema.",
+      "field": "sector"
+    },
+    {
+      "id": 9001,
+      "reason": "La ficha y el catálogo solo identifican “Escuela Eugenio Izsaky” y Estructuras Oeste S.A.; no hay descripción del alcance en el snapshot ni ficha en antecedentes_completos.js, y SGI no aporta detalle de obra. El título alcanza como rótulo, pero no hay base para redactar una descripción sustantiva.",
+      "field": "summary"
+    },
+    {
+      "id": 9001,
+      "reason": "No hay registro homónimo en src/data/snapshots/antecedentes.json; no se hizo cruce legacy sin texto inequívoco y prueba. El título de auditoría no aporta evidencia suficiente.",
+      "field": "services"
+    }
+  ]
+}
