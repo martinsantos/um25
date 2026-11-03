@@ -11,7 +11,7 @@ interface Props { items: { key: ParteKey; label: string; meta?: string; n?: stri
 const { items, interactivo = false, illustrated = true } = Astro.props;
 ---
 <ol class:list={['partes', { 'partes--text': !illustrated }]} data-partes={interactivo ? '' : undefined}>
-  {items.map((p) => <li data-code={p.code}>{interactivo ? <button type="button" class="parte-control" data-diagram-code={p.code} data-name={p.meta || p.label} aria-label={`Ver ${p.label} en el esquema`} aria-pressed="false">
+  {items.map((p) => <li data-code={p.code}>{interactivo ? <button type="button" class="parte-control" data-diagram-code={p.code} data-name={p.meta || p.label} aria-label={`Ver ${[p.label, p.meta, p.n].filter(Boolean).join(' ')} en el esquema`} aria-pressed="false">
     {illustrated && <Parte k={p.key} size={72} />}<b>{p.label}</b>{p.meta && <span class="small">{p.meta}</span>}{p.n && <span class="n">{p.n}</span>}
   </button> : <>{illustrated && <Parte k={p.key} size={72} />}<b>{p.label}</b>{p.meta && <span class="small">{p.meta}</span>}{p.n && <span class="n">{p.n}</span>}</>}</li>)}
 </ol>

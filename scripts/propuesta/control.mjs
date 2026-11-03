@@ -111,8 +111,9 @@ for (const pag of PAGINAS) {
           portadaCargada: !portada || (portada.complete && portada.naturalWidth > 0),
         };
       }) : null;
-      // Fin de la apertura: el último punto del pin del hero (o 1,3 pantallas si la página no tiene hero).
-      await page.evaluate(() => { const h = document.querySelector('.lugar--hero'); window.scrollTo(0, h ? h.offsetTop + h.offsetHeight - innerHeight : Math.round(innerHeight * 1.3)); }); await page.waitForTimeout(3200);
+      // Avanzar al menos media pantalla también en el hero móvil de altura natural.
+      // Alto menos viewport podía ser negativo y devolvía la prueba al inicio.
+      await page.evaluate(() => { const h = document.querySelector('.lugar--hero'); window.scrollTo(0, h ? h.offsetTop + Math.max(h.offsetHeight - innerHeight, innerHeight * .5) : Math.round(innerHeight * 1.3)); }); await page.waitForTimeout(3200);
       await page.screenshot({ path: join(OUT, `${nombre}-2-apertura.png`) });
       const fin = await page.evaluate(() => { const op = (q) => { const e = document.querySelector(q); return e ? +getComputedStyle(e).opacity : null; }; return { fondo: op('.lugar--hero .lugar__fondo'), dib: op('.lugar--hero .xray__iso') }; });
       const posterOk = m.poster ? (await page.evaluate(async (u) => (await fetch(u, { method: 'HEAD' })).ok, m.poster)) : true;
