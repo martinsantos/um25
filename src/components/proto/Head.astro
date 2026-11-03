@@ -11,7 +11,7 @@ import { variantes } from './isoData';
 interface Props { title: string; description?: string; image?: string; lang?: string; precargar?: boolean; canonicalPath?: string }
 const { title, description = '', image = '/images/editorial/umsa-home-operations.webp', lang = 'es', precargar = false, canonicalPath } = Astro.props;
 // La imagen de apertura se precarga en la variante justa: el póster de película en AVIF; la foto editorial en AVIF a 960/1672 (quien no lee AVIF ignora la precarga por su type y descubre la foto en el HTML); la foto de antecedente en WebP a 960/1600.
-const avif = image.endsWith('.jpg') ? image.replace(/\.jpg$/, '.avif') : '';
+const avif = /^\/cine\/media\/cine-.+-poster\.jpg$/.test(image) ? image.replace(/\.jpg$/, '.avif') : '';
 const v = variantes(image);
 const avifSet = v.avif;
 const w960 = !avifSet && v.ancho ? v.w960 : '';

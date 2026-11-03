@@ -6,6 +6,7 @@ import { BLOG_POSTS } from './um26-data/blog';
 import { assignAntecedenteThumbnails, getAntecedenteImage, getSectorCover, getServiceCover } from './um26-data/images';
 import { SECTORES } from './um26-data/sectores';
 import { SERVICIOS } from './um26-data/servicios';
+import type { ProductoV4 } from '../types/directus-v4';
 import type {
   Antecedente as SourceAntecedente,
   BlogPost as SourceBlogPost,
@@ -36,6 +37,7 @@ export type Servicio = {
   icon: string;
   sectors: string[];
   cover: string;
+  products: ProductoV4[];
 };
 
 export type Sector = {
@@ -102,6 +104,7 @@ function toServicio(servicio: SourceServicio): Servicio {
     icon: servicio.icon,
     sectors: servicio.sectorIds,
     cover: getServiceCover(servicio.code),
+    products: [],
   };
 }
 
@@ -184,7 +187,8 @@ export async function getServicios(): Promise<Servicio[]> {
   return SERVICIOS.map(toServicio).map(base => {
     const cms = current.find(item => Number(item.id) === base.code);
     if (!cms) return base;
-    return { ...base, tagline: text(cms.subtitulo) || base.tagline, description: text(cms.Descripcion) || base.description };
+    return { ...base, tagline: text(cms.subtitulo) || base.tagline, description: text(cms.Descripcion) || base.description,
+      products: Array.isArray(cms.productos) ? cms.productos : [] };
   }).sort((a, b) => a.code - b.code);
 }
 

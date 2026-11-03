@@ -1,4 +1,5 @@
 import { SOFTWARE_FILM } from './cine/scenes';
+import { servicePhotograph } from './photography';
 
 // Miniaturas de la misma familia visual que la página de destino. Son imágenes
 // editoriales de navegación, no fotografías presentadas como evidencia de obra.
@@ -8,8 +9,8 @@ export const SERVICE_NAV_MEDIA: Record<string, string> = {
   '102': editorial('service-seguridad-electronica'),
   '103': editorial('service-telecomunicaciones'),
   '104': `/cine/media/cine-${SOFTWARE_FILM}-poster.avif`,
-  '105': editorial('service-soporte-247'),
-  '106': editorial('service-consultoria-it'),
+  '105': servicePhotograph('105').replace(/\.webp$/, '-480.webp') || editorial('service-soporte-247'),
+  '106': '/images/software-comunidades/comunidad-rosario.jpg',
   '107': editorial('service-deteccion-incendios'),
   '108': editorial('service-electricos-it'),
 };

@@ -8,11 +8,12 @@ import type {
 } from '../types/directus-v4';
 import { getDirectusInternalUrl, getDirectusToken, isLocalProdReplica } from '../config/runtime';
 import { normalizeServicioRecord } from '../utils/normalizeServicioRecord';
-import { findPublishedEditorialProduct, isValidEmbeddedProductCatalog, normalizeEmbeddedProductCatalog } from '../utils/directusProductCatalog';
+import { findPublishedEditorialProduct, isValidEmbeddedProductCatalog, normalizeEmbeddedProductCatalog, snapshotProductCatalog } from '../utils/directusProductCatalog';
 import { visibleBlogStatusDirectusFilter } from '../utils/blogPublishing';
 import { diversifyBlogPostCovers } from '../utils/blogCoverDiversity.js';
 import { isCanonicalBlogSlug } from '../data/seoRedirects';
 import { fetchWithTimeout, getFetchTimeoutMs, withTimeout } from '../utils/fetchWithTimeout';
+import { protectPublicCase } from '../utils/publicCasePrivacy.js';
 
 const readItemsAny = readItems as any;
 const readItemAny = readItem as any;
@@ -132,8 +133,13 @@ async function getServicioFromSnapshot(numId: number): Promise<ServicioV4 | null
 }
 
 async function getSnapshotProductsForService(serviceId: number): Promise<ProductoV4[]> {
-  const allProducts = await loadSnapshotData<ProductoV4>('productos');
-  return allProducts.filter((product) => Number(product.servicio_id) === serviceId);
+  const [allProducts, services] = await Promise.all([
+    loadSnapshotData<ProductoV4>('productos'),
+    loadSnapshotData<ServicioV4 & { Productos?: unknown }>('servicios'),
+  ]);
+  // The service snapshot owns catalog membership, just like the live JSON.
+  // The separate product archive also contains editorial landings (CCTV AI).
+  return snapshotProductCatalog(services, allProducts, serviceId);
 }
 
 async function normalizeProductsWithSnapshot(catalog: unknown, serviceId: number): Promise<ProductoV4[] | null> {
@@ -154,7 +160,7 @@ async function getProductoFromSnapshotBySlug(slug: string): Promise<ProductoV4 |
 }
 
 async function getAntecedentesFromSnapshot(): Promise<AntecedenteV4[]> {
-  return loadSnapshotData<AntecedenteV4>('antecedentes');
+  return (await loadSnapshotData<AntecedenteV4>('antecedentes')).map(protectPublicCase);
 }
 
 async function getAntecedenteFromSnapshot(id: number | string): Promise<AntecedenteV4 | null> {
@@ -482,7 +488,8 @@ export async function getAntecedenteConServicios(id: number | string): Promise<A
       { allowMissing: true },
     );
 
-    return directusDataItem<AntecedenteV4>(payload);
+    const item = directusDataItem<AntecedenteV4>(payload);
+    return item ? protectPublicCase(item) : null;
   } catch (error) {
     console.error(`Error fetching antecedente ${id} with services from Directus, trying snapshot:`, error);
     return getAntecedenteFromSnapshot(id);
@@ -512,7 +519,7 @@ export async function getAntecedentesPorServicio(servicioId: number, limit: numb
       })
     );
 
-    return (response || []) as unknown as AntecedenteV4[];
+    return ((response || []) as unknown as AntecedenteV4[]).map(protectPublicCase);
   } catch (error) {
     console.error(`Error fetching antecedentes for servicio ${servicioId}:`, error);
     return [];
@@ -747,7 +754,7 @@ export async function getAllAntecedentes(): Promise<AntecedenteV4[]> {
       `/items/Antecedentes?fields=${encodeURIComponent(fields)}&sort[]=-Fecha&sort[]=-id&limit=-1`,
     );
 
-    const list = directusDataArray<AntecedenteV4>(response);
+    const list = directusDataArray<AntecedenteV4>(response).map(protectPublicCase);
     if (list.length > 0) return list;
 
     console.warn('[directus] Antecedentes vacíos desde API, usando snapshot');

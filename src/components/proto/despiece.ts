@@ -16,7 +16,8 @@ export type ParteKey =
   | 'puesto' | 'maletin' | 'disco'
   | 'plano'
   | 'central' | 'detector' | 'pulsador' | 'sirena' | 'modulo'
-  | 'tablero' | 'ups' | 'bateria' | 'tierra' | 'generador';
+  | 'tablero' | 'ups' | 'bateria' | 'tierra' | 'generador'
+  | 'movil' | 'solar' | 'capacitores' | 'termografia' | 'vesda';
 
 export type Parte = { key: ParteKey; code: string; label: string; qty?: number };
 export type Despiece = { partes: Parte[]; origen: 'registro' | 'servicio' };
@@ -129,17 +130,24 @@ export function despieceDe(titulo: string, descripcion: string, serviceCodes: st
 }
 
 /** Lo instalado en un conjunto de registros: cuántos proyectos nombran cada parte. */
-export function despieceAgregado(registros: { title: string; summary: string; serviceCodes: string[] }[]): { key: ParteKey; code: string; label: string; proyectos: number; unidades: number }[] {
+const aggregateLabels: Partial<Record<ParteKey, string>> = {
+  ...Object.fromEntries(Object.values(KIT_DE_SERVICIO).flat()),
+  patch: 'Patch panels', canalizacion: 'Canalizaciones', nvr: 'Grabación y gestión de video',
+  telefono: 'Telefonía e intercomunicación', pantalla: 'Aplicaciones y visualización',
+  plano: 'Ingeniería y documentación', maletin: 'Soporte y mantenimiento',
+};
+
+export function despieceAgregado<T extends { title: string; summary: string; serviceCodes: string[] }>(registros: T[], resolve: (registro: T) => Despiece = r => despieceDe(r.title, r.summary, r.serviceCodes)): { key: ParteKey; code: string; label: string; proyectos: number; unidades: number }[] {
   const acc = new Map<string, { key: ParteKey; code: string; label: string; proyectos: number; unidades: number }>();
   for (const r of registros) {
-    const d = despieceDe(r.title, r.summary, r.serviceCodes);
+    const d = resolve(r);
     if (d.origen !== 'registro') continue;
     const vistos = new Set<string>();
     for (const p of d.partes) {
-      if (vistos.has(p.key)) continue;
+      const e = acc.get(p.key) || { key: p.key, code: p.code, label: aggregateLabels[p.key] || p.label, proyectos: 0, unidades: 0 };
+      if (!vistos.has(p.key)) e.proyectos++;
       vistos.add(p.key);
-      const e = acc.get(p.key) || { key: p.key, code: p.code, label: p.label, proyectos: 0, unidades: 0 };
-      e.proyectos++; e.unidades += p.qty || 0;
+      e.unidades += p.qty || 0;
       acc.set(p.key, e);
     }
   }

@@ -2,11 +2,20 @@
 
 Entrega de origen: `55c900ff1c2078dbfb87a6438487e60b61184d59`.
 Integración: `feature/integracion-despiece-20261101`, mediante PR a develop y luego master.
-**No publicar hasta que el usuario revise la vista previa final.**
+**GO del diseño y publicación autorizado por el usuario el 3/11/2026. Publicar mediante PR a develop y después master; las fotografías quedan pendientes post-GO.**
 
 Cierre de navegación, doce casos documentados, páginas secundarias, blog y Directus autenticado: [cierre-editorial-20261101.md](cierre-editorial-20261101.md).
 
 Revisión final de paridad, correcciones y límites: [revision-paridad-20261101.md](revision-paridad-20261101.md).
+
+## Fotografías de contexto
+
+La sustitución de ilustraciones es selectiva: cada caso de `src/data/photography-manifest.json`
+se revisa contra el alcance y tiene una fotografía y una fuente propias. El catálogo, las
+fichas y el buscador usan la misma imagen. Las fotografías externas se identifican como
+contexto, no como registros de la obra; sus fuentes y licencias están en `/creditos-fotograficos`.
+Las demás imágenes se conservan hasta tener una alternativa pertinente. No se asignan imágenes
+automáticamente por sector. La película de Software y los despieces interactivos se mantienen.
 
 ## Ejecución y controles
 

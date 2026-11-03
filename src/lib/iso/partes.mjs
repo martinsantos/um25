@@ -1,5 +1,5 @@
 /**
- * Las partes del despiece (2026-10-30): 31 equipos dibujados como sólidos isométricos con el
+ * Las partes del despiece: equipos y prestaciones dibujados como sólidos isométricos con el
  * núcleo del kit Anatomy (./anatomy, MIT). Cada parte se dibuja con la proyección que recibe;
  * sin proyección devuelve sólo sus extremos (para encuadrarla o para ubicarla en un banco).
  *
@@ -52,6 +52,75 @@ function pared(P, p, h) {
 }
 
 export const PARTES = {
+  movil(P) {
+    const body = plan(-7, -1.4, 14, 2.8, 1);
+    const ext = fitArgs(extremos([[body, 0, 27]]), 5); if (!P) return { ext };
+    return { svg: [
+      S(k.slabOf(body, 0, 27, P, 4, 0.5), { tone: 'mid' }),
+      L(ventana(P, body, -5.5, 5.5, 3, 24), { tone: 'hi' }),
+      L(regla(P, body, 25.4, -1.8, 1.8), { tone: 'faint' }),
+      L(regla(P, body, 1.5, -2, 2), { tone: 'mid' }),
+      L(regla(P, body, 17, -3.5, 3.5), { tone: 'lit' }),
+      L([13, 10].map(z => regla(P, body, z, -3.5, 2)).join(''), { tone: 'faint' }),
+    ].join(''), ext };
+  },
+  solar(P) {
+    const body = plan(-15, -10, 30, 20, 0);
+    const ext = fitArgs(extremos([[body, 0, 14]]), 5); if (!P) return { ext };
+    const height = y => 9 - y / 2;
+    const panel = [[-15, -10, 14], [15, -10, 14], [15, 10, 4], [-15, 10, 4]];
+    const perimeter = k.pathOf(panel.map(q => k.iso(q, P)), true);
+    const out = [];
+    [-11, 11].forEach(x => {
+      out.push(L(k.segment([x, -7, 0], [x, -7, height(-7)], P), { tone: 'mid' }));
+      out.push(L(k.segment([x, 7, 0], [x, 7, height(7)], P), { tone: 'mid' }));
+      out.push(L(k.segment([x, -9, 0], [x, 9, 0], P), { tone: 'lo' }));
+    });
+    out.push(`<path class="iso-top" d="${perimeter}"/>`, L(perimeter, { tone: 'hi' }));
+    [-10, -5, 0, 5, 10].forEach(x => out.push(L(k.segment([x, -10, 14], [x, 10, 4], P), { tone: 'mid' })));
+    [-5, 0, 5].forEach(y => out.push(L(k.segment([-15, y, height(y)], [15, y, height(y)], P), { tone: 'mid' })));
+    out.push(L(k.segment([-15, 10, 4], [15, 10, 4], P), { tone: 'lit' }));
+    return { svg: out.join(''), ext };
+  },
+  capacitores(P) {
+    const base = plan(-15, -7, 30, 14, 0.5);
+    const ext = fitArgs(extremos([[base, 0, 23]]), 5); if (!P) return { ext };
+    const cans = [-9, 0, 9].map(x => ({ c: [x, 0, 10], svg: [
+      S(k.cylinder(x, 0, 3.5, 2, 17, P, 24), { tone: 'mid' }),
+      L(k.sideArc(x, 0, 3.5, 5, P, 20), { tone: 'faint' }),
+      S(k.cylinder(x, 0, 1.2, 19, 3, P, 12), { tone: 'hi', lit: x === 0 }),
+    ].join('') }));
+    return { svg: [
+      S(k.slabOf(base, 0, 2, P, 3, 0.3), { tone: 'lo' }),
+      ...byDepth(P)(cans),
+      L(k.segment([-9, 0, 22], [9, 0, 22], P), { tone: 'mid' }),
+    ].join(''), ext };
+  },
+  termografia(P) {
+    const body = plan(-8, -3.5, 16, 7, 1);
+    const handle = plan(-3, -2, 6, 4, 0.7);
+    const ext = fitArgs(extremos([[body, 10, 27], [handle, 0, 10]]), 5); if (!P) return { ext };
+    return { svg: [
+      S(k.slabOf(handle, 0, 11, P, 3, 0.6), { tone: 'mid' }),
+      S(k.slabOf(body, 10, 17, P, 4, 0.7), { tone: 'hi' }),
+      L(ventana(P, body, -6, 6, 16, 25), { tone: 'mid' }),
+      L(ventana(P, body, -3, 2, 18, 22), { tone: 'lit' }),
+      D(frente(P, body, 12, 15, 3, 1, 3), { size: 0.45, tone: 'hi' }),
+      L([3, 5, 7].map(z => regla(P, handle, z, -2, 2)).join(''), { tone: 'faint' }),
+    ].join(''), ext };
+  },
+  vesda(P) {
+    const body = plan(-10, -3, 20, 6, 0.8);
+    const ext = fitArgs(extremos([[body, 0, 29]]), 5); if (!P) return { ext };
+    return { svg: [
+      ...[-6, 6].map(x => S(k.cylinder(x, 0, 1.3, 20, 9, P, 12), { tone: 'mid', crease: 'none' })),
+      S(k.slabOf(body, 0, 20, P, 3, 0.6), { tone: 'mid' }),
+      L(ventana(P, body, -7, 2, 11, 17), { tone: 'hi' }),
+      D(frente(P, body, 3, 7, 6, 2, 3), { size: 0.4, tone: 'mid' }),
+      D([k.iso([6, 3.01, 14], P)], { size: 0.65, tone: 'lit' }),
+      L(regla(P, body, 9, -7, 7), { tone: 'faint' }),
+    ].join(''), ext };
+  },
   rack(P) {
     const body = plan(-11, -11, 22, 22, 1);
     const ext = fitArgs(extremos([[body, 0, 52]]), 4); if (!P) return { ext };
@@ -457,6 +526,7 @@ export const PARTES = {
 };
 
 export const NOMBRES = {
+  movil: 'Aplicaciones móviles', solar: 'Panel solar', capacitores: 'Banco de capacitores', termografia: 'Termografía', vesda: 'Detección por aspiración',
   rack: 'Rack', switch: 'Switch', patch: 'Patch panel', fibra: 'Fibra óptica', ap: 'Access point', cableado: 'Cableado estructurado', canalizacion: 'Canalización',
   camara: 'Cámara CCTV', nvr: 'Grabador NVR', acceso: 'Control de acceso', alarma: 'Alarma de intrusión',
   'central-ip': 'Central telefónica IP', telefono: 'Teléfono IP', antena: 'Enlace de radio', parlante: 'Voceo',

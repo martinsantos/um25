@@ -36,7 +36,10 @@
     lugares.forEach((el) => {
       const r = el.getBoundingClientRect();
       if (r.bottom < 0 || r.top > innerHeight) return;
-      const p = Math.min(1, Math.max(0, -r.top / (r.height - innerHeight)));
+      // A natural-height mobile hero can be shorter than the viewport. Give
+      // its transition a positive scroll distance instead of dividing by zero.
+      const recorrido = Math.max(r.height - innerHeight, innerHeight * .25);
+      const p = Math.min(1, Math.max(0, -r.top / recorrido));
       const e = Math.min(1, p / .55);
       const k = e < .5 ? 2 * e * e : 1 - Math.pow(-2 * e + 2, 2) / 2;
       el.style.setProperty('--cut', String(100 - k * 100));
@@ -53,27 +56,89 @@
 
   // El lugar por dentro: recorre sus servicios de a uno, cada 2,6 s, mientras está a la vista; el
   // puntero sobre la lista toma el control y, al irse, el recorrido sigue. Nadie tiene que adivinar.
-  document.querySelectorAll('[data-dentro]').forEach((root) => {
-    const stage = root.querySelector('.dentro__stage');
-    const now = root.querySelector('.ahora');
-    if (stage && stage.dataset.src) new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); fetch(stage.dataset.src, { priority: 'low' }).then((r) => (r.ok ? r.text() : '')).then((svg) => { if (svg) (stage.querySelector('.iso__caja') || stage).insertAdjacentHTML('afterbegin', svg); }); } }, { rootMargin: '900px 0px' }).observe(stage);
-    const items = [...root.querySelectorAll('[data-code]')];
-    if (!items.length) return;
-    const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
-    const show = (a) => { stage.dataset.svc = a.dataset.code; if (now) now.textContent = a.dataset.name || ''; items.forEach((i) => i.classList.toggle('on', i === a)); };
-    const sinMovimiento = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let t = 0, quieto = sinMovimiento;
-    const paso = () => { const i = items.findIndex((a) => a.dataset.code === stage.dataset.svc); show(items[(i + 1) % items.length]); };
-    const andar = () => { if (!t && !quieto) t = setInterval(paso, 2600); };
-    const parar = () => { clearInterval(t); t = 0; };
-    new IntersectionObserver(([e]) => (e.isIntersecting ? andar() : parar()), { threshold: .25 }).observe(root);
-    // Sólo la lista detiene el recorrido: el puntero sobre el dibujo no cambia nada.
-    const lista = root.querySelector('.dentro__side') || root;
-    lista.addEventListener('pointerenter', () => { quieto = true; parar(); });
-    lista.addEventListener('pointerleave', () => { quieto = false; andar(); });
-    items.forEach((a) => {
-      if (fine) { a.addEventListener('pointerenter', () => show(a)); a.addEventListener('focus', () => show(a)); }
-      else a.addEventListener('click', (e) => { if (stage.dataset.svc !== a.dataset.code) { e.preventDefault(); show(a); parar(); quieto = true; } });
+  // Shared sector/project diagrams: selection is separate from navigation.
+  document.querySelectorAll('[data-dentro], [data-fiso]').forEach((root) => {
+    const stage = root.querySelector('[data-diagram-stage]');
+    const items = [...root.querySelectorAll('[data-diagram-code]')];
+    if (!stage) return;
+    const now = stage.querySelector('.ahora');
+    const toggle = root.querySelector('[data-diagram-toggle]');
+    const motion = matchMedia('(prefers-reduced-motion: reduce)');
+    const initialLabel = now?.textContent || '';
+    const codes = [...new Set(items.length ? items.map(item => item.dataset.diagramCode).filter(Boolean) : (stage.dataset.svcs || '').split(' ').filter(Boolean))];
+    let timer = 0, ready = false, visible = false, paused = false, hovered = false, focused = false;
+    const stop = () => { clearInterval(timer); timer = 0; };
+    const show = code => {
+      stage.dataset.svc = code;
+      items.forEach(item => {
+        const on = item.dataset.diagramCode === code;
+        item.setAttribute('aria-pressed', String(on));
+        item.closest('li')?.classList.toggle('on', on && codes.length > 1);
+      });
+      if (now) now.textContent = items.find(item => item.dataset.diagramCode === code)?.dataset.name || initialLabel;
+    };
+    const sync = () => {
+      stop();
+      if (toggle) {
+        toggle.hidden = motion.matches || codes.length < 2;
+        toggle.textContent = paused ? 'Reproducir recorrido' : 'Pausar recorrido';
+      }
+      if (!ready || !visible || paused || hovered || focused || motion.matches || document.hidden || codes.length < 2) return;
+      timer = setInterval(() => show(codes[(codes.indexOf(stage.dataset.svc) + 1) % codes.length]), 2600);
+    };
+    const back = document.createElement('button');
+    back.type = 'button'; back.hidden = true; back.className = 'diagram-return';
+    back.style.cssText = 'min-height:44px;text-align:left;text-decoration:underline;text-underline-offset:4px';
+    stage.after(back);
+    let selected;
+    back.addEventListener('click', () => { if (selected) { selected.focus({ preventScroll: true }); selected.scrollIntoView({ block: 'center', behavior: motion.matches ? 'instant' : 'smooth' }); } back.hidden = true; });
+    const select = item => {
+      show(item.dataset.diagramCode); paused = true; sync();
+      const bounds = stage.getBoundingClientRect();
+      if (bounds.bottom < 100 || bounds.top > innerHeight - 100) {
+        selected = item; back.textContent = 'Volver a ' + item.dataset.name; back.hidden = false;
+        stage.scrollIntoView({ block: 'center', behavior: motion.matches ? 'instant' : 'smooth' });
+        back.focus({ preventScroll: true });
+      }
+    };
+    items.forEach(item => {
+      item.addEventListener('click', () => select(item));
+      item.addEventListener('pointerenter', () => { hovered = true; show(item.dataset.diagramCode); sync(); });
+      item.addEventListener('pointerleave', () => { hovered = false; sync(); });
+      item.addEventListener('focus', () => { focused = true; show(item.dataset.diagramCode); sync(); });
+      item.addEventListener('blur', () => { focused = false; sync(); });
     });
+    toggle?.addEventListener('click', () => { paused = !paused; sync(); });
+    motion.addEventListener('change', sync);
+    document.addEventListener('visibilitychange', sync);
+    new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); }, { threshold: .25 }).observe(stage);
+    new IntersectionObserver(([entry], observer) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      fetch(stage.dataset.src, { priority: 'low' }).then(response => {
+        if (!response.ok) throw new Error('Diagram unavailable');
+        return response.text();
+      }).then(markup => {
+        const box = stage.querySelector('.iso__caja');
+        if (!box) return;
+        box.insertAdjacentHTML('afterbegin', markup);
+        const svg = box.querySelector('svg');
+        if (svg && root.hasAttribute('data-fiso') && !svg.dataset.fit) {
+          try {
+            const b = svg.getBBox(), pad = Math.max(b.width, b.height) * .05;
+            if (b.width && b.height) svg.setAttribute('viewBox', `${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`);
+            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+          } catch { /* Keep the original viewBox. */ }
+        }
+        root.classList.add('on'); ready = true;
+        show(stage.dataset.svc || codes[0]); sync();
+      }).catch(() => {
+        const box = stage.querySelector('.iso__caja');
+        if (box) { box.removeAttribute('role'); box.removeAttribute('aria-label'); box.textContent = 'El esquema no está disponible en este momento.'; }
+        if (toggle) toggle.hidden = true;
+      });
+    }, { rootMargin: '600px 0px' }).observe(stage);
+    show(codes[0]); sync();
   });
+
 })();

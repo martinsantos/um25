@@ -66,6 +66,18 @@ export function normalizeEmbeddedProductCatalog(
   });
 }
 
+/** Use the same catalog boundary offline as online, including a valid empty list. */
+export function snapshotProductCatalog(
+  services: Array<{ id: number; Productos?: unknown }>,
+  archive: ProductoV4[],
+  serviceId: number,
+): ProductoV4[] {
+  const embedded = services.find(service => Number(service.id) === serviceId)?.Productos;
+  return isValidEmbeddedProductCatalog(embedded)
+    ? normalizeEmbeddedProductCatalog(embedded, serviceId, archive)
+    : archive.filter(product => Number(product.servicio_id) === serviceId);
+}
+
 /** Published editorial template that intentionally lives outside Servicios.Productos. */
 export function findPublishedEditorialProduct(slug: string, products: ProductoV4[]): ProductoV4 | null {
   const product = products.find((candidate) =>

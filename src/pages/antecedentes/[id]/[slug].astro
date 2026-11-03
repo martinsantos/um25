@@ -11,6 +11,8 @@ import { generateSlug } from '../../../utils/slugUtils.js';
 import { getAntecedenteConServicios, getGeneratedAntecedenteImageUrl } from '../../../lib/directus.ts';
 import { BASE_POSTER } from '../../../data/cine/posters';
 import { getAntecedenteThumb } from '../../../lib/um26-data/images';
+import { casePhotograph } from '../../../data/photography';
+import { verifiedCaseCorrection } from '../../../utils/verifiedCaseCorrection';
 import {
   getAntecedenteById as getUm26AntecedenteById,
   getSectores as getUm26Sectores,
@@ -129,6 +131,14 @@ try {
 if (!antecedente) return Astro.rewrite('/404');
 
 antecedente = curateAntecedente(antecedente);
+const verifiedCorrection = verifiedCaseCorrection({
+  id: antecedente.id, client: antecedente.Cliente, title: antecedente.Titulo,
+  summary: antecedente.Descripcion, year: Number(String(antecedente.Fecha || '').slice(0, 4)),
+});
+if (verifiedCorrection) {
+  antecedente.displayTitle = verifiedCorrection.title;
+  antecedente.displayDescription = verifiedCorrection.summary;
+}
 const toPublicCaseLabel = (value: unknown): string => {
   const label = String(value || '')
     .replace(/\bRegistro\s+[\p{L}]+\b/giu, 'Proyecto técnico')
@@ -235,10 +245,10 @@ const [catalogCases, catalogServices] = await Promise.all([
   getCatalogServicios().catch(() => []),
 ]);
 const currentCatalogCase = catalogCases.find((item) => String(item.id) === String(id));
-const caseSectorSlug = currentCatalogCase?.sector_slug;
+const caseSectorSlug = verifiedCorrection?.sector ?? currentCatalogCase?.sector_slug;
 const caseSectorLabel = getAntecedenteSectorLabel(caseSectorSlug);
 const serviceByCode = new Map(catalogServices.map((service) => [Number(service.code), service]));
-const relatedServices = (currentCatalogCase?.service_codes || [])
+const relatedServices = (verifiedCorrection?.services || currentCatalogCase?.service_codes || [])
   .map((code) => serviceByCode.get(Number(code)))
   .filter((service): service is NonNullable<typeof service> => Boolean(service))
   .slice(0, 3)
@@ -480,6 +490,9 @@ const antecedentePageStructuredData = [
               width={caseImageDimensions.width}
               height={caseImageDimensions.height}
             />
+            {(casePhotograph(antecedente.id) || casePhotograph(antecedente.original_id || ''))
+              ? <figcaption>Fotografía de contexto</figcaption>
+              : mainImageUrl.startsWith('/images/antecedentes/generated/') && <figcaption>Imagen ilustrativa generada con IA</figcaption>}
           </figure>
           <dl class="case-ficha">
             {displayClientName && <div><dt>Cliente</dt><dd>{displayClientName}</dd></div>}

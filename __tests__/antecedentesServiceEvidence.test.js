@@ -28,8 +28,53 @@ describe('antecedente service inference evidence', () => {
       Fecha: '2025-08-14',
     }]);
 
-    expect(caseRecord.serviceCodes).toEqual(expect.arrayContaining([102, 103]));
+    expect(caseRecord.serviceCodes).toContain(102);
+    expect(caseRecord.serviceCodes).not.toContain(103);
     expect(caseRecord.serviceCodes).not.toContain(106);
+  });
+
+  test('an airport category alone does not prove telecom work, but explicit telephony does', async () => {
+    const { mapearAntecedentes } = await import('../src/lib/um26-data/antecedentesReales');
+    const [camera, telephone] = mapearAntecedentes([
+      { id: 3065, Titulo: 'Cámara de CCTV - Aeropuerto de Mendoza', Area: 'Aeropuertos & Telecomunicaciones', Descripcion: 'Cámara CCTV. Sector: Aeropuertos & Telecomunicaciones.' },
+      { id: 7003, Titulo: 'Telefonía IP del aeropuerto', Area: 'Aeropuertos & Telecomunicaciones', Descripcion: 'Instalación de teléfonos IP.' },
+    ]);
+    expect(camera.serviceCodes).toContain(102);
+    expect(camera.serviceCodes).not.toContain(103);
+    expect(telephone.serviceCodes).toContain(103);
+  });
+
+  test('does not mistake an imported category label for documented fire work', async () => {
+    const { mapearAntecedentes } = await import('../src/lib/um26-data/antecedentesReales');
+    const [disk, detection] = mapearAntecedentes([
+      {
+        id: 3176,
+        Titulo: 'Seguridad Electrónica & SDI: Disco duro NAS 12TB - PROCON SRL',
+        Cliente: 'PROCON SRL',
+        Area: 'Seguridad Electrónica & SDI',
+        Descripcion: 'Disco duro NAS 12TB. Sector: Seguridad Electrónica & SDI.',
+      },
+      {
+        id: 7000,
+        Titulo: 'Seguridad Electrónica & SDI: Mantenimiento de SDI',
+        Area: 'Seguridad Electrónica & SDI',
+        Descripcion: 'Mantenimiento de la central de incendio.',
+      },
+    ]);
+    expect(disk.serviceCodes).not.toContain(107);
+    expect(detection.serviceCodes).toContain(107);
+  });
+
+  test('does not identify a generic detector as fire work without evidence', async () => {
+    const { mapearAntecedentes } = await import('../src/lib/um26-data/antecedentesReales');
+    const [ambiguous, explicit, fireArea] = mapearAntecedentes([
+      { id: 3066, Titulo: 'Dispositivos de detección', Area: 'Soluciones Tecnológicas' },
+      { id: 7001, Titulo: 'Mantenimiento de detectores de humo', Area: 'Soluciones Tecnológicas' },
+      { id: 7002, Titulo: 'Mantenimiento de detectores', Area: 'Detección de Incendios & Seguridad' },
+    ]);
+    expect(ambiguous.serviceCodes).not.toContain(107);
+    expect(explicit.serviceCodes).toContain(107);
+    expect(fireArea.serviceCodes).toContain(107);
   });
 
   test('keeps explicit consulting and engineering evidence, but excludes consultorios', async () => {

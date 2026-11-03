@@ -11,7 +11,7 @@ export interface FAQ {
 export const sectorFAQs: Record<string, FAQ[]> = {
   mineria: [
     { question: '¿Qué servicios tecnológicos ofrece ULTIMA MILLA para el sector minero?', answer: 'Ofrecemos telecomunicaciones en sitios remotos, cableado estructurado industrial, sistemas de detección de incendio, seguridad electrónica (CCTV), y redes de datos para operaciones mineras en toda la región de Cuyo y Patagonia.' },
-    { question: '¿Tienen experiencia en proyectos mineros de gran escala?', answer: 'Sí, contamos con más de 24 años de experiencia y hemos ejecutado proyectos para las principales operaciones mineras de Mendoza, San Juan y Patagonia, incluyendo telecomunicaciones en mina y campamentos.' },
+    { question: '¿Cómo trabajan en proyectos mineros de gran escala?', answer: 'Evaluamos las necesidades de telecomunicaciones e infraestructura de cada operación, incluidos los sitios remotos y campamentos, según el alcance del proyecto.' },
     { question: '¿Pueden implementar soluciones en ubicaciones remotas?', answer: 'Sí, nos especializamos en despliegues en zonas de difícil acceso. Contamos con equipamiento y logística para instalaciones en alta montaña y sitios aislados típicos del sector minero.' },
   ],
   industria: [

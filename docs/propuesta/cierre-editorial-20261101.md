@@ -1,7 +1,62 @@
 # Cierre local de navegación, contenido y Directus
 
-1 de noviembre de 2026. Rama `feature/integracion-despiece-20261101`, PR 541 en borrador.
-Vista de revisión: http://127.0.0.1:4381/ . **No publicar hasta la revisión del usuario.**
+Documento iniciado el 1 de noviembre de 2026. Rama `feature/integracion-despiece-20261101`, PR 541.
+Vista aprobada: http://127.0.0.1:4381/ . **GO explícito del usuario recibido el 3 de noviembre de 2026; publicación autorizada mediante feature → develop → master y GitHub Actions en Hostinger.**
+
+Las fotografías deficientes o dudosas, las tres fotografías de Commons todavía separadas y la recuperación de trazabilidad quedan pendientes posteriores a la publicación. Se publica el estado visual aprobado, con sus recursos actuales. Los apartados siguientes conservan la cronología de validación; sus menciones a un GO pendiente describen el estado anterior a esta autorización.
+
+Validación del candidato: 698 pruebas en 95 suites, lint, tipos, CSS y build aprobados; 85 vistas y recorridos de interacción y paridad comprobados. El publicador conserva la versión anterior y verifica el candidato antes de activar el tráfico. La comprobación final corresponde al SHA que supere CI y quede activo en producción.
+
+## Alcance del GO local actualizado — 3 de noviembre
+
+### Coherencia entre Sectores, Antecedentes y Servicios
+
+Las siete verticales incluyen ahora **47 aplicaciones de servicios** con explicación contextual, componentes isométricos y acciones separadas para consultar la provisión completa o los antecedentes de esa vertical. La integración aparece antes de la evidencia histórica. Los enlaces de clientes conservan el filtro del sector. Minería incorpora el alcance eléctrico que ya declaraba su presentación. Software y Seguridad electrónica se identifican como soluciones transversales y mantienen sus páginas especializadas, con enlace al desglose completo de Servicios.
+
+Las fichas de Antecedentes usan la misma fuente revisada para el título del alcance y sus piezas. Los enlaces de servicios llegan a `#provision`. Los diagramas distinguen alcance documentado y capacidades generales cuando el registro no enumera equipos. Los agregados de Sectores y Servicios usan esa misma evidencia, excluyen los kits generales, cuentan cada proyecto una vez por componente y conservan las cantidades registradas. Los rótulos agregados son genéricos: un modelo particular o un DVR no se presenta como la tecnología de todos los proyectos.
+
+Los esquemas tienen botones reales para seleccionar sistemas, pausa y reproducción, soporte de teclado y respeto dinámico de movimiento reducido. En móvil, consultar un servicio navega con un toque; consultar un esquema permite volver al servicio seleccionado. Los proyectos de un único sistema muestran un esquema estático sin controles redundantes, y los servicios profesionales no se representan como circuitos físicos.
+
+Validación: `npm run check` aprobado con **698 pruebas en 95 suites**, lint, tipos, CSS y build. **85 vistas** sin infracciones axe A/AA, desbordes ni errores JS/consola: siete verticales en cinco anchos, dieciocho proyectos en escritorio/móvil, los índices, las dos soluciones transversales y tres servicios de control. Se verificaron cinco recorridos de interacción, incluidos pausa/reanudación, teclado, movimiento reducido tras hover/foco y navegación táctil. El JSON de los **520 registros** conserva exactamente datos, clasificaciones, orden y referencias de fotografías. Persisten dos avisos de precarga en Software, sin fallos de representación. Evidencias en `qa-coherencia-final/`, `check-coherencia-final.log` e `interacciones-coherencia.log` del directorio persistente.
+
+La paridad general también pasó: menús de escritorio/móvil, Escape y foco, búsqueda, filtros, orden, URL/SSR y validación del contacto sin envíos. Se actualizó su selector de esquema para comprobar los nuevos botones explícitos. Evidencias en `qa-paridad-coherencia-final/` y `paridad-coherencia-final.log`.
+
+Fotografías pendientes después del GO, por instrucción del usuario. Esta revisión no escribe en Directus, no publica la rama y no modifica producción.
+
+### Provisión visual por producto
+
+La recuperación anterior conservaba los 54 textos, pero faltaba el despiece isométrico que pidió el usuario. Ahora las 54 prestaciones de los ocho servicios incluyen **97 componentes ilustrados y rotulados**, además del alcance técnico. En CCTV se distinguen cámaras IP, grabadores NVR y servidor de video. Se reutiliza `Parte.astro` y se restaura la ilustración de «Con qué se hace»; las piezas de Sectores y Antecedentes mantienen exactamente los 31 símbolos anteriores. Se suman cinco símbolos vectoriales del mismo generador: aplicación móvil, panel solar, banco de capacitores, termografía y detección por aspiración. No se buscan, generan ni sustituyen fotografías.
+
+La correspondencia visual pertenece al catálogo de servicios, no se añade a la evidencia de equipos instalados en proyectos. Un producto nuevo del CMS sigue apareciendo con su texto aunque todavía no tenga un despiece revisado. Sectores explicita la integración por actividad; el catálogo de Antecedentes se identifica como «Proyectos y antecedentes» sin alterar filtros ni registros.
+
+Validación: `npm run check` aprobado con **693 pruebas en 94 suites**, lint, tipos, auditoría CSS y build (avisos preexistentes). Se verificaron las ocho fichas en cinco anchos (1440/1280/834/390/360), todos los SVG renderizados, los 54 títulos, las anclas por teclado y los ocho PDF. Las otras doce páginas se comprobaron en escritorio/móvil sobre la compilación final: **64 vistas de cobertura**, sin infracciones axe A/AA ni desbordes. Durante la recompilación se interrumpió una navegación del control general; se reinició el preview y se repitieron las 24 vistas generales con éxito. Evidencias en `qa-isometrias/`, `qa-isometrias-final/`, `check-isometrias.log` y `build-isometrias-final.log` del directorio persistente. Sólo cambios locales; el GO humano y la publicación por PR/CI/CD siguen pendientes.
+
+### Desglose de provisión recuperado tras la revisión del usuario
+
+Se detectó que el adaptador del nuevo diseño descartaba `productos` aunque Directus ya entregaba el catálogo normalizado. Las ocho fichas ahora muestran **Qué proveemos**, antes de las capacidades generales: 54 productos y prestaciones (8/8/6/6/5/5/8/8 para 101–108), con descripción del trabajo y navegación directa a provisión, cobertura, entregables, método y casos. Se conservan las seis capacidades y los cuatro pasos de cada servicio, los entregables y sus PDF.
+
+Los resúmenes técnicos están cotejados con `Servicios.Productos.servicio_asociado`. `service-provision-copy.json` conserva el texto de origen y sólo aplica el resumen si coinciden servicio, título y fuente actual; una edición del CMS invalida ese resumen. El catálogo vivo determina pertenencia y orden. Las capacidades máximas de equipos, garantías y promesas comerciales no se convierten en condiciones universales de la provisión.
+
+La prueba de navegador encontró además un defecto de respaldo: cuando fallaba la lectura del CMS, el catálogo histórico separado añadía CCTV AI y un nombre antiguo a Seguridad. El respaldo ahora usa el JSON embebido del servicio, preserva listas válidas vacías y mantiene CCTV AI como página editorial independiente. La prueba SSR con Directus desconectado conserva los 54 ítems y `/cctvai` operativo.
+
+Validación final: `npm run check` aprobado (**692 pruebas en 94 suites**, lint, tipos, CSS y build; avisos preexistentes). **64 vistas** sin infracciones axe A/AA, desbordes ni errores JS: ocho servicios en 1440/1280/834/390/360 px y otras doce páginas en escritorio/móvil. Se cotejaron los 54 títulos, cobertura, método, entregables, anclas por teclado y los ocho PDF. La paridad de menús, búsqueda, filtros y contacto también pasó. Evidencias en `qa-provision/`, `qa-respaldo-provision.json`, `qa-paridad-provision/` y `check-provision-final.log`, dentro del directorio persistente indicado más abajo.
+
+Por instrucción explícita del usuario, las imágenes deficientes o dudosas, su sustitución y la recuperación de trazabilidad quedan para después del GO. No bloquean la aprobación del diseño local y no se continúa buscando ni generando fotografías durante esta etapa. Las tres fotografías de Commons todavía no integradas permanecen preservadas aparte.
+
+La copia de revisión usa el código de esta rama, en `http://127.0.0.1:4381/`. El índice de servicios permite comparar las ocho opciones con filas compactas en móvil y tablet, resumen técnico, cantidad de antecedentes y acceso visible a la ficha. Conserva las descripciones completas en escritorio y los contenidos de cada servicio. En 390 px el recorrido total pasa de 6.673 a 3.178 px.
+
+Validación sobre la copia compilada con Node 20.19.5:
+
+- Lint, tipos, auditoría CSS, **685 pruebas en 92 suites** y build aprobados. Persisten avisos preexistentes de lint, CSS y tamaño de bundle.
+- **35 vistas** de portada, servicios, detalle de Redes, Bodegas, catálogo, ficha y contacto en 1440/1280/834/390/360 px: sin infracciones detectadas por axe WCAG A/AA, desbordes, controles fuera de pantalla ni errores JavaScript. Tras ajustar el índice se repitieron sus cinco anchos, accesibilidad y navegación por teclado, también sin fallos.
+- Paridad funcional aprobada: menús de escritorio/móvil, Escape y retorno de foco, búsqueda, orden, filtros, URL/SSR, navegación en inglés y validación del contacto.
+- Cinco equipos interactivos comprobados en cuatro anchos, con controles de despiece/detalle, teclado, pausa fuera de pantalla y movimiento reducido.
+- Contacto de página y modal en escritorio/móvil: error recuperable, conservación del mensaje, reintento, confirmación y foco. Las ocho respuestas de envío se simularon localmente: **no se enviaron correos reales** ni se validó la entrega SMTP.
+- Smoke de lectura: **37 rutas públicas, 520 fichas indexadas, 626 recursos y redirecciones** correctos.
+
+Runtime y evidencias persistentes de esta revisión: `/Users/santosma/.codex/visualizations/2026/11/03/01a1a0b0-0210-7ce0-ac4d-c2348d691b3a/`. La copia ejecutable está en `umsa-qa`; `qa-uiux`, `qa-indice-final`, `qa-interacciones` y `qa-despiece` contienen resultados y capturas. Esta ubicación reemplaza el runtime temporal antiguo indicado al final del documento.
+
+Estado: lista para revisión local del usuario, con fotografía pospuesta. El GO humano y la posterior publicación por PR/CI/CD siguen pendientes; esta pasada no modifica producción ni fusiona o publica la rama.
 
 ## Cierre documentado de descripciones y clasificaciones
 

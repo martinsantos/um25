@@ -12,13 +12,15 @@ import { NAV_SERVICES } from '../../data/navigation';
 import { antecedentesReales } from '../../data/antecedentes_completos.js';
 import { SECTORS, SOFTWARE_FILM } from '../../data/cine/scenes';
 import { descripcionDeOrigen } from './relato';
-import { addEvidenceBackedService, addEvidenceBackedSector, correctCuratedClassification, CURATED_CLASSIFICATION_CORRECTIONS, curateCatalogImage, withholdUnverifiedSector } from './catalogEditorial';
+import { addEvidenceBackedService, addEvidenceBackedSector, correctCuratedClassification, correctUnsupportedServices, CURATED_CLASSIFICATION_CORRECTIONS, curateCatalogImage, withholdUnverifiedSector } from './catalogEditorial';
 import { publicCaseFor } from './casePresentation';
 import { documentedCompletion, type CompletionEntry } from './catalogCompletion';
 import completionJson from '../../data/propuesta/catalog-completions.json';
-import { nombreCliente, tituloProyecto, desambiguarTitulos } from './titulos';
+import { nombreCliente, tituloProyecto, desambiguarTitulos, fechaDeTitulo } from './titulos';
 import sgiJson from '../../data/sgi/fechas.json';
 import extraJson from '../../data/propuesta/antecedentes-extra.json';
+import { servicePhotograph } from '../../data/photography';
+import { verifiedCaseCorrection } from '../../utils/verifiedCaseCorrection';
 
 /** Lo que SGI sabe mejor que el catálogo web: cuándo empezó y cerró cada proyecto, y en qué estado está. Por id web; sin datos internos. */
 export type Estado = 'finalizado' | 'en-curso' | 'pendiente';
@@ -96,7 +98,7 @@ export const PLACES: { slug: string; site: IsoSite; image: string }[] = [
 
 const cleanText = (value: unknown) => String(value ?? '').replace(/\b(Rubro|Cliente|Sector|Área|Area)\s*:\s*/gi, '').replace(/\s*(\.{3}|…)\s*$/u, '').replace(/\s+/g, ' ').trim();
 
-export type Story = { id: number; slug: string; href: string; client: string; title: string; year: number; month: number; inicio?: string; cierre?: string; estado?: Estado; sgiId?: string; sector: string; sectorSlug: string; serviceCodes: string[]; services: string[]; image: string; summary: string; status: string };
+export type Story = { id: number; slug: string; href: string; client: string; title: string; year: number; month: number; sourceTitleDate?: string; inicio?: string; cierre?: string; estado?: Estado; sgiId?: string; sector: string; sectorSlug: string; serviceCodes: string[]; services: string[]; image: string; summary: string; status: string };
 
 const SOFTWARE_GENERIC_TITLE = /^desarrollo de software y digitalizacion de procesos\b/i;
 const SOFTWARE_SCOPE_EVIDENCE = /\b(software|digitalizaci[oó]n|aplicaci[oó]n|plataforma|erp|web|api|programaci[oó]n|desarrollos? y actualizaci[oó]n (?:del )?sistema de ventas)\b/i;
@@ -169,11 +171,12 @@ export function illustrationSiteFor(story: Pick<Story, 'sectorSlug' | 'serviceCo
     ? SITE_OF[story.sectorSlug] : undefined;
 }
 /** Fotos editoriales: la imagen a pleno de cada servicio y de cada sector. */
-export const SERVICE_PHOTO: Record<string, string> = { '101': '/images/editorial/umsa-service-redes.webp', '102': '/images/editorial/umsa-service-seguridad-electronica.webp', '103': '/images/editorial/umsa-service-telecomunicaciones.webp', '104': '/images/editorial/umsa-service-software-a-medida.webp', '105': '/images/editorial/umsa-service-soporte-247.webp', '106': '/images/editorial/umsa-service-consultoria-it.webp', '107': '/images/editorial/umsa-service-deteccion-incendios.webp', '108': '/images/editorial/umsa-service-electricos-it.webp' };
+export const SERVICE_PHOTO: Record<string, string> = { '101': '/images/editorial/umsa-service-redes.webp', '102': '/images/editorial/umsa-service-seguridad-electronica.webp', '103': '/images/editorial/umsa-service-telecomunicaciones.webp', '104': '/images/editorial/umsa-service-software-a-medida.webp', '105': servicePhotograph('105') || '/images/editorial/umsa-service-soporte-247.webp', '106': '/images/software-comunidades/comunidad-rosario.jpg', '107': '/images/editorial/umsa-service-deteccion-incendios.webp', '108': '/images/editorial/umsa-service-electricos-it.webp' };
 export const SECTOR_PHOTO: Record<string, string> = { software: `/cine/media/cine-${SOFTWARE_FILM}-poster.avif`, 'seguridad-electronica': '/images/editorial/umsa-sector-seguridad-electronica.webp', bodegas: '/images/editorial/umsa-sector-bodegas.webp', aeropuertos: '/images/editorial/umsa-sector-aeropuertos.webp', salud: '/images/editorial/umsa-sector-salud.webp', mineria: '/images/editorial/umsa-sector-mineria.webp', industria: '/images/editorial/umsa-sector-industria.webp', constructoras: '/images/editorial/umsa-sector-constructoras.webp', gobiernosectorpublico: '/images/editorial/umsa-sector-gobierno.webp', gobierno: '/images/editorial/umsa-sector-gobierno.webp' };
 /** Las variantes de ancho de una foto según su familia: de antecedente (1600 → 960 → 480) o editorial (1672 → 960 → 480, y AVIF a 960 y 1672 para la apertura). Sin familia, las tres son la misma y el ancho es 0. */
 export const variantes = (image: string) => {
   if (/^\/images\/antecedentes\/generated\/.+-principal\.webp$/.test(image)) return { w480: image.replace(/-principal\.webp$/, '-principal-480.webp'), w960: image.replace(/-principal\.webp$/, '-principal-960.webp'), full: image, ancho: 1600, avif: '' };
+  if (/^\/images\/photography\/[a-f0-9]+\.webp$/.test(image)) return { w480: image.replace(/\.webp$/, '-480.webp'), w960: image.replace(/\.webp$/, '-960.webp'), full: image, ancho: 1200, avif: '' };
   if (/^\/images\/editorial\/umsa-[a-z0-9-]+\.webp$/.test(image) && !/-(480|960)\.webp$/.test(image)) return { w480: image.replace(/\.webp$/, '-480.webp'), w960: image.replace(/\.webp$/, '-960.webp'), full: image, ancho: 1672, avif: `${image.replace(/\.webp$/, '-960.avif')} 960w, ${image.replace(/\.webp$/, '.avif')} 1672w` };
   return { w480: image, w960: image, full: image, ancho: 0, avif: '' };
 };
@@ -215,8 +218,10 @@ export async function loadStories() {
     .map((c) => {
       const client = nombreCliente(c.client);
       const completion = completions.get(c.id);
-      const title = completion?.title ?? tituloProyecto(c.title, c.client, c.summary);
-      const summary = completion?.summary ?? (sinTitulo(descripcionDeOrigen(c.id), title, client) || cleanSummary(c.summary, title, client));
+      const correction = verifiedCaseCorrection({ id: c.id, client: c.client, title: c.title, summary: c.summary, year: c.year });
+      const title = completion?.title ?? correction?.title ?? tituloProyecto(c.title, c.client, c.summary);
+      const sourceDescription = /confidencial|reservad[oa]/i.test(c.client) ? '' : descripcionDeOrigen(c.id);
+      const summary = completion?.summary ?? correction?.summary ?? (sinTitulo(sourceDescription, title, client) || cleanSummary(c.summary, title, client));
       const publicCase = publicCaseFor({ id: c.id, client: c.client });
       const sourceEvidence = publicCase ? verifiedClassificationSource(c.id, c.client) : '';
       const inferredSector = addEvidenceBackedSector(c.id, c.title, c.summary, sectorDe(c.client, c.sector_slug, `${c.title} ${c.summary}`));
@@ -234,6 +239,7 @@ export async function loadStories() {
         href: `/antecedentes/${c.id}/${c.slug}`,
         client,
         title,
+        sourceTitleDate: fechaDeTitulo(c.title) || undefined,
         // SGI es el sistema de registro: su fecha de inicio manda sobre la del catálogo cuando existe.
         year: inicio ? Number(inicio.slice(0, 4)) : c.year,
         month: inicio ? Number(inicio.slice(5, 7)) : c.month,
@@ -286,9 +292,18 @@ export async function loadStories() {
     story.sector = classification.sector ? getAntecedenteSectorLabel(classification.sector === 'gobiernosectorpublico' ? 'gobierno' : classification.sector) || '' : '';
     story.serviceCodes = classification.services;
     // Reviewed live identity plus the guarded 10903 → 3410 source crosswalk.
-    if (story.id === 3410 && normalizeIdentity(story.client) === 'bodega caro' && completion?.title === 'Mantenimiento de un sistema de detección') story.serviceCodes = ['105', '107'];
+    if (story.id === 3410 && normalizeIdentity(story.client) === 'bodega caro' && completion?.title === 'Mantenimiento de un sistema de detección') story.serviceCodes = ['105'];
+    story.serviceCodes = correctUnsupportedServices(story.id, origin?.client || story.client, origin?.title || '', story.serviceCodes);
     story.serviceCodes = addEvidenceBackedService(story.id, origin?.title || '', origin?.summary || '', story.serviceCodes);
     if (!story.serviceCodes.length && completion?.services) story.serviceCodes = [...completion.services];
+    const verified = origin && verifiedCaseCorrection({ id: origin.id, client: origin.client, title: origin.title, summary: origin.summary, year: origin.year });
+    if (verified) {
+      story.serviceCodes = verified.services.map(String);
+      if (verified.sector !== undefined) {
+        story.sectorSlug = verified.sector;
+        story.sector = verified.sector ? getAntecedenteSectorLabel(verified.sector === 'gobiernosectorpublico' ? 'gobierno' : verified.sector) || '' : '';
+      }
+    }
     story.services = story.serviceCodes.map((code) => byCode.get(code) || '').filter(Boolean);
   });
   // Si la descripción no dice más que el título, la ficha no la repite.

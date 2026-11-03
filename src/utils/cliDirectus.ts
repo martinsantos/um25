@@ -1,3 +1,5 @@
+import { protectPublicCase } from './publicCasePrivacy.js';
+
 export const CLI_ANTECEDENTES_FIELDS = 'id,Titulo,Nombre,Descripcion,Cliente,Fecha,slug';
 export const CLI_SERVICIOS_FIELDS = 'id,Titulo,Descripcion,slug';
 export const PUBLIC_SITE_URL = 'https://www.ultimamilla.com.ar';
@@ -89,8 +91,15 @@ export function cliRecordMatchesQuery(record: CliAntecedente | CliServicio, quer
   const terms = normalizedQuery.split(/\s+/).filter((term) => term.length >= 2);
   if (!terms.length) return false;
 
-  const haystack = normalizeSearchValue(collectPrimitiveText(record).join(' '));
+  const haystack = normalizeSearchValue(collectPrimitiveText(protectPublicCase(record)).join(' '));
   return terms.every((term) => haystack.includes(term));
+}
+
+export function filterPublicCliAntecedentes(records: CliAntecedente[], query: string): CliAntecedente[] {
+  return records.flatMap((item) => {
+    const safe = protectPublicCase(item);
+    return safe !== item && !cliRecordMatchesQuery(safe, query) ? [] : [safe];
+  });
 }
 
 export async function queryCliDirectusSnapshot(
@@ -200,10 +209,12 @@ function absolutePath(path: string): string {
 }
 
 export function antecedenteTitle(item: CliAntecedente): string {
+  item = protectPublicCase(item);
   return cleanText(item.Titulo) || cleanText(item.Nombre) || cleanText(item.title) || `Antecedente ${item.id}`;
 }
 
 export function antecedenteDescription(item: CliAntecedente, length = 280): string {
+  item = protectPublicCase(item);
   return excerpt(
     cleanText(item.Descripcion) || cleanText(item.content),
     'Información disponible en el sitio web',
@@ -212,10 +223,12 @@ export function antecedenteDescription(item: CliAntecedente, length = 280): stri
 }
 
 export function antecedenteClient(item: CliAntecedente): string | null {
+  item = protectPublicCase(item);
   return cleanText(item.Cliente) || cleanText(item.client) || null;
 }
 
 export function antecedenteUrl(item: CliAntecedente): string {
+  item = protectPublicCase(item);
   const slug = cleanText(item.slug);
   return slug ? absolutePath(`/antecedentes/${slug}`) : absolutePath('/antecedentes');
 }

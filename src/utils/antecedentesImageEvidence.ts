@@ -1,4 +1,7 @@
 import { BASE_POSTER, posterForAntecedente } from '../data/cine/posters';
+import { curateCatalogImage } from '../components/proto/catalogEditorial';
+import type { Story } from '../components/proto/isoData';
+import { getAntecedenteThumb } from '../lib/um26-data/images';
 import antecedentesSnapshot from '../data/snapshots/antecedentes.json';
 import { canonicalUrl, publicImageUrl } from './seoUrl';
 import { generateSlug } from './slugUtils.js';
@@ -33,9 +36,9 @@ function snapshotData<T>(snapshot: SnapshotRoot<T>): T[] {
 
 const antecedentes = snapshotData<SnapshotCase>(antecedentesSnapshot as SnapshotRoot<SnapshotCase>);
 const antecedentesById = new Map(antecedentes.map((item) => [Number(item.id), item]));
-// Póster Blender por antecedente (sector × servicio): las imágenes por caso eran generadas.
+// La vista de respaldo conserva la misma prioridad editorial de la ficha.
 const generatedMap: Record<string, string> = Object.fromEntries(
-  antecedentes.map((item) => [String(item.id), posterForAntecedente(item.id) || BASE_POSTER]),
+  antecedentes.map((item) => [String(item.id), getEvidenceImagePath(item)]),
 );
 
 function cleanOptionalText(value: string | null | undefined): string | null {
@@ -44,8 +47,8 @@ function cleanOptionalText(value: string | null | undefined): string | null {
 }
 
 function getEvidenceImagePath(item: SnapshotCase): string {
-  // Sin recurrir a los archivos de Directus: también eran imágenes generadas.
-  return generatedMap[String(item.id)] || generatedMap[String(item.original_id || '')] || posterForAntecedente(item.id) || BASE_POSTER;
+  const current = getAntecedenteThumb(item.id) || getAntecedenteThumb(item.original_id) || posterForAntecedente(item.id) || BASE_POSTER;
+  return curateCatalogImage(item.id, current);
 }
 
 export function getAntecedentesImageEvidenceEntries(): AntecedenteImageEvidenceEntry[] {
@@ -73,16 +76,7 @@ export function getAntecedentesImageEvidenceEntries(): AntecedenteImageEvidenceE
 }
 
 export function getAntecedentesImageEvidenceCoverage() {
-  const entries = getAntecedentesImageEvidenceEntries();
-  const totalAntecedentes = antecedentes.length;
-  const coverageRatio = totalAntecedentes > 0 ? entries.length / totalAntecedentes : 0;
-
-  return {
-    generatedImages: entries.length,
-    totalAntecedentes,
-    missingGeneratedImages: Math.max(0, totalAntecedentes - entries.length),
-    coverageRatio: Number(coverageRatio.toFixed(4)),
-  };
+  return buildAntecedentesImageEvidenceCoverage(getAntecedentesImageEvidenceEntries(), antecedentes.length);
 }
 
 export function buildAntecedentesImageEvidenceEntries(items: SnapshotCase[]): AntecedenteImageEvidenceEntry[] {
@@ -114,34 +108,56 @@ export function buildAntecedentesImageEvidenceCoverage(
   totalAntecedentes: number,
 ) {
   const coverageRatio = totalAntecedentes > 0 ? entries.length / totalAntecedentes : 0;
+  const generatedAiImages = entries.filter((entry) => entry.imagePath.startsWith('/images/antecedentes/generated/')).length;
+  const contextualPhotographs = entries.filter((entry) => entry.imagePath.startsWith('/images/photography/')).length;
+  const missingImages = Math.max(0, totalAntecedentes - entries.length);
 
   return {
+    associatedImages: entries.length,
+    generatedAiImages,
+    contextualPhotographs,
+    otherImages: entries.length - generatedAiImages - contextualPhotographs,
+    missingImages,
+    // Compatibility: these historical names count all image types, not just AI.
     generatedImages: entries.length,
     totalAntecedentes,
-    missingGeneratedImages: Math.max(0, totalAntecedentes - entries.length),
+    missingGeneratedImages: missingImages,
     coverageRatio: Number(coverageRatio.toFixed(4)),
   };
 }
 
+/** Usar la misma presentación que la ficha evita publicar otra imagen o una URL redirigida. */
+export function buildAntecedentesImageEvidenceEntriesFromStories(stories: Story[]): AntecedenteImageEvidenceEntry[] {
+  return stories.flatMap((story) => {
+    const imageUrl = publicImageUrl(story.image);
+    if (!story.title || !imageUrl) return [];
+    return [{
+      id: story.id,
+      title: story.title,
+      pageUrl: canonicalUrl(story.href),
+      imageUrl,
+      imagePath: story.image,
+      client: cleanOptionalText(story.client),
+      sector: cleanOptionalText(story.sector),
+      date: cleanOptionalText(story.cierre || story.inicio),
+    }];
+  }).sort((a, b) => a.id - b.id);
+}
+
 export async function getAntecedentesImageEvidenceEntriesFromDirectus(): Promise<AntecedenteImageEvidenceEntry[]> {
-  const { getAllAntecedentes } = await import('../lib/directus');
-  const items = await getAllAntecedentes();
-  return buildAntecedentesImageEvidenceEntries(items as SnapshotCase[]);
+  return (await getAntecedentesImageEvidenceDatasetFromDirectus()).entries;
 }
 
 export async function getAntecedentesImageEvidenceCoverageFromDirectus() {
-  const { getAllAntecedentes } = await import('../lib/directus');
-  const items = await getAllAntecedentes();
-  const entries = buildAntecedentesImageEvidenceEntries(items as SnapshotCase[]);
-  return buildAntecedentesImageEvidenceCoverage(entries, items.length);
+  return (await getAntecedentesImageEvidenceDatasetFromDirectus()).coverage;
 }
 
 export async function getAntecedentesImageEvidenceDatasetFromDirectus() {
-  const { getAllAntecedentes } = await import('../lib/directus');
-  const items = await getAllAntecedentes();
-  const entries = buildAntecedentesImageEvidenceEntries(items as SnapshotCase[]);
+  const { loadStories } = await import('../components/proto/isoData');
+  const { stories } = await loadStories();
+  const entries = buildAntecedentesImageEvidenceEntriesFromStories(stories);
   return {
     entries,
-    coverage: buildAntecedentesImageEvidenceCoverage(entries, items.length),
+    coverage: buildAntecedentesImageEvidenceCoverage(entries, stories.length),
   };
 }

@@ -35,7 +35,6 @@ const years = [...new Set(stories.map((c) => c.year).filter(Boolean))].sort((a, 
 const partes = [estado.q, estado.periodo && `Período ${estado.periodo}`, estado.estado, estado.cliente, estado.sector && (sectors.find((s) => s.slug === estado.sector)?.name || estado.sector), estado.service && (svcs.find((s) => s.code === estado.service)?.name || estado.service), estado.year].filter(Boolean) as string[];
 const filtra = partes.length > 0;
 const clients = [...new Set(stories.map(c => c.client))].sort((a, b) => a.localeCompare(b, 'es'));
-const statuses = [...new Set(stories.map(c => c.status))].filter(Boolean);
 // Los lugares por dentro, antes de la ficha de ese índice del catálogo; sólo el del sector elegido; ninguno con año o cliente, ni con pocos resultados.
 const recorridos = ['constructoras', 'aeropuertos', 'bodegas', 'salud'];
 const recAt = [0, 18, 60, 120];
@@ -57,7 +56,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
 <!doctype html>
 <html lang="es">
   <head>
-    <Head title="Proyectos documentados · ULTIMA MILLA" description={`${total} proyectos documentados de ULTIMA MILLA, filtrables por sector, servicio y año, con lo instalado en cada uno.`} image="/cine/media/cine-fachada-poster.jpg" />
+    <Head title="Antecedentes · ULTIMA MILLA" description={`${total} antecedentes registrados de ULTIMA MILLA, filtrables por sector, servicio y año.`} image="/cine/media/cine-fachada-poster.jpg" />
     <style>
       .catalog-control { display: grid; gap: 6px; min-width: 0; color: var(--ink-2); font-size: 1rem; }
       .catalog-control input, .catalog-control select { width: 100%; min-width: 0; padding: 12px; background: var(--bg-2); color: var(--ink); border: 1px solid var(--line); font: inherit; }
@@ -102,9 +101,9 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
     <main class="wrap muro" id="contenido" data-muro>
       <aside class="panel">
         <div>
-          <span class="small">24 años de servicios IT. Mendoza, Argentina.</span>
+          <span class="small">Proyectos y antecedentes de Última Milla.</span>
           <h1 class="count"><span data-count>{n}</span><i>.</i></h1>
-          <p class="sentence" data-sentence aria-live="polite">{filtra ? `proyectos · ${partes.join(' · ')}` : 'proyectos documentados'}</p>
+          <p class="sentence" data-sentence aria-live="polite">{filtra ? `antecedentes · ${partes.join(' · ')}` : 'antecedentes registrados'}</p>
         </div>
         <label class="catalog-control">Buscar antecedentes<input type="search" data-search value={estado.q} placeholder="Cliente, sector, servicio o alcance" /></label>
         <label class="catalog-control">Ordenar<select data-sort aria-label="Ordenar antecedentes">{[['recent', 'Destacados'], ['year-desc', 'Año, más reciente'], ['year-asc', 'Año, más antiguo'], ['client', 'Cliente A–Z']].map(([v, label]) => <option value={v} selected={estado.orden === v}>{label}</option>)}</select></label>
@@ -116,13 +115,12 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
         <div class="grupo"><h2>Año</h2><div class="anios">{years.map((y) => <button type="button" data-lens="year" data-value={String(y)} aria-pressed={estado.year === String(y) ? 'true' : 'false'}>{y}</button>)}</div></div>
         <label class="catalog-control">Período<select data-field="periodo"><option value="">Todos los períodos</option>{[['2024', '2024 en adelante'], ['2020', '2020–2023'], ['2015', '2015–2019'], ['2010', '2010–2014'], ['antes', 'Antes de 2010']].map(([v, label]) => <option value={v} selected={estado.periodo === v}>{label}</option>)}</select></label>
         <label class="catalog-control">Cliente<select data-field="cliente"><option value="">Todos los clientes</option>{clients.map(c => <option value={c} selected={estado.cliente === c}>{c}</option>)}</select></label>
-        <label class="catalog-control">Estado<select data-field="estado"><option value="">Todos los estados</option>{statuses.map(v => <option value={v} selected={estado.estado === v}>{v === 'operativo' ? 'Verificado' : v === 'mantenimiento' ? 'Mantenimiento' : v}</option>)}</select></label>
         </div>
         </div>
-        <button class:list={['clear', { on: filtra }]} type="button" data-clear>Ver los {total} proyectos</button>
+        <button class:list={['clear', { on: filtra }]} type="button" data-clear>Ver los {total} antecedentes</button>
       </aside>
 
-      <section aria-label="Proyectos">
+      <section aria-label="Antecedentes">
         <ol class="fichas" data-grid data-datos="/antecedentes/datos.json">
           {piezas.map((p, index) => p.rec ? (
             <li class="ficha ficha--rec" data-rec data-at={String(p.at)} data-sector={p.rec} hidden={p.oculto}>
@@ -136,7 +134,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
             <Ficha story={p.story!} eager={p.eager} primera={index === 0} />
           ))}
         </ol>
-        <p class:list={['empty', { on: n === 0 }]} data-empty>Sin proyectos para esta combinación.</p>
+        <p class:list={['empty', { on: n === 0 }]} data-empty>Sin antecedentes para esta combinación.</p>
         <button class="btn mas" type="button" data-mas hidden={n <= INICIAL}>{masTexto}</button>
         {/* Molde de ficha para las que se crean desde los datos; también asegura el guion del sistema al pasar el puntero. */}
         <template data-molde><Ficha story={stories[0]} /></template>
@@ -218,7 +216,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
         });
         const parts = [state.q, state.periodo && `Período ${state.periodo}`, state.estado, state.cliente, state.sector && names('sector', state.sector), state.service && names('service', state.service), state.year].filter(Boolean) as string[];
         root.querySelector('[data-count]')!.textContent = String(n);
-        root.querySelector('[data-sentence]')!.textContent = parts.length ? `proyectos · ${parts.join(' · ')}` : 'proyectos documentados';
+        root.querySelector('[data-sentence]')!.textContent = parts.length ? `antecedentes · ${parts.join(' · ')}` : 'antecedentes registrados';
         root.querySelector('[data-clear]')!.classList.toggle('on', parts.length > 0);
         root.querySelector('[data-empty]')!.classList.toggle('on', n === 0);
         const url = new URL(location.href); url.search = new URLSearchParams(filterKeys.filter(k => state[k]).map(k => [k, state[k]])).toString(); history.replaceState(null, '', url);

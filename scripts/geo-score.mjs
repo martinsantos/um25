@@ -360,9 +360,10 @@ function scoreCitability(snapshot, canonicalBaseUrl) {
   const llmsSections = ['Brand Facts', 'Discovery', 'Commercial Hubs', 'Services', 'Sectors', 'Prioritized Cases']
     .every((section) => llmsFull.includes(section));
   const strongCaseCorpus = cases.length >= 100 && cases.every((item) => String(item.url || '').startsWith(canonicalBaseUrl));
-  const imageCoverage = Number(coverage.generatedImages || 0) >= 518 &&
-    Number(coverage.generatedImages || 0) === Number(coverage.totalAntecedentes || 0) &&
-    Number(coverage.missingGeneratedImages || 0) === 0;
+  const associatedImages = Number(coverage.associatedImages ?? coverage.generatedImages ?? 0);
+  const missingImages = Number(coverage.missingImages ?? coverage.missingGeneratedImages ?? 0);
+  const imageCoverage = associatedImages >= 518 &&
+    associatedImages === Number(coverage.totalAntecedentes || 0) && missingImages === 0;
   const faqAnswers = faqs.length >= 12 && faqs.every((faq) => String(faq.answer || '').length >= 55 && String(faq.source || '').startsWith(canonicalBaseUrl));
   const buyerIntentQueries = intents.length >= 3 && intents.every((intent) => (intent.queryFamilies || []).length >= 3 && String(intent.page || '').startsWith(canonicalBaseUrl));
   const hubEvidence = (authority.canonicalHubs || []).length >= 4 &&

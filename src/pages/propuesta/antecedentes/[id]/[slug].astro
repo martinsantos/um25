@@ -11,10 +11,9 @@ import Ficha from '../../../../components/proto/Ficha.astro';
 import FichaIso from '../../../../components/proto/FichaIso.astro';
 import Cierre from '../../../../components/proto/Cierre.astro';
 import { loadStories, services, variantes } from '../../../../components/proto/isoData';
-import { despieceDe } from '../../../../components/proto/despiece';
 import { catalogImageLabel } from '../../../../components/proto/catalogEditorial';
 import CasoEnDetalle from '../../../../components/proto/CasoEnDetalle.astro';
-import { publicCaseFor, samePublicClient } from '../../../../components/proto/casePresentation';
+import { publicCaseFor, samePublicClient, caseEquipmentFor } from '../../../../components/proto/casePresentation';
 
 export const prerender = false;
 const id = Number(Astro.params.id);
@@ -37,9 +36,11 @@ const sameSector = stories.filter((o) => o.id !== c.id && o.sectorSlug === c.sec
 const prev = stories[index + 1];
 const next = stories[index - 1];
 const photo = Boolean(c.image);
-const contextualLabel = catalogImageLabel(c.id) || (caseDetail?.imageKind === 'illustration' ? 'Imagen ilustrativa del tipo de instalación' : undefined);
+const contextualLabel = catalogImageLabel(c.id)
+  || (c.image.startsWith('/images/antecedentes/generated/') ? 'Imagen ilustrativa generada con IA' : undefined)
+  || (caseDetail?.imageKind === 'illustration' ? 'Imagen ilustrativa del tipo de instalación' : undefined);
 const imageSet = variantes(c.image);
-const scope = despieceDe(c.title, c.summary, c.serviceCodes);
+const scope = caseEquipmentFor(c);
 const ref = `UM-${c.id}`;
 
 ---
@@ -100,7 +101,7 @@ const ref = `UM-${c.id}`;
             {when && <div><dt>{cierre ? 'Inicio' : 'Fecha'}</dt><dd>{when}</dd></div>}
             {cierre && <div><dt>{enCurso ? 'Cierre previsto' : 'Cierre'}</dt><dd>{cierre}</dd></div>}
             <div><dt>Referencia</dt><dd>{ref}</dd></div>
-            {svcs.length > 0 && <div class="ancho"><dt>Servicios</dt><dd>{svcs.map((s) => <a href={`/servicios/${s.code}`}>{s.name}</a>)}</dd></div>}
+            {svcs.length > 0 && <div class="ancho"><dt>Servicios del proyecto · ver provisión</dt><dd>{svcs.map((s) => <a href={`/servicios/${s.code}#provision`}>{s.name}</a>)}</dd></div>}
         </dl>
       </div>
 
@@ -108,7 +109,7 @@ const ref = `UM-${c.id}`;
     {caseDetail && <CasoEnDetalle caso={caseDetail} original={c.summary} />}
     {scope.partes.length > 0 && <section class="sec">
       <div class="wrap">
-        <div class="sec__head"><h2>{scope.origen === 'servicio' ? 'Servicios relacionados' : 'Alcance técnico'}<span class="dot">.</span></h2></div>
+        <div class="sec__head"><h2>{scope.origen === 'servicio' ? 'Capacidades de los servicios vinculados' : 'Alcance documentado del proyecto'}<span class="dot">.</span></h2></div>
         <FichaIso story={c} />
       </div>
     </section>}

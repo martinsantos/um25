@@ -58,7 +58,9 @@ const SERVICIO_POR_TEXTO: [ServiceCode, RegExp][] = [
   [103, /\b(telefon|central telef|voip|radio|telecomunicacion|enlace|antena|intercomunicador|amplificador)/],
   [105, /\b(soporte|mantenimiento|mesa de ayuda|servicio tecnico|abono)/],
   [106, /\b(consultoria|consultor(?:es)?|auditoria|relevamiento|ingenieria|proyecto ejecutivo)\b/],
-  [107, /\b(incendio|deteccion|detector|sdi|humo|sirena|pulsador)/],
+  // Generic detection, detectors, sirens and buttons also occur in other
+  // security systems; they do not establish a fire-detection scope alone.
+  [107, /\b(incendio|sdi\b|humo|fuego)/],
   [108, /\b(electric|ups|tablero|energia|puesta a tierra|grupo electrogeno)/],
 ];
 
@@ -68,7 +70,6 @@ const SERVICIO_POR_AREA: Record<string, ServiceCode> = {
   'Conectividad & Redes': 101,
   'Video Vigilancia & Seguridad': 102,
   'Seguridad Electrónica & SDI': 102,
-  'Aeropuertos & Telecomunicaciones': 103,
   'Servicios Corporativos': 105,
   'Detección de Incendios & Seguridad': 107,
   'Infraestructura de Data Center': 108,
@@ -90,7 +91,15 @@ function serviciosDe(registro: Registro, contenido: string): ServiceCode[] {
   const evidenciaServicios = contenido.replace(
     /\bsolucion implementada por el equipo de ingenieria de ultima milla\b/g,
     ' ',
-  );
+  )
+    // These are imported category labels, not evidence that a particular
+    // record describes an alarm or a fire-detection installation.
+    .replace(/\bsector\s*:\s*(?:seguridad electronica\s*&\s*sdi|deteccion de incendios\s*&\s*seguridad)\b/g, ' ')
+    .replace(/\b(?:seguridad electronica\s*&\s*sdi|deteccion de incendios\s*&\s*seguridad)\s*:/g, ' ')
+    // This area combines a place and a service; an airport project can be
+    // CCTV or fire work without documenting telecommunications.
+    .replace(/\bsector\s*:\s*aeropuertos\s*&\s*telecomunicaciones\b/g, ' ')
+    .replace(/\baeropuertos\s*&\s*telecomunicaciones\s*:/g, ' ');
   for (const [codigo, regla] of SERVICIO_POR_TEXTO) if (regla.test(evidenciaServicios)) codigos.add(codigo);
   // Sin evidencia no se inventa un servicio: la ficha dice que el registro no detalla el alcance.
   return [...codigos].slice(0, 3);

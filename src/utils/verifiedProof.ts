@@ -12,6 +12,10 @@ type SnapshotCase = {
 
 type Snapshot<T> = { data?: T[] } | T[];
 
+function isPresentableClient(name: string): boolean {
+  return name.length >= 3 && !/confidencial|reservad[oa]|^sin cliente$/i.test(name);
+}
+
 function snapshotCases(): SnapshotCase[] {
   const raw = antecedentesSnapshot as Snapshot<SnapshotCase>;
   return Array.isArray(raw) ? raw : raw.data || [];
@@ -45,7 +49,7 @@ export function getTopClienteNames(limit = 6): string[] {
 
   for (const item of snapshotCases()) {
     const name = String(item.Cliente || '').trim();
-    if (name.length < 3) continue;
+    if (!isPresentableClient(name)) continue;
     counts.set(name, (counts.get(name) || 0) + 1);
   }
 
@@ -62,7 +66,7 @@ export function getTopClienteRecords(limit = 6): { name: string; count: number; 
 
   for (const item of snapshotCases()) {
     const name = String(item.Cliente || '').trim();
-    if (name.length < 3) continue;
+    if (!isPresentableClient(name)) continue;
     counts.set(name, (counts.get(name) || 0) + 1);
 
     const area = String(item.Area || '').trim();

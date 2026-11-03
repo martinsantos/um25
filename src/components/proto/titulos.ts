@@ -115,13 +115,21 @@ const SIGLA_SOLA: Record<string, string> = { sdi: 'Sistema de detección de ince
 
 const MES_NOMBRE = ['', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 const comparableT = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+// The source may write a legal suffix as "SA" while the formatted client
+// says "S.A."; punctuation must not make the same client look like a scope.
+const identidadCompacta = (s: string) => sinTilde(s).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
+/** A month written in the source title is part of that title, not the SGI start date. */
+export function fechaDeTitulo(raw: string): string {
+  const match = raw.match(new RegExp(`\\b(${MESES})\\s+(?:de\\s+)?(20\\d{2})\\b`, 'i'));
+  return match ? `${match[1]!.toLowerCase()} ${match[2]}` : '';
+}
 
 /**
  * Dos proyectos del mismo cliente con el mismo título se distinguen por regla, nada inventado:
  * primero con la primera frase de su propia descripción, cuando la tiene y dice otra cosa que
  * el título; si no, con el mes y el año del registro. Devuelve los mismos objetos, con `title`.
  */
-export function desambiguarTitulos<T extends { client: string; title: string; summary: string; year: number; month: number }>(items: T[]): T[] {
+export function desambiguarTitulos<T extends { client: string; title: string; summary: string; year: number; month: number; sourceTitleDate?: string }>(items: T[]): T[] {
   const clave = (i: T) => `${i.client}|${i.title}`.toLowerCase();
   const grupos = new Map<string, T[]>();
   items.forEach((i) => { const k = clave(i); grupos.set(k, [...(grupos.get(k) || []), i]); });
@@ -130,12 +138,12 @@ export function desambiguarTitulos<T extends { client: string; title: string; su
     for (const i of g) {
       let f = (i.summary || '').replace(/\s*Cliente:.*$/i, '').replace(/\s*Sector:.*$/i, '').trim();
       f = f.split(/(?<=[a-záéíóúñ0-9)])\.\s(?=[A-ZÁÉÍÓÚÑ])/)[0]!.replace(/[.\s]+$/, '');
-      if (f.length >= 12 && f.length <= 90 && comparableT(f) !== comparableT(i.title) && !comparableT(f).startsWith(comparableT(i.title)) && !comparableT(f).includes(comparableT(i.client))) i.title = mayusculaInicial(caja(f));
+      if (f.length >= 12 && f.length <= 90 && comparableT(f) !== comparableT(i.title) && !comparableT(f).startsWith(comparableT(i.title)) && !identidadCompacta(f).includes(identidadCompacta(i.client))) i.title = mayusculaInicial(caja(f));
     }
     // Los que siguen iguales llevan su fecha.
     const otra = new Map<string, T[]>();
     g.forEach((i) => { const k = i.title.toLowerCase(); otra.set(k, [...(otra.get(k) || []), i]); });
-    for (const h of otra.values()) if (h.length > 1) h.forEach((i) => { if (i.year) i.title = `${i.title} · ${i.month ? MES_NOMBRE[i.month] + ' ' : ''}${i.year}`; });
+    for (const h of otra.values()) if (h.length > 1) h.forEach((i) => { const fecha = i.sourceTitleDate || (i.year ? `${i.month ? MES_NOMBRE[i.month] + ' ' : ''}${i.year}` : ''); if (fecha) i.title = `${i.title} · ${fecha}`; });
     // Si además comparten el mes, el día del registro los separa (SGI lo tiene).
     const tercera = new Map<string, T[]>();
     g.forEach((i) => { const k = i.title.toLowerCase(); tercera.set(k, [...(tercera.get(k) || []), i]); });

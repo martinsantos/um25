@@ -10,6 +10,7 @@
 import { readItems } from '@directus/sdk';
 import { getClient, getAllAntecedentes, getAntecedenteImageUrl } from '../lib/directus.ts';
 import { generateSlug } from './slugUtils.js';
+import { protectPublicCase } from './publicCasePrivacy.js';
 
 export interface SectorValueProp {
   icono: string;
@@ -122,6 +123,7 @@ export async function getAntecedentesForSector(
 
 function filterAntecedentesByKeywords(items: any[], keywords: string[], limit: number): any[] {
   return items
+    .map(protectPublicCase)
     .filter(item => {
       const texto = `${item.Cliente || ''} ${item.Titulo || ''} ${item.Area || ''} ${item.Descripcion || ''} ${item.Nombre || ''}`.toLowerCase();
       return keywords.some((k: string) => texto.includes(k.toLowerCase()));

@@ -12,6 +12,7 @@ import { getServicioById, getProductos } from '../../utils/directusHelpers';
 import { getServiceIdFromArea } from '../../data/areaToServiceMap.js';
 import { getDirectusInternalUrl } from '../../config/runtime';
 import { plainTextFromHtml } from '../../utils/editorialContent';
+import { protectPublicCase, protectedCasePath } from '../../utils/publicCasePrivacy.js';
 
 // --- Configuration ---
 const DIRECTUS_URL = getDirectusInternalUrl();
@@ -69,7 +70,9 @@ async function findAntecedenteBySlug(targetSlug: string) {
         const items = data?.data || [];
         
         // Find match
-        const match = items.find((item: any) => generateSlug(item.Titulo) === targetSlug);
+        const match = items.find((item: any) =>
+            generateSlug(protectPublicCase(item).Titulo) === targetSlug || generateSlug(item.Titulo) === targetSlug
+        );
         
         if (match) {
             // Found ID, now fetch full details
@@ -91,7 +94,7 @@ async function fetchAntecedenteFull(itemId: string) {
     });
     if (!response.ok) return null;
     const data = await response.json();
-    return data?.data || null;
+    return data?.data ? protectPublicCase(data.data) : null;
 }
 
 // --- Execution ---
@@ -113,6 +116,8 @@ try {
 
 if (!antecedente) return Astro.rewrite('/404');
 id = antecedente.id.toString();
+const protectedPath = protectedCasePath(antecedente);
+if (protectedPath) return Astro.redirect(protectedPath, 301);
 
 // --- Prepare Data for UI (Reused from [id]/[slug].astro) ---
 const getMainImageUrl = async (): Promise<string> => {

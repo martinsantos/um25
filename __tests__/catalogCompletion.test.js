@@ -22,6 +22,17 @@ function completion(overrides = {}) {
 }
 
 describe('documentedCompletion', () => {
+  test('accepts the phone-support title when its source and client still match', () => {
+    const entries = require('../src/data/propuesta/catalog-completions.json').entries;
+    const record = {
+      client: 'Municipalidad de Guaymallén',
+      title: 'Soporte de Infraestructura IT de Alta Disponibilidad - Municipalidad Guaymallén - Abril 2025',
+      summary: 'Soporte de telefonía - Municipalidad de Guaymallén',
+      year: 2025,
+    };
+    expect(documentedCompletion(3079, record, entries)?.title).toBe('Soporte de telefonía');
+  });
+
   test('returns a documented entry when its full metadata key matches', () => {
     const entry = completion();
 

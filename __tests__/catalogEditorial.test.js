@@ -5,6 +5,7 @@ const {
   isNamedClient,
   addEvidenceBackedService,
   addEvidenceBackedSector,
+  correctUnsupportedServices,
   CATALOG_SERVICE_EVIDENCE,
   CATALOG_RELATED_SERVICE_EVIDENCE,
   SECTOR_EVIDENCE,
@@ -59,7 +60,8 @@ describe('evidence-backed catalog enrichments', () => {
       expect(`${source.Titulo} ${source.Descripcion}`).toContain(entry.evidence);
       expect(addEvidenceBackedSector(id, source.Titulo, source.Descripcion, '')).toBe(entry.sector);
     }
-    expect(Object.keys(SECTOR_EVIDENCE)).toHaveLength(3);
+    expect(Object.keys(SECTOR_EVIDENCE)).toHaveLength(0);
+    expect(addEvidenceBackedSector(3633, 'Alojamiento y servicios', '', '')).toBe('');
     expect(addEvidenceBackedSector(3633, 'Alojamietno y ss para Guaymallén', '', '')).toBe('');
     expect(addEvidenceBackedSector(3633, 'Alojamietno y ss para Guaymallén', 'Cliente: Municipalidad Guaymallén', 'salud')).toBe('salud');
   });
@@ -70,15 +72,25 @@ describe('evidence-backed catalog enrichments', () => {
     expect(addEvidenceBackedService(9001, 'Escuela Eugenio Izsaky', '', [])).toEqual([]);
   });
 
-  test('offers only the relevant existing service image for SGI 9002', () => {
+  test('withholds unsupported service tags without altering the source record', () => {
+    const phones = rows.get(3224), disks = rows.get(3334), cctv = rows.get(3221), fire = rows.get(3164);
+    expect(correctUnsupportedServices(3224, phones.Cliente, phones.Titulo, ['102', '103', '107'])).toEqual(['103']);
+    expect(correctUnsupportedServices(3334, disks.Cliente, disks.Titulo, ['103', '104'])).toEqual([]);
+    expect(correctUnsupportedServices(3221, cctv.Cliente, cctv.Titulo, ['103', '102'])).toEqual(['102']);
+    expect(correctUnsupportedServices(3164, fire.Cliente, fire.Titulo, ['103', '107'])).toEqual(['107']);
+    expect(correctUnsupportedServices(3224, 'Otro cliente', phones.Titulo, ['107'])).toEqual(['107']);
+    expect(correctUnsupportedServices(3334, disks.Cliente, disks.Titulo + ' y desarrollo de software', ['104'])).toEqual(['104']);
+  });
+
+  test('prefers a reviewed contextual photo for SGI 9002 and preserves the previous school image', () => {
     const image = curateCatalogImage(9002, '/images/editorial/umsa-sector-gobierno.webp');
-    expect(image).toBe('/cine/media/cine-software-system-v27-clean-poster.avif');
+    expect(image).toMatch(/^\/images\/photography\/[a-f0-9]+\.webp$/);
     expect(fs.existsSync(path.join(__dirname, '..', 'public', image.slice(1)))).toBe(true);
     const school = curateCatalogImage(9001, '/images/editorial/umsa-sector-gobierno.webp');
     expect(school).toBe('/images/editorial/umsa-sector-constructoras.webp');
     expect(fs.existsSync(path.join(__dirname, '..', 'public', school.slice(1)))).toBe(true);
     expect(catalogImageLabel(9001)).toMatch(/Imagen editorial/);
-    expect(catalogImageLabel(9002)).toMatch(/Imagen editorial/);
+    expect(catalogImageLabel(9002)).toBe('Fotografía de contexto');
   });
 });
 

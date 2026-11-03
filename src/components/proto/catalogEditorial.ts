@@ -1,3 +1,5 @@
+import { casePhotograph } from '../../data/photography';
+
 /**
  * Evidence-backed editorial additions for records whose Directus export has no
  * service code or project photo. Keep this separate from the source snapshot:
@@ -30,7 +32,7 @@ export const CATALOG_SERVICE_EVIDENCE: Readonly<Record<number, ServiceEvidence>>
   3233: { service: '101', evidence: 'Insumos de red' },
   3236: { service: '101', evidence: 'Insumo de red' },
   3251: { service: '101', evidence: 'Puesto de datos' },
-  3261: { service: '101', evidence: 'instalación de AP' },
+  3261: { service: '101', evidence: 'instalación de punto de acceso' },
   3362: { service: '101', evidence: 'puesto de datos' },
   3400: { service: '101', evidence: 'puesto de datos' },
   3668: { service: '101', evidence: 'Networking' },
@@ -42,11 +44,11 @@ export const CATALOG_SERVICE_EVIDENCE: Readonly<Record<number, ServiceEvidence>>
   3449: { service: '104', evidence: 'Módulo web' },
   3547: { service: '104', evidence: 'Sistema de gestión de riego' },
   3320: { service: '106', evidence: 'asesoramiento' },
-  3382: { service: '108', evidence: 'Luminaria led' },
+  3382: { service: '108', evidence: 'luminarias LED' },
   3674: { service: '108', evidence: 'Iluminación de Planta' },
   3669: { service: '108', evidence: 'Luminaria Isla' },
   3165: { service: '103', evidence: 'Internet compartido' },
-  3538: { service: '103', evidence: 'Servicios de Internet en Pasip' },
+  3538: { service: '103', evidence: 'Servicios de Internet' },
   3573: { service: '102', evidence: 'Instalación de sistemas de seguridad para móviles policiales' },
 };
 
@@ -66,6 +68,21 @@ const normalize = (value: string) => value
   .toLocaleLowerCase('es')
   .replace(/[^\p{L}\p{N}]+/gu, ' ')
   .trim();
+
+/** Remove inherited service tags only for an unchanged, identified source record. */
+export function correctUnsupportedServices(id: number, client: string, title: string, services: string[]): string[] {
+  const rules: Record<number, { client: string; title: string; remove: string[]; add?: string }> = {
+    3164: { client: 'Aeropuertos Argentina 2000', title: 'Detección de Incendios & Seguridad: Insumos de SDI - Aeropuertos Argentina 2000', remove: ['103'] },
+    3221: { client: 'Aeropuertos Argentina 2000', title: 'Video Vigilancia & Seguridad: Insumo de CCTV - Aeropuertos Argentina 2000', remove: ['103'] },
+    3224: { client: 'Obras SRL', title: 'Seguridad Electrónica & SDI: 10 Telefonos IP - Obras SRL', remove: ['102', '107'], add: '103' },
+    3334: { client: 'Bodegas y Viñedos Santa Elena SRL - TYGIA SRL - UTE', title: 'Provisión de discos para servidor de aplicaciones', remove: ['103', '104'] },
+  };
+  const rule = rules[id];
+  if (!rule || normalize(client).replace(/\s/g, '') !== normalize(rule.client).replace(/\s/g, '') || normalize(title) !== normalize(rule.title)) return services;
+  const corrected = services.filter(code => !rule.remove.includes(code));
+  if (rule.add && !corrected.includes(rule.add)) corrected.push(rule.add);
+  return corrected;
+}
 
 /** Add one service only when the stored record still contains its quoted source evidence. */
 export function addEvidenceBackedService(
@@ -150,11 +167,9 @@ export function correctCuratedClassification(
 }
 
 /** Exact, in-record place/institution wording for currently unclassified records. */
-export const SECTOR_EVIDENCE: Readonly<Record<number, SectorEvidence>> = {
-  3633: { sector: 'gobiernosectorpublico', evidence: 'Cliente: Municipalidad Guaymallén' },
-  3669: { sector: 'gobiernosectorpublico', evidence: 'Cliente: Municipalidad Guaymallén' },
-  3541: { sector: 'gobiernosectorpublico', evidence: 'Cliente: Municipalidad de Gral San Martín' },
-};
+// Las fichas antes listadas aquí ahora son confidenciales: la identidad histórica
+// ya no constituye evidencia pública para asignarles un sector.
+export const SECTOR_EVIDENCE: Readonly<Record<number, SectorEvidence>> = {};
 
 /** Add a broad sector only when the title/description names its public setting. */
 export function addEvidenceBackedSector(
@@ -183,11 +198,11 @@ export const CATALOG_ILLUSTRATIVE_IMAGE: Readonly<Record<number, { src: string; 
 
 /** Set an existing, relevant editorial image; never imply that it documents the named project. */
 export function curateCatalogImage(id: number, currentImage: string): string {
-  return CATALOG_ILLUSTRATIVE_IMAGE[id]?.src || currentImage;
+  return casePhotograph(id) || CATALOG_ILLUSTRATIVE_IMAGE[id]?.src || currentImage;
 }
 
 export function catalogImageLabel(id: number): string | undefined {
-  return CATALOG_ILLUSTRATIVE_IMAGE[id]?.label;
+  return casePhotograph(id) ? 'Fotografía de contexto' : CATALOG_ILLUSTRATIVE_IMAGE[id]?.label;
 }
 
 /** Anonymous labels are not a single identifiable customer. Keep their projects in the catalog. */

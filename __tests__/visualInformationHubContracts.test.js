@@ -188,7 +188,7 @@ describe('Information hub visual contracts', () => {
     expect(markup).not.toContain('sector26-criteria');
     expect(markup).not.toContain('sector26-feature-case');
     expect(markup).not.toContain('sector26-kicker');
-    expect(markup).toContain('<ol class="sector26-evidence-grid"');
+    expect(markup).toMatch(/<ol class:list=\{\["sector26-evidence-grid"/);
     expect(markup).toContain('src={caseImage(item)}');
     expect(markup).toContain('!isSoftware && !isSecurity && <SiteDespiece');
     expect(markup).toContain('class="sector26-evidence-card"');

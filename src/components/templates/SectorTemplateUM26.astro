@@ -165,6 +165,11 @@ const areaLabel = (area: unknown) => {
 
   {isSoftware && <SoftwareExperience />}
 
+  {(isSoftware || isSecurity) && <section class="sector26-provision sector26-shell" aria-labelledby="sector26-provision-title">
+    <div><h2 id="sector26-provision-title">Qué proveemos<span>.</span></h2><p>Conocé los productos, prestaciones y componentes de {isSoftware ? 'Software a medida' : 'Seguridad electrónica'}, con el detalle de instalación, integración y soporte según el proyecto.</p></div>
+    <a href={`/servicios/${isSoftware ? '104' : '102'}#provision`}>Ver el desglose del servicio <span aria-hidden="true">→</span></a>
+  </section>}
+
   {!isSoftware && !isSecurity && <SiteDespiece scene={cineScene} sectorSlug={sectorDataSlug} sectorName={sectorName} linkBanner />}
 
   <section class="sector26-evidence" aria-label="Proyectos del sector">
@@ -204,6 +209,12 @@ const areaLabel = (area: unknown) => {
 {!isSoftware && !isSecurity && <SnapRail />}
 
 <style>
+  .sector26-provision { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 48px; align-items: center; padding-block: 48px; border-block: 1px solid #50545b; }
+  .sector26-provision h2 { font-size: clamp(1.75rem, 3vw, 2.5rem); }
+  .sector26-provision h2 span { color: #dc2626; }
+  .sector26-provision p { max-width: 70ch; margin-top: 16px; color: #c4c7cc; font-size: 1.125rem; line-height: 1.6; }
+  .sector26-provision a { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; font-size: 1rem; text-decoration: underline; text-underline-offset: 4px; }
+  @media (max-width: 900px) { .sector26-provision { grid-template-columns: 1fr; } }
   .sector26-context { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: center; gap: clamp(28px, 4vw, 64px); padding-block: clamp(48px, 7vw, 100px); }
   .sector26-context h1 { font-size: clamp(2.6rem, 5vw, 4.8rem); line-height: 1.05; margin-block: 24px; }
   .sector26-context h1 span { color: #dc2626; }

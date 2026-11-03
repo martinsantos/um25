@@ -1,5 +1,5 @@
 ---
-/** Los ocho servicios (2026-10-30): foto a pleno, nombre, promesa y cuántos proyectos. No indexable. */
+/** Los ocho servicios: lectura completa en escritorio y comparación compacta en móvil. */
 import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
@@ -29,8 +29,20 @@ const items = services.map((s) => { const full = catalogo.find((x) => String(x.c
       .fila .tag { color: var(--ink); font-size: 1.15rem; font-weight: 500; }
       .fila p { margin: 0; color: var(--ink-2); max-width: 52ch; }
       .fila .n { color: var(--ink-3); }
+      .fila .resumen { display: none; }
+      .fila .accion { justify-self: start; font-weight: 600; text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 6px; }
       .fila a:hover h2 { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
-      @media (max-width: 900px) { .fila a { grid-template-columns: 1fr; gap: var(--s2); } }
+      @media (max-width: 900px) {
+        .intro { padding-block: var(--s4) var(--s3); }
+        .fila a { grid-template-columns: 92px minmax(0, 1fr); gap: 20px; align-items: start; padding-block: 28px; }
+        .fila figure { aspect-ratio: 1; }
+        .fila .texto { gap: 8px; }
+        .fila h2 { font-size: 1.375rem; line-height: 1.2; }
+        .fila .tag, .fila .descripcion { display: none; }
+        .fila .resumen { display: block; }
+        .fila .n { font-size: 1rem; }
+        .fila .accion { margin-top: 4px; }
+      }
     </style>
   </head>
   <body>
@@ -48,8 +60,10 @@ const items = services.map((s) => { const full = catalogo.find((x) => String(x.c
               <div class="texto">
                 <h2>{s.name}<span class="dot">.</span></h2>
                 <span class="tag">{s.tagline}</span>
-                <p>{s.description}</p>
-                <span class="n">{s.count} proyectos documentados</span>
+                <p class="descripcion">{s.description}</p>
+                <p class="resumen">{s.text}</p>
+                <span class="n">{s.count} antecedentes registrados</span>
+                <span class="accion">Ver servicio <span aria-hidden="true">→</span></span>
               </div>
             </a>
           </li>

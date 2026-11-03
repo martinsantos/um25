@@ -98,7 +98,7 @@ describe('GEO discovery and commercial hub contracts', () => {
     expect(payload.coverage.totalAntecedentes).toBe(518);
     expect(payload.coverage.missingGeneratedImages).toBe(0);
     expect(payload.images[0]?.pageUrl).toMatch(/^https:\/\/www\.ultimamilla\.com\.ar\/antecedentes\//);
-    expect(payload.images[0]?.imageUrl).toMatch(/^https:\/\/www\.ultimamilla\.com\.ar\/cine\/iso\/(service-\d{3}|site-[a-z]+)\.svg$/);
+    expect(payload.images[0]?.imageUrl).toMatch(/^https:\/\/www\.ultimamilla\.com\.ar\/(?:cine\/iso\/(?:service-\d{3}|site-[a-z]+)\.svg|images\/photography\/[a-f0-9]+\.webp|images\/antecedentes\/generated\/lote_\d+\/.+\.webp)$/);
     expect(payload.policy.join(' ')).toContain('No inventar nombres de clientes');
   });
 

@@ -115,10 +115,11 @@ try {
   await go('/sectores/bodegas');
   const scheme = page.locator('[data-dentro]');
   await scheme.scrollIntoViewIfNeeded();
-  assert.equal(await scheme.locator('[data-code="104"], [data-code="105"], [data-code="106"]').count(), 0, 'Professional services must not activate a fictitious physical circuit');
-  await scheme.locator('[data-code="101"]').hover();
-  await page.waitForFunction(() => document.querySelector('.dentro__stage').dataset.svc === '101');
+  assert.equal(await scheme.locator('[data-diagram-code="104"], [data-diagram-code="105"], [data-diagram-code="106"]').count(), 0, 'Professional services must not activate a fictitious physical circuit');
+  await scheme.locator('[data-diagram-code="101"]').hover();
+  await page.waitForFunction(() => document.querySelector('[data-diagram-stage]').dataset.svc === '101');
   assert.equal(await scheme.locator('.ahora').innerText(), 'Redes');
+  assert.equal(await scheme.locator('[data-integration-service="101"] a[href="/servicios/101#provision"]').count(), 1, 'Sector integration links to the full offering');
 
 
   await go('/contacto');

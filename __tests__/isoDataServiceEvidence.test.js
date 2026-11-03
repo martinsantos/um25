@@ -131,6 +131,22 @@ describe('service tags after curating generic CMS titles', () => {
     const { stories } = await loadStories();
     expect(stories.find((story) => story.id === 3588)).toMatchObject({ sectorSlug: 'aeropuertos', serviceCodes: ['103'] });
   });
+
+  test('does not restore a historical description on an anonymous project', async () => {
+    const { getAntecedentes } = await import('../src/lib/um26-directus');
+    getAntecedentes.mockResolvedValue([{
+      id: 3552, title: 'Servicio técnico para evento', slug: 'servicio-tecnico-para-evento',
+      client: 'Cliente Confidencial', sector_slug: '', service_codes: [], year: 2017, month: 1,
+      status: 'verificado', summary: 'Servicio de infraestructura para un evento.',
+      image: '', location: '', scope: [], tags: [],
+    }]);
+    const { descripcionDeOrigen } = await import('../src/components/proto/relato');
+    const { loadStories } = await import('../src/components/proto/isoData');
+    const story = (await loadStories()).stories.find((item) => item.id === 3552);
+    expect(descripcionDeOrigen(3552)).not.toBe('');
+    expect(story.summary).toContain('infraestructura');
+    expect(story.summary).not.toBe(descripcionDeOrigen(3552));
+  });
 });
 
 // A technical service alone does not identify the building in which it operates.
