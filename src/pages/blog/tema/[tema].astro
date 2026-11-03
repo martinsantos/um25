@@ -223,4 +223,13 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
     .bt-crumbs { margin-bottom: 32px; }
     .bt-title { font-size: clamp(2rem, 9.4vw, 3rem) !important; }
   }
+
+  @media (max-width: 900px) {
+    .bt { --x-gutter: 20px; --x-fs-meta: 1rem; --x-fs-kicker: 1rem; --x-fs-lead: 1.0625rem; }
+    .bt-hero { padding-block: 32px; }
+    .bt-title { font-size: clamp(2rem, 7.5vw, 2.6rem) !important; line-height: 1.08 !important; }
+    .bt-crumbs { align-items: center; gap: 0 8px; margin-bottom: 24px; }
+    .bt-crumbs a { display: inline-flex; align-items: center; min-height: 44px; }
+    .bt-kicker { letter-spacing: .04em; line-height: 1.4; }
+  }
 </style>

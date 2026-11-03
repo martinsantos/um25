@@ -75,7 +75,21 @@ const ref = `UM-${c.id}`;
       @media (max-width: 900px) {
         .hoja-cab { flex-direction: column; gap: 8px; }
         .proyecto { grid-template-columns: 1fr; }
-        .obra { grid-row: auto; }
+        .nav { flex-direction: column; gap: 4px; padding-top: 20px; }
+        .nav > span { display: flex; justify-content: space-between; gap: 24px; }
+        .nav a { display: inline-flex; align-items: center; min-height: 44px; width: fit-content; white-space: nowrap; }
+        .nav .nav-separator { display: none; }
+        .hoja-cab { margin-top: 16px; }
+        .proyecto { gap: 24px; padding-top: 24px; }
+        .datos { grid-row: 1; }
+        .datos h1 { font-size: clamp(2rem, 7.5vw, 2.6rem); line-height: 1.08; font-weight: 600; letter-spacing: -.025em; }
+        .datos .quien > span { display: block; }
+        .datos .quien .quien-separator { display: none; }
+        .obra { grid-row: 2; }
+        .tabla { grid-row: 3; }
+        .tabla dd a { display: inline-flex; align-items: center; min-height: 44px; }
+        .tabla .ancho dd { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+        .tabla dd a + a::before { content: none; }
       }
     </style>
   </head>
@@ -86,14 +100,14 @@ const ref = `UM-${c.id}`;
     <div class="wrap">
       <nav class="nav" aria-label="Proyectos">
         <a href="/antecedentes">← Todos los proyectos</a>
-        <span>{prev && <a href={prev.href}>← Anterior</a>}{prev && next && ' · '}{next && <a href={next.href}>Siguiente →</a>}</span>
+        <span>{prev && <a href={prev.href}>← Anterior</a>}{prev && next && <span class="nav-separator" aria-hidden="true"> · </span>}{next && <a href={next.href}>Siguiente →</a>}</span>
       </nav>
       <div class="hoja-cab"><span>Ficha de trabajo · <b>{ref}</b>{enCurso && <i class="curso">En curso</i>}</span><span>{[c.sector, periodo].filter(Boolean).join(' · ')}</span></div>
       <div class:list={['proyecto', { 'proyecto--sinfoto': !photo }]}>
         {photo && <figure class="obra"><img src={c.image} srcset={imageSet.ancho ? `${imageSet.w480} 480w, ${imageSet.w960} 960w, ${c.image} ${imageSet.ancho}w` : undefined} sizes="(max-width: 900px) 100vw, 58vw" alt={contextualLabel || `${c.title}, ${c.client}`} width={catalogImageLabel(c.id) ? 1920 : 1600} height={catalogImageLabel(c.id) ? 1080 : 1000} fetchpriority="high" decoding="async" />{contextualLabel && <figcaption>{contextualLabel}</figcaption>}</figure>}
         <div class="datos">
           <h1>{pageTitle}<span class="dot">.</span></h1>
-          <div class="quien">{c.client}{when && <span> · {when}</span>}</div>
+          <div class="quien">{c.client}{when && <span><span class="quien-separator" aria-hidden="true"> · </span>{when}</span>}</div>
           {(caseDetail?.introduction || c.summary) && <p class="resumen">{caseDetail?.introduction || c.summary}</p>}
         </div>
         <dl class="tabla">

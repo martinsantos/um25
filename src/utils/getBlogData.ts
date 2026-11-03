@@ -145,9 +145,9 @@ function normalizeCategory(value = ''): EntradaBlog['categoria'] {
 
 function uniqueSlugsFromBlogHtml(html: string): string[] {
   const slugs = new Set<string>();
-  for (const match of html.matchAll(/href=["']\/blog\/(?!categoria\/)([^"'?#/]+)[^"']*["']/gi)) {
+  for (const match of html.matchAll(/href=["']\/blog\/([^"'?#/]+)\/?(?:[?#][^"']*)?["']/gi)) {
     const slug = decodeURIComponent(match[1] || '').trim();
-    if (slug && slug !== 'page' && isCanonicalBlogSlug(slug)) slugs.add(slug);
+    if (slug && !['page', 'categoria', 'tema', 'og', 'rss.xml'].includes(slug) && isCanonicalBlogSlug(slug)) slugs.add(slug);
   }
   return [...slugs];
 }

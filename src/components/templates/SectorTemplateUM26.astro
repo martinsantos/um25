@@ -139,7 +139,7 @@ const areaLabel = (area: unknown) => {
 };
 ---
 
-<div class="um26-sector">
+<div class="um26-sector" class:list={{ "um26-sector--software": isSoftware }}>
   {isSecurity ? (
     <section class="sector26-context sector26-shell" aria-labelledby="sector26-title">
       <div>
@@ -1349,4 +1349,25 @@ const areaLabel = (area: unknown) => {
   :global(body[data-skin] main) .sector26-case-row:hover > b, :global(body[data-skin] main) .sector26-case-row:focus-visible > b { color: #fff !important; text-decoration: underline !important; text-decoration-color: #dc2626 !important; }
   :global(body[data-skin] main) .sector26-closing__cta { display: inline-flex !important; align-items: center; min-height: 48px !important; align-self: center; justify-self: start; width: auto; height: auto; padding: 0 22px !important; background: #dc2626 !important; color: #fff !important; font-weight: 600; text-decoration: none; border: 0 !important; border-radius: 4px; }
   :global(body[data-skin] main) .sector26-closing__cta:hover, :global(body[data-skin] main) .sector26-closing__cta:focus-visible { background: #b91c1c !important; }
+
+  /* Specialized sector pages keep the same mobile reading order as the service pages. */
+  @media (max-width: 900px) {
+    .sector26-context { padding-block: 32px; gap: 32px; }
+    .sector26-context h1 { font-size: clamp(2rem, 7.5vw, 2.6rem) !important; line-height: 1.08; font-weight: 600 !important; letter-spacing: -.025em; margin-block: 20px; }
+    .sector26-context p { font-size: 1.0625rem; line-height: 1.55; }
+    .sector26-context__back { display: inline-flex; align-items: center; min-height: 44px; font-size: 1rem; }
+    .sector26-context__cta { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 52px; background: var(--um-red, #dc2626); color: #fff; margin-top: 24px; padding: 14px 20px; font-size: 1rem; line-height: 1.4; }
+    .um26-sector--software :global(.umc) { min-height: 0; grid-template-rows: auto auto auto; }
+    .um26-sector--software :global(.umc-copy) { grid-row: 1; width: auto; margin: 0; padding: 32px var(--um-page-gutter, 20px); }
+    .um26-sector--software :global(.umc-stage) { position: relative; inset: auto; grid-row: 2; width: 100%; height: auto; aspect-ratio: 16 / 10; z-index: 0; }
+    .um26-sector--software :global(.umc-poster), .um26-sector--software :global(.umc-video) { object-fit: contain; }
+    .um26-sector--software :global(.umc-grade) { background: none; }
+    .um26-sector--software :global(.umc-back) { margin-bottom: 20px; font-size: 1rem; }
+    .um26-sector--software :global(.umc h1) { font-size: clamp(2rem, 7.5vw, 2.6rem) !important; line-height: 1.08; letter-spacing: -.025em; }
+    .um26-sector--software :global(.umc-lead) { margin-top: 20px; font-size: 1.0625rem; line-height: 1.55; }
+    .um26-sector--software :global(.umc-cta) { margin-top: 24px; }
+    .um26-sector--software :global(.umc-btn) { width: 100%; justify-content: center; }
+    .um26-sector--software :global(.umc-foot) { grid-row: 3; margin: 0; padding: 12px var(--um-page-gutter, 20px) 24px; }
+    .um26-sector--software :global(.umc-tools) { justify-content: flex-end; }
+  }
 </style>
