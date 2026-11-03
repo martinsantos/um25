@@ -48,25 +48,25 @@ describe('Blog editorial GEO scoring contracts', () => {
     expect(scorePage).toContain('Fallas editoriales del blog');
   });
 
-  test('blog cover diversity is enforced across public surfaces and publishing API', () => {
+  test('public reading preserves assigned covers; publishing retains its separate selection policy', () => {
     expect(source('src/pages/api/blog.ts')).toContain('selectDiverseBlogCover');
-    expect(source('src/pages/api/blog.ts')).toContain('diversifyBlogPostCovers(data.data)');
+    expect(source('src/pages/api/blog.ts')).toContain('preserveBlogPostCovers(data.data)');
     expect(source('src/pages/api/blog/[slug].ts')).toContain('selectDiverseBlogCover');
-    expect(source('src/utils/getBlogData.ts')).toContain('fetchDirectusBlogCoverCorpus');
-    expect(source('src/utils/getBlogData.ts')).toContain('diversifyBlogPostCovers(contextPosts)');
+    expect(source('src/utils/getBlogData.ts')).not.toContain('attachDiverseCover');
+    expect(source('src/utils/getBlogData.ts')).toContain('preserveBlogPostCovers(contextPosts)');
     // Rediseño 2026-09: el sitemap del blog delega en fetchBlogSitemapEntries
     // (misma fuente que el blog renderizado), que diversifica portadas tanto con
     // Directus como en el fallback estático.
     const blogData = source('src/utils/getBlogData.ts');
     const sitemapEntries = blogData.slice(blogData.indexOf('export async function fetchBlogSitemapEntries'));
     expect(source('src/pages/sitemap-blog.xml.ts')).toContain('(await fetchBlogSitemapEntries()) as BlogPost[];');
-    expect(sitemapEntries).toContain('if (posts.length > 0) return diversifyBlogPostCovers(posts) as BlogSitemapEntry[];');
-    expect(sitemapEntries).toContain('return diversifyBlogPostCovers(UM26_FALLBACK_POSTS');
+    expect(sitemapEntries).toContain('if (posts.length > 0) return preserveBlogPostCovers(posts) as BlogSitemapEntry[];');
+    expect(sitemapEntries).toContain('return preserveBlogPostCovers(UM26_FALLBACK_POSTS');
     expect(source('scripts/blog-cover-diversity-backfill.mjs')).toContain('--apply');
   });
 
   test('single posts preserve the editorial reading scale on desktop and mobile', () => {
-    // Rediseño 2026-09: el cuerpo del artículo es .prose sobre fondo oscuro.
+    // Rediseño 2026-09: el cuerpo del artículo vuelve a .prose sobre fondo blanco.
     // Se exige la misma escala de lectura: >= 17px en móvil, 18px en escritorio,
     // interlineado amplio y medida de línea acotada.
     const post = source('src/pages/blog/[slug].astro');

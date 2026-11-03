@@ -65,7 +65,7 @@ describe('mobile overflow production contracts', () => {
     const contact = source('src/pages/contacto.astro');
     const v4 = source('src/styles/v4.css');
 
-    expect(article).toMatch(/@media \(max-width: 680px\) \{[\s\S]*?\.bp-title \{ font-size: clamp\(2rem, 9\.4vw, 3rem\) !important; \}/);
+    expect(article).toMatch(/@media \(max-width: 680px\) \{[\s\S]*?\.bp-title \{ font-size: clamp\(2rem, 8\.6vw, 2\.5rem\) !important; \}/);
     expect(contact).not.toMatch(/\.ctc-intro h1 \{[^}]*font-size/);
     expect(contact).not.toMatch(/\.ctc-intro h1 \{[^}]*font-weight/);
     expect(v4).toMatch(/@media \(max-width: 640px\) \{\s*body main :where\(h1,[^{]*\{\s*font-size: 2\.25rem !important;/);
@@ -78,7 +78,7 @@ describe('mobile overflow production contracts', () => {
 
     // Rediseño 2026-09: layout .bp-layout; sin índice (menos de 2 títulos) la
     // columna lateral desaparece y el texto usa la medida editorial completa.
-    expect(article).toContain("headings.length < 2 && 'bp-layout--single'");
+    expect(article).toContain("!hasArticleTOC && 'bp-layout--single'");
     expect(toc).toContain('{items.length > 1 && (');
     expect(article).toMatch(/\.bp-layout--single \{ grid-template-columns: minmax\(0, 68ch\); \}/);
     expect(article).toMatch(/\.bp-layout--single \.bp-aside \{ display: none; \}/);

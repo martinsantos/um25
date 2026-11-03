@@ -40,7 +40,7 @@ describe('blog index long-content layout', () => {
     const index = read('src/pages/blog/index.astro');
     const detail = read('src/pages/blog/[slug].astro');
     expect(index).toContain('.bx-shell { width: min(var(--um-container-wide, 1400px), calc(100% - 2 * var(--x-gutter))); margin-inline: auto; }');
-    expect(detail).toContain('.bp-shell { width: min(var(--um-container-wide, 1400px), calc(100% - 2 * var(--x-gutter))); margin-inline: auto; }');
+    expect(detail).toContain('.bp-shell { width: min(1088px, calc(100% - 2 * var(--x-gutter))); margin-inline: auto; }');
     expect(index).toContain('overflow-wrap: anywhere;');
   });
 });

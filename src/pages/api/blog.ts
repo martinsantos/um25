@@ -6,7 +6,7 @@ import {
 } from '../../utils/blogPublishing';
 import {
   BLOG_COVER_DIVERSITY_LIMIT,
-  diversifyBlogPostCovers,
+  preserveBlogPostCovers,
   selectDiverseBlogCover,
 } from '../../utils/blogCoverDiversity.js';
 import { checkBasicAuth } from '../../utils/serverAuth';
@@ -155,7 +155,7 @@ export const GET: APIRoute = async () => {
   );
   const data = await res.json();
   if (Array.isArray(data.data)) {
-    data.data = diversifyBlogPostCovers(data.data);
+    data.data = preserveBlogPostCovers(data.data);
   }
   return new Response(JSON.stringify(data), {
     headers: { 'Content-Type': 'application/json' },
