@@ -11,6 +11,10 @@ El control visual de CI se actualizó al contrato compartido `data-diagram-stage
 
 El informe remoto detectó además nombres accesibles incompletos en siete botones de la ficha 3588 (WCAG 2.1 A): ahora incluyen el rótulo, el servicio y la cantidad visibles. El control de apertura móvil calculaba un scroll negativo cuando el hero tenía altura natural; ahora avanza al menos media pantalla para comprobar la transición existente. Se repiten las fichas 3588, 3144, 3126 y 9001 y las aperturas de Inicio, Nosotros e Inglés en cuatro anchos, incluyendo explícitamente WCAG 2.1 A. El workflow deja de tolerar fallos del control visual: un fallo detiene la ejecución y no publica un túnel con un paso aparentemente exitoso. No cambia el aspecto aprobado.
 
+El segundo informe remoto se contrastó con axe 4.14.0, mientras la copia local anterior usaba 4.10.3. Se elimina la sobrescritura `aria-label` en los botones de partes: su nombre procede directamente del texto visible y la acción se explica con `aria-description`. La prueba con la misma versión de CI confirma cero infracciones y un nombre accesible completo. Se fija `@axe-core/playwright@4.14.0` en el workflow para reproducibilidad. El cambio no altera el diseño ni el funcionamiento.
+
+Tras publicar, el usuario señaló que las portadas del blog mostraban planos. El helper común ignoraba `imagen_portada` y devolvía una isometría de servicio. Se restauran las portadas ya asignadas a cada nota en listados, artículos, categorías y metadatos; las rutas históricas se resuelven por el ID explícito del mismo registro. Una portada ausente, inválida o un plano automático usa el respaldo editorial existente. El respaldo público lee la imagen visible del artículo antes que una miniatura social cacheada. No se generan, buscan ni reasignan fotos nuevas; la revisión fotográfica posterior sigue pendiente.
+
 ## Alcance del GO local actualizado — 3 de noviembre
 
 ### Coherencia entre Sectores, Antecedentes y Servicios
@@ -192,3 +196,7 @@ Artefactos locales, fuera del repositorio:
 El runtime temporal vive en `/private/tmp/umsa-despiece-runtime-20261101`; su launcher obtiene la credencial existente únicamente en memoria y limita la escucha a `127.0.0.1:4381`. El token no forma parte de la entrega. Para reproducir controles de navegador, usar `PLAYWRIGHT_MODULE` con el módulo instalado y `BASE_URL=http://127.0.0.1:4381`.
 
 No se publicaron cambios, no se fusionó a develop/master y no se tocó otro servicio. La futura publicación sigue feature → develop → master por CI/CD.
+
+### Restauración puntual del lector de blog — 3/11
+
+Por indicación del usuario, se recuperan la superficie blanca y las proporciones de lectura anteriores a septiembre: índice lateral, título contenido y portada de hasta 360 px sobre la misma columna de texto. Se mantienen texto completo, índice móvil, enlaces y metadatos. Cada nota conserva la portada asignada en CMS en archivo, categorías, relacionados, API y página individual; la lectura deja de sustituir imágenes repetidas por otras de antecedentes. Las fotografías pendientes siguen post-GO.

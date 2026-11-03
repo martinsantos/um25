@@ -1,37 +1,28 @@
-import { blogImageUrl, blogPostImageUrl } from '../src/utils/blogHelpers';
+import { blogImageUrl, blogPostImageUrl, DEFAULT_BLOG_COVER } from '../src/utils/blogHelpers';
+import imageMap from '../src/data/antecedentes-generated-image-map.json';
 
 describe('blog image helpers', () => {
   test('normalizes public ULTIMA MILLA image URLs to local paths', () => {
     expect(blogImageUrl('https://ultimamilla.com.ar/uploads/hero/redes.jpg')).toBe('/uploads/hero/redes.jpg');
-    expect(blogImageUrl('https://www.ultimamilla.com.ar/images/editorial/umsa-home-operations.webp')).toBe(
-      '/images/editorial/umsa-home-operations.webp'
-    );
+    expect(blogImageUrl('https://www.ultimamilla.com.ar/images/editorial/umsa-home-operations.webp')).toBe('/images/editorial/umsa-home-operations.webp');
   });
 
-  test('blog covers are own isometrics chosen by topic, never the stored cover', () => {
-    const cover = 'https://images.unsplash.com/photo-1586281380349-6325315f36a2?w=1200&h=480&fit=crop&q=80';
-    expect(blogImageUrl(cover)).toBe(cover);
-    expect(
-      blogPostImageUrl({ imagen_portada: cover, slug: 'nota-con-imagen-automatizada', categoria: 'noticias' } as any)
-    ).toMatch(/^\/cine\/iso\/service-\d{3}\.svg$/);
-    expect(
-      blogPostImageUrl({ imagen_portada: null, slug: 'deteccion-incendio-bodegas-vitivinicolas', titulo: 'Detección de incendio en bodegas', categoria: 'tecnico' } as any)
-    ).toBe('/cine/iso/service-107.svg');
-    expect(
-      blogPostImageUrl({ imagen_portada: null, slug: 'hospital-regional-neuquen-cableado-estructurado', titulo: 'Cableado estructurado en el hospital', categoria: 'proyectos' } as any)
-    ).toBe('/cine/iso/service-101.svg');
-    expect(
-      blogPostImageUrl({ imagen_portada: null, slug: 'aeropuerto-mendoza-cctv', titulo: 'CCTV en el aeropuerto', categoria: 'proyectos' } as any)
-    ).toBe('/cine/iso/service-102.svg');
+  test('preserves each assigned article cover instead of substituting a service diagram', () => {
+    const cover = 'https://images.unsplash.com/photo-1483058712412-4245e9b90334?w=1200&h=480&fit=crop&q=80';
+    expect(blogPostImageUrl({ imagen_portada: cover, slug: 'meilisearch-frente-a-postgresql', categoria: 'tecnico' } as any)).toBe(cover);
+    expect(blogPostImageUrl({ imagen_portada: '/images/editorial/umsa-sector-gobierno.webp', slug: 'openproject-en-cooperativas', categoria: 'proyectos' } as any)).toBe('/images/editorial/umsa-sector-gobierno.webp');
   });
 
-  test('every topic poster exists and the same note always gets the same cover', () => {
-    const fs = require('fs');
-    const path = require('path');
-    for (const slug of ['odoo-18-postgresql', 'starlink-campamento-minero', 'ups-online-data-center', 'mesa-de-ayuda-sla', 'nota-sin-tema']) {
-      const image = blogPostImageUrl({ imagen_portada: null, slug, categoria: 'noticias' } as any);
-      expect(fs.existsSync(path.join(process.cwd(), 'public', image))).toBe(true);
-      expect(blogPostImageUrl({ imagen_portada: null, slug, categoria: 'noticias' } as any)).toBe(image);
-    }
+  test('resolves a renamed cover to the packaged image of the same record', () => {
+    const image = blogPostImageUrl({ imagen_portada: 'https://www.ultimamilla.com.ar/images/antecedentes/generated/lote_039/3448-implementacion-de-redes-de-datos-y-fibra-optica-cliente-confidencial-5-principal.webp', slug: 'influxdb-3-en-cooperativas', categoria: 'empresa' } as any);
+    expect(image).toBe(imageMap['3448']);
+    expect(require('fs').existsSync(require('path').join(process.cwd(), 'public', image))).toBe(true);
+  });
+
+  test.each([null, '', '/cine/iso/service-104.svg', '/cine/iso/site-bodega.svg', 'javascript:alert(1)', 'https://untrusted.example/cover.jpg'])('uses a packaged editorial cover when the assigned cover is absent or invalid: %s', imagen_portada => {
+    const image = blogPostImageUrl({ imagen_portada, slug: 'nota-sin-portada', categoria: 'noticias' } as any);
+    expect(image).toBe(DEFAULT_BLOG_COVER);
+    expect(image).not.toContain('/cine/iso/');
+    expect(require('fs').existsSync(require('path').join(process.cwd(), 'public', image))).toBe(true);
   });
 });

@@ -14,9 +14,8 @@ import { isCanonicalBlogSlug } from '../data/seoRedirects';
 import { addVisibleBlogStatusFilter } from './blogPublishing';
 import { fetchWithTimeout, getFetchTimeoutMs } from './fetchWithTimeout';
 import {
-  BLOG_COVER_DIVERSITY_LIMIT,
-  diversifyBlogPostCovers,
-  diversifySortedBlogPostCovers,
+  preserveBlogPostCovers,
+  sortBlogPostsNewestFirst,
 } from './blogCoverDiversity.js';
 
 const DIRECTUS_URL = getDirectusInternalUrl();
@@ -105,7 +104,7 @@ function getUm26BlogListing(page: number, limit: number, categoria?: string): { 
     : UM26_FALLBACK_POSTS
   ).filter((post) => isCanonicalBlogSlug(post.slug));
 
-  const diversified = diversifyBlogPostCovers(filtered) as EntradaBlog[];
+  const diversified = preserveBlogPostCovers(filtered) as EntradaBlog[];
   return { posts: diversified.slice(offset, offset + limit), total: filtered.length };
 }
 
@@ -231,7 +230,8 @@ async function fetchPublicBlogPostUncached(slug: string): Promise<EntradaBlog | 
     );
     const category = normalizeCategory(metaContent(html, 'article:section'));
     const tags = Array.from(html.matchAll(/<meta[^>]+property=["']article:tag["'][^>]+content=["']([^"']+)["']/gi)).map((match) => decodeHtml(match[1]));
-    const image = metaContent(html, 'og:image');
+    const articleCover = html.match(/<figure\b[^>]*class=["'][^"']*\bbp-cover\b[^"']*["'][^>]*>[\s\S]*?<img\b[^>]*src=["']([^"']+)["']/i)?.[1];
+    const image = articleCover ? decodeHtml(articleCover) : metaContent(html, 'og:image');
     const published = metaContent(html, 'article:published_time');
 
     return {
@@ -285,33 +285,9 @@ async function fetchPublicBlogListing(page: number, limit: number, categoria?: s
       };
     }));
 
-    return { posts: diversifyBlogPostCovers(posts) as EntradaBlog[], total: all.length };
+    return { posts: preserveBlogPostCovers(posts) as EntradaBlog[], total: all.length };
   } catch {
     return null;
-  }
-}
-
-async function fetchDirectusBlogCoverCorpus(limit = BLOG_COVER_DIVERSITY_LIMIT): Promise<EntradaBlog[]> {
-  const params = addVisibleBlogStatusFilter(new URLSearchParams());
-  params.set('sort', '-fecha_publicacion');
-  params.set('limit', String(limit));
-  params.set('fields', 'id,slug,titulo,imagen_portada,categoria,fecha_publicacion,status');
-
-  const res = await directusFetch(`${DIRECTUS_URL}/items/blog_posts?${params.toString()}`);
-  if (!res.ok) return [];
-
-  const data = await res.json();
-  return ((data.data || []) as EntradaBlog[]).filter((post) => isCanonicalBlogSlug(post.slug));
-}
-
-async function attachDiverseCover(post: EntradaBlog): Promise<EntradaBlog> {
-  try {
-    const corpus = await fetchDirectusBlogCoverCorpus();
-    const match = (diversifyBlogPostCovers(corpus) as EntradaBlog[])
-      .find((item) => item.slug === post.slug);
-    return match ? { ...post, imagen_portada: match.imagen_portada } : post;
-  } catch {
-    return post;
   }
 }
 
@@ -363,7 +339,7 @@ export async function fetchBlogListing(
     }
 
     const contextPosts = (itemsData.data as EntradaBlog[]).filter((post) => isCanonicalBlogSlug(post.slug));
-    const posts = (diversifyBlogPostCovers(contextPosts) as EntradaBlog[]).slice(offset, offset + limit);
+    const posts = (preserveBlogPostCovers(contextPosts) as EntradaBlog[]).slice(offset, offset + limit);
     return { posts, total: Math.max(posts.length, total) };
   } catch {
     const publicListing = await fetchPublicBlogListing(page, limit, categoria);
@@ -378,7 +354,7 @@ export async function fetchBlogListing(
 
     const filtered = (categoria ? MOCK_POSTS.filter(p => p.categoria === categoria) : MOCK_POSTS)
       .filter((post) => isCanonicalBlogSlug(post.slug));
-    const diversified = diversifyBlogPostCovers(filtered) as EntradaBlog[];
+    const diversified = preserveBlogPostCovers(filtered) as EntradaBlog[];
     return { posts: diversified.slice(offset, offset + limit), total: filtered.length };
   }
 }
@@ -393,14 +369,14 @@ export async function fetchBlogPost(slug: string): Promise<EntradaBlog | null> {
     const res = await directusFetch(`${DIRECTUS_URL}/items/blog_posts?${params.toString()}`);
     const data = await res.json();
     const post = (data.data || [])[0] as EntradaBlog | undefined;
-    if (post) return attachDiverseCover(post);
+    if (post) return preserveBlogPostCovers([post])[0] as EntradaBlog;
     throw new Error('not found');
   } catch {
     const publicPost = await fetchPublicBlogPost(slug);
     if (publicPost) return publicPost;
 
     const um26Post = UM26_FALLBACK_POSTS.find((p) => p.slug === slug);
-    if (um26Post) return (diversifySortedBlogPostCovers(UM26_FALLBACK_POSTS, UM26_FALLBACK_POSTS.length) as EntradaBlog[])
+    if (um26Post) return (preserveBlogPostCovers(sortBlogPostsNewestFirst(UM26_FALLBACK_POSTS)) as EntradaBlog[])
       .find((p) => p.slug === slug) || um26Post;
 
     if (!allowMockBlogFallback()) return null;
@@ -417,16 +393,16 @@ export async function fetchBlogBand(limit = 3): Promise<EntradaBlog[]> {
     const res = await directusFetch(`${DIRECTUS_URL}/items/blog_posts?${params.toString()}`);
     const data = await res.json();
     const posts = (data.data || []) as EntradaBlog[];
-    if (posts.length > 0) return diversifyBlogPostCovers(posts) as EntradaBlog[];
+    if (posts.length > 0) return preserveBlogPostCovers(posts) as EntradaBlog[];
     throw new Error('empty');
   } catch {
     const publicListing = await fetchPublicBlogListing(1, limit);
-    if (publicListing && publicListing.posts.length > 0) return (diversifyBlogPostCovers(publicListing.posts) as EntradaBlog[]).slice(0, limit);
+    if (publicListing && publicListing.posts.length > 0) return (preserveBlogPostCovers(publicListing.posts) as EntradaBlog[]).slice(0, limit);
 
-    if (UM26_FALLBACK_POSTS.length > 0) return (diversifyBlogPostCovers(UM26_FALLBACK_POSTS) as EntradaBlog[]).slice(0, limit);
+    if (UM26_FALLBACK_POSTS.length > 0) return (preserveBlogPostCovers(UM26_FALLBACK_POSTS) as EntradaBlog[]).slice(0, limit);
 
     if (!allowMockBlogFallback()) return [];
-    return (diversifyBlogPostCovers(MOCK_POSTS) as EntradaBlog[]).slice(0, limit);
+    return (preserveBlogPostCovers(MOCK_POSTS) as EntradaBlog[]).slice(0, limit);
   }
 }
 
@@ -437,8 +413,8 @@ export async function fetchBlogBand(limit = 3): Promise<EntradaBlog[]> {
 export async function fetchBlogPostsBySlugs(slugs: string[]): Promise<EntradaBlog[]> {
   const wanted = [...new Set(slugs.filter((slug) => slug && isCanonicalBlogSlug(slug)))];
   if (wanted.length === 0) return [];
-  // Orden pedido y portadas sin repetir dentro del bloque (misma regla que los listados).
-  const order = (posts: EntradaBlog[]) => diversifyBlogPostCovers(wanted
+  // Preserve the requested order and each note’s assigned cover.
+  const order = (posts: EntradaBlog[]) => preserveBlogPostCovers(wanted
     .map((slug) => posts.find((post) => post.slug === slug))
     .filter((post): post is EntradaBlog => Boolean(post))) as EntradaBlog[];
 
@@ -486,7 +462,7 @@ export async function fetchBlogSitemapEntries(limit = 500): Promise<BlogSitemapE
     if (!res.ok) throw new Error(`Directus ${res.status}`);
     const data = await res.json();
     const posts = ((data.data || []) as BlogSitemapEntry[]).filter((post) => isCanonicalBlogSlug(post.slug));
-    if (posts.length > 0) return diversifyBlogPostCovers(posts) as BlogSitemapEntry[];
+    if (posts.length > 0) return preserveBlogPostCovers(posts) as BlogSitemapEntry[];
     throw new Error('empty');
   } catch {
     try {
@@ -495,7 +471,7 @@ export async function fetchBlogSitemapEntries(limit = 500): Promise<BlogSitemapE
     } catch {
       // continuar con el fallback estático
     }
-    return diversifyBlogPostCovers(UM26_FALLBACK_POSTS
+    return preserveBlogPostCovers(UM26_FALLBACK_POSTS
       .filter((post) => isCanonicalBlogSlug(post.slug))
       .map((post) => ({
         slug: post.slug,

@@ -1,6 +1,8 @@
 import type { EntradaBlog } from '../lib/directus';
 import imageLocalMap from '../data/image-local-map.json';
-import { blogTopicPoster } from '../data/cine/posters';
+import antecedenteImages from '../data/antecedentes-generated-image-map.json';
+
+export const DEFAULT_BLOG_COVER = '/images/editorial/umsa-about-engineering.webp';
 
 const UUID_RE = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 const PUBLIC_BLOG_IMAGE_HOSTS = new Set(['ultimamilla.com.ar', 'www.ultimamilla.com.ar']);
@@ -43,8 +45,13 @@ export function blogImageUrl(value: string | null | undefined): string {
 }
 
 export function blogPostImageUrl(post: Pick<EntradaBlog, 'imagen_portada' | 'slug' | 'categoria'> & Partial<Pick<EntradaBlog, 'titulo' | 'tags' | 'resumen'>>): string {
-  // Póster propio según el tema: las portadas de Directus eran imágenes generadas.
-  return blogTopicPoster(post);
+  const cover = blogImageUrl(post.imagen_portada);
+  // Preserve the assigned cover. Historical project filenames may have been
+  // shortened; the explicit ID map keeps the same source available in the package.
+  const historicalId = cover.match(/^\/images\/antecedentes\/generated\/lote_\d+\/(\d+)-/)?.[1];
+  const currentCover = historicalId ? (antecedenteImages as Record<string, string>)[historicalId] : '';
+  if (currentCover) return currentCover;
+  return cover && !cover.startsWith('/cine/iso/') ? cover : DEFAULT_BLOG_COVER;
 }
 
 export function blogPostImageAlt(post: Pick<EntradaBlog, 'imagen_portada_alt' | 'titulo'>): string {
