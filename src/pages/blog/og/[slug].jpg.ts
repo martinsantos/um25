@@ -59,8 +59,11 @@ export const GET: APIRoute = async ({ params, url, redirect }) => {
     if (!source) return redirect(DEFAULT_OG_IMAGE_PATH, 302);
 
     const { default: sharp } = await import('sharp');
-    const output = await sharp(source)
-      .resize(OG_IMAGE_WIDTH, OG_IMAGE_HEIGHT, { fit: 'cover', position: 'attention' })
+    // Un póster vectorial (las isometrías) se rasteriza nítido y entero sobre el fondo del sitio: recortado "a cubrir" y sin fondo, el JPEG lo dejaba negro.
+    const esSvg = source.subarray(0, 300).toString('utf8').includes('<svg');
+    const output = await (esSvg
+      ? sharp(source, { density: 220 }).resize(OG_IMAGE_WIDTH, OG_IMAGE_HEIGHT, { fit: 'contain', background: '#0a0b0d' }).flatten({ background: '#0a0b0d' })
+      : sharp(source).resize(OG_IMAGE_WIDTH, OG_IMAGE_HEIGHT, { fit: 'cover', position: 'attention' }))
       .jpeg({ quality: 80, mozjpeg: true })
       .toBuffer();
     const body = new Uint8Array(output);

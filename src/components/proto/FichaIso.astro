@@ -1,0 +1,27 @@
+---
+/**
+ * Ficha isométrica de un proyecto: a la izquierda, el inventario de lo que el registro dice que
+ * se instaló, con la miniatura de cada parte (cantidad incluida cuando la dice); a la derecha, el lugar por dentro con los
+ * recorridos de sus servicios encendidos, uno por vez, solo; pasar por una parte lo fija. Cuando el
+ * registro no nombra equipos, se lista el alcance publicado del servicio, con la leyenda que lo aclara.
+ */
+import Partes from './Partes.astro';
+import { caseEquipmentFor } from './casePresentation';
+import { services, illustrationSiteFor, type Story, isoSrc, isoRatio } from './isoData';
+interface Props { story: Story }
+const { story: c } = Astro.props;
+const site = illustrationSiteFor(c);
+const { partes, origen } = caseEquipmentFor(c);
+const byCode = new Map(services.map((s) => [s.code, s.name]));
+const codes = [...new Set([...c.serviceCodes, ...partes.map((p) => p.code)])];
+---
+<div class:list={["fiso", {"fiso--scope": !site}]} data-fiso={site ? true : undefined}>
+  <div class="fiso__lista">
+    <Partes interactivo={Boolean(site) && codes.length > 1} items={partes.map((p) => ({ key: p.key, code: p.code, label: (p.qty ? `${p.qty} × ` : '') + p.label, meta: byCode.get(p.code) }))} />
+    {origen === 'servicio' && partes.length > 0 && <p class="small">El registro no identifica equipos concretos. Estas piezas representan las capacidades generales de los servicios vinculados.</p>}
+    {partes.length === 0 && <p class="small" data-sin-alcance>{c.estado === 'en-curso' ? 'Obra en curso: el alcance se documenta al cierre.' : 'El registro no detalla el alcance.'}</p>}
+  </div>
+  {site && <div class="fiso__lugar iso" data-diagram-stage data-svcs={codes.join(' ')} data-src={isoSrc(site)}><div class="iso__caja" style={`--r:${isoRatio(site).toFixed(3)}`} role="img" aria-label="Esquema de los sistemas vinculados al proyecto"></div><span class="ahora">{codes.map((k) => byCode.get(k)).filter(Boolean).join(' · ')}</span><button type="button" data-diagram-toggle>Pausar recorrido</button></div>}
+</div>
+
+<style>.fiso--scope { grid-template-columns: minmax(0, 1fr); } .fiso:not(.fiso--scope) :global(.partes) { grid-template-columns: 1fr; } [data-diagram-toggle] { justify-self: start; padding-block: 10px; min-height: 44px; text-decoration: underline; text-underline-offset: 4px; color: var(--ink-2); }</style>

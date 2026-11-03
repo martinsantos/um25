@@ -59,6 +59,16 @@ npm run antecedentes:images:audit -- --strict
 
 El auditor informa manifests definidos, imagenes procesadas, imagenes publicadas, duplicados, assets rotos y faltantes.
 
+Para inventariar lo que efectivamente existe y comprobar los reemplazos revisados:
+
+```bash
+node scripts/antecedentes_images/trace.mjs
+node scripts/antecedentes_images/trace.mjs --strict
+node scripts/antecedentes_images/report.mjs
+```
+
+`trace.mjs` contrasta hashes de las tres variantes, la fotografia activa y su licencia, los crudos y prompts de las revisiones disponibles y los originales historicos recuperados. Un original historico identificado no recupera su prompt por sí mismo: si falta el registro completo se indica `no_recuperada` y el modo estricto falla. Una imagen que existe o tiene hash no queda aprobada visualmente por ese hecho. El reporte historico requiere los manifests y solo reconoce un crudo por su nombre exacto; no deduce identidades por posicion.
+
 ## 6. Continuidad cuando vuelve el servicio
 
 Para probar una vez si ya hay suficientes imagenes nuevas para el siguiente lote pendiente:

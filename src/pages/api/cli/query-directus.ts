@@ -6,6 +6,7 @@ import {
     antecedenteDescription,
     antecedenteTitle,
     antecedenteUrl,
+    filterPublicCliAntecedentes,
     getCliDirectusHeaders,
     getCliDirectusRuntime,
     queryCliDirectusSnapshot,
@@ -52,7 +53,7 @@ async function queryDirectusReal(searchQuery: string): Promise<CliDirectusData> 
             fetch(serviciosUrl, { headers })
         ]);
         
-        let antecedentes = antecedentesResponse.ok ? (await antecedentesResponse.json()).data : [];
+        let antecedentes = antecedentesResponse.ok ? filterPublicCliAntecedentes((await antecedentesResponse.json()).data || [], searchQuery) : [];
         let servicios = serviciosResponse.ok ? (await serviciosResponse.json()).data : [];
 
         if (antecedentes.length === 0 && servicios.length === 0) {

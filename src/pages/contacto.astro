@@ -63,7 +63,7 @@ const hubs = [
   <div class="ctc">
     <section class="ctc-hero" aria-labelledby="ctcTitle">
       <div class="ctc-hero__bg" aria-hidden="true">
-        <video src="/cine/media/cine-fachada.mp4" muted loop autoplay playsinline preload="metadata" width="1920" height="1080" aria-hidden="true"></video>
+        <video src="/cine/media/cine-fachada.mp4" poster="/cine/media/cine-fachada-poster.avif" muted loop playsinline preload="none" data-um-autoplay width="1920" height="1080" aria-hidden="true"></video>
       </div>
       <div class="ctc-shell ctc-hero__grid">
         <div class="ctc-intro">
@@ -134,7 +134,8 @@ const hubs = [
   .ctc-panel__kicker { display: flex; align-items: center; gap: 12px; margin: 0 0 24px; font-size: var(--x-fs-kicker); font-weight: 600; line-height: 1.2; letter-spacing: .12em; text-transform: uppercase; color: var(--x-muted); }
   .ctc-eyebrow::before,
   .ctc-panel__kicker::before { content: ''; flex: none; width: 28px; height: 2px; background: var(--x-red); }
-  .ctc-intro h1 { margin: 0; max-width: 15ch; font-size: var(--x-fs-h1) !important; line-height: 1.02 !important; font-weight: 600 !important; letter-spacing: -.025em !important; text-wrap: balance; color: var(--x-text); }
+  /* Tamaño, peso e interletrado del H1 vienen del contrato global (v4.css), igual que en el resto del sitio. */
+  .ctc-intro h1 { margin: 0; max-width: 15ch; text-wrap: balance; color: var(--x-text); }
   .ctc-lead { margin: 24px 0 0; max-width: 46ch; font-size: var(--x-fs-lead); line-height: 1.55; color: var(--x-text-2); }
   .ctc-proof { display: flex; flex-wrap: wrap; margin: 48px 0 0; border-top: 1px solid var(--x-line); }
   .ctc-proof div { display: flex; flex-direction: column-reverse; gap: 8px; padding: 16px 24px 0 0; margin-right: 24px; border-right: 1px solid var(--x-line); }
@@ -199,8 +200,6 @@ const hubs = [
   }
   @media (max-width: 640px) {
     .ctc-crumbs { margin-bottom: 20px; }
-    /* H1 relativo al ancho: 48 px fijos desbordaban la columna a 320 px. */
-    .ctc-intro h1 { font-size: clamp(2.25rem, 11vw, 3rem) !important; }
     .ctc-panel { padding: 24px 16px; margin-inline: calc(-1 * var(--x-gutter) + 0px); border-left: 0; border-right: 0; }
     .ctc-panel h2 { margin-bottom: 24px; }
     .ctc :global(.um-intent-link-graph__list) { gap: 16px; }

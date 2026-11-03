@@ -102,7 +102,8 @@ const structuredData = {
         {/* Sin cuadro fijo: el recorrido de consultoría en movimiento (24/10). */}
         <video
           src="/cine/media/cine-fachada-consultoria.mp4"
-          muted loop autoplay playsinline preload="metadata"
+          poster="/cine/media/cine-fachada-consultoria-poster.avif"
+          muted loop playsinline preload="none" data-um-autoplay
           aria-label="Recorrido de consultoría IT por un edificio de oficinas"
           width="1672"
           height="941"
@@ -290,11 +291,8 @@ const structuredData = {
     gap: clamp(32px, 6vw, 96px);
     align-items: end;
   }
+  /* Tamaño, peso e interletrado del H1 vienen del contrato global (v4.css), igual que en el resto del sitio. */
   .abx-hero h1 {
-    font-size: var(--x-fs-display) !important;
-    line-height: .98 !important;
-    font-weight: 600 !important;
-    letter-spacing: -.03em !important;
     max-width: 17ch;
   }
   .abx-hero__side { padding-bottom: 8px; }

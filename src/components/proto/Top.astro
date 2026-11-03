@@ -1,0 +1,9 @@
+---
+/** Shared production navigation, retained in the Despiece visual system. */
+import NavbarV4 from '../v4/NavbarV4.astro';
+import { publicDespiecePath } from '../../lib/despieceRoutes';
+interface Props { current?: string; lang?: 'es' | 'en' }
+const { lang = 'es' } = Astro.props;
+---
+<a class="saltar" href="#contenido">{lang === 'en' ? 'Skip to content' : 'Saltar al contenido'}</a>
+<NavbarV4 currentPath={publicDespiecePath(Astro.url.pathname)} />

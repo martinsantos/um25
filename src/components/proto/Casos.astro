@@ -1,0 +1,62 @@
+---
+/** Casos con el alcance real de cada obra: foto, qué se hizo, para quién y cuándo, el texto del registro y los servicios. */
+import type { Caso } from './relato';
+import { isNamedClient } from './catalogEditorial';
+import { casePhotograph } from '../../data/photography';
+import PruebaProyecto from './PruebaProyecto.astro';
+import { publicCaseFor } from './casePresentation';
+import { services, destacados, srcsetDe, sinTitulo, type Story } from './isoData';
+import { selectCaseProjects, isCaseBoilerplate as boilerplate, type SelectedCase } from './caseSelection';
+import { tituloProyecto } from './titulos';
+interface Props { casos: Caso[]; stories: Story[]; title?: string; max?: number; candidates?: Story[]; selection?: SelectedCase[]; textOnly?: boolean }
+const { casos, stories, title, max = 4, candidates = [], selection, textOnly = false } = Astro.props;
+const byCode = new Map(services.map((s) => [s.code, s]));
+// The live public identity wins over historical editorial records.
+const safeCases = casos.filter((c) => {
+  const pub = c.publicado ? stories.find((s) => s.id === c.publicado) : undefined;
+  return !c.publicado || Boolean(pub && isNamedClient(pub.client));
+});
+const selected = selection || selectCaseProjects(safeCases, stories, candidates.length ? destacados(candidates, candidates.length) : undefined, max);
+const items = selected.map(({ caso: c, pub }) => {
+  const destacado = publicCaseFor(pub);
+  const titulo = (destacado?.title || tituloProyecto(c.titulo, pub.client, c.texto || pub.summary) || pub.title).replace(/\bIngenieria\b/g, 'Ingeniería').replace(/\bdebiles\b/g, 'débiles');
+  return { ...c, publicado: pub.id, cliente: pub.client, year: pub.year, titulo, destacado,
+    texto: destacado?.introduction || (boilerplate(c.texto || pub.summary) ? '' : sinTitulo(c.texto || pub.summary, titulo, pub.client)),
+    href: pub.href, image: pub.image,
+    serviceNames: pub.serviceCodes.map(code => byCode.get(code)?.name).filter(Boolean) as string[] };
+});
+// Keep the historical scope available without suggesting a photo or a public
+// identity crosswalk that has not been verified against the current catalog.
+const archive = safeCases.filter(c => !c.publicado).slice(0, max).map(c => ({ ...c, titulo: tituloProyecto(c.titulo, c.cliente, c.texto) || c.titulo }));
+
+---
+{(items.length > 0 || archive.length > 0) && (
+  <section class="sec" id="casos">
+    <div class="wrap">
+      {title && <div class="sec__head"><h2>{title}<span class="dot">.</span></h2></div>}
+      <div class:list={["casos", { "casos--text": textOnly }]}>
+        {items.map((c) => (
+          <article class:list={["caso", { "caso--documentado": c.destacado }]} data-case-id={c.publicado}>
+            {!textOnly && <figure><a href={c.href} tabindex="-1" aria-hidden="true"><img src={c.image} srcset={srcsetDe(c.image)} sizes="(max-width: 900px) calc(100vw - 40px), 48vw" alt="" width="1200" height="750" loading="lazy" decoding="async" /></a><figcaption>{casePhotograph(c.publicado) ? "Fotografía de contexto" : c.destacado?.imageKind === "documented-photo" ? "Registro del proyecto" : "Imagen ilustrativa"}</figcaption></figure>}
+            <div class="caso__copy">
+              <h3><a href={c.href}>{c.titulo}</a></h3>
+              <div class="quien">{c.cliente}{c.year > 0 && <span> · {c.year}</span>}</div>
+              {c.texto && <p>{c.texto}</p>}
+              {c.destacado && c.destacado.evidence.length > 0 && <PruebaProyecto items={c.destacado.evidence.slice(0, 2)} compact />}
+              {c.serviceNames.length > 0 && <div class="svc">{c.serviceNames.map((n) => <span>{n}</span>)}</div>}
+            <a class="caso__enlace" href={c.href}>Ver alcance del proyecto <span aria-hidden="true">→</span></a>
+            </div>
+          </article>
+        ))}
+      </div>
+      {archive.length > 0 && <details class="casos-archivo">
+        <summary>Más proyectos del archivo <span>{archive.length}</span></summary>
+        <div class="casos-archivo__grid">{archive.map(c => <article>
+          <p class="casos-archivo__meta">{c.cliente}{c.year > 0 && ` · ${c.year}`}</p>
+          <h3>{c.titulo}</h3>
+          {sinTitulo(c.texto, c.titulo, c.cliente) && <p>{sinTitulo(c.texto, c.titulo, c.cliente)}</p>}
+        </article>)}</div>
+      </details>}
+    </div>
+  </section>
+)}

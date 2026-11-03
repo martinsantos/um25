@@ -11,8 +11,7 @@ export function bindIsometric(root) {
  const select=index=>{
   const button=buttons[index];if(!Number.isInteger(index)||!button||disposed)return;
   selected=index;
-  const view=index===0?'system':index===3?'detail':'object';
-  root.dataset.isoView=String(index);root.classList.toggle('is-open',index===2);
+  const last=buttons.length-1;const view=index===0?'system':index===last?'detail':'object';root.dataset.isoView=String(index);root.classList.toggle('is-open',buttons.length===4&&index===2);
   buttons.forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
   for(const panel of panels){
    const shown=panel.dataset.isoPanel===view,entering=shown&&panel.hidden;

@@ -1,0 +1,19 @@
+---
+interface Props {
+  items: readonly { value: string; label: string }[];
+  compact?: boolean;
+}
+const { items, compact = false } = Astro.props;
+---
+{items.length > 0 && <dl class:list={['prueba-proyecto', { 'prueba-proyecto--compact': compact }]} aria-label="Dimensiones del proyecto">
+  {items.map((item) => <div><dt>{item.label}</dt><dd>{item.value}</dd></div>)}
+</dl>}
+<style>
+  .prueba-proyecto { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 24px; margin: 0; padding-block: 24px; border-block: 1px solid var(--line); }
+  .prueba-proyecto div { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 8px; min-width: 0; }
+  .prueba-proyecto dt { color: var(--ink-2); font-size: 1rem; line-height: 1.4; }
+  .prueba-proyecto dd { margin: 0; font-size: clamp(1.5rem, 2.6vw, 2.25rem); line-height: 1.1; font-weight: 600; letter-spacing: -.03em; overflow-wrap: break-word; font-variant-numeric: tabular-nums; }
+  .prueba-proyecto--compact { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-block: 16px; gap: 12px 20px; border-bottom: 0; }
+  .prueba-proyecto--compact dd { font-size: 1.5rem; }
+  @media (max-width: 600px) { .prueba-proyecto { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>

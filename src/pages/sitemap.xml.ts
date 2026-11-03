@@ -1,5 +1,4 @@
 import type { APIRoute } from 'astro';
-import { generateSlug } from '../utils/slugUtils.js';
 import { canonicalUrl, escapeXml, formatSitemapDate } from '../utils/seoUrl';
 import serviciosSnapshot from '../data/snapshots/servicios.json';
 
@@ -22,29 +21,33 @@ function generateSitemapXml(): string {
         { loc: '/cctvai', priority: '0.9', changefreq: 'weekly' },
         { loc: '/antecedentes', priority: '0.8', changefreq: 'weekly' },
         { loc: '/blog', priority: '0.8', changefreq: 'daily' },
+        { loc: '/software', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/seguridad-electronica', priority: '0.7', changefreq: 'monthly' },
         { loc: '/sectores', priority: '0.7', changefreq: 'monthly' },
         { loc: '/nosotros', priority: '0.6', changefreq: 'monthly' },
+        { loc: '/documentacion', priority: '0.6', changefreq: 'monthly' },
+        { loc: '/privacidad', priority: '0.3', changefreq: 'yearly' },
         { loc: '/contacto', priority: '0.7', changefreq: 'monthly' },
         { loc: '/certificaciones', priority: '0.6', changefreq: 'monthly' },
         // Sector verticals
-        { loc: '/aeropuertos', priority: '0.7', changefreq: 'monthly' },
-        { loc: '/bodegas', priority: '0.7', changefreq: 'monthly' },
-        { loc: '/constructoras', priority: '0.7', changefreq: 'monthly' },
-        { loc: '/salud', priority: '0.7', changefreq: 'monthly' },
-        { loc: '/gobiernosectorpublico', priority: '0.7', changefreq: 'monthly' },
-        { loc: '/software', priority: '0.7', changefreq: 'monthly' },
-        { loc: '/mineria', priority: '0.7', changefreq: 'monthly' },
-        { loc: '/industria', priority: '0.7', changefreq: 'monthly' },
-        { loc: '/seguridad-electronica', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/sectores/aeropuertos', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/sectores/bodegas', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/sectores/constructoras', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/sectores/salud', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/sectores/gobiernosectorpublico', priority: '0.7', changefreq: 'monthly' },
+
+        { loc: '/sectores/mineria', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/sectores/industria', priority: '0.7', changefreq: 'monthly' },
+
         // English public pages
         { loc: '/en', priority: '0.7', changefreq: 'monthly' },
         { loc: '/en/services', priority: '0.7', changefreq: 'monthly' },
         { loc: '/en/about', priority: '0.6', changefreq: 'monthly' },
-        { loc: '/en/contacto', priority: '0.6', changefreq: 'monthly' },
+        { loc: '/en/contact', priority: '0.6', changefreq: 'monthly' },
     ];
 
     const servicePages: SitemapPage[] = getSnapshotServices().map((service) => ({
-        loc: `/servicios/${service.id}/${service.slug || generateSlug(service.Titulo)}`,
+        loc: `/servicios/${service.id}`,
         priority: '0.8',
         changefreq: 'monthly',
         lastmod: staticLastmod,

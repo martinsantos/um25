@@ -1,0 +1,34 @@
+---
+import type { CasoDestacado } from '../../data/propuesta/casos-destacados';
+import PruebaProyecto from './PruebaProyecto.astro';
+interface Props { caso: CasoDestacado; original?: string }
+const { caso, original } = Astro.props;
+---
+<section class="caso-detalle sec" aria-labelledby="alcance-del-proyecto">
+  <div class="wrap caso-detalle__grid">
+    <div>
+      <p class="caso-detalle__kicker">{caso.kicker}</p>
+      <h2 id="alcance-del-proyecto">Qué incluyó el trabajo<span class="dot">.</span></h2>
+      {caso.outcome && <p class="caso-detalle__resultado">{caso.outcome}</p>}
+    </div>
+    <div class="caso-detalle__contenido">
+      <ul>{caso.scope.map((point) => <li>{point}</li>)}</ul>
+      <PruebaProyecto items={caso.evidence} />
+      {original && <details><summary>Texto del registro disponible</summary><p>{original}</p></details>}
+    </div>
+  </div>
+</section>
+<style>
+  .caso-detalle { --ink: #17191d; --ink-2: #4d525a; --line: #cfd1d3; --red: #c51f25; background: #f2f2f0; color: var(--ink); }
+  .caso-detalle__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 32px clamp(28px, 4vw, 72px); }
+  .caso-detalle__kicker { margin-bottom: 16px; color: var(--ink-2); font-size: 1rem; }
+  .caso-detalle h2 { max-width: 16ch; font-size: clamp(1.75rem, 3vw, 2.5rem); }
+  .caso-detalle__contenido { display: grid; gap: 28px; }
+  .caso-detalle ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 16px; }
+  .caso-detalle li { position: relative; padding-left: 20px; font-size: 1.125rem; line-height: 1.6; }
+  .caso-detalle li::before { content: ''; position: absolute; left: 0; top: .68em; width: 5px; height: 5px; background: var(--red); }
+  .caso-detalle summary { cursor: pointer; padding-block: 10px; font-weight: 600; font-size: 1rem; }
+  .caso-detalle details p { margin-top: 12px; max-width: 65ch; color: var(--ink-2); }
+  .caso-detalle__resultado { margin-top: 24px; font-size: 1.125rem; }
+  @media (max-width: 900px) { .caso-detalle__grid { grid-template-columns: 1fr; } }
+</style>

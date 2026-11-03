@@ -1,0 +1,125 @@
+---
+/**
+ * Portada (2026-10-31, v6). Cinco pantallas, una sola pieza isométrica. La apertura con el
+ * edificio por dentro y los números reales; para quién; los ocho frentes y los sectores, en texto;
+ * tres casos con el alcance de cada obra; la empresa y su método. Todo el texto es del sitio.
+ * Las partes del despiece no aparecen aquí: se leen de a una en cada ficha. No indexable.
+ */
+import '../../styles/proto-despiece.css';
+import Head from '../../components/proto/Head.astro';
+import Top from '../../components/proto/Top.astro';
+import Apertura from '../../components/proto/Apertura.astro';
+import Casos from '../../components/proto/Casos.astro';
+import Cierre from '../../components/proto/Cierre.astro';
+import { loadStories, services, isoSrc } from '../../components/proto/isoData';
+import { EMPRESA, CUMPLIMIENTO, sectorRelato } from '../../components/proto/relato';
+import { PORTADA_CASOS_IDS } from '../../data/propuesta/casos-destacados';
+import type { Caso } from '../../components/proto/relato';
+import { publicCaseFor } from '../../components/proto/casePresentation';
+import { SECTORS } from '../../data/cine/scenes';
+import { matchesCatalog } from '../../components/proto/catalogFilters';
+
+import { isNamedClient } from '../../components/proto/catalogEditorial';
+
+export const prerender = false;
+const { total, stories } = await loadStories();
+const casosPortada: Caso[] = PORTADA_CASOS_IDS.flatMap((id) => {
+  const story = stories.find((s) => s.id === id);
+  const detail = story && publicCaseFor(story);
+  return story && detail ? [{ id, publicado: id, titulo: detail.title, cliente: story.client, sector: story.sectorSlug, servicios: story.serviceCodes, year: story.year, texto: detail.introduction }] : [];
+});
+const clientes = Object.values(stories.filter(s => isNamedClient(s.client)).reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
+const frentes = services.map((s) => ({ ...s, count: stories.filter((c) => c.serviceCodes.includes(s.code)).length }));
+const lugares = SECTORS.map((s) => ({ ...s, count: stories.filter((c) => matchesCatalog({sector: c.sectorSlug, services: c.serviceCodes, year: String(c.year), client: c.client, search: '', status: c.status}, {sector: s.slug})).length, headline: sectorRelato(s.slug).headline || s.text })).sort((a, b) => b.count - a.count);
+// A calendar-year difference is the conservative count; the founding year
+// itself is not a completed year of experience.
+const anios = new Date().getFullYear() - 2003;
+const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [String(total), 'antecedentes registrados'], [String(clientes.length), 'clientes identificados'], [String(lugares.length), 'sectores']];
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <Head title="Servicios IT para operaciones que no pueden detenerse · ULTIMA MILLA" description={`Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. ${anios} años y ${total} antecedentes registrados desde Mendoza.`} image="/images/editorial/umsa-home-operations.webp" precargar />
+    <style>
+      /* Ocho frentes: nombre, qué cubre y cuántos proyectos. */
+      .frentes { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(28px, 4vw, 72px); border-top: 1px solid var(--line); }
+      .frentes a { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 24px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--line-2); }
+      .frentes b { font-weight: 600; font-size: 1.1rem; grid-column: 1; grid-row: 1; }
+      .frentes p { margin: 0; color: var(--ink-2); font-size: 1rem; grid-column: 1; grid-row: 2; }
+      .frentes .n { color: var(--ink-3); font-size: 1rem; white-space: nowrap; grid-column: 2; grid-row: 1; }
+      .frentes a:hover b { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
+
+      /* Los sectores: una línea, sin fotos. Las fotos se guardan para los casos. */
+      .lugares { margin: var(--s4) 0 0; padding: var(--s3) 0 0; list-style: none; display: flex; flex-wrap: wrap; gap: 10px 28px; border-top: 1px solid var(--line); }
+      .lugares a { font-weight: 600; font-size: 1.1rem; }
+      .lugares a:hover { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
+      .lugares .n { color: var(--ink-3); font-weight: 400; font-size: 1rem; margin-left: 8px; }
+
+      /* La empresa: lead y sedes a la izquierda; a la derecha el método en cuatro principios y la historia en cuatro hitos. */
+      .historia { margin: var(--s4) 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3) clamp(20px, 3vw, 48px); border-top: 1px solid var(--line); }
+      .historia li { padding-top: var(--s2); display: grid; gap: 4px; align-content: start; }
+      .historia h3 { font-size: 1.05rem; }
+      .historia p { font-size: 1rem; }
+      .sedes { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; padding: 0; list-style: none; color: var(--ink-2); }
+      .sedes b { color: var(--ink); font-weight: 600; margin-right: 8px; }
+      .entrega { margin: var(--s4) 0 0; padding: var(--s3) 0 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px clamp(20px, 3vw, 48px); border-top: 1px solid var(--line); }
+      .entrega li { display: grid; gap: 2px; }
+      .entrega b { font-weight: 600; }
+      .entrega span { color: var(--ink-2); font-size: 1rem; }
+
+      @media (max-width: 1100px) { .historia { grid-template-columns: 1fr 1fr; } }
+      @media (max-width: 900px) { .frentes, .historia, .entrega { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <Top />
+    <main id="contenido">
+
+    <Apertura label="Portada" isoSrc={isoSrc('building')} image="/images/editorial/umsa-home-operations.webp" open ciclo hero nombres={Object.fromEntries(services.map((s) => [s.code, s.name]))}>
+      <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
+      <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
+      <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>
+      <a class="btn" href="/contacto">Pedir un relevamiento</a>
+      <a class="u" href="/antecedentes">Ver los {total} antecedentes</a>
+    </Apertura>
+
+    <section class="sec" id="clientes">
+      <div class="wrap">
+        <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2></div>
+        <ol class="clientes">
+          {clientes.slice(0, 12).map((c) => <li><a href={`/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
+          <li class="mas"><a href="/antecedentes">Y {clientes.length - 12} más</a><span></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="sec" id="servicios">
+      <div class="wrap">
+        <div class="sec__head"><h2>Ocho frentes de servicio, en los lugares donde no se puede parar<span class="dot">.</span></h2></div>
+        <ol class="frentes">{frentes.map((s) => <li><a href={`/servicios/${s.code}`}><b>{s.name}</b><span class="n">{s.count} antecedentes</span><p>{s.text}</p></a></li>)}</ol>
+        <ol class="lugares" id="lugares" aria-label="Sectores">{lugares.map((l) => <li><a href={`/sectores/${l.slug}`}>{l.name}{l.count > 0 && <span class="n">{l.count}</span>}</a></li>)}<li><a class="muted" href="/sectores">Todos los sectores</a></li></ol>
+      </div>
+    </section>
+
+    <Casos casos={casosPortada} stories={stories} title="Proyectos que muestran cómo trabajamos" max={3} />
+
+    <section class="sec" id="empresa">
+      <div class="wrap">
+        <div class="cols cols-5-7">
+          <div class="prosa">
+            <h2>{EMPRESA.titulo}<span class="dot">.</span></h2>
+            <p class="lead">{EMPRESA.lead}</p>
+            <ul class="sedes">{EMPRESA.sedes.map((s) => <li><b>{s.name}</b>{s.detail || s.role}</li>)}</ul>
+          </div>
+          <div class="cols cols-2">{EMPRESA.principios.map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div>
+        </div>
+        <ol class="historia">{EMPRESA.historia.map(([y, t, d]) => <li><span class="small">{y}</span><h3>{t}</h3><p class="muted">{d}</p></li>)}</ol>
+        <ul class="entrega" aria-label="Cada obra se entrega medida, documentada y trazable">{CUMPLIMIENTO.map(([t, d]) => <li><b>{t}</b><span>{d}</span></li>)}</ul>
+      </div>
+    </section>
+
+    </main>
+
+    <Cierre />
+  </body>
+</html>

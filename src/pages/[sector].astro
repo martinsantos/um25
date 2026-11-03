@@ -4,14 +4,14 @@
  * Handles all sector slugs using Directus data.
  */
 
+import { SECTOR_PHOTO } from '../components/proto/isoData';
 import LayoutV4 from '../layouts/LayoutV4.astro';
-import SectorTemplateEditorial from '../components/templates/SectorTemplateEditorial.astro';
-import SectorTemplateAtlas from '../components/templates/SectorTemplateAtlas.astro';
 import SectorTemplateUM26 from '../components/templates/SectorTemplateUM26.astro';
 import GeoHubDossier from '../components/templates/GeoHubDossier.astro';
 import { generateSlug } from '../utils/slugUtils.js';
 import { getSectorBySlug, getAntecedentesForSector } from '../utils/sectoresHelpers.ts';
 import { getFAQSchema } from '../data/sectorFAQs';
+import { filterSoftwareSectorCases, softwareSectorCandidateKeywords } from '../lib/sectorSoftwareRelevance';
 import { getSectorVisualSpec } from '../data/sectorVisualSystem';
 import { editorialImageDimensions, editorialImages, getSectorEditorialImage } from '../data/editorialImageSystem';
 import { resolveCmsImageUrl } from '../utils/directusImageResolver';
@@ -56,14 +56,18 @@ const {
 } = sectorData || {};
 
 const visual = getSectorVisualSpec(publicSectorSlug) || getSectorVisualSpec(sectorSlug);
-const heroImage = resolveCmsImageUrl(hero_image, visual?.image || getSectorEditorialImage(sectorSlug));
+const heroImage = ['software', 'seguridad-electronica'].includes(sectorSlug) ? SECTOR_PHOTO[sectorSlug] : resolveCmsImageUrl(hero_image, visual?.image || getSectorEditorialImage(sectorSlug));
 const editorialHeadline = visual?.headline || `Tecnología para ${nombre}`;
 const editorialSeoTitle = getReplicaProdEntry(`/${publicSectorSlug}`)?.title || seo_title || editorialHeadline;
 const pageHeadline = isReplicaIdenticalCopy()
   ? resolveReplicaH1(`/${publicSectorSlug}`, seo_title || editorialHeadline)
   : editorialHeadline;
 const pageSummary = visual?.summary || descripcion;
-const antecedentes = geoHub ? [] : await getAntecedentesForSector(keywords, nombre);
+const antecedentes = geoHub ? [] : sectorSlug === 'software'
+  ? filterSoftwareSectorCases(
+    await getAntecedentesForSector(softwareSectorCandidateKeywords(keywords), nombre, 500),
+  )
+  : await getAntecedentesForSector(keywords, nombre);
 const sanitizeSectorStats = (items: any[] = []) => items.map((stat: any) => {
   const label = String(stat?.label || '');
   const value = String(stat?.value || '');
@@ -74,12 +78,6 @@ const sanitizeSectorStats = (items: any[] = []) => items.map((stat: any) => {
 });
 const displayStats = sanitizeSectorStats(stats || []);
 const faqSchema = getFAQSchema(sectorSlug);
-const devTemplateParam = import.meta.env.DEV && !isReplicaIdenticalCopy()
-  ? Astro.url.searchParams.get('template')
-  : null;
-const templateVariant = devTemplateParam === 'editorial' || devTemplateParam === 'atlas'
-  ? devTemplateParam
-  : 'um26';
 const templateSector = {
   ...(visual || {}),
   ...sectorData,
@@ -139,31 +137,27 @@ const sectorStructuredData = geoHub ? [] : [
 </LayoutV4>
 ) : (
 <LayoutV4 skin="black" title={editorialSeoTitle} description={seo_description} keywords={seo_keywords} image={heroImage} imageWidth={editorialImageDimensions.width} imageHeight={editorialImageDimensions.height} structuredData={sectorStructuredData}>
-  {templateVariant === 'um26' && (
-    <SectorTemplateUM26
-      sector={templateSector}
-      antecedentes={antecedentes}
-      valueProps={value_props || []}
-      serviciosRelacionados={templateServiciosRelacionados}
-    />
-  )}
-  {templateVariant === 'editorial' && (
-    <SectorTemplateEditorial
-      mode="detail"
-      sector={templateSector}
-      antecedentes={antecedentes}
-      valueProps={value_props || []}
-      serviciosRelacionados={templateServiciosRelacionados}
-    />
-  )}
-  {templateVariant === 'atlas' && (
-    <SectorTemplateAtlas
-      mode="detail"
-      sector={templateSector}
-      antecedentes={antecedentes}
-      valueProps={value_props || []}
-      serviciosRelacionados={templateServiciosRelacionados}
-    />
-  )}
+  <SectorTemplateUM26
+    sector={templateSector}
+    antecedentes={antecedentes}
+    valueProps={value_props || []}
+    serviciosRelacionados={templateServiciosRelacionados}
+  />
 </LayoutV4>
 )}
+
+<style is:global>
+  body:has(.um26-sector) {
+    --um-container-wide: 1400px;
+    --um-page-gutter: clamp(20px, 4vw, 64px);
+  }
+
+  body:has(.um26-sector) .um-ops-container,
+  body:has(.um26-sector) .sector26-shell {
+    width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
+  }
+
+  body:has(.um26-sector) .um26-sector .umc {
+    --umc-gutter: max(var(--um-page-gutter), calc((100vw - var(--um-container-wide)) / 2));
+  }
+</style>

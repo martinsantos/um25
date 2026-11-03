@@ -1,0 +1,59 @@
+---
+/** Contacto (2026-10-30): el formulario real (mismo contrato que /api/contact), los datos directos y qué conviene contar. No indexable. */
+import '../../styles/proto-despiece.css';
+import Head from '../../components/proto/Head.astro';
+import Top from '../../components/proto/Top.astro';
+import Cierre from '../../components/proto/Cierre.astro';
+import ContactForm from '../../components/cine/ContactForm.astro';
+
+export const prerender = false;
+const checklist = ['Servicio principal o sistema afectado.', 'Sede, ciudad o cantidad de sitios.', 'Urgencia real, ventana de intervención o fecha de pliego.', 'Riesgo operativo: caída, seguridad, auditoría, crecimiento o mantenimiento.'];
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <Head title="Contacto · ULTIMA MILLA" description="Contanos qué tiene que seguir funcionando. Un técnico responde por email con el próximo paso: diagnóstico, relevamiento, propuesta o documentación." />
+    <style>
+      .contacto { padding-block: var(--s5) var(--s6); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--s5) clamp(28px, 4vw, 96px); align-items: start; }
+      .contacto__intro { grid-column: 1; grid-row: 1; }
+      .contacto__details { grid-column: 1; grid-row: 2; display: grid; gap: var(--s4); }
+      .contacto__form { grid-column: 2; grid-row: 1 / 3; }
+      .contacto__intro h1 { max-width: 16ch; font-size: clamp(2.125rem, 4vw, 3.625rem); }
+      .contacto__intro > p { color: var(--ink-2); font-size: 1.2rem; max-width: 44ch; }
+      .datos { display: grid; gap: var(--s3); }
+      .datos div { display: grid; gap: 4px; }
+      .datos span { color: var(--ink-3); font-size: 1rem; }
+      .datos b { font-weight: 600; font-size: 1.05rem; }
+      .datos a.mapa { color: var(--ink-2); font-size: 1rem; }
+      .datos a.mapa:hover { color: var(--ink); }
+      .que { display: grid; gap: 10px; }
+      .que h2 { font-size: 1.3rem; }
+      @media (max-width: 900px) { .contacto { grid-template-columns: 1fr; gap: var(--s4); } .contacto__intro, .contacto__form, .contacto__details { grid-column: 1; grid-row: auto; } }
+    </style>
+  </head>
+  <body>
+    <Top />
+    <main id="contenido" class="wrap contacto">
+      <div class="contacto__intro">
+          <h1>Contanos qué tiene que seguir funcionando<span class="dot">.</span></h1>
+          <p style="margin-top:var(--s2)">Indicá qué necesitás, dónde y para cuándo. Un técnico te responde por email con el próximo paso: diagnóstico, relevamiento, propuesta o documentación.</p>
+      </div>
+      <div class="contacto__form" id="formulario"><ContactForm /></div>
+      <div class="contacto__details">
+        <div class="datos">
+          <div><span>Email</span><b><a href="mailto:contacto@ultimamilla.com.ar?subject=Consulta%20desde%20la%20web%20ULTIMA%20MILLA">contacto@ultimamilla.com.ar</a></b></div>
+          <div><span>Oficina</span><b>Houssay 1159, Guaymallén, Mendoza</b><a class="mapa" href="https://www.google.com/maps/search/?api=1&query=Houssay%201159%20Guaymallen%20Mendoza" target="_blank" rel="noopener">Ver en el mapa ↗</a></div>
+          <div><span>Horario</span><b>Lunes a viernes, 8 a 18 h</b><span>Clientes con abono: guardia 24/7.</span></div>
+        </div>
+        <div class="que">
+          <h2>Lo que ayuda a responder rápido</h2>
+          <ul class="lista">{checklist.map((c) => <li>{c}</li>)}</ul>
+        </div>
+      </div>
+
+    </main>
+    <Cierre withContact={false} />
+
+
+  </body>
+</html>

@@ -1,6 +1,7 @@
 ---
 import UMLogo from '../brand/UMLogo.astro';
 import { NAV_SECTORS, NAV_SERVICES } from '../../data/navigation';
+import { SERVICE_NAV_MEDIA, SECTOR_NAV_MEDIA } from '../../data/navigationMedia';
 import { shellLocale, shellRoutes, shellServiceCopy, shellSectorCopy } from '../../config/i18nShell';
 /** Cabecera comercial UMSA: marca, navegación principal (con mega-menú de
  *  servicios y sectores en escritorio) y contacto. */
@@ -29,10 +30,15 @@ const moreItems = [
 ];
 
 const isActive = (href: string) => {
-  const clean = currentPath.replace(/\/$/, '') || '/';
+  let clean = currentPath.replace(/\/$/, '') || '/';
   const target = href.replace(/\/$/, '') || '/';
+  const matchesPath = (path: string, base: string) => path === base || path.startsWith(`${base}/`);
   if (target === '/' || target === '/en') return clean === target;
-  return clean.startsWith(target);
+  const service = target.match(/^\/servicios\/(10[1-8])(?:\/|$)/);
+  if (service) return matchesPath(clean, `/servicios/${service[1]}`);
+  // Los destinos históricos /bodegas, etc. conservan su selección en /sectores/bodegas.
+  if (target !== '/sectores') clean = clean.replace(/^\/sectores\//, '/');
+  return matchesPath(clean, target);
 };
 
 ---
@@ -58,14 +64,15 @@ const isActive = (href: string) => {
                 {item.mega === 'servicios' ? (
                   <>
                     <div class="um-ops-mega__intro">
-                      <p class="um-ops-mega__kicker"><i></i>{t.megaServices.kicker}</p>
+                      <p class="um-ops-mega__kicker">{t.megaServices.kicker}</p>
                       <p class="um-ops-mega__lead">{t.megaServices.lead}</p>
                       <a class="um-ops-mega__all" href={routes.services}>{t.megaServices.all} <span aria-hidden="true">→</span></a>
                     </div>
                     <ul class="um-ops-mega__grid um-ops-mega__grid--services">
                       {NAV_SERVICES.map((s) => (
                         <li>
-                          <a href={s.href} class:list={[{ 'is-active': currentPath.startsWith(`/servicios/${s.code}`) }]}>
+                          <a href={s.href} class:list={[{ 'is-active': isActive(s.href) }]} aria-current={isActive(s.href) ? 'page' : undefined}>
+                            <img class="um-ops-mega__thumb" src={SERVICE_NAV_MEDIA[s.code]} width="112" height="84" alt="" loading="lazy" decoding="async" />
                             <span class="um-ops-mega__code">{s.code}</span>
                             <span class="um-ops-mega__name">{lang === 'en' ? t.destinationLabel(shellServiceCopy(lang, s.code, s.name, s.text).name) : s.name}</span>
                             <span class="um-ops-mega__text">{shellServiceCopy(lang, s.code, s.name, s.text).text}</span>
@@ -77,15 +84,15 @@ const isActive = (href: string) => {
                 ) : (
                   <>
                     <div class="um-ops-mega__intro">
-                      <p class="um-ops-mega__kicker"><i></i>{t.megaSectors.kicker}</p>
+                      <p class="um-ops-mega__kicker">{t.megaSectors.kicker}</p>
                       <p class="um-ops-mega__lead">{t.megaSectors.lead}</p>
                       <a class="um-ops-mega__all" href={routes.sectors}>{lang === 'en' ? t.destinationLabel(t.megaSectors.all) : t.megaSectors.all} <span aria-hidden="true">→</span></a>
                     </div>
                     <ul class="um-ops-mega__grid um-ops-mega__grid--sectors">
                       {NAV_SECTORS.map((s) => (
                         <li>
-                          <a href={s.href} class:list={[{ 'is-active': isActive(s.href) }]}>
-                            <span class="um-ops-mega__code" aria-label={s.count ? (lang === 'en' ? `${s.count} documented projects` : `${s.count} casos documentados`) : undefined}>{s.count ?? '—'}</span>
+                          <a href={s.href} class:list={[{ 'is-active': isActive(s.href) }]} aria-current={isActive(s.href) ? 'page' : undefined}>
+                            <img class="um-ops-mega__thumb" src={SECTOR_NAV_MEDIA[s.slug]} width="112" height="84" alt="" loading="lazy" decoding="async" />
                             <span class="um-ops-mega__name">{lang === 'en' ? t.destinationLabel(shellSectorCopy(lang, s.slug, s.name, s.text).name) : s.name}</span>
                             <span class="um-ops-mega__text">{shellSectorCopy(lang, s.slug, s.name, s.text).text}</span>
                           </a>
@@ -138,9 +145,18 @@ const isActive = (href: string) => {
     <ul class="um-ops-mobile__primary">
       {navItems.map((item) => (
         <li>
-          <a href={item.href} class:list={[{ 'is-active': isActive(item.href) }]} aria-current={isActive(item.href) ? 'page' : undefined}>
-            {item.label}
-          </a>
+          <div class="um-ops-mobile__destination">
+            <a href={item.href} class:list={[{ 'is-active': isActive(item.href) }]} aria-current={isActive(item.href) ? 'page' : undefined}>
+              {item.label}
+            </a>
+            {item.mega && <button type="button" class="um-ops-mobile__explore" data-mobile-group-toggle aria-expanded="false" aria-controls={`mobile-${item.mega}`} aria-label={`${lang === 'en' ? 'Explore' : 'Explorar'} ${item.label.toLowerCase()}`}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></button>}
+          </div>
+          {item.mega && <ul class="um-ops-mobile__destinations" id={`mobile-${item.mega}`} hidden>
+            {(item.mega === 'servicios' ? NAV_SERVICES.map(s => ({key:s.code,href:s.href,image:SERVICE_NAV_MEDIA[s.code],...shellServiceCopy(lang,s.code,s.name,s.text)})) : NAV_SECTORS.map(s => ({key:s.slug,href:s.href,image:SECTOR_NAV_MEDIA[s.slug],...shellSectorCopy(lang,s.slug,s.name,s.text)}))).map(s => <li><a href={s.href} aria-current={isActive(s.href) ? 'page' : undefined}>
+              <img src={s.image} width="64" height="64" alt="" loading="lazy" decoding="async" />
+              <span><strong>{lang === 'en' ? t.destinationLabel(s.name) : s.name}</strong><span>{s.text}</span></span>
+            </a></li>)}
+          </ul>}
         </li>
       ))}
     </ul>
@@ -302,6 +318,12 @@ const isActive = (href: string) => {
     color: #fff;
   }
 
+  .um-ops-nav__link:focus-visible,
+  .um-ops-cta:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+
   .um-ops-nav__link.is-active::after,
   .um-ops-more.is-active .um-ops-more__trigger::after,
   .um-ops-more:hover .um-ops-more__trigger::after {
@@ -329,9 +351,9 @@ const isActive = (href: string) => {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
+    width: 44px;
     min-height: 44px;
-    margin-right: 6px;
+    margin-right: 0;
     border: 0;
     background: transparent;
     color: #a1a1aa;
@@ -358,8 +380,8 @@ const isActive = (href: string) => {
   }
 
   .um-ops-mega__toggle:focus-visible {
-    outline: 2px solid #dc2626;
-    outline-offset: -2px;
+    outline: 2px solid #fff;
+    outline-offset: 2px;
   }
 
   .um-ops-mega:hover .um-ops-mega__link,
@@ -387,7 +409,10 @@ const isActive = (href: string) => {
     right: 0;
     top: 100%;
     z-index: var(--um-z-header-menu);
-    padding: 28px 0 34px;
+    padding: 20px 0 24px;
+    max-height: calc(100dvh - 66px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     background: #0b0b0c;
     border-top: 1px solid rgba(220,38,38,0.42);
     border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -397,7 +422,7 @@ const isActive = (href: string) => {
     transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s linear 0.16s;
   }
 
-  .um-ops-mega:hover .um-ops-mega__panel,
+  .um-ops-mega:hover:not(.is-dismissed) .um-ops-mega__panel,
   .um-ops-mega.is-open .um-ops-mega__panel {
     opacity: 1;
     visibility: visible;
@@ -407,10 +432,13 @@ const isActive = (href: string) => {
 
   .um-ops-mega__inner {
     display: grid;
-    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
-    gap: clamp(28px, 4vw, 64px);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
     align-items: start;
   }
+
+  .um-ops-mega__intro { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 32px; align-items: start; }
+  .um-ops-mega__intro .um-ops-mega__all { grid-column: 2; grid-row: 1 / 3; margin-top: 0; align-self: center; }
 
   .um-ops-mega__kicker {
     display: flex;
@@ -418,10 +446,10 @@ const isActive = (href: string) => {
     gap: 10px;
     margin: 0;
     color: #fff;
-    font-size: 1rem;
     font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    letter-spacing: 0;
+    font-size: 1.375rem;
+    line-height: 1.3;
   }
 
   .um-ops-mega__kicker i {
@@ -431,11 +459,11 @@ const isActive = (href: string) => {
   }
 
   .um-ops-mega__lead {
-    margin: 14px 0 0;
-    color: #a1a1aa;
+    margin: 0;
+    color: #c4c7cc;
     font-size: 1rem;
     line-height: 1.55;
-    max-width: 30ch;
+    max-width: 78ch;
   }
 
   .um-ops-mega__all {
@@ -457,17 +485,26 @@ const isActive = (href: string) => {
     border-bottom-color: #fff;
   }
 
+  .um-ops-mega__all:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+
   .um-ops-mega__grid {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 0 24px;
+    gap: 4px 12px;
     border-top: 1px solid rgba(255,255,255,0.1);
   }
 
   .um-ops-mega__grid--services {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 1360px) {
+    .um-ops-mega__grid--services { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
 
   .um-ops-mega__grid--sectors {
@@ -476,26 +513,56 @@ const isActive = (href: string) => {
 
   .um-ops-mega__grid a {
     display: grid;
-    grid-template-columns: 52px minmax(0, 1fr);
-    grid-template-areas: "code name" "code text";
+    grid-template-columns: 80px 3ch minmax(0, 1fr);
+    grid-template-areas: "image code name" "image . text";
+    grid-template-rows: min-content 1fr;
     column-gap: 10px;
-    padding: 13px 10px 14px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    align-content: start;
+    height: 100%;
+    padding: 12px;
+    border: 1px solid transparent;
+    border-left-width: 3px;
+    border-bottom-color: rgba(255,255,255,0.14);
     color: #fff;
     text-decoration: none;
-    transition: background-color 0.15s ease;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .um-ops-mega__grid--sectors a {
+    grid-template-columns: 80px minmax(0, 1fr);
+    grid-template-areas: "image name" "image text";
+  }
+
+  .um-ops-mega__thumb { grid-area: image; width: 100%; height: 64px; object-fit: cover; align-self: start; }
+  @media (max-width: 1279px) {
+    .um-ops-mega__grid a { grid-template-columns: 72px 3ch minmax(0,1fr); }
+    .um-ops-mega__grid--sectors a { grid-template-columns: 64px minmax(0,1fr); }
   }
 
   .um-ops-mega__grid a:hover,
-  .um-ops-mega__grid a:focus-visible,
+  .um-ops-mega__grid a:focus-visible {
+    background: #303034;
+    border-color: #74747e;
+    border-left-color: #dc2626;
+  }
+
   .um-ops-mega__grid a.is-active {
-    background: rgba(255,255,255,0.045);
+    background: #f4f4f5;
+    border-color: #f4f4f5;
+    border-left-color: #dc2626;
+    color: #111;
+  }
+
+  .um-ops-mega__grid a.is-active :is(.um-ops-mega__code, .um-ops-mega__name, .um-ops-mega__text) {
+    color: #111;
   }
 
   .um-ops-mega__grid a:focus-visible {
-    outline: 2px solid #dc2626;
-    outline-offset: -2px;
+    outline: 2px solid #fff;
+    outline-offset: -4px;
   }
+
+  .um-ops-mega__grid a.is-active:focus-visible { outline-color: #111; }
 
   .um-ops-mega__code {
     grid-area: code;
@@ -503,14 +570,12 @@ const isActive = (href: string) => {
     font-size: 1rem;
     font-weight: 600;
     line-height: 1.3;
-    color: #71717a;
+    color: #c4c7cc;
     font-variant-numeric: tabular-nums;
-    padding-top: 1px;
   }
 
-  .um-ops-mega__grid a:hover .um-ops-mega__code,
-  .um-ops-mega__grid a.is-active .um-ops-mega__code {
-    color: #dc2626;
+  .um-ops-mega__grid a:hover:not(.is-active) .um-ops-mega__code {
+    color: #fff;
   }
 
   .um-ops-mega__name {
@@ -522,8 +587,8 @@ const isActive = (href: string) => {
 
   .um-ops-mega__text {
     grid-area: text;
-    margin-top: 3px;
-    color: #a1a1aa;
+    margin-top: 4px;
+    color: #d4d4d8;
     font-size: 1rem;
     line-height: 1.45;
   }
@@ -610,7 +675,7 @@ const isActive = (href: string) => {
   }
 
   .um-ops-lang:focus-visible {
-    outline: 2px solid #dc2626;
+    outline: 2px solid #fff;
     outline-offset: 2px;
   }
 
@@ -643,6 +708,11 @@ const isActive = (href: string) => {
     background: transparent;
     color: #fff;
     cursor: pointer;
+  }
+
+  .um-ops-menu-toggle:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
   }
 
   .um-ops-menu-toggle span {
@@ -901,6 +971,29 @@ const isActive = (href: string) => {
     color: #fff;
   }
 
+  .um-ops-mobile__primary a.is-active,
+  .um-ops-mobile__secondary a.is-active { background: #f4f4f5; color: #111; padding-inline: 12px; border-left: 3px solid #dc2626; }
+  .um-ops-mobile__primary a:focus-visible,
+  .um-ops-mobile__secondary a:focus-visible,
+  .um-ops-mobile__explore:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  .um-ops-mobile__primary a.is-active:focus-visible,
+  .um-ops-mobile__secondary a.is-active:focus-visible { outline-color: #111; outline-offset: -5px; }
+
+  .um-ops-mobile__destination { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .um-ops-mobile__destination > a { flex: 1; }
+  .um-ops-mobile__explore { display: grid; place-items: center; width: 48px; height: 48px; flex-shrink: 0; color: #fff; background: transparent; border: 1px solid rgba(255,255,255,.18); }
+  .um-ops-mobile__explore svg { width: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; transition: transform 160ms ease-out; }
+  .um-ops-mobile__explore[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .um-ops-mobile__destinations { list-style: none; padding: 4px 0 20px; margin: 0; }
+  .um-ops-mobile__destinations[hidden] { display: none; }
+  .um-ops-mobile__primary .um-ops-mobile__destinations a { display: grid; grid-template-columns: 64px minmax(0,1fr); gap: 16px; align-items: center; padding: 16px 0; font-size: 1rem; line-height: 1.4; }
+  .um-ops-mobile__destinations a::after { display: none; }
+  .um-ops-mobile__destinations img { width: 64px; height: 64px; object-fit: cover; }
+  .um-ops-mobile__destinations strong { display: block; font-size: 1rem; font-weight: 600; color: #fff; }
+  .um-ops-mobile__destinations strong + span { display: block; margin-top: 4px; color: #c4c7cc; font-weight: 400; }
+  .um-ops-mobile__primary .um-ops-mobile__destinations a[aria-current="page"] { background: #f4f4f5; border-left: 3px solid #dc2626; padding-inline: 12px; }
+  .um-ops-mobile__destinations a[aria-current="page"] :is(strong, span) { color: #111; }
+
   .um-ops-mobile__foot {
     margin-top: auto;
     padding-top: 32px;
@@ -1042,7 +1135,7 @@ const isActive = (href: string) => {
     }
 
     .um-ops-container {
-      width: min(100% - 32px, var(--um-container-wide));
+      width: min(var(--um-container-wide), calc(100% - (var(--um-page-gutter) * 2)));
     }
 
     .um-ops-logo {
@@ -1056,7 +1149,8 @@ const isActive = (href: string) => {
 
   @media (prefers-reduced-motion: reduce) {
     .um-ops-mobile,
-    .um-ops-dock {
+    .um-ops-dock,
+    .um-ops-mobile__explore svg {
       animation: none;
       transition: none;
     }
@@ -1083,6 +1177,7 @@ const isActive = (href: string) => {
       megas.forEach((m) => {
         if (m === except) return;
         m.classList.remove('is-open');
+        m.classList.toggle('is-dismissed', m.matches(':hover'));
         m.querySelector<HTMLButtonElement>('.um-ops-mega__toggle')?.setAttribute('aria-expanded', 'false');
       });
     };
@@ -1093,20 +1188,28 @@ const isActive = (href: string) => {
       const setOpen = (open: boolean) => {
         closeMegas(mega);
         mega.classList.toggle('is-open', open);
+        mega.classList.toggle('is-dismissed', !open && mega.matches(':hover'));
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       };
       toggle.addEventListener('click', () => setOpen(!mega.classList.contains('is-open')));
       link?.addEventListener('keydown', (event) => {
         if (event.key === 'ArrowDown') { event.preventDefault(); setOpen(true); mega.querySelector<HTMLAnchorElement>('.um-ops-mega__grid a')?.focus(); }
       });
-      mega.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && mega.classList.contains('is-open')) { event.preventDefault(); setOpen(false); toggle.focus(); }
-      });
       mega.addEventListener('focusout', (event) => {
         const next = event.relatedTarget as Node | null;
         if (next && !mega.contains(next)) setOpen(false);
       });
-      mega.addEventListener('mouseleave', () => { if (mega.classList.contains('is-open')) setOpen(false); });
+      mega.addEventListener('mouseenter', () => mega.classList.remove('is-dismissed'));
+      mega.addEventListener('mouseleave', () => { setOpen(false); mega.classList.remove('is-dismissed'); });
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      const opened = megas.find(m => m.classList.contains('is-open') || (m.matches(':hover') && !m.classList.contains('is-dismissed')));
+      if (!opened) return;
+      event.preventDefault();
+      const restoreFocus = opened.contains(document.activeElement);
+      closeMegas();
+      if (restoreFocus) opened.querySelector<HTMLButtonElement>('.um-ops-mega__toggle')?.focus();
     });
     document.addEventListener('click', (event) => {
       if (!megas.some((m) => m.contains(event.target as Node))) closeMegas();
@@ -1114,7 +1217,7 @@ const isActive = (href: string) => {
 
     const root = document.documentElement;
     const desktop = matchMedia('(min-width: 1111px)');
-    const focusables = () => [menuToggle, ...mobileMenu.querySelectorAll<HTMLElement>('a[href], button')];
+    const focusables = () => [menuToggle, ...mobileMenu.querySelectorAll<HTMLElement>('a[href], button')].filter(el => el.getClientRects().length > 0);
     // Todo lo que no es la cabecera ni el menú queda inerte mientras el menú está abierto.
     const outside = () => [...document.body.children].filter((el) => el !== header && el !== mobileMenu && el.tagName !== 'SCRIPT') as HTMLElement[];
 
@@ -1141,6 +1244,19 @@ const isActive = (href: string) => {
       if (restoreFocus) menuToggle.focus();
     };
 
+    mobileMenu.querySelectorAll<HTMLButtonElement>('[data-mobile-group-toggle]').forEach(button => {
+      button.addEventListener('click', () => {
+        const target = document.getElementById(button.getAttribute('aria-controls') || '');
+        if (!target) return;
+        const open = button.getAttribute('aria-expanded') !== 'true';
+        mobileMenu.querySelectorAll<HTMLButtonElement>('[data-mobile-group-toggle]').forEach(other => {
+          other.setAttribute('aria-expanded', 'false');
+          document.getElementById(other.getAttribute('aria-controls') || '')?.setAttribute('hidden', '');
+        });
+        button.setAttribute('aria-expanded', String(open));
+        target.toggleAttribute('hidden', !open);
+      });
+    });
     menuToggle.addEventListener('click', () => (isOpen() ? closeMenu() : openMenu()));
     mobileMenu.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => closeMenu()));
     document.addEventListener('keydown', (event) => {

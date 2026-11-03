@@ -21,7 +21,7 @@ const STRINGS: Record<ShellLang, ShellStrings> = {
   es: {
     nav: { home: 'Inicio', services: 'Servicios', sectors: 'Sectores', projects: 'Antecedentes', blog: 'Blog', more: 'Más', contact: 'Contactar' },
     megaServices: { kicker: 'Ocho frentes de servicio', lead: 'Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria.', all: 'Ver los ocho servicios', open: 'Abrir servicios' },
-    megaSectors: { kicker: 'Nueve sectores', lead: 'Entrá por su sector y revisá casos comparables antes de contratar. El número es la cantidad de casos documentados.', all: 'Ver todos los sectores', open: 'Abrir sectores' },
+    megaSectors: { kicker: 'Nueve sectores', lead: 'Explorá el alcance de cada sector, sus servicios y los proyectos documentados.', all: 'Ver todos los sectores', open: 'Abrir sectores' },
     mobile: { more: 'Más', hours: 'Lunes a viernes, 8 a 18 h · Mendoza', open: 'Abrir menú', close: 'Cerrar menú' },
     tabs: { home: 'Inicio', services: 'Servicios', projects: 'Proyectos', contact: 'Contacto', aria: 'Navegación rápida' },
     footer: { privacy: 'Privacidad', terms: 'Términos', rights: 'Todos los derechos reservados.' },
@@ -32,7 +32,7 @@ const STRINGS: Record<ShellLang, ShellStrings> = {
   en: {
     nav: { home: 'Home', services: 'Services', sectors: 'Industries', projects: 'Projects', blog: 'Blog', more: 'More', contact: 'Contact' },
     megaServices: { kicker: 'Eight service lines', lead: 'One team surveys, installs, documents and supports every system, from the job site to daily operation.', all: 'See all eight services', open: 'Open services' },
-    megaSectors: { kicker: 'Nine industries', lead: 'Enter through your industry and review comparable projects before contracting. The number is the count of documented projects.', all: 'See all industries', open: 'Open industries' },
+    megaSectors: { kicker: 'Nine industries', lead: 'Explore each industry’s scope, services and documented projects.', all: 'See all industries', open: 'Open industries' },
     mobile: { more: 'More', hours: 'Monday to Friday, 8 am to 6 pm · Mendoza, Argentina', open: 'Open menu', close: 'Close menu' },
     tabs: { home: 'Home', services: 'Services', projects: 'Cases', contact: 'Contact', aria: 'Quick navigation' },
     footer: { privacy: 'Privacy', terms: 'Terms', rights: 'All rights reserved.' },

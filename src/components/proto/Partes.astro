@@ -1,0 +1,27 @@
+---
+/**
+ * Lo instalado, fila por fila: la miniatura de la parte (una pieza sola, del sprite
+ * /cine/iso/partes.svg), el nombre, el servicio y en cuántos proyectos aparece. Nunca varias
+ * piezas en una misma escena: juntas se leían como un pesebre. `data-code` deja que la ficha
+ * encienda el recorrido del servicio al pasar.
+ */
+import Parte from './Parte.astro';
+import type { ParteKey } from './despiece';
+interface Props { items: { key: ParteKey; label: string; meta?: string; n?: string; code?: string }[]; interactivo?: boolean; illustrated?: boolean }
+const { items, interactivo = false, illustrated = true } = Astro.props;
+---
+<ol class:list={['partes', { 'partes--text': !illustrated }]} data-partes={interactivo ? '' : undefined}>
+  {items.map((p) => <li data-code={p.code}>{interactivo ? <button type="button" class="parte-control" data-diagram-code={p.code} data-name={p.meta || p.label} aria-label={`Ver ${[p.label, p.meta, p.n].filter(Boolean).join(' ')} en el esquema`} aria-pressed="false">
+    {illustrated && <Parte k={p.key} size={72} />}<b>{p.label}</b>{p.meta && <span class="small">{p.meta}</span>}{p.n && <span class="n">{p.n}</span>}
+  </button> : <>{illustrated && <Parte k={p.key} size={72} />}<b>{p.label}</b>{p.meta && <span class="small">{p.meta}</span>}{p.n && <span class="n">{p.n}</span>}</>}</li>)}
+</ol>
+
+<style>
+  .parte-control { display: grid; grid-column: 1 / -1; grid-template-columns: 72px minmax(0, 1fr) auto; grid-template-rows: auto auto; gap: 0 16px; align-items: center; width: 100%; min-height: 72px; text-align: left; color: inherit; }
+  .parte-control:focus-visible { outline: 2px solid var(--red); outline-offset: 4px; }
+  @media (max-width: 900px) { .parte-control { grid-template-columns: 84px minmax(0, 1fr) auto; grid-template-rows: auto auto auto; } }
+  .partes--text li { grid-template-columns: minmax(0, 1fr) auto; padding-block: 18px; }
+  .partes--text b, .partes--text .small { grid-column: 1; }
+  .partes--text .n { grid-column: 2; }
+  @media (max-width: 900px) { .partes--text .n { grid-column: 1; } }
+</style>

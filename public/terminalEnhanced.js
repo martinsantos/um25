@@ -415,7 +415,7 @@ class EnhancedTerminal {
         const demoCommands = [
             'Iniciando demostración completa de ULTIMA MILLA...',
             'Cargando información empresarial...',
-            '✅ 22 años de experiencia verificados',
+            '✅ 24 años de experiencia verificados',
             '✅ 469+ proyectos completados exitosamente', 
             '✅ 150+ clientes satisfechos',
             '✅ Equipo de 15+ profesionales especializados',
@@ -634,7 +634,7 @@ Clientes activos: 150+ | Seguimiento post-implementación
 📊 ESTADÍSTICAS ULTIMA MILLA (2024)
 
 🏢 EMPRESA:
-   • Fundada: 2002 (22 años)
+   • Fundada: 2002 (24 años)
    • Ubicación: Mendoza, Argentina
    • Equipo: 15+ profesionales
 

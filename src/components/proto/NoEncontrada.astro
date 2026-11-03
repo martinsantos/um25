@@ -1,0 +1,36 @@
+---
+/**
+ * La página que no existe, en el sistema de la propuesta (2026-11-01): para cualquier ruta bajo
+ * /propuesta que no resuelva, incluidas las fichas con un id que no está en el catálogo. Dice lo
+ * que pasó y ofrece los cuatro lugares desde donde se llega a todo. La usa src/pages/404.astro.
+ */
+import '../../styles/proto-despiece.css';
+import Head from './Head.astro';
+import Top from './Top.astro';
+import Cierre from './Cierre.astro';
+const en = Astro.url.pathname.replace(/^\/propuesta/, '').startsWith('/en');
+const t = en
+  ? { title: 'Page not found · ULTIMA MILLA', h1: 'This page does not exist', p: 'The address changed or the page was never published. Everything on the site is reachable from these four places.', links: [['/en', 'Home'], ['/en/services', 'Services'], ['/antecedentes', 'Projects (Spanish)'], ['/en/contact', 'Contact']] }
+  : { title: 'Página no encontrada · ULTIMA MILLA', h1: 'Esta página no existe', p: 'La dirección cambió o la página nunca se publicó. Podés continuar desde estos accesos.', links: [['/antecedentes', 'Ver proyectos'], ['/servicios', 'Servicios'], ['/sectores', 'Sectores'], ['/contacto', 'Contacto']] };
+---
+<!doctype html>
+<html lang={en ? 'en' : 'es'}>
+  <head>
+    <Head title={t.title} description={t.p} lang={en ? 'en' : 'es'} />
+    <style>
+      .noexiste { padding-block: var(--s6) var(--s7, var(--s6)); min-height: 50vh; display: grid; align-content: start; gap: var(--s3); }
+      .noexiste p { max-width: 52ch; color: var(--ink-2); font-size: 1.125rem; }
+      .noexiste ul { list-style: none; margin: var(--s2) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px 28px; }
+      .noexiste a { border-bottom: 2px solid var(--red); padding-bottom: 2px; font-weight: 500; }
+    </style>
+  </head>
+  <body>
+    <Top lang={en ? 'en' : 'es'} />
+    <main id="contenido" class="wrap noexiste">
+      <h1>{t.h1}<span class="dot">.</span></h1>
+      <p>{t.p}</p>
+      <ul>{t.links.map(([href, label]) => <li><a href={href}>{label}</a></li>)}</ul>
+    </main>
+    <Cierre lang={en ? 'en' : 'es'} />
+  </body>
+</html>
