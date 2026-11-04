@@ -148,7 +148,7 @@ const areaLabel = (area: unknown) => {
         <p>{sectorSummary}</p>
         <a class="sector26-context__cta" href="/contacto">Pedir un relevamiento</a>
       </div>
-      <img src={sectorImage || '/images/editorial/umsa-sector-seguridad-electronica.webp'} alt="" width="1672" height="941" fetchpriority="high" decoding="async" />
+      <img srcset={srcsetDe(sectorImage)} sizes="(max-width: 900px) 100vw, 55vw" src={sectorImage || '/images/editorial/umsa-sector-seguridad-electronica.webp'} alt="" width="1672" height="941" fetchpriority="high" decoding="async" />
     </section>
   ) : <CineBanner
     variant="sector"

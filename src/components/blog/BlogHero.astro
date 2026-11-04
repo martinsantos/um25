@@ -3,7 +3,7 @@
  * Artículo destacado del índice del blog (sistema oscuro --x-*).
  */
 import type { EntradaBlog } from '../../lib/directus';
-import { blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
+import { blogImageSrcset, blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
 import { getCategoryLabel, formatBlogDateLong, toIsoDate, normalizeInlineBlogMarkdown } from '../../utils/blogUtils';
 
 interface Props {
@@ -22,7 +22,7 @@ const excerpt = normalizeInlineBlogMarkdown(post.resumen);
 
 <article class="bfeat">
   <a class="bfeat__media" href={href} tabindex="-1" aria-hidden="true">
-    <img src={imgUrl} alt={imgAlt} width="1280" height="720" loading="eager" fetchpriority="high" decoding="async" />
+    <img src={imgUrl} srcset={blogImageSrcset(imgUrl)} sizes="(max-width: 720px) 100vw, 55vw" alt={imgAlt} width="1280" height="720" loading="eager" fetchpriority="high" decoding="async" />
   </a>
   <div class="bfeat__body">
     <p class="bfeat__kicker">Artículo destacado</p>

@@ -1,4 +1,4 @@
-import { blogImageUrl, blogPostImageUrl, DEFAULT_BLOG_COVER } from '../src/utils/blogHelpers';
+import { blogImageSrcset, blogPostImageAlt, blogImageUrl, blogPostImageUrl, DEFAULT_BLOG_COVER } from '../src/utils/blogHelpers';
 import imageMap from '../src/data/antecedentes-generated-image-map.json';
 
 describe('blog image helpers', () => {
@@ -17,6 +17,18 @@ describe('blog image helpers', () => {
     const image = blogPostImageUrl({ imagen_portada: 'https://www.ultimamilla.com.ar/images/antecedentes/generated/lote_039/3448-implementacion-de-redes-de-datos-y-fibra-optica-cliente-confidencial-5-principal.webp', slug: 'influxdb-3-en-cooperativas', categoria: 'empresa' } as any);
     expect(image).toBe(imageMap['3448']);
     expect(require('fs').existsSync(require('path').join(process.cwd(), 'public', image))).toBe(true);
+  });
+
+  test('repairs only the audited article and image; later CMS selections win', () => {
+    const slug = 'influxdb-3-en-cooperativas-medidores-tokens-y-copia';
+    const post = { slug, categoria: 'tecnico', titulo:'InfluxDB', imagen_portada:'/images/antecedentes/generated/lote_039/3448-principal.webp' } as any;
+    const reviewed = blogPostImageUrl(post);
+    expect(reviewed).toBe('/images/blog/editorial/telemetria-medidores-v1.webp');
+    expect(blogImageSrcset(reviewed)).toContain('480w');
+    expect(blogPostImageAlt(post)).toMatch(/medidor/i);
+    expect(blogPostImageUrl({ ...post, imagen_portada: reviewed })).toBe(reviewed);
+    expect(blogPostImageUrl({ ...post, imagen_portada: '/uploads/nueva-portada.jpg' })).toBe('/uploads/nueva-portada.jpg');
+    expect(blogPostImageAlt({ ...post, imagen_portada: '/uploads/nueva-portada.jpg', imagen_portada_alt:'Nuevo medidor' })).toBe('Nuevo medidor');
   });
 
   test.each(['https://images.unsplash.com/photo-1586281380349-6325315f36a2?w=1200&h=480&fit=crop&q=80', null, '', '/cine/iso/service-104.svg', '/cine/iso/site-bodega.svg', 'javascript:alert(1)', 'https://untrusted.example/cover.jpg'])('uses a packaged editorial cover when the assigned cover is absent or invalid: %s', imagen_portada => {

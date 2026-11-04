@@ -4,7 +4,7 @@ import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
-import { loadStories, services, SERVICE_PHOTO } from '../../../components/proto/isoData';
+import { loadStories, srcsetDe, services, SERVICE_PHOTO } from '../../../components/proto/isoData';
 import { getServicios } from '../../../lib/um26-directus';
 
 export const prerender = false;
@@ -61,7 +61,7 @@ const items = services.map((s) => { const full = catalogo.find((x) => String(x.c
         {items.map((s, i) => (
           <li class="fila">
             <a href={`/servicios/${s.code}`}>
-              <figure><img src={s.photo} alt="" width="1672" height="941" loading={i < 2 ? 'eager' : 'lazy'} decoding="async" /></figure>
+              <figure><img src={s.photo} srcset={srcsetDe(s.photo)} sizes="(max-width: 700px) 100vw, 38vw" alt="" width="1672" height="941" loading={i < 2 ? 'eager' : 'lazy'} decoding="async" /></figure>
               <div class="texto">
                 <h2>{s.name}<span class="dot">.</span></h2>
                 <span class="tag">{s.tagline}</span>
