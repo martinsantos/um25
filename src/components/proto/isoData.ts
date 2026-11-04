@@ -19,7 +19,7 @@ import completionJson from '../../data/propuesta/catalog-completions.json';
 import { nombreCliente, tituloProyecto, desambiguarTitulos, fechaDeTitulo } from './titulos';
 import sgiJson from '../../data/sgi/fechas.json';
 import extraJson from '../../data/propuesta/antecedentes-extra.json';
-import { servicePhotograph } from '../../data/photography';
+import { photoWidth, servicePhotograph } from '../../data/photography';
 import { verifiedCaseCorrection } from '../../utils/verifiedCaseCorrection';
 
 /** Lo que SGI sabe mejor que el catálogo web: cuándo empezó y cerró cada proyecto, y en qué estado está. Por id web; sin datos internos. */
@@ -175,8 +175,9 @@ export const SERVICE_PHOTO: Record<string, string> = { '101': '/images/editorial
 export const SECTOR_PHOTO: Record<string, string> = { software: `/cine/media/cine-${SOFTWARE_FILM}-poster.avif`, 'seguridad-electronica': '/images/editorial/umsa-sector-seguridad-electronica.webp', bodegas: '/images/editorial/umsa-sector-bodegas.webp', aeropuertos: '/images/editorial/umsa-sector-aeropuertos.webp', salud: '/images/editorial/umsa-sector-salud.webp', mineria: '/images/editorial/umsa-sector-mineria.webp', industria: '/images/editorial/umsa-sector-industria.webp', constructoras: '/images/editorial/umsa-sector-constructoras.webp', gobiernosectorpublico: '/images/editorial/umsa-sector-gobierno.webp', gobierno: '/images/editorial/umsa-sector-gobierno.webp' };
 /** Las variantes de ancho de una foto según su familia: de antecedente (1600 → 960 → 480) o editorial (1672 → 960 → 480, y AVIF a 960 y 1672 para la apertura). Sin familia, las tres son la misma y el ancho es 0. */
 export const variantes = (image: string) => {
-  if (/^\/images\/antecedentes\/generated\/.+-principal\.webp$/.test(image)) return { w480: image.replace(/-principal\.webp$/, '-principal-480.webp'), w960: image.replace(/-principal\.webp$/, '-principal-960.webp'), full: image, ancho: 1600, avif: '' };
-  if (/^\/images\/photography\/[a-f0-9]+\.webp$/.test(image)) return { w480: image.replace(/\.webp$/, '-480.webp'), w960: image.replace(/\.webp$/, '-960.webp'), full: image, ancho: 1200, avif: '' };
+  if (/^\/images\/antecedentes\/generated\/.+-principal\.webp$/.test(image)) return { w480: image.replace(/-principal\.webp$/, '-principal-480.webp'), w960: image.replace(/-principal\.webp$/, '-principal-960.webp'), full: image, ancho: image.endsWith('-editorial-20261104-principal.webp') ? 1536 : 1600, avif: '' };
+  if (image === '/images/software-comunidades/comunidad-rosario.jpg') return { w480: image.replace('.jpg', '-480.webp'), w960: image.replace('.jpg', '-960.webp'), full: image, ancho: 1800, avif: '' };
+  if (/^\/images\/photography\/[a-f0-9]+\.webp$/.test(image)) return { w480: image.replace(/\.webp$/, '-480.webp'), w960: image.replace(/\.webp$/, '-960.webp'), full: image, ancho: photoWidth(image), avif: '' };
   if (/^\/images\/editorial\/umsa-[a-z0-9-]+\.webp$/.test(image) && !/-(480|960)\.webp$/.test(image)) return { w480: image.replace(/\.webp$/, '-480.webp'), w960: image.replace(/\.webp$/, '-960.webp'), full: image, ancho: 1672, avif: `${image.replace(/\.webp$/, '-960.avif')} 960w, ${image.replace(/\.webp$/, '.avif')} 1672w` };
   return { w480: image, w960: image, full: image, ancho: 0, avif: '' };
 };

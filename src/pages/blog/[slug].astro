@@ -16,7 +16,7 @@ import {
 } from '../../utils/blogTopicMap';
 import { casesForTopics } from '../../utils/blogTopicCases';
 import { SERVICE_SUMMARIES } from '../../data/serviceSummaries';
-import { blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
+import { blogImageSrcset, blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
 import { addHeadingIds, getCategoryLabel, formatBlogDateLong, toIsoDate, extractFaqSchema, normalizeBlogLead } from '../../utils/blogUtils';
 import { isReplicaIdenticalCopy, resolveReplicaH1 } from '../../utils/replicaProdCopy';
 import { canonicalizeBlogSlug, canonicalizeInternalBlogLinks } from '../../utils/blogCanonicalLinks';
@@ -330,7 +330,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
     {imgUrl && (
       <figure class="bp-cover bp-shell">
         <img
-          src={imgUrl}
+          src={imgUrl} srcset={blogImageSrcset(imgUrl)} sizes="(max-width: 900px) 100vw, 960px"
           alt={imgAlt}
           width={coverSize.width}
           height={coverSize.height}

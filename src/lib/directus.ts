@@ -1,3 +1,4 @@
+import { getAntecedenteThumb } from './um26-data/images';
 import { BASE_POSTER, posterForAntecedente } from '../data/cine/posters';
 import { createDirectus, rest, readItems, readItem, staticToken } from '@directus/sdk';
 import type {
@@ -719,9 +720,7 @@ export function getDirectusImageFallback(imageId: string | null | undefined): st
 
 export function getGeneratedAntecedenteImageUrl(id: string | number | null | undefined): string {
   if (id === null || id === undefined || id === '') return '';
-  // Póster Blender del sector × servicio del antecedente: las imágenes por antecedente
-  // (mapa de lotes y archivos de Directus) eran generadas.
-  return posterForAntecedente(id);
+  return getAntecedenteThumb(id) || posterForAntecedente(id);
 }
 
 export function getAntecedenteImageUrl(

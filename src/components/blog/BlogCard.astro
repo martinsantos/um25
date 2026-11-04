@@ -4,7 +4,7 @@
  * Imagen 16:9, categoría, fecha, tiempo de lectura, título y bajada.
  */
 import type { EntradaBlog } from '../../lib/directus';
-import { blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
+import { blogImageSrcset, blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
 import { formatBlogDate, getCategoryLabel, normalizeInlineBlogMarkdown } from '../../utils/blogUtils';
 
 interface Props {
@@ -27,7 +27,7 @@ const Heading = headingLevel;
 <article class="bcard">
   <a class="bcard__media" href={href} tabindex="-1" aria-hidden="true">
     <img
-      src={imgUrl}
+      src={imgUrl} srcset={blogImageSrcset(imgUrl)} sizes="(max-width: 720px) 100vw, 32vw"
       alt={imgAlt}
       width="640"
       height="360"

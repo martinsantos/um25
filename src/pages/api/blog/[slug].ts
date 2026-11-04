@@ -1,9 +1,6 @@
 import type { APIRoute } from 'astro';
 import { normalizeBlogStatus, normalizePublicationDate } from '../../../utils/blogPublishing';
-import {
-  BLOG_COVER_DIVERSITY_LIMIT,
-  selectDiverseBlogCover,
-} from '../../../utils/blogCoverDiversity.js';
+import { normalizeBlogCoverUrl } from '../../../utils/blogCoverDiversity.js';
 import { checkBasicAuth } from '../../../utils/serverAuth';
 import { fetchWithTimeout, getFetchTimeoutMs } from '../../../utils/fetchWithTimeout';
 
@@ -31,26 +28,6 @@ async function findPost(slug: string): Promise<ExistingPost | null> {
   );
   const data = await res.json();
   return data.data?.[0] ?? null;
-}
-
-async function fetchBlogCoverCorpus(excludeSlug: string): Promise<Record<string, unknown>[]> {
-  const params = new URLSearchParams();
-  params.set('sort', '-fecha_publicacion');
-  params.set('limit', String(BLOG_COVER_DIVERSITY_LIMIT));
-  params.set('fields', 'id,slug,titulo,categoria,imagen_portada,fecha_publicacion,status');
-  params.set('filter[_and][0][status][_neq]', 'draft');
-  params.set('filter[_and][1][slug][_neq]', excludeSlug);
-
-  try {
-    const res = await fetchWithTimeout(`${DIRECTUS_URL}/items/blog_posts?${params.toString()}`, {
-      headers: { Authorization: `Bearer ${DIRECTUS_TOKEN}` },
-    }, DIRECTUS_TIMEOUT_MS);
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data.data) ? data.data : [];
-  } catch {
-    return [];
-  }
 }
 
 export const PUT: APIRoute = async ({ request, params }) => {
@@ -108,7 +85,6 @@ export const PUT: APIRoute = async ({ request, params }) => {
     resumen: body['resumen'],
     contenido: body['contenido'],
     categoria: (body['categoria'] as string) || 'noticias',
-    imagen_portada: (body['imagen_portada'] as string) ?? null,
     tags: Array.isArray(body['tags'])
       ? body['tags']
       : body['tags']
@@ -120,15 +96,10 @@ export const PUT: APIRoute = async ({ request, params }) => {
   };
   if (body['fecha_publicacion']) update['fecha_publicacion'] = publishedAt;
 
-  const coverCorpus = await fetchBlogCoverCorpus(slug);
-  update['imagen_portada'] = selectDiverseBlogCover({
-    slug,
-    titulo: String(update['titulo'] || existingPost.titulo || ''),
-    categoria: String(update['categoria'] || existingPost.categoria || 'noticias'),
-    imagen_portada: update['imagen_portada'] as string | null,
-    fecha_publicacion: publishedAt,
-    status: update['status'],
-  }, coverCorpus);
+  // Omitir el campo conserva la portada; null explícito la quita.
+  if (Object.prototype.hasOwnProperty.call(body, 'imagen_portada')) {
+    update['imagen_portada'] = normalizeBlogCoverUrl(body['imagen_portada']) || null;
+  }
 
   const res = await fetchWithTimeout(`${DIRECTUS_URL}/items/blog_posts/${existingPost.id}`, {
     method: 'PATCH',

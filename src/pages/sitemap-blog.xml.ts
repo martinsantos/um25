@@ -78,7 +78,8 @@ export const GET: APIRoute = async () => {
       const loc = canonicalUrl(`/blog/${post.slug}`);
       const lastmodSource = post.fecha_modificacion || post.fecha_publicacion;
       const lastmod = lastmodSource ? formatSitemapDate(lastmodSource) : '';
-      const imageUrl = publicImageUrl(blogPostImageUrl(post as any));
+      // El respaldo por enlaces puede carecer de portada: no anunciar una foto genérica como asociada.
+      const imageUrl = 'imagen_portada' in post ? publicImageUrl(blogPostImageUrl(post as any)) : '';
       const imageTag = imageUrl
         ? `
     <image:image>

@@ -24,7 +24,7 @@ const DIRECTUS_TOKEN = getDirectusToken();
 const PUBLIC_SITE_URL = allowPublicBlogFallback() ? SITE_URL : getPublicSiteUrl();
 const ENABLE_PUBLIC_BLOG_FALLBACK = allowPublicBlogFallback();
 
-const publicBlogIndexCache = new Map<string, { at: number; promise: Promise<string[]> }>();
+const publicBlogIndexCache = new Map<string, { at: number; promise: Promise<BlogSitemapEntry[]> }>();
 const publicBlogPostCache = new Map<string, { at: number; promise: Promise<EntradaBlog | null> }>();
 const PUBLIC_CACHE_TTL_MS = 10 * 60 * 1000;
 
@@ -153,7 +153,7 @@ function uniqueSlugsFromBlogHtml(html: string): string[] {
   return [...slugs];
 }
 
-async function fetchPublicBlogSlugs(categoria?: string): Promise<string[]> {
+async function fetchPublicBlogIndex(categoria?: string): Promise<BlogSitemapEntry[]> {
   if (!ENABLE_PUBLIC_BLOG_FALLBACK) return [];
 
   const cacheKey = categoria || 'all';
@@ -168,9 +168,14 @@ async function fetchPublicBlogSlugs(categoria?: string): Promise<string[]> {
         const response = await publicFetch(`${PUBLIC_SITE_URL}/sitemap-blog.xml`);
         if (response.ok) {
           const xml = await response.text();
-          const slugs = [...xml.matchAll(/<loc>https:\/\/www\.ultimamilla\.com\.ar\/blog\/([a-z0-9-]+)<\/loc>/g)]
-            .map((match) => match[1]!).filter(isCanonicalBlogSlug);
-          if (slugs.length) return [...new Set(slugs)];
+          const entries = new Map<string, BlogSitemapEntry>();
+          for (const [, block] of xml.matchAll(/<url>([\s\S]*?)<\/url>/g)) {
+            const slug = block?.match(/<loc>https:\/\/www\.ultimamilla\.com\.ar\/blog\/([a-z0-9-]+)<\/loc>/)?.[1];
+            if (!slug || !isCanonicalBlogSlug(slug)) continue;
+            const cover = block?.match(/<image:loc>([^<]+)<\/image:loc>/)?.[1];
+            entries.set(slug, { slug, titulo: slug, ...(cover ? { imagen_portada: decodeHtml(cover) } : {}) });
+          }
+          if (entries.size) return [...entries.values()];
         }
       } catch { /* Fall back to the visible paginated archive. */ }
     }
@@ -195,13 +200,17 @@ async function fetchPublicBlogSlugs(categoria?: string): Promise<string[]> {
       if (!hasNext && page > 1) break;
     }
 
-    return allSlugs;
+    return allSlugs.map((slug) => ({ slug, titulo: slug }));
   })();
 
   publicBlogIndexCache.set(cacheKey, { at: Date.now(), promise });
   // Un fallo no queda cacheado: el próximo request vuelve a intentar.
   promise.catch(() => publicBlogIndexCache.delete(cacheKey));
   return promise;
+}
+
+async function fetchPublicBlogSlugs(categoria?: string): Promise<string[]> {
+  return (await fetchPublicBlogIndex(categoria)).map((entry) => entry.slug);
 }
 
 async function fetchPublicBlogPost(slug: string): Promise<EntradaBlog | null> {
@@ -471,8 +480,8 @@ async function fetchBlogSitemapEntriesRaw(limit = 500): Promise<BlogSitemapEntry
     throw new Error('empty');
   } catch {
     try {
-      const slugs = await fetchPublicBlogSlugs();
-      if (slugs.length > 0) return slugs.map((slug) => ({ slug, titulo: slug }));
+      const entries = await fetchPublicBlogIndex();
+      if (entries.length > 0) return entries.slice(0, limit);
     } catch {
       // continuar con el fallback estático
     }

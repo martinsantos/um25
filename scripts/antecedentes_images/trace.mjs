@@ -9,6 +9,8 @@ const publicRoot = path.resolve(root, 'public');
 const map = JSON.parse(fs.readFileSync(path.join(root, 'src/data/antecedentes-generated-image-map.json'), 'utf8'));
 const photoFile = path.join(root, 'src/data/photography-manifest.json');
 const photos = fs.existsSync(photoFile) ? JSON.parse(fs.readFileSync(photoFile, 'utf8')) : { cases: {}, photos: {} };
+const reviewPath = 'scripts/antecedentes_images/reviews/20261104.json';
+const reviewed = JSON.parse(fs.readFileSync(path.join(root, reviewPath), 'utf8')).images;
 const issues = [];
 const hash = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 function publicFile(url) {
@@ -28,7 +30,17 @@ for (const [id, url] of Object.entries(map).sort((a,b) => Number(a[0])-Number(b[
   const revisionFile = path.join(root, 'work/antecedentes-images/revisiones', id, 'registro.json');
   const rawFile = path.join(root, 'work/antecedentes-images/revisiones', id, 'original.png');
   let revision = { status:'no_recuperada', record:null, raw:null, promptRecorded:false, errors:[] };
-  if (fs.existsSync(revisionFile)) {
+  const release = reviewed['caso-' + id];
+  if (release && release.files[0].url === url) {
+    const errors = [];
+    if (!release.model || !release.prompt || !release.alt || release.rawSha256 !== sizes[0].sha256) errors.push('No coincide el original publicado o su procedencia');
+    for (const item of sizes) {
+      const declared = release.files.find(x => x.url === item.url);
+      if (!item.exists || declared?.sha256 !== item.sha256) errors.push('Derivada no verificada: ' + item.url);
+    }
+    revision = { status:errors.length ? 'inconsistente' : 'verificada', record:reviewPath, raw:url, promptRecorded:Boolean(release.prompt), errors };
+    if (errors.length) issues.push({id, error:'Revisión editorial inconsistente', details:errors});
+  } else if (fs.existsSync(revisionFile)) {
     try {
       const record = JSON.parse(fs.readFileSync(revisionFile, 'utf8'));
       const errors = [];

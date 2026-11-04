@@ -10,7 +10,7 @@ export const SERVICE_NAV_MEDIA: Record<string, string> = {
   '103': editorial('service-telecomunicaciones'),
   '104': `/cine/media/cine-${SOFTWARE_FILM}-poster.avif`,
   '105': servicePhotograph('105').replace(/\.webp$/, '-480.webp') || editorial('service-soporte-247'),
-  '106': '/images/software-comunidades/comunidad-rosario.jpg',
+  '106': '/images/software-comunidades/comunidad-rosario-480.webp',
   '107': editorial('service-deteccion-incendios'),
   '108': editorial('service-electricos-it'),
 };

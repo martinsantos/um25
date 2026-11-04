@@ -50,6 +50,24 @@ describe('fetchBlogListing', () => {
     expect(post.titulo).toBe('Nota técnica');
   });
 
+  test('sitemap fallback keeps a cover with its own note and excludes category links', async () => {
+    jest.doMock('../src/config/runtime', () => ({
+      allowPublicBlogFallback: () => true, allowMockBlogFallback: () => false,
+      getPublicSiteUrl: () => 'https://www.ultimamilla.com.ar',
+      getDirectusInternalUrl: () => 'https://directus.test', getDirectusToken: () => '',
+    }));
+    const host = 'https://www.ultimamilla.com.ar';
+    const xml = '<urlset><url><loc>'+host+'/blog/categoria/tecnico</loc></url>'+
+      '<url><loc>'+host+'/blog/primera-nota</loc><image:image><image:loc>https://images.unsplash.com/photo-a?x=1&amp;y=2</image:loc></image:image></url>'+
+      '<url><loc>'+host+'/blog/segunda-nota</loc></url></urlset>';
+    global.fetch = jest.fn(async (url) => url.startsWith('https://directus.test') ? {ok:false,status:403} : {ok:true,text:async()=>xml});
+    const { fetchBlogSitemapEntries } = require('../src/utils/getBlogData');
+    expect(await fetchBlogSitemapEntries()).toEqual([
+      {slug:'primera-nota',titulo:'primera-nota',imagen_portada:'https://images.unsplash.com/photo-a?x=1&y=2'},
+      {slug:'segunda-nota',titulo:'segunda-nota'},
+    ]);
+  });
+
   test('public category fallback excludes topic navigation and other nested blog routes', async () => {
     jest.doMock('../src/config/runtime', () => ({
       allowMockBlogFallback: () => false,
