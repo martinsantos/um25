@@ -7,6 +7,7 @@ import Apertura from '../../../components/proto/Apertura.astro';
 import TrustStrip from '../../../components/um/TrustStrip.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import { loadStories, isoSrc, filmOf } from '../../../components/proto/isoData';
+import { yearsOfExperience } from '../../../config/publicFacts';
 export const prerender = false;
 const { total } = await loadStories();
 ---
@@ -26,7 +27,7 @@ const { total } = await loadStories();
     <section class="sec"><div class="wrap cols cols-5-7">
       <h2>Evidence<span class="dot">.</span></h2>
       <div class="prosa">
-        <p class="lead">{total} documented projects in catalog. 24+ years operating infrastructure. 24/7 support for critical environments.</p>
+        <p class="lead">{total} documented projects in catalog. {yearsOfExperience()} years operating infrastructure. 24/7 support for critical environments.</p>
         <p>Detailed service and project pages are available in Spanish. <a class="u" href="/">Versión en español</a></p>
       </div>
     </div></section>

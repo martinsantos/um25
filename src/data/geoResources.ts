@@ -1,3 +1,4 @@
+import { PUBLIC_CONTENT_REVIEWED } from '../config/publicFacts';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '../config/seo';
 import { generateSlug } from '../utils/slugUtils.js';
 import { canonicalUrl } from '../utils/seoUrl';
@@ -33,6 +34,7 @@ interface SnapshotService {
 }
 
 interface GeoCaseInput {
+  canonicalPath?: string;
   id: number;
   Titulo: string;
   Descripcion?: string;
@@ -45,7 +47,7 @@ const snapshotData = <T>(snapshot: Snapshot<T>): T[] => (
   Array.isArray(snapshot) ? snapshot : snapshot.data || []
 );
 
-export const geoVersion = '2026-07-10';
+export const geoVersion = PUBLIC_CONTENT_REVIEWED;
 
 export const geoHubRoutes = Object.values(geoCommercialHubs).map((hub) => ({
   slug: hub.slug,
@@ -65,13 +67,12 @@ export const geoHubRoutes = Object.values(geoCommercialHubs).map((hub) => ({
 export const geoServiceResources = snapshotData<SnapshotService>(serviciosSnapshot as Snapshot<SnapshotService>)
   .map((service) => {
     const visual = serviceVisualSystem[Number(service.id)];
-    const slug = service.slug || generateSlug(service.Titulo);
 
     return {
       id: service.id,
       name: visual?.shortName || service.Titulo,
       canonicalName: service.Titulo,
-      url: canonicalUrl(`/servicios/${service.id}/${slug}`),
+      url: canonicalUrl(`/servicios/${service.id}`),
       summary: visual?.proof || service.Descripcion || '',
       category: visual?.eyebrow || 'Servicios IT integrales',
       signal: visual?.signal,
@@ -86,7 +87,7 @@ export const geoSectorResources = sectorVisualOrder.map((slug) => {
   return {
     slug,
     name: sector.label,
-    url: canonicalUrl(`/${slug}`),
+    url: canonicalUrl(['software', 'seguridad-electronica'].includes(slug) ? `/${slug}` : `/sectores/${slug}`),
     headline: sector.headline,
     summary: sector.summary,
     proof: sector.proof,
@@ -111,7 +112,7 @@ export function buildGeoCaseResourcesFromAntecedentes(items: GeoCaseInput[]) {
     title: item.displayTitle,
     client: item.Cliente || null,
     sector: item.Area || 'Servicios IT',
-    url: canonicalUrl(item.canonicalPath || `/antecedentes/${item.id}/${generateSlug(item.Titulo)}`),
+    url: canonicalUrl(items.find(source => source.id === item.id)?.canonicalPath || item.canonicalPath || `/antecedentes/${item.id}/${generateSlug(item.Titulo)}`),
     summary: item.displayDescription || '',
     date: item.Fecha || null,
     quality: item.curation.quality,
@@ -121,9 +122,12 @@ export function buildGeoCaseResourcesFromAntecedentes(items: GeoCaseInput[]) {
 }
 
 export async function getGeoCaseResources() {
-  const { getAllAntecedentes } = await import('../lib/directus');
-  const antecedentes = await getAllAntecedentes();
-  return buildGeoCaseResourcesFromAntecedentes(antecedentes as GeoCaseInput[]);
+  const { loadStories } = await import('../components/proto/isoData');
+  const { stories } = await loadStories();
+  return buildGeoCaseResourcesFromAntecedentes(stories.map(story => ({
+    id: story.id, Titulo: story.title, Descripcion: story.summary, Cliente: story.client,
+    Area: story.sector || '', Fecha: story.inicio || `${story.year}-01-01`, canonicalPath: story.href,
+  })));
 }
 
 export const geoCaseResources: ReturnType<typeof buildGeoCaseResourcesFromAntecedentes> = [];
@@ -171,6 +175,13 @@ export function buildGeoImageEvidenceResource(
 export async function buildGeoResourceAsync(resource: string) {
   if (resource === 'cases') {
     return buildGeoCasesResource(await getGeoCaseResources());
+  }
+
+  if (resource === 'blog-index') {
+    const { fetchBlogSitemapEntries } = await import('../utils/getBlogData');
+    const posts = await fetchBlogSitemapEntries();
+    const payload = buildGeoResource('blog-index') as { blog: Record<string, unknown> };
+    return { ...payload, blog: { ...payload.blog, posts: posts.length, lastUpdated: posts.map(post => post.fecha_modificacion || post.fecha_publicacion || '').sort().at(-1) || null, classifiedPosts: getBlogTopicEntries().length } };
   }
 
   if (resource === 'image-evidence') {

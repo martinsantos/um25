@@ -14,12 +14,14 @@ import { AI_CRAWLERS } from '../data/geoKnowledge';
  * public/robots.txt tiene prioridad sobre esta ruta al servir estáticos:
  * mantener ambos con el mismo contenido.
  */
-const disallowRules = `Disallow: /admin/
+const disallowRules = `Disallow: /downloads/plantillas-um-sans/
+Disallow: /admin/
 Disallow: /api/
 Disallow: /estilo
 Disallow: /_`;
 
 const allowRules = `Allow: /
+Allow: /_astro/
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/*.json`;

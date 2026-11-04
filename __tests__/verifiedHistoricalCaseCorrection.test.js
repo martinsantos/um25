@@ -3,7 +3,7 @@ const { verifiedCaseCorrection } = require('../src/utils/verifiedCaseCorrection.
 const { entries } = require('../src/data/propuesta/historical-corrections.json');
 
 test('las correcciones corresponden a registros con evidencia histórica coincidente', () => {
-  expect(entries).toHaveLength(49);
+  expect(entries).toHaveLength(58);
   expect(new Set(entries.map((x) => x.id)).size).toBe(entries.length);
   for (const item of entries) {
     const current = { id: item.id, ...item.match };

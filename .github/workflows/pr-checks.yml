@@ -69,6 +69,9 @@ jobs:
         env:
           NODE_ENV: production
 
+      - name: SEO and GEO contract on built SSR
+        run: npm run seo:ci
+
       - name: Check build size
         run: |
           BUILD_SIZE=$(du -sh dist | cut -f1)

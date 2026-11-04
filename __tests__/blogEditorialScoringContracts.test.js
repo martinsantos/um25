@@ -58,7 +58,7 @@ describe('Blog editorial GEO scoring contracts', () => {
     // (misma fuente que el blog renderizado), que diversifica portadas tanto con
     // Directus como en el fallback estático.
     const blogData = source('src/utils/getBlogData.ts');
-    const sitemapEntries = blogData.slice(blogData.indexOf('export async function fetchBlogSitemapEntries'));
+    const sitemapEntries = blogData.slice(blogData.indexOf('async function fetchBlogSitemapEntriesRaw'));
     expect(source('src/pages/sitemap-blog.xml.ts')).toContain('(await fetchBlogSitemapEntries()) as BlogPost[];');
     expect(sitemapEntries).toContain('if (posts.length > 0) return preserveBlogPostCovers(posts) as BlogSitemapEntry[];');
     expect(sitemapEntries).toContain('return preserveBlogPostCovers(UM26_FALLBACK_POSTS');

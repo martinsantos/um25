@@ -15,6 +15,7 @@ import { catalogImageLabel } from '../../../../components/proto/catalogEditorial
 import CasoEnDetalle from '../../../../components/proto/CasoEnDetalle.astro';
 import { publicCaseFor, samePublicClient, caseEquipmentFor } from '../../../../components/proto/casePresentation';
 
+import { buildCaseSeoMeta, trimAtWordBoundary } from '../../../../utils/seoMetaPolicy';
 export const prerender = false;
 const id = Number(Astro.params.id);
 const { stories } = await loadStories();
@@ -42,12 +43,15 @@ const contextualLabel = catalogImageLabel(c.id)
 const imageSet = variantes(c.image);
 const scope = caseEquipmentFor(c);
 const ref = `UM-${c.id}`;
+const introduction = caseDetail?.introduction || c.summary || `Registro ${ref} del archivo de ULTIMA MILLA${when ? `, correspondiente a ${when}` : ''}. ${svcs.length ? `Servicios vinculados: ${svcs.map(s => s.name).join(', ')}.` : 'El alcance disponible se conserva con la referencia original del proyecto.'}`;
+const caseSeo = buildCaseSeoMeta({ title: pageTitle, description: caseDetail?.introduction || c.summary, client: c.client, area: c.sector, date: String(c.year), identifier: c.id });
+const seoTitle = caseSeo.title.includes(ref) ? caseSeo.title : `${trimAtWordBoundary(caseSeo.title, 60 - ref.length - 3)} · ${ref}`;
 
 ---
 <!doctype html>
 <html lang="es">
   <head>
-    <Head title={`${pageTitle} · ${c.client} · ULTIMA MILLA`} description={caseDetail?.introduction || c.summary || [c.client, c.sector, periodo].filter(Boolean).join(' · ')} image={c.image} precargar />
+    <Head title={seoTitle} description={caseSeo.description} image={c.image} precargar />
     <style>
       .nav { display: flex; justify-content: space-between; gap: 16px; padding: var(--s3) 0 0; color: var(--ink-3); font-size: 1rem; }
       .nav a:hover { color: var(--ink); }
@@ -108,10 +112,10 @@ const ref = `UM-${c.id}`;
         <div class="datos">
           <h1>{pageTitle}<span class="dot">.</span></h1>
           <div class="quien">{c.client}{when && <span><span class="quien-separator" aria-hidden="true"> · </span>{when}</span>}</div>
-          {(caseDetail?.introduction || c.summary) && <p class="resumen">{caseDetail?.introduction || c.summary}</p>}
+          <p class="resumen">{introduction}</p>
         </div>
         <dl class="tabla">
-            {c.sector && <div><dt>Sector</dt><dd><a href={`/sectores/${c.sectorSlug}`}>{c.sector}</a></dd></div>}
+            <div><dt>Sector</dt><dd>{c.sector ? <a href={`/sectores/${c.sectorSlug}`}>{c.sector}</a> : 'No publicado'}</dd></div>
             {when && <div><dt>{cierre ? 'Inicio' : 'Fecha'}</dt><dd>{when}</dd></div>}
             {cierre && <div><dt>{enCurso ? 'Cierre previsto' : 'Cierre'}</dt><dd>{cierre}</dd></div>}
             <div><dt>Referencia</dt><dd>{ref}</dd></div>
@@ -121,12 +125,12 @@ const ref = `UM-${c.id}`;
 
     </div>
     {caseDetail && <CasoEnDetalle caso={caseDetail} original={c.summary} />}
-    {scope.partes.length > 0 && <section class="sec">
+    <section class="sec">
       <div class="wrap">
-        <div class="sec__head"><h2>{scope.origen === 'servicio' ? 'Capacidades de los servicios vinculados' : 'Alcance documentado del proyecto'}<span class="dot">.</span></h2></div>
-        <FichaIso story={c} />
+        <div class="sec__head"><h2>{!scope.partes.length ? 'Información disponible del proyecto' : scope.origen === 'servicio' ? 'Capacidades de los servicios vinculados' : 'Alcance documentado del proyecto'}<span class="dot">.</span></h2></div>
+        {scope.partes.length > 0 ? <FichaIso story={c} /> : <div class="reading"><p>{c.summary || pageTitle}</p><p>El archivo público no especifica equipos, cantidades ni entregables adicionales para esta referencia. Para ampliar la información disponible, consultanos por {ref}.</p><a class="line-link" href={`/contacto?antecedente=${c.id}`}>Consultar por este antecedente →</a></div>}
       </div>
-    </section>}
+    </section>
 
 
     {sameClient.length > 0 && (

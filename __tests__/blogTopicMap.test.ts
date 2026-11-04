@@ -1,3 +1,4 @@
+import { isCanonicalBlogSlug } from '../src/data/seoRedirects';
 import {
   TOPIC_SECTORS,
   TOPIC_SERVICES,
@@ -22,7 +23,7 @@ describe('taxonomía temática', () => {
   it('cubre los ocho servicios 101–108 con páginas canónicas', () => {
     expect(TOPIC_SERVICES.map((cluster) => cluster.key)).toEqual(['101', '102', '103', '104', '105', '106', '107', '108']);
     TOPIC_SERVICES.forEach((cluster) => {
-      expect(cluster.href).toMatch(new RegExp(`^/servicios/${cluster.key}/[a-z0-9-]+$`));
+      expect(cluster.href).toMatch(new RegExp(`^/servicios/${cluster.key}$`));
       expect(cluster.hubSlug).toMatch(/^[a-z0-9-]+$/);
     });
   });
@@ -79,7 +80,7 @@ describe('mapa temático generado', () => {
   it('tiene el corpus del blog completo y sin slugs repetidos', () => {
     expect(entries.length).toBeGreaterThan(300);
     expect(new Set(entries.map((entry) => entry.slug)).size).toBe(entries.length);
-    expect((topicMapFile as any).stats.posts).toBe(entries.length);
+    expect((topicMapFile as any).posts.filter((entry: { slug: string }) => isCanonicalBlogSlug(entry.slug)).length).toBe(entries.length);
   });
 
   it('sólo referencia clusters existentes, con evidencia y relevancia 0–100', () => {
@@ -184,9 +185,9 @@ describe('enlaces contextuales en el cuerpo', () => {
     const { html: out, links } = addContextualTopicLinks(html, topics, 2);
     expect(links).toHaveLength(2);
     expect(out).toContain('<h2>Cableado estructurado</h2>');
-    expect(out.match(/servicios\/101\//g)).toHaveLength(1);
-    expect(out).toContain('El <a href="/servicios/101/');
-    expect(out).toContain('La <a href="/servicios/105/');
+    expect(out.match(/href="\/servicios\/101"/g)).toHaveLength(1);
+    expect(out).toContain('El <a href="/servicios/101"');
+    expect(out).toContain('La <a href="/servicios/105"');
     expect(links.map((link) => link.anchor)).toEqual(['cableado estructurado', 'mesa de ayuda']);
   });
 

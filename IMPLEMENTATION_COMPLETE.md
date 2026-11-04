@@ -1,3 +1,5 @@
+> **Operación vigente — 2026-11-04:** consultar [OPERACION_UMSA_HOSTINGER.md](./OPERACION_UMSA_HOSTINGER.md). Las referencias siguientes a `23.105.176.45`, PM2, Docker y despliegues manuales describen el origen histórico y no son instrucciones ejecutables para producción. Sólo GitFlow y GitHub Actions publican en Hostinger.
+
 # ✅ IMPLEMENTACIÓN COMPLETA - ULTIMA MILLA WEB PROJECT
 
 **Fecha de Finalización**: 2025-11-28

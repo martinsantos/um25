@@ -101,7 +101,9 @@ function cantidad(texto: string, inicio: number, fin: number): number | undefine
 
 /** El despiece de un registro a partir de su título, su descripción y sus servicios. */
 export function despieceDe(titulo: string, descripcion: string, serviceCodes: string[]): Despiece {
-  const texto = llano(`${titulo}. ${descripcion}`).replace(PLANTILLA, ' ')
+  // A generated category title must not invent software scope over a concrete record.
+  const title = /^desarrollo de software y digitalizacion de procesos\b/.test(llano(titulo)) && descripcion.trim() ? '' : titulo;
+  const texto = llano(`${title}. ${descripcion}`).replace(/ups para (?:el )?data center y (?:los )?puestos de datos/g, 'ups').replace(PLANTILLA, ' ')
     .replace(/\bsolucion implementada por el equipo de ingenieria de ultima milla\b/g, ' ');
   const vistas = new Map<string, Parte>();
   for (const regla of REGLAS) {
