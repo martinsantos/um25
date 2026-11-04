@@ -1,3 +1,4 @@
+import { publicCaseRecord } from './publicCaseRecord';
 /**
  * Antecedentes reales por cluster temático (snapshot del CMS) y resumen por
  * cluster para GEO. Separado de blogTopicMap.ts para que las rutas que sólo
@@ -52,7 +53,7 @@ export function getTopicCaseIndex(): TopicCase[] {
   if (caseIndex) return caseIndex;
   const raw = antecedentesSnapshot as unknown as { data?: SnapshotCase[] } | SnapshotCase[];
   const records = Array.isArray(raw) ? raw : raw.data || [];
-  caseIndex = records
+  caseIndex = records.map(publicCaseRecord)
     .map((record) => {
       const curated = curateAntecedente(record as Record<string, any>);
       if (!curated.curation.isPromotable) return null;
@@ -64,7 +65,7 @@ export function getTopicCaseIndex(): TopicCase[] {
       });
       return {
         id: String(record.id),
-        href: curated.canonicalPath,
+        href: record.canonicalPath,
         title: curated.displayTitle,
         client: String(record.Cliente || '').trim(),
         area: String(record.Area || '').trim(),

@@ -1,40 +1,34 @@
 import type { APIRoute } from 'astro';
 import { SITE_URL } from '../config/seo';
-import { escapeXml, formatSitemapDate } from '../utils/seoUrl';
+import { escapeXml } from '../utils/seoUrl';
 
 function generateSitemapIndexXml(): string {
-    const today = formatSitemapDate();
     
     return `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <!-- Sitemap principal con páginas estáticas -->
     <sitemap>
         <loc>${escapeXml(`${SITE_URL}/sitemap.xml`)}</loc>
-        <lastmod>${today}</lastmod>
     </sitemap>
     
     <!-- Sitemap con todos los antecedentes publicados -->
     <sitemap>
         <loc>${escapeXml(`${SITE_URL}/sitemap-antecedentes.xml`)}</loc>
-        <lastmod>${today}</lastmod>
     </sitemap>
 
     <!-- Sitemap dedicado a imagenes de antecedentes generadas y aprobadas -->
     <sitemap>
         <loc>${escapeXml(`${SITE_URL}/sitemap-images.xml`)}</loc>
-        <lastmod>${today}</lastmod>
     </sitemap>
 
     <!-- Sitemap del blog (posts + categorías) -->
     <sitemap>
         <loc>${escapeXml(`${SITE_URL}/sitemap-blog.xml`)}</loc>
-        <lastmod>${today}</lastmod>
     </sitemap>
 
     <!-- Sitemap GEO/LLM con hubs comerciales, JSON de entidades y discovery -->
     <sitemap>
         <loc>${escapeXml(`${SITE_URL}/sitemap-geo.xml`)}</loc>
-        <lastmod>${today}</lastmod>
     </sitemap>
 </sitemapindex>`;
 }

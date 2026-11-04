@@ -1,3 +1,5 @@
+import { isCanonicalBlogSlug } from '../data/seoRedirects';
+import { correctBlogEditorial } from './blogEditorialCorrections';
 /**
  * Mapa temático del blog en runtime.
  *
@@ -38,7 +40,12 @@ interface TopicMapFile {
 }
 
 const topicMap = topicMapData as unknown as TopicMapFile;
-const entries: BlogTopicEntry[] = topicMap.posts || [];
+const entries: BlogTopicEntry[] = (topicMap.posts || []).filter(entry => isCanonicalBlogSlug(entry.slug)).map(entry => {
+  const corrected = correctBlogEditorial({ slug: entry.slug, titulo: entry.title, fecha_modificacion: entry.modified, contenido: '' });
+  const topics = corrected.contenido ? classifyTopicDocument({ title: corrected.titulo, body: corrected.contenido }) : null;
+  const refs = (items: Array<{ key: string; relevance: number; evidence: string[] }>) => items.map(({ key, relevance, evidence }) => ({ key, relevance, evidence: evidence.slice(0, 3) }));
+  return { ...entry, title: corrected.titulo, modified: corrected.fecha_modificacion || entry.modified, ...(topics ? { services: refs(topics.services), sectors: refs(topics.sectors) } : {}) };
+});
 const entryBySlug = new Map(entries.map((entry) => [entry.slug, entry]));
 
 export const blogTopicMapGeneratedAt = topicMap.generatedAt;
@@ -66,7 +73,7 @@ const bodyWithoutBlogLinks = (html = ''): string =>
 /** Entrada del mapa, o clasificación en el momento si la nota es posterior al mapa. */
 export function resolveBlogTopics(post: ClassifiablePost): BlogTopicEntry {
   const known = entryBySlug.get(post.slug);
-  if (known) return known;
+  if (known && (!post.fecha_modificacion || Date.parse(post.fecha_modificacion) <= Date.parse(known.modified || known.published))) return known;
   const topics = classifyTopicDocument({
     title: post.titulo,
     summary: post.resumen,

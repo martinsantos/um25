@@ -1,17 +1,59 @@
 ---
-/** Contact (English). Not indexable. */
+/** Contacto (2026-10-30): el formulario real (mismo contrato que /api/contact), los datos directos y qué conviene contar. No indexable. */
 import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
+import ContactForm from '../../../components/cine/ContactForm.astro';
+
 export const prerender = false;
+const checklist = ['Main service or affected system.', 'Site, city or number of locations.', 'Urgency, intervention window or tender deadline.', 'Operational concern: outage, security, audit, expansion or maintenance.'];
 ---
 <!doctype html>
 <html lang="en">
-  <head><Head lang="en" title="Contact our IT team in Mendoza · ULTIMA MILLA" description="Contact ULTIMA MILLA for IT proposals, technical assessments and vendor documentation. Our team in Mendoza responds by email; the enquiry form is in Spanish." /></head>
+  <head>
+    <Head lang="en" title="Contact our IT team in Mendoza · ULTIMA MILLA" description="Request an IT assessment, proposal, support agreement or technical documentation. Contact our team in Mendoza using the enquiry form in English." />
+    <style>
+      .contacto { padding-block: var(--s5) var(--s6); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--s5) clamp(28px, 4vw, 96px); align-items: start; }
+      .contacto__intro { grid-column: 1; grid-row: 1; }
+      .contacto__details { grid-column: 1; grid-row: 2; display: grid; gap: var(--s4); }
+      .contacto__form { grid-column: 2; grid-row: 1 / 3; }
+      .contacto__intro h1 { max-width: 16ch; font-size: clamp(2.125rem, 4vw, 3.625rem); }
+      .contacto__intro > p { color: var(--ink-2); font-size: 1.2rem; max-width: 44ch; }
+      .datos { display: grid; gap: var(--s3); }
+      .datos div { display: grid; gap: 4px; }
+      .datos span { color: var(--ink-3); font-size: 1rem; }
+      .datos b { font-weight: 600; font-size: 1.05rem; }
+      .datos a.mapa { color: var(--ink-2); font-size: 1rem; }
+      .datos a.mapa:hover { color: var(--ink); }
+      .que { display: grid; gap: 10px; }
+      .que h2 { font-size: 1.3rem; }
+      @media (max-width: 900px) { .contacto { grid-template-columns: 1fr; gap: var(--s4); } .contacto__intro, .contacto__form, .contacto__details { grid-column: 1; grid-row: auto; } }
+    </style>
+  </head>
   <body>
     <Top lang="en" />
-    <main id="contenido" class="wrap"><div class="cabecera" style="padding-bottom:var(--s6)"><h1>Contact<span class="dot">.</span></h1><p>For proposals, technical assessments or vendor qualification, use the Spanish contact form (same team, same SLA).</p><a class="btn" href="/contacto" style="width:max-content">Open contact form (Spanish) <span aria-hidden="true">→</span></a></div></main>
-    <Cierre lang="en" />
+    <main id="contenido" class="wrap contacto">
+      <div class="contacto__intro">
+          <h1>Tell us what needs to keep running<span class="dot">.</span></h1>
+          <p style="margin-top:var(--s2)">Tell us what you need, where and by when. A technician will reply by email with the next step: diagnosis, assessment, proposal or documentation.</p>
+      </div>
+      <div class="contacto__form" id="formulario"><ContactForm lang="en" /></div>
+      <div class="contacto__details">
+        <div class="datos">
+          <div><span>Email</span><b><a href="mailto:contacto@ultimamilla.com.ar?subject=Consulta%20desde%20la%20web%20ULTIMA%20MILLA">contacto@ultimamilla.com.ar</a></b></div>
+          <div><span>Office</span><b>Houssay 1159, Guaymallén, Mendoza</b><a class="mapa" href="https://www.google.com/maps/search/?api=1&query=Houssay%201159%20Guaymallen%20Mendoza" target="_blank" rel="noopener">View on map ↗</a></div>
+          <div><span>Hours</span><b>Monday to Friday, 8 am to 6 pm (Mendoza time)</b><span>24/7 assistance for customers with a support agreement.</span></div>
+        </div>
+        <div class="que">
+          <h2>What helps us respond quickly</h2>
+          <ul class="lista">{checklist.map((c) => <li>{c}</li>)}</ul>
+        </div>
+      </div>
+
+    </main>
+    <Cierre lang="en" withContact={false} />
+
+
   </body>
 </html>

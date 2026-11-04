@@ -3,8 +3,11 @@
  * No inventar ISO, certificaciones corporativas ni conteos distintos al catálogo publicado.
  */
 import antecedentesSnapshot from '../data/snapshots/antecedentes.json';
+import extraProjects from '../data/propuesta/antecedentes-extra.json';
+import { yearsOfExperience } from '../config/publicFacts';
 
 type SnapshotCase = {
+  id?: number | string;
   Cliente?: string;
   Titulo?: string;
   Area?: string;
@@ -23,7 +26,7 @@ function snapshotCases(): SnapshotCase[] {
 
 /** Total de registros en el snapshot publicado (alineado con Directus en build). */
 export function getAntecedentesCatalogCount(): number {
-  return snapshotCases().length;
+  return new Set([...snapshotCases().map((item) => String(item.id)), ...extraProjects.proyectos.map((item) => String(item.id))]).size;
 }
 
 /**
@@ -93,7 +96,7 @@ export function getTopClienteRecords(limit = 6): { name: string; count: number; 
 export function getInstitutionalProofLines(): string[] {
   return [
     getAntecedentesCountExactPhrase(),
-    '24+ años de trayectoria',
+    `${yearsOfExperience()} años de trayectoria`,
     '8 frentes de servicio',
     'Soporte y operación 24/7',
   ];

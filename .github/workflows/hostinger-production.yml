@@ -41,6 +41,7 @@ jobs:
           npm run audit:css
           npm run test:ci
           npm run build
+          npm run seo:ci
           python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_*.py' -q
           npm prune --omit=dev --ignore-scripts
           tar -czf "$RUNNER_TEMP/umsa-clean-web.tar.gz" dist node_modules package.json package-lock.json

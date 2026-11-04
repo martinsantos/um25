@@ -87,7 +87,7 @@ const blocks = [
       <header>
         <span class="cert-page__eyebrow">Centro de descargas</span>
         <h2 id="cert-downloads-title">Fichas técnicas por frente de servicio</h2>
-        <p>Alcance, normas de referencia, entregables, nivel de servicio y equipamiento típico de cada frente, en una hoja A4. Los valores se ajustan por sitio en el relevamiento.</p>
+        <p>Alcance, normas de referencia, entregables, nivel de servicio y equipamiento típico de cada frente, en formato A4. Los valores se ajustan por sitio en el relevamiento.</p>
       </header>
       <ol class="cert-page__files">
         {fichas.map((f) => (
@@ -99,7 +99,7 @@ const blocks = [
             </div>
             <div class="cert-page__file-actions">
               {f.pdf ? <a href={f.pdf} download>PDF <span aria-hidden="true">↓</span></a> : <a href={f.print} target="_blank" rel="noopener">Imprimible <span aria-hidden="true">↗</span></a>}
-              <a href={`${f.href}#ficha-tecnica`}>Ver en el servicio</a>
+              <a href={`${f.href.replace(/(\/servicios\/\d+)\/.*/, '$1')}#provision`}>Ver en el servicio</a>
             </div>
           </li>
         ))}

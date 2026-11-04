@@ -42,7 +42,7 @@ export const TOPIC_SERVICES: TopicCluster[] = [
     kind: 'service',
     key: '101',
     label: 'Redes e infraestructura',
-    href: '/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces',
+    href: '/servicios/101',
     hubSlug: 'redes-e-infraestructura',
     schemaName: 'Infraestructura de redes, cableado estructurado, fibra óptica y radioenlaces',
     terms: [
@@ -67,7 +67,7 @@ export const TOPIC_SERVICES: TopicCluster[] = [
     kind: 'service',
     key: '102',
     label: 'Seguridad electrónica',
-    href: '/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi',
+    href: '/servicios/102',
     hubSlug: 'seguridad-electronica-y-cctv',
     schemaName: 'Seguridad electrónica: CCTV, control de acceso e intrusión',
     terms: [
@@ -89,7 +89,7 @@ export const TOPIC_SERVICES: TopicCluster[] = [
     kind: 'service',
     key: '103',
     label: 'Telecomunicaciones',
-    href: '/servicios/103/telecomunicaciones-datos-voz-video',
+    href: '/servicios/103',
     hubSlug: 'telecomunicaciones',
     schemaName: 'Telecomunicaciones de datos, voz y video',
     terms: [
@@ -108,7 +108,7 @@ export const TOPIC_SERVICES: TopicCluster[] = [
     kind: 'service',
     key: '104',
     label: 'Software y automatización',
-    href: '/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp',
+    href: '/servicios/104',
     hubSlug: 'software-y-automatizacion',
     schemaName: 'Desarrollo de software a medida, web, mobile y ERP',
     terms: [
@@ -133,7 +133,7 @@ export const TOPIC_SERVICES: TopicCluster[] = [
     kind: 'service',
     key: '105',
     label: 'Soporte y operación IT',
-    href: '/servicios/105/soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it',
+    href: '/servicios/105',
     hubSlug: 'soporte-y-operacion-it',
     schemaName: 'Soporte técnico 24/7, mesa de ayuda y mantenimiento IT',
     terms: [
@@ -155,7 +155,7 @@ export const TOPIC_SERVICES: TopicCluster[] = [
     kind: 'service',
     key: '106',
     label: 'Consultoría y cumplimiento',
-    href: '/servicios/106/consultoria-it-y-transformacion-digital-arquitectura-auditoria',
+    href: '/servicios/106',
     hubSlug: 'consultoria-y-cumplimiento',
     schemaName: 'Consultoría IT, transformación digital, arquitectura y auditoría',
     terms: [
@@ -176,7 +176,7 @@ export const TOPIC_SERVICES: TopicCluster[] = [
     kind: 'service',
     key: '107',
     label: 'Detección de incendios',
-    href: '/servicios/107/sistemas-de-deteccion-y-alarma-de-incendios',
+    href: '/servicios/107',
     hubSlug: 'deteccion-de-incendios',
     schemaName: 'Sistemas de detección y alarma de incendios',
     terms: [
@@ -193,7 +193,7 @@ export const TOPIC_SERVICES: TopicCluster[] = [
     kind: 'service',
     key: '108',
     label: 'Energía para IT',
-    href: '/servicios/108/servicios-electricos-para-it',
+    href: '/servicios/108',
     hubSlug: 'energia-para-it',
     schemaName: 'Servicios eléctricos para IT: UPS, tableros y puesta a tierra',
     terms: [
@@ -214,7 +214,7 @@ export const TOPIC_SECTORS: TopicCluster[] = [
     kind: 'sector',
     key: 'aeropuertos',
     label: 'Aeropuertos',
-    href: '/aeropuertos',
+    href: '/sectores/aeropuertos',
     schemaName: 'Tecnología para aeropuertos',
     terms: [
       { t: 'aeropuerto', w: 3 }, { t: 'aeropuertos', w: 3 }, { t: 'aeroportuario', w: 3 },
@@ -229,7 +229,7 @@ export const TOPIC_SECTORS: TopicCluster[] = [
     kind: 'sector',
     key: 'bodegas',
     label: 'Bodegas',
-    href: '/bodegas',
+    href: '/sectores/bodegas',
     schemaName: 'Tecnología para bodegas y la industria vitivinícola',
     terms: [
       { t: 'bodega', w: 3 }, { t: 'bodegas', w: 3 }, { t: 'vitivinicola', w: 3 }, { t: 'vitivinicolas', w: 3 },
@@ -243,7 +243,7 @@ export const TOPIC_SECTORS: TopicCluster[] = [
     kind: 'sector',
     key: 'gobiernosectorpublico',
     label: 'Gobierno y sector público',
-    href: '/gobiernosectorpublico',
+    href: '/sectores/gobiernosectorpublico',
     schemaName: 'Tecnología para gobierno y sector público',
     terms: [
       { t: 'municipio', w: 3 }, { t: 'municipios', w: 3 }, { t: 'municipalidad', w: 3 },
@@ -259,7 +259,7 @@ export const TOPIC_SECTORS: TopicCluster[] = [
     kind: 'sector',
     key: 'salud',
     label: 'Salud',
-    href: '/salud',
+    href: '/sectores/salud',
     schemaName: 'Tecnología para salud',
     terms: [
       { t: 'hospital', w: 3 }, { t: 'hospitales', w: 3 }, { t: 'clinica', w: 3 }, { t: 'clinicas', w: 3 },
@@ -274,7 +274,7 @@ export const TOPIC_SECTORS: TopicCluster[] = [
     kind: 'sector',
     key: 'constructoras',
     label: 'Construcción',
-    href: '/constructoras',
+    href: '/sectores/constructoras',
     schemaName: 'Tecnología para constructoras',
     terms: [
       { t: 'constructora', w: 3 }, { t: 'constructoras', w: 3 }, { t: 'construccion', w: 2 },
@@ -288,7 +288,7 @@ export const TOPIC_SECTORS: TopicCluster[] = [
     kind: 'sector',
     key: 'industria',
     label: 'Industria',
-    href: '/industria',
+    href: '/sectores/industria',
     schemaName: 'Tecnología para la industria',
     terms: [
       { t: 'industria', w: 2 }, { t: 'industrial', w: 2 }, { t: 'planta industrial', w: 3 },
@@ -303,7 +303,7 @@ export const TOPIC_SECTORS: TopicCluster[] = [
     kind: 'sector',
     key: 'mineria',
     label: 'Minería',
-    href: '/mineria',
+    href: '/sectores/mineria',
     schemaName: 'Tecnología para minería y energía',
     terms: [
       { t: 'mineria', w: 3 }, { t: 'minera', w: 3 }, { t: 'mineras', w: 3 }, { t: 'mina', w: 2 },

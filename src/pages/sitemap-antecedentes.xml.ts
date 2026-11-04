@@ -1,16 +1,17 @@
 import type { APIRoute } from 'astro';
+import { PUBLIC_CONTENT_REVIEWED } from '../config/publicFacts';
 
 import { canonicalUrl, escapeXml, formatSitemapDate, publicImageUrl } from '../utils/seoUrl';
 import { loadStories, type Story } from '../components/proto/isoData';
 
 function generateSitemapXml(antecedentes: Story[]): string {
-    const today = formatSitemapDate();
+    const reviewed = formatSitemapDate(PUBLIC_CONTENT_REVIEWED);
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
     ${antecedentes.map(item => {
-        const lastmod = item.cierre ? formatSitemapDate(item.cierre) : today;
+        const lastmod = reviewed;
         const imageUrl = item.image ? publicImageUrl(item.image) : null;
         const imageTag = imageUrl ? `
         <image:image>
