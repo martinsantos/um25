@@ -14,9 +14,9 @@ export function catalogState(params: URLSearchParams): Record<(typeof filterKeys
 }
 export function matchesCatalog(it: CatalogItem, state: CatalogState, skip?: string): boolean {
   const sector = state.sector === 'gobierno' ? 'gobiernosectorpublico' : state.sector;
-  const sectorMatches = it.sector === sector || (sector === 'software' && it.services.includes('104')) || (sector === 'seguridad-electronica' && it.services.includes('102'));
+  const sectorMatches = (sector === 'sin-clasificar' && !it.sector) || it.sector === sector || (sector === 'software' && it.services.includes('104')) || (sector === 'seguridad-electronica' && it.services.includes('102'));
   return (skip === 'sector' || !sector || sectorMatches) &&
-    (skip === 'service' || !state.service || it.services.includes(state.service)) &&
+    (skip === 'service' || !state.service || (state.service === 'sin-clasificar' ? it.services.length === 0 : it.services.includes(state.service))) &&
     (!state.year || it.year === state.year) &&
     (!state.cliente || clientKey(it.client) === clientKey(state.cliente)) &&
     (!state.q || normalizeSearch(it.search).includes(normalizeSearch(state.q.trim()))) &&

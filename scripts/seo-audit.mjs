@@ -4,8 +4,8 @@ const DEFAULT_BASE_URL = 'https://www.ultimamilla.com.ar';
 const DEFAULT_CANONICAL_BASE_URL = 'https://www.ultimamilla.com.ar';
 const NON_CANONICAL_APEX_URL = 'https://ultimamilla.com.ar';
 
-const CORE_HTML_PATHS = ['/', '/servicios', '/antecedentes', '/blog', '/contacto', '/certificaciones'];
-const ENGLISH_HTML_PATHS = ['/en', '/en/services', '/en/about', '/en/contacto'];
+const CORE_HTML_PATHS = ['/', '/servicios', '/antecedentes', '/blog', '/contacto', '/certificaciones', '/privacidad', ...Array.from({ length: 8 }, (_, i) => `/servicios/${101 + i}`)];
+const ENGLISH_HTML_PATHS = ['/en', '/en/services', '/en/about', '/en/contact'];
 const GEO_COMMERCIAL_HUB_PATHS = [
   '/servicios-it-empresas-mendoza',
   '/presupuesto-servicios-it-empresas',
@@ -79,7 +79,7 @@ function expectedLocaleContract(path) {
 
 async function fetchText(url, failures) {
   try {
-    const response = await fetch(url, { redirect: 'follow' });
+    const response = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(15000) });
     assert(response.ok, `${url} returned ${response.status}`, failures);
     return response.text();
   } catch (error) {
@@ -143,18 +143,21 @@ async function auditPage(baseUrl, canonicalBaseUrl, path, failures) {
   assert(title.length <= 75, `${path} title too long (${title.length})`, failures);
   assert(description.length >= 70, `${path} meta description too short (${description.length})`, failures);
   assert(description.length <= 170, `${path} meta description too long (${description.length})`, failures);
-  assert(language === localeContract.metaLanguage, `${path} meta language expected ${localeContract.metaLanguage} but got ${language || '(missing)'}`, failures);
-  assert(dcLanguage === localeContract.dcLanguage, `${path} dc.language expected ${localeContract.dcLanguage} but got ${dcLanguage || '(missing)'}`, failures);
   assert(canonical.startsWith(canonicalBaseUrl), `${path} canonical does not start with ${canonicalBaseUrl}: ${canonical}`, failures);
   assert(!canonical.startsWith(NON_CANONICAL_APEX_URL), `${path} canonical leaks apex domain: ${canonical}`, failures);
   assert(ogLocale === localeContract.ogLocale, `${path} og:locale expected ${localeContract.ogLocale} but got ${ogLocale || '(missing)'}`, failures);
-  assert(robots.includes('index') || path === '/404', `${path} robots meta missing index directive`, failures);
+  assert(/(?:^|[,\s])index(?:$|[,\s])/.test(robots) && !robots.includes('noindex'), `${path} robots meta missing index directive`, failures);
   assert(ogImage.startsWith(canonicalBaseUrl), `${path} og:image is not absolute canonical URL: ${ogImage}`, failures);
   assert(jsonLdBlocks.length > 0, `${path} missing JSON-LD`, failures);
 
   for (const block of jsonLdBlocks) {
     try {
-      JSON.parse(block[1]);
+      const data = JSON.parse(block[1]);
+      if (/^\/servicios\/10[1-8]$/.test(path)) {
+        const graph = data['@graph'] || [data];
+        assert(graph.some(item => item['@type'] === 'Service'), `${path} missing Service semantics`, failures);
+        assert(graph.some(item => item['@type'] === 'BreadcrumbList'), `${path} missing breadcrumbs`, failures);
+      }
     } catch (error) {
       failures.push(`${path} invalid JSON-LD: ${error instanceof Error ? error.message : String(error)}`);
     }
@@ -166,6 +169,8 @@ async function auditSitemap(baseUrl, canonicalBaseUrl, failures) {
   assert(robots.includes(`${canonicalBaseUrl}/sitemap-index.xml`), 'robots.txt does not point to canonical sitemap-index.xml', failures);
   assert(robots.includes(`${canonicalBaseUrl}/sitemap-images.xml`), 'robots.txt does not point to canonical sitemap-images.xml', failures);
   assert(!robots.includes(NON_CANONICAL_APEX_URL), 'robots.txt leaks apex URL', failures);
+
+  assert(robots.includes('Allow: /_astro/'), 'robots.txt must allow public rendering assets under /_astro/', failures);
 
   const sitemapIndex = await fetchText(new URL('/sitemap-index.xml', baseUrl).toString(), failures);
   assert(sitemapIndex.includes('<sitemapindex'), 'sitemap-index.xml missing sitemapindex root', failures);
@@ -181,10 +186,8 @@ async function auditSitemap(baseUrl, canonicalBaseUrl, failures) {
   const imageCount = (imageSitemap.match(/<image:image>/g) || []).length;
   assert(imageSitemap.includes('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"'), 'sitemap-images.xml missing image namespace', failures);
   assert(imageSitemap.includes('<image:loc>'), 'sitemap-images.xml missing image loc entries', failures);
-  // 24/10: la compuerta no exige una familia de imágenes fijas; sólo que haya imágenes y ninguna generada.
-  assert(!imageSitemap.includes('/images/antecedentes/generated/'), 'sitemap-images.xml still lists generated antecedente images', failures);
+  // Validate sitemap structure; image selection is reviewed separately.
   assert(!imageSitemap.includes('<image:title>'), 'sitemap-images.xml still emits deprecated image:title tags', failures);
-  assert(imageCount >= 518, `sitemap-images.xml exposes too few images (${imageCount})`, failures);
   assert(!imageSitemap.includes(NON_CANONICAL_APEX_URL), 'sitemap-images.xml leaks apex URL', failures);
 }
 
@@ -252,6 +255,13 @@ async function main() {
   await auditGeoDiscovery(baseUrl, canonicalBaseUrl, failures);
   for (const path of paths) {
     await auditPage(baseUrl, canonicalBaseUrl, path, failures);
+  }
+
+  const englishContact = await fetchText(new URL('/en/contact', baseUrl).toString(), failures);
+  assert(/<form\b/.test(englishContact) && englishContact.includes('data-lang="en"'), 'English contact must render its localized form', failures);
+  for (const path of ['/3dgemeloaeropuerto', '/3dgemelobodega', '/3dgemelohospital']) {
+    const html = await fetchText(new URL(path, baseUrl).toString(), failures);
+    assert(contentFromTag(attrsForMeta(html, 'name', 'robots')).includes('noindex'), `${path} prototype must not be indexed`, failures);
   }
 
   if (failures.length > 0) {

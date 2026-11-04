@@ -3,40 +3,43 @@
 // modal global (name, email, company, message + campos de origen y anti-spam): tema,
 // servicios, sede y urgencia se suman al mensaje y el tema viaja como originIntent,
 // que el mail usa como asunto.
+interface Props { lang?: 'es' | 'en' }
+const { lang = 'es' } = Astro.props;
+const t = (es: string, en: string) => lang === 'en' ? en : es;
 const topics = [
-  { id: 'diagnostico', label: 'Diagnóstico o incidente', hint: 'Qué sistema falla, en qué sede y desde cuándo.' },
-  { id: 'relevamiento', label: 'Relevamiento técnico', hint: 'Qué hay que instalar o mejorar, cuántas sedes y qué restricciones tiene el edificio.' },
-  { id: 'abono', label: 'Abono de soporte 24/7', hint: 'Qué activos son críticos, qué tiempo de respuesta necesitás y en qué horarios.' },
-  { id: 'pliego', label: 'Licitación o pliego', hint: 'Número de proceso, fechas y requisitos técnicos o de documentación.' },
-  { id: 'otra', label: 'Otra consulta', hint: 'Contanos qué necesitás, en qué sede y para cuándo.' },
+  { id: 'diagnostico', label: t('Diagnóstico o incidente', 'Diagnosis or incident'), hint: t('Qué sistema falla, en qué sede y desde cuándo.', 'Which system is affected, where and since when.') },
+  { id: 'relevamiento', label: t('Relevamiento técnico', 'Technical assessment'), hint: t('Qué hay que instalar o mejorar, cuántas sedes y qué restricciones tiene el edificio.', 'What needs to be installed or improved, how many sites and any building constraints.') },
+  { id: 'abono', label: t('Abono de soporte 24/7', '24/7 support agreement'), hint: t('Qué activos son críticos, qué tiempo de respuesta necesitás y en qué horarios.', 'Which assets are critical, the response time you need and your operating hours.') },
+  { id: 'pliego', label: t('Licitación o pliego', 'Tender or specification'), hint: t('Número de proceso, fechas y requisitos técnicos o de documentación.', 'Tender reference, dates and technical or documentation requirements.') },
+  { id: 'otra', label: t('Otra consulta', 'Other enquiry'), hint: t('Contanos qué necesitás, en qué sede y para cuándo.', 'Tell us what you need, where and by when.') },
 ];
-const services = ['Redes', 'Seguridad electrónica', 'Telecomunicaciones', 'Software a medida', 'Soporte 24/7', 'Consultoría IT', 'Detección de incendios', 'Eléctricos IT'];
-const urgencies = ['Sin urgencia', 'Esta semana', 'Hoy: hay una falla en curso', 'Tengo fecha de pliego'];
+const services = [t('Redes', 'Networks'), t('Seguridad electrónica', 'Electronic security'), t('Telecomunicaciones', 'Telecommunications'), t('Software a medida', 'Custom software'), t('Soporte 24/7', '24/7 support'), t('Consultoría IT', 'IT consulting'), t('Detección de incendios', 'Fire detection'), t('Eléctricos IT', 'IT power systems')];
+const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'), t('Hoy: hay una falla en curso', 'Today: an incident is in progress'), t('Tengo fecha de pliego', 'I have a tender deadline')];
 ---
-<div class="ctf" data-ctf>
+<div class="ctf" data-ctf data-lang={lang}>
   <form class="ctf__form" id="contactForm" method="post" action="/api/contact" novalidate>
     <div class="ctf__grid">
       <label class="ctf__field">
-        <span>Nombre <em aria-hidden="true">*</em></span>
-        <input type="text" id="name" name="name" required autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder="Nombre y apellido" />
+        <span>{t('Nombre', 'Name')} <em aria-hidden="true">*</em></span>
+        <input type="text" id="name" name="name" required autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder={t('Nombre y apellido', 'Full name')} />
         <small class="ctf__error" data-error-for="name"></small>
       </label>
       <label class="ctf__field">
-        <span>Email de trabajo <em aria-hidden="true">*</em></span>
-        <input type="email" id="email" name="email" required autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="mail@empresa.com" />
+        <span>{t('Email de trabajo', 'Work email')} <em aria-hidden="true">*</em></span>
+        <input type="email" id="email" name="email" required autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder={t('mail@empresa.com', 'you@company.com')} />
         <small class="ctf__error" data-error-for="email"></small>
       </label>
     </div>
 
     <label class="ctf__field">
-      <span>Empresa u organismo</span>
-      <input type="text" id="company" name="company" autocomplete="organization" enterkeyhint="next" placeholder="Opcional" />
+      <span>{t('Empresa u organismo', 'Company or organization')}</span>
+      <input type="text" id="company" name="company" autocomplete="organization" enterkeyhint="next" placeholder={t('Opcional', 'Optional')} />
     </label>
 
     <label class="ctf__field">
-      <span>Motivo</span>
+      <span>{t('Motivo', 'Enquiry type')}</span>
       <select id="topic" name="topic">
-        <option value="">Elegí un motivo</option>
+        <option value="">{t('Elegí un motivo', 'Choose an enquiry type')}</option>
         {topics.map((t) => <option value={t.id} data-label={t.label} data-hint={t.hint}>{t.label}</option>)}
       </select>
     </label>
@@ -44,11 +47,11 @@ const urgencies = ['Sin urgencia', 'Esta semana', 'Hoy: hay una falla en curso',
     <details class="ctf__more" data-ctf-more>
       <summary>
         <span class="ctf__more-icon" aria-hidden="true"></span>
-        Agregar servicios <small>(opcional)</small>
+        {t('Agregar servicios', 'Add services')} <small>{t('(opcional)', '(optional)')}</small>
         <b class="ctf__more-count" data-services-count hidden></b>
       </summary>
       <fieldset class="ctf__group">
-        <legend class="ctf__sr">Servicios relacionados</legend>
+        <legend class="ctf__sr">{t('Servicios relacionados', 'Related services')}</legend>
         <div class="ctf__chips">
           {services.map((s, i) => (
             <label class="ctf__chip">
@@ -62,11 +65,11 @@ const urgencies = ['Sin urgencia', 'Esta semana', 'Hoy: hay una falla en curso',
 
     <div class="ctf__grid">
       <label class="ctf__field">
-        <span>Ciudad o sede</span>
-        <input type="text" id="site" name="site" autocomplete="address-level2" enterkeyhint="next" placeholder="Ej.: Mendoza, 3 sedes" />
+        <span>{t('Ciudad o sede', 'City or site')}</span>
+        <input type="text" id="site" name="site" autocomplete="address-level2" enterkeyhint="next" placeholder={t('Ej.: Mendoza, 3 sedes', 'E.g. Mendoza, 3 sites')} />
       </label>
       <label class="ctf__field">
-        <span>Urgencia</span>
+        <span>{t('Urgencia', 'Urgency')}</span>
         <select id="urgency" name="urgency">
           {urgencies.map((u) => <option value={u}>{u}</option>)}
         </select>
@@ -74,8 +77,8 @@ const urgencies = ['Sin urgencia', 'Esta semana', 'Hoy: hay una falla en curso',
     </div>
 
     <label class="ctf__field">
-      <span>Mensaje <em aria-hidden="true">*</em></span>
-      <textarea id="message" name="message" required rows="5" maxlength="1200" placeholder="Contanos qué necesitás, en qué sede y para cuándo."></textarea>
+      <span>{t('Mensaje', 'Message')} <em aria-hidden="true">*</em></span>
+      <textarea id="message" name="message" required rows="5" maxlength="1200" placeholder={t('Contanos qué necesitás, en qué sede y para cuándo.', 'Tell us what you need, where and by when.')}></textarea>
       <small class="ctf__error" data-error-for="message"></small>
       <span class="ctf__count" aria-hidden="true"><b data-count>0</b>/1200</span>
     </label>
@@ -86,22 +89,23 @@ const urgencies = ['Sin urgencia', 'Esta semana', 'Hoy: hay una falla en curso',
     <input type="hidden" name="contactProof" value="" />
 
     <div class="ctf__submit">
-      <button type="submit" class="ctf__btn">Enviar consulta <span aria-hidden="true">→</span></button>
-      <p>Te respondemos por email en el día hábil.</p>
+      <button type="submit" class="ctf__btn">{t('Enviar consulta', 'Send enquiry')} <span aria-hidden="true">→</span></button>
+      <p>{t('Te respondemos por email en el día hábil.', 'We reply by email during business hours.')}</p>
     </div>
     <div class="ctf__error-box" role="alert" hidden></div>
   </form>
 
   <div class="ctf__done" role="status" hidden tabindex="-1">
-    <p class="ctf__done-kicker">Consulta enviada</p>
-    <h3>Recibimos tu mensaje.</h3>
-    <p>Un técnico lo revisa y te responde por email con el próximo paso.</p>
-    <button type="button" class="ctf__btn ctf__btn--ghost" data-ctf-again>Enviar otra consulta</button>
+    <p class="ctf__done-kicker">{t('Consulta enviada', 'Enquiry sent')}</p>
+    <h3>{t('Recibimos tu mensaje.', 'We received your message.')}</h3>
+    <p>{t('Un técnico lo revisa y te responde por email con el próximo paso.', 'A technician will review your message and reply by email with the next step.')}</p>
+    <button type="button" class="ctf__btn ctf__btn--ghost" data-ctf-again>{t('Enviar otra consulta', 'Send another enquiry')}</button>
   </div>
 </div>
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-ctf]').forEach((root) => {
+    const t = (es: string, en: string) => root.dataset.lang === 'en' ? en : es;
     const form = root.querySelector<HTMLFormElement>('form')!;
     const done = root.querySelector<HTMLElement>('.ctf__done')!;
     const errorBox = root.querySelector<HTMLElement>('.ctf__error-box')!;
@@ -147,6 +151,8 @@ const urgencies = ['Sin urgencia', 'Esta semana', 'Hoy: hay una falla en curso',
 
     // Precarga desde la URL: ?tema=pliego&servicio=Redes o los datos del presupuestador.
     const params = new URLSearchParams(location.search);
+    const reference = params.get('antecedente');
+    if (reference && /^\d{1,8}$/.test(reference) && !message.value) { message.value = t('Consulta por el antecedente', 'Enquiry about project') + ` UM-${reference}. `; updateCount(); }
     const topic = params.get('tema');
     if (topic && [...topicSelect.options].some((o) => o.value === topic)) { topicSelect.value = topic; syncHint(); }
     for (const s of params.getAll('servicio')) {
@@ -170,7 +176,7 @@ const urgencies = ['Sin urgencia', 'Esta semana', 'Hoy: hay una falla en curso',
     };
     const mailto = (body: string) => {
       const address = ['contacto', 'ultimamilla.com.ar'].join('@');
-      return `${['mai', 'lto:'].join('')}${address}?subject=${encodeURIComponent('Consulta desde la web ULTIMA MILLA')}&body=${encodeURIComponent(body)}`;
+      return `${['mai', 'lto:'].join('')}${address}?subject=${encodeURIComponent(t('Consulta desde la web ULTIMA MILLA', 'Enquiry from the ULTIMA MILLA website'))}&body=${encodeURIComponent(body)}`;
     };
 
     form.addEventListener('submit', async (event) => {
@@ -180,9 +186,9 @@ const urgencies = ['Sin urgencia', 'Esta semana', 'Hoy: hay una falla en curso',
       const email = field('email')!.value.trim();
       const text = message.value.trim();
       let invalid = false;
-      if (name.length < 2) { showError('name', 'Ingresá tu nombre.'); invalid = true; }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('email', 'Ingresá un email válido.'); invalid = true; }
-      if (text.length < 12) { showError('message', 'Contanos un poco más para poder ayudarte.'); invalid = true; }
+      if (name.length < 2) { showError('name', t('Ingresá tu nombre.', 'Enter your name.')); invalid = true; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('email', t('Ingresá un email válido.', 'Enter a valid email address.')); invalid = true; }
+      if (text.length < 12) { showError('message', t('Contanos un poco más para poder ayudarte.', 'Please add a little more detail so we can help.')); invalid = true; }
       if (invalid) { form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(); return; }
 
       const topicInput = selectedTopic();
@@ -193,7 +199,7 @@ const urgencies = ['Sin urgencia', 'Esta semana', 'Hoy: hay una falla en curso',
         topicInput ? `Tema: ${topicInput.dataset.label}` : '',
         services.length ? `Servicios: ${services.join(', ')}` : '',
         site ? `Ciudad o sede: ${site}` : '',
-        urgency && urgency !== 'Sin urgencia' ? `Urgencia: ${urgency}` : '',
+        urgency && urgency !== t('Sin urgencia', 'No urgency') ? `Urgencia: ${urgency}` : '',
       ].filter(Boolean);
       const payload = {
         name, email,
@@ -207,12 +213,12 @@ const urgencies = ['Sin urgencia', 'Esta semana', 'Hoy: hay una falla en curso',
         originPath: location.pathname,
         originTitle: document.title,
         originLabel: services.join(', '),
-        originIntent: topicInput?.dataset.label || 'Consulta general',
+        originIntent: topicInput?.dataset.label || t('Consulta general', 'General enquiry'),
         originHref: location.href,
       };
 
       submit.disabled = true;
-      submit.firstChild!.textContent = 'Enviando ';
+      submit.firstChild!.textContent = t('Enviando ', 'Sending ');
       try {
         const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         const result = await res.json().catch(() => ({}));
@@ -222,19 +228,19 @@ const urgencies = ['Sin urgencia', 'Esta semana', 'Hoy: hay una falla en curso',
           done.focus();
           form.reset(); stamp(); updateCount(); syncHint(); syncServices(); more.open = false;
         } else {
-          throw new Error(result.message || 'No se pudo enviar.');
+          throw new Error(result.message || t('No se pudo enviar.', 'Your message could not be sent. Please try again.'));
         }
       } catch (err) {
         errorBox.innerHTML = '';
-        errorBox.append(`${err instanceof Error && err.message ? err.message : 'No se pudo enviar.'} `);
+        errorBox.append(`${root.dataset.lang !== 'en' && err instanceof Error && err.message ? err.message : t('No se pudo enviar.', 'Your message could not be sent. Please try again.')} `);
         const link = document.createElement('a');
         link.href = mailto(`${payload.message}\n\n${name} · ${email}${payload.company ? ` · ${payload.company}` : ''}`);
-        link.textContent = 'Enviala por email';
+        link.textContent = t('Enviala por email', 'Send it by email');
         errorBox.append(link);
         errorBox.hidden = false;
       } finally {
         submit.disabled = false;
-        submit.firstChild!.textContent = 'Enviar consulta ';
+        submit.firstChild!.textContent = t('Enviar consulta ', 'Send enquiry ');
       }
     });
 

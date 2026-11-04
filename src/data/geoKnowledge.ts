@@ -1,3 +1,5 @@
+import { publicCaseRecord } from '../utils/publicCaseRecord';
+import { PUBLIC_CONTENT_REVIEWED } from '../config/publicFacts';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL, BUSINESS_ADDRESS } from '../config/seo';
 import { canonicalUrl, clampText, formatSitemapDate } from '../utils/seoUrl';
 import { generateSlug } from '../utils/slugUtils.js';
@@ -119,8 +121,8 @@ export type GeoBlogIndex = {
 const servicesData = serviciosSnapshot as { data?: SnapshotService[] };
 const casesData = antecedentesSnapshot as { data?: SnapshotCase[] };
 
-export const GEO_VERSION = '2026-07-10';
-export const GEO_UPDATED = '2026-07-10';
+export const GEO_VERSION = PUBLIC_CONTENT_REVIEWED;
+export const GEO_UPDATED = PUBLIC_CONTENT_REVIEWED;
 
 export const IT_SEARCH_VOCABULARY = {
   disambiguation: 'IT = tecnologia informatica empresarial; en espanol de Argentina tambien se busca como informatica, sistemas, tecnologia para empresas, soporte tecnico y soluciones tecnologicas.',
@@ -196,7 +198,7 @@ export const sectorDefinitions: GeoSector[] = [
   {
     slug: 'aeropuertos',
     name: 'Aeropuertos y operaciones criticas',
-    url: canonicalUrl('/aeropuertos'),
+    url: canonicalUrl('/sectores/aeropuertos'),
     summary: 'Infraestructura tecnologica, telecomunicaciones, CCTV, deteccion de incendios, redes y sistemas de seguridad para terminales aeroportuarias y areas operativas.',
     buyerIntent: ['seguridad aeroportuaria', 'CCTV para aeropuertos', 'redes de datos aeroportuarias', 'deteccion de incendios en terminales'],
     relatedServices: ['Sistemas de Seguridad Electronica', 'Telecomunicaciones', 'Infraestructura de Redes'],
@@ -204,7 +206,7 @@ export const sectorDefinitions: GeoSector[] = [
   {
     slug: 'bodegas',
     name: 'Bodegas y vitivinicultura',
-    url: canonicalUrl('/bodegas'),
+    url: canonicalUrl('/sectores/bodegas'),
     summary: 'Soluciones de conectividad, seguridad electronica, control de acceso, monitoreo y soporte IT para bodegas y establecimientos vitivinicolas de Mendoza.',
     buyerIntent: ['CCTV para bodegas', 'redes para bodegas', 'seguridad electronica vitivinicola', 'soporte IT para bodegas'],
     relatedServices: ['Sistemas de Seguridad Electronica', 'Infraestructura de Redes', 'Soporte Tecnico 24/7'],
@@ -212,7 +214,7 @@ export const sectorDefinitions: GeoSector[] = [
   {
     slug: 'constructoras',
     name: 'Constructoras y desarrollos inmobiliarios',
-    url: canonicalUrl('/constructoras'),
+    url: canonicalUrl('/sectores/constructoras'),
     summary: 'Diseno e instalacion de corrientes debiles, cableado estructurado, CCTV, control de acceso, deteccion de incendios y telecomunicaciones para obras nuevas y edificios.',
     buyerIntent: ['corrientes debiles para obra', 'cableado estructurado edificios', 'CCTV en edificios', 'deteccion de incendios para constructoras'],
     relatedServices: ['Infraestructura de Redes', 'Sistemas de Deteccion y Alarma de Incendios', 'Servicios Electricos para IT'],
@@ -220,7 +222,7 @@ export const sectorDefinitions: GeoSector[] = [
   {
     slug: 'salud',
     name: 'Salud, hospitales y clinicas',
-    url: canonicalUrl('/salud'),
+    url: canonicalUrl('/sectores/salud'),
     summary: 'Infraestructura IT hospitalaria, cableado estructurado, telecomunicaciones, seguridad electronica, deteccion de incendio y soporte para instituciones de salud.',
     buyerIntent: ['cableado estructurado hospitalario', 'seguridad electronica hospitales', 'redes para clinicas', 'mantenimiento IT hospitalario'],
     relatedServices: ['Infraestructura de Redes', 'Soporte Tecnico 24/7', 'Sistemas de Seguridad Electronica'],
@@ -228,7 +230,7 @@ export const sectorDefinitions: GeoSector[] = [
   {
     slug: 'gobiernosectorpublico',
     name: 'Gobierno y sector publico',
-    url: canonicalUrl('/gobiernosectorpublico'),
+    url: canonicalUrl('/sectores/gobiernosectorpublico'),
     summary: 'Redes, telecomunicaciones, seguridad electronica, desarrollo de software y soporte para organismos provinciales, municipales y entidades publicas.',
     buyerIntent: ['proveedor tecnologico sector publico Mendoza', 'redes para gobierno', 'software para organismos publicos', 'seguridad electronica municipal'],
     relatedServices: ['Desarrollo de Software a Medida', 'Telecomunicaciones', 'Infraestructura de Redes'],
@@ -244,7 +246,7 @@ export const sectorDefinitions: GeoSector[] = [
   {
     slug: 'mineria',
     name: 'Mineria y sitios remotos',
-    url: canonicalUrl('/mineria'),
+    url: canonicalUrl('/sectores/mineria'),
     summary: 'Telecomunicaciones, redes, radioenlaces, energia IT, seguridad y soporte para operaciones mineras y ubicaciones de dificil acceso.',
     buyerIntent: ['telecomunicaciones para mineria', 'radioenlaces mina', 'redes en sitios remotos', 'infraestructura IT mineria'],
     relatedServices: ['Telecomunicaciones', 'Infraestructura de Redes', 'Servicios Electricos para IT'],
@@ -252,7 +254,7 @@ export const sectorDefinitions: GeoSector[] = [
   {
     slug: 'industria',
     name: 'Industria y plantas productivas',
-    url: canonicalUrl('/industria'),
+    url: canonicalUrl('/sectores/industria'),
     summary: 'Conectividad industrial, cableado, telecomunicaciones, seguridad, energia IT y soporte para plantas productivas con operacion continua.',
     buyerIntent: ['redes industriales Mendoza', 'seguridad electronica industrial', 'soporte IT planta industrial', 'energia IT para industria'],
     relatedServices: ['Infraestructura de Redes', 'Servicios Electricos para IT', 'Soporte Tecnico 24/7'],
@@ -496,7 +498,7 @@ export function getGeoServices(): GeoService[] {
       id: service.id,
       name,
       slug,
-      url: canonicalUrl(`/servicios/${service.id}/${slug}`),
+      url: canonicalUrl(`/servicios/${service.id}`),
       area: service.Area || 'Servicios tecnologicos',
       summary: clampText(service.Descripcion || service.Subtitulo || '', 420),
       keywords: compactList([service.Area, name, ...productKeywords], 18),
@@ -510,15 +512,14 @@ export function getGeoSectors(): GeoSector[] {
 }
 
 export function getGeoCases(limit?: number): GeoCase[] {
-  const cases = (casesData.data || []).map((item) => {
+  const cases = (casesData.data || []).map(publicCaseRecord).map((item) => {
     const title = item.Titulo || 'Antecedente ULTIMA MILLA';
-    const slug = generateSlug(title);
     const client = item.Cliente && !/confidencial/i.test(item.Cliente) ? item.Cliente : null;
 
     return {
       id: item.id,
       title,
-      url: canonicalUrl(`/antecedentes/${item.id}/${slug}`),
+      url: canonicalUrl(item.canonicalPath),
       summary: clampText(item.Descripcion || title, 320),
       client,
       sector: item.Area || 'Soluciones tecnologicas',
@@ -533,7 +534,7 @@ export function getGeoCases(limit?: number): GeoCase[] {
 export function getGeoFaqs() {
   return Object.entries(sectorFAQs).map(([sectorSlug, faqs]) => ({
     sector: sectorSlug,
-    sectorUrl: canonicalUrl(`/${sectorSlug}`),
+    sectorUrl: canonicalUrl(['software', 'seguridad-electronica'].includes(sectorSlug) ? `/${sectorSlug}` : `/sectores/${sectorSlug}`),
     questions: faqs.map((faq) => ({
       question: faq.question,
       answer: faq.answer,
@@ -583,7 +584,7 @@ export function getGeoBlogIndex(): GeoBlogIndex {
         name: 'Verticales sectoriales',
         purpose: 'Traducir tecnologia a problemas de bodegas, constructoras, salud, gobierno, mineria, industria y aeropuertos.',
         targetQueries: ['IT para bodegas Mendoza', 'redes para hospitales', 'seguridad electronica gobierno', 'telecomunicaciones mineria'],
-        linkTargets: [canonicalUrl('/sectores'), canonicalUrl('/bodegas'), canonicalUrl('/industria')],
+        linkTargets: [canonicalUrl('/sectores'), canonicalUrl('/sectores/bodegas'), canonicalUrl('/sectores/industria')],
       },
     ],
   };

@@ -2,9 +2,11 @@
 
 User-agent: *
 Allow: /
+Allow: /_astro/
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/*.json
+Disallow: /downloads/plantillas-um-sans/
 Disallow: /admin/
 Disallow: /api/
 Disallow: /estilo
@@ -25,9 +27,11 @@ User-agent: Bingbot
 User-agent: Applebot
 User-agent: DuckAssistBot
 Allow: /
+Allow: /_astro/
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /geo/*.json
+Disallow: /downloads/plantillas-um-sans/
 Disallow: /admin/
 Disallow: /api/
 Disallow: /estilo

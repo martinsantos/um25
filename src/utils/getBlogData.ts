@@ -1,3 +1,4 @@
+import { correctBlogEditorial } from './blogEditorialCorrections';
 import type { EntradaBlog } from '../lib/directus';
 import { MOCK_POSTS } from '../data/blog-mock';
 import { BLOG_POSTS as UM26_BLOG_POSTS } from '../lib/um26-data/blog';
@@ -10,7 +11,7 @@ import {
   getPublicSiteUrl,
 } from '../config/runtime';
 import { SITE_URL } from '../config/seo';
-import { isCanonicalBlogSlug } from '../data/seoRedirects';
+import { isCanonicalBlogSlug, nonCanonicalBlogSlugs } from '../data/seoRedirects';
 import { addVisibleBlogStatusFilter } from './blogPublishing';
 import { fetchWithTimeout, getFetchTimeoutMs } from './fetchWithTimeout';
 import {
@@ -291,7 +292,7 @@ async function fetchPublicBlogListing(page: number, limit: number, categoria?: s
   }
 }
 
-export async function fetchBlogListing(
+async function fetchBlogListingRaw(
   page = 1,
   limit = 10,
   categoria?: string
@@ -312,6 +313,8 @@ export async function fetchBlogListing(
     addVisibleBlogStatusFilter(countParams, now);
   }
 
+  itemsParams.set('filter[slug][_nin]', [...nonCanonicalBlogSlugs].join(','));
+  countParams.set('filter[slug][_nin]', [...nonCanonicalBlogSlugs].join(','));
   itemsParams.set('sort', '-fecha_publicacion');
   itemsParams.set('limit', String(offset + limit));
   itemsParams.set('offset', '0');
@@ -359,7 +362,7 @@ export async function fetchBlogListing(
   }
 }
 
-export async function fetchBlogPost(slug: string): Promise<EntradaBlog | null> {
+async function fetchBlogPostRaw(slug: string): Promise<EntradaBlog | null> {
   try {
     const params = new URLSearchParams();
     addVisibleBlogStatusFilter(params, new Date(), 'filter[_and][0]');
@@ -384,9 +387,10 @@ export async function fetchBlogPost(slug: string): Promise<EntradaBlog | null> {
   }
 }
 
-export async function fetchBlogBand(limit = 3): Promise<EntradaBlog[]> {
+async function fetchBlogBandRaw(limit = 3): Promise<EntradaBlog[]> {
   try {
     const params = addVisibleBlogStatusFilter(new URLSearchParams());
+    params.set('filter[slug][_nin]', [...nonCanonicalBlogSlugs].join(','));
     params.set('sort', '-fecha_publicacion');
     params.set('limit', String(limit));
     params.set('fields', 'id,slug,titulo,imagen_portada,categoria,fecha_publicacion');
@@ -410,7 +414,7 @@ export async function fetchBlogBand(limit = 3): Promise<EntradaBlog[]> {
  * Notas puntuales por slug (artículos relacionados por cluster), con los mismos
  * campos que el listado y la misma cadena de fuentes. Respeta el orden pedido.
  */
-export async function fetchBlogPostsBySlugs(slugs: string[]): Promise<EntradaBlog[]> {
+async function fetchBlogPostsBySlugsRaw(slugs: string[]): Promise<EntradaBlog[]> {
   const wanted = [...new Set(slugs.filter((slug) => slug && isCanonicalBlogSlug(slug)))];
   if (wanted.length === 0) return [];
   // Preserve the requested order and each note’s assigned cover.
@@ -452,9 +456,10 @@ export interface BlogSitemapEntry {
  * Entradas para sitemap/índices: la misma cadena de fuentes que el blog
  * renderizado (Directus → sitio público → posts UM26), sin traer cuerpos.
  */
-export async function fetchBlogSitemapEntries(limit = 500): Promise<BlogSitemapEntry[]> {
+async function fetchBlogSitemapEntriesRaw(limit = 500): Promise<BlogSitemapEntry[]> {
   try {
     const params = addVisibleBlogStatusFilter(new URLSearchParams());
+    params.set('filter[slug][_nin]', [...nonCanonicalBlogSlugs].join(','));
     params.set('sort', '-fecha_publicacion');
     params.set('limit', String(limit));
     params.set('fields', 'slug,titulo,categoria,fecha_publicacion,fecha_modificacion,imagen_portada');
@@ -481,4 +486,22 @@ export async function fetchBlogSitemapEntries(limit = 500): Promise<BlogSitemapE
         categoria: post.categoria,
       }))) as BlogSitemapEntry[];
   }
+}
+
+export async function fetchBlogListing(page = 1, limit = 10, categoria?: string) {
+  const listing = await fetchBlogListingRaw(page, limit, categoria);
+  return { ...listing, posts: listing.posts.map(correctBlogEditorial) };
+}
+export async function fetchBlogPost(slug: string) {
+  const post = await fetchBlogPostRaw(slug);
+  return post ? correctBlogEditorial(post) : null;
+}
+export async function fetchBlogBand(limit = 3) {
+  return (await fetchBlogBandRaw(limit)).filter(post => isCanonicalBlogSlug(post.slug)).map(correctBlogEditorial);
+}
+export async function fetchBlogPostsBySlugs(slugs: string[]) {
+  return (await fetchBlogPostsBySlugsRaw(slugs)).map(correctBlogEditorial);
+}
+export async function fetchBlogSitemapEntries(limit = 500) {
+  return (await fetchBlogSitemapEntriesRaw(limit)).map(correctBlogEditorial);
 }

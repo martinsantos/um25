@@ -5,11 +5,14 @@
  * la propuesta sea el sitio, y hoy ya a la tarjeta que arma WhatsApp, Slack o LinkedIn al compartir
  * el enlace. Las vistas previas siguen sin indexarse; las rutas públicas usan su URL canónica.
  */
-import { SITE_URL, SITE_NAME, BUSINESS_ADDRESS } from '../../config/seo';
+import { SITE_URL, SITE_NAME } from '../../config/seo';
+import { publicStructuredData } from '../../utils/publicStructuredData';
+import { trimAtWordBoundary } from '../../utils/seoMetaPolicy';
 import { publicDespiecePath } from '../../lib/despieceRoutes';
 import { variantes } from './isoData';
 interface Props { title: string; description?: string; image?: string; lang?: string; precargar?: boolean; canonicalPath?: string }
-const { title, description = '', image = '/images/editorial/umsa-home-operations.webp', lang = 'es', precargar = false, canonicalPath } = Astro.props;
+const { title, description: rawDescription = '', image = '/images/editorial/umsa-home-operations.webp', lang = 'es', precargar = false, canonicalPath } = Astro.props;
+const description = trimAtWordBoundary(rawDescription, 160);
 // La imagen de apertura se precarga en la variante justa: el póster de película en AVIF; la foto editorial en AVIF a 960/1672 (quien no lee AVIF ignora la precarga por su type y descubre la foto en el HTML); la foto de antecedente en WebP a 960/1600.
 const avif = /^\/cine\/media\/cine-.+-poster\.jpg$/.test(image) ? image.replace(/\.jpg$/, '.avif') : '';
 const v = variantes(image);
@@ -23,12 +26,7 @@ const languagePair = [['/', '/en'], ['/servicios', '/en/services'], ['/nosotros'
   .find(([es, en]) => publicPath === es || publicPath === en);
 const noindex = process.env.UMSA_PREVIEW === '1' || Astro.response.status >= 400;
 const abs = (p: string) => (p ? new URL(p, SITE_URL).href : '');
-const structuredData = {
-  '@context': 'https://schema.org', '@graph': [
-    { '@type': 'Organization', '@id': SITE_URL + '/#organization', name: SITE_NAME, url: SITE_URL, address: { '@type': 'PostalAddress', ...BUSINESS_ADDRESS } },
-    { '@type': 'WebPage', '@id': canonical + '#webpage', url: canonical, name: title, description, inLanguage: lang === 'en' ? 'en' : 'es-AR', publisher: { '@id': SITE_URL + '/#organization' } },
-  ],
-};
+const structuredData = publicStructuredData(canonicalPath || publicPath, title, description, lang);
 ---
 <meta charset="utf-8" />
 {!noindex && <>

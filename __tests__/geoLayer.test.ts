@@ -39,7 +39,7 @@ describe('GEO layer', () => {
     expect(brandFacts.canonicalDomain).toBe('https://www.ultimamilla.com.ar');
     expect(brandFacts.legalName).toBe('ULTIMA MILLA S.A.');
     expect(services.length).toBeGreaterThanOrEqual(8);
-    expect(services[0]?.url).toMatch(/^https:\/\/www\.ultimamilla\.com\.ar\/servicios\/\d+\//);
+    expect(services[0]?.url).toMatch(/^https:\/\/www\.ultimamilla\.com\.ar\/servicios\/\d+$/);
     expect(sectors.map((sector) => sector.slug)).toEqual(expect.arrayContaining(['bodegas', 'salud', 'software']));
     expect(cases.length).toBeGreaterThan(100);
     expect(cases[0]?.url).toMatch(/^https:\/\/www\.ultimamilla\.com\.ar\/antecedentes\/\d+\//);

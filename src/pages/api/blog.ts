@@ -1,3 +1,5 @@
+import { correctBlogEditorial } from '../../utils/blogEditorialCorrections';
+import { nonCanonicalBlogSlugs } from '../../data/seoRedirects';
 import type { APIRoute } from 'astro';
 import {
   addVisibleBlogStatusFilter,
@@ -148,14 +150,15 @@ export const GET: APIRoute = async () => {
   const params = addVisibleBlogStatusFilter(new URLSearchParams());
   params.set('sort', '-fecha_publicacion');
   params.set('limit', '20');
-  params.set('fields', 'slug,titulo,fecha_publicacion,categoria,status,imagen_portada');
+  params.set('fields', 'slug,titulo,fecha_publicacion,fecha_modificacion,categoria,status,imagen_portada');
+  params.set('filter[slug][_nin]', [...nonCanonicalBlogSlugs].join(','));
   const res = await fetch(
     `${DIRECTUS_URL}/items/blog_posts?${params.toString()}`,
     { headers }
   );
   const data = await res.json();
   if (Array.isArray(data.data)) {
-    data.data = preserveBlogPostCovers(data.data);
+    data.data = preserveBlogPostCovers(data.data).map(correctBlogEditorial);
   }
   return new Response(JSON.stringify(data), {
     headers: { 'Content-Type': 'application/json' },

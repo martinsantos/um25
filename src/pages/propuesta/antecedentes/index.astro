@@ -31,6 +31,8 @@ const baseService = stories.filter((c) => cumple(c, 'service'));
 const lente = (count: number, base: number, kind: 'sector' | 'service', value: string) => ({ count, w: Math.round((count / Math.max(1, base)) * 100), zero: count === 0 && estado[kind] !== value, on: estado[kind] === value });
 const sectors = SECTORS.filter((s) => stories.some((c) => matchesCatalog(indexStory(c), { sector: s.slug }))).map((s) => ({ slug: s.slug, name: s.name, ...lente(baseSector.filter((c) => matchesCatalog(indexStory(c), { sector: s.slug })).length, baseSector.length, 'sector', s.slug) }));
 const svcs = services.map((s) => ({ code: s.code, name: s.name, ...lente(baseService.filter((c) => c.serviceCodes.includes(s.code)).length, baseService.length, 'service', s.code) }));
+if (stories.some(c => !c.sectorSlug)) sectors.push({ slug: 'sin-clasificar', name: 'Sector no publicado', ...lente(baseSector.filter(c => !c.sectorSlug).length, baseSector.length, 'sector', 'sin-clasificar') });
+if (stories.some(c => !c.serviceCodes.length)) svcs.push({ code: 'sin-clasificar', name: 'Otros alcances del archivo', ...lente(baseService.filter(c => !c.serviceCodes.length).length, baseService.length, 'service', 'sin-clasificar') });
 const years = [...new Set(stories.map((c) => c.year).filter(Boolean))].sort((a, b) => b - a);
 const partes = [estado.q, estado.periodo && `Período ${estado.periodo}`, estado.estado, estado.cliente, estado.sector && (sectors.find((s) => s.slug === estado.sector)?.name || estado.sector), estado.service && (svcs.find((s) => s.code === estado.service)?.name || estado.service), estado.year].filter(Boolean) as string[];
 const filtra = partes.length > 0;
@@ -218,7 +220,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
         ['sector', 'service'].forEach((kind) => {
           const base = items.filter((it) => matches(it, kind));
           lenses.filter((b) => b.dataset.lens === kind).forEach((b) => {
-            const c = base.filter((it) => kind === 'service' ? it.services.includes(b.dataset.value!) : matchesCatalog(it, { sector: b.dataset.value! })).length;
+            const c = base.filter((it) => matchesCatalog(it, { [kind]: b.dataset.value! })).length;
             const num = b.querySelector('[data-n]'); if (num) num.textContent = String(c);
             b.style.setProperty('--w', String(Math.round((c / Math.max(1, base.length)) * 100)));
             b.toggleAttribute('data-zero', c === 0 && state[kind] !== b.dataset.value);

@@ -1,3 +1,4 @@
+import { PUBLIC_CONTENT_REVIEWED } from '../config/publicFacts';
 import type { APIRoute } from 'astro';
 import { BUSINESS_ADDRESS, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '../config/seo';
 import {
@@ -16,7 +17,7 @@ import { buildTopicClusterDigest } from '../utils/blogTopicCases';
  * Si Directus no responde se usa el snapshot de antecedentes (getAllAntecedentes
  * ya degrada a snapshot); nunca se devuelve 503 por falta de CMS.
  */
-const LAST_REVIEW = '2026-09-27';
+const LAST_REVIEW = PUBLIC_CONTENT_REVIEWED;
 
 export const GET: APIRoute = async () => {
   let caseResources = geoCaseResources;

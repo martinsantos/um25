@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { BUSINESS_ADDRESS, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '../config/seo';
 import { geoHubRoutes, geoResourceNames, geoSectorResources, geoServiceResources } from '../data/geoResources';
+import { PUBLIC_CONTENT_REVIEWED, yearsOfExperience } from '../config/publicFacts';
 import { getAntecedentesCatalogCount } from '../utils/verifiedProof';
 import { buildTopicClusterDigest } from '../utils/blogTopicCases';
 
@@ -9,7 +10,7 @@ import { buildTopicClusterDigest } from '../utils/blogTopicCases';
  * Sólo datos presentes en el sitio: servicios, sectores, sede, cobertura,
  * cifras del catálogo y vías de contacto.
  */
-const LAST_REVIEW = '2026-09-27';
+const LAST_REVIEW = PUBLIC_CONTENT_REVIEWED;
 
 export const GET: APIRoute = async () => {
   const count = getAntecedentesCatalogCount();
@@ -23,7 +24,7 @@ export const GET: APIRoute = async () => {
     `ULTIMA MILLA S.A. es una empresa argentina de servicios IT integrales con sede en ${BUSINESS_ADDRESS.addressLocality}, Mendoza. Diseña, instala, documenta y mantiene infraestructura tecnológica para empresas y organismos públicos: redes, seguridad electrónica, telecomunicaciones, software, soporte, consultoría, detección de incendios y energía para IT.`,
     '',
     '## Datos verificables',
-    '- Trayectoria: 24+ años.',
+    `- Trayectoria: ${yearsOfExperience()} años (desde junio de 2003).`,
     `- Antecedentes técnicos publicados: ${count} (${SITE_URL}/antecedentes).`,
     '- Frentes de servicio: 8.',
     '- Soporte: 24/7 con abono.',
@@ -69,7 +70,7 @@ export const GET: APIRoute = async () => {
     `- ${SITE_URL}/en`,
     `- ${SITE_URL}/en/services`,
     `- ${SITE_URL}/en/about`,
-    `- ${SITE_URL}/en/contacto`,
+    `- ${SITE_URL}/en/contact`,
     '',
     `Última revisión: ${LAST_REVIEW}`,
   ];
