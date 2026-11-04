@@ -1,6 +1,6 @@
 ---
 import { fetchBlogBand } from '../../utils/getBlogData';
-import { blogPostImageUrl } from '../../utils/blogHelpers';
+import { blogImageSrcset, blogPostImageUrl } from '../../utils/blogHelpers';
 import { getCategoryLabel, formatBlogDate } from '../../utils/blogUtils';
 
 const posts = await fetchBlogBand(3);
@@ -37,7 +37,7 @@ if (posts.length === 0) return;
             {imgUrl ? (
               <figure class="aspect-[16/10] overflow-hidden bg-white/[0.06]">
                 <img
-                  src={imgUrl}
+                  src={imgUrl} srcset={blogImageSrcset(imgUrl)} sizes="(max-width: 720px) 100vw, 32vw"
                   alt=""
                   class="h-full w-full object-cover opacity-88 transition-opacity group-hover:opacity-100"
                   loading="lazy"

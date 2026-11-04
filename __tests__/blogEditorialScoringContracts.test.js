@@ -48,10 +48,10 @@ describe('Blog editorial GEO scoring contracts', () => {
     expect(scorePage).toContain('Fallas editoriales del blog');
   });
 
-  test('public reading preserves assigned covers; publishing retains its separate selection policy', () => {
-    expect(source('src/pages/api/blog.ts')).toContain('selectDiverseBlogCover');
+  test('reading and publishing preserve assigned covers', () => {
+    expect(source('src/pages/api/blog.ts')).toContain('normalizeBlogCoverUrl');
     expect(source('src/pages/api/blog.ts')).toContain('preserveBlogPostCovers(data.data)');
-    expect(source('src/pages/api/blog/[slug].ts')).toContain('selectDiverseBlogCover');
+    expect(source('src/pages/api/blog/[slug].ts')).toContain('normalizeBlogCoverUrl');
     expect(source('src/utils/getBlogData.ts')).not.toContain('attachDiverseCover');
     expect(source('src/utils/getBlogData.ts')).toContain('preserveBlogPostCovers(contextPosts)');
     // Rediseño 2026-09: el sitemap del blog delega en fetchBlogSitemapEntries

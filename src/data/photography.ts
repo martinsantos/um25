@@ -18,3 +18,7 @@ export const servicePhotograph = (id: number | string) => {
   const key = services[String(id)];
   return key ? photos[key]?.src || '' : '';
 };
+
+/** Ancho real del archivo descargado por el navegador. */
+const widths = new Map(Object.values(manifest.photos).map(p => [p.src, p.publicWidth]));
+export const photoWidth = (src: string) => widths.get(src) || 1200;

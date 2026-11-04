@@ -4,7 +4,7 @@ import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
-import { loadStories, SECTOR_PHOTO } from '../../../components/proto/isoData';
+import { loadStories, srcsetDe, SECTOR_PHOTO } from '../../../components/proto/isoData';
 import { sectorRelato } from '../../../components/proto/relato';
 import { matchesCatalog } from '../../../components/proto/catalogFilters';
 import { SECTORS } from '../../../data/cine/scenes';
@@ -50,7 +50,7 @@ const items = SECTORS.map((s) => { const r = sectorRelato(s.slug); return { ...s
         {items.map((s, i) => (
           <li class="fila">
             <a href={`/sectores/${s.slug}`}>
-              <figure><img src={s.photo} alt="" width="1672" height="941" loading={i < 2 ? 'eager' : 'lazy'} decoding="async" /></figure>
+              <figure><img src={s.photo} srcset={srcsetDe(s.photo)} sizes="(max-width: 700px) 100vw, 38vw" alt="" width="1672" height="941" loading={i < 2 ? 'eager' : 'lazy'} decoding="async" /></figure>
               <div class="texto">
                 {['software', 'seguridad-electronica'].includes(s.slug) && <span class="n">Solución transversal a los sectores</span>}
                 <h2>{s.name}<span class="dot">.</span></h2>

@@ -55,7 +55,16 @@ export const GET: APIRoute = async ({ params, url, redirect }) => {
   try {
     const post = await fetchBlogPost(slug);
     if (!post) return redirect(DEFAULT_OG_IMAGE_PATH, 302);
-    const source = await readImage(blogPostImageUrl(post), url.origin);
+    const cover = blogPostImageUrl(post);
+    if (cover.startsWith('https://images.unsplash.com/photo-')) {
+      const cdn = new URL(cover);
+      cdn.searchParams.set('w', String(OG_IMAGE_WIDTH));
+      cdn.searchParams.set('h', String(OG_IMAGE_HEIGHT));
+      cdn.searchParams.set('fit', 'crop');
+      cdn.searchParams.set('fm', 'jpg');
+      return redirect(cdn.toString(), 302);
+    }
+    const source = await readImage(cover, url.origin);
     if (!source) return redirect(DEFAULT_OG_IMAGE_PATH, 302);
 
     const { default: sharp } = await import('sharp');

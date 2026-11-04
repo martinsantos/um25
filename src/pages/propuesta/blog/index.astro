@@ -5,7 +5,7 @@ import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import { resolveBlogListingRoute } from '../../../lib/blogListingRoute';
-import { blogPostImageUrl } from '../../../utils/blogHelpers';
+import { blogImageSrcset, blogPostImageAlt, blogPostImageUrl } from '../../../utils/blogHelpers';
 import { fetchBlogListing } from '../../../utils/getBlogData';
 import { getCategoryLabel, formatBlogDateLong, sanitizeBlogExcerpt } from '../../../utils/blogUtils';
 
@@ -51,7 +51,7 @@ const categorias = ['noticias', 'proyectos', 'tecnico', 'tecnologia', 'empresa']
         {posts.map((p) => (
           <li class="entrada">
             <span class="small"><span>{formatBlogDateLong(p.fecha_publicacion)}</span><span>{getCategoryLabel(p.categoria)}{p.tiempo_lectura ? ` · ${p.tiempo_lectura} min` : ''}</span></span>
-            <a href={`/blog/${p.slug}`}><img class="entrada__image" src={blogPostImageUrl(p)} alt={p.imagen_portada_alt || p.titulo} width="960" height="540" loading="lazy" /><h2>{p.titulo}</h2><p>{sanitizeBlogExcerpt(p.resumen, 220)}</p></a>
+            <a href={`/blog/${p.slug}`}><img class="entrada__image" src={blogPostImageUrl(p)} srcset={blogImageSrcset(blogPostImageUrl(p))} sizes="(max-width: 720px) 100vw, 33vw" alt={blogPostImageAlt(p)} width="960" height="540" loading="lazy" /><h2>{p.titulo}</h2><p>{sanitizeBlogExcerpt(p.resumen, 220)}</p></a>
           </li>
         ))}
       </ol>

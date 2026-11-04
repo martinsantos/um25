@@ -1,6 +1,6 @@
 ---
 import type { EntradaBlog } from '../../lib/directus';
-import { blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
+import { blogImageSrcset, blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
 import { getCategoryColor, getCategoryLabel, formatBlogDate, sanitizeBlogExcerpt } from '../../utils/blogUtils';
 
 interface Props {
@@ -50,7 +50,7 @@ const excerpt = sanitizeBlogExcerpt(post.resumen, 180);
 
   {imgUrl && (
     <a href={`/blog/${post.slug}`} class="um-click-surface feed-thumb-wrap" aria-label={thumbLabel}>
-      <img src={imgUrl} alt={imgAlt} class="feed-thumb" width="640" height="360" loading="lazy" decoding="async" />
+      <img src={imgUrl} srcset={blogImageSrcset(imgUrl)} sizes="(max-width: 720px) 36vw, 220px" alt={imgAlt} class="feed-thumb" width="640" height="360" loading="lazy" decoding="async" />
     </a>
   )}
 </article>

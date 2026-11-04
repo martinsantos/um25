@@ -11,6 +11,8 @@ import Ficha from '../../../../components/proto/Ficha.astro';
 import FichaIso from '../../../../components/proto/FichaIso.astro';
 import Cierre from '../../../../components/proto/Cierre.astro';
 import { loadStories, services, variantes } from '../../../../components/proto/isoData';
+import caseImageDescriptions from '../../../../data/casePhotoAlt.json';
+import { photographForCase } from '../../../../data/photography';
 import { catalogImageLabel } from '../../../../components/proto/catalogEditorial';
 import CasoEnDetalle from '../../../../components/proto/CasoEnDetalle.astro';
 import { publicCaseFor, samePublicClient, caseEquipmentFor } from '../../../../components/proto/casePresentation';
@@ -41,6 +43,7 @@ const contextualLabel = catalogImageLabel(c.id)
   || (c.image.startsWith('/images/antecedentes/generated/') ? 'Imagen ilustrativa generada con IA' : undefined)
   || (caseDetail?.imageKind === 'illustration' ? 'Imagen ilustrativa del tipo de instalación' : undefined);
 const imageSet = variantes(c.image);
+const photoAlt = photographForCase(c.id)?.context || (caseImageDescriptions as Record<string, string>)[String(c.id)] || contextualLabel || c.title;
 const scope = caseEquipmentFor(c);
 const ref = `UM-${c.id}`;
 const introduction = caseDetail?.introduction || c.summary || `Registro ${ref} del archivo de ULTIMA MILLA${when ? `, correspondiente a ${when}` : ''}. ${svcs.length ? `Servicios vinculados: ${svcs.map(s => s.name).join(', ')}.` : 'El alcance disponible se conserva con la referencia original del proyecto.'}`;
@@ -108,7 +111,7 @@ const seoTitle = caseSeo.title.includes(ref) ? caseSeo.title : `${trimAtWordBoun
       </nav>
       <div class="hoja-cab"><span>Ficha de trabajo · <b>{ref}</b>{enCurso && <i class="curso">En curso</i>}</span><span>{[c.sector, periodo].filter(Boolean).join(' · ')}</span></div>
       <div class:list={['proyecto', { 'proyecto--sinfoto': !photo }]}>
-        {photo && <figure class="obra"><img src={c.image} srcset={imageSet.ancho ? `${imageSet.w480} 480w, ${imageSet.w960} 960w, ${c.image} ${imageSet.ancho}w` : undefined} sizes="(max-width: 900px) 100vw, 58vw" alt={contextualLabel || `${c.title}, ${c.client}`} width={catalogImageLabel(c.id) ? 1920 : 1600} height={catalogImageLabel(c.id) ? 1080 : 1000} fetchpriority="high" decoding="async" />{contextualLabel && <figcaption>{contextualLabel}</figcaption>}</figure>}
+        {photo && <figure class="obra"><img src={c.image} srcset={imageSet.ancho ? `${imageSet.w480} 480w, ${imageSet.w960} 960w, ${c.image} ${imageSet.ancho}w` : undefined} sizes="(max-width: 900px) 100vw, 58vw" alt={photoAlt} width={imageSet.ancho || 1600} height={imageSet.ancho === 1536 ? 1024 : 1000} fetchpriority="high" decoding="async" />{contextualLabel && <figcaption>{contextualLabel}</figcaption>}</figure>}
         <div class="datos">
           <h1>{pageTitle}<span class="dot">.</span></h1>
           <div class="quien">{c.client}{when && <span><span class="quien-separator" aria-hidden="true"> · </span>{when}</span>}</div>

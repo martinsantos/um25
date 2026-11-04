@@ -1,3 +1,5 @@
+import type { EntradaBlog } from '../../lib/directus';
+import { blogPostImageUrl } from '../../utils/blogHelpers';
 import { correctBlogEditorial } from '../../utils/blogEditorialCorrections';
 import { nonCanonicalBlogSlugs } from '../../data/seoRedirects';
 import type { APIRoute } from 'astro';
@@ -7,9 +9,8 @@ import {
   normalizePublicationDate,
 } from '../../utils/blogPublishing';
 import {
-  BLOG_COVER_DIVERSITY_LIMIT,
   preserveBlogPostCovers,
-  selectDiverseBlogCover,
+  normalizeBlogCoverUrl,
 } from '../../utils/blogCoverDiversity.js';
 import { checkBasicAuth } from '../../utils/serverAuth';
 
@@ -24,25 +25,6 @@ function slugify(text: string): string {
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
-}
-
-async function fetchBlogCoverCorpus(): Promise<Record<string, unknown>[]> {
-  const params = new URLSearchParams();
-  params.set('sort', '-fecha_publicacion');
-  params.set('limit', String(BLOG_COVER_DIVERSITY_LIMIT));
-  params.set('fields', 'id,slug,titulo,categoria,imagen_portada,fecha_publicacion,status');
-  params.set('filter[status][_neq]', 'draft');
-
-  try {
-    const res = await fetch(`${DIRECTUS_URL}/items/blog_posts?${params.toString()}`, {
-      headers: { Authorization: `Bearer ${DIRECTUS_TOKEN}` },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data.data) ? data.data : [];
-  } catch {
-    return [];
-  }
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -106,7 +88,7 @@ export const POST: APIRoute = async ({ request }) => {
     resumen,
     contenido,
     categoria: (categoria as string) || 'noticias',
-    imagen_portada: (imagen_portada as string) || null,
+    imagen_portada: normalizeBlogCoverUrl(imagen_portada) || null,
     tags: Array.isArray(tags)
       ? tags
       : tags
@@ -117,9 +99,6 @@ export const POST: APIRoute = async ({ request }) => {
     meta_title: (meta_title as string) || null,
     meta_description: (meta_description as string) || null,
   };
-
-  const coverCorpus = await fetchBlogCoverCorpus();
-  post.imagen_portada = selectDiverseBlogCover(post, coverCorpus);
 
   const res = await fetch(`${DIRECTUS_URL}/items/blog_posts`, {
     method: 'POST',
@@ -158,7 +137,9 @@ export const GET: APIRoute = async () => {
   );
   const data = await res.json();
   if (Array.isArray(data.data)) {
-    data.data = preserveBlogPostCovers(data.data).map(correctBlogEditorial);
+    data.data = preserveBlogPostCovers(data.data).map(correctBlogEditorial).map(post => ({
+      ...post, imagen_portada: normalizeBlogCoverUrl(blogPostImageUrl(post as EntradaBlog)),
+    }));
   }
   return new Response(JSON.stringify(data), {
     headers: { 'Content-Type': 'application/json' },
