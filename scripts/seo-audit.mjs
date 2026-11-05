@@ -92,6 +92,10 @@ async function auditHttpSemantics(baseUrl, failures) {
   const missingPaths = [
     '/__seo_missing_probe_2026__',
     '/servicios/999999/__seo_missing__',
+    '/servicios/108):',
+    '/servicios/108):/servicios-electricos-para-it',
+    '/servicios/0108/servicios-electricos-para-it',
+    '/servicios/1e2',
     '/antecedentes/999999/__seo_missing__',
     '/blog/__seo_missing_probe_2026__',
     '/blog/categoria/__seo_missing__',
@@ -102,6 +106,7 @@ async function auditHttpSemantics(baseUrl, failures) {
       const response = await fetch(new URL(path, baseUrl), { redirect: 'manual' });
       assert(response.status === 404, `${path} must return 404 directly, got ${response.status}`, failures);
       assert(!response.headers.get('location'), `${path} must not redirect missing content`, failures);
+      await response.arrayBuffer(); // Detect truncated SSR streams, including malformed service IDs.
     } catch (error) {
       failures.push(`${path} HTTP semantics check failed: ${error instanceof Error ? error.message : String(error)}`);
     }
