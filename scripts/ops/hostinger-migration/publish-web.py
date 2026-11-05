@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Publish a fresh UMSA build on Hostinger; keep releases, data and other services."""
+import errno
 import fcntl
 import hashlib
 import json
@@ -161,6 +162,55 @@ def validate_previous(previous):
         raise ValueError('Invalid current release state')
 
 
+def retire_drained_web_release(previous, port):
+    """Reclaim only a completed, unreferenced release after proxy workers drained."""
+    validate_previous(previous)
+    if previous == INITIAL or port not in (4321, 4322) or port == previous['port']:
+        raise RuntimeError('Cannot retire the active or an unreviewed web port')
+    listeners = subprocess.check_output(['ss', '-H', '-ltnp', 'sport = :' + str(port)], text=True)
+    pids = re.findall(r'\bpid=([1-9][0-9]*),', listeners)
+    if len(pids) != 1:
+        raise RuntimeError('Occupied web port has no unique owner')
+    pid = pids[0]
+    group = (PROC / pid / 'cgroup').read_text()
+    match = re.fullmatch(r'0::/system.slice/(umsa-web-([0-9a-f]{40}-[0-9]+-[0-9]+)\.service)\n?', group)
+    if not match or match[1] == previous['unit']:
+        raise RuntimeError('Occupied port is not an inactive UMSA release')
+    unit, identifier = match.groups()
+    root = RELEASES / identifier
+    receipt = root / 'publication.complete'
+    application = root / 'application'
+    if root.is_symlink() or receipt.is_symlink() or application.is_symlink():
+        raise RuntimeError('Inactive release paths must not be symlinks')
+    retired = json.loads(receipt.read_text())
+    validate_previous(retired)
+    if retired['unit'] != unit or retired['port'] != port or Path(retired['config']).parent != root:
+        raise RuntimeError('Inactive release receipt does not match the listener')
+    verify_web_runtime(unit, application, port, pid)
+    current_application = Path(previous['assets']).parents[1]
+    verify_web_runtime(previous['unit'], current_application, previous['port'])
+    # Inspect effective configurations in memory; never log credentials they may contain.
+    for config in (FRONT, PUBLIC_FRONT):
+        text = subprocess.check_output(['/usr/sbin/nginx', '-T', '-c', str(config)],
+                                       stderr=subprocess.STDOUT, text=True)
+        if (re.search(r'127\.0\.0\.1:' + str(port) + r'\b', text)
+                or not re.search(r'127\.0\.0\.1:' + str(previous['port']) + r'\b', text)):
+            raise RuntimeError('A live proxy may still reference the inactive release')
+    processes = subprocess.check_output(['ps', '-eo', 'args'], text=True)
+    if any(line.lstrip().startswith('nginx: worker process is shutting down') for line in processes.splitlines()):
+        raise RuntimeError('Proxy workers have not finished draining; keep the old runtime')
+    connections = subprocess.check_output(['ss', '-H', '-tn', 'state', 'established',
+        '( sport = :' + str(port) + ' or dport = :' + str(port) + ' )'], text=True)
+    if connections.strip():
+        raise RuntimeError('Inactive runtime still has established connections')
+    if json.loads(STATE.read_text()) != previous:
+        raise RuntimeError('Current release changed before retiring the inactive runtime')
+    verify_web_runtime(unit, application, port, pid)
+    subprocess.run(['systemctl', 'disable', unit], check=True)
+    subprocess.run(['systemctl', 'stop', unit], check=True)
+    print('Retired drained runtime ' + unit + '; release files retained.', flush=True)
+
+
 def main(mode, revision, run_id, attempt, expected):
     os.umask(0o022)
     if mode not in ('rehearse', 'publish') or not re.fullmatch('[0-9a-f]{40}', revision):
@@ -188,8 +238,15 @@ def main(mode, revision, run_id, attempt, expected):
     previous = json.loads(STATE.read_text()) if STATE.exists() else INITIAL.copy()
     validate_previous(previous)
     port = 4322 if previous['port'] == 4321 else 4321
-    with socket.socket() as probe:
-        probe.bind(('127.0.0.1', port))
+    try:
+        with socket.socket() as probe:
+            probe.bind(('127.0.0.1', port))
+    except OSError as error:
+        if error.errno != errno.EADDRINUSE:
+            raise
+        retire_drained_web_release(previous, port)
+        with socket.socket() as probe:
+            probe.bind(('127.0.0.1', port))
     if RELEASES.is_symlink() or shutil.disk_usage('/srv').free < max(5 * 1024**3, package.stat().st_size * 5):
         raise RuntimeError('Unsafe release root or insufficient free disk')
     RELEASES.mkdir(mode=0o755, exist_ok=True)
