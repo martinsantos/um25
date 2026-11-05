@@ -3,12 +3,13 @@
 import '../../styles/proto-despiece.css';
 import Head from '../../components/proto/Head.astro';
 import Top from '../../components/proto/Top.astro';
-import Apertura from '../../components/proto/Apertura.astro';
+import AperturaPortada from '../../components/proto/AperturaPortada.astro';
+import EmpresaPortada from '../../components/proto/EmpresaPortada.astro';
 import ExploradorServicios from '../../components/proto/ExploradorServicios.astro';
 import Casos from '../../components/proto/Casos.astro';
 import Cierre from '../../components/proto/Cierre.astro';
-import { loadStories, services, isoSrc } from '../../components/proto/isoData';
-import { EMPRESA, CUMPLIMIENTO, sectorRelato } from '../../components/proto/relato';
+import { loadStories } from '../../components/proto/isoData';
+import { sectorRelato } from '../../components/proto/relato';
 import { PORTADA_CASOS_IDS } from '../../data/propuesta/casos-destacados';
 import type { Caso } from '../../components/proto/relato';
 import { publicCaseFor } from '../../components/proto/casePresentation';
@@ -37,69 +38,19 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
   <head>
     <Head title="Servicios IT para operaciones que no pueden detenerse · ULTIMA MILLA" description={`Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. ${anios} años y ${total} antecedentes registrados desde Mendoza.`} image="/images/editorial/umsa-home-operations.webp" precargar />
     <style>
-      /* Mobile home: readable copy first, photograph/diagram in one shared media row. */
-      .home-actions { display: contents; }
-      @media (max-width: 900px) {
-        .home-opening :global(.lugar--hero) { height: auto; min-height: 0; }
-        .home-opening :global(.lugar__pin) { position: relative; top: auto; height: auto; min-height: 0; padding: 0; gap: 0; grid-template-columns: minmax(0, 1fr); overflow: hidden; }
-        .home-opening :global(.copy) { grid-area: 1 / 1; gap: 20px; padding: 32px var(--gutter); background: var(--bg); }
-        .home-opening :global(.copy h1) { font-size: clamp(2rem, 7.5vw, 2.6rem); line-height: 1.08; font-weight: 600; letter-spacing: -.025em; }
-        .home-opening :global(.copy > p) { max-width: 42ch; font-size: 1rem; line-height: 1.55; }
-        .home-actions { display: grid; gap: 12px; order: 2; margin-top: 4px; }
-        .home-actions .btn { margin: 0; min-height: 52px; justify-content: center; padding: 14px 20px; background: var(--red); color: #fff; line-height: 1.4; }
-        .home-actions .u { margin-top: 0; justify-self: center; min-height: 44px; display: inline-flex; align-items: center; padding-block: 8px; font-size: 1rem; }
-        .home-opening .cifras { order: 3; margin: 4px 0 0; padding-top: 20px; gap: 16px 24px; }
-        .home-opening .cifras b { font-size: 1.5rem; line-height: 1.15; }
-        .home-opening .cifras span { font-size: 1rem; line-height: 1.4; color: var(--ink-2); }
-        .home-opening :global(.lugar__fondo) { position: relative; grid-area: 2 / 1; width: 100%; aspect-ratio: 16 / 10; }
-        .home-opening :global(.lugar__fondo picture) { display: block; height: 100%; }
-        .home-opening :global(.lugar__fondo::after) { background: none; }
-        .home-opening :global(.lugar__pin > .xray) { grid-area: 2 / 1; width: 100%; height: auto; aspect-ratio: 16 / 10; margin: 0; }
-        .home-opening :global(.xray__iso) { inset: 16px; }
-        .home-opening :global(.xray__rotulo) { right: 16px; bottom: 12px; max-width: calc(100% - 32px); padding: 6px 10px; font-size: 1rem; background: var(--bg); }
-      }
-      @media (min-width: 600px) and (max-width: 900px) {
-        .home-opening .cifras { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-        .home-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 16px 24px; }
-      }
-
       /* Los sectores: una línea, sin fotos. Las fotos se guardan para los casos. */
       .lugares { margin: var(--s4) 0 0; padding: var(--s3) 0 0; list-style: none; display: flex; flex-wrap: wrap; gap: 10px 28px; border-top: 1px solid var(--line); }
       .lugares a { font-weight: 600; font-size: 1.1rem; }
       .lugares a:hover { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
       .lugares .n { color: var(--ink-3); font-weight: 400; font-size: 1rem; margin-left: 8px; }
 
-      /* La empresa: lead y sedes a la izquierda; a la derecha el método en cuatro principios y la historia en cuatro hitos. */
-      .historia { margin: var(--s4) 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3) clamp(20px, 3vw, 48px); border-top: 1px solid var(--line); }
-      .historia li { padding-top: var(--s2); display: grid; gap: 4px; align-content: start; }
-      .historia h3 { font-size: 1.05rem; }
-      .historia p { font-size: 1rem; }
-      .sedes { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; padding: 0; list-style: none; color: var(--ink-2); }
-      .sedes b { color: var(--ink); font-weight: 600; margin-right: 8px; }
-      .entrega { margin: var(--s4) 0 0; padding: var(--s3) 0 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px clamp(20px, 3vw, 48px); border-top: 1px solid var(--line); }
-      .entrega li { display: grid; gap: 2px; }
-      .entrega b { font-weight: 600; }
-      .entrega span { color: var(--ink-2); font-size: 1rem; }
-
-      @media (max-width: 1100px) { .historia { grid-template-columns: 1fr 1fr; } }
-      @media (max-width: 900px) { .historia, .entrega { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
     <Top />
     <main id="contenido">
 
-    <div class="home-opening">
-    <Apertura label="Portada" isoSrc={isoSrc('building')} image="/images/editorial/umsa-home-operations.webp" open ciclo hero nombres={Object.fromEntries(services.map((s) => [s.code, s.name]))}>
-      <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
-      <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
-      <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>
-      <div class="home-actions">
-        <a class="btn" href="/contacto">Pedir un relevamiento</a>
-        <a class="u" href="/antecedentes">Ver los {total} antecedentes</a>
-      </div>
-    </Apertura>
-    </div>
+    <AperturaPortada cifras={cifras} total={total} />
 
     <section class="sec" id="clientes">
       <div class="wrap">
@@ -120,20 +71,7 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
 
     <Casos casos={casosPortada} stories={stories} title="Proyectos que muestran cómo trabajamos" max={3} />
 
-    <section class="sec" id="empresa">
-      <div class="wrap">
-        <div class="cols cols-5-7">
-          <div class="prosa">
-            <h2>{EMPRESA.titulo}<span class="dot">.</span></h2>
-            <p class="lead">{EMPRESA.lead}</p>
-            <ul class="sedes">{EMPRESA.sedes.map((s) => <li><b>{s.name}</b>{s.detail || s.role}</li>)}</ul>
-          </div>
-          <div class="cols cols-2">{EMPRESA.principios.map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div>
-        </div>
-        <ol class="historia">{EMPRESA.historia.map(([y, t, d]) => <li><span class="small">{y}</span><h3>{t}</h3><p class="muted">{d}</p></li>)}</ol>
-        <ul class="entrega" aria-label="Cada obra se entrega medida, documentada y trazable">{CUMPLIMIENTO.map(([t, d]) => <li><b>{t}</b><span>{d}</span></li>)}</ul>
-      </div>
-    </section>
+    <EmpresaPortada />
 
     </main>
 
