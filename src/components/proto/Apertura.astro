@@ -6,12 +6,12 @@
  * vez: salen de cámaras distintas y superpuestos se leían como dos edificios.
  */
 import { variantes } from './isoData';
-interface Props { label: string; iso?: string; isoSrc?: string; svc?: string; ciclo?: boolean; nombres?: Record<string, string>; image: string; ghost?: string; film?: string; poster?: string; open?: boolean; hero?: boolean; eager?: boolean }
-const { label, iso, isoSrc, svc, ciclo = false, nombres, image, ghost, film, poster, open = false, hero = false, eager = true } = Astro.props;
+interface Props { label: string; iso?: string; isoSrc?: string; svc?: string; ciclo?: boolean; nombres?: Record<string, string>; image: string; ghost?: string; film?: string; poster?: string; open?: boolean; hero?: boolean; photoOnly?: boolean; eager?: boolean }
+const { label, iso, isoSrc, svc, ciclo = false, nombres, image, ghost, film, poster, open = false, hero = false, photoOnly = false, eager = true } = Astro.props;
 const foto = variantes(image);
 const nombresAttr = nombres ? Object.entries(nombres).map(([k, v]) => `${k}:${v}`).join('|') : undefined;
 ---
-<section class:list={['lugar', { 'lugar--open': open, 'lugar--hero': hero }]} data-lugar data-fase="0" aria-label={label}>
+<section class:list={['lugar', { 'lugar--open': open, 'lugar--hero': hero, 'lugar--photo': photoOnly }]} data-lugar={photoOnly ? undefined : ''} data-fase={photoOnly ? undefined : '0'} aria-label={label}>
   <div class="lugar__pin">
     {hero && (
       <div class="lugar__fondo" aria-hidden="true">
@@ -24,7 +24,7 @@ const nombresAttr = nombres ? Object.entries(nombres).map(([k, v]) => `${k}:${v}
       </div>
     )}
     <div class="copy"><slot /></div>
-    <div class="xray">
+    {!photoOnly && <div class="xray">
       {!hero && <div class="xray__ghost"><img src={ghost || image} alt="" width="1672" height="941" loading={eager ? 'eager' : 'lazy'} /></div>}
       {iso ? <div class="xray__iso iso" data-svc={svc} data-ciclo={ciclo ? "" : undefined} data-nombres={nombresAttr} set:html={iso} /> : <div class="xray__iso iso" data-svc={svc} data-ciclo={ciclo ? "" : undefined} data-nombres={nombresAttr} data-src={isoSrc}></div>}
       {!hero && <div class="xray__foto">
@@ -32,6 +32,16 @@ const nombresAttr = nombres ? Object.entries(nombres).map(([k, v]) => `${k}:${v}
       </div>}
       <div class="xray__linea"></div>
       {ciclo && <div class="xray__rotulo" data-rotulo aria-live="polite"></div>}
-    </div>
+    </div>}
   </div>
 </section>
+
+<style>
+  /* A normal document-flow opening: the photograph never gives way to a diagram. */
+  .lugar--photo { height:auto; }
+  .lugar--photo .lugar__pin { position:relative; top:auto; height:auto; min-height:calc(100svh - var(--top-h)); overflow:visible; }
+  .lugar--photo .lugar__fondo { opacity:1; }
+  @media (max-width:900px) {
+    .lugar--photo .lugar__pin { min-height:0; }
+  }
+</style>

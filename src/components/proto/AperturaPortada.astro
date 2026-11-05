@@ -1,11 +1,10 @@
 ---
 import Apertura from './Apertura.astro';
-import { services, isoSrc } from './isoData';
 interface Props { cifras: [string,string][]; total: number }
 const { cifras, total } = Astro.props;
 ---
 <div class="home-opening">
-    <Apertura label="Portada" isoSrc={isoSrc('building')} image="/images/editorial/umsa-home-operations.webp" open ciclo hero nombres={Object.fromEntries(services.map((s) => [s.code, s.name]))}>
+    <Apertura label="Portada" image="/images/editorial/umsa-home-operations.webp" hero photoOnly>
       <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
       <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
       <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>
@@ -16,7 +15,7 @@ const { cifras, total } = Astro.props;
     </Apertura>
 </div>
 <style>
-      /* Mobile home: readable copy first, photograph/diagram in one shared media row. */
+      /* Mobile home: readable copy first, photograph in its own media row. */
       .home-actions { display: contents; }
       @media (max-width: 900px) {
         .home-opening :global(.lugar--hero) { height: auto; min-height: 0; }
@@ -33,9 +32,6 @@ const { cifras, total } = Astro.props;
         .home-opening :global(.lugar__fondo) { position: relative; grid-area: 2 / 1; width: 100%; aspect-ratio: 16 / 10; }
         .home-opening :global(.lugar__fondo picture) { display: block; height: 100%; }
         .home-opening :global(.lugar__fondo::after) { background: none; }
-        .home-opening :global(.lugar__pin > .xray) { grid-area: 2 / 1; width: 100%; height: auto; aspect-ratio: 16 / 10; margin: 0; }
-        .home-opening :global(.xray__iso) { inset: 16px; }
-        .home-opening :global(.xray__rotulo) { right: 16px; bottom: 12px; max-width: calc(100% - 32px); padding: 6px 10px; font-size: 1rem; background: var(--bg); }
       }
       @media (min-width: 600px) and (max-width: 900px) {
         .home-opening .cifras { grid-template-columns: repeat(4, minmax(0, 1fr)); }
