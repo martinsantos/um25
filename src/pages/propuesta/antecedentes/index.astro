@@ -1,7 +1,7 @@
 ---
 /**
  * Los proyectos (2026-10-31, v4). Pared de fichas. Sector, servicio, año y cliente filtran; el
- * filtro vive en la URL y el servidor ya lo aplica: la página llega con las primeras 48 fichas que
+ * filtro vive en la URL y el servidor ya lo aplica: la página llega con la primera tanda de fichas que
  * cumplen, las cuentas de cada lente y la cifra, así nada cambia después de pintar. El resto de
  * las fichas llega como datos (datos.json) cuando se filtra o se pide más, y se crean en el
  * momento. Entre las fichas, los lugares por dentro. No indexable.
@@ -21,7 +21,7 @@ const estado = catalogState(Astro.url.searchParams);
 const indexStory = (c: Story): CatalogItem => ({ sector: c.sectorSlug, services: c.serviceCodes, year: String(c.year), client: c.client, search: [c.client, c.title, c.sector, ...c.services, c.summary].join(' '), status: c.status });
 const stories = orderCatalog(sourceStories.map(c => ({ ...indexStory(c), story: c })), estado.orden).map(c => c.story);
 const total = stories.length;
-const INICIAL = 48;
+const INICIAL = 36;
 // La misma regla que el guion del muro: cada lente cuenta dentro de lo que filtran las otras.
 const cumple = (c: Story, salvo?: string) => matchesCatalog(indexStory(c), estado, salvo);
 const ok = stories.map((c) => cumple(c));
@@ -108,7 +108,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
   <body>
     <Top current="antecedentes" />
 
-    <main class="wrap muro" id="contenido" data-muro>
+    <main class="wrap muro" id="contenido" data-muro data-tanda={INICIAL}>
       <aside class="panel">
         <div>
           <h1 class="catalog-title">Proyectos y antecedentes<span class="dot">.</span></h1>
@@ -169,7 +169,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
       const recs = [...root.querySelectorAll<HTMLElement>('[data-rec]')].sort((a, b) => Number(a.dataset.at) - Number(b.dataset.at));
       const lenses = [...root.querySelectorAll<HTMLButtonElement>('[data-lens]')];
       const mas = root.querySelector<HTMLButtonElement>('[data-mas]')!;
-      const TANDA = 48;
+      const TANDA = Number(root.dataset.tanda);
       let visibles = TANDA;
       const state = catalogState(new URLSearchParams(location.search));
       const enDom = new Map<string, HTMLElement>();

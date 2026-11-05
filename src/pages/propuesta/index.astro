@@ -1,14 +1,10 @@
 ---
-/**
- * Portada (2026-10-31, v6). Cinco pantallas, una sola pieza isométrica. La apertura con el
- * edificio por dentro y los números reales; para quién; los ocho frentes y los sectores, en texto;
- * tres casos con el alcance de cada obra; la empresa y su método. Todo el texto es del sitio.
- * Las partes del despiece no aparecen aquí: se leen de a una en cada ficha. No indexable.
- */
+/* Portada pública: catálogo, explorador de servicios y proyectos documentados. */
 import '../../styles/proto-despiece.css';
 import Head from '../../components/proto/Head.astro';
 import Top from '../../components/proto/Top.astro';
 import Apertura from '../../components/proto/Apertura.astro';
+import ExploradorServicios from '../../components/proto/ExploradorServicios.astro';
 import Casos from '../../components/proto/Casos.astro';
 import Cierre from '../../components/proto/Cierre.astro';
 import { loadStories, services, isoSrc } from '../../components/proto/isoData';
@@ -30,7 +26,6 @@ const casosPortada: Caso[] = PORTADA_CASOS_IDS.flatMap((id) => {
   return story && detail ? [{ id, publicado: id, titulo: detail.title, cliente: story.client, sector: story.sectorSlug, servicios: story.serviceCodes, year: story.year, texto: detail.introduction }] : [];
 });
 const clientes = Object.values(stories.filter(s => isNamedClient(s.client)).reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
-const frentes = services.map((s) => ({ ...s, count: stories.filter((c) => c.serviceCodes.includes(s.code)).length }));
 const lugares = SECTORS.map((s) => ({ ...s, count: stories.filter((c) => matchesCatalog({sector: c.sectorSlug, services: c.serviceCodes, year: String(c.year), client: c.client, search: '', status: c.status}, {sector: s.slug})).length, headline: sectorRelato(s.slug).headline || s.text })).sort((a, b) => b.count - a.count);
 // A calendar-year difference is the conservative count; the founding year
 // itself is not a completed year of experience.
@@ -68,14 +63,6 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
         .home-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 16px 24px; }
       }
 
-      /* Ocho frentes: nombre, qué cubre y cuántos proyectos. */
-      .frentes { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(28px, 4vw, 72px); border-top: 1px solid var(--line); }
-      .frentes a { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 24px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--line-2); }
-      .frentes b { font-weight: 600; font-size: 1.1rem; grid-column: 1; grid-row: 1; }
-      .frentes p { margin: 0; color: var(--ink-2); font-size: 1rem; grid-column: 1; grid-row: 2; }
-      .frentes .n { color: var(--ink-3); font-size: 1rem; white-space: nowrap; grid-column: 2; grid-row: 1; }
-      .frentes a:hover b { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
-
       /* Los sectores: una línea, sin fotos. Las fotos se guardan para los casos. */
       .lugares { margin: var(--s4) 0 0; padding: var(--s3) 0 0; list-style: none; display: flex; flex-wrap: wrap; gap: 10px 28px; border-top: 1px solid var(--line); }
       .lugares a { font-weight: 600; font-size: 1.1rem; }
@@ -95,7 +82,7 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
       .entrega span { color: var(--ink-2); font-size: 1rem; }
 
       @media (max-width: 1100px) { .historia { grid-template-columns: 1fr 1fr; } }
-      @media (max-width: 900px) { .frentes, .historia, .entrega { grid-template-columns: 1fr; } }
+      @media (max-width: 900px) { .historia, .entrega { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
@@ -126,8 +113,7 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
 
     <section class="sec" id="servicios">
       <div class="wrap">
-        <div class="sec__head"><h2>Ocho frentes de servicio, en los lugares donde no se puede parar<span class="dot">.</span></h2></div>
-        <ol class="frentes">{frentes.map((s) => <li><a href={`/servicios/${s.code}`}><b>{s.name}</b><span class="n">{s.count} antecedentes</span><p>{s.text}</p></a></li>)}</ol>
+        <ExploradorServicios stories={stories} />
         <ol class="lugares" id="lugares" aria-label="Sectores">{lugares.map((l) => <li><a href={`/sectores/${l.slug}`}>{l.name}{l.count > 0 && <span class="n">{l.count}</span>}</a></li>)}<li><a class="muted" href="/sectores">Todos los sectores</a></li></ol>
       </div>
     </section>
