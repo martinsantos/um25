@@ -1,0 +1,45 @@
+---
+import Apertura from './Apertura.astro';
+import { services, isoSrc } from './isoData';
+interface Props { cifras: [string,string][]; total: number }
+const { cifras, total } = Astro.props;
+---
+<div class="home-opening">
+    <Apertura label="Portada" isoSrc={isoSrc('building')} image="/images/editorial/umsa-home-operations.webp" open ciclo hero nombres={Object.fromEntries(services.map((s) => [s.code, s.name]))}>
+      <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
+      <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
+      <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>
+      <div class="home-actions">
+        <a class="btn" href="/contacto">Pedir un relevamiento</a>
+        <a class="u" href="/antecedentes">Ver los {total} antecedentes</a>
+      </div>
+    </Apertura>
+</div>
+<style>
+      /* Mobile home: readable copy first, photograph/diagram in one shared media row. */
+      .home-actions { display: contents; }
+      @media (max-width: 900px) {
+        .home-opening :global(.lugar--hero) { height: auto; min-height: 0; }
+        .home-opening :global(.lugar__pin) { position: relative; top: auto; height: auto; min-height: 0; padding: 0; gap: 0; grid-template-columns: minmax(0, 1fr); overflow: hidden; }
+        .home-opening :global(.copy) { grid-area: 1 / 1; gap: 20px; padding: 32px var(--gutter); background: var(--bg); }
+        .home-opening :global(.copy h1) { font-size: clamp(2rem, 7.5vw, 2.6rem); line-height: 1.08; font-weight: 600; letter-spacing: -.025em; }
+        .home-opening :global(.copy > p) { max-width: 42ch; font-size: 1rem; line-height: 1.55; }
+        .home-actions { display: grid; gap: 12px; order: 2; margin-top: 4px; }
+        .home-actions .btn { margin: 0; min-height: 52px; justify-content: center; padding: 14px 20px; background: var(--red); color: #fff; line-height: 1.4; }
+        .home-actions .u { margin-top: 0; justify-self: center; min-height: 44px; display: inline-flex; align-items: center; padding-block: 8px; font-size: 1rem; }
+        .home-opening .cifras { order: 3; margin: 4px 0 0; padding-top: 20px; gap: 16px 24px; }
+        .home-opening .cifras b { font-size: 1.5rem; line-height: 1.15; }
+        .home-opening .cifras span { font-size: 1rem; line-height: 1.4; color: var(--ink-2); }
+        .home-opening :global(.lugar__fondo) { position: relative; grid-area: 2 / 1; width: 100%; aspect-ratio: 16 / 10; }
+        .home-opening :global(.lugar__fondo picture) { display: block; height: 100%; }
+        .home-opening :global(.lugar__fondo::after) { background: none; }
+        .home-opening :global(.lugar__pin > .xray) { grid-area: 2 / 1; width: 100%; height: auto; aspect-ratio: 16 / 10; margin: 0; }
+        .home-opening :global(.xray__iso) { inset: 16px; }
+        .home-opening :global(.xray__rotulo) { right: 16px; bottom: 12px; max-width: calc(100% - 32px); padding: 6px 10px; font-size: 1rem; background: var(--bg); }
+      }
+      @media (min-width: 600px) and (max-width: 900px) {
+        .home-opening .cifras { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .home-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 16px 24px; }
+      }
+
+</style>

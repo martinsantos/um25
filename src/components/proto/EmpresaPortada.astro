@@ -1,0 +1,125 @@
+---
+import { ArrowUpRight, Cable, ChevronDown, ClipboardCheck, FileCheck2, Files, Flame, Headset, MapPin, Ruler, ShieldCheck } from 'lucide-astro';
+import { CUMPLIMIENTO, EMPRESA } from './relato';
+
+const pasos = [
+  { icono: Ruler, titulo: 'Relevar', texto: 'Entender la operación, definir el alcance y ordenar las prioridades.' },
+  { icono: Cable, titulo: 'Integrar', texto: 'Diseñar y ejecutar redes, seguridad, energía y software como un sistema.' },
+  { icono: ClipboardCheck, titulo: 'Verificar', texto: 'Probar la instalación y entregar documentación útil para operarla.' },
+  { icono: Headset, titulo: 'Sostener', texto: 'Acompañar la operación con soporte, mantenimiento y trazabilidad.' },
+];
+const documentos = [
+  { icono: FileCheck2, titulo: 'Protocolos y entregables', indice: 0 },
+  { icono: Cable, titulo: 'Certificación del cableado', indice: 1 },
+  { icono: ShieldCheck, titulo: 'Seguridad de la información', indice: 2 },
+  { icono: Flame, titulo: 'Detección de incendios', indice: 3 },
+  { icono: Files, titulo: 'Dossiers para auditorías', indice: 4 },
+];
+const hitos = ['Infraestructura y telecomunicaciones', 'Seguridad y software', 'Soporte y trazabilidad', 'Integración IT en Argentina'];
+---
+<section class="sec empresa" id="empresa" aria-labelledby="empresa-titulo">
+  <div class="wrap">
+    <header class="empresa__cabecera">
+      <h2 id="empresa-titulo">De la ingeniería<br />a la operación<span class="dot">.</span></h2>
+      <p>Unimos diseño, obra y soporte para que cada sistema se pueda operar, auditar y ampliar.</p>
+    </header>
+
+    <ol class="metodo" aria-label="Cómo trabajamos">
+      {pasos.map(({ icono: Icono, titulo, texto }, i) => <li>
+        <div class="metodo__marca"><span>{String(i + 1).padStart(2, '0')}</span><Icono size={28} stroke-width={1.5} aria-hidden="true" /></div>
+        <h3>{titulo}</h3>
+        <p>{texto}</p>
+      </li>)}
+    </ol>
+
+    <div class="documentacion">
+      <div class="documentacion__intro">
+        <FileCheck2 size={36} stroke-width={1.35} aria-hidden="true" />
+        <h3>Documentación <br />para operar.</h3>
+        <p>Lo que queda en tus manos al cerrar el proyecto, según el alcance contratado.</p>
+        <a href="/documentacion">Ver documentación técnica <ArrowUpRight size={18} aria-hidden="true" /></a>
+      </div>
+      <div class="documentacion__lista">
+        {documentos.map(({ icono: Icono, titulo, indice }) => <details name="documentacion-empresa">
+          <summary><Icono size={23} stroke-width={1.5} aria-hidden="true" /><span>{titulo}</span><ChevronDown class="documentacion__flecha" size={18} aria-hidden="true" /></summary>
+          <p>{CUMPLIMIENTO[indice][1]}</p>
+        </details>)}
+      </div>
+    </div>
+
+    <div class="trayectoria">
+      <div class="trayectoria__cabecera"><h3>Desde 2003, en campo.</h3><a href="/nosotros">Conocé la empresa <ArrowUpRight size={18} aria-hidden="true" /></a></div>
+      <ol aria-label="Trayectoria de ULTIMA MILLA">
+        {EMPRESA.historia.map(([year], i) => <li><span>{year}</span><p>{hitos[i]}</p></li>)}
+      </ol>
+    </div>
+    <div class="cobertura"><MapPin size={19} stroke-width={1.6} aria-hidden="true" /><p>{EMPRESA.cobertura}</p><a href="/contacto">Hablemos de tu proyecto <ArrowUpRight size={18} aria-hidden="true" /></a></div>
+  </div>
+</section>
+
+<style>
+  .empresa { --empresa-paper:#e8ebea; --empresa-ink:#191e21; --empresa-muted:#515b60; --empresa-line:#c4ccce; }
+  .empresa__cabecera { display:grid; grid-template-columns:1fr 1fr; align-items:end; gap:var(--s4); margin-bottom:var(--s4); }
+  .empresa__cabecera h2 { font-size:clamp(2rem,3.2vw,3rem); }
+  .empresa__cabecera p { max-width:44ch; font-size:clamp(1.125rem,1.6vw,1.35rem); line-height:1.5; color:var(--ink-2); }
+  .metodo { list-style:none; padding:0; margin:0 0 var(--s5); display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--s4); }
+  .metodo li { position:relative; padding-top:var(--s3); border-top:1px solid var(--line); }
+  .metodo li::before { content:''; width:28px; height:2px; background:var(--red); position:absolute; top:-1px; left:0; }
+  .metodo__marca { display:flex; align-items:center; justify-content:space-between; gap:var(--s2); color:var(--ink-2); margin-bottom:var(--s2); }
+  .metodo__marca span { font-size:1rem; font-variant-numeric:tabular-nums; }
+  .metodo h3 { font-size:1.35rem; margin-bottom:var(--s1); }
+  .metodo p { color:var(--ink-2); font-size:1rem; line-height:1.5; max-width:30ch; }
+  .documentacion { background:var(--empresa-paper); color:var(--empresa-ink); display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,1.35fr); gap:var(--s5); padding:var(--s4); }
+  .documentacion__intro { display:flex; flex-direction:column; align-items:start; gap:var(--s2); }
+  .documentacion__intro h3 { font-size:clamp(1.65rem,2.3vw,2.2rem); line-height:1.12; }
+  .documentacion__intro p { color:var(--empresa-muted); max-width:33ch; font-size:1rem; line-height:1.5; }
+  .empresa a { display:inline-flex; align-items:center; gap:var(--s1); min-height:44px; font-size:1rem; font-weight:600; line-height:1.35; }
+  .empresa a:hover { text-decoration:underline; text-decoration-color:var(--red); text-underline-offset:4px; }
+  .documentacion__intro a { margin-top:auto; }
+  .documentacion details { border-bottom:1px solid var(--empresa-line); }
+  .documentacion details:first-child { border-top:1px solid var(--empresa-line); }
+  .documentacion summary { display:grid; grid-template-columns:24px minmax(0,1fr) 18px; align-items:center; gap:var(--s2); list-style:none; cursor:pointer; min-height:58px; padding:var(--s2) 0; font-size:1.0625rem; font-weight:600; line-height:1.35; }
+  .documentacion summary::-webkit-details-marker { display:none; }
+  .documentacion summary:hover span { text-decoration:underline; text-decoration-color:var(--red); text-underline-offset:4px; }
+  .documentacion summary:focus-visible { outline:2px solid var(--empresa-ink); outline-offset:4px; }
+  .documentacion details[open] .documentacion__flecha { transform:rotate(180deg); }
+  .documentacion details p { padding:0 0 var(--s3) var(--s4); max-width:66ch; font-size:1rem; line-height:1.55; color:var(--empresa-muted); }
+  .trayectoria { margin-top:var(--s4); }
+  .trayectoria__cabecera { display:flex; justify-content:space-between; align-items:center; gap:var(--s3); margin-bottom:var(--s3); }
+  .trayectoria__cabecera h3 { font-size:1.125rem; }
+  .trayectoria ol { list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--s4); }
+  .trayectoria li { border-top:1px solid var(--line); padding-top:var(--s2); }
+  .trayectoria li > span { font-size:1.75rem; line-height:1.2; font-variant-numeric:tabular-nums; }
+  .trayectoria li p { color:var(--ink-2); font-size:1rem; line-height:1.4; margin-top:var(--s1); max-width:24ch; overflow-wrap:anywhere; }
+  .cobertura { display:flex; flex-wrap:wrap; align-items:center; gap:var(--s1); padding-top:var(--s3); margin-top:var(--s4); border-top:1px solid var(--line-2); color:var(--ink-2); font-size:1rem; }
+  .cobertura a { color:var(--ink); margin-left:auto; }
+  .cobertura :global(svg) { flex:none; }
+  @media(max-width:980px) {
+    .empresa__cabecera { align-items:start; gap:var(--s3); }
+    .metodo,.trayectoria ol { gap:var(--s3); }
+    .documentacion { gap:var(--s4); padding:var(--s3); grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); }
+  }
+  @media(max-width:640px) {
+    .empresa__cabecera { grid-template-columns:1fr; gap:var(--s2); margin-bottom:var(--s3); }
+    .empresa__cabecera h2 { font-size:2rem; }
+    .empresa__cabecera p { font-size:1.125rem; }
+    .metodo { grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--s3); margin-bottom:var(--s4); }
+    .metodo li { padding-top:var(--s2); }
+    .metodo__marca { margin-bottom:var(--s1); }
+    .metodo h3 { font-size:1.2rem; }
+    .documentacion { grid-template-columns:1fr; gap:var(--s3); padding:var(--s3) var(--s2); }
+    .documentacion__intro { gap:var(--s1); }
+    .documentacion__intro > :global(svg) { display:none; }
+    .documentacion__intro h3 br { display:none; }
+    .documentacion__intro p { max-width:40ch; }
+    .documentacion__intro a { margin-top:var(--s1); }
+    .documentacion summary { font-size:1rem; gap:12px; }
+    .documentacion details p { padding-left:0; }
+    .trayectoria__cabecera { flex-wrap:wrap; gap:0 var(--s2); margin-bottom:var(--s2); }
+    .trayectoria ol { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .trayectoria li > span { font-size:1.5rem; }
+    .cobertura { display:grid; grid-template-columns:19px minmax(0,1fr); align-items:start; }
+    .cobertura > :global(svg) { margin-top:3px; }
+    .cobertura a { grid-column:2; margin-left:0; }
+  }
+</style>
