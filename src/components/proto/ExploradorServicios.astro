@@ -19,10 +19,10 @@ const visuales: Record<string, { icono: typeof Network; corto: string; leyenda: 
   '102': { icono: Cctv, corto: 'Seguridad', leyenda: 'Cámara IP de exterior', encuadre: '251,10,478,462' },
   '103': { icono: RadioTower, corto: 'Telecom', leyenda: 'Antena de radioenlace', encuadre: '280,-38,427,463' },
   '104': { icono: CodeXml, corto: 'Software', leyenda: 'Desarrollo de aplicaciones', editorial: true },
-  '105': { icono: Headset, corto: 'Soporte 24/7', leyenda: 'Soporte técnico', editorial: true },
+  '105': { icono: Headset, corto: 'Soporte', leyenda: 'Soporte técnico', editorial: true },
   '106': { icono: Workflow, corto: 'Consultoría', leyenda: 'Comunidad de software en Rosario', editorial: true },
   '107': { icono: Flame, corto: 'Incendios', leyenda: 'Central de detección', encuadre: '309,-22,390,565' },
-  '108': { icono: Zap, corto: 'Eléctricos IT', leyenda: 'UPS de rack', encuadre: '-25,-14,1028,747' },
+  '108': { icono: Zap, corto: 'Energía', leyenda: 'UPS de rack', encuadre: '-25,-14,1028,747' },
 };
 const frentes = NAV_SERVICES.map((servicio) => {
   const propios = stories.filter((obra) => obra.serviceCodes.includes(servicio.code));
@@ -165,7 +165,7 @@ const frentes = NAV_SERVICES.map((servicio) => {
     .alcance .codigo,.alcance h3 { grid-column:1/-1; }
     .alcance p { grid-column:1; }
     .alcance .provision { grid-column:2; align-self:center; font-size:.95rem; }
-    .dibujo { min-height:152px; }
+    .dibujo { grid-row:1; min-height:155px; }
     .dibujo .equipo,.dibujo .ampliacion { inset:0 4% 10%; width:92%; height:90%; }
     .editorial .equipo { inset:0; width:100%; height:100%; object-position:center 45%; }
   }
@@ -173,5 +173,12 @@ const frentes = NAV_SERVICES.map((servicio) => {
     .fila { padding-inline:6px; }
     .alcance { padding:12px; }
     .piezas li { padding:6px; }
+  }
+  @media(min-width:360px) and (max-width:980px) {
+    .mesa { grid-template-columns:repeat(4,minmax(0,1fr)); }
+    .panel { grid-row:3; }
+    .fila { grid-column:auto; grid-row:auto; display:flex; flex-direction:column; justify-content:center; gap:4px; min-height:60px; padding:6px 2px; text-align:center; }
+    .fila .marca { display:none; }
+    .selector:checked + .fila { box-shadow:inset 0 -2px var(--red); }
   }
 </style>
