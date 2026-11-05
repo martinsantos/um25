@@ -55,7 +55,10 @@ export async function getAllServicios(): Promise<ServicioV4[]> {
  * Obtiene un servicio con sus productos desde Directus
  */
 export async function getServicioById(id: number | string): Promise<ServicioV4 | null> {
-  const numId = typeof id === 'string' ? parseInt(id) : id;
+  // Route IDs must be complete positive integers, not a parseable prefix.
+  if (typeof id === 'string' && !/^[1-9]\d*$/.test(id)) return null;
+  const numId = Number(id);
+  if (!Number.isSafeInteger(numId) || numId <= 0) return null;
 
   try {
     const servicio = await getServicioConProductos(numId);

@@ -116,6 +116,14 @@ describe('Directus Helpers - getServicioById', () => {
     expect(directusLib.getServicioConProductos).toHaveBeenCalledWith(101);
   });
 
+  test.each([
+    '108):', '108abc', '108.5', '1e2', '0x6c', '0108', ' 108', '108 ', '',
+    0, -1, 108.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1, '9007199254740992',
+  ])('rejects malformed service ID %s before querying Directus', async (id) => {
+    expect(await getServicioById(id)).toBeNull();
+    expect(directusLib.getServicioConProductos).not.toHaveBeenCalled();
+  });
+
   test('returns null when Directus returns null', async () => {
     (directusLib.getServicioConProductos as jest.Mock).mockResolvedValue(null);
 
