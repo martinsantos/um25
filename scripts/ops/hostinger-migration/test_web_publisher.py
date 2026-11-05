@@ -179,3 +179,127 @@ class PublisherReadiness(unittest.TestCase):
                     patch.object(module.subprocess, 'check_output', return_value='789\n'):
                 with self.assertRaisesRegex(RuntimeError, 'reviewed release entry point'):
                     module.verify_web_runtime('candidate.service', application, 4322)
+
+
+class InactiveReleaseRetirement(unittest.TestCase):
+    def setUp(self):
+        import contextlib
+        import json
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        self.stack = contextlib.ExitStack()
+        self.addCleanup(self.stack.close)
+        self.root = Path(self.directory.name)
+        self.releases = self.root / 'releases'
+        self.proc = self.root / 'proc'
+        self.state = self.root / 'state.json'
+        self.previous = self.make_release('a' * 40 + '-22-1', 4322)
+        self.retired = self.make_release('b' * 40 + '-11-1', 4321)
+        self.state.write_text(json.dumps(self.previous))
+        (self.proc / '789').mkdir(parents=True)
+        self.group = self.proc / '789/cgroup'
+        self.group.write_text('0::/system.slice/' + self.retired['unit'] + '\n')
+        self.listener = 'LISTEN 0 511 127.0.0.1:4321 0.0.0.0:* users:(("node",pid=789,fd=17))\n'
+        self.proxy = 'proxy_pass http://127.0.0.1:4322;\n'
+        self.workers = 'nginx: worker process\n'
+        self.connections = ''
+        for name, value in [('RELEASES', self.releases), ('PROC', self.proc), ('STATE', self.state),
+                            ('FRONT', self.root / 'private.conf'), ('PUBLIC_FRONT', self.root / 'public.conf')]:
+            self.stack.enter_context(patch.object(module, name, value))
+        self.output = self.stack.enter_context(patch.object(module.subprocess, 'check_output', side_effect=self.read_process))
+        self.runtime = self.stack.enter_context(patch.object(module, 'verify_web_runtime', return_value='789'))
+        self.run = self.stack.enter_context(patch.object(module.subprocess, 'run'))
+
+    def make_release(self, identifier, port):
+        import json
+        root = self.releases / identifier
+        (root / 'nginx').mkdir(parents=True)
+        (root / 'application/dist/client').mkdir(parents=True)
+        value = dict(port=port, unit='umsa-web-' + identifier + '.service',
+                     config=str(root / 'nginx'), assets=str(root / 'application/dist/client'))
+        (root / 'publication.complete').write_text(json.dumps(value))
+        return value
+
+    def read_process(self, args, **kwargs):
+        if args[:3] == ['ss', '-H', '-ltnp']:
+            return self.listener
+        if args[:3] == ['ss', '-H', '-tn']:
+            return self.connections
+        if args[0] == '/usr/sbin/nginx':
+            return self.proxy
+        if args == ['ps', '-eo', 'args']:
+            return self.workers
+        raise AssertionError('Unexpected command: ' + repr(args))
+
+    def assert_refused(self):
+        with self.assertRaises((RuntimeError, ValueError, FileNotFoundError)):
+            module.retire_drained_web_release(self.previous, 4321)
+        self.run.assert_not_called()
+
+    def test_retires_only_the_completed_inactive_runtime_and_preserves_files(self):
+        from unittest.mock import call
+        module.retire_drained_web_release(self.previous, 4321)
+        self.assertEqual(self.run.call_args_list, [
+            call(['systemctl', 'disable', self.retired['unit']], check=True),
+            call(['systemctl', 'stop', self.retired['unit']], check=True)])
+        self.assertTrue(Path(self.retired['assets']).is_dir())
+        self.assertTrue((Path(self.retired['config']).parent / 'publication.complete').is_file())
+        self.assertEqual(self.runtime.call_count, 3)
+        self.assertEqual(self.runtime.call_args_list[-1].args[-1], '789')
+
+    def test_never_retires_the_active_or_an_unreviewed_port(self):
+        for port in (4322, 3000):
+            with self.assertRaises(RuntimeError):
+                module.retire_drained_web_release(self.previous, port)
+        self.output.assert_not_called()
+        self.run.assert_not_called()
+
+    def test_rejects_unknown_or_multiple_port_owners(self):
+        for listener in ('', self.listener + self.listener):
+            self.listener = listener
+            self.assert_refused()
+
+    def test_rejects_other_services_and_the_current_unit(self):
+        for unit in ('other.service', self.previous['unit']):
+            self.group.write_text('0::/system.slice/' + unit + '\n')
+            self.assert_refused()
+
+    def test_requires_an_exact_completed_release_receipt(self):
+        import json
+        receipt = Path(self.retired['config']).parent / 'publication.complete'
+        receipt.write_text(json.dumps(dict(self.retired, port=4322)))
+        self.assert_refused()
+        receipt.unlink()
+        self.assert_refused()
+
+    def test_refuses_symlinked_receipts(self):
+        receipt = Path(self.retired['config']).parent / 'publication.complete'
+        saved = receipt.with_suffix('.saved')
+        receipt.rename(saved)
+        receipt.symlink_to(saved)
+        self.assert_refused()
+
+    def test_refuses_any_live_proxy_reference_to_the_old_port(self):
+        self.proxy += 'proxy_pass http://127.0.0.1:4321;\n'
+        self.assert_refused()
+
+    def test_refuses_a_proxy_that_does_not_confirm_the_current_port(self):
+        self.proxy = 'proxy_pass http://127.0.0.1:3000;\n'
+        self.assert_refused()
+
+    def test_refuses_retirement_while_proxy_workers_are_draining(self):
+        self.workers += '  nginx: worker process is shutting down\n'
+        self.assert_refused()
+
+    def test_refuses_retirement_with_established_connections(self):
+        self.connections = 'ESTAB 0 0 127.0.0.1:4321 127.0.0.1:55555\n'
+        self.assert_refused()
+
+    def test_refuses_retirement_if_current_release_changes(self):
+        import json
+        self.state.write_text(json.dumps(self.retired))
+        self.assert_refused()
+
+    def test_rechecks_runtime_identity_before_any_stop(self):
+        self.runtime.side_effect = ['789', '999', RuntimeError('PID changed')]
+        self.assert_refused()
