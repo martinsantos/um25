@@ -2,7 +2,6 @@
 /** Casos con el alcance real de cada obra: foto, qué se hizo, para quién y cuándo, el texto del registro y los servicios. */
 import type { Caso } from './relato';
 import { isNamedClient } from './catalogEditorial';
-import { casePhotograph } from '../../data/photography';
 import PruebaProyecto from './PruebaProyecto.astro';
 import { publicCaseFor } from './casePresentation';
 import { services, destacados, srcsetDe, sinTitulo, type Story } from './isoData';
@@ -37,7 +36,7 @@ const archive = safeCases.filter(c => !c.publicado).slice(0, max).map(c => ({ ..
       <div class:list={["casos", { "casos--text": textOnly }]}>
         {items.map((c) => (
           <article class:list={["caso", { "caso--documentado": c.destacado }]} data-case-id={c.publicado}>
-            {!textOnly && <figure><a href={c.href} tabindex="-1" aria-hidden="true"><img src={c.image} srcset={srcsetDe(c.image)} sizes="(max-width: 900px) calc(100vw - 40px), 48vw" alt="" width="1200" height="750" loading="lazy" decoding="async" /></a><figcaption>{casePhotograph(c.publicado) ? "Fotografía de contexto" : c.destacado?.imageKind === "documented-photo" ? "Registro del proyecto" : "Imagen ilustrativa"}</figcaption></figure>}
+            {!textOnly && <figure><a href={c.href} tabindex="-1" aria-hidden="true"><img src={c.image} srcset={srcsetDe(c.image)} sizes="(max-width: 900px) calc(100vw - 40px), 48vw" alt="" width="1200" height="750" loading="lazy" decoding="async" /></a></figure>}
             <div class="caso__copy">
               <h3><a href={c.href}>{c.titulo}</a></h3>
               <div class="quien">{c.cliente}{c.year > 0 && <span> · {c.year}</span>}</div>

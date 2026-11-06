@@ -54,8 +54,8 @@ describe('generated antecedentes image integration', () => {
     // La ficha no muestra la galería de Directus (eran imágenes generadas).
     expect(detail).not.toContain('case-gallery-grid">');
     expect(detail).toContain('const mainImageUrl = generatedMainImageUrl || BASE_POSTER');
-    expect(detail).toContain('Imagen ilustrativa generada con IA');
-    expect(detail).toContain('Fotografía de contexto');
+    expect(detail).not.toContain('Imagen ilustrativa generada con IA');
+    expect(detail).not.toContain('Fotografía de contexto');
   });
 
   test('every catalog case shows its own realistic thumbnail in the antecedentes mosaic', async () => {
