@@ -11,7 +11,6 @@ import { generateSlug } from '../../../utils/slugUtils.js';
 import { getAntecedenteConServicios, getGeneratedAntecedenteImageUrl } from '../../../lib/directus.ts';
 import { BASE_POSTER } from '../../../data/cine/posters';
 import { getAntecedenteThumb } from '../../../lib/um26-data/images';
-import { casePhotograph } from '../../../data/photography';
 import { verifiedCaseCorrection } from '../../../utils/verifiedCaseCorrection';
 import {
   getAntecedenteById as getUm26AntecedenteById,
@@ -490,9 +489,6 @@ const antecedentePageStructuredData = [
               width={caseImageDimensions.width}
               height={caseImageDimensions.height}
             />
-            {(casePhotograph(antecedente.id) || casePhotograph(antecedente.original_id || ''))
-              ? <figcaption>Fotografía de contexto</figcaption>
-              : mainImageUrl.startsWith('/images/antecedentes/generated/') && <figcaption>Imagen ilustrativa generada con IA</figcaption>}
           </figure>
           <dl class="case-ficha">
             {displayClientName && <div><dt>Cliente</dt><dd>{displayClientName}</dd></div>}

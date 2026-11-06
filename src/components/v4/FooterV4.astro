@@ -61,7 +61,6 @@ const socialLinks = [
       {shellFooterLinks.map((link) => (
         <a href={link.href}>{link.label}</a>
       ))}
-      <a href="/creditos-fotograficos">{lang === 'en' ? 'Photo credits (ES)' : 'Créditos fotográficos'}</a>
       <a href="/privacidad">{lang === 'en' ? shellT.destinationLabel(shellT.footer.privacy) : shellT.footer.privacy}</a>
       <a href="/terminos">{lang === 'en' ? shellT.destinationLabel(shellT.footer.terms) : shellT.footer.terms}</a>
       <a href={alternateLangHref} class="um-footer-lang" hreflang={alternateLang} lang={alternateLang}>{shellT.lang.switchTo}</a>
