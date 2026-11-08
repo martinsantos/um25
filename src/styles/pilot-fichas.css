@@ -11,13 +11,7 @@
 .pilot-flow__plate img {display:block;width:100%;height:auto}
 .pilot-flow__plate ol {margin:0;padding:0 0 12px;display:grid;grid-template-columns:repeat(3,1fr);list-style:none;text-align:center;font-weight:600;font-size:clamp(.84rem,1.2vw,1rem)}
 .pilot-flow__foot {display:grid;gap:12px}.pilot-flow__foot p {line-height:1.45;max-width:44ch}
-.pilot-flow__controls,.pilot-flow__controls div {display:flex;align-items:center}
-.pilot-flow__controls {justify-content:space-between;gap:16px}
-.pilot-flow__controls button {min-height:44px;padding-inline:12px;font-weight:600}
-.pilot-flow__controls [data-format] {border:1px solid var(--line);color:var(--ink-2)}
-.pilot-flow__controls [aria-pressed=true] {background:var(--ink);color:var(--bg)}
-.pilot-flow__controls [data-play] {padding-left:0}
-.pilot-flow__controls [data-play] span,.pilot-entry[open] summary::after {color:var(--red-text)}
+.pilot-entry[open] summary::after {color:var(--red-text)}
 .pilot-entry {border-block-start:1px solid var(--line)}.pilot-entry:last-child {border-bottom:1px solid var(--line)}
 .pilot-entry summary {display:grid;grid-template-columns:54px minmax(0,1fr) 18px;align-items:center;gap:12px;min-height:64px;padding:6px 2px;cursor:pointer;font-weight:600;line-height:1.25}
 .pilot-entry summary::-webkit-details-marker {display:none}

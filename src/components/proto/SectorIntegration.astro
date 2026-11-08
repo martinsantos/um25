@@ -25,7 +25,7 @@ const first = items.find(item => physical.includes(item.code));
           <div class="iso__caja" style={`--r:${isoRatio(site).toFixed(3)}`} role="img" aria-label={`Esquema de integración para ${name.toLowerCase()}`}></div>
           <span class="ahora">{first?.name}</span>
         </div>
-        <div class="diagram-tools"><span>Esquema de integración</span><button type="button" data-diagram-toggle>Pausar recorrido</button></div>
+        <div class="diagram-tools"><span>Esquema de integración</span></div>
       </div>}
       <div class="dentro__side">
         <ol class="integration__list" id="servicios-sector">
@@ -63,7 +63,6 @@ const first = items.find(item => physical.includes(item.code));
   .integration__links button { color: var(--ink-2); border: 1px solid var(--line); padding: 8px 12px; text-align: left; }
   .integration__links button[aria-pressed="true"] { color: var(--ink); border-color: var(--red); }
   .diagram-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; color: var(--ink-2); font-size: 1rem; }
-  .diagram-tools button { padding-block: 10px; text-decoration: underline; text-underline-offset: 4px; min-height: 44px; }
   .integration--text { grid-template-columns: 1fr; }
   .integration--text .integration__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s4); }
   @media (max-width: 900px) {
