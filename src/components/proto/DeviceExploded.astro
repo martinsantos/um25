@@ -1,6 +1,5 @@
 ---
 /** The original equipment drawings, opened into their actual construction layers. */
-import MotionIcon from './MotionIcon.astro';
 import { ISOMETRIC_STUDIES } from '../../data/cine/isometric';
 interface Props { code: string }
 const { code } = Astro.props;
@@ -12,7 +11,7 @@ const detail = details[`../../assets/cine/isometric/${study.asset}-detail.svg`];
 const views = study.views.slice(1);
 ---
 <figure class="device" data-device data-state="1" data-equipo aria-label={`Despiece interactivo: ${study.name}`}>
-  <div class="device__heading"><span>{study.object}</span><button type="button" data-device-play aria-label="Reproducir recorrido" aria-pressed="false" hidden><MotionIcon /></button></div>
+  <div class="device__heading"><span>{study.object}</span></div>
   <div class="device__frame">
     <div class="device__object" data-device-object set:html={object} />
     <div class="device__detail" data-device-detail hidden set:html={detail} />
@@ -28,7 +27,6 @@ const views = study.views.slice(1);
 <script>
   document.querySelectorAll<HTMLElement>('[data-device]').forEach(root => {
     const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-device-view]')];
-    const play = root.querySelector<HTMLButtonElement>('[data-device-play]')!;
     const object = root.querySelector<HTMLElement>('[data-device-object]')!;
     const detail = root.querySelector<HTMLElement>('[data-device-detail]')!;
     const caption = root.querySelector<HTMLElement>('figcaption')!;
@@ -48,11 +46,7 @@ const views = study.views.slice(1);
       svg.setAttribute('viewBox', `${x-pad} ${y-pad} ${w+pad*2} ${h+pad*2}`);
       lid.style.removeProperty('transform'); lid.style.removeProperty('transition');
     }
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-    let selected = 1, visible = false, playing = !reduced.matches, timer: ReturnType<typeof setTimeout> | undefined;
-    const clear = () => { clearTimeout(timer); timer = undefined; };
     const paint = (index: number, manual = false) => {
-      selected = index;
       root.dataset.state = String(index);
       object.hidden = index === 2;
       detail.hidden = index !== 2;
@@ -61,16 +55,8 @@ const views = study.views.slice(1);
       root.querySelector('[data-device-title]')!.textContent = buttons[index]!.dataset.title!;
       root.querySelector('[data-device-description]')!.textContent = buttons[index]!.dataset.description!;
     };
-    const sync = () => {
-      clear();
-      play.setAttribute('aria-label', playing ? 'Pausar recorrido' : 'Reproducir recorrido');
-      play.dataset.motionPlaying = String(playing);
-      play.setAttribute('aria-pressed', String(playing));
-      root.dataset.playing = String(playing && visible && !document.hidden);
-      if (playing && visible && !document.hidden) timer = setTimeout(() => { paint((selected + 1) % buttons.length); sync(); }, selected === 1 ? 6500 : 4000);
-    };
     buttons.forEach((button, i) => {
-      button.addEventListener('click', () => { playing = false; paint(i, true); sync(); });
+      button.addEventListener('click', () => { paint(i, true); });
       button.addEventListener('keydown', event => {
         if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
         event.preventDefault();
@@ -78,31 +64,15 @@ const views = study.views.slice(1);
         buttons[next]!.focus(); buttons[next]!.click();
       });
     });
-    play.hidden = false;
     root.querySelector<HTMLElement>('[data-device-controls]')!.hidden = false;
-    play.addEventListener('click', () => { playing = !playing; sync(); });
-    // Enter assembled, then open the shell. Once out of view, the timer stops.
-    if (!reduced.matches) paint(0);
-    let entered = false;
-    const observer = new IntersectionObserver(entries => {
-      visible = entries[0]!.isIntersecting;
-      if (visible && !entered) { entered = true; if (playing) paint(1); }
-      sync();
-    }, { threshold: .25 });
-    observer.observe(root);
-    const visibility = () => sync();
-    const motion = () => { playing = false; paint(1); sync(); };
-    document.addEventListener('visibilitychange', visibility);
-    reduced.addEventListener('change', motion);
-    document.addEventListener('astro:before-swap', () => { clear(); observer.disconnect(); document.removeEventListener('visibilitychange', visibility); reduced.removeEventListener('change', motion); }, { once: true });
-    sync();
+    paint(1);
+
   });
 </script>
 <style>
   .device { margin: 0; min-width: 0; position: sticky; top: calc(var(--top-h) + 24px); align-self: start; }
   .device__heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: var(--ink-2); font-size: 1rem; line-height: 1.4; }
   .device__heading span { max-width: 28ch; }
-  .device__heading button { display: grid; place-items: center; width: 44px; height: 44px; flex: none; color: var(--ink); border: 1px solid var(--line); border-radius: 50%; }
   .device__frame { position: relative; height: clamp(320px, 52vh, 480px); margin-block: 18px; }
   .device__object, .device__detail { position: absolute; inset: 0; }
   .device__frame :global(svg) { width: 100%; height: 100%; display: block; overflow: visible; }
