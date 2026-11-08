@@ -1,4 +1,8 @@
 ---
+import '../../../styles/pilot-fichas.css';
+import { sectorIntegrationScope } from '../../../data/propuesta/sector-integration';
+import { KIT_DE_SERVICIO } from '../../../components/proto/despiece';
+import PilotCatalog from '../../../components/proto/PilotCatalog.astro';
 /**
  * Sector (2026-10-30, v6). La prueba primero: la apertura con las cifras del sector, para quién,
  * qué se instaló (el banco con las partes que nombran los registros), los casos, el lugar por
@@ -82,7 +86,11 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'anteceden
       </div>
     </section>
 
-    <SectorIntegration slug={slug} name={name} site={site} items={displayedServices} />
+    {slug === 'bodegas' ? <PilotCatalog winery items={displayedServices.map(s=>({
+ title:s.name,summary:sectorIntegrationScope(slug,s.code,s.text),
+ parts:(KIT_DE_SERVICIO[s.code] || []).slice(0,3).map(([key,label])=>({key,label})),
+ links:[{url:`/servicios/${s.code}#provision`,label:'Ver provisión'},...(s.count ? [{url:`/antecedentes?sector=${slug}&service=${s.code}`,label:`${s.count} antecedentes`}] : [])]
+ }))}/> : <SectorIntegration slug={slug} name={name} site={site} items={displayedServices} />}
 
     {clientes.length > 0 && (
       <section class="sec">

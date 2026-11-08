@@ -1,0 +1,51 @@
+---
+interface Props { winery?: boolean }
+const { winery = false } = Astro.props;
+const flow = winery ? 'bodega' : 'cctv';
+const labels = winery ? ['Tanque y sonda', 'Red de planta', 'Registro'] : ['Cámara IP', 'Switch de red', 'Grabador NVR'];
+---
+<figure class="pilot-flow" data-flow={flow}>
+  <figcaption>
+    <span>{winery ? 'Ejemplo de integración' : 'Circuito de videovigilancia'}</span>
+    <strong>{winery ? 'Del tanque al registro' : 'De la cámara al grabador'}</strong>
+  </figcaption>
+  <div class="pilot-flow__plate">
+    <img src={`/piloto/${flow}.svg`} width="440" height="124" alt="" />
+    <ol>{labels.map(label => <li>{label}</li>)}</ol>
+  </div>
+  <div class="pilot-flow__foot">
+    <p>{winery ? 'La medición de temperatura viaja por la red y queda disponible para su consulta.' : 'La cámara envía el video por la red al equipo que lo graba.'}</p>
+    <div class="pilot-flow__controls" hidden>
+      {!winery && <div role="group" aria-label="Formato de la animación"><button type="button" data-format="svg" aria-pressed="true">SVG</button><button type="button" data-format="gif" aria-pressed="false">GIF</button></div>}
+      <button type="button" data-play>Ver señal <span aria-hidden="true">→</span></button>
+    </div>
+  </div>
+</figure>
+<script>
+  for(const figure of document.querySelectorAll<HTMLElement>('[data-flow]')){
+    const controls = figure.querySelector<HTMLElement>('.pilot-flow__controls')!;
+    const formats = figure.querySelectorAll<HTMLButtonElement>('[data-format]');
+    const image = figure.querySelector('img')!;
+    const still = image.src;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let format = 'svg';
+    let serial = 0;
+    function play(){
+      if(reduced.matches) return;
+      const file = format === 'gif' ? 'cctv.gif' : figure.dataset.flow+'-senal.svg';
+      image.src = '/piloto/'+file+'?paso='+ ++serial;
+    }
+    function syncMotion(){
+      controls.hidden = reduced.matches;
+      if(reduced.matches) image.src = still;
+    }
+    syncMotion();
+    reduced.addEventListener('change',syncMotion);
+    for(const button of formats) button.addEventListener('click',()=>{
+      format = button.dataset.format!;
+      formats.forEach(option=>option.setAttribute('aria-pressed',String(option === button)));
+      play();
+    });
+    figure.querySelector('[data-play]')!.addEventListener('click',play);
+  }
+</script>
