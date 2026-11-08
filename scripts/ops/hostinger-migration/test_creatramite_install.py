@@ -6,6 +6,7 @@ import sqlite3
 import tarfile
 import tempfile
 import unittest
+from unittest import mock
 
 spec = importlib.util.spec_from_file_location('creatramite_install', Path(__file__).with_name('install-creatramite.py'))
 installer = importlib.util.module_from_spec(spec)
@@ -55,6 +56,18 @@ class InstallSafety(unittest.TestCase):
                              'ReadWritePaths=/srv/creatramite/runtime'):
                 self.assertIn(required,unit)
             self.assertNotIn('umsa-sitrep-ingress',unit)
+
+    def test_release_is_root_owned_before_becoming_readable(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            release=Path(tmp)/'release'; release.mkdir(mode=0o700)
+            directory=release/'app'; directory.mkdir()
+            source=directory/'app.py'; source.write_text('pass\n'); source.chmod(0o600)
+            with mock.patch.object(installer.os,'chown') as chown:
+                installer.secure_release(release)
+            chown.assert_any_call(directory,0,0,follow_symlinks=False)
+            chown.assert_any_call(source,0,0,follow_symlinks=False)
+            self.assertEqual(source.stat().st_mode & 0o777,0o644)
+            self.assertEqual(release.stat().st_mode & 0o777,0o755)
 
     def test_inventory_detects_document_corruption(self):
         with tempfile.TemporaryDirectory() as tmp:

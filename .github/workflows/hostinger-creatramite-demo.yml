@@ -36,7 +36,8 @@ jobs:
       group: hostinger-umsa-production
       cancel-in-progress: false
     environment: production
-    runs-on: ubuntu-latest
+    # The isolated host uses Python 3.9; ubuntu-latest no longer supplies it.
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
