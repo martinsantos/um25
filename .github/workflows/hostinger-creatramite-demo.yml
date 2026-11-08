@@ -1,0 +1,93 @@
+name: Isolated CreaTramite demo
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hostinger-creatramite-demo.yml'
+      - 'scripts/ops/hostinger-migration/*creatramite*'
+      - 'src/lib/creatramite-proxy.mjs'
+      - 'src/pages/demo/creatramite/**'
+      - 'tests/creatramite-proxy.test.mjs'
+  workflow_dispatch:
+    inputs:
+      acknowledgement:
+        type: string
+        required: true
+        description: Enter INSTALL-CREATRAMITE to install the isolated demo only
+permissions:
+  contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  CREATRAMITE_REVISION: 701aa9028dd8b4a8526a3b6cc60e55f6af5694aa
+jobs:
+  validate-gateway:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20.19.6'
+      - run: node --test tests/creatramite-proxy.test.mjs
+      - run: PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s scripts/ops/hostinger-migration -p 'test_creatramite_install.py' -v
+  install:
+    needs: validate-gateway
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.acknowledgement == 'INSTALL-CREATRAMITE' && vars.UMSA_PRODUCTION_TARGET == 'hostinger'
+    concurrency:
+      group: hostinger-umsa-production
+      cancel-in-progress: false
+    environment: production
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v6
+        with:
+          repository: martinsantos/creatramite
+          ref: '701aa9028dd8b4a8526a3b6cc60e55f6af5694aa'
+          path: private-app
+          ssh-key: ${{ secrets.CREATRAMITE_REPO_READ_KEY }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.9'
+      - name: Verify the exact private revision and run tests
+        working-directory: private-app
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$CREATRAMITE_REVISION"
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-spa
+          python -m pip install -r requirements-linux.txt 'pytest>=8,<9'
+          PYTHONDONTWRITEBYTECODE=1 python -B -m pytest -q -p no:cacheprovider tests
+      - name: Build a bounded package for AlmaLinux 9 / Python 3.9
+        run: |
+          set -euo pipefail
+          payload="$RUNNER_TEMP/creatramite-payload"
+          mkdir -p "$payload/app/scripts" "$payload/app/seed" "$payload/vendor"
+          cp private-app/{app.py,simulator.py,demo_deployment.py,wsgi_production.py,ocr_local.py,pdf_render.py,schema.sql,requirements-linux.txt} "$payload/app/"
+          cp -a private-app/templates private-app/static "$payload/app/"
+          cp private-app/scripts/crear_base_demo_publica.py "$payload/app/scripts/"
+          cp private-app/seed/{semilla-sintetica-v2.sqlite3,semilla-sintetica-v2.sha256} "$payload/app/seed/"
+          python -m pip install --target "$payload/vendor" --only-binary=:all: --platform manylinux_2_28_x86_64 --platform manylinux2014_x86_64 --platform manylinux_2_17_x86_64 --implementation cp --python-version 39 --abi cp39 -r private-app/requirements-linux.txt
+          PYTHONPATH="$payload/vendor" python -c 'import flask, gunicorn, requests, PIL, reportlab, pypdfium2'
+          tar -czf "$RUNNER_TEMP/creatramite.tar.gz" -C "$payload" app vendor
+          test "$(stat -c %s "$RUNNER_TEMP/creatramite.tar.gz")" -lt 209715200
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Preflight and install only the new isolated service
+        run: |
+          set -euo pipefail
+          [[ "$CREATRAMITE_REVISION" =~ ^[0-9a-f]{40}$ && "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          digest=$(sha256sum "$RUNNER_TEMP/creatramite.tar.gz" | cut -d' ' -f1)
+          [[ "$digest" =~ ^[0-9a-f]{64}$ ]]
+          script=scripts/ops/hostinger-migration/install-creatramite.py
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          target=root@179.198.115.115
+          package="/srv/umsa-migration/incoming/creatramite-$CREATRAMITE_REVISION-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.tar.gz"
+          ssh "${opts[@]}" "$target" 'python3 - preflight' < "$script"
+          ssh "${opts[@]}" "$target" "test -d /srv/umsa-migration/incoming && test ! -e $package"
+          scp "${opts[@]}" "$RUNNER_TEMP/creatramite.tar.gz" "$target:$package"
+          ssh "${opts[@]}" "$target" "python3 - install $CREATRAMITE_REVISION $GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT $digest" < "$script"
