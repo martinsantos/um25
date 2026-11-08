@@ -1,4 +1,6 @@
 ---
+import '../../../../styles/pilot-fichas.css';
+import PilotCase from '../../../../components/proto/PilotCase.astro';
 /**
  * Ficha de trabajo (2026-10-31). Cada antecedente como hoja de trabajo: cabecera con la referencia
  * UM, la imagen y los datos; alcance documentado, inventario y sistemas; y otros proyectos del
@@ -123,7 +125,7 @@ const seoTitle = caseSeo.title.includes(ref) ? caseSeo.title : `${trimAtWordBoun
       </div>
 
     </div>
-    {caseDetail && <CasoEnDetalle caso={caseDetail} original={c.summary} />}
+    {(id === 3286 || id === 3588) ? <PilotCase items={scope.partes} caso={caseDetail} original={c.summary}/> : <>{caseDetail && <CasoEnDetalle caso={caseDetail} original={c.summary} />}
     <section class="sec">
       <div class="wrap">
         <div class="sec__head"><h2>{!scope.partes.length ? 'Información disponible del proyecto' : scope.origen === 'servicio' ? 'Capacidades de los servicios vinculados' : 'Alcance documentado del proyecto'}<span class="dot">.</span></h2></div>
@@ -132,6 +134,7 @@ const seoTitle = caseSeo.title.includes(ref) ? caseSeo.title : `${trimAtWordBoun
     </section>
 
 
+    </>}
     {sameClient.length > 0 && (
       <section class="sec"><div class="wrap"><div class="sec__head"><h2>Más proyectos para {c.client}<span class="dot">.</span></h2></div><ol class="fichas">{sameClient.map((o) => <Ficha story={o} />)}</ol></div></section>
     )}

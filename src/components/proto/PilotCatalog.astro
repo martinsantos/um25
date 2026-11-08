@@ -1,0 +1,31 @@
+---
+import PilotFlow from './PilotFlow.astro';
+import Parte from './Parte.astro';
+import type { ServiceProvisionItem } from '../../utils/serviceProvision';
+import type { ParteKey } from './despiece';
+interface Props {
+  winery?:boolean;
+  items: {title:string; summary:string; parts:{key:ParteKey;label:string}[]; links?:{url:string;label:string}[]}[] | ServiceProvisionItem[];
+}
+const { winery = false,items } = Astro.props;
+---
+<section class="pilot-section sec" id={winery ? 'integracion':'provision'} aria-labelledby="pilot-catalog-title">
+  <div class="wrap">
+    <header class="pilot-heading">
+      <h2 id="pilot-catalog-title">{winery ? 'Cómo integramos los servicios':'Qué proveemos'}<span class="dot">.</span></h2>
+      <p>{winery ? 'Sistemas para producción, cavas y administración.' : 'El equipamiento, la instalación y el mantenimiento se definen para cada proyecto.'}</p>
+    </header>
+    <div class="pilot-catalog">
+      <PilotFlow winery={winery}/>
+      <div class="pilot-catalog__index" id={winery ? 'servicios-sector':undefined}>
+        {items.map((item,i)=><details class="pilot-entry" open={i===0}>
+          <summary><span class="pilot-entry__icon" aria-hidden="true">{item.parts[0] && <Parte k={item.parts[0].key} size={48}/>}</span><span>{item.title}</span></summary>
+          <div class="pilot-entry__content"><p>{item.summary}</p>
+            <ul>{item.parts.map(part=><li><Parte k={part.key} size={40}/>{part.label}</li>)}</ul>
+            {'links' in item && item.links && <nav aria-label={item.title}>{item.links.map(link=><a href={link.url}>{link.label} →</a>)}</nav>}
+          </div>
+        </details>)}
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,28 @@
+---
+import Parte from './Parte.astro';
+import type { Parte as Equipment } from './despiece';
+import type { CasoDestacado } from '../../data/propuesta/casos-destacados';
+interface Props { items:Equipment[]; caso?:CasoDestacado; original:string }
+const { items,caso,original }=Astro.props;
+const groups= [
+  { title:'Portería IP', keys:['telefono'] },
+  { title:'Videovigilancia y red', keys:['camara','switch','nvr'] },
+  { title:'Rack y energía', keys:['rack','ups'] }
+];
+---
+<section class:list={['sec','pilot-case',{'pilot-case--single':items.length===1}]} id="alcance">
+ <div class="wrap">
+ {items.length === 1 ? <div class="pilot-case__single">
+   <h2>Alcance documentado<span class="dot">.</span></h2>
+   <div class="pilot-single-part"><Parte k={items[0].key} size={64}/><strong>{items[0].qty && items[0].qty+' × '}{items[0].label}</strong></div>
+ </div> : <>
+   <header class="pilot-heading"><h2>Qué incluyó el trabajo<span class="dot">.</span></h2><p>Equipos y cantidades del registro del proyecto.</p></header>
+   <div class="pilot-case__groups">{groups.map(group=><section>
+     <h3>{group.title}</h3><ul>{items.filter(item=>group.keys.includes(item.key)).map(item=><li><Parte k={item.key} size={48}/><span>{item.label}</span>{item.qty && <strong aria-label={item.qty+' unidades'}>× {item.qty}</strong>}</li>)}</ul>
+   </section>)}</div>
+   <details class="pilot-original"><summary>Consultar el detalle de obra</summary>
+     {caso && <ul>{caso.scope.map(point=><li>{point}</li>)}</ul>}{original && <p>{original}</p>}
+   </details>
+ </>}
+ </div>
+</section>
