@@ -88,6 +88,7 @@ function banner(el) {
   let index = Math.min(Number(el.dataset.start) || 0, scenes.length - 1), active = va, idle = vb, track = null, visible = true, userPaused = autoplayOff;
   // El video no compite con el póster (LCP): arranca con la página ya cargada.
   let started = false;
+  let automaticStopScheduled = false;
   let shown = [], lastPick = 0, cutting = false, preloaded = -1, posNow = .5;
 
   const pool = Array.from({ length: 4 }, () => {
@@ -120,7 +121,7 @@ function banner(el) {
     if (!started) return;
     if (userPaused || !visible || document.hidden) { active.pause(); return; }
     if (!active.getAttribute('src')) { active.loop = !multi; active.src = src(cutOf(index)); }
-    active.play().then(() => { active.classList.add('is-on'); hideFallback(); }).catch((e) => {
+    active.play().then(() => { active.classList.add('is-on'); hideFallback(); if (!automaticStopScheduled) { automaticStopScheduled = true; setTimeout(() => { userPaused = true; active.pause(); }, 4800); } }).catch((e) => {
       if (e?.name !== 'AbortError') showFallback();
       if (e?.name === 'NotAllowedError') { userPaused = true; label(); }
     });

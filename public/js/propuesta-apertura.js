@@ -62,12 +62,9 @@
     const items = [...root.querySelectorAll('[data-diagram-code]')];
     if (!stage) return;
     const now = stage.querySelector('.ahora');
-    const toggle = root.querySelector('[data-diagram-toggle]');
     const motion = matchMedia('(prefers-reduced-motion: reduce)');
     const initialLabel = now?.textContent || '';
     const codes = [...new Set(items.length ? items.map(item => item.dataset.diagramCode).filter(Boolean) : (stage.dataset.svcs || '').split(' ').filter(Boolean))];
-    let timer = 0, ready = false, visible = false, paused = false, hovered = false, focused = false;
-    const stop = () => { clearInterval(timer); timer = 0; };
     const show = code => {
       stage.dataset.svc = code;
       items.forEach(item => {
@@ -77,15 +74,6 @@
       });
       if (now) now.textContent = items.find(item => item.dataset.diagramCode === code)?.dataset.name || initialLabel;
     };
-    const sync = () => {
-      stop();
-      if (toggle) {
-        toggle.hidden = motion.matches || codes.length < 2;
-        toggle.textContent = paused ? 'Reproducir recorrido' : 'Pausar recorrido';
-      }
-      if (!ready || !visible || paused || hovered || focused || motion.matches || document.hidden || codes.length < 2) return;
-      timer = setInterval(() => show(codes[(codes.indexOf(stage.dataset.svc) + 1) % codes.length]), 2600);
-    };
     const back = document.createElement('button');
     back.type = 'button'; back.hidden = true; back.className = 'diagram-return';
     back.style.cssText = 'min-height:44px;text-align:left;text-decoration:underline;text-underline-offset:4px';
@@ -93,7 +81,7 @@
     let selected;
     back.addEventListener('click', () => { if (selected) { selected.focus({ preventScroll: true }); selected.scrollIntoView({ block: 'center', behavior: motion.matches ? 'instant' : 'smooth' }); } back.hidden = true; });
     const select = item => {
-      show(item.dataset.diagramCode); paused = true; sync();
+      show(item.dataset.diagramCode);
       const bounds = stage.getBoundingClientRect();
       if (bounds.bottom < 100 || bounds.top > innerHeight - 100) {
         selected = item; back.textContent = 'Volver a ' + item.dataset.name; back.hidden = false;
@@ -103,15 +91,9 @@
     };
     items.forEach(item => {
       item.addEventListener('click', () => select(item));
-      item.addEventListener('pointerenter', () => { hovered = true; show(item.dataset.diagramCode); sync(); });
-      item.addEventListener('pointerleave', () => { hovered = false; sync(); });
-      item.addEventListener('focus', () => { focused = true; show(item.dataset.diagramCode); sync(); });
-      item.addEventListener('blur', () => { focused = false; sync(); });
+      item.addEventListener('pointerenter', () => show(item.dataset.diagramCode));
+      item.addEventListener('focus', () => show(item.dataset.diagramCode));
     });
-    toggle?.addEventListener('click', () => { paused = !paused; sync(); });
-    motion.addEventListener('change', sync);
-    document.addEventListener('visibilitychange', sync);
-    new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); }, { threshold: .25 }).observe(stage);
     new IntersectionObserver(([entry], observer) => {
       if (!entry.isIntersecting) return;
       observer.disconnect();
@@ -130,15 +112,14 @@
             svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
           } catch { /* Keep the original viewBox. */ }
         }
-        root.classList.add('on'); ready = true;
-        show(stage.dataset.svc || codes[0]); sync();
+        root.classList.add('on');
+        if (stage.dataset.svc || codes[0]) show(stage.dataset.svc || codes[0]);
       }).catch(() => {
         const box = stage.querySelector('.iso__caja');
         if (box) { box.removeAttribute('role'); box.removeAttribute('aria-label'); box.textContent = 'El esquema no está disponible en este momento.'; }
-        if (toggle) toggle.hidden = true;
       });
     }, { rootMargin: '600px 0px' }).observe(stage);
-    show(codes[0]); sync();
+    if (codes[0]) show(codes[0]);
   });
 
 })();

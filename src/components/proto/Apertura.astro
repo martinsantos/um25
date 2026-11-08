@@ -5,6 +5,7 @@
  * foto, y se retira con el scroll; recién entonces se dibuja la isometría, sola. Nunca los dos a la
  * vez: salen de cámaras distintas y superpuestos se leían como dos edificios.
  */
+import '../../styles/apertura.css';
 import { variantes } from './isoData';
 interface Props { label: string; iso?: string; isoSrc?: string; svc?: string; ciclo?: boolean; nombres?: Record<string, string>; image: string; ghost?: string; film?: string; poster?: string; open?: boolean; hero?: boolean; photoOnly?: boolean; eager?: boolean }
 const { label, iso, isoSrc, svc, ciclo = false, nombres, image, ghost, film, poster, open = false, hero = false, photoOnly = false, eager = true } = Astro.props;
