@@ -57,6 +57,19 @@ def validate_archive(archive):
         raise ValueError('Incomplete application package')
 
 
+def secure_release(release):
+    """Do not trust the UID/GID stored in a CI-built archive."""
+    if release.is_symlink() or not release.is_dir():
+        raise RuntimeError('Unsafe release root')
+    for path in release.rglob('*'):
+        if path.is_symlink(): raise RuntimeError('Unexpected installed symlink')
+        os.chown(path,0,0,follow_symlinks=False)
+        if path.is_dir(): path.chmod(0o755)
+        elif path.is_file(): path.chmod(0o755 if path.stat().st_mode & 0o111 else 0o644)
+        else: raise RuntimeError('Unexpected installed file type')
+    release.chmod(0o755)
+
+
 def status(args, timeout=10):
     return subprocess.run(args,check=True,capture_output=True,text=True,timeout=timeout).stdout.strip()
 
@@ -231,14 +244,12 @@ def install(revision, run_id, digest):
         (proof/'ultimamilla-vhost.before.conf').write_bytes(vhost)
         ROOT.mkdir(mode=0o755)
         release=ROOT/'releases'/revision
-        release.mkdir(parents=True,mode=0o755)
+        # Keep the incomplete tree inaccessible while normalizing archive owners.
+        release.mkdir(parents=True,mode=0o700)
         with tarfile.open(package,'r:gz') as archive:
             validate_archive(archive)
             archive.extractall(release)
-        for path in release.rglob('*'):
-            if path.is_symlink(): raise RuntimeError('Unexpected installed symlink')
-            if path.is_dir(): path.chmod(0o755)
-            elif path.is_file(): path.chmod(0o755 if path.stat().st_mode & 0o111 else 0o644)
+        secure_release(release)
         subprocess.run(['/usr/sbin/useradd','--system','--user-group','--home-dir','/nonexistent',
                         '--shell','/sbin/nologin',USER],check=True,timeout=20)
         account=pwd.getpwnam(USER)
