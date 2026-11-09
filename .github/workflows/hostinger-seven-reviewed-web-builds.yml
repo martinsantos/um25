@@ -1,0 +1,83 @@
+name: Clean seven reviewed UMSA web builds
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        type: choice
+        options: [inspect, apply]
+        required: true
+        default: inspect
+        description: Inspect or apply the fixed batch reviewed on 2026-11-09
+      active_release:
+        type: string
+        required: true
+        description: Published master SHA, workflow run, and attempt
+      expected_snapshot_sha:
+        type: string
+        description: SHA256 from the successful read-only inspection
+      acknowledgement:
+        type: string
+        description: Enter CLEAN-REVIEWED-WEB-SEVEN to apply the authorized batch
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: hostinger-umsa-production
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  reviewed_web_batch:
+    if: >-
+      github.ref == 'refs/heads/master' && vars.UMSA_PRODUCTION_TARGET == 'hostinger' &&
+      (inputs.phase == 'inspect' || (inputs.phase == 'apply' && inputs.acknowledgement == 'CLEAN-REVIEWED-WEB-SEVEN'))
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - name: Verify the cleanup safeguards
+        run: |
+          python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_reviewed_migration_prune.py' -v
+          python3 -m unittest discover -s scripts/ops/hostinger-migration -p 'test_seven_reviewed_web_builds.py' -v
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Revalidate the published release and the fixed batch
+        env:
+          PHASE: ${{ inputs.phase }}
+          ACTIVE_RELEASE: ${{ inputs.active_release }}
+          SNAPSHOT_SHA: ${{ inputs.expected_snapshot_sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          [[ "$ACTIVE_RELEASE" =~ ^([a-f0-9]{40})-([0-9]+)-([0-9]+)$ ]]
+          release_sha="${BASH_REMATCH[1]}"
+          release_run="${BASH_REMATCH[2]}"
+          release_attempt="${BASH_REMATCH[3]}"
+          [[ "$release_sha" == "$GITHUB_SHA" ]]
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$release_run" |
+            jq -e --arg sha "$release_sha" --arg attempt "$release_attempt" '
+              .head_sha == $sha and (.run_attempt | tostring) == $attempt and
+              .head_branch == "master" and .conclusion == "success" and
+              .path == ".github/workflows/hostinger-production.yml"
+            ' >/dev/null
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          id="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          script=scripts/ops/hostinger-migration/prune-reviewed-migration.py
+          if [[ "$PHASE" == apply ]]; then
+            [[ "$SNAPSHOT_SHA" =~ ^[a-f0-9]{64}$ ]]
+            ssh "${opts[@]}" root@179.198.115.115 "env GITHUB_ACTIONS=true python3 - apply $id $SNAPSHOT_SHA $ACTIVE_RELEASE" < "$script"
+          else
+            [[ "$PHASE" == inspect ]]
+            ssh "${opts[@]}" root@179.198.115.115 "python3 - inspect $id '' $ACTIVE_RELEASE" < "$script"
+          fi

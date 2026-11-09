@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One reviewed migration-artifact batch; no runtime, backup or config changes."""
+"""Apply only a named, reviewed Hostinger artifact batch."""
 import collections
 import fcntl
 import gzip
@@ -13,6 +13,7 @@ import stat
 import struct
 import subprocess
 import sys
+from typing import NamedTuple
 
 STAGE = Path('/srv/umsa-migration')
 RELEASES = Path('/srv/umsa-web-releases')
@@ -35,6 +36,29 @@ PROTECTED = (STAGE / 'source', STAGE / 'trusted', STAGE / 'mutable-rehearsals',
 LIVE_DATA = (STAGE / 'sgi-dedicated-rehearsals/40616586516-1/data',)
 EXPECTED_FILES = 104906
 EXPECTED_DATA_BYTES = 16787042304
+
+# Fixed to the installations and transfer archives reviewed on 2026-11-09.
+WEB_RETAINED = (
+    'fa45d536263d868311123d1114a6f1b588115d84-42656253194-1',
+    '0e5874461dc3a3f88a96f92a5553bb782e2aa29d-42638286339-1',
+    'ef0b4e3a21a4c039a5d17c67533c520c35b514dc-42605954485-1',
+)
+WEB_ARCHIVE_SIZES = {
+    'c490f11f83416110bac29d284a01bd6b1ad1869a-42594311849-1': 2099203042,
+    '991c776dfda2f7bd05d01288cba7610d5571d67b-42542235697-1': 2099203116,
+    '7eaca63bba7a9759288b50fba40ea62e68331c48-42472941134-1': 2099208864,
+    'b330dc3be9040efe2a5cc04223cbb71d850a02f7-42472092548-1': 2099198841,
+    '5e11d54a4b6d00e49c77e59a5725ea80e0c1dbb5-42438654463-1': 2099194270,
+    'edb99961d370e246513258228a4e4a9e9e7486d6-42315045244-1': 2099163393,
+    'e984657c976c76abd9ee523aa48060e51342fe03-42059660518-1': 2099175596,
+}
+WEB_REVIEWED_MIN_BYTES = 32382746624
+WEB_REVIEWED_MAX_BYTES = 32526565376
+WEB_RELEASE_ENTRIES = {
+    'application', 'nginx', 'previous-front.conf', 'previous-front.service',
+    'previous-public-directus-admin.conf', 'previous-public-ultimamilla.com.ar.conf',
+    'publication.complete', 'publication.log', 'web.environment',
+}
 MACHINE_SHA = '315fee7b2c6314049537fc82c6b2168500d14f416911a2b1226a3569aaf91c1c'
 HDR, EXT = struct.Struct('=QQIIII'), struct.Struct('=QQQQQIIII')
 ESSENTIAL = {'docker.service', 'mariadb.service', 'redis.service', 'postfix.service',
@@ -126,7 +150,7 @@ def unshared_bytes(path):
     raise RuntimeError('Artifact extent mapping did not converge')
 
 
-def validate_batch(rows):
+def validate_batch(rows, *, web=False):
     inodes, counts = {}, collections.Counter()
     for path, row in rows.items():
         values = row['meta']
@@ -134,7 +158,7 @@ def validate_batch(rows):
             key = tuple(values[:2])
             counts[key] += 1
             inodes[key] = (path, values)
-    if len(inodes) != EXPECTED_FILES:
+    if not web and len(inodes) != EXPECTED_FILES:
         raise RuntimeError('Reviewed artifact file count changed')
     total = 0
     for key, (path, values) in inodes.items():
@@ -144,7 +168,9 @@ def validate_batch(rows):
         if mapped > values[9]:
             raise RuntimeError('Extent allocation differs from inode accounting')
         total += mapped
-    if total != EXPECTED_DATA_BYTES:
+    if web and not WEB_REVIEWED_MIN_BYTES <= total <= WEB_REVIEWED_MAX_BYTES:
+        raise RuntimeError('Web batch allocation differs from the review')
+    if not web and total != EXPECTED_DATA_BYTES:
         raise RuntimeError('Reviewed reclaimable data allocation changed')
     return total
 
@@ -166,10 +192,13 @@ def runtime():
                                          for c in containers}, 'timers': timers}
 
 
-def consumers():
+def consumers(candidates=None, obsolete=None, extra_configs=()):
+    candidates = CANDIDATES if candidates is None else candidates
+    obsolete = OBSOLETE if obsolete is None else obsolete
+
     def selected(value):
         value = value.removesuffix(' (deleted)')
-        return any(value == str(root) or value.startswith(str(root) + '/') for root in CANDIDATES)
+        return any(value == str(root) or value.startswith(str(root) + '/') for root in candidates)
     for path in Path('/proc').iterdir():
         if not path.name.isdigit():
             continue
@@ -190,25 +219,25 @@ def consumers():
     ids = run(['docker', 'ps', '-aq']).split()
     for container in json.loads(run(['docker', 'inspect', *ids])):
         for mount in container['Mounts']:
-            if any(overlaps(Path(mount['Source']), root) for root in CANDIDATES):
+            if any(overlaps(Path(mount['Source']), root) for root in candidates):
                 raise RuntimeError('A container references a reviewed artifact')
     for line in Path('/proc/self/mountinfo').read_text().splitlines():
         mount = Path(line.split()[4].replace('\\040', ' '))
-        if mount != Path('/') and any(overlaps(mount, root) for root in CANDIDATES):
+        if mount != Path('/') and any(overlaps(mount, root) for root in candidates):
             raise RuntimeError('Mount inside a reviewed artifact')
-    for name in OBSOLETE:
+    for name in obsolete:
         values = run(['systemctl', 'show', 'umsa-web-' + name + '.service',
                       '--property=MainPID,ActiveState,UnitFileState'])
         props = dict(line.split('=', 1) for line in values.splitlines())
         if props != {'MainPID': '0', 'ActiveState': 'inactive', 'UnitFileState': 'disabled'}:
             raise RuntimeError('An obsolete application is active or enabled')
     config_roots = (Path(json.loads(STATE.read_text())['config']), Path('/srv/umsa-public-vhosts'),
-                    STAGE / 'sitrep-public-ingress')
+                    STAGE / 'sitrep-public-ingress', *extra_configs)
     for root in config_roots:
         for path in root.rglob('*'):
             if path.is_file() and path.stat().st_size < 1024 * 1024 and path.suffix != '.log':
                 text = path.read_text(errors='replace')
-                if any(str(candidate) in text for candidate in CANDIDATES):
+                if any(str(candidate) in text for candidate in candidates):
                     raise RuntimeError('An ingress file references a reviewed artifact')
 
 
@@ -221,12 +250,16 @@ def health():
     return response['stats']
 
 
-def snapshot():
+def verify_target():
     if (socket.gethostname() != 'srv2101069.hstgr.cloud'
             or hashlib.sha256(Path('/etc/machine-id').read_bytes()).hexdigest() != MACHINE_SHA
             or (STAGE / '.target').read_text().strip() != '179.198.115.115'
             or not (STAGE / 'production.active').is_file()):
         raise RuntimeError('Wrong production target')
+
+
+def snapshot():
+    verify_target()
     state = json.loads(STATE.read_text())
     if state != {'port': 4322, 'unit': 'umsa-web-' + CURRENT + '.service',
                  'config': str(RELEASES / CURRENT / 'nginx'),
@@ -259,6 +292,95 @@ def snapshot():
         raise RuntimeError('The active web runtime is missing')
     return {'state': state, 'artifacts': rows, 'data_bytes': amount,
             'protected': protected, 'runtime': identities}
+
+
+class WebBatch(NamedTuple):
+    retained: tuple
+    targets: tuple
+    protected: tuple
+
+
+def archive_path(release):
+    return STAGE / 'incoming' / (release + '.tar.gz')
+
+
+def reviewed_web_batch(active_release):
+    match = re.fullmatch(r'[a-f0-9]{40}-([0-9]+)-[0-9]+', active_release)
+    previous_run = int(WEB_RETAINED[0].split('-')[1])
+    if active_release == WEB_RETAINED[0]:
+        retained = WEB_RETAINED
+    elif match and int(match[1]) > previous_run and active_release not in WEB_ARCHIVE_SIZES:
+        retained = (active_release, *WEB_RETAINED)
+    else:
+        raise RuntimeError('Expected the reviewed or new active release for the web batch')
+    targets = tuple(RELEASES / release for release in WEB_ARCHIVE_SIZES) + tuple(
+        archive_path(release) for release in WEB_ARCHIVE_SIZES)
+    protected = tuple(RELEASES / release for release in retained) + tuple(
+        archive_path(release) for release in retained) + (
+        Path('/srv/umsa-operational-backups'), Path('/root/fumbling-field/backups'))
+    return WebBatch(retained, targets, protected)
+
+
+def web_release_receipt(release):
+    directory = RELEASES / release
+    secure_ancestors(directory / 'application/dist')
+    secure_ancestors(directory / 'nginx')
+    receipt = directory / 'publication.complete'
+    if not stat.S_ISREG(receipt.lstat().st_mode):
+        raise RuntimeError('Invalid web release receipt')
+    state = json.loads(receipt.read_text())
+    if state != {'port': state.get('port'), 'unit': 'umsa-web-' + release + '.service',
+                 'config': str(directory / 'nginx'), 'assets': str(directory / 'application/dist/client')}:
+        raise RuntimeError('Web release receipt differs from the selected identity')
+    if state['port'] not in (4321, 4322) or not (directory / 'application/dist/server/entry.mjs').is_file():
+        raise RuntimeError('Incomplete web release')
+    return state
+
+
+def web_consumers(batch):
+    consumers(batch.targets, WEB_ARCHIVE_SIZES, tuple(RELEASES / release / 'nginx' for release in batch.retained))
+
+
+def snapshot_web(batch):
+    verify_target()
+    state = json.loads(STATE.read_text())
+    receipts = {release: web_release_receipt(release) for release in (*batch.retained, *WEB_ARCHIVE_SIZES)}
+    if state != receipts[batch.retained[0]]:
+        raise RuntimeError('The requested release is not the active deployment')
+    retained_packages = {archive_path(release) for release in batch.retained}
+    for path in batch.protected:
+        if path in retained_packages:
+            secure_ancestors(path.parent)
+            if not stat.S_ISREG(path.lstat().st_mode):
+                raise RuntimeError('Retained package is missing or redirected')
+        else:
+            secure_ancestors(path, ownership=False)
+    for release, expected_size in WEB_ARCHIVE_SIZES.items():
+        directory = RELEASES / release
+        secure_ancestors(directory.parent)
+        secure_ancestors(archive_path(release).parent)
+        package = archive_path(release).lstat()
+        if not stat.S_ISREG(package.st_mode) or package.st_size != expected_size:
+            raise RuntimeError('Reviewed transport changed')
+        if set(p.name for p in directory.iterdir()) != WEB_RELEASE_ENTRIES:
+            raise RuntimeError('Unexpected content in a reviewed release')
+        if set(p.name for p in (directory / 'application').iterdir()) != {
+                'dist', 'node_modules', 'package.json', 'package-lock.json'}:
+            raise RuntimeError('Unexpected content in a reviewed application')
+    if any(overlaps(target, preserved) for target in batch.targets for preserved in (*PROTECTED, *batch.protected)):
+        raise RuntimeError('Web batch overlaps preserved data')
+    web_consumers(batch)
+    artifacts = inventory(batch.targets, True)
+    amount = validate_batch(artifacts, web=True)
+    protected = inventory(batch.protected)
+    for path, row in protected.items():
+        if row['link'] is not None and any(overlaps(Path(path).resolve(), root) for root in batch.targets):
+            raise RuntimeError('A retained build or backup links to the web batch')
+    identities = runtime()
+    if state['unit'] not in identities['units']:
+        raise RuntimeError('The active web runtime is missing')
+    return {'state': state, 'artifacts': artifacts, 'data_bytes': amount, 'protected': protected,
+            'runtime': identities, 'release_receipts': receipts, 'retained_releases': batch.retained}
 
 
 def remove_reviewed(roots, rows):
@@ -307,8 +429,8 @@ def remove_reviewed(roots, rows):
             os.close(fd)
 
 
-def assert_preserved(before):
-    after = inventory(PROTECTED)
+def assert_preserved(before, roots=None):
+    after = inventory(PROTECTED if roots is None else roots)
     for path, row in before.items():
         if stat.S_ISDIR(row['meta'][2]):
             indices = (0, 1, 2, 3, 4)
@@ -318,25 +440,32 @@ def assert_preserved(before):
             raise RuntimeError('A preserved file changed')
 
 
-def main(phase, identifier, expected=''):
+def main(phase, identifier, expected='', active_release=''):
     if phase not in ('inspect', 'apply') or not re.fullmatch(r'[0-9]+-[0-9]+', identifier):
         raise ValueError('Unexpected CI operation')
     if phase == 'apply' and (os.environ.get('GITHUB_ACTIONS') != 'true'
                              or not re.fullmatch(r'[a-f0-9]{64}', expected)):
         raise RuntimeError('Application requires CI and a reviewed snapshot')
+    batch = reviewed_web_batch(active_release) if active_release else None
+    targets = batch.targets if batch else CANDIDATES
+    protected = batch.protected if batch else PROTECTED
     os.umask(0o077)
     os.nice(19)
     subprocess.run(['ionice', '-c', '3', '-p', str(os.getpid())], check=True, capture_output=True)
     # This is the same inode/lock used by the live publisher, opened read-only.
     with open('/run/umsa-web-publish.lock', 'rb') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        before = snapshot()
+        before = snapshot_web(batch) if batch else snapshot()
         sha = digest(before)
         probes = health()
         if phase == 'inspect':
-            print(json.dumps({'snapshot_sha256': sha, 'data_bytes': before['data_bytes'],
-                              'paths': [str(p) for p in CANDIDATES], 'stats': probes,
-                              'runtime': before['runtime']}, indent=2))
+            report = {'snapshot_sha256': sha, 'data_bytes': before['data_bytes'],
+                      'paths': [str(p) for p in targets], 'stats': probes}
+            if batch:
+                report['retained_releases'] = batch.retained
+            else:
+                report['runtime'] = before['runtime']
+            print(json.dumps(report, indent=2))
             return
         if sha != expected:
             raise RuntimeError('Artifacts, preserved data or runtime changed since inspection')
@@ -352,15 +481,21 @@ def main(phase, identifier, expected=''):
             raw.flush()
             os.fsync(raw.fileno())
         # Revalidate after writing the audit receipt and immediately before unlink.
-        if inventory(CANDIDATES, True) != before['artifacts'] or runtime() != before['runtime']:
+        if inventory(targets, True) != before['artifacts'] or runtime() != before['runtime']:
             raise RuntimeError('The reviewed batch or runtime changed before application')
-        consumers()
+        if batch:
+            web_consumers(batch)
+            assert_preserved(before['protected'], protected)
+            if json.loads(STATE.read_text()) != before['state']:
+                raise RuntimeError('The active release changed before applying the web batch')
+        else:
+            consumers()
         free_before = os.statvfs('/srv').f_bavail * os.statvfs('/srv').f_frsize
         try:
-            remove_reviewed(CANDIDATES, before['artifacts'])
-            if any(path.exists() or path.is_symlink() for path in CANDIDATES):
+            remove_reviewed(targets, before['artifacts'])
+            if any(path.exists() or path.is_symlink() for path in targets):
                 raise RuntimeError('A reviewed artifact remains after application')
-            assert_preserved(before['protected'])
+            assert_preserved(before['protected'], protected)
             if runtime() != before['runtime']:
                 raise RuntimeError('A service or container changed identity')
             after_probes = health()
@@ -368,13 +503,16 @@ def main(phase, identifier, expected=''):
             receipt = {'ok': True, 'run': identifier, 'snapshot_sha256': sha,
                        'data_bytes': before['data_bytes'], 'freed_bytes': free_after - free_before,
                        'free_before': free_before, 'free_after': free_after,
-                       'paths_absent': all(not p.exists() and not p.is_symlink() for p in CANDIDATES),
+                       'paths_absent': all(not p.exists() and not p.is_symlink() for p in targets),
                        'protected_files_verified': sum(not stat.S_ISDIR(r['meta'][2])
                                                        for r in before['protected'].values()),
                        'active_release': CURRENT, 'previous_release': PREVIOUS,
                        'backups_preserved': True, 'runtime_unchanged': True,
                        'live_database_roots_preserved': [str(p) for p in LIVE_DATA],
                        'services_restarted': False, 'stats': after_probes}
+            if batch:
+                receipt.update(active_release=batch.retained[0], previous_release=batch.retained[1],
+                               retained_releases=batch.retained, paths=[str(path) for path in targets])
             (folder / 'complete.json').write_text(json.dumps(receipt, indent=2) + '\n')
             print(json.dumps(receipt))
         except BaseException as error:
