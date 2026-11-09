@@ -76,46 +76,54 @@ const pageSeo = serviceDetailSeo[code] ?? {
   description: copy.paragraph,
 };
 const limpio = (s: string) => s.replace(/(?:desde|con) el frente 105/gi, 'con el equipo de soporte').replace(/\bfrente 10\d\b/gi, 'equipo técnico');
-const cierrePorServicio: Record<string, { heading: string; description: string; ctaText: string }> = {
+const cierrePorServicio: Record<string, { heading: string; description: string; ctaText: string; contactQuestion: string }> = {
   '101': {
     heading: 'Planifiquemos tu red',
     description: 'Indicá qué sedes necesitás conectar, dónde están y cuántos puestos deben cubrirse.',
     ctaText: 'Consultar por redes',
+    contactQuestion: '¿Qué sectores necesitás conectar y cuántos puntos de red hay que cubrir?',
   },
   '102': {
     heading: 'Definamos qué necesita cubrir la seguridad',
     description: 'Contanos qué espacios necesitás cubrir, qué equipos ya están instalados y en qué horarios opera el sitio.',
     ctaText: 'Consultar seguridad',
+    contactQuestion: '¿Qué zonas necesitás proteger y qué cámaras o controles de acceso tenés instalados?',
   },
   '103': {
     heading: 'Conectemos tus sedes',
     description: 'Decinos qué sedes necesitás enlazar, dónde están y qué equipos deben conectarse.',
     ctaText: 'Consultar conectividad',
+    contactQuestion: '¿Qué sedes necesitás conectar y qué conectividad tienen hoy?',
   },
   '104': {
     heading: 'Contanos qué proceso querés mejorar',
     description: 'Describí el proceso, los sistemas existentes y qué información necesitás integrar.',
     ctaText: 'Consultar por software',
+    contactQuestion: '¿Qué proceso querés digitalizar y con qué sistemas tiene que integrarse?',
   },
   '105': {
     heading: 'Definamos cómo sostener tu operación',
     description: 'Contanos qué sedes y equipos requieren soporte, y en qué horarios trabaja la operación.',
     ctaText: 'Consultar soporte 24/7',
+    contactQuestion: '¿Qué sedes o equipos necesitan soporte y en qué horarios?',
   },
   '106': {
     heading: 'Ordenemos tus decisiones tecnológicas',
     description: 'Compartí las sedes, equipos y sistemas actuales, y la decisión técnica que necesitás resolver.',
     ctaText: 'Consultar por consultoría',
+    contactQuestion: '¿Qué decisión tecnológica necesitás tomar y qué infraestructura tenés hoy?',
   },
   '107': {
     heading: 'Revisemos qué espacios necesitan detección',
     description: 'Indicá qué sectores necesitás cubrir y qué sistema o equipamiento ya existe.',
     ctaText: 'Enviar consulta',
+    contactQuestion: '¿Qué espacios hay que cubrir y qué detectores o alarmas tenés instalados?',
   },
   '108': {
     heading: 'Revisemos la energía de tu infraestructura',
     description: 'Compartí dónde están los equipos, qué instalación existe y qué puntos necesitás alimentar.',
     ctaText: 'Consultar energía IT',
+    contactQuestion: '¿Qué equipos tienen que seguir funcionando ante un corte y por cuánto tiempo?',
   },
 };
 const cierre = cierrePorServicio[code];
@@ -278,7 +286,7 @@ const cierre = cierrePorServicio[code];
 
     </main>
 
-    <Cierre heading={cierre?.heading} description={cierre?.description} ctaText={cierre?.ctaText} />
+    <Cierre heading={cierre?.heading} description={cierre?.description} ctaText={cierre?.ctaText} contactQuestion={cierre?.contactQuestion} />
 
 
   </body>
