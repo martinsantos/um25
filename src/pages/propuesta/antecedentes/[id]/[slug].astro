@@ -68,6 +68,7 @@ const seoTitle = caseSeo.title.includes(ref) ? caseSeo.title : `${trimAtWordBoun
       .datos h1 { font-size: clamp(1.7rem, 2.6vw, 2.4rem); }
       .datos .quien { font-size: 1.1rem; font-weight: 600; }
       .datos .quien span { color: var(--ink-3); font-weight: 400; }
+      .datos .alcance h2 { margin-bottom: 6px; font-size: 1rem; }
       .datos .resumen { color: var(--ink-2); font-size: 1.0625rem; }
       .tabla { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2) var(--s3); padding-top: var(--s2); border-top: 1px solid var(--line); align-self: start; }
       .tabla div { display: grid; gap: 4px; }
@@ -113,12 +114,18 @@ const seoTitle = caseSeo.title.includes(ref) ? caseSeo.title : `${trimAtWordBoun
         <div class="datos">
           <h1>{pageTitle}<span class="dot">.</span></h1>
           <div class="quien">{c.client}{when && <span><span class="quien-separator" aria-hidden="true"> · </span>{when}</span>}</div>
-          <p class="resumen">{introduction}</p>
+          {c.documentedScope ? (
+            <section class="alcance">
+              <h2>Alcance documentado</h2>
+              <p class="resumen">{introduction}</p>
+            </section>
+          ) : <p class="resumen">{introduction}</p>}
         </div>
         <dl class="tabla">
             {c.sector && <div><dt>Sector</dt><dd><a href={`/sectores/${c.sectorSlug}`}>{c.sector}</a></dd></div>}
             {when && <div><dt>{cierre ? 'Inicio' : 'Fecha'}</dt><dd>{when}</dd></div>}
             {cierre && <div><dt>{enCurso ? 'Cierre previsto' : 'Cierre'}</dt><dd>{cierre}</dd></div>}
+            {c.documentedScope && c.estado === 'finalizado' && <div><dt>Estado</dt><dd>Finalizado</dd></div>}
             <div><dt>Referencia</dt><dd>{ref}</dd></div>
             {svcs.length > 0 && <div class="ancho"><dt>Servicios del proyecto · ver provisión</dt><dd>{svcs.map((s) => <a href={`/servicios/${s.code}#provision`}>{s.name}</a>)}</dd></div>}
         </dl>
@@ -126,12 +133,12 @@ const seoTitle = caseSeo.title.includes(ref) ? caseSeo.title : `${trimAtWordBoun
 
     </div>
     {(id === 3286 || id === 3588) ? <PilotCase items={scope.partes} caso={caseDetail} original={c.summary}/> : <>{caseDetail && <CasoEnDetalle caso={caseDetail} original={c.summary} />}
-    <section class="sec">
+    {(!c.documentedScope || (scope.origen === 'registro' && scope.partes.length > 0)) && <section class="sec">
       <div class="wrap">
-        <div class="sec__head"><h2>{!scope.partes.length ? 'Información disponible del proyecto' : scope.origen === 'servicio' ? 'Capacidades de los servicios vinculados' : 'Alcance documentado del proyecto'}<span class="dot">.</span></h2></div>
+        <div class="sec__head"><h2>{!scope.partes.length ? 'Información disponible del proyecto' : scope.origen === 'servicio' ? 'Capacidades de los servicios vinculados' : c.documentedScope ? 'Componentes y tareas del proyecto' : 'Alcance documentado del proyecto'}<span class="dot">.</span></h2></div>
         {scope.partes.length > 0 ? <FichaIso story={c} /> : <div class="reading"><p>{c.summary || pageTitle}</p><p>El archivo público no especifica equipos, cantidades ni entregables adicionales para esta referencia. Para ampliar la información disponible, consultanos por {ref}.</p><a class="line-link" href={`/contacto?antecedente=${c.id}`}>Consultar por este antecedente →</a></div>}
       </div>
-    </section>
+    </section>}
 
 
     </>}

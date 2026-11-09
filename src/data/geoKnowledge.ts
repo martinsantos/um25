@@ -1,7 +1,7 @@
 import { publicCaseRecord } from '../utils/publicCaseRecord';
 import { PUBLIC_CONTENT_REVIEWED } from '../config/publicFacts';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL, BUSINESS_ADDRESS } from '../config/seo';
-import { canonicalUrl, clampText, formatSitemapDate } from '../utils/seoUrl';
+import { canonicalUrl, clampText } from '../utils/seoUrl';
 import { generateSlug } from '../utils/slugUtils.js';
 import serviciosSnapshot from './snapshots/servicios.json';
 import antecedentesSnapshot from './snapshots/antecedentes.json';
@@ -820,25 +820,4 @@ ${markdownList(GEO_DISCOVERY_URLS)}
 - Para casos de clientes confidenciales, no inventar el nombre del cliente.
 - Para informacion comercial actualizada, dirigir a ${canonicalUrl('/contacto')}.
 `;
-}
-
-export function getGeoSitemapUrls() {
-  const today = formatSitemapDate(GEO_UPDATED);
-  const core = [
-    ...GEO_DISCOVERY_URLS,
-    canonicalUrl('/servicios'),
-    canonicalUrl('/sectores'),
-    canonicalUrl('/antecedentes'),
-    canonicalUrl('/blog'),
-    canonicalUrl('/contacto'),
-  ];
-  const services = getGeoServices().map((service) => service.url);
-  const sectors = getGeoSectors().map((sector) => sector.url);
-  const cases = getGeoCases(80).map((item) => item.url);
-  const hubs = getAuthorityHubs().map((hub) => hub.url);
-
-  return [...new Set([...core, ...hubs, ...services, ...sectors, ...cases])].map((url) => ({
-    loc: url,
-    lastmod: today,
-  }));
 }

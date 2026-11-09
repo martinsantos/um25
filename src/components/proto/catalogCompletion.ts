@@ -10,6 +10,7 @@ export type CompletionEntry = {
   match: CompletionSource;
   title?: string;
   summary?: string;
+  documentedScope?: true;
   sector?: string;
   services?: string[];
   sources: Array<{ field: string; file: string; recordId: number; quote: string }>;
@@ -114,6 +115,8 @@ function hasCurrentRecordAnonymousEvidence(
 function validMutableFields(entry: CompletionEntry): boolean {
   if (Object.prototype.hasOwnProperty.call(entry, 'title') && !isPlainText(entry.title)) return false;
   if (Object.prototype.hasOwnProperty.call(entry, 'summary') && !isPlainText(entry.summary)) return false;
+  if (entry.documentedScope !== undefined &&
+    (entry.documentedScope !== true || !entry.summary || !normalizeWhitespace(entry.summary))) return false;
   if (Object.prototype.hasOwnProperty.call(entry, 'sector')) {
     if (typeof entry.sector !== 'string' || !ALLOWED_SECTORS.has(entry.sector)) return false;
   }
