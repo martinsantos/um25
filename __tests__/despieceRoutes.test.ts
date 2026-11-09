@@ -19,4 +19,14 @@ describe('Despiece public routing', () => {
     expect(publicDespiecePath('/propuesta/antecedentes/17/obra')).toBe('/antecedentes/17/obra');
     expect(publicDespiecePath('/propuesta-other')).toBe('/propuesta-other');
   });
+  test.each([
+    ['/antecedentes/10991/jose-nucete-e-hijos-sa-soporte-it', '/antecedentes/3311/soporte-de-infraestructura-it-de-alta-disponibilidad-jose-nucete-e-hijos-sa-abril-2021'],
+    ['/antecedentes/10980/hospital-a-italo-perrupato-sdi', '/antecedentes/3332/infraestructura-hospitalaria-servicio-tecnico-hospital-a-italo-perrupato'],
+    ['/antecedentes/10942/hospital-a-italo-perrupato-sdi', '/antecedentes/3373/soporte-de-infraestructura-it-de-alta-disponibilidad-hospital-a-italo-perrupato-febrero-2020'],
+  ])('redirects verified historical case %s to its canonical URL', (path, destination) => {
+    expect(despieceRoute(path)).toEqual({ redirect: destination });
+    expect(despieceRoute(path + '/', 'HEAD')).toEqual({ redirect: destination });
+    expect(despieceRoute(path, 'POST')).toBeNull();
+    expect(despieceRoute(path + '-otro')).toEqual({ rewrite: '/propuesta' + path + '-otro' });
+  });
 });

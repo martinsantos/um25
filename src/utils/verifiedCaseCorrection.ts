@@ -1,4 +1,4 @@
-import { verifiedHistoricalCaseCorrection } from './verifiedHistoricalCaseCorrection';
+import { verifiedHistoricalCaseCorrection, type HistoricalCorrection } from './verifiedHistoricalCaseCorrection';
 import sameRecordCorrections from '../data/propuesta/same-record-corrections.json';
 
 /** Correcciones limitadas a fichas cuya descripción contradice el título importado.
@@ -6,7 +6,7 @@ import sameRecordCorrections from '../data/propuesta/same-record-corrections.jso
  * Si cambia cualquiera de los campos de identidad del registro web, no se aplica.
  */
 type Source = { id: number | string; client: unknown; title: unknown; summary: unknown; year: number };
-type Correction = { title: string; summary: string; services: number[]; sector?: string };
+type Correction = HistoricalCorrection;
 
 const rules: Record<number, { match: Omit<Source, 'id'>; alternativeSummaries?: string[]; value: Correction }> = {
   ...sameRecordCorrections,

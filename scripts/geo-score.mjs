@@ -326,8 +326,11 @@ function scorePlatformOptimization(snapshot, canonicalBaseUrl) {
     llms.includes(`${canonicalBaseUrl}/sitemap-geo.xml`) &&
     llmsFull.includes(`${canonicalBaseUrl}/llms.txt`) &&
     llmsFull.includes(`${canonicalBaseUrl}/sitemap-geo.xml`);
-  const sitemapGeoComplete = [...GEO_RESOURCE_PATHS, ...GEO_COMMERCIAL_HUB_PATHS]
-    .every((path) => sitemapGeo.includes(`${canonicalBaseUrl}${path}`));
+  const geoPagePaths = ['/servicios', '/sectores', '/antecedentes', '/blog', '/contacto', ...GEO_COMMERCIAL_HUB_PATHS];
+  const geoLocs = [...sitemapGeo.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
+  const sitemapGeoComplete = geoLocs.length === geoPagePaths.length &&
+    geoPagePaths.every((path) => geoLocs.includes(`${canonicalBaseUrl}${path}`)) &&
+    GEO_RESOURCE_PATHS.every((path) => llmsFull.includes(`${canonicalBaseUrl}${path}`));
   const aiCrawlerAllow = AI_CRAWLERS.every((crawler) => {
     const section = robots.split(new RegExp(`User-agent:\\s*${crawler}`, 'i'))[1] || '';
     return robots.includes(`User-agent: ${crawler}`) && section.includes('Allow: /llms.txt') && section.includes('Allow: /geo/');
@@ -338,7 +341,7 @@ function scorePlatformOptimization(snapshot, canonicalBaseUrl) {
     .every((path) => llmsFull.includes(`${canonicalBaseUrl}${path}`));
 
   addCheck(checks, 2, llmsCrossLinks, 'llms.txt and llms-full.txt cross-link discovery resources');
-  addCheck(checks, 2, sitemapGeoComplete, 'sitemap-geo.xml lists GEO resources and commercial hubs');
+  addCheck(checks, 2, sitemapGeoComplete, 'sitemap-geo.xml lists HTML pages and llms-full.txt lists GEO data');
   addCheck(checks, 2, aiCrawlerAllow, 'robots.txt explicitly allows AI crawler access to GEO resources', { crawlers: AI_CRAWLERS });
   addCheck(checks, 2, geoIndexLinked, '/geo human index links machine-readable resources');
   addCheck(checks, 2, llmsCorePages, 'llms-full.txt lists core commercial/navigation pages');

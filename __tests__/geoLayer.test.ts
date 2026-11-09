@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { generateGeoSitemapXml } from '../src/pages/sitemap-geo.xml';
 
 import {
   AI_CRAWLERS,
@@ -11,7 +12,6 @@ import {
   getGeoCases,
   getGeoServices,
   getGeoSectors,
-  getGeoSitemapUrls,
   getGeoTopics,
 } from '../src/data/geoKnowledge';
 
@@ -45,11 +45,12 @@ describe('GEO layer', () => {
     expect(cases[0]?.url).toMatch(/^https:\/\/www\.ultimamilla\.com\.ar\/antecedentes\/\d+\//);
   });
 
-  test('adds GEO URLs to sitemap and robots discovery', () => {
+  test('separates GEO HTML pages in the sitemap from technical resources in robots discovery', () => {
     const sitemapIndex = fs.readFileSync(path.join(repoRoot, 'src/pages/sitemap-index.xml.ts'), 'utf8');
     const robots = fs.readFileSync(path.join(repoRoot, 'src/pages/robots.txt.ts'), 'utf8');
     const staticRobots = fs.readFileSync(path.join(repoRoot, 'public/robots.txt'), 'utf8');
-    const geoUrls = getGeoSitemapUrls().map((entry) => entry.loc);
+    const xml = generateGeoSitemapXml();
+    const geoUrls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
 
     expect(sitemapIndex).toContain('/sitemap-geo.xml');
     expect(sitemapIndex).toContain('/sitemap-images.xml');
@@ -63,14 +64,11 @@ describe('GEO layer', () => {
     expect(staticRobots).toContain('Sitemap: https://www.ultimamilla.com.ar/sitemap-images.xml');
     expect(AI_CRAWLERS).toEqual(expect.arrayContaining(['GPTBot', 'ClaudeBot', 'Claude-SearchBot', 'PerplexityBot']));
     expect(staticRobots).toContain('Claude-SearchBot');
-    expect(geoUrls).toEqual(expect.arrayContaining([
-      'https://www.ultimamilla.com.ar/llms.txt',
-      'https://www.ultimamilla.com.ar/geo/score',
-      'https://www.ultimamilla.com.ar/geo/services.json',
-      'https://www.ultimamilla.com.ar/geo/image-evidence.json',
-      'https://www.ultimamilla.com.ar/sitemap-images.xml',
-      'https://www.ultimamilla.com.ar/sitemap-geo.xml',
-    ]));
+    expect(geoUrls.sort()).toEqual([
+      '/servicios', '/sectores', '/antecedentes', '/blog', '/contacto',
+      '/servicios-it-empresas-mendoza', '/presupuesto-servicios-it-empresas',
+      '/proyectos-ingenieria-it-mendoza', '/servicios-it-empresas-argentina',
+    ].map((route) => `https://www.ultimamilla.com.ar${route}`).sort());
   });
 
   test('registers GEO resources as Astro routes', () => {
@@ -141,22 +139,12 @@ describe('GEO layer', () => {
 
   test('includes authority resources and hubs in GEO discovery surfaces', () => {
     const brandFacts = getBrandFacts();
-    const geoUrls = getGeoSitemapUrls().map((entry) => entry.loc);
 
     expect(brandFacts.discoveryResources).toEqual(expect.arrayContaining([
       'https://www.ultimamilla.com.ar/geo/authority.json',
       'https://www.ultimamilla.com.ar/geo/topics.json',
       'https://www.ultimamilla.com.ar/geo/buyer-intents.json',
       'https://www.ultimamilla.com.ar/geo/blog-index.json',
-    ]));
-    expect(geoUrls).toEqual(expect.arrayContaining([
-      'https://www.ultimamilla.com.ar/servicios-it-empresas-mendoza',
-      'https://www.ultimamilla.com.ar/presupuesto-servicios-it-empresas',
-      'https://www.ultimamilla.com.ar/proyectos-ingenieria-it-mendoza',
-      'https://www.ultimamilla.com.ar/servicios-it-empresas-argentina',
-      'https://www.ultimamilla.com.ar/geo',
-      'https://www.ultimamilla.com.ar/geo/score',
-      'https://www.ultimamilla.com.ar/geo/authority.json',
     ]));
   });
 

@@ -98,7 +98,7 @@ export const PLACES: { slug: string; site: IsoSite; image: string }[] = [
 
 const cleanText = (value: unknown) => String(value ?? '').replace(/\b(Rubro|Cliente|Sector|Área|Area)\s*:\s*/gi, '').replace(/\s*(\.{3}|…)\s*$/u, '').replace(/\s+/g, ' ').trim();
 
-export type Story = { id: number; slug: string; href: string; client: string; title: string; year: number; month: number; sourceTitleDate?: string; inicio?: string; cierre?: string; estado?: Estado; sgiId?: string; sector: string; sectorSlug: string; serviceCodes: string[]; services: string[]; image: string; summary: string; status: string };
+export type Story = { id: number; slug: string; href: string; client: string; title: string; year: number; month: number; sourceTitleDate?: string; inicio?: string; cierre?: string; estado?: Estado; sgiId?: string; sector: string; sectorSlug: string; serviceCodes: string[]; services: string[]; image: string; summary: string; status: string; documentedScope?: true };
 
 const SOFTWARE_GENERIC_TITLE = /^desarrollo de software y digitalizacion de procesos\b/i;
 const SOFTWARE_SCOPE_EVIDENCE = /\b(software|digitalizaci[oó]n|aplicaci[oó]n|plataforma|erp|web|api|programaci[oó]n|desarrollos? y actualizaci[oó]n (?:del )?sistema de ventas)\b/i;
@@ -254,6 +254,7 @@ export async function loadStories() {
         services: c.service_codes.map((code) => byCode.get(String(code)) || '').filter(Boolean),
         image: curateCatalogImage(c.id, c.image || ''),
         summary,
+        documentedScope: completion?.documentedScope ?? correction?.documentedScope,
         status: c.status,
       };
     });

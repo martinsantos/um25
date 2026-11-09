@@ -208,7 +208,9 @@ async function auditSitemap(baseUrl, canonicalBaseUrl, failures) {
 
   const sitemapIndex = await fetchText(new URL('/sitemap-index.xml', baseUrl).toString(), failures);
   assert(sitemapIndex.includes('<sitemapindex'), 'sitemap-index.xml missing sitemapindex root', failures);
-  assert(sitemapIndex.includes(`${canonicalBaseUrl}/sitemap-images.xml`), 'sitemap-index.xml missing sitemap-images.xml', failures);
+  const listedSitemaps = [...sitemapIndex.matchAll(/<sitemap>\s*<loc>([^<]+)<\/loc>\s*<\/sitemap>/g)].map((match) => match[1]);
+  assert(listedSitemaps.includes(`${canonicalBaseUrl}/sitemap-images.xml`),
+    'sitemap-index.xml must list the canonical image sitemap as a sitemap', failures);
   assert(!sitemapIndex.includes(NON_CANONICAL_APEX_URL), 'sitemap-index.xml leaks apex URL', failures);
 
   const sitemap = await fetchText(new URL('/sitemap.xml', baseUrl).toString(), failures);
@@ -235,8 +237,7 @@ async function auditGeoDiscovery(baseUrl, canonicalBaseUrl, failures) {
   const llms = await fetchText(new URL('/llms.txt', baseUrl).toString(), failures);
   const llmsFull = await fetchText(new URL('/llms-full.txt', baseUrl).toString(), failures);
   const sitemapGeo = await fetchText(new URL('/sitemap-geo.xml', baseUrl).toString(), failures);
-  const canonicalPaths = [
-    ...GEO_DISCOVERY_PATHS,
+  const geoPagePaths = [
     ...GEO_COMMERCIAL_HUB_PATHS,
     '/servicios',
     '/sectores',
@@ -251,16 +252,18 @@ async function auditGeoDiscovery(baseUrl, canonicalBaseUrl, failures) {
   assert(llmsFull.includes(`${canonicalBaseUrl}/sitemap-geo.xml`), 'llms-full.txt missing sitemap-geo discovery link', failures);
   assert(sitemapGeo.includes('<urlset'), 'sitemap-geo.xml missing urlset root', failures);
 
-  for (const canonicalPath of canonicalPaths) {
+  const geoLocs = [...sitemapGeo.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
+  assert(geoLocs.length === geoPagePaths.length &&
+    geoPagePaths.every((path) => geoLocs.includes(`${canonicalBaseUrl}${path}`)),
+    'sitemap-geo.xml must list only canonical GEO HTML pages', failures);
+
+  for (const canonicalPath of [...GEO_DISCOVERY_PATHS, ...geoPagePaths]) {
     const canonical = `${canonicalBaseUrl}${canonicalPath}`;
     if (canonicalPath !== '/llms.txt') {
       assert(llmsFull.includes(canonical), `llms-full.txt missing ${canonical}`, failures);
     }
     if (!canonicalPath.endsWith('.json') && canonicalPath !== '/sitemap-geo.xml') {
       assert(llms.includes(canonical) || canonicalPath === '/llms.txt', `llms.txt missing ${canonical}`, failures);
-    }
-    if (canonicalPath !== '/sitemap-geo.xml') {
-      assert(sitemapGeo.includes(canonical), `sitemap-geo.xml missing ${canonical}`, failures);
     }
   }
 

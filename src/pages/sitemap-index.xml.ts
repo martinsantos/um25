@@ -26,7 +26,7 @@ function generateSitemapIndexXml(): string {
         <loc>${escapeXml(`${SITE_URL}/sitemap-blog.xml`)}</loc>
     </sitemap>
 
-    <!-- Sitemap GEO/LLM con hubs comerciales, JSON de entidades y discovery -->
+    <!-- Sitemap GEO con páginas canónicas y hubs comerciales -->
     <sitemap>
         <loc>${escapeXml(`${SITE_URL}/sitemap-geo.xml`)}</loc>
     </sitemap>
