@@ -1,31 +1,46 @@
 ---
 import PilotFlow from './PilotFlow.astro';
 import Parte from './Parte.astro';
-import type { ServiceProvisionItem } from '../../utils/serviceProvision';
-import type { ParteKey } from './despiece';
+import { groupServiceProvision, type ServiceProvisionItem } from '../../utils/serviceProvision';
+type CatalogItem = Pick<ServiceProvisionItem, 'title' | 'summary' | 'parts' | 'group'> & { links?: { url: string; label: string }[] };
 interface Props {
-  winery?:boolean;
-  items: {title:string; summary:string; parts:{key:ParteKey;label:string}[]; links?:{url:string;label:string}[]}[] | ServiceProvisionItem[];
+  winery?: boolean;
+  items: CatalogItem[];
+  introduction?: string;
 }
-const { winery = false,items } = Astro.props;
+const { winery = false, items, introduction } = Astro.props;
+const blocks = groupServiceProvision(items);
 ---
-<section class="pilot-section sec" id={winery ? 'integracion':'provision'} aria-labelledby="pilot-catalog-title">
+<section class="pilot-section sec" id={winery ? 'integracion':'provision'} aria-labelledby="pilot-catalog-title" data-provision={winery ? undefined : true}>
   <div class="wrap">
     <header class="pilot-heading">
       <h2 id="pilot-catalog-title">{winery ? 'Cómo integramos los servicios':'Qué proveemos'}<span class="dot">.</span></h2>
-      <p>{winery ? 'Sistemas para producción, cavas y administración.' : 'El equipamiento, la instalación y el mantenimiento se definen para cada proyecto.'}</p>
+      <p>{introduction ?? (winery ? 'Sistemas para producción, cavas y administración.' : 'El equipamiento, la instalación y el mantenimiento se definen para cada proyecto.')}</p>
     </header>
     <div class="pilot-catalog">
       <PilotFlow winery={winery}/>
       <div class="pilot-catalog__index" id={winery ? 'servicios-sector':undefined}>
-        {items.map((item,i)=><details class="pilot-entry" open={i===0}>
-          <summary><span class="pilot-entry__icon" aria-hidden="true">{item.parts[0] && <Parte k={item.parts[0].key} size={48}/>}</span><span>{item.title}</span></summary>
-          <div class="pilot-entry__content"><p>{item.summary}</p>
-            <ul>{item.parts.map(part=><li><Parte k={part.key} size={40}/>{part.label}</li>)}</ul>
-            {'links' in item && item.links && <nav aria-label={item.title}>{item.links.map(link=><a href={link.url}>{link.label} →</a>)}</nav>}
+        {blocks.map(({ title, members, parts }, i) => <details class="pilot-entry" open={i === 0}>
+          <summary><span class="pilot-entry__icon" aria-hidden="true">{parts[0] && <Parte k={parts[0].key} size={48}/>}</span><span>{title}</span></summary>
+          <div class="pilot-entry__content">
+            {members.map(item => <div data-provision-item={winery ? undefined : true}>
+              {members.length > 1 && <h3 class="pilot-entry__member-title">{item.group?.heading}</h3>}
+              <p>{item.summary}</p>
+            </div>)}
+            <ul>{parts.map(part => <li><Parte k={part.key} size={40}/>{part.label}</li>)}</ul>
+            {members.map(item => item.links && <nav aria-label={item.title}>{item.links.map(link => <a href={link.url}>{link.label} →</a>)}</nav>)}
           </div>
         </details>)}
       </div>
     </div>
+    <slot />
   </div>
 </section>
+<style>
+  .pilot-entry__member-title {
+    margin: 12px 0 4px;
+    color: var(--ink);
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+</style>

@@ -1,7 +1,7 @@
 jest.mock('../src/lib/directus', () => ({ getServiciosV4: jest.fn(), getAllAntecedentes: jest.fn() }));
 import { getServiciosV4 } from '../src/lib/directus';
 import { getServicios } from '../src/lib/um26-directus';
-import { serviceProvisionItems } from '../src/utils/serviceProvision';
+import { groupServiceProvision, serviceProvisionItems } from '../src/utils/serviceProvision';
 import { normalizeEmbeddedProductCatalog } from '../src/utils/directusProductCatalog';
 import reviewed from '../src/data/propuesta/service-provision-copy.json';
 import { readFileSync } from 'node:fs';
@@ -35,6 +35,21 @@ describe('Service provision survives the redesigned service adapter', () => {
     const result = serviceProvisionItems([edited, added], 101);
     expect(result.map(({ title, summary }) => ({ title, summary }))).toEqual([{ title: edited.titulo, summary: edited.servicio_asociado }, { title: added.titulo, summary: 'Alcance actualizado del catálogo.' }]);
     expect(result[1].parts).toEqual([]);
+    expect(result[0].scopeDetail).toBeUndefined();
+    const otherFiber = current.find(product => product.titulo === 'Gestión Profesional de Fibra Óptica');
+    const blocks = groupServiceProvision(serviceProvisionItems([edited, otherFiber], 101));
+    expect(blocks.map(block => block.title)).toEqual([edited.titulo, otherFiber.titulo]);
+    expect(blocks.flatMap(block => block.members).map(row => row.summary)).toContain(edited.servicio_asociado);
+  });
+
+  test('Redes keeps its provision details and links only while the source is verified', () => {
+    const rows = serviceProvisionItems(current, 101);
+    expect(rows.every(row => Boolean(row.scopeDetail?.text))).toBe(true);
+    const item = current.find(product => product.titulo === 'Cableado Estructurado Certificado');
+    expect(rows.find(row => row.title === item.titulo).referenceCaseId).toBe(3264);
+    expect(serviceProvisionItems([{ ...item, servicio_asociado: 'Otro alcance de cableado.' }], 101)[0].referenceCaseId)
+      .toBeUndefined();
+    expect(serviceProvisionItems(current, 102).every(row => !row.scopeDetail && !row.referenceCaseId)).toBe(true);
   });
 
   test('does not publish draft entries and reads the technical scope from a legacy snapshot', () => {
