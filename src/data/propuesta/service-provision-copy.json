@@ -5,60 +5,97 @@
     {
       "serviceCode": 101,
       "title": "Fibra Óptica de Alta Capacidad",
+      "group": { "title": "Fibra óptica", "heading": "Instalación de enlaces" },
       "sourceText": "🔧 Instalamos enlaces de fibra óptica monomodo y multimodo con fusiones certificadas, mediciones OTDR y garantía de 25 años.",
-      "summary": "Enlaces de fibra óptica monomodo y multimodo, fusiones, mediciones OTDR y documentación."
+      "summary": "Instalamos enlaces de fibra monomodo y multimodo entre racks, edificios o sedes.",
+      "scopeDetail": {
+        "label": "Medición y entrega",
+        "text": "Mediciones OTDR y documentación del enlace."
+      }
     },
     {
       "serviceCode": 101,
       "title": "Centro de Distribución de Red",
       "sourceText": "🔧 Instalamos racks completos con patch panels certificados, organizadores verticales, etiquetado profesional y documentación de cada puerto.",
-      "summary": "Racks, patch panels, organizadores verticales, etiquetado y documentación de cada puerto."
+      "summary": "Instalamos racks, patch panels y organizadores verticales.",
+      "scopeDetail": {
+        "label": "Entrega",
+        "text": "Rotulado y documentación para identificar cada puerto."
+      }
     },
     {
       "serviceCode": 101,
       "title": "Cableado Estructurado Certificado",
       "sourceText": "🔧 Diseñamos e instalamos redes de cableado estructurado Cat5e, Cat6 y Cat6A con certificación punto por punto y garantía del fabricante de 25 años.",
-      "summary": "Diseño e instalación de cableado estructurado Cat5e, Cat6 y Cat6A, con certificación punto por punto."
+      "summary": "Diseñamos e instalamos cableado estructurado Cat5e, Cat6 y Cat6A.",
+      "scopeDetail": {
+        "label": "Verificación",
+        "text": "Certificación punto por punto de los enlaces incluidos en el alcance."
+      },
+      "referenceCaseId": 3264
     },
     {
       "serviceCode": 101,
       "title": "Switching de Alto Rendimiento",
       "sourceText": "🔧 Configuramos y mantenemos su infraestructura de switching con VLANs, QoS, redundancia y monitoreo 24/7. Soporte remoto y presencial.",
-      "summary": "Configuración de switches, VLANs, QoS, redundancia y monitoreo, con soporte remoto y presencial."
+      "summary": "Configuramos y monitoreamos los switches, con soporte remoto y presencial.",
+      "scopeDetail": {
+        "label": "Configuración",
+        "text": "Segmentación por VLAN, prioridad de tráfico (QoS) y redundancia."
+      }
     },
     {
       "serviceCode": 101,
       "title": "Data Center Llave en Mano",
       "sourceText": "🔧 Construimos data centers y cuartos de comunicaciones completos: obra civil, climatización, energía, racks, cableado y seguridad.",
-      "summary": "Implementación de data centers y cuartos de comunicaciones: obra civil, climatización, energía, racks, cableado y seguridad."
+      "summary": "Implementamos data centers y cuartos de comunicaciones con racks y cableado.",
+      "scopeDetail": {
+        "label": "Integración",
+        "text": "Obra civil, climatización, energía y seguridad según el proyecto."
+      }
     },
     {
       "serviceCode": 101,
       "title": "Radioenlaces Punto a Punto",
       "sourceText": "🔧 Implementamos radioenlaces profesionales con estudio de factibilidad, trámites regulatorios (si aplica), instalación y mantenimiento con SLA.",
-      "summary": "Estudio de factibilidad, instalación de radioenlaces, trámites regulatorios cuando correspondan y mantenimiento."
+      "summary": "Instalamos y mantenemos radioenlaces punto a punto.",
+      "scopeDetail": {
+        "label": "Antes del montaje",
+        "text": "Estudio de factibilidad del enlace y trámites regulatorios cuando corresponden."
+      }
     },
     {
       "serviceCode": 101,
       "title": "Certificación Profesional de Red",
       "sourceText": "🔧 Certificamos instalaciones nuevas y existentes con equipos Fluke DSX. Emitimos reportes PDF individuales válidos para auditorías y activación de garantías.",
-      "summary": "Medición de instalaciones nuevas y existentes con equipos Fluke DSX y reportes PDF por punto."
+      "summary": "Medimos instalaciones nuevas y existentes con equipos Fluke DSX.",
+      "scopeDetail": {
+        "label": "Entrega",
+        "text": "Reporte PDF por punto ensayado. El rótulo del punto permite ubicar su medición en el informe."
+      }
     },
     {
       "serviceCode": 101,
       "title": "Gestión Profesional de Fibra Óptica",
+      "group": { "title": "Fibra óptica", "heading": "Fusiones y distribuidores ópticos" },
       "sourceText": "🔧 Instalamos ODFs y realizamos fusiones certificadas con empalmadora de precisión. Medición OTDR de cada hilo y documentación completa.",
-      "summary": "Instalación de ODF, fusiones de fibra, medición OTDR de cada hilo y documentación."
+      "summary": "Instalamos distribuidores ópticos (ODF) y realizamos las fusiones de fibra.",
+      "scopeDetail": {
+        "label": "Medición y entrega",
+        "text": "Medición OTDR de cada hilo y documentación de la instalación."
+      }
     },
     {
       "serviceCode": 102,
       "title": "Videovigilancia IP Profesional",
+      "group": { "title": "Videovigilancia IP", "heading": "Diseño del sistema" },
       "sourceText": "🔧 Diseñamos e instalamos sistemas CCTV IP completos: cámaras, grabadores NVR, almacenamiento y monitoreo remoto. Mantenimiento preventivo incluido.",
       "summary": "Diseño e instalación de cámaras IP, grabadores NVR, almacenamiento y monitoreo remoto; mantenimiento preventivo según alcance."
     },
     {
       "serviceCode": 102,
       "title": "Cámaras de Exterior Alta Definición",
+      "group": { "title": "Videovigilancia IP", "heading": "Cobertura exterior" },
       "sourceText": "🔧 Instalamos sistemas de videovigilancia exterior con cámaras antivandalismo IP67, iluminación IR y cableado protegido. Ideal para perímetros y estacionamientos.",
       "summary": "Instalación de cámaras exteriores, iluminación infrarroja y cableado protegido para perímetros y estacionamientos."
     },
@@ -89,6 +126,7 @@
     {
       "serviceCode": 102,
       "title": "Grabación y Almacenamiento de Video",
+      "group": { "title": "Videovigilancia IP", "heading": "Grabación y almacenamiento" },
       "sourceText": "🔧 Instalamos grabadores NVR con capacidad de 8 a 128 cámaras, almacenamiento redundante, acceso remoto y backup en nube opcional.",
       "summary": "Grabadores NVR, almacenamiento, acceso remoto y respaldo en nube opcional, dimensionados para cada instalación."
     },
@@ -101,12 +139,14 @@
     {
       "serviceCode": 103,
       "title": "Central Telefónica IP",
+      "group": { "title": "Telefonía IP", "heading": "Central telefónica" },
       "sourceText": "🔧 Instalamos centrales telefónicas IP basadas en Asterisk, 3CX o Grandstream. Migración gradual, capacitación y soporte incluidos.",
       "summary": "Instalación de centrales Asterisk, 3CX o Grandstream, migración gradual, capacitación y soporte."
     },
     {
       "serviceCode": 103,
       "title": "Telefonía Cloud",
+      "group": { "title": "Telefonía IP", "heading": "Telefonía en la nube" },
       "sourceText": "🔧 Configuramos y migramos su telefonía a servicios cloud con numeración local, DID y SLA de disponibilidad garantizado.",
       "summary": "Configuración y migración a telefonía cloud, numeración local y DID, con disponibilidad definida en la propuesta."
     },
@@ -137,12 +177,14 @@
     {
       "serviceCode": 104,
       "title": "Desarrollo Web Full Stack",
+      "group": { "title": "Aplicaciones a medida", "heading": "Desarrollo web" },
       "sourceText": "🔧 Desarrollamos aplicaciones web a medida con tecnologías modernas. UX/UI, desarrollo, testing y deployment incluidos.",
       "summary": "Diseño UX/UI, desarrollo de aplicaciones web a medida, pruebas y despliegue."
     },
     {
       "serviceCode": 104,
       "title": "Aplicaciones Móviles",
+      "group": { "title": "Aplicaciones a medida", "heading": "Desarrollo móvil" },
       "sourceText": "🔧 Desarrollamos apps móviles con Flutter, React Native o desarrollo nativo. Publicación en stores y mantenimiento incluido.",
       "summary": "Desarrollo para iOS y Android con Flutter, React Native o tecnologías nativas; publicación y mantenimiento según alcance."
     },
@@ -173,6 +215,7 @@
     {
       "serviceCode": 105,
       "title": "Mesa de Ayuda 24/7",
+      "group": { "title": "Atención y gestión de incidentes", "heading": "Mesa de ayuda" },
       "sourceText": "🔧 Brindamos soporte nivel 1, 2 y 3 con SLA garantizado. Tickets ilimitados, reportes mensuales, mejora continua.",
       "summary": "Soporte de niveles 1, 2 y 3, gestión de tickets, reportes y mejora continua, con horarios y SLA acordados."
     },
@@ -191,6 +234,7 @@
     {
       "serviceCode": 105,
       "title": "Gestión de Incidentes ITIL",
+      "group": { "title": "Atención y gestión de incidentes", "heading": "Priorización y escalamiento" },
       "sourceText": "🔧 Gestionamos incidentes con herramientas ITSM profesionales. SLAs diferenciados por prioridad, reportes ejecutivos.",
       "summary": "Gestión con herramientas ITSM, prioridades, escalamiento, SLA por criticidad y reportes ejecutivos."
     },
@@ -203,6 +247,7 @@
     {
       "serviceCode": 106,
       "title": "Auditoría de Infraestructura IT",
+      "group": { "title": "Diagnóstico y evaluación", "heading": "Auditoría de infraestructura" },
       "sourceText": "🔧 Realizamos auditorías técnicas completas con herramientas especializadas. Informe ejecutivo y técnico, presentación a directivos.",
       "summary": "Relevamiento y auditoría técnica, informe ejecutivo y técnico, y presentación de resultados a la dirección."
     },
@@ -221,6 +266,7 @@
     {
       "serviceCode": 106,
       "title": "Evaluación de Riesgos IT",
+      "group": { "title": "Diagnóstico y evaluación", "heading": "Evaluación de riesgos" },
       "sourceText": "🔧 Realizamos análisis de riesgos con metodología ISO 27005. Matriz de riesgos, planes de mitigación y seguimiento.",
       "summary": "Análisis de riesgos, matriz, planes de mitigación y seguimiento con metodología de referencia ISO 27005."
     },
@@ -239,12 +285,14 @@
     {
       "serviceCode": 107,
       "title": "Detectores de Humo Fotoeléctricos",
+      "group": { "title": "Detectores según el ambiente", "heading": "Detección de humo" },
       "sourceText": "🔧 Provisión e instalación de detectores con lazo analógico direccionable según NFPA 72.",
       "summary": "Provisión e instalación de detectores fotoeléctricos en lazos analógicos direccionables."
     },
     {
       "serviceCode": 107,
       "title": "Detectores de Temperatura",
+      "group": { "title": "Detectores según el ambiente", "heading": "Detección de temperatura" },
       "sourceText": "🔧 Selección técnica e instalación según riesgo y tipo de actividad conforme IRAM 3501.",
       "summary": "Selección técnica e instalación de detectores de temperatura según el riesgo y la actividad del sitio."
     },
@@ -299,12 +347,14 @@
     {
       "serviceCode": 108,
       "title": "Sistemas de Alimentación Ininterrumpida (UPS)",
+      "group": { "title": "Respaldo de energía", "heading": "Alimentación ininterrumpida (UPS)" },
       "sourceText": "🔧 Dimensionamiento de autonomía, instalación con neutro aislado y puesta en marcha con mediciones de calidad de energía.",
       "summary": "Dimensionamiento de autonomía, instalación y puesta en marcha de UPS con mediciones de calidad de energía."
     },
     {
       "serviceCode": 108,
       "title": "Grupos Electrógenos",
+      "group": { "title": "Respaldo de energía", "heading": "Grupos electrógenos" },
       "sourceText": "🔧 Cálculo de demanda, instalación de base antivibraciones, puesta en marcha y programa de mantenimiento preventivo.",
       "summary": "Cálculo de demanda, instalación de base, puesta en marcha y programa de mantenimiento preventivo."
     },
