@@ -4,7 +4,7 @@ import EmailLink from '../common/EmailLink.astro';
 ---
 
 <div id="umContactModal" class="um-contact-modal" hidden data-contact-modal>
-  <button class="um-contact-modal__backdrop" type="button" aria-label="Cerrar contacto" data-contact-close></button>
+  <button class="um-contact-modal__backdrop" type="button" tabindex="-1" aria-hidden="true" data-contact-close></button>
 
   <section
     class="um-contact-dialog"
@@ -14,12 +14,10 @@ import EmailLink from '../common/EmailLink.astro';
     aria-describedby="umContactIntro"
   >
     <aside class="um-contact-dialog__rail" aria-label="Contexto de contacto">
-      <p class="um-contact-kicker">Contacto</p>
       <h2 id="umContactTitle">Contacto rápido.</h2>
       <p id="umContactIntro">Respondemos por email con el próximo paso.</p>
 
       <div class="um-contact-context" data-contact-context hidden>
-        <span>Tu consulta</span>
         <strong data-contact-context-title>Consulta general</strong>
         <p data-contact-context-detail>Consulta desde el sitio</p>
       </div>
@@ -30,22 +28,17 @@ import EmailLink from '../common/EmailLink.astro';
     </button>
 
     <div class="um-contact-dialog__main">
-      <div class="um-contact-mode" role="group" aria-label="Modo de consulta">
-        <button type="button" class="is-active" data-contact-mode="short" aria-pressed="true">Mensaje breve</button>
-        <button type="button" data-contact-mode="guided" aria-pressed="false">Mensaje guiado</button>
-      </div>
-
       <form id="umContactModalForm" class="um-contact-form" method="post" action="/api/contact" novalidate>
         <div class="um-contact-field-grid">
           <label>
-            <span>Nombre *</span>
-            <input type="text" name="name" required autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder="Nombre y apellido" />
-            <small class="um-contact-error" data-error-for="name"></small>
+            <span id="um-contact-label-name">Nombre *</span>
+            <input type="text" name="name" aria-labelledby="um-contact-label-name" aria-describedby="um-contact-error-name" required autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder="Nombre y apellido" />
+            <small id="um-contact-error-name" class="um-contact-error" data-error-for="name"></small>
           </label>
           <label>
-            <span>Email *</span>
-            <input type="email" name="email" required autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="mail@empresa.com" />
-            <small class="um-contact-error" data-error-for="email"></small>
+            <span id="um-contact-label-email">Email *</span>
+            <input type="email" name="email" aria-labelledby="um-contact-label-email" aria-describedby="um-contact-error-email" required autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="mail@empresa.com" />
+            <small id="um-contact-error-email" class="um-contact-error" data-error-for="email"></small>
           </label>
         </div>
 
@@ -55,26 +48,18 @@ import EmailLink from '../common/EmailLink.astro';
         </label>
 
         <label>
-          <span>Mensaje *</span>
+          <span id="um-contact-label-message">Mensaje *</span>
           <textarea
             name="message"
+            aria-labelledby="um-contact-label-message"
+            aria-describedby="um-contact-error-message"
             required
             rows="5"
             maxlength="1200"
-            placeholder="Necesito que me contacten por..."
+            placeholder="Contanos qué necesitás, dónde y para cuándo."
           ></textarea>
-          <small class="um-contact-error" data-error-for="message"></small>
+          <small id="um-contact-error-message" class="um-contact-error" data-error-for="message"></small>
         </label>
-
-        <div class="um-contact-guides" data-contact-guides hidden>
-          <p>Motivo de la consulta</p>
-          <div class="um-contact-guide-grid">
-            <button type="button" data-contact-prompt="Quiero coordinar un diagnóstico sobre {context}.">Diagnóstico</button>
-            <button type="button" data-contact-prompt="Quiero cotizar alcance y próximos pasos para {context}.">Cotizar alcance</button>
-            <button type="button" data-contact-prompt="Quiero ver un antecedente similar antes de avanzar con {context}.">Ver caso similar</button>
-            <button type="button" data-contact-prompt="Necesito hablar con un técnico sobre {context}.">Hablar con técnico</button>
-          </div>
-        </div>
 
         <input type="text" name="website" class="um-contact-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
         <input type="text" name="contact_phone" class="um-contact-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
@@ -88,7 +73,7 @@ import EmailLink from '../common/EmailLink.astro';
         <input type="hidden" name="originHref" value="" />
 
         <div class="um-contact-submit-row">
-          <button type="submit" class="um-btn-primary um-contact-submit">
+          <button type="submit" class="um-contact-submit">
             <Send aria-hidden="true" size={18} />
             Enviar consulta
           </button>
@@ -115,8 +100,7 @@ import EmailLink from '../common/EmailLink.astro';
 
     const dialog = modal.querySelector('.um-contact-dialog');
     const closeControls = modal.querySelectorAll('[data-contact-close]');
-    const modeButtons = modal.querySelectorAll('[data-contact-mode]');
-    const guides = modal.querySelector('[data-contact-guides]');
+    const dialogMain = modal.querySelector('.um-contact-dialog__main');
     const textarea = form.querySelector('textarea[name="message"]');
     const counter = modal.querySelector('[data-contact-count]');
     const submitButton = form.querySelector('button[type="submit"]');
@@ -193,7 +177,7 @@ import EmailLink from '../common/EmailLink.astro';
     }
 
     function buildContext(source) {
-      const label = normalizeText(source?.textContent, 'Contacto');
+      const label = normalizeText(source?.getAttribute('aria-label') || source?.textContent?.replace(/\s*[→↗]\s*$/, ''), 'Contacto');
       const path = window.location.pathname;
       const sectionTitle = readSectionHeading(source);
       const declaredIntent = source?.dataset?.contactIntent;
@@ -207,23 +191,6 @@ import EmailLink from '../common/EmailLink.astro';
         intent,
         href: source instanceof HTMLAnchorElement ? source.href : window.location.href
       };
-    }
-
-    function setMode(mode) {
-      const isGuided = mode === 'guided';
-      modeButtons.forEach((button) => {
-        const active = button.getAttribute('data-contact-mode') === mode;
-        button.classList.toggle('is-active', active);
-        button.setAttribute('aria-pressed', String(active));
-      });
-      if (guides instanceof HTMLElement) {
-        guides.hidden = !isGuided;
-      }
-      if (textarea instanceof HTMLTextAreaElement) {
-        textarea.placeholder = isGuided
-          ? 'Elegí un motivo o escribí tu mensaje.'
-          : 'Necesito que me contacten por...';
-      }
     }
 
     function updateCounter() {
@@ -350,14 +317,16 @@ import EmailLink from '../common/EmailLink.astro';
       if (contextBox instanceof HTMLElement) contextBox.hidden = false;
       if (contextTitle) contextTitle.textContent = intentLabels[resolved.intent] || intentLabels.general;
       if (contextDetail) {
-        const displayTitle = resolved.title.replace(/[.。]+$/, '').split('|')[0].trim();
-        contextDetail.textContent = resolved.path === '/' ? 'Consulta desde la página de inicio' : `Consulta desde ${displayTitle}`;
+        const displayTitle = readPageHeading().replace(/[.。]+$/, '').split('|')[0].trim();
+        contextDetail.textContent = resolved.path === '/' ? 'Desde la página de inicio' : `Desde ${displayTitle}`;
       }
 
       resetMessages();
-      setMode(resolved.intent === 'general' ? 'short' : 'guided');
+      if (dialogMain instanceof HTMLElement) dialogMain.scrollTop = 0;
       updateCounter();
-      window.setTimeout(focusFirstField, 60);
+      window.requestAnimationFrame(() => {
+        if (!modal.hidden) focusFirstField();
+      });
     }
 
     function closeContactModal() {
@@ -368,38 +337,7 @@ import EmailLink from '../common/EmailLink.astro';
 
     closeControls.forEach((control) => control.addEventListener('click', closeContactModal));
 
-    modeButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        setMode(button.getAttribute('data-contact-mode') || 'short');
-      });
-    });
-
-    modal.querySelectorAll('[data-contact-prompt]').forEach((button) => {
-      button.addEventListener('click', () => {
-        if (!(textarea instanceof HTMLTextAreaElement)) return;
-        const template = button.getAttribute('data-contact-prompt') || '';
-        const contextInput = form.querySelector('input[name="originTitle"]');
-        const context = normalizeText(contextInput?.value, 'esta consulta').replace(/[.。]+$/, '');
-        const prompt = template.replace('{context}', context);
-        const value = textarea.value.trim();
-        const wasAutofilled = textarea.dataset.autofilled === 'true';
-        if (!value || wasAutofilled) {
-          textarea.value = prompt;
-          textarea.dataset.autofilled = 'true';
-        } else if (!value.includes(prompt)) {
-          textarea.value = `${value}\n${prompt}`;
-        }
-        modal.querySelectorAll('[data-contact-prompt]').forEach((item) => item.removeAttribute('aria-pressed'));
-        button.setAttribute('aria-pressed', 'true');
-        textarea.focus();
-        updateCounter();
-      });
-    });
-
-    textarea?.addEventListener('input', () => {
-      textarea.dataset.autofilled = 'false';
-      updateCounter();
-    });
+    textarea?.addEventListener('input', updateCounter);
 
     document.addEventListener('click', (event) => {
       if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -428,9 +366,9 @@ import EmailLink from '../common/EmailLink.astro';
         return;
       }
 
-      if (event.key !== 'Tab') return;
-      const focusable = Array.from(modal.querySelectorAll(focusableSelector))
-        .filter((element) => element instanceof HTMLElement && element.offsetParent !== null);
+      if (event.key !== 'Tab' || !dialog) return;
+      const focusable = Array.from(dialog.querySelectorAll(focusableSelector))
+        .filter((element) => element instanceof HTMLElement && element.tabIndex >= 0 && element.offsetParent !== null);
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       if (!first || !last) return;
@@ -446,7 +384,14 @@ import EmailLink from '../common/EmailLink.astro';
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
-      if (!validate()) return;
+      if (!validate()) {
+        const firstInvalid = form.querySelector('[aria-invalid="true"]');
+        if (firstInvalid instanceof HTMLElement) {
+          firstInvalid.focus({ preventScroll: true });
+          firstInvalid.closest('label')?.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+        }
+        return;
+      }
 
       if (submitButton instanceof HTMLButtonElement) {
         submitButton.disabled = true;
@@ -533,7 +478,6 @@ import EmailLink from '../common/EmailLink.astro';
 	    display: grid;
 	    grid-template-columns: minmax(250px, 0.52fr) minmax(430px, 1fr);
 	    width: min(100%, 960px);
-	    height: min(720px, calc(100dvh - 32px));
 	    max-height: calc(100dvh - 32px);
 	    min-height: 0;
 	    overflow: hidden;
@@ -554,18 +498,9 @@ import EmailLink from '../common/EmailLink.astro';
     padding: clamp(22px, 2.5vw, 30px);
   }
 
-  .um-contact-kicker {
-    margin: 0;
-    color: rgba(255, 255, 255, 0.68);
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
   .um-contact-dialog__rail h2 {
     max-width: 12ch;
-    margin: 12px 0 0;
+    margin: 0;
     color: #fff;
     font-family: var(--um-font-display);
     font-size: clamp(1.62rem, 2.25vw, 2rem);
@@ -574,9 +509,9 @@ import EmailLink from '../common/EmailLink.astro';
     letter-spacing: 0;
   }
 
-  .um-contact-dialog__rail > p:not(.um-contact-kicker) {
+  .um-contact-dialog__rail > p {
     max-width: 25ch;
-    margin: 16px 0 0;
+    margin: 0;
     color: rgba(255, 255, 255, 0.66);
     font-size: 1rem;
     line-height: 1.5;
@@ -588,12 +523,6 @@ import EmailLink from '../common/EmailLink.astro';
     margin-top: auto;
     padding: 16px 0 0;
     border-top: 1px solid rgba(255, 255, 255, 0.18);
-  }
-
-  .um-contact-context span {
-    color: rgba(255, 255, 255, 0.54);
-    font-size: 1rem;
-    font-weight: 700;
   }
 
   .um-contact-context strong {
@@ -614,8 +543,10 @@ import EmailLink from '../common/EmailLink.astro';
 	    min-height: 0;
 	    overflow-y: auto;
 	    overscroll-behavior: contain;
-	    padding: clamp(20px, 2.5vw, 28px);
+	    padding: 72px clamp(20px, 2.5vw, 28px) 28px;
 	    scrollbar-gutter: stable;
+	    scrollbar-width: thin;
+	    scrollbar-color: #747982 transparent;
 	  }
 
 	  .um-contact-close {
@@ -643,37 +574,6 @@ import EmailLink from '../common/EmailLink.astro';
     border-color: var(--um-red);
     outline: 2px solid var(--um-red);
     outline-offset: 2px;
-  }
-
-  .um-contact-mode {
-    display: inline-flex;
-    max-width: calc(100% - 58px);
-    margin-bottom: 18px;
-    background: #f5f5f5;
-    border: 1px solid #DADDE1;
-  }
-
-  .um-contact-mode button {
-    min-height: 44px;
-    border: 0;
-    border-right: 1px solid #DADDE1;
-    background: transparent;
-    color: #333;
-    cursor: pointer;
-    font: 700 1rem/1 var(--um-font-body);
-    padding: 0 16px;
-  }
-
-  .um-contact-mode button:last-child {
-    border-right: 0;
-  }
-
-  .um-contact-mode button.is-active,
-  .um-contact-mode button:hover,
-  .um-contact-mode button:focus-visible {
-    background: #111;
-    color: #fff;
-    outline: none;
   }
 
   .um-contact-form {
@@ -741,50 +641,6 @@ import EmailLink from '../common/EmailLink.astro';
 	    min-height: 0;
 	  }
 
-  .um-contact-guides {
-    display: grid;
-    gap: 12px;
-    padding: 8px 0 2px;
-  }
-
-  .um-contact-guides p {
-    margin: 0;
-    color: #5F6368;
-    font-size: 1rem;
-    line-height: 1.4;
-  }
-
-  .um-contact-guide-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  .um-contact-guides button {
-    min-height: 44px;
-    border: 1px solid #DADDE1;
-    border-radius: 4px;
-    background: #f7f8f9;
-    color: #111;
-    cursor: pointer;
-    font: 700 1rem/1.2 var(--um-font-body);
-    padding: 0 14px;
-    text-align: left;
-  }
-
-  .um-contact-guides button:hover,
-  .um-contact-guides button:focus-visible,
-  .um-contact-guides button[aria-pressed="true"] {
-    background: #fff;
-    border-color: var(--um-red);
-    color: var(--um-red);
-    outline: none;
-  }
-
-  .um-contact-guides button[aria-pressed="true"] {
-    box-shadow: inset 3px 0 0 var(--um-red);
-  }
-
   .um-contact-hp {
     position: absolute !important;
     width: 1px !important;
@@ -823,6 +679,16 @@ import EmailLink from '../common/EmailLink.astro';
     align-items: center;
     justify-content: center;
     min-height: 48px;
+    padding: 10px 18px;
+    border: 1px solid var(--um-red);
+    background: var(--um-red);
+    color: #fff;
+    font: 700 1rem/1.25 var(--um-font-body);
+    cursor: pointer;
+  }
+
+  .um-contact-submit:hover:not(:disabled) {
+    border-color: #fff;
   }
 
   .um-contact-submit:disabled {
@@ -861,7 +727,6 @@ import EmailLink from '../common/EmailLink.astro';
 
 	    .um-contact-dialog {
 	      width: min(100%, 940px);
-	      height: calc(100dvh - 20px);
 	      max-height: calc(100dvh - 20px);
 	      grid-template-columns: minmax(230px, 0.46fr) minmax(420px, 1fr);
 	    }
@@ -871,19 +736,13 @@ import EmailLink from '../common/EmailLink.astro';
 	      padding: 18px 22px;
 	    }
 
-	    .um-contact-kicker {
-	      font-size: 1rem;
-	      letter-spacing: 0.07em;
-	    }
-
 	    .um-contact-dialog__rail h2 {
 	      max-width: 13ch;
-	      margin-top: 6px;
 	      font-size: clamp(1.36rem, 1.9vw, 1.72rem);
 	      line-height: 1.06;
 	    }
 
-	    .um-contact-dialog__rail > p:not(.um-contact-kicker) {
+	    .um-contact-dialog__rail > p {
 	      margin-top: 8px;
 	      font-size: 1rem;
 	      line-height: 1.38;
@@ -894,7 +753,6 @@ import EmailLink from '../common/EmailLink.astro';
 	      padding-top: 12px;
 	    }
 
-	    .um-contact-context span,
 	    .um-contact-context strong,
 	    .um-contact-context p {
 	      font-size: 1rem;
@@ -902,7 +760,7 @@ import EmailLink from '../common/EmailLink.astro';
 	    }
 
 	    .um-contact-dialog__main {
-	      padding: 16px 24px;
+	      padding: 68px 24px 20px;
 	    }
 
 	    .um-contact-close {
@@ -910,16 +768,6 @@ import EmailLink from '../common/EmailLink.astro';
 	      right: 12px;
 	      width: 44px;
 	      height: 44px;
-	    }
-
-	    .um-contact-mode {
-	      margin-bottom: 10px;
-	    }
-
-	    .um-contact-mode button {
-	      min-height: 38px;
-	      padding: 0 13px;
-	      font-size: 1rem;
 	    }
 
 	    .um-contact-form {
@@ -949,26 +797,6 @@ import EmailLink from '../common/EmailLink.astro';
 	      max-height: 96px;
 	    }
 
-	    .um-contact-guides {
-	      gap: 7px;
-	      padding: 2px 0 0;
-	    }
-
-	    .um-contact-guides p {
-	      font-size: 1rem;
-	      line-height: 1.25;
-	    }
-
-	    .um-contact-guide-grid {
-	      gap: 7px;
-	    }
-
-	    .um-contact-guides button {
-	      min-height: 36px;
-	      padding: 0 12px;
-	      font-size: 1rem;
-	    }
-
 	    .um-contact-submit-row {
 	      gap: 12px;
 	      padding-top: 2px;
@@ -994,7 +822,6 @@ import EmailLink from '../common/EmailLink.astro';
 	      grid-template-rows: auto minmax(0, 1fr);
 	      grid-template-columns: 1fr;
 	      width: 100%;
-	      height: calc(100dvh - 10px);
 	      max-height: calc(100dvh - 10px);
 	      border-right: 0;
 	      border-bottom: 0;
@@ -1009,12 +836,11 @@ import EmailLink from '../common/EmailLink.astro';
 
 	    .um-contact-dialog__rail h2 {
 	      max-width: 100%;
-	      margin-top: 4px;
 	      font-size: clamp(1.18rem, 4.9vw, 1.44rem);
-	      line-height: 1.08;
+	      line-height: 1.15;
 	    }
 
-    .um-contact-dialog__rail > p:not(.um-contact-kicker) {
+    .um-contact-dialog__rail > p {
       display: none;
     }
 
@@ -1024,34 +850,21 @@ import EmailLink from '../common/EmailLink.astro';
 	      padding-top: 8px;
 	    }
 
-    .um-contact-context span,
     .um-contact-context strong {
       font-size: 1rem;
       line-height: 1.25;
     }
 
     .um-contact-context p {
-      display: none;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
     }
 
 	    .um-contact-dialog__main {
 	      min-height: 0;
 	      padding: 14px 16px 16px;
-	    }
-
-	    .um-contact-mode {
-	      display: grid;
-	      grid-template-columns: repeat(2, minmax(0, 1fr));
-	      width: 100%;
-	      max-width: none;
-	      margin-bottom: 12px;
-	    }
-
-	    .um-contact-mode button {
-	      min-height: 44px;
-	      padding: 0 8px;
-	      font-size: 1rem;
-	      line-height: 1.08;
 	    }
 
 	    .um-contact-close {
@@ -1078,27 +891,13 @@ import EmailLink from '../common/EmailLink.astro';
 	      min-height: 86px;
 	    }
 
-	    .um-contact-guides {
-	      gap: 8px;
-	      padding-top: 2px;
-	    }
-
-	    .um-contact-guides button {
-	      min-height: 44px;
-	    }
-
-    .um-contact-field-grid,
-    .um-contact-submit-row {
+    .um-contact-field-grid {
       grid-template-columns: 1fr;
     }
 
-    .um-contact-field-grid {
-      display: grid;
-    }
-
     .um-contact-submit-row {
       display: grid;
-      justify-items: stretch;
+      grid-template-columns: minmax(0, 1fr);
     }
 
     .um-contact-submit-row p {
@@ -1110,21 +909,13 @@ import EmailLink from '../common/EmailLink.astro';
 	      min-height: 44px;
 	    }
 
-    .um-contact-guide-grid {
-      grid-template-columns: 1fr;
-    }
   }
   /* Tema oscuro del rediseño: el modal habla el mismo idioma que el sitio. */
   .um-contact-modal .um-contact-modal__backdrop { background: rgba(4, 5, 7, 0.8); backdrop-filter: blur(6px); }
   .um-contact-modal .um-contact-dialog { background: #0f1114; color: #fff; border-color: rgba(255, 255, 255, 0.14); }
   .um-contact-modal .um-contact-dialog__rail { background: linear-gradient(180deg, rgba(7, 8, 10, 0.55), rgba(7, 8, 10, 0.94) 70%), url('/cine/media/story-fachada.jpg') center / cover, #07080a; }
-  .um-contact-modal .um-contact-kicker { color: #dc2626; letter-spacing: 0.14em; }
   .um-contact-modal .um-contact-close { background: transparent; border-color: rgba(255, 255, 255, 0.26); color: #fff; }
   .um-contact-modal .um-contact-close:hover { border-color: #fff; }
-  .um-contact-modal .um-contact-mode { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.14); }
-  .um-contact-modal .um-contact-mode button { color: rgba(255, 255, 255, 0.72); border-right-color: rgba(255, 255, 255, 0.14); }
-  .um-contact-modal .um-contact-mode button.is-active,
-  .um-contact-modal .um-contact-mode button[aria-pressed="true"] { background: rgba(220, 38, 38, 0.16); color: #fff; box-shadow: inset 0 -2px 0 #dc2626; }
   .um-contact-modal .um-contact-form label > span { color: rgba(255, 255, 255, 0.86); }
   .um-contact-modal .um-contact-form input,
   .um-contact-modal .um-contact-form textarea { background: rgba(255, 255, 255, 0.05); color: #fff; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14); }
@@ -1134,10 +925,6 @@ import EmailLink from '../common/EmailLink.astro';
   .um-contact-modal .um-contact-form textarea:focus { background: rgba(255, 255, 255, 0.08); box-shadow: inset 0 0 0 1px #fff; }
   .um-contact-modal .um-contact-form [aria-invalid="true"] { box-shadow: inset 0 0 0 1px #dc2626; }
   .um-contact-modal .um-contact-error { color: #fff; padding-left: 10px; border-left: 2px solid var(--x-red, #dc2626); }
-  .um-contact-modal .um-contact-guides p { color: rgba(255, 255, 255, 0.6); }
-  .um-contact-modal .um-contact-guides button { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.16); color: #fff; }
-  .um-contact-modal .um-contact-guides button:hover { border-color: rgba(255, 255, 255, 0.45); }
-  .um-contact-modal .um-contact-guides button[aria-pressed="true"] { background: rgba(220, 38, 38, 0.16); border-color: #dc2626; color: #fff; }
   .um-contact-modal .um-contact-submit-row p { color: rgba(255, 255, 255, 0.55); }
   .um-contact-modal .um-contact-message--success { background: rgba(34, 197, 94, 0.1); color: #bbf7d0; }
   .um-contact-modal .um-contact-message--error { background: rgba(220, 38, 38, 0.1); color: #fecaca; }

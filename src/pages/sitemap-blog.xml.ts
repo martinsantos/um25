@@ -1,38 +1,10 @@
 import type { APIRoute } from 'astro';
 import { SITE_URL } from '../config/seo';
-import { fetchBlogSitemapEntries } from '../utils/getBlogData';
+import { BLOG_LISTING_CATEGORIES } from '../lib/blogListingRoute';
+import { fetchPublishedBlogIndex } from '../utils/blogPublishedIndex';
 import { blogPostImageUrl } from '../utils/blogHelpers';
 import { canonicalUrl, escapeXml, formatSitemapDate, publicImageUrl } from '../utils/seoUrl';
-import { getBlogTopicEntry, postsForCluster, publishableServiceHubs } from '../utils/blogTopicMap';
-
-const CATEGORIES = ['noticias', 'proyectos', 'tecnico', 'tecnologia', 'empresa'];
-
-interface BlogPost {
-  slug: string;
-  fecha_publicacion?: string;
-  fecha_modificacion?: string;
-  imagen_portada?: string | null;
-  categoria?: string;
-  titulo: string;
-}
-
-async function fetchPublishedPosts(): Promise<BlogPost[]> {
-  // Misma fuente que el blog renderizado, con timeout y fallback (getBlogData).
-  // Si la fuente no trae fechas o categoría (fallback por slugs), se completan con
-  // las del mapa temático, que las tomó de cada nota publicada.
-  const posts = (await fetchBlogSitemapEntries()) as BlogPost[];
-  return posts.map((post) => {
-    const entry = getBlogTopicEntry(post.slug);
-    if (!entry) return post;
-    return {
-      ...post,
-      titulo: post.titulo && post.titulo !== post.slug ? post.titulo : entry.title,
-      categoria: post.categoria || entry.category,
-      fecha_publicacion: post.fecha_publicacion || entry.published || undefined,
-      fecha_modificacion: post.fecha_modificacion || entry.modified || undefined,
-    };
-  });
-}
+import { postsForCluster, publishableServiceHubs } from '../utils/blogTopicMap';
 
 const latestDate = (values: Array<string | undefined>): string =>
   values
@@ -44,7 +16,7 @@ const latestDate = (values: Array<string | undefined>): string =>
 const lastmodTag = (value: string): string => (value ? `\n    <lastmod>${value}</lastmod>` : '');
 
 export const GET: APIRoute = async () => {
-  const posts = await fetchPublishedPosts();
+  const posts = await fetchPublishedBlogIndex();
   const latestPostLastmod = posts
     .map((post) => post.fecha_modificacion || post.fecha_publicacion)
     .filter((value): value is string => Boolean(value))
@@ -53,10 +25,10 @@ export const GET: APIRoute = async () => {
     .at(-1) || '';
   const latestTag = lastmodTag(latestPostLastmod);
   // Cada categoría y cada tema cambian cuando cambia su nota más reciente.
-  const categoryUrls = CATEGORIES.map((cat) => {
-    const lastmod = latestDate(posts
-      .filter((post) => post.categoria === cat)
-      .map((post) => post.fecha_modificacion || post.fecha_publicacion));
+  const categoryUrls = BLOG_LISTING_CATEGORIES.flatMap((cat) => {
+    const inCategory = posts.filter((post) => post.categoria === cat);
+    if (!inCategory.length) return [];
+    const lastmod = latestDate(inCategory.map((post) => post.fecha_modificacion || post.fecha_publicacion));
     return `  <url>
     <loc>${SITE_URL}/blog/categoria/${cat}</loc>${lastmodTag(lastmod || latestPostLastmod)}
     <changefreq>weekly</changefreq>

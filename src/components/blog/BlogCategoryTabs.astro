@@ -1,21 +1,26 @@
 ---
+import { BLOG_LISTING_CATEGORIES } from '../../lib/blogListingRoute';
+import { fetchPublishedBlogIndex } from '../../utils/blogPublishedIndex';
+import { getCategoryLabel } from '../../utils/blogUtils';
+
 interface Props {
   current?: string;
+  query?: boolean;
 }
 
-const { current } = Astro.props;
-
+const { current, query = false } = Astro.props;
+const available = new Set((await fetchPublishedBlogIndex()).map((post) => post.categoria));
 const tabs = [
-  { label: 'Todos', href: '/blog', key: undefined },
-  { label: 'Noticias', href: '/blog/categoria/noticias', key: 'noticias' },
-  { label: 'Proyectos', href: '/blog/categoria/proyectos', key: 'proyectos' },
-  { label: 'Técnico', href: '/blog/categoria/tecnico', key: 'tecnico' },
-  { label: 'Tecnología', href: '/blog/categoria/tecnologia', key: 'tecnologia' },
-  { label: 'Empresa', href: '/blog/categoria/empresa', key: 'empresa' },
+  { label: 'Todas', href: '/blog', key: undefined },
+  ...BLOG_LISTING_CATEGORIES.filter((category) => available.has(category)).map((category) => ({
+    label: getCategoryLabel(category),
+    href: query ? `/blog?categoria=${category}` : `/blog/categoria/${category}`,
+    key: category,
+  })),
 ];
 ---
 
-<nav class="btabs" aria-label="Categorías del blog">
+<nav class:list={['btabs', query && 'btabs--query']} aria-label="Categorías del blog">
   <ul class="btabs__list">
     {tabs.map((tab) => {
       const isActive = tab.key === current || (!current && !tab.key);
@@ -36,24 +41,24 @@ const tabs = [
 
 <style>
   .btabs { margin: 0 0 48px; border-bottom: 1px solid var(--x-line); }
+  .btabs--query { margin: 20px 0 0; border-bottom: 0; }
   .btabs__list {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     margin: 0;
     padding: 0 0 16px;
     list-style: none;
-    overflow-x: auto;
-    scrollbar-width: none;
   }
-  .btabs__list::-webkit-scrollbar { display: none; }
+  .btabs--query .btabs__list { padding-bottom: 0; }
   .btabs__tab {
     display: inline-flex;
     align-items: center;
-    min-height: 40px;
+    min-height: 44px;
     padding: 0 16px;
     border: 1px solid var(--x-line);
     border-radius: 4px;
-    font-size: var(--x-fs-meta);
+    font-size: var(--x-fs-meta, 1rem);
     font-weight: 600;
     line-height: 1;
     white-space: nowrap;
@@ -64,8 +69,4 @@ const tabs = [
   .btabs__tab:hover { border-color: var(--x-line-strong); color: var(--x-text); }
   .btabs__tab.is-active { background: var(--x-text); border-color: var(--x-text); color: var(--x-ink); }
   .btabs__tab:focus-visible { outline: 2px solid var(--x-red); outline-offset: 2px; }
-  /* Pantallas táctiles: objetivo de 44 px. */
-  @media (pointer: coarse), (max-width: 639px) {
-    .btabs__tab { min-height: 44px; }
-  }
 </style>

@@ -34,6 +34,7 @@ const isActive = (href: string) => {
   const target = href.replace(/\/$/, '') || '/';
   const matchesPath = (path: string, base: string) => path === base || path.startsWith(`${base}/`);
   if (target === '/' || target === '/en') return clean === target;
+  if (target === '/sectores' && ['/software', '/seguridad-electronica'].includes(clean)) return true;
   const service = target.match(/^\/servicios\/(10[1-8])(?:\/|$)/);
   if (service) return matchesPath(clean, `/servicios/${service[1]}`);
   // Los destinos históricos /bodegas, etc. conservan su selección en /sectores/bodegas.

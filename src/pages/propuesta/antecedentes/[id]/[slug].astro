@@ -116,7 +116,7 @@ const seoTitle = caseSeo.title.includes(ref) ? caseSeo.title : `${trimAtWordBoun
           <p class="resumen">{introduction}</p>
         </div>
         <dl class="tabla">
-            <div><dt>Sector</dt><dd>{c.sector ? <a href={`/sectores/${c.sectorSlug}`}>{c.sector}</a> : 'No publicado'}</dd></div>
+            {c.sector && <div><dt>Sector</dt><dd><a href={`/sectores/${c.sectorSlug}`}>{c.sector}</a></dd></div>}
             {when && <div><dt>{cierre ? 'Inicio' : 'Fecha'}</dt><dd>{when}</dd></div>}
             {cierre && <div><dt>{enCurso ? 'Cierre previsto' : 'Cierre'}</dt><dd>{cierre}</dd></div>}
             <div><dt>Referencia</dt><dd>{ref}</dd></div>
