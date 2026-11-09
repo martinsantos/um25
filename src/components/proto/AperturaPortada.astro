@@ -7,26 +7,43 @@ const { cifras, total } = Astro.props;
     <Apertura label="Portada" image="/images/editorial/umsa-home-operations.webp" hero photoOnly>
       <h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1>
       <p>Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. Evidencia operativa visible antes de contratar.</p>
-      <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>
       <div class="home-actions">
         <a class="btn" href="/contacto">Pedir un relevamiento</a>
         <a class="u" href="/antecedentes">Ver los {total} antecedentes</a>
       </div>
+      <div class="cifras">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>
     </Apertura>
 </div>
 <style>
       /* Mobile home: readable copy first, photograph in its own media row. */
-      .home-actions { display: contents; }
+      .home-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; }
+      .home-actions .btn, .home-actions .u { margin: 0; }
+      .home-actions .btn { min-height: 52px; line-height: 1.3; }
+      @media (min-width: 901px) {
+        .home-opening :global(.lugar--photo .lugar__pin) {
+          grid-template-columns: minmax(0, 640px) minmax(0, 1fr);
+          min-height: calc(82svh - var(--top-h));
+          padding-block: clamp(40px, 7vh, 72px);
+        }
+        .home-opening :global(.copy h1) {
+          max-width: 20ch;
+          font-size: clamp(2.75rem, 4.2vw, 3.75rem);
+          line-height: 1.1;
+          text-wrap: balance;
+        }
+        .home-opening :global(.copy > p) { max-width: 61ch; line-height: 1.55; }
+        .home-opening .cifras { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 600px; gap: 16px 24px; }
+      }
       @media (max-width: 900px) {
         .home-opening :global(.lugar--hero) { height: auto; min-height: 0; }
         .home-opening :global(.lugar__pin) { position: relative; top: auto; height: auto; min-height: 0; padding: 0; gap: 0; grid-template-columns: minmax(0, 1fr); overflow: hidden; }
         .home-opening :global(.copy) { grid-area: 1 / 1; gap: 20px; padding: 32px var(--gutter); background: var(--bg); }
         .home-opening :global(.copy h1) { font-size: clamp(2rem, 7.5vw, 2.6rem); line-height: 1.08; font-weight: 600; letter-spacing: -.025em; }
         .home-opening :global(.copy > p) { max-width: 42ch; font-size: 1rem; line-height: 1.55; }
-        .home-actions { display: grid; gap: 12px; order: 2; margin-top: 4px; }
+        .home-actions { display: grid; gap: 12px; margin-top: 4px; }
         .home-actions .btn { margin: 0; min-height: 52px; justify-content: center; padding: 14px 20px; background: var(--red); color: #fff; line-height: 1.4; }
         .home-actions .u { margin-top: 0; justify-self: center; min-height: 44px; display: inline-flex; align-items: center; padding-block: 8px; font-size: 1rem; }
-        .home-opening .cifras { order: 3; margin: 4px 0 0; padding-top: 20px; gap: 16px 24px; }
+        .home-opening .cifras { margin: 4px 0 0; padding-top: 20px; gap: 16px 24px; }
         .home-opening .cifras b { font-size: 1.5rem; line-height: 1.15; }
         .home-opening .cifras span { font-size: 1rem; line-height: 1.4; color: var(--ink-2); }
         .home-opening :global(.lugar__fondo) { position: relative; grid-area: 2 / 1; width: 100%; aspect-ratio: 16 / 10; }

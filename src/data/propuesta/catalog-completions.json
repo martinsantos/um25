@@ -1345,6 +1345,31 @@
       ]
     },
     {
+      "id": 3447,
+      "match": {
+        "client": "Kristich Desarrollos",
+        "title": "Adicional para presupuestar a Kristich6 módulos de rele FRM-...",
+        "summary": "Adicional para presupuestar a Kristich6 módulos de rele FRM-14 módul",
+        "year": 2018
+      },
+      "sources": [
+        {
+          "file": "src/data/snapshots/antecedentes.json",
+          "recordId": 3447,
+          "quote": "Adicional para presupuestar a Kristich6 módulos de rele FRM-...",
+          "field": "title"
+        },
+        {
+          "file": "src/data/snapshots/antecedentes.json",
+          "recordId": 3447,
+          "quote": "6 módulos de rele",
+          "field": "summary"
+        }
+      ],
+      "title": "Presupuesto adicional de módulos de relé",
+      "summary": "El presupuesto adicional contempla seis módulos de relé."
+    },
+    {
       "id": 3448,
       "match": {
         "client": "Cliente Confidencial",
@@ -1426,6 +1451,31 @@
       ],
       "summary": "Etapa 1 de desarrollo y actualización del sistema de ventas.",
       "reviewNote": "El registro especifica etapa y sistema."
+    },
+    {
+      "id": 3472,
+      "match": {
+        "client": "Cela SA",
+        "title": "Servicios para conectividad en eventosCostos por puesto simp...",
+        "summary": "Servicios para conectividad en eventosCostos por puesto simple, con y sin electricidadCostos por persona conectada al wificostos de configuración por vlan, ssid, switch, racks, etc, pensar....",
+        "year": 2018
+      },
+      "sources": [
+        {
+          "file": "src/data/snapshots/antecedentes.json",
+          "recordId": 3472,
+          "quote": "Servicios para conectividad en eventosCostos por puesto simp...",
+          "field": "title"
+        },
+        {
+          "file": "src/data/snapshots/antecedentes.json",
+          "recordId": 3472,
+          "quote": "Costos por puesto simple, con y sin electricidad",
+          "field": "summary"
+        }
+      ],
+      "title": "Propuesta de conectividad para eventos",
+      "summary": "La propuesta contempla puestos con o sin alimentación eléctrica, acceso Wi-Fi y configuración de la red del evento."
     },
     {
       "id": 3476,
@@ -2105,6 +2155,31 @@
       }
     },
     {
+      "id": 3658,
+      "match": {
+        "client": "Cela SA",
+        "title": "presupuesto nuevo evento sheraton Fecha de Evento:18 al 21 ...",
+        "summary": "presupuesto nuevo evento sheraton Fecha de Evento:18 al 21 de Octubre ambos días incluidosEquipamiento operativo a partir del día 17 de Octubre debido a que ya llega gente en esa fecha.Equipamiento WIFI: el necesario para cubrir 300 personas...",
+        "year": 2018
+      },
+      "sources": [
+        {
+          "file": "src/data/snapshots/antecedentes.json",
+          "recordId": 3658,
+          "quote": "presupuesto nuevo evento sheraton Fecha de Evento:18 al 21 ...",
+          "field": "title"
+        },
+        {
+          "file": "src/data/snapshots/antecedentes.json",
+          "recordId": 3658,
+          "quote": "Equipamiento WIFI: el necesario para cubrir 300 personas",
+          "field": "summary"
+        }
+      ],
+      "title": "Propuesta de conectividad para un evento en el Sheraton",
+      "summary": "Presupuesto de cobertura Wi-Fi para un evento de 300 personas."
+    },
+    {
       "id": 3660,
       "match": {
         "client": "Cliente Confidencial",
@@ -2116,12 +2191,19 @@
         {
           "file": "directus:Antecedentes",
           "recordId": 3660,
+          "quote": "provisión de materiales9 Detectores de Humo1 sirena2 Pulsadores",
+          "field": "title"
+        },
+        {
+          "file": "directus:Antecedentes",
+          "recordId": 3660,
           "quote": "provisión de materiales9 Detectores de Humo1 sirena2 Pulsadores 2 Detectores de temperatura",
           "field": "summary"
         }
       ],
       "summary": "Provisión de materiales: 9 detectores de humo, 1 sirena, 2 pulsadores y 2 detectores de temperatura.",
-      "reviewNote": "El registro enumera materiales y cantidades; se mantiene la anonimización del cliente."
+      "reviewNote": "El registro enumera materiales y cantidades; se mantiene la anonimización del cliente.",
+      "title": "Provisión de detectores, sirena y pulsadores"
     },
     {
       "id": 3661,

@@ -13,7 +13,7 @@ import Ficha from '../../../components/proto/Ficha.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import { loadStories, services, posterOf, SCENE_OF, type Story } from '../../../components/proto/isoData';
 import { SECTORS } from '../../../data/cine/scenes';
-import { catalogState, matchesCatalog, orderCatalog, type CatalogItem } from '../../../components/proto/catalogFilters';
+import { catalogCriteria, catalogHref, catalogState, matchesCatalog, orderCatalog, showCatalogHighlights, type CatalogItem } from '../../../components/proto/catalogFilters';
 
 export const prerender = false;
 const { stories: sourceStories } = await loadStories();
@@ -31,24 +31,29 @@ const baseService = stories.filter((c) => cumple(c, 'service'));
 const lente = (count: number, base: number, kind: 'sector' | 'service', value: string) => ({ count, w: Math.round((count / Math.max(1, base)) * 100), zero: count === 0 && estado[kind] !== value, on: estado[kind] === value });
 const sectors = SECTORS.filter((s) => stories.some((c) => matchesCatalog(indexStory(c), { sector: s.slug }))).map((s) => ({ slug: s.slug, name: s.name, ...lente(baseSector.filter((c) => matchesCatalog(indexStory(c), { sector: s.slug })).length, baseSector.length, 'sector', s.slug) }));
 const svcs = services.map((s) => ({ code: s.code, name: s.name, ...lente(baseService.filter((c) => c.serviceCodes.includes(s.code)).length, baseService.length, 'service', s.code) }));
-if (stories.some(c => !c.sectorSlug)) sectors.push({ slug: 'sin-clasificar', name: 'Sector no publicado', ...lente(baseSector.filter(c => !c.sectorSlug).length, baseSector.length, 'sector', 'sin-clasificar') });
+if (stories.some(c => !c.sectorSlug)) sectors.push({ slug: 'sin-clasificar', name: 'Sin sector asignado', ...lente(baseSector.filter(c => !c.sectorSlug).length, baseSector.length, 'sector', 'sin-clasificar') });
 if (stories.some(c => !c.serviceCodes.length)) svcs.push({ code: 'sin-clasificar', name: 'Otros alcances del archivo', ...lente(baseService.filter(c => !c.serviceCodes.length).length, baseService.length, 'service', 'sin-clasificar') });
 const years = [...new Set(stories.map((c) => c.year).filter(Boolean))].sort((a, b) => b - a);
-const partes = [estado.q, estado.periodo && `Período ${estado.periodo}`, estado.estado, estado.cliente, estado.sector && (sectors.find((s) => s.slug === estado.sector)?.name || estado.sector), estado.service && (svcs.find((s) => s.code === estado.service)?.name || estado.service), estado.year].filter(Boolean) as string[];
-const filtra = partes.length > 0;
+const activos = catalogCriteria.filter((key) => estado[key]);
+const labelFor = (key: typeof activos[number]) => {
+  const value = estado[key];
+  if (key === 'sector') return sectors.find((sector) => sector.slug === value)?.name || value;
+  if (key === 'service') return svcs.find((service) => service.code === value)?.name || value;
+  return key === 'periodo' ? `Período ${value}` : value;
+};
 const clients = [...new Set(stories.map(c => c.client))].sort((a, b) => a.localeCompare(b, 'es'));
-// Los lugares por dentro, antes de la ficha de ese índice del catálogo; sólo el del sector elegido; ninguno con año o cliente, ni con pocos resultados.
+// Las visitas a sectores acompañan la selección general después de los primeros casos.
 const recorridos = ['constructoras', 'aeropuertos', 'bodegas', 'salud'];
-const recAt = [0, 18, 60, 120];
+const recAt = [6, 18, 60, 120];
 const sceneTitle: Record<string, string> = { fachada: 'Edificio', aeropuerto: 'Aeropuerto', bodega: 'Bodega', hospital: 'Centro de salud', planta: 'Planta' };
-const recVisible = (slug: string) => !estado.q && !estado.year && !estado.cliente && n >= 12 && (!estado.sector || slug === estado.sector);
+const mostrarVisitas = showCatalogHighlights(estado, n);
 type Pieza = { rec?: string; at?: number; oculto?: boolean; story?: Story; eager?: boolean };
 const piezas: Pieza[] = [];
 const puestos = new Set<string>();
 let r = 0, vistas = 0;
 for (let i = 0; i < stories.length && vistas < INICIAL; i++) {
   if (!ok[i]) continue;
-  while (r < recAt.length && recAt[r] <= i) { if (recVisible(recorridos[r])) { piezas.push({ rec: recorridos[r], at: recAt[r] }); puestos.add(recorridos[r]); } r++; }
+  while (r < recAt.length && recAt[r] <= i) { if (mostrarVisitas) { piezas.push({ rec: recorridos[r], at: recAt[r] }); puestos.add(recorridos[r]); } r++; }
   piezas.push({ story: stories[i], eager: vistas < 6 }); vistas++;
 }
 // Los lugares que no entran en la primera tanda viajan ocultos: el guion los pone en su sitio al pedir más.
@@ -66,9 +71,9 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
       /* El panel se fija y, si es más alto que la pantalla, se desplaza por dentro: el año queda al alcance sin ir al final del muro. */
       .panel { position: sticky; top: calc(var(--top-h) + 16px); display: grid; gap: var(--s4); max-height: calc(100svh - var(--top-h) - 32px); overflow: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; padding-right: 6px; }
       .grupo + .grupo { margin-top: var(--s4); }
-      .catalog-title { font-size: 1rem; font-weight: 400; line-height: 1.6; letter-spacing: 0; color: var(--ink-3); }
+      .catalog-title { margin-bottom: 12px; font-size: clamp(1.5rem, 2vw, 2rem); font-weight: 600; line-height: 1.15; letter-spacing: -.025em; }
       .catalog-summary { display: contents; }
-      .count { font-size: clamp(4rem, 7vw, 6.5rem); line-height: .9; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+      .count { font-size: clamp(2.75rem, 4vw, 4rem); line-height: .9; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
       .count i { font-style: normal; color: var(--red); }
       .sentence { font-size: 1.2rem; font-weight: 600; letter-spacing: -.02em; margin-top: 6px; }
       .grupo { display: grid; gap: 6px; }
@@ -81,17 +86,22 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
       .filtros { display: grid; gap: var(--s4); }
       .filtros__cuerpo { display: grid; gap: var(--s4); }
       .filtros__toggle { display: none; }
-      .clear { display: none; color: var(--ink-2); text-decoration: underline; text-underline-offset: 4px; width: max-content; }
-      .clear.on { display: inline-block; }
+      .active-filters { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 12px 0 0; }
+      .active-filters[hidden] { display: none; }
+      .active-filters :global(a) { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 10px; border: 1px solid var(--line); color: var(--ink); overflow-wrap: anywhere; }
+      .active-filters :global(a:hover) { border-color: var(--red); }
+      .active-filters :global(li) { min-width: 0; max-width: 100%; }
+      .clear { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-2); text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
+      .empty .clear { margin-top: 12px; }
       .empty { display: none; padding: var(--s4) 0; color: var(--ink-2); }
       .empty.on { display: block; }
       .mas { margin-top: var(--s4); border: 0; cursor: pointer; }
       .fichas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       @media (max-width: 900px) {
         .muro { grid-template-columns: 1fr; gap: var(--s3); } .panel { position: static; gap: var(--s3); max-height: none; overflow: visible; padding-right: 0; } .fichas { grid-template-columns: 1fr 1fr; }
-        .muro { padding-top: 32px; }
+        .muro { padding-top: 28px; }
         .catalog-title { font-size: clamp(2rem, 7.5vw, 2.6rem); font-weight: 600; line-height: 1.08; letter-spacing: -.025em; color: var(--ink); }
-        .catalog-summary { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+        .catalog-summary { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
         .count { font-size: 2rem; line-height: 1.1; }
         .sentence { margin: 0; font-size: 1.0625rem; font-weight: 400; color: var(--ink-2); }
         .filtros { gap: 0; }
@@ -112,16 +122,19 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
       <aside class="panel">
         <div>
           <h1 class="catalog-title">Proyectos y antecedentes<span class="dot">.</span></h1>
-          <div class="catalog-summary">
-          <p class="count"><span data-count>{n}</span><i>.</i></p>
-          <p class="sentence" data-sentence aria-live="polite">{filtra ? `antecedentes · ${partes.join(' · ')}` : 'antecedentes registrados'}</p>
+          <div class="catalog-summary" aria-live="polite" aria-atomic="true">
+            <p class="count"><span data-count>{n}</span><i aria-hidden="true">.</i></p>
+            <p class="sentence" data-sentence>{n === 1 ? 'antecedente' : 'antecedentes'}{activos.length ? '' : n === 1 ? ' registrado' : ' registrados'}</p>
           </div>
+          <ul class="active-filters" data-active-filters aria-label="Filtros activos" hidden={!activos.length}>
+            {activos.map((key) => <li><a href={catalogHref(estado, key)} aria-label={`Quitar filtro: ${labelFor(key)}`}>{labelFor(key)} <span aria-hidden="true">×</span></a></li>)}
+          </ul>
         </div>
         <label class="catalog-control">Buscar antecedentes<input type="search" data-search value={estado.q} placeholder="Cliente, sector, servicio o alcance" /></label>
-        <label class="catalog-control">Ordenar<select data-sort aria-label="Ordenar antecedentes">{[['recent', 'Destacados'], ['year-desc', 'Año, más reciente'], ['year-asc', 'Año, más antiguo'], ['client', 'Cliente A–Z']].map(([v, label]) => <option value={v} selected={estado.orden === v}>{label}</option>)}</select></label>
-        <div class:list={['filtros', { abierta: filtra }]} data-filtros>
-        <button class="filtros__toggle" type="button" data-toggle aria-expanded={filtra ? 'true' : 'false'} aria-controls="filtros-cuerpo">Filtrar antecedentes<i aria-hidden="true"></i></button>
+        <div class="filtros" data-filtros>
+        <button class="filtros__toggle" type="button" data-toggle aria-expanded="false" aria-controls="filtros-cuerpo">Filtrar y ordenar<i aria-hidden="true"></i></button>
         <div class="filtros__cuerpo" id="filtros-cuerpo">
+        <label class="catalog-control">Ordenar<select data-sort aria-label="Ordenar antecedentes">{[['recent', 'Destacados'], ['year-desc', 'Año, más reciente'], ['year-asc', 'Año, más antiguo'], ['client', 'Cliente A–Z']].map(([v, label]) => <option value={v} selected={estado.orden === v}>{label}</option>)}</select></label>
         <div class="grupo"><h2>Sector</h2><ul class="servicios">{sectors.map((s) => <li><button type="button" data-lens="sector" data-value={s.slug} aria-pressed={s.on ? 'true' : 'false'} data-zero={s.zero || undefined} style={`--w:${s.w}`}>{s.name}<span data-n>{s.count}</span><i></i></button></li>)}</ul></div>
         <div class="grupo"><h2>Servicio</h2><ul class="servicios">{svcs.map((s) => <li><button type="button" data-lens="service" data-value={s.code} aria-pressed={s.on ? 'true' : 'false'} data-zero={s.zero || undefined} style={`--w:${s.w}`}>{s.name}<span data-n>{s.count}</span><i></i></button></li>)}</ul></div>
         <div class="grupo"><h2>Año</h2><div class="anios">{years.map((y) => <button type="button" data-lens="year" data-value={String(y)} aria-pressed={estado.year === String(y) ? 'true' : 'false'}>{y}</button>)}</div></div>
@@ -129,7 +142,6 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
         <label class="catalog-control">Cliente<select data-field="cliente"><option value="">Todos los clientes</option>{clients.map(c => <option value={c} selected={estado.cliente === c}>{c}</option>)}</select></label>
         </div>
         </div>
-        <button class:list={['clear', { on: filtra }]} type="button" data-clear>Ver los {total} antecedentes</button>
       </aside>
 
       <section aria-label="Antecedentes">
@@ -146,7 +158,10 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
             <Ficha story={p.story!} eager={p.eager} primera={index === 0} />
           ))}
         </ol>
-        <p class:list={['empty', { on: n === 0 }]} data-empty>Sin antecedentes para esta combinación.</p>
+        <div class:list={['empty', { on: n === 0 }]} data-empty>
+          <p>Sin antecedentes para esta combinación.</p>
+          <a class="clear" href="/antecedentes">Limpiar filtros y ver el archivo completo</a>
+        </div>
         <button class="btn mas" type="button" data-mas hidden={n <= INICIAL}>{masTexto}</button>
         {/* Molde de ficha para las que se crean desde los datos; también asegura el guion del sistema al pasar el puntero. */}
         <template data-molde><Ficha story={stories[0]} /></template>
@@ -156,11 +171,11 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
     <Cierre />
 
     <script>
-      import { catalogState, matchesCatalog, orderCatalog, filterKeys } from '../../../components/proto/catalogFilters';
+      import { catalogCriteria, catalogHref, catalogState, matchesCatalog, orderCatalog, showCatalogHighlights } from '../../../components/proto/catalogFilters';
       type Datos = { prefijo: string; sitios: Record<string, string>; fichas: { id: number; slug: string; cliente: string; titulo: string; sector: string; sectorSlug: string; servicios: string; anio: number; foto: string; sitio: string; busqueda: string; estado: string }[] };
       type Item = { id: number; sector: string; services: string[]; year: string; client: string; search: string; status: string; el?: HTMLElement; crear: () => HTMLElement };
       const root = document.querySelector<HTMLElement>('[data-muro]')!;
-      // En teléfono los filtros vienen plegados desde el HTML (abiertos si la URL ya filtra) y el botón los abre; en escritorio siempre están a la vista. Nada se pliega después de pintar: cero salto.
+      // En móvil, los resultados y los filtros activos aparecen antes que el panel plegado.
       const filtros = root.querySelector<HTMLElement>('[data-filtros]')!;
       const toggle = filtros.querySelector<HTMLButtonElement>('[data-toggle]');
       toggle?.addEventListener('click', () => { const abierta = filtros.classList.toggle('abierta'); toggle.setAttribute('aria-expanded', String(abierta)); });
@@ -205,12 +220,12 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
         const items = orderCatalog(await datos(), state.orden);
         const ok = items.map((it) => matches(it));
         const n = ok.filter(Boolean).length;
-        const recOk = (el: HTMLElement) => !state.q && !state.year && !state.cliente && n >= 12 && (!state.sector || el.dataset.sector === state.sector);
+        const showHighlights = showCatalogHighlights(state, n);
         const quiero: HTMLElement[] = [];
         let r = 0, vistas = 0;
         for (let i = 0; i < items.length && vistas < visibles; i++) {
           if (!ok[i]) continue;
-          while (r < recs.length && Number(recs[r].dataset.at) <= i) { if (recOk(recs[r])) quiero.push(recs[r]); r++; }
+          while (r < recs.length && Number(recs[r].dataset.at) <= i) { if (showHighlights) quiero.push(recs[r]); r++; }
           const it = items[i]; if (!it.el) it.el = it.crear(); quiero.push(it.el); vistas++;
         }
         recomponer(quiero);
@@ -226,12 +241,27 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
             b.toggleAttribute('data-zero', c === 0 && state[kind] !== b.dataset.value);
           });
         });
-        const parts = [state.q, state.periodo && `Período ${state.periodo}`, state.estado, state.cliente, state.sector && names('sector', state.sector), state.service && names('service', state.service), state.year].filter(Boolean) as string[];
+        const keys = catalogCriteria.filter((key) => state[key]);
+        const activeFilters = root.querySelector<HTMLElement>('[data-active-filters]')!;
+        activeFilters.replaceChildren(...keys.map((key) => {
+          const value = state[key];
+          const label = key === 'sector' || key === 'service' ? names(key, value) : key === 'periodo' ? `Período ${value}` : value;
+          const link = document.createElement('a');
+          link.href = catalogHref(state, key);
+          link.setAttribute('aria-label', `Quitar filtro: ${label}`);
+          const mark = document.createElement('span');
+          mark.setAttribute('aria-hidden', 'true');
+          mark.textContent = '×';
+          link.append(label, mark);
+          const item = document.createElement('li');
+          item.append(link);
+          return item;
+        }));
+        activeFilters.hidden = keys.length === 0;
         root.querySelector('[data-count]')!.textContent = String(n);
-        root.querySelector('[data-sentence]')!.textContent = parts.length ? `antecedentes · ${parts.join(' · ')}` : 'antecedentes registrados';
-        root.querySelector('[data-clear]')!.classList.toggle('on', parts.length > 0);
+        root.querySelector('[data-sentence]')!.textContent = `${n === 1 ? 'antecedente' : 'antecedentes'}${keys.length ? '' : n === 1 ? ' registrado' : ' registrados'}`;
         root.querySelector('[data-empty]')!.classList.toggle('on', n === 0);
-        const url = new URL(location.href); url.search = new URLSearchParams(filterKeys.filter(k => state[k]).map(k => [k, state[k]])).toString(); history.replaceState(null, '', url);
+        history.replaceState(null, '', catalogHref(state) + location.hash);
       };
       const search = root.querySelector<HTMLInputElement>('input[data-search]')!;
       const sort = root.querySelector<HTMLSelectElement>('[data-sort]')!;
@@ -240,7 +270,6 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(INICIAL, n - INICIAL)} más d
       root.querySelectorAll<HTMLSelectElement>('[data-field]').forEach(el => el.addEventListener('change', () => { state[el.dataset.field!] = el.value; visibles = TANDA; apply(); }));
       lenses.forEach((b) => b.addEventListener('click', () => { const k = b.dataset.lens!; state[k] = state[k] === b.dataset.value ? '' : b.dataset.value!; visibles = TANDA; apply(); }));
       mas.addEventListener('click', () => { visibles += TANDA; apply(); });
-      root.querySelector('[data-clear]')!.addEventListener('click', () => { Object.keys(state).forEach(k => { state[k] = ''; }); search.value = ''; sort.value = 'recent'; root.querySelectorAll<HTMLSelectElement>('[data-field]').forEach(el => { el.value = ''; }); visibles = TANDA; apply(); });
       // El servidor ya dejó el muro como pide la URL: no se recompone al cargar. Los datos se traen al primer gesto sobre el panel o cuando la página queda quieta.
       const panel = root.querySelector<HTMLElement>('.panel')!;
       ['pointerover', 'focusin', 'touchstart'].forEach((ev) => { panel.addEventListener(ev, () => datos(), { once: true, passive: true }); mas.addEventListener(ev, () => datos(), { once: true, passive: true }); });

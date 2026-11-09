@@ -1,19 +1,19 @@
 ---
-import { ArrowUpRight, Cable, ChevronDown, ClipboardCheck, FileCheck2, Files, Flame, Headset, MapPin, Ruler, ShieldCheck } from 'lucide-astro';
-import { CUMPLIMIENTO, EMPRESA } from './relato';
+import { ArrowUpRight, BookOpen, Cable, ClipboardCheck, Headset, MapPin, Ruler } from 'lucide-astro';
+import DossierObraPortada from './DossierObraPortada.astro';
+import FichasTecnicasPortada from './FichasTecnicasPortada.astro';
+import type { Story } from './isoData';
+import { EMPRESA } from './relato';
+
+interface Props { stories: Story[] }
+const { stories } = Astro.props;
+const obra = stories.find(({ id }) => id === 3102);
 
 const pasos = [
   { icono: Ruler, titulo: 'Relevar', texto: 'Entender la operación, definir el alcance y ordenar las prioridades.' },
   { icono: Cable, titulo: 'Integrar', texto: 'Diseñar y ejecutar redes, seguridad, energía y software como un sistema.' },
   { icono: ClipboardCheck, titulo: 'Verificar', texto: 'Probar la instalación y entregar documentación útil para operarla.' },
   { icono: Headset, titulo: 'Sostener', texto: 'Acompañar la operación con soporte, mantenimiento y trazabilidad.' },
-];
-const documentos = [
-  { icono: FileCheck2, titulo: 'Protocolos y entregables', indice: 0 },
-  { icono: Cable, titulo: 'Certificación del cableado', indice: 1 },
-  { icono: ShieldCheck, titulo: 'Seguridad de la información', indice: 2 },
-  { icono: Flame, titulo: 'Detección de incendios', indice: 3 },
-  { icono: Files, titulo: 'Dossiers para auditorías', indice: 4 },
 ];
 const hitos = ['Infraestructura y telecomunicaciones', 'Seguridad y software', 'Soporte y trazabilidad', 'Integración IT en Argentina'];
 ---
@@ -32,20 +32,24 @@ const hitos = ['Infraestructura y telecomunicaciones', 'Seguridad y software', '
       </li>)}
     </ol>
 
-    <div class="documentacion">
-      <div class="documentacion__intro">
-        <FileCheck2 size={36} stroke-width={1.35} aria-hidden="true" />
-        <h3>Documentación <br />para operar.</h3>
-        <p>Lo que queda en tus manos al cerrar el proyecto, según el alcance contratado.</p>
-        <a href="/documentacion">Ver documentación técnica <ArrowUpRight size={18} aria-hidden="true" /></a>
+    <section class="documentacion" id="documentacion-de-obra" aria-labelledby="documentacion-titulo">
+      <header class="documentacion__intro">
+        <p class="documentacion__rotulo">Documentación de obra</p>
+        <h3 id="documentacion-titulo">Lo que instalamos<br />queda documentado<span class="dot">.</span></h3>
+        <p>Documentamos para el técnico que va a intervenir la obra después de nosotros.</p>
+        <p>En una red, el inventario dice qué recibió. El plano y el rotulado le permiten ubicarlo. El informe de prueba deja constancia de lo que se verificó.</p>
+      </header>
+      <DossierObraPortada story={obra} />
+      <div class="documentacion__acciones" data-documentacion-acciones hidden>
+        <button class="documentacion__boton" type="button"
+          data-abrir-fichas aria-haspopup="dialog" aria-controls="fichas-tecnicas-portada" hidden>
+          <BookOpen size={18} aria-hidden="true" /> Fichas por servicio
+        </button>
+        <button class="documentacion__boton" type="button" data-contact-open
+          data-contact-intent="documentacion" aria-haspopup="dialog">Solicitar un dossier</button>
       </div>
-      <div class="documentacion__lista">
-        {documentos.map(({ icono: Icono, titulo, indice }) => <details name="documentacion-empresa">
-          <summary><Icono size={23} stroke-width={1.5} aria-hidden="true" /><span>{titulo}</span><ChevronDown class="documentacion__flecha" size={18} aria-hidden="true" /></summary>
-          <p>{CUMPLIMIENTO[indice][1]}</p>
-        </details>)}
-      </div>
-    </div>
+      <FichasTecnicasPortada />
+    </section>
 
     <div class="trayectoria">
       <div class="trayectoria__cabecera"><h3>Desde 2003, en campo.</h3><a href="/nosotros">Conocé la empresa <ArrowUpRight size={18} aria-hidden="true" /></a></div>
@@ -69,21 +73,64 @@ const hitos = ['Infraestructura y telecomunicaciones', 'Seguridad y software', '
   .metodo__marca span { font-size:1rem; font-variant-numeric:tabular-nums; }
   .metodo h3 { font-size:1.35rem; margin-bottom:var(--s1); }
   .metodo p { color:var(--ink-2); font-size:1rem; line-height:1.5; max-width:30ch; }
-  .documentacion { background:var(--empresa-paper); color:var(--empresa-ink); display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,1.35fr); gap:var(--s5); padding:var(--s4); }
-  .documentacion__intro { display:flex; flex-direction:column; align-items:start; gap:var(--s2); }
-  .documentacion__intro h3 { font-size:clamp(1.65rem,2.3vw,2.2rem); line-height:1.12; }
-  .documentacion__intro p { color:var(--empresa-muted); max-width:33ch; font-size:1rem; line-height:1.5; }
   .empresa a { display:inline-flex; align-items:center; gap:var(--s1); min-height:44px; font-size:1rem; font-weight:600; line-height:1.35; }
   .empresa a:hover { text-decoration:underline; text-decoration-color:var(--red); text-underline-offset:4px; }
-  .documentacion__intro a { margin-top:auto; }
-  .documentacion details { border-bottom:1px solid var(--empresa-line); }
-  .documentacion details:first-child { border-top:1px solid var(--empresa-line); }
-  .documentacion summary { display:grid; grid-template-columns:24px minmax(0,1fr) 18px; align-items:center; gap:var(--s2); list-style:none; cursor:pointer; min-height:58px; padding:var(--s2) 0; font-size:1.0625rem; font-weight:600; line-height:1.35; }
-  .documentacion summary::-webkit-details-marker { display:none; }
-  .documentacion summary:hover span { text-decoration:underline; text-decoration-color:var(--red); text-underline-offset:4px; }
-  .documentacion summary:focus-visible { outline:2px solid var(--empresa-ink); outline-offset:4px; }
-  .documentacion details[open] .documentacion__flecha { transform:rotate(180deg); }
-  .documentacion details p { padding:0 0 var(--s3) var(--s4); max-width:66ch; font-size:1rem; line-height:1.55; color:var(--empresa-muted); }
+  .documentacion {
+    display: grid;
+    grid-template: "intro muestra" auto "acciones muestra" 1fr / minmax(0, 0.78fr) minmax(0, 1.22fr);
+    gap: var(--s3) clamp(32px, 5vw, 72px);
+    padding-block: var(--s4);
+    border-block: 1px solid var(--line);
+  }
+  .documentacion__intro { grid-area: intro; }
+  .documentacion__rotulo {
+    display: flex;
+    align-items: center;
+    gap: var(--s1);
+    margin-bottom: var(--s2);
+    color: var(--ink-2);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .documentacion__rotulo::before {
+    content: '';
+    width: 20px;
+    height: 2px;
+    background: var(--red);
+  }
+  .documentacion__intro h3 {
+    font-size: clamp(2rem, 3.35vw, 2.875rem);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: normal;
+    text-wrap: balance;
+  }
+  .documentacion__intro h3 ~ p {
+    max-width: 43ch;
+    margin-top: var(--s2);
+    color: var(--ink-2);
+    line-height: 1.6;
+  }
+  .documentacion__intro h3 ~ p + p { margin-top: var(--s1); }
+  .documentacion__acciones {
+    grid-area: acciones;
+    display: flex;
+    align-self: start;
+    flex-wrap: wrap;
+    gap: var(--s1) var(--s3);
+  }
+  .documentacion__boton {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s1);
+    min-height: 48px;
+    border-bottom: 1px solid var(--line);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .documentacion__boton:hover { border-color: var(--red); }
+  .documentacion__boton :global(svg) { flex: none; }
   .trayectoria { margin-top:var(--s4); }
   .trayectoria__cabecera { display:flex; justify-content:space-between; align-items:center; gap:var(--s3); margin-bottom:var(--s3); }
   .trayectoria__cabecera h3 { font-size:1.125rem; }
@@ -97,9 +144,15 @@ const hitos = ['Infraestructura y telecomunicaciones', 'Seguridad y software', '
   @media(max-width:980px) {
     .empresa__cabecera { align-items:start; gap:var(--s3); }
     .metodo,.trayectoria ol { gap:var(--s3); }
-    .documentacion { gap:var(--s4); padding:var(--s3); grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); }
+  }
+  @media (max-width: 900px) {
+    .documentacion {
+      grid-template: "intro" "muestra" "acciones" / minmax(0, 1fr);
+      padding-block: var(--s3);
+    }
   }
   @media(max-width:640px) {
+    .documentacion__intro h3 { font-size: clamp(1.8rem, 8vw, 2.5rem); }
     .empresa__cabecera { grid-template-columns:1fr; gap:var(--s2); margin-bottom:var(--s3); }
     .empresa__cabecera h2 { font-size:2rem; }
     .empresa__cabecera p { font-size:1.125rem; }
@@ -107,14 +160,6 @@ const hitos = ['Infraestructura y telecomunicaciones', 'Seguridad y software', '
     .metodo li { padding-top:var(--s2); }
     .metodo__marca { margin-bottom:var(--s1); }
     .metodo h3 { font-size:1.2rem; }
-    .documentacion { grid-template-columns:1fr; gap:var(--s3); padding:var(--s3) var(--s2); }
-    .documentacion__intro { gap:var(--s1); }
-    .documentacion__intro > :global(svg) { display:none; }
-    .documentacion__intro h3 br { display:none; }
-    .documentacion__intro p { max-width:40ch; }
-    .documentacion__intro a { margin-top:var(--s1); }
-    .documentacion summary { font-size:1rem; gap:12px; }
-    .documentacion details p { padding-left:0; }
     .trayectoria__cabecera { flex-wrap:wrap; gap:0 var(--s2); margin-bottom:var(--s2); }
     .trayectoria ol { grid-template-columns:repeat(2,minmax(0,1fr)); }
     .trayectoria li > span { font-size:1.5rem; }

@@ -10,8 +10,8 @@ import { publicStructuredData } from '../../utils/publicStructuredData';
 import { trimAtWordBoundary } from '../../utils/seoMetaPolicy';
 import { publicDespiecePath } from '../../lib/despieceRoutes';
 import { variantes } from './isoData';
-interface Props { title: string; description?: string; image?: string; lang?: string; precargar?: boolean; canonicalPath?: string }
-const { title, description: rawDescription = '', image = '/images/editorial/umsa-home-operations.webp', lang = 'es', precargar = false, canonicalPath } = Astro.props;
+interface Props { title: string; description?: string; image?: string; lang?: string; precargar?: boolean; canonicalPath?: string; noindex?: boolean }
+const { title, description: rawDescription = '', image = '/images/editorial/umsa-home-operations.webp', lang = 'es', precargar = false, canonicalPath, noindex = false } = Astro.props;
 const description = trimAtWordBoundary(rawDescription, 160);
 // La imagen de apertura se precarga en la variante justa: el póster de película en AVIF; la foto editorial en AVIF a 960/1672 (quien no lee AVIF ignora la precarga por su type y descubre la foto en el HTML); la foto de antecedente en WebP a 960/1600.
 const avif = /^\/cine\/media\/cine-.+-poster\.jpg$/.test(image) ? image.replace(/\.jpg$/, '.avif') : '';
@@ -24,18 +24,18 @@ const publicPath = publicDespiecePath(Astro.url.pathname);
 const canonical = new URL(canonicalPath || publicPath, SITE_URL).href;
 const languagePair = [['/', '/en'], ['/servicios', '/en/services'], ['/nosotros', '/en/about'], ['/contacto', '/en/contact']]
   .find(([es, en]) => publicPath === es || publicPath === en);
-const noindex = process.env.UMSA_PREVIEW === '1' || Astro.response.status >= 400;
+const previewOrError = process.env.UMSA_PREVIEW === '1' || Astro.response.status >= 400;
 const abs = (p: string) => (p ? new URL(p, SITE_URL).href : '');
 const structuredData = publicStructuredData(canonicalPath || publicPath, title, description, lang);
 ---
 <meta charset="utf-8" />
-{!noindex && <>
+{!previewOrError && <>
   <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-S2376K1GED"></script>
   <script is:inline>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-S2376K1GED');</script>
 </>}
 <script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')} />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />
+<meta name="robots" content={previewOrError ? "noindex, nofollow" : noindex ? "noindex, follow" : "index, follow"} />
 <link rel="canonical" href={canonical} />
 {languagePair && <>
   <link rel="alternate" hreflang="es-AR" href={new URL(languagePair[0], SITE_URL).href} />
