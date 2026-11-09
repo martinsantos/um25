@@ -4,6 +4,12 @@ const DEFAULT_BASE_URL = 'https://www.ultimamilla.com.ar';
 const DEFAULT_CANONICAL_BASE_URL = 'https://www.ultimamilla.com.ar';
 const NON_CANONICAL_APEX_URL = 'https://ultimamilla.com.ar';
 
+const FONT_SPECIMEN_PATHS = ['/estilo/fuente', '/estilo/fuente/'];
+const LEGACY_SERVICE_REDIRECTS = [
+  ['/servicios/101/infraestructura-de-redes-cableado-fibra-optica-radioenlaces', '/servicios/101'],
+  ['/servicios/107/sistemas-de-deteccion-y-alarma-de-incendios', '/servicios/107'],
+];
+
 const CORE_HTML_PATHS = ['/', '/servicios', '/antecedentes', '/blog', '/contacto', '/certificaciones', '/privacidad', ...Array.from({ length: 8 }, (_, i) => `/servicios/${101 + i}`)];
 const ENGLISH_HTML_PATHS = ['/en', '/en/services', '/en/about', '/en/contact'];
 const GEO_COMMERCIAL_HUB_PATHS = [
@@ -112,17 +118,21 @@ async function auditHttpSemantics(baseUrl, failures) {
     }
   }
 
-  const legacyBlogPath = '/blog/exportaci%C3%B3n-monitoreada-cctv-sita-y-prueba-de-planta';
-  try {
-    const response = await fetch(new URL(legacyBlogPath, baseUrl), { redirect: 'manual' });
-    assert(response.status === 301, `${legacyBlogPath} must permanently redirect, got ${response.status}`, failures);
-    assert(
-      response.headers.get('location') === '/blog/exportacion-monitoreada-cctv-sita-y-prueba-de-planta',
-      `${legacyBlogPath} redirects to an unexpected canonical`,
-      failures,
-    );
-  } catch (error) {
-    failures.push(`${legacyBlogPath} canonical redirect check failed: ${error instanceof Error ? error.message : String(error)}`);
+  const redirects = [
+    ...LEGACY_SERVICE_REDIRECTS,
+    ['/blog/exportaci%C3%B3n-monitoreada-cctv-sita-y-prueba-de-planta', '/blog/exportacion-monitoreada-cctv-sita-y-prueba-de-planta'],
+  ];
+  for (const [from, to] of redirects) {
+    try {
+      const response = await fetch(new URL(from, baseUrl), { redirect: 'manual', signal: AbortSignal.timeout(15000) });
+      const location = response.headers.get('location');
+      assert(response.status === 301, `${from} must permanently redirect, got ${response.status}`, failures);
+      assert(location && new URL(location, baseUrl).href === new URL(to, baseUrl).href,
+        `${from} redirects to an unexpected canonical`, failures);
+      await response.body?.cancel();
+    } catch (error) {
+      failures.push(`${from} canonical redirect check failed: ${error instanceof Error ? error.message : error}`);
+    }
   }
 }
 
@@ -130,6 +140,10 @@ async function auditPage(baseUrl, canonicalBaseUrl, path, failures) {
   const url = new URL(path, baseUrl).toString();
   const html = await fetchText(url, failures);
   if (!html) return;
+
+  if (GEO_COMMERCIAL_HUB_PATHS.includes(path)) {
+    assert(!/\/servicios\/10[1-8]\/[a-z0-9-]+/i.test(html), `${path} links to a legacy service URL`, failures);
+  }
 
   const localeContract = expectedLocaleContract(path);
   const htmlLang = html.match(/<html[^>]+lang=["']([^"']+)["'][^>]*>/i)?.[1] || '';
@@ -177,6 +191,21 @@ async function auditSitemap(baseUrl, canonicalBaseUrl, failures) {
 
   assert(robots.includes('Allow: /_astro/'), 'robots.txt must allow public rendering assets under /_astro/', failures);
 
+  const robotGroups = robots.split(/\r?\n\r?\n/).map((block) => block.split(/\r?\n/));
+  const specimenRules = FONT_SPECIMEN_PATHS.map((path) => `Allow: ${path}$`);
+  for (const agent of ['*', 'Googlebot']) {
+    const group = robotGroups.find((rules) => rules.includes(`User-agent: ${agent}`)) || [];
+    const styleAllows = group.filter((rule) => rule.startsWith('Allow: /estilo'));
+    assert(group.includes('Disallow: /estilo') && styleAllows.length === specimenRules.length &&
+      specimenRules.every((rule) => styleAllows.includes(rule)),
+      `${agent} must crawl the specimen without opening the rest of /estilo`, failures);
+  }
+
+  for (const path of FONT_SPECIMEN_PATHS) {
+    const html = await fetchText(new URL(path, baseUrl).toString(), failures);
+    assert(contentFromTag(attrsForMeta(html, 'name', 'robots')).includes('noindex'), `${path} must retain noindex`, failures);
+  }
+
   const sitemapIndex = await fetchText(new URL('/sitemap-index.xml', baseUrl).toString(), failures);
   assert(sitemapIndex.includes('<sitemapindex'), 'sitemap-index.xml missing sitemapindex root', failures);
   assert(sitemapIndex.includes(`${canonicalBaseUrl}/sitemap-images.xml`), 'sitemap-index.xml missing sitemap-images.xml', failures);
@@ -186,6 +215,12 @@ async function auditSitemap(baseUrl, canonicalBaseUrl, failures) {
   assert(sitemap.includes('<urlset'), 'sitemap.xml missing urlset root', failures);
   assert(sitemap.includes(`${canonicalBaseUrl}/servicios`), 'sitemap.xml missing /servicios', failures);
   assert(!sitemap.includes(NON_CANONICAL_APEX_URL), 'sitemap.xml leaks apex URL', failures);
+
+  for (const [from, to] of LEGACY_SERVICE_REDIRECTS) {
+    assert(sitemap.includes(`<loc>${canonicalBaseUrl}${to}</loc>`) &&
+      !sitemap.includes(`<loc>${canonicalBaseUrl}${from}</loc>`),
+      `sitemap.xml must list ${to} instead of its legacy URL`, failures);
+  }
 
   const imageSitemap = await fetchText(new URL('/sitemap-images.xml', baseUrl).toString(), failures);
   const imageCount = (imageSitemap.match(/<image:image>/g) || []).length;
