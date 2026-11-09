@@ -52,7 +52,7 @@ export interface GeoCommercialHub {
   secondaryHref: string;
 }
 
-const serviceHref = (id: number, slug: string) => `/servicios/${id}/${slug}`;
+const serviceHref = (id: number) => `/servicios/${id}`;
 
 export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
   'servicios-it-empresas-mendoza': {
@@ -72,10 +72,10 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     decisionFrame: 'Una comparación seria empieza por la criticidad, las sedes, el estado de la red, la seguridad, los entregables, las ventanas de trabajo y el soporte posterior; el precio unitario se compara después.',
     operatingRisks: ['Redes sin trazabilidad ni certificación', 'Soporte reactivo sin trazabilidad', 'CCTV o accesos desconectados de la operación', 'Software aislado de procesos reales'],
     services: [
-      { id: 101, title: 'Infraestructura de redes', href: serviceHref(101, 'infraestructura-de-redes-cableado-fibra-optica-radioenlaces'), summary: 'Cableado, fibra, switching, WiFi, radioenlaces y evidencia técnica.' },
-      { id: 105, title: 'Soporte técnico 24/7', href: serviceHref(105, 'soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it'), summary: 'Mesa de ayuda, mantenimiento, monitoreo y continuidad operativa.' },
-      { id: 102, title: 'Seguridad electrónica', href: serviceHref(102, 'sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi'), summary: 'CCTV, accesos, intrusión, SDI y mantenimiento técnico.' },
-      { id: 104, title: 'Software a medida', href: serviceHref(104, 'desarrollo-de-software-a-medida-web-mobile-erp'), summary: 'Sistemas, APIs, tableros e integraciones para procesos operativos.' }
+      { id: 101, title: 'Infraestructura de redes', href: serviceHref(101), summary: 'Cableado, fibra, switching, WiFi, radioenlaces y evidencia técnica.' },
+      { id: 105, title: 'Soporte técnico 24/7', href: serviceHref(105), summary: 'Mesa de ayuda, mantenimiento, monitoreo y continuidad operativa.' },
+      { id: 102, title: 'Seguridad electrónica', href: serviceHref(102), summary: 'CCTV, accesos, intrusión, SDI y mantenimiento técnico.' },
+      { id: 104, title: 'Software a medida', href: serviceHref(104), summary: 'Sistemas, APIs, tableros e integraciones para procesos operativos.' }
     ],
     sectors: [
       { title: 'Bodegas', href: '/bodegas', summary: 'Plantas productivas, trazabilidad, CCTV, red industrial y soporte.' },
@@ -116,10 +116,10 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     decisionFrame: 'Un presupuesto bajo puede ocultar omisiones críticas: certificación, pruebas, documentación, ventanas de trabajo, licencias, viáticos, soporte o integraciones.',
     operatingRisks: ['Comparar precios sin comparar alcance', 'Mezclar obra, soporte y documentación en un solo ítem', 'Contratar sin SLA ni criterio de criticidad', 'Dejar integraciones y materiales fuera del presupuesto'],
     services: [
-      { id: 106, title: 'Consultoría IT', href: serviceHref(106, 'consultoria-it-y-transformacion-digital-arquitectura-auditoria'), summary: 'Diagnóstico, arquitectura, auditoría y roadmap técnico.' },
-      { id: 101, title: 'Infraestructura de redes', href: serviceHref(101, 'infraestructura-de-redes-cableado-fibra-optica-radioenlaces'), summary: 'Puntos, racks, fibra, certificación, switching y pruebas.' },
-      { id: 105, title: 'Soporte técnico 24/7', href: serviceHref(105, 'soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it'), summary: 'Abonos, tickets, mantenimiento, visitas y continuidad.' },
-      { id: 108, title: 'Servicios eléctricos para IT', href: serviceHref(108, 'servicios-electricos-para-it'), summary: 'UPS, tableros, puesta a tierra, energía dedicada y racks.' }
+      { id: 106, title: 'Consultoría IT', href: serviceHref(106), summary: 'Diagnóstico, arquitectura, auditoría y roadmap técnico.' },
+      { id: 101, title: 'Infraestructura de redes', href: serviceHref(101), summary: 'Puntos, racks, fibra, certificación, switching y pruebas.' },
+      { id: 105, title: 'Soporte técnico 24/7', href: serviceHref(105), summary: 'Abonos, tickets, mantenimiento, visitas y continuidad.' },
+      { id: 108, title: 'Servicios eléctricos para IT', href: serviceHref(108), summary: 'UPS, tableros, puesta a tierra, energía dedicada y racks.' }
     ],
     sectors: [
       { title: 'Industria', href: '/industria', summary: 'Plantas activas, ventanas de trabajo y continuidad productiva.' },
@@ -160,10 +160,10 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     decisionFrame: 'La ingeniería IT debe empezar por riesgo y condiciones de campo: edificios activos, sitios remotos, ventanas acotadas, continuidad del servicio y documentación final.',
     operatingRisks: ['Ejecutar sin relevamiento de campo', 'Cerrar la obra sin planos ni pruebas documentadas', 'Subestimar energía, racks y canalizaciones', 'Ejecutar sin coordinar con obra civil o mantenimiento'],
     services: [
-      { id: 101, title: 'Infraestructura de redes', href: serviceHref(101, 'infraestructura-de-redes-cableado-fibra-optica-radioenlaces'), summary: 'Cableado, fibra, racks, switching y certificación.' },
-      { id: 103, title: 'Telecomunicaciones', href: serviceHref(103, 'telecomunicaciones-datos-voz-video'), summary: 'Datos, voz, video, radioenlaces y comunicación distribuida.' },
-      { id: 108, title: 'Servicios eléctricos para IT', href: serviceHref(108, 'servicios-electricos-para-it'), summary: 'Tableros, UPS, puesta a tierra y continuidad eléctrica.' },
-      { id: 107, title: 'Detección de incendios', href: serviceHref(107, 'sistemas-de-deteccion-y-alarma-de-incendios'), summary: 'Ingeniería, sensores, paneles, pruebas y mantenimiento.' }
+      { id: 101, title: 'Infraestructura de redes', href: serviceHref(101), summary: 'Cableado, fibra, racks, switching y certificación.' },
+      { id: 103, title: 'Telecomunicaciones', href: serviceHref(103), summary: 'Datos, voz, video, radioenlaces y comunicación distribuida.' },
+      { id: 108, title: 'Servicios eléctricos para IT', href: serviceHref(108), summary: 'Tableros, UPS, puesta a tierra y continuidad eléctrica.' },
+      { id: 107, title: 'Detección de incendios', href: serviceHref(107), summary: 'Ingeniería, sensores, paneles, pruebas y mantenimiento.' }
     ],
     sectors: [
       { title: 'Construcción', href: '/constructoras', summary: 'Tecnología incorporada desde la obra.' },
@@ -204,10 +204,10 @@ export const geoCommercialHubs: Record<string, GeoCommercialHub> = {
     decisionFrame: 'Para cobertura nacional conviene separar consultoría, ejecución local, soporte remoto, visitas, documentación, seguridad, software e integraciones.',
     operatingRisks: ['Proveedor remoto sin evidencia operativa', 'Sedes con criterios técnicos distintos', 'Soporte sin documentación ni trazabilidad', 'Software desconectado de infraestructura real'],
     services: [
-      { id: 106, title: 'Consultoría IT', href: serviceHref(106, 'consultoria-it-y-transformacion-digital-arquitectura-auditoria'), summary: 'Roadmaps, auditoría, arquitectura y transferencia.' },
-      { id: 104, title: 'Software a medida', href: serviceHref(104, 'desarrollo-de-software-a-medida-web-mobile-erp'), summary: 'Aplicaciones, APIs e integraciones con procesos reales.' },
-      { id: 105, title: 'Soporte técnico 24/7', href: serviceHref(105, 'soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it'), summary: 'Mesa, mantenimiento, monitoreo y continuidad.' },
-      { id: 103, title: 'Telecomunicaciones', href: serviceHref(103, 'telecomunicaciones-datos-voz-video'), summary: 'Conectividad, voz, video y operación distribuida.' }
+      { id: 106, title: 'Consultoría IT', href: serviceHref(106), summary: 'Roadmaps, auditoría, arquitectura y transferencia.' },
+      { id: 104, title: 'Software a medida', href: serviceHref(104), summary: 'Aplicaciones, APIs e integraciones con procesos reales.' },
+      { id: 105, title: 'Soporte técnico 24/7', href: serviceHref(105), summary: 'Mesa, mantenimiento, monitoreo y continuidad.' },
+      { id: 103, title: 'Telecomunicaciones', href: serviceHref(103), summary: 'Conectividad, voz, video y operación distribuida.' }
     ],
     sectors: [
       { title: 'Gobierno', href: '/gobiernosectorpublico', summary: 'Escala, auditoría y continuidad institucional.' },

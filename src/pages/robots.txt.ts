@@ -11,6 +11,9 @@ import { AI_CRAWLERS } from '../data/geoKnowledge';
  * /3dgemelo*) no se bloquean acá: se publican con noindex (SEOHead) y quedan
  * fuera de los sitemaps, así los buscadores pueden leer la directiva.
  *
+ * El espécimen público /estilo/fuente conserva noindex; permitimos leerlo
+ * sin abrir al rastreo el resto de las rutas de estilo.
+ *
  * public/robots.txt tiene prioridad sobre esta ruta al servir estáticos:
  * mantener ambos con el mismo contenido.
  */
@@ -24,7 +27,9 @@ const allowRules = `Allow: /
 Allow: /_astro/
 Allow: /llms.txt
 Allow: /llms-full.txt
-Allow: /geo/*.json`;
+Allow: /geo/*.json
+Allow: /estilo/fuente$
+Allow: /estilo/fuente/$`;
 
 export const GET: APIRoute = async () => {
   const aiCrawlerGroup = `${AI_CRAWLERS.map((crawler) => `User-agent: ${crawler}`).join('\n')}

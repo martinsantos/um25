@@ -397,8 +397,8 @@ export function buildCctvAiProductTemplate(product?: ProductoV4 | null) {
       description:
         'Producto UMSA CCTV AI de ULTIMA MILLA, con piloto, consola forense, alertas, clips e informe forense verificable.',
       significantLink: [
-        'https://www.ultimamilla.com.ar/servicios/102/sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi',
-        'https://www.ultimamilla.com.ar/servicios/104/desarrollo-de-software-a-medida-web-mobile-erp',
+        'https://www.ultimamilla.com.ar/servicios/102',
+        'https://www.ultimamilla.com.ar/servicios/104',
         'https://www.ultimamilla.com.ar/contacto',
       ],
     },
