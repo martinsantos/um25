@@ -1,6 +1,9 @@
 ---
 import { Send, X } from 'lucide-astro';
 import EmailLink from '../common/EmailLink.astro';
+
+interface Props { contactQuestion?: string }
+const { contactQuestion } = Astro.props;
 ---
 
 <div id="umContactModal" class="um-contact-modal" hidden data-contact-modal>
@@ -48,7 +51,7 @@ import EmailLink from '../common/EmailLink.astro';
         </label>
 
         <label>
-          <span id="um-contact-label-message">Mensaje *</span>
+          <span id="um-contact-label-message">{contactQuestion ?? 'Mensaje'} *</span>
           <textarea
             name="message"
             aria-labelledby="um-contact-label-message"
@@ -56,7 +59,7 @@ import EmailLink from '../common/EmailLink.astro';
             required
             rows="5"
             maxlength="1200"
-            placeholder="Contanos qué necesitás, dónde y para cuándo."
+            placeholder={contactQuestion ? undefined : 'Contanos qué necesitás, dónde y para cuándo.'}
           ></textarea>
           <small id="um-contact-error-message" class="um-contact-error" data-error-for="message"></small>
         </label>
