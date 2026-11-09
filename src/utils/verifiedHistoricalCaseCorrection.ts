@@ -3,7 +3,7 @@ import dates from '../data/sgi/fechas.json';
 import data from '../data/propuesta/historical-corrections.json';
 
 export type HistoricalSource = { id: number | string; client: unknown; title: unknown; summary: unknown; year: number };
-export type HistoricalCorrection = { title: string; summary: string; services: number[]; sector?: string };
+export type HistoricalCorrection = { title: string; summary: string; services: number[]; sector?: string; documentedScope?: true };
 type Rule = {
   id: number;
   match: { client: string; title: string; summary: string; year: number };

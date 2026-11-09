@@ -1,10 +1,6 @@
 import type { APIRoute } from 'astro';
 import { SITE_URL } from '../config/seo';
-import {
-  geoHubRoutes,
-  geoResourceNames,
-  geoVersion,
-} from '../data/geoResources';
+import { geoHubRoutes, geoVersion } from '../data/geoResources';
 import { canonicalUrl, escapeXml, formatSitemapDate } from '../utils/seoUrl';
 
 type GeoSitemapEntry = {
@@ -13,10 +9,8 @@ type GeoSitemapEntry = {
   changefreq: string;
 };
 
-// /geo y /geo/score son internas (noindex) y quedan fuera; los hubs comerciales
-// son páginas finales y forman parte del contrato GEO (scripts/seo-audit.mjs).
-const coreGeoDiscoveryPaths = [
-  '/sitemap-images.xml',
+// El sitemap enumera páginas HTML canónicas. Los manifiestos se descubren en llms.txt.
+const coreGeoPaths = [
   '/servicios',
   '/sectores',
   '/antecedentes',
@@ -34,17 +28,10 @@ function urlEntry(entry: GeoSitemapEntry, lastmod: string) {
     </url>`;
 }
 
-function generateGeoSitemapXml() {
+export function generateGeoSitemapXml() {
   const geoLastmod = formatSitemapDate(geoVersion);
   const entries: GeoSitemapEntry[] = [
-    { loc: canonicalUrl('/llms.txt'), priority: '0.9', changefreq: 'weekly' },
-    { loc: canonicalUrl('/llms-full.txt'), priority: '0.9', changefreq: 'weekly' },
-    ...geoResourceNames.map((resource) => ({
-      loc: canonicalUrl(`/geo/${resource}.json`),
-      priority: '0.8',
-      changefreq: 'weekly',
-    })),
-    ...coreGeoDiscoveryPaths.map((path) => ({
+    ...coreGeoPaths.map((path) => ({
       loc: canonicalUrl(path),
       priority: path === '/servicios' ? '0.95' : '0.9',
       changefreq: 'weekly',
@@ -56,7 +43,7 @@ function generateGeoSitemapXml() {
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- GEO/LLM sitemap for ${escapeXml(SITE_URL)} -->
+  <!-- Sitemap of canonical GEO pages for ${escapeXml(SITE_URL)} -->
 ${uniqueEntries.map((entry) => urlEntry(entry, geoLastmod)).join('')}
 </urlset>`;
 }

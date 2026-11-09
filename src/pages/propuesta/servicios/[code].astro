@@ -15,6 +15,7 @@ import ServiceEditorialHero from '../../../components/proto/ServiceEditorialHero
 import ServiceProvision from '../../../components/proto/ServiceProvision.astro';
 import { serviceProvisionItems } from '../../../utils/serviceProvision';
 import Ficha from '../../../components/proto/Ficha.astro';
+import CaseLinks from '../../../components/proto/CaseLinks.astro';
 import Casos from '../../../components/proto/Casos.astro';
 import { selectCaseProjects, remainingCaseProjects, pageCaseCandidates } from '../../../components/proto/caseSelection';
 import Cierre from '../../../components/proto/Cierre.astro';
@@ -48,8 +49,10 @@ const kit = (KIT_DE_SERVICIO[code] || []).map(([key, label]) => ({ key, label, n
 const photo = SERVICE_PHOTO[code];
 const casos = casosDe(CASOS_SERVICIO[code] || []);
 const showcase = pageCaseCandidates(own, undefined, code);
-const selectedCases = selectCaseProjects(casos, stories, destacados(showcase, showcase.length));
-const moreCases = remainingCaseProjects(destacados(showcase, showcase.length), selectedCases).slice(0, 8);
+const rankedCases = destacados(showcase, showcase.length);
+const selectedCases = selectCaseProjects(casos, stories, rankedCases);
+const documentedCases = own.filter((c) => c.documentedScope && !selectedCases.some(({ pub }) => pub.id === c.id));
+const moreCases = remainingCaseProjects(rankedCases.filter((c) => !c.documentedScope), selectedCases).slice(0, 8);
 const lower = servicio.name.toLowerCase().replace(/\bit\b/g, 'IT');
 const bySector = SECTORS.map((s) => ({ slug: s.slug, name: s.name, count: own.filter((c) => c.sectorSlug === s.slug).length })).filter((s) => s.count > 0).sort((a, b) => b.count - a.count);
 const clientes = Object.values(own.filter(s => isNamedClient(s.client)).reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
@@ -222,11 +225,12 @@ const cierre = cierrePorServicio[code];
       </section>
     )}
 
-    {moreCases.length > 0 && (
+    {(moreCases.length > 0 || documentedCases.length > 0) && (
       <section class="sec">
         <div class="wrap">
           <div class="sec__head"><h2>Más proyectos de {lower}<span class="dot">.</span></h2></div>
-          {code === '104' ? <ul class="software-project-list">{moreCases.map(c => <li><a href={c.href}><strong>{c.title}</strong><span>{c.client} · {c.year}</span><span aria-hidden="true">→</span></a></li>)}</ul> : <ol class:list={["fichas", { "fichas--short": moreCases.length < 3 }]} style={`--case-cols:${moreCases.length}`}>{moreCases.map((c, i) => <Ficha story={c} eager={i < 4} />)}</ol>}
+          <CaseLinks stories={documentedCases} />
+          {code === '104' ? <CaseLinks stories={moreCases} /> : moreCases.length > 0 && <ol class:list={["fichas", { "fichas--short": moreCases.length < 3 }]} style={`--case-cols:${moreCases.length}`}>{moreCases.map((c, i) => <Ficha story={c} eager={i < 4} />)}</ol>}
           <a class="u more" href={`/antecedentes?service=${code}`}>Ver los {own.length} antecedentes</a>
         </div>
       </section>

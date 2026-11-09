@@ -1,0 +1,19 @@
+---
+import type { Story } from './isoData';
+
+interface Props {
+  stories: Story[];
+}
+const { stories } = Astro.props;
+---
+{stories.length > 0 && (
+  <ul class="project-link-list">
+    {stories.map((story) => (
+      <li><a href={story.href}>
+        <strong>{story.title}</strong>
+        <span>{story.client} · {story.year}</span>
+        <span aria-hidden="true">→</span>
+      </a></li>
+    ))}
+  </ul>
+)}
