@@ -1,27 +1,55 @@
 ---
-import type { ServiceProvisionItem } from '../../utils/serviceProvision';
+import { groupServiceProvision, type ServiceProvisionItem } from '../../utils/serviceProvision';
+import type { Story } from './isoData';
 import Parte from './Parte.astro';
-interface Props { items: ServiceProvisionItem[] }
-const { items } = Astro.props;
+interface Props {
+  items: Array<ServiceProvisionItem & { reference?: Pick<Story, 'href' | 'title' | 'client'> }>;
+  introduction?: string;
+}
+const {
+  items,
+  introduction = 'Productos y prestaciones del servicio. La selección de equipos, licencias, instalación y mantenimiento se define en la propuesta de cada proyecto.',
+} = Astro.props;
+const blocks = groupServiceProvision(items);
 ---
 {items.length > 0 && <section class="sec provision" id="provision" aria-labelledby="provision-title" data-provision>
   <div class="wrap">
     <div class="sec__head">
       <h2 id="provision-title">Qué proveemos<span class="dot">.</span></h2>
-      <p>Productos y prestaciones del servicio. La selección de equipos, licencias, instalación y mantenimiento se define en la propuesta de cada proyecto.</p>
+      <p>{introduction}</p>
     </div>
     <ul class="provision__list">
-      {items.map(item => <li data-provision-item>
-        <h3>{item.title}</h3>
-        {item.summary && <p>{item.summary}</p>}
-        {item.parts.length > 0 && <div class="provision__parts" aria-label={`Componentes de ${item.title}`}>
-          {item.parts.map(part => <figure data-provision-part={part.key}>
-            <Parte k={part.key} size={72} />
-            <figcaption>{part.label}</figcaption>
-          </figure>)}
-        </div>}
-      </li>)}
+      {blocks.map(({ title, members, parts }) => {
+        const grouped = members.length > 1;
+        const Heading = grouped ? 'h4' : 'h3';
+
+        return <li class:list={{ 'provision__group': grouped }} data-provision-item={grouped ? undefined : true}>
+          {grouped && <h3>{title}</h3>}
+          <div class:list={{ 'provision__group-entries': grouped }}>
+            {members.map(member => <div data-provision-item={grouped ? true : undefined}>
+              <Heading>{grouped ? member.group?.heading : member.title}</Heading>
+              {member.summary && <p>{member.summary}</p>}
+              {(member.scopeDetail || member.reference) && (
+                <dl class="provision__evidence">
+                  {member.scopeDetail && <div><dt>{member.scopeDetail.label}</dt><dd>{member.scopeDetail.text}</dd></div>}
+                  {member.reference && <div>
+                    <dt>Trabajo documentado de cableado</dt>
+                    <dd><a href={member.reference.href}>{member.reference.title} · {member.reference.client}</a></dd>
+                  </div>}
+                </dl>
+              )}
+            </div>)}
+          </div>
+          {parts.length > 0 && <div class="provision__parts" aria-label={`Componentes de ${title}`}>
+            {parts.map(part => <figure data-provision-part={part.key}>
+              <Parte k={part.key} size={72} />
+              <figcaption>{part.label}</figcaption>
+            </figure>)}
+          </div>}
+        </li>;
+      })}
     </ul>
+    <slot />
   </div>
 </section>}
 <style>
@@ -31,6 +59,37 @@ const { items } = Astro.props;
   .provision__list li { display: flex; flex-direction: column; align-items: flex-start; padding: 28px 0; border-top: 1px solid var(--line); }
   .provision__list h3 { font-size: 1.25rem; line-height: 1.3; }
   .provision__list p { margin-top: 10px; max-width: 64ch; color: var(--ink-2); line-height: 1.6; }
+  .provision__group { grid-column: 1 / -1; }
+  .provision__list .provision__group > h3 { font-size: 1.375rem; }
+  .provision__group-entries {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s3) var(--s4);
+    width: 100%;
+    margin-top: var(--s2);
+  }
+  .provision__group-entries h4 { margin: 0; font-size: 1.125rem; font-weight: 600; line-height: 1.3; }
+  .provision__evidence {
+    display: grid;
+    gap: var(--s1);
+    max-width: 64ch;
+    margin: var(--s2) 0 0;
+    padding-inline-start: var(--s1);
+    border-inline-start: 1px solid var(--line);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .provision__evidence dt { font-weight: 600; }
+  .provision__evidence dd { margin: 2px 0 0; color: var(--ink-2); }
+  .provision__evidence a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--red);
+    text-underline-offset: 4px;
+  }
   .provision__parts { display: flex; flex-wrap: wrap; gap: 20px; width: 100%; margin-top: auto; padding-top: 24px; }
   .provision__parts figure { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; width: calc((100% - 40px) / 3); max-width: 144px; margin: 0; }
   .provision__parts figcaption { color: var(--ink-2); font-size: .875rem; line-height: 1.4; }
@@ -38,6 +97,7 @@ const { items } = Astro.props;
     .provision__list { grid-template-columns: minmax(0, 1fr); }
     .provision__list li { padding-block: 20px; }
     .provision__list h3 { font-size: 1.125rem; }
+    .provision__group-entries { grid-template-columns: minmax(0, 1fr); }
     .provision__parts { gap: 16px; padding-top: 20px; }
     .provision__parts figure { width: calc((100% - 32px) / 3); }
     .provision__parts figcaption { font-size: 1rem; }
