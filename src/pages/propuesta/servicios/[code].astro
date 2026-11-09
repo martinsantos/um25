@@ -1,11 +1,6 @@
 ---
 import '../../../styles/pilot-fichas.css';
 import PilotCatalog from '../../../components/proto/PilotCatalog.astro';
-/**
- * Servicio (2026-10-30, v5). Le habla a quien necesita ese servicio: qué es, qué cubre, qué
- * hicimos, cómo lo hacemos, qué entregamos y dónde. Frases del catálogo y la ficha técnica.
- * No indexable.
- */
 import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
@@ -28,6 +23,7 @@ import { CASOS_SERVICIO, casosDe } from '../../../components/proto/relato';
 import { getDatasheetPublicPath } from '../../../utils/datasheets';
 import { serviceSingleDemoCopy } from '../../../data/serviceSingleDemoSystem';
 import { serviceDecisionGuide } from '../../../data/service-decision-guide';
+import { serviceDetailSeo } from '../../../data/serviceDetailSeo';
 import { SERVICE_SPECS } from '../../../data/serviceSpecs';
 import { SECTORS, SOFTWARE_FILM } from '../../../data/cine/scenes';
 
@@ -75,10 +71,10 @@ const provision = serviceProvisionItems(servicio.products, Number(code)).map((it
 }));
 const showProjectArchive = own.length > 0 || isNetworks;
 const copy = serviceSingleDemoCopy[Number(code)]!;
-const pageTitle = isNetworks ? 'Cableado estructurado y fibra óptica en Mendoza | ULTIMA MILLA' : `${servicio.name} · ULTIMA MILLA`;
-const pageDescription = isNetworks
-  ? 'Cableado estructurado y fibra óptica para empresas en Mendoza. Instalación, certificación por punto y documentación de obra según el alcance.'
-  : copy.paragraph;
+const pageSeo = serviceDetailSeo[code] ?? {
+  title: `${servicio.name} · ULTIMA MILLA`,
+  description: copy.paragraph,
+};
 const limpio = (s: string) => s.replace(/(?:desde|con) el frente 105/gi, 'con el equipo de soporte').replace(/\bfrente 10\d\b/gi, 'equipo técnico');
 const cierrePorServicio: Record<string, { heading: string; description: string; ctaText: string }> = {
   '101': {
@@ -127,7 +123,7 @@ const cierre = cierrePorServicio[code];
 <!doctype html>
 <html lang="es">
   <head>
-    <Head title={pageTitle} description={pageDescription} image={photo} precargar />
+    <Head title={pageSeo.title} description={pageSeo.description} image={photo} precargar />
     <style>
       .service-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin-block: 24px; }
       .service-datasheet { display: inline-flex; align-items: center; min-height: 44px; margin-top: var(--s2); }
@@ -183,21 +179,12 @@ const cierre = cierrePorServicio[code];
       </div>
     </Hero>
     <nav class="wrap service-sections" aria-label="En esta página">
-      {provision.length > 0 && <a href="#provision">Qué proveemos</a>}
       <a href="#alcance">Qué cubre</a>
-      <a href="#entregables">Qué entregamos</a>
-      <a href="#metodo">Cómo trabajamos</a>
+      {provision.length > 0 && <a href="#provision">Qué proveemos</a>}
       {(selectedCases.length > 0 || casos.some(c => !c.publicado)) && <a href="#casos">Casos de aplicación</a>}
+      <a href="#metodo">Cómo trabajamos</a>
+      <a href="#entregables">Qué entregamos</a>
     </nav>
-    {provision.length > 0 && (
-      <Provision
-        items={provision}
-        introduction={isNetworks ? 'Qué instalamos, cómo lo verificamos y qué documentación recibe tu equipo según el alcance acordado.' : undefined}
-      >
-        {servicio.capabilities.length > 0 && <details class="technical-scope"><summary>Especificaciones adicionales</summary><ul class="lista">{servicio.capabilities.map((c) => <li>{c}</li>)}</ul></details>}
-      </Provision>
-    )}
-    {code === '104' && <SoftwareExperience />}
 
     <section class="sec" id="alcance">
       <div class="wrap">
@@ -209,6 +196,16 @@ const cierre = cierrePorServicio[code];
         {!provision.length && servicio.capabilities.length > 0 && <details class="technical-scope"><summary>Especificaciones adicionales</summary><ul class="lista">{servicio.capabilities.map((c) => <li>{c}</li>)}</ul></details>}
       </div>
     </section>
+
+    {provision.length > 0 && (
+      <Provision
+        items={provision}
+        introduction={isNetworks ? 'Qué instalamos, cómo lo verificamos y qué documentación recibe tu equipo según el alcance acordado.' : undefined}
+      >
+        {servicio.capabilities.length > 0 && <details class="technical-scope"><summary>Especificaciones adicionales</summary><ul class="lista">{servicio.capabilities.map((c) => <li>{c}</li>)}</ul></details>}
+      </Provision>
+    )}
+    {code === '104' && <SoftwareExperience />}
 
     <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} selection={selectedCases} textOnly={code === '104'} />
 
