@@ -62,7 +62,7 @@ describe('fetchBlogListing', () => {
       '<url><loc>'+host+'/blog/segunda-nota</loc></url></urlset>';
     global.fetch = jest.fn(async (url) => url.startsWith('https://directus.test') ? {ok:false,status:403} : {ok:true,text:async()=>xml});
     const { fetchBlogSitemapEntries } = require('../src/utils/getBlogData');
-    expect(await fetchBlogSitemapEntries()).toEqual([
+    expect(await fetchBlogSitemapEntries(-1)).toEqual([
       {slug:'primera-nota',titulo:'primera-nota',imagen_portada:'https://images.unsplash.com/photo-a?x=1&y=2'},
       {slug:'segunda-nota',titulo:'segunda-nota'},
     ]);

@@ -38,7 +38,8 @@ describe('global contact modal contract', () => {
     expect(modal).toContain('role="dialog"');
     expect(modal).toContain('aria-modal="true"');
     expect(modal).toContain('data-contact-context');
-    expect(modal).toContain('data-contact-prompt');
+    expect(modal).not.toContain('data-contact-mode');
+    expect(modal).not.toContain('data-contact-prompt');
     expect(modal).toContain('contactHref(source)');
     expect(modal).toContain('Enviar por email');
     expect(modal).toContain('buildFallbackMailto()');

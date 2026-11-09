@@ -6,16 +6,16 @@ import BlogCard from '../../../components/blog/BlogCard.astro';
 import BlogPagination from '../../../components/blog/BlogPagination.astro';
 import IntentLinkGraph from '../../../components/blog/BlogIntentLinks.astro';
 import { fetchBlogListing } from '../../../utils/getBlogData';
+import { BLOG_LISTING_CATEGORIES } from '../../../lib/blogListingRoute';
 import { getCategoryLabel } from '../../../utils/blogUtils';
 import {
   buildBlogStrategicLinkGroups,
   buildStrategicWebPageStructuredData,
 } from '../../../data/strategicLinkGraph';
 
-const VALID_CATS = ['noticias', 'proyectos', 'tecnico', 'tecnologia', 'empresa'];
-const cat = Astro.params.cat || '';
+const cat = BLOG_LISTING_CATEGORIES.find((category) => category === Astro.params.cat);
 
-if (!VALID_CATS.includes(cat)) {
+if (!cat) {
   return Astro.rewrite('/404');
 }
 
@@ -123,11 +123,12 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
   description={meta.desc}
   keywords={meta.keywords}
   canonical={canonicalUrl}
+  noindex={total === 0}
   structuredData={categoryStructuredData}
 >
   {prevUrl && <link slot="head" rel="prev" href={prevUrl} />}
   {nextUrl && <link slot="head" rel="next" href={nextUrl} />}
-  <link slot="head" rel="alternate" type="application/rss+xml" href={`/blog/categoria/${cat}/rss.xml`} title={`Blog ULTIMA MILLA · ${catLabel}`} />
+  {total > 0 && <link slot="head" rel="alternate" type="application/rss+xml" href={`/blog/categoria/${cat}/rss.xml`} title={`Blog ULTIMA MILLA · ${catLabel}`} />}
 
   <div class="bx">
     <header class="bx-hero bx-shell">
@@ -138,7 +139,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
       </nav>
       <p class="bx-kicker">Blog técnico · {catLabel}</p>
       <h1 class="bx-title">{categoryTitle}</h1>
-      {meta.intro && <p class="bx-lead">{meta.intro}</p>}
+      {total > 0 && meta.intro && <p class="bx-lead">{meta.intro}</p>}
       {categoryLead && <p class="bx-count"><span>{categoryLead}</span><a href={`/blog/categoria/${cat}/rss.xml`}>RSS de {catLabel.toLowerCase()}</a></p>}
     </header>
 
@@ -178,7 +179,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
 </LayoutV4>
 
 <style>
-  .bx { background: var(--x-ink); color: var(--x-text); padding-bottom: var(--x-section); overflow-x: clip; }
+  .bx { --x-fs-meta: 1rem; --x-fs-kicker: 1rem; background: var(--x-ink); color: var(--x-text); padding-bottom: var(--x-section); overflow-x: clip; }
   .bx-shell { width: min(var(--um-container-wide, 1400px), calc(100% - 2 * var(--x-gutter))); margin-inline: auto; }
   .bx-hero { padding-block: clamp(32px, 4vw, 56px) 48px; }
   .bx-crumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 48px; font-size: var(--x-fs-meta); color: var(--x-muted); }
@@ -191,7 +192,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
   .bx-kicker::before { content: ''; flex: none; width: 28px; height: 2px; background: var(--x-red); }
   .bx-title {
     margin: 0; max-width: 20ch; font-family: var(--um-font-editorial);
-    font-size: var(--x-fs-h1) !important; line-height: 1.02 !important; font-weight: 600 !important; letter-spacing: -.025em !important;
+    font-size: var(--x-fs-h1) !important; line-height: 1.1 !important; font-weight: 600 !important; letter-spacing: -.025em !important;
     color: var(--x-text); text-wrap: balance;
   }
   .bx-lead { margin: 24px 0 0; max-width: 62ch; font-size: var(--x-fs-lead); line-height: 1.55; color: var(--x-text-2); }
@@ -207,7 +208,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
   @media (max-width: 680px) { .bx-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; } .bx-crumbs { margin-bottom: 32px; } }
 
   @media (max-width: 900px) {
-    .bx { --x-gutter: 20px; --x-fs-meta: 1rem; --x-fs-kicker: 1rem; --x-fs-lead: 1.0625rem; }
+    .bx { --x-gutter: 20px; --x-fs-lead: 1.0625rem; }
     .bx-hero { padding-block: 32px; }
     .bx-title { font-size: clamp(2rem, 7.5vw, 2.6rem) !important; line-height: 1.08 !important; }
     .bx-crumbs { align-items: center; gap: 0 8px; margin-bottom: 24px; }

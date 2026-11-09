@@ -481,7 +481,7 @@ async function fetchBlogSitemapEntriesRaw(limit = 500): Promise<BlogSitemapEntry
   } catch {
     try {
       const entries = await fetchPublicBlogIndex();
-      if (entries.length > 0) return entries.slice(0, limit);
+      if (entries.length > 0) return limit < 0 ? entries : entries.slice(0, limit);
     } catch {
       // continuar con el fallback estático
     }

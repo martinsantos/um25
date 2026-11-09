@@ -38,7 +38,7 @@ const first = items.find(item => physical.includes(item.code));
             <div class="integration__links">
               <a class="u" href={`/servicios/${item.code}#provision`}>Ver qué proveemos <span aria-hidden="true">→</span></a>
               {item.count > 0 && <a class="u" href={`/antecedentes?sector=${slug}&service=${item.code}`}>Ver {item.count} {item.count === 1 ? 'antecedente' : 'antecedentes'}</a>}
-              {site && physical.includes(item.code) && <button type="button" data-diagram-code={item.code} data-name={item.name} aria-pressed={item.code === first?.code ? 'true' : 'false'}>Ver en el esquema</button>}
+              {site && physical.includes(item.code) && <button type="button" data-diagram-code={item.code} data-name={item.name} aria-label={`Ver en el esquema: ${item.name}`} aria-pressed={item.code === first?.code ? 'true' : 'false'}>Ver en el esquema</button>}
             </div>
           </li>)}
         </ol>

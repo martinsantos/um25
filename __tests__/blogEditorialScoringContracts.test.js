@@ -54,12 +54,12 @@ describe('Blog editorial GEO scoring contracts', () => {
     expect(source('src/pages/api/blog/[slug].ts')).toContain('normalizeBlogCoverUrl');
     expect(source('src/utils/getBlogData.ts')).not.toContain('attachDiverseCover');
     expect(source('src/utils/getBlogData.ts')).toContain('preserveBlogPostCovers(contextPosts)');
-    // Rediseño 2026-09: el sitemap del blog delega en fetchBlogSitemapEntries
-    // (misma fuente que el blog renderizado), que diversifica portadas tanto con
-    // Directus como en el fallback estático.
+    // El sitemap y las pestañas usan el mismo índice de notas y conservan sus portadas.
     const blogData = source('src/utils/getBlogData.ts');
     const sitemapEntries = blogData.slice(blogData.indexOf('async function fetchBlogSitemapEntriesRaw'));
-    expect(source('src/pages/sitemap-blog.xml.ts')).toContain('(await fetchBlogSitemapEntries()) as BlogPost[];');
+    expect(source('src/pages/sitemap-blog.xml.ts')).toContain('await fetchPublishedBlogIndex()');
+    expect(source('src/components/blog/BlogCategoryTabs.astro')).toContain('await fetchPublishedBlogIndex()');
+    expect(source('src/utils/blogPublishedIndex.ts')).toContain('fetchBlogSitemapEntries(-1)');
     expect(sitemapEntries).toContain('if (posts.length > 0) return preserveBlogPostCovers(posts) as BlogSitemapEntry[];');
     expect(sitemapEntries).toContain('return preserveBlogPostCovers(UM26_FALLBACK_POSTS');
     expect(source('scripts/blog-cover-diversity-backfill.mjs')).toContain('--apply');

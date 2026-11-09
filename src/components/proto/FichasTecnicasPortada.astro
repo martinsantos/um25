@@ -1,0 +1,228 @@
+---
+import { Download, X } from 'lucide-astro';
+import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
+import serviciosSnapshot from '../../data/snapshots/servicios.json';
+import { getDatasheetPublicPath } from '../../utils/datasheets';
+import { generateSlug } from '../../utils/slugUtils';
+
+const pdfs = new Map(serviciosSnapshot.data.map(({ id, Titulo }) => [
+  String(id),
+  getDatasheetPublicPath(generateSlug(Titulo.replace('24/7', '247'))),
+]));
+const nombresDeIndice: Record<string, string> = {
+  '102': 'Seguridad',
+  '103': 'Telecom',
+  '104': 'Software',
+  '106': 'Consultoría',
+  '107': 'Incendios',
+};
+---
+<dialog id="fichas-tecnicas-portada" class="fichas-portada" aria-labelledby="fichas-portada-titulo">
+  <div class="fichas-portada__panel">
+    <header class="fichas-portada__cabecera">
+      <h2 id="fichas-portada-titulo">Fichas técnicas<span class="dot">.</span></h2>
+      <form method="dialog">
+        <button type="submit" class="fichas-portada__cerrar" aria-label="Cerrar fichas técnicas" autofocus>
+          <X size={22} aria-hidden="true" />
+        </button>
+      </form>
+    </header>
+
+    <div class="fichas-portada__lectura">
+      <div class="fichas-portada__indice" role="tablist" aria-label="Índice de servicios" data-indice-documental hidden>
+        {SERVICE_SPEC_LIST.map(({ code, name }, index) => (
+          <button type="button" role="tab" id={`fichas-tab-${code}`} aria-controls={`fichas-hoja-${code}`}
+            aria-selected={index === 0} aria-label={name} tabindex={index === 0 ? 0 : -1}>
+            <span>{nombresDeIndice[code] || name}</span>
+          </button>
+        ))}
+      </div>
+      <div class="fichas-portada__contenido" data-fichas-contenido>
+        {SERVICE_SPEC_LIST.map(({ code, name, deliverables, scope, standards }, index) => {
+          const pdf = pdfs.get(code);
+          return (
+            <section role="tabpanel" id={`fichas-hoja-${code}`} aria-labelledby={`fichas-tab-${code}`} tabindex="0" hidden={index !== 0}>
+              <h3>{name}</h3>
+              <div class="fichas-portada__grupos">
+                <div>
+                  <h4>Documentación que recibís</h4>
+                  <ul class="lista">{deliverables.map((item) => <li>{item}</li>)}</ul>
+                </div>
+                <div>
+                  <h4>Alcance técnico</h4>
+                  <ul class="lista">{scope.map((item) => <li>{item}</li>)}</ul>
+                </div>
+              </div>
+              <div class="fichas-portada__referencias">
+                <h4>Normas y criterios</h4>
+                <ul class="lista">{standards.map((item) => <li>{item}</li>)}</ul>
+              </div>
+              {pdf && <a class="fichas-portada__pdf" href={pdf} download>
+                Descargar ficha en PDF <Download size={18} aria-hidden="true" />
+              </a>}
+            </section>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import { activarIndiceDocumental } from './indiceDocumental';
+
+  const acciones = document.querySelector<HTMLElement>('[data-documentacion-acciones]');
+  const abrir = acciones?.querySelector<HTMLButtonElement>('[data-abrir-fichas]');
+  const visor = document.querySelector<HTMLDialogElement>('#fichas-tecnicas-portada');
+  const contenido = visor?.querySelector<HTMLElement>('[data-fichas-contenido]');
+
+  if (acciones) acciones.hidden = false;
+  if (abrir && visor && contenido && typeof visor.showModal === 'function') {
+    activarIndiceDocumental(visor, () => { contenido.scrollTop = 0; });
+    abrir.hidden = false;
+    abrir.addEventListener('click', () => visor.showModal());
+    visor.addEventListener('close', () => abrir.focus({ preventScroll: true }));
+  }
+</script>
+
+<style>
+  :global(html:has(#fichas-tecnicas-portada[open])) {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+  }
+  .fichas-portada {
+    --fichas-gutter: clamp(20px, 4vw, 32px);
+    position: fixed;
+    inset: 0;
+    width: min(1040px, calc(100% - 24px));
+    max-width: none;
+    max-height: none;
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--empresa-line);
+    background: var(--empresa-paper);
+    color: var(--empresa-ink);
+    color-scheme: light;
+    overflow: hidden;
+  }
+  .fichas-portada::backdrop { background: rgb(10 11 13 / .72); }
+  .fichas-portada__panel {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    max-height: calc(100dvh - 28px);
+  }
+  .fichas-portada__cabecera {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--s2);
+    padding: var(--s2) var(--fichas-gutter);
+    border-bottom: 1px solid var(--empresa-line);
+  }
+  .fichas-portada__cabecera h2 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: normal;
+  }
+  .fichas-portada__cerrar {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--empresa-line);
+  }
+  .fichas-portada__cerrar:hover { border-color: var(--empresa-ink); }
+  .fichas-portada__lectura {
+    display: grid;
+    grid-template-columns: minmax(0, 192px) minmax(0, 1fr);
+    min-height: 0;
+  }
+  .fichas-portada__indice {
+    display: grid;
+    align-content: start;
+    gap: 2px;
+    padding: var(--s2) var(--s1);
+    border-right: 1px solid var(--empresa-line);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .fichas-portada__indice button {
+    min-height: 44px;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .fichas-portada__indice button:hover { background: rgb(0 0 0 / .05); }
+  .fichas-portada__indice button[aria-selected='true'] {
+    background: #f5f6f5;
+    box-shadow: inset 3px 0 var(--red);
+  }
+  .fichas-portada__indice button:focus-visible { outline-offset: -3px; }
+  .fichas-portada__contenido {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--s3) var(--fichas-gutter);
+    scrollbar-width: thin;
+  }
+  .fichas-portada__contenido [role='tabpanel']:focus-visible { outline-offset: -2px; }
+  .fichas-portada__grupos {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: var(--s3);
+  }
+  .fichas-portada h3 {
+    margin-bottom: var(--s2);
+    font-size: 1.5rem;
+    line-height: 1.2;
+    letter-spacing: normal;
+  }
+  .fichas-portada h4 {
+    margin-bottom: var(--s1);
+    font-weight: 600;
+    font-size: 1.125rem;
+    line-height: 1.25;
+    letter-spacing: normal;
+  }
+  .fichas-portada .lista {
+    gap: var(--s1);
+    color: var(--empresa-muted);
+    font-size: 1rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+  .fichas-portada__referencias {
+    margin-top: var(--s3);
+    padding-top: var(--s2);
+    border-top: 1px solid var(--empresa-line);
+  }
+  .fichas-portada .fichas-portada__pdf {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s1);
+    min-height: 44px;
+    margin-top: var(--s2);
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .fichas-portada__pdf :global(svg) { flex: none; }
+  @media (max-width: 720px) {
+    .fichas-portada__lectura {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+    .fichas-portada__indice {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      max-height: 40dvh;
+      padding-block: var(--s1);
+      border-right: 0;
+      border-bottom: 1px solid var(--empresa-line);
+    }
+    .fichas-portada__grupos { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>
