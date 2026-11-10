@@ -105,7 +105,7 @@ const seoTitle = caseSeo.title.includes(ref) ? caseSeo.title : `${trimAtWordBoun
     <main id="contenido">
     <div class="wrap">
       <nav class="nav" aria-label="Proyectos">
-        <a href="/antecedentes">← Todos los proyectos</a>
+        <a href="/antecedentes" data-catalog-back>← Todos los proyectos</a>
         <span>{prev && <a href={prev.href}>← Anterior</a>}{prev && next && <span class="nav-separator" aria-hidden="true"> · </span>}{next && <a href={next.href}>Siguiente →</a>}</span>
       </nav>
       <div class="hoja-cab"><span>Ficha de trabajo · <b>{ref}</b>{enCurso && <i class="curso">En curso</i>}</span><span>{[c.sector, periodo].filter(Boolean).join(' · ')}</span></div>
@@ -152,5 +152,18 @@ const seoTitle = caseSeo.title.includes(ref) ? caseSeo.title : `${trimAtWordBoun
     </main>
 
     <Cierre heading="Conversemos sobre un proyecto similar" description={`Contanos qué necesitás y dónde. Podés mencionar la referencia ${ref} para que el equipo tenga el contexto de esta consulta.`} />
+    <script>
+      const link = document.querySelector<HTMLAnchorElement>('[data-catalog-back]');
+      const origin = document.referrer ? new URL(document.referrer) : null;
+      if (link && origin?.origin === location.origin && origin.pathname.replace(/\/$/, '') === '/antecedentes') {
+        link.href = origin.pathname + origin.search + origin.hash;
+        link.textContent = '← Volver a resultados';
+        link.addEventListener('click', (event) => {
+          if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || history.length < 2) return;
+          event.preventDefault();
+          history.back();
+        });
+      }
+    </script>
   </body>
 </html>
