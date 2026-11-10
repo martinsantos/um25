@@ -49,13 +49,13 @@ DB_HOST=postgres
 DB_PORT=5432
 DB_DATABASE=directus
 DB_USER=directus
-DB_PASSWORD=umbot_directus_2025!
+DB_PASSWORD=REPLACE_WITH_POSTGRES_PASSWORD
 
 # Security
-KEY=umbot-directus-key-production-2025
-SECRET=umbot-directus-secret-production-2025
+KEY=REPLACE_WITH_DIRECTUS_KEY
+SECRET=REPLACE_WITH_DIRECTUS_SECRET
 ADMIN_EMAIL=admin@umbot.com.ar
-ADMIN_PASSWORD=UmbotAdmin2025!
+ADMIN_PASSWORD=REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 EOF
 fi
 
@@ -104,7 +104,7 @@ echo "📋 Resumen:"
 echo "   - Sitio web: http://23.105.176.45 (temporal)"
 echo "   - Directus Admin: http://23.105.176.45:8055"
 echo "   - Usuario: admin@umbot.com.ar"
-echo "   - Contraseña: UmbotAdmin2025!"
+echo "   - Contraseña: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 echo ""
 echo "⚠️  Próximos pasos:"
 echo "   1. Configurar SSL con Let's Encrypt"

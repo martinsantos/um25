@@ -8,7 +8,7 @@ set -e  # Salir en caso de error
 # Configuración
 SERVER="23.105.176.45"
 USER="root"
-PASS="gsiB%s@0yD"
+PASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}"
 LOCAL_DIR="/Users/Shared/Files From d.localized/D/ultima milla/2024/MKT 2024/umw141024/umw46-main/fumbling-field"
 REMOTE_DIR="/root/fumbling-field"
 TIMESTAMP=$(date '+%Y%m%d-%H%M%S')

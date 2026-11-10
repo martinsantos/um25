@@ -3,7 +3,7 @@
 // Creates the blog_posts collection in Directus with all required fields.
 
 const DIRECTUS_URL = process.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-const TOKEN = process.env.DIRECTUS_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+const TOKEN = process.env.DIRECTUS_TOKEN;
 
 const headers = {
   'Content-Type': 'application/json',

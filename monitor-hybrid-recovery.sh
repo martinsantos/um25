@@ -142,7 +142,7 @@ main() {
             echo "🌐 Sitio: $SITE"
             echo "🎛️ Admin: $ADMIN"
             echo "👤 Usuario: admin@umbot.com.ar"
-            echo "🔑 Password: UmbotHybridAdmin2025!"
+            echo "🔑 Password: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
             recovery_complete=true
             break
         fi

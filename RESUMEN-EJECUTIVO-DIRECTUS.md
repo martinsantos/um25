@@ -45,7 +45,7 @@ database       → Up 5 hours (Puerto 5432)
 
 ### **DIRECTUS CMS**
 - ✅ http://23.105.176.45:8055/admin → HTTP/1.1 200 OK
-- ✅ Autenticación: admin@example.com / d1r3ctu5
+- ✅ Autenticación: admin@example.com / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 - ✅ Base de datos: 6 servicios, 3 antecedentes
 
 ### **APIS DISPONIBLES**
@@ -75,7 +75,7 @@ database       → Up 5 hours (Puerto 5432)
 ### **PARA ADMINISTRADORES**
 - **Panel CMS**: http://23.105.176.45:8055/admin
 - **Usuario**: admin@example.com
-- **Contraseña**: d1r3ctu5
+- **Contraseña**: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 
 ### **PARA DESARROLLADORES**
 - **API Servicios**: http://23.105.176.45:8055/items/Servicios

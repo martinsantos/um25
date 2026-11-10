@@ -20,7 +20,7 @@ IMAGES_DIR = BASE_DIR / "imagenes_antecedentes_versionproduccion"
 # Configuración de Directus
 DIRECTUS_URL = "http://www.umbot.com.ar:8055"
 ADMIN_EMAIL = "admin@umbot.com.ar"
-ADMIN_PASSWORD = "UmbotAdmin2025!"
+ADMIN_PASSWORD = os.environ["DIRECTUS_ADMIN_PASSWORD"]
 
 # Configuración de logging
 logging.basicConfig(

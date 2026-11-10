@@ -3,6 +3,7 @@
 Importador directo de contenidos a Directus
 Evita problemas de CORS importando directamente desde terminal
 """
+import os
 
 import json
 import requests
@@ -12,7 +13,7 @@ import sys
 # Configuración
 DIRECTUS_URL = "https://www.umbot.com.ar:8056"
 ADMIN_EMAIL = "admin@umbot.com.ar"
-ADMIN_PASSWORD = "UmbotDirectusAdmin2025!"
+ADMIN_PASSWORD = os.environ["DIRECTUS_ADMIN_PASSWORD"]
 
 def log_with_icon(message, icon="📝"):
     print(f"{icon} {message}")

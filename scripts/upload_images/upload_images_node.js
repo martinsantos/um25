@@ -6,7 +6,7 @@ const FormData = require('form-data');
 // Configuración
 const CONFIG = {
   directusUrl: 'http://localhost:8055',
-  token: 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky',
+  token: process.env.DIRECTUS_STATIC_TOKEN,
   uploadsDir: '/directus/uploads/local',
   tempDir: '/tmp/directus_uploads'
 };

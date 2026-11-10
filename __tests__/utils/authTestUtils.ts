@@ -5,7 +5,7 @@
 /**
  * Mocks the Directus authentication response
  */
-export const mockDirectusAuth = (token = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky') => {
+export const mockDirectusAuth = (token = 'test-directus-static-token') => {
   return {
     access_token: token,
     expires: 3600,
@@ -32,8 +32,8 @@ export const setupTestEnv = () => {
   // Mock process.env with required Directus variables
   process.env.NODE_ENV = 'test';
   process.env.PUBLIC_DIRECTUS_URL = 'http://localhost:8055';
-  process.env.DIRECTUS_STATIC_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
-  process.env.PUBLIC_DIRECTUS_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+  process.env.DIRECTUS_STATIC_TOKEN = 'test-directus-static-token';
+  process.env.PUBLIC_DIRECTUS_TOKEN = 'test-directus-static-token';
 
   // Mock fetch if not already mocked
   if (!global.fetch) {
@@ -67,7 +67,7 @@ export const createMockContext = () => {
   return {
     req: {
       headers: {
-        authorization: 'Bearer k6P8LAY8_x_y1miB_KTlWnysCnx2Abky',
+        authorization: 'Bearer test-directus-static-token',
       },
     },
     res: {

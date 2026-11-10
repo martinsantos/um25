@@ -68,11 +68,11 @@ jest.mock('@directus/sdk', () => ({
 process.env.NODE_ENV = 'test';
 process.env.TEST_ENV = 'jest';
 process.env.PUBLIC_DIRECTUS_URL = 'http://localhost:8055';
-process.env.DIRECTUS_STATIC_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
-process.env.PUBLIC_DIRECTUS_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+process.env.DIRECTUS_STATIC_TOKEN = 'test-directus-static-token';
+process.env.PUBLIC_DIRECTUS_TOKEN = 'test-directus-static-token';
 process.env.DIRECTUS_URL = 'http://localhost:8055';
 process.env.DIRECTUS_EMAIL = 'admin@example.com';
-process.env.DIRECTUS_PASSWORD = 'd1r3ctu5';
+process.env.DIRECTUS_PASSWORD = 'test-directus-admin-password';
 process.env.CI = 'false';
 
 // Mock IntersectionObserver

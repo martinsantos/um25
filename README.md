@@ -205,11 +205,11 @@ npm run dev
 | Servicio | URL | Credenciales |
 |----------|-----|--------------|
 | **App Principal** | http://localhost:4321 | - |
-| **Directus Admin** | http://localhost:8055 | admin@umbot.local / admin123dev |
-| **Adminer (DB)** | http://localhost:8080 | directus / dev_password_2025 |
+| **Directus Admin** | http://localhost:8055 | admin@umbot.local / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD |
+| **Adminer (DB)** | http://localhost:8080 | directus / REPLACE_WITH_POSTGRES_PASSWORD |
 | **MailHog (Email)** | http://localhost:8025 | - |
 | **Redis** | localhost:6379 | - |
-| **PostgreSQL** | localhost:5432 | directus / dev_password_2025 |
+| **PostgreSQL** | localhost:5432 | directus / REPLACE_WITH_POSTGRES_PASSWORD |
 
 ### **Estructura del Proyecto**
 ```
@@ -357,7 +357,7 @@ make urls            # URLs importantes
 NODE_ENV=development
 DIRECTUS_URL=http://localhost:8055
 PUBLIC_DIRECTUS_URL=http://localhost:8055
-DATABASE_URL=postgresql://directus:dev_password_2025@localhost:5432/directus_dev
+DATABASE_URL=postgresql://directus:REPLACE_WITH_POSTGRES_PASSWORD@localhost:5432/directus_dev
 REDIS_URL=redis://localhost:6379
 ```
 

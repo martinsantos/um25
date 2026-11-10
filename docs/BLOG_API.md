@@ -14,7 +14,7 @@ Basic Auth — incluir en cada request:
 Authorization: Basic YWRtaW5AdW1ib3QuY29tLmFyOlVtYm90QWRtaW4yMDI1IQ==
 ```
 
-> El token es `base64("admin@umbot.com.ar:UmbotAdmin2025!")`.
+> El token es `base64("admin@umbot.com.ar:REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD")`.
 
 ---
 

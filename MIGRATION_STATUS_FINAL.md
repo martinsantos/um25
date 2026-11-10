@@ -11,7 +11,7 @@
 - ✅ PostgreSQL funcionando correctamente
 - ✅ Directus CMS operacional (puerto 8055)
 - ✅ Variables de entorno sincronizadas
-- ✅ Token estático configurado: `k6P8LAY8_x_y1miB_KTlWnysCnx2Abky`
+- ✅ Token estático configurado: `REPLACE_WITH_DIRECTUS_STATIC_TOKEN`
 
 ### 🌐 **Frontend y Build**
 - ✅ Astro build estático generado sin errores

@@ -74,8 +74,8 @@ npm run build
 tar -czf um-deploy.tar.gz dist/
 
 # 3. Deploy al servidor
-sshpass -p 'gsiB%s@0yD' scp um-deploy.tar.gz root@23.105.176.45:/root/
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 '
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' scp um-deploy.tar.gz root@23.105.176.45:/root/
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 '
   cd /root/fumbling-field && 
   tar -xzf /root/um-deploy.tar.gz &&
   docker-compose restart astro-app

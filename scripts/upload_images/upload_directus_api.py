@@ -7,7 +7,7 @@ from pathlib import Path
 
 # Configuración
 DIRECTUS_URL = "http://localhost:8055"
-TOKEN = "k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+TOKEN = os.environ["DIRECTUS_STATIC_TOKEN"]
 UPLOADS_DIRS = [
     "./local-uploads/uploads",  # Directorio principal de subidas
     "./directus-admin/uploads"   # Directorio alternativo

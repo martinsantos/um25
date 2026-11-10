@@ -10,7 +10,7 @@ Error: Autenticación fallida: Token inválido o expirado (401)
 La causa del problema era que el token estático configurado en el entorno de producción no coincidía con el token almacenado en la base de datos de Directus.
 
 ## Solución
-1. Se utilizó el mismo token estático que funciona en el entorno local (`k6P8LAY8_x_y1miB_KTlWnysCnx2Abky`).
+1. Se utilizó el mismo token estático que funciona en el entorno local (`REPLACE_WITH_DIRECTUS_STATIC_TOKEN`).
 2. Se actualizó la configuración en todos los lugares necesarios:
    - Archivo `.env` en el servidor
    - Archivo `.env.js` en el directorio `dist`

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import json
 import requests
 import logging
@@ -11,7 +12,7 @@ logger = logging.getLogger(__name__)
 def migrate_antecedentes():
     """Migrar antecedentes usando token estático"""
     base_url = "http://localhost:8055"
-    token = "k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+    token = os.environ["DIRECTUS_STATIC_TOKEN"]
     
     headers = {
         "Authorization": f"Bearer {token}",

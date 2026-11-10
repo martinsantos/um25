@@ -19,7 +19,7 @@ docker-compose exec -T directus-app /bin/bash -c "
   
   # Configuración
   DIRECTUS_URL="http://localhost:8055"
-  TOKEN="k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+  TOKEN="REPLACE_WITH_DIRECTUS_STATIC_TOKEN"
   UPLOADS_DIR="/directus/uploads/local"
   
   # Obtener el ID del usuario administrador

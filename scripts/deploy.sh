@@ -105,7 +105,7 @@ if [ "$ACTION" == "production" ]; then
     
     # Verificar integridad de las imágenes
     echo -e "${YELLOW}Verificando imágenes...${NC}"
-    docker run --rm ${DOCKER_USER}/${REPO_NAME}:${SERVICE}-latest node -e "require('./src/lib/auth.js').verifyToken('k6P8LAY8_x_y1miB_KTlWnysCnx2Abky')" || exit 1
+    docker run --rm ${DOCKER_USER}/${REPO_NAME}:${SERVICE}-latest node -e "require('./src/lib/auth.js').verifyToken('REPLACE_WITH_DIRECTUS_STATIC_TOKEN')" || exit 1
     
     # Verificar disponibilidad de servicios
     check_service "http://localhost:8080" "Astro App" 6

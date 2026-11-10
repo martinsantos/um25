@@ -123,13 +123,16 @@ NODE_ENV=development
 ASTRO_TELEMETRY_DISABLED=1
 
 # Base de datos
-DATABASE_URL=postgresql://directus:dev_password_2025@localhost:5432/directus_dev
+DATABASE_URL=
+POSTGRES_PASSWORD=
+DIRECTUS_KEY=
+DIRECTUS_SECRET=
 
 # Directus
 DIRECTUS_URL=http://localhost:8055
 PUBLIC_DIRECTUS_URL=http://localhost:8055
 DIRECTUS_ADMIN_EMAIL=admin@umbot.local
-DIRECTUS_ADMIN_PASSWORD=admin123dev
+DIRECTUS_ADMIN_PASSWORD=
 
 # Redis
 REDIS_URL=redis://localhost:6379
@@ -153,12 +156,6 @@ EOF
         log_info ".env.local ya existe, no se sobrescribe"
     fi
     
-    # Crear .env.example para referencia
-    if [[ ! -f "$PROJECT_ROOT/.env.example" ]]; then
-        log_info "Creando .env.example..."
-        cp "$PROJECT_ROOT/.env.local" "$PROJECT_ROOT/.env.example"
-        log_success ".env.example creado"
-    fi
 }
 
 # Instalar dependencias
@@ -193,7 +190,7 @@ setup_database() {
     
     # Iniciar servicios de base de datos
     log_info "Iniciando servicios de base de datos..."
-    docker-compose -f docker-compose.dev.yml up -d postgres-dev
+    docker-compose --env-file .env.local -f docker-compose.dev.yml up -d postgres-dev
     
     # Esperar que PostgreSQL esté listo
     log_info "Esperando que PostgreSQL esté listo..."
@@ -201,7 +198,7 @@ setup_database() {
     local attempt=1
     
     while [[ $attempt -le $max_attempts ]]; do
-        if docker-compose -f docker-compose.dev.yml exec -T postgres-dev pg_isready -U directus -d directus_dev &> /dev/null; then
+        if docker-compose --env-file .env.local -f docker-compose.dev.yml exec -T postgres-dev pg_isready -U directus -d directus_dev &> /dev/null; then
             log_success "PostgreSQL está listo"
             break
         fi
@@ -225,7 +222,7 @@ setup_directus() {
     
     # Iniciar Directus
     log_info "Iniciando Directus..."
-    docker-compose -f docker-compose.dev.yml up -d directus-dev
+    docker-compose --env-file .env.local -f docker-compose.dev.yml up -d directus-dev
     
     # Esperar que Directus esté listo
     log_info "Esperando que Directus esté listo..."
@@ -250,7 +247,6 @@ setup_directus() {
     
     log_info "🌐 Directus Admin disponible en: http://localhost:8055"
     log_info "👤 Usuario: admin@umbot.local"
-    log_info "🔐 Contraseña: admin123dev"
 }
 
 # Importar datos de ejemplo
@@ -260,7 +256,7 @@ import_sample_data() {
     # Verificar si existen datos de ejemplo
     if [[ -f "$PROJECT_ROOT/data/sample-data.sql" ]]; then
         log_info "Importando datos de ejemplo..."
-        docker-compose -f docker-compose.dev.yml exec -T postgres-dev \
+        docker-compose --env-file .env.local -f docker-compose.dev.yml exec -T postgres-dev \
             psql -U directus -d directus_dev < "$PROJECT_ROOT/data/sample-data.sql"
         log_success "Datos de ejemplo importados"
     else
@@ -276,15 +272,15 @@ setup_additional_services() {
     
     # Iniciar Redis
     log_info "Iniciando Redis..."
-    docker-compose -f docker-compose.dev.yml up -d redis-dev
+    docker-compose --env-file .env.local -f docker-compose.dev.yml up -d redis-dev
     
     # Iniciar MailHog
     log_info "Iniciando MailHog para testing de emails..."
-    docker-compose -f docker-compose.dev.yml up -d mailhog
+    docker-compose --env-file .env.local -f docker-compose.dev.yml up -d mailhog
     
     # Iniciar Adminer
     log_info "Iniciando Adminer para administración de BD..."
-    docker-compose -f docker-compose.dev.yml up -d adminer
+    docker-compose --env-file .env.local -f docker-compose.dev.yml up -d adminer
     
     log_success "Servicios adicionales configurados"
 }
@@ -310,7 +306,7 @@ verify_setup() {
         
         case $name in
             "PostgreSQL")
-                if docker-compose -f docker-compose.dev.yml exec -T postgres-dev pg_isready -U directus -d directus_dev &> /dev/null; then
+                if docker-compose --env-file .env.local -f docker-compose.dev.yml exec -T postgres-dev pg_isready -U directus -d directus_dev &> /dev/null; then
                     log_info "✅ $name está funcionando"
                 else
                     log_error "❌ $name no está funcionando"
@@ -318,7 +314,7 @@ verify_setup() {
                 fi
                 ;;
             "Redis")
-                if docker-compose -f docker-compose.dev.yml exec -T redis-dev redis-cli ping | grep -q PONG; then
+                if docker-compose --env-file .env.local -f docker-compose.dev.yml exec -T redis-dev redis-cli ping | grep -q PONG; then
                     log_info "✅ $name está funcionando"
                 else
                     log_error "❌ $name no está funcionando"
@@ -364,7 +360,7 @@ show_summary() {
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Email:    admin@umbot.local
-Password: admin123dev
+Contraseña: configurala en .env.local
 
 🚀 COMANDOS ÚTILES:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -373,13 +369,13 @@ Password: admin123dev
 npm run dev
 
 # Iniciar todos los servicios
-docker-compose -f docker-compose.dev.yml up -d
+docker-compose --env-file .env.local -f docker-compose.dev.yml up -d
 
 # Ver logs de servicios
-docker-compose -f docker-compose.dev.yml logs -f
+docker-compose --env-file .env.local -f docker-compose.dev.yml logs -f
 
 # Parar servicios
-docker-compose -f docker-compose.dev.yml down
+docker-compose --env-file .env.local -f docker-compose.dev.yml down
 
 # Ejecutar tests
 npm run test

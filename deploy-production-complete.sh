@@ -17,7 +17,7 @@ NC='\033[0m' # No Color
 # Configuración
 SERVER_IP="23.105.176.45"
 SERVER_USER="root"
-SERVER_PASSWORD="gsiB%s@0yD"
+SERVER_PASSWORD="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}"
 PROJECT_DIR="/root/fumbling-field"
 BACKUP_DIR="/root/backup-$(date +%Y%m%d-%H%M%S)"
 REPO_URL="https://github.com/martinsantos/um25.git"

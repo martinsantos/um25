@@ -9,7 +9,7 @@ echo "================================================"
 # Función para ejecutar comandos remotos via SSH
 execute_remote() {
     echo "🔧 Ejecutando: $1"
-    sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "$1"
+    SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}" sshpass -e ssh -o StrictHostKeyChecking=no root@23.105.176.45 "$1"
 }
 
 # 1. Crear configuración nginx para proxy reverso
@@ -221,7 +221,7 @@ echo "📱 URLs de Acceso:"
 echo "   🌍 Sitio Web:    http://www.umbot.com.ar"
 echo "   🌍 Sitio Web:    https://www.umbot.com.ar (redirige a HTTP)"
 echo "   🔧 Admin Panel:  http://www.umbot.com.ar/admin"
-echo "   📊 Credenciales: admin@example.com / d1r3ctu5"
+echo "   📊 Credenciales: admin@example.com / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 echo ""
 echo "🔧 Acceso directo (backup):"
 echo "   🌍 Sitio Web:    http://23.105.176.45:4321"

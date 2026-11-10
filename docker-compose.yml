@@ -10,7 +10,7 @@ services:
     container_name: database
     environment:
       POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword123
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       POSTGRES_DB: mydatabase
     volumes:
       - directus_db_data:/var/lib/postgresql/data
@@ -32,12 +32,12 @@ services:
       DB_PORT: 5432
       DB_DATABASE: mydatabase
       DB_USER: myuser
-      DB_PASSWORD: mypassword123
-      KEY: 255d861b-5ea1-5996-9aa3-922530ec40b1
-      SECRET: 6116487b-cda1-52c2-b5b5-c8022c45e263
-      DIRECTUS_STATIC_TOKEN: k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      KEY: ${DIRECTUS_KEY:?Set DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET:?Set DIRECTUS_SECRET}
+      DIRECTUS_STATIC_TOKEN: ${DIRECTUS_STATIC_TOKEN:-}
       ADMIN_EMAIL: admin@example.com
-      ADMIN_PASSWORD: d1r3ctu5
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD:?Set DIRECTUS_ADMIN_PASSWORD}
       LOG_LEVEL: debug
     depends_on:
       - database
@@ -66,7 +66,7 @@ services:
     environment:
       NODE_ENV: development
       PUBLIC_DIRECTUS_URL: http://directus-app:8055
-      DIRECTUS_STATIC_TOKEN: 5DGsPxLQk1bsNHSl9e686BoIdMspHOZg
+      DIRECTUS_STATIC_TOKEN: ${DIRECTUS_STATIC_TOKEN:-}
       HOST: 0.0.0.0
       PORT: 4321
     # El comando se puede simplificar si el Dockerfile ya maneja el npm install

@@ -12,7 +12,7 @@ NC='\033[0m'
 # Variables según solucionfinal.md
 SERVER_IP="23.105.176.45"
 SERVER_USER="root"
-SERVER_PASS="gsiB%s@0yD"
+SERVER_PASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}"
 EMERGENCY_PORT="8091"
 REMOTE_DIR="/var/www/emergency"
 

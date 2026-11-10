@@ -12,7 +12,7 @@ echo ""
 
 echo "1️⃣ Conectar al servidor:"
 echo "   ssh root@23.105.176.45"
-echo "   Password: gsiB%s@0yD"
+echo "   Password: REPLACE_WITH_LEGACY_SSH_PASSWORD"
 echo ""
 
 echo "2️⃣ Crear backup:"

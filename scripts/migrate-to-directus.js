@@ -18,7 +18,7 @@ config({ path: path.join(__dirname, '../.env.migration') });
 
 // Configuración de Directus
 const DIRECTUS_URL = process.env.DIRECTUS_URL || 'http://localhost:8055';
-const DIRECTUS_TOKEN = process.env.DIRECTUS_STATIC_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+const DIRECTUS_TOKEN = process.env.DIRECTUS_STATIC_TOKEN;
 const DRY_RUN = process.env.DRY_RUN === 'true' || process.argv.includes('--dry-run');
 
 // Función para hacer peticiones HTTP

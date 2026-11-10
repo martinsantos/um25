@@ -4,16 +4,16 @@ services:
     image: directus/directus:latest
     restart: unless-stopped
     environment:
-      KEY: '1.2345678901234567e+31'
-      SECRET: 'S3cr3tK3yForDirectusConfig2025sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 cat /root/fumbling-field/directus-admin/docker-compose.yml'
+      KEY: ${DIRECTUS_KEY:?Set DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET:?Set DIRECTUS_SECRET}
       DB_CLIENT: 'pg'
-      DB_HOST: 'umbot-postgres-prod'
+      DB_HOST: ${DB_HOST:?Set DB_HOST}
       DB_PORT: '5432'
       DB_USER: 'directus'
-      DB_PASSWORD: 'umbot_directus_2025!'
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       DB_DATABASE: 'directus'
       ADMIN_EMAIL: 'admin@example.com'
-      ADMIN_PASSWORD: 'adminpassword'
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD:?Set DIRECTUS_ADMIN_PASSWORD}
       PUBLIC_URL: 'https://www.ultimamilla.com.ar/admin'
       ASSETS_TRANSFORM_IMAGE_MAX_DIMENSION: '8000'
       ASSETS_TRANSFORM_MAX_MAP_SIZE: '500mp'

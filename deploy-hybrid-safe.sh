@@ -106,7 +106,7 @@ echo "✅ IMPLEMENTACIÓN HÍBRIDA COMPLETADA"
 echo "🌐 Sitio: https://www.umbot.com.ar"
 echo "🎛️ Admin: https://www.umbot.com.ar/admin"
 echo "📊 Usuario: admin@umbot.com.ar"
-echo "🔑 Pass: UmbotHybridAdmin2025!"
+echo "🔑 Pass: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 
 REMOTE_SCRIPT
 
@@ -142,7 +142,7 @@ echo "   📋 Comandos para ejecutar en servidor:"
 echo ""
 echo "   🔑 ACCESO AL SERVIDOR:"
 echo "      sftp root@$SERVER"
-echo "      (usar password: gsiB%s@0yD)"
+echo "      (usar password: REPLACE_WITH_LEGACY_SSH_PASSWORD)"
 echo ""
 echo "   📁 COMANDOS SFTP PREPARADOS:"
 cat sftp_commands.txt | sed 's/^/      /'

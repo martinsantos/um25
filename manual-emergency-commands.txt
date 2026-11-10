@@ -32,7 +32,7 @@ services:
     environment:
       POSTGRES_DB: directus
       POSTGRES_USER: directus
-      POSTGRES_PASSWORD: directus123
+      POSTGRES_PASSWORD: REPLACE_WITH_POSTGRES_PASSWORD
     volumes:
       - postgres_simple:/var/lib/postgresql/data
     networks:
@@ -43,16 +43,16 @@ services:
     image: directus/directus:10.8.3
     container_name: umbot-directus-simple
     environment:
-      KEY: 255d861b-5ea1-5996-9aa3-922530ec40b1
-      SECRET: 6116487b-cda1-52c2-b5b5-c8022c45e263
+      KEY: REPLACE_WITH_DIRECTUS_KEY
+      SECRET: REPLACE_WITH_DIRECTUS_SECRET
       DB_CLIENT: pg
       DB_HOST: postgres-simple
       DB_PORT: 5432
       DB_DATABASE: directus
       DB_USER: directus
-      DB_PASSWORD: directus123
+      DB_PASSWORD: REPLACE_WITH_POSTGRES_PASSWORD
       ADMIN_EMAIL: admin@umbot.com.ar
-      ADMIN_PASSWORD: EmergencyAdmin2025!
+      ADMIN_PASSWORD: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
       PUBLIC_URL: https://www.umbot.com.ar
     volumes:
       - directus_simple:/directus/uploads
@@ -175,7 +175,7 @@ if [ ! -f "dist/client/index.html" ]; then
         </div>
         <p style="text-align: center; color: #666; margin-top: 40px;">
             Sistema restaurado: $(date)<br>
-            Credenciales admin: admin@umbot.com.ar / EmergencyAdmin2025!
+            Credenciales admin: admin@umbot.com.ar / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
         </p>
     </div>
 </body>
@@ -214,7 +214,7 @@ echo "========================================"
 echo ""
 echo "✅ Sitio web: https://www.umbot.com.ar/"
 echo "✅ Panel admin: https://www.umbot.com.ar/admin"
-echo "✅ Credenciales: admin@umbot.com.ar / EmergencyAdmin2025!"
+echo "✅ Credenciales: admin@umbot.com.ar / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 echo ""
 echo "Si necesitas importar datos:"
 echo "1. Accede al panel admin"

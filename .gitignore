@@ -54,3 +54,13 @@ venv/
 
 # Volcado interno de SGI (datos de gestión; nunca al repo)
 .sgi/
+
+# Local credentials and generated TLS/ACME account state
+.htpasswd
+**/privkey*.pem
+**/private_key.json
+*.key
+*.p12
+*.pfx
+/directus-admin/certbot/conf/accounts/
+/env-server-production

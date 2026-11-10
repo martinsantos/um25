@@ -17,7 +17,7 @@ La causa principal es la discrepancia entre el token estático configurado en lo
 #### 1.1. Actualizar `.env.prod`
 
 El archivo `.env.prod` ha sido actualizado con las siguientes correcciones:
-- Se ha establecido `PUBLIC_DIRECTUS_TOKEN` y `DIRECTUS_STATIC_TOKEN` al valor correcto: `k6P8LAY8_x_y1miB_KTlWnysCnx2Abky`
+- Se ha establecido `PUBLIC_DIRECTUS_TOKEN` y `DIRECTUS_STATIC_TOKEN` al valor correcto: `REPLACE_WITH_DIRECTUS_STATIC_TOKEN`
 - Se ha actualizado la URL del sitio a `http://23.105.176.45:8080`
 - Se ha añadido `ASSETS_TRANSFORM_TOKEN_OPTIONAL=true`
 - Se ha especificado el ID del rol público: `PUBLIC_ROLE=74e3b05e-0f14-422e-9ad3-759d426db60a`
@@ -103,7 +103,7 @@ Verifique que las páginas ahora funcionan correctamente:
 Para verificar manualmente que el token estático funciona correctamente:
 
 ```bash
-curl -X GET http://23.105.176.45:8055/users/me -H "Authorization: Bearer k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+curl -X GET http://23.105.176.45:8055/users/me -H "Authorization: Bearer REPLACE_WITH_DIRECTUS_STATIC_TOKEN"
 ```
 
 Debería recibir una respuesta JSON con información del usuario, no un error 401.
@@ -121,6 +121,6 @@ Debería recibir una respuesta JSON con información del usuario, no un error 40
 
 ## Notas Adicionales
 
-- El token estático utilizado es: `k6P8LAY8_x_y1miB_KTlWnysCnx2Abky`
+- El token estático utilizado es: `REPLACE_WITH_DIRECTUS_STATIC_TOKEN`
 - El ID del rol público es: `74e3b05e-0f14-422e-9ad3-759d426db60a`
 - Si necesita cambiar el token en el futuro, asegúrese de actualizarlo en todos los lugares mencionados.

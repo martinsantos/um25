@@ -19,7 +19,7 @@ const __dirname = dirname(__filename);
 
 // Configuración
 const DIRECTUS_URL = process.env.DIRECTUS_URL || 'http://localhost:8055';
-const DIRECTUS_TOKEN = process.env.DIRECTUS_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+const DIRECTUS_TOKEN = process.env.DIRECTUS_TOKEN;
 const IMAGENES_DIR = process.env.IMAGENES_DIR || '/root/fumbling-field/imagenes_antecedentes_versionproduccion';
 const DRY_RUN = process.env.DRY_RUN === 'true';
 const BATCH_SIZE = 10;

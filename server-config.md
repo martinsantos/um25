@@ -12,13 +12,13 @@
 ### SSH
 ```bash
 ssh root@23.105.176.45
-# Password: gsiB%s@0yD
+# Password: REPLACE_WITH_LEGACY_SSH_PASSWORD
 ```
 
 ### CyberPanel
 - **URL**: `https://23.105.176.45:8090`
 - **Usuario**: `admin`
-- **Password**: `gsiB%s@0yD`
+- **Password**: `REPLACE_WITH_LEGACY_SSH_PASSWORD`
 
 ## 🌐 **Configuración DNS**
 
@@ -57,11 +57,11 @@ DIRECTUS_URL=https://www.umbot.com.ar/api
 PUBLIC_SITE_URL=https://www.umbot.com.ar
 
 # Base de Datos
-DB_PASSWORD=umbot_directus_2025!
+DB_PASSWORD=REPLACE_WITH_POSTGRES_PASSWORD
 
 # Directus Admin
 DIRECTUS_ADMIN_EMAIL=admin@umbot.com.ar
-DIRECTUS_ADMIN_PASSWORD=UmbotAdmin2025!
+DIRECTUS_ADMIN_PASSWORD=REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 
 # Redis
 REDIS_PASSWORD=umbot_redis_2025!

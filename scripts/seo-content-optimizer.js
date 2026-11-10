@@ -10,7 +10,7 @@ import fs from 'fs';
 
 const CONFIG = {
   directusUrl: 'http://23.105.176.45:8055',
-  token: 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky',
+  token: process.env.DIRECTUS_STATIC_TOKEN,
   outputFile: 'seo-optimization-report.json'
 };
 

@@ -6,7 +6,7 @@ from pathlib import Path
 
 # Configuración
 DIRECTUS_URL = "http://localhost:8055"
-TOKEN = "k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+TOKEN = os.environ["DIRECTUS_STATIC_TOKEN"]
 UPLOADS_DIR = Path("/directus/uploads/local")
 
 # Headers para las peticiones

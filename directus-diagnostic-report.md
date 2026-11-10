@@ -11,7 +11,7 @@
 - ✅ **Contenedor Directus:** `directus-app` corriendo en puerto 8055
 - ✅ **Base de Datos:** PostgreSQL funcionando con 27 tablas del sistema
 - ✅ **Acceso Web:** https://www.umbot.com.ar/admin → HTTP 200 OK
-- ✅ **Autenticación:** Credenciales `admin@example.com:d1r3ctu5` funcionando
+- ✅ **Autenticación:** Credenciales `admin@example.com:REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD` funcionando
 - ✅ **API:** Endpoints de sistema respondiendo correctamente
 
 ### ❌ **CONTENIDO - FALTANTE**
@@ -84,7 +84,7 @@ const response = await fetch(`${DIRECTUS_URL}/items/Antecedentes/${id}`);
 ```bash
 curl -X POST http://23.105.176.45:8055/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@example.com","password":"d1r3ctu5"}'
+  -d '{"email":"admin@example.com","password":"REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"}'
 ```
 
 ### 📦 **2. CREAR COLECCIONES**

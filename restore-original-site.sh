@@ -18,7 +18,7 @@ fi
 # Función para ejecutar comandos remotos via SSH
 execute_remote() {
     echo "🔧 Ejecutando: $1"
-    sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "$1"
+    SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}" sshpass -e ssh -o StrictHostKeyChecking=no root@23.105.176.45 "$1"
 }
 
 # Backup del estado actual
@@ -49,14 +49,14 @@ DB_HOST=database
 DB_PORT=5432
 DB_DATABASE=mydatabase
 DB_USER=myuser
-DB_PASSWORD=mypassword123
+DB_PASSWORD=REPLACE_WITH_POSTGRES_PASSWORD
 
 # Configuración Directus
-KEY=255d861b-5ea1-5996-9aa3-922530ec40b1
-SECRET=6116487b-cda1-52c2-b5b5-c8022c45e263
-DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+KEY=REPLACE_WITH_DIRECTUS_KEY
+SECRET=REPLACE_WITH_DIRECTUS_SECRET
+DIRECTUS_STATIC_TOKEN=REPLACE_WITH_DIRECTUS_STATIC_TOKEN
 ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=d1r3ctu5
+ADMIN_PASSWORD=REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 
 # Configuración Astro
 NODE_ENV=development
@@ -153,7 +153,7 @@ echo ""
 echo "📱 URLs de Acceso:"
 echo "   🌍 Sitio Web:    http://23.105.176.45:4321"
 echo "   🔧 Directus:     http://23.105.176.45:8055"
-echo "   📊 Admin:        admin@example.com / d1r3ctu5"
+echo "   📊 Admin:        admin@example.com / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 echo ""
 echo "🔧 Para desarrollo local:"
 echo "   docker-compose up -d"

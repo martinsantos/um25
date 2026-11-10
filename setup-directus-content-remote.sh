@@ -160,7 +160,7 @@ main() {
     echo ""
     echo "🔐 Credenciales:"
     echo "   • Usuario: admin@umbot.com.ar"
-    echo "   • Contraseña: UmbotDirectusAdmin2025!"
+    echo "   • Contraseña: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
     echo ""
     echo "📋 Colecciones disponibles:"
     echo "   • Antecedentes (469 registros)"

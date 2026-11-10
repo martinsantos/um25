@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 # Server configuration
 SERVER_HOST="23.105.176.45"
 SERVER_USER="root"
-SERVER_PASS="gsiB%s@0yD"
+SERVER_PASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}"
 PROJECT_PATH="/root/fumbling-field"
 
 # Functions

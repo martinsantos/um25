@@ -18,7 +18,7 @@ IMAGES_DIR = BASE_DIR / "imagenes_antecedentes_versionproduccion"
 
 # Configuración de Directus
 DIRECTUS_URL = "http://localhost:8055"
-TOKEN = "k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+TOKEN = os.environ["DIRECTUS_STATIC_TOKEN"]
 COLLECTION = "Antecedentes"
 
 # Configuración de logs

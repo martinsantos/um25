@@ -124,7 +124,7 @@ echo ""
 echo "🎯 CONFIGURACIÓN SIMPLE APLICADA"
 echo "Probar: https://www.umbot.com.ar/admin"
 echo "Usuario: admin@umbot.com.ar"
-echo "Contraseña: UmbotHybridAdmin2025!"
+echo "Contraseña: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 
 # Limpiar
 rm -f nginx.simple.conf 

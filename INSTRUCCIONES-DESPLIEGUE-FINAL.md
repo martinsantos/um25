@@ -232,7 +232,7 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:8055/collections
 **Servidor de Producción:**
 - **IP**: 23.105.176.45
 - **Usuario**: root
-- **Contraseña**: gsiB%s@0yD
+- **Contraseña**: REPLACE_WITH_LEGACY_SSH_PASSWORD
 - **Directorio**: /root/fumbling-field
 
 **Repositorio:**

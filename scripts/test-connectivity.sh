@@ -12,7 +12,7 @@ echo -e "${YELLOW}Iniciando validación de conectividad...${NC}\n"
 echo -e "${YELLOW}1. Obteniendo token de autenticación...${NC}"
 TOKEN=$(curl -s -X POST http://localhost:8055/auth/login \
     -H "Content-Type: application/json" \
-    -d '{"email":"admin@example.com","password":"d1r3ctu5"}' | jq -r '.data.access_token')
+    -d '{"email":"admin@example.com","password":"REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"}' | jq -r '.data.access_token')
 
 if [ -z "$TOKEN" ]; then
     echo -e "${RED}❌ Error al obtener token${NC}"

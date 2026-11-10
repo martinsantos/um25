@@ -18,7 +18,7 @@ NC='\033[0m' # Sin color
 
 # Variables de configuración
 DB_USER="myuser"
-DB_PASSWORD="mypassword123"
+DB_PASSWORD="${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}"
 DB_NAME="mydatabase"
 UPLOADS_DIR="./uploads"
 IMAGES_SOURCE_DIR="./imagenes_antecedentes_versionproduccion"
@@ -332,7 +332,7 @@ info "Configurando permisos públicos para directus_files..."
 # Obtener token de administrador
 admin_token=$(curl -s -X POST http://localhost:8055/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@example.com","password":"d1r3ctu5"}' | \
+  -d '{"email":"admin@example.com","password":"REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"}' | \
   grep -o '"access_token":"[^"]*' | cut -d'"' -f4)
 
 if [ -n "$admin_token" ]; then

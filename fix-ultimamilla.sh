@@ -9,7 +9,7 @@ echo "================================================"
 # Variables
 SERVER="23.105.176.45"
 USER="root"
-PASSWORD="gsiB%s@0yD"
+PASSWORD="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}"
 
 # Comando SSH que ejecutará todo en el servidor remoto
 ssh -t -o StrictHostKeyChecking=no ${USER}@${SERVER} << 'ENDSSH'

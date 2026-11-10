@@ -19,10 +19,10 @@
 
 ```bash
 # 1. Transferir archivo al servidor
-sshpass -p 'gsiB%s@0yD' scp dynamic-servicios-proxy-auth.cjs root@23.105.176.45:/root/
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' scp dynamic-servicios-proxy-auth.cjs root@23.105.176.45:/root/
 
 # 2. Desplegar en servidor remoto
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 'cd /root && nohup node dynamic-servicios-proxy-auth.cjs > proxy-ssr.log 2>&1 &'
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 'cd /root && nohup node dynamic-servicios-proxy-auth.cjs > proxy-ssr.log 2>&1 &'
 
 # 3. Verificar funcionamiento
 lsof -i :8093

@@ -12,7 +12,7 @@ echo ""
 SERVER_IP="23.105.176.45"
 DIRECTUS_PORT="8055"
 ADMIN_EMAIL="admin@example.com"
-ADMIN_PASSWORD="d1r3ctu5"
+ADMIN_PASSWORD="${DIRECTUS_ADMIN_PASSWORD:?Set DIRECTUS_ADMIN_PASSWORD}"
 DOCKER_COMPOSE_DIR="/root/fumbling-field"
 
 # Función para mostrar progreso
