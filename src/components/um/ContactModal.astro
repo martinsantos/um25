@@ -327,9 +327,7 @@ const { contactQuestion } = Astro.props;
       resetMessages();
       if (dialogMain instanceof HTMLElement) dialogMain.scrollTop = 0;
       updateCounter();
-      window.requestAnimationFrame(() => {
-        if (!modal.hidden) focusFirstField();
-      });
+      focusFirstField();
     }
 
     function closeContactModal() {

@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { readJsonObject } from '../../../../utils/readJsonObject';
 import { addReply } from '../../../../data/comments';
 import { parsePublicCommentInput } from '../../../../utils/commentValidation';
 
@@ -16,7 +17,7 @@ export const POST: APIRoute = async ({ request, params }) => {
 
         let body: Record<string, unknown>;
         try {
-            body = await request.json();
+            body = await readJsonObject(request);
         } catch {
             return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
                 status: 400,

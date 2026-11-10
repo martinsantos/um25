@@ -1,6 +1,7 @@
 // /api/rebuild.ts - Webhook endpoint para Directus
 // UM CLI 1.2.0 - Sistema de actualización automática
 import type { APIRoute } from 'astro';
+import { readJsonObject } from '../../utils/readJsonObject';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import { requestHasSecret, secretMatches } from '../../utils/serverAuth';
@@ -61,7 +62,7 @@ export const POST: APIRoute = async ({ request }) => {
     // Leer payload
     let payload: Record<string, unknown>;
     try {
-      payload = await request.json();
+      payload = await readJsonObject(request);
     } catch {
       logWebhook('❌ Invalid JSON received', 'error');
       return new Response(JSON.stringify({

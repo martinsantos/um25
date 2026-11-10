@@ -44,17 +44,6 @@ export function normalizeBlogCoverUrl(value) {
   return '';
 }
 
-function blogSortTime(value) {
-  const time = Date.parse(value || '');
-  return Number.isFinite(time) ? time : 0;
-}
-
-export function sortBlogPostsNewestFirst(posts) {
-  return [...(Array.isArray(posts) ? posts : [])].sort((a, b) => (
-    blogSortTime(b?.fecha_publicacion) - blogSortTime(a?.fecha_publicacion)
-  ));
-}
-
 /** Read surfaces preserve the image stored on each note, independent of filters/order. */
 export function preserveBlogPostCovers(posts) {
   return (Array.isArray(posts) ? posts : []).map((post) => ({

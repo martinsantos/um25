@@ -32,3 +32,24 @@ test.each([['omitted', {}, undefined], ['explicitly cleared', {imagen_portada:nu
   if (expected===undefined) expect(patch).not.toHaveProperty('imagen_portada');
   else expect(patch.imagen_portada).toBe(expected);
 });
+test.each([null, [], { ...body, titulo: 123 }, { ...body, titulo: ' ' }])('blog rejects invalid editorial input (%j) before calling Directus', async payload => {
+  const { POST } = require('../src/pages/api/blog.ts');
+  const { PUT } = require('../src/pages/api/blog/[slug].ts');
+  expect((await POST({ request: request(payload) })).status).toBe(400);
+  expect((await PUT({ request: request(payload), params: { slug: 'nota' } })).status).toBe(400);
+  expect(global.fetch).not.toHaveBeenCalled();
+});
+
+test('editing an existing draft without a status keeps it a draft', async () => {
+  const { PUT } = require('../src/pages/api/blog/[slug].ts');
+  global.fetch.mockResolvedValueOnce({ ok: true, json: async () => ({ data: [{ id: 1, slug: 'nota', status: 'draft' }] }) })
+    .mockResolvedValueOnce({ ok: true });
+  expect((await PUT({ request: request(body), params: { slug: 'nota' } })).status).toBe(200);
+  expect(JSON.parse(global.fetch.mock.calls[1][1].body).status).toBe('draft');
+});
+
+test('reports unavailable blog data without exposing Directus errors', async () => {
+  const { GET } = require('../src/pages/api/blog.ts');
+  global.fetch.mockResolvedValueOnce({ ok: false, status: 403 });
+  expect((await GET()).status).toBe(502);
+});

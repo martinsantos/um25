@@ -14,6 +14,13 @@ describe('Despiece public routing', () => {
   test.each([['/propuesta/blog/una-nota', '/blog/una-nota'], ['/propuesta', '/'], ['/propuesta/antecedentes', '/antecedentes'], ['/servicios/101/redes', '/servicios/101'], ['/bodegas', '/sectores/bodegas'], ['/sectores/software', '/software'], ['/sectores/seguridad-electronica', '/seguridad-electronica'], ['/en/contacto', '/en/contact']])('keeps old URL %s reachable', (path, destination) => {
     expect(despieceRoute(path)).toEqual({ redirect: destination });
   });
+  test.each([
+    ['/propuesta/bodegas', '/sectores/bodegas'],
+    ['/propuesta/servicios/101/redes', '/servicios/101'],
+    ['/propuesta/en/contacto', '/en/contact'],
+  ])('redirects %s directly to its public destination', (path, destination) => {
+    expect(despieceRoute(path)).toEqual({ redirect: destination });
+  });
   test('internal render paths have public canonicals', () => {
     expect(publicDespiecePath('/propuesta')).toBe('/');
     expect(publicDespiecePath('/propuesta/antecedentes/17/obra')).toBe('/antecedentes/17/obra');

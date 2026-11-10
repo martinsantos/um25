@@ -1,5 +1,15 @@
 export type BlogPublishStatus = 'published' | 'scheduled' | 'draft';
 
+export function hasBlogContent(body: Record<string, unknown>): body is Record<string, unknown> & {
+  titulo: string;
+  resumen: string;
+  contenido: string;
+} {
+  return [body['titulo'], body['resumen'], body['contenido']].every(
+    value => typeof value === 'string' && value.trim().length > 0,
+  );
+}
+
 const VALID_STATUSES = new Set<BlogPublishStatus>(['published', 'scheduled', 'draft']);
 
 function parseDate(value: string): number | null {

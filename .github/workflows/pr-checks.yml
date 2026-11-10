@@ -119,6 +119,7 @@ jobs:
             const buildResult = '${{ needs.build.result }}';
             const testResult = '${{ needs.test.result }}';
 
+            const allChecksPassed = [lintResult, buildResult, testResult].every(result => result === 'success');
             const statusEmoji = {
               'success': '✅',
               'failure': '❌',
@@ -135,7 +136,7 @@ jobs:
             | Build | ${statusEmoji[buildResult]} ${buildResult} |
             | Tests | ${statusEmoji[testResult]} ${testResult} |
 
-            ${buildResult === 'success' ? '✅ **Ready to merge!**' : '⚠️ **Please fix the issues above before merging.**'}
+            ${allChecksPassed ? '✅ **Ready to merge!**' : '⚠️ **Please fix the issues above before merging.**'}
 
             ---
             <sub>Automated checks by GitHub Actions</sub>

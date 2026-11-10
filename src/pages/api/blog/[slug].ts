@@ -1,7 +1,8 @@
 import type { APIRoute } from 'astro';
-import { normalizeBlogStatus, normalizePublicationDate } from '../../../utils/blogPublishing';
+import { hasBlogContent, normalizeBlogStatus, normalizePublicationDate } from '../../../utils/blogPublishing';
 import { normalizeBlogCoverUrl } from '../../../utils/blogCoverDiversity.js';
 import { checkBasicAuth } from '../../../utils/serverAuth';
+import { readJsonObject } from '../../../utils/readJsonObject';
 import { fetchWithTimeout, getFetchTimeoutMs } from '../../../utils/fetchWithTimeout';
 
 const API_USER = process.env['BLOG_API_USER'] ?? import.meta.env.BLOG_API_USER;
@@ -48,6 +49,23 @@ export const PUT: APIRoute = async ({ request, params }) => {
     });
   }
 
+  let body: Record<string, unknown>;
+  try {
+    body = await readJsonObject(request);
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  if (!hasBlogContent(body)) {
+    return new Response(
+      JSON.stringify({ error: 'Campos requeridos: titulo, resumen, contenido' }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   const slug = params['slug']!;
   const existingPost = await findPost(slug);
 
@@ -58,29 +76,12 @@ export const PUT: APIRoute = async ({ request, params }) => {
     });
   }
 
-  let body: Record<string, unknown>;
-  try {
-    body = await request.json();
-  } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
-  if (!body['titulo'] || !body['resumen'] || !body['contenido']) {
-    return new Response(
-      JSON.stringify({ error: 'Campos requeridos: titulo, resumen, contenido' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
-
   const publishedAt = body['fecha_publicacion']
     ? normalizePublicationDate(body['fecha_publicacion'])
     : existingPost.fecha_publicacion || normalizePublicationDate(undefined);
 
   const update: Record<string, unknown> = {
-    status: normalizeBlogStatus(body['status'], publishedAt),
+    status: normalizeBlogStatus(body['status'] ?? existingPost.status, publishedAt),
     titulo: body['titulo'],
     resumen: body['resumen'],
     contenido: body['contenido'],

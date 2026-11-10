@@ -1,10 +1,18 @@
 // Import testing utilities
 require('@testing-library/jest-dom');
-const { TextEncoder, TextDecoder } = require('util');
+const { TextEncoder, TextDecoder, transferableAbortController } = require('node:util');
 
 // Polyfills for Node.js environment
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
+
+// Server handlers use Node's fetch and AbortSignal. Jest 29's jsdom lacks
+// AbortSignal.timeout() and AbortSignal.any().
+if (typeof global.AbortSignal?.any !== 'function') {
+  const controller = transferableAbortController();
+  global.AbortController = controller.constructor;
+  global.AbortSignal = controller.signal.constructor;
+}
 
 // Mock localStorage
 const localStorageMock = (() => {
