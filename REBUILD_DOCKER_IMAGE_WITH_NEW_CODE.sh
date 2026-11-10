@@ -4,7 +4,7 @@
 echo "🐳 REBUILD IMAGEN DOCKER CON CÓDIGO ACTUALIZADO"
 echo "=============================================="
 
-export SSHPASS='gsiB%s@0yD'
+export SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}"
 
 # Primero, enviar el código actualizado al servidor
 echo "📤 Enviando código actualizado al servidor..."

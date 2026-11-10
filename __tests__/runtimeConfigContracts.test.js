@@ -151,7 +151,7 @@ describe('Production runtime configuration contracts', () => {
     const ecosystem = fs.readFileSync(path.join(process.cwd(), 'ecosystem.config.cjs'), 'utf8');
 
     expect(ecosystem).not.toContain('admin@umbot.com.ar');
-    expect(ecosystem).not.toContain('UmbotAdmin2025!');
+    expect(ecosystem).not.toMatch(/^\s*['"]?ADMIN_PASSWORD['"]?\s*:\s*['"][^'"]+['"]/m);
     expect(ecosystem).toContain("process.env[key]");
   });
 

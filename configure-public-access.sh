@@ -9,7 +9,7 @@ echo "==============================================="
 # Variables
 DIRECTUS_URL="http://localhost:8055"
 ADMIN_EMAIL="admin@example.com"
-ADMIN_PASSWORD="d1r3ctu5"
+ADMIN_PASSWORD="${DIRECTUS_ADMIN_PASSWORD:?Set DIRECTUS_ADMIN_PASSWORD}"
 
 # Función para obtener token de acceso
 get_access_token() {

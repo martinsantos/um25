@@ -20,10 +20,10 @@ Se creó un archivo `.env.prod` con la configuración correcta:
 ```bash
 # Directus Configuration
 PUBLIC_DIRECTUS_URL=http://23.105.176.45:8055
-PUBLIC_DIRECTUS_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
-DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
-DIRECTUS_KEY=pzdIoGXgfJODqy8lLFxwi2NOK/K7j7Qii7W26rHS9Tk=
-DIRECTUS_SECRET=d/QUPftXXNdfnAmN5SSmWPrYLzHqWF9rixk6XrwchR4=
+PUBLIC_DIRECTUS_TOKEN=REPLACE_WITH_DIRECTUS_STATIC_TOKEN
+DIRECTUS_STATIC_TOKEN=REPLACE_WITH_DIRECTUS_STATIC_TOKEN
+DIRECTUS_KEY=REPLACE_WITH_DIRECTUS_KEY
+DIRECTUS_SECRET=REPLACE_WITH_DIRECTUS_SECRET
 
 # Site Configuration
 SITE_URL=http://23.105.176.45:8080
@@ -34,12 +34,12 @@ DB_CLIENT=pg
 DB_HOST=database
 DB_PORT=5432
 DB_USER=myuser
-DB_PASSWORD=mypassword
+DB_PASSWORD=REPLACE_WITH_POSTGRES_PASSWORD
 DB_DATABASE=mydatabase
 
 # Admin User
 ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=adminpassword
+ADMIN_PASSWORD=REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 
 # CORS Configuration
 CORS_ENABLED=true
@@ -60,14 +60,14 @@ Se ejecutó un script para actualizar el token en la base de datos:
 
 ```bash
 # Script para actualizar el token en la base de datos
-docker exec database psql -U myuser -d mydatabase -c "UPDATE directus_users SET token = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky' WHERE admin_access = true;"
+docker exec database psql -U myuser -d mydatabase -c "UPDATE directus_users SET token = 'REPLACE_WITH_DIRECTUS_STATIC_TOKEN' WHERE admin_access = true;"
 ```
 
 #### 1.3. Verificación de la Autenticación
 Se verificó que la autenticación funciona correctamente:
 
 ```bash
-curl -X GET http://23.105.176.45:8055/users/me -H "Authorization: Bearer k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+curl -X GET http://23.105.176.45:8055/users/me -H "Authorization: Bearer REPLACE_WITH_DIRECTUS_STATIC_TOKEN"
 ```
 
 La respuesta fue exitosa, confirmando que el token estático está funcionando correctamente.
@@ -278,23 +278,23 @@ Se implementó una solución alternativa utilizando imágenes Docker oficiales c
 Se configuró Directus con las variables de entorno correctas en un archivo `.env.directus`:
 
 ```
-KEY=pzdIoGXgfJODqy8lLFxwi2NOK/K7j7Qii7W26rHS9Tk=
-SECRET=d/QUPftXXNdfnAmN5SSmWPrYLzHqWF9rixk6XrwchR4=
+KEY=REPLACE_WITH_DIRECTUS_KEY
+SECRET=REPLACE_WITH_DIRECTUS_SECRET
 DB_CLIENT=pg
 DB_HOST=database
 DB_PORT=5432
 DB_USER=myuser
-DB_PASSWORD=mypassword
+DB_PASSWORD=REPLACE_WITH_POSTGRES_PASSWORD
 DB_DATABASE=mydatabase
 ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=adminpassword
+ADMIN_PASSWORD=REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 PUBLIC_URL=http://23.105.176.45:8055
 CORS_ENABLED=true
 CORS_ORIGIN=http://23.105.176.45:8080,http://23.105.176.45:8055
 PUBLIC_ASSETS=true
 ASSETS_CACHE_TTL=0
 ASSETS_TRANSFORM_TOKEN_OPTIONAL=true
-ADMIN_API_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+ADMIN_API_TOKEN=REPLACE_WITH_DIRECTUS_STATIC_TOKEN
 ```
 
 ### 3. Implementación de un servidor Node.js simple
@@ -308,7 +308,7 @@ const path = require('path');
 
 const PORT = 8080;
 const DIRECTUS_URL = 'http://directus-app:8055';
-const DIRECTUS_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+const DIRECTUS_TOKEN = 'REPLACE_WITH_DIRECTUS_STATIC_TOKEN';
 
 // Crear servidor HTTP
 const server = http.createServer((req, res) => {
@@ -494,7 +494,7 @@ server.listen(PORT, '0.0.0.0', () => {
        restart: always
        environment:
          POSTGRES_USER: myuser
-         POSTGRES_PASSWORD: mypassword
+         POSTGRES_PASSWORD: REPLACE_WITH_POSTGRES_PASSWORD
          POSTGRES_DB: mydatabase
        volumes:
          - postgres_data:/var/lib/postgresql/data
@@ -570,6 +570,6 @@ server.listen(PORT, '0.0.0.0', () => {
 
 1. **Solución alternativa**: Esta solución es una alternativa temporal que permite tener un sitio web funcional mientras se resuelven los problemas de compatibilidad con las imágenes Docker originales.
 
-2. **Seguridad**: Se ha configurado Directus con el token estático correcto (`k6P8LAY8_x_y1miB_KTlWnysCnx2Abky`), pero se recomienda cambiar este token en un entorno de producción real.
+2. **Seguridad**: Se ha configurado Directus con el token estático correcto (`REPLACE_WITH_DIRECTUS_STATIC_TOKEN`), pero se recomienda cambiar este token en un entorno de producción real.
 
 3. **Respaldos**: Se recomienda realizar respaldos regulares de la base de datos para evitar pérdida de datos en caso de problemas futuros.

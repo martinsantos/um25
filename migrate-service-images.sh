@@ -3,7 +3,7 @@
 # Configuración de la base de datos
 export POSTGRES_DB="mydatabase"
 export POSTGRES_USER="myuser"
-export POSTGRES_PASSWORD="mypassword"
+export POSTGRES_PASSWORD="${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}"
 export POSTGRES_HOST="localhost"
 export POSTGRES_PORT="5432"
 

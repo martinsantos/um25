@@ -115,7 +115,7 @@ curl -I https://www.umbot.com.ar/servicios/2/redes-de-datos
 ##### **🔍 PRUEBAS REALIZADAS**
 
 1. **✅ ACCESO A PANEL ADMIN**
-   - Login exitoso con credenciales `admin@example.com:d1r3ctu5`
+   - Login exitoso con credenciales `admin@example.com:REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD`
    - Interfaz de administración completamente funcional
    - Edición de contenido operativa
 

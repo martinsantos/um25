@@ -67,7 +67,7 @@ get_token() {
 
 # Probar diferentes combinaciones de credenciales
 CREDENTIALS=(
-    "admin@example.com:d1r3ctu5"
+    "admin@example.com:REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
     "admin@example.com:password"
     "admin@admin.com:admin"
     "admin:admin"

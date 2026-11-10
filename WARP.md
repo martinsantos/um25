@@ -193,7 +193,7 @@ make dev-docker
 
 ### Development URLs
 - **App**: http://localhost:4321
-- **Directus Admin**: http://localhost:8055 (admin@ultimamilla.local / admin123dev)
+- **Directus Admin**: http://localhost:8055 (admin@ultimamilla.local / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD)
 - **Database Admin**: http://localhost:8080 (Adminer)
 - **Email Testing**: http://localhost:8025 (MailHog)
 
@@ -290,7 +290,7 @@ make rollback
 NODE_ENV=development
 DIRECTUS_URL=http://localhost:8055
 PUBLIC_DIRECTUS_URL=http://localhost:8055
-DATABASE_URL=postgresql://directus:dev_password_2025@localhost:5432/directus_dev
+DATABASE_URL=postgresql://directus:REPLACE_WITH_POSTGRES_PASSWORD@localhost:5432/directus_dev
 REDIS_URL=redis://localhost:6379
 ```
 
@@ -364,4 +364,4 @@ make db-restore BACKUP_FILE=backup.sql
 
 - PROCEDE DIRECTAMENTE EN PRODUCCIÓN EN EL SERVIDOR CON SSHPASS:
 - US: root@23.105.176.45
-- PASS: gsiB%s@0yD
+- PASS: REPLACE_WITH_LEGACY_SSH_PASSWORD

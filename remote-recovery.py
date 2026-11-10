@@ -5,6 +5,7 @@
 UMBot - Fumbling Field
 Conexión SSH via Python para recuperar servicios
 """
+import os
 
 import paramiko
 import time
@@ -47,7 +48,7 @@ def main():
     # Configuración de conexión
     hostname = "23.105.176.45"
     username = "root"
-    password = "gsiB%s@0yD"
+    password = os.environ["LEGACY_SSH_PASSWORD"]
     
     log_info("🚨 INICIANDO RECUPERACIÓN REMOTA DE EMERGENCIA")
     log_info(f"Conectando a {hostname}...")

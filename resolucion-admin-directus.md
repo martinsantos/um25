@@ -47,7 +47,7 @@ docker-compose up -d --force-recreate nginx-proxy
 ## Credenciales de Acceso
 - URL: https://umbot.com.ar/admin/
 - Usuario: admin@umbot.com.ar
-- Contraseña: UmbotHybridAdmin2025!
+- Contraseña: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 
 ## Estado Final
 El sistema está completamente operativo con:

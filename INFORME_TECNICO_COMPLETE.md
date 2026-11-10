@@ -253,7 +253,7 @@ fortune, cowsay, sl, matrix
 ### Verificar Estado del Sistema:
 ```bash
 # Conectar al servidor
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45
 
 # Verificar containers
 docker ps

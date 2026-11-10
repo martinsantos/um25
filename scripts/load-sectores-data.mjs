@@ -10,7 +10,7 @@
 import { createDirectus, rest, staticToken, createItem } from '@directus/sdk';
 
 const DIRECTUS_URL = process.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-const DIRECTUS_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+const DIRECTUS_TOKEN = process.env.DIRECTUS_STATIC_TOKEN;
 
 const client = createDirectus(DIRECTUS_URL).with(staticToken(DIRECTUS_TOKEN)).with(rest());
 

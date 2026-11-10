@@ -37,7 +37,7 @@
 2. **Crear nueva conexión:**
    - **Host**: `23.105.176.45`
    - **Username**: `root`
-   - **Password**: `gsiB%s@0yD`
+   - **Password**: `REPLACE_WITH_LEGACY_SSH_PASSWORD`
    - **Port**: `22`
 
 #### **🔧 Comandos de emergencia móvil:**
@@ -107,7 +107,7 @@ EOF
 1. **Host**: `root@23.105.176.45:22`
 2. **Nickname**: `UMBot-Emergency`
 3. **Use pubkey authentication**: No
-4. **Password**: `gsiB%s@0yD`
+4. **Password**: `REPLACE_WITH_LEGACY_SSH_PASSWORD`
 
 ---
 
@@ -166,7 +166,7 @@ A2: If [ %HTTPD !~ 200 ]
     A3: SSH Command [
         Host: 23.105.176.45
         User: root
-        Password: gsiB%s@0yD
+        Password: REPLACE_WITH_LEGACY_SSH_PASSWORD
         Command: cd /root/fumbling-field && docker-compose restart
     ]
     A4: Wait [ 30 seconds ]

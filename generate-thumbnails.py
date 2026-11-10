@@ -10,7 +10,7 @@ import shutil
 DB_PARAMS = {
     'dbname': os.environ.get('POSTGRES_DB', 'mydatabase'),
     'user': os.environ.get('POSTGRES_USER', 'myuser'),
-    'password': os.environ.get('POSTGRES_PASSWORD', 'mypassword'),
+    'password': os.environ["POSTGRES_PASSWORD"],
     'host': os.environ.get('POSTGRES_HOST', 'database'),
     'port': os.environ.get('POSTGRES_PORT', '5432')
 }

@@ -210,7 +210,7 @@ echo ""
 FINAL_SCRIPT
 
 # Ejecutar el script en el servidor remoto
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no -t root@23.105.176.45 'bash -s' < /tmp/fix_server.sh
+SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}" sshpass -e ssh -o StrictHostKeyChecking=no -t root@23.105.176.45 'bash -s' < /tmp/fix_server.sh
 
 # Limpiar archivo temporal
 rm -f /tmp/fix_server.sh

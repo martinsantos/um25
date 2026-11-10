@@ -16,7 +16,7 @@ tar -czf micro-patch.tar.gz \
 
 # Atomic deployment - single SSH session
 echo "🚀 Deploying micro patch..."
-sshpass -p 'gsiB%s@0yD' ssh -o ConnectTimeout=8 root@23.105.176.45 << 'ENDMICRO'
+SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}" sshpass -e ssh -o ConnectTimeout=8 root@23.105.176.45 << 'ENDMICRO'
 set -e
 echo "📡 Micro deploy session started"
 
@@ -36,10 +36,10 @@ exit 0
 ENDMICRO
 
 echo "📁 Transferring micro patch..."
-sshpass -p 'gsiB%s@0yD' scp -o ConnectTimeout=5 micro-patch.tar.gz root@23.105.176.45:/tmp/
+SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}" sshpass -e scp -o ConnectTimeout=5 micro-patch.tar.gz root@23.105.176.45:/tmp/
 
 echo "🔧 Applying changes..."
-sshpass -p 'gsiB%s@0yD' ssh -o ConnectTimeout=5 root@23.105.176.45 << 'ENDAPPLY'
+SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}" sshpass -e ssh -o ConnectTimeout=5 root@23.105.176.45 << 'ENDAPPLY'
 set -e
 cd /root/fumbling-field
 tar -xzf /tmp/micro-patch.tar.gz

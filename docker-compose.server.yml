@@ -5,7 +5,7 @@ services:
       - ./data/database:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       POSTGRES_DB: mydatabase
     restart: unless-stopped
 

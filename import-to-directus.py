@@ -16,7 +16,7 @@ import time
 # Configuración
 DIRECTUS_URL = "https://www.umbot.com.ar:8055"
 ADMIN_EMAIL = "admin@umbot.com.ar"
-ADMIN_PASSWORD = "UmbotDirectusAdmin2025!"
+ADMIN_PASSWORD = os.environ["DIRECTUS_ADMIN_PASSWORD"]
 
 # Archivos de datos
 ANTECEDENTES_FILE = "src/data/antecedentes_completos.js"

@@ -27,7 +27,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class DirectusMigrator:
-    def __init__(self, base_url="https://www.umbot.com.ar", email="admin@umbot.com.ar", password="UmbotHybridAdmin2025!"):
+    def __init__(self, base_url="https://www.umbot.com.ar", email="admin@umbot.com.ar", password=os.environ["DIRECTUS_ADMIN_PASSWORD"]):
         self.base_url = base_url
         self.email = email
         self.password = password

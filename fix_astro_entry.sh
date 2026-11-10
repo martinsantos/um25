@@ -102,7 +102,7 @@ const contentTypeMap = {
 
 // Directus configuration
 const directusUrl = process.env.PUBLIC_DIRECTUS_URL || 'http://23.105.176.45:8055';
-const directusToken = process.env.DIRECTUS_STATIC_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+const directusToken = process.env.DIRECTUS_STATIC_TOKEN || 'REPLACE_WITH_DIRECTUS_STATIC_TOKEN';
 
 // Simple server to serve static files
 const server = createServer(async (req, res) => {

@@ -25,7 +25,7 @@ DIRECTUS_URL=http://localhost:8055
 # Para producción usar: http://23.105.176.45:8055
 
 # Token estático de autenticación
-DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+DIRECTUS_STATIC_TOKEN=REPLACE_WITH_DIRECTUS_STATIC_TOKEN
 
 # Configuración de migración
 MIGRATION_BATCH_SIZE=50
@@ -155,7 +155,7 @@ Para migrar a producción, actualizar `.env.migration`:
 
 ```bash
 DIRECTUS_URL=http://23.105.176.45:8055
-DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+DIRECTUS_STATIC_TOKEN=REPLACE_WITH_DIRECTUS_STATIC_TOKEN
 DRY_RUN=false
 ```
 

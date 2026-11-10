@@ -15,7 +15,7 @@ fi
 
 # Primero, enviar el archivo index.astro actualizado al servidor
 echo "📤 Enviando index.astro actualizado al servidor..."
-export SSHPASS='gsiB%s@0yD'
+export SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}"
 
 # Copiar archivo al servidor
 sshpass -e scp -o StrictHostKeyChecking=no src/pages/index.astro root@23.105.176.45:/tmp/index_new.astro

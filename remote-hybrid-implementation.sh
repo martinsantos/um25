@@ -57,5 +57,5 @@ echo "✅ IMPLEMENTACIÓN HÍBRIDA COMPLETADA"
 echo "🌐 Sitio: https://www.umbot.com.ar"
 echo "🎛️ Admin: https://www.umbot.com.ar/admin"
 echo "📊 Usuario: admin@umbot.com.ar"
-echo "🔑 Pass: UmbotHybridAdmin2025!"
+echo "🔑 Pass: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 

@@ -46,7 +46,7 @@ SERVIDOR 23.105.176.45
 - **Puerto**: 8055
 - **Contenedor**: directus-app
 - **Base de datos**: PostgreSQL
-- **Credenciales**: admin@example.com / d1r3ctu5
+- **Credenciales**: admin@example.com / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 - **Estado**: ✅ Completamente operativo
 
 #### **FRONTEND ESTÁTICO (Sin cambios)**

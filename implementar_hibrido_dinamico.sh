@@ -44,7 +44,7 @@ echo ""
 echo "🎯 URLs de acceso:"
 echo "- Sitio web: https://www.umbot.com.ar/"
 echo "- Admin panel: https://www.umbot.com.ar:8055/admin"
-echo "- Credenciales: admin@umbot.com.ar / UmbotHybridAdmin2025!"
+echo "- Credenciales: admin@umbot.com.ar / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 
 SSH_EOF
 

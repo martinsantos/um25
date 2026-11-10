@@ -14,10 +14,10 @@ tar -czf um-deploy.tar.gz dist/ --exclude=node_modules
 
 # Quick deploy
 echo "🚀 Deploying to production..."
-sshpass -p 'gsiB%s@0yD' scp -o ConnectTimeout=10 um-deploy.tar.gz root@23.105.176.45:/root/
+SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}" sshpass -e scp -o ConnectTimeout=10 um-deploy.tar.gz root@23.105.176.45:/root/
 
 echo "📁 Extracting on server..."
-sshpass -p 'gsiB%s@0yD' ssh -o ConnectTimeout=10 root@23.105.176.45 '
+SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}" sshpass -e ssh -o ConnectTimeout=10 root@23.105.176.45 '
 cd /root/fumbling-field
 tar -xzf /root/um-deploy.tar.gz
 docker-compose restart astro-app || docker restart astro-app

@@ -103,7 +103,7 @@ describe('Página de Antecedentes', () => {
     
     // Configurar variables de entorno para pruebas
     process.env.PUBLIC_DIRECTUS_URL = 'http://localhost:8055';
-    process.env.DIRECTUS_STATIC_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+    process.env.DIRECTUS_STATIC_TOKEN = 'test-directus-static-token';
     process.env.NODE_ENV = 'test';
     
     // Mock de fetch global

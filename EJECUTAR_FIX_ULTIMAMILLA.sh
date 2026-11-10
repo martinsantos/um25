@@ -11,7 +11,7 @@ expect << 'EOF'
 set timeout 180
 spawn ssh -o StrictHostKeyChecking=no root@23.105.176.45
 expect "password:"
-send "gsiB%s@0yD\r"
+send "REPLACE_WITH_LEGACY_SSH_PASSWORD\r"
 expect "#"
 
 # Diagnóstico inicial

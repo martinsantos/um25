@@ -100,7 +100,7 @@ services:
     environment:
       POSTGRES_DB: directus
       POSTGRES_USER: directus
-      POSTGRES_PASSWORD: DirectusAdmin2025!
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -111,16 +111,16 @@ services:
     image: directus/directus:10.8.3
     container_name: umbot-directus-admin
     environment:
-      KEY: "DirectusSecretKey2025UmbotAdmin"
-      SECRET: "DirectusSecretToken2025UmbotHybrid"
+      KEY: ${DIRECTUS_KEY:?Set DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET:?Set DIRECTUS_SECRET}
       DB_CLIENT: pg
       DB_HOST: umbot-postgres-admin
       DB_PORT: 5432
       DB_DATABASE: directus
       DB_USER: directus
-      DB_PASSWORD: DirectusAdmin2025!
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       ADMIN_EMAIL: admin@umbot.com.ar
-      ADMIN_PASSWORD: UmbotDirectusAdmin2025!
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD:?Set DIRECTUS_ADMIN_PASSWORD}
       # CLAVE: Sin PUBLIC_URL para evitar problemas de subdirectorio
       SERVE_APP: true
       CORS_ENABLED: true
@@ -196,7 +196,7 @@ echo "🌐 Sitio: https://www.umbot.com.ar"
 echo "🔧 Admin: https://www.umbot.com.ar/admin"
 echo "🔑 Login: https://www.umbot.com.ar/admin/login"
 echo "👤 Usuario: admin@umbot.com.ar"
-echo "🔑 Password: UmbotDirectusAdmin2025!"
+echo "🔑 Password: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 EOF
 
 chmod +x deploy-fixed.sh

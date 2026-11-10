@@ -1,4 +1,4 @@
-gsiB%s@0yD
+REPLACE_WITH_LEGACY_SSH_PASSWORD
 #!/bin/bash
 
 echo "🚨 PLAN DE EMERGENCIA - RECUPERACIÓN COMPLETA DESDE CERO"
@@ -10,7 +10,7 @@ echo ""
 SERVER_IP="23.105.176.45"
 DOMAIN="www.umbot.com.ar"
 DB_USER="directus"
-DB_PASS="directus123"
+DB_PASS="${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}"
 DB_NAME="directus"
 
 echo "🔍 PASO 1: DIAGNÓSTICO COMPLETO DEL ESTADO ACTUAL"
@@ -73,8 +73,8 @@ services:
     environment:
       POSTGRES_DB: directus
       POSTGRES_USER: directus
-      POSTGRES_PASSWORD: directus123
-      POSTGRES_ROOT_PASSWORD: directus123
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_ROOT_PASSWORD: ${POSTGRES_ROOT_PASSWORD:?Set POSTGRES_ROOT_PASSWORD}
     volumes:
       - postgres_emergency:/var/lib/postgresql/data
     networks:
@@ -91,16 +91,16 @@ services:
     image: directus/directus:10.8.3
     container_name: umbot-directus-emergency
     environment:
-      KEY: 255d861b-5ea1-5996-9aa3-922530ec40b1
-      SECRET: 6116487b-cda1-52c2-b5b5-c8022c45e263
+      KEY: ${DIRECTUS_KEY:?Set DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET:?Set DIRECTUS_SECRET}
       DB_CLIENT: pg
       DB_HOST: postgres-emergency
       DB_PORT: 5432
       DB_DATABASE: directus
       DB_USER: directus
-      DB_PASSWORD: directus123
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       ADMIN_EMAIL: admin@umbot.com.ar
-      ADMIN_PASSWORD: EmergencyAdmin2025!
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD:?Set DIRECTUS_ADMIN_PASSWORD}
       PUBLIC_URL: https://www.umbot.com.ar
       CORS_ENABLED: true
       CORS_ORIGIN: true
@@ -337,15 +337,15 @@ DB_HOST=postgres-emergency
 DB_PORT=5432
 DB_DATABASE=directus
 DB_USER=directus
-DB_PASSWORD=directus123
+DB_PASSWORD=REPLACE_WITH_POSTGRES_PASSWORD
 
 # Admin User
 ADMIN_EMAIL=admin@umbot.com.ar
-ADMIN_PASSWORD=EmergencyAdmin2025!
+ADMIN_PASSWORD=REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 
 # Security
-KEY=255d861b-5ea1-5996-9aa3-922530ec40b1
-SECRET=6116487b-cda1-52c2-b5b5-c8022c45e263
+KEY=REPLACE_WITH_DIRECTUS_KEY
+SECRET=REPLACE_WITH_DIRECTUS_SECRET
 
 # Site Configuration
 PUBLIC_SITE_URL=https://www.umbot.com.ar
@@ -417,6 +417,6 @@ echo "4. Importar datos si es necesario"
 echo ""
 echo "⚡ CREDENCIALES DE EMERGENCIA:"
 echo "Admin: admin@umbot.com.ar"
-echo "Pass: EmergencyAdmin2025!"
+echo "Pass: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 echo ""
 echo "Finalizado: $(date)" 

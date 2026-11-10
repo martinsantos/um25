@@ -50,5 +50,5 @@ echo "✅ CORRECCIÓN COMPLETADA"
 echo "🌐 Accesos disponibles:"
 echo "   - Sitio: https://www.umbot.com.ar/"
 echo "   - Admin: https://www.umbot.com.ar/admin"
-echo "   - Login: admin@umbot.com.ar / UmbotDirectusAdmin2025!"
+echo "   - Login: admin@umbot.com.ar / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 

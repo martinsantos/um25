@@ -12,7 +12,7 @@ NC='\033[0m' # No Color
 echo -e "${YELLOW}Verificando configuración y permisos de Directus...${NC}"
 
 # Token estático correcto
-TOKEN="k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+TOKEN="${DIRECTUS_STATIC_TOKEN:?Set DIRECTUS_STATIC_TOKEN}"
 
 # ID del rol público
 PUBLIC_ROLE_ID="74e3b05e-0f14-422e-9ad3-759d426db60a"

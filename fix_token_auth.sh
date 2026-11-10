@@ -6,7 +6,7 @@
 echo "Aplicando la solución al problema de autenticación en Directus..."
 
 # Token estático que funciona en el entorno local
-LOCAL_TOKEN="k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+LOCAL_TOKEN="${DIRECTUS_STATIC_TOKEN:?Set DIRECTUS_STATIC_TOKEN}"
 
 echo "1. Actualizando el archivo .env en el servidor con el token correcto..."
 ssh root@23.105.176.45 "cd /root/um25 && cat > .env << EOL
@@ -14,17 +14,17 @@ ssh root@23.105.176.45 "cd /root/um25 && cat > .env << EOL
 PUBLIC_DIRECTUS_URL=http://23.105.176.45:8055
 DIRECTUS_URL=http://directus-app:8055
 DIRECTUS_STATIC_TOKEN=\"${LOCAL_TOKEN}\"
-DIRECTUS_KEY=\"pzdIoGXgfJODqy8lLFxwi2NOK/K7j7Qii7W26rHS9Tk=\"
-DIRECTUS_SECRET=\"d/QUPftXXNdfnAmN5SSmWPrYLzHqWF9rixk6XrwchR4=\"
+DIRECTUS_KEY=\"REPLACE_WITH_DIRECTUS_KEY\"
+DIRECTUS_SECRET=\"REPLACE_WITH_DIRECTUS_SECRET\"
 
 # Database Configuration
 DB_USER=myuser
-DB_PASSWORD=mypassword
+DB_PASSWORD=REPLACE_WITH_POSTGRES_PASSWORD
 DB_DATABASE=mydatabase
 
 # Admin Configuration
 ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=adminpassword
+ADMIN_PASSWORD=REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 
 # URL Configuration
 PUBLIC_URL=http://23.105.176.45:8055

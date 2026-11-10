@@ -6,7 +6,7 @@ import time
 
 # Config
 DIRECTUS_URL = "http://localhost:8055"
-TOKEN = "k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+TOKEN = os.environ["DIRECTUS_STATIC_TOKEN"]
 HEADERS = {"Authorization": f"Bearer {TOKEN}"}
 JS_FILE = "/var/www/ultimamilla.com.ar/src/data/antecedentes_enhanced.js"
 IMG_BASE_DIR = "/var/www/ultimamilla.com.ar/public"

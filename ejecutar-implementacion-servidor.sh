@@ -10,7 +10,7 @@ echo ""
 # Variables
 SERVER_IP="23.105.176.45"
 SERVER_USER="root"
-SERVER_PASS="gsiB%s@0yD"
+SERVER_PASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}"
 DIRECTUS_PORT="8055"
 DOCKER_COMPOSE_DIR="/root/fumbling-field"
 
@@ -67,7 +67,7 @@ echo "===================================="
 # Variables
 DIRECTUS_URL="http://localhost:8055"
 ADMIN_EMAIL="admin@example.com"
-ADMIN_PASSWORD="d1r3ctu5"
+ADMIN_PASSWORD="REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 
 # Función para obtener token de acceso
 get_access_token() {
@@ -294,7 +294,7 @@ echo ""
 # Variables
 DIRECTUS_URL="http://localhost:8055"
 ADMIN_EMAIL="admin@example.com"
-ADMIN_PASSWORD="d1r3ctu5"
+ADMIN_PASSWORD="REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 
 # Obtener token de acceso
 echo "🔑 Obteniendo token de acceso..."
@@ -409,7 +409,7 @@ execute_ssh "chmod +x /tmp/configurar-permisos.sh && /tmp/configurar-permisos.sh
 echo "🔍 PASO 5: VERIFICANDO IMPLEMENTACIÓN"
 
 # Verificar colecciones
-execute_ssh "curl -s -X POST http://localhost:8055/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"admin@example.com\",\"password\":\"d1r3ctu5\"}' | grep -o '\"access_token\":\"[^\"]*' | cut -d'\"' -f4 > /tmp/token.txt"
+execute_ssh "curl -s -X POST http://localhost:8055/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"admin@example.com\",\"password\":\"REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD\"}' | grep -o '\"access_token\":\"[^\"]*' | cut -d'\"' -f4 > /tmp/token.txt"
 execute_ssh "curl -s -H \"Authorization: Bearer \$(cat /tmp/token.txt)\" http://localhost:8055/collections | grep -E 'Servicios|Antecedentes'"
 
 # Verificar datos
@@ -446,4 +446,4 @@ echo "• API Antecedentes: http://$SERVER_IP:8055/items/Antecedentes"
 echo ""
 echo "🔐 CREDENCIALES:"
 echo "• Usuario: admin@example.com"
-echo "• Contraseña: d1r3ctu5"
+echo "• Contraseña: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"

@@ -37,7 +37,7 @@ class DirectusMigration:
                 f"{self.base_url}/auth/login",
                 json={
                     "email": "admin@umbot.com.ar",
-                    "password": "UmbotHybridAdmin2025!"
+                    "password": os.environ["DIRECTUS_ADMIN_PASSWORD"]
                 }
             )
             response.raise_for_status()

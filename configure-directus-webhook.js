@@ -7,7 +7,7 @@ const axios = require('axios');
 // Configuración
 const DIRECTUS_URL = process.env.DIRECTUS_URL || 'http://localhost:8055';
 const DIRECTUS_EMAIL = process.env.DIRECTUS_ADMIN_EMAIL || 'admin@ultimamilla.local';
-const DIRECTUS_PASSWORD = process.env.DIRECTUS_ADMIN_PASSWORD || 'admin123dev';
+const DIRECTUS_PASSWORD = process.env.DIRECTUS_ADMIN_PASSWORD;
 const WEBHOOK_URL = process.env.WEBHOOK_URL || 'http://localhost:4321/api/rebuild';
 const WEBHOOK_SECRET = process.env.DIRECTUS_WEBHOOK_SECRET || 'um-cli-2024-secure-webhook';
 

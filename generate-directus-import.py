@@ -403,7 +403,7 @@ def generate_web_import_script(antecedentes: List[Dict], servicios: List[Dict]):
         
         <div class="form-group">
             <label>Contraseña:</label>
-            <input type="password" id="password" value="UmbotDirectusAdmin2025!" />
+            <input type="password" id="password" value=os.environ["DIRECTUS_ADMIN_PASSWORD"] />
         </div>
         
         <button class="button" onclick="authenticate()">🔑 Autenticar</button>

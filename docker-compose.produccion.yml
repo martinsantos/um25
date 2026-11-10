@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       POSTGRES_DB: mydatabase
     volumes:
       # Use the named volume for database persistence
@@ -38,16 +38,16 @@ services:
     container_name: directus-app
     restart: unless-stopped
     environment:
-      KEY: 12345678901234567890123456789012
-      SECRET: S3cr3tK3yForDirectusConfig2025!!
+      KEY: ${DIRECTUS_KEY:?Set DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET:?Set DIRECTUS_SECRET}
       DB_CLIENT: pg
       DB_HOST: database # This refers to the database service name
       DB_PORT: 5432
       DB_USER: myuser
-      DB_PASSWORD: mypassword
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       DB_DATABASE: mydatabase
       ADMIN_EMAIL: admin@example.com # Used ONLY on the first run with an empty DB volume
-      ADMIN_PASSWORD: adminpassword # Used ONLY on the first run with an empty DB volume
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD:?Set DIRECTUS_ADMIN_PASSWORD}
       # Add the PUBLIC_URL for Directus when accessing from host
       PUBLIC_URL: http://localhost:8055 # <-- UNCOMMENT/ADD THIS
     depends_on:

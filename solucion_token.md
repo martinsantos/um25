@@ -24,7 +24,7 @@ Se actualizaron las siguientes variables de entorno críticas:
 - `PUBLIC_ROLE=74e3b05e-0f14-422e-9ad3-759d426db60a`: Para especificar el ID del rol público
 
 ## Detalles Técnicos
-- **Token Estático**: `k6P8LAY8_x_y1miB_KTlWnysCnx2Abky`
+- **Token Estático**: `REPLACE_WITH_DIRECTUS_STATIC_TOKEN`
 - **ID del Rol Público**: `74e3b05e-0f14-422e-9ad3-759d426db60a`
 - **URLs Configuradas**:
   - `PUBLIC_DIRECTUS_URL=http://23.105.176.45:8055`
@@ -39,5 +39,5 @@ Se actualizaron las siguientes variables de entorno críticas:
 ## Comandos de Verificación
 Para verificar que el token estático funciona correctamente:
 ```bash
-curl -X GET http://23.105.176.45:8055/users/me -H "Authorization: Bearer k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+curl -X GET http://23.105.176.45:8055/users/me -H "Authorization: Bearer REPLACE_WITH_DIRECTUS_STATIC_TOKEN"
 ```

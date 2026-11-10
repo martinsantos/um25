@@ -12,7 +12,7 @@ NC='\033[0m' # No Color
 echo -e "${YELLOW}Iniciando actualización del token estático de Directus...${NC}"
 
 # Token correcto que funciona en entorno local
-CORRECT_TOKEN="k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+CORRECT_TOKEN="${DIRECTUS_STATIC_TOKEN:?Set DIRECTUS_STATIC_TOKEN}"
 
 # Verificar si los contenedores están en ejecución
 if ! docker ps | grep -q "directus-app"; then

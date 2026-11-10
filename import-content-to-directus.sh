@@ -10,7 +10,7 @@ echo "====================================="
 # Variables de configuración
 DIRECTUS_URL="https://www.umbot.com.ar:8055"
 ADMIN_EMAIL="admin@umbot.com.ar" 
-ADMIN_PASSWORD="UmbotDirectusAdmin2025!"
+ADMIN_PASSWORD="${DIRECTUS_ADMIN_PASSWORD:?Set DIRECTUS_ADMIN_PASSWORD}"
 
 # Archivos de datos
 ANTECEDENTES_FILE="src/data/antecedentes_completos.js"

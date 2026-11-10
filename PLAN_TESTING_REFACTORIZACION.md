@@ -98,7 +98,7 @@
 
 ## 🔒 NOTAS DE SEGURIDAD
 
-- ✅ Token de autenticación seguro: `k6P8LAY8_x_y1miB_KTlWnysCnx2Abky`
+- ✅ Token de autenticación seguro: `REPLACE_WITH_DIRECTUS_STATIC_TOKEN`
 - ✅ Variables de entorno configuradas correctamente
 - ✅ SSL/HTTPS funcionando en producción
 - ⚠️ Recordar: NUNCA compartir credenciales en texto plano
