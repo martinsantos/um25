@@ -1,18 +1,22 @@
 import type { APIRoute } from 'astro';
+import { createHash } from 'node:crypto';
 import nodemailer from 'nodemailer';
+import { readJsonObject } from '../../utils/readJsonObject';
 
 const rateLimitMap = new Map<string, number[]>();
 const duplicateMap = new Map<string, number>();
+const pendingSubmissions = new Map<string, Promise<unknown>>();
+let nextRateLimitCleanup = 0;
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000;
 const MAX_REQUESTS_PER_WINDOW = 30;
 const DUPLICATE_WINDOW = 2 * 60 * 1000;
 const MESSAGE_MAX_LENGTH = 2400;
 const ASTRO_ENV: Record<string, string | undefined> = {
-  SMTP_HOST: import.meta.env.SMTP_HOST,
-  SMTP_PORT: import.meta.env.SMTP_PORT,
-  SMTP_USER: import.meta.env.SMTP_USER,
-  SMTP_PASS: import.meta.env.SMTP_PASS,
-  SMTP_FROM: import.meta.env.SMTP_FROM,
+  SMTP_HOST: import.meta.env['SMTP_HOST'],
+  SMTP_PORT: import.meta.env['SMTP_PORT'],
+  SMTP_USER: import.meta.env['SMTP_USER'],
+  SMTP_PASS: import.meta.env['SMTP_PASS'],
+  SMTP_FROM: import.meta.env['SMTP_FROM'],
 };
 
 function processEnv(name: string): string | undefined {
@@ -51,7 +55,8 @@ function jsonResponse(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
     }
   });
 }
@@ -61,7 +66,7 @@ function isValidEmail(email: string): boolean {
 }
 
 function trimString(value: unknown, maxLength: number): string {
-  return String(value || '').trim().slice(0, maxLength);
+  return typeof value === 'string' ? value.trim().slice(0, maxLength) : '';
 }
 
 function escapeHtml(value: string): string {
@@ -76,6 +81,12 @@ function escapeHtml(value: string): string {
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
+  if (now >= nextRateLimitCleanup) {
+    for (const [address, requests] of rateLimitMap) {
+      if (now - (requests.at(-1) ?? 0) >= RATE_LIMIT_WINDOW) rateLimitMap.delete(address);
+    }
+    nextRateLimitCleanup = now + RATE_LIMIT_WINDOW;
+  }
   const userRequests = rateLimitMap.get(ip) || [];
   const recentRequests = userRequests.filter((timestamp) => now - timestamp < RATE_LIMIT_WINDOW);
 
@@ -90,12 +101,13 @@ function checkRateLimit(ip: string): boolean {
 }
 
 function submissionKey(email: string, message: string): string {
-  return `${email}|${message.toLowerCase().replace(/\s+/g, ' ').slice(0, 260)}`;
+  return createHash('sha256')
+    .update(JSON.stringify([email, message.toLowerCase().replace(/\s+/g, ' ')]))
+    .digest('hex');
 }
 
-function isDuplicateSubmission(email: string, message: string): boolean {
+function isDuplicateSubmission(key: string): boolean {
   const now = Date.now();
-  const normalized = submissionKey(email, message);
 
   for (const [key, timestamp] of duplicateMap.entries()) {
     if (now - timestamp > DUPLICATE_WINDOW) {
@@ -103,7 +115,7 @@ function isDuplicateSubmission(email: string, message: string): boolean {
     }
   }
 
-  const previous = duplicateMap.get(normalized);
+  const previous = duplicateMap.get(key);
 
   return Boolean(previous && now - previous < DUPLICATE_WINDOW);
 }
@@ -129,13 +141,13 @@ function buildEmailHtml(data: {
         <td style="padding:14px 16px;border-top:1px solid #E5E7EB;color:#111827;font-size:16px;font-weight:700;">${escapeHtml(data.company)}</td>
       </tr>`
     : '';
-  const contextRows = [
+  const contextRows = ([
     ['Origen', data.originTitle],
     ['Ruta', data.originPath],
     ['CTA', data.originLabel],
     ['Intención', data.originIntent],
     ['URL', data.originHref],
-  ]
+  ] as const)
     .filter(([, value]) => value)
     .map(([label, value]) => `
       <tr>
@@ -202,7 +214,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
     if (contentType.includes('application/json')) {
       try {
-        data = await request.json();
+        data = await readJsonObject(request);
       } catch {
         return jsonResponse({
           success: false,
@@ -219,23 +231,19 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
           message: 'Formulario inválido.'
         }, 400);
       }
-      data = {};
-      for (const [key, value] of formData.entries()) {
-        data[key] = value;
-      }
+      data = Object.fromEntries(formData);
     }
 
-    const rawMessage = String(data.message || '').trim();
-    const name = trimString(data.name, 100);
-    const email = trimString(data.email, 120).toLowerCase();
-    const company = trimString(data.company, 120);
-    const message = rawMessage.slice(0, MESSAGE_MAX_LENGTH);
-    const formVariant = trimString(data.formVariant, 40);
-    const originPath = trimString(data.originPath, 180);
-    const originTitle = trimString(data.originTitle, 180);
-    const originLabel = trimString(data.originLabel, 120);
-    const originIntent = trimString(data.originIntent, 80);
-    const originHref = trimString(data.originHref, 240);
+    const message = typeof data['message'] === 'string' ? data['message'].trim() : '';
+    const name = trimString(data['name'], 100);
+    const email = trimString(data['email'], 120).toLowerCase();
+    const company = trimString(data['company'], 120);
+    const formVariant = trimString(data['formVariant'], 40);
+    const originPath = trimString(data['originPath'], 180);
+    const originTitle = trimString(data['originTitle'], 180);
+    const originLabel = trimString(data['originLabel'], 120);
+    const originIntent = trimString(data['originIntent'], 80);
+    const originHref = trimString(data['originHref'], 240);
 
     if (!name || !email || !message) {
       return jsonResponse({
@@ -251,14 +259,17 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       }, 400);
     }
 
-    if (rawMessage.length > MESSAGE_MAX_LENGTH) {
+    if (message.length > MESSAGE_MAX_LENGTH) {
       return jsonResponse({
         success: false,
         message: 'El mensaje es demasiado extenso.'
       }, 400);
     }
 
-    if (isDuplicateSubmission(email, message)) {
+    const key = submissionKey(email, message);
+    const pending = pendingSubmissions.get(key);
+    if (pending) await pending;
+    if (pending || isDuplicateSubmission(key)) {
       return jsonResponse({
         success: true,
         duplicate: true,
@@ -283,14 +294,20 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
     const fromAddress = envValue('SMTP_FROM') || 'martin@ultimamilla.com.ar';
 
-    await createTransporter().sendMail({
+    const delivery = createTransporter().sendMail({
       from: `"ULTIMA MILLA web" <${fromAddress}>`,
       to: 'martin@ultimamilla.com.ar',
       replyTo: sanitizedData.email,
       subject: `Consulta web UMSA: ${sanitizedData.originIntent || sanitizedData.company || sanitizedData.name}`,
       html: buildEmailHtml(sanitizedData),
     });
-    duplicateMap.set(submissionKey(email, message), Date.now());
+    pendingSubmissions.set(key, delivery);
+    try {
+      await delivery;
+      duplicateMap.set(key, Date.now());
+    } finally {
+      pendingSubmissions.delete(key);
+    }
 
     return jsonResponse({
       success: true,

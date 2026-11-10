@@ -36,20 +36,14 @@ export function filterApprovedCommentsForPublic(comments: Comment[]): PublicComm
         .map(toPublicComment);
 }
 
-// Asegurarse de que el archivo existe
-async function ensureCommentsFile() {
-    try {
-        await fs.access(COMMENTS_FILE);
-    } catch {
-        await fs.writeFile(COMMENTS_FILE, JSON.stringify([], null, 2));
-    }
-}
-
-// Cargar comentarios
 export async function loadComments(): Promise<Comment[]> {
-    await ensureCommentsFile();
-    const content = await fs.readFile(COMMENTS_FILE, 'utf-8');
-    return JSON.parse(content);
+    try {
+        const content = await fs.readFile(COMMENTS_FILE, 'utf-8');
+        return JSON.parse(content);
+    } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') return [];
+        throw error;
+    }
 }
 
 // Guardar comentarios
@@ -60,8 +54,7 @@ async function saveComments(comments: Comment[]): Promise<void> {
 // Obtener comentarios por slug del post
 export async function getCommentsByPostSlug(postSlug: string): Promise<PublicComment[]> {
     const comments = await loadComments();
-    return filterApprovedCommentsForPublic(comments)
-        .filter(comment => comment.postSlug === postSlug && comment.isApproved)
+    return filterApprovedCommentsForPublic(comments.filter(comment => comment.postSlug === postSlug))
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
