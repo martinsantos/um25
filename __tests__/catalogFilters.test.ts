@@ -1,4 +1,4 @@
-import { catalogState, matchesCatalog, orderCatalog } from '../src/components/proto/catalogFilters';
+import { catalogClientRecovery, catalogState, matchesCatalog, orderCatalog } from '../src/components/proto/catalogFilters';
 
 const airport = { sector: 'aeropuertos', services: ['101', '107'], year: '2024', client: 'Aeropuertos Argentina 2000', search: 'Aeropuertos Argentina 2000 · Instalación de detección de incendios', status: 'mantenimiento' };
 const government = { sector: 'gobiernosectorpublico', services: ['104'], year: '2020', client: 'Municipalidad de Guaymallén', search: 'Municipalidad de Guaymallén · Software de gestión', status: 'verificado' };
@@ -34,4 +34,18 @@ test('production client links survive editorial accents and legal-suffix punctua
   expect(matchesCatalog(client, { cliente: 'jose-nucete-e-hijos-s-a' })).toBe(true);
   expect(matchesCatalog({ ...airport, client: 'Procon S.R.L.' }, { cliente: 'PROCON SRL' })).toBe(true);
   expect(matchesCatalog(client, { cliente: 'Otra empresa SA' })).toBe(false);
+});
+
+test('an empty intersection can return to the client archive with the chosen order', () => {
+  const state = catalogState(new URLSearchParams('sector=sin-clasificar&cliente=Aeropuertos+Argentina+2000&orden=year-desc'));
+  expect(catalogClientRecovery([airport, government, { ...airport, year: '2025' }], state)).toEqual({
+    href: '/antecedentes?cliente=Aeropuertos+Argentina+2000&orden=year-desc',
+    label: 'Ver los 2 proyectos de este cliente',
+  });
+  expect(state.sector).toBe('sin-clasificar');
+});
+
+test('an absent or unmatched client has no client-specific recovery action', () => {
+  expect(catalogClientRecovery([airport], { sector: 'sin-clasificar' })).toBeUndefined();
+  expect(catalogClientRecovery([airport], { sector: 'sin-clasificar', cliente: 'Otro cliente' })).toBeUndefined();
 });

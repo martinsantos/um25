@@ -9,7 +9,8 @@ export function catalogHref(state: CatalogState, without?: (typeof catalogCriter
     const value = state[key];
     if (key !== without && value && !(key === 'orden' && value === 'recent')) params.set(key, value);
   }
-  return params.size ? `/antecedentes?${params}` : '/antecedentes';
+  const query = params.toString();
+  return query ? `/antecedentes?${query}` : '/antecedentes';
 }
 
 export function showCatalogHighlights(state: CatalogState, count: number): boolean {
@@ -37,6 +38,22 @@ export function matchesCatalog(it: CatalogItem, state: CatalogState, skip?: stri
     (!state.periodo || periodOf(it.year) === state.periodo) &&
     (!state.estado || it.status === state.estado);
 }
+
+/** On an empty intersection, keep the client's archive and the chosen sort. */
+export function catalogClientRecovery(items: readonly CatalogItem[], state: CatalogState) {
+  const { cliente, orden } = state;
+  if (!cliente || !catalogCriteria.some((key) => key !== 'cliente' && state[key])) return;
+
+  const retained = { cliente, orden };
+  const count = items.filter((item) => matchesCatalog(item, retained)).length;
+  if (!count) return;
+
+  return {
+    href: catalogHref(retained),
+    label: count === 1 ? 'Ver el proyecto de este cliente' : `Ver los ${count} proyectos de este cliente`,
+  };
+}
+
 export function orderCatalog<T extends Pick<CatalogItem, 'year' | 'client'>>(items: T[], mode: string): T[] {
   return [...items].sort((a, b) => mode === 'client' ? a.client.localeCompare(b.client, 'es') : mode === 'year-asc' ? Number(a.year) - Number(b.year) : mode === 'year-desc' ? Number(b.year) - Number(a.year) : 0);
 }

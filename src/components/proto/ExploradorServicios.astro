@@ -42,12 +42,14 @@ const frentes = NAV_SERVICES.map((servicio) => {
       {frentes.map(({ code, name, text, href, visual, kit, total, obra, tituloObra, detalle, detalleNombre, animacion }, i) => {
         const Icono = visual.icono;
         return <>
-          <input class="selector" id={`frente-${code}`} type="radio" name="frente-portada" checked={i === 0} aria-controls={`panel-${code}`} />
-          <label class="fila" for={`frente-${code}`} style={`--fila:${i + 1};--fila-m:${Math.floor(i / 2) + 1};--col-m:${i % 2 + 1}`}>
-            <Icono class="icono" size={24} stroke-width={1.65} aria-hidden="true" />
-            <span class="nombre">{name}</span><span class="corto" aria-hidden="true">{visual.corto}</span>
-            <span class="marca" aria-hidden="true"><ChevronRight size={17} /></span>
-          </label>
+          <div class="opcion" style={`--fila:${i + 1};--fila-m:${Math.floor(i / 2) + 1};--col-m:${i % 2 + 1}`}>
+            <input class="selector" id={`frente-${code}`} type="radio" name="frente-portada" checked={i === 0} aria-controls={`panel-${code}`} />
+            <label class="fila" for={`frente-${code}`}>
+              <Icono class="icono" size={24} stroke-width={1.65} aria-hidden="true" />
+              <span class="nombre">{name}</span><span class="corto" aria-hidden="true">{visual.corto}</span>
+              <span class="marca" aria-hidden="true"><ChevronRight size={17} /></span>
+            </label>
+          </div>
           <article class="panel" id={`panel-${code}`} aria-labelledby={`nombre-${code}`}>
             <div class="lamina">
               <div class="alcance">
@@ -104,7 +106,10 @@ const frentes = NAV_SERVICES.map((servicio) => {
   fieldset { min-width:0; padding:0; margin:0; border:0; }
   .mesa { position:relative; display:grid; grid-template-columns:minmax(230px, .88fr) minmax(0, 2.32fr); border-block:1px solid var(--line); }
   .lector,.selector,.detalle-control { position:absolute; inline-size:1px; block-size:1px; padding:0; margin:0; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
-  .fila { grid-column:1; grid-row:var(--fila); display:grid; grid-template-columns:26px minmax(0,1fr) 18px; align-items:center; gap:12px; min-height:55px; padding:8px 18px; border-bottom:1px solid var(--line-2); color:var(--ink-2); cursor:pointer; font-weight:550; line-height:1.15; }
+  .opcion { position:relative; display:grid; grid-column:1; grid-row:var(--fila); }
+  /* Keep native focus in the visible row when a label selects its radio. */
+  .selector { inset-block-start:50%; inset-inline-start:50%; }
+  .fila { display:grid; grid-template-columns:26px minmax(0,1fr) 18px; align-items:center; gap:12px; min-height:55px; padding:8px 18px; border-bottom:1px solid var(--line-2); color:var(--ink-2); cursor:pointer; font-weight:550; line-height:1.15; }
   .icono { color:var(--ink-2); }
   .marca { display:grid; color:var(--ink-3); opacity:.55; }
   .corto { display:none; }
@@ -113,7 +118,7 @@ const frentes = NAV_SERVICES.map((servicio) => {
   .selector:checked + .fila :is(.icono,.marca) { color:var(--red-text); opacity:1; }
   .selector:focus-visible + .fila { outline:2px solid var(--ink); outline-offset:-3px; }
   .panel { display:none; grid-column:2; grid-row:1 / span 8; align-content:stretch; grid-template-rows:minmax(220px,1fr) auto auto; min-width:0; border-left:1px solid var(--line); background:var(--bg-2); }
-  .selector:checked + .fila + .panel { display:grid; }
+  .opcion:has(.selector:checked) + .panel { display:grid; }
   .lamina { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); }
   .alcance { align-self:center; display:grid; justify-items:start; gap:12px; padding:24px clamp(18px,2.3vw,36px); }
   .codigo { display:flex; align-items:center; gap:9px; font-size:1rem; font-variant-numeric:tabular-nums; color:var(--ink-2); }
@@ -154,7 +159,8 @@ const frentes = NAV_SERVICES.map((servicio) => {
   @media(max-width:980px) {
     .encabezado { flex-wrap:wrap; gap:4px 14px; margin-bottom:12px; }
     .mesa { grid-template-columns:repeat(4,minmax(0,1fr)); }
-    .fila { grid-column:auto; grid-row:auto; display:flex; flex-direction:column; justify-content:center; gap:4px; min-height:60px; padding:6px 2px; text-align:center; font-size:1rem; }
+    .opcion { grid-column:auto; grid-row:auto; }
+    .fila { display:flex; flex-direction:column; justify-content:center; gap:4px; min-height:60px; padding:6px 2px; text-align:center; font-size:1rem; }
     .fila .icono { width:20px; }
     .fila .marca { display:none; }
     .selector:checked + .fila { box-shadow:inset 0 -2px var(--red); }
@@ -187,7 +193,8 @@ const frentes = NAV_SERVICES.map((servicio) => {
   @media(max-width:359px) {
     .mesa { grid-template-columns:repeat(2,minmax(0,1fr)); }
     .panel { grid-row:5; }
-    .fila { grid-row:var(--fila-m); grid-column:var(--col-m); flex-direction:row; justify-content:start; gap:7px; min-height:48px; padding:8px 12px; text-align:left; }
+    .opcion { grid-row:var(--fila-m); grid-column:var(--col-m); }
+    .fila { flex-direction:row; justify-content:start; gap:7px; min-height:48px; padding:8px 12px; text-align:left; }
     .selector:checked + .fila { box-shadow:inset 3px 0 var(--red); }
   }
   @media(prefers-reduced-motion:reduce) { .senal { display:none; } }
