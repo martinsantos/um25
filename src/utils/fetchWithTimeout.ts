@@ -16,26 +16,18 @@ export function getFetchTimeoutMs(
 }
 
 export function withTimeout(request: RequestInit, timeoutMs = DEFAULT_FETCH_TIMEOUT_MS): RequestInit {
-  if (request.signal) return request;
-  return {
-    ...request,
-    signal: AbortSignal.timeout(timeoutMs),
-  };
+  const timeout = AbortSignal.timeout(timeoutMs);
+  const signal = request.signal ? AbortSignal.any([request.signal, timeout]) : timeout;
+  return { ...request, signal };
 }
 
-export async function fetchWithTimeout(
+export function fetchWithTimeout(
   input: RequestInfo | URL,
   init: RequestInit = {},
   timeoutMs = DEFAULT_FETCH_TIMEOUT_MS,
 ): Promise<Response> {
-  if (init.signal) return fetch(input, init);
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    return await fetch(input, { ...init, signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
-  }
+  // The signal also applies while the caller is reading the response body.
+  const requestSignal = typeof Request !== 'undefined' && input instanceof Request ? input.signal : undefined;
+  const signal = init.signal ?? requestSignal;
+  return fetch(input, withTimeout({ ...init, signal }, timeoutMs));
 }

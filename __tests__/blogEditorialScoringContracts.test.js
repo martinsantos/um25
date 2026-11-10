@@ -61,7 +61,7 @@ describe('Blog editorial GEO scoring contracts', () => {
     expect(source('src/components/blog/BlogCategoryTabs.astro')).toContain('await fetchPublishedBlogIndex()');
     expect(source('src/utils/blogPublishedIndex.ts')).toContain('fetchBlogSitemapEntries(-1)');
     expect(sitemapEntries).toContain('if (posts.length > 0) return preserveBlogPostCovers(posts) as BlogSitemapEntry[];');
-    expect(sitemapEntries).toContain('return preserveBlogPostCovers(UM26_FALLBACK_POSTS');
+    expect(sitemapEntries).toContain('await fetchPublicBlogIndex()');
     expect(source('scripts/blog-cover-diversity-backfill.mjs')).toContain('--apply');
   });
 

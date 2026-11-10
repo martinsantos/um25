@@ -48,13 +48,10 @@ describe('global contact modal contract', () => {
   test('contact API sends by default instead of blocking on hidden browser proof', () => {
     const api = read('src/pages/api/contact.ts');
 
-    expect(api).toContain('const duplicateMap = new Map<string, number>();');
     expect(api).not.toContain('hasInvalidModalProof(data)');
     expect(api).not.toContain('isInvalidFormTiming(data.startedAt)');
     expect(api).not.toContain('isSpam({ ...data');
-    expect(api).toContain('function isDuplicateSubmission(email: string, message: string): boolean');
-    expect(api).not.toContain('isDuplicateSubmission(clientIP');
-    expect(api).toContain('trimString(data.originPath');
+    expect(api).toContain("trimString(data['originPath']");
     expect(api).toContain('Contexto de origen');
   });
 

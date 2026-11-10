@@ -1,8 +1,6 @@
 import { correctBlogEditorial } from './blogEditorialCorrections';
 import type { EntradaBlog } from '../lib/directus';
 import { MOCK_POSTS } from '../data/blog-mock';
-import { BLOG_POSTS as UM26_BLOG_POSTS } from '../lib/um26-data/blog';
-import type { BlogPost as Um26BlogPost } from '../lib/um26-data/types';
 import {
   allowMockBlogFallback,
   allowPublicBlogFallback,
@@ -14,10 +12,7 @@ import { SITE_URL } from '../config/seo';
 import { isCanonicalBlogSlug, nonCanonicalBlogSlugs } from '../data/seoRedirects';
 import { addVisibleBlogStatusFilter } from './blogPublishing';
 import { fetchWithTimeout, getFetchTimeoutMs } from './fetchWithTimeout';
-import {
-  preserveBlogPostCovers,
-  sortBlogPostsNewestFirst,
-} from './blogCoverDiversity.js';
+import { preserveBlogPostCovers } from './blogCoverDiversity.js';
 
 const DIRECTUS_URL = getDirectusInternalUrl();
 const DIRECTUS_TOKEN = getDirectusToken();
@@ -52,61 +47,6 @@ async function directusFetch(url: string): Promise<Response> {
 
 function publicFetch(url: string): Promise<Response> {
   return fetchWithTimeout(url, {}, PUBLIC_BLOG_TIMEOUT_MS);
-}
-
-function escapeHtml(value = ''): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function um26PostToEntrada(post: Um26BlogPost, index: number): EntradaBlog {
-  const tags = post.tags || [];
-  const tagList = tags.length
-    ? `<ul>${tags.slice(0, 5).map((tag) => `<li>${escapeHtml(tag)}</li>`).join('')}</ul>`
-    : '';
-
-  return {
-    id: `um26-${index}`,
-    status: 'published',
-    slug: post.slug,
-    titulo: post.title,
-    resumen: post.excerpt || post.summary,
-    contenido: `
-      <p>${escapeHtml(post.summary || post.excerpt)}</p>
-      <h2>Contexto operativo</h2>
-      <p>${escapeHtml(post.excerpt || post.summary)}</p>
-      <h2>Puntos de lectura</h2>
-      ${tagList || '<p>Lectura editorial de ULTIMA MILLA para decisiones de infraestructura, continuidad y operacion IT.</p>'}
-    `,
-    imagen_portada: null,
-    imagen_portada_alt: post.title,
-    categoria: post.category,
-    tags,
-    fecha_publicacion: `${post.date}T12:00:00Z`,
-    tiempo_lectura: post.readingMinutes,
-    meta_title: `${post.title} | ULTIMA MILLA`,
-    meta_description: post.summary || post.excerpt,
-    meta_keywords: tags.join(', '),
-  };
-}
-
-// Sin respaldo de prueba: si Directus y el sitio público fallan no se publican
-// artículos de muestra (um26-data/blog.ts era contenido inventado).
-const UM26_FALLBACK_POSTS: EntradaBlog[] = [];
-
-function getUm26BlogListing(page: number, limit: number, categoria?: string): { posts: EntradaBlog[]; total: number } {
-  const offset = (page - 1) * limit;
-  const filtered = (categoria
-    ? UM26_FALLBACK_POSTS.filter((post) => post.categoria === categoria)
-    : UM26_FALLBACK_POSTS
-  ).filter((post) => isCanonicalBlogSlug(post.slug));
-
-  const diversified = preserveBlogPostCovers(filtered) as EntradaBlog[];
-  return { posts: diversified.slice(offset, offset + limit), total: filtered.length };
 }
 
 function authHeaders(): HeadersInit {
@@ -324,9 +264,9 @@ async function fetchBlogListingRaw(
 
   itemsParams.set('filter[slug][_nin]', [...nonCanonicalBlogSlugs].join(','));
   countParams.set('filter[slug][_nin]', [...nonCanonicalBlogSlugs].join(','));
-  itemsParams.set('sort', '-fecha_publicacion');
-  itemsParams.set('limit', String(offset + limit));
-  itemsParams.set('offset', '0');
+  itemsParams.set('sort', '-fecha_publicacion,id');
+  itemsParams.set('limit', String(limit));
+  itemsParams.set('offset', String(offset));
   itemsParams.set('fields', fields);
   countParams.set('aggregate[count]', 'id');
 
@@ -351,14 +291,11 @@ async function fetchBlogListingRaw(
     }
 
     const contextPosts = (itemsData.data as EntradaBlog[]).filter((post) => isCanonicalBlogSlug(post.slug));
-    const posts = (preserveBlogPostCovers(contextPosts) as EntradaBlog[]).slice(offset, offset + limit);
+    const posts = preserveBlogPostCovers(contextPosts) as EntradaBlog[];
     return { posts, total: Math.max(posts.length, total) };
   } catch {
     const publicListing = await fetchPublicBlogListing(page, limit, categoria);
     if (publicListing && publicListing.posts.length > 0) return publicListing;
-
-    const um26Listing = getUm26BlogListing(page, limit, categoria);
-    if (um26Listing.posts.length > 0) return um26Listing;
 
     if (!allowMockBlogFallback()) {
       return { posts: [], total: 0 };
@@ -387,10 +324,6 @@ async function fetchBlogPostRaw(slug: string): Promise<EntradaBlog | null> {
     const publicPost = await fetchPublicBlogPost(slug);
     if (publicPost) return publicPost;
 
-    const um26Post = UM26_FALLBACK_POSTS.find((p) => p.slug === slug);
-    if (um26Post) return (preserveBlogPostCovers(sortBlogPostsNewestFirst(UM26_FALLBACK_POSTS)) as EntradaBlog[])
-      .find((p) => p.slug === slug) || um26Post;
-
     if (!allowMockBlogFallback()) return null;
     return MOCK_POSTS.find(p => p.slug === slug) || null;
   }
@@ -411,8 +344,6 @@ async function fetchBlogBandRaw(limit = 3): Promise<EntradaBlog[]> {
   } catch {
     const publicListing = await fetchPublicBlogListing(1, limit);
     if (publicListing && publicListing.posts.length > 0) return (preserveBlogPostCovers(publicListing.posts) as EntradaBlog[]).slice(0, limit);
-
-    if (UM26_FALLBACK_POSTS.length > 0) return (preserveBlogPostCovers(UM26_FALLBACK_POSTS) as EntradaBlog[]).slice(0, limit);
 
     if (!allowMockBlogFallback()) return [];
     return (preserveBlogPostCovers(MOCK_POSTS) as EntradaBlog[]).slice(0, limit);
@@ -444,10 +375,7 @@ async function fetchBlogPostsBySlugsRaw(slugs: string[]): Promise<EntradaBlog[]>
     if (posts.length > 0) return posts;
     throw new Error('empty');
   } catch {
-    const fallback = await Promise.all(wanted.map(async (slug) => {
-      const publicPost = await fetchPublicBlogPost(slug);
-      return publicPost || UM26_FALLBACK_POSTS.find((post) => post.slug === slug) || null;
-    }));
+    const fallback = await Promise.all(wanted.map((slug) => fetchPublicBlogPost(slug)));
     return order(fallback.filter((post): post is EntradaBlog => Boolean(post)));
   }
 }
@@ -463,7 +391,7 @@ export interface BlogSitemapEntry {
 
 /**
  * Entradas para sitemap/índices: la misma cadena de fuentes que el blog
- * renderizado (Directus → sitio público → posts UM26), sin traer cuerpos.
+ * renderizado (Directus → sitio público), sin traer cuerpos.
  */
 async function fetchBlogSitemapEntriesRaw(limit = 500): Promise<BlogSitemapEntry[]> {
   try {
@@ -483,17 +411,9 @@ async function fetchBlogSitemapEntriesRaw(limit = 500): Promise<BlogSitemapEntry
       const entries = await fetchPublicBlogIndex();
       if (entries.length > 0) return limit < 0 ? entries : entries.slice(0, limit);
     } catch {
-      // continuar con el fallback estático
+      // El índice estático de respaldo se combina en la ruta del sitemap.
     }
-    return preserveBlogPostCovers(UM26_FALLBACK_POSTS
-      .filter((post) => isCanonicalBlogSlug(post.slug))
-      .map((post) => ({
-        slug: post.slug,
-        titulo: post.titulo,
-        fecha_publicacion: post.fecha_publicacion,
-        imagen_portada: post.imagen_portada,
-        categoria: post.categoria,
-      }))) as BlogSitemapEntry[];
+    return [];
   }
 }
 

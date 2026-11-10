@@ -42,7 +42,7 @@ function customImportMetaCjs({ types: t }) {
           return;
         }
 
-        // For import.meta.env.X — replace the outer member expression
+        // Replace import.meta.env itself so bracket and optional access work too.
         const memberExpr = path.parentPath;
         if (
           t.isMemberExpression(memberExpr) &&
@@ -60,23 +60,7 @@ function customImportMetaCjs({ types: t }) {
           } else if (envKey === 'PROD') {
             memberExpr.replaceWith(t.booleanLiteral(true));
           } else if (envKey === 'env') {
-            // import.meta.env.X → process.env.X
-            const propPath = memberExpr.parentPath;
-            if (
-              t.isMemberExpression(propPath) &&
-              t.isIdentifier(propPath.node.property)
-            ) {
-              const envVarName = propPath.node.property.name;
-              propPath.replaceWith(
-                t.memberExpression(
-                  t.memberExpression(
-                    t.identifier('process'),
-                    t.identifier('env')
-                  ),
-                  t.identifier(envVarName)
-                )
-              );
-            }
+            memberExpr.replaceWith(t.memberExpression(t.identifier('process'), t.identifier('env')));
           }
         }
       },

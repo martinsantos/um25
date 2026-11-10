@@ -1,4 +1,6 @@
 import type { APIRoute } from 'astro';
+import { getDirectusInternalUrl } from '../../../config/runtime';
+import { fetchWithTimeout, getFetchTimeoutMs } from '../../../utils/fetchWithTimeout';
 
 const DIRECTUS_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const IMAGE_CONTENT_TYPES = new Set([
@@ -52,7 +54,7 @@ function buildSafeAssetParams(url: URL): URLSearchParams | null {
 }
 
 export const GET: APIRoute = async ({ params, request }) => {
-  const assetId = params.id;
+  const assetId = params['id'];
   if (!assetId) {
     console.error('[API] Asset ID is missing');
     return new Response('Asset ID is required', { status: 400 });
@@ -62,56 +64,42 @@ export const GET: APIRoute = async ({ params, request }) => {
     return new Response('Invalid asset ID', { status: 400 });
   }
 
-  // Obtener el token de autenticación de Directus
-  const directusToken = import.meta.env.DIRECTUS_STATIC_TOKEN;
+  const searchParams = buildSafeAssetParams(new URL(request.url));
+  if (!searchParams) return new Response('Invalid asset parameters', { status: 400 });
+
+  const directusToken = process.env['DIRECTUS_STATIC_TOKEN'] || import.meta.env.DIRECTUS_STATIC_TOKEN;
   if (!directusToken) {
     console.error('[API] Asset token not configured');
     return new Response('Servicio de assets no configurado', { status: 500 });
   }
 
-  // Construir la URL del asset en Directus
-  const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
-  const assetUrl = `${directusUrl}/assets/${assetId}`;
-
   try {
-    // Obtener los parámetros de la URL original
-    const url = new URL(request.url);
-    const searchParams = buildSafeAssetParams(url);
-
-    if (!searchParams) {
-      return new Response('Invalid asset parameters', { status: 400 });
-    }
-    
-    // Construir la URL final con los parámetros
-    const finalUrl = `${assetUrl}?${searchParams.toString()}`;
-
-    // Realizar la solicitud a Directus con el token de autenticación
-    const response = await fetch(finalUrl, {
-      headers: {
-        'Authorization': `Bearer ${directusToken}`,
-      },
-    });
+    const directusUrl = getDirectusInternalUrl().replace(/\/+$/, '');
+    const assetUrl = new URL(`${directusUrl}/assets/${assetId}`);
+    assetUrl.search = searchParams.toString();
+    const response = await fetchWithTimeout(assetUrl, {
+      headers: { Authorization: `Bearer ${directusToken}` },
+      signal: request.signal,
+    }, getFetchTimeoutMs(process.env['DIRECTUS_TIMEOUT_MS']));
 
     if (!response.ok) {
+      await response.body?.cancel();
       console.error(`[API] Error fetching asset: ${response.status} ${response.statusText}`);
       return new Response(`Error fetching asset: ${response.status}`, { status: response.status });
     }
 
-    // Obtener el tipo de contenido de la respuesta
     const contentType = response.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() || '';
     if (!IMAGE_CONTENT_TYPES.has(contentType)) {
+      await response.body?.cancel();
       return new Response('Unsupported asset type', { status: 415 });
     }
-    
-    // Obtener los datos binarios de la imagen
-    const data = await response.arrayBuffer();
 
-    // Devolver la imagen con el tipo de contenido adecuado
-    return new Response(data, {
+    return new Response(response.body, {
       status: 200,
       headers: {
         'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=31536000', // Cache por 1 año
+        'Cache-Control': 'public, max-age=31536000',
+        'X-Content-Type-Options': 'nosniff',
       },
     });
   } catch (error) {

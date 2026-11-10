@@ -5,6 +5,7 @@ import { nonCanonicalBlogSlugs } from '../../data/seoRedirects';
 import type { APIRoute } from 'astro';
 import {
   addVisibleBlogStatusFilter,
+  hasBlogContent,
   normalizeBlogStatus,
   normalizePublicationDate,
 } from '../../utils/blogPublishing';
@@ -13,11 +14,15 @@ import {
   normalizeBlogCoverUrl,
 } from '../../utils/blogCoverDiversity.js';
 import { checkBasicAuth } from '../../utils/serverAuth';
+import { fetchWithTimeout, getFetchTimeoutMs } from '../../utils/fetchWithTimeout';
+import { readJsonObject } from '../../utils/readJsonObject';
 
 const API_USER = process.env['BLOG_API_USER'] ?? import.meta.env.BLOG_API_USER;
 const API_PASS = process.env['BLOG_API_PASS'] ?? import.meta.env.BLOG_API_PASS;
 const DIRECTUS_URL = process.env['DIRECTUS_INTERNAL_URL'] ?? import.meta.env.DIRECTUS_INTERNAL_URL ?? 'http://localhost:8055';
 const DIRECTUS_TOKEN = process.env['DIRECTUS_ADMIN_TOKEN'] ?? import.meta.env.DIRECTUS_ADMIN_TOKEN ?? '';
+
+const DIRECTUS_TIMEOUT_MS = getFetchTimeoutMs(process.env['DIRECTUS_TIMEOUT_MS']);
 
 function slugify(text: string): string {
   return text
@@ -47,12 +52,19 @@ export const POST: APIRoute = async ({ request }) => {
 
   let body: Record<string, unknown>;
   try {
-    body = await request.json();
+    body = await readJsonObject(request);
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     });
+  }
+
+  if (!hasBlogContent(body)) {
+    return new Response(
+      JSON.stringify({ error: 'Campos requeridos: titulo, resumen, contenido' }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 
   const {
@@ -68,16 +80,14 @@ export const POST: APIRoute = async ({ request }) => {
     meta_description,
     status: statusInput,
     slug: slugInput,
-  } = body as Record<string, unknown>;
+  } = body;
 
-  if (!titulo || !resumen || !contenido) {
-    return new Response(
-      JSON.stringify({ error: 'Campos requeridos: titulo, resumen, contenido' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
-    );
+  const slug = typeof slugInput === 'string' && slugInput ? slugInput : slugify(titulo);
+  if ((slugInput != null && typeof slugInput !== 'string') || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(slug)) {
+    return new Response(JSON.stringify({ error: 'Slug inválido' }), {
+      status: 400, headers: { 'Content-Type': 'application/json' },
+    });
   }
-
-  const slug = (slugInput as string) || slugify(titulo as string);
   const publishedAt = normalizePublicationDate(fecha_publicacion);
   const status = normalizeBlogStatus(statusInput, publishedAt);
 
@@ -100,14 +110,14 @@ export const POST: APIRoute = async ({ request }) => {
     meta_description: (meta_description as string) || null,
   };
 
-  const res = await fetch(`${DIRECTUS_URL}/items/blog_posts`, {
+  const res = await fetchWithTimeout(`${DIRECTUS_URL}/items/blog_posts`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${DIRECTUS_TOKEN}`,
     },
     body: JSON.stringify(post),
-  });
+  }, DIRECTUS_TIMEOUT_MS);
 
   if (!res.ok) {
     const err = await res.text();
@@ -131,17 +141,25 @@ export const GET: APIRoute = async () => {
   params.set('limit', '20');
   params.set('fields', 'slug,titulo,fecha_publicacion,fecha_modificacion,categoria,status,imagen_portada');
   params.set('filter[slug][_nin]', [...nonCanonicalBlogSlugs].join(','));
-  const res = await fetch(
-    `${DIRECTUS_URL}/items/blog_posts?${params.toString()}`,
-    { headers }
-  );
-  const data = await res.json();
-  if (Array.isArray(data.data)) {
+  try {
+    const res = await fetchWithTimeout(
+      `${DIRECTUS_URL}/items/blog_posts?${params.toString()}`,
+      { headers },
+      DIRECTUS_TIMEOUT_MS,
+    );
+    if (!res.ok) throw new Error('Directus blog request failed');
+    const data = await res.json();
+    if (!Array.isArray(data?.data)) throw new Error('Invalid Directus blog response');
     data.data = preserveBlogPostCovers(data.data).map(correctBlogEditorial).map(post => ({
       ...post, imagen_portada: normalizeBlogCoverUrl(blogPostImageUrl(post as EntradaBlog)),
     }));
+    return new Response(JSON.stringify(data), {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch {
+    return new Response(JSON.stringify({ error: 'No se pudo consultar el blog' }), {
+      status: 502,
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+    });
   }
-  return new Response(JSON.stringify(data), {
-    headers: { 'Content-Type': 'application/json' },
-  });
 };

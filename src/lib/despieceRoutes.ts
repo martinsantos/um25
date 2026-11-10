@@ -19,7 +19,9 @@ export function despieceRoute(path: string, method = 'GET'): { redirect?: string
   if (p === '/propuesta/auditoria.json') return null;
   if (p === '/propuesta' || p.startsWith('/propuesta/')) {
     const target = publicDespiecePath(p);
-    return despieceRoute(target) || /^\/blog\/[a-z0-9-]+$/.test(target) ? { redirect: target } : null;
+    const publicRoute = despieceRoute(target, method);
+    if (publicRoute) return { redirect: publicRoute.redirect ?? target };
+    return /^\/blog\/[a-z0-9-]+$/.test(target) ? { redirect: target } : null;
   }
   if (sectors.has(p.slice(1))) return { redirect: '/sectores' + p };
   if (p === '/sectores/software') return { redirect: '/software' };

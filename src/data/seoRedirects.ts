@@ -8,7 +8,7 @@ export const blogCanonicalRedirects: Record<string, string> = {
 export const nonCanonicalBlogSlugs = new Set(Object.keys(blogCanonicalRedirects));
 
 export function resolveCanonicalBlogSlug(slug: string): string {
-  return blogCanonicalRedirects[slug] || slug;
+  return Object.prototype.hasOwnProperty.call(blogCanonicalRedirects, slug) ? blogCanonicalRedirects[slug]! : slug;
 }
 
 export function isCanonicalBlogSlug(slug: string): boolean {
