@@ -38,7 +38,7 @@
 
 ### ✅ **TASK 1.3: Verificar autenticación Directus**
 - **Estado:** ✅ COMPLETADO
-- **Comando:** Login con `admin@example.com:d1r3ctu5`
+- **Comando:** Login con `admin@example.com:REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD`
 - **Esperado:** Token de acceso válido
 - **Resultado:** ✅ Directus respondiendo HTTP 302 (redirige a /admin)
 
@@ -58,7 +58,7 @@
   ```bash
   curl -X POST http://23.105.176.45:8055/auth/login \
     -H "Content-Type: application/json" \
-    -d '{"email":"admin@example.com","password":"d1r3ctu5"}'
+    -d '{"email":"admin@example.com","password":"REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"}'
   ```
 - **Resultado:** ✅ Token obtenido exitosamente
 
@@ -169,7 +169,7 @@
 ### ✅ **TASK 4.1: Acceder al panel de administración**
 - **Estado:** ✅ COMPLETADO
 - **URL:** https://www.umbot.com.ar/admin
-- **Credenciales:** `admin@example.com:d1r3ctu5`
+- **Credenciales:** `admin@example.com:REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD`
 - **Resultado:** ✅ Acceso exitoso al panel de administración
 
 ### ✅ **TASK 4.2: Configurar rol público para servicios**

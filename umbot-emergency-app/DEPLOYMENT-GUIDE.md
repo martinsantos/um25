@@ -147,7 +147,7 @@ DIRECTUS_URL: 'https://umbot.com.ar/admin'
 ```javascript
 // Directus
 email: 'admin@example.com'
-password: 'd1r3ctu5'
+password: 'REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD'
 
 // SSH
 usuario: root@23.105.176.45

@@ -12,7 +12,7 @@ const fs = require('fs');
 const config = {
   port: process.env.PORT || 8093,
   directusUrl: process.env.DIRECTUS_URL || 'http://localhost:8055',
-  directusToken: process.env.DIRECTUS_TOKEN || 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky',
+  directusToken: process.env.DIRECTUS_TOKEN,
   environment: process.env.NODE_ENV || 'development'
 };
 

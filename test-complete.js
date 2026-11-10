@@ -257,7 +257,7 @@ async function testDirectusAPI() {
       console.log(`🔌 Testing API: ${directusUrl}${endpoint}`);
       const response = await makeRequest(`${directusUrl}${endpoint}`, {
         headers: {
-          'Authorization': 'Bearer k6P8LAY8_x_y1miB_KTlWnysCnx2Abky'
+          'Authorization': ("Bearer " + process.env.DIRECTUS_STATIC_TOKEN)
         }
       });
 

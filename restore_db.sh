@@ -37,4 +37,4 @@ docker-compose up -d
 echo "¡Restauración completada!"
 echo "Puedes acceder a Directus en: http://localhost:8055"
 echo "Usuario: admin@example.com"
-echo "Contraseña: adminpassword"
+echo "Contraseña: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"

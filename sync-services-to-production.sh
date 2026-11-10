@@ -11,11 +11,11 @@ mkdir -p $LOCAL_PATH
 
 # Crear directorio remoto si no existe
 echo "Creando directorio remoto..."
-sshpass -p "gsiB%s@0yD" ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST "mkdir -p $REMOTE_PATH"
+SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}" sshpass -e ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST "mkdir -p $REMOTE_PATH"
 
 # Sincronizar imágenes
 echo "Sincronizando imágenes..."
-sshpass -p "gsiB%s@0yD" rsync -avz --progress $LOCAL_PATH/* $REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH/
+SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}" sshpass -e rsync -avz --progress $LOCAL_PATH/* $REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH/
 
 # Sincronizar base de datos
 echo "Sincronizando base de datos..."

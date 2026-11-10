@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const DIRECTUS_URL = 'http://localhost:8055';
 const EMAIL = 'admin@example.com';
-const PASSWORD = 'adminpassword';
+const PASSWORD = process.env.DIRECTUS_ADMIN_PASSWORD;
 
 async function getRoles() {
   try {

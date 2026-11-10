@@ -5,7 +5,7 @@
 **Conectar al servidor de producción:**
 ```bash
 ssh root@23.105.176.45
-# Password: gsiB%s@0yD
+# Password: REPLACE_WITH_LEGACY_SSH_PASSWORD
 ```
 
 **Una vez conectado, ejecutar estos comandos en orden:**

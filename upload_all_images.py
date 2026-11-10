@@ -7,7 +7,7 @@ from pathlib import Path
 # Configuración de Directus
 DIRECTUS_URL = "http://localhost:8055"
 ADMIN_EMAIL = "admin@umbot.com.ar"
-ADMIN_PASSWORD = "UmbotHybridAdmin2025!"
+ADMIN_PASSWORD = os.environ["DIRECTUS_ADMIN_PASSWORD"]
 UPLOADS_DIR = "/root/fumbling-field/uploads"
 
 def login_to_directus():

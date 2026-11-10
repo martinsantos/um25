@@ -8,7 +8,7 @@ const fs = require('fs');
 class UMCompleteIndexer {
     constructor() {
         this.directusUrl = 'http://localhost:8055';
-        this.token = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+        this.token = process.env.DIRECTUS_STATIC_TOKEN;
         this.baseUrl = 'https://ultimamilla.com.ar';
         this.stats = {
             antecedentes: 0,

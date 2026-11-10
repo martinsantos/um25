@@ -88,7 +88,7 @@ try {
 **Directus Configuration**:
 ```javascript
 const DIRECTUS_URL = 'http://um25_directus:8055';  // Docker internal network
-const DIRECTUS_STATIC_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+const DIRECTUS_STATIC_TOKEN = 'REPLACE_WITH_DIRECTUS_STATIC_TOKEN';
 ```
 
 **Fetch Strategy**:

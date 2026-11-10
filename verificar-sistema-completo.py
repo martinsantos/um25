@@ -3,6 +3,7 @@
 Verificador completo del sistema UltiMilla
 Verifica que el sitio web y Directus estén funcionando correctamente
 """
+import os
 
 import requests
 import json
@@ -69,7 +70,7 @@ def authenticate_and_verify_data():
             "https://www.umbot.com.ar:8056/auth/login",
             json={
                 "email": "admin@umbot.com.ar",
-                "password": "UmbotDirectusAdmin2025!"
+                "password": os.environ["DIRECTUS_ADMIN_PASSWORD"]
             },
             timeout=30,
             verify=False
@@ -151,7 +152,7 @@ def show_summary():
     print("🔗 ENLACES IMPORTANTES:")
     print("• Sitio web: https://www.umbot.com.ar")
     print("• Panel admin: https://www.umbot.com.ar:8056/admin")
-    print("• Credenciales: admin@umbot.com.ar / UmbotDirectusAdmin2025!")
+    print("• Credenciales: admin@umbot.com.ar / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD")
     print()
     print("✨ MISIÓN CUMPLIDA:")
     print("• Todos los contenidos del sitio están ahora administrables")

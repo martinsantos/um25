@@ -109,7 +109,7 @@ The Docker daemon connectivity issue can typically be resolved by:
 - **Astro Frontend**: http://localhost:4321
 - **Directus Admin Panel**: http://localhost:8055 
   - Admin Email: admin@example.com
-  - Admin Password: d1r3ctu5
+  - Admin Password: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 
 ## Summary
 

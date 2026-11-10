@@ -79,7 +79,7 @@ Se ha rediseñado completamente la aplicación UMBot Emergency basándose en el 
 ### 🔐 Credenciales SSH
 - **Host**: 23.105.176.45
 - **Usuario**: root
-- **Contraseña**: gsiB%s@0yD
+- **Contraseña**: REPLACE_WITH_LEGACY_SSH_PASSWORD
 
 ### 🛠️ Comandos de Gestión
 ```bash

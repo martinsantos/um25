@@ -14,7 +14,7 @@ fi
 
 # Primero, enviar el archivo nosotros.astro actualizado al servidor
 echo "📤 Enviando nosotros.astro actualizado al servidor..."
-export SSHPASS='gsiB%s@0yD'
+export SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}"
 
 # Copiar archivo al servidor
 sshpass -e scp -o StrictHostKeyChecking=no src/pages/nosotros.astro root@23.105.176.45:/tmp/nosotros_fixed.astro

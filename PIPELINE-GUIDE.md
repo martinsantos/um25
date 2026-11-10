@@ -111,11 +111,11 @@ cp .env.example .env.local
 | Servicio | URL | Credenciales |
 |----------|-----|--------------|
 | **App Principal** | http://localhost:4321 | - |
-| **Directus Admin** | http://localhost:8055 | admin@umbot.local / admin123dev |
-| **Adminer (DB)** | http://localhost:8080 | directus / dev_password_2025 |
+| **Directus Admin** | http://localhost:8055 | admin@umbot.local / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD |
+| **Adminer (DB)** | http://localhost:8080 | directus / REPLACE_WITH_POSTGRES_PASSWORD |
 | **MailHog (Email)** | http://localhost:8025 | - |
 | **Redis** | localhost:6379 | - |
-| **PostgreSQL** | localhost:5432 | directus / dev_password_2025 |
+| **PostgreSQL** | localhost:5432 | directus / REPLACE_WITH_POSTGRES_PASSWORD |
 
 ### **Producción**
 | Servicio | URL | Descripción |

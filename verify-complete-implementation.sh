@@ -19,7 +19,7 @@ NC='\033[0m' # Sin color
 
 # Variables de test
 DB_USER="myuser"
-DB_PASSWORD="mypassword123"
+DB_PASSWORD="${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}"
 DB_NAME="mydatabase"
 DIRECTUS_URL="http://localhost:8055"
 ASTRO_URL="http://localhost:4321"

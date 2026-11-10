@@ -17,7 +17,7 @@ services:
     environment:
       POSTGRES_DB: directus_dev
       POSTGRES_USER: directus
-      POSTGRES_PASSWORD: dev_password_2025
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
@@ -47,15 +47,15 @@ services:
       DB_PORT: 5432
       DB_DATABASE: directus_dev
       DB_USER: directus
-      DB_PASSWORD: dev_password_2025
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       
       # Seguridad
-      KEY: directus-dev-key-fumbling-field-2025
-      SECRET: directus-dev-secret-fumbling-field-2025
+      KEY: ${DIRECTUS_KEY:?Set DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET:?Set DIRECTUS_SECRET}
       
       # Admin por defecto
       ADMIN_EMAIL: admin@umbot.local
-      ADMIN_PASSWORD: admin123dev
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD:?Set DIRECTUS_ADMIN_PASSWORD}
       
       # Configuración de desarrollo
       NODE_ENV: development

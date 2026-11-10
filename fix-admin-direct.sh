@@ -91,7 +91,7 @@ services:
     environment:
       POSTGRES_DB: directus
       POSTGRES_USER: directus
-      POSTGRES_PASSWORD: DirectusAdmin2025!
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -102,16 +102,16 @@ services:
     image: directus/directus:10.8.3
     container_name: umbot-directus-admin
     environment:
-      KEY: 'DirectusSecretKey2025UmbotAdmin'
-      SECRET: 'DirectusSecretToken2025UmbotHybrid'
+      KEY: ${DIRECTUS_KEY:?Set DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET:?Set DIRECTUS_SECRET}
       DB_CLIENT: pg
       DB_HOST: umbot-postgres-admin
       DB_PORT: 5432
       DB_DATABASE: directus
       DB_USER: directus
-      DB_PASSWORD: DirectusAdmin2025!
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       ADMIN_EMAIL: admin@umbot.com.ar
-      ADMIN_PASSWORD: UmbotDirectusAdmin2025!
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD:?Set DIRECTUS_ADMIN_PASSWORD}
       SERVE_APP: true
       CORS_ENABLED: true
       CORS_ORIGIN: true
@@ -188,7 +188,7 @@ if [ $? -eq 0 ]; then
     curl -I https://www.umbot.com.ar/admin/login 2>/dev/null | head -1
     echo ""
     echo "🌐 Panel admin disponible en: https://www.umbot.com.ar/admin"
-    echo "🔑 Credenciales: admin@umbot.com.ar / UmbotDirectusAdmin2025!"
+    echo "🔑 Credenciales: admin@umbot.com.ar / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 else
     echo ""
     echo "❌ ERROR EN LA CORRECCIÓN"

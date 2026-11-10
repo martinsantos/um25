@@ -10,7 +10,7 @@ services:
     environment:
       POSTGRES_DB: directus
       POSTGRES_USER: directus
-      POSTGRES_PASSWORD: umbot_directus_2025!
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
     networks:
@@ -27,18 +27,18 @@ services:
     image: directus/directus:10.8.3
     container_name: umbot-directus-prod
     environment:
-      KEY: 'umbot-directus-key-production-2025'
-      SECRET: 'umbot-directus-secret-production-2025'
+      KEY: ${DIRECTUS_KEY:?Set DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET:?Set DIRECTUS_SECRET}
       DB_CLIENT: 'pg'
       DB_HOST: 'postgres'
       DB_PORT: '5432'
       DB_DATABASE: 'directus'
       DB_USER: 'directus'
-      DB_PASSWORD: 'umbot_directus_2025!'
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       CACHE_ENABLED: 'true'
       CACHE_STORE: 'memory'
       ADMIN_EMAIL: 'admin@umbot.com.ar'
-      ADMIN_PASSWORD: 'UmbotAdmin2025!'
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD:?Set DIRECTUS_ADMIN_PASSWORD}
       PUBLIC_URL: 'https://www.umbot.com.ar/api'
       CORS_ENABLED: 'true'
       CORS_ORIGIN: 'https://www.umbot.com.ar,https://umbot.com.ar'

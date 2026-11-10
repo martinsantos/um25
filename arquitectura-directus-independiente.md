@@ -100,7 +100,7 @@ chmod +x verificar-frontend-estatico.sh
 #### **DIRECTUS CMS (Puerto 8055)**
 - **Contenedor**: directus-app
 - **Base de datos**: PostgreSQL (database)
-- **Credenciales**: admin@example.com / d1r3ctu5
+- **Credenciales**: admin@example.com / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 - **Colecciones**: Servicios, Antecedentes
 - **Archivos**: Sistema de gestión de imágenes
 

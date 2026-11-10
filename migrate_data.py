@@ -20,7 +20,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # Configuration
 DIRECTUS_URL = "https://www.umbot.com.ar"
 ADMIN_EMAIL = "admin@umbot.com.ar"
-ADMIN_PASSWORD = "UmbotHybridAdmin2025!"
+ADMIN_PASSWORD = os.environ["DIRECTUS_ADMIN_PASSWORD"]
 IMAGES_DIR = Path("imagenes_antecedentes_versionproduccion")
 MAX_RETRIES = 3
 BATCH_SIZE = 10

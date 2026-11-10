@@ -6,7 +6,7 @@ const pool = new Pool({
     user: 'directus',
     host: 'localhost',
     database: 'directus',
-    password: 'umbot_directus_2025!',
+    password: process.env.POSTGRES_PASSWORD,
     port: 5432,
 });
 

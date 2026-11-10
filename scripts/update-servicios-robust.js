@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import { readFileSync } from 'fs';
 
 const DIRECTUS_URL = 'https://ultimamilla.com.ar:8055';
-const TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+const TOKEN = process.env.DIRECTUS_STATIC_TOKEN;
 
 // Configuración robusta con timeouts extendidos
 const fetchWithTimeout = async (url, options = {}, timeout = 30000) => {

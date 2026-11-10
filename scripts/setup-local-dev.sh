@@ -70,14 +70,17 @@ check_dependencies() {
 setup_env() {
     log "🔧 Configurando variables de entorno locales..."
     
-    cat > "$LOCAL_ENV_FILE" << EOF
+    if [[ -e "$LOCAL_ENV_FILE" ]]; then
+        log "Se conserva $LOCAL_ENV_FILE"
+        return
+    fi
+    (umask 077; set -o noclobber; cat > "$LOCAL_ENV_FILE") << EOF
 # ULTIMA MILLA - Configuración Local de Desarrollo
 # Generado automáticamente: $(date)
 
 # Directus Configuration (Local)
 PUBLIC_DIRECTUS_URL=http://localhost:8055
-DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
-PUBLIC_DIRECTUS_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+DIRECTUS_STATIC_TOKEN=
 
 # Database Configuration (Local)
 DB_CLIENT=pg
@@ -85,7 +88,10 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_DATABASE=directus_dev
 DB_USER=directus
-DB_PASSWORD=directus123
+POSTGRES_PASSWORD=
+DIRECTUS_KEY=
+DIRECTUS_SECRET=
+DIRECTUS_ADMIN_PASSWORD=
 
 # Application Settings
 NODE_ENV=development
@@ -97,7 +103,7 @@ SITE_URL=http://localhost:4321
 ADMIN_URL=http://localhost:8055
 
 # Security
-SECRET_KEY=local-dev-secret-key-change-in-production
+SECRET_KEY=
 CORS_ENABLED=true
 CORS_ORIGIN=http://localhost:4321
 
@@ -135,7 +141,11 @@ install_dependencies() {
 setup_docker_dev() {
     log "🐳 Configurando Docker para desarrollo..."
     
-    cat > "$DOCKER_COMPOSE_DEV" << EOF
+    if [[ -e "$DOCKER_COMPOSE_DEV" ]]; then
+        log "Se conserva $DOCKER_COMPOSE_DEV"
+        return
+    fi
+    (set -o noclobber; cat > "$DOCKER_COMPOSE_DEV") << 'EOF'
 version: '3.8'
 
 services:
@@ -146,7 +156,7 @@ services:
     environment:
       POSTGRES_DB: directus_dev
       POSTGRES_USER: directus
-      POSTGRES_PASSWORD: directus123
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -164,18 +174,18 @@ services:
       - directus_dev_uploads:/directus/uploads
       - directus_dev_extensions:/directus/extensions
     environment:
-      KEY: 'pzdIoGXgfJODqy8lLFxwi2NOK/K7j7Qii7W26rHS9Tk='
-      SECRET: 'd/QUPftXXNdfnAmN5SSmWPrYLzHqWF9rixk6XrwchR4='
+      KEY: ${DIRECTUS_KEY:?Set DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET:?Set DIRECTUS_SECRET}
       DB_CLIENT: 'pg'
       DB_HOST: 'postgres-dev'
       DB_PORT: '5432'
       DB_DATABASE: 'directus_dev'
       DB_USER: 'directus'
-      DB_PASSWORD: 'directus123'
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       ADMIN_EMAIL: 'admin@example.com'
-      ADMIN_PASSWORD: 'd1r3ctu5'
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD:?Set DIRECTUS_ADMIN_PASSWORD}
       PUBLIC_URL: 'http://localhost:8055'
-      DIRECTUS_STATIC_TOKEN: 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky'
+      DIRECTUS_STATIC_TOKEN: ${DIRECTUS_STATIC_TOKEN:-}
       PUBLIC_ASSETS: 'true'
       ASSETS_TRANSFORM_TOKEN_OPTIONAL: 'true'
       CORS_ENABLED: 'true'
@@ -263,7 +273,7 @@ if ! docker info > /dev/null 2>&1; then
     npm run dev
 else
     echo "🐳 Iniciando servicios Docker..."
-    docker-compose -f docker-compose.dev.yml up -d
+    docker-compose --env-file .env.local -f docker-compose.dev.yml up -d
     
     echo "⏳ Esperando que los servicios estén listos..."
     sleep 10
@@ -280,7 +290,7 @@ echo "🛑 Parando entorno de desarrollo..."
 
 # Parar Docker si está corriendo
 if docker info > /dev/null 2>&1; then
-    docker-compose -f docker-compose.dev.yml down
+    docker-compose --env-file .env.local -f docker-compose.dev.yml down
 fi
 
 # Matar procesos de Node si existen
@@ -300,7 +310,7 @@ echo "🔄 Reseteando entorno de desarrollo..."
 
 # Limpiar Docker
 if docker info > /dev/null 2>&1; then
-    docker-compose -f docker-compose.dev.yml down -v
+    docker-compose --env-file .env.local -f docker-compose.dev.yml down -v
     docker system prune -f
 fi
 
@@ -400,8 +410,8 @@ npm run build           # Build para producción
 npm run preview         # Preview del build
 
 # Docker
-docker-compose -f docker-compose.dev.yml up -d    # Iniciar servicios
-docker-compose -f docker-compose.dev.yml down     # Parar servicios
+docker-compose --env-file .env.local -f docker-compose.dev.yml up -d    # Iniciar servicios
+docker-compose --env-file .env.local -f docker-compose.dev.yml down     # Parar servicios
 
 # Testing
 npm run test            # Tests unitarios
@@ -432,9 +442,9 @@ fumbling-field/
 
 ## 🔑 Credenciales de Desarrollo
 
-- **Directus Admin**: admin@example.com / d1r3ctu5
-- **Database**: directus / directus123
-- **Token**: k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+- **Directus Admin**: configurá el usuario y DIRECTUS_ADMIN_PASSWORD en .env.local
+- **Database**: configurá POSTGRES_PASSWORD en .env.local
+- **Token**: configurá DIRECTUS_STATIC_TOKEN para probar autenticación
 
 ## 🐛 Troubleshooting
 
@@ -445,8 +455,8 @@ lsof -ti:4321 | xargs kill -9
 
 ### Reset de base de datos
 ```bash
-docker-compose -f docker-compose.dev.yml down -v
-docker-compose -f docker-compose.dev.yml up -d
+docker-compose --env-file .env.local -f docker-compose.dev.yml down -v
+docker-compose --env-file .env.local -f docker-compose.dev.yml up -d
 ```
 
 ### Cache corrupto

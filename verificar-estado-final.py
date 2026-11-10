@@ -3,6 +3,7 @@
 Script de verificación completa del estado final del sistema
 Verifica Directus, antecedentes, servicios e imágenes
 """
+import os
 import requests
 import urllib3
 import json
@@ -15,7 +16,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # Configuración
 DIRECTUS_URL = "https://www.umbot.com.ar:8056"
 ADMIN_EMAIL = "admin@umbot.com.ar"
-ADMIN_PASSWORD = "UmbotDirectusAdmin2025!"
+ADMIN_PASSWORD = os.environ["DIRECTUS_ADMIN_PASSWORD"]
 
 def authenticate() -> str:
     """Obtiene un token de acceso de Directus."""

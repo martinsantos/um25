@@ -7,7 +7,7 @@ const url = require('url');
 
 const PORT = 8093;
 const DIRECTUS_URL = 'http://23.105.176.45:8055';
-const DIRECTUS_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+const DIRECTUS_TOKEN = process.env.DIRECTUS_STATIC_TOKEN;
 
 console.log('🚀 Starting Dynamic Servicios SSR Proxy with Authentication...');
 

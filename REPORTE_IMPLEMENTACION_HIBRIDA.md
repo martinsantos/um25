@@ -24,7 +24,7 @@
 - 🌍 **Sitio**: https://www.umbot.com.ar
 - 🎛️ **Admin**: https://www.umbot.com.ar/admin
 - 👤 **Usuario**: admin@umbot.com.ar
-- 🔑 **Password**: UmbotHybridAdmin2025!
+- 🔑 **Password**: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 
 ## 📈 **PROCESO DE IMPLEMENTACIÓN**
 

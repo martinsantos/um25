@@ -102,7 +102,7 @@ FROM node:18-alpine
 
 ### Acceso SSH al servidor
 ```bash
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45
 ```
 
 ### Ver logs del dashboard

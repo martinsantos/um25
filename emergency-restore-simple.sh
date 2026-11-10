@@ -32,7 +32,7 @@ services:
     environment:
       POSTGRES_DB: directus
       POSTGRES_USER: directus
-      POSTGRES_PASSWORD: directus123
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
     volumes:
       - postgres_simple:/var/lib/postgresql/data
     networks:
@@ -44,16 +44,16 @@ services:
     image: directus/directus:10.8.3
     container_name: umbot-directus-simple
     environment:
-      KEY: 255d861b-5ea1-5996-9aa3-922530ec40b1
-      SECRET: 6116487b-cda1-52c2-b5b5-c8022c45e263
+      KEY: ${DIRECTUS_KEY:?Set DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET:?Set DIRECTUS_SECRET}
       DB_CLIENT: pg
       DB_HOST: postgres-simple
       DB_PORT: 5432
       DB_DATABASE: directus
       DB_USER: directus
-      DB_PASSWORD: directus123
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       ADMIN_EMAIL: admin@umbot.com.ar
-      ADMIN_PASSWORD: EmergencyAdmin2025!
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD:?Set DIRECTUS_ADMIN_PASSWORD}
       PUBLIC_URL: https://www.umbot.com.ar
     volumes:
       - directus_simple:/directus/uploads

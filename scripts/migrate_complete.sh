@@ -2,7 +2,7 @@
 
 # Configuración
 DIRECTUS_URL="http://localhost:8055"
-TOKEN="k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+TOKEN="${DIRECTUS_STATIC_TOKEN:?Set DIRECTUS_STATIC_TOKEN}"
 
 echo "Iniciando migración completa..."
 

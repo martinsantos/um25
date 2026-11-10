@@ -59,7 +59,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # Configuración
 DIRECTUS_URL = "https://www.umbot.com.ar:8056"
 ADMIN_EMAIL = "admin@umbot.com.ar"
-ADMIN_PASSWORD = "UmbotDirectusAdmin2025!"
+ADMIN_PASSWORD = "REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 IMAGES_DIR = Path("imagenes_antecedentes_versionproduccion")
 
 # Solo las 3 imágenes que fallaron

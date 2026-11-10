@@ -3,7 +3,7 @@ const fs = require('fs');
 
 const DIRECTUS_URL = 'https://umbot.com.ar';
 const ADMIN_EMAIL = 'admin@example.com';
-const ADMIN_PASSWORD = 'd1r3ctu5';
+const ADMIN_PASSWORD = process.env.DIRECTUS_ADMIN_PASSWORD;
 
 async function authenticate() {
   try {

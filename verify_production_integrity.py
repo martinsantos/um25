@@ -1,3 +1,4 @@
+import os
 
 import requests
 import re
@@ -8,7 +9,7 @@ from collections import Counter
 # Configuration
 DIRECTUS_URL = "http://localhost:8055"
 SITE_URL = "https://www.ultimamilla.com.ar"
-TOKEN = "k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+TOKEN = os.environ["DIRECTUS_STATIC_TOKEN"]
 HEADERS = {"Authorization": f"Bearer {TOKEN}"}
 
 def verify_site():

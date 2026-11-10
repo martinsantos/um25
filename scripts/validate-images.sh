@@ -10,7 +10,7 @@ echo -e "${YELLOW}Iniciando validación de imágenes...${NC}\n"
 
 # 1. Verificar imágenes en Directus
 echo -e "${YELLOW}1. Verificando imágenes en Directus...${NC}"
-curl -s -H "Authorization: Bearer $(curl -s -X POST http://localhost:8055/auth/login -H "Content-Type: application/json" -d '{"email":"admin@example.com","password":"d1r3ctu5"}' | jq -r '.data.access_token')" http://localhost:8055/files | jq '.data[] | {id, title, type, width, height}'
+curl -s -H "Authorization: Bearer $(curl -s -X POST http://localhost:8055/auth/login -H "Content-Type: application/json" -d '{"email":"admin@example.com","password":"REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"}' | jq -r '.data.access_token')" http://localhost:8055/files | jq '.data[] | {id, title, type, width, height}'
 
 # 2. Verificar imágenes en el sistema de archivos
 echo -e "\n${YELLOW}2. Verificando imágenes en el sistema de archivos...${NC}"

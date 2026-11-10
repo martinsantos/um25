@@ -55,7 +55,7 @@
 ```
 URL: https://23.105.176.45:8090
 Usuario: admin
-Password: gsiB%s@0yD
+Password: REPLACE_WITH_LEGACY_SSH_PASSWORD
 Status: ✅ ACCESIBLE
 ```
 

@@ -17,7 +17,7 @@ El sistema UM CLI ahora obtiene datos reales directamente desde Directus CMS, el
 ## 🔍 PROBLEMAS IDENTIFICADOS Y RESUELTOS
 
 ### 1. **❌ TOKEN ESTÁTICO EXPIRADO** → ✅ **RESUELTO**
-- **Problema**: Token `k6P8LAY8_x_y1miB_KTlWnysCnx2Abky` reportaba "Invalid user credentials"
+- **Problema**: Token `REPLACE_WITH_DIRECTUS_STATIC_TOKEN` reportaba "Invalid user credentials"
 - **Causa Raíz**: Token expirado en Directus 11.7.2
 - **Solución**: Configurado acceso público a colecciones, eliminando necesidad de token
 
@@ -39,7 +39,7 @@ El sistema UM CLI ahora obtiene datos reales directamente desde Directus CMS, el
 ```bash
 ✅ Contenedor: directus-app (Up 21 minutes)
 ✅ Puerto: 8055 (respondiendo HTTP 302 - normal)  
-✅ Admin Panel: Accesible con admin@example.com/d1r3ctu5
+✅ Admin Panel: Accesible con admin@example.com/REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 ✅ Colecciones: "Servicios" y "Antecedentes" confirmadas
 ```
 

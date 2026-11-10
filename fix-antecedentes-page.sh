@@ -7,7 +7,7 @@
 # Variables
 SERVER="23.105.176.45"
 USER="root"
-PASS="gsiB%s@0yD"
+PASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}"
 DOCKER_DIR="/root/fumbling-field"
 
 # Colores
@@ -53,7 +53,7 @@ ssh_exec "cd $DOCKER_DIR && docker exec astro-app find /app/src -type f -name '*
 
 # Verificar si existe contenido de antecedentes en Directus
 echo -e "\n${YELLOW}6. Verificando contenido de antecedentes en Directus...${NC}"
-TOKEN_CMD="curl -s -X POST http://localhost:8055/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"admin@example.com\",\"password\":\"d1r3ctu5\"}' | grep -o '\"access_token\":\"[^\"]*' | cut -d'\"' -f4"
+TOKEN_CMD="curl -s -X POST http://localhost:8055/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"admin@example.com\",\"password\":\"REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD\"}' | grep -o '\"access_token\":\"[^\"]*' | cut -d'\"' -f4"
 TOKEN=$(ssh_exec "$TOKEN_CMD")
 
 if [[ -n "$TOKEN" ]]; then

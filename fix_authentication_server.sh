@@ -53,10 +53,10 @@ echo -e "\n${YELLOW}[3/10] Actualizando archivo .env.prod...${NC}"
 cat > .env.prod << 'EOF'
 # Directus Configuration
 PUBLIC_DIRECTUS_URL=http://23.105.176.45:8055
-PUBLIC_DIRECTUS_TOKEN="k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
-DIRECTUS_STATIC_TOKEN="k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
-DIRECTUS_KEY="pzdIoGXgfJODqy8lLFxwi2NOK/K7j7Qii7W26rHS9Tk="
-DIRECTUS_SECRET="d/QUPftXXNdfnAmN5SSmWPrYLzHqWF9rixk6XrwchR4="
+PUBLIC_DIRECTUS_TOKEN="REPLACE_WITH_DIRECTUS_STATIC_TOKEN"
+DIRECTUS_STATIC_TOKEN="REPLACE_WITH_DIRECTUS_STATIC_TOKEN"
+DIRECTUS_KEY="REPLACE_WITH_DIRECTUS_KEY"
+DIRECTUS_SECRET="REPLACE_WITH_DIRECTUS_SECRET"
 
 # Site Configuration
 SITE_URL=http://23.105.176.45:8080
@@ -67,12 +67,12 @@ DB_CLIENT=pg
 DB_HOST=database
 DB_PORT=5432
 DB_USER=myuser
-DB_PASSWORD=mypassword
+DB_PASSWORD=REPLACE_WITH_POSTGRES_PASSWORD
 DB_DATABASE=mydatabase
 
 # Admin User (only used on first run)
 ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=adminpassword
+ADMIN_PASSWORD=REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 
 # CORS Configuration
 CORS_ENABLED=true
@@ -115,7 +115,7 @@ services:
     environment:
       - NODE_ENV=production
       - DIRECTUS_URL=http://directus-app:8055
-      - PUBLIC_DIRECTUS_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+      - PUBLIC_DIRECTUS_TOKEN=REPLACE_WITH_DIRECTUS_STATIC_TOKEN
     depends_on:
       - directus-app
     networks:
@@ -247,7 +247,7 @@ fi
 
 # 6. Actualizar token en la base de datos
 echo -e "\n${YELLOW}[6/10] Actualizando token en la base de datos...${NC}"
-CORRECT_TOKEN="k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+CORRECT_TOKEN="${DIRECTUS_STATIC_TOKEN:?Set DIRECTUS_STATIC_TOKEN}"
 if docker ps | grep -q "database"; then
   echo -e "${YELLOW}Ejecutando actualización del token...${NC}"
   docker exec database psql -U myuser -d mydatabase -c "UPDATE directus_users SET token = '$CORRECT_TOKEN' WHERE admin_access = true;"
@@ -294,7 +294,7 @@ cat > fix_astro_compiled.sh << 'EOF'
 # Script para actualizar el token en los archivos compilados de Astro
 
 OLD_TOKEN="eqGR2YD4QrMIsftG6V2FR5MuNu0Ope6-"
-NEW_TOKEN="k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+NEW_TOKEN="REPLACE_WITH_DIRECTUS_STATIC_TOKEN"
 
 # Ejecutar dentro del contenedor de Astro
 if docker ps | grep -q "astro-app"; then

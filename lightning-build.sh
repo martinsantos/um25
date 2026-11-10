@@ -32,7 +32,7 @@ tar -czf lightning-deploy.tar.gz \
 echo "🚀 Lightning deploy to production..."
 
 # Single SSH session with all commands batched
-sshpass -p 'gsiB%s@0yD' ssh -o ConnectTimeout=5 -o BatchMode=no root@23.105.176.45 << 'ENDSSH'
+SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}" sshpass -e ssh -o ConnectTimeout=5 -o BatchMode=no root@23.105.176.45 << 'ENDSSH'
 set -e
 echo "📡 Connected to production server"
 
@@ -46,14 +46,14 @@ ENDSSH
 
 # Step 4: File transfer with compression and resume
 echo "📁 Transferring files..."
-sshpass -p 'gsiB%s@0yD' scp -o ConnectTimeout=10 -C lightning-deploy.tar.gz root@23.105.176.45:/tmp/ || {
+SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}" sshpass -e scp -o ConnectTimeout=10 -C lightning-deploy.tar.gz root@23.105.176.45:/tmp/ || {
     echo "⚠️  Transfer failed, will retry with smaller chunks"
     exit 1
 }
 
 # Step 5: Quick extraction and restart (atomic operation)
 echo "🔄 Final deployment step..."
-sshpass -p 'gsiB%s@0yD' ssh -o ConnectTimeout=5 root@23.105.176.45 << 'ENDSSH2'
+SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}" sshpass -e ssh -o ConnectTimeout=5 root@23.105.176.45 << 'ENDSSH2'
 set -e
 cd /root/fumbling-field
 tar -xzf /tmp/lightning-deploy.tar.gz 2>/dev/null || echo "Extraction warnings ignored"

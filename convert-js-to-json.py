@@ -314,7 +314,7 @@ def generate_web_importer(antecedentes: List[Dict], servicios: List[Dict]):
             
             <div class="form-group">
                 <label>🔑 Contraseña:</label>
-                <input type="password" id="password" value="UmbotDirectusAdmin2025!" />
+                <input type="password" id="password" value=os.environ["DIRECTUS_ADMIN_PASSWORD"] />
             </div>
             
             <div>

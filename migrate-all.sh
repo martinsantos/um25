@@ -3,7 +3,7 @@
 # Configuración
 DIRECTUS_URL="http://localhost:8055"
 ADMIN_EMAIL="admin@example.com"
-ADMIN_PASSWORD="adminpassword"
+ADMIN_PASSWORD="${DIRECTUS_ADMIN_PASSWORD:?Set DIRECTUS_ADMIN_PASSWORD}"
 
 echo "Iniciando proceso de migración completa..."
 

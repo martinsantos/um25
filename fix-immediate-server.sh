@@ -41,7 +41,7 @@ services:
     environment:
       POSTGRES_DB: directus
       POSTGRES_USER: directus
-      POSTGRES_PASSWORD: DirectusAdmin2025!
+      POSTGRES_PASSWORD: REPLACE_WITH_POSTGRES_PASSWORD
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -52,16 +52,16 @@ services:
     image: directus/directus:10.8.3
     container_name: umbot-directus-admin
     environment:
-      KEY: "DirectusSecretKey2025UmbotAdmin"
-      SECRET: "DirectusSecretToken2025UmbotHybrid"
+      KEY: "REPLACE_WITH_DIRECTUS_KEY"
+      SECRET: "REPLACE_WITH_DIRECTUS_SECRET"
       DB_CLIENT: pg
       DB_HOST: umbot-postgres-admin
       DB_PORT: 5432
       DB_DATABASE: directus
       DB_USER: directus
-      DB_PASSWORD: DirectusAdmin2025!
+      DB_PASSWORD: REPLACE_WITH_POSTGRES_PASSWORD
       ADMIN_EMAIL: admin@umbot.com.ar
-      ADMIN_PASSWORD: UmbotDirectusAdmin2025!
+      ADMIN_PASSWORD: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
       SERVE_APP: true
       CORS_ENABLED: true
       CORS_ORIGIN: true

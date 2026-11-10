@@ -42,7 +42,7 @@ npm run dev
 
 # Accesos:
 # Frontend: http://localhost:4321
-# Admin: http://localhost:8055 (admin@example.com / d1r3ctu5)
+# Admin: http://localhost:8055 (admin@example.com / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD)
 ```
 
 ---
@@ -269,7 +269,7 @@ directus_files (821 registros)
 ```bash
 # Acceso SSH
 ssh root@23.105.176.45
-# Password: gsiB%s@0yD
+# Password: REPLACE_WITH_LEGACY_SSH_PASSWORD
 
 # Directorio del proyecto
 cd /root/fumbling-field
@@ -314,7 +314,7 @@ curl http://localhost:4321
 
 # 4. Acceder a admin (opcional)
 # http://localhost:8055
-# admin@example.com / d1r3ctu5
+# admin@example.com / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 ```
 
 ---

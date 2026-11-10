@@ -113,7 +113,7 @@ scp -r umbot-emergency-app-dist/* root@servidor:/var/www/emergency/
 ### Directus
 - URL: https://umbot.com.ar/admin
 - Email: admin@example.com
-- Password: d1r3ctu5
+- Password: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 
 ### SSH
 - Servidor: 23.105.176.45

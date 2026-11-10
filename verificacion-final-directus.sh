@@ -10,7 +10,7 @@ echo ""
 # Variables
 SERVER_IP="23.105.176.45"
 SERVER_USER="root"
-SERVER_PASS="gsiB%s@0yD"
+SERVER_PASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}"
 
 # Función para ejecutar comandos SSH
 execute_ssh() {
@@ -54,7 +54,7 @@ execute_ssh "curl -s 'http://localhost:8055/items/Antecedentes?limit=1' | grep -
 
 echo "🔐 VERIFICANDO AUTENTICACIÓN"
 echo "============================"
-execute_ssh "curl -s -X POST http://localhost:8055/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"admin@example.com\",\"password\":\"d1r3ctu5\"}' | grep -o '\"access_token\"' | wc -l" "Login de administrador"
+execute_ssh "curl -s -X POST http://localhost:8055/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"admin@example.com\",\"password\":\"REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD\"}' | grep -o '\"access_token\"' | wc -l" "Login de administrador"
 
 echo ""
 echo "✅ VERIFICACIÓN FINAL COMPLETADA"
@@ -75,7 +75,7 @@ echo "• API Antecedentes: http://23.105.176.45:8055/items/Antecedentes"
 echo ""
 echo "🔐 CREDENCIALES DE ACCESO:"
 echo "• Usuario: admin@example.com"
-echo "• Contraseña: d1r3ctu5"
+echo "• Contraseña: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 echo ""
 echo "🎯 ESTADO FINAL: ✅ IMPLEMENTACIÓN EXITOSA"
 echo "Directus CMS está funcionando independientemente sin afectar el frontend estático."

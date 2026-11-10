@@ -58,7 +58,7 @@ services:
     environment:
       POSTGRES_DB: mydatabase
       POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -72,17 +72,17 @@ services:
   directus-app:
     image: directus/directus:11.7.2
     environment:
-      KEY: '255d861b-5ea1-5996-9aa3-922530ec40b1'
-      SECRET: '6116487b-cda1-52c2-b5b5-c8022c45e263'
+      KEY: ${DIRECTUS_KEY:?Set DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET:?Set DIRECTUS_SECRET}
       DB_CLIENT: 'pg'
       DB_HOST: 'database'
       DB_PORT: '5432'
       DB_DATABASE: 'mydatabase'
       DB_USER: 'myuser'
-      DB_PASSWORD: 'mypassword'
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       CACHE_ENABLED: 'false'
       ADMIN_EMAIL: 'admin@umbot.com.ar'
-      ADMIN_PASSWORD: 'UmbotHybridAdmin2025!'
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD:?Set DIRECTUS_ADMIN_PASSWORD}
       PUBLIC_URL: 'https://www.umbot.com.ar'
       CORS_ENABLED: 'true'
       CORS_ORIGIN: 'https://www.umbot.com.ar,http://localhost:4321'
@@ -300,7 +300,7 @@ ENABLE_ADMIN=true
 PUBLIC_DIRECTUS_URL=https://www.umbot.com.ar/api
 DIRECTUS_URL=http://directus-app:8055
 DIRECTUS_ADMIN_EMAIL=admin@umbot.com.ar
-DIRECTUS_ADMIN_PASSWORD=UmbotHybridAdmin2025!
+DIRECTUS_ADMIN_PASSWORD=REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 
 # Base de datos
 DB_CLIENT=pg
@@ -308,11 +308,11 @@ DB_HOST=database
 DB_PORT=5432
 DB_DATABASE=mydatabase
 DB_USER=myuser
-DB_PASSWORD=mypassword
+DB_PASSWORD=REPLACE_WITH_POSTGRES_PASSWORD
 
 # Seguridad
-KEY=255d861b-5ea1-5996-9aa3-922530ec40b1
-SECRET=6116487b-cda1-52c2-b5b5-c8022c45e263
+KEY=REPLACE_WITH_DIRECTUS_KEY
+SECRET=REPLACE_WITH_DIRECTUS_SECRET
 ADMIN_TOKEN=UmbotHybridToken2025
 
 # CORS
@@ -401,7 +401,7 @@ echo "   📊 API Directus: https://www.umbot.com.ar/api"
 echo ""
 echo "👤 Credenciales de administración:"
 echo "   📧 Usuario: admin@umbot.com.ar"
-echo "   🔑 Contraseña: UmbotHybridAdmin2025!"
+echo "   🔑 Contraseña: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 echo ""
 echo "🔧 Características implementadas:"
 echo "   ✅ Sitio estático mantenido (sin interrupciones)"

@@ -152,3 +152,15 @@ apache/
 *.conf.backup*
 *.yml.backup*
 *.json.backup*
+
+# Keep local credentials out of the build context
+**/.env
+**/.env.*
+**/.htpasswd
+**/privkey*.pem
+**/private_key.json
+**/*.key
+**/*.p12
+**/*.pfx
+directus-admin/certbot/conf/accounts/
+env-server-production

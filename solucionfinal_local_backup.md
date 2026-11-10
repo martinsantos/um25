@@ -497,8 +497,8 @@ El **UMTerminal está completamente funcional** y listo para demostrar las capac
 - **Estado**: ✅ Completamente funcional
 - **Credenciales**:
   - Usuario: admin@example.com
-  - Contraseña: d1r3ctu5
-- **API Token**: k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+  - Contraseña: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
+- **API Token**: REPLACE_WITH_DIRECTUS_STATIC_TOKEN
 
 ### Colecciones Configuradas:
 - **Servicios**: CRUD completo, relaciones configuradas
@@ -621,7 +621,7 @@ Estado: ⚠️ REQUIERE ATENCIÓN (Volumen de datos al 96%)
 ```bash
 # Directus Configuration
 PUBLIC_DIRECTUS_URL=http://directus-app:8055
-DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+DIRECTUS_STATIC_TOKEN=REPLACE_WITH_DIRECTUS_STATIC_TOKEN
 
 # Database Configuration
 DB_CLIENT=pg
@@ -629,7 +629,7 @@ DB_HOST=database
 DB_PORT=5432
 DB_DATABASE=mydatabase
 DB_USER=myuser
-DB_PASSWORD=mypassword123
+DB_PASSWORD=REPLACE_WITH_POSTGRES_PASSWORD
 
 # Application Settings
 NODE_ENV=production
@@ -646,7 +646,7 @@ services:
     container_name: database
     environment:
       POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword123
+      POSTGRES_PASSWORD: REPLACE_WITH_POSTGRES_PASSWORD
       POSTGRES_DB: mydatabase
     volumes:
       - directus_db_data:/var/lib/postgresql/data
@@ -662,10 +662,10 @@ services:
       DB_PORT: 5432
       DB_DATABASE: mydatabase
       DB_USER: myuser
-      DB_PASSWORD: mypassword123
-      DIRECTUS_STATIC_TOKEN: k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+      DB_PASSWORD: REPLACE_WITH_POSTGRES_PASSWORD
+      DIRECTUS_STATIC_TOKEN: REPLACE_WITH_DIRECTUS_STATIC_TOKEN
       ADMIN_EMAIL: admin@example.com
-      ADMIN_PASSWORD: d1r3ctu5
+      ADMIN_PASSWORD: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 
   astro-app:
     build:
@@ -677,7 +677,7 @@ services:
     environment:
       NODE_ENV: production
       PUBLIC_DIRECTUS_URL: http://directus-app:8055
-      DIRECTUS_STATIC_TOKEN: k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+      DIRECTUS_STATIC_TOKEN: REPLACE_WITH_DIRECTUS_STATIC_TOKEN
 ```
 
 ---
@@ -750,7 +750,7 @@ Host: localhost (interno a contenedores)
 Port: 5432
 Database: mydatabase
 User: myuser
-Password: mypassword123
+Password: REPLACE_WITH_POSTGRES_PASSWORD
 ```
 
 ### Conexión Externa:
@@ -765,13 +765,13 @@ docker exec -it database psql -U myuser mydatabase
 ```bash
 URL: http://localhost:8055/admin
 Email: admin@example.com
-Password: d1r3ctu5
+Password: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 ```
 
 ### API Access:
 ```bash
 Base URL: http://localhost:8055
-Static Token: k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+Static Token: REPLACE_WITH_DIRECTUS_STATIC_TOKEN
 Authentication: Bearer Token
 ```
 
@@ -863,7 +863,7 @@ docker exec -i database psql -U myuser mydatabase < backup.sql
 curl -I https://ultimamilla.com.ar
 
 # Verificar API de Directus
-curl -H "Authorization: Bearer k6P8LAY8_x_y1miB_KTlWnysCnx2Abky" \
+curl -H "Authorization: Bearer REPLACE_WITH_DIRECTUS_STATIC_TOKEN" \
      "http://localhost:8055/server/health"
 
 # Verificar base de datos
@@ -1137,7 +1137,7 @@ docker-compose -f docker-compose-backup.yml up -d
 
 #### Estado Actual de Templates:
 
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "tail -f /tmp/uptime-update.log"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "tail -f /tmp/uptime-update.log"
 # 🚨 UMBOT.COM.AR - ANÁLISIS DE INCIDENTES - 29 JULIO 2025
 
 ## 📋 ACTUALIZACIÓN - RECUPERACIÓN DE SINGLE PAGES DE SERVICIOS (31/07/2025)
@@ -1443,7 +1443,7 @@ const fetchServiceDetail = async (token, id) => {
 │   └── Metadata completa
 │
 ├── Directus CMS (http://localhost:8055)
-│   ├── Token: k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+│   ├── Token: REPLACE_WITH_DIRECTUS_STATIC_TOKEN
 │   ├── Colección: Servicios
 │   └── API: /items/Servicios/{id}
 │
@@ -2552,7 +2552,7 @@ Scripts del sistema:
 
 ##### **Servidor**
 - **SSH**: root@23.105.176.45
-- **Password**: gsiB%s@0yD
+- **Password**: REPLACE_WITH_LEGACY_SSH_PASSWORD
 - **Directorio Dashboard**: /var/www/emergency/
 - **Logs del Sistema**: /tmp/emergency-server.log
 
@@ -2561,25 +2561,25 @@ Scripts del sistema:
 ##### **Reiniciar Dashboard**
 ```bash
 # Reiniciar servicio del dashboard
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "pkill -f python3.*8091 && cd /var/www/emergency/public && python3 -m http.server 8091 &"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "pkill -f python3.*8091 && cd /var/www/emergency/public && python3 -m http.server 8091 &"
 ```
 
 ##### **Verificar Estado**
 ```bash
 # Estado del proceso
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "ps aux | grep 8091"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "ps aux | grep 8091"
 
 # Estado del puerto
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "netstat -tlnp | grep :8091"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "netstat -tlnp | grep :8091"
 ```
 
 ##### **Ver Logs**
 ```bash
 # Logs del servidor HTTP
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "tail -f /tmp/emergency-server.log"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "tail -f /tmp/emergency-server.log"
 
 # Logs del uptime script
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "tail -f /tmp/uptime-update.log"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "tail -f /tmp/uptime-update.log"
 ```
 
 #### **✅ VALIDACIÓN COMPLETA FINAL**
@@ -2621,7 +2621,7 @@ curl -I https://ultimamilla.com.ar/log/          # Verificar acceso HTTPS
 curl -I http://23.105.176.45:8091          # Verificar acceso directo
 
 # Reiniciar si es necesario
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "cd /var/www/emergency/public && python3 -m http.server 8091 &"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "cd /var/www/emergency/public && python3 -m http.server 8091 &"
 ```
 
 ##### **🔗 Referencias de Implementación**
@@ -2680,7 +2680,7 @@ umbot-astro-static    Up 9 minutes (unhealthy)   4321/tcp
 ###### **Panel de Administración**
 - ✅ **Directus CMS**: http://23.105.176.45:8055/admin
   - Usuario: `admin@example.com`
-  - Contraseña: `d1r3ctu5`
+  - Contraseña: `REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD`
 
 ###### **UMBot Emergency App**
 - ✅ **Emergency Monitor**: http://23.105.176.45:8091
@@ -2767,13 +2767,13 @@ SERVICES: [
 ##### **Servidor SSH**
 - **Host**: `23.105.176.45`
 - **Usuario**: `root`
-- **Contraseña**: `gsiB%s@0yD`
+- **Contraseña**: `REPLACE_WITH_LEGACY_SSH_PASSWORD`
 - **Directorio**: `/root/fumbling-field`
 
 ##### **Directus CMS**
 - **URL**: http://23.105.176.45:8055/admin
 - **Usuario**: `admin@example.com`
-- **Contraseña**: `d1r3ctu5`
+- **Contraseña**: `REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD`
 - **Token API**: Generado dinámicamente
 
 ##### **Grafana**
@@ -2785,7 +2785,7 @@ SERVICES: [
 ##### **PostgreSQL**
 - **Host**: `localhost` (dentro de contenedores)
 - **Usuario**: `myuser`
-- **Contraseña**: `mypassword`
+- **Contraseña**: `REPLACE_WITH_POSTGRES_PASSWORD`
 - **Base de datos**: `mydatabase`
 - **Puerto**: `5432`
 
@@ -3109,7 +3109,7 @@ npm run dev
 # - Front-end: http://localhost:4321
 # - Admin Directus: http://localhost:8055 (opcional)
 # - Usuario: admin@example.com
-# - Contraseña: d1r3ctu5
+# - Contraseña: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 ```
 
 ## 🔧 **Configuración de Tokens**
@@ -3195,7 +3195,7 @@ curl -H "Authorization: Bearer [TOKEN]" "http://localhost:8055/items/Servicios?l
 #### **Token de Autenticación**
 ```bash
 # Token estático utilizado para API
-TOKEN="k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+TOKEN="REPLACE_WITH_DIRECTUS_STATIC_TOKEN"
 ```
 
 ### **FUNCIONALIDAD DINÁMICA VERIFICADA**
@@ -3226,12 +3226,12 @@ Antecedentes: 200 OK
 #### **Acceso Admin Directus**
 - **URL:** http://23.105.176.45:8055/admin
 - **Usuario:** admin@example.com
-- **Contraseña:** d1r3ctu5
+- **Contraseña:** REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 - **Estado:** ✅ FUNCIONANDO PERFECTAMENTE
 
 #### **API Access**
 - **Endpoint:** http://23.105.176.45:8055
-- **Token:** k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+- **Token:** REPLACE_WITH_DIRECTUS_STATIC_TOKEN
 - **Estado:** ✅ COMPLETAMENTE OPERACIONAL
 
 ### **ARQUITECTURA FINAL**
@@ -3270,7 +3270,7 @@ Discrepancia crítica entre contenido del admin Directus y frontend Astro:
 - Sistema parcialmente desincronizado
 
 ### **SOLUCIÓN IMPLEMENTADA**
-1. **Creación usuario admin correcto** (admin@example.com / d1r3ctu5)
+1. **Creación usuario admin correcto** (admin@example.com / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD)
 2. **Migración masiva** de 469 antecedentes históricos a Directus
 3. **Verificación de equivalencia** de 6 servicios principales
 4. **Limpieza de archivos fallback** obsoletos
@@ -3363,7 +3363,7 @@ HTTP error! status: 403
 - ❌ **Antes**: Dependían de `sshpass` y `apt-get` (incompatible con RedHat/CentOS)
 - ✅ **Ahora**: Detección automática de OS (RedHat/Debian) e instalación según el sistema
 - ❌ **Antes**: Credenciales de Directus hardcodeadas incorrectas
-- ✅ **Ahora**: Credenciales correctas (`admin@example.com:d1r3ctu5`) y fallback a modo estático
+- ✅ **Ahora**: Credenciales correctas (`admin@example.com:REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD`) y fallback a modo estático
 
 #### 🎯 **SOLUCIÓN FINAL AL PROBLEMA DE GITHUB**
 
@@ -3428,7 +3428,7 @@ docker-compose -f docker-compose.static.yml ps
 
 **Este script:**
 1. ✅ Prueba múltiples combinaciones de credenciales automáticamente
-2. ✅ Obtiene token válido con credenciales correctas (`admin@example.com:d1r3ctu5`)
+2. ✅ Obtiene token válido con credenciales correctas (`admin@example.com:REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD`)
 3. ✅ Actualiza `.env.local` con el token válido automáticamente
 4. ✅ Configura fallback a modo estático si no se puede autenticar
 5. ✅ Verifica funcionamiento del token obtenido
@@ -3460,7 +3460,7 @@ USE_STATIC_DATA=true
 - ✅ **Sistema**: CentOS/RHEL 9.4 (detectado automáticamente)
 - ✅ **Docker**: v28.2.2 funcionando
 - ✅ **Nginx**: Puerto 80 activo
-- ✅ **SSH**: `root@23.105.176.45` (password: `gsiB%s@0yD`)
+- ✅ **SSH**: `root@23.105.176.45` (password: `REPLACE_WITH_LEGACY_SSH_PASSWORD`)
 
 ### 🌐 **URLs de Acceso Final**
 
@@ -3472,7 +3472,7 @@ USE_STATIC_DATA=true
 
 #### **Local (Desarrollo)**
 - **Astro**: http://localhost:4321/
-- **Directus**: http://localhost:8055/ (credenciales: `admin@example.com` / `d1r3ctu5`)
+- **Directus**: http://localhost:8055/ (credenciales: `admin@example.com` / `REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD`)
 
 ### 🔍 **COMANDOS DE MONITOREO Y SOLUCIÓN DE PROBLEMAS**
 
@@ -3516,7 +3516,7 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:8055/collections
 
 #### **Si Directus local no funciona:**
 1. **Ejecutar script automático**: `./fix-directus-auth-local.sh`
-2. **Usar credenciales correctas**: `admin@example.com` / `d1r3ctu5`
+2. **Usar credenciales correctas**: `admin@example.com` / `REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD`
 3. **Fallback a modo estático**: `STATIC_MODE=true` en `.env.local`
 
 #### **Si las imágenes no cargan:**
@@ -3678,8 +3678,8 @@ f9c070be5018   postgres:15-alpine          Up 16 hours           5432/tcp       
 ```bash
 # .env (en servidor)
 PUBLIC_DIRECTUS_URL=http://localhost:8055
-DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
-PUBLIC_DIRECTUS_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+DIRECTUS_STATIC_TOKEN=REPLACE_WITH_DIRECTUS_STATIC_TOKEN
+PUBLIC_DIRECTUS_TOKEN=REPLACE_WITH_DIRECTUS_STATIC_TOKEN
 ```
 
 ### **Arquitectura Final Funcionando**
@@ -3812,7 +3812,7 @@ curl -I http://23.105.176.45/
 #### **Servidor de Producción:**
 - **IP**: 23.105.176.45
 - **Usuario**: root
-- **Contraseña**: gsiB%s@0yD
+- **Contraseña**: REPLACE_WITH_LEGACY_SSH_PASSWORD
 - **Directorio**: /root/fumbling-field
 
 #### **Repositorio:**
@@ -3823,7 +3823,7 @@ curl -I http://23.105.176.45/
 #### **Credenciales Directus (Local):**
 - **URL**: http://localhost:8055
 - **Usuario**: admin@example.com
-- **Contraseña**: d1r3ctu5
+- **Contraseña**: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 
 ---
 
@@ -4514,7 +4514,7 @@ cd /var/www/emergency && python3 -m http.server 8091
 
 - **Dashboard URL**: http://23.105.176.45:8091
 - **No requiere autenticación** (acceso directo)
-- **Servidor SSH**: root@23.105.176.45 (password: gsiB%s@0yD)
+- **Servidor SSH**: root@23.105.176.45 (password: REPLACE_WITH_LEGACY_SSH_PASSWORD)
 - **Directorio**: /var/www/emergency/
 
 ### 📝 **COMANDOS ÚTILES DE GESTIÓN**
@@ -5325,7 +5325,7 @@ curl -I https://ultimamilla.com.ar/log/                # Dashboard emergency
 curl -I http://23.105.176.45:8055/server/health # Directus health
 
 # Conectar al servidor
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45
 
 # Estado de contenedores
 docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
@@ -5371,7 +5371,7 @@ curl -I https://ultimamilla.com.ar/log/
 - **Repositorio**: https://github.com/martinsantos/um25
 - **Tag Estable**: `UM25-0.6-dashboard-logs`
 - **Branch**: `main`
-- **Servidor Producción**: `root@23.105.176.45` (password: `gsiB%s@0yD`)
+- **Servidor Producción**: `root@23.105.176.45` (password: `REPLACE_WITH_LEGACY_SSH_PASSWORD`)
 
 ### 🏆 **LOGROS FINALES COMPLETADOS**
 
@@ -5542,7 +5542,7 @@ dashboard-complete-v3.html: 24,771 bytes
 3. **📦 DESPLIEGUE Y ACTIVACIÓN**
 ```bash
 # Transferencia al servidor
-sshpass -p 'gsiB%s@0yD' scp dashboard-complete-v3.html root@23.105.176.45:/var/www/emergency/public/
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' scp dashboard-complete-v3.html root@23.105.176.45:/var/www/emergency/public/
 
 # Backup del archivo roto y reemplazo
 cp index.html index.html.roto-backup
@@ -5818,22 +5818,22 @@ curl -I http://localhost:8095/log/
 ### **Cuando el Servidor Vuelva Online**
 1. **Verificar estado del servidor**
    ```bash
-   sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "uptime"
+   sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "uptime"
    ```
 
 2. **Reiniciar servicios Docker**
    ```bash
-   sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "cd /root/fumbling-field && docker-compose -f docker-compose.monitoring.yml restart"
+   sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "cd /root/fumbling-field && docker-compose -f docker-compose.monitoring.yml restart"
    ```
 
 3. **Iniciar dashboard emergency**
    ```bash
-   sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "cd /var/www/emergency/public && python3 -m http.server 8092 &"
+   sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "cd /var/www/emergency/public && python3 -m http.server 8092 &"
    ```
 
 4. **Verificar proxy nginx**
    ```bash
-   sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "docker exec umbot-nginx-static nginx -t"
+   sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "docker exec umbot-nginx-static nginx -t"
    ```
 
 ---
@@ -6081,7 +6081,7 @@ NODE_ENV=production
 
 ### 1. Conectividad al Servidor
 ```bash
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45
 ```
 
 ### 2. Estado de Docker Containers
@@ -6242,7 +6242,7 @@ docker exec directus-db pg_dump -U directus directus > backup_$(date +%Y%m%d_%H%
 
 ```bash
 # Conectar al servidor
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45
 
 # Verificar estado
 docker ps
@@ -6377,7 +6377,7 @@ git push origin UM25-0.8
 1. **Verificación de Conectividad**:
    ```bash
    ping 23.105.176.45
-   sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45
+   sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45
    ```
 
 2. **Actualización en Servidor**:
@@ -6519,22 +6519,22 @@ El servidor de producción ha sido activado exitosamente y todos los servicios e
 ```bash
 # 1. Verificación de conectividad
 ping -c 3 23.105.176.45
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "uptime"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "uptime"
 
 # 2. Actualización del repositorio
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "cd /root && mv fumbling-field fumbling-field-backup-$(date +%Y%m%d-%H%M%S) && git clone https://github.com/martinsantos/um25.git fumbling-field"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "cd /root && mv fumbling-field fumbling-field-backup-$(date +%Y%m%d-%H%M%S) && git clone https://github.com/martinsantos/um25.git fumbling-field"
 
 # 3. Sincronización con GitHub
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "cd /root/fumbling-field && git fetch origin && git reset --hard origin/main"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "cd /root/fumbling-field && git fetch origin && git reset --hard origin/main"
 
 # 4. Actualización del dashboard emergency
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "mkdir -p /var/www/emergency/public && cp -r /root/fumbling-field/umbot-emergency-app/* /var/www/emergency/public/"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "mkdir -p /var/www/emergency/public && cp -r /root/fumbling-field/umbot-emergency-app/* /var/www/emergency/public/"
 
 # 5. Reinicio del servidor HTTP
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "pkill -f python3.*8091 && cd /var/www/emergency/public && nohup python3 -m http.server 8091 > /tmp/emergency-server.log 2>&1 &"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "pkill -f python3.*8091 && cd /var/www/emergency/public && nohup python3 -m http.server 8091 > /tmp/emergency-server.log 2>&1 &"
 
 # 6. Verificación de servicios
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "netstat -tlnp | grep :8091"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "netstat -tlnp | grep :8091"
 curl -I http://23.105.176.45:8091/
 curl -I https://ultimamilla.com.ar/log/
 ```
@@ -6613,10 +6613,10 @@ netstat -tlnp | grep :8091
 1. **Monitoreo Continuo**:
    ```bash
    # Verificar logs del servidor
-   sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "tail -f /tmp/emergency-server.log"
+   sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "tail -f /tmp/emergency-server.log"
    
    # Verificar estado de contenedores
-   sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "docker ps"
+   sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "docker ps"
    ```
 
 2. **Mantenimiento**:
@@ -6646,10 +6646,10 @@ Este estado representa el **SERVIDOR COMPLETAMENTE OPERATIVO** con:
 curl -I https://ultimamilla.com.ar/log/
 
 # Verificar servidor
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "docker ps"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "docker ps"
 
 # Verificar logs
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "tail -f /tmp/emergency-server.log"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "tail -f /tmp/emergency-server.log"
 ```
 
 ---
@@ -6693,7 +6693,7 @@ Se han identificado y corregido los siguientes errores críticos en el sistema:
 **Paso 1: Diagnóstico del Sistema**
 ```bash
 # Verificación del estado del servidor
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "uptime && docker ps"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "uptime && docker ps"
 
 # Resultado: Servidor online, 7/7 contenedores activos
 # Uptime: 2 días, 15:18 horas
@@ -6703,22 +6703,22 @@ sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "upti
 **Paso 2: Corrección del Frontend Astro**
 ```bash
 # Reinicio del contenedor de Astro
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "docker restart umbot-astro-static"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "docker restart umbot-astro-static"
 
 # Verificación del estado
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "docker ps | grep umbot-astro-static"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "docker ps | grep umbot-astro-static"
 ```
 
 **Paso 3: Actualización del Dashboard de Emergencia**
 ```bash
 # Copia de archivos actualizados
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "cp -r /root/fumbling-field/umbot-emergency-app/* /var/www/emergency/public/"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "cp -r /root/fumbling-field/umbot-emergency-app/* /var/www/emergency/public/"
 
 # Reinicio del servidor de emergencia
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "pkill -f 'python3.*8091' && cd /var/www/emergency/public && python3 -m http.server 8091 &"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "pkill -f 'python3.*8091' && cd /var/www/emergency/public && python3 -m http.server 8091 &"
 
 # Verificación del servidor
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "netstat -tlnp | grep :8091"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "netstat -tlnp | grep :8091"
 ```
 
 ##### **📊 RESULTADOS DE LA CORRECCIÓN**
@@ -6840,15 +6840,15 @@ Se han corregido exitosamente los errores persistentes que afectaban el sistema:
 ```bash
 # Restauración de versión anterior
 cp ./umbot-emergency-app/index-aesthetic-logs.html ./umbot-emergency-app/index.html
-sshpass -p 'gsiB%s@0yD' scp ./umbot-emergency-app/index-aesthetic-logs.html root@23.105.176.45:/var/www/emergency/public/index.html
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "pkill -f python3.*8091 && cd /var/www/emergency/public && nohup python3 -m http.server 8091 > /tmp/emergency-server.log 2>&1 &"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' scp ./umbot-emergency-app/index-aesthetic-logs.html root@23.105.176.45:/var/www/emergency/public/index.html
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "pkill -f python3.*8091 && cd /var/www/emergency/public && nohup python3 -m http.server 8091 > /tmp/emergency-server.log 2>&1 &"
 ```
 
 **2. Recreación del Contenedor Astro:**
 ```bash
 # Eliminación y recreación del contenedor
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "docker rm -f umbot-astro-static"
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "docker run -d --name umbot-astro-static --network fumbling-field_umbot-network -p 4321:4321 -v /root/fumbling-field/src:/app/src -v /root/fumbling-field/public:/app/public -e NODE_ENV=production fumbling-field-umbot-astro-static:latest"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "docker rm -f umbot-astro-static"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "docker run -d --name umbot-astro-static --network fumbling-field_umbot-network -p 4321:4321 -v /root/fumbling-field/src:/app/src -v /root/fumbling-field/public:/app/public -e NODE_ENV=production fumbling-field-umbot-astro-static:latest"
 ```
 
 **3. Activación del Proxy Local:**
@@ -6973,9 +6973,9 @@ Todos los errores persistentes han sido corregidos exitosamente:
 1. **Esperar reactivación del servidor** (actualmente caído - 100% packet loss)
 2. **Subir archivos corregidos al servidor:**
    ```bash
-   sshpass -p 'UMBot2025!' scp umbot-emergency-app/index.html root@23.105.176.45:/var/www/emergency/public/
-   sshpass -p 'UMBot2025!' scp umbot-emergency-app/api_logs.php root@23.105.176.45:/var/www/emergency/public/log/
-   sshpass -p 'UMBot2025!' scp umbot-emergency-app/generate_uptime.php root@23.105.176.45:/var/www/emergency/public/log/
+   sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' scp umbot-emergency-app/index.html root@23.105.176.45:/var/www/emergency/public/
+   sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' scp umbot-emergency-app/api_logs.php root@23.105.176.45:/var/www/emergency/public/log/
+   sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' scp umbot-emergency-app/generate_uptime.php root@23.105.176.45:/var/www/emergency/public/log/
    ```
 3. **Verificar funcionamiento en producción** accediendo a `https://ultimamilla.com.ar/log/`
 
@@ -7646,7 +7646,7 @@ He realizado un diagnóstico completo del estado de Directus y identificado el p
 
 3. **✅ ACCESO WEB Y AUTENTICACIÓN**
    - **URL Admin:** https://www.ultimamilla.com.ar/admin → HTTP 200 OK
-   - **Credenciales:** `admin@example.com:d1r3ctu5` → Autenticación exitosa
+   - **Credenciales:** `admin@example.com:REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD` → Autenticación exitosa
    - **Token API:** Generación de tokens funcionando
    - **Interfaz:** Panel de administración cargando correctamente
 
@@ -7695,7 +7695,7 @@ He realizado un diagnóstico completo del estado de Directus y identificado el p
 # 1. Obtener token de acceso
 TOKEN=$(curl -X POST http://23.105.176.45:8055/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@example.com","password":"d1r3ctu5"}' | \
+  -d '{"email":"admin@example.com","password":"REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"}' | \
   grep -o '"access_token":"[^"]*' | cut -d'"' -f4)
 
 # 2. Crear colección Servicios
@@ -7821,7 +7821,7 @@ He implementado exitosamente Directus como sistema de administración de conteni
 **✅ FASE 1: VERIFICACIÓN DE INFRAESTRUCTURA - COMPLETADA**
 - ✅ Conectividad con servidor restablecida
 - ✅ Contenedores `directus-app` y `database` levantados y funcionando
-- ✅ Autenticación Directus verificada con credenciales `admin@example.com:d1r3ctu5`
+- ✅ Autenticación Directus verificada con credenciales `admin@example.com:REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD`
 - ✅ Estado inicial confirmado: Solo colecciones del sistema (27 tablas)
 
 **✅ FASE 2: CREACIÓN DE COLECCIONES - COMPLETADA**
@@ -7927,7 +7927,7 @@ curl -H "Authorization: Bearer TOKEN" "http://localhost:8055/items/Antecedentes?
 # ✅ Verificar servicios (CON AUTENTICACIÓN)
 TOKEN=$(curl -s -X POST http://localhost:8055/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@example.com","password":"d1r3ctu5"}' | \
+  -d '{"email":"admin@example.com","password":"REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"}' | \
   grep -o '"access_token":"[^"]*' | cut -d'"' -f4)
 
 curl -H "Authorization: Bearer $TOKEN" \
@@ -8314,7 +8314,7 @@ curl -I https://www.ultimamilla.com.ar/servicios/2/redes-de-datos
 ##### **🔍 PRUEBAS REALIZADAS**
 
 1. **✅ ACCESO A PANEL ADMIN**
-   - Login exitoso con credenciales `admin@example.com:d1r3ctu5`
+   - Login exitoso con credenciales `admin@example.com:REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD`
    - Interfaz de administración completamente funcional
    - Edición de contenido operativa
 
@@ -8473,7 +8473,7 @@ La implementación de **Directus CMS como servicio independiente** ha sido **COM
 ##### **🔐 CREDENCIALES DE ACCESO**
 
 - **Usuario**: admin@example.com
-- **Contraseña**: d1r3ctu5
+- **Contraseña**: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 - **Panel**: http://23.105.176.45:8055/admin
 
 ##### **🌐 URLS DE VERIFICACIÓN**
@@ -8732,7 +8732,7 @@ curl -s http://23.105.176.45:8055/items/Antecedentes?limit=1
 ##### **🔍 PRUEBAS REALIZADAS**
 
 1. **✅ ACCESO A PANEL ADMIN**
-   - Login exitoso con credenciales `admin@example.com:d1r3ctu5`
+   - Login exitoso con credenciales `admin@example.com:REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD`
    - Interfaz de administración completamente funcional
    - Edición de contenido operativa
 
@@ -8829,7 +8829,7 @@ database              Up 5 hours          5432/tcp
 
 #### **🚀 DIRECTUS CMS INDEPENDIENTE**
 - ✅ **Panel de administración**: http://23.105.176.45:8055/admin → HTTP/1.1 200 OK
-- ✅ **Autenticación**: admin@example.com / d1r3ctu5 → Funcionando
+- ✅ **Autenticación**: admin@example.com / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD → Funcionando
 - ✅ **Base de datos**: 6 servicios, 3 antecedentes → Datos disponibles
 
 #### **🔗 APIS FUNCIONALES**
@@ -8872,7 +8872,7 @@ docker ps | grep -E '(directus|database|astro)'
 
 ### 🔐 **CREDENCIALES DE ACCESO**
 - **Usuario**: admin@example.com
-- **Contraseña**: d1r3ctu5
+- **Contraseña**: REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 
 ---
 
@@ -9159,14 +9159,14 @@ Las páginas individuales de servicios (ej: `/servicios/4/telefonia-y-citoina`) 
 
 - ✅ **Datos en Directus**: Presentes y correctos
 - ✅ **Proxy SSR**: Funcionando en puerto 8093
-- ✅ **API con token admin**: Funcional (`k6P8LAY8_x_y1miB_KTlWnysCnx2Abky`)
+- ✅ **API con token admin**: Funcional (`REPLACE_WITH_DIRECTUS_STATIC_TOKEN`)
 - ❌ **API pública**: Devuelve FORBIDDEN (causa del fallback)
 
 ##### **📊 VERIFICACIONES REALIZADAS**
 
 ```bash
 # ✅ API con autenticación (funciona)
-curl -H 'Authorization: Bearer k6P8LAY8_x_y1miB_KTlWnysCnx2Abky' \
+curl -H 'Authorization: Bearer REPLACE_WITH_DIRECTUS_STATIC_TOKEN' \
   https://www.ultimamilla.com.ar/items/Servicios/4
 # RESULTADO: {"data":{"id":4,"Titulo":"Telefonía y Citofonía",...}}
 
@@ -9281,7 +9281,7 @@ docker compose restart directus-app
 
 ```bash
 # ✅ API Directus respondiendo correctamente
-curl -s "http://23.105.176.45:8055/files" -H "Authorization: Bearer k6P8LAY8_x_y1miB_KTlWnysCnx2Abky"
+curl -s "http://23.105.176.45:8055/files" -H "Authorization: Bearer REPLACE_WITH_DIRECTUS_STATIC_TOKEN"
 # RESULTADO: {"data":[{"id":"11111111-1111-1111-1111-111111111111",...}]}
 
 # ✅ Frontend mostrando imágenes correctas
@@ -9336,7 +9336,7 @@ docker compose exec -T database psql -U myuser -d mydatabase -c 'SELECT COUNT(*)
 # ✅ RESULTADO: 5
 
 # Verificar API de archivos
-curl -s "http://23.105.176.45:8055/files" -H "Authorization: Bearer k6P8LAY8_x_y1miB_KTlWnysCnx2Abky" | jq '.data | length'
+curl -s "http://23.105.176.45:8055/files" -H "Authorization: Bearer REPLACE_WITH_DIRECTUS_STATIC_TOKEN" | jq '.data | length'
 # ✅ RESULTADO: 5
 
 # Verificar frontend
@@ -9381,7 +9381,7 @@ docker run -d --name umbot-astro-static \
   -v astro_node_modules:/app/node_modules \
   --network um25_network \
   -e PUBLIC_DIRECTUS_URL=http://um25_directus:8055 \
-  -e DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky \
+  -e DIRECTUS_STATIC_TOKEN=REPLACE_WITH_DIRECTUS_STATIC_TOKEN \
   -e NODE_ENV=development \
   fumbling-field-umbot-astro-static:latest
 ```
@@ -9392,7 +9392,7 @@ Se actualizó el archivo `[slug].astro` para manejar correctamente la conexión 
 ```javascript
 // Configuración corregida
 const DIRECTUS_URL = 'http://um25_directus:8055';
-const DIRECTUS_STATIC_TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+const DIRECTUS_STATIC_TOKEN = 'REPLACE_WITH_DIRECTUS_STATIC_TOKEN';
 ```
 
 ### ✅ RESULTADOS
@@ -9508,7 +9508,7 @@ curl -s https://ultimamilla.com.ar/servicios/4/telefonia-y-citoina | grep "Gener
 # Generated: 2025-07-25T12:10:19.254Z (SSR activo pero en fallback)
 
 # ✅ API con autenticación
-curl -H 'Authorization: Bearer k6P8LAY8_x_y1miB_KTlWnysCnx2Abky' \
+curl -H 'Authorization: Bearer REPLACE_WITH_DIRECTUS_STATIC_TOKEN' \
   https://www.ultimamilla.com.ar/items/Servicios/4
 # HTTP/1.1 200 OK {"data":{...}} (Funcional)
 ```
@@ -10025,13 +10025,13 @@ curl -I https://ultimamilla.com.ar/log/
 ### **Servidor de Producción:**
 - **IP:** 23.105.176.45
 - **Usuario:** root
-- **Password:** gsiB%s@0yD
+- **Password:** REPLACE_WITH_LEGACY_SSH_PASSWORD
 - **Directorio Principal:** /root/fumbling-field
 
 ### **Credenciales de Servicios:**
-- **Directus Admin:** admin@example.com / d1r3ctu5
+- **Directus Admin:** admin@example.com / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 - **Grafana:** admin / admin (cambiar en primer acceso)
-- **PostgreSQL:** myuser / mypassword / mydatabase
+- **PostgreSQL:** myuser / REPLACE_WITH_POSTGRES_PASSWORD / mydatabase
 
 ### **Repositorio Git:**
 - **URL:** https://github.com/martinsantos/um25
@@ -10061,7 +10061,7 @@ ssh root@23.105.176.45 "docker ps --format 'table {{.Names}}\t{{.Status}}' | gre
 # Esperado: 4+ (servicios healthy)
 
 # 5. Verificar Directus API
-curl -H "Authorization: Bearer k6P8LAY8_x_y1miB_KTlWnysCnx2Abky" http://23.105.176.45:8055/server/health
+curl -H "Authorization: Bearer REPLACE_WITH_DIRECTUS_STATIC_TOKEN" http://23.105.176.45:8055/server/health
 # Esperado: {"status":"ok"}
 ```
 
@@ -10144,7 +10144,7 @@ database              Up 21 hours        5432/tcp
 **Container Health Verified**:
 ```bash
 # Directus connectivity test from within astro container
-docker exec astro-app node -e "fetch('http://directus-app:8055/items/Servicios/2', {headers: {'Authorization': 'Bearer k6P8LAY8_x_y1miB_KTlWnysCnx2Abky'}}).then(r => r.json()).then(console.log)"
+docker exec astro-app node -e "fetch('http://directus-app:8055/items/Servicios/2', {headers: {'Authorization': 'Bearer REPLACE_WITH_DIRECTUS_STATIC_TOKEN'}}).then(r => r.json()).then(console.log)"
 # Result: Successfully returned service data
 ```
 
@@ -10192,14 +10192,14 @@ docker exec astro-app node -e "fetch('http://directus-app:8055/items/Servicios/2
 
 ```bash
 # 1. Environment Variable Fix
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "cd /root/fumbling-field && sed -i 's|PUBLIC_DIRECTUS_URL=http://localhost:8055|PUBLIC_DIRECTUS_URL=http://directus-app:8055|' .env"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "cd /root/fumbling-field && sed -i 's|PUBLIC_DIRECTUS_URL=http://localhost:8055|PUBLIC_DIRECTUS_URL=http://directus-app:8055|' .env"
 
 # 2. Template Backup and Replacement  
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "cd /root/fumbling-field && cp /root/fumbling-field/src/pages/servicios/[id]/[slug].astro /root/fumbling-field/src/pages/servicios/[id]/[slug].astro.backup-$(date +%Y%m%d_%H%M%S)"
-sshpass -p 'gsiB%s@0yD' scp "servicios-fixed-template.astro" root@23.105.176.45:/root/fumbling-field/src/pages/servicios/[id]/[slug].astro
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "cd /root/fumbling-field && cp /root/fumbling-field/src/pages/servicios/[id]/[slug].astro /root/fumbling-field/src/pages/servicios/[id]/[slug].astro.backup-$(date +%Y%m%d_%H%M%S)"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' scp "servicios-fixed-template.astro" root@23.105.176.45:/root/fumbling-field/src/pages/servicios/[id]/[slug].astro
 
 # 3. Container Restart
-sshpass -p 'gsiB%s@0yD' ssh root@23.105.176.45 "cd /root/fumbling-field && docker-compose restart astro-app"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh root@23.105.176.45 "cd /root/fumbling-field && docker-compose restart astro-app"
 
 # 4. Testing and Verification
 curl -I "https://ultimamilla.com.ar/servicios/2/redes-de-datos"
@@ -10267,7 +10267,7 @@ curl -I "https://ultimamilla.com.ar/antecedentes/10768/isi-solutions-redes-y-com
 
 **Commands Executed**:
 ```bash
-sshpass -p 'gsiB%s@0yD' scp PageTransition.astro root@23.105.176.45:/root/fumbling-field/src/components/PageTransition.astro
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' scp PageTransition.astro root@23.105.176.45:/root/fumbling-field/src/components/PageTransition.astro
 docker restart astro-app
 ```
 
@@ -10298,13 +10298,13 @@ umbot-node-exporter   Up 2 weeks             0.0.0.0:9100->9100/tcp
 ##### Directus CMS Data Verification ✅ COMPLETE
 **Services Data**: ✅ 6 services active and accessible
 ```bash
-curl -s 'http://localhost:8055/items/Servicios?access_token=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky' | jq '.data | length'
+curl -s 'http://localhost:8055/items/Servicios?access_token=REPLACE_WITH_DIRECTUS_STATIC_TOKEN' | jq '.data | length'
 # Result: 6
 ```
 
 **Antecedents Data**: ✅ 469 antecedents active and accessible
 ```bash
-curl -s 'http://localhost:8055/items/Antecedentes?access_token=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky&limit=1000' | jq '.data | length'
+curl -s 'http://localhost:8055/items/Antecedentes?access_token=REPLACE_WITH_DIRECTUS_STATIC_TOKEN&limit=1000' | jq '.data | length'
 # Result: 469
 ```
 
@@ -10358,20 +10358,20 @@ curl -s https://ultimamilla.com.ar/antecedents/10768/isi-solutions-redes-y-comun
 
 ```bash
 # 1. SSH Connection and Directory Verification
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "pwd && ls -la"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "pwd && ls -la"
 
 # 2. Container Status Check
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "cd /root/fumbling-field && docker ps -a"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "cd /root/fumbling-field && docker ps -a"
 
 # 3. Directus Data Verification
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "curl -s 'http://localhost:8055/items/Servicios?access_token=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky' | jq '.data | length'"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "curl -s 'http://localhost:8055/items/Servicios?access_token=REPLACE_WITH_DIRECTUS_STATIC_TOKEN' | jq '.data | length'"
 
 # 4. File Deployment
-sshpass -p 'gsiB%s@0yD' scp PageTransition.astro root@23.105.176.45:/root/fumbling-field/src/components/PageTransition.astro
-sshpass -p 'gsiB%s@0yD' scp index.astro root@23.105.176.45:/root/fumbling-field/src/pages/antecedentes/index.astro
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' scp PageTransition.astro root@23.105.176.45:/root/fumbling-field/src/components/PageTransition.astro
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' scp index.astro root@23.105.176.45:/root/fumbling-field/src/pages/antecedentes/index.astro
 
 # 5. Container Restart
-sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "cd /root/fumbling-field && docker restart astro-app"
+sshpass -p 'REPLACE_WITH_LEGACY_SSH_PASSWORD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "cd /root/fumbling-field && docker restart astro-app"
 
 # 6. Comprehensive Testing
 curl -s https://ultimamilla.com.ar/antecedentes -o /dev/null -w 'HTTP: %{http_code}, Size: %{size_download} bytes'
@@ -10923,7 +10923,7 @@ const currentUrl = canonical || `${siteUrl}${Astro.url.pathname}`;
 - Backend Directus: 1876 antecedentes + 5 servicios
 - Frontend Astro: URLs dinámicas funcionando perfectamente
 - SEO: Títulos y metadatos dinámicos correctos
-- Token: `k6P8LAY8_x_y1miB_KTlWnysCnx2Abky` operacional
+- Token: `REPLACE_WITH_DIRECTUS_STATIC_TOKEN` operacional
 
 **RESULTADO**: Problema original completamente resuelto. Sistema estable y listo para producción.
 
@@ -11001,7 +11001,7 @@ const currentUrl = canonical || `${siteUrl}${Astro.url.pathname}`;
 **DIRECTUS BACKEND**:
 - 469 antecedentes ✅
 - 5 servicios con campos completos ✅
-- Token `k6P8LAY8_x_y1miB_KTlWnysCnx2Abky` operacional ✅
+- Token `REPLACE_WITH_DIRECTUS_STATIC_TOKEN` operacional ✅
 
 **ASTRO FRONTEND**:
 - URLs dinámicas funcionando ✅

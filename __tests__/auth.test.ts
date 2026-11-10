@@ -7,11 +7,11 @@ jest.mock('@directus/sdk', () => ({
     withRest: jest.fn().mockReturnThis(),
     withAuth: jest.fn().mockReturnThis(),
     login: jest.fn().mockResolvedValue({
-      access_token: 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky',
+      access_token: 'test-directus-static-token',
       expires: 3600,
     }),
     request: jest.fn().mockResolvedValue({}),
-    getToken: jest.fn().mockResolvedValue('k6P8LAY8_x_y1miB_KTlWnysCnx2Abky'),
+    getToken: jest.fn().mockResolvedValue('test-directus-static-token'),
   })),
 }));
 
@@ -33,7 +33,7 @@ describe('Authentication', () => {
       const client = createDirectus('http://localhost:8055');
       
       const token = await client.getToken();
-      expect(token).toBe('k6P8LAY8_x_y1miB_KTlWnysCnx2Abky');
+      expect(token).toBe('test-directus-static-token');
       expect(createDirectus).toHaveBeenCalledWith('http://localhost:8055');
     });
 
@@ -50,8 +50,8 @@ describe('Authentication', () => {
   describe('Environment Configuration', () => {
     it('should have required environment variables', () => {
       expect(process.env.PUBLIC_DIRECTUS_URL).toBe('http://localhost:8055');
-      expect(process.env.DIRECTUS_STATIC_TOKEN).toBe('k6P8LAY8_x_y1miB_KTlWnysCnx2Abky');
-      expect(process.env.PUBLIC_DIRECTUS_TOKEN).toBe('k6P8LAY8_x_y1miB_KTlWnysCnx2Abky');
+      expect(process.env.DIRECTUS_STATIC_TOKEN).toBe('test-directus-static-token');
+      expect(process.env.PUBLIC_DIRECTUS_TOKEN).toBe('test-directus-static-token');
     });
   });
 

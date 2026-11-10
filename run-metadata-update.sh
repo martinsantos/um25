@@ -12,7 +12,7 @@ docker run --rm \
   -e POSTGRES_HOST=database \
   -e POSTGRES_DB=mydatabase \
   -e POSTGRES_USER=myuser \
-  -e POSTGRES_PASSWORD=mypassword \
+  -e POSTGRES_PASSWORD=REPLACE_WITH_POSTGRES_PASSWORD \
   metadata-updater
 
 echo "✨ Proceso completado" 

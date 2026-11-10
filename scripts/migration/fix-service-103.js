@@ -2,7 +2,7 @@
 import fetch from 'node-fetch';
 
 const DIRECTUS_URL = 'https://admin.ultimamilla.com.ar';
-const TOKEN = 'k6P8LAY8_x_y1miB_KTlWnysCnx2Abky';
+const TOKEN = process.env.DIRECTUS_STATIC_TOKEN;
 
 async function checkAndFix() {
   // 1. Get productos for service 103

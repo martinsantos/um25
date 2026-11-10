@@ -20,7 +20,7 @@ cat << 'EOF'
 
 1. CONECTAR AL SERVIDOR:
    ssh root@23.105.176.45
-   # Password: gsiB%s@0yD
+   # Password: REPLACE_WITH_LEGACY_SSH_PASSWORD
 
 2. NAVEGAR AL PROYECTO:
    cd /root/fumbling-field

@@ -6,7 +6,7 @@
 echo "🔥 FORZAR ACTUALIZACIÓN AGRESIVA DEL TERMINAL LINUX"
 echo "=================================================="
 
-export SSHPASS='gsiB%s@0yD'
+export SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}"
 
 sshpass -e ssh -o StrictHostKeyChecking=no -t root@23.105.176.45 << 'REMOTE_COMMANDS'
 

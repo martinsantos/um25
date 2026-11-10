@@ -71,7 +71,7 @@ WEBHOOK_URL=http://localhost:4321/api/rebuild
 
 # Credenciales Admin
 DIRECTUS_ADMIN_EMAIL=admin@example.com
-DIRECTUS_ADMIN_PASSWORD=d1r3ctu5
+DIRECTUS_ADMIN_PASSWORD=REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD
 ```
 
 ### **3. Estructura de Archivos**

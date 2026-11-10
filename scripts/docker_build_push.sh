@@ -42,7 +42,7 @@ else
 fi
 
 # Verificar que el token está presente
-if ! grep -q "DIRECTUS_STATIC_TOKEN=k6P8LAY8_x_y1miB_KTlWnysCnx2Abky" .env.production; then
+if ! grep -Eq '^DIRECTUS_STATIC_TOKEN=.+$' .env.production; then
     echo -e "${RED}Error: Token de autenticación no encontrado en .env.production${NC}"
     exit 1
 fi

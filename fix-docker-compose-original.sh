@@ -7,7 +7,7 @@ echo "=================================================="
 # Función para ejecutar comandos remotos via SSH con password
 execute_remote() {
     echo "🔧 Ejecutando: $1"
-    sshpass -p 'gsiB%s@0yD' ssh -o StrictHostKeyChecking=no root@23.105.176.45 "$1"
+    SSHPASS="${LEGACY_SSH_PASSWORD:?Set LEGACY_SSH_PASSWORD}" sshpass -e ssh -o StrictHostKeyChecking=no root@23.105.176.45 "$1"
 }
 
 # Corregir docker-compose.yml con la configuración completa y funcional
@@ -22,7 +22,7 @@ services:
     container_name: database
     environment:
       POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword123
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       POSTGRES_DB: mydatabase
     volumes:
       - directus_db_data:/var/lib/postgresql/data
@@ -46,12 +46,12 @@ services:
       DB_PORT: 5432
       DB_DATABASE: mydatabase
       DB_USER: myuser
-      DB_PASSWORD: mypassword123
-      KEY: 255d861b-5ea1-5996-9aa3-922530ec40b1
-      SECRET: 6116487b-cda1-52c2-b5b5-c8022c45e263
-      DIRECTUS_STATIC_TOKEN: k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      KEY: ${DIRECTUS_KEY:?Set DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET:?Set DIRECTUS_SECRET}
+      DIRECTUS_STATIC_TOKEN: ${DIRECTUS_STATIC_TOKEN:?Set DIRECTUS_STATIC_TOKEN}
       ADMIN_EMAIL: admin@example.com
-      ADMIN_PASSWORD: d1r3ctu5
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD:?Set DIRECTUS_ADMIN_PASSWORD}
       LOG_LEVEL: debug
       PUBLIC_URL: http://23.105.176.45:8055
     depends_on:
@@ -82,7 +82,7 @@ services:
     environment:
       NODE_ENV: development
       PUBLIC_DIRECTUS_URL: http://directus-app:8055
-      DIRECTUS_STATIC_TOKEN: k6P8LAY8_x_y1miB_KTlWnysCnx2Abky
+      DIRECTUS_STATIC_TOKEN: ${DIRECTUS_STATIC_TOKEN:?Set DIRECTUS_STATIC_TOKEN}
       HOST: 0.0.0.0
       PORT: 4321
     command: sh -c \"npm install && npm run dev -- --port 4321 --host 0.0.0.0\"
@@ -165,7 +165,7 @@ echo "📱 URLs de Acceso:"
 echo "   🌍 Sitio Web:    http://23.105.176.45:4321"
 echo "   🌍 Sitio Web:    https://www.umbot.com.ar"
 echo "   🔧 Directus:     http://23.105.176.45:8055"
-echo "   📊 Admin:        admin@example.com / d1r3ctu5"
+echo "   📊 Admin:        admin@example.com / REPLACE_WITH_DIRECTUS_ADMIN_PASSWORD"
 echo ""
 echo "🎯 Stack: PostgreSQL + Directus + Astro + Nginx"
 echo "✅ RESTAURACIÓN COMPLETA FINALIZADA"
