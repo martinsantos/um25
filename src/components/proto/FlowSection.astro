@@ -1,0 +1,27 @@
+---
+import FlowDiagram from './FlowDiagram.astro';
+import { flowDetails, type FlowKey } from '../../data/informationFlows';
+
+interface Props { flow: FlowKey; project?: boolean }
+const { flow, project = false } = Astro.props;
+const { title, description } = flowDetails[flow];
+---
+<section class="sec flow-section" id="flujo" aria-labelledby="flow-title">
+  <div class="wrap flow-layout">
+    <div class="flow-copy">
+      <p class="flow-kicker">{flow === 'registro' ? 'Ficha de trabajo' : project ? 'Esquema del servicio vinculado' : 'Flujo de trabajo'}</p>
+      <h2 id="flow-title">{title}<span class="dot">.</span></h2>
+      <p>{description}</p>
+    </div>
+    <FlowDiagram flow={flow} />
+  </div>
+</section>
+
+<style>
+  .flow-layout { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 24px clamp(24px, 4vw, 64px); align-items: center; }
+  .flow-copy { display: grid; gap: 10px; }
+  .flow-copy p { margin: 0; color: var(--ink-2); max-width: 46ch; }
+  .flow-copy h2 { max-width: 25ch; }
+  .flow-kicker { font-size: .875rem; }
+  @media (max-width: 760px) { .flow-layout { grid-template-columns: minmax(0, 1fr); } }
+</style>

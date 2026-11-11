@@ -16,6 +16,8 @@ import { loadStories, services, variantes } from '../../../../components/proto/i
 import caseImageDescriptions from '../../../../data/casePhotoAlt.json';
 import { photographForCase } from '../../../../data/photography';
 import CasoEnDetalle from '../../../../components/proto/CasoEnDetalle.astro';
+import FlowSection from '../../../../components/proto/FlowSection.astro';
+import { flowForCase } from '../../../../data/informationFlows';
 import { publicCaseFor, samePublicClient, caseEquipmentFor } from '../../../../components/proto/casePresentation';
 
 import { buildCaseSeoMeta, trimAtWordBoundary } from '../../../../utils/seoMetaPolicy';
@@ -43,6 +45,7 @@ const photo = Boolean(c.image);
 const imageSet = variantes(c.image);
 const photoAlt = photographForCase(c.id)?.context || (caseImageDescriptions as Record<string, string>)[String(c.id)] || '';
 const scope = caseEquipmentFor(c);
+const flow = flowForCase(c, scope, caseDetail?.scope);
 const ref = `UM-${c.id}`;
 const introduction = caseDetail?.introduction || c.summary || `Registro ${ref} del archivo de ULTIMA MILLA${when ? `, correspondiente a ${when}` : ''}. ${svcs.length ? `Servicios vinculados: ${svcs.map(s => s.name).join(', ')}.` : 'El alcance disponible se conserva con la referencia original del proyecto.'}`;
 const caseSeo = buildCaseSeoMeta({ title: pageTitle, description: caseDetail?.introduction || c.summary, client: c.client, area: c.sector, date: String(c.year), identifier: c.id });
@@ -142,6 +145,7 @@ const seoTitle = caseSeo.title.includes(ref) ? caseSeo.title : `${trimAtWordBoun
 
 
     </>}
+    <FlowSection flow={flow} project />
     {sameClient.length > 0 && (
       <section class="sec"><div class="wrap"><div class="sec__head"><h2>Más proyectos para {c.client}<span class="dot">.</span></h2></div><ol class="fichas">{sameClient.map((o) => <Ficha story={o} />)}</ol></div></section>
     )}

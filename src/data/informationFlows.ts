@@ -1,0 +1,90 @@
+import flows from './information-flows.json';
+import type { Despiece } from '../components/proto/despiece';
+
+export type FlowKey = keyof typeof flows;
+
+export const SERVICE_FLOW = {
+  '101': 'redes',
+  '102': 'cctv',
+  '103': 'telecom',
+  '104': 'software',
+  '105': 'soporte',
+  '106': 'ingenieria',
+  '107': 'incendios',
+  '108': 'energia',
+} as const satisfies Record<string, FlowKey>;
+
+type ServiceCode = keyof typeof SERVICE_FLOW;
+type FlowHint = { service: ServiceCode; key: FlowKey; match: RegExp };
+type CaseInput = {
+  title: string;
+  summary: string;
+  serviceCodes: readonly string[];
+};
+
+const normalize = (text: string) =>
+  text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+const variants: readonly FlowHint[] = [
+  { service: '103', key: 'porteria', match: /\b(?:porteria|porteros?|intercomunicadores?)\s+ip\b/ },
+  { service: '102', key: 'acceso', match: /\b(?:control(?:es)? de accesos?|molinete|biometria|lector de tarjetas)\b/ },
+  { service: '102', key: 'intrusion', match: /\b(?:intrusion|sensor(?:es)? de movimiento|alarma antirrobo)\b/ },
+  { service: '103', key: 'telefonia', match: /\b(?:telefonia|central telefonica|voip|pbx|denwa)\b/ },
+  { service: '108', key: 'ups', match: /\b(?:ups|banco de baterias|respaldo electrico)\b/ },
+];
+
+const titleHints: readonly FlowHint[] = [
+  ...variants,
+  { service: '101', key: 'redes', match: /\b(?:redes?|fibra optica|cableado|switching|wifi|wi-fi)\b(?! electrica)/ },
+  { service: '102', key: 'cctv', match: /\b(?:cctv|videovigilancia|seguridad electronica|camaras?|grabador)\b/ },
+  { service: '103', key: 'telecom', match: /\b(?:telecomunicaciones|radioenlace|enlace de datos|voceo)\b/ },
+  { service: '104', key: 'software', match: /\b(?:software|digitalizacion|sistema de gestion|portal|aplicacion)\b/ },
+  { service: '105', key: 'soporte', match: /\b(?:soporte|mantenimiento|reparacion|asistencia tecnica|mesa de ayuda)\b/ },
+  { service: '106', key: 'ingenieria', match: /\b(?:relevamiento|ingenieria|auditoria|consultoria|proyecto ejecutivo)\b/ },
+  { service: '107', key: 'incendios', match: /\b(?:incendios?|detectores?|sdi|deteccion de humo)\b/ },
+  { service: '108', key: 'energia', match: /\b(?:tableros? electricos?|alimentacion|puesta a tierra|instalacion electrica)\b/ },
+];
+
+function firstHint(hints: readonly FlowHint[], linked: readonly ServiceCode[], text: string): FlowKey | undefined {
+  let key: FlowKey | undefined;
+  let index = Infinity;
+  for (const hint of hints) {
+    if (!linked.includes(hint.service)) continue;
+    const match = hint.match.exec(text);
+    if (match && match.index < index) {
+      key = hint.key;
+      index = match.index;
+    }
+  }
+  return key;
+}
+
+export const flowDetails = flows;
+
+export function flowForService(code: string): FlowKey {
+  return SERVICE_FLOW[code as ServiceCode] ?? 'registro';
+}
+
+export function flowForCase(story: CaseInput, scope: Despiece, documentedNotes: readonly string[] = []): FlowKey {
+  const linked = story.serviceCodes.filter((code): code is ServiceCode => Object.prototype.hasOwnProperty.call(SERVICE_FLOW, code));
+  if (!linked.length) return 'registro';
+
+  const titleFlow = firstHint(titleHints, linked, normalize(story.title));
+  if (titleFlow) return titleFlow;
+  const specificFlow = firstHint(variants, linked, normalize([story.summary, ...documentedNotes].join(' ')));
+  if (specificFlow) return specificFlow;
+
+  // Only recorded equipment can break a tie. A generic catalog kit is not project evidence.
+  let primary = linked[0]!;
+  let bestScore = 0;
+  if (scope.origen === 'registro') {
+    for (const code of linked) {
+      const score = scope.partes.filter((part) => part.code === code).length;
+      if (score > bestScore) {
+        primary = code;
+        bestScore = score;
+      }
+    }
+  }
+  return SERVICE_FLOW[primary];
+}

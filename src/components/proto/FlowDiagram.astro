@@ -1,0 +1,39 @@
+---
+import { flowDetails, type FlowKey } from '../../data/informationFlows';
+
+interface Props { flow: FlowKey }
+const { flow } = Astro.props;
+const { title, nodes } = flowDetails[flow];
+const assets = import.meta.glob<string>('../../assets/flow-diagrams/*.{svg,gif}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
+const path = '../../assets/flow-diagrams/' + flow;
+const poster = assets[path + '.svg'];
+const gif = assets[path + '.gif'];
+---
+<div class="flow-diagram" data-flow={flow} data-flow-gif={gif} role="group" aria-label={title}>
+  <div class="flow-art" data-flow-art aria-hidden="true">
+    <img src={poster} width="640" height="142" loading="lazy" decoding="async" alt="" />
+  </div>
+  <ol aria-label="Etapas del recorrido">
+    {nodes.map(([label]) => <li>{label}</li>)}
+  </ol>
+</div>
+
+<script>
+  import { initFlowMotion } from './service-motion';
+  initFlowMotion(document);
+</script>
+
+<style>
+  .flow-diagram { min-width: 0; background: #e2e7e6; color: #202629; }
+  .flow-art { position: relative; aspect-ratio: 640 / 142; }
+  .flow-art img, .flow-art :global(.flow-gif) { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .flow-art :global(.flow-gif) { position: absolute; inset: 0; opacity: 0; }
+  [data-flow-running] .flow-art :global(.flow-gif) { opacity: 1; }
+  ol { list-style: none; margin: 0; padding: 0 0 12px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  li { min-width: 0; padding: 0 4px; text-align: center; line-height: 1.18; font-size: clamp(.8125rem, 2.4vw, .9375rem); font-weight: 550; overflow-wrap: anywhere; }
+  @media (prefers-reduced-motion: reduce) { .flow-art :global(.flow-gif) { display: none; } }
+</style>
