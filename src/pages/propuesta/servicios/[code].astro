@@ -8,6 +8,8 @@ import DeviceExploded from '../../../components/proto/DeviceExploded.astro';
 import SoftwareExperience from '../../../components/proto/SoftwareExperience.astro';
 import ServiceEditorialHero from '../../../components/proto/ServiceEditorialHero.astro';
 import ServiceProvision from '../../../components/proto/ServiceProvision.astro';
+import FlowSection from '../../../components/proto/FlowSection.astro';
+import { flowForService } from '../../../data/informationFlows';
 import { serviceProvisionItems } from '../../../utils/serviceProvision';
 import Ficha from '../../../components/proto/Ficha.astro';
 import CaseLinks from '../../../components/proto/CaseLinks.astro';
@@ -189,6 +191,7 @@ const cierre = cierrePorServicio[code];
     <nav class="wrap service-sections" aria-label="En esta página">
       <a href="#alcance">Qué cubre</a>
       {provision.length > 0 && <a href="#provision">Qué proveemos</a>}
+      <a href="#flujo">Cómo fluye</a>
       {(selectedCases.length > 0 || casos.some(c => !c.publicado)) && <a href="#casos">Casos de aplicación</a>}
       <a href="#metodo">Cómo trabajamos</a>
       <a href="#entregables">Qué entregamos</a>
@@ -204,6 +207,8 @@ const cierre = cierrePorServicio[code];
         {!provision.length && servicio.capabilities.length > 0 && <details class="technical-scope"><summary>Especificaciones adicionales</summary><ul class="lista">{servicio.capabilities.map((c) => <li>{c}</li>)}</ul></details>}
       </div>
     </section>
+
+    <FlowSection flow={flowForService(code)} />
 
     {provision.length > 0 && (
       <Provision

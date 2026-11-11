@@ -1,63 +1,75 @@
-/** Animate the operating path once. Equipment, lighting and background never change frames. */
-export function initServiceMotion(root: HTMLElement) {
+/** GIFs are loaded only for the diagram the visitor can see. */
+export function initFlowMotion(root: Document) {
+  if (typeof IntersectionObserver === 'undefined') return;
+  const diagrams = [...root.querySelectorAll<HTMLElement>('[data-flow-gif]')];
+  if (!diagrams.length) return;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const figures = [...root.querySelectorAll<HTMLElement>('[data-motion-figure]')];
   const visible = new Set<HTMLElement>();
-  const pending = new Set<HTMLElement>();
-  const selected = (figure: HTMLElement) => root.querySelector<HTMLInputElement>(`#frente-${figure.dataset.service}`)?.checked;
-  let current: { figure: HTMLElement; animation: Animation } | undefined;
+  const attempted = new Set<HTMLElement>();
+  let active: { diagram: HTMLElement; image: HTMLImageElement } | undefined;
+
+  const eligible = (diagram: HTMLElement) =>
+    visible.has(diagram) && !root.hidden && !reduced.matches &&
+    diagram.getClientRects().length > 0 &&
+    !diagram.closest('[data-flow-preview]')?.querySelector('.detalle-control:checked');
 
   function stop() {
-    current?.animation.cancel();
-    current?.figure.removeAttribute('data-moving');
-    current = undefined;
+    if (!active) return;
+    active.diagram.removeAttribute('data-flow-running');
+    active.image.remove();
+    active = undefined;
   }
-  function start(figure: HTMLElement) {
-    if (!pending.has(figure) || !visible.has(figure) || !selected(figure) || reduced.matches || document.hidden
-      || figure.querySelector<HTMLInputElement>('.detalle-control')?.checked) return;
-    const signal = figure.querySelector<HTMLElement>('[data-signal]');
-    if (!signal || typeof signal.animate !== 'function') return;
-    stop();
-    pending.delete(figure);
-    const animation = signal.animate([{ transform: 'translateX(-100%)' }, { transform: 'translateX(900%)' }], { duration: 2200, easing: 'linear', iterations: 1 });
-    current = { figure, animation };
-    figure.setAttribute('data-moving', '');
-    void animation.finished.then(() => { if (current?.animation === animation) stop(); }).catch(() => { /* Cancellation on leaving the view is expected. */ });
+
+  function update() {
+    if (active && !eligible(active.diagram)) stop();
+    if (active) return;
+    const diagram = diagrams.find((element) => !attempted.has(element) && eligible(element));
+    const frame = diagram?.querySelector('[data-flow-art]');
+    const source = diagram?.getAttribute('data-flow-gif');
+    if (!diagram || !frame || !source) return;
+
+    attempted.add(diagram);
+    const image = new Image(640, 142);
+    const run = { diagram, image };
+    active = run;
+    image.className = 'flow-gif';
+    image.alt = '';
+    image.decoding = 'async';
+    image.addEventListener('load', () => {
+      if (active !== run) return;
+      if (eligible(diagram)) diagram.setAttribute('data-flow-running', '');
+      else stop();
+    }, { once: true });
+    image.addEventListener('error', () => { if (active === run) stop(); }, { once: true });
+    frame.append(image);
+    image.src = source;
   }
-  const observer = new IntersectionObserver(entries => {
+
+  const observer = new IntersectionObserver((entries) => {
     for (const entry of entries) {
-      const figure = entry.target as HTMLElement;
-      if (entry.isIntersecting && entry.intersectionRatio >= .5) {
-        visible.add(figure);
-        start(figure);
-      } else {
-        visible.delete(figure);
-        if (current?.figure === figure) stop();
+      const diagram = entry.target as HTMLElement;
+      if (entry.isIntersecting && entry.intersectionRatio >= .55) visible.add(diagram);
+      else {
+        visible.delete(diagram);
+        attempted.delete(diagram);
       }
     }
-  }, { threshold: [0, .5] });
-  for (const figure of figures) {
-    if (selected(figure)) pending.add(figure);
-    observer.observe(figure);
-  }
-  root.addEventListener('change', event => {
-    if (!(event.target instanceof HTMLInputElement)) return;
-    if (event.target.matches('.selector')) {
-      stop();
-      pending.clear();
-      const figure = figures.find(selected);
-      if (figure) { pending.add(figure); start(figure); }
-    } else if (event.target.matches('.detalle-control')) { pending.clear(); stop(); }
+    update();
+  }, { threshold: [0, .55] });
+
+  diagrams.forEach((diagram) => observer.observe(diagram));
+  root.addEventListener('change', (event) => {
+    if (event.target instanceof HTMLInputElement && event.target.matches('.selector,.detalle-control')) update();
   });
-  // Selecting an already active service is also an explicit request to inspect it again.
-  root.addEventListener('click', event => {
-    const label = event.target instanceof Element ? event.target.closest<HTMLLabelElement>('label.fila') : null;
-    if (!label || !root.querySelector<HTMLInputElement>(`#${label.htmlFor}`)?.checked) return;
-    const figure = figures.find(selected);
-    if (figure) { pending.add(figure); start(figure); }
+  root.addEventListener('visibilitychange', update);
+  reduced.addEventListener('change', update);
+  window.addEventListener('pagehide', () => {
+    stop();
+    visible.clear();
+    attempted.clear();
+    observer.disconnect();
   });
-  document.addEventListener('visibilitychange', () => { if (document.hidden) { pending.clear(); stop(); } });
-  reduced.addEventListener('change', () => { if (reduced.matches) { pending.clear(); stop(); } });
-  window.addEventListener('pagehide', () => { stop(); pending.clear(); visible.clear(); observer.disconnect(); });
-  window.addEventListener('pageshow', event => { if (event.persisted) figures.forEach(figure => observer.observe(figure)); });
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) diagrams.forEach((diagram) => observer.observe(diagram));
+  });
 }
