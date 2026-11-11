@@ -19,3 +19,15 @@ describe('reviewed case information flows', () => {
     expect(flowForCase({ id: 1234, title: 'Archivo', summary: '', serviceCodes: [] }, scope)).toBe('registro');
   });
 });
+
+describe('approved second case-media batch', () => {
+  it.each([3065, 3066, 3069, 3072])('uses the approved case-specific diagram for %i', (id) => {
+    expect(flowForCase({ id, title: 'Trabajo registrado', summary: '', serviceCodes: [] }, scope)).toBe('caso-' + id);
+  });
+  it('does not replace service diagrams or an unrelated case with the same subject', () => {
+    for (const [code, key] of [['101', 'redes'], ['102', 'cctv'], ['107', 'incendios'], ['108', 'energia']]) {
+      expect(flowForService(code)).toBe(key);
+    }
+    expect(flowForCase({ id: 3070, title: 'Instalación de cámaras', summary: '', serviceCodes: ['102'] }, scope)).toBe('cctv');
+  });
+});

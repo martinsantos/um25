@@ -3,6 +3,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const manifest = require('../src/data/photography-manifest.json');
 const existing = require('../src/data/antecedentes-generated-image-map.json');
+const { approvedCaseImages } = require('../src/data/approvedImageAssets');
 const { casePhotograph } = require('../src/data/photography');
 const { getAntecedenteThumb } = require('../src/lib/um26-data/images');
 const { curateCatalogImage, catalogImageLabel } = require('../src/components/proto/catalogEditorial');
@@ -37,7 +38,7 @@ test('every selected photograph and both responsive variants exist, with verifie
 });
 
 test('unreviewed cases retain their previous case-specific image', () => {
-  const untouched = Object.keys(existing).find(id => !manifest.cases[id]);
+  const untouched = Object.keys(existing).find(id => !manifest.cases[id] && !approvedCaseImages[Number(id)]);
   expect(untouched).toBeTruthy();
   expect(casePhotograph(untouched)).toBe('');
   expect(getAntecedenteThumb(untouched)).toBe(existing[untouched]);
