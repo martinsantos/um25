@@ -7,6 +7,10 @@ export const approvedServiceImages = {
   "108": "/images/aprobadas-20261111/energia-2048.webp"
 } as const;
 export const approvedCaseImages: Record<number, string> = {
+  "3065": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3065-1600.webp",
+  "3066": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3066-1600.webp",
+  "3069": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3069-1600.webp",
+  "3072": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3072-1600.webp",
   "3083": "/images/aprobadas-flujos-20261111/antecedente-3083-1600.webp",
   "3268": "/images/aprobadas-flujos-20261111/antecedente-3268-1600.webp",
   "3300": "/images/aprobadas-flujos-20261111/antecedente-3300-1600.webp",
@@ -89,6 +93,34 @@ export const approvedImageVariants: Record<string, Variants> = {
     "w480": "/images/aprobadas-flujos-20261111/antecedente-3300-480.webp",
     "w960": "/images/aprobadas-flujos-20261111/antecedente-3300-960.webp",
     "full": "/images/aprobadas-flujos-20261111/antecedente-3300-1600.webp",
+    "ancho": 1600,
+    "avif": ""
+  },
+  "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3065-1600.webp": {
+    "w480": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3065-480.webp",
+    "w960": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3065-960.webp",
+    "full": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3065-1600.webp",
+    "ancho": 1600,
+    "avif": ""
+  },
+  "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3066-1600.webp": {
+    "w480": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3066-480.webp",
+    "w960": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3066-960.webp",
+    "full": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3066-1600.webp",
+    "ancho": 1600,
+    "avif": ""
+  },
+  "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3069-1600.webp": {
+    "w480": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3069-480.webp",
+    "w960": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3069-960.webp",
+    "full": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3069-1600.webp",
+    "ancho": 1600,
+    "avif": ""
+  },
+  "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3072-1600.webp": {
+    "w480": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3072-480.webp",
+    "w960": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3072-960.webp",
+    "full": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3072-1600.webp",
     "ancho": 1600,
     "avif": ""
   }

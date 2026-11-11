@@ -60,6 +60,13 @@ function firstHint(hints: readonly FlowHint[], linked: readonly ServiceCode[], t
   return key;
 }
 
+const reviewedCaseFlows: Partial<Record<number, FlowKey>> = {
+  3065: 'caso-3065',
+  3066: 'caso-3066',
+  3069: 'caso-3069',
+  3072: 'caso-3072',
+};
+
 export const flowDetails = flows;
 
 export function flowForService(code: string): FlowKey {
@@ -70,6 +77,8 @@ export function flowForCase(story: CaseInput, scope: Despiece, documentedNotes: 
   // These reviewed records distinguish web hosting from support, and provision from installation.
   if (story.id === 3300) return undefined;
   if (story.id === 3083) return 'software';
+  const reviewed = story.id === undefined ? undefined : reviewedCaseFlows[story.id];
+  if (reviewed) return reviewed;
   const linked = story.serviceCodes.filter((code): code is ServiceCode => Object.prototype.hasOwnProperty.call(SERVICE_FLOW, code));
   if (!linked.length) return 'registro';
 

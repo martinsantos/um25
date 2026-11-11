@@ -68,5 +68,25 @@
     "title": "Cómo leer este antecedente",
     "description": "La ficha reúne el contexto, el trabajo consignado y la referencia con la que se puede consultar el antecedente.",
     "nodes": [["Contexto", "plano"], ["Trabajo", "maletin"], ["Referencia", "pantalla"]]
+  },
+  "caso-3065": {
+    "title": "De la captura a la consulta",
+    "description": "La cámara capta imágenes y las transmite al sistema de grabación para su consulta.",
+    "nodes": [["Captura", "camara"], ["Grabación", "nvr"], ["Consulta", "pantalla"]]
+  },
+  "caso-3066": {
+    "title": "Del detector al aviso",
+    "description": "El detector comunica el evento a la central, que activa el aviso previsto para el sistema.",
+    "nodes": [["Detector", "detector"], ["Central", "central"], ["Aviso", "sirena"]]
+  },
+  "caso-3069": {
+    "title": "De la alimentación a los equipos",
+    "description": "La alimentación llega al tablero, donde se distribuye y protege cada circuito destinado a los equipos IT.",
+    "nodes": [["Alimentación", "cableado"], ["Distribución", "tablero"], ["Equipos IT", "rack"]]
+  },
+  "caso-3072": {
+    "title": "Del puesto al rack",
+    "description": "El cableado del puesto llega al patch panel del rack, donde se organiza la conexión con el resto de la red.",
+    "nodes": [["Puesto", "puesto"], ["Patch panel", "patch"], ["Red", "rack"]]
   }
 }

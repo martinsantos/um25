@@ -48,6 +48,16 @@ jobs:
       - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Remove only the two transfer archives approved on November 11
+        run: |
+          set -euo pipefail
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          script=scripts/ops/hostinger-migration/prune-approved-transfer-archives.py
+          ssh "${opts[@]}" root@179.198.115.115 'python3 - inspect' < "$script" > "$RUNNER_TEMP/transport-inspection.json"
+          snapshot=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["snapshot_sha256"])' "$RUNNER_TEMP/transport-inspection.json")
+          [[ "$snapshot" =~ ^[a-f0-9]{64}$ ]]
+          cat "$RUNNER_TEMP/transport-inspection.json"
+          ssh "${opts[@]}" root@179.198.115.115 "env GITHUB_ACTIONS=true python3 - apply $snapshot" < "$script"
       - name: Publish only after the migration cutover gate
         env:
           CLEAN_WEB_PACKAGE: ${{ runner.temp }}/umsa-clean-web.tar.gz
