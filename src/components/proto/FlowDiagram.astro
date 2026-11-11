@@ -4,18 +4,19 @@ import { flowDetails, type FlowKey } from '../../data/informationFlows';
 interface Props { flow: FlowKey }
 const { flow } = Astro.props;
 const { title, nodes } = flowDetails[flow];
-const assets = import.meta.glob<string>('../../assets/flow-diagrams/*.{svg,gif}', {
+const assets = import.meta.glob<string>('../../assets/flow-diagrams/*.{svg,gif,webp}', {
   eager: true,
   query: '?url',
   import: 'default',
 });
 const path = '../../assets/flow-diagrams/' + flow;
-const poster = assets[path + '.svg'];
+const wide = Boolean(assets[path + '.webp']);
+const poster = assets[path + '.webp'] || assets[path + '.svg'];
 const gif = assets[path + '.gif'];
 ---
 <div class="flow-diagram" data-flow={flow} data-flow-gif={gif} role="group" aria-label={title}>
-  <div class="flow-art" data-flow-art aria-hidden="true">
-    <img src={poster} width="640" height="142" loading="lazy" decoding="async" alt="" />
+  <div class:list={['flow-art', { 'flow-art--wide': wide }]} data-flow-art aria-hidden="true">
+    <img src={poster} width={wide ? 768 : 640} height={wide ? 256 : 142} loading="lazy" decoding="async" alt="" />
   </div>
   <ol aria-label="Etapas del recorrido">
     {nodes.map(([label]) => <li>{label}</li>)}
@@ -30,6 +31,7 @@ const gif = assets[path + '.gif'];
 <style>
   .flow-diagram { min-width: 0; background: #e2e7e6; color: #202629; }
   .flow-art { position: relative; aspect-ratio: 640 / 142; }
+  .flow-art--wide { aspect-ratio: 3; }
   .flow-art img, .flow-art :global(.flow-gif) { display: block; width: 100%; height: 100%; object-fit: contain; }
   .flow-art :global(.flow-gif) { position: absolute; inset: 0; opacity: 0; }
   [data-flow-running] .flow-art :global(.flow-gif) { opacity: 1; }

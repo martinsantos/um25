@@ -1,10 +1,15 @@
 type Variants = { w480: string; w960: string; full: string; ancho: number; avif: string };
 export const approvedServiceImages = {
   "102": "/images/aprobadas-20261111/seguridad-2048.webp",
+  "103": "/images/aprobadas-flujos-20261111/servicio-103-1600.webp",
+  "104": "/images/aprobadas-flujos-20261111/servicio-104-1600.webp",
   "107": "/images/aprobadas-20261111/incendios-2048.webp",
   "108": "/images/aprobadas-20261111/energia-2048.webp"
 } as const;
 export const approvedCaseImages: Record<number, string> = {
+  "3083": "/images/aprobadas-flujos-20261111/antecedente-3083-1600.webp",
+  "3268": "/images/aprobadas-flujos-20261111/antecedente-3268-1600.webp",
+  "3300": "/images/aprobadas-flujos-20261111/antecedente-3300-1600.webp",
   "3484": "/images/antecedentes/generated/aprobadas-20261111/3484-editorial-20261104-principal.webp",
   "3499": "/images/antecedentes/generated/aprobadas-20261111/3499-editorial-20261104-principal.webp",
   "3547": "/images/antecedentes/generated/aprobadas-20261111/3547-editorial-20261104-principal.webp"
@@ -50,6 +55,41 @@ export const approvedImageVariants: Record<string, Variants> = {
     "w960": "/images/antecedentes/generated/lote_047/3547-editorial-20261104-principal-960.webp",
     "full": "/images/antecedentes/generated/aprobadas-20261111/3547-editorial-20261104-principal.webp",
     "ancho": 1536,
+    "avif": ""
+  },
+  "/images/aprobadas-flujos-20261111/servicio-103-1600.webp": {
+    "w480": "/images/aprobadas-flujos-20261111/servicio-103-480.webp",
+    "w960": "/images/aprobadas-flujos-20261111/servicio-103-960.webp",
+    "full": "/images/aprobadas-flujos-20261111/servicio-103-1600.webp",
+    "ancho": 1600,
+    "avif": ""
+  },
+  "/images/aprobadas-flujos-20261111/servicio-104-1600.webp": {
+    "w480": "/images/aprobadas-flujos-20261111/servicio-104-480.webp",
+    "w960": "/images/aprobadas-flujos-20261111/servicio-104-960.webp",
+    "full": "/images/aprobadas-flujos-20261111/servicio-104-1600.webp",
+    "ancho": 1600,
+    "avif": ""
+  },
+  "/images/aprobadas-flujos-20261111/antecedente-3083-1600.webp": {
+    "w480": "/images/aprobadas-flujos-20261111/antecedente-3083-480.webp",
+    "w960": "/images/aprobadas-flujos-20261111/antecedente-3083-960.webp",
+    "full": "/images/aprobadas-flujos-20261111/antecedente-3083-1600.webp",
+    "ancho": 1600,
+    "avif": ""
+  },
+  "/images/aprobadas-flujos-20261111/antecedente-3268-1600.webp": {
+    "w480": "/images/aprobadas-flujos-20261111/antecedente-3268-480.webp",
+    "w960": "/images/aprobadas-flujos-20261111/antecedente-3268-960.webp",
+    "full": "/images/aprobadas-flujos-20261111/antecedente-3268-1600.webp",
+    "ancho": 1600,
+    "avif": ""
+  },
+  "/images/aprobadas-flujos-20261111/antecedente-3300-1600.webp": {
+    "w480": "/images/aprobadas-flujos-20261111/antecedente-3300-480.webp",
+    "w960": "/images/aprobadas-flujos-20261111/antecedente-3300-960.webp",
+    "full": "/images/aprobadas-flujos-20261111/antecedente-3300-1600.webp",
+    "ancho": 1600,
     "avif": ""
   }
 };
