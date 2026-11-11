@@ -17,6 +17,7 @@ export const SERVICE_FLOW = {
 type ServiceCode = keyof typeof SERVICE_FLOW;
 type FlowHint = { service: ServiceCode; key: FlowKey; match: RegExp };
 type CaseInput = {
+  id?: number;
   title: string;
   summary: string;
   serviceCodes: readonly string[];
@@ -65,7 +66,10 @@ export function flowForService(code: string): FlowKey {
   return SERVICE_FLOW[code as ServiceCode] ?? 'registro';
 }
 
-export function flowForCase(story: CaseInput, scope: Despiece, documentedNotes: readonly string[] = []): FlowKey {
+export function flowForCase(story: CaseInput, scope: Despiece, documentedNotes: readonly string[] = []): FlowKey | undefined {
+  // These reviewed records distinguish web hosting from support, and provision from installation.
+  if (story.id === 3300) return undefined;
+  if (story.id === 3083) return 'software';
   const linked = story.serviceCodes.filter((code): code is ServiceCode => Object.prototype.hasOwnProperty.call(SERVICE_FLOW, code));
   if (!linked.length) return 'registro';
 
