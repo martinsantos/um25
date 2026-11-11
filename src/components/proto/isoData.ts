@@ -1,3 +1,4 @@
+import { approvedServiceImages, approvedImageVariants } from '../../data/approvedImageAssets';
 /**
  * Datos compartidos de las propuestas de portada con despieces (2026-10-30).
  * Sólo reúne lo que ya existe en el sitio: las isometrías de /cine/iso, las fotos editoriales,
@@ -171,10 +172,11 @@ export function illustrationSiteFor(story: Pick<Story, 'sectorSlug' | 'serviceCo
     ? SITE_OF[story.sectorSlug] : undefined;
 }
 /** Fotos editoriales: la imagen a pleno de cada servicio y de cada sector. */
-export const SERVICE_PHOTO: Record<string, string> = { '101': '/images/editorial/umsa-service-redes.webp', '102': '/images/editorial/umsa-service-seguridad-electronica.webp', '103': '/images/editorial/umsa-service-telecomunicaciones.webp', '104': '/images/editorial/umsa-service-software-a-medida.webp', '105': servicePhotograph('105') || '/images/editorial/umsa-service-soporte-247.webp', '106': '/images/software-comunidades/comunidad-rosario.jpg', '107': '/images/editorial/umsa-service-deteccion-incendios.webp', '108': '/images/editorial/umsa-service-electricos-it.webp' };
+export const SERVICE_PHOTO: Record<string, string> = { '101': '/images/editorial/umsa-service-redes.webp', '102': approvedServiceImages['102'], '103': '/images/editorial/umsa-service-telecomunicaciones.webp', '104': '/images/editorial/umsa-service-software-a-medida.webp', '105': servicePhotograph('105') || '/images/editorial/umsa-service-soporte-247.webp', '106': '/images/software-comunidades/comunidad-rosario.jpg', '107': approvedServiceImages['107'], '108': approvedServiceImages['108'] };
 export const SECTOR_PHOTO: Record<string, string> = { software: `/cine/media/cine-${SOFTWARE_FILM}-poster.avif`, 'seguridad-electronica': '/images/editorial/umsa-sector-seguridad-electronica.webp', bodegas: '/images/editorial/umsa-sector-bodegas.webp', aeropuertos: '/images/editorial/umsa-sector-aeropuertos.webp', salud: '/images/editorial/umsa-sector-salud.webp', mineria: '/images/editorial/umsa-sector-mineria.webp', industria: '/images/editorial/umsa-sector-industria.webp', constructoras: '/images/editorial/umsa-sector-constructoras.webp', gobiernosectorpublico: '/images/editorial/umsa-sector-gobierno.webp', gobierno: '/images/editorial/umsa-sector-gobierno.webp' };
 /** Las variantes de ancho de una foto según su familia: de antecedente (1600 → 960 → 480) o editorial (1672 → 960 → 480, y AVIF a 960 y 1672 para la apertura). Sin familia, las tres son la misma y el ancho es 0. */
 export const variantes = (image: string) => {
+  if (approvedImageVariants[image]) return approvedImageVariants[image];
   if (/^\/images\/antecedentes\/generated\/.+-principal\.webp$/.test(image)) return { w480: image.replace(/-principal\.webp$/, '-principal-480.webp'), w960: image.replace(/-principal\.webp$/, '-principal-960.webp'), full: image, ancho: image.endsWith('-editorial-20261104-principal.webp') ? 1536 : 1600, avif: '' };
   if (image === '/images/software-comunidades/comunidad-rosario.jpg') return { w480: image.replace('.jpg', '-480.webp'), w960: image.replace('.jpg', '-960.webp'), full: image, ancho: 1800, avif: '' };
   if (/^\/images\/photography\/[a-f0-9]+\.webp$/.test(image)) return { w480: image.replace(/\.webp$/, '-480.webp'), w960: image.replace(/\.webp$/, '-960.webp'), full: image, ancho: photoWidth(image), avif: '' };

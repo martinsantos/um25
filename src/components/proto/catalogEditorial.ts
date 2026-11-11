@@ -1,3 +1,4 @@
+import { approvedCaseImages } from '../../data/approvedImageAssets';
 import { casePhotograph } from '../../data/photography';
 
 /**
@@ -198,7 +199,7 @@ export const CATALOG_ILLUSTRATIVE_IMAGE: Readonly<Record<number, { src: string; 
 
 /** Set an existing, relevant editorial image; never imply that it documents the named project. */
 export function curateCatalogImage(id: number, currentImage: string): string {
-  return casePhotograph(id) || CATALOG_ILLUSTRATIVE_IMAGE[id]?.src || currentImage;
+  return approvedCaseImages[id] || casePhotograph(id) || CATALOG_ILLUSTRATIVE_IMAGE[id]?.src || currentImage;
 }
 
 export function catalogImageLabel(id: number): string | undefined {
