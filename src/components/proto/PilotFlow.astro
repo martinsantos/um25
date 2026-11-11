@@ -19,7 +19,7 @@ const labels = winery ? ['Tanque y sonda', 'Red de planta', 'Registro'] : ['Cám
   </div>
 </figure>
 <script>
-  document.querySelectorAll<HTMLElement>('[data-flow]').forEach(figure => {
+  document.querySelectorAll<HTMLElement>('.pilot-flow[data-flow]').forEach(figure => {
     const image = figure.querySelector('img')!;
     const still = image.src;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
