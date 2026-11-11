@@ -145,7 +145,7 @@ const seoTitle = caseSeo.title.includes(ref) ? caseSeo.title : `${trimAtWordBoun
 
 
     </>}
-    <FlowSection flow={flow} project />
+    {flow && <FlowSection flow={flow} project />}
     {sameClient.length > 0 && (
       <section class="sec"><div class="wrap"><div class="sec__head"><h2>Más proyectos para {c.client}<span class="dot">.</span></h2></div><ol class="fichas">{sameClient.map((o) => <Ficha story={o} />)}</ol></div></section>
     )}
