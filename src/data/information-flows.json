@@ -88,5 +88,77 @@
     "title": "Del puesto al rack",
     "description": "El cableado del puesto llega al patch panel del rack, donde se organiza la conexión con el resto de la red.",
     "nodes": [["Puesto", "puesto"], ["Patch panel", "patch"], ["Red", "rack"]]
+  },
+  "servicio-105": {
+    "title": "Del incidente a la comprobación",
+    "description": "Un aviso abre el diagnóstico. El equipo interviene y comprueba que la operación se haya restablecido.",
+    "nodes": [
+      [
+        "Aviso",
+        "pantalla"
+      ],
+      [
+        "Intervención",
+        "maletin"
+      ],
+      [
+        "Comprobación",
+        "puesto"
+      ]
+    ]
+  },
+  "servicio-106": {
+    "title": "Del relevamiento a la documentación",
+    "description": "Las condiciones relevadas en el sitio se traducen en un diseño y en los documentos para ejecutar la obra.",
+    "nodes": [
+      [
+        "Relevamiento",
+        "maletin"
+      ],
+      [
+        "Diseño",
+        "plano"
+      ],
+      [
+        "Documentación",
+        "plano"
+      ]
+    ]
+  },
+  "caso-3144": {
+    "title": "De los puestos al enlace de fibra",
+    "description": "El cableado de los puestos llega al rack mural. El enlace de fibra conecta el rack con el resto de la red.",
+    "nodes": [
+      [
+        "Puestos de datos",
+        "puesto"
+      ],
+      [
+        "Rack mural",
+        "rack"
+      ],
+      [
+        "Fibra monomodo",
+        "fibra"
+      ]
+    ]
+  },
+  "caso-3126": {
+    "title": "Del detector a la red de centrales",
+    "description": "La central recibe el evento del detector. La interfaz de fibra permite comunicar las centrales de los sectores del aeropuerto.",
+    "nodes": [
+      [
+        "Detector",
+        "detector"
+      ],
+      [
+        "Central",
+        "central"
+      ],
+      [
+        "Enlace de fibra",
+        "fibra"
+      ]
+    ]
   }
 }
