@@ -175,7 +175,7 @@ const cierre = cierrePorServicio[code];
     <Top current="servicios" />
     <main id="contenido">
 
-    <Hero label={servicio.name} image={photo} naturalPhoto={['105', '106'].includes(code)} imageAlt={code === '105' ? 'Profesional supervisando equipos en una sala de servidores' : code === '106' ? 'Personas colaborando con computadoras durante un hackatón en Rosario' : ''}>
+    <Hero label={servicio.name} image={photo} naturalPhoto={['105', '106'].includes(code)} imageAlt={code === '105' ? 'Profesional supervisando equipos en una sala de servidores' : code === '106' ? 'Plano de instalación y elementos de relevamiento técnico sobre una mesa' : ''}>
       <h1 class:list={['service-detail-title', { 'redes-titulo': isNetworks }]} style={code === '103' ? 'font-size:clamp(2rem,3.6vw,3.5rem)' : undefined}>{servicio.name}<span class="dot">.</span></h1>
       <p class="tag">{isNetworks ? 'Cableado, fibra y redes para empresas.' : copy.headline}</p>
       <p>{isNetworks ? 'Desde Mendoza diseñamos e instalamos redes LAN/WAN, Wi-Fi corporativo y switching gestionado. Medimos los enlaces y documentamos la obra según su alcance.' : copy.paragraph}</p>

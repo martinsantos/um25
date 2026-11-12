@@ -101,7 +101,7 @@ p { margin: 0; }
 .servicios { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
 .servicios a, .servicios button { display: flex; justify-content: space-between; gap: 16px; width: 100%; padding: 16px 0; border-bottom: 1px solid var(--line-2); color: var(--ink-2); font-size: 1.15rem; font-weight: 500; text-align: left; position: relative; transition: color .3s; }
 .servicios a i, .servicios button i { position: absolute; left: 0; bottom: -1px; height: 2px; width: calc(var(--w, 0) * 1%); background: transparent; transition: background .3s; }
-.servicios .on, .servicios a:hover, .servicios button:hover, .servicios [aria-pressed="true"] { color: var(--ink); }
+.servicios .on, .servicios a:hover, .servicios button:hover:not([aria-pressed="true"]) { color: var(--ink); }
 .servicios .on i, .servicios [aria-pressed="true"] i { background: var(--red); }
 .servicios span { color: var(--ink-3); font-size: 1rem; white-space: nowrap; }
 .pelicula { display: grid; gap: 10px; }
