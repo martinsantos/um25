@@ -30,9 +30,9 @@ class ApprovedTransportsTest(unittest.TestCase):
         path.chmod(0o600)
         return path, (path.stat().st_size, hashlib.sha256(path.read_bytes()).hexdigest())
 
-    def test_scope_is_exactly_the_two_approved_archives_and_excludes_rollback(self):
-        self.assertEqual(len(prune.APPROVED), 2)
-        self.assertEqual(sum(row[0] for row in prune.APPROVED.values()), 4198420488)
+    def test_scope_is_exactly_the_four_approved_archives_and_excludes_rollback(self):
+        self.assertEqual(len(prune.APPROVED), 4)
+        self.assertEqual(sum(row[0] for row in prune.APPROVED.values()), 8397100755)
         self.assertFalse(set(prune.APPROVED) & set(prune.RETAINED))
         self.assertEqual(len(prune.RETAINED), 3)
 

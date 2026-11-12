@@ -48,7 +48,7 @@ jobs:
       - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
-      - name: Remove only the two transfer archives approved on November 11
+      - name: Remove only the four transfer archives approved on November 12
         run: |
           set -euo pipefail
           opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
@@ -58,6 +58,20 @@ jobs:
           [[ "$snapshot" =~ ^[a-f0-9]{64}$ ]]
           cat "$RUNNER_TEMP/transport-inspection.json"
           ssh "${opts[@]}" root@179.198.115.115 "env GITHUB_ACTIONS=true python3 - apply $snapshot" < "$script"
+      - name: Check available disk before sending the CI package
+        env:
+          CLEAN_WEB_PACKAGE: ${{ runner.temp }}/umsa-clean-web.tar.gz
+        run: |
+          set -euo pipefail
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15)
+          size=$(stat -c %s "$CLEAN_WEB_PACKAGE")
+          available=$(ssh "${opts[@]}" root@179.198.115.115 "df -B1 --output=avail /srv | tail -n 1" | tr -d '[:space:]')
+          [[ "$available" =~ ^[0-9]+$ ]]
+          required=$((size + (5 * size > 5 * 1024**3 ? 5 * size : 5 * 1024**3)))
+          if (( available < required )); then
+            echo "Available disk $available bytes is below the existing publisher requirement of $required bytes before transfer." >&2
+            exit 1
+          fi
       - name: Publish only after the migration cutover gate
         env:
           CLEAN_WEB_PACKAGE: ${{ runner.temp }}/umsa-clean-web.tar.gz
