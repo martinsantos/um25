@@ -61,6 +61,12 @@ function firstHint(hints: readonly FlowHint[], linked: readonly ServiceCode[], t
 }
 
 const reviewedCaseFlows: Partial<Record<number, FlowKey>> = {
+  3085: 'caso-3085',
+  3116: 'caso-3116',
+  3103: 'caso-3103',
+  3104: 'caso-3104',
+  3140: 'caso-3140',
+  3640: 'caso-3640',
   3065: 'caso-3065',
   3066: 'caso-3066',
   3069: 'caso-3069',
@@ -76,6 +82,7 @@ const reviewedCaseFlows: Partial<Record<number, FlowKey>> = {
 export const flowDetails = flows;
 
 export function flowForService(code: string): FlowKey {
+  if (code === '103') return 'servicio-103';
   if (code === '101') return 'servicio-101';
   if (code === '105') return 'servicio-105';
   if (code === '106') return 'servicio-106';

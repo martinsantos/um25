@@ -8,6 +8,10 @@ export const approvedServiceImages = {
   "108": "/images/aprobadas-20261111/energia-2048.webp"
 } as const;
 export const approvedCaseImages: Record<number, string> = {
+  "3085": "/images/aprobadas-20261113-b/3085-1600.webp",
+  "3116": "/images/aprobadas-20261113-b/3116-1600.webp",
+  "3640": "/images/aprobadas-20261113-b/3640-1600.webp",
+  "3451": "/images/aprobadas-20261113-b/3451-1600.webp",
   "3588": "/images/aprobadas-20261113/3588-1600.webp",
   "3144": "/images/aprobadas-20261112/3144-1600.webp",
   "3126": "/images/aprobadas-20261112/3126-1600.webp",
@@ -23,6 +27,34 @@ export const approvedCaseImages: Record<number, string> = {
   "3547": "/images/antecedentes/generated/aprobadas-20261111/3547-editorial-20261104-principal.webp"
 };
 export const approvedImageVariants: Record<string, Variants> = {
+  "/images/aprobadas-20261113-b/3085-1600.webp": {
+    "w480": "/images/aprobadas-20261113-b/3085-480.webp",
+    "w960": "/images/aprobadas-20261113-b/3085-960.webp",
+    "full": "/images/aprobadas-20261113-b/3085-1600.webp",
+    "ancho": 1600,
+    "avif": ""
+  },
+  "/images/aprobadas-20261113-b/3116-1600.webp": {
+    "w480": "/images/aprobadas-20261113-b/3116-480.webp",
+    "w960": "/images/aprobadas-20261113-b/3116-960.webp",
+    "full": "/images/aprobadas-20261113-b/3116-1600.webp",
+    "ancho": 1600,
+    "avif": ""
+  },
+  "/images/aprobadas-20261113-b/3640-1600.webp": {
+    "w480": "/images/aprobadas-20261113-b/3640-480.webp",
+    "w960": "/images/aprobadas-20261113-b/3640-960.webp",
+    "full": "/images/aprobadas-20261113-b/3640-1600.webp",
+    "ancho": 1600,
+    "avif": ""
+  },
+  "/images/aprobadas-20261113-b/3451-1600.webp": {
+    "w480": "/images/aprobadas-20261113-b/3451-480.webp",
+    "w960": "/images/aprobadas-20261113-b/3451-960.webp",
+    "full": "/images/aprobadas-20261113-b/3451-1600.webp",
+    "ancho": 1600,
+    "avif": ""
+  },
   "/images/aprobadas-20261113/3588-1600.webp": {
     "w480": "/images/aprobadas-20261113/3588-480.webp",
     "w960": "/images/aprobadas-20261113/3588-960.webp",

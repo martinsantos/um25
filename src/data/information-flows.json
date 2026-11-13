@@ -250,5 +250,131 @@
         "rack"
       ]
     ]
+  },
+  "servicio-103": {
+    "title": "De una sede a la otra",
+    "description": "Un radioenlace conecta dos sedes. Cada extremo se vincula con la red local del sitio.",
+    "nodes": [
+      [
+        "Red de origen",
+        "switch"
+      ],
+      [
+        "Radioenlace",
+        "antena"
+      ],
+      [
+        "Red de destino",
+        "switch"
+      ]
+    ]
+  },
+  "caso-3085": {
+    "title": "De las tomas al rack mural",
+    "description": "El cableado Cat. 6 LSZH conecta los puestos simples y dobles con los racks murales de 15U. Los tableros eléctricos se documentan por separado.",
+    "nodes": [
+      [
+        "Tomas de datos",
+        "puesto"
+      ],
+      [
+        "Cableado Cat. 6",
+        "cableado"
+      ],
+      [
+        "Rack mural de 15U",
+        "rack"
+      ]
+    ]
+  },
+  "caso-3116": {
+    "title": "Del cableado al punto de acceso",
+    "description": "La ficha documenta el cableado de datos de una suite y la provisión y configuración de su punto de acceso.",
+    "nodes": [
+      [
+        "Toma de datos",
+        "puesto"
+      ],
+      [
+        "Tramo cableado",
+        "cableado"
+      ],
+      [
+        "Punto de acceso",
+        "ap"
+      ]
+    ]
+  },
+  "caso-3103": {
+    "title": "De los puestos al rack mural",
+    "description": "El registro detalla 33 puestos simples de datos Cat. 6 LSZH, la canalización y un rack mural de 15U.",
+    "nodes": [
+      [
+        "Puestos simples",
+        "puesto"
+      ],
+      [
+        "Canalización",
+        "canalizacion"
+      ],
+      [
+        "Rack mural de 15U",
+        "rack"
+      ]
+    ]
+  },
+  "caso-3104": {
+    "title": "Del montaje a la prueba de acceso",
+    "description": "El trabajo registró el montaje del control de acceso del pañol y el taller, y luego su testeo y comprobación.",
+    "nodes": [
+      [
+        "Montaje del lector",
+        "acceso"
+      ],
+      [
+        "Prueba de lectura",
+        "acceso"
+      ],
+      [
+        "Control final",
+        "plano"
+      ]
+    ]
+  },
+  "caso-3140": {
+    "title": "Del montaje a la puesta en marcha",
+    "description": "El alcance publicado incluye la provisión, el montaje y la puesta en marcha del CCTV para los mostradores de cobro del parking.",
+    "nodes": [
+      [
+        "Cámara",
+        "camara"
+      ],
+      [
+        "Montaje",
+        "cableado"
+      ],
+      [
+        "Puesta en marcha",
+        "pantalla"
+      ]
+    ]
+  },
+  "caso-3640": {
+    "title": "Dos áreas, cableado Cat. 6",
+    "description": "El registro distingue dos áreas y sus tramos interiores UTP Cat. 6. El esquema muestra ambos recorridos sin definir la topología de la instalación.",
+    "nodes": [
+      [
+        "Camarines",
+        "camara"
+      ],
+      [
+        "Cableado UTP Cat. 6",
+        "cableado"
+      ],
+      [
+        "Oficina de elaboración",
+        "camara"
+      ]
+    ]
   }
 }
