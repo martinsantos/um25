@@ -48,7 +48,7 @@ jobs:
       - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
-      - name: Remove only the three artifacts approved for this release
+      - name: Remove only the two old compilations approved for this release
         env:
           CLEAN_WEB_PACKAGE: ${{ runner.temp }}/umsa-clean-web.tar.gz
         run: |
@@ -58,7 +58,7 @@ jobs:
           size=$(stat -c %s "$CLEAN_WEB_PACKAGE")
           required=$((size + (5 * size > 5 * 1024**3 ? 5 * size : 5 * 1024**3)))
           python3 -c 'import sys; print(open(sys.argv[1]).read().split("if __name__ == ")[0], end="")' "$ops/prune-reviewed-migration.py" > "$RUNNER_TEMP/prune-reviewed.py"
-          cat "$ops/prune-20261113-approved-release-artifacts.py" >> "$RUNNER_TEMP/prune-reviewed.py"
+          cat "$ops/prune-20261113-two-approved-applications.py" >> "$RUNNER_TEMP/prune-reviewed.py"
           ssh "${opts[@]}" root@179.198.115.115 "python3 -B - inspect $required" < "$RUNNER_TEMP/prune-reviewed.py" > "$RUNNER_TEMP/prune-inspection.json"
           snapshot=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["snapshot_sha256"])' "$RUNNER_TEMP/prune-inspection.json")
           [[ "$snapshot" =~ ^[a-f0-9]{64}$ ]]
