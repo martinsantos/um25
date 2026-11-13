@@ -158,6 +158,9 @@ const withheldCaseFlows = new Map<number, string>([
 
 export function flowForCase(story: CaseInput, scope: Despiece, documentedNotes: readonly string[] = []): FlowKey | undefined {
   // These reviewed records distinguish web hosting from support, and provision from installation.
+  if (story.id === 3479 && normalize(story.title) === normalize("Provisión de UPS para data center y puestos de datos")) return 'caso-3479-realista';
+  if (story.id === 3585 && normalize(story.title) === normalize("Cable categoría 6 y conectores RJ45")) return 'caso-3585-realista';
+  if (story.id === 3310 && normalize(story.title) === normalize("Cableado telefónico para el Hospital Perrupato")) return 'caso-3310-realista';
   if (story.id === 3365 && normalize(story.title) === normalize("Reemplazo de grabador DVR")) return 'caso-3365-revision-f';
   if (story.id === 3228 && normalize(story.title) === normalize("Traslado de rack")) return 'caso-3228-revision-f';
   if (story.id === 3128 && normalize(story.title) === normalize('Configuración de correo y carpetas compartidas')) return 'caso-3128-revision-f';
