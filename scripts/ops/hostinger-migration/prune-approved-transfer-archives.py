@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Remove only the four transfer archives reviewed on 2026-11-12.
+"""Remove only the three transfer archives reviewed on 2026-11-13.
 
 Installed releases, rollback packages and backups are never deletion targets.
 After this one-off batch is gone the publication preflight is a read-only no-op.
@@ -17,20 +17,18 @@ import sys
 STAGE = Path('/srv/umsa-migration')
 INCOMING = STAGE / 'incoming'
 RELEASES = Path('/srv/umsa-web-releases')
-CURRENT = '35b332522497ed3efa427c8e388f3a0052ee8408-43066659226-1'
+CURRENT = '67cc8e80581792a71a8854fc5d1a10f1cdea9b72-43331723354-1'
 RETAINED = (CURRENT,
+    '35b332522497ed3efa427c8e388f3a0052ee8408-43066659226-1',
     '7052328ccecfe9d156ea012529cdf492fa6a3be0-43032203710-1',
-    '9a78665ffb65562d52e8384d90dd9f823dbb1140-43015066244-1',
 )
 APPROVED = {
-    'fa45d536263d868311123d1114a6f1b588115d84-42656253194-1':
-        (2099208077, '1a624b6b8d02ffed76ee869db53adbc8813dca963f6e54b11e69b6a548356a2b'),
-    '41cbd4784ee3972605ba7ce0f902b1088de98373-42708927981-1':
-        (2099211320, '27c7618812702d9459ffe0bb618ce79ecf29ec19298d93eb07f7c3f1eb4db279'),
-    'cad4e9c04ce417a56fc7f9f04c9db55b86bd48f1-42740521036-1':
-        (2099340639, '135752a3ff06a93cbf9e8137fbad5dda2144d9fd822c2a9563dc76052b66c11c'),
-    'acf7cab5106f215f316e3ff2626079098aeaa9dc-42797780930-1':
-        (2099340719, '26e08f4fa615511df7674ebe011ffdacced2579417f1c41c61ceb366bea3e59d'),
+    '0135aeb32866f903a9054313e23a8915d704174f-42999718049-1':
+        (2099553758, '7a34754ac45651f5285d62d95cd05b5a12c0e80a2f3eee306561d2321c527137'),
+    '131a2c6afde2cd880ab36986c5d0e853f0d5b477-43004196764-1':
+        (2099561583, 'd07cd05dc413c6fc1b6ca308ca26e33c63ba58d3574893e33039c1831a0be9ef'),
+    '9a78665ffb65562d52e8384d90dd9f823dbb1140-43015066244-1':
+        (2102439782, '70388bf85c17f44a23624cb1f399ef80c41db961157e227df6c634684d63a569'),
 }
 MACHINE_SHA = '315fee7b2c6314049537fc82c6b2168500d14f416911a2b1226a3569aaf91c1c'
 ROOT_UID = 0

@@ -48,7 +48,7 @@ jobs:
       - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
-      - name: Remove only the four transfer archives approved on November 12
+      - name: Remove only the three transfer archives approved on November 13
         run: |
           set -euo pipefail
           opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
