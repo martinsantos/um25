@@ -160,5 +160,95 @@
         "fibra"
       ]
     ]
+  },
+  "servicio-101": {
+    "title": "Del puesto al enlace de fibra",
+    "description": "El tráfico de los puestos llega al switch de acceso. Desde ahí sigue por el enlace óptico hacia el resto de la red.",
+    "nodes": [
+      [
+        "Puesto de datos",
+        "puesto"
+      ],
+      [
+        "Switch de acceso",
+        "switch"
+      ],
+      [
+        "Enlace de fibra",
+        "fibra"
+      ]
+    ]
+  },
+  "caso-3099": {
+    "title": "De los puestos a la fibra entre racks",
+    "description": "El cableado Cat. 6 de los puestos llega al rack de distribución. El alcance prevé un enlace monomodo de 12 hilos entre racks.",
+    "nodes": [
+      [
+        "Puestos Cat. 6",
+        "puesto"
+      ],
+      [
+        "Rack de distribución",
+        "rack"
+      ],
+      [
+        "Fibra entre racks",
+        "fibra"
+      ]
+    ]
+  },
+  "caso-3588": {
+    "title": "De la portería al monitor interior",
+    "description": "La llamada se inicia en el portero IP, pasa por la red y llega a la estación interior. El esquema muestra el recorrido de portería.",
+    "nodes": [
+      [
+        "Portero IP",
+        "acceso"
+      ],
+      [
+        "Switch PoE",
+        "switch"
+      ],
+      [
+        "Estación interior",
+        "telefono"
+      ]
+    ]
+  },
+  "caso-3102": {
+    "title": "De los puestos al rack",
+    "description": "El alcance documenta puestos simples y dobles Cat. 6 LSZH. El cableado pasa por la canalización y termina en los racks.",
+    "nodes": [
+      [
+        "Puestos simples y dobles",
+        "puesto"
+      ],
+      [
+        "Canalización",
+        "cableado"
+      ],
+      [
+        "Rack de datos",
+        "rack"
+      ]
+    ]
+  },
+  "caso-3119": {
+    "title": "Del tablero a los circuitos de informática",
+    "description": "Los tableros del alcance distribuyen la alimentación de los circuitos de informática.",
+    "nodes": [
+      [
+        "Alimentación",
+        "cableado"
+      ],
+      [
+        "Tablero eléctrico",
+        "tablero"
+      ],
+      [
+        "Circuitos de informática",
+        "rack"
+      ]
+    ]
   }
 }
