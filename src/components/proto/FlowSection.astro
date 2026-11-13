@@ -9,7 +9,7 @@ const { title, description } = flowDetails[flow];
 <section class="sec flow-section" id="flujo" aria-labelledby="flow-title">
   <div class="wrap flow-layout">
     <div class="flow-copy">
-      <p class="flow-kicker">{flow === 'registro' ? 'Ficha de trabajo' : project ? 'Esquema del servicio vinculado' : 'Flujo de trabajo'}</p>
+      <p class="flow-kicker">{flow === 'registro' ? 'Ficha de trabajo' : project ? (flow.startsWith('caso-') ? 'Esquema del proyecto' : 'Esquema del servicio vinculado') : 'Flujo de trabajo'}</p>
       <h2 id="flow-title">{title}<span class="dot">.</span></h2>
       <p>{description}</p>
     </div>
