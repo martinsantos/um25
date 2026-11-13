@@ -67,11 +67,16 @@ const reviewedCaseFlows: Partial<Record<number, FlowKey>> = {
   3072: 'caso-3072',
   3144: 'caso-3144',
   3126: 'caso-3126',
+  3099: 'caso-3099',
+  3588: 'caso-3588',
+  3102: 'caso-3102',
+  3119: 'caso-3119',
 };
 
 export const flowDetails = flows;
 
 export function flowForService(code: string): FlowKey {
+  if (code === '101') return 'servicio-101';
   if (code === '105') return 'servicio-105';
   if (code === '106') return 'servicio-106';
   return SERVICE_FLOW[code as ServiceCode] ?? 'registro';

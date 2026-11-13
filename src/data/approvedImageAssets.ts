@@ -8,6 +8,7 @@ export const approvedServiceImages = {
   "108": "/images/aprobadas-20261111/energia-2048.webp"
 } as const;
 export const approvedCaseImages: Record<number, string> = {
+  "3588": "/images/aprobadas-20261113/3588-1600.webp",
   "3144": "/images/aprobadas-20261112/3144-1600.webp",
   "3126": "/images/aprobadas-20261112/3126-1600.webp",
   "3065": "/images/aprobadas-antecedentes-tanda2-20261111/antecedente-3065-1600.webp",
@@ -22,6 +23,13 @@ export const approvedCaseImages: Record<number, string> = {
   "3547": "/images/antecedentes/generated/aprobadas-20261111/3547-editorial-20261104-principal.webp"
 };
 export const approvedImageVariants: Record<string, Variants> = {
+  "/images/aprobadas-20261113/3588-1600.webp": {
+    "w480": "/images/aprobadas-20261113/3588-480.webp",
+    "w960": "/images/aprobadas-20261113/3588-960.webp",
+    "full": "/images/aprobadas-20261113/3588-1600.webp",
+    "ancho": 1600,
+    "avif": ""
+  },
   "/images/aprobadas-20261112/106-1600.webp": {
     "w480": "/images/aprobadas-20261112/106-480.webp",
     "w960": "/images/aprobadas-20261112/106-960.webp",
