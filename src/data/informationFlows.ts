@@ -158,6 +158,12 @@ const withheldCaseFlows = new Map<number, string>([
 
 export function flowForCase(story: CaseInput, scope: Despiece, documentedNotes: readonly string[] = []): FlowKey | undefined {
   // These reviewed records distinguish web hosting from support, and provision from installation.
+  if (story.id === 3365 && normalize(story.title) === normalize("Reemplazo de grabador DVR")) return 'caso-3365-revision-f';
+  if (story.id === 3228 && normalize(story.title) === normalize("Traslado de rack")) return 'caso-3228-revision-f';
+  if (story.id === 3128 && normalize(story.title) === normalize('Configuración de correo y carpetas compartidas')) return 'caso-3128-revision-f';
+  if (story.id === 3384 && normalize(story.title) === normalize('Cableado para puestos de datos en selectoras de aceitunas')) return 'caso-3384-revision-f';
+  if (story.id === 3088 && normalize(story.title) === normalize("Cableado de cinco cámaras CCTV y provisión de balun")) return 'caso-3088-revision-f';
+  if (story.id === 3358 && normalize(story.title) === normalize("Reemplazo de cableado de dos cámaras CCTV")) return 'caso-3358-revision-f';
   if (story.id === 3300) return undefined;
   if (story.id !== undefined && withheldCaseFlows.get(story.id) === normalize(story.title)) return undefined;
   if (story.id === 3083) return 'software';

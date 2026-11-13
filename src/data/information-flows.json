@@ -790,5 +790,113 @@
         "parlante"
       ]
     ]
+  },
+  "caso-3128-revision-f": {
+    "title": "Correo, carpetas y permisos",
+    "description": "La intervención configuró una cuenta de correo y organizó carpetas personales y compartidas en Google Drive. El esquema distingue el correo, la estructura de carpetas y los permisos de acceso.",
+    "nodes": [
+      [
+        "Cuenta de correo",
+        "pantalla"
+      ],
+      [
+        "Carpetas compartidas",
+        "servidor"
+      ],
+      [
+        "Permisos de acceso",
+        "lector"
+      ]
+    ]
+  },
+  "caso-3384-revision-f": {
+    "title": "Cableado para cuatro puestos de datos",
+    "description": "Se tendió cableado para cuatro puestos de datos en el área de las selectoras de aceitunas. El esquema muestra el trabajo en ese tramo, sin atribuirle un rack, un switch ni toda la red de la planta.",
+    "nodes": [
+      [
+        "Área de selección",
+        "puesto"
+      ],
+      [
+        "Cableado de datos",
+        "cableado"
+      ],
+      [
+        "Cuatro puestos",
+        "puesto"
+      ]
+    ]
+  },
+  "caso-3088-revision-f": {
+    "title": "Cinco cámaras, cableado y balun",
+    "description": "El trabajo comprendió cableado para cinco cámaras de CCTV y la provisión de balun. El esquema identifica esos elementos sin representar el grabador ni dar por instalada una topología específica.",
+    "nodes": [
+      [
+        "Cinco cámaras",
+        "camara"
+      ],
+      [
+        "Cableado CCTV",
+        "cableado"
+      ],
+      [
+        "Provisión de balun",
+        "modulo"
+      ]
+    ]
+  },
+  "caso-3358-revision-f": {
+    "title": "Recambio del cableado de dos cámaras",
+    "description": "La intervención reemplazó el cableado de dos cámaras de CCTV. El esquema muestra el recambio y las dos cámaras del alcance, sin atribuir al trabajo cambios de grabador ni de monitoreo.",
+    "nodes": [
+      [
+        "Cableado anterior",
+        "cableado"
+      ],
+      [
+        "Cableado de reemplazo",
+        "cableado"
+      ],
+      [
+        "Dos cámaras",
+        "camara"
+      ]
+    ]
+  },
+  "caso-3228-revision-f": {
+    "title": "Traslado de un rack de redes",
+    "description": "El antecedente documenta el traslado de un rack. El esquema muestra la reubicación del gabinete.",
+    "nodes": [
+      [
+        "Rack original",
+        "rack"
+      ],
+      [
+        "Traslado",
+        "maletin"
+      ],
+      [
+        "Rack reubicado",
+        "rack"
+      ]
+    ]
+  },
+  "caso-3365-revision-f": {
+    "title": "Reemplazo de un grabador DVR",
+    "description": "El trabajo registrado consistió en reemplazar un grabador DVR de la finca.",
+    "nodes": [
+      [
+        "Grabador anterior",
+        "nvr"
+      ],
+      [
+        "Recambio",
+        "maletin"
+      ],
+      [
+        "Grabador de reemplazo",
+        "nvr"
+      ]
+    ]
   }
 }
