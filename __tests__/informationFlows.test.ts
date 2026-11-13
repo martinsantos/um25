@@ -23,7 +23,7 @@ describe('reviewed case information flows', () => {
 });
 
 describe('approved case diagrams', () => {
-  it.each([3065, 3066, 3069, 3072, 3126, 3144, 3099, 3588, 3102, 3119, 3085, 3116, 3103, 3104, 3140, 3640])('uses the approved case-specific diagram for %i', (id) => {
+  it.each([3065, 3066, 3069, 3072, 3126, 3144, 3099, 3588, 3102, 3119, 3085, 3116, 3103, 3104, 3140, 3640, 3205, 3410, 3117, 3259, 3336])('uses the approved case-specific diagram for %i', (id) => {
     expect(flowForCase({ id, title: 'Trabajo registrado', summary: '', serviceCodes: [] }, scope)).toBe('caso-' + id);
   });
   it('uses service-specific flows while preserving generic case diagrams', () => {
@@ -32,5 +32,12 @@ describe('approved case diagrams', () => {
     }
     expect(flowForCase({ id: 9999, title: 'Cableado', summary: '', serviceCodes: ['101'] }, scope)).toBe('redes');
     expect(flowForCase({ id: 3070, title: 'Instalación de cámaras', summary: '', serviceCodes: ['102'] }, scope)).toBe('cctv');
+  });
+});
+
+describe('reviewed records with misleading diagrams', () => {
+  it.each([[3151, "Servicio de conectividad para Evento Empretón"], [3153, "Provisión de Módulo de Relé"], [3596, "Insumo de informática"], [3642, "Presupuesto de trabajo en sistema de detección de incendios"], [3644, "Cotización tendido FO · aeropuerto de Mendoza"], [3646, "Cotización de cámaras y cableado"], [3651, "Presupuesto para revisión de cámaras"], [3653, "Presupuesto para trabajos en sistema de detección de incendios"], [3659, "Presupuesto por adicionales para un edificio"]])('withholds the diagram for case %i only while the reviewed title matches', (id, title) => {
+    expect(flowForCase({ id, title, summary: '', serviceCodes: ['102'] }, scope)).toBeUndefined();
+    expect(flowForCase({ id, title: 'Instalación de cámaras de CCTV', summary: '', serviceCodes: ['102'] }, scope)).toBe('cctv');
   });
 });

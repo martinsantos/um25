@@ -376,5 +376,95 @@
         "camara"
       ]
     ]
+  },
+  "caso-3205": {
+    "title": "De la batería a la central",
+    "description": "El registro vincula baterías y UPS con la alimentación de una central de detección de incendios. El esquema explica el respaldo eléctrico de forma conceptual.",
+    "nodes": [
+      [
+        "Batería",
+        "bateria"
+      ],
+      [
+        "UPS",
+        "ups"
+      ],
+      [
+        "Central de detección",
+        "central"
+      ]
+    ]
+  },
+  "caso-3410": {
+    "title": "Mantenimiento del sistema de detección",
+    "description": "El alcance publicado describe mantenimiento preventivo y correctivo del sistema de detección. El diagrama distingue ambas tareas sin atribuir equipos reemplazados.",
+    "nodes": [
+      [
+        "Sistema de detección",
+        "central"
+      ],
+      [
+        "Mantenimiento preventivo",
+        "maletin"
+      ],
+      [
+        "Mantenimiento correctivo",
+        "maletin"
+      ]
+    ]
+  },
+  "caso-3117": {
+    "title": "Recableado de ocho cámaras",
+    "description": "El trabajo consistió en recablear ocho cámaras de CCTV. El recorrido ilustra el nuevo tramo de cableado, sin inferir grabador ni cambios en las cámaras.",
+    "nodes": [
+      [
+        "Cámaras de CCTV",
+        "camara"
+      ],
+      [
+        "Recableado",
+        "cableado"
+      ],
+      [
+        "Terminación del tramo",
+        "canalizacion"
+      ]
+    ]
+  },
+  "caso-3259": {
+    "title": "Qué se intervino",
+    "description": "La ficha registra asistencia técnica y el reemplazo de un pulsador y baterías. El esquema separa los dos componentes de la intervención.",
+    "nodes": [
+      [
+        "Pulsador",
+        "pulsador"
+      ],
+      [
+        "Asistencia técnica",
+        "maletin"
+      ],
+      [
+        "Baterías",
+        "bateria"
+      ]
+    ]
+  },
+  "caso-3336": {
+    "title": "Recambio y actualización",
+    "description": "El registro distingue el reemplazo de detectores y módulos de la actualización de firmware. El esquema muestra las tareas sin sugerir un modelo, una arquitectura ni el orden de la intervención.",
+    "nodes": [
+      [
+        "Detectores",
+        "detector"
+      ],
+      [
+        "Actualización de firmware",
+        "pantalla"
+      ],
+      [
+        "Módulos",
+        "modulo"
+      ]
+    ]
   }
 }
