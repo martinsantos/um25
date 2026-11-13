@@ -48,7 +48,7 @@ jobs:
       - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
-      - name: Release capacity: remove the reviewed inactive application only
+      - name: Remove the one approved inactive application
         env:
           CLEAN_WEB_PACKAGE: ${{ runner.temp }}/umsa-clean-web.tar.gz
         run: |
