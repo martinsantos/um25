@@ -61,6 +61,11 @@ function firstHint(hints: readonly FlowHint[], linked: readonly ServiceCode[], t
 }
 
 const reviewedCaseFlows: Partial<Record<number, FlowKey>> = {
+  3117: 'caso-3117',
+  3205: 'caso-3205',
+  3259: 'caso-3259',
+  3336: 'caso-3336',
+  3410: 'caso-3410',
   3085: 'caso-3085',
   3116: 'caso-3116',
   3103: 'caso-3103',
@@ -89,9 +94,22 @@ export function flowForService(code: string): FlowKey {
   return SERVICE_FLOW[code as ServiceCode] ?? 'registro';
 }
 
+const withheldCaseFlows = new Map<number, string>([
+  [3151, normalize("Servicio de conectividad para Evento Empretón")],
+  [3153, normalize("Provisión de Módulo de Relé")],
+  [3596, normalize("Insumo de informática")],
+  [3642, normalize("Presupuesto de trabajo en sistema de detección de incendios")],
+  [3644, normalize("Cotización tendido FO · aeropuerto de Mendoza")],
+  [3646, normalize("Cotización de cámaras y cableado")],
+  [3651, normalize("Presupuesto para revisión de cámaras")],
+  [3653, normalize("Presupuesto para trabajos en sistema de detección de incendios")],
+  [3659, normalize("Presupuesto por adicionales para un edificio")],
+]);
+
 export function flowForCase(story: CaseInput, scope: Despiece, documentedNotes: readonly string[] = []): FlowKey | undefined {
   // These reviewed records distinguish web hosting from support, and provision from installation.
   if (story.id === 3300) return undefined;
+  if (story.id !== undefined && withheldCaseFlows.get(story.id) === normalize(story.title)) return undefined;
   if (story.id === 3083) return 'software';
   const reviewed = story.id === undefined ? undefined : reviewedCaseFlows[story.id];
   if (reviewed) return reviewed;
