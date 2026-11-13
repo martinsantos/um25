@@ -19,6 +19,12 @@ export function publicCaseFor(story: { id: number; client: string }) {
 export function caseEquipmentFor(story: { id: number; client: string; title: string; summary: string; serviceCodes: string[] }): Despiece {
   const detail = publicCaseFor(story);
   if (detail) return { partes: detail.parts, origen: 'registro' };
+  if (story.id === 3128 && /correo.*carpetas compartidas/i.test(story.title)) {
+    return { origen: 'registro', partes: [
+      { key: 'pantalla', code: '105', label: 'Cuenta de correo' },
+      { key: 'servidor', code: '105', label: 'Carpetas y permisos' },
+    ] };
+  }
   // Local preview: “módulo” in this case refers to software; don't render a fire module.
   if (story.id === 3529 && /mercado pago/i.test(story.title) && /notas? de pedido/i.test(story.title)) {
     return { origen: 'registro', partes: [
