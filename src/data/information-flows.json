@@ -2,92 +2,326 @@
   "redes": {
     "title": "Del puesto a la red",
     "description": "El tráfico de los puestos llega al switch de acceso y sigue por el enlace hacia el resto de la red.",
-    "nodes": [["Puesto", "puesto"], ["Switch de acceso", "switch"], ["Enlace de red", "fibra"]]
+    "nodes": [
+      [
+        "Puesto",
+        "puesto"
+      ],
+      [
+        "Switch de acceso",
+        "switch"
+      ],
+      [
+        "Enlace de red",
+        "fibra"
+      ]
+    ]
   },
   "cctv": {
     "title": "De la cámara a la consulta",
     "description": "La cámara envía video al sistema de grabación. El operador consulta imágenes en vivo o recupera una secuencia.",
-    "nodes": [["Captura", "camara"], ["Grabación", "nvr"], ["Consulta", "pantalla"]]
+    "nodes": [
+      [
+        "Captura",
+        "camara"
+      ],
+      [
+        "Grabación",
+        "nvr"
+      ],
+      [
+        "Consulta",
+        "pantalla"
+      ]
+    ]
   },
   "acceso": {
     "title": "De la credencial a la apertura",
     "description": "El lector envía la solicitud al control de acceso. El sistema valida el permiso y habilita el paso cuando corresponde.",
-    "nodes": [["Lectura", "acceso"], ["Validación", "modulo"], ["Acceso", "acceso"]]
+    "nodes": [
+      [
+        "Lectura",
+        "acceso"
+      ],
+      [
+        "Validación",
+        "modulo"
+      ],
+      [
+        "Acceso",
+        "acceso"
+      ]
+    ]
   },
   "intrusion": {
     "title": "De la detección al aviso",
     "description": "El sensor registra un evento. La central evalúa la señal y emite el aviso configurado para esa zona.",
-    "nodes": [["Sensor", "detector"], ["Central", "alarma"], ["Aviso", "sirena"]]
+    "nodes": [
+      [
+        "Sensor",
+        "detector"
+      ],
+      [
+        "Central",
+        "alarma"
+      ],
+      [
+        "Aviso",
+        "sirena"
+      ]
+    ]
   },
   "telecom": {
     "title": "De una sede a la otra",
     "description": "El tráfico sale de la sede de origen, cruza el enlace de comunicaciones y llega a la red del destino.",
-    "nodes": [["Sede de origen", "rack"], ["Enlace", "antena"], ["Sede de destino", "rack"]]
+    "nodes": [
+      [
+        "Sede de origen",
+        "rack"
+      ],
+      [
+        "Enlace",
+        "antena"
+      ],
+      [
+        "Sede de destino",
+        "rack"
+      ]
+    ]
   },
   "telefonia": {
     "title": "Cómo se cursa una llamada",
     "description": "Un interno inicia la llamada. La central la encamina a la extensión, sede o destino configurado.",
-    "nodes": [["Origen", "telefono"], ["Central IP", "central-ip"], ["Destino", "telefono"]]
+    "nodes": [
+      [
+        "Origen",
+        "telefono"
+      ],
+      [
+        "Central IP",
+        "central-ip"
+      ],
+      [
+        "Destino",
+        "telefono"
+      ]
+    ]
   },
   "porteria": {
     "title": "De la entrada al puesto interior",
     "description": "El visitante llama desde el acceso. La red lleva la comunicación al puesto interior que atiende.",
-    "nodes": [["Portero IP", "acceso"], ["Red IP", "switch"], ["Puesto interior", "telefono"]]
+    "nodes": [
+      [
+        "Portero IP",
+        "acceso"
+      ],
+      [
+        "Red IP",
+        "switch"
+      ],
+      [
+        "Puesto interior",
+        "telefono"
+      ]
+    ]
   },
   "software": {
     "title": "Del dato a la operación",
     "description": "El sistema recibe los datos, aplica las reglas del proceso y presenta el resultado en la interfaz de trabajo.",
-    "nodes": [["Entrada", "puesto"], ["Proceso", "servidor"], ["Resultado", "pantalla"]]
+    "nodes": [
+      [
+        "Entrada",
+        "puesto"
+      ],
+      [
+        "Proceso",
+        "servidor"
+      ],
+      [
+        "Resultado",
+        "pantalla"
+      ]
+    ]
   },
   "soporte": {
     "title": "Del incidente a la comprobación",
     "description": "El aviso inicia el diagnóstico. Después de intervenir, el equipo comprueba que la operación se haya restablecido.",
-    "nodes": [["Aviso", "pantalla"], ["Intervención", "maletin"], ["Comprobación", "puesto"]]
+    "nodes": [
+      [
+        "Aviso",
+        "pantalla"
+      ],
+      [
+        "Intervención",
+        "maletin"
+      ],
+      [
+        "Comprobación",
+        "puesto"
+      ]
+    ]
   },
   "ingenieria": {
     "title": "Del relevamiento al diseño",
     "description": "El relevamiento aporta las condiciones del sitio. El diseño las convierte en planos y criterios para ejecutar el trabajo.",
-    "nodes": [["Relevamiento", "maletin"], ["Diseño", "puesto"], ["Documentación", "plano"]]
+    "nodes": [
+      [
+        "Relevamiento",
+        "maletin"
+      ],
+      [
+        "Diseño",
+        "puesto"
+      ],
+      [
+        "Documentación",
+        "plano"
+      ]
+    ]
   },
   "incendios": {
     "title": "Del detector a la alarma",
     "description": "El detector transmite el evento a la central, que identifica la zona y activa la señalización prevista.",
-    "nodes": [["Detector", "detector"], ["Central", "central"], ["Alarma", "sirena"]]
+    "nodes": [
+      [
+        "Detector",
+        "detector"
+      ],
+      [
+        "Central",
+        "central"
+      ],
+      [
+        "Alarma",
+        "sirena"
+      ]
+    ]
   },
   "energia": {
     "title": "De la alimentación a los equipos",
     "description": "La alimentación llega al tablero, donde se distribuye y protege cada circuito que abastece a los equipos.",
-    "nodes": [["Alimentación", "cableado"], ["Tablero", "tablero"], ["Equipos", "rack"]]
+    "nodes": [
+      [
+        "Alimentación",
+        "cableado"
+      ],
+      [
+        "Tablero",
+        "tablero"
+      ],
+      [
+        "Equipos",
+        "rack"
+      ]
+    ]
   },
   "ups": {
     "title": "Cómo se sostiene la carga",
     "description": "La UPS recibe energía de la red y mantiene la alimentación de los equipos durante el tiempo de respaldo previsto.",
-    "nodes": [["Alimentación", "tablero"], ["Respaldo UPS", "ups"], ["Carga crítica", "rack"]]
+    "nodes": [
+      [
+        "Alimentación",
+        "tablero"
+      ],
+      [
+        "Respaldo UPS",
+        "ups"
+      ],
+      [
+        "Carga crítica",
+        "rack"
+      ]
+    ]
   },
   "registro": {
     "title": "Cómo leer este antecedente",
     "description": "La ficha reúne el contexto, el trabajo consignado y la referencia con la que se puede consultar el antecedente.",
-    "nodes": [["Contexto", "plano"], ["Trabajo", "maletin"], ["Referencia", "pantalla"]]
+    "nodes": [
+      [
+        "Contexto",
+        "plano"
+      ],
+      [
+        "Trabajo",
+        "maletin"
+      ],
+      [
+        "Referencia",
+        "pantalla"
+      ]
+    ]
   },
   "caso-3065": {
     "title": "De la captura a la consulta",
     "description": "La cámara capta imágenes y las transmite al sistema de grabación para su consulta.",
-    "nodes": [["Captura", "camara"], ["Grabación", "nvr"], ["Consulta", "pantalla"]]
+    "nodes": [
+      [
+        "Captura",
+        "camara"
+      ],
+      [
+        "Grabación",
+        "nvr"
+      ],
+      [
+        "Consulta",
+        "pantalla"
+      ]
+    ]
   },
   "caso-3066": {
     "title": "Del detector al aviso",
     "description": "El detector comunica el evento a la central, que activa el aviso previsto para el sistema.",
-    "nodes": [["Detector", "detector"], ["Central", "central"], ["Aviso", "sirena"]]
+    "nodes": [
+      [
+        "Detector",
+        "detector"
+      ],
+      [
+        "Central",
+        "central"
+      ],
+      [
+        "Aviso",
+        "sirena"
+      ]
+    ]
   },
   "caso-3069": {
     "title": "De la alimentación a los equipos",
     "description": "La alimentación llega al tablero, donde se distribuye y protege cada circuito destinado a los equipos IT.",
-    "nodes": [["Alimentación", "cableado"], ["Distribución", "tablero"], ["Equipos IT", "rack"]]
+    "nodes": [
+      [
+        "Alimentación",
+        "cableado"
+      ],
+      [
+        "Distribución",
+        "tablero"
+      ],
+      [
+        "Equipos IT",
+        "rack"
+      ]
+    ]
   },
   "caso-3072": {
     "title": "Del puesto al rack",
     "description": "El cableado del puesto llega al patch panel del rack, donde se organiza la conexión con el resto de la red.",
-    "nodes": [["Puesto", "puesto"], ["Patch panel", "patch"], ["Red", "rack"]]
+    "nodes": [
+      [
+        "Puesto",
+        "puesto"
+      ],
+      [
+        "Patch panel",
+        "patch"
+      ],
+      [
+        "Red",
+        "rack"
+      ]
+    ]
   },
   "servicio-105": {
     "title": "Del incidente a la comprobación",
@@ -464,6 +698,96 @@
       [
         "Módulos",
         "modulo"
+      ]
+    ]
+  },
+  "caso-3238-revision-e": {
+    "title": "Un servidor destinado a copias de seguridad",
+    "description": "El antecedente identifica un servidor para guardar copias de seguridad. El recorrido muestra la función del equipo sin asumir qué datos se respaldaron ni una política de recuperación.",
+    "nodes": [
+      [
+        "Datos de origen",
+        "pantalla"
+      ],
+      [
+        "Servidor de respaldo",
+        "servidor"
+      ],
+      [
+        "Copia guardada",
+        "disco"
+      ]
+    ]
+  },
+  "caso-3591-revision-e": {
+    "title": "El disco que vuelve al grabador",
+    "description": "El registro documenta la provisión y el reemplazo de discos duros para DVR. El esquema separa el disco del grabador sin asumir modelos, capacidad ni cantidad de cámaras.",
+    "nodes": [
+      [
+        "Grabador DVR",
+        "nvr"
+      ],
+      [
+        "Disco de reemplazo",
+        "disco"
+      ],
+      [
+        "DVR con disco",
+        "nvr"
+      ]
+    ]
+  },
+  "caso-3529-revision-e": {
+    "title": "El pedido se conecta con el servicio de pago",
+    "description": "La ficha registra la integración de la API de Mercado Pago con el módulo que crea notas de pedido. El diagrama separa el pedido, la integración y el servicio de pago, sin afirmar pantallas ni estados específicos.",
+    "nodes": [
+      [
+        "Nota de pedido",
+        "plano"
+      ],
+      [
+        "Integración por API",
+        "modulo"
+      ],
+      [
+        "Servicio de pago",
+        "pantalla"
+      ]
+    ]
+  },
+  "caso-3318-revision-e": {
+    "title": "Del control remoto al aviso",
+    "description": "La ficha documenta un sistema con control remoto, sirena y parlante. El esquema muestra la función de aviso sin describir el circuito ni el emplazamiento.",
+    "nodes": [
+      [
+        "Control remoto",
+        "modulo"
+      ],
+      [
+        "Sistema de aviso",
+        "sirena"
+      ],
+      [
+        "Parlante",
+        "parlante"
+      ]
+    ]
+  },
+  "caso-3375-revision-e": {
+    "title": "Del amplificador a los parlantes",
+    "description": "El antecedente documenta un sistema de audio con un amplificador y seis parlantes para el salón de usos múltiples. El esquema muestra el reparto de audio, sin atribuir marcas, posiciones o un tendido específico.",
+    "nodes": [
+      [
+        "Sistema de audio",
+        "pantalla"
+      ],
+      [
+        "Amplificador",
+        "servidor"
+      ],
+      [
+        "Seis parlantes",
+        "parlante"
       ]
     ]
   }

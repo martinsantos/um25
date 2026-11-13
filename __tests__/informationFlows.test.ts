@@ -41,3 +41,18 @@ describe('reviewed records with misleading diagrams', () => {
     expect(flowForCase({ id, title: 'Instalación de cámaras de CCTV', summary: '', serviceCodes: ['102'] }, scope)).toBe('cctv');
   });
 });
+
+describe('second reviewed media batch', () => {
+  it.each([3238, 3591, 3529, 3318, 3375])('selects the reviewed animated asset for %i', (id) => {
+    expect(flowForCase({ id, title: 'Trabajo registrado', summary: '', serviceCodes: [] }, scope)).toBe(`caso-${id}-revision-e`);
+  });
+  it.each([
+    [3636, 'Cotizar una central de incendio con 11 sensores 2 sirenas 1 pulsador', '107'],
+    [3418, 'Implementación de Redes de Datos y Fibra Óptica', '101'],
+    [3374, 'Ampliación del sistema de portería del edificio Mitre con pulsadores', '102'],
+    [9002, 'Alojamiento, mantenimiento y desarrollo del sitio web de la Municipalidad de Guaymallén', '105'],
+  ])('omits an unrelated diagram only for the reviewed identity (%i)', (id, title, service) => {
+    expect(flowForCase({ id, title, summary: '', serviceCodes: [service] }, scope)).toBeUndefined();
+    expect(flowForCase({ id, title: 'Entrega técnica documentada', summary: '', serviceCodes: [service] }, scope)).toBeDefined();
+  });
+});
