@@ -23,11 +23,11 @@ describe('reviewed case information flows', () => {
 });
 
 describe('approved case diagrams', () => {
-  it.each([3065, 3066, 3069, 3072, 3126, 3144, 3099, 3588, 3102, 3119])('uses the approved case-specific diagram for %i', (id) => {
+  it.each([3065, 3066, 3069, 3072, 3126, 3144, 3099, 3588, 3102, 3119, 3085, 3116, 3103, 3104, 3140, 3640])('uses the approved case-specific diagram for %i', (id) => {
     expect(flowForCase({ id, title: 'Trabajo registrado', summary: '', serviceCodes: [] }, scope)).toBe('caso-' + id);
   });
   it('uses service-specific flows while preserving generic case diagrams', () => {
-    for (const [code, key] of [['101', 'servicio-101'], ['102', 'cctv'], ['107', 'incendios'], ['108', 'energia']]) {
+    for (const [code, key] of [['101', 'servicio-101'], ['103', 'servicio-103'], ['102', 'cctv'], ['107', 'incendios'], ['108', 'energia']]) {
       expect(flowForService(code)).toBe(key);
     }
     expect(flowForCase({ id: 9999, title: 'Cableado', summary: '', serviceCodes: ['101'] }, scope)).toBe('redes');
