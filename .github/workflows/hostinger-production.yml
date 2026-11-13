@@ -48,16 +48,22 @@ jobs:
       - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
-      - name: Remove only the three transfer archives approved on November 13
+      - name: Remove only the three artifacts approved for this release
+        env:
+          CLEAN_WEB_PACKAGE: ${{ runner.temp }}/umsa-clean-web.tar.gz
         run: |
           set -euo pipefail
           opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=scripts/ops/hostinger-migration/known_hosts -o ConnectTimeout=15 -o ServerAliveInterval=30)
-          script=scripts/ops/hostinger-migration/prune-approved-transfer-archives.py
-          ssh "${opts[@]}" root@179.198.115.115 'python3 - inspect' < "$script" > "$RUNNER_TEMP/transport-inspection.json"
-          snapshot=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["snapshot_sha256"])' "$RUNNER_TEMP/transport-inspection.json")
+          ops=scripts/ops/hostinger-migration
+          size=$(stat -c %s "$CLEAN_WEB_PACKAGE")
+          required=$((size + (5 * size > 5 * 1024**3 ? 5 * size : 5 * 1024**3)))
+          python3 -c 'import sys; print(open(sys.argv[1]).read().split("if __name__ == ")[0], end="")' "$ops/prune-reviewed-migration.py" > "$RUNNER_TEMP/prune-reviewed.py"
+          cat "$ops/prune-20261113-approved-release-artifacts.py" >> "$RUNNER_TEMP/prune-reviewed.py"
+          ssh "${opts[@]}" root@179.198.115.115 "python3 -B - inspect $required" < "$RUNNER_TEMP/prune-reviewed.py" > "$RUNNER_TEMP/prune-inspection.json"
+          snapshot=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["snapshot_sha256"])' "$RUNNER_TEMP/prune-inspection.json")
           [[ "$snapshot" =~ ^[a-f0-9]{64}$ ]]
-          cat "$RUNNER_TEMP/transport-inspection.json"
-          ssh "${opts[@]}" root@179.198.115.115 "env GITHUB_ACTIONS=true python3 - apply $snapshot" < "$script"
+          cat "$RUNNER_TEMP/prune-inspection.json"
+          ssh "${opts[@]}" root@179.198.115.115 "env GITHUB_ACTIONS=true python3 -B - apply $required $snapshot" < "$RUNNER_TEMP/prune-reviewed.py"
       - name: Check available disk before sending the CI package
         env:
           CLEAN_WEB_PACKAGE: ${{ runner.temp }}/umsa-clean-web.tar.gz
