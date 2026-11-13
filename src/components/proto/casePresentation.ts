@@ -18,7 +18,13 @@ export function publicCaseFor(story: { id: number; client: string }) {
 /** The reviewed inventory and the editorial case share the same live identity gate. */
 export function caseEquipmentFor(story: { id: number; client: string; title: string; summary: string; serviceCodes: string[] }): Despiece {
   const detail = publicCaseFor(story);
-  return detail
-    ? { partes: detail.parts, origen: 'registro' }
-    : despieceDe(story.title, story.summary, story.serviceCodes);
+  if (detail) return { partes: detail.parts, origen: 'registro' };
+  // Local preview: “módulo” in this case refers to software; don't render a fire module.
+  if (story.id === 3529 && /mercado pago/i.test(story.title) && /notas? de pedido/i.test(story.title)) {
+    return { origen: 'registro', partes: [
+      { key: 'pantalla', code: '104', label: 'Módulo de notas de pedido' },
+      { key: 'servidor', code: '104', label: 'Integración de pagos por API' },
+    ] };
+  }
+  return despieceDe(story.title, story.summary, story.serviceCodes);
 }
