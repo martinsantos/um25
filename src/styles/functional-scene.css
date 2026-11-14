@@ -1,0 +1,744 @@
+/* Shared photographic stage. Motion changes equipment state, not geometry. */
+.fs {
+  --fs-paper: #e3e8e6;
+  --fs-ink: #20292b;
+  --fs-muted: #52605f;
+  --fs-accent: #c2272d;
+  --fs-ok: #27795d;
+  margin: 0;
+  min-width: 0;
+}
+.fs__stage {
+  position: relative;
+  isolation: isolate;
+  height: 420px;
+  overflow: hidden;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    #f1f3ef 0%,
+    var(--fs-paper) 80%
+  );
+  color: var(--fs-ink);
+}
+.fs__eyebrow {
+  position: absolute;
+  z-index: 2;
+  top: 24px;
+  left: 28px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.fs__device {
+  position: absolute;
+  aspect-ratio: 1;
+}
+.fs__sprite {
+  width: 100%;
+  height: 100%;
+  background-image: var(--equipment);
+  background-size: 200% 300%;
+  background-repeat: no-repeat;
+}
+.fs__sprite--camera {
+  background-position: 0 0;
+}
+.fs__sprite--monitor {
+  background-position: 100% 0;
+}
+.fs__sprite--ups {
+  background-position: 0 50%;
+}
+.fs__sprite--rack {
+  background-position: 100% 50%;
+}
+.fs__sprite--fiber {
+  background-position: 0 100%;
+}
+.fs__status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background: var(--fs-ok);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.fs__camera {
+  width: min(29%, 330px);
+  left: 7%;
+  top: 4px;
+}
+.fs__camera-label {
+  position: absolute;
+  left: 16%;
+  bottom: 90px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+}
+.fs__monitor {
+  width: min(43%, 480px);
+  right: 6%;
+  top: -110px;
+}
+.fs__screen {
+  position: absolute;
+  left: 9.3%;
+  top: 31.65%;
+  width: 82.2%;
+  height: 46%;
+  overflow: hidden;
+  background: #1e2528;
+}
+.fs__view {
+  position: absolute;
+  inset: 0;
+  background-image: var(--camera-view);
+  background-size: cover;
+  background-position: center;
+}
+.fs__door-track {
+  position: absolute;
+  left: 31.9%;
+  top: 12.4%;
+  width: 37.9%;
+  height: 69.5%;
+  overflow: hidden;
+}
+.fs__door {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    #a7acab 0px,
+    #bdc2bf 9px,
+    #8b9291 10px,
+    #c9cdca 11px
+  );
+  box-shadow:
+    inset 8px 0 10px #0002,
+    inset -5px 0 8px #0003;
+  transform: translateY(-96%);
+  border: 1px solid #575e5c;
+}
+.fs__detection {
+  position: absolute;
+  left: 30%;
+  top: 11%;
+  width: 42%;
+  height: 73%;
+  border: 1px solid #edcf7b;
+}
+.fs__detection span {
+  position: absolute;
+  top: -20px;
+  left: -1px;
+  font: 500 1rem/1.2 var(--font, sans-serif);
+  background: #edcf7b;
+  color: #202525;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+.fs__screen-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 8px;
+  background: #172224db;
+  color: #f4f5f2;
+  font-size: 1rem;
+  line-height: 1;
+}
+.fs__screen-bar span {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.fs__screen-bar i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #e36b67;
+}
+.fs__capture {
+  position: absolute;
+  z-index: 3;
+  left: 32%;
+  top: 42%;
+  width: 85px;
+  aspect-ratio: 16/10;
+  background: var(--camera-view) center/cover;
+  box-shadow: 0 4px 16px #1824242a;
+  border: 2px solid #fff;
+  opacity: 0;
+}
+.fs__capture span {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #172224e0;
+  color: white;
+  font-size: 1rem;
+  text-align: center;
+  line-height: 22px;
+}
+.fs__record {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  bottom: 26px;
+  border-top: 1px solid #b7c1bd;
+  padding-top: 13px;
+}
+.fs__record-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.875rem;
+}
+.fs__record-result {
+  font-weight: 600;
+  color: var(--fs-ok);
+}
+.fs__timeline {
+  margin-top: 12px;
+  height: 5px;
+  background: repeating-linear-gradient(
+    90deg,
+    #afb8b2 0,
+    #afb8b2 1px,
+    transparent 1px,
+    transparent 12px
+  );
+  position: relative;
+}
+.fs__timeline-fill {
+  width: 78%;
+  height: 2px;
+  background: var(--fs-accent);
+  transform-origin: left;
+}
+.fs__event-mark {
+  position: absolute;
+  left: 41%;
+  top: -3px;
+  height: 9px;
+  width: 2px;
+  background: var(--fs-accent);
+}
+.fs__caption {
+  padding: 24px 0 0;
+}
+.fs__caption ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.fs__caption li {
+  display: flex;
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+  transition: border-color 0.2s;
+}
+.fs__step-number {
+  color: var(--ink-3);
+  font-size: 0.8125rem;
+  line-height: 1.8;
+}
+.fs__caption strong {
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+.fs__caption p {
+  color: var(--ink-2);
+  font-size: 1rem;
+  line-height: 1.45;
+  margin: 6px 0 0;
+  max-width: 29ch;
+}
+.fs[data-state="running"][data-phase="0"] [data-functional-step="0"],
+.fs[data-state="running"][data-phase="1"] [data-functional-step="1"],
+.fs[data-state="running"][data-phase="2"] [data-functional-step="2"] {
+  border-color: var(--red);
+}
+.fs__input {
+  position: absolute;
+  left: 6%;
+  top: 35%;
+  width: 20%;
+  font-size: 1rem;
+}
+.fs__input > span {
+  font-weight: 600;
+}
+.fs__wave {
+  width: 100%;
+  height: 64px;
+  display: block;
+  margin: 10px 0;
+}
+.fs__wave path {
+  stroke: var(--fs-ok);
+  stroke-width: 2;
+}
+.fs__wave-normal {
+  opacity: 0;
+}
+.fs__wave .fs__wave-cut {
+  stroke: #86918d;
+}
+.fs__input strong {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.fs__input-normal {
+  display: none;
+}
+.fs__input-cut {
+  display: block;
+  color: #69716e;
+}
+.fs__ups {
+  width: min(32%, 320px);
+  left: 31%;
+  top: 0;
+}
+.fs__rack {
+  width: min(34%, 350px);
+  right: 6%;
+  top: 0;
+}
+.fs__lcd {
+  position: absolute;
+  left: 34%;
+  top: 25.4%;
+  width: 16%;
+  height: 10%;
+  background: #253b36;
+  color: #b9e3c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-size: clamp(7px, 1vw, 12px);
+  line-height: 1;
+}
+.fs__lcd-ac {
+  display: none;
+}
+.fs__battery {
+  display: flex;
+  gap: 2px;
+  height: 5px;
+  margin-top: 4px;
+}
+.fs__battery i {
+  display: block;
+  width: 4px;
+  background: #b9e3c7;
+}
+.fs__server-led {
+  position: absolute;
+  left: 66.3%;
+  width: 3px;
+  height: 3px;
+  background: #71b993;
+  border-radius: 50%;
+  box-shadow: 0 0 3px #5b9;
+}
+.fs__server-led--1 {
+  top: 49%;
+}
+.fs__server-led--2 {
+  top: 62%;
+}
+.fs__server-led--3 {
+  top: 74%;
+}
+.fs__power-path {
+  position: absolute;
+  left: 16%;
+  right: 20%;
+  bottom: 100px;
+  height: 20px;
+  display: grid;
+  grid-template-columns: 43% 57%;
+}
+.fs__power-input,
+.fs__power-output {
+  height: 2px;
+  position: relative;
+}
+.fs__power-input {
+  background: #a5aeaa;
+}
+.fs__power-output {
+  background: #b97b24;
+}
+.fs__power-output:after {
+  content: "";
+  position: absolute;
+  right: -1px;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  border-top: 2px solid #b97b24;
+  border-right: 2px solid #b97b24;
+  transform: rotate(45deg);
+}
+.fs__power-label {
+  position: absolute;
+  left: 33%;
+  top: 14px;
+  font-size: 0.875rem;
+}
+.fs__continuity {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  bottom: 24px;
+  border-top: 1px solid #b7c1bd;
+  padding-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+}
+.fs__continuity > span:last-child {
+  color: var(--fs-muted);
+  margin-left: auto;
+  font-size: 0.875rem;
+}
+.fs--fiber .fs__stage {
+  height: 300px;
+}
+.fs__fiber-device {
+  width: 560px;
+  max-width: 86%;
+  left: 50%;
+  top: -137px;
+  transform: translateX(-50%);
+}
+.fs[data-state="running"] .fs__door {
+  animation: fs-door 4.8s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.fs[data-state="running"] .fs__detection {
+  animation: fs-detect 4.8s linear both;
+}
+.fs[data-state="running"] .fs__capture {
+  animation: fs-capture 4.8s ease-in-out both;
+}
+.fs[data-state="running"] .fs__timeline-fill {
+  animation: fs-record 4.8s linear both;
+}
+.fs[data-state="running"] .fs__record-result {
+  animation: fs-result 4.8s linear both;
+}
+.fs--energy[data-state="running"][data-phase="0"] .fs__wave-normal {
+  opacity: 1;
+}
+.fs--energy[data-state="running"][data-phase="0"] .fs__wave-cut {
+  opacity: 0;
+}
+.fs--energy[data-state="running"][data-phase="0"] .fs__input-normal,
+.fs--energy[data-state="running"][data-phase="0"] .fs__lcd-ac {
+  display: block;
+}
+.fs--energy[data-state="running"][data-phase="0"] .fs__input-cut,
+.fs--energy[data-state="running"][data-phase="0"] .fs__lcd-bat {
+  display: none;
+}
+.fs--energy[data-state="running"][data-phase="0"] .fs__power-input,
+.fs--energy[data-state="running"][data-phase="0"] .fs__power-output {
+  background: var(--fs-ok);
+}
+.fs--energy[data-state="running"][data-phase="0"] .fs__power-label {
+  opacity: 0;
+}
+.fs--energy[data-state="running"] .fs__wave-normal {
+  animation: fs-wave 1.3s linear both;
+}
+.fs--energy[data-state="running"] .fs__battery {
+  animation: fs-battery 4.8s ease both;
+}
+
+@keyframes fs-door {
+  0%,
+  12% {
+    transform: translateY(0);
+  }
+  50%,
+  100% {
+    transform: translateY(-96%);
+  }
+}
+@keyframes fs-detect {
+  0%,
+  20% {
+    opacity: 0;
+  }
+  25%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fs-capture {
+  0%,
+  28% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.8);
+  }
+  32% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  62% {
+    opacity: 1;
+    transform: translate(150%, -20%) scale(0.8);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: translate(190%, -20%) scale(0.65);
+  }
+}
+@keyframes fs-record {
+  0%,
+  25% {
+    transform: scaleX(0.04);
+  }
+  70%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+@keyframes fs-result {
+  0%,
+  63% {
+    opacity: 0;
+  }
+  70%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fs-wave {
+  from {
+    clip-path: inset(0 95% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes fs-battery {
+  0%,
+  25% {
+    opacity: 0.15;
+  }
+  32%,
+  100% {
+    opacity: 1;
+  }
+}
+@media (min-width: 1441px) {
+  .fs__monitor {
+    top: -110px;
+  }
+  .fs__ups,
+  .fs__rack {
+    top: 0;
+  }
+}
+@media (max-width: 900px) and (min-width: 601px) {
+  .fs__stage {
+    height: 350px;
+  }
+  .fs__monitor {
+    width: min(48%, 360px);
+    top: -60px;
+    right: 3%;
+  }
+  .fs__camera {
+    width: 34%;
+    top: 16px;
+  }
+  .fs__ups,
+  .fs__rack {
+    top: 25px;
+  }
+  .fs__power-path {
+    bottom: 80px;
+  }
+}
+@media (max-width: 600px) {
+  .fs__stage {
+    height: 420px;
+  }
+  .fs__eyebrow {
+    top: 18px;
+    left: 20px;
+    font-size: 0.8125rem;
+  }
+  .fs__camera {
+    width: 42%;
+    left: -2%;
+    top: 16px;
+  }
+  .fs__camera-label {
+    left: 43%;
+    top: 98px;
+    bottom: auto;
+    font-size: 0.9375rem;
+  }
+  .fs__monitor {
+    width: 86%;
+    right: 7%;
+    top: 62px;
+  }
+  .fs__screen-bar {
+    font-size: 1rem;
+    padding: 4px 6px;
+  }
+  .fs__detection span {
+    font-size: 1rem;
+  }
+  .fs__capture {
+    left: 33%;
+    top: 31%;
+    width: 60px;
+  }
+  .fs__record {
+    left: 20px;
+    right: 20px;
+    bottom: 23px;
+  }
+  .fs__record-title {
+    font-size: 1rem;
+    gap: 8px;
+  }
+  .fs__caption {
+    padding-top: 20px;
+  }
+  .fs__caption ol {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .fs__caption li {
+    padding: 13px 0;
+    gap: 14px;
+  }
+  .fs__caption li + li {
+    border-top-color: var(--line-2);
+  }
+  .fs__caption strong {
+    font-size: 1rem;
+  }
+  .fs__caption p {
+    margin: 3px 0 0;
+    max-width: unset;
+    font-size: 1rem;
+  }
+  .fs--energy .fs__stage {
+    height: 410px;
+  }
+  .fs__input {
+    left: 20px;
+    right: 20px;
+    top: 57px;
+    width: auto;
+    display: grid;
+    grid-template-columns: 1fr 80px;
+    align-items: center;
+    font-size: 0.875rem;
+  }
+  .fs__wave {
+    width: 80px;
+    height: 28px;
+    grid-row: span 2;
+    margin: 0;
+  }
+  .fs__input strong {
+    font-size: 0.8125rem;
+    grid-row: 2;
+  }
+  .fs__ups {
+    left: -5%;
+    top: 114px;
+    width: 59%;
+  }
+  .fs__rack {
+    right: 0;
+    top: 113px;
+    width: 57%;
+  }
+  .fs__lcd {
+    font-size: 8px;
+  }
+  .fs__power-path {
+    left: 22%;
+    right: 18%;
+    bottom: 86px;
+    grid-template-columns: 12% 88%;
+  }
+  .fs__power-label {
+    left: 4%;
+    top: 12px;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+  }
+  .fs__continuity {
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    font-size: 0.9375rem;
+  }
+  .fs__continuity > span:last-child {
+    margin-left: 15px;
+    font-size: 0.8125rem;
+    flex-basis: 100%;
+  }
+  .fs--fiber .fs__stage {
+    height: 245px;
+  }
+  .fs__fiber-device {
+    width: 92%;
+    max-width: none;
+    top: -8px;
+  }
+  @keyframes fs-capture {
+    0%,
+    28% {
+      opacity: 0;
+      transform: translate(0, 0) scale(0.8);
+    }
+    32% {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+    62% {
+      opacity: 1;
+      transform: translate(75%, 85%) scale(0.8);
+    }
+    70%,
+    100% {
+      opacity: 0;
+      transform: translate(90%, 105%) scale(0.65);
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fs * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

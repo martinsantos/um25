@@ -898,5 +898,59 @@
         "nvr"
       ]
     ]
+  },
+  "caso-3310-realista": {
+    "title": "Cableado telefónico del hospital",
+    "description": "El antecedente registra cableado telefónico en el Hospital Perrupato. La lámina ilustra los elementos habituales de un tendido interior.",
+    "nodes": [
+      [
+        "Cable telefónico",
+        "cableado"
+      ],
+      [
+        "Canalización",
+        "canalizacion"
+      ],
+      [
+        "Toma telefónica",
+        "telefono"
+      ]
+    ]
+  },
+  "caso-3585-realista": {
+    "title": "Materiales de red categoría 6",
+    "description": "El trabajo consistió en proveer una bobina de cable categoría 6 y conectores RJ45 de la misma categoría.",
+    "nodes": [
+      [
+        "Bobina Cat. 6",
+        "cableado"
+      ],
+      [
+        "Cable de pares trenzados",
+        "cableado"
+      ],
+      [
+        "Conectores RJ45",
+        "patch"
+      ]
+    ]
+  },
+  "caso-3479-realista": {
+    "title": "Respaldo para el data center y los puestos de datos",
+    "description": "La ficha registra la provisión de un sistema UPS destinado al data center y a los puestos de datos.",
+    "nodes": [
+      [
+        "Sistema UPS",
+        "ups"
+      ],
+      [
+        "Data center",
+        "rack"
+      ],
+      [
+        "Puestos de datos",
+        "puesto"
+      ]
+    ]
   }
 }
