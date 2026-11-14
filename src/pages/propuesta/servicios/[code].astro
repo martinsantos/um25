@@ -9,6 +9,8 @@ import ServiceEditorialHero from '../../../components/proto/ServiceEditorialHero
 import ServiceProvision from '../../../components/proto/ServiceProvision.astro';
 import FlowSection from '../../../components/proto/FlowSection.astro';
 import FunctionalSection from '../../../components/proto/FunctionalSection.astro';
+import TechnicalSection from '../../../components/proto/TechnicalSection.astro';
+import { technicalSceneForService } from '../../../data/technicalScenes';
 import { flowForService } from '../../../data/informationFlows';
 import { serviceProvisionItems } from '../../../utils/serviceProvision';
 import Ficha from '../../../components/proto/Ficha.astro';
@@ -40,7 +42,8 @@ if (!servicio || !nav || !spec) return Astro.rewrite('/404');
 const isNetworks = code === '101';
 // Software y servicios profesionales se explican con pantallas, trabajo y resultados.
 const functionalPilot = ['102', '108'].includes(code);
-const editorial = ['104', '105', '106'].includes(code) || functionalPilot;
+const technicalScene = technicalSceneForService(code);
+const editorial = ['104', '105', '106'].includes(code) || functionalPilot || Boolean(technicalScene);
 const Hero = ServiceEditorialHero;
 const Provision = ServiceProvision;
 const pdf = getDatasheetPublicPath(spec.slug);
@@ -209,7 +212,7 @@ const cierre = cierrePorServicio[code];
       </div>
     </section>
 
-    {functionalPilot ? <FunctionalSection code={code} /> : <FlowSection flow={flowForService(code)} />}
+    {technicalScene ? <TechnicalSection content={technicalScene} /> : functionalPilot ? <FunctionalSection code={code} /> : <FlowSection flow={flowForService(code)} />}
 
     {provision.length > 0 && (
       <Provision
