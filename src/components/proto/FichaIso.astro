@@ -8,15 +8,17 @@
 import Partes from './Partes.astro';
 import FunctionalScene from './FunctionalScene.astro';
 import { caseEquipmentFor } from './casePresentation';
+import { technicalSceneForCase } from '../../data/technicalScenes';
 import { services, illustrationSiteFor, type Story, isoSrc, isoRatio } from './isoData';
 interface Props { story: Story }
 const { story: c } = Astro.props;
-const site = illustrationSiteFor(c);
+const functional = Boolean(technicalSceneForCase(c));
+const site = functional ? undefined : illustrationSiteFor(c);
 const { partes, origen } = caseEquipmentFor(c);
 const byCode = new Map(services.map((s) => [s.code, s.name]));
 const codes = [...new Set([...c.serviceCodes, ...partes.map((p) => p.code)])];
 ---
-{c.id === 3082 ? <FunctionalScene kind="fiber" /> : <div class:list={["fiso", {"fiso--scope": !site}]} data-fiso={site ? true : undefined}>
+{c.id === 3082 ? <FunctionalScene kind="fiber" /> : <div class:list={["fiso", {"fiso--scope": !site, "fiso--functional": functional}]} data-fiso={site ? true : undefined}>
   <div class="fiso__lista">
     <Partes interactivo={Boolean(site) && codes.length > 1} items={partes.map((p) => ({ key: p.key, code: p.code, label: (p.qty ? `${p.qty} × ` : '') + p.label, meta: byCode.get(p.code) }))} />
     {origen === 'servicio' && partes.length > 0 && <p class="small">El registro no identifica equipos concretos. Estas piezas representan las capacidades generales de los servicios vinculados.</p>}
@@ -25,4 +27,9 @@ const codes = [...new Set([...c.serviceCodes, ...partes.map((p) => p.code)])];
   {site && <div class="fiso__lugar iso" data-diagram-stage data-svcs={codes.join(' ')} data-src={isoSrc(site)}><div class="iso__caja" style={`--r:${isoRatio(site).toFixed(3)}`} role="img" aria-label="Esquema de los sistemas vinculados al proyecto"></div><span class="ahora">{codes.map((k) => byCode.get(k)).filter(Boolean).join(' · ')}</span></div>}
 </div>}
 
-<style>.fiso--scope { grid-template-columns: minmax(0, 1fr); } .fiso:not(.fiso--scope) :global(.partes) { grid-template-columns: 1fr; }</style>
+<style>.fiso--scope { grid-template-columns: minmax(0, 1fr); } .fiso:not(.fiso--scope) :global(.partes) { grid-template-columns: 1fr; }
+.fiso--functional :global(.partes) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; }
+.fiso--functional :global(.partes li) { grid-template-columns: 96px minmax(0, 1fr); gap: 0 16px; min-height: 112px; padding-block: 12px; }
+.fiso--functional :global(.partes .parte) { width: 96px; height: 96px; }
+@media (max-width: 600px) { .fiso--functional :global(.partes) { grid-template-columns: 1fr; } }
+</style>

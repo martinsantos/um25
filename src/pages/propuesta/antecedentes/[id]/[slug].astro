@@ -17,6 +17,8 @@ import caseImageDescriptions from '../../../../data/casePhotoAlt.json';
 import { photographForCase } from '../../../../data/photography';
 import CasoEnDetalle from '../../../../components/proto/CasoEnDetalle.astro';
 import FlowSection from '../../../../components/proto/FlowSection.astro';
+import TechnicalSection from '../../../../components/proto/TechnicalSection.astro';
+import { technicalSceneForCase } from '../../../../data/technicalScenes';
 import { flowForCase } from '../../../../data/informationFlows';
 import { publicCaseFor, samePublicClient, caseEquipmentFor } from '../../../../components/proto/casePresentation';
 
@@ -45,7 +47,8 @@ const photo = Boolean(c.image);
 const imageSet = variantes(c.image);
 const photoAlt = photographForCase(c.id)?.context || (caseImageDescriptions as Record<string, string>)[String(c.id)] || '';
 const scope = caseEquipmentFor(c);
-const flow = c.id === 3082 ? undefined : flowForCase(c, scope, caseDetail?.scope);
+const technicalScene = technicalSceneForCase(c);
+const flow = c.id === 3082 || technicalScene ? undefined : flowForCase(c, scope, caseDetail?.scope);
 const ref = `UM-${c.id}`;
 const introduction = caseDetail?.introduction || c.summary || `Registro ${ref} del archivo de ULTIMA MILLA${when ? `, correspondiente a ${when}` : ''}. ${svcs.length ? `Servicios vinculados: ${svcs.map(s => s.name).join(', ')}.` : 'El alcance disponible se conserva con la referencia original del proyecto.'}`;
 const caseSeo = buildCaseSeoMeta({ title: pageTitle, description: caseDetail?.introduction || c.summary, client: c.client, area: c.sector, date: String(c.year), identifier: c.id });
@@ -145,7 +148,7 @@ const seoTitle = caseSeo.title.includes(ref) ? caseSeo.title : `${trimAtWordBoun
 
 
     </>}
-    {flow && <FlowSection flow={flow} project />}
+    {technicalScene ? <TechnicalSection content={technicalScene} project /> : flow && <FlowSection flow={flow} project />}
     {sameClient.length > 0 && (
       <section class="sec"><div class="wrap"><div class="sec__head"><h2>Más proyectos para {c.client}<span class="dot">.</span></h2></div><ol class="fichas">{sameClient.map((o) => <Ficha story={o} />)}</ol></div></section>
     )}

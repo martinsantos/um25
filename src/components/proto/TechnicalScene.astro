@@ -1,0 +1,261 @@
+---
+import equipment from "../../assets/pilot-functional/equipment-sheet.webp?url";
+import extension from "../../assets/functional-expansion/equipment.webp?url";
+import type { TechnicalContent } from "../../data/technicalScenes";
+import "../../styles/functional-scene.css";
+import "../../styles/technical-scene.css";
+interface Props {
+  content: TechnicalContent;
+  project?: boolean;
+}
+const { content, project = false } = Astro.props;
+const { kind } = content;
+const network = kind === "network" || kind === "cabling";
+---
+
+<figure
+  class:list={["fs", "ts", `ts--${kind}`, { "ts--project": project }]}
+  data-functional-scene={kind}
+  data-state="complete"
+  data-phase="2"
+  aria-label={content.title}
+  style={`--equipment:url('${equipment}');--extension:url('${extension}')`}
+>
+  <div
+    class="ts__stage"
+    data-functional-stage
+    role="img"
+    aria-label={content.accessible}
+  >
+    <div class="ts__eyebrow" aria-hidden="true">
+      {
+        network
+          ? "Cobre / fibra óptica"
+          : kind === "radio"
+            ? "Enlace entre sedes"
+            : "Detección y aviso"
+      }
+    </div>
+    {
+      network && (
+        <div class="ts__network" aria-hidden="true">
+          <div class="ts__network-end ts__network-end--copper">
+            <div class="ts__equipment ts__equipment--wide">
+              <div
+                class:list={[
+                  "ts__object",
+                  kind === "network"
+                    ? "ts__object--switch"
+                    : "ts__object--patch",
+                ]}
+              />
+              {kind === "network" && (
+                <div class="ts__port-lights">
+                  <i />
+                  <i />
+                  <i />
+                </div>
+              )}
+            </div>
+            <div class="ts__equipment-label">
+              <>
+                <strong>
+                  {kind === "network"
+                    ? "Switch de acceso"
+                    : "Cableado de puestos"}
+                </strong>
+                <span>
+                  {kind === "network"
+                    ? "Puertos de la red local"
+                    : "Terminaciones de cobre"}
+                </span>
+              </>
+            </div>
+          </div>
+          <div class="ts__network-end ts__network-end--fiber">
+            <div class="ts__equipment ts__equipment--wide">
+              <>
+                <div class="ts__object ts__object--fiber" />
+                <span class="ts__fiber-focus" />
+              </>
+            </div>
+            <div class="ts__equipment-label">
+              <>
+                <strong>
+                  {kind === "network"
+                    ? "Enlace óptico"
+                    : "Distribución de fibra"}
+                </strong>
+                <span>
+                  {kind === "network"
+                    ? "Hacia el resto de la red"
+                    : "Terminaciones organizadas"}
+                </span>
+              </>
+            </div>
+          </div>
+          <div class="ts__network-route">
+            <>
+              <span class="ts__network-line" />
+              <span class="ts__network-packet">Datos</span>
+            </>
+          </div>
+        </div>
+      )
+    }
+    {
+      kind === "radio" && (
+        <div class="ts__radio" aria-hidden="true">
+          <div class="ts__radio-end ts__radio-end--a">
+            <>
+              <div class="ts__object ts__object--antenna" />
+              <div class="ts__equipment-label">
+                <>
+                  <strong>Sede A</strong>
+                  <span>Red de origen</span>
+                </>
+              </div>
+            </>
+          </div>
+          <div class="ts__radio-end ts__radio-end--b">
+            <>
+              <div class="ts__object ts__object--antenna" />
+              <div class="ts__equipment-label">
+                <>
+                  <strong>Sede B</strong>
+                  <span>Red de destino</span>
+                </>
+              </div>
+            </>
+          </div>
+          <div class="ts__radio-link">
+            <>
+              <div class="ts__radio-axis" />
+              <span class="ts__radio-packet ts__radio-packet--out">
+                Solicitud →
+              </span>
+              <span class="ts__radio-packet ts__radio-packet--back">
+                ← Respuesta
+              </span>
+              <span class="ts__radio-ok">Enlace establecido</span>
+            </>
+          </div>
+        </div>
+      )
+    }
+    {
+      kind === "fire" && (
+        <div class="ts__fire" aria-hidden="true">
+          <div class="ts__detector">
+            <>
+              <>
+                <div class="ts__device-body">
+                  <div class="ts__object ts__object--detector" />
+                  <span class="ts__detector-led" />
+                  <div class="ts__smoke">
+                    <>
+                      <i />
+                      <i />
+                      <i />
+                    </>
+                  </div>
+                </div>
+                <div class="ts__equipment-label">
+                  <>
+                    <strong>Detector</strong>
+                    <span>Reconoce el evento</span>
+                  </>
+                </div>
+              </>
+            </>
+          </div>
+          <div class="ts__central">
+            <>
+              <>
+                <div class="ts__device-body">
+                  <div class="ts__object ts__object--central" />
+                  <div class="ts__central-lcd">
+                    <>
+                      <i />
+                      <i />
+                      <i />
+                    </>
+                  </div>
+                </div>
+                <div class="ts__equipment-label">
+                  <>
+                    <strong>Central</strong>
+                    <span>Identifica la ubicación</span>
+                  </>
+                </div>
+              </>
+            </>
+          </div>
+          <div class="ts__fire-event">
+            <>
+              <span class="ts__event-id">EVENTO</span>
+              <span>Detección recibida</span>
+              <strong>Ubicación identificada</strong>
+            </>
+          </div>
+        </div>
+      )
+    }
+    <div class="ts__status" aria-hidden="true">
+      <span class="ts__status-light"></span><span data-ts-status="0"
+        >{
+          kind === "radio"
+            ? "Alineación del enlace"
+            : kind === "fire"
+              ? "Sistema en supervisión"
+              : kind === "cabling"
+                ? "Cableado de los puestos"
+                : "Recepción en los puertos de acceso"
+        }</span
+      ><span data-ts-status="1"
+        >{
+          kind === "radio"
+            ? "Solicitud en tránsito"
+            : kind === "fire"
+              ? "Evento detectado"
+              : kind === "cabling"
+                ? "Concentración en rack"
+                : "Conmutación del tráfico"
+        }</span
+      ><span data-ts-status="2"
+        >{
+          kind === "radio"
+            ? "Comunicación en ambos sentidos"
+            : kind === "fire"
+              ? "Evento localizado en la central"
+              : kind === "cabling"
+                ? "Cobre y fibra, identificados"
+                : "Datos hacia el enlace de fibra"
+        }</span
+      >
+    </div>
+  </div>
+  <figcaption class="fs__caption">
+    <ol aria-label="Etapas del recorrido">
+      {
+        content.steps.map(([title, description], i) => (
+          <li data-functional-step={i}>
+            <>
+              <span class="fs__step-number">0{i + 1}</span>
+              <div>
+                <>
+                  <strong>{title}</strong>
+                  <p>{description}</p>
+                </>
+              </div>
+            </>
+          </li>
+        ))
+      }
+    </ol>
+  </figcaption>
+</figure>
+<script>
+  import { initFunctionalScenes } from "./functional-motion";
+  initFunctionalScenes(document);
+</script>
