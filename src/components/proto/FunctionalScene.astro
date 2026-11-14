@@ -1,0 +1,213 @@
+---
+import equipment from "../../assets/pilot-functional/equipment-sheet.webp?url";
+import cameraView from "../../assets/pilot-functional/camera-view.webp?url";
+import "../../styles/functional-scene.css";
+
+interface Props {
+  kind: "security" | "energy" | "fiber";
+}
+const { kind } = Astro.props;
+const content = {
+  security: {
+    title: "Del evento a la imagen",
+    description:
+      "Capturar lo que sucede, conservar el registro y encontrar la imagen cuando se necesita.",
+    steps: [
+      ["Captura", "La cámara observa la escena."],
+      ["Registro", "El evento queda en la grabación."],
+      ["Consulta", "La imagen se recupera en pantalla."],
+    ],
+  },
+  energy: {
+    title: "La energía cambia. La operación sigue.",
+    description:
+      "La UPS sostiene los equipos conectados cuando se interrumpe el suministro eléctrico.",
+    steps: [
+      ["Suministro", "La red alimenta la instalación."],
+      ["Respaldo", "La UPS utiliza sus baterías."],
+      ["Continuidad", "La carga permanece alimentada."],
+    ],
+  },
+  fiber: {
+    title: "Fibra óptica",
+    description: "Redes de datos y fibra óptica para Headcomm S.A.",
+    steps: [],
+  },
+}[kind];
+---
+
+<figure
+  class:list={["fs", `fs--${kind}`]}
+  data-functional-scene={kind === "fiber" ? undefined : kind}
+  data-state="complete"
+  data-phase="2"
+  aria-label={content.title}
+  style={`--equipment:url('${equipment}');--camera-view:url('${cameraView}')`}
+>
+  <div
+    class="fs__stage"
+    data-functional-stage
+    role="img"
+    aria-label={kind === "security"
+      ? "Una cámara registra la apertura de un portón. El evento queda identificado y disponible en pantalla."
+      : kind === "energy"
+        ? "Al interrumpirse la red eléctrica, la UPS mantiene alimentados los servidores."
+        : "Vista cercana de las conexiones de fibra óptica."}
+  >
+    <div class="fs__eyebrow" aria-hidden="true">
+      {
+        kind === "security"
+          ? "Videovigilancia IP"
+          : kind === "energy"
+            ? "Continuidad eléctrica"
+            : "Fibra óptica"
+      }
+    </div>
+    {
+      kind === "security" && (
+        <>
+          <div class="fs__camera fs__device" aria-hidden="true">
+            <div class="fs__sprite fs__sprite--camera" />
+          </div>
+          <div class="fs__camera-label" aria-hidden="true">
+            <span class="fs__status-dot" />
+            Cámara IP
+          </div>
+          <div class="fs__capture" aria-hidden="true">
+            <span>Evento</span>
+          </div>
+          <div class="fs__monitor fs__device" aria-hidden="true">
+            <div class="fs__sprite fs__sprite--monitor" />
+            <div class="fs__screen">
+              <div class="fs__view">
+                <div class="fs__door-track">
+                  <div class="fs__door" />
+                </div>
+                <div class="fs__detection">
+                  <span>Movimiento</span>
+                </div>
+              </div>
+              <div class="fs__screen-bar">
+                <>
+                  <span>
+                    <i /> Cámara 01
+                  </span>
+                  <span>Acceso</span>
+                </>
+              </div>
+            </div>
+          </div>
+          <div class="fs__record" aria-hidden="true">
+            <>
+              <div class="fs__record-title">
+                <>
+                  <span>Grabación</span>
+                  <strong class="fs__record-result">Imagen disponible</strong>
+                </>
+              </div>
+              <div class="fs__timeline">
+                <>
+                  <div class="fs__timeline-fill" />
+                  <span class="fs__event-mark" />
+                </>
+              </div>
+            </>
+          </div>
+        </>
+      )
+    }
+    {
+      kind === "energy" && (
+        <>
+          <div class="fs__input" aria-hidden="true">
+            <>
+              <span>Red eléctrica</span>
+              <svg class="fs__wave" viewBox="0 0 160 60" fill="none">
+                <>
+                  <path
+                    class="fs__wave-normal"
+                    d="M0 30 C10 -3 20 -3 30 30 S50 63 60 30 S80 -3 90 30 S110 63 120 30 S140 -3 150 30 L160 30"
+                  />
+                  <path class="fs__wave-cut" d="M0 30 H160" />
+                </>
+              </svg>
+              <strong class="fs__input-normal">Suministro activo</strong>
+              <strong class="fs__input-cut">Sin suministro</strong>
+            </>
+          </div>
+          <div class="fs__ups fs__device" aria-hidden="true">
+            <>
+              <div class="fs__sprite fs__sprite--ups" />
+              <div class="fs__lcd">
+                <>
+                  <span class="fs__lcd-ac">AC</span>
+                  <span class="fs__lcd-bat">BAT</span>
+                  <div class="fs__battery">
+                    <>
+                      <i />
+                      <i />
+                      <i />
+                    </>
+                  </div>
+                </>
+              </div>
+            </>
+          </div>
+          <div class="fs__rack fs__device" aria-hidden="true">
+            <>
+              <div class="fs__sprite fs__sprite--rack" />
+              <span class="fs__server-led fs__server-led--1" />
+              <span class="fs__server-led fs__server-led--2" />
+              <span class="fs__server-led fs__server-led--3" />
+            </>
+          </div>
+          <div class="fs__power-path" aria-hidden="true">
+            <>
+              <div class="fs__power-input" />
+              <div class="fs__power-output" />
+              <span class="fs__power-label">UPS · respaldo activo</span>
+            </>
+          </div>
+          <div class="fs__continuity" aria-hidden="true">
+            <>
+              <span class="fs__status-dot" />
+              <strong>Equipos activos</strong>
+              <span>La alimentación de salida se mantiene.</span>
+            </>
+          </div>
+        </>
+      )
+    }
+    {
+      kind === "fiber" && (
+        <>
+          <div class="fs__fiber-device fs__device" aria-hidden="true">
+            <div class="fs__sprite fs__sprite--fiber" />
+          </div>
+        </>
+      )
+    }
+  </div>
+  {
+    content.steps.length > 0 && (
+      <figcaption class="fs__caption">
+        <ol aria-label={content.title}>
+          {content.steps.map(([title, description], i) => (
+            <li data-functional-step={i}>
+              <span class="fs__step-number">0{i + 1}</span>
+              <div>
+                <strong>{title}</strong>
+                <p>{description}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </figcaption>
+    )
+  }
+</figure>
+
+<script>
+  import { initFunctionalScenes } from "./functional-motion";
+  initFunctionalScenes(document);
+</script>
