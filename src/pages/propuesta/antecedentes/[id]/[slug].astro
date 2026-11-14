@@ -45,7 +45,7 @@ const photo = Boolean(c.image);
 const imageSet = variantes(c.image);
 const photoAlt = photographForCase(c.id)?.context || (caseImageDescriptions as Record<string, string>)[String(c.id)] || '';
 const scope = caseEquipmentFor(c);
-const flow = flowForCase(c, scope, caseDetail?.scope);
+const flow = c.id === 3082 ? undefined : flowForCase(c, scope, caseDetail?.scope);
 const ref = `UM-${c.id}`;
 const introduction = caseDetail?.introduction || c.summary || `Registro ${ref} del archivo de ULTIMA MILLA${when ? `, correspondiente a ${when}` : ''}. ${svcs.length ? `Servicios vinculados: ${svcs.map(s => s.name).join(', ')}.` : 'El alcance disponible se conserva con la referencia original del proyecto.'}`;
 const caseSeo = buildCaseSeoMeta({ title: pageTitle, description: caseDetail?.introduction || c.summary, client: c.client, area: c.sector, date: String(c.year), identifier: c.id });
@@ -136,7 +136,7 @@ const seoTitle = caseSeo.title.includes(ref) ? caseSeo.title : `${trimAtWordBoun
 
     </div>
     {(id === 3286 || id === 3588) ? <PilotCase items={scope.partes} caso={caseDetail} original={c.summary}/> : <>{caseDetail && <CasoEnDetalle caso={caseDetail} original={c.summary} />}
-    {(!c.documentedScope || (scope.origen === 'registro' && scope.partes.length > 0)) && <section class="sec">
+    {(!c.documentedScope || (scope.origen === 'registro' && scope.partes.length > 0)) && <section class="sec" id={c.id === 3082 ? 'alcance' : undefined}>
       <div class="wrap">
         <div class="sec__head"><h2>{!scope.partes.length ? 'Información disponible del proyecto' : scope.origen === 'servicio' ? 'Capacidades de los servicios vinculados' : c.documentedScope ? 'Componentes y tareas del proyecto' : 'Alcance documentado del proyecto'}<span class="dot">.</span></h2></div>
         {scope.partes.length > 0 ? <FichaIso story={c} /> : <div class="reading"><p>{c.summary || pageTitle}</p><p>El archivo público no especifica equipos, cantidades ni entregables adicionales para esta referencia. Para ampliar la información disponible, consultanos por {ref}.</p><a class="line-link" href={`/contacto?antecedente=${c.id}`}>Consultar por este antecedente →</a></div>}
