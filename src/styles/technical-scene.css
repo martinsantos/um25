@@ -1,0 +1,731 @@
+/* Equipment scale and motion shared by the next reviewed service/case batch. */
+.ts {
+  --ts-accent: #dc2626;
+  --ts-line: #a9b6b3;
+}
+.ts__stage {
+  position: relative;
+  isolation: isolate;
+  height: 410px;
+  overflow: hidden;
+  background: #e3e8e6;
+  color: var(--fs-ink);
+}
+.ts__eyebrow {
+  position: absolute;
+  top: 24px;
+  left: 28px;
+  z-index: 2;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.ts__device-body {
+  position: relative;
+  aspect-ratio: 1;
+}
+.ts__object {
+  width: 100%;
+  aspect-ratio: 1;
+  background-repeat: no-repeat;
+  background-image: var(--extension);
+  background-size: 200% 200%;
+}
+.ts__object--antenna {
+  background-position: 0 0;
+}
+.ts__object--detector {
+  background-position: 100% 0;
+}
+.ts__object--central {
+  background-position: 0 100%;
+}
+.ts__object--patch {
+  background-position: 100% 100%;
+}
+.ts__object--fiber,
+.ts__object--switch {
+  background-image: var(--equipment);
+  background-size: 200% 300%;
+}
+.ts__object--fiber {
+  background-position: 0 100%;
+}
+.ts__object--switch {
+  background-position: 100% 100%;
+}
+.ts__equipment-label {
+  display: grid;
+  gap: 4px;
+  text-align: center;
+  font-size: 1rem;
+}
+.ts__equipment-label strong {
+  font-weight: 600;
+}
+.ts__equipment-label span {
+  color: var(--fs-muted);
+  font-size: 0.875rem;
+}
+.ts__status {
+  position: absolute;
+  bottom: 22px;
+  left: 28px;
+  right: 28px;
+  border-top: 1px solid #bdc7c3;
+  padding-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9375rem;
+}
+.ts__status-light {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--fs-ok);
+  flex-shrink: 0;
+}
+.ts--fire:not([data-phase="0"]) .ts__status-light {
+  background: var(--ts-accent);
+}
+[data-ts-status] {
+  display: none;
+}
+.ts[data-phase="0"] [data-ts-status="0"],
+.ts[data-phase="1"] [data-ts-status="1"],
+.ts[data-phase="2"] [data-ts-status="2"] {
+  display: block;
+}
+.ts__network {
+  position: absolute;
+  inset: 38px 6% 75px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8%;
+  align-items: start;
+}
+.ts__network-end {
+  min-width: 0;
+  position: relative;
+}
+.ts__equipment {
+  position: relative;
+}
+.ts__equipment--wide {
+  height: 210px;
+  overflow: hidden;
+}
+.ts__equipment--wide .ts__object {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.ts__port-lights {
+  position: absolute;
+  top: 51%;
+  left: 23%;
+  display: flex;
+  gap: 14px;
+}
+.ts__port-lights i {
+  width: 4px;
+  height: 3px;
+  background: #79b99c;
+}
+.ts__fiber-focus {
+  position: absolute;
+  top: 61%;
+  left: 17%;
+  width: 17%;
+  height: 1px;
+  background: var(--ts-accent);
+  transform-origin: left;
+}
+.ts__network-route {
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  top: 92%;
+  height: 2px;
+}
+.ts__network-line {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: var(--ts-line);
+}
+.ts__network-packet {
+  position: absolute;
+  top: -10px;
+  padding: 2px 8px;
+  font-size: 0.8125rem;
+  background: #304743;
+  color: white;
+  opacity: 0;
+}
+.ts--cabling .ts__network-route {
+  border-bottom: 1px solid var(--ts-line);
+}
+.ts--cabling .ts__network-packet {
+  display: none;
+}
+.ts__radio {
+  position: absolute;
+  inset: 56px 8% 76px;
+}
+.ts__radio-end {
+  position: absolute;
+  width: 28%;
+  max-width: 240px;
+  top: -8px;
+}
+.ts__radio-end--a {
+  left: 0;
+}
+.ts__radio-end--b {
+  right: 0;
+}
+.ts__radio-end--b .ts__object {
+  transform: scaleX(-1);
+}
+.ts__radio-end .ts__equipment-label {
+  margin-top: -4px;
+}
+.ts__radio-link {
+  position: absolute;
+  left: 27%;
+  right: 27%;
+  top: 35%;
+  height: 70px;
+}
+.ts__radio-axis {
+  position: absolute;
+  inset: 20px 0 auto;
+  border-top: 1px solid var(--ts-line);
+}
+.ts__radio-packet {
+  position: absolute;
+  top: 6px;
+  padding: 5px 10px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  background: #304743;
+  color: #fff;
+  opacity: 0;
+}
+.ts__radio-packet--back {
+  background: #c3272c;
+}
+.ts__radio-ok {
+  position: absolute;
+  top: 42px;
+  width: 100%;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #345e4f;
+}
+.ts__fire {
+  position: absolute;
+  inset: 40px 6% 70px;
+}
+.ts__detector {
+  position: absolute;
+  width: 36%;
+  max-width: 300px;
+  left: 3%;
+  top: -16px;
+}
+.ts__central {
+  position: absolute;
+  width: 25%;
+  max-width: 225px;
+  right: 7%;
+  top: 15px;
+}
+.ts__detector .ts__equipment-label {
+  margin-top: -46px;
+}
+.ts__central .ts__equipment-label {
+  margin-top: 0;
+}
+.ts__detector-led {
+  position: absolute;
+  left: 49%;
+  top: 74%;
+  width: 8px;
+  height: 5px;
+  border-radius: 50%;
+  background: #e5433d;
+}
+.ts__smoke {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 60%;
+  height: 100px;
+  pointer-events: none;
+  opacity: 0;
+}
+.ts__smoke i {
+  position: absolute;
+  width: 66%;
+  height: 45px;
+  border-radius: 50%;
+  background: #87928e;
+  filter: blur(12px);
+}
+.ts__smoke i:nth-child(2) {
+  left: 35%;
+  top: 22px;
+}
+.ts__smoke i:nth-child(3) {
+  left: 15%;
+  top: 45px;
+}
+.ts__central-lcd {
+  position: absolute;
+  left: 34.7%;
+  top: 24.6%;
+  width: 30%;
+  height: 9.8%;
+  background: #b4c6aa;
+  padding: 5px 8px;
+  box-sizing: border-box;
+  display: grid;
+  gap: 2px;
+}
+.ts__central-lcd i {
+  display: block;
+  height: 1px;
+  width: 90%;
+  background: #364a38;
+}
+.ts__central-lcd i:nth-child(2) {
+  width: 60%;
+}
+.ts__fire-event {
+  position: absolute;
+  left: 43%;
+  top: 43%;
+  width: 23%;
+  display: grid;
+  gap: 6px;
+  font-size: 0.875rem;
+}
+.ts__fire-event strong {
+  color: #9e2429;
+  font-weight: 600;
+}
+.ts__event-id {
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--ts-accent);
+  width: max-content;
+}
+.ts[data-state="running"] .ts__network-packet {
+  animation: ts-network-data 4.8s ease-in-out both;
+}
+.ts[data-state="running"] .ts__port-lights {
+  animation: ts-ports 4.8s linear both;
+}
+.ts[data-state="running"] .ts__fiber-focus {
+  animation: ts-fiber-termination 4.8s ease both;
+}
+.ts--cabling[data-state="running"] .ts__network-line {
+  animation: ts-cabling 4.8s ease both;
+  transform-origin: left;
+  background: var(--ts-accent);
+}
+.ts[data-state="running"] .ts__radio-axis {
+  animation: ts-link-align 4.8s ease both;
+  transform-origin: left;
+}
+.ts[data-state="running"] .ts__radio-packet--out {
+  animation: ts-radio-out 4.8s ease-in-out both;
+}
+.ts[data-state="running"] .ts__radio-packet--back {
+  animation: ts-radio-back 4.8s ease-in-out both;
+}
+.ts[data-state="running"] .ts__radio-ok {
+  animation: ts-link-status 4.8s ease both;
+}
+.ts[data-state="running"] .ts__smoke {
+  animation: ts-smoke-arrives 4.8s ease both;
+}
+.ts[data-state="running"] .ts__detector-led {
+  animation: ts-detector-alert 4.8s ease both;
+}
+.ts[data-state="running"] .ts__fire-event {
+  animation: ts-event-register 4.8s ease both;
+}
+.ts[data-state="running"] .ts__central-lcd i {
+  animation: ts-event-register 4.8s ease both;
+}
+@keyframes ts-network-data {
+  0%,
+  28% {
+    opacity: 0;
+    left: 0;
+  }
+  34% {
+    opacity: 1;
+    left: 0;
+  }
+  69% {
+    opacity: 1;
+    left: calc(100% - 50px);
+  }
+  76%,
+  100% {
+    opacity: 0;
+    left: calc(100% - 50px);
+  }
+}
+@keyframes ts-ports {
+  0%,
+  18% {
+    opacity: 0.15;
+  }
+  28%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes ts-fiber-termination {
+  0%,
+  54% {
+    transform: scaleX(0);
+  }
+  73%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+@keyframes ts-cabling {
+  0%,
+  12% {
+    transform: scaleX(0);
+  }
+  65%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+@keyframes ts-link-align {
+  0% {
+    transform: scaleX(0.1) rotate(-3deg);
+    opacity: 0.2;
+  }
+  25%,
+  100% {
+    transform: scaleX(1) rotate(0);
+    opacity: 1;
+  }
+}
+@keyframes ts-link-status {
+  0%,
+  20% {
+    opacity: 0;
+  }
+  30%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes ts-radio-out {
+  0%,
+  26% {
+    opacity: 0;
+    left: 0;
+  }
+  30% {
+    opacity: 1;
+    left: 0;
+  }
+  53% {
+    opacity: 1;
+    left: calc(100% - 106px);
+  }
+  58%,
+  100% {
+    opacity: 0;
+    left: calc(100% - 106px);
+  }
+}
+@keyframes ts-radio-back {
+  0%,
+  63% {
+    opacity: 0;
+    right: 0;
+  }
+  67% {
+    opacity: 1;
+    right: 0;
+  }
+  90% {
+    opacity: 1;
+    right: calc(100% - 111px);
+  }
+  96%,
+  100% {
+    opacity: 0;
+    right: calc(100% - 111px);
+  }
+}
+@keyframes ts-smoke-arrives {
+  0% {
+    opacity: 0;
+    transform: translateY(55px) scale(0.6);
+  }
+  25% {
+    opacity: 0.32;
+  }
+  42% {
+    opacity: 0.17;
+    transform: translateY(-35px) scale(1);
+  }
+  57%,
+  100% {
+    opacity: 0;
+    transform: translateY(-55px) scale(1.15);
+  }
+}
+@keyframes ts-detector-alert {
+  0%,
+  23% {
+    background: #5a534e;
+  }
+  32%,
+  100% {
+    background: #e5433d;
+  }
+}
+@keyframes ts-event-register {
+  0%,
+  38% {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  51%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 900px) and (min-width: 601px) {
+  .ts__equipment--wide {
+    height: 185px;
+  }
+  .ts__radio {
+    inset-inline: 4%;
+  }
+  .ts__radio-end {
+    width: 31%;
+    top: 20px;
+  }
+  .ts__fire {
+    inset-inline: 3%;
+  }
+  .ts__detector {
+    width: 40%;
+    top: 20px;
+  }
+  .ts__central {
+    width: 29%;
+    right: 1%;
+    top: 34px;
+  }
+  .ts__fire-event {
+    left: 43%;
+    width: 26%;
+    top: 47%;
+  }
+}
+@media (max-width: 600px) {
+  .ts__stage {
+    height: 445px;
+  }
+  .ts--fire .ts__stage {
+    height: 445px;
+  }
+  .ts--radio .ts__stage {
+    height: 410px;
+  }
+  .ts__eyebrow {
+    top: 20px;
+    left: 20px;
+    font-size: 0.8125rem;
+  }
+  .ts__status {
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    font-size: 0.875rem;
+    padding-top: 14px;
+  }
+  .ts__network {
+    inset: 44px 20px 66px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .ts__network-end {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+  .ts__equipment--wide {
+    width: min(100%, 310px);
+    height: 106px;
+  }
+  .ts__equipment-label {
+    font-size: 1rem;
+    gap: 2px;
+  }
+  .ts__equipment-label span {
+    font-size: 0.875rem;
+  }
+  .ts__network-route {
+    top: 46%;
+    left: 50%;
+    right: auto;
+    width: 1px;
+    height: 26px;
+  }
+  .ts__network-line {
+    width: 1px;
+    height: 100%;
+  }
+  .ts__network-packet {
+    font-size: 0.75rem;
+  }
+  .ts[data-state="running"] .ts__network-packet {
+    animation-name: ts-network-mobile;
+  }
+  .ts--cabling[data-state="running"] .ts__network-line {
+    animation-name: ts-cabling-mobile;
+    transform-origin: top;
+  }
+  @keyframes ts-network-mobile {
+    0%,
+    28% {
+      opacity: 0;
+      left: -22px;
+      top: 0;
+    }
+    34% {
+      opacity: 1;
+      left: -22px;
+      top: 0;
+    }
+    69% {
+      opacity: 1;
+      left: -22px;
+      top: 8px;
+    }
+    76%,
+    100% {
+      opacity: 0;
+      left: -22px;
+      top: 8px;
+    }
+  }
+  @keyframes ts-cabling-mobile {
+    0%,
+    12% {
+      transform: scaleY(0);
+    }
+    65%,
+    100% {
+      transform: scaleY(1);
+    }
+  }
+  .ts__radio {
+    inset: 72px 6px 76px;
+  }
+  .ts__radio-end {
+    width: 58%;
+    top: 26px;
+  }
+  .ts__radio-end--a {
+    left: -8%;
+  }
+  .ts__radio-end--b {
+    right: -8%;
+  }
+  .ts__radio-link {
+    left: 25%;
+    right: 25%;
+    top: 2%;
+  }
+  .ts__radio-ok {
+    top: -22px;
+    white-space: nowrap;
+    font-size: 0.8125rem;
+  }
+  .ts__radio-packet {
+    font-size: 0.8125rem;
+  }
+  .ts__radio-end .ts__equipment-label {
+    margin-top: 4px;
+  }
+  .ts__radio-end--a .ts__equipment-label {
+    padding-left: 8px;
+  }
+  .ts__radio-end--b .ts__equipment-label {
+    padding-right: 8px;
+  }
+  .ts__fire {
+    inset: 62px 14px 66px;
+  }
+  .ts__detector {
+    width: 54%;
+    left: -2%;
+    top: 3px;
+  }
+  .ts__central {
+    width: 42%;
+    right: 0;
+    top: 19px;
+  }
+  .ts__detector .ts__equipment-label {
+    margin-top: -12px;
+  }
+  .ts__detector-led {
+    width: 5px;
+    height: 3px;
+  }
+  .ts__central-lcd {
+    padding: 2px 3px;
+  }
+  .ts__central .ts__equipment-label {
+    margin-top: 9px;
+  }
+  .ts__fire-event {
+    left: 10px;
+    right: 10px;
+    top: 235px;
+    width: auto;
+    grid-template-columns: auto 1fr;
+    gap: 4px 12px;
+  }
+  .ts__event-id {
+    grid-row: span 2;
+    align-self: center;
+  }
+  .ts__fire-event strong {
+    grid-column: 2;
+  }
+  .ts__smoke {
+    height: 70px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ts *,
+  .ts *::before,
+  .ts *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

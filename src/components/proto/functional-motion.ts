@@ -12,8 +12,8 @@ export function initFunctionalScenes(root: Document) {
   function finish(scene: HTMLElement) {
     timers.get(scene)?.forEach(clearTimeout);
     timers.delete(scene);
-    scene.dataset.state = "complete";
-    scene.dataset.phase = "2";
+    scene.dataset["state"] = "complete";
+    scene.dataset["phase"] = "2";
   }
   function update() {
     for (const scene of scenes) {
@@ -23,14 +23,14 @@ export function initFunctionalScenes(root: Document) {
       }
       if (seen.has(scene)) continue;
       seen.add(scene);
-      scene.dataset.state = "running";
-      scene.dataset.phase = "0";
+      scene.dataset["state"] = "running";
+      scene.dataset["phase"] = "0";
       timers.set(scene, [
         setTimeout(() => {
-          scene.dataset.phase = "1";
+          scene.dataset["phase"] = "1";
         }, 1300),
         setTimeout(() => {
-          scene.dataset.phase = "2";
+          scene.dataset["phase"] = "2";
         }, 3100),
         setTimeout(() => finish(scene), 4800),
       ]);
