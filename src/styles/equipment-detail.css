@@ -466,3 +466,224 @@
     animation: none !important;
   }
 }
+
+/* Device-specific motion stays with the equipment detail, using the shared visibility controller. */
+.interaction-detail__footer {
+  position: absolute;
+  bottom: 22px;
+  left: 28px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.8125rem;
+}
+.interaction-detail__footer > i {
+  height: 1px;
+  flex: 1;
+  background: #b3bfba;
+}
+.siren {
+  position: relative;
+  height: 470px;
+}
+.siren__device {
+  position: absolute;
+  width: min(64%, 600px);
+  left: 8%;
+  top: 42px;
+  mask-image:
+    linear-gradient(to right, transparent, black 12%, black 86%, transparent),
+    linear-gradient(to bottom, transparent, black 10%, black 88%, transparent);
+  mask-composite: intersect;
+}
+.siren__signal {
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  left: 5%;
+  top: 105px;
+  width: 28%;
+  font-size: 0.75rem;
+}
+.siren__signal > i {
+  height: 1px;
+  flex: 1;
+  background: #9eafa8;
+}
+.siren__signal > b {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #526d5d;
+}
+.siren__emission {
+  position: absolute;
+  left: 56%;
+  top: 90px;
+  width: 33%;
+  height: 240px;
+  pointer-events: none;
+}
+.siren__emission > i {
+  position: absolute;
+  top: calc(25% - var(--wave) * 10%);
+  bottom: calc(25% - var(--wave) * 10%);
+  width: calc(28% + var(--wave) * 28%);
+  left: 0;
+  border: 1px solid #768f82;
+  border-left-color: transparent;
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  opacity: 0.45;
+}
+.siren__envelope {
+  position: absolute;
+  right: 6%;
+  bottom: 88px;
+  width: 24%;
+  font-size: 0.75rem;
+  color: #3e584a;
+}
+.siren__envelope > div {
+  display: flex;
+  align-items: center;
+  gap: 6%;
+  height: 38px;
+  margin-top: 6px;
+}
+.siren__envelope i {
+  width: 2px;
+  height: calc(var(--amplitude) * 3px);
+  background: #829b8a;
+  transform-origin: center;
+}
+.equipment-detail[data-state="running"] .siren__signal > b {
+  animation: siren-trigger 4.8s ease both;
+}
+.equipment-detail[data-state="running"] .siren__emission > i {
+  animation: siren-propagate 4.8s ease both;
+  animation-delay: calc(var(--wave) * 0.16s);
+}
+.equipment-detail[data-state="running"] .siren__envelope i {
+  animation: siren-envelope 4.8s ease both;
+}
+@keyframes siren-trigger {
+  0%,
+  8% {
+    opacity: 0;
+    transform: translateX(-120px);
+  }
+  15% {
+    opacity: 1;
+    transform: translateX(-120px);
+  }
+  29%,
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes siren-propagate {
+  0%,
+  27% {
+    opacity: 0;
+    transform: translateX(-8%) scaleX(0.7);
+  }
+  50% {
+    opacity: 0.85;
+    transform: translateX(0) scaleX(1);
+  }
+  70% {
+    opacity: 0.25;
+    transform: translateX(10%) scaleX(1.1);
+  }
+  100% {
+    opacity: 0.45;
+    transform: translateX(0) scaleX(1);
+  }
+}
+@keyframes siren-envelope {
+  0%,
+  27% {
+    transform: scaleY(0.05);
+  }
+  45% {
+    transform: scaleY(0.65);
+  }
+  62% {
+    transform: scaleY(1);
+  }
+  78% {
+    transform: scaleY(0.65);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+@media (max-width: 767px) {
+  .interaction-detail__footer {
+    left: 20px;
+    right: 20px;
+    font-size: 0.75rem;
+    gap: 10px;
+  }
+  .siren {
+    height: 340px;
+  }
+  .siren__device {
+    width: 100%;
+    left: -9%;
+    top: 60px;
+  }
+  .siren__signal {
+    left: 7%;
+    top: 73px;
+    width: 35%;
+    gap: 8px;
+    font-size: 0.6875rem;
+  }
+  .siren__emission {
+    left: 61%;
+    top: 105px;
+    width: 31%;
+    height: 120px;
+  }
+  .siren__envelope {
+    right: 8%;
+    bottom: 54px;
+    width: 32%;
+    font-size: 0.6875rem;
+  }
+  .siren__envelope > div {
+    height: 25px;
+    margin-top: 4px;
+  }
+  .siren__envelope i {
+    height: calc(var(--amplitude) * 2px);
+  }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .siren {
+    height: 390px;
+  }
+  .siren__emission {
+    top: 70px;
+    height: 210px;
+  }
+  .siren__envelope {
+    bottom: 64px;
+  }
+}
+@media (max-width: 374px) {
+  .siren {
+    height: 300px;
+  }
+  .siren__emission {
+    top: 91px;
+    height: 105px;
+  }
+}
