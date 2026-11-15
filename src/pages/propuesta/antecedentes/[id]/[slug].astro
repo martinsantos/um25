@@ -20,6 +20,8 @@ import caseImageDescriptions from "../../../../data/casePhotoAlt.json";
 import { photographForCase } from "../../../../data/photography";
 import CasoEnDetalle from "../../../../components/proto/CasoEnDetalle.astro";
 import CatalogScene from "../../../../components/proto/CatalogScene.astro";
+import InterventionSection from "../../../../components/proto/InterventionSection.astro";
+import { interventionSceneForCase } from "../../../../data/interventionScenes";
 import {
   catalogSceneForCase,
   catalogOperationsForCase,
@@ -96,6 +98,7 @@ const technicalScene = technicalSceneForCase(c);
 const operationsScene =
   operationsSceneForCase(c) || catalogOperationsForCase(c);
 const connectionScene = connectionSceneForCase(c);
+const interventionScene = interventionSceneForCase(c);
 const catalogScene =
   c.id === 3082 || technicalScene || operationsScene || connectionScene
     ? undefined
@@ -456,7 +459,7 @@ const seoTitle = caseSeo.title.includes(ref)
       <>
         {caseDetail && <CasoEnDetalle caso={caseDetail} original={c.summary} />}
         {
-          scope.partes.length > 0 && (
+          scope.partes.length > 0 && !interventionScene && (
             <section class="sec" id={c.id === 3082 ? "alcance" : undefined}>
               <div class="wrap">
                 <div class="sec__head">
@@ -492,7 +495,9 @@ const seoTitle = caseSeo.title.includes(ref)
         }
       </>
       {
-        connectionScene ? (
+        interventionScene ? (
+          <InterventionSection content={interventionScene} />
+        ) : connectionScene ? (
           <ConnectionSection content={connectionScene} />
         ) : operationsScene ? (
           <OperationsSection content={operationsScene} />

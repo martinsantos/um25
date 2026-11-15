@@ -1,0 +1,650 @@
+.intervention-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 40px;
+  margin-bottom: 28px;
+}
+.intervention-heading > div > p {
+  color: var(--ink-3);
+  margin-bottom: 12px;
+}
+.intervention-heading h2 {
+  font-size: clamp(1.75rem, 3.1vw, 2.65rem);
+  line-height: 1.1;
+  max-width: 24ch;
+}
+.intervention-heading > p {
+  color: var(--ink-2);
+  max-width: 47ch;
+  line-height: 1.55;
+}
+.intervention {
+  margin: 0;
+  --intervention-accent: #ad282b;
+}
+.intervention__stage {
+  overflow: hidden;
+  background: #e9edec;
+  color: #20292b;
+  isolation: isolate;
+}
+.intervention__eyebrow {
+  position: absolute;
+  top: 24px;
+  left: 28px;
+  z-index: 4;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.intervention img {
+  display: block;
+  mix-blend-mode: normal;
+}
+.peripherals img {
+  mask-image:
+    linear-gradient(to right, transparent, black 8%, black 92%, transparent),
+    linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+  mask-composite: intersect;
+}
+.peripherals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.peripherals__camera,
+.peripherals__reader {
+  position: relative;
+  height: 440px;
+  overflow: hidden;
+}
+.peripherals__camera {
+  border-right: 1px solid #c7cfcc;
+}
+.peripherals__camera > img {
+  position: absolute;
+  width: 100%;
+  top: 48px;
+}
+.peripherals__reader > img {
+  position: absolute;
+  width: 88%;
+  top: 20px;
+  left: 4%;
+}
+.peripherals__frame {
+  position: absolute;
+  width: 30%;
+  height: 27%;
+  left: 35%;
+  top: 29%;
+}
+.peripherals__frame i,
+.pipe-detail__locator i {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--intervention-accent);
+  border-style: solid;
+}
+.peripherals__frame i:nth-child(1),
+.pipe-detail__locator i:nth-child(1) {
+  top: 0;
+  left: 0;
+  border-width: 1px 0 0 1px;
+}
+.peripherals__frame i:nth-child(2),
+.pipe-detail__locator i:nth-child(2) {
+  top: 0;
+  right: 0;
+  border-width: 1px 1px 0 0;
+}
+.peripherals__frame i:nth-child(3),
+.pipe-detail__locator i:nth-child(3) {
+  bottom: 0;
+  right: 0;
+  border-width: 0 1px 1px 0;
+}
+.peripherals__frame i:nth-child(4),
+.pipe-detail__locator i:nth-child(4) {
+  bottom: 0;
+  left: 0;
+  border-width: 0 0 1px 1px;
+}
+.peripherals__status {
+  position: absolute;
+  left: 28px;
+  bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+}
+.peripherals__status > span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #39735c;
+}
+.peripherals__card {
+  position: absolute;
+  left: 42%;
+  top: 51%;
+  width: 40%;
+  max-width: 210px;
+  padding: 16px;
+  background: #fafbf7;
+  box-shadow: 0 3px 10px #1f292619;
+  transform: rotate(-6deg);
+}
+.peripherals__bars {
+  height: 45px;
+  display: flex;
+  gap: 2px;
+}
+.peripherals__bars i {
+  display: block;
+  flex: var(--bar-width);
+  background: #1f2425;
+}
+.peripherals__card > span {
+  display: block;
+  font-size: 0.65rem;
+  margin-top: 8px;
+  color: #434f4b;
+}
+.peripherals__scan {
+  position: absolute;
+  top: 12px;
+  bottom: 26px;
+  width: 2px;
+  background: #ad282b;
+  left: 50%;
+  opacity: 0;
+}
+.peripherals__readout {
+  position: absolute;
+  bottom: 23px;
+  left: 28px;
+  right: 28px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid #c7cfcc;
+  font-size: 0.875rem;
+}
+.peripherals__readout > i {
+  margin-left: auto;
+  width: 64px;
+  height: 2px;
+  background: #39735c;
+  transform-origin: left;
+}
+.peripherals__tick {
+  color: #39735c;
+}
+.pipe-detail {
+  position: relative;
+  height: 470px;
+  overflow: hidden;
+}
+.pipe-detail > img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.pipe-detail__locator {
+  position: absolute;
+  width: 16%;
+  height: 28%;
+  left: 42%;
+  top: 34%;
+}
+.pipe-detail__water {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  height: 50px;
+  width: 12px;
+}
+.pipe-detail__water i {
+  position: absolute;
+  width: 4px;
+  height: 7px;
+  border-radius: 60% 60% 70% 70%;
+  background: #5f929a;
+  opacity: 0;
+}
+.pipe-detail__water i:nth-child(2) {
+  left: 5px;
+  top: 6px;
+}
+.pipe-detail__water i:nth-child(3) {
+  left: -4px;
+  top: 14px;
+}
+.pipe-detail__loupe {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  right: 8%;
+  top: 18%;
+  background: #edf0ed;
+  border: 1px solid #96a39e;
+  box-shadow: 0 5px 18px #24312a15;
+  overflow: hidden;
+}
+.pipe-detail__loupe > div {
+  position: absolute;
+  inset: 0;
+  background-image: var(--pipe-image);
+  background-size: 500% auto;
+  background-position: 50% 50%;
+  mix-blend-mode: normal;
+}
+.pipe-detail__loupe > span {
+  position: absolute;
+  bottom: 14px;
+  left: 10px;
+  right: 10px;
+  text-align: center;
+  font-size: 0.6875rem;
+  padding: 4px;
+  background: #e9edece8;
+}
+.pipe-detail__baseline {
+  position: absolute;
+  bottom: 24px;
+  left: 28px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 0.8125rem;
+  color: #4d5d56;
+}
+.pipe-detail__baseline i {
+  height: 1px;
+  flex: 1;
+  background: #b6c1ba;
+}
+.flange-detail {
+  position: relative;
+  padding: 58px 40px 26px;
+}
+.flange-detail__axis {
+  position: absolute;
+  height: 1px;
+  left: 8%;
+  right: 8%;
+  top: 48%;
+  background: #bbc6c0;
+}
+.flange-detail__pieces {
+  max-width: 680px;
+  margin-inline: auto;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+}
+.flange-detail__part {
+  min-width: 0;
+  text-align: center;
+}
+.flange-detail__crop {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1.45;
+  mask-image:
+    linear-gradient(to right, transparent, black 5%, black 95%, transparent),
+    linear-gradient(to bottom, transparent, black 10%, black 98%, transparent);
+  mask-composite: intersect;
+  overflow: hidden;
+}
+.flange-detail__crop img {
+  width: 300%;
+  max-width: none;
+  position: absolute;
+  left: calc(var(--part) * -100%);
+  top: -9%;
+}
+.flange-detail__part > span {
+  display: block;
+  margin-top: 8px;
+  position: relative;
+  color: #43524a;
+  font-size: 0.875rem;
+}
+.flange-detail__part--0 {
+  transform: translateX(5%);
+}
+.flange-detail__part--2 {
+  transform: translateX(-5%);
+}
+.flange-detail__contact {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 28px;
+  font-size: 0.8125rem;
+  color: #43524a;
+}
+.flange-detail__contact i {
+  height: 1px;
+  width: 8%;
+  background: #8e9f96;
+}
+.intervention[data-state="running"] .peripherals__frame {
+  animation: intervention-capture 4.8s ease both;
+}
+.intervention[data-state="running"] .peripherals__card {
+  animation: intervention-card 4.8s cubic-bezier(0.22, 0.7, 0.25, 1) both;
+}
+.intervention[data-state="running"] .peripherals__scan {
+  animation: intervention-scan 4.8s linear both;
+}
+.intervention[data-state="running"] .peripherals__readout {
+  animation: intervention-receive 4.8s ease both;
+}
+.intervention[data-state="running"] .pipe-detail__locator {
+  animation: intervention-locate 4.8s ease both;
+}
+.intervention[data-state="running"] .pipe-detail__loupe > div {
+  animation: intervention-inspect 4.8s ease both;
+}
+.intervention[data-state="running"] .pipe-detail__water i {
+  animation: intervention-drop 4.8s ease-in both;
+}
+.intervention[data-state="running"] .pipe-detail__water i:nth-child(2) {
+  animation-delay: 0.12s;
+}
+.intervention[data-state="running"] .pipe-detail__water i:nth-child(3) {
+  animation-delay: 0.24s;
+}
+.intervention[data-state="running"] .flange-detail__part--0 {
+  animation: intervention-face-left 4.8s ease both;
+}
+.intervention[data-state="running"] .flange-detail__part--1 {
+  animation: intervention-gasket 4.8s ease both;
+}
+.intervention[data-state="running"] .flange-detail__part--2 {
+  animation: intervention-face-right 4.8s ease both;
+}
+.intervention[data-state="running"] .flange-detail__contact {
+  animation: intervention-receive 4.8s ease both;
+}
+.intervention[data-state="running"] [data-functional-step] {
+  border-color: var(--line);
+}
+.intervention[data-state="running"][data-phase="0"] [data-functional-step="0"],
+.intervention[data-state="running"][data-phase="1"] [data-functional-step="1"],
+.intervention[data-state="running"][data-phase="2"] [data-functional-step="2"] {
+  border-color: #ad282b;
+}
+.intervention:not([data-state="running"]) * {
+  animation: none;
+  transition: none;
+}
+@keyframes intervention-capture {
+  0% {
+    transform: scale(1.35);
+    opacity: 0.35;
+  }
+  24%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes intervention-card {
+  0%,
+  17% {
+    transform: translateX(145%) rotate(-6deg);
+  }
+  38%,
+  100% {
+    transform: translateX(0) rotate(-6deg);
+  }
+}
+@keyframes intervention-scan {
+  0%,
+  38% {
+    opacity: 0;
+    left: 10%;
+  }
+  40% {
+    opacity: 0.75;
+    left: 10%;
+  }
+  61% {
+    opacity: 0.75;
+    left: 90%;
+  }
+  63%,
+  100% {
+    opacity: 0;
+    left: 90%;
+  }
+}
+@keyframes intervention-receive {
+  0%,
+  61% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  78%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes intervention-locate {
+  0% {
+    transform: translateX(-190%);
+  }
+  34%,
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes intervention-inspect {
+  0% {
+    background-position: 30% 50%;
+  }
+  35%,
+  100% {
+    background-position: 50% 50%;
+  }
+}
+@keyframes intervention-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  12% {
+    opacity: 0.7;
+    transform: translateY(8px);
+  }
+  30% {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  31%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes intervention-face-left {
+  0%,
+  20% {
+    transform: translateX(-8%);
+  }
+  74%,
+  100% {
+    transform: translateX(5%);
+  }
+}
+@keyframes intervention-face-right {
+  0%,
+  20% {
+    transform: translateX(8%);
+  }
+  74%,
+  100% {
+    transform: translateX(-5%);
+  }
+}
+@keyframes intervention-gasket {
+  0%,
+  24% {
+    transform: translateY(-22px) rotate(-8deg);
+  }
+  63%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+}
+@media (min-width: 701px) and (max-width: 1000px) {
+  .peripherals__camera,
+  .peripherals__reader {
+    height: 350px;
+  }
+  .peripherals__reader > img {
+    top: 50px;
+  }
+  .peripherals__frame {
+    top: 23%;
+    height: 25%;
+  }
+  .peripherals__card {
+    top: 50%;
+    padding: 10px;
+  }
+  .peripherals__bars {
+    height: 32px;
+  }
+}
+@media (max-width: 700px) {
+  .intervention-heading {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .intervention-heading h2 {
+    max-width: 22ch;
+  }
+  .intervention__eyebrow {
+    top: 18px;
+    left: 18px;
+    font-size: 0.8125rem;
+  }
+  .peripherals {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .peripherals__camera,
+  .peripherals__reader {
+    height: 290px;
+  }
+  .peripherals__camera {
+    border-right: 0;
+    border-bottom: 1px solid #c7cfcc;
+  }
+  .peripherals__camera > img {
+    width: 92%;
+    left: 4%;
+    top: 28px;
+  }
+  .peripherals__reader > img {
+    width: 80%;
+    left: 2%;
+    top: 40px;
+  }
+  .peripherals__frame {
+    top: 22%;
+    height: 24%;
+  }
+  .peripherals__status {
+    left: 18px;
+    bottom: 18px;
+  }
+  .peripherals__card {
+    left: 43%;
+    top: 46%;
+    padding: 12px;
+  }
+  .peripherals__bars {
+    height: 35px;
+    gap: 1px;
+  }
+  .peripherals__readout {
+    bottom: 18px;
+    left: 18px;
+    right: 18px;
+    font-size: 0.8125rem;
+    padding-top: 12px;
+  }
+  .pipe-detail {
+    height: 360px;
+  }
+  .pipe-detail > img {
+    width: 150%;
+    max-width: none;
+    left: -25%;
+  }
+  .pipe-detail__locator {
+    width: 24%;
+    left: 38%;
+    top: 38%;
+    height: 22%;
+  }
+  .pipe-detail__loupe {
+    width: 100px;
+    height: 100px;
+    top: 14%;
+    right: 7%;
+  }
+  .pipe-detail__loupe > span {
+    font-size: 0.6rem;
+    bottom: 8px;
+    padding: 2px 0;
+  }
+  .pipe-detail__water {
+    top: 61%;
+  }
+  .pipe-detail__baseline {
+    left: 18px;
+    right: 18px;
+    bottom: 20px;
+    gap: 10px;
+    font-size: 0.75rem;
+  }
+  .flange-detail {
+    padding: 68px 5px 24px;
+  }
+  .flange-detail__crop {
+    aspect-ratio: 1 / 1.6;
+  }
+  .flange-detail__part > span {
+    margin-top: 0;
+    font-size: 0.6875rem;
+  }
+  .flange-detail__axis {
+    top: 47%;
+  }
+  .flange-detail__contact {
+    font-size: 0.75rem;
+    gap: 10px;
+    margin-top: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intervention *,
+  .intervention[data-state="running"] * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
