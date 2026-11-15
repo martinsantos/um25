@@ -1,0 +1,153 @@
+---
+import termination from "../../assets/catalog-scenes/network-termination.webp?url";
+import distribution from "../../assets/catalog-scenes/distribution.webp?url";
+import wallRack from "../../assets/operations-scenes/hospital-rack-wall-15u.webp?url";
+import floorRack from "../../assets/operations-scenes/hospital-rack-floor-40u.webp?url";
+import "../../styles/hospital-integration.css";
+
+interface Props {
+  caseId: 3085 | 3102;
+}
+const { caseId } = Astro.props;
+const perrupato = caseId === 3085;
+const hospital = perrupato
+  ? "Hospital Perrupato"
+  : "Hospital General Las Heras";
+const simple = perrupato ? 56 : 45;
+const double = perrupato ? 29 : 25;
+---
+
+<section class="sec" id="flujo" aria-labelledby="hospital-heading">
+  <div class="wrap">
+    <header class="hospital-heading">
+      <div>
+        <p>{hospital} · UM-{caseId}</p>
+        <h2 id="hospital-heading">Cada puesto, parte de una red.</h2>
+      </div>
+      <p>
+        Desde la toma de datos hasta la organización en rack. El cableado
+        conecta los puestos; la infraestructura ordena el conjunto.
+      </p>
+    </header>
+    <div class="hospital-systems">
+      <figure
+        class="hospital-network"
+        data-functional-scene={`hospital-network-${caseId}`}
+        data-state="complete"
+        data-phase="2"
+      >
+        <figcaption>
+          <span class="hospital-eyebrow">01 / Red de datos</span>
+          <h3>El recorrido de una conexión.</h3>
+          <p>
+            Cableado estructurado Categoría 6 LSZH, con puestos simples y
+            dobles.
+          </p>
+        </figcaption>
+        <div
+          class="hospital-stage"
+          data-functional-stage
+          role="img"
+          aria-label={`Recorrido del cableado desde los puestos de datos hasta los racks murales de 15U. El proyecto incluye ${simple} puestos simples y ${double} puestos dobles Cat. 6 LSZH.`}
+        >
+          <div class="hospital-stage__outlet">
+            <span class="hospital-stage__step">01 / Puesto de datos</span>
+            <img
+              src={termination}
+              width="1536"
+              height="1024"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <div class="hospital-stage__route" aria-hidden="true">
+            <span>02 / Cat. 6 LSZH</span>
+            <div class="hospital-stage__track"><i></i><b></b></div>
+            <small>Cableado horizontal</small>
+          </div>
+          <div class="hospital-stage__rack">
+            <span class="hospital-stage__step">03 / Rack mural</span>
+            <img
+              src={wallRack}
+              width="1024"
+              height="1024"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+            <strong>{perrupato ? "15U" : "4 × 15U"}</strong>
+            <span
+              >{
+                perrupato
+                  ? "Organización del cableado"
+                  : "500 mm de profundidad"
+              }</span
+            >
+          </div>
+        </div>
+        <dl class="hospital-quantities" aria-label="Puestos del proyecto">
+          <div><dt>Puestos simples</dt><dd>{simple}</dd></div>
+          <div><dt>Puestos dobles</dt><dd>{double}</dd></div>
+          <div>
+            <dt>Cableado</dt><dd class="hospital-quantities__spec">
+              Cat. 6 <span>LSZH</span>
+            </dd>
+          </div>
+        </dl>
+      </figure>
+      <figure class="hospital-infrastructure">
+        <figcaption>
+          <span class="hospital-eyebrow"
+            >02 / {
+              perrupato ? "Instalación eléctrica" : "Organización en rack"
+            }</span
+          >
+          <h3>{perrupato ? "Datos y energía." : "Dos formatos de rack."}</h3>
+          <p>
+            {
+              perrupato
+                ? "El alcance integra redes de datos y tableros eléctricos para el hospital."
+                : "Un rack de piso de 40U complementa los cuatro racks murales de 15U."
+            }
+          </p>
+        </figcaption>
+        <div
+          class:list={[
+            "hospital-infrastructure__media",
+            { "hospital-infrastructure__media--floor": !perrupato },
+          ]}
+        >
+          <img
+            src={perrupato ? distribution : floorRack}
+            width={perrupato ? 1536 : 1024}
+            height={perrupato ? 1024 : 1536}
+            alt={perrupato
+              ? "Tablero de distribución eléctrica"
+              : "Rack de piso de 19 pulgadas"}
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div class="hospital-infrastructure__spec">
+          <strong
+            >{
+              perrupato ? "Tableros eléctricos" : "1 rack de piso · 40U"
+            }</strong
+          >
+          <span
+            >{
+              perrupato
+                ? "Distribución y protección de circuitos"
+                : "1000 mm de profundidad"
+            }</span
+          >
+        </div>
+      </figure>
+    </div>
+  </div>
+</section>
+<script>
+  import { initFunctionalScenes } from "./functional-motion";
+  initFunctionalScenes(document);
+</script>

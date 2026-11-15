@@ -21,6 +21,7 @@ import { photographForCase } from "../../../../data/photography";
 import CasoEnDetalle from "../../../../components/proto/CasoEnDetalle.astro";
 import CatalogScene from "../../../../components/proto/CatalogScene.astro";
 import ResidentialIntegration from "../../../../components/proto/ResidentialIntegration.astro";
+import HospitalIntegration from "../../../../components/proto/HospitalIntegration.astro";
 import EquipmentDetailSection from "../../../../components/proto/EquipmentDetailSection.astro";
 import { equipmentDetailForCase } from "../../../../data/equipmentDetailScenes";
 import InterventionSection from "../../../../components/proto/InterventionSection.astro";
@@ -105,6 +106,8 @@ const connectionScene = connectionSceneForCase(c);
 const interventionScene = interventionSceneForCase(c);
 const equipmentScene = equipmentDetailForCase(c);
 const residentialScene = c.id === 3588 && Boolean(catalogPresentationFor(c));
+const hospitalScene =
+  (c.id === 3085 || c.id === 3102) && Boolean(catalogPresentationFor(c));
 const catalogScene =
   c.id === 3082 || technicalScene || operationsScene || connectionScene
     ? undefined
@@ -465,44 +468,53 @@ const seoTitle = caseSeo.title.includes(ref)
       <>
         {caseDetail && <CasoEnDetalle caso={caseDetail} original={c.summary} />}
         {
-          scope.partes.length > 0 && !interventionScene && !equipmentScene && (
-            <section class="sec" id={c.id === 3082 ? "alcance" : undefined}>
-              <div class="wrap">
-                <div class="sec__head">
-                  <h2>
-                    {!scope.partes.length
-                      ? "Información disponible del proyecto"
-                      : scope.origen === "servicio"
-                        ? "Capacidades de los servicios vinculados"
-                        : c.documentedScope
-                          ? "Componentes y tareas del proyecto"
-                          : "Alcance documentado del proyecto"}
-                    <span class="dot">.</span>
-                  </h2>
-                </div>
-                {scope.partes.length > 0 ? (
-                  <FichaIso story={c} />
-                ) : (
-                  <div class="reading">
-                    <p>{c.summary || pageTitle}</p>
-                    <p>
-                      El archivo público no especifica equipos, cantidades ni
-                      entregables adicionales para esta referencia. Para ampliar
-                      la información disponible, consultanos por {ref}.
-                    </p>
-                    <a class="line-link" href={`/contacto?antecedente=${c.id}`}>
-                      Consultar por este antecedente →
-                    </a>
+          scope.partes.length > 0 &&
+            !interventionScene &&
+            !equipmentScene &&
+            !hospitalScene && (
+              <section class="sec" id={c.id === 3082 ? "alcance" : undefined}>
+                <div class="wrap">
+                  <div class="sec__head">
+                    <h2>
+                      {!scope.partes.length
+                        ? "Información disponible del proyecto"
+                        : scope.origen === "servicio"
+                          ? "Capacidades de los servicios vinculados"
+                          : c.documentedScope
+                            ? "Componentes y tareas del proyecto"
+                            : "Alcance documentado del proyecto"}
+                      <span class="dot">.</span>
+                    </h2>
                   </div>
-                )}
-              </div>
-            </section>
-          )
+                  {scope.partes.length > 0 ? (
+                    <FichaIso story={c} />
+                  ) : (
+                    <div class="reading">
+                      <p>{c.summary || pageTitle}</p>
+                      <p>
+                        El archivo público no especifica equipos, cantidades ni
+                        entregables adicionales para esta referencia. Para
+                        ampliar la información disponible, consultanos por {ref}
+                        .
+                      </p>
+                      <a
+                        class="line-link"
+                        href={`/contacto?antecedente=${c.id}`}
+                      >
+                        Consultar por este antecedente →
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </section>
+            )
         }
       </>
       {
         residentialScene ? (
           <ResidentialIntegration />
+        ) : hospitalScene ? (
+          <HospitalIntegration caseId={c.id as 3085 | 3102} />
         ) : equipmentScene ? (
           <EquipmentDetailSection content={equipmentScene} />
         ) : interventionScene ? (
