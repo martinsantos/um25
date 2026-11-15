@@ -1,0 +1,7 @@
+/* Case details share one spacing scale, including records with a single component. */
+body.hoja-trabajo main > .sec { padding-block: clamp(28px, 4vw, 48px); }
+body.hoja-trabajo .proyecto { padding-bottom: 32px; }
+@media (max-width:600px) {
+  body.hoja-trabajo .sec__head { margin-bottom: 16px; }
+  body.hoja-trabajo .fiso--functional .partes li { min-height: 104px; padding-block: 8px; }
+}
