@@ -1,0 +1,280 @@
+---
+import cameraView from "../../assets/pilot-functional/camera-view.webp?url";
+import type { CatalogContent } from "../../data/catalogCasePresentation";
+import "../../styles/catalog-scene.css";
+import "../../styles/functional-scene.css";
+import optical from "../../assets/operations-scenes/aeropuerto-fibra.webp?url";
+import rack from "../../assets/operations-scenes/perrupato-rack.webp?url";
+import server from "../../assets/operations-scenes/soporte-servidor.webp?url";
+const assets = import.meta.glob("../../assets/catalog-scenes/*.webp", {
+  eager: true,
+  query: "?url",
+  import: "default",
+}) as Record<string, string>;
+interface Props {
+  content: CatalogContent;
+}
+const { content } = Astro.props;
+const src =
+  ({ optical, rack, server } as Record<string, string>)[content.asset] ||
+  assets[`../../assets/catalog-scenes/${content.asset}.webp`];
+const detail = ["inspection", "product", "replacement"].includes(content.kind);
+const sound = ["call", "audio"].includes(content.kind);
+const credential = ["access", "attendance"].includes(content.kind);
+const radio = content.kind === "coverage";
+const data = ["storage", "network", "capture"].includes(content.kind);
+const power = ["energy", "distribution", "light"].includes(content.kind);
+---
+
+<section class="sec" id="flujo" aria-labelledby="catalog-heading">
+  <div class="wrap">
+    <header class="catalog-heading">
+      <p>{content.kicker}</p><h2 id="catalog-heading">{content.title}</h2>
+    </header>
+    <figure
+      class:list={["catalog-scene", `catalog-scene--${content.kind}`]}
+      data-functional-scene={`catalog-${content.kind}`}
+      data-catalog-asset={content.asset}
+      data-state="complete"
+      data-phase="2"
+    >
+      <div
+        class="catalog-scene__stage"
+        data-functional-stage
+        role="img"
+        aria-label={`${content.subject}. ${content.steps.map((s) => s[1]).join(" ")}`}
+      >
+        <div class="catalog-scene__product" aria-hidden="true">
+          <img
+            src={src}
+            width="1536"
+            height="1024"
+            loading="lazy"
+            decoding="async"
+            alt=""
+          /><span class="catalog-scene__focus"></span><span
+            class="catalog-scene__object-name">{content.subject}</span
+          >
+        </div>
+        <div class="catalog-scene__operation" aria-hidden="true">
+          <div class="catalog-scene__operation-head">
+            <span
+              >{
+                detail
+                  ? "Detalle del componente"
+                  : "Recorrido de funcionamiento"
+              }</span
+            ><span class="catalog-scene__index">01—03</span>
+          </div>
+          {
+            detail ? (
+              <div class="catalog-scene__macro">
+                <>
+                  <img
+                    src={src}
+                    width="1536"
+                    height="1024"
+                    loading="lazy"
+                    decoding="async"
+                    alt=""
+                  />
+                  <span />
+                </>
+              </div>
+            ) : (
+              <div class="catalog-scene__mechanism">
+                {sound && (
+                  <>
+                    <div class="catalog-scene__call-mark">↗</div>
+                    <div class="catalog-scene__wave">
+                      {Array.from({ length: 19 }, (_, i) => (
+                        <i
+                          style={`--bar:${[0.2, 0.45, 0.7, 0.35, 0.9, 1, 0.55][i % 7]};--delay:${i * 45}ms`}
+                        />
+                      ))}
+                    </div>
+                    <span class="catalog-scene__mechanism-label">
+                      {content.kind === "audio"
+                        ? "SEÑAL · POTENCIA"
+                        : "LLAMADA · VOZ"}
+                    </span>
+                  </>
+                )}
+                {credential && (
+                  <>
+                    <div class="catalog-scene__reader">
+                      <i />
+                      <i />
+                      <i />
+                    </div>
+                    <div class="catalog-scene__credential">
+                      <span />
+                      <i />
+                      <i />
+                    </div>
+                    <div class="catalog-scene__record">
+                      <b>✓</b>
+                      <span>
+                        {content.kind === "attendance"
+                          ? "Evento de asistencia"
+                          : "Validación de acceso"}
+                      </span>
+                    </div>
+                  </>
+                )}
+                {radio && (
+                  <>
+                    <div class="catalog-scene__radio">
+                      <i />
+                      <i />
+                      <i />
+                      <b />
+                    </div>
+                    <div class="catalog-scene__endpoint" />
+                    <span class="catalog-scene__mechanism-label">
+                      EMISIÓN · RECEPCIÓN
+                    </span>
+                  </>
+                )}
+                {content.kind === "capture" && (
+                  <div class="catalog-scene__video">
+                    <div
+                      class="catalog-scene__video-view"
+                      style={`background-image:url('${cameraView}')`}
+                    >
+                      <div class="catalog-scene__shutter" />
+                      <div class="catalog-scene__viewfinder" />
+                      <span>Vista de cámara</span>
+                    </div>
+                    <div class="catalog-scene__video-timeline">
+                      <span />
+                      <i />
+                    </div>
+                    <p>
+                      Captura <span>→</span> Video disponible
+                    </p>
+                  </div>
+                )}
+                {content.kind === "distribution" && (
+                  <div class="catalog-scene__circuits">
+                    <img
+                      src={src}
+                      width="1536"
+                      height="1024"
+                      loading="lazy"
+                      decoding="async"
+                      alt=""
+                    />
+                    <span class="catalog-scene__circuit-focus" />
+                    <div>
+                      <span>Entrada</span>
+                      <span>Protección</span>
+                      <span>Salidas</span>
+                    </div>
+                  </div>
+                )}
+                {data && content.kind !== "capture" && (
+                  <>
+                    <div class="catalog-scene__data-store">
+                      {Array.from({ length: 5 }, (_, i) => (
+                        <div style={`--row:${i}`}>
+                          <span />
+                          <i />
+                          <i />
+                        </div>
+                      ))}
+                    </div>
+                    <div class="catalog-scene__data-item">
+                      <span />
+                      <span />
+                    </div>
+                    <span class="catalog-scene__mechanism-label">
+                      {content.kind === "capture"
+                        ? "VIDEO · REGISTRO"
+                        : content.kind === "network"
+                          ? "ORIGEN · DESTINO"
+                          : "ESCRITURA · LECTURA"}
+                    </span>
+                  </>
+                )}
+                {power && content.kind !== "distribution" && (
+                  <>
+                    <div class="catalog-scene__power">
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                    </div>
+                    <div class="catalog-scene__load">
+                      <span>
+                        {content.kind === "light"
+                          ? "LUZ"
+                          : content.kind === "distribution"
+                            ? "CIRCUITO"
+                            : "CARGA"}
+                      </span>
+                    </div>
+                    <span class="catalog-scene__mechanism-label">
+                      ALIMENTACIÓN ·{" "}
+                      {content.kind === "energy" ? "RESERVA" : "DISTRIBUCIÓN"}
+                    </span>
+                  </>
+                )}
+                {!sound && !credential && !radio && !data && !power && (
+                  <>
+                    <div class="catalog-scene__event">
+                      <span />
+                      <b>
+                        {content.kind === "notification" ? "LLAMADO" : "EVENTO"}
+                      </b>
+                    </div>
+                    <div class="catalog-scene__event-line" />
+                    <div class="catalog-scene__event-receiver">
+                      <i />
+                      <span>
+                        {content.kind === "notification" ? "AVISO" : "CENTRAL"}
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
+            )
+          }
+          <div class="catalog-scene__operation-foot">
+            {
+              content.steps.map(([title], i) => (
+                <span class={`catalog-scene__label catalog-scene__label--${i}`}>
+                  {title}
+                  <b>0{i + 1}</b>
+                </span>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+      <figcaption class="fs__caption">
+        <ol aria-label="Etapas del recorrido">
+          {
+            content.steps.map(([title, description], i) => (
+              <li data-functional-step={i}>
+                <>
+                  <span class="fs__step-number">0{i + 1}</span>
+                  <div>
+                    <>
+                      <strong>{title}</strong>
+                      <p>{description}</p>
+                    </>
+                  </div>
+                </>
+              </li>
+            ))
+          }
+        </ol>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+<script>
+  import { initFunctionalScenes } from "./functional-motion";
+  initFunctionalScenes(document);
+</script>

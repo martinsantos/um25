@@ -1,0 +1,112 @@
+---
+import rack from "../../assets/operations-scenes/perrupato-rack.webp?url";
+import optical from "../../assets/operations-scenes/aeropuerto-fibra.webp?url";
+import type { ConnectionContent } from "../../data/connectionScenes";
+import "../../styles/functional-scene.css";
+import "../../styles/connection-scene.css";
+interface Props {
+  content: ConnectionContent;
+}
+const { content } = Astro.props;
+const source = content.kind === "rack-detail" ? rack : optical;
+---
+
+<section class="sec" id="flujo" aria-labelledby="connection-heading">
+  <div class="wrap">
+    <div class="connection-heading">
+      <div>
+        <p>{content.kicker}</p><h2 id="connection-heading">{content.title}</h2>
+      </div>
+      <p>{content.description}</p>
+    </div>
+    <figure
+      class:list={["connection", `connection--${content.kind}`]}
+      data-functional-scene={content.kind}
+      data-state="complete"
+      data-phase="2"
+      aria-label={content.title}
+    >
+      <div
+        class="connection__stage"
+        data-functional-stage
+        role="img"
+        aria-label={content.accessible}
+      >
+        <div class="connection__assembly" aria-hidden="true">
+          <div class="connection__object">
+            <img
+              src={source}
+              width="1536"
+              height="1024"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="connection__focus"><i></i><i></i><i></i><i></i></div>
+          </div><span class="connection__assembly-label"
+            >{
+              content.kind === "rack-detail"
+                ? "Rack · vista del conjunto"
+                : "Fibra · punto de terminación"
+            }</span
+          >
+        </div>
+        <div class="connection__detail" aria-hidden="true">
+          <div class="connection__detail-heading">
+            <span>Una mirada más cerca</span><span>↗</span>
+          </div>
+          <div class="connection__crop">
+            <img
+              src={source}
+              width="1536"
+              height="1024"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <div class="connection__labels">
+            {
+              content.steps.map(([title, description], i) => (
+                <div class={`connection__label connection__label--${i}`}>
+                  <>
+                    <span>0{i + 1}</span>
+                    <div>
+                      <>
+                        <strong>{title}</strong>
+                        <p>{description}</p>
+                      </>
+                    </div>
+                  </>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+      <figcaption class="fs__caption">
+        <ol aria-label="Componentes del recorrido">
+          {
+            content.steps.map(([title, description], i) => (
+              <li data-functional-step={i}>
+                <>
+                  <span class="fs__step-number">0{i + 1}</span>
+                  <div>
+                    <>
+                      <strong>{title}</strong>
+                      <p>{description}</p>
+                    </>
+                  </div>
+                </>
+              </li>
+            ))
+          }
+        </ol>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+<script>
+  import { initFunctionalScenes } from "./functional-motion";
+  initFunctionalScenes(document);
+</script>

@@ -9,6 +9,8 @@ import ServiceEditorialHero from '../../../components/proto/ServiceEditorialHero
 import ServiceProvision from '../../../components/proto/ServiceProvision.astro';
 import FlowSection from '../../../components/proto/FlowSection.astro';
 import FunctionalSection from '../../../components/proto/FunctionalSection.astro';
+import OperationsSection from '../../../components/proto/OperationsSection.astro';
+import { operationsSceneForService } from '../../../data/operationsScenes';
 import TechnicalSection from '../../../components/proto/TechnicalSection.astro';
 import { technicalSceneForService } from '../../../data/technicalScenes';
 import { flowForService } from '../../../data/informationFlows';
@@ -43,6 +45,7 @@ const isNetworks = code === '101';
 // Software y servicios profesionales se explican con pantallas, trabajo y resultados.
 const functionalPilot = ['102', '108'].includes(code);
 const technicalScene = technicalSceneForService(code);
+const operationsScene = operationsSceneForService(code);
 const editorial = ['104', '105', '106'].includes(code) || functionalPilot || Boolean(technicalScene);
 const Hero = ServiceEditorialHero;
 const Provision = ServiceProvision;
@@ -212,7 +215,7 @@ const cierre = cierrePorServicio[code];
       </div>
     </section>
 
-    {technicalScene ? <TechnicalSection content={technicalScene} /> : functionalPilot ? <FunctionalSection code={code} /> : <FlowSection flow={flowForService(code)} />}
+    {operationsScene ? <OperationsSection content={operationsScene} /> : technicalScene ? <TechnicalSection content={technicalScene} /> : functionalPilot ? <FunctionalSection code={code} /> : <FlowSection flow={flowForService(code)} />}
 
     {provision.length > 0 && (
       <Provision
