@@ -55,6 +55,7 @@ export type CatalogAsset =
   | "halogen-tripod";
 type RecordPresentation = {
   identity: string;
+  verifiedIdentities?: readonly string[];
   parts: Parte[];
   kind: CatalogMotion | OperationsContent["kind"] | "existing" | null;
   asset: CatalogAsset | null;
@@ -73,8 +74,10 @@ export function catalogPresentationFor(
   story: Identity,
 ): RecordPresentation | undefined {
   const entry = reviewed[String(story.id)];
-  return entry?.identity ===
-    normalize(`${story.client}|${story.title}|${story.summary}`)
+  const identity = normalize(`${story.client}|${story.title}|${story.summary}`);
+  return entry &&
+    (entry.identity === identity ||
+      entry.verifiedIdentities?.includes(identity))
     ? entry
     : undefined;
 }
