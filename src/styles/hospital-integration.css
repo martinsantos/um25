@@ -1,0 +1,335 @@
+.hospital-heading {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: end;
+  gap: 40px;
+  margin-bottom: 28px;
+}
+.hospital-heading p {
+  color: var(--ink-2);
+  line-height: 1.5;
+  max-width: 45ch;
+}
+.hospital-heading h2 {
+  margin-top: 10px;
+}
+.hospital-systems {
+  --hospital-paper: #e9ece9;
+  --hospital-ink: #20292b;
+  --hospital-muted: #53615e;
+  --hospital-red: #a52e32;
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.hospital-systems figure {
+  margin: 0;
+  min-width: 0;
+  background: var(--hospital-paper);
+  color: var(--hospital-ink);
+}
+.hospital-systems figcaption {
+  padding: 28px 28px 0;
+  min-height: 176px;
+}
+.hospital-eyebrow {
+  color: var(--hospital-muted);
+  font-size: 0.8125rem;
+}
+.hospital-systems h3 {
+  font-size: clamp(1.3rem, 1.8vw, 1.6rem);
+  line-height: 1.2;
+  margin: 16px 0 10px;
+  letter-spacing: -0.025em;
+}
+.hospital-systems figcaption p {
+  color: var(--hospital-muted);
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+.hospital-stage {
+  height: 320px;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 0.6fr 1fr;
+  align-items: center;
+  padding: 12px 24px 22px;
+  overflow: hidden;
+}
+.hospital-systems img {
+  display: block;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  filter: brightness(1.12);
+}
+.hospital-stage__outlet,
+.hospital-stage__rack {
+  min-width: 0;
+  text-align: center;
+}
+.hospital-stage__outlet img {
+  width: 100%;
+  height: 182px;
+}
+.hospital-stage__rack img {
+  width: 100%;
+  height: 205px;
+}
+.hospital-stage__step {
+  display: block;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+.hospital-stage__rack > strong {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+.hospital-stage__rack > span:last-child {
+  display: block;
+  color: var(--hospital-muted);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  margin-top: 4px;
+}
+.hospital-stage__route {
+  align-self: center;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.hospital-stage__route > span {
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+.hospital-stage__route > small {
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--hospital-muted);
+}
+.hospital-stage__track {
+  height: 2px;
+  background: #b8c3bd;
+  position: relative;
+  margin: 14px -10px;
+}
+.hospital-stage__track i {
+  position: absolute;
+  inset: 0;
+  background: var(--hospital-red);
+  transform-origin: left;
+}
+.hospital-stage__track b {
+  position: absolute;
+  right: 0;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  border-top: 2px solid var(--hospital-red);
+  border-right: 2px solid var(--hospital-red);
+  transform: rotate(45deg);
+}
+.hospital-network[data-state="running"] .hospital-stage__track i {
+  animation: hospital-route 4.8s ease both;
+}
+.hospital-network[data-state="running"] .hospital-stage__rack > strong {
+  animation: hospital-arrival 4.8s ease both;
+}
+.hospital-quantities {
+  margin: 0;
+  padding: 20px 28px;
+  border-top: 1px solid #bfc8c2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.hospital-quantities > div {
+  display: grid;
+  grid-template-rows: 44px auto;
+  gap: 6px;
+}
+.hospital-quantities dt {
+  grid-row: 2;
+  color: var(--hospital-muted);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+.hospital-quantities dd {
+  grid-row: 1;
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+.hospital-quantities dd.hospital-quantities__spec {
+  font-size: 1.15rem;
+  line-height: 1.45;
+  letter-spacing: -0.02em;
+}
+.hospital-quantities__spec span {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.hospital-infrastructure {
+  display: flex;
+  flex-direction: column;
+}
+.hospital-infrastructure__media {
+  height: 320px;
+  padding: 8px 20px 12px;
+}
+.hospital-infrastructure__media img {
+  width: 100%;
+  height: 100%;
+}
+.hospital-infrastructure__spec {
+  border-top: 1px solid #bfc8c2;
+  padding: 24px 28px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
+}
+.hospital-infrastructure__spec strong {
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+.hospital-infrastructure__spec span {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--hospital-muted);
+}
+@keyframes hospital-route {
+  0%,
+  18% {
+    transform: scaleX(0);
+  }
+  65%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+@keyframes hospital-arrival {
+  0%,
+  60% {
+    color: var(--hospital-ink);
+  }
+  72%,
+  100% {
+    color: var(--hospital-red);
+  }
+}
+@media (max-width: 1000px) {
+  .hospital-systems {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    border: 0;
+    background: transparent;
+  }
+  .hospital-systems figcaption {
+    min-height: unset;
+  }
+  .hospital-stage {
+    margin-top: 20px;
+  }
+  .hospital-infrastructure {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .hospital-infrastructure figcaption {
+    align-self: center;
+    padding-bottom: 28px;
+  }
+  .hospital-infrastructure__media {
+    height: 300px;
+  }
+  .hospital-infrastructure__spec {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 600px) {
+  .hospital-heading {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .hospital-heading h2 {
+    font-size: 1.9rem;
+  }
+  .hospital-heading p {
+    margin: 0;
+    font-size: 1rem;
+  }
+  .hospital-systems figcaption {
+    padding: 20px 20px 0;
+  }
+  .hospital-systems h3 {
+    font-size: 1.5rem;
+    margin-top: 12px;
+  }
+  .hospital-stage {
+    padding: 18px 16px;
+    height: 350px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 60px;
+    column-gap: 12px;
+  }
+  .hospital-stage__outlet {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+  }
+  .hospital-stage__rack {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .hospital-stage__outlet img {
+    height: 145px;
+  }
+  .hospital-stage__rack img {
+    height: 180px;
+  }
+  .hospital-stage__route {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin: 0 25px;
+  }
+  .hospital-stage__track {
+    margin: 9px 0;
+  }
+  .hospital-quantities {
+    padding: 18px 20px;
+    gap: 10px;
+  }
+  .hospital-quantities dt {
+    font-size: 0.8125rem;
+  }
+  .hospital-quantities dd {
+    font-size: 1.875rem;
+  }
+  .hospital-infrastructure {
+    display: flex;
+  }
+  .hospital-infrastructure__media {
+    height: 280px;
+    padding-top: 16px;
+  }
+  .hospital-infrastructure__spec {
+    padding: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hospital-network * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
