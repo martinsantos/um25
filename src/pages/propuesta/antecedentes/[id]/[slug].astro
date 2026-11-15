@@ -1,28 +1,45 @@
 ---
-import '../../../../styles/pilot-fichas.css';
-import PilotCase from '../../../../components/proto/PilotCase.astro';
+import "../../../../styles/case-presentation.css";
 /**
  * Ficha de trabajo (2026-10-31). Cada antecedente como hoja de trabajo: cabecera con la referencia
  * UM, la imagen y los datos; alcance documentado, inventario y sistemas; y otros proyectos del
- * mismo cliente identificado y del mismo sector. Las imágenes ilustrativas se rotulan como tales.
+ * mismo cliente identificado y del mismo sector. 
  */
-import '../../../../styles/proto-despiece.css';
-import Head from '../../../../components/proto/Head.astro';
-import Top from '../../../../components/proto/Top.astro';
-import Ficha from '../../../../components/proto/Ficha.astro';
-import FichaIso from '../../../../components/proto/FichaIso.astro';
-import Cierre from '../../../../components/proto/Cierre.astro';
-import { loadStories, services, variantes } from '../../../../components/proto/isoData';
-import caseImageDescriptions from '../../../../data/casePhotoAlt.json';
-import { photographForCase } from '../../../../data/photography';
-import CasoEnDetalle from '../../../../components/proto/CasoEnDetalle.astro';
-import FlowSection from '../../../../components/proto/FlowSection.astro';
-import TechnicalSection from '../../../../components/proto/TechnicalSection.astro';
-import { technicalSceneForCase } from '../../../../data/technicalScenes';
-import { flowForCase } from '../../../../data/informationFlows';
-import { publicCaseFor, samePublicClient, caseEquipmentFor } from '../../../../components/proto/casePresentation';
+import "../../../../styles/proto-despiece.css";
+import Head from "../../../../components/proto/Head.astro";
+import Top from "../../../../components/proto/Top.astro";
+import Ficha from "../../../../components/proto/Ficha.astro";
+import FichaIso from "../../../../components/proto/FichaIso.astro";
+import Cierre from "../../../../components/proto/Cierre.astro";
+import {
+  loadStories,
+  services,
+  variantes,
+} from "../../../../components/proto/isoData";
+import caseImageDescriptions from "../../../../data/casePhotoAlt.json";
+import { photographForCase } from "../../../../data/photography";
+import CasoEnDetalle from "../../../../components/proto/CasoEnDetalle.astro";
+import CatalogScene from "../../../../components/proto/CatalogScene.astro";
+import {
+  catalogSceneForCase,
+  catalogOperationsForCase,
+} from "../../../../data/catalogCasePresentation";
+import TechnicalSection from "../../../../components/proto/TechnicalSection.astro";
+import ConnectionSection from "../../../../components/proto/ConnectionSection.astro";
+import { connectionSceneForCase } from "../../../../data/connectionScenes";
+import OperationsSection from "../../../../components/proto/OperationsSection.astro";
+import { operationsSceneForCase } from "../../../../data/operationsScenes";
+import { technicalSceneForCase } from "../../../../data/technicalScenes";
+import {
+  publicCaseFor,
+  samePublicClient,
+  caseEquipmentFor,
+} from "../../../../components/proto/casePresentation";
 
-import { buildCaseSeoMeta, trimAtWordBoundary } from '../../../../utils/seoMetaPolicy';
+import {
+  buildCaseSeoMeta,
+  trimAtWordBoundary,
+} from "../../../../utils/seoMetaPolicy";
 export const prerender = false;
 const id = Number(Astro.params.id);
 const { stories } = await loadStories();
@@ -33,75 +50,273 @@ const caseDetail = publicCaseFor(c);
 const pageTitle = caseDetail?.title || c.title;
 if (Astro.params.slug !== c.slug) return Astro.redirect(c.href, 301);
 const svcs = services.filter((s) => c.serviceCodes.includes(s.code));
-const months = ['', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-const when = [c.month ? months[c.month] : '', c.year].filter(Boolean).join(' ');
-const mesAnio = (iso?: string) => { if (!iso) return ''; const [y, m] = iso.split('-').map(Number); return [m ? months[m] : '', y].filter(Boolean).join(' '); };
-const cierre = c.cierre && mesAnio(c.cierre) !== when ? mesAnio(c.cierre) : '';
-const enCurso = c.estado === 'en-curso';
+const months = [
+  "",
+  "enero",
+  "febrero",
+  "marzo",
+  "abril",
+  "mayo",
+  "junio",
+  "julio",
+  "agosto",
+  "septiembre",
+  "octubre",
+  "noviembre",
+  "diciembre",
+];
+const when = [c.month ? months[c.month] : "", c.year].filter(Boolean).join(" ");
+const mesAnio = (iso?: string) => {
+  if (!iso) return "";
+  const [y, m] = iso.split("-").map(Number);
+  return [m ? months[m] : "", y].filter(Boolean).join(" ");
+};
+const cierre = c.cierre && mesAnio(c.cierre) !== when ? mesAnio(c.cierre) : "";
+const enCurso = c.estado === "en-curso";
 const periodo = cierre ? `${when} – ${cierre}` : when;
-const sameClient = stories.filter((o) => o.id !== c.id && samePublicClient(o.client, c.client)).slice(0, 4);
-const sameSector = stories.filter((o) => o.id !== c.id && o.sectorSlug === c.sectorSlug && !sameClient.includes(o)).slice(0, 4);
+const sameClient = stories
+  .filter((o) => o.id !== c.id && samePublicClient(o.client, c.client))
+  .slice(0, 4);
+const sameSector = stories
+  .filter(
+    (o) =>
+      o.id !== c.id && o.sectorSlug === c.sectorSlug && !sameClient.includes(o),
+  )
+  .slice(0, 4);
 const prev = stories[index + 1];
 const next = stories[index - 1];
 const photo = Boolean(c.image);
 const imageSet = variantes(c.image);
-const photoAlt = photographForCase(c.id)?.context || (caseImageDescriptions as Record<string, string>)[String(c.id)] || '';
+const photoAlt =
+  photographForCase(c.id)?.context ||
+  (caseImageDescriptions as Record<string, string>)[String(c.id)] ||
+  "";
 const scope = caseEquipmentFor(c);
 const technicalScene = technicalSceneForCase(c);
-const flow = c.id === 3082 || technicalScene ? undefined : flowForCase(c, scope, caseDetail?.scope);
+const operationsScene =
+  operationsSceneForCase(c) || catalogOperationsForCase(c);
+const connectionScene = connectionSceneForCase(c);
+const catalogScene =
+  c.id === 3082 || technicalScene || operationsScene || connectionScene
+    ? undefined
+    : catalogSceneForCase(c);
 const ref = `UM-${c.id}`;
-const introduction = caseDetail?.introduction || c.summary || `Registro ${ref} del archivo de ULTIMA MILLA${when ? `, correspondiente a ${when}` : ''}. ${svcs.length ? `Servicios vinculados: ${svcs.map(s => s.name).join(', ')}.` : 'El alcance disponible se conserva con la referencia original del proyecto.'}`;
-const caseSeo = buildCaseSeoMeta({ title: pageTitle, description: caseDetail?.introduction || c.summary, client: c.client, area: c.sector, date: String(c.year), identifier: c.id });
-const seoTitle = caseSeo.title.includes(ref) ? caseSeo.title : `${trimAtWordBoundary(caseSeo.title, 60 - ref.length - 3)} · ${ref}`;
-
+const introduction =
+  caseDetail?.introduction ||
+  c.summary ||
+  `Registro ${ref} del archivo de ULTIMA MILLA${when ? `, correspondiente a ${when}` : ""}. ${svcs.length ? `Servicios vinculados: ${svcs.map((s) => s.name).join(", ")}.` : "El alcance disponible se conserva con la referencia original del proyecto."}`;
+const caseSeo = buildCaseSeoMeta({
+  title: pageTitle,
+  description: caseDetail?.introduction || c.summary,
+  client: c.client,
+  area: c.sector,
+  date: String(c.year),
+  identifier: c.id,
+});
+const seoTitle = caseSeo.title.includes(ref)
+  ? caseSeo.title
+  : `${trimAtWordBoundary(caseSeo.title, 60 - ref.length - 3)} · ${ref}`;
 ---
+
 <!doctype html>
 <html lang="es">
   <head>
-    <Head title={seoTitle} description={caseSeo.description} image={c.image} precargar />
+    <Head
+      title={seoTitle}
+      description={caseSeo.description}
+      image={c.image}
+      precargar
+    />
     <style>
-      .nav { display: flex; justify-content: space-between; gap: 16px; padding: var(--s3) 0 0; color: var(--ink-3); font-size: 1rem; }
-      .nav a:hover { color: var(--ink); }
+      .nav {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: var(--s3) 0 0;
+        color: var(--ink-3);
+        font-size: 1rem;
+      }
+      .nav a:hover {
+        color: var(--ink);
+      }
       /* Cabecera de la hoja: la referencia a la izquierda, sector y fecha a la derecha, como un cajetín superior. */
-      .hoja-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-top: var(--s3); padding-bottom: 10px; border-bottom: 1px solid var(--line); color: var(--ink-3); font-size: 1rem; letter-spacing: .02em; }
-      .hoja-cab b { color: var(--ink); font-weight: 600; white-space: nowrap; }
-      .hoja-cab .curso { font-style: normal; margin-left: 12px; padding: 2px 8px; border: 1px solid var(--red); color: var(--ink); font-size: 1rem; }
-      .proyecto { padding-block: var(--s4) var(--s5); display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: start; }
-      .obra { margin: 0; grid-row: span 2; overflow: hidden; background: var(--bg-2); }
-      .obra img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
-      .obra figcaption { padding: 12px 16px; font-size: 1rem; color: var(--ink-2); }
-      .datos { display: grid; gap: var(--s2); align-content: start; }
-      .datos h1 { font-size: clamp(1.7rem, 2.6vw, 2.4rem); }
-      .datos .quien { font-size: 1.1rem; font-weight: 600; }
-      .datos .quien span { color: var(--ink-3); font-weight: 400; }
-      .datos .alcance h2 { margin-bottom: 6px; font-size: 1rem; }
-      .datos .resumen { color: var(--ink-2); font-size: 1.0625rem; }
-      .tabla { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2) var(--s3); padding-top: var(--s2); border-top: 1px solid var(--line); align-self: start; }
-      .tabla div { display: grid; gap: 4px; }
-      .tabla dt { color: var(--ink-3); font-size: 1rem; }
-      .tabla dd { margin: 0; font-weight: 500; }
-      .tabla .ancho { grid-column: 1 / -1; }
-      .tabla dd a { border-bottom: 1px solid var(--red); }
-      .tabla dd a + a::before { content: ', '; border: 0; }
-      .proyecto--sinfoto { grid-template-columns: 1fr; max-width: 72ch; }
+      .hoja-cab {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 16px;
+        margin-top: var(--s3);
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--line);
+        color: var(--ink-3);
+        font-size: 1rem;
+        letter-spacing: 0.02em;
+      }
+      .hoja-cab b {
+        color: var(--ink);
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .hoja-cab .curso {
+        font-style: normal;
+        margin-left: 12px;
+        padding: 2px 8px;
+        border: 1px solid var(--red);
+        color: var(--ink);
+        font-size: 1rem;
+      }
+      .proyecto {
+        padding-block: var(--s4) var(--s5);
+        display: grid;
+        grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+        gap: var(--s4) clamp(28px, 4vw, 72px);
+        align-items: start;
+      }
+      .obra {
+        margin: 0;
+        grid-row: span 2;
+        overflow: hidden;
+        background: var(--bg-2);
+      }
+      .obra img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        display: block;
+      }
+      .obra figcaption {
+        padding: 12px 16px;
+        font-size: 1rem;
+        color: var(--ink-2);
+      }
+      .datos {
+        display: grid;
+        gap: var(--s2);
+        align-content: start;
+      }
+      .datos h1 {
+        font-size: clamp(1.7rem, 2.6vw, 2.4rem);
+      }
+      .datos .quien {
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+      .datos .quien span {
+        color: var(--ink-3);
+        font-weight: 400;
+      }
+      .datos .alcance h2 {
+        margin-bottom: 6px;
+        font-size: 1rem;
+      }
+      .datos .resumen {
+        color: var(--ink-2);
+        font-size: 1.0625rem;
+      }
+      .tabla {
+        margin: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--s2) var(--s3);
+        padding-top: var(--s2);
+        border-top: 1px solid var(--line);
+        align-self: start;
+      }
+      .tabla div {
+        display: grid;
+        gap: 4px;
+      }
+      .tabla dt {
+        color: var(--ink-3);
+        font-size: 1rem;
+      }
+      .tabla dd {
+        margin: 0;
+        font-weight: 500;
+      }
+      .tabla .ancho {
+        grid-column: 1 / -1;
+      }
+      .tabla dd a {
+        border-bottom: 1px solid var(--red);
+      }
+      .tabla dd a + a::before {
+        content: ", ";
+        border: 0;
+      }
+      .proyecto--sinfoto {
+        grid-template-columns: 1fr;
+        max-width: 72ch;
+      }
       @media (max-width: 900px) {
-        .hoja-cab { flex-direction: column; gap: 8px; }
-        .proyecto { grid-template-columns: 1fr; }
-        .nav { flex-direction: column; gap: 4px; padding-top: 20px; }
-        .nav > span { display: flex; justify-content: space-between; gap: 24px; }
-        .nav a { display: inline-flex; align-items: center; min-height: 44px; width: fit-content; white-space: nowrap; }
-        .nav .nav-separator { display: none; }
-        .hoja-cab { margin-top: 16px; }
-        .proyecto { gap: 24px; padding-top: 24px; }
-        .datos { grid-row: 1; }
-        .datos h1 { font-size: clamp(2rem, 7.5vw, 2.6rem); line-height: 1.08; font-weight: 600; letter-spacing: -.025em; }
-        .datos .quien > span { display: block; }
-        .datos .quien .quien-separator { display: none; }
-        .obra { grid-row: 2; }
-        .tabla { grid-row: 3; }
-        .tabla dd a { display: inline-flex; align-items: center; min-height: 44px; }
-        .tabla .ancho dd { display: flex; flex-wrap: wrap; gap: 8px 16px; }
-        .tabla dd a + a::before { content: none; }
+        .hoja-cab {
+          flex-direction: column;
+          gap: 8px;
+        }
+        .proyecto {
+          grid-template-columns: 1fr;
+        }
+        .nav {
+          flex-direction: column;
+          gap: 4px;
+          padding-top: 20px;
+        }
+        .nav > span {
+          display: flex;
+          justify-content: space-between;
+          gap: 24px;
+        }
+        .nav a {
+          display: inline-flex;
+          align-items: center;
+          min-height: 44px;
+          width: fit-content;
+          white-space: nowrap;
+        }
+        .nav .nav-separator {
+          display: none;
+        }
+        .hoja-cab {
+          margin-top: 16px;
+        }
+        .proyecto {
+          gap: 24px;
+          padding-top: 24px;
+        }
+        .datos {
+          grid-row: 1;
+        }
+        .datos h1 {
+          font-size: clamp(2rem, 7.5vw, 2.6rem);
+          line-height: 1.08;
+          font-weight: 600;
+          letter-spacing: -0.025em;
+        }
+        .datos .quien > span {
+          display: block;
+        }
+        .datos .quien .quien-separator {
+          display: none;
+        }
+        .obra {
+          grid-row: 2;
+        }
+        .tabla {
+          grid-row: 3;
+        }
+        .tabla dd a {
+          display: inline-flex;
+          align-items: center;
+          min-height: 44px;
+        }
+        .tabla .ancho dd {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px 16px;
+        }
+        .tabla dd a + a::before {
+          content: none;
+        }
       }
     </style>
   </head>
@@ -109,64 +324,254 @@ const seoTitle = caseSeo.title.includes(ref) ? caseSeo.title : `${trimAtWordBoun
     <Top current="antecedentes" />
 
     <main id="contenido">
-    <div class="wrap">
-      <nav class="nav" aria-label="Proyectos">
-        <a href="/antecedentes" data-catalog-back>← Todos los proyectos</a>
-        <span>{prev && <a href={prev.href}>← Anterior</a>}{prev && next && <span class="nav-separator" aria-hidden="true"> · </span>}{next && <a href={next.href}>Siguiente →</a>}</span>
-      </nav>
-      <div class="hoja-cab"><span>Ficha de trabajo · <b>{ref}</b>{enCurso && <i class="curso">En curso</i>}</span><span>{[c.sector, periodo].filter(Boolean).join(' · ')}</span></div>
-      <div class:list={['proyecto', { 'proyecto--sinfoto': !photo }]}>
-        {photo && <figure class="obra"><img src={c.image} srcset={imageSet.ancho ? `${imageSet.w480} 480w, ${imageSet.w960} 960w, ${c.image} ${imageSet.ancho}w` : undefined} sizes="(max-width: 900px) 100vw, 58vw" alt={photoAlt} width={imageSet.ancho || 1600} height={imageSet.ancho === 1536 ? 1024 : 1000} fetchpriority="high" decoding="async" /></figure>}
-        <div class="datos">
-          <h1>{pageTitle}<span class="dot">.</span></h1>
-          <div class="quien">{c.client}{when && <span><span class="quien-separator" aria-hidden="true"> · </span>{when}</span>}</div>
-          {c.documentedScope ? (
-            <section class="alcance">
-              <h2>Alcance documentado</h2>
-              <p class="resumen">{introduction}</p>
-            </section>
-          ) : <p class="resumen">{introduction}</p>}
-        </div>
-        <dl class="tabla">
-            {c.sector && <div><dt>Sector</dt><dd><a href={`/sectores/${c.sectorSlug}`}>{c.sector}</a></dd></div>}
-            {when && <div><dt>{cierre ? 'Inicio' : 'Fecha'}</dt><dd>{when}</dd></div>}
-            {cierre && <div><dt>{enCurso ? 'Cierre previsto' : 'Cierre'}</dt><dd>{cierre}</dd></div>}
-            {c.documentedScope && c.estado === 'finalizado' && <div><dt>Estado</dt><dd>Finalizado</dd></div>}
-            <div><dt>Referencia</dt><dd>{ref}</dd></div>
-            {svcs.length > 0 && <div class="ancho"><dt>Servicios del proyecto · ver provisión</dt><dd>{svcs.map((s) => <a href={`/servicios/${s.code}#provision`}>{s.name}</a>)}</dd></div>}
-        </dl>
-      </div>
-
-    </div>
-    {(id === 3286 || id === 3588) ? <PilotCase items={scope.partes} caso={caseDetail} original={c.summary}/> : <>{caseDetail && <CasoEnDetalle caso={caseDetail} original={c.summary} />}
-    {(!c.documentedScope || (scope.origen === 'registro' && scope.partes.length > 0)) && <section class="sec" id={c.id === 3082 ? 'alcance' : undefined}>
       <div class="wrap">
-        <div class="sec__head"><h2>{!scope.partes.length ? 'Información disponible del proyecto' : scope.origen === 'servicio' ? 'Capacidades de los servicios vinculados' : c.documentedScope ? 'Componentes y tareas del proyecto' : 'Alcance documentado del proyecto'}<span class="dot">.</span></h2></div>
-        {scope.partes.length > 0 ? <FichaIso story={c} /> : <div class="reading"><p>{c.summary || pageTitle}</p><p>El archivo público no especifica equipos, cantidades ni entregables adicionales para esta referencia. Para ampliar la información disponible, consultanos por {ref}.</p><a class="line-link" href={`/contacto?antecedente=${c.id}`}>Consultar por este antecedente →</a></div>}
+        <nav class="nav" aria-label="Proyectos">
+          <a href="/antecedentes" data-catalog-back>← Todos los proyectos</a>
+          <span
+            >{prev && <a href={prev.href}>← Anterior</a>}{
+              prev && next && (
+                <span class="nav-separator" aria-hidden="true">
+                  {" "}
+                  ·{" "}
+                </span>
+              )
+            }{next && <a href={next.href}>Siguiente →</a>}</span
+          >
+        </nav>
+        <div class="hoja-cab">
+          <span
+            >Ficha de trabajo · <b>{ref}</b>{
+              enCurso && <i class="curso">En curso</i>
+            }</span
+          ><span>{[c.sector, periodo].filter(Boolean).join(" · ")}</span>
+        </div>
+        <div class:list={["proyecto", { "proyecto--sinfoto": !photo }]}>
+          {
+            photo && (
+              <figure class="obra">
+                <img
+                  src={c.image}
+                  srcset={
+                    imageSet.ancho
+                      ? `${imageSet.w480} 480w, ${imageSet.w960} 960w, ${c.image} ${imageSet.ancho}w`
+                      : undefined
+                  }
+                  sizes="(max-width: 900px) 100vw, 58vw"
+                  alt={photoAlt}
+                  width={imageSet.ancho || 1600}
+                  height={imageSet.ancho === 1536 ? 1024 : 1000}
+                  fetchpriority="high"
+                  decoding="async"
+                />
+              </figure>
+            )
+          }
+          <div class="datos">
+            <h1>{pageTitle}<span class="dot">.</span></h1>
+            <div class="quien">
+              {c.client}{
+                when && (
+                  <span>
+                    <span class="quien-separator" aria-hidden="true">
+                      {" "}
+                      ·{" "}
+                    </span>
+                    {when}
+                  </span>
+                )
+              }
+            </div>
+            {
+              c.documentedScope ? (
+                <section class="alcance">
+                  <h2>Alcance documentado</h2>
+                  <p class="resumen">{introduction}</p>
+                </section>
+              ) : (
+                <p class="resumen">{introduction}</p>
+              )
+            }
+          </div>
+          <dl class="tabla">
+            {
+              c.sector && (
+                <div>
+                  <>
+                    <dt>Sector</dt>
+                    <dd>
+                      <a href={`/sectores/${c.sectorSlug}`}>{c.sector}</a>
+                    </dd>
+                  </>
+                </div>
+              )
+            }
+            {
+              when && (
+                <div>
+                  <>
+                    <dt>{cierre ? "Inicio" : "Fecha"}</dt>
+                    <dd>{when}</dd>
+                  </>
+                </div>
+              )
+            }
+            {
+              cierre && (
+                <div>
+                  <>
+                    <dt>{enCurso ? "Cierre previsto" : "Cierre"}</dt>
+                    <dd>{cierre}</dd>
+                  </>
+                </div>
+              )
+            }
+            {
+              c.documentedScope && c.estado === "finalizado" && (
+                <div>
+                  <>
+                    <dt>Estado</dt>
+                    <dd>Finalizado</dd>
+                  </>
+                </div>
+              )
+            }
+            <div><dt>Referencia</dt><dd>{ref}</dd></div>
+            {
+              svcs.length > 0 && (
+                <div class="ancho">
+                  <>
+                    <dt>Servicios del proyecto · ver provisión</dt>
+                    <dd>
+                      {svcs.map((s) => (
+                        <a href={`/servicios/${s.code}#provision`}>{s.name}</a>
+                      ))}
+                    </dd>
+                  </>
+                </div>
+              )
+            }
+          </dl>
+        </div>
       </div>
-    </section>}
-
-
-    </>}
-    {technicalScene ? <TechnicalSection content={technicalScene} project /> : flow && <FlowSection flow={flow} project />}
-    {sameClient.length > 0 && (
-      <section class="sec"><div class="wrap"><div class="sec__head"><h2>Más proyectos para {c.client}<span class="dot">.</span></h2></div><ol class="fichas">{sameClient.map((o) => <Ficha story={o} />)}</ol></div></section>
-    )}
-    {sameSector.length > 0 && c.sector && (
-      <section class="sec"><div class="wrap"><div class="sec__head"><h2>Más proyectos en {c.sector.toLowerCase()}<span class="dot">.</span></h2></div><ol class="fichas">{sameSector.map((o) => <Ficha story={o} showSector={false} />)}</ol></div></section>
-    )}
-
+      <>
+        {caseDetail && <CasoEnDetalle caso={caseDetail} original={c.summary} />}
+        {
+          scope.partes.length > 0 && (
+            <section class="sec" id={c.id === 3082 ? "alcance" : undefined}>
+              <div class="wrap">
+                <div class="sec__head">
+                  <h2>
+                    {!scope.partes.length
+                      ? "Información disponible del proyecto"
+                      : scope.origen === "servicio"
+                        ? "Capacidades de los servicios vinculados"
+                        : c.documentedScope
+                          ? "Componentes y tareas del proyecto"
+                          : "Alcance documentado del proyecto"}
+                    <span class="dot">.</span>
+                  </h2>
+                </div>
+                {scope.partes.length > 0 ? (
+                  <FichaIso story={c} />
+                ) : (
+                  <div class="reading">
+                    <p>{c.summary || pageTitle}</p>
+                    <p>
+                      El archivo público no especifica equipos, cantidades ni
+                      entregables adicionales para esta referencia. Para ampliar
+                      la información disponible, consultanos por {ref}.
+                    </p>
+                    <a class="line-link" href={`/contacto?antecedente=${c.id}`}>
+                      Consultar por este antecedente →
+                    </a>
+                  </div>
+                )}
+              </div>
+            </section>
+          )
+        }
+      </>
+      {
+        connectionScene ? (
+          <ConnectionSection content={connectionScene} />
+        ) : operationsScene ? (
+          <OperationsSection content={operationsScene} />
+        ) : technicalScene ? (
+          <TechnicalSection content={technicalScene} project />
+        ) : (
+          catalogScene && <CatalogScene content={catalogScene} />
+        )
+      }
+      {
+        sameClient.length > 0 && (
+          <section class="sec">
+            <div class="wrap">
+              <>
+                <div class="sec__head">
+                  <h2>
+                    Más proyectos para {c.client}
+                    <span class="dot">.</span>
+                  </h2>
+                </div>
+                <ol class="fichas">
+                  {sameClient.map((o) => (
+                    <Ficha story={o} />
+                  ))}
+                </ol>
+              </>
+            </div>
+          </section>
+        )
+      }
+      {
+        sameSector.length > 0 && c.sector && (
+          <section class="sec">
+            <div class="wrap">
+              <>
+                <div class="sec__head">
+                  <h2>
+                    Más proyectos en {c.sector.toLowerCase()}
+                    <span class="dot">.</span>
+                  </h2>
+                </div>
+                <ol class="fichas">
+                  {sameSector.map((o) => (
+                    <Ficha story={o} showSector={false} />
+                  ))}
+                </ol>
+              </>
+            </div>
+          </section>
+        )
+      }
     </main>
 
-    <Cierre heading="Conversemos sobre un proyecto similar" description={`Contanos qué necesitás y dónde. Podés mencionar la referencia ${ref} para que el equipo tenga el contexto de esta consulta.`} />
+    <Cierre
+      heading="Conversemos sobre un proyecto similar"
+      description={`Contanos qué necesitás y dónde. Podés mencionar la referencia ${ref} para que el equipo tenga el contexto de esta consulta.`}
+    />
     <script>
-      const link = document.querySelector<HTMLAnchorElement>('[data-catalog-back]');
+      const link = document.querySelector<HTMLAnchorElement>(
+        "[data-catalog-back]",
+      );
       const origin = document.referrer ? new URL(document.referrer) : null;
-      if (link && origin?.origin === location.origin && origin.pathname.replace(/\/$/, '') === '/antecedentes') {
+      if (
+        link &&
+        origin?.origin === location.origin &&
+        origin.pathname.replace(/\/$/, "") === "/antecedentes"
+      ) {
         link.href = origin.pathname + origin.search + origin.hash;
-        link.textContent = '← Volver a resultados';
-        link.addEventListener('click', (event) => {
-          if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || history.length < 2) return;
+        link.textContent = "← Volver a resultados";
+        link.addEventListener("click", (event) => {
+          if (
+            event.button !== 0 ||
+            event.metaKey ||
+            event.ctrlKey ||
+            event.shiftKey ||
+            event.altKey ||
+            history.length < 2
+          )
+            return;
           event.preventDefault();
           history.back();
         });
