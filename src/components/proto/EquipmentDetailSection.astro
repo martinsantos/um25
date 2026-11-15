@@ -1,4 +1,5 @@
 ---
+import horn from "../../assets/interaction-details/outdoor-horn.webp?url";
 import duct from "../../assets/equipment-details/cable-duct-parts.webp?url";
 import landscape from "../../assets/equipment-details/videowall-landscape.webp?url";
 import panel from "../../assets/equipment-details/videowall-panel.webp?url";
@@ -111,6 +112,48 @@ const bars = [2, 1, 3, 1, 1, 2, 4, 1, 2, 1, 3, 2, 1, 4, 1, 2, 2, 1, 3, 1, 2, 1];
                   <span>03</span>
                   <i />
                   <span>04</span>
+                </>
+              </div>
+            </div>
+          ) : content.kind === "siren" ? (
+            <div class="siren" aria-hidden="true">
+              <span class="equipment-detail__label">
+                De la activación al aviso
+              </span>
+              <div class="siren__signal">
+                <>
+                  <span>Señal</span>
+                  <i />
+                  <b />
+                </>
+              </div>
+              <img
+                class="siren__device"
+                src={horn}
+                width="1536"
+                height="1024"
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+              <div class="siren__emission">
+                {[0, 1, 2].map((wave) => (
+                  <i style={`--wave:${wave}`} />
+                ))}
+              </div>
+              <div class="siren__envelope">
+                <span>Emisión sonora</span>
+                <div>
+                  {[2, 4, 6, 8, 10, 9, 7, 5, 3, 2, 1].map((height) => (
+                    <i style={`--amplitude:${height}`} />
+                  ))}
+                </div>
+              </div>
+              <div class="interaction-detail__footer">
+                <>
+                  <span>Dispositivo</span>
+                  <i />
+                  <span>Entorno</span>
                 </>
               </div>
             </div>
