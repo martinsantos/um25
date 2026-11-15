@@ -1,0 +1,172 @@
+---
+import intercom from "../../assets/catalog-scenes/intercom.webp?url";
+import camera from "../../assets/catalog-scenes/camera.webp?url";
+import recorder from "../../assets/catalog-scenes/recorder.webp?url";
+import networkSwitch from "../../assets/catalog-scenes/network-switch-v2.webp?url";
+import ups from "../../assets/catalog-scenes/ups.webp?url";
+import "../../styles/residential-integration.css";
+---
+
+<section class="sec" id="flujo" aria-labelledby="residential-heading">
+  <div class="wrap">
+    <header class="residential-heading">
+      <div>
+        <p>DTP Marqués · UM-3588</p>
+        <h2 id="residential-heading">Un acceso. Todo un complejo.</h2>
+      </div>
+      <p>
+        Portería, videovigilancia e infraestructura: tres partes de una misma
+        instalación.
+      </p>
+    </header>
+    <div class="residential">
+      <figure
+        class="residential__system residential__system--entry"
+        data-functional-scene="residential-entry"
+        data-state="complete"
+        data-phase="2"
+      >
+        <figcaption>
+          <span class="residential__number">01 / Comunicación</span>
+          <h3>Del frente a la vivienda.</h3>
+          <p>
+            Un frente de portero IP y 31 estaciones interiores para los
+            departamentos.
+          </p>
+        </figcaption>
+        <div
+          class="residential__stage residential__entry"
+          data-functional-stage
+          role="img"
+          aria-label="Un frente de portero IP inicia la llamada hacia una de las 31 estaciones interiores. Los 31 indicadores representan la cantidad de estaciones, sin reproducir su ubicación en el edificio."
+        >
+          <img
+            src={intercom}
+            width="1536"
+            height="1024"
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
+          <div class="residential__connection" aria-hidden="true">
+            <span>Llamada</span><i></i>
+          </div>
+          <div class="residential__destinations" aria-hidden="true">
+            <strong>31</strong><span>estaciones interiores</span>
+            <div class="residential__station-grid">
+              {
+                Array.from({ length: 31 }, (_, i) => (
+                  <i class:list={{ "is-destination": i === 30 }} />
+                ))
+              }
+            </div>
+          </div>
+          <span class="residential__device-label">1 frente IP</span>
+        </div>
+        <div class="residential__result">
+          <span>Entrada</span><span aria-hidden="true">→</span><span
+            >Comunicación con la vivienda</span
+          >
+        </div>
+      </figure>
+      <figure
+        class="residential__system residential__system--video"
+        data-functional-scene="residential-video"
+        data-state="complete"
+        data-phase="2"
+      >
+        <figcaption>
+          <span class="residential__number">02 / Videovigilancia</span>
+          <h3>De la cámara al registro.</h3>
+          <p>
+            13 cámaras analógicas y un DVR de 16 canales para la grabación del
+            sistema.
+          </p>
+        </figcaption>
+        <div
+          class="residential__stage residential__video"
+          data-functional-stage
+          role="img"
+          aria-label="Trece cámaras analógicas envían video hacia un DVR de 16 canales. El recorrido separa la captura de imagen y su grabación."
+        >
+          <div class="residential__camera">
+            <img
+              src={camera}
+              width="1536"
+              height="1024"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            /><span>13 cámaras analógicas</span>
+          </div>
+          <div class="residential__capture" aria-hidden="true">
+            <i></i>
+          </div>
+          <div class="residential__recorder">
+            <img
+              src={recorder}
+              width="1536"
+              height="1024"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            /><span>1 DVR · 16 canales</span>
+          </div>
+          <div class="residential__record" aria-hidden="true">
+            <i></i><span>Grabación</span><b></b>
+          </div>
+        </div>
+        <div class="residential__result">
+          <span>Captura</span><span aria-hidden="true">→</span><span
+            >Grabación centralizada</span
+          >
+        </div>
+      </figure>
+      <figure class="residential__system residential__system--support">
+        <figcaption>
+          <span class="residential__number">03 / Infraestructura</span>
+          <h3>La base que lo sostiene.</h3>
+          <p>
+            Equipamiento de red, organización en rack y respaldo de energía.
+          </p>
+        </figcaption>
+        <div class="residential__stage residential__support">
+          <img
+            class="residential__switch"
+            src={networkSwitch}
+            width="1536"
+            height="1024"
+            alt="Switch de red"
+            loading="lazy"
+            decoding="async"
+          />
+          <img
+            class="residential__ups"
+            src={ups}
+            width="1536"
+            height="1024"
+            alt="UPS de respaldo"
+            loading="lazy"
+            decoding="async"
+          />
+          <dl>
+            <div>
+              <dt>4 switches PoE</dt><dd>Alimentación de equipamiento</dd>
+            </div>
+            <div><dt>1 rack mural</dt><dd>Con canal de tensión</dd></div>
+            <div><dt>UPS</dt><dd>Respaldo eléctrico</dd></div>
+          </dl>
+        </div>
+        <div class="residential__result">
+          <span>Red</span><span aria-hidden="true">·</span><span
+            >Organización y energía</span
+          >
+        </div>
+      </figure>
+    </div>
+  </div>
+</section>
+<script>
+  import { initFunctionalScenes } from "./functional-motion";
+  initFunctionalScenes(document);
+</script>
