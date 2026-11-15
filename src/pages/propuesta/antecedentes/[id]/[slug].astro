@@ -48,7 +48,7 @@ export const prerender = false;
 const id = Number(Astro.params.id);
 const { stories } = await loadStories();
 const index = stories.findIndex((c) => c.id === id);
-if (index < 0) return Astro.rewrite("/404");
+if (index < 0) return Astro.rewrite('/404');
 const c = stories[index];
 const caseDetail = publicCaseFor(c);
 const pageTitle = caseDetail?.title || c.title;
