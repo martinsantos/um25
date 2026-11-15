@@ -108,3 +108,42 @@ test.each([
   expect(scene?.asset).toBe(asset);
   expect(JSON.stringify(scene)).not.toMatch(/LED|UPS|batería/);
 });
+
+import productionIdentities from "./fixtures/catalog-production-identities.json";
+import { catalogOperationsForCase } from "../src/data/catalogCasePresentation";
+
+describe("reviewed public CMS variants", () => {
+  test.each(productionIdentities)(
+    "matches reviewed public identity $id and rejects scope changes",
+    (story) => {
+      expect(catalogPresentationFor(story)).toBeDefined();
+      for (const change of [
+        { client: "Otro cliente" },
+        { title: story.title + " otro alcance" },
+        { summary: story.summary + " Se excluye todo el equipamiento." },
+      ]) {
+        expect(catalogPresentationFor({ ...story, ...change })).toBeUndefined();
+      }
+    },
+  );
+  test.each([
+    [3176, "drive-v2"],
+    [3334, "drive-v2"],
+    [3622, "server"],
+    [3376, "desktop"],
+  ])("equipment in %s is not inferred from a legacy category", (id, asset) => {
+    const story = productionIdentities.find((r) => r.id === id)!;
+    expect(catalogSceneForCase(story)?.asset).toBe(asset);
+    expect(catalogOperationsForCase(story)).toBeUndefined();
+    expect(
+      caseEquipmentFor(story).partes.some((p) =>
+        ["camara", "central"].includes(p.key),
+      ),
+    ).toBe(false);
+  });
+  test("webcams and barcode readers do not imply a software implementation", () => {
+    const story = productionIdentities.find((r) => r.id === 3604)!;
+    expect(catalogOperationsForCase(story)).toBeUndefined();
+    expect(catalogSceneForCase(story)).toBeUndefined();
+  });
+});
