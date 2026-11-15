@@ -1,0 +1,468 @@
+.equipment-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 40px;
+  margin-bottom: 28px;
+}
+.equipment-heading > div > p {
+  color: var(--ink-3);
+  margin-bottom: 12px;
+}
+.equipment-heading h2 {
+  font-size: clamp(1.75rem, 3.1vw, 2.65rem);
+  line-height: 1.1;
+  max-width: 24ch;
+}
+.equipment-heading > p {
+  color: var(--ink-2);
+  max-width: 47ch;
+  line-height: 1.55;
+}
+.equipment-detail {
+  margin: 0;
+  --equipment-accent: #ad282b;
+}
+.equipment-detail__stage {
+  position: relative;
+  overflow: hidden;
+  background: #e6e9e8;
+  color: #20292b;
+  isolation: isolate;
+}
+.equipment-detail__label {
+  position: absolute;
+  left: 28px;
+  top: 24px;
+  z-index: 4;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.equipment-detail img {
+  display: block;
+}
+.duct {
+  position: relative;
+  height: 500px;
+}
+.duct__assembly {
+  position: absolute;
+  width: min(86%, 740px);
+  aspect-ratio: 3 / 2;
+  left: 50%;
+  top: 5px;
+  transform: translateX(-50%);
+}
+.duct__lid,
+.duct__base {
+  position: absolute;
+  inset: 0;
+}
+.duct__lid {
+  z-index: 2;
+  clip-path: inset(0 0 50%);
+}
+.duct__base {
+  clip-path: inset(50% 0 0);
+}
+.duct__assembly img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.duct__access {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  transform: translate(-50%, -50%);
+  font-size: 0.8rem;
+  opacity: 0;
+  z-index: 3;
+  white-space: nowrap;
+}
+.duct__legend,
+.barcode__route {
+  position: absolute;
+  bottom: 26px;
+  left: 28px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.8125rem;
+}
+.duct__legend i,
+.barcode__route > i {
+  flex: 1;
+  height: 1px;
+  background: #aeb8b5;
+  position: relative;
+  overflow: hidden;
+}
+.equipment-detail[data-state="running"] .duct__lid {
+  animation: duct-open 4.8s cubic-bezier(0.22, 0.6, 0.28, 1) both;
+}
+.equipment-detail[data-state="running"] .duct__base {
+  animation: duct-reveal 4.8s cubic-bezier(0.22, 0.6, 0.28, 1) both;
+}
+.equipment-detail[data-state="running"] .duct__access {
+  animation: duct-label 4.8s ease both;
+}
+@keyframes duct-open {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  30%,
+  64% {
+    transform: translateY(-7%);
+  }
+}
+@keyframes duct-reveal {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  30%,
+  64% {
+    transform: translateY(5%);
+  }
+}
+@keyframes duct-label {
+  0%,
+  15%,
+  100% {
+    opacity: 0;
+  }
+  30%,
+  64% {
+    opacity: 1;
+  }
+}
+.videowall {
+  padding: 24px 28px 22px;
+}
+.videowall__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 26px;
+}
+.videowall__grid {
+  width: min(82%, 720px);
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  filter: drop-shadow(0 10px 10px #19242424);
+}
+.videowall__panel {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1.69;
+  background: #303332;
+  border-radius: 1px;
+}
+.videowall__panel > img {
+  position: absolute;
+  width: 127.15%;
+  max-width: none;
+  left: -13.4%;
+  top: -21%;
+}
+.videowall__screen {
+  position: absolute;
+  inset: 1.6% 1.1% 1.8%;
+  overflow: hidden;
+  background: #222827;
+}
+.videowall__canvas {
+  position: absolute;
+  width: 202.2%;
+  height: 203.4%;
+  left: calc(var(--column) * -102.2%);
+  top: calc(var(--row) * -103.4%);
+  background-image: var(--wall-content);
+  background-size: cover;
+  background-position: center;
+}
+.videowall__screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #ffffff16, transparent 50%, #00000010);
+  pointer-events: none;
+}
+.videowall__key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 22px;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+.videowall__key i {
+  width: 40px;
+  height: 1px;
+  background: #aeb8b5;
+}
+.equipment-detail[data-state="running"] .videowall__screen {
+  animation: wall-content 4.8s ease both;
+}
+.equipment-detail[data-state="running"] .videowall__panel {
+  animation: wall-align 4.8s cubic-bezier(0.22, 0.6, 0.28, 1) both;
+}
+@keyframes wall-content {
+  0%,
+  10% {
+    opacity: 0.08;
+  }
+  40%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes wall-align {
+  0%,
+  12% {
+    transform: translate(
+      calc((var(--column) * 2 - 1) * 7px),
+      calc((var(--row) * 2 - 1) * 7px)
+    );
+  }
+  65%,
+  100% {
+    transform: translate(0, 0);
+  }
+}
+.barcode {
+  position: relative;
+  height: 420px;
+}
+.barcode__reader {
+  position: absolute;
+  width: 58%;
+  max-width: 620px;
+  top: 16px;
+  left: -2%;
+  mask-image:
+    linear-gradient(to right, transparent, black 10%, black 85%, transparent),
+    linear-gradient(to bottom, transparent, black 8%, black 80%, transparent);
+  mask-composite: intersect;
+}
+.barcode__ticket {
+  position: absolute;
+  width: 34%;
+  right: 6%;
+  top: 100px;
+  padding: 24px;
+  background: #fafbf9;
+  box-shadow: 0 3px 9px #14262112;
+}
+.barcode__ticket > span {
+  display: block;
+  font-size: 0.8125rem;
+  margin-bottom: 18px;
+}
+.barcode__bars {
+  display: flex;
+  position: relative;
+  height: 85px;
+  gap: 3px;
+  padding: 8px 10px;
+  overflow: hidden;
+}
+.barcode__bars > i {
+  flex: var(--bar-width);
+  background: #252f30;
+}
+.barcode__bars > b {
+  position: absolute;
+  height: 2px;
+  left: 0;
+  right: 0;
+  top: 50%;
+  background: var(--equipment-accent);
+  opacity: 0;
+}
+.barcode__result {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #d9dfdc;
+  font-size: 0.875rem;
+}
+.barcode__result > i {
+  display: flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #5d766e;
+  color: #344f45;
+  border-radius: 50%;
+  font-style: normal;
+}
+.barcode__route > i::after {
+  content: "";
+  display: block;
+  width: 14%;
+  height: 100%;
+  background: var(--equipment-accent);
+  opacity: 0;
+}
+.equipment-detail[data-state="running"] .barcode__bars > b {
+  animation: barcode-scan 4.8s ease both;
+}
+.equipment-detail[data-state="running"] .barcode__result {
+  animation: barcode-result 4.8s ease both;
+}
+.equipment-detail[data-state="running"] .barcode__route > i::after {
+  animation: barcode-data 4.8s ease both;
+}
+@keyframes barcode-scan {
+  0%,
+  15% {
+    transform: translateY(-38px);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  55% {
+    transform: translateY(38px);
+    opacity: 1;
+  }
+  65%,
+  100% {
+    transform: translateY(38px);
+    opacity: 0;
+  }
+}
+@keyframes barcode-result {
+  0%,
+  55% {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  70%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes barcode-data {
+  0%,
+  65% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  70% {
+    opacity: 1;
+  }
+  90% {
+    transform: translateX(710%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(710%);
+    opacity: 0;
+  }
+}
+@media (max-width: 767px) {
+  .equipment-heading {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+  .equipment-heading h2 {
+    max-width: 22ch;
+  }
+  .equipment-detail__label {
+    top: 20px;
+    left: 20px;
+  }
+  .duct {
+    height: 330px;
+  }
+  .duct__assembly {
+    width: 100%;
+    top: 48px;
+  }
+  .duct__access {
+    font-size: 0.6875rem;
+  }
+  .duct__legend,
+  .barcode__route {
+    bottom: 22px;
+    left: 20px;
+    right: 20px;
+    font-size: 0.75rem;
+    gap: 10px;
+  }
+  .videowall {
+    padding: 20px 16px;
+  }
+  .videowall__meta {
+    font-size: 0.75rem;
+    gap: 12px;
+    margin-bottom: 30px;
+  }
+  .videowall__grid {
+    width: 100%;
+    gap: 2px;
+  }
+  .videowall__key {
+    margin-top: 26px;
+  }
+  .videowall__key i {
+    width: 24px;
+  }
+  .barcode {
+    height: 430px;
+  }
+  .barcode__reader {
+    width: 87%;
+    left: -15%;
+    top: 30px;
+  }
+  .barcode__ticket {
+    width: 58%;
+    right: 6%;
+    top: 195px;
+    padding: 18px;
+  }
+  .barcode__ticket > span {
+    font-size: 0.75rem;
+    margin-bottom: 12px;
+  }
+  .barcode__bars {
+    height: 54px;
+    gap: 2px;
+    padding: 4px;
+  }
+  .barcode__result {
+    font-size: 0.75rem;
+    margin-top: 14px;
+    padding-top: 10px;
+    gap: 6px;
+  }
+  .barcode__result > i {
+    width: 20px;
+    height: 20px;
+  }
+  .barcode__route {
+    bottom: 18px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .equipment-detail *,
+  .equipment-detail *::after {
+    animation: none !important;
+  }
+}

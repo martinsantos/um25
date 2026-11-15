@@ -1,0 +1,180 @@
+---
+import duct from "../../assets/equipment-details/cable-duct-parts.webp?url";
+import landscape from "../../assets/equipment-details/videowall-landscape.webp?url";
+import panel from "../../assets/equipment-details/videowall-panel.webp?url";
+import scanner from "../../assets/intervention-scenes/usb-scanner.webp?url";
+import type { EquipmentDetailContent } from "../../data/equipmentDetailScenes";
+import "../../styles/functional-scene.css";
+import "../../styles/equipment-detail.css";
+interface Props {
+  content: EquipmentDetailContent;
+}
+const { content } = Astro.props;
+const bars = [2, 1, 3, 1, 1, 2, 4, 1, 2, 1, 3, 2, 1, 4, 1, 2, 2, 1, 3, 1, 2, 1];
+---
+
+<section class="sec" id="flujo" aria-labelledby="equipment-detail-heading">
+  <div class="wrap">
+    <header class="equipment-heading">
+      <div>
+        <p>{content.kicker}</p><h2 id="equipment-detail-heading">
+          {content.title}
+        </h2>
+      </div>
+      <p>{content.description}</p>
+    </header>
+    <figure
+      class:list={["equipment-detail", `equipment-detail--${content.kind}`]}
+      data-functional-scene={content.kind}
+      data-state="complete"
+      data-phase="2"
+    >
+      <div
+        class="equipment-detail__stage"
+        data-functional-stage
+        role="img"
+        aria-label={content.accessible}
+      >
+        {
+          content.kind === "cable-duct" ? (
+            <div class="duct" aria-hidden="true">
+              <span class="equipment-detail__label">Base + tapa</span>
+              <div class="duct__assembly">
+                <div class="duct__lid">
+                  <img
+                    src={duct}
+                    width="1536"
+                    height="1024"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                <div class="duct__base">
+                  <img
+                    src={duct}
+                    width="1536"
+                    height="1024"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                <span class="duct__access">Acceso al interior</span>
+              </div>
+              <div class="duct__legend">
+                <>
+                  <span>Tapa separable</span>
+                  <i />
+                  <span>Perfil de canalización</span>
+                </>
+              </div>
+            </div>
+          ) : content.kind === "videowall" ? (
+            <div
+              class="videowall"
+              aria-hidden="true"
+              style={`--wall-content:url('${landscape}')`}
+            >
+              <div class="videowall__meta">
+                <>
+                  <span>Composición conjunta</span>
+                  <span>4 × 55″</span>
+                </>
+              </div>
+              <div class="videowall__grid">
+                {[0, 1, 2, 3].map((part) => (
+                  <div
+                    class="videowall__panel"
+                    style={`--column:${part % 2};--row:${Math.floor(part / 2)};--screen:${part}`}
+                  >
+                    <img
+                      src={panel}
+                      width="1536"
+                      height="1024"
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <div class="videowall__screen">
+                      <div class="videowall__canvas" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div class="videowall__key">
+                <>
+                  <span>01</span>
+                  <i />
+                  <span>02</span>
+                  <i />
+                  <span>03</span>
+                  <i />
+                  <span>04</span>
+                </>
+              </div>
+            </div>
+          ) : (
+            <div class="barcode" aria-hidden="true">
+              <span class="equipment-detail__label">Lectura → dato</span>
+              <img
+                class="barcode__reader"
+                src={scanner}
+                width="1536"
+                height="1024"
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+              <div class="barcode__ticket">
+                <span>Patrón de identificación</span>
+                <div class="barcode__bars">
+                  {bars.map((width) => (
+                    <i style={`--bar-width:${width}`} />
+                  ))}
+                  <b />
+                </div>
+                <div class="barcode__result">
+                  <>
+                    <i>✓</i>
+                    <span>Lectura recibida</span>
+                  </>
+                </div>
+              </div>
+              <div class="barcode__route">
+                <>
+                  <span>Información</span>
+                  <i />
+                  <span>Equipo receptor</span>
+                </>
+              </div>
+            </div>
+          )
+        }
+      </div>
+      <figcaption class="fs__caption">
+        <ol aria-label="Recorrido del detalle">
+          {
+            content.steps.map(([title, description], i) => (
+              <li data-functional-step={i}>
+                <>
+                  <span class="fs__step-number">0{i + 1}</span>
+                  <div>
+                    <>
+                      <strong>{title}</strong>
+                      <p>{description}</p>
+                    </>
+                  </div>
+                </>
+              </li>
+            ))
+          }
+        </ol>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+<script>
+  import { initFunctionalScenes } from "./functional-motion";
+  initFunctionalScenes(document);
+</script>
