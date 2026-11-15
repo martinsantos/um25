@@ -96,7 +96,8 @@ export const CASOS_DESTACADOS: readonly CasoDestacado[] = [
     introduction: 'El complejo de departamentos DTP Marqués combina portería IP y CCTV con estaciones interiores, cámaras analógicas, switches PoE, grabación y UPS.',
     scope: [
       'Sistema de portería IP para el complejo de departamentos.',
-      'CCTV con switches PoE, DVR y cámaras analógicas.',
+      'CCTV con 13 cámaras analógicas y un DVR de 16 canales.',
+      'Cuatro switches PoE para alimentación de equipamiento.',
       'Rack mural con canal de tensión y UPS.',
     ],
     evidence: [

@@ -20,11 +20,13 @@ import caseImageDescriptions from "../../../../data/casePhotoAlt.json";
 import { photographForCase } from "../../../../data/photography";
 import CasoEnDetalle from "../../../../components/proto/CasoEnDetalle.astro";
 import CatalogScene from "../../../../components/proto/CatalogScene.astro";
+import ResidentialIntegration from "../../../../components/proto/ResidentialIntegration.astro";
 import EquipmentDetailSection from "../../../../components/proto/EquipmentDetailSection.astro";
 import { equipmentDetailForCase } from "../../../../data/equipmentDetailScenes";
 import InterventionSection from "../../../../components/proto/InterventionSection.astro";
 import { interventionSceneForCase } from "../../../../data/interventionScenes";
 import {
+  catalogPresentationFor,
   catalogSceneForCase,
   catalogOperationsForCase,
 } from "../../../../data/catalogCasePresentation";
@@ -102,6 +104,7 @@ const operationsScene =
 const connectionScene = connectionSceneForCase(c);
 const interventionScene = interventionSceneForCase(c);
 const equipmentScene = equipmentDetailForCase(c);
+const residentialScene = c.id === 3588 && Boolean(catalogPresentationFor(c));
 const catalogScene =
   c.id === 3082 || technicalScene || operationsScene || connectionScene
     ? undefined
@@ -498,7 +501,9 @@ const seoTitle = caseSeo.title.includes(ref)
         }
       </>
       {
-        equipmentScene ? (
+        residentialScene ? (
+          <ResidentialIntegration />
+        ) : equipmentScene ? (
           <EquipmentDetailSection content={equipmentScene} />
         ) : interventionScene ? (
           <InterventionSection content={interventionScene} />
