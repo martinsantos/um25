@@ -1,7 +1,7 @@
 import { catalogPresentationFor } from "./catalogCasePresentation";
 
 export type EquipmentDetailContent = {
-  kind: "cable-duct" | "videowall" | "barcode";
+  kind: "cable-duct" | "videowall" | "barcode" | "siren";
   kicker: string;
   title: string;
   description: string;
@@ -10,6 +10,36 @@ export type EquipmentDetailContent = {
 };
 
 const scenes: Record<number, EquipmentDetailContent> = {
+  3568: {
+    kind: "siren",
+    kicker: "Aviso en campo de vuelo · UM-3568",
+    title: "Un aviso en el campo de vuelo.",
+    description:
+      "Montaje de sirenas y avisos de emergencia en campo de vuelo. El detalle sigue la activación de una sirena hasta la emisión del aviso sonoro.",
+    accessible:
+      "Una señal de activación llega a una sirena de exterior. Tres frentes de onda salen de la boca del dispositivo y se expanden hacia el entorno. La escena no reproduce sonido.",
+    steps: [
+      ["Activación", "La señal inicia el aviso."],
+      ["Emisión", "El dispositivo produce el sonido."],
+      ["Entorno", "El aviso sonoro se propaga desde la sirena."],
+    ],
+  },
+
+  3292: {
+    kind: "siren",
+    kicker: "Aviso en el perímetro · UM-3292",
+    title: "Una señal que se hace escuchar.",
+    description:
+      "La sirena exterior convierte su activación en un aviso sonoro. El detalle sigue esa transición: de la señal de entrada a la emisión hacia el entorno.",
+    accessible:
+      "Una señal de activación llega a una sirena de exterior. Tres frentes de onda salen de la boca del dispositivo y se expanden hacia el entorno. La escena no reproduce sonido.",
+    steps: [
+      ["Activación", "La señal inicia el aviso."],
+      ["Emisión", "El dispositivo produce el sonido."],
+      ["Entorno", "El aviso sonoro se propaga desde la sirena."],
+    ],
+  },
+
   3602: {
     kind: "cable-duct",
     kicker: "Canalización · UM-3602",
