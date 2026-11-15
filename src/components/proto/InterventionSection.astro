@@ -1,0 +1,201 @@
+---
+import webcam from "../../assets/intervention-scenes/usb-webcam.webp?url";
+import scanner from "../../assets/intervention-scenes/usb-scanner.webp?url";
+import pipe from "../../assets/intervention-scenes/red-pipe-joint.webp?url";
+import flange from "../../assets/intervention-scenes/flange-parts.webp?url";
+import type { InterventionContent } from "../../data/interventionScenes";
+import "../../styles/functional-scene.css";
+import "../../styles/intervention-scene.css";
+interface Props {
+  content: InterventionContent;
+}
+const { content } = Astro.props;
+const bars = [2, 1, 3, 1, 1, 2, 4, 1, 2, 1, 3, 2, 1, 4, 1, 2, 2, 1, 3, 1, 2, 1];
+---
+
+<section class="sec" id="flujo" aria-labelledby="intervention-heading">
+  <div class="wrap">
+    <header class="intervention-heading">
+      <div>
+        <p>{content.kicker}</p><h2 id="intervention-heading">
+          {content.title}
+        </h2>
+      </div>
+      <p>{content.description}</p>
+    </header>
+    <figure
+      class:list={["intervention", `intervention--${content.kind}`]}
+      data-functional-scene={content.kind}
+      data-state="complete"
+      data-phase="2"
+    >
+      <div
+        class="intervention__stage"
+        data-functional-stage
+        role="img"
+        aria-label={content.accessible}
+      >
+        {
+          content.kind === "peripherals" ? (
+            <div class="peripherals" aria-hidden="true">
+              <div class="peripherals__camera">
+                <span class="intervention__eyebrow">Captura de imagen</span>
+                <img
+                  src={webcam}
+                  width="1536"
+                  height="1024"
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div class="peripherals__frame">
+                  <>
+                    <i />
+                    <i />
+                    <i />
+                    <i />
+                  </>
+                </div>
+                <div class="peripherals__status">
+                  <span /> Cámara web
+                </div>
+              </div>
+              <div class="peripherals__reader">
+                <span class="intervention__eyebrow">Lectura de códigos</span>
+                <img
+                  src={scanner}
+                  width="1536"
+                  height="1024"
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div class="peripherals__card">
+                  <div class="peripherals__bars">
+                    {bars.map((width) => (
+                      <i style={`--bar-width:${width}`} />
+                    ))}
+                  </div>
+                  <span>Código de identificación</span>
+                  <i class="peripherals__scan" />
+                </div>
+                <div class="peripherals__readout">
+                  <>
+                    <span class="peripherals__tick">✓</span>
+                    <span>Dato recibido</span>
+                    <i />
+                  </>
+                </div>
+              </div>
+            </div>
+          ) : content.kind === "pipe-repair" ? (
+            <div
+              class="pipe-detail"
+              aria-hidden="true"
+              style={`--pipe-image:url('${pipe}')`}
+            >
+              <span class="intervention__eyebrow">
+                Tubería · punto de intervención
+              </span>
+              <img
+                src={pipe}
+                width="1536"
+                height="1024"
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+              <div class="pipe-detail__locator">
+                <>
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                </>
+              </div>
+              <div class="pipe-detail__water">
+                <>
+                  <i />
+                  <i />
+                  <i />
+                </>
+              </div>
+              <div class="pipe-detail__loupe">
+                <>
+                  <div />
+                  <span>Detalle de la unión</span>
+                </>
+              </div>
+              <div class="pipe-detail__baseline">
+                <>
+                  <span>Red</span>
+                  <i />
+                  <span>Unión</span>
+                  <i />
+                  <span>Continuidad</span>
+                </>
+              </div>
+            </div>
+          ) : (
+            <div class="flange-detail" aria-hidden="true">
+              <span class="intervention__eyebrow">Plano de contacto</span>
+              <div class="flange-detail__axis" />
+              <div class="flange-detail__pieces">
+                {[0, 1, 2].map((part) => (
+                  <div
+                    class={`flange-detail__part flange-detail__part--${part}`}
+                  >
+                    <div class="flange-detail__crop">
+                      <img
+                        src={flange}
+                        width="1536"
+                        height="1024"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        style={`--part:${part}`}
+                      />
+                    </div>
+                    <span>
+                      {["Cara de unión", "Junta", "Cara de unión"][part]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div class="flange-detail__contact">
+                <>
+                  <i />
+                  <span>Superficies alineadas</span>
+                  <i />
+                </>
+              </div>
+            </div>
+          )
+        }
+      </div>
+      <figcaption class="fs__caption">
+        <ol aria-label="Recorrido del detalle">
+          {
+            content.steps.map(([title, description], i) => (
+              <li data-functional-step={i}>
+                <>
+                  <span class="fs__step-number">0{i + 1}</span>
+                  <div>
+                    <>
+                      <strong>{title}</strong>
+                      <p>{description}</p>
+                    </>
+                  </div>
+                </>
+              </li>
+            ))
+          }
+        </ol>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+<script>
+  import { initFunctionalScenes } from "./functional-motion";
+  initFunctionalScenes(document);
+</script>
