@@ -3,7 +3,7 @@ import "../../../../styles/case-presentation.css";
 /**
  * Ficha de trabajo (2026-10-31). Cada antecedente como hoja de trabajo: cabecera con la referencia
  * UM, la imagen y los datos; alcance documentado, inventario y sistemas; y otros proyectos del
- * mismo cliente identificado y del mismo sector. 
+ * mismo cliente identificado y del mismo sector.
  */
 import "../../../../styles/proto-despiece.css";
 import Head from "../../../../components/proto/Head.astro";
@@ -20,6 +20,8 @@ import caseImageDescriptions from "../../../../data/casePhotoAlt.json";
 import { photographForCase } from "../../../../data/photography";
 import CasoEnDetalle from "../../../../components/proto/CasoEnDetalle.astro";
 import CatalogScene from "../../../../components/proto/CatalogScene.astro";
+import EquipmentDetailSection from "../../../../components/proto/EquipmentDetailSection.astro";
+import { equipmentDetailForCase } from "../../../../data/equipmentDetailScenes";
 import InterventionSection from "../../../../components/proto/InterventionSection.astro";
 import { interventionSceneForCase } from "../../../../data/interventionScenes";
 import {
@@ -99,6 +101,7 @@ const operationsScene =
   operationsSceneForCase(c) || catalogOperationsForCase(c);
 const connectionScene = connectionSceneForCase(c);
 const interventionScene = interventionSceneForCase(c);
+const equipmentScene = equipmentDetailForCase(c);
 const catalogScene =
   c.id === 3082 || technicalScene || operationsScene || connectionScene
     ? undefined
@@ -459,7 +462,7 @@ const seoTitle = caseSeo.title.includes(ref)
       <>
         {caseDetail && <CasoEnDetalle caso={caseDetail} original={c.summary} />}
         {
-          scope.partes.length > 0 && !interventionScene && (
+          scope.partes.length > 0 && !interventionScene && !equipmentScene && (
             <section class="sec" id={c.id === 3082 ? "alcance" : undefined}>
               <div class="wrap">
                 <div class="sec__head">
@@ -495,7 +498,9 @@ const seoTitle = caseSeo.title.includes(ref)
         }
       </>
       {
-        interventionScene ? (
+        equipmentScene ? (
+          <EquipmentDetailSection content={equipmentScene} />
+        ) : interventionScene ? (
           <InterventionSection content={interventionScene} />
         ) : connectionScene ? (
           <ConnectionSection content={connectionScene} />
