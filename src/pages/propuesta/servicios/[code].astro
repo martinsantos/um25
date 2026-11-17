@@ -217,8 +217,6 @@ const cierre = cierrePorServicio[code];
       </div>
     </section>
 
-    {!security && (operationsScene ? <OperationsSection content={operationsScene} /> : technicalScene ? <TechnicalSection content={technicalScene} /> : functionalPilot ? <FunctionalSection code={code} /> : <FlowSection flow={flowForService(code)} />)}
-
     {provision.length > 0 && (
       <Provision
         items={provision}
@@ -227,7 +225,7 @@ const cierre = cierrePorServicio[code];
         {servicio.capabilities.length > 0 && <details class="technical-scope"><summary>Especificaciones adicionales</summary><ul class="lista">{servicio.capabilities.map((c) => <li>{c}</li>)}</ul></details>}
       </Provision>
     )}
-    {security && <FunctionalSection code={code} />}
+    {operationsScene ? <OperationsSection content={operationsScene} /> : technicalScene ? <TechnicalSection content={technicalScene} /> : functionalPilot ? <FunctionalSection code={code} /> : <FlowSection flow={flowForService(code)} />}
     {code === '104' && <SoftwareExperience />}
 
     <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} selection={security ? selectedCases.slice(0, 2) : selectedCases} textOnly={code === '104'} />

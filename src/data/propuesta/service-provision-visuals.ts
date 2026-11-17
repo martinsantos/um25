@@ -73,3 +73,34 @@ const catalog = new Map(entries.map(([code, title, parts]) => [
 export function serviceProvisionParts(serviceCode: number, title: string): ProvisionPart[] {
   return catalog.get(`${serviceCode}:${title}`) || [];
 }
+
+// Name a shared illustration only when both represented functions are present.
+const sharedCaptions: Array<[string, string, string]> = [
+  ['Fibra óptica', 'Fibra y ODF', 'Fibra y distribuidores ópticos'],
+  ['Medición y documentación', 'Medición por hilo', 'Medición por hilo e informe'],
+  ['Cableado de red', 'Puntos de red', 'Cableado y puntos de red'],
+  ['Central IP', 'Integración telefónica', 'Central e integración IP'],
+  ['Telefonía IP', 'Internos y numeración', 'Internos y numeración IP'],
+  ['Análisis de procesos', 'Documentación', 'Análisis y documentación de procesos'],
+  ['Gestión de tickets', 'Gestión ITSM', 'Tickets e incidentes ITSM'],
+  ['Relevamiento e informes', 'Matriz de riesgos', 'Informe y matriz de riesgos'],
+  ['Plan y hoja de ruta', 'Arquitectura y documentación', 'Hoja de ruta y arquitectura'],
+  ['Detectores de humo', 'Detectores térmicos', 'Detectores de humo y temperatura'],
+  ['Tableros eléctricos', 'Distribución eléctrica', 'Tableros de distribución'],
+];
+const captionByLabels = new Map(sharedCaptions.map(([a, b, caption]) => [[a, b].sort().join('|'), caption]));
+
+export function groupedProvisionParts(items: Array<{ parts: ProvisionPart[] }>): ProvisionPart[] {
+  const labels = new Map<ParteKey, Set<string>>();
+  for (const item of items) {
+    for (const part of item.parts) {
+      const names = labels.get(part.key) ?? new Set<string>();
+      names.add(part.label);
+      labels.set(part.key, names);
+    }
+  }
+  return Array.from(labels, ([key, names]) => ({
+    key,
+    label: captionByLabels.get([...names].sort().join('|')) ?? [...names].join(' · '),
+  }));
+}
