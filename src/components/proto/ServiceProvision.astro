@@ -10,10 +10,9 @@ const {
   items,
   introduction = 'Productos y prestaciones del servicio. La selección de equipos, licencias, instalación y mantenimiento se define en la propuesta de cada proyecto.',
 } = Astro.props;
-const pilot = Astro.url.pathname.includes("/servicios/102");
 const blocks = groupServiceProvision(items);
 ---
-{items.length > 0 && <section class:list={["sec provision", {"provision--pilot":pilot}]} id="provision" aria-labelledby="provision-title" data-provision>
+{items.length > 0 && <section class="sec provision provision--scaled" id="provision" aria-labelledby="provision-title" data-provision>
   <div class="wrap">
     <div class="sec__head">
       <h2 id="provision-title">Qué proveemos<span class="dot">.</span></h2>
@@ -41,9 +40,9 @@ const blocks = groupServiceProvision(items);
               )}
             </div>)}
           </div>
-          {parts.length > 0 && <div class="provision__parts" aria-label={`Componentes de ${title}`}>
+          {parts.length > 0 && <div class="provision__parts" style={`--part-count:${parts.length}`} aria-label={`Componentes de ${title}`}>
             {parts.map(part => <figure data-provision-part={part.key}>
-              <Parte k={part.key} size={pilot ? 112 : 72} />
+              <Parte k={part.key} size={112} />
               <figcaption>{part.label}</figcaption>
             </figure>)}
           </div>}
@@ -54,10 +53,10 @@ const blocks = groupServiceProvision(items);
   </div>
 </section>}
 <style>
-.provision--pilot .provision__parts {background:#e3e8e6;color:#20292b;padding:24px;margin-top:24px;gap:24px;}
-.provision--pilot .provision__parts figure{align-items:center;flex:1 1 120px;max-width:none;}
-.provision--pilot .provision__parts figcaption{color:#20292b;text-align:center;}
-.provision--pilot .provision__list li{padding-block:32px;}
+.provision--scaled .provision__parts {display:grid;width:min(100%,calc(var(--part-count) * 152px + 48px));grid-template-columns:repeat(auto-fit,minmax(120px,1fr));background:#e3e8e6;color:#20292b;padding:24px;margin-top:24px;gap:24px;}
+.provision--scaled .provision__parts figure{width:auto;align-items:center;flex:1 1 120px;max-width:none;}
+.provision--scaled .provision__parts figcaption{color:#20292b;text-align:center;}
+.provision--scaled .provision__list li{padding-block:32px;}
   .provision .sec__head { max-width: 76ch; }
   .provision .sec__head p { margin-top: 16px; }
   .provision__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--s4); list-style: none; margin: 0; padding: 0; }

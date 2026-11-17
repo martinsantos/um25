@@ -324,43 +324,43 @@
   width: max-content;
 }
 .ts[data-state="running"] .ts__network-packet {
-  animation: ts-network-data 4.8s ease-in-out both;
+  animation: ts-network-data var(--scene-duration, 4.8s) ease-in-out both;
 }
 .ts[data-state="running"] .ts__port-lights {
-  animation: ts-ports 4.8s linear both;
+  animation: ts-ports var(--scene-duration, 4.8s) linear both;
 }
 .ts[data-state="running"] .ts__fiber-focus {
-  animation: ts-fiber-termination 4.8s ease both;
+  animation: ts-fiber-termination var(--scene-duration, 4.8s) ease both;
 }
 .ts--cabling[data-state="running"] .ts__network-line {
-  animation: ts-cabling 4.8s ease both;
+  animation: ts-cabling var(--scene-duration, 4.8s) ease both;
   transform-origin: left;
   background: var(--ts-accent);
 }
 .ts[data-state="running"] .ts__radio-axis {
-  animation: ts-link-align 4.8s ease both;
+  animation: ts-link-align var(--scene-duration, 4.8s) ease both;
   transform-origin: left;
 }
 .ts[data-state="running"] .ts__radio-packet--out {
-  animation: ts-radio-out 4.8s ease-in-out both;
+  animation: ts-radio-out var(--scene-duration, 4.8s) ease-in-out both;
 }
 .ts[data-state="running"] .ts__radio-packet--back {
-  animation: ts-radio-back 4.8s ease-in-out both;
+  animation: ts-radio-back var(--scene-duration, 4.8s) ease-in-out both;
 }
 .ts[data-state="running"] .ts__radio-ok {
-  animation: ts-link-status 4.8s ease both;
+  animation: ts-link-status var(--scene-duration, 4.8s) ease both;
 }
 .ts[data-state="running"] .ts__smoke {
-  animation: ts-smoke-arrives 4.8s ease both;
+  animation: ts-smoke-arrives var(--scene-duration, 4.8s) ease both;
 }
 .ts[data-state="running"] .ts__detector-led {
-  animation: ts-detector-alert 4.8s ease both;
+  animation: ts-detector-alert var(--scene-duration, 4.8s) ease both;
 }
 .ts[data-state="running"] .ts__fire-event {
-  animation: ts-event-register 4.8s ease both;
+  animation: ts-event-register var(--scene-duration, 4.8s) ease both;
 }
 .ts[data-state="running"] .ts__central-lcd i {
-  animation: ts-event-register 4.8s ease both;
+  animation: ts-event-register var(--scene-duration, 4.8s) ease both;
 }
 @keyframes ts-network-data {
   0%,
@@ -513,7 +513,7 @@
     transform: translateY(0);
   }
 }
-@media (max-width: 900px) and (min-width: 601px) {
+@container (max-width: 900px) and (min-width: 601px) {
   .ts__equipment--wide {
     height: 185px;
   }
@@ -542,7 +542,7 @@
     top: 47%;
   }
 }
-@media (max-width: 600px) {
+@container (max-width: 600px) {
   .ts__stage {
     height: 445px;
   }
