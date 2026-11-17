@@ -1,5 +1,6 @@
 /* Shared photographic stage. Motion changes equipment state, not geometry. */
 .fs {
+  container-type: inline-size;
   --fs-paper: #e3e8e6;
   --fs-ink: #20292b;
   --fs-muted: #52605f;
@@ -548,7 +549,7 @@
     opacity: 1;
   }
 }
-@media (min-width: 1441px) {
+@container (min-width: 1441px) {
   .fs__monitor {
     top: -110px;
   }
@@ -557,7 +558,7 @@
     top: 0;
   }
 }
-@media (max-width: 900px) and (min-width: 601px) {
+@container (max-width: 900px) and (min-width: 601px) {
   .fs__stage {
     height: 350px;
   }
@@ -578,7 +579,7 @@
     bottom: 80px;
   }
 }
-@media (max-width: 600px) {
+@container (max-width: 600px) {
   .fs__stage {
     height: 420px;
   }

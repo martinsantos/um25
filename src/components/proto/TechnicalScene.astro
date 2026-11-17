@@ -16,10 +16,11 @@ const network = kind === "network" || kind === "cabling";
 <figure
   class:list={["fs", "ts", `ts--${kind}`, { "ts--project": project }]}
   data-functional-scene={kind}
+  data-duration={project ? undefined : kind === "radio" ? 7600 : kind === "fire" ? 6800 : 6200}
   data-state="complete"
   data-phase="2"
   aria-label={content.title}
-  style={`--equipment:url('${equipment}');--extension:url('${extension}')`}
+  style={`--scene-duration:${project ? 4800 : kind === 'radio' ? 7600 : kind === 'fire' ? 6800 : 6200}ms;--equipment:url('${equipment}');--extension:url('${extension}')`}
 >
   <div
     class="ts__stage"
