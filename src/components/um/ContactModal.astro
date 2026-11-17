@@ -2,11 +2,11 @@
 import { Send, X } from 'lucide-astro';
 import EmailLink from '../common/EmailLink.astro';
 
-interface Props { contactQuestion?: string }
-const { contactQuestion } = Astro.props;
+interface Props { contactQuestion?: string; contactSubject?: string }
+const { contactQuestion, contactSubject } = Astro.props;
 ---
 
-<div id="umContactModal" class="um-contact-modal" hidden data-contact-modal>
+<div id="umContactModal" class="um-contact-modal" hidden data-contact-modal data-subject={contactSubject}>
   <button class="um-contact-modal__backdrop" type="button" tabindex="-1" aria-hidden="true" data-contact-close></button>
 
   <section
@@ -159,7 +159,7 @@ const { contactQuestion } = Astro.props;
 
     function inferIntent(label, path) {
       const text = `${label} ${path}`.toLowerCase();
-      if (text.includes('cctv') || text.includes('cctvai')) return 'cctvai';
+      if (text.includes('cctvai') || text.includes('cctv ai')) return 'cctvai';
       if (text.includes('presupuesto') || text.includes('cotizar') || text.includes('costo')) return 'presupuesto';
       if (text.includes('relevamiento')) return 'relevamiento';
       if (text.includes('document')) return 'documentacion';
@@ -312,15 +312,16 @@ const { contactQuestion } = Astro.props;
       setField('startedAt', String(now));
       setField('contactProof', `${now}:${Math.round(performance.now())}:${navigator.language || 'es-AR'}`);
       setField('originPath', resolved.path);
-      setField('originTitle', resolved.title);
+      setField('originTitle', modal.dataset.subject ? readPageHeading() : resolved.title);
       setField('originLabel', resolved.label);
       setField('originIntent', resolved.intent);
       setField('originHref', resolved.href);
 
       if (contextBox instanceof HTMLElement) contextBox.hidden = false;
-      if (contextTitle) contextTitle.textContent = intentLabels[resolved.intent] || intentLabels.general;
+      if (contextTitle) contextTitle.textContent = modal.dataset.subject || intentLabels[resolved.intent] || intentLabels.general;
       if (contextDetail) {
         const displayTitle = readPageHeading().replace(/[.。]+$/, '').split('|')[0].trim();
+        contextDetail.hidden = modal.dataset.subject === displayTitle;
         contextDetail.textContent = resolved.path === '/' ? 'Desde la página de inicio' : `Desde ${displayTitle}`;
       }
 

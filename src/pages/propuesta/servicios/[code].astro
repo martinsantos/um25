@@ -6,6 +6,7 @@ import Top from '../../../components/proto/Top.astro';
 import DeviceExploded from '../../../components/proto/DeviceExploded.astro';
 import SoftwareExperience from '../../../components/proto/SoftwareExperience.astro';
 import ServiceEditorialHero from '../../../components/proto/ServiceEditorialHero.astro';
+import SecurityProvision from '../../../components/proto/SecurityProvision.astro';
 import ServiceProvision from '../../../components/proto/ServiceProvision.astro';
 import FlowSection from '../../../components/proto/FlowSection.astro';
 import FunctionalSection from '../../../components/proto/FunctionalSection.astro';
@@ -48,7 +49,8 @@ const technicalScene = technicalSceneForService(code);
 const operationsScene = operationsSceneForService(code);
 const editorial = ['104', '105', '106'].includes(code) || functionalPilot || Boolean(technicalScene);
 const Hero = ServiceEditorialHero;
-const Provision = ServiceProvision;
+const security = code === '102';
+const Provision = security ? SecurityProvision : ServiceProvision;
 const pdf = getDatasheetPublicPath(spec.slug);
 const datasheetHref = pdf || `/servicios/${code}/ficha`;
 const datasheetText = pdf ? 'Descargar ficha técnica (PDF)' : 'Ficha técnica · imprimir o guardar PDF';
@@ -215,7 +217,7 @@ const cierre = cierrePorServicio[code];
       </div>
     </section>
 
-    {operationsScene ? <OperationsSection content={operationsScene} /> : technicalScene ? <TechnicalSection content={technicalScene} /> : functionalPilot ? <FunctionalSection code={code} /> : <FlowSection flow={flowForService(code)} />}
+    {!security && (operationsScene ? <OperationsSection content={operationsScene} /> : technicalScene ? <TechnicalSection content={technicalScene} /> : functionalPilot ? <FunctionalSection code={code} /> : <FlowSection flow={flowForService(code)} />)}
 
     {provision.length > 0 && (
       <Provision
@@ -225,10 +227,12 @@ const cierre = cierrePorServicio[code];
         {servicio.capabilities.length > 0 && <details class="technical-scope"><summary>Especificaciones adicionales</summary><ul class="lista">{servicio.capabilities.map((c) => <li>{c}</li>)}</ul></details>}
       </Provision>
     )}
+    {security && <FunctionalSection code={code} />}
     {code === '104' && <SoftwareExperience />}
 
-    <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} selection={selectedCases} textOnly={code === '104'} />
+    <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} selection={security ? selectedCases.slice(0, 2) : selectedCases} textOnly={code === '104'} />
 
+    {security && <div class="wrap"><a class="u more" href={archiveHref}>{archiveText} →</a></div>}
     <section class="sec" id="metodo">
       <div class="wrap cols cols-5-7">
         <h2>Cómo lo hacemos<span class="dot">.</span></h2>
@@ -259,7 +263,7 @@ const cierre = cierrePorServicio[code];
       </section>
     )}
 
-    {clientes.length > 0 && (
+    {!security && clientes.length > 0 && (
       <section class="sec">
         <div class="wrap">
           <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2></div>
@@ -274,7 +278,7 @@ const cierre = cierrePorServicio[code];
       </section>
     )}
 
-    {bySector.length > 0 && (
+    {!security && bySector.length > 0 && (
       <section class="sec">
         <div class="wrap">
           <div class="item">
@@ -285,7 +289,7 @@ const cierre = cierrePorServicio[code];
       </section>
     )}
 
-    {showProjectArchive && (
+    {!security && showProjectArchive && (
       <section class="sec">
         <div class="wrap">
           <div class="sec__head"><h2>Más proyectos de {lower}<span class="dot">.</span></h2></div>
@@ -298,7 +302,7 @@ const cierre = cierrePorServicio[code];
 
     </main>
 
-    <Cierre heading={cierre?.heading} description={cierre?.description} ctaText={cierre?.ctaText} contactQuestion={cierre?.contactQuestion} />
+    <Cierre contactSubject={servicio.name} heading={cierre?.heading} description={cierre?.description} ctaText={cierre?.ctaText} contactQuestion={cierre?.contactQuestion} />
 
 
   </body>
