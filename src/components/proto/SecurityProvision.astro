@@ -1,0 +1,59 @@
+---
+import Parte from './Parte.astro';
+import { groupServiceProvision, type ServiceProvisionItem } from '../../utils/serviceProvision';
+interface Props { items: ServiceProvisionItem[] }
+const blocks = groupServiceProvision(Astro.props.items);
+const related = new Set(['Sistema de Detección de Incendios', 'Panel Central de Alarma SDI', 'Estaciones Manuales de Alarma']);
+const fire = blocks.filter(block => related.has(block.title));
+const systems = blocks.filter(block => !related.has(block.title)).map(block => ({
+  ...block,
+  integration: false,
+}));
+if (fire.length) systems.push({
+  title: 'Integración con detección de incendios',
+  members: fire.flatMap(block => block.members),
+  parts: [...new Map(fire.flatMap(block => block.parts).map(part => [part.key, part])).values()],
+  integration: true,
+});
+---
+<section id="provision" class="sec" data-provision aria-labelledby="provision-title">
+  <div class="wrap">
+    <h2 id="provision-title">Qué proveemos<span class="dot">.</span></h2>
+    <div class="systems">
+      {systems.map((system, index) => <details open={index === 0}>
+        <summary>{system.title}</summary>
+        <div class="system-body">
+          <div class="parts" aria-label={`Componentes de ${system.title}`}>
+            {system.parts.map(part => <figure data-provision-part={part.key}>
+              <Parte k={part.key} size={96} /><figcaption>{part.label}</figcaption>
+            </figure>)}
+          </div>
+          <div class="scope">
+            {system.members.map(member => <div data-provision-item>
+              {system.members.length > 1 && <h3>{member.group?.heading || member.title}</h3>}
+              <p>{member.summary}</p>
+              {member.scopeDetail && <p><strong>{member.scopeDetail.label}</strong> · {member.scopeDetail.text}</p>}
+            </div>)}
+            {system.integration && <a class="u" href="/servicios/107#provision">Ver el servicio de incendios →</a>}
+          </div>
+        </div>
+      </details>)}
+    </div>
+    <slot />
+  </div>
+</section>
+<style>
+  .systems { margin-top:var(--s3); border-bottom:1px solid var(--line); }
+  .systems details { border-top:1px solid var(--line); }
+  summary { cursor:pointer; padding:18px 4px; font-size:1.2rem; font-weight:600; }
+  summary::marker { color:var(--ink-2); font-size:.85em; }
+  summary:focus-visible { outline:2px solid currentColor; outline-offset:2px; }
+  .system-body { display:grid; grid-template-columns:1fr 1fr; gap:var(--s4); padding-bottom:var(--s3); align-items:start; }
+  .parts { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(110px,100%),1fr)); gap:14px; padding:16px; background:#e3e8e6; color:#20292b; }
+  figure { display:grid; justify-items:center; align-content:start; margin:0; }
+  figcaption { text-align:center; font-size:.95rem; line-height:1.3; }
+  .scope { display:grid; gap:16px; max-width:60ch; }
+  .scope h3 { font-size:1.05rem; }
+  .scope p { color:var(--ink-2); margin:4px 0 0; line-height:1.5; }
+  @media(max-width:720px) { .system-body { grid-template-columns:1fr; gap:16px; } }
+</style>

@@ -137,11 +137,14 @@ const frentes = NAV_SERVICES.map((servicio) => {
     .fila { padding-inline:6px; }
     .alcance { padding:12px; }
   }
-  @media(max-width:359px) {
+  @media(max-width:560px) {
     .mesa { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .mesa { column-gap:8px; }
+    .fila .icono { flex:none; }
+    .corto { min-width:0; overflow-wrap:anywhere; }
     .panel { grid-row:5; }
     .opcion { grid-row:var(--fila-m); grid-column:var(--col-m); }
-    .fila { flex-direction:row; justify-content:start; gap:7px; min-height:48px; padding:8px 12px; text-align:left; }
+    .fila { flex-direction:row; justify-content:start; gap:9px; min-height:54px; padding:8px 10px; text-align:left; }
     .selector:checked + .fila { box-shadow:inset 3px 0 var(--red); }
   }
 </style>
