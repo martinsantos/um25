@@ -428,19 +428,19 @@
   transform: translateX(-50%);
 }
 .fs[data-state="running"] .fs__door {
-  animation: fs-door 4.8s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: fs-door var(--scene-duration, 4.8s) cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 .fs[data-state="running"] .fs__detection {
-  animation: fs-detect 4.8s linear both;
+  animation: fs-detect var(--scene-duration, 4.8s) linear both;
 }
 .fs[data-state="running"] .fs__capture {
-  animation: fs-capture 4.8s ease-in-out both;
+  animation: fs-capture var(--scene-duration, 4.8s) ease-in-out both;
 }
 .fs[data-state="running"] .fs__timeline-fill {
-  animation: fs-record 4.8s linear both;
+  animation: fs-record var(--scene-duration, 4.8s) linear both;
 }
 .fs[data-state="running"] .fs__record-result {
-  animation: fs-result 4.8s linear both;
+  animation: fs-result var(--scene-duration, 4.8s) linear both;
 }
 .fs--energy[data-state="running"][data-phase="0"] .fs__wave-normal {
   opacity: 1;
@@ -467,7 +467,7 @@
   animation: fs-wave 1.3s linear both;
 }
 .fs--energy[data-state="running"] .fs__battery {
-  animation: fs-battery 4.8s ease both;
+  animation: fs-battery var(--scene-duration, 4.8s) ease both;
 }
 
 @keyframes fs-door {
@@ -742,3 +742,5 @@
     transition: none !important;
   }
 }
+
+.fs--security {--scene-duration:7.2s;}

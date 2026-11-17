@@ -39,6 +39,7 @@ const content = {
 <figure
   class:list={["fs", `fs--${kind}`]}
   data-functional-scene={kind === "fiber" ? undefined : kind}
+  data-duration={kind === "security" ? "7200" : undefined}
   data-state="complete"
   data-phase="2"
   aria-label={content.title}
