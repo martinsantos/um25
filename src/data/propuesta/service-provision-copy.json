@@ -16,6 +16,7 @@
     {
       "serviceCode": 101,
       "title": "Centro de Distribución de Red",
+      "group": { "title": "Racks, switches y salas técnicas", "heading": "Racks y distribución" },
       "sourceText": "🔧 Instalamos racks completos con patch panels certificados, organizadores verticales, etiquetado profesional y documentación de cada puerto.",
       "summary": "Instalamos racks, patch panels y organizadores verticales.",
       "scopeDetail": {
@@ -26,6 +27,7 @@
     {
       "serviceCode": 101,
       "title": "Cableado Estructurado Certificado",
+      "group": { "title": "Cableado y certificación", "heading": "Instalación de cableado" },
       "sourceText": "🔧 Diseñamos e instalamos redes de cableado estructurado Cat5e, Cat6 y Cat6A con certificación punto por punto y garantía del fabricante de 25 años.",
       "summary": "Diseñamos e instalamos cableado estructurado Cat5e, Cat6 y Cat6A.",
       "scopeDetail": {
@@ -37,6 +39,7 @@
     {
       "serviceCode": 101,
       "title": "Switching de Alto Rendimiento",
+      "group": { "title": "Racks, switches y salas técnicas", "heading": "Switches y configuración" },
       "sourceText": "🔧 Configuramos y mantenemos su infraestructura de switching con VLANs, QoS, redundancia y monitoreo 24/7. Soporte remoto y presencial.",
       "summary": "Configuramos y monitoreamos los switches, con soporte remoto y presencial.",
       "scopeDetail": {
@@ -47,6 +50,7 @@
     {
       "serviceCode": 101,
       "title": "Data Center Llave en Mano",
+      "group": { "title": "Racks, switches y salas técnicas", "heading": "Salas técnicas y data centers" },
       "sourceText": "🔧 Construimos data centers y cuartos de comunicaciones completos: obra civil, climatización, energía, racks, cableado y seguridad.",
       "summary": "Implementamos data centers y cuartos de comunicaciones con racks y cableado.",
       "scopeDetail": {
@@ -67,6 +71,7 @@
     {
       "serviceCode": 101,
       "title": "Certificación Profesional de Red",
+      "group": { "title": "Cableado y certificación", "heading": "Medición de enlaces" },
       "sourceText": "🔧 Certificamos instalaciones nuevas y existentes con equipos Fluke DSX. Emitimos reportes PDF individuales válidos para auditorías y activación de garantías.",
       "summary": "Medimos instalaciones nuevas y existentes con equipos Fluke DSX.",
       "scopeDetail": {
@@ -159,6 +164,7 @@
     {
       "serviceCode": 103,
       "title": "Integración Microsoft Teams",
+      "group": { "title": "Telefonía IP", "heading": "Integración telefónica con Teams" },
       "sourceText": "🔧 Configuramos Direct Routing o Operator Connect para Teams. Integración con su central existente o migración completa.",
       "summary": "Configuración de Direct Routing u Operator Connect e integración con la central existente o migración completa."
     },
@@ -197,12 +203,14 @@
     {
       "serviceCode": 104,
       "title": "Automatización de Procesos",
+      "group": { "title": "Integración y automatización", "heading": "Automatización de flujos" },
       "sourceText": "🔧 Implementamos automatizaciones con Power Automate, Zapier o desarrollo de bots a medida. Análisis de procesos incluido.",
       "summary": "Análisis de procesos y automatización con Power Automate, Zapier o bots desarrollados a medida."
     },
     {
       "serviceCode": 104,
       "title": "Integración de Sistemas",
+      "group": { "title": "Integración y automatización", "heading": "APIs y conectores" },
       "sourceText": "🔧 Desarrollamos integraciones mediante APIs, web services, ETL y conectores nativos. Documentación y soporte incluidos.",
       "summary": "Integraciones mediante APIs, servicios web, ETL y conectores, con documentación y soporte."
     },
@@ -222,12 +230,14 @@
     {
       "serviceCode": 105,
       "title": "Mantenimiento Preventivo",
+      "group": { "title": "Mantenimiento y monitoreo", "heading": "Mantenimiento programado" },
       "sourceText": "🔧 Realizamos mantenimiento programado de servidores, switches, firewalls y endpoints. Reportes y recomendaciones incluidos.",
       "summary": "Mantenimiento programado de servidores, switches, firewalls y puestos de trabajo, con reportes y recomendaciones."
     },
     {
       "serviceCode": 105,
       "title": "Monitoreo Proactivo 24/7",
+      "group": { "title": "Mantenimiento y monitoreo", "heading": "Monitoreo y alertas" },
       "sourceText": "🔧 Implementamos monitoreo con Zabbix, Nagios o herramientas enterprise. Alertas, dashboards y respuesta automatizada.",
       "summary": "Monitoreo con Zabbix, Nagios u otras herramientas, alertas, tableros y respuesta automatizada según el entorno."
     },
@@ -254,12 +264,14 @@
     {
       "serviceCode": 106,
       "title": "Planificación Estratégica IT",
+      "group": { "title": "Planificación y arquitectura", "heading": "Hoja de ruta e inversiones" },
       "sourceText": "🔧 Desarrollamos planes estratégicos IT con análisis de brechas, roadmap de inversiones y governance recomendado.",
       "summary": "Análisis de brechas, plan de inversiones, hoja de ruta y recomendaciones de gobierno IT."
     },
     {
       "serviceCode": 106,
       "title": "Arquitectura Empresarial",
+      "group": { "title": "Planificación y arquitectura", "heading": "Diseño de arquitectura" },
       "sourceText": "🔧 Aplicamos frameworks TOGAF y Zachman para diseñar su arquitectura enterprise. Documentación y governance incluidos.",
       "summary": "Diseño de arquitectura empresarial con marcos como TOGAF y Zachman, documentación y gobierno IT."
     },
@@ -279,6 +291,7 @@
     {
       "serviceCode": 107,
       "title": "Centrales de Detección Inteligentes",
+      "group": { "title": "Central, control y supervisión", "heading": "Centrales de detección" },
       "sourceText": "🔧 Instalación y puesta en marcha de centrales Honeywell, Notifier y Edwards con certificación IRAM 3517.",
       "summary": "Provisión, instalación y puesta en marcha de centrales de detección Honeywell, Notifier o Edwards, según el diseño."
     },
@@ -299,48 +312,56 @@
     {
       "serviceCode": 107,
       "title": "Pulsadores Manuales de Alarma",
+      "group": { "title": "Activación manual y aviso de alarma", "heading": "Pulsadores manuales" },
       "sourceText": "🔧 Instalación estratégica en rutas de evacuación a menos de 30 metros según normativa vigente.",
       "summary": "Instalación de pulsadores en rutas de evacuación y puntos definidos por el proyecto."
     },
     {
       "serviceCode": 107,
       "title": "Sirenas y Balizas Estroboscópicas",
+      "group": { "title": "Activación manual y aviso de alarma", "heading": "Aviso acústico y luminoso" },
       "sourceText": "🔧 Cálculo de cobertura acústica y lumínica según normas NFPA 72 y ADA.",
       "summary": "Cálculo de cobertura acústica y lumínica e instalación de sirenas y balizas según el ambiente."
     },
     {
       "serviceCode": 107,
       "title": "Módulos de Control y Supervisión",
+      "group": { "title": "Central, control y supervisión", "heading": "Módulos e integración" },
       "sourceText": "🔧 Configuración e integración con equipos de extinción y sistemas de gestión edilicia.",
       "summary": "Configuración de módulos e integración con equipos de extinción y sistemas de gestión edilicia."
     },
     {
       "serviceCode": 107,
       "title": "Detectores Especiales VESDA",
+      "group": { "title": "Detectores según el ambiente", "heading": "Detección por aspiración" },
       "sourceText": "🔧 Diseño de red de tuberías, cálculo de caudal y configuración de umbrales según riesgo.",
       "summary": "Diseño de tuberías, cálculo de caudal y configuración de umbrales de detección por aspiración."
     },
     {
       "serviceCode": 107,
       "title": "Software de Gestión y Reportes",
+      "group": { "title": "Central, control y supervisión", "heading": "Operación y reportes" },
       "sourceText": "🔧 Implementación de servidor dedicado, configuración de usuarios y capacitación al personal.",
       "summary": "Implementación del servidor, configuración de usuarios y capacitación para la gestión del sistema."
     },
     {
       "serviceCode": 108,
       "title": "Tableros Eléctricos Principales",
+      "group": { "title": "Distribución y puesta a tierra", "heading": "Tableros eléctricos" },
       "sourceText": "🔧 Diseño, fabricación, montaje y puesta en servicio con protocolo de mediciones y ensayos.",
       "summary": "Diseño, fabricación, montaje y puesta en servicio de tableros, con protocolo de mediciones y ensayos."
     },
     {
       "serviceCode": 108,
       "title": "Sistemas de Puesta a Tierra",
+      "group": { "title": "Distribución y puesta a tierra", "heading": "Puesta a tierra y medición" },
       "sourceText": "🔧 Estudio de suelo, cálculo de malla, instalación certificada y protocolo de medición con telurímetro.",
       "summary": "Estudio de suelo, cálculo de malla, instalación y protocolo de medición con telurímetro."
     },
     {
       "serviceCode": 108,
       "title": "Instalaciones Eléctricas Industriales",
+      "group": { "title": "Distribución y puesta a tierra", "heading": "Instalaciones industriales" },
       "sourceText": "🔧 Proyecto eléctrico aprobado por organismo competente, instalación según planos y ensayos de continuidad/aislación.",
       "summary": "Proyecto, instalación según planos y ensayos de continuidad y aislación, con aprobación según corresponda."
     },
@@ -367,12 +388,14 @@
     {
       "serviceCode": 108,
       "title": "Bancos de Capacitores Automáticos",
+      "group": { "title": "Medición y calidad de energía", "heading": "Corrección del factor de potencia" },
       "sourceText": "🔧 Medición de red eléctrica, cálculo de reactivo necesario, instalación y verificación de factor de potencia > 0.95.",
       "summary": "Medición de la red, cálculo de potencia reactiva, instalación y verificación del factor de potencia."
     },
     {
       "serviceCode": 108,
       "title": "Termografía y Análisis de Calidad de Energía",
+      "group": { "title": "Medición y calidad de energía", "heading": "Inspección y mediciones" },
       "sourceText": "🔧 Inspección termográfica certificada, mediciones de calidad de energía 7 días y reporte técnico con recomendaciones.",
       "summary": "Inspección termográfica, mediciones de calidad de energía y reporte técnico con recomendaciones."
     }
