@@ -25,14 +25,15 @@ export function initFunctionalScenes(root: Document) {
       seen.add(scene);
       scene.dataset["state"] = "running";
       scene.dataset["phase"] = "0";
+      const duration = Number(scene.dataset["duration"]) || 4800;
       timers.set(scene, [
         setTimeout(() => {
           scene.dataset["phase"] = "1";
-        }, 1300),
+        }, duration * 0.27),
         setTimeout(() => {
           scene.dataset["phase"] = "2";
-        }, 3100),
-        setTimeout(() => finish(scene), 4800),
+        }, duration * 0.65),
+        setTimeout(() => finish(scene), duration),
       ]);
     }
   }

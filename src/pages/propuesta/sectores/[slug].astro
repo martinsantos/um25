@@ -19,6 +19,7 @@ import { selectCaseProjects, remainingCaseProjects, pageCaseCandidates } from '.
 import Cierre from '../../../components/proto/Cierre.astro';
 import Partes from '../../../components/proto/Partes.astro';
 import SectorIntegration from '../../../components/proto/SectorIntegration.astro';
+import ConstructionPilot from '../../../components/proto/ConstructionPilot.astro';
 import { caseEquipmentFor } from '../../../components/proto/casePresentation';
 import { sectorDeclaredServices } from '../../../data/propuesta/sector-integration';
 import { getSectorBySlug } from '../../../lib/um26-directus';
@@ -93,7 +94,7 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'anteceden
  title:s.name,summary:sectorIntegrationScope(slug,s.code,s.text),
  parts:(KIT_DE_SERVICIO[s.code] || []).slice(0,3).map(([key,label])=>({key,label})),
  links:[{url:`/servicios/${s.code}#provision`,label:'Ver provisión'},...(s.count ? [{url:`/antecedentes?sector=${slug}&service=${s.code}`,label:`${s.count} antecedentes`}] : [])]
- }))}/> : <SectorIntegration slug={slug} name={name} site={site} items={displayedServices} />}
+ }))}/> : <>{slug === "constructoras" ? <ConstructionPilot items={displayedServices}/> : <SectorIntegration slug={slug} name={name} site={site} items={displayedServices}/>}</>}
 
     {clientes.length > 0 && (
       <section class="sec">

@@ -1,0 +1,24 @@
+---
+import { ChevronDown } from 'lucide-astro';
+import FunctionalScene from './FunctionalScene.astro';
+import TechnicalScene from './TechnicalScene.astro';
+import { technicalSceneForService } from '../../data/technicalScenes';
+import { sectorIntegrationScope } from '../../data/propuesta/sector-integration';
+interface Props { items: {code:string;name:string;text:string;count:number}[] }
+const {items}=Astro.props;
+---
+<section class="sec construction-pilot" id="integracion">
+ <div class="wrap">
+  <header><p class="eyebrow">Infraestructura desde la obra</p><h2>Un edificio. Sistemas que trabajan juntos<span class="dot">.</span></h2><p>Explorá cada sistema: qué conecta, cómo funciona y dónde lo implementamos.</p></header>
+  <div class="systems">
+  {items.map((item,i)=><details name="construction-system" open={i===0}>
+    <summary><span>{item.name}</span><ChevronDown size={20} aria-hidden="true"/></summary>
+    <div class="system-body"><div class="system-copy"><h3>{item.name}</h3><p>{sectorIntegrationScope('constructoras',item.code,item.text)}</p><a href={`/servicios/${item.code}#provision`}>Qué proveemos →</a>{item.count>0&&<a href={`/antecedentes?sector=constructoras&service=${item.code}`}>{item.count} antecedentes en construcción →</a>}</div>
+    <div class="system-scene">{technicalSceneForService(item.code) ? <TechnicalScene content={technicalSceneForService(item.code)!}/> : item.code==='102' ? <FunctionalScene kind="security"/> : item.code==='108' ? <FunctionalScene kind="energy"/> : <p>El alcance se define con el proyecto y se documenta para su operación y mantenimiento.</p>}</div></div>
+  </details>)}
+  </div>
+ </div>
+</section>
+<style>
+header{max-width:880px;margin-bottom:32px}header h2{max-width:22ch}header p{margin-top:16px;color:var(--ink-2)}.eyebrow{font-size:.875rem;letter-spacing:.06em}.systems{border-top:1px solid var(--line)}details{border-bottom:1px solid var(--line)}summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;min-height:68px;font-size:1.25rem;font-weight:600;padding:16px 4px}summary::-webkit-details-marker{display:none}summary:focus-visible{outline:2px solid var(--red);outline-offset:4px}details[open] summary{color:var(--red-text)}details[open] summary :global(svg){transform:rotate(180deg)}.system-body{display:grid;grid-template-columns:minmax(220px,.7fr) minmax(0,2fr);gap:36px;padding:12px 0 32px}.system-copy{display:flex;flex-direction:column;align-items:flex-start;gap:20px;padding-top:12px}.system-copy h3{font-size:1.5rem}.system-copy p{color:var(--ink-2);line-height:1.65}.system-copy a{font-size:1rem;min-height:44px;display:flex;align-items:center;text-decoration:underline;text-underline-offset:5px}.system-scene{min-width:0}.system-scene :global(.fs__steps){padding-inline:18px}.system-scene>p{color:var(--ink-2);padding:32px;background:var(--bg-2)}@media(max-width:900px){.system-body{grid-template-columns:1fr;gap:20px}.system-copy h3{display:none}.system-copy{gap:12px;padding:0}.system-scene :global(.fs__steps){padding-inline:0}summary{font-size:1.125rem}}
+</style>
