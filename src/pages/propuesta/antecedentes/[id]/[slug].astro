@@ -575,7 +575,9 @@ const seoTitle = caseSeo.title.includes(ref)
 
     <Cierre
       heading="Conversemos sobre un proyecto similar"
-      description={`Contanos qué necesitás y dónde. Podés mencionar la referencia ${ref} para que el equipo tenga el contexto de esta consulta.`}
+      contactSubject={`Proyecto ${ref}`}
+      contactQuestion="¿Qué parte de este proyecto necesitás implementar y en qué sitio?"
+      description="Contanos qué necesitás implementar y dónde. La consulta incluye la referencia de esta obra."
     />
     <script>
       const link = document.querySelector<HTMLAnchorElement>(
