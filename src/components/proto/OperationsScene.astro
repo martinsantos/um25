@@ -1,0 +1,312 @@
+---
+import software from "../../assets/operations-scenes/software-terminal.webp?url";
+import support from "../../assets/operations-scenes/soporte-servidor.webp?url";
+import consulting from "../../assets/operations-scenes/consultoria-instrumentos.webp?url";
+import type { OperationsContent } from "../../data/operationsScenes";
+import "../../styles/functional-scene.css";
+import "../../styles/operations-scene.css";
+interface Props {
+  content: OperationsContent;
+}
+const { content } = Astro.props;
+const { kind } = content;
+const screen = ["software", "payments", "workspace"].includes(kind);
+const server = ["support", "hosting"].includes(kind);
+const art = screen ? software : server ? support : consulting;
+const title =
+  kind === "payments"
+    ? "Nota de pedido"
+    : kind === "workspace"
+      ? "Espacio de trabajo"
+      : "Operación";
+const labels =
+  kind === "payments"
+    ? ["Pedido", "API de pago", "Respuesta"]
+    : kind === "hosting"
+      ? ["Consulta web", "Alojamiento", "Sitio disponible"]
+      : ["Solicitud", "Lógica + API", "Respuesta"];
+---
+    <figure
+      class:list={["fs", "ops", `ops--${kind}`]}
+      data-functional-scene={kind}
+      data-state="complete"
+      data-phase="2"
+      aria-label={content.title}
+    >
+      <div
+        class="ops__stage"
+        data-functional-stage
+        role="img"
+        aria-label={content.accessible}
+      >
+        <div class="ops__visual" aria-hidden="true">
+          <img
+            src={art}
+            width="1536"
+            height="1024"
+            loading="lazy"
+            decoding="async"
+            alt=""
+          />
+          {
+            screen && (
+              <div class="ops__screen">
+                <div class="ops__screen-top">
+                  <>
+                    <span />
+                    <span />
+                    <span />
+                    <b>{title}</b>
+                  </>
+                </div>
+                {kind === "workspace" ? (
+                  <div class="ops__workspace">
+                    <div class="ops__account">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                      >
+                        <rect x="2" y="4" width="20" height="16" rx="2" />
+                        <path d="m2 5 10 8L22 5" />
+                      </svg>
+                      <span>Correo</span>
+                    </div>
+                    <div class="ops__folders">
+                      <div>
+                        <i />
+                        <span>Personal</span>
+                      </div>
+                      <div class="ops__shared">
+                        <i />
+                        <span>Compartida</span>
+                        <b>Acceso asignado</b>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div class="ops__transaction">
+                    <span>{kind === "payments" ? "PEDIDO" : "SOLICITUD"}</span>
+                    <div class="ops__document-lines">
+                      <i />
+                      <i />
+                      <i />
+                    </div>
+                    <div class="ops__screen-state">
+                      <span class="ops__phase-0">Recibida</span>
+                      <span class="ops__phase-1">Conectando sistemas</span>
+                      <span class="ops__phase-2">Respuesta recibida</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          }
+          {
+            server && (
+              <div class="ops__rack-focus">
+                <>
+                  <i />
+                  <span>
+                    {kind === "hosting"
+                      ? "Servicio web"
+                      : "Componente en revisión"}
+                  </span>
+                </>
+              </div>
+            )
+          }
+          {
+            !screen && !server && (
+              <div class="ops__meter-reading">
+                <>
+                  <i />
+                  <span>Relevamiento</span>
+                </>
+              </div>
+            )
+          }
+        </div>
+        <div class="ops__narrative" aria-hidden="true">
+          <p class="ops__eyebrow">
+            {
+              kind === "support"
+                ? "Atención técnica"
+                : kind === "consulting"
+                  ? "Criterio de ingeniería"
+                  : kind === "workspace"
+                    ? "Organización de accesos"
+                    : "Comunicación entre sistemas"
+            }
+          </p>
+          {
+            kind === "support" ? (
+              <div class="ops__incident">
+                <div class="ops__incident-heading">
+                  <>
+                    <i />
+                    <strong>Servicio en revisión</strong>
+                  </>
+                </div>
+                <div class="ops__trace">
+                  <>
+                    <span />
+                    <span />
+                    <span />
+                    <span />
+                    <span />
+                    <span />
+                    <span />
+                    <span />
+                    <span />
+                  </>
+                </div>
+                <ol>
+                  <>
+                    <li>
+                      <b>01</b> Incidente registrado <i />
+                    </li>
+                    <li>
+                      <b>02</b> Diagnóstico técnico <i />
+                    </li>
+                    <li>
+                      <b>03</b> Intervención documentada <i />
+                    </li>
+                  </>
+                </ol>
+              </div>
+            ) : kind === "consulting" ? (
+              <div class="ops__report">
+                <div class="ops__report-title">
+                  <>
+                    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor">
+                      <path d="M8 3h12l6 6v20H8zM20 3v7h6M12 16h10M12 21h10M12 26h6" />
+                    </svg>
+                    <strong>
+                      De la instalación
+                      <br />
+                      al plan de trabajo
+                    </strong>
+                  </>
+                </div>
+                <>
+                  <div class="ops__finding">
+                    <>
+                      <span>Estado actual</span>
+                      <i />
+                      <b>Relevar</b>
+                    </>
+                  </div>
+                  <div class="ops__finding">
+                    <>
+                      <span>Necesidades</span>
+                      <i />
+                      <b>Analizar</b>
+                    </>
+                  </div>
+                  <div class="ops__finding">
+                    <>
+                      <span>Próxima etapa</span>
+                      <i />
+                      <b>Priorizar</b>
+                    </>
+                  </div>
+                </>
+              </div>
+            ) : kind === "workspace" ? (
+              <div class="ops__access">
+                <svg viewBox="0 0 40 40" fill="none" stroke="currentColor">
+                  <>
+                    <rect x="8" y="17" width="24" height="18" rx="2" />
+                    <path d="M13 17v-6a7 7 0 0 1 14 0v6M20 23v6" />
+                  </>
+                </svg>
+                <>
+                  <strong>
+                    Un espacio compartido.
+                    <br />
+                    Permisos definidos.
+                  </strong>
+                  <p>
+                    La estructura organiza el trabajo.
+                    <br />
+                    El acceso protege el contenido.
+                  </p>
+                  <div class="ops__permission">
+                    <>
+                      <span>Carpeta compartida</span>
+                      <b>Acceso asignado</b>
+                    </>
+                  </div>
+                </>
+              </div>
+            ) : (
+              <div class="ops__exchange">
+                <div class="ops__endpoint ops__endpoint--source">
+                  <>
+                    <svg viewBox="0 0 28 28" fill="none" stroke="currentColor">
+                      <>
+                        <rect x="3" y="4" width="22" height="16" rx="1" />
+                        <path d="M14 20v4M8 24h12M3 9h22" />
+                      </>
+                    </svg>
+                    <strong>{labels[0]}</strong>
+                  </>
+                </div>
+                <div class="ops__route">
+                  <>
+                    <span class="ops__request" />
+                    <span class="ops__response" />
+                    <i />
+                    <i />
+                    <i />
+                  </>
+                </div>
+                <div class="ops__endpoint ops__endpoint--target">
+                  <>
+                    <svg viewBox="0 0 28 28" fill="none" stroke="currentColor">
+                      <path d="m9 7-6 7 6 7M19 7l6 7-6 7M16 4l-4 20" />
+                    </svg>
+                    <strong>{labels[1]}</strong>
+                  </>
+                </div>
+                <div class="ops__exchange-status">
+                  <>
+                    <span class="ops__phase-0">{labels[0]}</span>
+                    <span class="ops__phase-1">Intercambio en curso</span>
+                    <span class="ops__phase-2">
+                      {kind === "hosting"
+                        ? "Respuesta del servidor"
+                        : labels[2]}
+                    </span>
+                  </>
+                </div>
+              </div>
+            )
+          }
+        </div>
+      </div>
+      <figcaption class="fs__caption">
+        <ol aria-label="Etapas del recorrido">
+          {
+            content.steps.map(([title, description], i) => (
+              <li data-functional-step={i}>
+                <>
+                  <span class="fs__step-number">0{i + 1}</span>
+                  <div>
+                    <>
+                      <strong>{title}</strong>
+                      <p>{description}</p>
+                    </>
+                  </div>
+                </>
+              </li>
+            ))
+          }
+        </ol>
+      </figcaption>
+    </figure>
+<script>
+  import { initFunctionalScenes } from "./functional-motion";
+  initFunctionalScenes(document);
+</script>

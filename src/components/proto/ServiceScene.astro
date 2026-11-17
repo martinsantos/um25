@@ -1,0 +1,19 @@
+---
+import TechnicalScene from './TechnicalScene.astro';
+import FunctionalScene from './FunctionalScene.astro';
+import OperationsScene from './OperationsScene.astro';
+import { technicalSceneForService } from '../../data/technicalScenes';
+import { operationsSceneForService } from '../../data/operationsScenes';
+interface Props { code: string }
+const {code}=Astro.props;
+const technical=technicalSceneForService(code);
+const operations=operationsSceneForService(code);
+---
+<div class="service-scene" data-service-scene={code}>
+{technical ? <TechnicalScene content={technical}/> : operations ? <OperationsScene content={operations}/> : code==='102' ? <FunctionalScene kind="security"/> : code==='108' ? <FunctionalScene kind="energy"/> : null}
+</div>
+<style>
+.service-scene{min-width:0;container-type:inline-size}
+.service-scene :global(.fs__caption){padding:20px 22px;background:var(--bg-2)}
+@container(max-width:600px){.service-scene :global(.fs__caption){padding:16px}}
+</style>
