@@ -4,6 +4,7 @@ import { NAV_SERVICES } from '../../data/navigation';
 import { SERVICE_MOTION } from '../../data/serviceMotion';
 import { flowForService } from '../../data/informationFlows';
 import FlowDiagram from './FlowDiagram.astro';
+import FunctionalScene from './FunctionalScene.astro';
 import { destacados, type Story } from './isoData';
 import { pageCaseCandidates } from './caseSelection';
 import { publicCaseFor } from './casePresentation';
@@ -52,7 +53,7 @@ const frentes = NAV_SERVICES.map((servicio) => {
               <span class="marca" aria-hidden="true"><ChevronRight size={17} /></span>
             </label>
           </div>
-          <article class="panel" id={`panel-${code}`} aria-labelledby={`nombre-${code}`}>
+          <article class:list={["panel", {"panel--functional": code === "102"}]} id={`panel-${code}`} aria-labelledby={`nombre-${code}`}>
             <div class="lamina">
               <div class="alcance">
                 <span class="codigo">Servicio {code}</span>
@@ -60,7 +61,7 @@ const frentes = NAV_SERVICES.map((servicio) => {
                 <p>{text}</p>
                 <a class="provision" href={`${href}#provision`}>Qué proveemos <ArrowRight size={17} aria-hidden="true" /></a>
               </div>
-              <figure class="dibujo" data-flow-preview>
+              {code === "102" ? <div class="security-preview"><FunctionalScene kind="security" /></div> : <figure class="dibujo" data-flow-preview>
                 {detalle && <>
                   <input class="detalle-control" id={`detalle-${code}`} type="checkbox" aria-label={`Ver detalle de ${animacion.title.toLowerCase()}`} />
                   <label class="ampliar" for={`detalle-${code}`}><ScanSearch size={16} aria-hidden="true" /> Detalle</label>
@@ -71,9 +72,9 @@ const frentes = NAV_SERVICES.map((servicio) => {
                 </div>
                 <figcaption><span>{animacion.title}</span>{detalleNombre && <b>{animacion.title} · {detalleNombre}</b>}</figcaption>
                 <FlowDiagram flow={flowForService(code)} />
-              </figure>
+              </figure>}
             </div>
-            <ul class="piezas" aria-label={`Ejemplos de provisión de ${name}`}>
+            <ul hidden={code === "102"} class="piezas" aria-label={`Ejemplos de provisión de ${name}`}>
               {kit.map(([key, label]) => <li><Parte k={key} size={40} /><span>{label}</span></li>)}
             </ul>
             <div class="evidencia">
@@ -93,6 +94,14 @@ const frentes = NAV_SERVICES.map((servicio) => {
 </div>
 
 <style>
+ .panel--functional .lamina { grid-template-columns:1fr; }
+ .panel--functional .alcance { padding:24px 32px; gap:8px; }
+ .panel--functional .alcance h3 { font-size:2rem; }
+ .panel--functional .piezas { display:none; }
+ .security-preview {min-width:0;}
+ .security-preview :global(.fs__steps) {padding:0 24px;}
+ .security-preview :global(.fs__stage) {height:380px;}
+ @media(max-width:600px){.security-preview :global(.fs__stage){height:420px;} .panel--functional .alcance{padding:24px;} }
   .encabezado { display:flex; align-items:end; justify-content:space-between; gap:20px; margin-bottom:24px; }
   .encabezado h2 { max-width:24ch; }
   .catalogo,.provision,.archivo { display:inline-flex; align-items:center; gap:8px; width:fit-content; min-height:44px; font-weight:600; font-size:1rem; }

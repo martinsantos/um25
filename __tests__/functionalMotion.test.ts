@@ -71,6 +71,15 @@ describe("functional scenes stay quiet outside the viewport", () => {
     visibility(0.8);
     expect(scene.dataset.state).toBe("running");
   });
+  it("allows a longer scene while still stopping offscreen", () => {
+    scene.dataset.duration = "7200";
+    visibility(0.8);
+    jest.advanceTimersByTime(4800);
+    expect(scene.dataset.state).toBe("running");
+    visibility(0);
+    expect(scene.dataset.state).toBe("complete");
+    expect(jest.getTimerCount()).toBe(0);
+  });
   it("uses the static explanatory state when reduced motion is requested", () => {
     preference.matches = true;
     visibility(0.8);
