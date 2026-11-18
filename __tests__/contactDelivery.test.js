@@ -79,3 +79,22 @@ test('contact allows a retry after a failed delivery', async () => {
   expect((await POST(message('Reintento después de un fallo.'))).status).toBe(200);
   expect(sendMail).toHaveBeenCalledTimes(2);
 });
+
+test('submits to an explicitly configured loopback relay without credentials', async () => {
+  Object.assign(process.env, { SMTP_HOST: '127.0.0.1', SMTP_PORT: '25', SMTP_USER: '', SMTP_PASS: '' });
+  const sendMail = jest.fn().mockResolvedValue({});
+  createTransport.mockReturnValue({ sendMail });
+  expect((await POST(message('Prueba del transporte local.'))).status).toBe(200);
+  expect(createTransport).toHaveBeenCalledWith({ host: '127.0.0.1', port: 25, ignoreTLS: true });
+  expect(sendMail).toHaveBeenCalledTimes(1);
+});
+
+test.each([
+  ['smtp.example.org', '25', '', ''],
+  ['127.0.0.1', '25', 'partial', ''],
+  ['127.0.0.1', '', '', ''],
+])('rejects incomplete SMTP settings (%s %s)', async (host, port, user, pass) => {
+  Object.assign(process.env, { SMTP_HOST: host, SMTP_PORT: port, SMTP_USER: user, SMTP_PASS: pass });
+  expect((await POST(message('Configuración incompleta.'))).status).toBe(500);
+  expect(createTransport).not.toHaveBeenCalled();
+});

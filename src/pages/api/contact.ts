@@ -33,7 +33,16 @@ function createTransporter() {
   const user = envValue('SMTP_USER');
   const pass = envValue('SMTP_PASS');
 
-  if (!host || !Number.isFinite(port) || !user || !pass) {
+  if (!host || !Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error('SMTP configuration is incomplete');
+  }
+
+  // The Hostinger web service submits to the local Postfix listener over loopback.
+  if (host === '127.0.0.1' && !user && !pass) {
+    return nodemailer.createTransport({ host, port, ignoreTLS: true });
+  }
+
+  if (!user || !pass) {
     throw new Error('SMTP configuration is incomplete');
   }
 
