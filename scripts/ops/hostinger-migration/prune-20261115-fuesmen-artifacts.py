@@ -8,6 +8,8 @@ RETIRED = (PACKAGE_RELEASE, APPLICATION_RELEASE)
 BACKUPS = (Path('/srv/umsa-operational-backups'), Path('/root/fumbling-field/backups'))
 FREE_EXPECTED = 4666982400
 EXPECTED_ARCHIVE_SIZE = 2118094442
+OPTIONAL_APPLICATION = None
+OPTIONAL_BYTES = 0
 
 def free_space():
     disk = os.statvfs('/srv')
@@ -38,6 +40,12 @@ def snapshot_exact(required):
         return {'status':'already_removed','targets':[]}, None
     if not all(present):
         raise RuntimeError('Partially removed batch; review required')
+    retired = RETIRED
+    expected_bytes = FREE_EXPECTED
+    if OPTIONAL_APPLICATION and free_space() + FREE_EXPECTED < required:
+        targets += (RELEASES / OPTIONAL_APPLICATION / 'application',)
+        retired += (OPTIONAL_APPLICATION,)
+        expected_bytes += OPTIONAL_BYTES
     state = json.loads(STATE.read_text())
     if state != web_release_receipt(ACTIVE):
         raise RuntimeError('Active release changed')
@@ -49,25 +57,26 @@ def snapshot_exact(required):
             raise RuntimeError('A retained package is missing or redirected')
     for path in BACKUPS:
         secure_ancestors(path, ownership=False)
-    for release in RETIRED:
+    for release in retired:
         receipt = RELEASES / release / 'publication.complete'
         web_release_receipt(release)
         if not stat.S_ISREG(receipt.lstat().st_mode):
             raise RuntimeError('Release receipt is missing or redirected')
         if json.loads(receipt.read_text())['unit'] != 'umsa-web-' + release + '.service':
             raise RuntimeError('Release receipt differs from the reviewed identity')
-    archive, application = targets
+    archive, *applications = targets
     secure_ancestors(archive.parent)
     if not stat.S_ISREG(archive.lstat().st_mode) or archive.lstat().st_size != EXPECTED_ARCHIVE_SIZE:
         raise RuntimeError('Unexpected transport archive')
-    secure_ancestors(application)
-    if set(p.name for p in application.iterdir()) != {'dist', 'node_modules', 'package.json', 'package-lock.json'}:
-        raise RuntimeError('Unexpected retired application')
-    if archive_path(APPLICATION_RELEASE).exists():
-        raise RuntimeError('Unexpected transport for the retired application')
+    for application in applications:
+        secure_ancestors(application)
+        if set(p.name for p in application.iterdir()) != {'dist', 'node_modules', 'package.json', 'package-lock.json'}:
+            raise RuntimeError('Unexpected retired application')
+        if archive_path(application.parent.name).exists():
+            raise RuntimeError('Unexpected transport for the retired application')
     if any(overlaps(candidate, path) for candidate in targets for path in PROTECTED):
         raise RuntimeError('Reviewed scope overlaps protected data')
-    consumer_check = lambda: consumers(targets, RETIRED, tuple(RELEASES / r / 'nginx' for r in RETAIN))
+    consumer_check = lambda: consumers(targets, retired, tuple(RELEASES / r / 'nginx' for r in RETAIN))
     consumer_check()
     artifacts = inventory(targets,True)
     inodes, counts = {}, collections.Counter()
@@ -83,7 +92,7 @@ def snapshot_exact(required):
         if size>vals[9]:
             raise RuntimeError('Unexpected extent accounting')
         found+=size
-    if (FREE_EXPECTED is not None and found != FREE_EXPECTED) or free_space()+found<required:
+    if (expected_bytes is not None and found != expected_bytes) or free_space()+found<required:
         raise RuntimeError('Space changed since review or will not meet publisher requirement')
     before=runtime()
     if state['unit'] not in before['units']:
@@ -111,7 +120,10 @@ def execute(phase, required, expected=''):
         if snapshot['status']=='already_removed':
             print(json.dumps({'status':'already_removed','targets':[]}))
             return
-        targets=reviewed_targets()
+        targets=tuple(Path(p) for p in snapshot['targets'])
+        primary=reviewed_targets()
+        if targets[:2] != primary:
+            raise RuntimeError('Unrecognized primary artifacts')
         consumer_check()
         if (inventory(targets,True)!=snapshot['artifacts'] or
             identities(keep_paths(targets))!=snapshot['protected'] or
@@ -120,13 +132,32 @@ def execute(phase, required, expected=''):
         free_before=free_space()
         if free_before+snapshot['verified_bytes']<int(required):
             raise RuntimeError('Projected capacity below publisher requirement')
-        remove_reviewed(targets,snapshot['artifacts'])
-        if any(os.path.lexists(p) for p in targets):
+        removed = list(primary)
+        remove_reviewed(primary,snapshot['artifacts'])
+        remaining = targets[len(primary):]
+        if remaining:
+            optional, = remaining
+            if optional != RELEASES / OPTIONAL_APPLICATION / 'application':
+                raise RuntimeError('Unrecognized conditional artifact')
+            subset = {name: row for name, row in snapshot['artifacts'].items()
+                      if name == str(optional) or name.startswith(str(optional) + '/')}
+            if inventory(remaining,True) != subset:
+                raise RuntimeError('Conditional application changed')
+            consumers(remaining, (OPTIONAL_APPLICATION,), tuple(RELEASES / r / 'nginx' for r in RETAIN))
+            if identities(keep_paths(targets))!=snapshot['protected'] or runtime()!=snapshot['runtime']:
+                raise RuntimeError('Protected state changed after primary cleanup')
+            available = free_space()
+            if available < int(required):
+                if available + OPTIONAL_BYTES < int(required):
+                    raise RuntimeError('Conditional application is insufficient for publication')
+                remove_reviewed(remaining,subset)
+                removed.append(optional)
+        if any(os.path.lexists(p) for p in removed):
             raise RuntimeError('An authorized artifact remains')
         if identities(keep_paths(targets))!=snapshot['protected'] or runtime()!=snapshot['runtime']:
             raise RuntimeError('The cleanup changed protected data or a running service')
         health()
-        print(json.dumps({'status':'removed','targets':snapshot['targets'],'verified_bytes':snapshot['verified_bytes'],
+        print(json.dumps({'status':'removed','targets':list(map(str,removed)),'verified_bytes':snapshot['verified_bytes'] - (OPTIONAL_BYTES if len(removed) < len(targets) else 0),
                           'free_before':free_before,'free_after':free_space(),'preserved':list(RETAIN),
                           'runtime_unchanged':True}))
 
