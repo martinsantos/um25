@@ -48,7 +48,7 @@ jobs:
       - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
-      - name: Retire the two approved artifacts for the contact form release
+      - name: Retire approved contact release artifacts according to available disk
         env:
           CLEAN_WEB_PACKAGE: ${{ runner.temp }}/umsa-clean-web.tar.gz
         run: |
