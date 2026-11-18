@@ -270,6 +270,8 @@ def main(mode, revision, run_id, attempt, expected):
         env, count = re.subn(r'(?m)^PORT=.*$', 'PORT="' + str(port) + '"', env)
         if count != 1 or 'HOST="127.0.0.1"' not in env:
             raise RuntimeError('Unexpected reviewed web environment')
+        if production and not re.search(r'(?m)^\s*SMTP_(HOST|PORT|USER|PASS)\s*=', env):
+            env = env.rstrip('\n') + '\nSMTP_HOST="127.0.0.1"\nSMTP_PORT="25"\n'
         envfile = release / 'web.environment'
         atomic_text(envfile, env)
         unit_name = 'umsa-web-' + identifier + '.service'
