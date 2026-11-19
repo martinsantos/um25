@@ -34,6 +34,7 @@ import { serviceDetailSeo } from '../../../data/serviceDetailSeo';
 import { SERVICE_SPECS } from '../../../data/serviceSpecs';
 import { SECTORS } from '../../../data/cine/scenes';
 
+import { publicCaseFor } from '../../../components/proto/casePresentation';
 import { isNamedClient } from '../../../components/proto/catalogEditorial';
 
 export const prerender = false;
@@ -60,6 +61,7 @@ const archiveHref = `/antecedentes?service=${code}`;
 const archiveText = own.length > 0 ? `Ver los ${own.length} antecedentes` : 'Ver todos los antecedentes';
 const agregado = new Map(despieceAgregado(own, caseEquipmentFor).map((p) => [p.key, p]));
 const kit = (KIT_DE_SERVICIO[code] || []).map(([key, label]) => ({ key, label, n: agregado.get(key)?.proyectos || 0, u: agregado.get(key)?.unidades || 0 }));
+const accessProject = security ? own.find(story => story.id === 3104) : undefined;
 const photo = SERVICE_PHOTO[code];
 const casos = casosDe(CASOS_SERVICIO[code] || []);
 const showcase = pageCaseCandidates(own, undefined, code);
@@ -220,6 +222,7 @@ const cierre = cierrePorServicio[code];
     {provision.length > 0 && (
       <Provision
         items={provision}
+        accessCase={accessProject ? { ...accessProject, title: publicCaseFor(accessProject)?.title || accessProject.title } : undefined}
         introduction={isNetworks ? 'Qué instalamos, cómo lo verificamos y qué documentación recibe tu equipo según el alcance acordado.' : undefined}
       >
         {servicio.capabilities.length > 0 && <details class="technical-scope"><summary>Especificaciones adicionales</summary><ul class="lista">{servicio.capabilities.map((c) => <li>{c}</li>)}</ul></details>}

@@ -19,6 +19,7 @@ import {
 import caseImageDescriptions from "../../../../data/casePhotoAlt.json";
 import { photographForCase } from "../../../../data/photography";
 import CasoEnDetalle from "../../../../components/proto/CasoEnDetalle.astro";
+import CredentialSequence from "../../../../components/proto/CredentialSequence.astro";
 import CatalogScene from "../../../../components/proto/CatalogScene.astro";
 import ResidentialIntegration from "../../../../components/proto/ResidentialIntegration.astro";
 import HospitalIntegration from "../../../../components/proto/HospitalIntegration.astro";
@@ -112,6 +113,7 @@ const catalogScene =
   c.id === 3082 || technicalScene || operationsScene || connectionScene
     ? undefined
     : catalogSceneForCase(c);
+const accessProject = c.id === 3104;
 const ref = `UM-${c.id}`;
 const introduction =
   caseDetail?.introduction ||
@@ -140,6 +142,9 @@ const seoTitle = caseSeo.title.includes(ref)
       precargar
     />
     <style>
+      .project-actions { display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin-top:8px; }
+      .project-actions a {min-height:44px;display:inline-flex;align-items:center;}
+
       .nav {
         display: flex;
         justify-content: space-between;
@@ -337,7 +342,7 @@ const seoTitle = caseSeo.title.includes(ref)
 
     <main id="contenido">
       <div class="wrap">
-        <nav class="nav" aria-label="Proyectos">
+        {!accessProject && (<nav class="nav" aria-label="Proyectos">
           <a href="/antecedentes" data-catalog-back>← Todos los proyectos</a>
           <span
             >{prev && <a href={prev.href}>← Anterior</a>}{
@@ -349,14 +354,15 @@ const seoTitle = caseSeo.title.includes(ref)
               )
             }{next && <a href={next.href}>Siguiente →</a>}</span
           >
-        </nav>
-        <div class="hoja-cab">
+        </nav>)} 
+        {!accessProject && <div class="hoja-cab">
           <span
             >Ficha de trabajo · <b>{ref}</b>{
               enCurso && <i class="curso">En curso</i>
             }</span
           ><span>{[c.sector, periodo].filter(Boolean).join(" · ")}</span>
         </div>
+        }
         <div class:list={["proyecto", { "proyecto--sinfoto": !photo }]}>
           {
             photo && (
@@ -382,13 +388,13 @@ const seoTitle = caseSeo.title.includes(ref)
             <h1>{pageTitle}<span class="dot">.</span></h1>
             <div class="quien">
               {c.client}{
-                when && (
+                (accessProject ? periodo : when) && (
                   <span>
                     <span class="quien-separator" aria-hidden="true">
                       {" "}
                       ·{" "}
                     </span>
-                    {when}
+                    {accessProject ? periodo : when}
                   </span>
                 )
               }
@@ -403,6 +409,7 @@ const seoTitle = caseSeo.title.includes(ref)
                 <p class="resumen">{introduction}</p>
               )
             }
+            {accessProject && <div class="project-actions"><a class="btn" href={`/contacto?antecedente=${c.id}`}>Consultar por un acceso similar</a><a class="u" href="#flujo">Ver cómo funciona</a></div>}
           </div>
           <dl class="tabla">
             {
@@ -418,7 +425,7 @@ const seoTitle = caseSeo.title.includes(ref)
               )
             }
             {
-              when && (
+              !accessProject && when && (
                 <div>
                   <>
                     <dt>{cierre ? "Inicio" : "Fecha"}</dt>
@@ -428,7 +435,7 @@ const seoTitle = caseSeo.title.includes(ref)
               )
             }
             {
-              cierre && (
+              !accessProject && cierre && (
                 <div>
                   <>
                     <dt>{enCurso ? "Cierre previsto" : "Cierre"}</dt>
@@ -526,7 +533,7 @@ const seoTitle = caseSeo.title.includes(ref)
         ) : technicalScene ? (
           <TechnicalSection content={technicalScene} project />
         ) : (
-          catalogScene && <CatalogScene content={catalogScene} />
+          accessProject ? <CredentialSequence /> : catalogScene && <CatalogScene content={catalogScene} />
         )
       }
       {
@@ -571,12 +578,25 @@ const seoTitle = caseSeo.title.includes(ref)
           </section>
         )
       }
+      {accessProject && <div class="wrap"><nav class="nav" aria-label="Proyectos">
+          <a href="/antecedentes" data-catalog-back>← Todos los proyectos</a>
+          <span
+            >{prev && <a href={prev.href}>← Anterior</a>}{
+              prev && next && (
+                <span class="nav-separator" aria-hidden="true">
+                  {" "}
+                  ·{" "}
+                </span>
+              )
+            }{next && <a href={next.href}>Siguiente →</a>}</span
+          >
+        </nav></div>}
     </main>
 
     <Cierre
       heading="Conversemos sobre un proyecto similar"
       contactSubject={`Proyecto ${ref}`}
-      contactQuestion="¿Qué parte de este proyecto necesitás implementar y en qué sitio?"
+      contactQuestion={accessProject ? "¿Qué accesos necesitás controlar y en qué sitio?" : "¿Qué parte de este proyecto necesitás implementar y en qué sitio?"}
       description="Contanos qué necesitás implementar y dónde. La consulta incluye la referencia de esta obra."
     />
     <script>
