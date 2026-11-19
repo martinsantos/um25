@@ -385,7 +385,7 @@ const seoTitle = caseSeo.title.includes(ref)
             )
           }
           <div class="datos">
-            <h1>{pageTitle}<span class="dot">.</span></h1>
+            <h1 data-contact-origin-title={accessProject ? `Proyecto ${ref} · ${pageTitle}` : undefined}>{pageTitle}<span class="dot">.</span></h1>
             <div class="quien">
               {c.client}{
                 (accessProject ? periodo : when) && (
