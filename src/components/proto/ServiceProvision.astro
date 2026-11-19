@@ -18,11 +18,12 @@ const { introduction } = props;
   <div class="wrap">
     <h2 id="provision-title">Qué proveemos<span class="dot">.</span></h2>
     {introduction && <p class="intro">{introduction}</p>}
+    <slot name="project" />
     <div class="systems">
       {systems.map((system, index) => <details open={index === 0}>
         <summary>{system.title}</summary>
         <div class:list={['system-body', { compact: 'items' in props && system.parts.length < 3 }]} style={`--part-count:${system.parts.length}`}>
-          {system.parts.length > 0 && <div class="parts" aria-label={`Componentes de ${system.title}`}>
+          {system.title === "Videovigilancia IP" && Astro.slots.has("cameraStages") ? <slot name="cameraStages" /> : system.parts.length > 0 && <div class="parts" aria-label={`Componentes de ${system.title}`}>
             {system.parts.map(part => <figure data-provision-part={part.key}>
               <Parte k={part.key} size={96} /><figcaption>{part.label}</figcaption>
             </figure>)}
