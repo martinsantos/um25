@@ -24,15 +24,16 @@ const { introduction } = props;
     <div class="systems">
       {systems.map((system, index) => {
         const guide = serviceJourney[props.code]?.groups[system.title];
+        const label = guide?.label || system.title;
         const reference = guide?.reference;
         const story = reference && props.stories.find(s => s.id === reference.id && (samePublicClient(s.client, reference.client)
           || (s.client === reference.client && s.title === reference.title)));
         return <details open={index === 0}>
-        <summary>{system.title}</summary>
+        <summary>{label}</summary>
         {system.title === props.sceneGroup && <div class="inline-flow"><slot name="flow" /></div>}
         {system.title === 'Control de Acceso Biométrico' && <slot name="accessReader" />}
         <div class:list={['system-body', { compact: 'items' in props && system.parts.length < 3 }]} style={`--part-count:${system.parts.length}`}>
-          {system.title === "Videovigilancia IP" && Astro.slots.has("cameraStages") ? <slot name="cameraStages" /> : system.parts.length > 0 && <div class="parts" aria-label={`Componentes de ${system.title}`}>
+          {system.title === "Videovigilancia IP" && Astro.slots.has("cameraStages") ? <slot name="cameraStages" /> : system.parts.length > 0 && <div class="parts" aria-label={`Componentes de ${label}`}>
             {system.parts.map(part => <figure data-provision-part={part.key}>
               <Parte k={part.key} size={96} /><figcaption>{part.label}</figcaption>
             </figure>)}

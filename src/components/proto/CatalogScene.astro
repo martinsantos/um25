@@ -13,8 +13,11 @@ const assets = import.meta.glob("../../assets/catalog-scenes/*.webp", {
 }) as Record<string, string>;
 interface Props {
   content: CatalogContent;
+  embedded?: boolean;
 }
-const { content } = Astro.props;
+const { content, embedded = false } = Astro.props;
+const Heading = embedded ? 'h3' : 'h2';
+const headingId = embedded ? undefined : 'catalog-heading';
 const src =
   ({ optical, rack, server } as Record<string, string>)[content.asset] ||
   assets[`../../assets/catalog-scenes/${content.asset}.webp`];
@@ -26,10 +29,10 @@ const data = ["storage", "network", "capture"].includes(content.kind);
 const power = ["energy", "distribution", "light"].includes(content.kind);
 ---
 
-<section class="sec" id="flujo" aria-labelledby="catalog-heading">
-  <div class="wrap">
+<section class={embedded ? undefined : "sec"} id={embedded ? undefined : "flujo"} aria-labelledby={headingId} aria-label={embedded ? content.title : undefined}>
+  <div class={embedded ? undefined : "wrap"}>
     <header class="catalog-heading">
-      <p>{content.kicker}</p><h2 id="catalog-heading">{content.title}</h2>
+      <p>{content.kicker}</p><Heading id={headingId}>{content.title}</Heading>
     </header>
     <figure
       class:list={["catalog-scene", `catalog-scene--${content.kind}`]}

@@ -1,4 +1,4 @@
-type Group = { question: string; reference?: { id:number; client:string; title?:string } };
+type Group = { label?: string; question: string; reference?: { id:number; client:string; title?:string } };
 type Service = { name: string; question: string; groups: Record<string, Group> };
 
 export const serviceJourney: Record<string, Service> = {
@@ -10,7 +10,7 @@ export const serviceJourney: Record<string, Service> = {
   }},
   '102': { name: 'Seguridad electrónica', question: '¿Qué zonas necesitás proteger y qué cámaras o controles de acceso tenés instalados?', groups: {
     'Videovigilancia IP': { question: '¿Qué zonas necesitás observar y durante cuánto tiempo necesitás conservar las grabaciones?', reference: { id: 3078, client: "Fundación COPROSAMEN" } },
-    'Control de Acceso Biométrico': { question: '¿Qué accesos querés controlar y quién debe poder ingresar?', reference: { id: 3104, client: "Aeropuertos Argentina 2000" } },
+    'Control de Acceso Biométrico': { label: 'Control de accesos', question: '¿Qué accesos querés controlar y quién debe poder ingresar?', reference: { id: 3104, client: "Aeropuertos Argentina 2000" } },
     'Detección de Intrusos PIR': { question: '¿Qué espacios quedan desocupados y quién debería recibir la alerta?' },
     'Integración con detección de incendios': { question: '¿Qué central está instalada y desde dónde se reciben sus avisos?' },
   }},
@@ -74,6 +74,12 @@ export function journeyContext(params: URLSearchParams) {
   const service = serviceJourney[code];
   if (!service?.name) return;
   if (sector?.name) {
+    if (slug === 'mineria' && code === '103') {
+      return {
+        subject: 'Minería · Enlace entre base y campamento',
+        question: '¿Qué distancia hay entre la base y el campamento y qué necesitás transmitir entre ambos?',
+      };
+    }
     const site = sector.site;
     const questions: Record<string,string> = {
       '101': `¿Qué áreas hay que conectar en ${site} y cuántos puestos necesitan red?`,
@@ -89,6 +95,6 @@ export function journeyContext(params: URLSearchParams) {
   }
   const title = params.get('grupo') || '';
   const group = service.groups[title];
-  if (group?.question) return { subject: service.name + ' · ' + title, question: group.question };
+  if (group?.question) return { subject: service.name + ' · ' + (group.label || title), question: group.question };
   return { subject: service.name, question: service.question };
 }

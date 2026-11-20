@@ -1,6 +1,8 @@
 ---
 import { ChevronDown, Network, Cctv, RadioTower, CodeXml, Headset, Workflow, Flame, Zap } from 'lucide-astro';
 import ServiceScene from './ServiceScene.astro';
+import CatalogScene from './CatalogScene.astro';
+import { catalogSceneForCase } from '../../data/catalogCasePresentation';
 import JourneyAction from './JourneyAction.astro';
 import type { Story } from './isoData';
 import { pageCaseCandidates } from './caseSelection';
@@ -27,6 +29,8 @@ const intro=intros[slug] || ['Integración por sistema',`Tecnología para ${name
     const candidates = pageCaseCandidates(stories.filter(s => s.serviceCodes.includes(item.code)),slug,item.code);
     const story = candidates.find(s => s.documentedScope) || candidates[0];
     const task = sectorSystemTask(slug,item.code);
+    const phoneScene = slug === 'salud' && item.code === '103' && story?.id === 3094
+      ? catalogSceneForCase(story) : undefined;
     const wineryFire = slug === 'bodegas' && item.code === '107';
     return <details name={`sector-system-${slug}`} open={i===0}>
     <summary><span class="system-name"><Icon size={22} stroke-width={1.6} aria-hidden="true"/><span class="task">{task || item.name}{task && <small>{item.name}</small>}</span></span><ChevronDown size={20} aria-hidden="true"/></summary>
@@ -35,7 +39,7 @@ const intro=intros[slug] || ['Integración por sistema',`Tecnología para ${name
       <div class="system-scene">
         {wineryFire
           ? <a class="zone-shortcut" href="?zona=nave#integracion">Ver la detección en la nave de producción →</a>
-          : <ServiceScene code={item.code}/>}
+          : phoneScene?.asset === 'phone-ip' ? <CatalogScene content={phoneScene} embedded/> : <ServiceScene code={item.code}/>}
       </div>
       <div class="system-evidence"><JourneyAction code={item.code} sector={slug} story={story} /></div>
       <nav class="system-links" aria-label={`Más sobre ${item.name}`}>
