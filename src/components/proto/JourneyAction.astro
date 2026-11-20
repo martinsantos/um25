@@ -1,0 +1,35 @@
+---
+import { contactLink } from '../../lib/contactEntry';
+import { ArrowRight, ArrowUpRight } from 'lucide-astro';
+import { publicCaseFor } from './casePresentation';
+import { thumbOf, type Story } from './isoData';
+import { journeyContext } from '../../data/propuesta/recorrido';
+interface Props { code:string; group?:string; sector?:string; story?:Story }
+const { code, group, sector, story } = Astro.props;
+const params = new URLSearchParams({sistema:code});
+if (group) params.set('grupo', group);
+if (sector) params.set('sector', sector);
+const context = journeyContext(params);
+---
+{(story || context) && <div class="next-step">
+  {story && <a class="project" href={story.href}>
+    {story.image && <img src={thumbOf(story.image)} width="82" height="64" loading="lazy" alt="" />}
+    <span><small>Obra relacionada · UM-{story.id}</small><strong>{publicCaseFor(story)?.title || story.title}</strong><small>{story.client}</small></span>
+    <ArrowUpRight size={18} aria-hidden="true" />
+  </a>}
+  {context && <a class="enquire" href={contactLink(Astro.url.pathname, '/contacto?' + params)} aria-label={'Consultar por '+context.subject} data-contact-subject={context.subject} data-contact-question={context.question}>
+    {group ? 'Consultar por esta prestación' : 'Consultar por este sistema'} <ArrowRight size={17} aria-hidden="true" />
+  </a>}
+</div>}
+<style>
+  .next-step { display:grid; width:100%; min-width:0; border-top:1px solid var(--line,#44484b); margin-top:12px; }
+  .project { display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line,#44484b);color:inherit;text-decoration:none; }
+  .project img { flex:none;width:clamp(56px,7vw,82px);height:64px;object-fit:cover; }
+  .project span { display:grid;gap:4px;flex:1;min-width:0; }
+  .project strong { font-size:1.03rem;line-height:1.35; }
+  .project small { color:var(--ink-2,#bcc1c3);font-size:.875rem;line-height:1.35; }
+  .enquire { display:inline-flex;justify-self:start;align-items:center;gap:8px;color:inherit;text-decoration:none;font-weight:600;min-height:48px;padding:6px 0; }
+  .enquire :global(svg) { color:var(--red-text,#ff6868); }
+  a:focus-visible { outline:2px solid currentColor;outline-offset:3px; }
+  a:hover strong,.enquire:hover { text-decoration:underline;text-underline-offset:4px; }
+</style>

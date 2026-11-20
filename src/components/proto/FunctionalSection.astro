@@ -1,4 +1,5 @@
 ---
+import CctvSequence from './CctvSequence.astro';
 import FunctionalScene from "./FunctionalScene.astro";
 interface Props {
   code: string;
@@ -32,7 +33,7 @@ const security = code === "102";
         }
       </p>
     </div>
-    <FunctionalScene kind={security ? "security" : "energy"} />
+    {security ? <CctvSequence /> : <FunctionalScene kind="energy" />}
   </div>
 </section>
 <style>

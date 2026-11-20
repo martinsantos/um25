@@ -1,4 +1,5 @@
 ---
+import { contactLink } from '../../lib/contactEntry';
 import { ArrowUpRight, BookOpen, Cable, ClipboardCheck, Headset, MapPin, Ruler } from 'lucide-astro';
 import DossierObraPortada from './DossierObraPortada.astro';
 import FichasTecnicasPortada from './FichasTecnicasPortada.astro';
@@ -45,8 +46,7 @@ const hitos = ['Infraestructura y telecomunicaciones', 'Seguridad y software', '
           data-abrir-fichas aria-haspopup="dialog" aria-controls="fichas-tecnicas-portada" hidden>
           <BookOpen size={18} aria-hidden="true" /> Fichas por servicio
         </button>
-        <button class="documentacion__boton" type="button" data-contact-open
-          data-contact-intent="documentacion" aria-haspopup="dialog">Solicitar un dossier</button>
+        <a class="documentacion__boton" href={contactLink(Astro.url.pathname, '/contacto?intent=documentacion')}>Solicitar un dossier</a>
       </div>
       <FichasTecnicasPortada />
     </section>
@@ -57,7 +57,7 @@ const hitos = ['Infraestructura y telecomunicaciones', 'Seguridad y software', '
         {EMPRESA.historia.map(([year], i) => <li><span>{year}</span><p>{hitos[i]}</p></li>)}
       </ol>
     </div>
-    <div class="cobertura"><MapPin size={19} stroke-width={1.6} aria-hidden="true" /><p>{EMPRESA.cobertura}</p><a href="/contacto">Hablemos de tu proyecto <ArrowUpRight size={18} aria-hidden="true" /></a></div>
+    <div class="cobertura"><MapPin size={19} stroke-width={1.6} aria-hidden="true" /><p>{EMPRESA.cobertura}</p><a href={contactLink(Astro.url.pathname)}>Hablemos de tu proyecto <ArrowUpRight size={18} aria-hidden="true" /></a></div>
   </div>
 </section>
 

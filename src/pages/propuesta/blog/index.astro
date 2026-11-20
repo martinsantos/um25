@@ -20,20 +20,25 @@ const pagina = route.page;
 const { posts, total } = await fetchBlogListing(pagina, POR_PAGINA, categoria || undefined);
 const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
 if (pagina > paginas) return Astro.rewrite('/404');
-const enlace = (p: number) => `/blog?${categoria ? `categoria=${categoria}&` : ''}page=${p}`;
+const enlace = (p: number) => {
+  const params = new URLSearchParams();
+  if (categoria) params.set('categoria', categoria);
+  if (p > 1) params.set('page', String(p));
+  return params.size ? `/blog?${params}` : '/blog';
+};
 const canonicalPath = route.canonicalPath || '/blog';
 const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina > 1 ? [`Página ${pagina}`] : []), 'ULTIMA MILLA'].join(' · ');
 ---
 <!doctype html>
 <html lang="es">
-  <head><Head title={pageTitle} description="Novedades de ULTIMA MILLA: servicios, proyectos y evolución de la empresa de servicios IT con sede en Guaymallén, Mendoza." canonicalPath={canonicalPath} noindex={Boolean(categoria) && total === 0} /><style>.entradas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; } .entrada { display: flex; flex-direction: column; gap: 16px; padding-block: 16px; } .entrada h2 { font-size: clamp(1.4rem, 1.8vw, 1.8rem); line-height: 1.2; } .entrada .small { display: flex; flex-wrap: wrap; gap: 8px 20px; } @media(max-width: 1100px) { .entradas { grid-template-columns: repeat(2, minmax(0, 1fr)); } } @media(max-width: 700px) { .entradas { grid-template-columns: 1fr; } } .entrada__image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 24px; } .paginas { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; padding: var(--s4) 0 var(--s6); } .paginas span:last-child { display: flex; gap: var(--s3); }
+  <head><Head title={pageTitle} description="Novedades de ULTIMA MILLA: servicios, proyectos y evolución de la empresa de servicios IT con sede en Guaymallén, Mendoza." canonicalPath={canonicalPath} noindex={Boolean(categoria) && total === 0} /><style>.entradas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; } .entrada { min-width: 0; overflow-wrap: anywhere; display: flex; flex-direction: column; gap: 16px; padding-block: 16px; } .entrada h2 { font-size: clamp(1.4rem, 1.8vw, 1.8rem); line-height: 1.2; } .entrada .small { display: flex; flex-wrap: wrap; gap: 8px 20px; } @media(max-width: 1100px) { .entradas { grid-template-columns: repeat(2, minmax(0, 1fr)); } } @media(max-width: 700px) { .entradas { grid-template-columns: minmax(0, 1fr); } } .entrada__image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 24px; } .paginas { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; padding: var(--s4) 0 var(--s6); } .paginas > span:last-child { display: flex; gap: var(--s3); }
       .blog-empty { padding-block: var(--s4) var(--s6); }
       .blog-empty h2 { margin-bottom: 16px; }
       @media (max-width: 900px) {
         .cabecera { padding-block: 32px; }
         .cabecera h1 { font-size: clamp(2rem, 7.5vw, 2.6rem); line-height: 1.08; font-weight: 600; letter-spacing: -.025em; }
         .cabecera p { font-size: 1.0625rem; line-height: 1.55; }
-        .entrada > a { display: grid; gap: 16px; }
+        .entrada > a { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
         .entrada__image { margin-bottom: 0; }
         .entrada h2 { font-size: 1.5rem; }
         .entrada p { color: var(--ink-2); font-size: 1.0625rem; line-height: 1.6; }
@@ -44,8 +49,8 @@ const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina 
     <Top current="blog" />
     <main id="contenido" class="wrap">
       <div class="cabecera">
-        <h1>Blog<span class="dot">.</span></h1>
-        <p>Novedades de ULTIMA MILLA: servicios, proyectos y evolución de la empresa de servicios IT con sede en Guaymallén, Mendoza.</p>
+        <h1>{categoria ? getCategoryLabel(categoria) : 'Blog'}<span class="dot">.</span></h1>
+        {!categoria && <p>Notas de campo y artículos del equipo sobre redes, seguridad, software y operación IT.</p>}
         <BlogCategoryTabs current={categoria || undefined} query />
       </div>
       {posts.length > 0 && <ol class="entradas">
@@ -62,7 +67,7 @@ const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina 
           {categoria && <a class="u" href="/blog">Ver todas las notas <span aria-hidden="true">→</span></a>}
         </section>
       )}
-      {total > 0 && <nav class="paginas" aria-label="Páginas"><span class="small">{total} {total === 1 ? 'entrada' : 'entradas'} · página {pagina} de {paginas}</span><span>{pagina > 1 && <a class="u" href={enlace(pagina - 1)}>← Anteriores</a>}{pagina < paginas && <a class="u" href={enlace(pagina + 1)}>Siguientes →</a>}</span></nav>}
+      {total > 0 && <nav class="paginas" aria-label="Páginas"><span class="small">{total} {total === 1 ? 'entrada' : 'entradas'} · página {pagina} de {paginas}</span><span>{pagina > 1 && <a class="u" href={enlace(pagina - 1)}>← Página anterior</a>}{pagina < paginas && <a class="u" href={enlace(pagina + 1)}>Página siguiente →</a>}</span></nav>}
     </main>
     <Cierre />
   </body>

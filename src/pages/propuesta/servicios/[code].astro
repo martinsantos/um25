@@ -1,4 +1,5 @@
 ---
+import { contactLink } from '../../../lib/contactEntry';
 import '../../../styles/pilot-fichas.css';
 import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
@@ -15,7 +16,7 @@ import { operationsSceneForService } from '../../../data/operationsScenes';
 import TechnicalSection from '../../../components/proto/TechnicalSection.astro';
 import { technicalSceneForService } from '../../../data/technicalScenes';
 import { flowForService } from '../../../data/informationFlows';
-import { serviceProvisionItems } from '../../../utils/serviceProvision';
+import { groupServiceProvision, serviceProvisionItems } from '../../../utils/serviceProvision';
 import Ficha from '../../../components/proto/Ficha.astro';
 import CaseLinks from '../../../components/proto/CaseLinks.astro';
 import Casos from '../../../components/proto/Casos.astro';
@@ -34,7 +35,6 @@ import { serviceDetailSeo } from '../../../data/serviceDetailSeo';
 import { SERVICE_SPECS } from '../../../data/serviceSpecs';
 import { SECTORS } from '../../../data/cine/scenes';
 
-import { publicCaseFor } from '../../../components/proto/casePresentation';
 import { isNamedClient } from '../../../components/proto/catalogEditorial';
 
 export const prerender = false;
@@ -61,7 +61,6 @@ const archiveHref = `/antecedentes?service=${code}`;
 const archiveText = own.length > 0 ? `Ver los ${own.length} antecedentes` : 'Ver todos los antecedentes';
 const agregado = new Map(despieceAgregado(own, caseEquipmentFor).map((p) => [p.key, p]));
 const kit = (KIT_DE_SERVICIO[code] || []).map(([key, label]) => ({ key, label, n: agregado.get(key)?.proyectos || 0, u: agregado.get(key)?.unidades || 0 }));
-const accessProject = security ? own.find(story => story.id === 3104) : undefined;
 const photo = SERVICE_PHOTO[code];
 const casos = casosDe(CASOS_SERVICIO[code] || []);
 const showcase = pageCaseCandidates(own, undefined, code);
@@ -82,6 +81,13 @@ const provision = serviceProvisionItems(servicio.products, Number(code)).map((it
   ...item,
   reference: item.referenceCaseId === undefined ? undefined : own.find((c) => c.id === item.referenceCaseId && c.documentedScope),
 }));
+// Radioenlaces entre sedes es un caso transversal de Telecomunicaciones.
+const sceneGroupByCode: Record<string, string> = {
+  '101': 'Fibra óptica', '102': 'Videovigilancia IP', '104': 'Integración y automatización',
+  '105': 'Atención y gestión de incidentes', '106': 'Diagnóstico y evaluación',
+  '107': 'Detectores según el ambiente', '108': 'Respaldo de energía',
+};
+const sceneGroup = groupServiceProvision(provision).find(group => group.title === sceneGroupByCode[code])?.title;
 const showProjectArchive = own.length > 0 || isNetworks;
 const copy = serviceSingleDemoCopy[Number(code)]!;
 const pageSeo = serviceDetailSeo[code] ?? {
@@ -89,54 +95,46 @@ const pageSeo = serviceDetailSeo[code] ?? {
   description: copy.paragraph,
 };
 const limpio = (s: string) => s.replace(/(?:desde|con) el frente 105/gi, 'con el equipo de soporte').replace(/\bfrente 10\d\b/gi, 'equipo técnico');
-const cierrePorServicio: Record<string, { heading: string; description: string; ctaText: string; contactQuestion: string }> = {
+const cierrePorServicio: Record<string, { heading: string; description: string; ctaText: string }> = {
   '101': {
     heading: 'Planifiquemos tu red',
     description: 'Indicá qué sedes necesitás conectar, dónde están y cuántos puestos deben cubrirse.',
     ctaText: 'Consultar por redes',
-    contactQuestion: '¿Qué sectores necesitás conectar y cuántos puntos de red hay que cubrir?',
   },
   '102': {
     heading: 'Definamos qué necesita cubrir la seguridad',
     description: 'Contanos qué espacios necesitás cubrir, qué equipos ya están instalados y en qué horarios opera el sitio.',
     ctaText: 'Consultar seguridad',
-    contactQuestion: '¿Qué zonas necesitás proteger y qué cámaras o controles de acceso tenés instalados?',
   },
   '103': {
     heading: 'Conectemos tus sedes',
     description: 'Decinos qué sedes necesitás enlazar, dónde están y qué equipos deben conectarse.',
     ctaText: 'Consultar conectividad',
-    contactQuestion: '¿Qué sedes necesitás conectar y qué conectividad tienen hoy?',
   },
   '104': {
     heading: 'Contanos qué proceso querés mejorar',
     description: 'Describí el proceso, los sistemas existentes y qué información necesitás integrar.',
     ctaText: 'Consultar por software',
-    contactQuestion: '¿Qué proceso querés digitalizar y con qué sistemas tiene que integrarse?',
   },
   '105': {
     heading: 'Definamos cómo sostener tu operación',
     description: 'Contanos qué sedes y equipos requieren soporte, y en qué horarios trabaja la operación.',
     ctaText: 'Consultar soporte 24/7',
-    contactQuestion: '¿Qué sedes o equipos necesitan soporte y en qué horarios?',
   },
   '106': {
     heading: 'Ordenemos tus decisiones tecnológicas',
     description: 'Compartí las sedes, equipos y sistemas actuales, y la decisión técnica que necesitás resolver.',
     ctaText: 'Consultar por consultoría',
-    contactQuestion: '¿Qué decisión tecnológica necesitás tomar y qué infraestructura tenés hoy?',
   },
   '107': {
     heading: 'Revisemos qué espacios necesitan detección',
     description: 'Indicá qué sectores necesitás cubrir y qué sistema o equipamiento ya existe.',
     ctaText: 'Enviar consulta',
-    contactQuestion: '¿Qué espacios hay que cubrir y qué detectores o alarmas tenés instalados?',
   },
   '108': {
     heading: 'Revisemos la energía de tu infraestructura',
     description: 'Compartí dónde están los equipos, qué instalación existe y qué puntos necesitás alimentar.',
     ctaText: 'Consultar energía IT',
-    contactQuestion: '¿Qué equipos tienen que seguir funcionando ante un corte y por cuánto tiempo?',
   },
 };
 const cierre = cierrePorServicio[code];
@@ -193,7 +191,7 @@ const cierre = cierrePorServicio[code];
       {cifras.length > 0 && <div class="cifras cifras--compact">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>}
       <div class="editorial-actions">
         <div class="service-actions">
-          <a class="btn" href="/contacto">Pedir un relevamiento</a>
+          <a class="btn" href={contactLink(Astro.url.pathname)}>Pedir un relevamiento</a>
           {provision.length > 0 && <a class="u" href="#provision">Ver qué proveemos</a>}
         </div>
         {!showProjectArchive && <a class="u" href={archiveHref}>{archiveText}</a>}
@@ -202,7 +200,8 @@ const cierre = cierrePorServicio[code];
     <nav class="wrap service-sections" aria-label="En esta página">
       <a href="#alcance">Qué cubre</a>
       {provision.length > 0 && <a href="#provision">Qué proveemos</a>}
-      <a href="#flujo">Cómo fluye</a>
+      <a href="#flujo">{security ? 'Grabación de CCTV' : 'Cómo fluye'}</a>
+      {security && <a href="#lectura-de-credencial">Lectura de credencial</a>}
       {(selectedCases.length > 0 || casos.some(c => !c.publicado)) && <a href="#casos">Casos de aplicación</a>}
       <a href="#metodo">Cómo trabajamos</a>
       <a href="#entregables">Qué entregamos</a>
@@ -222,13 +221,14 @@ const cierre = cierrePorServicio[code];
     {provision.length > 0 && (
       <Provision
         items={provision}
-        accessCase={accessProject ? { ...accessProject, title: publicCaseFor(accessProject)?.title || accessProject.title } : undefined}
+        code={code} stories={own} sceneGroup={sceneGroup}
         introduction={isNetworks ? 'Qué instalamos, cómo lo verificamos y qué documentación recibe tu equipo según el alcance acordado.' : undefined}
       >
+        {sceneGroup && <div slot="flow">{operationsScene ? <OperationsSection content={operationsScene} /> : technicalScene ? <TechnicalSection content={technicalScene} /> : functionalPilot ? <FunctionalSection code={code} /> : <FlowSection flow={flowForService(code)} />}</div>}
         {servicio.capabilities.length > 0 && <details class="technical-scope"><summary>Especificaciones adicionales</summary><ul class="lista">{servicio.capabilities.map((c) => <li>{c}</li>)}</ul></details>}
       </Provision>
     )}
-    {operationsScene ? <OperationsSection content={operationsScene} /> : technicalScene ? <TechnicalSection content={technicalScene} /> : functionalPilot ? <FunctionalSection code={code} /> : <FlowSection flow={flowForService(code)} />}
+    {!sceneGroup && (operationsScene ? <OperationsSection content={operationsScene} /> : technicalScene ? <TechnicalSection content={technicalScene} /> : functionalPilot ? <FunctionalSection code={code} /> : <FlowSection flow={flowForService(code)} />)}
     {code === '104' && <SoftwareExperience />}
 
     <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} selection={security ? selectedCases.slice(0, 2) : selectedCases} textOnly={code === '104'} />
@@ -303,7 +303,7 @@ const cierre = cierrePorServicio[code];
 
     </main>
 
-    <Cierre contactSubject={servicio.name} heading={cierre?.heading} description={cierre?.description} ctaText={cierre?.ctaText} contactQuestion={cierre?.contactQuestion} />
+    <Cierre heading={cierre?.heading} description={cierre?.description} ctaText={cierre?.ctaText} />
 
 
   </body>

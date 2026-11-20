@@ -1,8 +1,10 @@
 ---
+import { contactLink } from '../../lib/contactEntry';
+const enquiry = contactLink(Astro.url.pathname, '/contacto?sistema=104&intent=demo');
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 ---
 <LayoutV4 skin="white" title="Software de gestión de colegios de profesionales | ULTIMA MILLA" description="Gestiona tu comunidad con software abierto argentino. Cuotas, credenciales, consultas y trámites para colegios de profesionales.">
-  <main class="gc">
+  <div class="gc">
     <section class="hero">
       <div class="wrap">
         <div class="hero-intro">
@@ -76,14 +78,15 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     <section class="section quiz-section" id="consulta" aria-labelledby="quiz-title">
       <div class="wrap quiz-teaser">
         <div><p class="kicker">UN PRIMER PASO PARA TU COLEGIO</p><h2 id="quiz-title">Veamos qué necesita tu comunidad.</h2><p>Respondé ocho preguntas sobre tu colegio y descubrí un recorrido posible del sistema. Después, si te interesa, pedí una demo con el formato de datos de tu institución. No necesitás registrarte ni compartir datos de matriculados.</p></div>
-        <div class="quiz-teaser-action"><span>01 / EVALUACIÓN GUIADA</span><button class="quiz-primary" id="gc-intent-open" type="button" data-cta="quiz-section" data-intent-open data-intent-view="quiz">Hacer la evaluación <span aria-hidden="true">↗</span></button><p>La evaluación se hace acá mismo. Si ya sabés qué necesitás, <button class="quiz-contact-link" type="button" data-cta="contact-section" data-intent-open data-intent-view="choice">abrí las opciones de contacto</button>.</p><noscript><a href="/contacto">Contactar a Última Milla</a></noscript></div>
+        <div class="quiz-teaser-action"><span>01 / EVALUACIÓN GUIADA</span><button class="quiz-primary" id="gc-intent-open" type="button" data-cta="quiz-section" data-intent-open data-intent-view="quiz">Hacer la evaluación <span aria-hidden="true">↗</span></button><p>La evaluación se hace acá mismo. Si ya sabés qué necesitás, <button class="quiz-contact-link" type="button" data-cta="contact-section" data-intent-open data-intent-view="choice">abrí las opciones de contacto</button>.</p><noscript><a href={enquiry}>Contactar a Última Milla</a></noscript></div>
       </div>
     </section>
+    <form method="post" action={enquiry} id="gc-enquiry-transfer" hidden></form>
     <dialog class="gc-intent-dialog" id="gc-intent-dialog" aria-labelledby="gc-dialog-title">
       <div class="gc-dialog-frame">
         <header class="gc-dialog-header"><span id="gc-dialog-title">Última Milla <span aria-hidden="true">/</span> Tu colegio</span><div><button id="gc-dialog-back" type="button" hidden>← Opciones</button><button id="gc-dialog-close" type="button" aria-label="Cerrar ventana">Cerrar <span aria-hidden="true">×</span></button></div></header>
         <div class="gc-dialog-content" id="gc-dialog-content">
-          <div class="gc-intent-choice" id="gc-intent-choice"><span class="quiz-eyebrow">HAGAMOS QUE LA CONVERSACIÓN SIRVA</span><h2 id="gc-intent-title" tabindex="-1">¿Cómo querés empezar?</h2><p>Elegí el camino que te resulte más útil. Ninguno requiere datos de tus matriculados.</p><div class="gc-intent-options"><button class="gc-intent-option" type="button" data-cta="contact-choice" data-intent-view="contact"><span>CONTACTO BREVE · 4 DATOS</span><strong>Contanos qué necesita tu colegio.</strong><small>Institución, nombre, email y necesidad. Te respondemos para acordar una demo.</small><b>Enviar una consulta ↗</b></button><button class="gc-intent-option" type="button" data-cta="quiz-choice" data-intent-view="quiz"><span>RECORRIDO GUIADO · 8 PASOS</span><strong>Armá un primer recorrido del sistema.</strong><small>Elegí la actividad principal, prioridades y circuitos. Verás módulos y una demo antes de decidir si nos escribís.</small><b>Hacer la evaluación ↗</b></button></div><p class="gc-intent-foot">Instalación y puesta a punto sin cargo. El servicio se cotiza en pesos argentinos.</p></div>
+          <div class="gc-intent-choice" id="gc-intent-choice"><span class="quiz-eyebrow">HAGAMOS QUE LA CONVERSACIÓN SIRVA</span><h2 id="gc-intent-title" tabindex="-1">¿Cómo querés empezar?</h2><p>Elegí el camino que te resulte más útil. Ninguno requiere datos de tus matriculados.</p><div class="gc-intent-options"><a href={enquiry} class="gc-intent-option" data-cta="contact-choice"><span>SOLICITAR DEMO</span><strong>Contanos qué necesita tu colegio.</strong><small>Institución, nombre, email y necesidad. Te respondemos para acordar una demo.</small><b>Enviar una consulta ↗</b></a><button class="gc-intent-option" type="button" data-cta="quiz-choice" data-intent-view="quiz"><span>RECORRIDO GUIADO · 8 PASOS</span><strong>Armá un primer recorrido del sistema.</strong><small>Elegí la actividad principal, prioridades y circuitos. Verás módulos y una demo antes de decidir si nos escribís.</small><b>Hacer la evaluación ↗</b></button></div><p class="gc-intent-foot">Instalación y puesta a punto sin cargo. El servicio se cotiza en pesos argentinos.</p></div>
           <div class="gc-quiz-view" id="gc-quiz-view" hidden>
             <div class="quiz-shell" id="quiz-shell">
           <div class="quiz-side" aria-hidden="true"><span class="quiz-side-mark">UM<span>↗</span></span><p>Primero, una idea clara de tu sistema.</p><div class="quiz-side-steps"><span>01 / COMUNIDAD</span><span>02 / ACTIVIDAD</span><span>03 / ESCALA</span><span>04 / NECESIDADES</span><span>05 / CIRCUITOS</span><span>06 / FIRMA DIGITAL</span><span>07 / INSTALACIÓN</span><span>08 / CONTEXTO</span></div></div>
@@ -93,31 +96,20 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
             <div class="quiz-result" id="quiz-result" hidden><span class="quiz-eyebrow">TU PUNTO DE PARTIDA</span><h3 id="quiz-result-title" tabindex="-1">Un recorrido posible para tu colegio.</h3><p id="quiz-result-copy"></p><div class="quiz-result-grid"><div><h4>Módulos para explorar</h4><div id="quiz-modules" class="quiz-modules"></div></div><div class="quiz-journey" aria-live="polite"><span class="quiz-eyebrow">ASÍ PODRÍA USARSE</span><h4 id="quiz-journey-title"></h4><ol id="quiz-journey-steps"></ol><p>Recorrido conceptual con datos de ejemplo. Los medios de pago, canales e integraciones concretos se definen para cada proyecto.</p></div></div><div class="quiz-signature" id="quiz-signature" hidden><span class="quiz-eyebrow">MÓDULO ADICIONAL A EVALUAR</span><h4>Firma digital en los trámites</h4><p id="quiz-signature-copy"></p><small>El mecanismo de firma, las integraciones, la validez aplicable y el precio se definen en una propuesta específica. Esta demo no emite firmas.</small></div><div class="quiz-install"><span class="quiz-eyebrow">CÓDIGO ABIERTO · DATOS PROPIOS</span><h4>Vos decidís dónde y con quién operarlo.</h4><p id="quiz-install-note"></p><small>Instalación y puesta a punto sin cargo. El servicio se cotiza en pesos argentinos; no implica hosting o mantenimiento gratuitos.</small></div><div class="quiz-edit-panel"><h4>Tus decisiones</h4><div id="quiz-edit-list"></div></div><p class="quiz-result-note">Este resultado orienta la conversación; no configura una institución real ni fija una cotización.</p><div class="quiz-result-actions"><button class="quiz-primary" id="quiz-open-demo" type="button" data-cta="quiz-try-demo">Probar el sistema aquí <span aria-hidden="true">↗</span></button><button class="quiz-secondary" id="quiz-contact" type="button" data-cta="quiz-request-demo">Copiar mis decisiones y pedir una demo</button></div><div id="quiz-inline-demo" class="quiz-inline-demo" hidden><p>Demo interactiva con datos de ejemplo. Elegí el módulo que querés recorrer dentro de la pantalla.</p><iframe id="quiz-demo-frame" title="Demo interactiva del sistema de colegios profesionales" loading="lazy" referrerpolicy="same-origin"></iframe></div><button class="quiz-restart" id="quiz-restart" type="button">Empezar de nuevo</button></div>
           </div>
         </div>
-            <p class="quiz-direct">¿Preferís contarnos tu caso directamente? <button id="quiz-direct-contact" type="button" data-cta="contact-from-quiz">Ir al contacto breve ↗</button></p>
+            <p class="quiz-direct">¿Preferís contarnos tu caso directamente? <a href={enquiry} id="quiz-direct-contact" data-cta="contact-from-quiz">Ir a contacto ↗</a></p>
           </div>
-          <div class="gc-contact-view" id="gc-contact-view" hidden><div class="gc-contact-intro"><span class="quiz-eyebrow">CONVERSACIÓN DIRECTA</span><h2 id="gc-contact-title" tabindex="-1">Contanos qué necesita tu colegio.</h2><p>Podemos acordar una demo con la estructura o una muestra anonimizada de tu institución. No envíes padrón ni archivos.</p></div><form id="gc-form" action="/api/contact" method="post"><label>Institución <input name="company" autocomplete="organization" maxlength="120" required /></label><label>Tu nombre <input name="name" autocomplete="name" maxlength="100" required /></label><label>Email de contacto <input type="email" name="email" autocomplete="email" maxlength="120" required /></label><label>Formato de datos y necesidad principal <textarea name="message" rows="4" minlength="12" maxlength="1200" required></textarea></label><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" /><p class="note">Usaremos estos datos para responder tu solicitud de demo. No incluyas datos personales de integrantes. <a href="/privacidad">Política de privacidad</a>.</p><button class="button" type="submit" data-cta="contact-submit">Pedir una demo ↗</button><p id="gc-status" role="status" aria-live="polite"></p></form></div>
         </div>
       </div>
     </dialog>
     <aside class="quiz-invite" id="gc-quiz-invite" aria-labelledby="gc-quiz-invite-title" hidden><button class="quiz-invite-close" id="gc-quiz-invite-close" type="button" aria-label="Cerrar invitación">×</button><span class="quiz-invite-kicker">UNA IDEA PARA TU COLEGIO</span><p id="gc-quiz-invite-title">¿Querés ver qué partes del sistema podrían servirle a tu comunidad?</p><button class="quiz-invite-action" id="gc-quiz-invite-open" type="button" data-cta="quiz-invite" data-intent-open data-intent-view="quiz">Hacer la evaluación de 8 pasos <span aria-hidden="true">↗</span></button></aside>
-    <section class="section contact-section" id="contacto-directo"><div class="wrap contact-entry"><div><p class="kicker">SIGUIENTE PASO</p><h2>Podemos verlo con la estructura de tu colegio.</h2><p>Contanos qué formato de datos usan y qué quieren resolver. La instalación y puesta a punto son sin cargo.</p></div><div><button class="button" id="gc-contact-open" type="button" data-cta="contact-direct" data-intent-open data-intent-view="choice">Elegir cómo contactarnos <span aria-hidden="true">↗</span></button><p>Si preferís explorar primero, el recorrido guiado está disponible arriba.</p><noscript><a href="/contacto">Ir a la página de contacto</a></noscript></div></div></section>
-  </main>
+    <section class="section contact-section" id="contacto-directo"><div class="wrap contact-entry"><div><p class="kicker">SIGUIENTE PASO</p><h2>Podemos verlo con la estructura de tu colegio.</h2><p>Contanos qué formato de datos usan y qué quieren resolver. La instalación y puesta a punto son sin cargo.</p></div><div><a href={enquiry} class="button" id="gc-contact-open" data-cta="contact-direct">Elegir cómo contactarnos <span aria-hidden="true">↗</span></a><p>Si preferís explorar primero, el recorrido guiado está disponible arriba.</p><noscript><a href={enquiry}>Ir a la página de contacto</a></noscript></div></div></section>
+  </div>
 </LayoutV4>
 <script>
   // Keep the campaign's decision flow clear on mobile; the global install hint can cover its CTA.
   document.querySelector('[data-install-hint]')?.remove();
-  const attribution: Record<string, string> = {};
-  const campaignUrl = new URL(location.href);
-  const allowedAttribution: Record<string, RegExp> = {
-    utm_source: /^email$/,
-    utm_medium: /^outreach$/,
-    utm_campaign: /^comunidades_profesionales(?:_qa)?$/,
-    utm_content: /^(?:qa_)?(?:(?:cuotas|credencial|autonomia|descubrimiento)_)?photo_[abc]$/,
-  };
-  for (const [key, allowed] of Object.entries(allowedAttribution)) {
-    const value = campaignUrl.searchParams.get(key);
-    if (value && allowed.test(value)) attribution[key] = value;
-  }
+  import { collegeAttribution } from '../../lib/collegeAttribution';
+  const attribution = collegeAttribution(new URL(location.href).searchParams);
   const track = (event: string, placement: string) => {
     const layer = (window as Window & { dataLayer?: unknown[] }).dataLayer;
     if (!Array.isArray(layer)) return;
@@ -232,7 +224,6 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   let quizState = initialState();
   let step = 0;
   let activeModule: ModuleKey = 'cuotas';
-  let quizAttached = false;
   let lastResultKey = '';
   const completedSteps = new Set<number>();
   const quiz = document.querySelector<HTMLElement>('#quiz-shell');
@@ -241,11 +232,10 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   const resultPanel = document.querySelector<HTMLElement>('#quiz-result');
   const nextButton = document.querySelector<HTMLButtonElement>('#quiz-next');
   const choices = document.querySelector<HTMLElement>('#quiz-options');
-  type IntentView = 'choice' | 'contact' | 'quiz';
+  type IntentView = 'choice' | 'quiz';
   const intentDialog = document.querySelector<HTMLDialogElement>('#gc-intent-dialog');
   const intentContent = document.querySelector<HTMLElement>('#gc-dialog-content');
   const intentChoice = document.querySelector<HTMLElement>('#gc-intent-choice');
-  const intentContact = document.querySelector<HTMLElement>('#gc-contact-view');
   const intentQuiz = document.querySelector<HTMLElement>('#gc-quiz-view');
   const intentBack = document.querySelector<HTMLButtonElement>('#gc-dialog-back');
   const quizInvite = document.querySelector<HTMLElement>('#gc-quiz-invite');
@@ -262,7 +252,6 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     dismissInvite();
   });
   document.querySelectorAll<HTMLElement>('[data-cta]').forEach((control) => control.addEventListener('click', dismissInvite));
-  document.querySelector<HTMLFormElement>('#gc-form')?.addEventListener('focusin', dismissInvite, { once: true });
   document.querySelector<HTMLElement>('.live-demo-window')?.addEventListener('pointerdown', dismissInvite, { once: true });
   let inviteActiveMs = 0;
   let inviteLastTick = performance.now();
@@ -289,18 +278,17 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   let intentView: IntentView = 'choice';
   let intentOpener: HTMLElement | null = null;
   const showIntentView = (view: IntentView) => {
-    if (!intentChoice || !intentContact || !intentQuiz) return;
+    if (!intentChoice || !intentQuiz) return;
     intentView = view;
     intentDialog?.classList.toggle('is-choice', view === 'choice');
     intentChoice.hidden = view !== 'choice';
-    intentContact.hidden = view !== 'contact';
     intentQuiz.hidden = view !== 'quiz';
     if (intentBack) intentBack.hidden = view === 'choice';
     if (intentContent) intentContent.scrollTop = 0;
     if (view === 'quiz') {
       if (welcome && !welcome.hidden) document.querySelector<HTMLButtonElement>('#quiz-start')?.click();
       else (resultPanel && !resultPanel.hidden ? document.querySelector<HTMLElement>('#quiz-result-title') : document.querySelector<HTMLElement>('#quiz-question'))?.focus({ preventScroll: true });
-    } else document.querySelector<HTMLElement>(view === 'contact' ? '#gc-contact-title' : '#gc-intent-title')?.focus({ preventScroll: true });
+    } else document.querySelector<HTMLElement>('#gc-intent-title')?.focus({ preventScroll: true });
   };
   const openIntent = (opener: HTMLElement, requested?: IntentView) => {
     if (!intentDialog) return;
@@ -312,29 +300,9 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     if (opener instanceof HTMLAnchorElement) event.preventDefault();
     openIntent(opener, opener.dataset.intentView as IntentView | undefined);
   }));
-  // On this landing, all global Contacto links use the page's two-way selector.
-  // Other routes keep the shared contact behavior untouched.
-  document.addEventListener('click', (event) => {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const source = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null;
-    if (!source || source.target === '_blank') return;
-    const target = new URL(source.href, location.href);
-    if (target.origin !== location.origin || target.pathname.replace(/\/$/, '') !== '/contacto') return;
-    event.preventDefault();
-    event.stopPropagation();
-    const menuToggle = document.querySelector<HTMLButtonElement>('#menuToggle');
-    if (menuToggle?.getAttribute('aria-expanded') === 'true') menuToggle.click();
-    const placement = source.matches('[data-ops-dock-cta]') ? 'contact-dock' :
-      source.closest('#mobileMenu') ? 'contact-mobile-menu' :
-      source.closest('header') ? 'contact-header' :
-      source.closest('footer') ? 'contact-footer' : 'contact-tab';
-    track('gc_cta_click', placement);
-    dismissInvite();
-    openIntent(source.closest('#mobileMenu') && menuToggle ? menuToggle : source, 'choice');
-  }, true);
   document.querySelectorAll<HTMLButtonElement>('#gc-intent-choice [data-intent-view]').forEach((option) => option.addEventListener('click', () => {
     const view = option.dataset.intentView as IntentView;
-    if (view !== 'quiz' && view !== 'contact') return;
+    if (view !== 'quiz') return;
     track('gc_intent_choice', view);
     showIntentView(view);
   }));
@@ -575,7 +543,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   };
   document.querySelector<HTMLButtonElement>('#quiz-start')?.addEventListener('click', () => {
     if (!quiz || !welcome || !resultPanel) return;
-    quizState = initialState(); completedSteps.clear(); step = 0; quizAttached = false; lastResultKey = '';
+    quizState = initialState(); completedSteps.clear(); step = 0; lastResultKey = '';
     welcome.hidden = true; resultPanel.hidden = true;
     const inline = document.querySelector<HTMLElement>('#quiz-inline-demo'); if (inline) inline.hidden = true;
     track('gc_quiz_start', 'quiz'); renderStep();
@@ -598,7 +566,7 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
   document.querySelector<HTMLButtonElement>('#quiz-restart')?.addEventListener('click', () => {
     if (!resultPanel || !welcome || !quiz) return;
     resultPanel.hidden = true; welcome.hidden = false; quiz.classList.remove('is-result');
-    quizState = initialState(); completedSteps.clear(); quizAttached = false; lastResultKey = '';
+    quizState = initialState(); completedSteps.clear(); lastResultKey = '';
     document.querySelector<HTMLIFrameElement>('#quiz-demo-frame')?.removeAttribute('src');
     const inline = document.querySelector<HTMLElement>('#quiz-inline-demo'); if (inline) inline.hidden = true;
     document.querySelector<HTMLButtonElement>('#quiz-start')?.focus();
@@ -613,15 +581,8 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
     if (firstOpen) track('gc_quiz_demo', activeModule);
     inline.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
   });
-  document.querySelector<HTMLButtonElement>('#quiz-contact')?.addEventListener('click', () => {
-    const message = document.querySelector<HTMLTextAreaElement>('#gc-form textarea[name="message"]');
-    const company = document.querySelector<HTMLInputElement>('#gc-form input[name="company"]');
-    const person = document.querySelector<HTMLInputElement>('#gc-form input[name="name"]');
-    if (!message || !company || !person) return;
-    if (quizState.institution.trim()) company.value = quizState.institution.trim();
-    if (quizState.person.trim()) person.value = quizState.person.trim();
+  function continueWithEvaluation() {
     const lines = [
-      'Nos gustaría ver una demo con el formato de datos de nuestra institución.',
       `Profesión: ${labelFor(professionOptions, quizState.profession) || 'a definir'}.`,
       `Actividad principal: ${labelFor(activityOptions, quizState.activity) || 'a definir'}${quizState.activity === 'otra' && quizState.activityOther.trim() ? ` (${quizState.activityOther.trim()})` : ''}.`,
       ...(quizState.secondaryActivities.length ? [`Otras actividades: ${quizState.secondaryActivities.map((value) => labelFor(activityOptions, value)).join(', ')}.`] : []),
@@ -632,51 +593,33 @@ import LayoutV4 from '../../layouts/LayoutV4.astro';
       `Firma digital: ${labelFor(signatureOptions, quizState.signature) || 'a definir'}.`,
       ...(quizState.signatureProcedures.length ? [`Trámites para evaluar firma digital: ${quizState.signatureProcedures.map((value) => labelFor(signatureProcedureOptions, value)).join(', ')}.`] : []),
       `Instalación: ${labelFor(installOptions, quizState.install) || 'a definir'}.`,
-      ...(quizState.province.trim() ? [`Provincia: ${quizState.province.trim()}.`] : []),
-      ...(quizState.address.trim() ? [`Dirección institucional: ${quizState.address.trim()}.`] : []),
-      ...(quizState.details.trim() ? [`Detalle: ${quizState.details.trim()}`] : []),
-    ];
-    message.value = lines.join('\n').slice(0, 1200);
-    if (!quizAttached) track('gc_quiz_contact', 'quiz');
-    quizAttached = true;
-    showIntentView('contact');
-    (company.value ? person : company).focus({ preventScroll: true });
-  });
-  document.querySelector<HTMLButtonElement>('#quiz-direct-contact')?.addEventListener('click', () => showIntentView('contact'));
-  const form = document.querySelector<HTMLFormElement>('#gc-form');
-  const status = document.querySelector<HTMLElement>('#gc-status');
-  let submitting = false;
-  form?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (submitting) return;
-    if (!form.reportValidity()) return;
-    submitting = true;
-    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
-    if (button) button.disabled = true;
-    if (status) status.textContent = 'Enviando consulta…';
-    const fields = new FormData(form);
-    const utm = new URLSearchParams();
-    for (const [key, value] of Object.entries(attribution)) utm.set(key, value);
-    const url = new URL(location.href);
-    const query = utm.toString();
-    const payload = {
-      name: String(fields.get('name') || '').trim(), email: String(fields.get('email') || '').trim(),
-      company: String(fields.get('company') || '').trim(), message: String(fields.get('message') || '').trim(),
-      website: String(fields.get('website') || ''), formVariant: quizAttached ? 'comunidades-profesionales-quiz' : 'comunidades-profesionales',
-      originPath: url.pathname, originTitle: document.title, originLabel: 'Solicitar demo',
-      originIntent: 'Software para comunidades profesionales',
-      originHref: url.origin + url.pathname + (query ? '?' + query : ''),
+    ].filter(line => !line.endsWith(': a definir.'));
+    const transfer = document.querySelector<HTMLFormElement>('#gc-enquiry-transfer');
+    if (!transfer) return;
+    const draft = {
+      institution: quizState.institution, person: quizState.person,
+      site: [quizState.province, quizState.address].filter(Boolean).join(' · '),
+      notes: quizState.details, brief: lines.join('\n'),
     };
-    try {
-      const response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      const result = await response.json();
-      if (!response.ok || result.success !== true) throw new Error('send failed');
-      if (!result.duplicate) track('gc_inquiry_confirmed', quizAttached ? 'quiz' : 'form');
-      form.reset();
-      quizAttached = false;
-      if (status) status.textContent = 'Recibimos tu solicitud de demo. Te responderemos por email.';
-    } catch { if (status) status.textContent = 'No pudimos enviar la solicitud. Intentá nuevamente o escribinos a contacto@ultimamilla.com.ar.'; }
-    finally { submitting = false; if (button) button.disabled = false; }
+    transfer.replaceChildren();
+    for (const [name, value] of Object.entries(draft)) {
+      const field = document.createElement('input');
+      field.type = 'hidden'; field.name = name; field.value = value;
+      transfer.append(field);
+    }
+    track('gc_quiz_contact', 'quiz');
+    const target = new URL(transfer.action);
+    for (const [key, value] of Object.entries(attribution)) target.searchParams.set(key, value);
+    transfer.action = target.href;
+    transfer.submit();
+  }
+  document.querySelector('#quiz-contact')?.addEventListener('click', continueWithEvaluation);
+  document.addEventListener('click', event => {
+    if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+    const link = event.target instanceof Element && event.target.closest<HTMLAnchorElement>('a[href]');
+    if (!link || link.origin !== location.origin || link.pathname !== '/contacto') return;
+    const answered = Object.values(quizState).some(value => value.length > 0);
+    if (answered) { event.preventDefault(); continueWithEvaluation(); }
   });
 </script>
 <style>

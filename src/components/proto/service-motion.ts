@@ -1,7 +1,7 @@
 /** GIFs are loaded only for the diagram the visitor can see. */
 export function initFlowMotion(root: Document) {
   if (typeof IntersectionObserver === 'undefined') return;
-  const diagrams = [...root.querySelectorAll<HTMLElement>('[data-flow-gif]')];
+  const diagrams = [...root.querySelectorAll<HTMLElement>('[data-flow-gif]:not([data-flow-ready])')];
   if (!diagrams.length) return;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const visible = new Set<HTMLElement>();
@@ -21,7 +21,10 @@ export function initFlowMotion(root: Document) {
   }
 
   function update() {
-    if (active && !eligible(active.diagram)) stop();
+    if (active && !eligible(active.diagram)) {
+      attempted.delete(active.diagram);
+      stop();
+    }
     if (active) return;
     const diagram = diagrams.find((element) => !attempted.has(element) && eligible(element));
     const frame = diagram?.querySelector('[data-flow-art]');
@@ -38,7 +41,7 @@ export function initFlowMotion(root: Document) {
     image.addEventListener('load', () => {
       if (active !== run) return;
       if (eligible(diagram)) diagram.setAttribute('data-flow-running', '');
-      else stop();
+      else update();
     }, { once: true });
     image.addEventListener('error', () => { if (active === run) stop(); }, { once: true });
     frame.append(image);
@@ -57,7 +60,7 @@ export function initFlowMotion(root: Document) {
     update();
   }, { threshold: [0, .55] });
 
-  diagrams.forEach((diagram) => observer.observe(diagram));
+  diagrams.forEach((diagram) => { diagram.setAttribute('data-flow-ready',''); observer.observe(diagram); });
   root.addEventListener('change', (event) => {
     if (event.target instanceof HTMLInputElement && event.target.matches('.selector,.detalle-control')) update();
   });

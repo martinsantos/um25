@@ -1,4 +1,5 @@
 ---
+import { contactLink } from '../../lib/contactEntry';
 import UMLogo from '../brand/UMLogo.astro';
 import { NAV_SECTORS, NAV_SERVICES } from '../../data/navigation';
 import { SERVICE_NAV_MEDIA, SECTOR_NAV_MEDIA } from '../../data/navigationMedia';
@@ -38,7 +39,7 @@ const isActive = (href: string) => {
   const service = target.match(/^\/servicios\/(10[1-8])(?:\/|$)/);
   if (service) return matchesPath(clean, `/servicios/${service[1]}`);
   // Los destinos históricos /bodegas, etc. conservan su selección en /sectores/bodegas.
-  if (target !== '/sectores') clean = clean.replace(/^\/sectores\//, '/');
+  if (target !== '/sectores' && !target.startsWith('/sectores/')) clean = clean.replace(/^\/sectores\//, '/');
   return matchesPath(clean, target);
 };
 
@@ -115,11 +116,9 @@ const isActive = (href: string) => {
 
 
       {lang === 'en' ? (
-        <a href="/en/contacto" class="um-ops-cta">{t.nav.contact}</a>
+        <a href={contactLink(currentPath, routes.contact)} class="um-ops-cta">{t.nav.contact}</a>
       ) : (
-        <a href="/contacto" class="um-ops-cta">
-          Contactar
-        </a>
+        <a href={contactLink(currentPath)} class="um-ops-cta">Contactar</a>
       )}
 
       <button
@@ -172,7 +171,7 @@ const isActive = (href: string) => {
       ))}
     </ul>
     <div class="um-ops-mobile__foot">
-      <a href={routes.contact} class="um-ops-mobile__cta">
+      <a href={contactLink(currentPath, routes.contact)} class="um-ops-mobile__cta">
         {t.nav.contact}
         <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
       </a>
@@ -182,7 +181,7 @@ const isActive = (href: string) => {
 </div>
 
 <div class="um-ops-dock" data-ops-dock aria-hidden="true">
-  <a href={routes.contact} class="um-ops-dock__cta" data-ops-dock-cta tabindex="-1">
+  <a href={contactLink(currentPath, routes.contact)} class="um-ops-dock__cta" data-ops-dock-cta tabindex="-1">
     {t.nav.contact}
     <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
   </a>
@@ -1224,12 +1223,17 @@ const isActive = (href: string) => {
 
     const isOpen = () => !mobileMenu.hasAttribute('hidden');
     let savedY = 0;
+    const suspended = new Set<HTMLElement>();
     const openMenu = () => {
       savedY = scrollY;
       root.style.setProperty('--um-ops-header-h', `${Math.max(0, Math.round(header.getBoundingClientRect().bottom))}px`);
       mobileMenu.removeAttribute('hidden');
       root.classList.add('um-ops-menu-open');
-      outside().forEach((el) => { el.inert = true; });
+      for (const el of outside()) {
+        if (el.inert) continue;
+        el.inert = true;
+        suspended.add(el);
+      }
       menuToggle.setAttribute('aria-expanded', 'true');
       menuToggle.setAttribute('aria-label', menuToggle.dataset.labelClose || 'Cerrar menú');
       mobileMenu.querySelector<HTMLElement>('a[href]')?.focus({ preventScroll: true });
@@ -1238,7 +1242,8 @@ const isActive = (href: string) => {
       if (!isOpen()) return;
       mobileMenu.setAttribute('hidden', '');
       root.classList.remove('um-ops-menu-open');
-      outside().forEach((el) => { el.inert = false; });
+      suspended.forEach(el => { el.inert = false; });
+      suspended.clear();
       if (Math.abs(scrollY - savedY) > 1) scrollTo({ top: savedY, behavior: 'instant' as ScrollBehavior });
       menuToggle.setAttribute('aria-expanded', 'false');
       menuToggle.setAttribute('aria-label', menuToggle.dataset.labelOpen || 'Abrir menú');
@@ -1282,7 +1287,7 @@ const isActive = (href: string) => {
     const dock = document.querySelector<HTMLElement>('[data-ops-dock]');
     const dockCta = dock?.querySelector<HTMLAnchorElement>('[data-ops-dock-cta]');
     const phone = matchMedia('(max-width: 760px)');
-    const onContactPage = location.pathname.replace(/\/$/, '') === '/contacto';
+    const onContactPage = ['/contacto', '/en/contact'].includes(location.pathname.replace(/\/$/, ''));
     if (dock && dockCta && !onContactPage && 'IntersectionObserver' in window) {
       const blockers = new Set<Element>();
       let pastHero = false;

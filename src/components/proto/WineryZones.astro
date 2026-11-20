@@ -1,4 +1,5 @@
 ---
+import { contactLink } from '../../lib/contactEntry';
 import { ArrowRight, ArrowUpRight, Warehouse, BellRing } from 'lucide-astro';
 import gate from '../../media/bodegas/ingreso.webp?url';
 import hall from '../../media/bodegas/nave.webp?url';
@@ -8,7 +9,7 @@ import { samePublicClient } from './casePresentation';
 interface Props { stories: Story[] }
 const zones = [
   {
-    key: 'ingreso', label: 'Ingreso', icon: BellRing, image: gate,
+    key: 'ingreso', service: '102', label: 'Ingreso', icon: BellRing, image: gate,
     alt: 'Portero IP junto al portón de entrada de una bodega.',
     title: 'Atender el portón a distancia', steps: ['Llamada', 'Recepción', 'Respuesta'],
     description: 'La visita llama desde el portón. El puesto de recepción atiende por la red IP y habla con quien llegó.',
@@ -16,7 +17,7 @@ const zones = [
     cta: 'Consultar por el ingreso', question: '¿Desde qué puesto necesitás atender el ingreso a la bodega?',
   },
   {
-    key: 'nave', label: 'Nave de producción', icon: Warehouse, image: hall,
+    key: 'nave', service: '107', label: 'Nave de producción', icon: Warehouse, image: hall,
     alt: 'Detector en una viga y canalización sobre los tanques de una nave de producción.',
     title: 'Recibir un aviso de humo', steps: ['Detector', 'Cableado', 'Central'],
     description: 'Sobre la línea de tanques, el detector se conecta por cable a la central. Si detecta humo, la señal llega al puesto que supervisa la nave.',
@@ -35,7 +36,7 @@ const selected = zones.find(zone => zone.key === Astro.url.searchParams.get('zon
    )}</nav>
   </header>
   {zones.map(zone => {
-   const href = '/contacto?' + new URLSearchParams({ budgetSector: 'Bodegas', budgetScope: zone.label }) + '#formulario';
+   const href = '/contacto?' + new URLSearchParams({ budgetSector: 'Bodegas', budgetScope: zone.label, sistema: zone.service }) + '#formulario';
    return <article class="zone-panel" data-zone-panel={zone.key} hidden={zone.key!==selected.key}>
     <figure>
      <img class="scene" src={zone.image} alt={zone.alt} width="1080" height="720" loading="lazy"/>
@@ -48,7 +49,7 @@ const selected = zones.find(zone => zone.key === Astro.url.searchParams.get('zon
       <span><small>Obra relacionada · UM-{zone.id}</small><strong>{zone.work}</strong><span class="client">{zone.story.client}</span></span>
       <ArrowUpRight size={17} aria-hidden="true"/>
      </a>}
-     <a class="zone-contact" href={href} data-contact-subject={`Bodegas · ${zone.label}`} data-contact-question={zone.question}>{zone.cta}<ArrowRight size={18} aria-hidden="true"/></a>
+     <a class="zone-contact" href={contactLink(Astro.url.pathname, href)} data-contact-subject={`Bodegas · ${zone.label}`} data-contact-question={zone.question}>{zone.cta}<ArrowRight size={18} aria-hidden="true"/></a>
     </div>
    </article>
   })}

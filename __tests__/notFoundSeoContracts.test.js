@@ -49,8 +49,10 @@ describe('404 SEO contracts', () => {
 
     expect(detailRoute.indexOf('antecedente = await getAntecedenteConServicios(id)'))
       .toBeLessThan(detailRoute.indexOf('antecedente = await getUm26AntecedenteFallback(id)'));
-    expect(indexRoute.indexOf('const item = await getAntecedenteConServicios(id)'))
-      .toBeLessThan(indexRoute.indexOf('const um26Item = await getUm26AntecedenteById(Number(id))'));
+    const catalogDetail = source('src/pages/propuesta/antecedentes/[id]/[slug].astro');
+    for (const route of [catalogDetail, indexRoute]) expect(route).toContain('await loadStories()');
+    expect(indexRoute).toContain('stories.find(item => item.id === Number(id))');
+    expect(indexRoute).toContain('Astro.redirect(story.href + Astro.url.search, 301)');
   });
 
   test('case related rows import their year formatter', () => {

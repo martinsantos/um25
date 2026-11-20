@@ -4,45 +4,23 @@ const path = require('path');
 const repoRoot = process.cwd();
 const read = (file) => fs.readFileSync(path.join(repoRoot, file), 'utf8');
 
-describe('global contact modal contract', () => {
-  test('LayoutV4 renders the contextual contact modal globally', () => {
-    const layout = read('src/layouts/LayoutV4.astro');
-
-    expect(layout).toContain("import ContactModal from '../components/um/ContactModal.astro'");
-    expect(layout).toContain('<ContactModal />');
+describe('single contextual contact form', () => {
+  test('the site shell links to the existing form', () => {
+    for (const file of ['src/layouts/LayoutV4.astro','src/components/proto/Cierre.astro']) {
+      expect(read(file)).toContain('<ContactLinks />');
+      expect(read(file)).not.toContain('<ContactModal');
+    }
+    expect(read('src/components/um/ContactLinks.astro')).not.toContain('<form');
+    for (const file of ['src/pages/propuesta/contacto.astro','src/pages/propuesta/en/contact.astro']) {
+      expect(read(file).match(/<ContactForm\b/g)).toHaveLength(1);
+    }
   });
 
-  test('contact modal keeps the visible form simple and sends context invisibly', () => {
-    const modal = read('src/components/um/ContactModal.astro');
-    const formSource = modal.slice(
-      modal.indexOf('<form id="umContactModalForm"'),
-      modal.indexOf('</form>') + '</form>'.length
-    );
-
-    const visibleFieldNames = Array.from(formSource.matchAll(/<(?:input|textarea|select)\b[^>]*\sname="([^"]+)"/g))
-      .map((match) => match[1])
-      .filter((name) => ![
-        'website',
-        'contact_phone',
-        'startedAt',
-        'formVariant',
-        'contactProof',
-        'originPath',
-        'originTitle',
-        'originLabel',
-        'originIntent',
-        'originHref',
-      ].includes(name));
-
-    expect(visibleFieldNames).toEqual(['name', 'email', 'company', 'message']);
-    expect(modal).toContain('role="dialog"');
-    expect(modal).toContain('aria-modal="true"');
-    expect(modal).toContain('data-contact-context');
-    expect(modal).not.toContain('data-contact-mode');
-    expect(modal).not.toContain('data-contact-prompt');
-    expect(modal).toContain('contactHref(source)');
-    expect(modal).toContain('Enviar por email');
-    expect(modal).toContain('buildFallbackMailto()');
+  test('the contact form submits the originating page and selections', () => {
+    const form = read('src/components/cine/ContactForm.astro');
+    expect(form).toContain('contextualParams(incoming, from)');
+    expect(form).toContain('originPath: root.dataset.originPath');
+    expect(form).toContain('checked={selectedServices.has(s.toLowerCase())}');
   });
 
   test('contact API sends by default instead of blocking on hidden browser proof', () => {

@@ -3,9 +3,45 @@
 // modal global (name, email, company, message + campos de origen y anti-spam): tema,
 // servicios, sede y urgencia se suman al mensaje y el tema viaja como originIntent,
 // que el mail usa como asunto.
+import { journeyContext } from '../../data/propuesta/recorrido';
+import { loadStories } from '../proto/isoData';
+import { contactOrigin, contextualParams } from '../../lib/contactEntry';
+import { budgetSelections } from '../../data/budgetBrief';
 interface Props { lang?: 'es' | 'en' }
 const { lang = 'es' } = Astro.props;
+const incoming = Astro.url.searchParams;
+const referrer = Astro.request.headers.get('referer');
+let from = contactOrigin(incoming.get('origen'));
+if (!from && referrer) {
+  try {
+    const previous = new URL(referrer);
+    if (previous.origin === Astro.url.origin) from = contactOrigin(previous.pathname);
+  } catch { /* Referrers are optional. */ }
+}
+const params = contextualParams(incoming, from);
+const budget = budgetSelections(params, lang);
+const context = lang === 'es' ? journeyContext(params) : undefined;
+const intent = params.get('intent') || (budget.length ? 'presupuesto' : '');
+const dossier = intent === 'documentacion';
+const sourceTitle = from ? incoming.get('tituloOrigen')?.trim().slice(0, 160) : '';
+const sourceAction = from ? incoming.get('accion')?.trim().slice(0, 100) : '';
+const originPath = from || (lang === 'en' ? '/en/contact' : '/contacto');
+const college = originPath === '/software/gestion-de-comunidades-profesionales';
+const draft = college && Astro.request.method === 'POST' ? await Astro.request.formData() : undefined;
+const draftField = (key: string, limit: number) => {
+  const value = draft?.get(key);
+  return typeof value === 'string' ? value.trim().slice(0, limit) : '';
+};
+const evaluation = draftField('brief', 2800);
+if (evaluation) budget.push({ label: 'Evaluación del colegio', value: evaluation });
 const t = (es: string, en: string) => lang === 'en' ? en : es;
+const reference = params.get('antecedente') || '';
+const work = /^\d{1,8}$/.test(reference) ? (await loadStories()).stories.find(item => item.id === Number(reference)) : undefined;
+const project = work ? `UM-${work.id}` : '';
+const subject = project ? `${t('Proyecto', 'Project')} ${project} · ${work!.title}` : college ? 'Software para colegios profesionales' : context?.subject || (dossier ? t('Solicitud de dossier', 'Dossier request') : sourceTitle || undefined);
+const question = project
+  ? (project === 'UM-3104' ? t('¿Qué accesos necesitás controlar y en qué sitio?', 'Which entrances do you need to control and where?') : t('¿Qué necesitás implementar y en qué sitio?', 'What do you need to implement, and at which site?'))
+  : college ? '¿Qué necesitás resolver en tu colegio profesional?' : context?.question || (dossier ? t('¿Para qué proyecto o licitación necesitás el dossier?', 'Which project or tender needs the dossier?') : undefined);
 const topics = [
   { id: 'diagnostico', label: t('Diagnóstico o incidente', 'Diagnosis or incident'), hint: t('Qué sistema falla, en qué sede y desde cuándo.', 'Which system is affected, where and since when.') },
   { id: 'relevamiento', label: t('Relevamiento técnico', 'Technical assessment'), hint: t('Qué hay que instalar o mejorar, cuántas sedes y qué restricciones tiene el edificio.', 'What needs to be installed or improved, how many sites and any building constraints.') },
@@ -14,37 +50,53 @@ const topics = [
   { id: 'otra', label: t('Otra consulta', 'Other enquiry'), hint: t('Contanos qué necesitás, en qué sede y para cuándo.', 'Tell us what you need, where and by when.') },
 ];
 const services = [t('Redes', 'Networks'), t('Seguridad electrónica', 'Electronic security'), t('Telecomunicaciones', 'Telecommunications'), t('Software a medida', 'Custom software'), t('Soporte 24/7', '24/7 support'), t('Consultoría IT', 'IT consulting'), t('Detección de incendios', 'Fire detection'), t('Eléctricos IT', 'IT power systems')];
+const code = params.get('sistema') || '';
+const selectedServices = new Set(params.getAll('servicio').map(value => value.toLowerCase()));
+for (const serviceCode of new Set([code, ...(work?.serviceCodes || [])])) {
+  if (/^10[1-8]$/.test(serviceCode)) selectedServices.add(services[Number(serviceCode) - 101]!.toLowerCase());
+}
+const initialTopic = params.get('tema') || (intent === 'relevamiento' ? 'relevamiento' : '');
 const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'), t('Hoy: hay una falla en curso', 'Today: an incident is in progress'), t('Tengo fecha de pliego', 'I have a tender deadline')];
 ---
-<div class="ctf" data-ctf data-lang={lang}>
+<div class="ctf" data-ctf data-lang={lang} data-subject={subject} data-college={college ? (draft ? 'quiz' : 'form') : undefined} data-origin-path={originPath} data-origin-title={sourceTitle || subject || originPath} data-origin-label={sourceAction} data-origin-intent={intent?.slice(0, 80)}>
+  <noscript>
+    <style is:inline>[data-ctf] .ctf__form { display:none; }</style>
+    {subject && <h2 class="ctf__subject">{subject}</h2>}
+    <p>{t('Enviá tu consulta por email a', 'Email your enquiry to')} <strong><span>contacto</span><span>&#64;</span><span>ultimamilla.com.ar</span></strong>.</p>
+    {budget.length > 0 && <dl class="ctf__brief">{budget.map(item => <div><dt>{item.label}</dt><dd>{item.value}</dd></div>)}</dl>}
+  </noscript>
   <form class="ctf__form" id="contactForm" method="post" action="/api/contact" novalidate>
+    {subject && <h2 class="ctf__subject">{subject}</h2>}
+    {budget.length > 0 && <dl class="ctf__brief" aria-label={t('Contexto del presupuesto', 'Project brief')}>
+      {budget.map(item => <div data-brief-row data-college-evaluation={college && evaluation && item.value === evaluation ? true : undefined}><dt>{item.label}</dt><dd>{item.value}</dd></div>)}
+    </dl>}
     <div class="ctf__grid">
       <label class="ctf__field">
         <span>{t('Nombre', 'Name')} <em aria-hidden="true">*</em></span>
-        <input type="text" id="name" name="name" required autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder={t('Nombre y apellido', 'Full name')} />
-        <small class="ctf__error" data-error-for="name"></small>
+        <input type="text" id="name" value={draftField('person', 100)} aria-describedby="error-name" name="name" required autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder={t('Nombre y apellido', 'Full name')} />
+        <small class="ctf__error" data-error-for="name" id="error-name"></small>
       </label>
       <label class="ctf__field">
         <span>{t('Email de trabajo', 'Work email')} <em aria-hidden="true">*</em></span>
-        <input type="email" id="email" name="email" required autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder={t('mail@empresa.com', 'you@company.com')} />
-        <small class="ctf__error" data-error-for="email"></small>
+        <input type="email" id="email" aria-describedby="error-email" name="email" required autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder={t('mail@empresa.com', 'you@company.com')} />
+        <small class="ctf__error" data-error-for="email" id="error-email"></small>
       </label>
     </div>
 
     <label class="ctf__field">
       <span>{t('Empresa u organismo', 'Company or organization')}</span>
-      <input type="text" id="company" name="company" autocomplete="organization" enterkeyhint="next" placeholder={t('Opcional', 'Optional')} />
+      <input type="text" id="company" name="company" value={draftField('institution', 120)} autocomplete="organization" enterkeyhint="next" placeholder={t('Opcional', 'Optional')} />
     </label>
 
-    <label class="ctf__field">
+    <label class="ctf__field" hidden={Boolean(context)}>
       <span>{t('Motivo', 'Enquiry type')}</span>
       <select id="topic" name="topic">
         <option value="">{t('Elegí un motivo', 'Choose an enquiry type')}</option>
-        {topics.map((t) => <option value={t.id} data-label={t.label} data-hint={t.hint}>{t.label}</option>)}
+        {topics.map((t) => <option value={t.id} selected={initialTopic === t.id} data-label={t.label} data-hint={t.hint}>{t.label}</option>)}
       </select>
     </label>
 
-    <details class="ctf__more" data-ctf-more>
+    <details class="ctf__more" data-ctf-more open={selectedServices.size > 0}>
       <summary>
         <span class="ctf__more-icon" aria-hidden="true"></span>
         {t('Agregar servicios', 'Add services')} <small>{t('(opcional)', '(optional)')}</small>
@@ -55,7 +107,7 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
         <div class="ctf__chips">
           {services.map((s, i) => (
             <label class="ctf__chip">
-              <input type="checkbox" name="services" value={s} id={`service-${i}`} />
+              <input type="checkbox" name="services" checked={selectedServices.has(s.toLowerCase())} value={s} id={`service-${i}`} />
               <span>{s}</span>
             </label>
           ))}
@@ -66,7 +118,7 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
     <div class="ctf__grid">
       <label class="ctf__field">
         <span>{t('Ciudad o sede', 'City or site')}</span>
-        <input type="text" id="site" name="site" autocomplete="address-level2" enterkeyhint="next" placeholder={t('Ej.: Mendoza, 3 sedes', 'E.g. Mendoza, 3 sites')} />
+        <input type="text" id="site" name="site" value={draftField('site', 180)} autocomplete="address-level2" enterkeyhint="next" placeholder={t('Ej.: Mendoza, 3 sedes', 'E.g. Mendoza, 3 sites')} />
       </label>
       <label class="ctf__field">
         <span>{t('Urgencia', 'Urgency')}</span>
@@ -77,9 +129,9 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
     </div>
 
     <label class="ctf__field">
-      <span>{t('Mensaje', 'Message')} <em aria-hidden="true">*</em></span>
-      <textarea id="message" name="message" required rows="5" maxlength="1200" placeholder={t('Contanos qué necesitás, en qué sede y para cuándo.', 'Tell us what you need, where and by when.')}></textarea>
-      <small class="ctf__error" data-error-for="message"></small>
+      <span>{question || t('Mensaje', 'Message')} <em aria-hidden="true">*</em></span>
+      <textarea id="message" aria-describedby="error-message" name="message" required rows="5" maxlength="1200" placeholder={t('Contanos qué necesitás, en qué sede y para cuándo.', 'Tell us what you need, where and by when.')}>{draftField('notes', 1200)}</textarea>
+      <small class="ctf__error" data-error-for="message" id="error-message"></small>
       <span class="ctf__count" aria-hidden="true"><b data-count>0</b>/1200</span>
     </label>
 
@@ -104,6 +156,7 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
 </div>
 
 <script>
+  import { collegeAttribution } from '../../lib/collegeAttribution';
   document.querySelectorAll<HTMLElement>('[data-ctf]').forEach((root) => {
     const t = (es: string, en: string) => root.dataset.lang === 'en' ? en : es;
     const form = root.querySelector<HTMLFormElement>('form')!;
@@ -120,6 +173,7 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
     stamp();
 
     const updateCount = () => { count.textContent = String(message.value.length); };
+    updateCount();
     // El error de un campo se va apenas se corrige.
     form.addEventListener('input', (e) => {
       const el = e.target as HTMLElement;
@@ -149,21 +203,7 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
     };
     form.addEventListener('change', (e) => { if ((e.target as HTMLInputElement).name === 'services') syncServices(); });
 
-    // Precarga desde la URL: ?tema=pliego&servicio=Redes o los datos del presupuestador.
-    const params = new URLSearchParams(location.search);
-    const reference = params.get('antecedente');
-    if (reference && /^\d{1,8}$/.test(reference) && !message.value) { message.value = t('Consulta por el antecedente', 'Enquiry about project') + ` UM-${reference}. `; updateCount(); }
-    const topic = params.get('tema');
-    if (topic && [...topicSelect.options].some((o) => o.value === topic)) { topicSelect.value = topic; syncHint(); }
-    for (const s of params.getAll('servicio')) {
-      const c = [...form.querySelectorAll<HTMLInputElement>('input[name="services"]')].find((x) => x.value.toLowerCase() === s.toLowerCase());
-      if (c) { c.checked = true; more.open = true; }
-    }
     syncServices();
-    const budget = [['budgetSector', 'Sector'], ['budgetScope', 'Alcance'], ['budgetCriticality', 'Criticidad'], ['budgetSites', 'Sedes']]
-      .map(([k, label]) => [label, String(params.get(k) || '').trim()]).filter(([, v]) => v);
-    if (budget.length && !message.value) { message.value = budget.map(([l, v]) => `${l}: ${v}`).join('\n') + '\n\n'; updateCount(); }
-
     const showError = (name: string, text: string) => {
       const el = form.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
       if (el) el.textContent = text;
@@ -196,25 +236,33 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
       const site = field('site')!.value.trim();
       const urgency = (form.elements.namedItem('urgency') as HTMLSelectElement).value;
       const header = [
+        root.dataset.subject,
+        ...[...form.querySelectorAll('[data-brief-row]:not([data-college-evaluation])')].map(row =>
+          `${row.querySelector('dt')!.textContent}: ${row.querySelector('dd')!.textContent}`
+        ),
         topicInput ? `Tema: ${topicInput.dataset.label}` : '',
         services.length ? `Servicios: ${services.join(', ')}` : '',
         site ? `Ciudad o sede: ${site}` : '',
         urgency && urgency !== t('Sin urgencia', 'No urgency') ? `Urgencia: ${urgency}` : '',
       ].filter(Boolean);
+      const campaign = root.dataset.college ? collegeAttribution(new URLSearchParams(location.search)) : {};
+      const originUrl = new URL(root.dataset.originPath!, location.origin);
+      for (const [key, value] of Object.entries(campaign)) originUrl.searchParams.set(key, value);
+      const evaluation = form.querySelector('[data-college-evaluation] dd')?.textContent || '';
       const payload = {
-        name, email,
+        name, email, evaluation,
         company: field('company')!.value.trim(),
         message: header.length ? `${header.join('\n')}\n\n${text}` : text,
         website: field('website')!.value,
         contact_phone: field('contact_phone')!.value,
         startedAt: field('startedAt')!.value,
         contactProof: field('contactProof')!.value,
-        formVariant: 'contacto-guiado',
-        originPath: location.pathname,
-        originTitle: document.title,
-        originLabel: services.join(', '),
-        originIntent: topicInput?.dataset.label || t('Consulta general', 'General enquiry'),
-        originHref: location.href,
+        formVariant: root.dataset.college === 'quiz' ? 'comunidades-profesionales-quiz' : root.dataset.college ? 'comunidades-profesionales' : 'contacto-guiado',
+        originPath: root.dataset.originPath,
+        originTitle: root.dataset.originTitle,
+        originLabel: root.dataset.originLabel || root.dataset.subject || services.join(', '),
+        originIntent: root.dataset.originIntent || topicInput?.dataset.label || t('Consulta general', 'General enquiry'),
+        originHref: originUrl.href,
       };
 
       submit.disabled = true;
@@ -223,10 +271,15 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
         const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         const result = await res.json().catch(() => ({}));
         if (res.ok && result.success) {
+          if (root.dataset.college && !result.duplicate) {
+            const layer = (window as Window & { dataLayer?: unknown[] }).dataLayer;
+            function record(command: string, event: string, fields: Record<string, string>) { layer?.push(arguments); }
+            record('event', 'gc_inquiry_confirmed', { campaign: 'comunidades_profesionales', placement: root.dataset.college, ...campaign });
+          }
           form.hidden = true;
           done.hidden = false;
           done.focus();
-          form.reset(); stamp(); updateCount(); syncHint(); syncServices(); more.open = false;
+          form.reset(); stamp(); updateCount(); syncHint(); syncServices(); more.open = Boolean(form.querySelector('input[name=services]:checked'));
         } else {
           throw new Error(result.message || t('No se pudo enviar.', 'Your message could not be sent. Please try again.'));
         }
@@ -234,7 +287,7 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
         errorBox.innerHTML = '';
         errorBox.append(`${root.dataset.lang !== 'en' && err instanceof Error && err.message ? err.message : t('No se pudo enviar.', 'Your message could not be sent. Please try again.')} `);
         const link = document.createElement('a');
-        link.href = mailto(`${payload.message}\n\n${name} · ${email}${payload.company ? ` · ${payload.company}` : ''}`);
+        link.href = mailto(`${payload.message}\n\n${evaluation ? evaluation + "\n\n" : ""}${payload.originTitle}\n${payload.originHref}\n\n${name} · ${email}${payload.company ? ` · ${payload.company}` : ''}`);
         link.textContent = t('Enviala por email', 'Send it by email');
         errorBox.append(link);
         errorBox.hidden = false;
@@ -249,6 +302,11 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
 </script>
 
 <style>
+  .ctf__brief { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,13rem),1fr)); gap:12px 24px; margin:0; padding:16px 0; border-block:1px solid var(--x-line); }
+  .ctf__brief dt { color:var(--x-muted); font-size:.875rem; }
+  .ctf__brief dd { white-space:pre-line; margin:2px 0 0; font-weight:600; }
+  .ctf__field[hidden] { display:none; }
+  .ctf__subject {font-size:clamp(1.25rem,2vw,1.7rem);line-height:1.2;margin:0 0 12px;}
   .ctf { font-family: var(--um-font-editorial); color: var(--x-text); }
   .ctf__form { position: relative; display: grid; gap: 24px; }
   .ctf [hidden] { display: none !important; }
