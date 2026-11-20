@@ -2,6 +2,7 @@
 import { contactLink } from '../../lib/contactEntry';
 import { ArrowRight, ArrowUpRight, Warehouse, BellRing } from 'lucide-astro';
 import gate from '../../media/bodegas/ingreso.webp?url';
+import porteria from '../../media/bodegas/porteria-animada.webp?url';
 import hall from '../../media/bodegas/nave.webp?url';
 import { thumbOf, type Story } from './isoData';
 import { samePublicClient } from './casePresentation';
@@ -38,8 +39,8 @@ const selected = zones.find(zone => zone.key === Astro.url.searchParams.get('zon
   {zones.map(zone => {
    const href = '/contacto?' + new URLSearchParams({ budgetSector: 'Bodegas', budgetScope: zone.label, sistema: zone.service }) + '#formulario';
    return <article class="zone-panel" data-zone-panel={zone.key} hidden={zone.key!==selected.key}>
-    <figure>
-     <img class="scene" src={zone.image} alt={zone.alt} width="1080" height="720" loading="lazy"/>
+    <figure data-flow-gif={zone.key === 'ingreso' ? porteria : undefined}>
+     <div class="zone-art" data-flow-art><img class="scene" src={zone.image} alt={zone.alt} width="1080" height="720" loading="lazy"/></div>
      <figcaption aria-label="Secuencia de funcionamiento">{zone.steps.map((step,i) => <span>{i>0 && <ArrowRight size={14} aria-hidden="true"/>}{step}</span>)}</figcaption>
     </figure>
     <div class="info">
@@ -56,6 +57,8 @@ const selected = zones.find(zone => zone.key === Astro.url.searchParams.get('zon
  </div>
 </section>
 <script>
+ import { initFlowMotion } from './service-motion';
+ initFlowMotion(document);
  const section = document.querySelector('.winery');
  if (section) {
    const links = [...section.querySelectorAll<HTMLAnchorElement>('[data-zone]')];
@@ -88,6 +91,9 @@ const selected = zones.find(zone => zone.key === Astro.url.searchParams.get('zon
  .zone-panel{display:grid;grid-template-columns:minmax(0,1.34fr) minmax(0,1fr);border:1px solid var(--line);background:var(--bg-2)}
  .zone-panel[hidden]{display:none}
  figure{position:relative;min-width:0;overflow:hidden;margin:0;background:#34312c}
+ .zone-art{position:relative;height:100%}
+ .zone-art :global(.flow-gif){position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0}
+ figure[data-flow-running] .zone-art :global(.flow-gif){opacity:1}
  .scene{display:block;width:100%;height:100%;min-height:330px;aspect-ratio:1.55;object-fit:cover}
  figcaption{position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;gap:12px;color:white;font-size:.94rem;font-weight:600;padding:48px 22px 18px;background:linear-gradient(transparent,rgba(0,0,0,.82))}
  figcaption span{display:flex;align-items:center;gap:12px}
