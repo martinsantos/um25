@@ -317,7 +317,11 @@ export async function loadStories() {
     story.services = story.serviceCodes.map((code) => byCode.get(code) || '').filter(Boolean);
   });
   // Si la descripción no dice más que el título, la ficha no la repite.
-  stories.forEach((s) => { if (s.summary && comparable(s.summary) === comparable(s.title)) s.summary = ''; });
+  for (const story of stories) {
+    if (!story.summary) continue;
+    story.summary = story.summary.replace(/(?:^|\s+)Unidad SGI-Import\.?$/i, '').trimEnd();
+    if (comparable(story.summary) === comparable(story.title)) story.summary = '';
+  }
   const countOf = (slug: string) => stories.filter((c) => c.sectorSlug === slug).length;
   const places = PLACES.map((p) => {
     const row = SECTORS.find((s) => s.slug === p.slug)!;
