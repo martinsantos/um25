@@ -16,7 +16,7 @@ const intros:Record<string,[string,string]>={
 const icons:Record<string,typeof Network>={'101':Network,'102':Cctv,'103':RadioTower,'104':CodeXml,'105':Headset,'106':Workflow,'107':Flame,'108':Zap};
 const intro=intros[slug] || ['Integración por sistema',`Tecnología para ${name.toLowerCase()}.`];
 ---
-<section class="sec sector-systems" id="integracion">
+<section class="sec sector-systems" id={slug === 'bodegas' ? 'sistemas' : 'integracion'}>
  <div class="wrap">
   <header><p class="eyebrow">{intro[0]}</p><h2>{intro[1].replace(/\.$/,'')}<span class="dot">.</span></h2><p>Explorá cada sistema: qué conecta, cómo funciona y dónde lo implementamos.</p></header>
   <div class="systems">

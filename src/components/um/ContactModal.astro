@@ -111,6 +111,8 @@ const { contactQuestion, contactSubject } = Astro.props;
     const errorMessage = modal.querySelector('.um-contact-message--error');
     const contextBox = modal.querySelector('[data-contact-context]');
     const contextTitle = modal.querySelector('[data-contact-context-title]');
+    const questionLabel = form.querySelector('#um-contact-label-message');
+    const initialQuestion = questionLabel?.textContent;
     const contextDetail = modal.querySelector('[data-contact-context-detail]');
     const startedAt = form.querySelector('input[name="startedAt"]');
     const contactProof = form.querySelector('input[name="contactProof"]');
@@ -190,6 +192,8 @@ const { contactQuestion, contactSubject } = Astro.props;
       return {
         path,
         title: sectionTitle,
+        subject: source?.dataset?.contactSubject,
+        question: source?.dataset?.contactQuestion,
         label,
         intent,
         href: source instanceof HTMLAnchorElement ? source.href : window.location.href
@@ -313,13 +317,14 @@ const { contactQuestion, contactSubject } = Astro.props;
       setField('contactProof', `${now}:${Math.round(performance.now())}:${navigator.language || 'es-AR'}`);
       setField('originPath', resolved.path);
       const projectTitle = document.querySelector('h1[data-contact-origin-title]')?.getAttribute('data-contact-origin-title');
-      setField('originTitle', projectTitle || (modal.dataset.subject ? readPageHeading() : resolved.title));
+      setField('originTitle', context.subject || projectTitle || (modal.dataset.subject ? readPageHeading() : resolved.title));
       setField('originLabel', resolved.label);
       setField('originIntent', resolved.intent);
       setField('originHref', resolved.href);
 
+      if (questionLabel) questionLabel.textContent = context.question ? context.question + ' *' : initialQuestion;
       if (contextBox instanceof HTMLElement) contextBox.hidden = false;
-      if (contextTitle) contextTitle.textContent = modal.dataset.subject || intentLabels[resolved.intent] || intentLabels.general;
+      if (contextTitle) contextTitle.textContent = context.subject || modal.dataset.subject || intentLabels[resolved.intent] || intentLabels.general;
       if (contextDetail) {
         const displayTitle = readPageHeading().replace(/[.。]+$/, '').split('|')[0].trim();
         contextDetail.hidden = modal.dataset.subject === displayTitle;

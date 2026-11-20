@@ -6,6 +6,7 @@ import '../../../styles/pilot-fichas.css';
  * dentro, los proyectos. Frases completas del sitio. No indexable.
  */
 import '../../../styles/proto-despiece.css';
+import WineryZones from '../../../components/proto/WineryZones.astro';
 import SectorSystems from '../../../components/proto/SectorSystems.astro';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
@@ -86,6 +87,7 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'anteceden
       </div>
     </section>
 
+    {slug === 'bodegas' && <WineryZones stories={stories} />}
     <SectorSystems slug={slug} name={name} items={displayedServices}/>
 
     {clientes.length > 0 && (
