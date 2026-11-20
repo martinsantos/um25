@@ -1,4 +1,5 @@
 ---
+import { contactLink } from '../../lib/contactEntry';
 /**
  * Barra de pestañas inferior para teléfono (app shell). Cinco destinos fijos,
  * estado activo por ruta, safe-area iOS y sin JS obligatorio. Se oculta cuando
@@ -30,7 +31,7 @@ const ICONS: Record<(typeof APP_TABS)[number]['icon'], string> = {
 ---
 <nav class="um-tabbar" aria-label={t.tabs.aria}>
   {APP_TABS.map((tab) => (
-    <a href={tabHref[tab.href] || tab.href} class:list={['um-tabbar__item', { 'is-active': isActive(tab.href) }]} aria-current={isActive(tab.href) ? 'page' : undefined}>
+    <a href={tab.href === '/contacto' ? contactLink(currentPath, routes.contact) : tabHref[tab.href] || tab.href} class:list={['um-tabbar__item', { 'is-active': isActive(tab.href) }]} aria-current={isActive(tab.href) ? 'page' : undefined}>
       <svg viewBox="0 0 24 24" aria-hidden="true" set:html={ICONS[tab.icon]} />
       <span>{tabLabel[tab.href] || tab.label}</span>
     </a>

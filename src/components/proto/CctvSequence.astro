@@ -1,0 +1,32 @@
+---
+import poster from '../../media/seguridad/captura.webp?url';
+import recording from '../../media/seguridad/registro.gif?url';
+---
+<figure class="cctv-sequence" aria-label="Del acceso al registro de video">
+  <div class="camera" data-flow-gif={recording}>
+    <div data-flow-art><img src={poster} width="720" height="480" loading="lazy" alt="Vista desde una cámara fija de una persona cruzando el portón de una planta." /></div>
+  </div>
+  <figcaption><ol>
+    <li><strong>Captura</strong><p>La cámara muestra el paso por el acceso.</p></li>
+    <li><strong>Registro</strong><p>El grabador conserva el instante del evento.</p></li>
+    <li><strong>Consulta</strong><p>El operador vuelve a ese punto de la grabación.</p></li>
+  </ol></figcaption>
+</figure>
+<script>
+  import { initFlowMotion } from './service-motion';
+  initFlowMotion(document);
+</script>
+<style>
+  .cctv-sequence { display:grid;grid-template-columns:minmax(0,1.65fr) minmax(12rem,1fr);gap:clamp(20px,3vw,48px);align-items:center;margin:0;container-type:inline-size; }
+  [data-flow-art] { position:relative;aspect-ratio:3/2; }
+  img,[data-flow-art] :global(.flow-gif) { display:block;width:100%;height:100%;object-fit:contain; }
+  [data-flow-art] :global(.flow-gif) { position:absolute;inset:0;opacity:0; }
+  [data-flow-running] :global(.flow-gif) { opacity:1; }
+  ol { list-style:decimal-leading-zero;margin:0;padding-left:2rem; }
+  li { padding:12px 0 12px 4px;border-top:1px solid var(--line,#54585a); }
+  li::marker { color:var(--ink-2,#c3c8c9);font-variant-numeric:tabular-nums; }
+  p { margin:3px 0;color:var(--ink-2,#c3c8c9);line-height:1.45; }
+  @media(max-width:760px){ .cctv-sequence{grid-template-columns:1fr;gap:14px;} }
+  @container(max-width:620px){.cctv-sequence{grid-template-columns:1fr;gap:14px;}}
+  @media(prefers-reduced-motion:reduce){[data-flow-art] :global(.flow-gif){display:none;} }
+</style>

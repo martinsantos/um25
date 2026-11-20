@@ -277,6 +277,12 @@ export async function loadStories() {
   // El título concreto de algunas fichas se obtiene al desambiguar descripciones que
   // comparten el rótulo genérico del CMS. Reconciliar antes dejaba heredar Software.
   stories.forEach((story) => {
+    if (story.id === 3138 && normalizeIdentity(story.client) === 'luna maya'
+        && normalizeIdentity(story.title) === 'sistema de porteria ip'
+        && story.slug === 'desarrollo-de-software-y-digitalizacion-de-procesos-luna-maya') {
+      story.slug = 'sistema-de-porteria-ip-luna-maya';
+      story.href = `/antecedentes/${story.id}/${story.slug}`;
+    }
     const serviceCodes = reconcileGeneratedSoftwareService(
       tituloOrigenPorId.get(story.id) || '',
       story.title,

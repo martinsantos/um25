@@ -88,7 +88,7 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'anteceden
     </section>
 
     {slug === 'bodegas' && <WineryZones stories={stories} />}
-    <SectorSystems slug={slug} name={name} items={displayedServices}/>
+    <SectorSystems stories={own} slug={slug} name={name} items={displayedServices}/>
 
     {clientes.length > 0 && (
       <section class="sec">

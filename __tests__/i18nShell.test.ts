@@ -2,7 +2,7 @@ import { shellLocale, shellRoutes, shellSectorCopy, shellServiceCopy } from '../
 
 describe('English shell locale', () => {
   it('keeps English primary destinations on English routes and falls back to Spanish for unavailable pages', () => {
-    expect(shellRoutes('en')).toMatchObject({ home: '/en/', services: '/en/services', contact: '/en/contacto' });
+    expect(shellRoutes('en')).toMatchObject({ home: '/en/', services: '/en/services', contact: '/en/contact' });
     expect(shellRoutes('en').sectors).toBe('/sectores');
     expect(shellLocale('/en/').alternate).toBe('/');
     expect(shellLocale('/en/services').alternate).toBe('/servicios');

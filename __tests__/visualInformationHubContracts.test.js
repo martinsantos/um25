@@ -42,7 +42,7 @@ describe('Information hub visual contracts', () => {
     expect(navbar).toMatch(/\.um-ops-ticker\s*\{[\s\S]*display:\s*none;/);
     expect(navbar).not.toContain('class="um-ops-tag"');
     expect(navbar).not.toContain('class="um-ops-ticker"');
-    expect(navbar).toContain('<a href="/contacto" class="um-ops-cta">');
+    expect(navbar).toContain('<a href={contactLink(currentPath)} class="um-ops-cta">');
     expect(navbar).toContain("document.addEventListener('astro:page-load', initOpsNavigation)");
     expect(navbar).toContain("menuToggle.dataset.bound = 'true'");
     // Rediseño 2026-09: el rótulo del menú móvil es un kicker de 13 px (mínimo del
@@ -477,15 +477,13 @@ describe('Information hub visual contracts', () => {
     // token oscuro --x-red (#dc2626, el mismo rojo canónico que --um-red).
     const contacto = read('src/pages/contacto.astro');
     const form = read('src/components/cine/ContactForm.astro');
-    const modal = read('src/components/um/ContactModal.astro');
 
     expect(v4Css).toMatch(/--x-red:\s*#dc2626;/i);
     expect(v4Css).toMatch(/--um-red:\s*#DC2626;/i);
-    for (const source of [contacto, form, modal]) {
+    for (const source of [contacto, form]) {
       expect(source).not.toMatch(/#B91C1C/i);
     }
     expect(cssBlock(form, '.ctf__error-box :global(a)')).toMatch(/text-decoration-color:\s*var\(--x-red\);/);
-    expect(cssBlock(modal, '.um-contact-message a')).toMatch(/color:\s*var\(--um-red\);/);
     expect(cssBlock(form, '.ctf__error-box')).toMatch(/border-left:\s*2px solid var\(--x-red\);/);
     expect(cssBlock(form, '.ctf__error-box')).toMatch(/rgba\(220,\s*38,\s*38,/);
   });

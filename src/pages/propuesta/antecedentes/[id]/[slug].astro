@@ -1,4 +1,5 @@
 ---
+import { contactLink } from '../../../../lib/contactEntry';
 import "../../../../styles/case-presentation.css";
 /**
  * Ficha de trabajo (2026-10-31). Cada antecedente como hoja de trabajo: cabecera con la referencia
@@ -56,7 +57,7 @@ if (index < 0) return Astro.rewrite('/404');
 const c = stories[index];
 const caseDetail = publicCaseFor(c);
 const pageTitle = caseDetail?.title || c.title;
-if (Astro.params.slug !== c.slug) return Astro.redirect(c.href, 301);
+if (Astro.params.slug !== c.slug) return Astro.redirect(c.href + Astro.url.search, 301);
 const svcs = services.filter((s) => c.serviceCodes.includes(s.code));
 const months = [
   "",
@@ -169,6 +170,7 @@ const seoTitle = caseSeo.title.includes(ref)
         font-size: 1rem;
         letter-spacing: 0.02em;
       }
+      .hoja-cab a { text-decoration: underline; text-underline-offset: .2em; }
       .hoja-cab b {
         color: var(--ink);
         font-weight: 600;
@@ -342,22 +344,9 @@ const seoTitle = caseSeo.title.includes(ref)
 
     <main id="contenido">
       <div class="wrap">
-        {!accessProject && (<nav class="nav" aria-label="Proyectos">
-          <a href="/antecedentes" data-catalog-back>← Todos los proyectos</a>
-          <span
-            >{prev && <a href={prev.href}>← Anterior</a>}{
-              prev && next && (
-                <span class="nav-separator" aria-hidden="true">
-                  {" "}
-                  ·{" "}
-                </span>
-              )
-            }{next && <a href={next.href}>Siguiente →</a>}</span
-          >
-        </nav>)} 
         {!accessProject && <div class="hoja-cab">
           <span
-            >Ficha de trabajo · <b>{ref}</b>{
+            ><a href="/antecedentes" data-catalog-back>Antecedentes</a> · <b>{ref}</b>{
               enCurso && <i class="curso">En curso</i>
             }</span
           ><span>{[c.sector, periodo].filter(Boolean).join(" · ")}</span>
@@ -385,7 +374,7 @@ const seoTitle = caseSeo.title.includes(ref)
             )
           }
           <div class="datos">
-            <h1 data-contact-origin-title={accessProject ? `Proyecto ${ref} · ${pageTitle}` : undefined}>{pageTitle}<span class="dot">.</span></h1>
+            <h1 data-contact-origin-title={`Proyecto ${ref} · ${pageTitle}`}>{pageTitle}<span class="dot">.</span></h1>
             <div class="quien">
               {c.client}{
                 (accessProject ? periodo : when) && (
@@ -409,7 +398,12 @@ const seoTitle = caseSeo.title.includes(ref)
                 <p class="resumen">{introduction}</p>
               )
             }
-            {accessProject && <div class="project-actions"><a class="btn" href={`/contacto?antecedente=${c.id}`}>Consultar por un acceso similar</a><a class="u" href="#flujo">Ver cómo funciona</a></div>}
+            <div class="project-actions">
+              <a class={accessProject ? 'btn' : 'u'} href={contactLink(Astro.url.pathname, `/contacto?antecedente=${c.id}#formulario`)}>
+                {accessProject ? 'Consultar por un acceso similar' : 'Consultar por una obra similar'} <span aria-hidden="true">→</span>
+              </a>
+              {accessProject && <a class="u" href="#flujo">Ver la lectura de la credencial</a>}
+            </div>
           </div>
           <dl class="tabla">
             {
@@ -473,6 +467,7 @@ const seoTitle = caseSeo.title.includes(ref)
         </div>
       </div>
       <>
+        {accessProject && <CredentialSequence />}
         {caseDetail && <CasoEnDetalle caso={caseDetail} original={c.summary} />}
         {
           scope.partes.length > 0 &&
@@ -506,7 +501,7 @@ const seoTitle = caseSeo.title.includes(ref)
                       </p>
                       <a
                         class="line-link"
-                        href={`/contacto?antecedente=${c.id}`}
+                        href={contactLink(Astro.url.pathname, `/contacto?antecedente=${c.id}`)}
                       >
                         Consultar por este antecedente →
                       </a>
@@ -533,7 +528,7 @@ const seoTitle = caseSeo.title.includes(ref)
         ) : technicalScene ? (
           <TechnicalSection content={technicalScene} project />
         ) : (
-          accessProject ? <CredentialSequence /> : catalogScene && <CatalogScene content={catalogScene} />
+          !accessProject && catalogScene && <CatalogScene content={catalogScene} />
         )
       }
       {
@@ -578,7 +573,7 @@ const seoTitle = caseSeo.title.includes(ref)
           </section>
         )
       }
-      {accessProject && <div class="wrap"><nav class="nav" aria-label="Proyectos">
+      <div class="wrap"><nav class="nav" aria-label="Proyectos">
           <a href="/antecedentes" data-catalog-back>← Todos los proyectos</a>
           <span
             >{prev && <a href={prev.href}>← Anterior</a>}{
@@ -590,40 +585,38 @@ const seoTitle = caseSeo.title.includes(ref)
               )
             }{next && <a href={next.href}>Siguiente →</a>}</span
           >
-        </nav></div>}
+        </nav></div>
     </main>
 
     <Cierre
       heading="Conversemos sobre un proyecto similar"
-      contactSubject={`Proyecto ${ref}`}
-      contactQuestion={accessProject ? "¿Qué accesos necesitás controlar y en qué sitio?" : "¿Qué parte de este proyecto necesitás implementar y en qué sitio?"}
+      contactHref={`/contacto?antecedente=${c.id}#formulario`}
       description="Contanos qué necesitás implementar y dónde. La consulta incluye la referencia de esta obra."
     />
     <script>
-      const link = document.querySelector<HTMLAnchorElement>(
-        "[data-catalog-back]",
-      );
+      const links = document.querySelectorAll<HTMLAnchorElement>("[data-catalog-back]");
       const origin = document.referrer ? new URL(document.referrer) : null;
       if (
-        link &&
         origin?.origin === location.origin &&
         origin.pathname.replace(/\/$/, "") === "/antecedentes"
       ) {
-        link.href = origin.pathname + origin.search + origin.hash;
-        link.textContent = "← Volver a resultados";
-        link.addEventListener("click", (event) => {
-          if (
-            event.button !== 0 ||
-            event.metaKey ||
-            event.ctrlKey ||
-            event.shiftKey ||
-            event.altKey ||
-            history.length < 2
-          )
-            return;
-          event.preventDefault();
-          history.back();
-        });
+        for (const link of links) {
+          link.href = origin.pathname + origin.search + origin.hash;
+          link.textContent = "← Volver a resultados";
+          link.addEventListener("click", (event) => {
+            if (
+              event.button !== 0 ||
+              event.metaKey ||
+              event.ctrlKey ||
+              event.shiftKey ||
+              event.altKey ||
+              history.length < 2
+            )
+              return;
+            event.preventDefault();
+            history.back();
+          });
+        }
       }
     </script>
   </body>

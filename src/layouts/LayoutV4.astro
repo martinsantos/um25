@@ -10,7 +10,7 @@
 import NavbarV4 from '../components/v4/NavbarV4.astro';
 import FooterV4 from '../components/v4/FooterV4.astro';
 import AppTabBar from '../components/v4/AppTabBar.astro';
-import ContactModal from '../components/um/ContactModal.astro';
+import ContactLinks from '../components/um/ContactLinks.astro';
 import SEOHead from '../components/SEO/SEOHead.astro';
 import { SITE_URL } from '../config/seo';
 import { hasEnglishAlternate, resolvePageLanguage } from '../config/i18nRoutes';
@@ -292,7 +292,7 @@ const enableServiceWorker = import.meta.env.PUBLIC_ENABLE_SW === 'true';
       <slot />
     </main>
 
-    <ContactModal />
+    <ContactLinks />
     <FooterV4 />
     <AppTabBar />
     {enableServiceWorker && (

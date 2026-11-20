@@ -1,0 +1,42 @@
+<script>
+  import { contactLink, isContactPage } from '../../lib/contactEntry';
+  import { collegeAttribution } from '../../lib/collegeAttribution';
+  function prepare(link: HTMLAnchorElement, withLabel = false) {
+    const href = link.getAttribute('href')?.trim();
+    if (!href || href.startsWith('#') || href.startsWith('?')) return;
+    const url = link;
+    if (url.origin !== location.origin || !isContactPage(url.pathname)) return;
+    if (isContactPage(location.pathname)) {
+      if (url.pathname === location.pathname && !url.search) link.href = '#formulario';
+      return;
+    }
+    const target = new URL(contactLink(location.pathname, url.pathname + url.search), location.href);
+    if (location.pathname.replace(/\/$/, '') === '/software/gestion-de-comunidades-profesionales') {
+      for (const [key, value] of Object.entries(collegeAttribution(new URLSearchParams(location.search)))) target.searchParams.set(key, value);
+    }
+    if (withLabel) {
+      const title = document.querySelector('h1')?.textContent?.trim();
+      const label = (link.getAttribute('aria-label') || link.textContent || '').trim();
+      if (title) target.searchParams.set('tituloOrigen', title.slice(0, 160));
+      if (label) target.searchParams.set('accion', label.slice(0, 100));
+    }
+    link.href = target.href;
+  }
+  document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach(link => prepare(link));
+  document.addEventListener('click', event => {
+    const link = event.target instanceof Element && event.target.closest<HTMLAnchorElement>('a[href]');
+    if (link) prepare(link, true);
+  }, true);
+  function legacyEntry(intent?: string) {
+    if (isContactPage(location.pathname)) {
+      document.getElementById('formulario')?.scrollIntoView();
+      return;
+    }
+    const url = new URL(contactLink(location.pathname), location.href);
+    if (intent) url.searchParams.set('intent', intent);
+    location.assign(url.href);
+  }
+  window.addEventListener('umsa:contact:open', event => legacyEntry((event as CustomEvent).detail?.intent));
+  const params = new URLSearchParams(location.search);
+  if (params.get('contact') === '1') legacyEntry(params.get('intent') || undefined);
+</script>

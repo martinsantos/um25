@@ -14,6 +14,6 @@ describe('i18nRoutes', () => {
 
   test('keeps alternate path mappings stable', () => {
     expect(resolveSpanishPath('/en/about')).toBe('/nosotros');
-    expect(resolveEnglishPath('/contacto')).toBe('/en/contacto');
+    expect(resolveEnglishPath('/contacto')).toBe('/en/contact');
   });
 });

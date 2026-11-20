@@ -91,6 +91,6 @@ export function shellLocale(pathname: string) {
 /** Rutas principales por idioma (las que no existen en inglés quedan en español). */
 export function shellRoutes(lang: ShellLang) {
   return lang === 'en'
-    ? { home: '/en/', services: '/en/services', sectors: '/sectores', projects: '/antecedentes', blog: '/blog', about: '/en/about', contact: '/en/contacto', certifications: '/certificaciones', cctv: '/cctvai' }
+    ? { home: '/en/', services: '/en/services', sectors: '/sectores', projects: '/antecedentes', blog: '/blog', about: '/en/about', contact: '/en/contact', certifications: '/certificaciones', cctv: '/cctvai' }
     : { home: '/', services: '/servicios', sectors: '/sectores', projects: '/antecedentes', blog: '/blog', about: '/nosotros', contact: '/contacto', certifications: '/certificaciones', cctv: '/cctvai' };
 }

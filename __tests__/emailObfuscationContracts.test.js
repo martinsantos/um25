@@ -6,7 +6,7 @@ const repoRoot = process.cwd();
 const ssrHtmlSources = [
   'src/pages/index.astro',
   'src/components/v4/FooterV4.astro',
-  'src/components/um/ContactModal.astro',
+  'src/components/um/ContactLinks.astro',
   'src/pages/contacto.astro',
   'src/components/cine/ContactForm.astro',
   'src/pages/privacidad.astro',

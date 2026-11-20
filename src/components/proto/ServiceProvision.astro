@@ -1,12 +1,15 @@
 ---
 import Parte from './Parte.astro';
+import { samePublicClient } from './casePresentation';
+import JourneyAction from './JourneyAction.astro';
+import { serviceJourney } from '../../data/propuesta/recorrido';
 import { groupedProvisionParts } from '../../data/propuesta/service-provision-visuals';
 import type { Story } from './isoData';
 import { groupServiceProvision, type ServiceProvisionItem } from '../../utils/serviceProvision';
 
 type Item = ServiceProvisionItem & { reference?: Pick<Story, 'href' | 'title' | 'client'> };
 type System = ReturnType<typeof groupServiceProvision<Item>>[number] & { integration?: boolean };
-type Props = { introduction?: string } & ({ items: Item[] } | { systems: System[] });
+type Props = { introduction?: string; sceneGroup?:string; code:string; stories:Story[] } & ({ items: Item[] } | { systems: System[] });
 const props = Astro.props;
 const systems: System[] = 'systems' in props ? props.systems : groupServiceProvision(props.items).map(system => ({
   ...system,
@@ -18,10 +21,16 @@ const { introduction } = props;
   <div class="wrap">
     <h2 id="provision-title">Qué proveemos<span class="dot">.</span></h2>
     {introduction && <p class="intro">{introduction}</p>}
-    <slot name="project" />
     <div class="systems">
-      {systems.map((system, index) => <details open={index === 0}>
+      {systems.map((system, index) => {
+        const guide = serviceJourney[props.code]?.groups[system.title];
+        const reference = guide?.reference;
+        const story = reference && props.stories.find(s => s.id === reference.id && (samePublicClient(s.client, reference.client)
+          || (s.client === reference.client && s.title === reference.title)));
+        return <details open={index === 0}>
         <summary>{system.title}</summary>
+        {system.title === props.sceneGroup && <div class="inline-flow"><slot name="flow" /></div>}
+        {system.title === 'Control de Acceso Biométrico' && <slot name="accessReader" />}
         <div class:list={['system-body', { compact: 'items' in props && system.parts.length < 3 }]} style={`--part-count:${system.parts.length}`}>
           {system.title === "Videovigilancia IP" && Astro.slots.has("cameraStages") ? <slot name="cameraStages" /> : system.parts.length > 0 && <div class="parts" aria-label={`Componentes de ${system.title}`}>
             {system.parts.map(part => <figure data-provision-part={part.key}>
@@ -38,14 +47,36 @@ const { introduction } = props;
               </p>}
             </div>)}
             {system.integration && <a class="u" href="/servicios/107#provision">Ver el servicio de incendios →</a>}
+            <JourneyAction code={props.code} group={system.title} story={story} />
           </div>
         </div>
-      </details>)}
+      </details>})}
     </div>
     <slot />
   </div>
 </section>
+<script>
+  // Some browsers leave a linked scene inside a closed disclosure on arrival.
+  function revealLinkedScene() {
+    const target = document.getElementById(location.hash.slice(1));
+    const group = target?.closest<HTMLDetailsElement>('[data-provision] details');
+    if (!target || !group) return;
+    group.open = true;
+    target.scrollIntoView({ block: 'start', behavior: 'instant' });
+  }
+  if (location.hash) requestAnimationFrame(revealLinkedScene);
+  window.addEventListener('hashchange', revealLinkedScene);
+  document.addEventListener('click', event => {
+    const link = event.target instanceof Element && event.target.closest<HTMLAnchorElement>('a[href^="#"]');
+    if (link && link.hash === location.hash && !event.defaultPrevented && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey)
+      requestAnimationFrame(revealLinkedScene);
+  });
+</script>
 <style>
+  .inline-flow { margin:2px 0 var(--s3); }
+  .inline-flow :global(section.sec) { padding:0; border:0; scroll-margin-top:calc(var(--top-h,66px) + 12px); }
+  .inline-flow :global(.wrap) { width:100%;max-width:none;padding:0; }
+  #provision { scroll-margin-top:calc(var(--top-h,66px) + 12px); }
   .intro { max-width:64ch; margin-top:var(--s2); color:var(--ink-2); }
   .reference { display:inline-flex; align-items:center; min-height:44px; }
   .systems { margin-top:var(--s3); border-bottom:1px solid var(--line); }
@@ -53,7 +84,8 @@ const { introduction } = props;
   summary { cursor:pointer; padding:18px 4px; font-size:1.2rem; font-weight:600; }
   summary::marker { color:var(--ink-2); font-size:.85em; }
   summary:focus-visible { outline:2px solid currentColor; outline-offset:2px; }
-  .system-body { display:grid; grid-template-columns:1fr 1fr; gap:var(--s4); padding-bottom:var(--s3); align-items:start; }
+  .system-body { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--s4); padding-bottom:var(--s3); align-items:start; }
+  .parts :global(.parte) { width:clamp(76px,8vw,110px);height:auto;max-width:100%; }
   @media(min-width:721px) {
     .system-body.compact { grid-template-columns:minmax(0,calc(var(--part-count) * 148px + 32px)) minmax(0,1fr); }
   }
@@ -61,8 +93,8 @@ const { introduction } = props;
   .parts { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(110px,100%),1fr)); gap:14px; padding:16px; background:#e3e8e6; color:#20292b; }
   figure { display:grid; justify-items:center; align-content:start; margin:0; }
   figcaption { text-align:center; font-size:.95rem; line-height:1.3; }
-  .scope { display:grid; gap:16px; max-width:60ch; }
+  .scope { min-width:0; display:grid; gap:16px; max-width:60ch; }
   .scope h3 { font-size:1.05rem; }
   .scope p { color:var(--ink-2); margin:4px 0 0; line-height:1.5; }
-  @media(max-width:720px) { .system-body { grid-template-columns:1fr; gap:16px; } }
+  @media(max-width:720px) { .system-body { grid-template-columns:minmax(0,1fr); gap:16px; } }
 </style>

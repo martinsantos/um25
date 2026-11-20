@@ -98,3 +98,13 @@ test.each([
   expect((await POST(message('Configuración incompleta.'))).status).toBe(500);
   expect(createTransport).not.toHaveBeenCalled();
 });
+
+test('the college evaluation reaches the same mailbox with a full length enquiry', async () => {
+  const sendMail = jest.fn().mockResolvedValue({});
+  createTransport.mockReturnValue({ sendMail });
+  const response = await POST(submission({name: 'Visita', email: 'colegio@example.invalid',
+    message: 'x'.repeat(1200), evaluation: 'Prioridades: ' + 'y'.repeat(1500) + ' <firma>'}));
+  expect(response.status).toBe(200);
+  expect(sendMail.mock.calls[0][0].html).toContain('Evaluación del colegio');
+  expect(sendMail.mock.calls[0][0].html).toContain('&lt;firma&gt;');
+});

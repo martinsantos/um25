@@ -75,3 +75,36 @@ export const sectorDeclaredServices = (slug: string): string[] =>
 
 export const sectorIntegrationScope = (slug: string, code: string, fallback: string): string =>
   scope[slug]?.[code] || fallback;
+
+// Task names for the selector. Services without an edited task retain their catalog name.
+const tasks: Record<string, Record<string, string>> = {
+  aeropuertos: {
+    '101':'Conectar puestos de la terminal', '102':'Supervisar accesos y perímetros', '103':'Comunicar terminales y emitir avisos',
+    '104':'Integrar datos operativos', '105':'Atender incidencias en la terminal', '107':'Localizar una alarma de incendio',
+  },
+  bodegas: {
+    '101':'Conectar producción y administración', '102':'Supervisar accesos y circulación', '104':'Seguir un lote en producción',
+    '105':'Sostener los sistemas durante la cosecha', '106':'Planificar la infraestructura de la bodega', '107':'Recibir una alerta en la nave',
+  },
+  constructoras: {
+    '101':'Preparar las redes del edificio', '102':'Controlar accesos de obra y espacios comunes', '103':'Poner en marcha la telefonía',
+    '104':'Integrar la gestión de obra', '105':'Acompañar la puesta en marcha', '107':'Coordinar la detección por planta', '108':'Alimentar las salas técnicas',
+  },
+  gobiernosectorpublico: {
+    '101':'Conectar dependencias', '102':'Supervisar edificios públicos', '103':'Comunicar oficinas y sedes',
+    '104':'Digitalizar trámites', '105':'Sostener los puestos de atención',
+  },
+  industria: {
+    '101':'Llevar datos a planta', '102':'Supervisar accesos industriales', '103':'Comunicar áreas de operación',
+    '104':'Integrar datos de producción', '105':'Atender fallas en planta', '107':'Detectar un evento en planta', '108':'Respaldar equipos críticos',
+  },
+  mineria: {
+    '101':'Llevar la red al campamento', '102':'Supervisar instalaciones remotas', '103':'Enlazar la base y el campamento',
+    '105':'Asistir a un sitio remoto', '107':'Recibir avisos de áreas técnicas', '108':'Alimentar equipos en terreno',
+  },
+  salud: {
+    '101':'Conectar consultorios y puestos', '102':'Supervisar circulaciones restringidas', '103':'Comunicar áreas de atención',
+    '104':'Integrar sistemas de gestión', '105':'Atender incidentes por criticidad', '106':'Planificar la infraestructura', '107':'Localizar avisos por ambiente', '108':'Respaldar la infraestructura IT',
+  },
+};
+export const sectorSystemTask = (slug:string, code:string) => tasks[slug]?.[code];
