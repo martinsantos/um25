@@ -58,7 +58,7 @@ const clientes = Object.values(own.filter(s => isNamedClient(s.client)).reduce<R
 const anios = own.map((c) => c.year).filter(Boolean);
 const desde = anios.length ? Math.min(...anios) : 0;
 const instalado = despieceAgregado(own, caseEquipmentFor).slice(0, 12);
-const cifras: [string, string][] = own.length ? [[String(own.length), 'antecedentes registrados'], [String(clientes.length), clientes.length === 1 ? 'cliente identificado' : 'clientes identificados'], [String(byService.filter((s) => s.count > 0).length), 'frentes de servicio'], [String(desde), 'primer registro']] : [];
+const cifras: [string, string][] = own.length ? [[String(own.length), 'antecedentes registrados'], [String(clientes.length), clientes.length === 1 ? 'cliente identificado' : 'clientes identificados'], [String(byService.filter((s) => s.count > 0).length), 'servicios con obras registradas'], [String(desde), 'primer registro']] : [];
 ---
 <!doctype html>
 <html lang="es">
@@ -78,6 +78,8 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'anteceden
       </div>
     </ServiceEditorialHero>
 
+    {slug === 'bodegas' && <WineryZones stories={stories} />}
+
     <section class="sec">
       <div class="wrap cols cols-5-7">
         <h2>Lo que tiene que seguir funcionando<span class="dot">.</span></h2>
@@ -87,7 +89,6 @@ const cifras: [string, string][] = own.length ? [[String(own.length), 'anteceden
       </div>
     </section>
 
-    {slug === 'bodegas' && <WineryZones stories={stories} />}
     <SectorSystems stories={own} slug={slug} name={name} items={displayedServices}/>
 
     {clientes.length > 0 && (
