@@ -414,13 +414,13 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
 
   <script>
     const bar = document.getElementById('read-bar');
-    const body = document.querySelector<HTMLElement>('.bp-main');
+    const body = document.querySelector<HTMLElement>('.bp-main .prose');
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     function tick() {
       if (!bar || !body) return;
       const rect = body.getBoundingClientRect();
-      const total = Math.max(1, body.offsetHeight - window.innerHeight * 0.6);
-      const pct = Math.max(0, Math.min(1, -rect.top / total));
+      const total = Math.max(1, rect.height - window.innerHeight + 112);
+      const pct = Math.max(0, Math.min(1, (112 - rect.top) / total));
       bar.style.transform = `scaleX(${pct})`;
     }
     if (!reduce) {

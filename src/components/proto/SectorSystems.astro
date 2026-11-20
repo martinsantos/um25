@@ -1,9 +1,12 @@
 ---
 import { ChevronDown, Network, Cctv, RadioTower, CodeXml, Headset, Workflow, Flame, Zap } from 'lucide-astro';
 import ServiceScene from './ServiceScene.astro';
-import { sectorIntegrationScope } from '../../data/propuesta/sector-integration';
-interface Props { slug:string; name:string; items: {code:string;name:string;text:string;count:number}[] }
-const {items,slug,name}=Astro.props;
+import JourneyAction from './JourneyAction.astro';
+import type { Story } from './isoData';
+import { pageCaseCandidates } from './caseSelection';
+import { sectorIntegrationScope, sectorSystemTask } from '../../data/propuesta/sector-integration';
+interface Props { slug:string; name:string; stories:Story[]; items: {code:string;name:string;text:string;count:number}[] }
+const {items,slug,name,stories}=Astro.props;
 const intros:Record<string,[string,string]>={
  bodegas:['Tecnología entre producción y administración','La misma operación, de la cava al despacho.'],
  industria:['Infraestructura para la planta','Cada sistema, al ritmo de la producción.'],
@@ -18,18 +21,55 @@ const intro=intros[slug] || ['Integración por sistema',`Tecnología para ${name
 ---
 <section class="sec sector-systems" id={slug === 'bodegas' ? 'sistemas' : 'integracion'}>
  <div class="wrap">
-  <header><p class="eyebrow">{intro[0]}</p><h2>{intro[1].replace(/\.$/,'')}<span class="dot">.</span></h2><p>Explorá cada sistema: qué conecta, cómo funciona y dónde lo implementamos.</p></header>
+  <header><p class="eyebrow">{intro[0]}</p><h2>{intro[1].replace(/\.$/,'')}<span class="dot">.</span></h2><p>{stories.length ? "Elegí una tarea para ver cómo funciona el sistema y consultar por tu instalación." : "Elegí qué necesitás resolver en el sitio para ver la integración y preparar el relevamiento."}</p></header>
   <div class="systems">
-  {items.map((item,i)=>{ const Icon=icons[item.code] || Network; return <details name={`sector-system-${slug}`} open={i===0}>
-    <summary><span class="system-name"><Icon size={22} stroke-width={1.6} aria-hidden="true"/>{item.name}</span><ChevronDown size={20} aria-hidden="true"/></summary>
-    <div class="system-body"><div class="system-copy"><h3>{item.name}</h3><p>{sectorIntegrationScope(slug,item.code,item.text)}</p><a href={`/servicios/${item.code}#provision`}>Qué proveemos →</a>{item.count>0&&<a href={`/antecedentes?sector=${slug}&service=${item.code}`}>{item.count} antecedentes en {name.toLowerCase()} →</a>}</div>
-    <div class="system-scene"><ServiceScene code={item.code}/></div></div>
+  {items.map((item,i)=>{ const Icon=icons[item.code] || Network;
+    const candidates = pageCaseCandidates(stories.filter(s => s.serviceCodes.includes(item.code)),slug,item.code);
+    const story = candidates.find(s => s.documentedScope) || candidates[0];
+    const task = sectorSystemTask(slug,item.code);
+    const wineryFire = slug === 'bodegas' && item.code === '107';
+    return <details name={`sector-system-${slug}`} open={i===0}>
+    <summary><span class="system-name"><Icon size={22} stroke-width={1.6} aria-hidden="true"/><span class="task">{task || item.name}{task && <small>{item.name}</small>}</span></span><ChevronDown size={20} aria-hidden="true"/></summary>
+    <div class="system-body">
+      <p class="system-description">{sectorIntegrationScope(slug,item.code,item.text)}</p>
+      <div class="system-scene">
+        {wineryFire
+          ? <a class="zone-shortcut" href="?zona=nave#integracion">Ver la detección en la nave de producción →</a>
+          : <ServiceScene code={item.code}/>}
+      </div>
+      <div class="system-evidence"><JourneyAction code={item.code} sector={slug} story={story} /></div>
+      <nav class="system-links" aria-label={`Más sobre ${item.name}`}>
+        <a href={`/servicios/${item.code}#provision`}>Desglose del servicio →</a>
+        {item.count > 0 && <a href={`/antecedentes?sector=${slug}&service=${item.code}`}>{item.count} {item.count === 1 ? 'antecedente' : 'antecedentes'} en {name.toLowerCase()} →</a>}
+      </nav>
+    </div>
   </details>})}
   </div>
  </div>
 </section>
 <style>
-.system-name{display:flex;align-items:center;gap:14px}.system-name :global(svg){flex:none}header{max-width:880px;margin-bottom:32px}header h2{max-width:22ch}header p{margin-top:16px;color:var(--ink-2)}.eyebrow{font-size:.875rem;letter-spacing:.06em}.systems{border-top:1px solid var(--line)}details{scroll-margin-top:calc(var(--top-h,66px) + 16px);border-bottom:1px solid var(--line)}summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;min-height:68px;font-size:1.25rem;font-weight:600;padding:16px 4px}summary::-webkit-details-marker{display:none}summary:focus-visible{outline:2px solid var(--red);outline-offset:4px}details[open] summary{color:var(--red-text)}details[open] summary > :global(svg){transform:rotate(180deg)}.system-body{display:grid;grid-template-columns:minmax(220px,.7fr) minmax(0,2fr);gap:36px;padding:12px 0 32px}.system-copy{display:flex;flex-direction:column;align-items:flex-start;gap:20px;padding-top:12px}.system-copy h3{font-size:1.5rem}.system-copy p{color:var(--ink-2);line-height:1.65}.system-copy a{font-size:1rem;min-height:44px;display:flex;align-items:center;text-decoration:underline;text-underline-offset:5px}.system-scene{min-width:0}.system-scene :global(.fs__steps){padding-inline:18px}.system-scene>p{color:var(--ink-2);padding:32px;background:var(--bg-2)}@media(max-width:900px){.system-body{grid-template-columns:1fr;gap:20px}.system-copy h3{display:none}.system-copy{gap:12px;padding:0}.system-scene :global(.fs__steps){padding-inline:0}summary{font-size:1.125rem}}
+.zone-shortcut { display:inline-flex;align-items:center;min-height:48px;text-decoration:underline;text-underline-offset:4px; }.task{display:grid;gap:4px;text-align:left}.task small{color:var(--ink-2);font-size:.875rem;font-weight:400}.system-name{display:flex;align-items:center;gap:14px}.system-name :global(svg){flex:none}header{max-width:880px;margin-bottom:32px}header h2{max-width:22ch}header p{margin-top:16px;color:var(--ink-2)}.eyebrow{font-size:.875rem;letter-spacing:.06em}.systems{border-top:1px solid var(--line)}details{scroll-margin-top:calc(var(--top-h,66px) + 16px);border-bottom:1px solid var(--line)}summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;min-height:68px;font-size:1.25rem;font-weight:600;padding:16px 4px}summary::-webkit-details-marker{display:none}summary:focus-visible{outline:2px solid var(--red);outline-offset:4px}details[open] summary{color:var(--red-text)}details[open] summary > :global(svg){transform:rotate(180deg)}.system-body {
+  display:grid;
+  grid-template-columns:minmax(220px,.8fr) minmax(0,1.5fr);
+  grid-template-areas:"description scene" "evidence scene" "links scene";
+  grid-template-rows:auto auto 1fr;
+  gap:12px clamp(24px,4vw,56px);
+  padding:12px 0 32px;
+  align-items:start;
+}
+.system-description { grid-area:description; color:var(--ink-2); line-height:1.6; }
+.system-scene { grid-area:scene; min-width:0; }
+.system-evidence { grid-area:evidence; min-width:0; }
+.system-links { grid-area:links; display:flex; flex-wrap:wrap; gap:0 18px; }
+.system-links a,.zone-shortcut { display:inline-flex; align-items:center; min-height:44px; text-underline-offset:4px; text-decoration:underline; }
+@media(max-width:900px) {
+  .system-body {
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"description" "scene" "evidence" "links";
+    grid-template-rows:auto;gap:12px;
+  }
+  summary {font-size:1.125rem;}
+}
 </style>
 
 <script>

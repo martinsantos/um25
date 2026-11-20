@@ -4,6 +4,7 @@
 export const EN_TO_ES_PATH: Record<string, string> = {
   '/en': '/',
   '/en/': '/',
+  '/en/contact': '/contacto',
   '/en/contacto': '/contacto',
   '/en/services': '/servicios',
   '/en/about': '/nosotros',

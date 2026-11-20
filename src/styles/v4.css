@@ -1035,34 +1035,36 @@ body[data-skin="steel"] {
     color: var(--um-red);
   }
 
-  @media (max-width: 768px) {
-    .navigation {
-      padding: 0.5rem 1rem;
-    }
-    .logo-image { max-width: 150px; }
-    .navigation ul {
-      display: none;
-      width: 100%;
-      flex-direction: column;
-      position: absolute;
-      top: 70px;
-      left: 0;
-      background-color: white;
-      box-shadow: none;
-      padding: 1rem;
-      gap: 1rem;
-    }
-    .navigation ul.active { display: flex; }
-    .hamburger-menu { display: flex; }
-    .hamburger-menu.active span:nth-child(1) {
-      transform: rotate(45deg) translate(5px, 5px);
-    }
-    .hamburger-menu.active span:nth-child(2) { opacity: 0; }
-    .hamburger-menu.active span:nth-child(3) {
-      transform: rotate(-45deg) translate(5px, -5px);
-    }
-    .navigation ul li a { font-size: 1rem; }
+}
+
+/* Legacy navigation is ordinary CSS; Tailwind must not generate utility variants for the compound selectors. */
+@media (max-width: 768px) {
+  .navigation {
+    padding: 0.5rem 1rem;
   }
+  .logo-image { max-width: 150px; }
+  .navigation ul {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    background-color: white;
+    box-shadow: none;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  .navigation ul.active { display: flex; }
+  .hamburger-menu { display: flex; }
+  .hamburger-menu.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  .hamburger-menu.active span:nth-child(2) { opacity: 0; }
+  .hamburger-menu.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+  .navigation ul li a { font-size: 1rem; }
 }
 
 /* V4 Utility Layer */

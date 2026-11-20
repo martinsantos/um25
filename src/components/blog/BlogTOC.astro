@@ -33,7 +33,12 @@ const items = headings.filter((h) => h.level === 2 || h.level === 3);
   if (links.length && 'IntersectionObserver' in window) {
     const byId = new Map(links.map((link) => [link.dataset.tocTarget, link]));
     const setActive = (id: string) => {
-      links.forEach((link) => link.classList.toggle('is-active', link.dataset.tocTarget === id));
+      links.forEach((link) => {
+        const active = link.dataset.tocTarget === id;
+        link.classList.toggle('is-active', active);
+        if (active) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      });
     };
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {

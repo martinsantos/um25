@@ -13,6 +13,23 @@ export function catalogHref(state: CatalogState, without?: (typeof catalogCriter
   return query ? `/antecedentes?${query}` : '/antecedentes';
 }
 
+export const catalogBatch = 36;
+export function catalogWindow(value: string | null, total: number) {
+  const requested = Number(value);
+  return Number.isSafeInteger(requested) && requested > catalogBatch
+    ? Math.min(total, Math.ceil(requested / catalogBatch) * catalogBatch)
+    : catalogBatch;
+}
+
+export function catalogWindowHref(state: CatalogState, limit: number) {
+  const path = catalogHref(state);
+  return limit > catalogBatch ? path + (path.includes('?') ? '&' : '?') + 'mostrar=' + limit : path;
+}
+
+export function toggleCatalogHref(state: CatalogState, key: 'sector' | 'service' | 'year', value: string) {
+  return catalogHref({ ...state, [key]: state[key] === value ? '' : value });
+}
+
 export function showCatalogHighlights(state: CatalogState, count: number): boolean {
   return count >= 12 && (!state.orden || state.orden === 'recent') && catalogCriteria.every((key) => !state[key]);
 }
@@ -24,6 +41,7 @@ export function catalogState(params: URLSearchParams): Record<(typeof filterKeys
   const state = Object.fromEntries(filterKeys.map(k => [k, params.get(k) || ''])) as Record<(typeof filterKeys)[number], string>;
   state.service ||= params.get('servicio') || '';
   state.year ||= params.get('anio') || '';
+  if (state.sector === 'gobierno') state.sector = 'gobiernosectorpublico';
   if (!['recent', 'year-desc', 'year-asc', 'client'].includes(state.orden)) state.orden = 'recent';
   return state;
 }

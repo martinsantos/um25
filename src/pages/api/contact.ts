@@ -275,7 +275,9 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       }, 400);
     }
 
-    const key = submissionKey(email, message);
+    const evaluation = trimString(data['evaluation'], 2800);
+    const fullMessage = evaluation ? message + '\n\nEvaluación del colegio\n' + evaluation : message;
+    const key = submissionKey(email, fullMessage);
     const pending = pendingSubmissions.get(key);
     if (pending) await pending;
     if (pending || isDuplicateSubmission(key)) {
@@ -290,7 +292,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       name,
       email,
       company,
-      message,
+      message: fullMessage,
       formVariant,
       originPath,
       originTitle,

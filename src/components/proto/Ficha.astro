@@ -14,11 +14,11 @@ const site = illustrationSiteFor(c);
 <li class="ficha" data-ficha data-id={String(c.id)} data-sector={c.sectorSlug} data-services={c.serviceCodes.join(' ')} data-year={String(c.year)} data-client={c.client.toLowerCase()} data-site={site ? isoSrc(site) : undefined} data-status={c.status} data-search={[c.client, c.title, c.sector, ...c.services, c.summary].join(' ')}>
   <a href={c.href}>
     <figure>
-      {c.image && <img src={thumbOf(c.image)} srcset={variantes(c.image).ancho ? `${variantes(c.image).w480} 480w, ${variantes(c.image).w960} 960w` : undefined} sizes="(max-width: 900px) 40vw, (max-width: 1100px) 32vw, 22vw" alt="" width="480" height="300" loading={eager ? 'eager' : 'lazy'} fetchpriority={primera ? 'high' : undefined} decoding="async" />}
+      {c.image && <img src={thumbOf(c.image)} srcset={variantes(c.image).ancho ? `${variantes(c.image).w480} 480w, ${variantes(c.image).w960} 960w` : undefined} sizes="(max-width: 600px) 94vw, (max-width: 900px) 46vw, (max-width: 1100px) 32vw, 22vw" alt="" width="480" height="300" loading={eager ? 'eager' : 'lazy'} fetchpriority={primera ? 'high' : undefined} decoding="async" />}
       <span class="ficha__sistema iso" data-svcs={c.serviceCodes.join(' ')} aria-hidden="true"></span>
     </figure>
-    <b>{c.client}</b>
-    <span class="t">{c.title}</span>
+    <b>{c.title}</b>
+    <span class="t">{c.client}</span>
     <span class="small">{[showSector ? c.sector : '', c.year || ''].filter(Boolean).join(' · ')}</span>
   </a>
 </li>

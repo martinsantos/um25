@@ -73,7 +73,7 @@ const relatedHubGroups = [
   <section class="geo-dossier-hero">
     <div class="um-container geo-dossier-hero__grid">
       <div class="geo-dossier-hero__copy">
-        <nav class="geo-dossier-crumb" aria-label="Breadcrumb">
+        <nav class="geo-dossier-crumb" aria-label="Ruta de navegación">
           <a href="/">Inicio</a>
           <span>/</span>
           <span>{hubH1}</span>
@@ -85,6 +85,11 @@ const relatedHubGroups = [
           <a class="um-btn-secondary" href={hub.secondaryHref}>{hub.secondaryCta}</a>
         </div>
         <p class="geo-dossier-lead">{hub.lead}</p>
+        <nav class="geo-contents" aria-label="Contenido de esta página">
+          <a href="#alcance-tecnico">Alcance técnico</a>
+          <a href="#obras-comparables">Proyectos comparables</a>
+          <a href="#consultas-frecuentes">Preguntas frecuentes</a>
+        </nav>
       </div>
 
       <aside class="geo-dossier-side" aria-label="Resumen comercial">
@@ -147,7 +152,7 @@ const relatedHubGroups = [
     <div class="um-container">
       <div class="geo-section-head">
         <p class="geo-dossier-kicker">Servicios conectados</p>
-        <h2>Alcance técnico conectado a la operación</h2>
+        <h2 id="alcance-tecnico">Alcance técnico conectado a la operación</h2>
         <p>La decisión se ordena por alcance, criticidad, documentación y soporte.</p>
       </div>
 
@@ -168,7 +173,7 @@ const relatedHubGroups = [
     <div class="um-container geo-evidence-grid">
       <div class="geo-evidence-main">
         <p class="geo-dossier-kicker">Evidencia operativa</p>
-        <h2>Proyectos comparables</h2>
+        <h2 id="obras-comparables">Proyectos comparables</h2>
         <p>Obras y servicios ejecutados, con cliente, sector y alcance técnico.</p>
         <a class="um-btn-secondary" href="/antecedentes">Explorar antecedentes</a>
       </div>
@@ -227,7 +232,7 @@ const relatedHubGroups = [
     <div class="um-container geo-faq__grid">
       <div>
         <p class="geo-dossier-kicker">Preguntas frecuentes</p>
-        <h2>Respuestas breves para decidir</h2>
+        <h2 id="consultas-frecuentes">Respuestas breves para decidir</h2>
       </div>
       <div>
         {hub.faqs.map((faq) => (
@@ -250,7 +255,8 @@ const relatedHubGroups = [
             Sector, criticidad, sedes y tipo de intervención: completá el contexto y seguí la conversación con el mismo equipo técnico.
           </p>
         </div>
-        <form class="geo-budget-brief__form" action="/contacto" method="get">
+        <form class="geo-budget-brief__form" action="/contacto#formulario" method="get">
+          <input type="hidden" name="origen" value={Astro.url.pathname} />
           <BudgetBriefFields idPrefix="geo-budget" locale="es" />
           <button type="submit" class="um-btn-primary geo-budget-brief__submit">Continuar a contacto</button>
           <p class="geo-budget-brief__note">Los valores se precargan en el formulario de contacto.</p>
@@ -274,6 +280,9 @@ const relatedHubGroups = [
 </article>
 
 <style>
+  .geo-contents { display: flex; flex-wrap: wrap; gap: 0 1.25rem; margin-top: 1rem; }
+  .geo-contents a { display: inline-flex; align-items: center; min-height: 44px; color: inherit; text-decoration: underline; text-underline-offset: .24em; }
+  .geo-dossier-section h2[id] { scroll-margin-top: 6rem; }
   .geo-dossier {
     background: var(--skin-page);
     color: var(--skin-text);

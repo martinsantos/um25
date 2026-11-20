@@ -1,9 +1,10 @@
 ---
+import CredentialSequence from './CredentialSequence.astro';
 import Parte from './Parte.astro';
 import type { Story } from './isoData';
 import ServiceProvision from './ServiceProvision.astro';
 import { groupServiceProvision, type ServiceProvisionItem } from '../../utils/serviceProvision';
-interface Props { items: ServiceProvisionItem[]; accessCase?: Pick<Story,"href"|"title"|"client"> }
+interface Props { items: ServiceProvisionItem[]; stories:Story[]; code:string; sceneGroup?:string }
 const blocks = groupServiceProvision(Astro.props.items);
 const related = new Set(['Sistema de Detección de Incendios', 'Panel Central de Alarma SDI', 'Estaciones Manuales de Alarma']);
 const fire = blocks.filter(block => related.has(block.title));
@@ -18,7 +19,7 @@ if (fire.length) systems.push({
   integration: true,
 });
 const camera = systems.find(system => system.title === 'Videovigilancia IP');
-const { accessCase } = Astro.props;
+const { code, stories } = Astro.props;
 const stages = [
   { title: 'Capturar', keys: ['camara', 'cableado'] },
   { title: 'Grabar', keys: ['nvr', 'servidor', 'disco'] },
@@ -26,24 +27,22 @@ const stages = [
 ];
 const complete = camera?.parts.every(part => stages.some(stage => stage.keys.includes(part.key)));
 ---
-<ServiceProvision systems={systems} introduction="Elegí el sistema que necesitás para ver sus componentes y el trabajo que incluye.">
-  {accessCase && <a slot="project" class="case-link" href={accessCase.href}><span>Obra de control de acceso · {accessCase.client}</span><strong>{accessCase.title} →</strong></a>}
+<ServiceProvision sceneGroup={Astro.props.sceneGroup} code={code} stories={stories} systems={systems} introduction="Elegí el sistema que necesitás para ver sus componentes y el trabajo que incluye.">
+  <slot name="flow" slot="flow" />
+  <CredentialSequence inline slot="accessReader" />
   {camera && complete && <div class="camera-stages" slot="cameraStages">
     {stages.map(stage => <div class="stage"><h3>{stage.title}</h3><ul>
-      {camera.parts.filter(part => stage.keys.includes(part.key)).map(part => <li data-provision-part={part.key}><Parte k={part.key} size={64}/><span>{part.label}</span></li>)}
+      {camera.parts.filter(part => stage.keys.includes(part.key)).map(part => <li data-provision-part={part.key}><Parte k={part.key} size={88}/><span>{part.label}</span></li>)}
     </ul></div>)}
   </div>}
   <slot />
 </ServiceProvision>
 <style>
-  .case-link { display:grid;gap:4px;width:fit-content;margin-top:var(--s2);padding:8px 0; }
-  .case-link span {font-size:.94rem;color:var(--ink-2);}
-  .case-link strong {text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;}
   .camera-stages {background:#e3e8e6;color:#20292b;padding:4px 20px;}
-  .stage {display:grid;grid-template-columns:6em minmax(0,1fr);gap:12px;padding:12px 0;align-items:baseline;}
+  .stage {display:grid;grid-template-columns:6em minmax(0,1fr);gap:12px;padding:12px 0;align-items:center;}
   .stage + .stage {border-top:1px solid #b7c1bf;}
   .stage h3 {font-size:1rem;line-height:1.4;margin:0;}
   .stage ul {display:flex;align-items:start;flex-wrap:wrap;margin:0;padding:0;gap:8px 12px;list-style:none;}
-  .stage li {display:grid;justify-items:center;text-align:center;width:5.6em;line-height:1.2;font-size:.92rem;}
-  @media(max-width:720px){.camera-stages {padding:0 14px;} .stage {grid-template-columns:4.7em 1fr;gap:6px;align-items:center;} .stage ul {display:grid;gap:5px;}.stage li {width:auto;display:flex;align-items:center;gap:10px;text-align:left;}.stage li :global(svg){width:52px;height:42px;} }
+  .stage li {display:grid;justify-items:center;text-align:center;width:6.4em;line-height:1.2;font-size:.92rem;}
+  @media(max-width:720px){.camera-stages {padding:0 14px;} .stage {grid-template-columns:4.7em minmax(0,1fr);gap:6px;align-items:center;} .stage ul {display:grid;gap:5px;}.stage li {min-width:0;overflow-wrap:anywhere;width:auto;display:flex;align-items:center;gap:10px;text-align:left;}.stage li :global(svg){width:68px;height:60px;flex:none;} }
 </style>

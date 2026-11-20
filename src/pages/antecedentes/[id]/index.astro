@@ -1,35 +1,10 @@
 ---
-import '@astrojs/tailwind/base.css';
-/**
- * Redirect from /antecedentes/[id]/ to /antecedentes/[id]/[slug]
- * This page fetches the antecedente title from Directus to generate the slug
- */
-import { getAntecedenteConServicios } from '../../../lib/directus.ts';
-import { generateSlug } from '../../../utils/slugUtils';
-import { getAntecedenteById as getUm26AntecedenteById } from '../../../lib/um26-directus';
+import { loadStories } from '../../../components/proto/isoData';
 
-const { id } = Astro.params;
-
-if (!id) {
-    return Astro.rewrite('/404');
-}
-
-try {
-    const item = await getAntecedenteConServicios(id);
-
-    if (item && item.Titulo) {
-        const slug = generateSlug(item.Titulo);
-        return Astro.redirect(`/antecedentes/${id}/${slug}`, 301);
-    }
-
-    const um26Item = await getUm26AntecedenteById(Number(id));
-    if (um26Item?.title) {
-        return Astro.redirect(`/antecedentes/${id}/${generateSlug(um26Item.title)}`, 301);
-    }
-} catch (error) {
-    console.error(`Error fetching antecedente ${id} for redirect:`, error);
-}
-
-// Unknown records must leave the index clean instead of creating a soft redirect.
-return Astro.rewrite('/404');
+const id = Astro.params.id || '';
+if (!/^\d+$/.test(id)) return Astro.rewrite('/404');
+const { stories } = await loadStories();
+const story = stories.find(item => item.id === Number(id));
+if (!story) return Astro.rewrite('/404');
+return Astro.redirect(story.href + Astro.url.search, 301);
 ---

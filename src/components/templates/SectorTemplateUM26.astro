@@ -1,5 +1,7 @@
 ---
 import { isShowcaseProject, pageCaseCandidates } from '../proto/caseSelection';
+import CctvSequence from '../proto/CctvSequence.astro';
+import JourneyAction from '../proto/JourneyAction.astro';
 import SoftwareExperience from '../proto/SoftwareExperience.astro';
 import { loadStories, SECTOR_PHOTO, srcsetDe } from '../proto/isoData';
 import { generateSlug } from '../../utils/slugUtils';
@@ -167,7 +169,9 @@ const areaLabel = (area: unknown) => {
 
   {(isSoftware || isSecurity) && <section class="sector26-provision sector26-shell" aria-labelledby="sector26-provision-title">
     <div><h2 id="sector26-provision-title">Qué proveemos<span>.</span></h2><p>Conocé los productos, prestaciones y componentes de {isSoftware ? 'Software a medida' : 'Seguridad electrónica'}, con el detalle de instalación, integración y soporte según el proyecto.</p></div>
-    <a href={`/servicios/${isSoftware ? '104' : '102'}#provision`}>Ver el desglose del servicio <span aria-hidden="true">→</span></a>
+    <div class="sector26-journey"><a href={`/servicios/${isSoftware ? '104' : '102'}#provision`}>Ver el desglose del servicio <span aria-hidden="true">→</span></a>
+      <JourneyAction code={isSoftware ? '104':'102'} sector={sectorDataSlug} story={storyById.get(Number(evidenceCases[0]?.id))} /></div>
+    {isSecurity && <div class="sector26-camera"><CctvSequence /></div>}
   </section>}
 
   {!isSoftware && !isSecurity && <SiteDespiece scene={cineScene} sectorSlug={sectorDataSlug} sectorName={sectorName} linkBanner />}
@@ -183,8 +187,8 @@ const areaLabel = (area: unknown) => {
           <li>
             <a href={caseHref(item)} class="sector26-evidence-card">
               {!isSoftware && <img src={caseImage(item)} srcset={srcsetDe(caseImage(item))} sizes="(max-width: 900px) 100vw, 50vw" alt="" width="1200" height="750" loading="lazy" decoding="async" />}
-              <b>{formatCaseName(storyById.get(Number(item.id))?.client || item.Cliente || item.Titulo, 'Proyecto')}</b>
-              <span>{storyById.get(Number(item.id))?.title || cleanCaseTitle(item.Titulo) || cleanCmsText(item.Descripcion)}</span>
+              <b>{storyById.get(Number(item.id))?.title || cleanCaseTitle(item.Titulo) || cleanCmsText(item.Descripcion)}</b>
+              <span>{formatCaseName(storyById.get(Number(item.id))?.client || item.Cliente || item.Titulo, 'Proyecto')}</span>
               <em>{storyById.get(Number(item.id))?.year || (item.Fecha ? String(item.Fecha).slice(0, 4) : '')}</em>
             </a>
           </li>
@@ -209,6 +213,8 @@ const areaLabel = (area: unknown) => {
 {!isSoftware && !isSecurity && <SnapRail />}
 
 <style>
+  .sector26-camera { grid-column:1/-1;min-width:0; }
+  .sector26-journey { min-width:0;max-width:44rem; }
   .sector26-provision { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 48px; align-items: center; padding-block: 48px; border-block: 1px solid #50545b; }
   .sector26-provision h2 { font-size: clamp(1.75rem, 3vw, 2.5rem); }
   .sector26-provision h2 span { color: #dc2626; }
