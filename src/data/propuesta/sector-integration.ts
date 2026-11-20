@@ -35,7 +35,7 @@ const scope: Record<string, Record<string, string>> = {
     '105': 'Organizamos soporte, monitoreo e incidentes según la prioridad de cada servicio público.',
     '106': 'Relevamos sistemas y necesidades para definir arquitectura, prioridades y documentación técnica.',
     '107': 'Integramos detección y señalización de incendios según las condiciones de cada edificio.',
-    '108': 'Dimensionamos alimentación, respaldo y puesta a tierra para los sistemas de cada sede.',
+    '108': 'Distribuimos la alimentación desde los tableros hacia los puestos de cada dependencia. Dimensionamos el respaldo y la puesta a tierra según la instalación.',
   },
   industria: {
     '101': 'Conectamos las áreas de planta, producción y administración con cableado y enlaces adecuados al sitio.',
@@ -79,7 +79,7 @@ export const sectorIntegrationScope = (slug: string, code: string, fallback: str
 // Task names for the selector. Services without an edited task retain their catalog name.
 const tasks: Record<string, Record<string, string>> = {
   aeropuertos: {
-    '101':'Conectar puestos de la terminal', '102':'Supervisar accesos y perímetros', '103':'Comunicar terminales y emitir avisos',
+    '101':'Conectar puestos de la terminal', '102':'Supervisar accesos y perímetros', '103':'Emitir avisos en la terminal',
     '104':'Integrar datos operativos', '105':'Atender incidencias en la terminal', '107':'Localizar una alarma de incendio',
   },
   bodegas: {
@@ -92,7 +92,7 @@ const tasks: Record<string, Record<string, string>> = {
   },
   gobiernosectorpublico: {
     '101':'Conectar dependencias', '102':'Supervisar edificios públicos', '103':'Comunicar oficinas y sedes',
-    '104':'Digitalizar trámites', '105':'Sostener los puestos de atención',
+    '104':'Digitalizar trámites', '105':'Sostener los puestos de atención', '108':'Alimentar los equipos de informática',
   },
   industria: {
     '101':'Llevar datos a planta', '102':'Supervisar accesos industriales', '103':'Comunicar áreas de operación',

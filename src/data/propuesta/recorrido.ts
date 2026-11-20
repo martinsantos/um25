@@ -80,6 +80,15 @@ export function journeyContext(params: URLSearchParams) {
         question: '¿Qué distancia hay entre la base y el campamento y qué necesitás transmitir entre ambos?',
       };
     }
+    if (slug === 'aeropuertos' && code === '103') {
+      return { subject: 'Aeropuertos · Voceo en la terminal', question: '¿En qué zonas de la terminal deben oírse los avisos y desde qué puesto se emiten?' };
+    }
+    if (slug === 'gobiernosectorpublico' && code === '108') {
+      return { subject: 'Gobierno y Sector Público · Circuitos de informática', question: '¿En qué dependencia están los tableros y qué equipos de informática alimentan?' };
+    }
+    if (slug === 'industria' && code === '101') {
+      return { subject: 'Industria · Puestos de red en planta', question: '¿En qué línea de producción necesitás los puestos de red y cuántos puntos hay que conectar?' };
+    }
     const site = sector.site;
     const questions: Record<string,string> = {
       '101': `¿Qué áreas hay que conectar en ${site} y cuántos puestos necesitan red?`,
