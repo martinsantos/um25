@@ -1,4 +1,6 @@
 ---
+import ConnectionSection from './ConnectionSection.astro';
+import ProcessWorkScene from './ProcessWorkScene.astro';
 import CatalogScene from './CatalogScene.astro';
 import panel from '../../assets/catalog-scenes/distribution.webp?url';
 import termination from '../../assets/catalog-scenes/network-termination.webp?url';
@@ -6,10 +8,12 @@ import type { workScene } from '../../data/propuesta/workScenes';
 
 interface Props { content: NonNullable<ReturnType<typeof workScene>> }
 const { content } = Astro.props;
-const plate = content.asset === 'distribution' ? panel : content.asset === 'network-termination' ? termination : undefined;
+const plate = content.format !== 'equipment' ? undefined : content.asset === 'distribution' ? panel : content.asset === 'network-termination' ? termination : undefined;
 ---
 <div class="work-example">
-  {content.points && plate ? <section aria-label={content.title}>
+  {content.format === 'connection' ? <ConnectionSection content={content.connection} embedded />
+    : content.format === 'process' ? <ProcessWorkScene example={content.process} />
+    : content.points && plate ? <section aria-label={content.title}>
     <header><p>{content.kicker}</p><h3>{content.title}</h3></header>
     <figure data-functional-scene={`work-${content.kind}`} data-catalog-asset={content.asset} data-state="complete" data-phase="2">
       <div class="sheet">

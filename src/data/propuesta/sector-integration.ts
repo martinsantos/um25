@@ -31,7 +31,7 @@ const scope: Record<string, Record<string, string>> = {
     '101': 'Conectamos sedes, áreas de atención y puestos de trabajo con una red documentada.',
     '102': 'Integramos videovigilancia, grabación y accesos para edificios y operaciones distribuidas.',
     '103': 'Unificamos telefonía y enlaces entre oficinas, sedes y equipos de atención.',
-    '104': 'Integramos aplicaciones, trámites y datos para sostener los procesos del organismo.',
+    '104': 'Diseñamos aplicaciones que permiten registrar cambios y consultar el historial de los procesos del organismo.',
     '105': 'Organizamos soporte, monitoreo e incidentes según la prioridad de cada servicio público.',
     '106': 'Relevamos sistemas y necesidades para definir arquitectura, prioridades y documentación técnica.',
     '107': 'Integramos detección y señalización de incendios según las condiciones de cada edificio.',
@@ -79,7 +79,7 @@ export const sectorIntegrationScope = (slug: string, code: string, fallback: str
 // Task names for the selector. Services without an edited task retain their catalog name.
 const tasks: Record<string, Record<string, string>> = {
   aeropuertos: {
-    '101':'Conectar puestos de la terminal', '102':'Supervisar accesos y perímetros', '103':'Emitir avisos en la terminal',
+    '101':'Unir puntos de la terminal por fibra', '102':'Supervisar accesos y perímetros', '103':'Emitir avisos en la terminal',
     '104':'Integrar datos operativos', '105':'Atender incidencias en la terminal', '107':'Localizar una alarma de incendio',
   },
   bodegas: {
@@ -92,10 +92,10 @@ const tasks: Record<string, Record<string, string>> = {
   },
   gobiernosectorpublico: {
     '101':'Conectar dependencias', '102':'Supervisar edificios públicos', '103':'Comunicar oficinas y sedes',
-    '104':'Digitalizar trámites', '105':'Sostener los puestos de atención', '108':'Alimentar los equipos de informática',
+    '104':'Seguir el historial de un registro', '105':'Sostener los puestos de atención', '108':'Alimentar los equipos de informática',
   },
   industria: {
-    '101':'Llevar datos a planta', '102':'Supervisar accesos industriales', '103':'Comunicar áreas de operación',
+    '101':'Llevar datos a planta', '102':'Supervisar accesos industriales', '103':'Enlazar dos sitios de planta',
     '104':'Integrar datos de producción', '105':'Atender fallas en planta', '107':'Detectar un evento en planta', '108':'Respaldar equipos críticos',
   },
   mineria: {
@@ -103,8 +103,8 @@ const tasks: Record<string, Record<string, string>> = {
     '105':'Asistir a un sitio remoto', '107':'Recibir avisos de áreas técnicas', '108':'Alimentar equipos en terreno',
   },
   salud: {
-    '101':'Conectar consultorios y puestos', '102':'Supervisar circulaciones restringidas', '103':'Comunicar áreas de atención',
-    '104':'Integrar sistemas de gestión', '105':'Atender incidentes por criticidad', '106':'Planificar la infraestructura', '107':'Localizar avisos por ambiente', '108':'Respaldar la infraestructura IT',
+    '101':'Organizar la red en el rack', '102':'Supervisar circulaciones restringidas', '103':'Comunicar áreas de atención',
+    '104':'Integrar sistemas de gestión', '105':'Atender incidentes por criticidad', '106':'Coordinar las corrientes débiles', '107':'Localizar avisos por ambiente', '108':'Respaldar la infraestructura IT',
   },
 };
 export const sectorSystemTask = (slug:string, code:string) => tasks[slug]?.[code];

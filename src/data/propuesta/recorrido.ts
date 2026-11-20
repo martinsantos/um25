@@ -21,7 +21,7 @@ export const serviceJourney: Record<string, Service> = {
     'Videocolaboración Profesional': { question: '¿Cuántas salas hay que conectar y qué equipos tienen hoy?' },
   }},
   '104': { name: 'Software a medida', question: '¿Qué proceso querés digitalizar y con qué sistemas tiene que integrarse?', groups: {
-    'Aplicaciones a medida': { question: '¿Qué tarea querés digitalizar y quién la realiza hoy?', reference: { id: 3064, client: "Gobierno de Mendoza" } },
+    'Aplicaciones a medida': { question: '¿Qué proceso querés digitalizar y qué cambios necesitás poder consultar después?', reference: { id: 3064, client: "Gobierno de Mendoza" } },
     'Sistemas ERP/CRM': { question: '¿Qué áreas necesitan compartir información de clientes u operaciones?' },
     'Integración y automatización': { question: '¿Qué datos pasan hoy de un sistema al otro y cómo se cargan?', reference: { id: 3348, client: "Fundación Santa María" } },
     'Business Intelligence': { question: '¿Qué decisión necesita el tablero y de qué fuentes salen los datos?' },
@@ -33,7 +33,7 @@ export const serviceJourney: Record<string, Service> = {
   }},
   '106': { name: 'Consultoría IT', question: '¿Qué decisión tecnológica necesitás tomar y qué infraestructura tenés hoy?', groups: {
     'Diagnóstico y evaluación': { question: '¿Qué parte de la infraestructura necesitás evaluar y para qué decisión?', reference: { id: 3672, client: "Cliente Confidencial", title:"Diagnóstico de infraestructura IT" } },
-    'Planificación y arquitectura': { question: '¿Qué proyecto estás planificando y qué instalaciones deben integrarse?', reference: { id: 3477, client: "Procon S.R.L. · Laugero Construcciones S.A. · Unión Transitoria" } },
+    'Planificación y arquitectura': { question: '¿Qué instalaciones hay que coordinar y en qué etapa está el proyecto?', reference: { id: 3477, client: "Procon S.R.L. · Laugero Construcciones S.A. · Unión Transitoria" } },
     'Cumplimiento Normativo': { question: '¿Qué requisitos o pliego tiene que cumplir el proyecto?' },
   }},
   '107': { name: 'Detección de incendios', question: '¿Qué espacios hay que cubrir y qué detectores o alarmas tenés instalados?', groups: {
@@ -61,6 +61,19 @@ export const sectorJourney: Record<string, {name:string; site:string; question:s
   software: {name:'Software', site:'la organización', question:'¿Qué tarea hace hoy tu equipo y con qué sistema necesita intercambiar datos?'},
 };
 
+const sectorSystemContacts: Record<string, { subject:string; question:string }> = {
+  'mineria/103': { subject: 'Minería · Enlace entre base y campamento', question: '¿Qué distancia hay entre la base y el campamento y qué necesitás transmitir entre ambos?' },
+  'aeropuertos/103': { subject: 'Aeropuertos · Voceo en la terminal', question: '¿En qué zonas de la terminal deben oírse los avisos y desde qué puesto se emiten?' },
+  'gobiernosectorpublico/108': { subject: 'Gobierno y Sector Público · Circuitos de informática', question: '¿En qué dependencia están los tableros y qué equipos de informática alimentan?' },
+  'industria/101': { subject: 'Industria · Puestos de red en planta', question: '¿En qué línea de producción necesitás los puestos de red y cuántos puntos hay que conectar?' },
+  'aeropuertos/101': { subject: 'Aeropuertos · Fibra en la terminal', question: '¿Qué puntos de la terminal hay que unir por fibra y qué distancia los separa?' },
+  'salud/101': { subject: 'Salud · Rack de comunicaciones', question: '¿Qué áreas del establecimiento llegan al rack y cuántos puntos necesitás organizar?' },
+  'salud/103': { subject: 'Salud · Telefonía interna', question: '¿Qué áreas necesitan internos y en cuáles se usarán teléfonos por Wi-Fi?' },
+  'salud/106': { subject: 'Salud · Ingeniería de corrientes débiles', question: '¿En qué etapa está el proyecto del establecimiento y qué instalaciones deben coordinarse?' },
+  'gobiernosectorpublico/104': { subject: 'Gobierno y Sector Público · Trazabilidad', question: '¿Qué registro necesita seguir el organismo y quién debe consultar sus cambios?' },
+  'industria/103': { subject: 'Industria · Enlace punto a punto', question: '¿Qué dos sitios necesitás enlazar y qué hay entre ellos?' },
+};
+
 export function journeyContext(params: URLSearchParams) {
   if (params.get('budgetSector') === 'Bodegas') {
     const zone = params.get('budgetScope');
@@ -74,21 +87,8 @@ export function journeyContext(params: URLSearchParams) {
   const service = serviceJourney[code];
   if (!service?.name) return;
   if (sector?.name) {
-    if (slug === 'mineria' && code === '103') {
-      return {
-        subject: 'Minería · Enlace entre base y campamento',
-        question: '¿Qué distancia hay entre la base y el campamento y qué necesitás transmitir entre ambos?',
-      };
-    }
-    if (slug === 'aeropuertos' && code === '103') {
-      return { subject: 'Aeropuertos · Voceo en la terminal', question: '¿En qué zonas de la terminal deben oírse los avisos y desde qué puesto se emiten?' };
-    }
-    if (slug === 'gobiernosectorpublico' && code === '108') {
-      return { subject: 'Gobierno y Sector Público · Circuitos de informática', question: '¿En qué dependencia están los tableros y qué equipos de informática alimentan?' };
-    }
-    if (slug === 'industria' && code === '101') {
-      return { subject: 'Industria · Puestos de red en planta', question: '¿En qué línea de producción necesitás los puestos de red y cuántos puntos hay que conectar?' };
-    }
+    const specific = sectorSystemContacts[slug + '/' + code];
+    if (specific) return specific;
     const site = sector.site;
     const questions: Record<string,string> = {
       '101': `¿Qué áreas hay que conectar en ${site} y cuántos puestos necesitan red?`,
