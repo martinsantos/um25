@@ -1,35 +1,48 @@
 ---
+import { ArrowRight, FolderOpen } from 'lucide-astro';
 import { srcsetDe } from './isoData';
 
 interface Props {
   title: string;
   intro: string;
-  action: string;
-  items: { name: string; summary: string; count: number; photo: string; href: string }[];
+  items: {
+    name: string;
+    summary: string;
+    count: number;
+    photo: string;
+    href: string;
+    archiveHref: string;
+    detailHref: string;
+    detailLabel: string;
+  }[];
 }
-const { title, intro, action, items } = Astro.props;
+const { title, intro, items } = Astro.props;
 ---
 <div class="catalogo-intro">
   <h1>{title}<span class="dot">.</span></h1>
   <p>{intro}</p>
 </div>
 <ol class="catalogo">
-  {items.map(({ name, summary, count, photo, href }, index) => (
+  {items.map(({ name, summary, count, photo, href, archiveHref, detailHref, detailLabel }, index) => (
     <li>
-      <a href={href} class="catalogo-fila">
-        <figure>
-          <img src={photo} srcset={srcsetDe(photo)} sizes="(max-width: 400px) 76px, (max-width: 900px) 96px, 144px"
+      <div class="catalogo-cuerpo">
+        <a href={href} class="catalogo-ficha" aria-label={name}>
+          <img src={photo} srcset={srcsetDe(photo)} sizes="(max-width: 600px) 26vw, (max-width: 900px) 128px, 154px"
             alt="" width="1672" height="941" loading={index < 4 ? 'eager' : 'lazy'} decoding="async" />
-        </figure>
-        <div class="catalogo-texto">
           <h2>{name}</h2>
-          <p>{summary}</p>
-          <div class="catalogo-pie">
-            {count > 0 && <span>{count} {count === 1 ? 'antecedente' : 'antecedentes'}</span>}
-            <strong>{action} <span aria-hidden="true">→</span></strong>
-          </div>
-        </div>
-      </a>
+        </a>
+        <p class="resumen">{summary}</p>
+      </div>
+      <div class="acciones">
+        <a href={detailHref} aria-label={detailLabel + ' · ' + name}>
+          {detailLabel}<ArrowRight size={16} aria-hidden="true" />
+        </a>
+        {count > 0 && (
+          <a class="archivo" href={archiveHref} aria-label={`Ver ${count} ${count === 1 ? 'antecedente' : 'antecedentes'} · ${name}`}>
+            <FolderOpen size={16} aria-hidden="true" />{count} {count === 1 ? 'antecedente' : 'antecedentes'}
+          </a>
+        )}
+      </div>
     </li>
   ))}
 </ol>
@@ -37,25 +50,29 @@ const { title, intro, action, items } = Astro.props;
   .catalogo-intro { padding-block: var(--s4); }
   .catalogo-intro h1 { font-size: clamp(2rem, 4.4vw, 3.5rem); line-height: 1.08; }
   .catalogo-intro p { margin-top: var(--s2); max-width: 64ch; color: var(--ink-2); font-size: 1.125rem; }
-  .catalogo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(28px, 4vw, 64px); margin: 0; padding: 0 0 var(--s6); list-style: none; }
-  .catalogo li { min-width: 0; border-top: 1px solid var(--line); }
-  .catalogo-fila { display: grid; grid-template-columns: clamp(96px, 10vw, 144px) minmax(0, 1fr); gap: clamp(16px, 2vw, 24px); align-items: start; padding-block: 24px; height: 100%; }
-  figure { margin: 0; aspect-ratio: 4 / 3; background: var(--bg-2); overflow: hidden; }
-  img { display: block; width: 100%; height: 100%; object-fit: cover; }
-  .catalogo-texto { display: grid; gap: 8px; min-width: 0; overflow-wrap: anywhere; }
-  h2 { font-size: clamp(1.25rem, 2vw, 1.625rem); line-height: 1.2; }
-  p { margin: 0; color: var(--ink-2); line-height: 1.5; }
-  .catalogo-pie { display: flex; flex-wrap: wrap; gap: 4px 16px; color: var(--ink-3); line-height: 1.5; }
-  strong { color: var(--ink); font-weight: 600; }
-  .catalogo-fila:hover strong { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
+  .catalogo { --foto: clamp(120px, 11vw, 154px); --espacio: clamp(16px, 2vw, 24px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(28px, 4vw, 64px); margin: 0; padding: 0 0 var(--s6); list-style: none; }
+  .catalogo li { position: relative; min-height: calc(var(--foto) * .75 + 48px); display: flex; flex-direction: column; min-width: 0; border-top: 1px solid var(--line); padding-block: 24px 12px; }
+  .catalogo-cuerpo { padding-left: calc(var(--foto) + var(--espacio)); }
+  .catalogo-ficha { display: inline-flex; align-items: center; min-height: 44px; }
+  .catalogo-ficha img { position: absolute; inset: 24px auto auto 0; width: var(--foto); aspect-ratio: 4 / 3; height: auto; object-fit: cover; background: var(--bg-2); }
+  h2 { font-size: clamp(1.25rem, 2vw, 1.625rem); line-height: 1.2; overflow-wrap: anywhere; }
+  .resumen { margin: 2px 0 8px; color: var(--ink-2); line-height: 1.5; }
+  .acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 0 20px; margin-top: auto; padding-left: calc(var(--foto) + var(--espacio)); }
+  .acciones a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 600; }
+  .acciones .archivo { color: var(--ink-2); font-weight: 400; }
+  .catalogo a:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .catalogo a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
   @media (max-width: 900px) {
     .catalogo-intro { padding-block: 32px 24px; }
     .catalogo-intro p { font-size: 1.0625rem; }
-    .catalogo { grid-template-columns: minmax(0, 1fr); }
-    .catalogo-fila { grid-template-columns: 96px minmax(0, 1fr); }
+    .catalogo { --foto: 128px; grid-template-columns: minmax(0, 1fr); }
   }
-  @media (max-width: 400px) {
-    .catalogo-fila { grid-template-columns: clamp(56px, 19vw, 76px) minmax(0, 1fr); gap: 12px; padding-block: 20px; }
-    h2 { font-size: clamp(1.125rem, 5.25vw, 1.25rem); }
+  @media (max-width: 600px) {
+    .catalogo { --foto: clamp(82px, 26vw, 128px); --espacio: 14px; }
+    .catalogo li { padding: 18px 0 8px; }
+    .catalogo-cuerpo { position: relative; min-height: calc(var(--foto) * .75); }
+    .catalogo-ficha img { top: 0; }
+    .resumen { margin-top: 0; }
+    .acciones { justify-content: space-between; gap: 0 12px; padding-left: 0; }
   }
 </style>
