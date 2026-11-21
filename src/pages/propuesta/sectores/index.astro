@@ -7,21 +7,27 @@ import Cierre from '../../../components/proto/Cierre.astro';
 import CatalogoEditorial from '../../../components/proto/CatalogoEditorial.astro';
 import { loadStories, SECTOR_PHOTO } from '../../../components/proto/isoData';
 import { sectorRelato } from '../../../components/proto/relato';
-import { matchesCatalog } from '../../../components/proto/catalogFilters';
-import { SECTORS } from '../../../data/cine/scenes';
+import { catalogHref, matchesCatalog } from '../../../components/proto/catalogFilters';
+import { NAV_SECTORS } from '../../../data/navigation';
 
 export const prerender = false;
 const { stories } = await loadStories();
-const items = SECTORS.map((sector) => ({
-  name: sector.name,
-  summary: sectorRelato(sector.slug).summary || sector.text,
-  photo: SECTOR_PHOTO[sector.slug] || SECTOR_PHOTO.constructoras,
-  href: `/sectores/${sector.slug}`,
-  count: stories.filter((story) => matchesCatalog({
-    sector: story.sectorSlug, services: story.serviceCodes, year: String(story.year),
-    client: story.client, search: '', status: story.status,
-  }, { sector: sector.slug })).length,
-}));
+const items = NAV_SECTORS.map((sector) => {
+  const hasProvision = sector.slug === 'software' || sector.slug === 'seguridad-electronica';
+  return {
+    name: sector.name,
+    summary: sectorRelato(sector.slug).summary || sector.text,
+    photo: SECTOR_PHOTO[sector.slug] || SECTOR_PHOTO.constructoras,
+    href: sector.href,
+    detailHref: sector.href + (hasProvision ? '#provision' : '#integracion'),
+    detailLabel: hasProvision ? 'Qué proveemos' : 'Ver integración',
+    archiveHref: catalogHref({ sector: sector.slug }),
+    count: stories.filter((story) => matchesCatalog({
+      sector: story.sectorSlug, services: story.serviceCodes, year: String(story.year),
+      client: story.client, search: '', status: story.status,
+    }, { sector: sector.slug })).length,
+  };
+});
 ---
 <!doctype html>
 <html lang="es">
@@ -34,7 +40,6 @@ const items = SECTORS.map((sector) => ({
       <CatalogoEditorial
         title="Soluciones para cada sector"
         intro="Integramos redes, seguridad, comunicaciones y tecnología según la operación de cada sector. Desde Mendoza, para Cuyo, Patagonia y el país."
-        action="Ver sector"
         items={items}
       />
     </main>

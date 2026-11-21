@@ -5,6 +5,7 @@ import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import CatalogoEditorial from '../../../components/proto/CatalogoEditorial.astro';
+import { catalogHref } from '../../../components/proto/catalogFilters';
 import { loadStories, services, SERVICE_PHOTO } from '../../../components/proto/isoData';
 
 export const prerender = false;
@@ -13,7 +14,10 @@ const items = services.map((service) => ({
   name: service.name,
   summary: service.text,
   photo: SERVICE_PHOTO[service.code],
-  href: `/servicios/${service.code}`,
+  href: service.href,
+  detailHref: service.href + '#provision',
+  detailLabel: 'Qué proveemos',
+  archiveHref: catalogHref({ service: service.code }),
   count: stories.filter((story) => story.serviceCodes.includes(service.code)).length,
 }));
 ---
@@ -28,7 +32,6 @@ const items = services.map((service) => ({
       <CatalogoEditorial
         title="Ocho frentes de servicio"
         intro="Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria."
-        action="Ver servicio"
         items={items}
       />
     </main>
