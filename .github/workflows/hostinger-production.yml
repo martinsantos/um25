@@ -62,6 +62,7 @@ jobs:
           case "$PREVIOUS_MASTER" in
             d0a039d6e0071ed34af96ea28561dde1eb19b347) retirement=prune-pr678-transport.py ;;
             cd55cedf308e4904916cf57e8a3a29871c6cbd82) retirement=prune-catalog-transports.py ;;
+            2e3f76b99044bbd05fe3bc30a555f6dba598398a) retirement=prune-pr687-transport.py ;;
             *) retirement='' ;;
           esac
           if (( available < required )) && [[ -n "$retirement" ]]; then
