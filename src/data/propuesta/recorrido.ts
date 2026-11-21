@@ -5,7 +5,7 @@ export const serviceJourney: Record<string, Service> = {
   '101': { name: 'Redes', question: '¿Qué sectores necesitás conectar y cuántos puntos de red hay que cubrir?', groups: {
     'Fibra óptica': { question: '¿Qué puntos necesitás unir con fibra y a qué distancia están?', reference: { id: 3099, client: "Headcomm S.A." } },
     'Racks, switches y salas técnicas': { question: '¿Qué equipos y conexiones tiene que alojar la sala técnica?', reference: { id: 3072, client: "Hospital a Italo Perrupato" } },
-    'Cableado y certificación': { question: '¿Cuántos puestos hay que cablear o certificar y en qué sedes?' },
+    'Cableado y certificación': { question: '¿Cuántos puestos hay que cablear o certificar y en qué sedes?', reference: { id: 3384, client: 'José Nucete e Hijos S.A.' } },
     'Radioenlaces Punto a Punto': { question: '¿Dónde están los dos extremos del enlace y qué distancia los separa?' },
   }},
   '102': { name: 'Seguridad electrónica', question: '¿Qué zonas necesitás proteger y qué cámaras o controles de acceso tenés instalados?', groups: {
@@ -66,6 +66,8 @@ const sectorSystemContacts: Record<string, { subject:string; question:string }> 
   'aeropuertos/103': { subject: 'Aeropuertos · Voceo en la terminal', question: '¿En qué zonas de la terminal deben oírse los avisos y desde qué puesto se emiten?' },
   'gobiernosectorpublico/108': { subject: 'Gobierno y Sector Público · Circuitos de informática', question: '¿En qué dependencia están los tableros y qué equipos de informática alimentan?' },
   'industria/101': { subject: 'Industria · Puestos de red en planta', question: '¿En qué línea de producción necesitás los puestos de red y cuántos puntos hay que conectar?' },
+  'bodegas/101': { subject: 'Bodegas · Cableado y Wi-Fi', question: '¿Qué espacios de la bodega necesitan Wi-Fi y hasta dónde llega hoy el cableado?' },
+  'aeropuertos/102': { subject: 'Aeropuertos · CCTV del parking', question: '¿Qué puestos de cobro querés supervisar y desde dónde se verá el video?' },
   'aeropuertos/101': { subject: 'Aeropuertos · Fibra en la terminal', question: '¿Qué puntos de la terminal hay que unir por fibra y qué distancia los separa?' },
   'salud/101': { subject: 'Salud · Rack de comunicaciones', question: '¿Qué áreas del establecimiento llegan al rack y cuántos puntos necesitás organizar?' },
   'salud/103': { subject: 'Salud · Telefonía interna', question: '¿Qué áreas necesitan internos y en cuáles se usarán teléfonos por Wi-Fi?' },

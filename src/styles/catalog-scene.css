@@ -920,3 +920,21 @@
     animation: none;
   }
 }
+
+.catalog-scene__video-view.catalog-counter {
+  position: relative;
+  background: repeating-linear-gradient(90deg,transparent 0 22px,#87969233 22px 23px), #dbe3df;
+}
+.catalog-counter::before {
+  content: "";
+  position: absolute;
+  inset: 0 10% 18%;
+  background: #819b9260;
+  clip-path: polygon(50% 0,100% 100%,0 100%);
+}
+.catalog-counter .counter-desk {
+  position: absolute;
+  inset: 50% 20% 31%;
+  border: 2px solid #465853;
+  background: #f7f8f5;
+}

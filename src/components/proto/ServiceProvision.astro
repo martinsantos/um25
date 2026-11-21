@@ -34,10 +34,10 @@ const { introduction } = props;
         const scene = workScene(example, story);
         return <details id={example?.anchor} open={index === 0}>
         <summary>{label}</summary>
-        {system.title === props.sceneGroup && <div class="inline-flow"><slot name="flow" /></div>}
+        {system.title === props.sceneGroup && !scene && <div class="inline-flow"><slot name="flow" /></div>}
         {system.title === 'Control de Acceso Biométrico' && <slot name="accessReader" />}
         <div class:list={['system-body', { compact: !scene && 'items' in props && system.parts.length < 3, 'with-scene': scene }]} style={`--part-count:${system.parts.length}`}>
-          {scene && <div class="work-scene"><WorkScene content={scene} /></div>}
+          {scene && <div class="work-scene" id={system.title === props.sceneGroup ? "flujo" : undefined}><WorkScene content={scene} /></div>}
           {system.title === "Videovigilancia IP" && Astro.slots.has("cameraStages") ? <slot name="cameraStages" /> : system.parts.length > 0 && <div class="parts" aria-label={`Componentes de ${label}`}>
             {system.parts.map(part => <figure data-provision-part={part.key}>
               <Parte k={part.key} size={96} /><figcaption>{part.label}</figcaption>
