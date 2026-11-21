@@ -88,5 +88,7 @@ export function pageCaseCandidates(stories: Story[], sector?: string, service?: 
     '108': /el[eé]ctric|energ[ií]a|\bups\b|tablero|tierra|bater[ií]a|generador|circuito/i,
   };
   const unprovenPlacement: Record<string, number[]> = { industria: [3099,3113,3213,3224], constructoras: [3119,3082], gobiernosectorpublico: [3078] };
-  return stories.filter(s => isShowcaseProject(s) && !(sector && unprovenPlacement[sector]?.includes(s.id)) && (!service || !scope[service] || scope[service].test(serviceEvidenceText(s, service))));
+  // Some imported airport tags belong to retailers. A related work needs evidence of the airport itself.
+  const airportEvidence = /aeropuert|aeroportuari|aer[oó]dromo|campo de vuelo|\bAA\s?2000\b/i;
+  return stories.filter(s => (sector !== 'aeropuertos' || airportEvidence.test(`${s.client} ${s.title} ${s.summary}`)) && isShowcaseProject(s) && !(sector && unprovenPlacement[sector]?.includes(s.id)) && (!service || !scope[service] || scope[service].test(serviceEvidenceText(s, service))));
 }

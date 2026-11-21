@@ -14,8 +14,9 @@ const assets = import.meta.glob("../../assets/catalog-scenes/*.webp", {
 interface Props {
   content: CatalogContent;
   embedded?: boolean;
+  counterView?: boolean;
 }
-const { content, embedded = false } = Astro.props;
+const { content, embedded = false, counterView = false } = Astro.props;
 const Heading = embedded ? 'h3' : 'h2';
 const headingId = embedded ? undefined : 'catalog-heading';
 const src =
@@ -142,12 +143,13 @@ const power = ["energy", "distribution", "light"].includes(content.kind);
                 {content.kind === "capture" && (
                   <div class="catalog-scene__video">
                     <div
-                      class="catalog-scene__video-view"
-                      style={`background-image:url('${cameraView}')`}
+                      class:list={['catalog-scene__video-view', {'catalog-counter':counterView}]}
+                      style={counterView ? undefined : `background-image:url('${cameraView}')`}
                     >
+                      {counterView && <i class="counter-desk"></i>}
                       <div class="catalog-scene__shutter" />
                       <div class="catalog-scene__viewfinder" />
-                      <span>Vista de cámara</span>
+                      <span>{counterView ? 'Encuadre del mostrador' : 'Vista de cámara'}</span>
                     </div>
                     <div class="catalog-scene__video-timeline">
                       <span />
