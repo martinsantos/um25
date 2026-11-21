@@ -1,0 +1,48 @@
+name: Retire three approved UMSA transport archives
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/hostinger-three-transports-20261121.yml'
+      - 'scripts/ops/hostinger-migration/prune-three-transports-20261121.py'
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: hostinger-umsa-production
+  cancel-in-progress: false
+
+jobs:
+  retire:
+    if: github.event.before == 'fc700046c18762e623c227460edcd76ed94d00e5' && vars.UMSA_PRODUCTION_TARGET == 'hostinger'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Inspect and retire only the three approved archives
+        run: |
+          set -euo pipefail
+          ops=scripts/ops/hostinger-migration
+          program="$RUNNER_TEMP/prune-three.py"
+          sed '/^if __name__ == /,$d' "$ops/prune-reviewed-migration.py" > "$program"
+          sed '/^if __name__==/,$d' "$ops/prune-20261115-equipment-packages.py" >> "$program"
+          cat "$ops/prune-three-transports-20261121.py" >> "$program"
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$ops/known_hosts" -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          # Previous release package size multiplied by the publisher's capacity factor.
+          required=12721003542
+          result=$(ssh "${opts[@]}" root@179.198.115.115 "python3 -B - inspect $required" < "$program")
+          printf '%s\n' "$result"
+          snapshot=$(jq -er '.snapshot_sha256' <<< "$result")
+          [[ "$snapshot" =~ ^[0-9a-f]{64}$ ]]
+          ssh "${opts[@]}" root@179.198.115.115 "env GITHUB_ACTIONS=true python3 -B - apply $required $snapshot" < "$program"
