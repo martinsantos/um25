@@ -1,4 +1,6 @@
 ---
+import { generateSlug } from '../../utils/slugUtils';
+import SystemPicker from './SystemPicker.astro';
 import Parte from './Parte.astro';
 import WorkScene from './WorkScene.astro';
 import { serviceWorkExamples, workScene } from '../../data/propuesta/workScenes';
@@ -23,6 +25,7 @@ const { introduction } = props;
   <div class="wrap">
     <h2 id="provision-title">Qué proveemos<span class="dot">.</span></h2>
     {introduction && <p class="intro">{introduction}</p>}
+    <SystemPicker id="sistemas-del-servicio" label="Sistemas y prestaciones" back="Ver opciones">
     <div class="systems">
       {systems.map((system, index) => {
         const guide = serviceJourney[props.code]?.groups[system.title];
@@ -32,7 +35,7 @@ const { introduction } = props;
           || (s.client === reference.client && s.title === reference.title)));
         const example = serviceWorkExamples[props.code]?.[system.title];
         const scene = workScene(example, story);
-        return <details id={example?.anchor} open={index === 0}>
+        return <details id={example?.anchor || `prestacion-${generateSlug(system.title)}`} open={index === 0}>
         <summary>{label}</summary>
         {system.title === props.sceneGroup && !scene && <div class="inline-flow"><slot name="flow" /></div>}
         {system.title === 'Control de Acceso Biométrico' && <slot name="accessReader" />}
@@ -59,31 +62,15 @@ const { introduction } = props;
         </div>
       </details>})}
     </div>
+    </SystemPicker>
     <slot />
   </div>
 </section>
-<script>
-  // Some browsers leave a linked scene inside a closed disclosure on arrival.
-  function revealLinkedScene() {
-    const target = document.getElementById(location.hash.slice(1));
-    const group = target?.closest<HTMLDetailsElement>('[data-provision] details');
-    if (!target || !group) return;
-    group.open = true;
-    target.scrollIntoView({ block: 'start', behavior: 'instant' });
-  }
-  if (location.hash) requestAnimationFrame(revealLinkedScene);
-  window.addEventListener('hashchange', revealLinkedScene);
-  document.addEventListener('click', event => {
-    const link = event.target instanceof Element && event.target.closest<HTMLAnchorElement>('a[href^="#"]');
-    if (link && link.hash === location.hash && !event.defaultPrevented && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey)
-      requestAnimationFrame(revealLinkedScene);
-  });
-</script>
 <style>
   .inline-flow { margin:2px 0 var(--s3); }
   .inline-flow :global(section.sec) { padding:0; border:0; scroll-margin-top:calc(var(--top-h,66px) + 12px); }
   .inline-flow :global(.wrap) { width:100%;max-width:none;padding:0; }
-  #provision { scroll-margin-top:calc(var(--top-h,66px) + 12px); }
+  #provision { padding-top:var(--s4); }
   .intro { max-width:64ch; margin-top:var(--s2); color:var(--ink-2); }
   .reference { display:inline-flex; align-items:center; min-height:44px; }
   .systems { margin-top:var(--s3); border-bottom:1px solid var(--line); }
