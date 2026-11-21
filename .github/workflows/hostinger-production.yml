@@ -50,7 +50,7 @@ jobs:
           ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
       - name: Check available disk before sending the CI package
         env:
-          PR678_BASE: ${{ github.event.before }}
+          PREVIOUS_MASTER: ${{ github.event.before }}
           CLEAN_WEB_PACKAGE: ${{ runner.temp }}/umsa-clean-web.tar.gz
         run: |
           set -euo pipefail
@@ -59,12 +59,17 @@ jobs:
           available=$(ssh "${opts[@]}" root@179.198.115.115 "df -B1 --output=avail /srv | tail -n 1" | tr -d '[:space:]')
           [[ "$available" =~ ^[0-9]+$ ]]
           required=$((size + (5 * size > 5 * 1024**3 ? 5 * size : 5 * 1024**3)))
-          if (( available < required )) && [[ "$PR678_BASE" == d0a039d6e0071ed34af96ea28561dde1eb19b347 ]]; then
+          case "$PREVIOUS_MASTER" in
+            d0a039d6e0071ed34af96ea28561dde1eb19b347) retirement=prune-pr678-transport.py ;;
+            cd55cedf308e4904916cf57e8a3a29871c6cbd82) retirement=prune-catalog-transports.py ;;
+            *) retirement='' ;;
+          esac
+          if (( available < required )) && [[ -n "$retirement" ]]; then
             ops=scripts/ops/hostinger-migration
-            program="$RUNNER_TEMP/prune-pr678.py"
+            program="$RUNNER_TEMP/prune-approved.py"
             sed '/^if __name__ == /,$d' "$ops/prune-reviewed-migration.py" > "$program"
             sed '/^if __name__==/,$d' "$ops/prune-20261115-equipment-packages.py" >> "$program"
-            cat "$ops/prune-pr678-transport.py" >> "$program"
+            cat "$ops/$retirement" >> "$program"
             inspect=$(ssh "${opts[@]}" root@179.198.115.115 "python3 -B - inspect $required" < "$program")
             snapshot=$(jq -er '.snapshot_sha256' <<< "$inspect")
             [[ "$snapshot" =~ ^[a-f0-9]{64}$ ]]
