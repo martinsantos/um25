@@ -1,0 +1,16 @@
+# One-time maintenance after release 44898838665. Only the listed incoming tarballs may be retired.
+ACTIVE = 'fc700046c18762e623c227460edcd76ed94d00e5-44898838665-1'
+RETAIN = (ACTIVE,
+          'd0a039d6e0071ed34af96ea28561dde1eb19b347-44841673780-1',
+          '866d00cdb5855c0488dcd74cda7d9f1b318dee00-44828517985-1',
+)
+EXPECTED_ARCHIVE_SIZES = {
+    'ba766adae1e187e28d50965cc16063c279a61766-44716855504-1': 2119526173,
+    'df6f62343c2baa5c1ba18607e8ce21970a0b7acb-44638324784-1': 2119276473,
+    '9dc036d676abca2b930af5f1fe5432a0f6a11273-44353844332-1': 2118575142,
+}
+RETIRED = tuple(EXPECTED_ARCHIVE_SIZES)
+FREE_EXPECTED = 6357385216
+
+if __name__ == '__main__':
+    execute(*sys.argv[1:])
