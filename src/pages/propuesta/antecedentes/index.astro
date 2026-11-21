@@ -73,7 +73,17 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
       .muro { display: grid; grid-template-columns: minmax(260px, 3fr) minmax(0, 9fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: start; padding-block: var(--s4) var(--s6); }
       /* El panel se fija y, si es más alto que la pantalla, se desplaza por dentro: el año queda al alcance sin ir al final del muro. */
       .panel { position: sticky; top: calc(var(--top-h) + 16px); display: grid; gap: var(--s4); max-height: calc(100svh - var(--top-h) - 32px); overflow: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; padding-right: 6px; }
-      .grupo + .grupo { margin-top: var(--s4); }
+      .facet { min-width: 0; border-bottom: 1px solid var(--line); }
+      .facet:first-child { border-top: 1px solid var(--line); }
+      .facet summary { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 10px 4px; color: var(--ink); font-weight: 600; cursor: pointer; list-style: none; }
+      .facet summary::-webkit-details-marker { display: none; }
+      .facet summary::after { content: ''; width: 8px; height: 8px; flex: none; margin-inline: auto 4px; border-right: 1.5px solid; border-bottom: 1.5px solid; transform: rotate(45deg); }
+      .facet summary:has(.facet-value)::after { margin-left: 2px; }
+      .facet[open] > summary::after { transform: rotate(225deg); }
+      .facet-value { margin-left: auto; text-align: right; color: var(--ink-2); font-size: .9375rem; font-weight: 400; overflow-wrap: anywhere; }
+      .facet-fields { display: grid; gap: 16px; }
+      .facet > :last-child:not(summary) { margin-bottom: 16px; }
+      .facet summary:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
       .catalog-title { margin-bottom: 12px; font-size: clamp(1.5rem, 2vw, 2rem); font-weight: 600; line-height: 1.15; letter-spacing: -.025em; }
       .catalog-summary { display: contents; }
       .count { font-size: clamp(2.75rem, 4vw, 4rem); line-height: .9; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
@@ -87,7 +97,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
       .anios a:hover:not([aria-current="true"]) { border-color: var(--ink-2); background: var(--bg-2); }
       .servicios [data-zero] { color: var(--ink-3); }
       .filtros { display: grid; gap: var(--s4); }
-      .filtros__cuerpo { display: grid; gap: var(--s4); }
+      .filtros__cuerpo { display: grid; gap: 0; }
       .filtros__toggle, .filtros__resultados { display: none; }
       .active-filters { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 12px 0 0; }
       .active-filters[hidden] { display: none; }
@@ -115,7 +125,9 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
         .filtros.abierta .filtros__resultados { display: inline-flex; justify-content: center; min-height: 44px; align-items: center; }
         .filtros.abierta .filtros__toggle i::before { content: '–'; }
         .filtros__cuerpo { display: none; }
-        .filtros.abierta .filtros__cuerpo { display: grid; padding-top: var(--s4); }
+        .filtros.abierta .filtros__cuerpo { display: grid; }
+        .facet:first-child { border-top: 0; }
+        .filtros__resultados { margin-top: 14px; }
       }
       @media (max-width: 600px) { .fichas { grid-template-columns: minmax(0, 1fr); } }
     </style>
@@ -142,12 +154,23 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
         <div class="filtros" data-filtros>
         <button class="filtros__toggle" type="button" data-toggle aria-expanded="false" aria-controls="filtros-cuerpo">Filtrar y ordenar<i aria-hidden="true"></i></button>
         <div class="filtros__cuerpo" id="filtros-cuerpo">
-        <label class="catalog-control">Ordenar<select name="orden" data-sort aria-label="Ordenar antecedentes">{[['recent', 'Destacados'], ['year-desc', 'Año, más reciente'], ['year-asc', 'Año, más antiguo'], ['client', 'Cliente A–Z']].map(([v, label]) => <option value={v} selected={estado.orden === v}>{label}</option>)}</select></label>
-        <div class="grupo"><h2>Sector</h2><ul class="servicios">{sectors.map((s) => <li><a href={toggleCatalogHref(estado, 'sector', s.slug)} data-lens="sector" data-value={s.slug} aria-current={s.on ? 'true' : 'false'} data-zero={s.zero || undefined} style={`--w:${s.w}`}>{s.name}<span data-n>{s.count}</span><i></i></a></li>)}</ul></div>
-        <div class="grupo"><h2>Servicio</h2><ul class="servicios">{svcs.map((s) => <li><a href={toggleCatalogHref(estado, 'service', s.code)} data-lens="service" data-value={s.code} aria-current={s.on ? 'true' : 'false'} data-zero={s.zero || undefined} style={`--w:${s.w}`}>{s.name}<span data-n>{s.count}</span><i></i></a></li>)}</ul></div>
-        <div class="grupo"><h2>Año</h2><div class="anios">{years.map((y) => <a href={toggleCatalogHref(estado, 'year', String(y))} data-lens="year" data-value={String(y)} aria-current={estado.year === String(y) ? 'true' : 'false'}>{y}</a>)}</div></div>
-        <label class="catalog-control">Período<select name="periodo" data-field="periodo"><option value="">Todos los períodos</option>{[['2024', '2024 en adelante'], ['2020', '2020–2023'], ['2015', '2015–2019'], ['2010', '2010–2014'], ['antes', 'Antes de 2010']].map(([v, label]) => <option value={v} selected={estado.periodo === v}>{label}</option>)}</select></label>
-        <label class="catalog-control">Cliente<select name="cliente" data-field="cliente"><option value="">Todos los clientes</option>{clients.map(c => <option value={c} selected={Boolean(estado.cliente) && clientKey(estado.cliente) === clientKey(c)}>{c}</option>)}</select></label>
+          <details class="facet" name="archivo-facetas">
+            <summary><span>Sector</span><span class="facet-value" data-choice="sector">{sectors.find(s => s.on)?.name || estado.sector || 'Todos'}</span></summary>
+            <ul class="servicios">{sectors.map((s) => <li><a href={toggleCatalogHref(estado, 'sector', s.slug)} data-lens="sector" data-value={s.slug} aria-current={s.on ? 'true' : 'false'} data-zero={s.zero || undefined} style={`--w:${s.w}`}>{s.name}<span data-n>{s.count}</span><i></i></a></li>)}</ul>
+          </details>
+          <details class="facet" name="archivo-facetas">
+            <summary><span>Servicio</span><span class="facet-value" data-choice="service">{svcs.find(s => s.on)?.name || estado.service || 'Todos'}</span></summary>
+            <ul class="servicios">{svcs.map((s) => <li><a href={toggleCatalogHref(estado, 'service', s.code)} data-lens="service" data-value={s.code} aria-current={s.on ? 'true' : 'false'} data-zero={s.zero || undefined} style={`--w:${s.w}`}>{s.name}<span data-n>{s.count}</span><i></i></a></li>)}</ul>
+          </details>
+          <details class="facet" name="archivo-facetas">
+            <summary>Cliente, fechas y orden</summary>
+            <div class="facet-fields">
+              <label class="catalog-control">Cliente<select name="cliente" data-field="cliente"><option value="">Todos los clientes</option>{clients.map(c => <option value={c} selected={Boolean(estado.cliente) && clientKey(estado.cliente) === clientKey(c)}>{c}</option>)}</select></label>
+              <div class="grupo"><h2>Año</h2><div class="anios">{years.map((y) => <a href={toggleCatalogHref(estado, 'year', String(y))} data-lens="year" data-value={String(y)} aria-current={estado.year === String(y) ? 'true' : 'false'}>{y}</a>)}</div></div>
+              <label class="catalog-control">Período<select name="periodo" data-field="periodo"><option value="">Todos los períodos</option>{[['2024', '2024 en adelante'], ['2020', '2020–2023'], ['2015', '2015–2019'], ['2010', '2010–2014'], ['antes', 'Antes de 2010']].map(([v, label]) => <option value={v} selected={estado.periodo === v}>{label}</option>)}</select></label>
+              <label class="catalog-control">Ordenar<select name="orden" data-sort aria-label="Ordenar antecedentes">{[['recent', 'Destacados'], ['year-desc', 'Año, más reciente'], ['year-asc', 'Año, más antiguo'], ['client', 'Cliente A–Z']].map(([v, label]) => <option value={v} selected={estado.orden === v}>{label}</option>)}</select></label>
+            </div>
+          </details>
         <a class="btn filtros__resultados" href="#obras-filtradas" data-ver-resultados>Ver resultados</a>
         </div>
         </div>
@@ -274,6 +297,10 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
             b.toggleAttribute('data-zero', c === 0 && state[kind] !== b.dataset.value);
           });
         });
+        root.querySelectorAll<HTMLElement>('[data-choice]').forEach(el => {
+          const key = el.dataset.choice as 'sector' | 'service';
+          el.textContent = state[key] ? names(key, state[key]) : 'Todos';
+        });
         const keys = catalogCriteria.filter((key) => state[key]);
         const activeFilters = root.querySelector<HTMLElement>('[data-active-filters]')!;
         activeFilters.replaceChildren(...keys.map((key) => {
@@ -309,7 +336,19 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
       sort.addEventListener('change', () => { state.orden = sort.value; visibles = TANDA; apply(); });
       root.querySelectorAll<HTMLSelectElement>('[data-field]').forEach(el => el.addEventListener('change', () => { state[el.dataset.field!] = el.value; visibles = TANDA; apply(); }));
       const ordinaryClick = (e: MouseEvent) => e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey;
-      lenses.forEach((b) => b.addEventListener('click', (event) => { if (!ordinaryClick(event)) return; event.preventDefault(); const k = b.dataset.lens!; state[k] = state[k] === b.dataset.value ? '' : b.dataset.value!; visibles = TANDA; apply(); }));
+      lenses.forEach(link => link.addEventListener('click', event => {
+        if (!ordinaryClick(event)) return;
+        event.preventDefault();
+        const key = link.dataset.lens!;
+        state[key] = state[key] === link.dataset.value ? '' : link.dataset.value!;
+        visibles = TANDA;
+        const facet = link.closest('details');
+        if (facet) {
+          facet.open = false;
+          facet.querySelector('summary')?.focus({ preventScroll: true });
+        }
+        void apply();
+      }));
       mas.addEventListener('click', (event) => { if (!ordinaryClick(event)) return; event.preventDefault(); visibles += TANDA; apply(); });
 
       // Save the expanded page and its position on this history entry before opening a case.

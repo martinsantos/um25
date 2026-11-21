@@ -49,3 +49,12 @@ test('an absent or unmatched client has no client-specific recovery action', () 
   expect(catalogClientRecovery([airport], { sector: 'sin-clasificar' })).toBeUndefined();
   expect(catalogClientRecovery([airport], { sector: 'sin-clasificar', cliente: 'Otro cliente' })).toBeUndefined();
 });
+
+test('finds a project by its printed reference and by words across fields in either order', () => {
+  const project = { ...airport, search: 'UM-3104 Aeropuertos Argentina 2000 Control de acceso para pañol' };
+  for (const q of ['UM-3104', 'um 3104', 'UM3104', '3104', 'pañol aeropuertos', 'aeropuertos panol']) {
+    expect(matchesCatalog(project, { q })).toBe(true);
+  }
+  expect(matchesCatalog(project, { q: 'pañol bodega' })).toBe(false);
+  expect(matchesCatalog(project, { q: 'UM 3105' })).toBe(false);
+});

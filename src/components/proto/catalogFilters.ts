@@ -45,6 +45,12 @@ export function catalogState(params: URLSearchParams): Record<(typeof filterKeys
   if (!['recent', 'year-desc', 'year-asc', 'client'].includes(state.orden)) state.orden = 'recent';
   return state;
 }
+function matchesSearch(text: string, query: string): boolean {
+  const terms = normalizeSearch(query).replace(/\bum[\s-]*(\d+)\b/g, 'um-$1').trim().split(/\s+/);
+  const haystack = normalizeSearch(text);
+  return terms.every(term => haystack.includes(term));
+}
+
 export function matchesCatalog(it: CatalogItem, state: CatalogState, skip?: string): boolean {
   const sector = state.sector === 'gobierno' ? 'gobiernosectorpublico' : state.sector;
   const sectorMatches = (sector === 'sin-clasificar' && !it.sector) || it.sector === sector || (sector === 'software' && it.services.includes('104')) || (sector === 'seguridad-electronica' && it.services.includes('102'));
@@ -52,7 +58,7 @@ export function matchesCatalog(it: CatalogItem, state: CatalogState, skip?: stri
     (skip === 'service' || !state.service || (state.service === 'sin-clasificar' ? it.services.length === 0 : it.services.includes(state.service))) &&
     (!state.year || it.year === state.year) &&
     (!state.cliente || clientKey(it.client) === clientKey(state.cliente)) &&
-    (!state.q || normalizeSearch(it.search).includes(normalizeSearch(state.q.trim()))) &&
+    (!state.q || matchesSearch(it.search, state.q)) &&
     (!state.periodo || periodOf(it.year) === state.periodo) &&
     (!state.estado || it.status === state.estado);
 }
