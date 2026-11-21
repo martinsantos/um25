@@ -1,4 +1,5 @@
 ---
+import SystemPicker from './SystemPicker.astro';
 import { ChevronDown, Network, Cctv, RadioTower, CodeXml, Headset, Workflow, Flame, Zap } from 'lucide-astro';
 import WorkScene from './WorkScene.astro';
 import ServiceScene from './ServiceScene.astro';
@@ -24,7 +25,8 @@ const intro=intros[slug] || ['Integración por sistema',`Tecnología para ${name
 <section class="sec sector-systems" id={slug === 'bodegas' ? 'sistemas' : 'integracion'}>
  <div class="wrap">
   <header><p class="eyebrow">{intro[0]}</p><h2>{intro[1].replace(/\.$/,'')}<span class="dot">.</span></h2><p>{stories.length ? "Elegí una tarea para ver cómo funciona el sistema y consultar por tu instalación." : "Elegí qué necesitás resolver en el sitio para ver la integración y preparar el relevamiento."}</p></header>
-  <div class="systems">
+  <SystemPicker id="tareas-del-sector" label="Tareas del sector" back="Ver tareas">
+    <div class="systems">
   {items.map((item,i)=>{ const Icon=icons[item.code] || Network;
     const sectorStories = stories.filter(s => s.serviceCodes.includes(item.code));
     const candidates = pageCaseCandidates(sectorStories,slug,item.code);
@@ -35,8 +37,8 @@ const intro=intros[slug] || ['Integración por sistema',`Tecnología para ${name
     const story = example ? (caseScene ? matched : undefined) : candidates.find(s => s.documentedScope) || candidates[0];
     const task = sectorSystemTask(slug,item.code);
     const wineryFire = slug === 'bodegas' && item.code === '107';
-    return <details id={example?.anchor} name={`sector-system-${slug}`} open={i===0}>
-    <summary><span class="system-name"><Icon size={22} stroke-width={1.6} aria-hidden="true"/><span class="task">{task || item.name}{task && <small>{item.name}</small>}</span></span><ChevronDown size={20} aria-hidden="true"/></summary>
+    return <details id={example?.anchor || `sistema-${item.code}`} name={`sector-system-${slug}`} open={i===0}>
+    <summary data-title={task || item.name}><span class="system-name"><Icon size={22} stroke-width={1.6} aria-hidden="true"/><span class="task">{task || item.name}{task && <small>{item.name}</small>}</span></span><ChevronDown size={20} aria-hidden="true"/></summary>
     <div class:list={['system-body', {'text-only': example && !caseScene}]}>
       <p class="system-description">{sectorIntegrationScope(slug,item.code,item.text)}</p>
       {(!example || caseScene) && <div class="system-scene">
@@ -53,9 +55,11 @@ const intro=intros[slug] || ['Integración por sistema',`Tecnología para ${name
     </div>
   </details>})}
   </div>
+  </SystemPicker>
  </div>
 </section>
 <style>
+.sector-systems { padding-top:var(--s4); }
 .zone-shortcut { display:inline-flex;align-items:center;min-height:48px;text-decoration:underline;text-underline-offset:4px; }.task{display:grid;gap:4px;text-align:left}.task small{color:var(--ink-2);font-size:.875rem;font-weight:400}.system-name{display:flex;align-items:center;gap:14px}.system-name :global(svg){flex:none}header{max-width:880px;margin-bottom:32px}header h2{max-width:22ch}header p{margin-top:16px;color:var(--ink-2)}.eyebrow{font-size:.875rem;letter-spacing:.06em}.systems{border-top:1px solid var(--line)}details{scroll-margin-top:calc(var(--top-h,66px) + 16px);border-bottom:1px solid var(--line)}summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;min-height:68px;font-size:1.25rem;font-weight:600;padding:16px 4px}summary::-webkit-details-marker{display:none}summary:focus-visible{outline:2px solid var(--red);outline-offset:4px}details[open] summary{color:var(--red-text)}details[open] summary > :global(svg){transform:rotate(180deg)}.system-body {
   display:grid;
   grid-template-columns:minmax(220px,.8fr) minmax(0,1.5fr);
@@ -80,24 +84,3 @@ const intro=intros[slug] || ['Integración por sistema',`Tecnología para ${name
   summary {font-size:1.125rem;}
 }
 </style>
-
-<script>
-  function openLinkedSystem() {
-    const group = document.getElementById(location.hash.slice(1));
-    if (group instanceof HTMLDetailsElement && group.closest('.sector-systems')) {
-      group.open = true;
-      group.scrollIntoView({block:'start', behavior:'instant'});
-    }
-  }
-  if (location.hash) requestAnimationFrame(openLinkedSystem);
-  window.addEventListener('hashchange', openLinkedSystem);
-  document.querySelectorAll<HTMLDetailsElement>('.sector-systems details').forEach(detail => {
-    detail.addEventListener('toggle', () => {
-      if (!detail.open) return;
-      requestAnimationFrame(() => {
-        const header = document.querySelector('body > header')?.getBoundingClientRect().bottom || 80;
-        if (detail.getBoundingClientRect().top < header) detail.scrollIntoView({block:'start', behavior:'instant'});
-      });
-    });
-  });
-</script>
