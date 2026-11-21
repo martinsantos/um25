@@ -4,14 +4,14 @@ import { sectorVisualSystem } from '../sectorVisualSystem';
 const scope: Record<string, Record<string, string>> = {
   aeropuertos: {
     '101': 'Conectamos terminales, puestos y salas técnicas mediante cableado, fibra y redes segmentadas.',
-    '102': 'Integramos cámaras, grabación y control de accesos para supervisar terminales y perímetros.',
+    '102': 'Definimos el encuadre de las cámaras según el área que se necesita supervisar, desde el mostrador hasta los accesos.',
     '103': 'Conectamos la telefonía, los enlaces y el voceo con la operación de la terminal.',
     '104': 'Integramos aplicaciones y datos para acompañar los procesos de la operación aeroportuaria.',
     '105': 'Coordinamos monitoreo, mantenimiento y respuesta técnica con la operación del aeropuerto.',
     '107': 'Integramos centrales, detectores y alarmas según las áreas y el proyecto de detección.',
   },
   bodegas: {
-    '101': 'Conectamos producción, depósitos y administración con redes de datos y enlaces de fibra.',
+    '101': 'Llevamos el cableado hasta los puntos de acceso que dan cobertura Wi-Fi a las áreas de la bodega.',
     '102': 'Integramos videovigilancia y control de accesos para las áreas productivas y de circulación.',
     '104': 'Conectamos sistemas de gestión, trazabilidad y datos de producción para reducir tareas manuales.',
     '105': 'Planificamos soporte y mantenimiento según los tiempos de producción y cosecha.',
@@ -79,11 +79,11 @@ export const sectorIntegrationScope = (slug: string, code: string, fallback: str
 // Task names for the selector. Services without an edited task retain their catalog name.
 const tasks: Record<string, Record<string, string>> = {
   aeropuertos: {
-    '101':'Unir puntos de la terminal por fibra', '102':'Supervisar accesos y perímetros', '103':'Emitir avisos en la terminal',
+    '101':'Unir puntos de la terminal por fibra', '102':'Supervisar los mostradores del parking', '103':'Emitir avisos en la terminal',
     '104':'Integrar datos operativos', '105':'Atender incidencias en la terminal', '107':'Localizar una alarma de incendio',
   },
   bodegas: {
-    '101':'Conectar producción y administración', '102':'Supervisar accesos y circulación', '104':'Seguir un lote en producción',
+    '101':'Llevar Wi-Fi a las áreas de la bodega', '102':'Supervisar accesos y circulación', '104':'Seguir un lote en producción',
     '105':'Sostener los sistemas durante la cosecha', '106':'Planificar la infraestructura de la bodega', '107':'Recibir una alerta en la nave',
   },
   constructoras: {

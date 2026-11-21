@@ -3,10 +3,10 @@ import { catalogPresentationFor, catalogSceneForCase, type CatalogContent } from
 
 type StoryIdentity = Parameters<typeof connectionSceneForCase>[0];
 type Points = readonly [readonly [number, number], readonly [number, number], readonly [number, number]];
-type EquipmentExample = Pick<CatalogContent, 'asset' | 'kind' | 'title' | 'steps'> & { id: number; anchor: string; points?: Points };
+type EquipmentExample = Pick<CatalogContent, 'asset' | 'kind' | 'title' | 'steps'> & { id: number; anchor: string; counterView?: boolean; points?: Points };
 type ProcessExample = {
   id: number; anchor: string; format: 'software' | 'consulting';
-  project: string; title: string; steps: readonly (readonly [string, string])[];
+  illustration?: 'exchange'; project: string; title: string; steps: readonly (readonly [string, string])[];
 };
 type ConnectionExample = { id: number; anchor: string; format: 'connection' };
 type Example = EquipmentExample | ProcessExample | ConnectionExample;
@@ -50,6 +50,43 @@ const radioLink: EquipmentExample = {
   ],
 };
 
+const wineryWifi: EquipmentExample = {
+  id: 3116, anchor: 'wifi-en-la-suite', asset: 'wifi', kind: 'coverage',
+  title: 'Del cable de datos al Wi-Fi de la suite',
+  steps: [
+    ['Cableado', 'El tendido lleva la red hasta la suite de Bodega Sur de los Andes.'],
+    ['Punto de acceso', 'El equipo configurado para Luna Maya conecta el tramo cableado con la red inalámbrica.'],
+    ['Conexión', 'Los dispositivos de la suite se conectan por Wi-Fi.'],
+  ],
+};
+const parkingCameras: EquipmentExample = {
+  id: 3140, anchor: 'cctv-en-los-mostradores', asset: 'camera', kind: 'capture', counterView: true,
+  title: 'Qué ve una cámara en el puesto de cobro',
+  steps: [
+    ['Puesto', 'La obra cubrió los mostradores de cobro del estacionamiento del aeropuerto de Mendoza.'],
+    ['Encuadre', 'La orientación de la cámara define qué parte del mostrador entra en imagen.'],
+    ['Video', 'El sistema CCTV permite supervisar la atención en el puesto.'],
+  ],
+};
+const smokeDetector: EquipmentExample = {
+  id: 3168, anchor: 'detector-de-la-esmeralda', asset: 'detector', kind: 'detection',
+  title: 'Cómo llega el aviso de humo a la central',
+  steps: [
+    ['Detección', 'El detector responde a la presencia de humo en el ambiente.'],
+    ['Cableado', 'En Bodega La Esmeralda, el adicional incluyó la canalización y el cableado del detector.'],
+    ['Aviso', 'La señal llega a la central para que el personal identifique el evento.'],
+  ],
+};
+const invoicing: ProcessExample = {
+  id: 3348, anchor: 'servicio-web-de-facturacion', format: 'software', illustration: 'exchange',
+  project: 'Fundación Santa María', title: 'Cómo se comunica la aplicación con el servicio de facturación',
+  steps: [
+    ['Datos', 'La aplicación reúne los datos del comprobante.'],
+    ['Solicitud', 'La aplicación envía los datos al servicio web de factura electrónica.'],
+    ['Respuesta', 'El servicio devuelve el resultado de la solicitud a la aplicación.'],
+  ],
+};
+
 const distribution: Example = {
   id: 3119, anchor: 'tableros-de-informatica', asset: 'distribution', kind: 'distribution',
   points: [[45,25], [53,42], [61,78]],
@@ -81,14 +118,16 @@ const productionNetwork: Example = {
 };
 
 export const serviceWorkExamples: Record<string, Record<string, Example>> = {
-  '101': { 'Racks, switches y salas técnicas': rack },
+  '101': { 'Cableado y certificación': productionNetwork, 'Racks, switches y salas técnicas': rack },
   '103': { 'Sistema de Voceo y PA': paging, 'Telefonía IP': hospitalPhone },
-  '104': { 'Aplicaciones a medida': tracking },
+  '104': { 'Aplicaciones a medida': tracking, 'Integración y automatización': invoicing },
   '106': { 'Planificación y arquitectura': engineering },
+  '107': { 'Detectores según el ambiente': smokeDetector },
   '108': { 'Distribución y puesta a tierra': distribution },
 };
 export const sectorWorkExamples: Record<string, Record<string, Example>> = {
-  aeropuertos: { '101': fiber, '103': paging },
+  bodegas: { '101': wineryWifi },
+  aeropuertos: { '101': fiber, '102': parkingCameras, '103': paging },
   salud: { '101': rack, '103': hospitalPhone, '106': engineering },
   gobiernosectorpublico: { '104': tracking, '108': distribution },
   industria: { '101': productionNetwork, '103': radioLink },
@@ -108,5 +147,5 @@ export function workScene(example: Example | undefined, story: StoryIdentity | u
   }
   const scene = catalogSceneForCase(story);
   if (scene?.asset !== example.asset) return;
-  return { ...scene, format: 'equipment' as const, kind: example.kind, title: example.title, steps: example.steps, points: example.points };
+  return { ...scene, format: 'equipment' as const, kind: example.kind, counterView: example.counterView, title: example.title, steps: example.steps, points: example.points };
 }

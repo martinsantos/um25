@@ -1,16 +1,21 @@
 ---
-import { FileClock } from 'lucide-astro';
+import { FileClock, Monitor, Server } from 'lucide-astro';
 import type { workScene } from '../../data/propuesta/workScenes';
 type Scene = Extract<NonNullable<ReturnType<typeof workScene>>, {format:'process'}>;
 interface Props { example: Scene['process'] }
 const { example } = Astro.props;
+const exchange = example.illustration === 'exchange';
 const trace = example.format === 'software';
 ---
 <section class="process" aria-label={example.title}>
   <header><p>{example.project} · UM-{example.id}</p><h3>{example.title}</h3></header>
-  <figure data-functional-scene={example.format} data-state="complete" data-phase="2">
-    <div class="stage" data-functional-stage role="img" aria-label={trace ? 'Un registro conserva su alta, los cambios y el historial de consulta.' : 'Esquema de coordinación entre extremos, tendido y cruce con otra instalación.'}>
-      {trace ? <div class="trace" aria-hidden="true">
+  <figure data-functional-scene={example.illustration ?? example.format} data-state="complete" data-phase="2">
+    <div class="stage" data-functional-stage role="img" aria-label={exchange ? 'La aplicación envía los datos del comprobante y recibe la respuesta del servicio web.' : trace ? 'Un registro conserva su alta, los cambios y el historial de consulta.' : 'Esquema de coordinación entre extremos, tendido y cruce con otra instalación.'}>
+      {exchange ? <div class="exchange" aria-hidden="true">
+        <div class="endpoint"><Monitor size={31}/><strong>Aplicación</strong></div>
+        <div class="messages"><span>Solicitud <b>→</b></span><span><b>←</b> Respuesta</span></div>
+        <div class="endpoint"><Server size={31}/><strong>Servicio web</strong></div>
+      </div> : trace ? <div class="trace" aria-hidden="true">
         <div class="record"><FileClock size={36} stroke-width={1.4}/><strong>Registro</strong></div>
         <ol class="history">{['Alta del registro','Cambio registrado','Historial disponible'].map(label=><li>{label}</li>)}</ol>
       </div> : <div class="drawing" aria-hidden="true">
@@ -33,6 +38,20 @@ const trace = example.format === 'software';
   .history {display:grid;gap:18px;border-left:1px solid #7c8985;}
   .history li {position:relative;padding-left:20px;line-height:1.35;}
   .history li::before {content:"";position:absolute;left:-5px;top:.38em;width:9px;height:9px;border-radius:50%;background:#5a6964;}
+  .exchange {display:grid;grid-template-columns:1fr minmax(5.8rem,1.4fr) 1fr;align-items:center;gap:8px;max-width:540px;margin:auto;}
+  .endpoint {display:grid;justify-items:center;align-content:center;gap:12px;min-height:112px;text-align:center;border:1px solid #a6b4ae;background:#fafbf9;}
+  .messages {display:grid;gap:16px;font-size:.9rem;text-align:center;}
+  .messages span {display:block;border-bottom:2px solid #8f9e98;padding-bottom:3px;}
+  .messages b {display:inline-block;}
+  figure[data-state="running"][data-phase="0"] .endpoint:first-child,
+  figure[data-state="running"][data-phase="1"] .messages span:first-child,
+  figure[data-state="running"][data-phase="2"] .messages span:last-child {border-color:#a52129;color:#961b24;}
+  @media(prefers-reduced-motion:no-preference) {
+    figure[data-state="running"][data-phase="1"] .messages span:first-child b {animation:outbound .85s ease-out both;}
+    figure[data-state="running"][data-phase="2"] .messages span:last-child b {animation:inbound .85s ease-out both;}
+  }
+  @keyframes outbound {from{transform:translateX(-8px)}to{transform:translateX(8px)}}
+  @keyframes inbound {from{transform:translateX(8px)}to{transform:translateX(-8px)}}
   .drawing {max-width:540px;margin:auto;}
   .plan {height:140px;border:2px solid #9aa7a5;position:relative;background:repeating-linear-gradient(0deg,transparent 0 17px,#d4dcda 17px 18px),repeating-linear-gradient(90deg,transparent 0 17px,#d4dcda 17px 18px);}
   .wall {position:absolute;inset:0 42% 42% auto;border-right:3px solid #95a19d;border-bottom:3px solid #95a19d;width:22%;}
