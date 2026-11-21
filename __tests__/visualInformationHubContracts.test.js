@@ -195,7 +195,8 @@ describe('Information hub visual contracts', () => {
     expect(markup).not.toMatch(/sector26-case-row"[^>]*>\s*<span>\{String/);
     expect(sectorUM26).toMatch(/\.sector26-case-list \.sector26-case-row\s*\{[\s\S]*display:\s*grid;/);
     expect(sectorUM26).toMatch(/\.sector26-case-list a:hover b,[\s\S]*text-decoration-color:\s*#dc2626;/);
-    expect(markup).toContain('<a class="sector26-closing__cta" href="/contacto">Pedir un relevamiento</a>');
+    expect(markup).toContain("const contactHref = contactLink(Astro.url.pathname");
+    expect(markup).toContain('<a class="sector26-closing__cta" href={contactHref}>Pedir un relevamiento</a>');
   });
 
   test('sector dark surfaces keep body text readable over images and black panels', () => {

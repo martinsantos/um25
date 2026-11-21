@@ -1,4 +1,5 @@
 ---
+import { contactLink } from "../../lib/contactEntry";
 import { isShowcaseProject, pageCaseCandidates } from '../proto/caseSelection';
 import CctvSequence from '../proto/CctvSequence.astro';
 import JourneyAction from '../proto/JourneyAction.astro';
@@ -111,6 +112,7 @@ const cineScene = cineSector?.scene || 'fachada';
 // /software: el banner es la película propia de pantallas con transparencias, sin cortes por servicio.
 const isSoftware = sectorDataSlug === 'software';
 const isSecurity = sectorDataSlug === 'seguridad-electronica';
+const contactHref = contactLink(Astro.url.pathname, isSecurity || isSoftware ? `/contacto?sistema=${isSecurity ? '102' : '104'}` : '/contacto');
 const cineStats = [
   cineSector?.count
     ? { label: 'Casos en el sector', value: cineSector.count }
@@ -148,7 +150,7 @@ const areaLabel = (area: unknown) => {
         <a class="sector26-context__back" href="/sectores">← Todos los sectores</a>
         <h1 id="sector26-title">{sectorTitle}<span>.</span></h1>
         <p>{sectorSummary}</p>
-        <a class="sector26-context__cta" href="/contacto">Pedir un relevamiento</a>
+        <a class="sector26-context__cta" href={contactHref}>Pedir un relevamiento</a>
       </div>
       <img srcset={srcsetDe(sectorImage)} sizes="(max-width: 900px) 100vw, 55vw" src={sectorImage || '/images/editorial/umsa-sector-seguridad-electronica.webp'} alt="" width="1672" height="941" fetchpriority="high" decoding="async" />
     </section>
@@ -160,7 +162,7 @@ const areaLabel = (area: unknown) => {
     kicker={cineSector?.text || `Sector ${sectorNumber}`}
     title={sectorTitle}
     lead={sectorSummary}
-    primary={{ href: '/contacto', label: 'Pedir un relevamiento' }}
+    primary={{ href: contactHref, label: 'Pedir un relevamiento' }}
     stats={cineStats}
     back={{ href: '/sectores', label: '← Todos los sectores' }}
   />}
@@ -204,7 +206,7 @@ const areaLabel = (area: unknown) => {
         <p>Relevamos en el lugar y te decimos qué hace falta.</p>
       </div>
       <div class="sector26-closing__links">
-        <a class="sector26-closing__cta" href="/contacto">Pedir un relevamiento</a>
+        <a class="sector26-closing__cta" href={contactHref}>Pedir un relevamiento</a>
       </div>
     </div>
   </section>

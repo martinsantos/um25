@@ -1,0 +1,114 @@
+---
+interface Props { id: string; label: string; back: string }
+const { id, label, back } = Astro.props;
+---
+<div class="picker" data-system-picker>
+  <nav id={id} aria-label={label} hidden tabindex="-1"><ul></ul></nav>
+  <div class="panels"><slot /></div>
+  <template><header class="panel-head"><h3 tabindex="-1"></h3><a href={`#${id}`}>{back} <span aria-hidden="true">↑</span></a></header></template>
+</div>
+<script>
+  for (const picker of document.querySelectorAll('[data-system-picker]')) {
+    const nav = picker.querySelector('nav')!;
+    const list = nav.querySelector('ul')!;
+    const template = picker.querySelector('template')!;
+    const groups = [...picker.querySelectorAll<HTMLDetailsElement>('.panels > .systems > details')];
+    if (groups.length < 2) continue;
+
+    const entries = groups.map(group => {
+      const summary = group.querySelector('summary')!;
+      const title = summary.dataset.title || summary.textContent!.trim();
+      const row = document.createElement('li');
+      const link = document.createElement('a');
+      link.href = '#' + group.id;
+      // Preserve the sector icon, task and service name from the native disclosure.
+      const name = summary.querySelector('.system-name');
+      if (name) link.append(name.cloneNode(true));
+      else link.textContent = title;
+      row.append(link);
+      list.append(row);
+
+      const header = template.content.firstElementChild!.cloneNode(true) as HTMLElement;
+      const heading = header.querySelector('h3')!;
+      heading.textContent = title;
+      summary.after(header);
+      return { group, link, heading };
+    });
+
+    function select(group: HTMLDetailsElement) {
+      for (const entry of entries) {
+        const active = entry.group === group;
+        entry.group.hidden = !active;
+        entry.group.open = active;
+        if (active) entry.link.setAttribute('aria-current', 'location');
+        else entry.link.removeAttribute('aria-current');
+      }
+    }
+
+    function reveal(target: HTMLElement | null, focus = false) {
+      const entry = target && entries.find(({ group }) => group.contains(target));
+      if (!entry || !target) return false;
+      select(entry.group);
+      if (focus) entry.heading.focus({ preventScroll: true });
+      target.scrollIntoView({ block: 'start', behavior: 'instant' });
+      return true;
+    }
+
+    nav.hidden = false;
+    picker.classList.add('enhanced');
+    const target = () => document.getElementById(location.hash.slice(1));
+    if (!reveal(target())) select(groups.find(group => group.open) || groups[0]!);
+
+    let focusTarget: HTMLDetailsElement | undefined;
+    window.addEventListener('hashchange', () => {
+      const el = target();
+      if (!reveal(el, el === focusTarget) && (!el || el === picker.closest('section'))) select(groups[0]!);
+      focusTarget = undefined;
+    });
+    nav.addEventListener('click', event => {
+      if (!(event instanceof MouseEvent) || event.button || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      const link = event.target instanceof Element && event.target.closest('a');
+      const entry = entries.find(e => e.link === link);
+      if (!entry) return;
+      // Make the destination visible before the browser follows its native fragment.
+      select(entry.group);
+      if (location.hash === entry.link.hash) {
+        event.preventDefault();
+        reveal(entry.group, true);
+      } else {
+        focusTarget = entry.group;
+      }
+    });
+  }
+</script>
+<style>
+  .enhanced { display:grid;grid-template-columns:minmax(190px,1fr) minmax(0,3fr);gap:clamp(22px,3.5vw,58px);align-items:start;margin-top:var(--s3); }
+  .panels { min-width:0; }
+  nav { scroll-margin-top:0; }
+  nav ul { margin:0;padding:0;list-style:none;border-top:1px solid var(--line); }
+  nav :global(li) { border-bottom:1px solid var(--line); }
+  nav :global(a) { display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:12px 14px;border-inline-start:3px solid transparent;gap:10px;line-height:1.35;font-weight:550;color:var(--ink-2);text-decoration:none; }
+  nav :global(a::after) { content:'';width:6px;height:6px;border:solid currentColor;border-width:1.5px 1.5px 0 0;transform:rotate(45deg);flex:none; }
+  nav :global(a[aria-current]) { background:#202326;border-inline-start-color:var(--red);color:var(--ink); }
+  nav :global(a[aria-current]::after) { color:var(--red-text); }
+  nav :global(a:hover), .panel-head a:hover { text-decoration:underline;text-underline-offset:4px; }
+  nav :global(a:focus-visible), .panel-head a:focus-visible { outline:2px solid currentColor;outline-offset:-2px; }
+  .enhanced :global(.panels > .systems) { margin:0;border:0; }
+  .enhanced :global(.panels > .systems > details) { border:0;padding:0;scroll-margin-top:0; }
+  .enhanced :global(.panels > .systems > details > summary) { display:none; }
+  .enhanced :global(.panels > .systems > details[hidden]) { display:none; }
+  .panel-head { display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 16px;border-top:1px solid var(--line);padding-top:15px; }
+  .panel-head h3 { margin:0;font-size:clamp(1.3rem,2vw,1.8rem);line-height:1.2;text-wrap:balance; }
+  .panel-head a { display:none; }
+  @media(max-width:900px){
+    .enhanced { display:block; }
+    nav ul { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:12px; }
+    nav :global(li) { display:flex;min-width:0; }
+    nav :global(a) { flex:1;min-width:0;padding:10px;min-height:48px;font-size:.95rem;overflow-wrap:anywhere; }
+    nav :global(.system-name) { gap:8px; }
+    nav :global(.system-name svg) { width:17px; }
+    nav :global(.task small) { display:none; }
+    .panel-head { margin-top:20px; }
+    .panel-head a { display:inline-flex;align-items:center;gap:4px;min-height:44px;font-size:.875rem;white-space:nowrap;text-decoration:underline;text-underline-offset:4px; }
+  }
+</style>
