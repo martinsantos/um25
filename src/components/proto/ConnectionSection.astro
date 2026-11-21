@@ -6,16 +6,19 @@ import "../../styles/functional-scene.css";
 import "../../styles/connection-scene.css";
 interface Props {
   content: ConnectionContent;
+  embedded?: boolean;
 }
-const { content } = Astro.props;
+const { content, embedded = false } = Astro.props;
+const Heading = embedded ? 'h3' : 'h2';
+const headingId = embedded ? undefined : 'connection-heading';
 const source = content.kind === "rack-detail" ? rack : optical;
 ---
 
-<section class="sec" id="flujo" aria-labelledby="connection-heading">
-  <div class="wrap">
+<section class={embedded ? "work-connection" : "sec"} id={embedded ? undefined : "flujo"} aria-label={embedded ? content.title : undefined} aria-labelledby={headingId}>
+  <div class={embedded ? undefined : "wrap"}>
     <div class="connection-heading">
       <div>
-        <p>{content.kicker}</p><h2 id="connection-heading">{content.title}</h2>
+        <p>{content.kicker}</p><Heading id={headingId}>{content.title}</Heading>
       </div>
       <p>{content.description}</p>
     </div>
@@ -110,3 +113,13 @@ const source = content.kind === "rack-detail" ? rack : optical;
   import { initFunctionalScenes } from "./functional-motion";
   initFunctionalScenes(document);
 </script>
+
+<style>
+  .work-connection .connection-heading {display:block;margin-bottom:16px;}
+  .work-connection h3 {font-size:clamp(1.35rem,3.8cqi,1.85rem);line-height:1.15;margin:6px 0;}
+  .work-connection .connection[data-state="complete"] * {transition:none;}
+  @media(max-width:600px) {
+    .work-connection .connection__stage {grid-template-columns:minmax(0,1fr);}
+    .work-connection .connection__assembly {display:none;}
+  }
+</style>

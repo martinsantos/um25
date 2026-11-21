@@ -1,0 +1,60 @@
+---
+import { FileClock } from 'lucide-astro';
+import type { workScene } from '../../data/propuesta/workScenes';
+type Scene = Extract<NonNullable<ReturnType<typeof workScene>>, {format:'process'}>;
+interface Props { example: Scene['process'] }
+const { example } = Astro.props;
+const trace = example.format === 'software';
+---
+<section class="process" aria-label={example.title}>
+  <header><p>{example.project} · UM-{example.id}</p><h3>{example.title}</h3></header>
+  <figure data-functional-scene={example.format} data-state="complete" data-phase="2">
+    <div class="stage" data-functional-stage role="img" aria-label={trace ? 'Un registro conserva su alta, los cambios y el historial de consulta.' : 'Esquema de coordinación entre extremos, tendido y cruce con otra instalación.'}>
+      {trace ? <div class="trace" aria-hidden="true">
+        <div class="record"><FileClock size={36} stroke-width={1.4}/><strong>Registro</strong></div>
+        <ol class="history">{['Alta del registro','Cambio registrado','Historial disponible'].map(label=><li>{label}</li>)}</ol>
+      </div> : <div class="drawing" aria-hidden="true">
+        <div class="plan"><i class="wall"></i><i class="other"></i><i class="run"></i><i class="end"></i><i class="start"></i><b class="cross"></b></div>
+        <div class="key"><span>Puntos de conexión</span><span>Recorrido</span><span>Cruce</span></div>
+      </div>}
+    </div>
+    <figcaption><ol>{example.steps.map(([name,text])=><li><strong>{name}</strong><p>{text}</p></li>)}</ol></figcaption>
+  </figure>
+</section>
+<style>
+  .process {container-type:inline-size;}
+  header {margin-bottom:16px;} header p {color:var(--ink-3);margin-bottom:8px;}
+  h3 {font-size:clamp(1.35rem,3.8cqi,1.85rem);line-height:1.15;text-wrap:balance;}
+  figure {margin:0;background:#e9edec;color:#233034;}
+  .stage {padding:clamp(18px,4cqi,36px);}
+  ol {list-style:none;margin:0;padding:0;}
+  .trace {display:grid;grid-template-columns:minmax(85px,.75fr) minmax(130px,1fr);align-items:center;gap:clamp(12px,5cqi,45px);max-width:550px;margin:auto;}
+  .record {position:relative;display:grid;place-content:center;justify-items:center;gap:9px;min-height:138px;background:#fafbf9;border:1px solid #a6b4ae;box-shadow:4px 4px 0 #d4dbd7;}
+  .history {display:grid;gap:18px;border-left:1px solid #7c8985;}
+  .history li {position:relative;padding-left:20px;line-height:1.35;}
+  .history li::before {content:"";position:absolute;left:-5px;top:.38em;width:9px;height:9px;border-radius:50%;background:#5a6964;}
+  .drawing {max-width:540px;margin:auto;}
+  .plan {height:140px;border:2px solid #9aa7a5;position:relative;background:repeating-linear-gradient(0deg,transparent 0 17px,#d4dcda 17px 18px),repeating-linear-gradient(90deg,transparent 0 17px,#d4dcda 17px 18px);}
+  .wall {position:absolute;inset:0 42% 42% auto;border-right:3px solid #95a19d;border-bottom:3px solid #95a19d;width:22%;}
+  .other {position:absolute;top:10%;bottom:10%;left:65%;border-left:2px dashed #6b7874;}
+  .run {position:absolute;left:18%;top:28%;width:62%;height:42%;border:solid #374b47;border-width:0 0 3px 3px;}
+  .start,.end,.cross {position:absolute;transform:translate(-50%,-50%);}
+  .start,.end {background:#fff;border:3px solid #263833;border-radius:50%;width:16px;height:16px;}
+  .start {top:28%;left:18%;}.end {left:80%;top:70%;}
+  .cross {width:19px;height:19px;border:2px dashed #53645f;left:65%;top:70%;background:#e8edeb;}
+  .key {display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-top:10px;font-size:.87rem;}
+  figcaption {border-top:1px solid #bdc7c4;padding:18px;}
+  figcaption ol {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+  figcaption li {border-top:2px solid #a5b3ac;padding-top:8px;}
+  figcaption p {font-size:.94rem;line-height:1.45;margin:4px 0 0;color:#414d50;}
+  figure[data-state="running"][data-phase="0"] .history li:first-child::before,
+  figure[data-state="running"][data-phase="0"] :is(.start,.end),
+  figure[data-state="running"][data-phase="1"] .history li:nth-child(2)::before,
+  figure[data-state="running"][data-phase="2"] .history li:last-child::before,
+  figure[data-state="running"][data-phase="2"] .cross {background:#aa222b;}
+  figure[data-state="running"][data-phase="1"] .run,
+  figure[data-state="running"][data-phase="0"] figcaption li:first-child,
+  figure[data-state="running"][data-phase="1"] figcaption li:nth-child(2),
+  figure[data-state="running"][data-phase="2"] figcaption li:last-child {border-color:#a52129;}
+  @container(max-width:520px){figcaption ol {grid-template-columns:1fr;gap:10px;} figcaption li {display:grid;grid-template-columns:6.1em 1fr;gap:8px;} figcaption p{margin:0;}.key{font-size:.8rem;}}
+</style>
