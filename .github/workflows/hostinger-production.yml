@@ -50,6 +50,7 @@ jobs:
           ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
       - name: Check available disk before sending the CI package
         env:
+          PR678_BASE: ${{ github.event.before }}
           CLEAN_WEB_PACKAGE: ${{ runner.temp }}/umsa-clean-web.tar.gz
         run: |
           set -euo pipefail
@@ -58,6 +59,19 @@ jobs:
           available=$(ssh "${opts[@]}" root@179.198.115.115 "df -B1 --output=avail /srv | tail -n 1" | tr -d '[:space:]')
           [[ "$available" =~ ^[0-9]+$ ]]
           required=$((size + (5 * size > 5 * 1024**3 ? 5 * size : 5 * 1024**3)))
+          if (( available < required )) && [[ "$PR678_BASE" == d0a039d6e0071ed34af96ea28561dde1eb19b347 ]]; then
+            ops=scripts/ops/hostinger-migration
+            program="$RUNNER_TEMP/prune-pr678.py"
+            sed '/^if __name__ == /,$d' "$ops/prune-reviewed-migration.py" > "$program"
+            sed '/^if __name__==/,$d' "$ops/prune-20261115-equipment-packages.py" >> "$program"
+            cat "$ops/prune-pr678-transport.py" >> "$program"
+            inspect=$(ssh "${opts[@]}" root@179.198.115.115 "python3 -B - inspect $required" < "$program")
+            snapshot=$(jq -er '.snapshot_sha256' <<< "$inspect")
+            [[ "$snapshot" =~ ^[a-f0-9]{64}$ ]]
+            ssh "${opts[@]}" root@179.198.115.115 "env GITHUB_ACTIONS=true python3 -B - apply $required $snapshot" < "$program"
+            available=$(ssh "${opts[@]}" root@179.198.115.115 "df -B1 --output=avail /srv | tail -n 1" | tr -d '[:space:]')
+            [[ "$available" =~ ^[0-9]+$ ]]
+          fi
           if (( available < required )); then
             echo "Available disk $available bytes is below the existing publisher requirement of $required bytes before transfer." >&2
             exit 1
