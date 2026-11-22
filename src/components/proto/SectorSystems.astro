@@ -4,6 +4,8 @@ import { ChevronDown, Network, Cctv, RadioTower, CodeXml, Headset, Workflow, Fla
 import WorkScene from './WorkScene.astro';
 import ServiceScene from './ServiceScene.astro';
 import JourneyAction from './JourneyAction.astro';
+import DeliveryDocuments from './DeliveryDocuments.astro';
+import { SERVICE_SPECS } from '../../data/serviceSpecs';
 import { sectorWorkExamples, serviceWorkExamples, workScene } from '../../data/propuesta/workScenes';
 import type { Story } from './isoData';
 import { pageCaseCandidates } from './caseSelection';
@@ -47,7 +49,10 @@ const intro=intros[slug] || ['Integración por sistema',`Tecnología para ${name
           : caseScene ? <WorkScene content={caseScene} />
           : <ServiceScene code={item.code}/>}
       </div>}
-      <div class="system-evidence"><JourneyAction code={item.code} sector={slug} story={story} /></div>
+      <div class="system-evidence">
+        <JourneyAction code={item.code} sector={slug} story={story} />
+        {SERVICE_SPECS[item.code] && <DeliveryDocuments spec={SERVICE_SPECS[item.code]} compact />}
+      </div>
       <nav class="system-links" aria-label={`Más sobre ${item.name}`}>
         <a href={`/servicios/${item.code}#${relatedGroup ? relatedGroup[1].anchor : 'provision'}`}>{relatedGroup ? relatedGroup[0] : 'Desglose del servicio'} →</a>
         {item.count > 0 && <a href={`/antecedentes?sector=${slug}&service=${item.code}`}>{item.count} {item.count === 1 ? 'antecedente' : 'antecedentes'} en {name.toLowerCase()} →</a>}
