@@ -1,0 +1,57 @@
+---
+import { ArrowDownToLine, ArrowUpRight, ChevronDown, FileCheck2 } from 'lucide-astro';
+import type { ServiceSpec } from '../../data/serviceSpecs';
+import { getDatasheetPublicPath } from '../../utils/datasheets';
+
+interface Props { spec: ServiceSpec; compact?: boolean }
+const { spec, compact = false } = Astro.props;
+const Tag = compact ? 'details' : 'div';
+const pdf = getDatasheetPublicPath(spec.slug);
+const LinkIcon = pdf ? ArrowDownToLine : ArrowUpRight;
+---
+<Tag class:list={['delivery-docs', { compact }]}>
+  {compact
+    ? <summary><FileCheck2 size={20} aria-hidden="true" /><span>Documentación de entrega</span><ChevronDown size={18} aria-hidden="true" /></summary>
+    : <header>
+        <p class="service"><FileCheck2 size={20} aria-hidden="true" />{spec.name}</p>
+        <h2>Qué entregamos<span class="dot">.</span></h2>
+      </header>}
+  <div class="documents">
+    <p class="scope">Documentación de {spec.name}, según el alcance contratado.</p>
+    <ul>{spec.deliverables.map(doc => <li>{doc}</li>)}</ul>
+    <a href={pdf || `/servicios/${spec.code}/ficha`} download={pdf ? true : undefined}>
+      {pdf ? 'Descargar ficha técnica (PDF)' : 'Abrir ficha técnica imprimible'}<LinkIcon size={17} aria-hidden="true" />
+    </a>
+  </div>
+</Tag>
+<style>
+  .delivery-docs {
+    display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);
+    gap:var(--s3) clamp(24px,5vw,84px);padding:clamp(20px,3vw,48px);
+    background:#e8ecea;color:#171d20;
+  }
+  header {align-self:start;}
+  .service, summary {display:flex;align-items:center;gap:10px;}
+  .service {margin:0 0 14px;font-size:1rem;font-weight:600;}
+  h2 {margin:0;color:inherit;}
+  .documents {min-width:0;}
+  .scope {margin:0 0 10px;font-size:.95rem;line-height:1.45;color:#424b4e;}
+  ul {margin:0;padding:0;list-style:none;border-top:1px solid #b5c0bd;}
+  li {padding:13px 0;border-bottom:1px solid #b5c0bd;font-size:clamp(1rem,1.3vw,1.18rem);font-weight:550;line-height:1.4;}
+  a {display:inline-flex;gap:8px;align-items:center;min-height:44px;margin-top:8px;color:inherit;text-decoration:underline;text-underline-offset:4px;font-weight:600;}
+  a:hover {text-decoration-thickness:2px;}
+  .compact {display:block;padding:0;background:transparent;color:inherit;border-block:1px solid var(--line);}
+  summary {min-height:48px;list-style:none;cursor:pointer;font-weight:600;}
+  summary::-webkit-details-marker {display:none;}
+  summary span {flex:1;}
+  .compact[open] summary > :global(svg:last-child) {transform:rotate(180deg);}
+  .compact .documents {padding:4px 0 8px;}
+  .compact .scope {color:var(--ink-2);}
+  .compact ul,.compact li {border-color:var(--line);}
+  .compact li {padding:9px 0;font-size:1rem;font-weight:400;}
+  summary:focus-visible,a:focus-visible {outline:2px solid currentColor;outline-offset:2px;}
+  @media(max-width:720px) {
+    .delivery-docs {grid-template-columns:minmax(0,1fr);gap:16px;}
+    .service {margin-bottom:6px;}
+  }
+</style>
