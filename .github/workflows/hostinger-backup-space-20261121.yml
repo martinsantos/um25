@@ -1,0 +1,48 @@
+name: Retire two inactive UMSA applications for backup space
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/hostinger-backup-space-20261121.yml'
+      - 'scripts/ops/hostinger-migration/prune-backup-space-20261121.py'
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: hostinger-umsa-production
+  cancel-in-progress: false
+
+jobs:
+  retire:
+    if: github.event.before == '9d6b7c00f53be508bf0414f61c5788ba060d2472' && vars.UMSA_PRODUCTION_TARGET == 'hostinger'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Inspect and retire only the two approved application directories
+        run: |
+          set -euo pipefail
+          ops=scripts/ops/hostinger-migration
+          program="$RUNNER_TEMP/prune-applications.py"
+          sed '/^if __name__ == /,$d' "$ops/prune-reviewed-migration.py" > "$program"
+          sed '/^if __name__==/,$d' "$ops/prune-20261117-service-sector-applications.py" >> "$program"
+          cat "$ops/prune-backup-space-20261121.py" >> "$program"
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$ops/known_hosts" -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          # Minimum free space checked by the scheduled backup.
+          required=10737418240
+          result=$(ssh "${opts[@]}" root@179.198.115.115 "python3 -B - inspect $required" < "$program")
+          printf '%s\n' "$result"
+          snapshot=$(jq -er '.snapshot_sha256' <<< "$result")
+          [[ "$snapshot" =~ ^[0-9a-f]{64}$ ]]
+          ssh "${opts[@]}" root@179.198.115.115 "env GITHUB_ACTIONS=true python3 -B - apply $required $snapshot" < "$program"
