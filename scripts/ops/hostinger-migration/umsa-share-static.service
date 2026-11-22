@@ -1,0 +1,21 @@
+[Unit]
+Description=Share identical XFS data of two approved inactive UMSA releases
+ConditionHost=srv2101069.hstgr.cloud
+ConditionPathExists=/run/umsa-web-publish.lock
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -IB /usr/local/libexec/umsa/share-static.py apply
+UMask=0077
+Nice=19
+IOSchedulingClass=idle
+ProtectSystem=strict
+ReadWritePaths=/srv/umsa-web-releases/866d00cdb5855c0488dcd74cda7d9f1b318dee00-44828517985-1/application/dist/client
+ReadWritePaths=/srv/umsa-web-releases/a5d3fbaf8dfecd08c43aba7900eab486c1ba573b-44789660605-1/application/dist/client
+ProtectHome=yes
+PrivateNetwork=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+RestrictAddressFamilies=AF_UNIX
+CapabilityBoundingSet=CAP_DAC_OVERRIDE CAP_FOWNER
+TimeoutStartSec=30min

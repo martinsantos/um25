@@ -21,6 +21,10 @@ La conexión SSH debe validar estrictamente la clave contra `scripts/ops/hosting
 
 Después de publicar, comparar SHA y árbol con el release revisado, comprobar URLs, formularios sin envío real y navegación móvil/escritorio, y observar la salud durante 30 minutos. Conservar fallos y huecos de observación; no reiniciar un monitoreo para ocultarlos.
 
+## Piloto de almacenamiento del 22 de noviembre
+
+La instalación y la primera ejecución de `umsa-share-static.service` se entregan mediante GitFlow y una ejecución puntual de GitHub Actions. La unidad bajo demanda comparte bloques XFS de archivos idénticos únicamente en los estáticos de las versiones inactivas `866d00cd…44828517985-1` y `a5d3fbaf…44789660605-1`. Verifica la identidad de la activa y los dos retornos, la inactividad del respaldo, los contenidos y el espacio por lote. Usa el bloqueo del publicador. No tiene temporizador ni arranque automático. Los recibos se consultan con `journalctl -u umsa-share-static.service -o cat`. El flujo no publica una nueva versión web.
+
 ## Incidentes
 
 Conservar evidencia y consultar primero logs y estado. Preparar una reversión del cambio concreto mediante GitFlow y el mismo CI/CD; si hace falta otro mecanismo operativo, debe estar documentado y autorizado para Hostinger. No ejecutar los antiguos ejemplos de `git checkout`, `git pull`, `pm2 restart` o instalación manual en producción.
