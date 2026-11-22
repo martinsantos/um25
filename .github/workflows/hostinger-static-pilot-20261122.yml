@@ -6,6 +6,8 @@ on:
       - '.github/workflows/hostinger-static-pilot-20261122.yml'
 permissions:
   contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 concurrency:
   group: hostinger-umsa-production
   cancel-in-progress: false
