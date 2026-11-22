@@ -1,0 +1,34 @@
+name: Hostinger UMSA two-release static pilot
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/hostinger-static-pilot-20261122.yml'
+permissions:
+  contents: read
+concurrency:
+  group: hostinger-umsa-production
+  cancel-in-progress: false
+jobs:
+  install-and-apply:
+    if: github.event.before == '43b383535fda6e7ab6673d62a918d5a05e0a10e9' && vars.UMSA_PRODUCTION_TARGET == 'hostinger'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+          persist-credentials: false
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Inspect, install and run the scoped pilot
+        shell: bash
+        run: |
+          set -euo pipefail
+          ops=scripts/ops/hostinger-migration
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$ops/known_hosts" root@179.198.115.115 'nice -n 19 ionice -c 3 python3 -B - inspect' < "$ops/share-static-20261122.py"
+          python3 -B "$ops/install-share-static-20261122.py" | tee "$RUNNER_TEMP/pilot.log"
+          jq -es 'length == 2 and [.[].target] == ["866d00cdb5855c0488dcd74cda7d9f1b318dee00-44828517985-1","a5d3fbaf8dfecd08c43aba7900eab486c1ba573b-44789660605-1"] and all(.[]; .mode == "apply" and .pairs > 0 and .exclusive_after == 0)' < <(grep '^{"target":' "$RUNNER_TEMP/pilot.log")
