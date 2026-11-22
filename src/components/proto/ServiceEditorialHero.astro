@@ -16,6 +16,8 @@ const photo = variantes(image);
   </div>
 </section>
 <style>
+  .service-editorial :global(.metric-jump) { display:inline-flex;align-items:center;color:var(--ink-2);text-decoration:underline;text-underline-offset:4px;min-height:44px; }
+  .service-editorial :global(.metric-jump:focus-visible) { outline:2px solid currentColor;outline-offset:2px; }
   .service-editorial { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: center; gap: clamp(32px, 4vw, 72px); padding-block: clamp(40px, 7vw, 100px); }
   .service-editorial__copy :global(.editorial-actions) { display: contents; }
   .service-editorial__copy { display: grid; gap: var(--s2); }
