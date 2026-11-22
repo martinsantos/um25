@@ -1,0 +1,37 @@
+name: Hostinger UMSA five inactive static releases
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/hostinger-five-static-20261122.yml'
+permissions:
+  contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+concurrency:
+  group: hostinger-umsa-production
+  cancel-in-progress: false
+jobs:
+  share:
+    if: github.event.before == '9e01b2fca580b67a39b6b4c31c0ec8ece413d055' && vars.UMSA_PRODUCTION_TARGET == 'hostinger'
+    environment: production
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+          persist-credentials: false
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Apply the fixed five-release batch and verify each receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          ops=scripts/ops/hostinger-migration
+          program="$ops/share-five-static-20261122.py"
+          remote_command=$(python3 "$program" command)
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$ops/known_hosts" -o ServerAliveInterval=30 root@179.198.115.115 "$remote_command" < "$program" | tee "$RUNNER_TEMP/umsa-five-receipts.jsonl"
+          python3 "$program" verify < "$RUNNER_TEMP/umsa-five-receipts.jsonl"
