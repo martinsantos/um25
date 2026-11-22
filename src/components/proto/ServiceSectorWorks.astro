@@ -1,0 +1,60 @@
+---
+import { ArrowRight } from 'lucide-astro';
+import { catalogHref } from './catalogFilters';
+
+interface Props {
+  service: string;
+  name: string;
+  sectors: { slug: string; name: string; count: number }[];
+  unclassified: number;
+}
+const {service, name, sectors, unclassified} = Astro.props;
+const largest = Math.max(1, ...sectors.map(sector => sector.count));
+---
+<section class="sec sector-works" id="obras-por-sector" aria-labelledby="sector-works-title">
+  <div class="wrap">
+    <header>
+      <h2 id="sector-works-title">Dónde lo hicimos<span class="dot">.</span></h2>
+      <p>Antecedentes de {name} por sector.</p>
+    </header>
+    {sectors.length > 0 && <ul>
+      {sectors.map(sector => <li>
+        <a class="works" href={catalogHref({service, sector:sector.slug})}
+           aria-label={`Ver ${sector.count} ${sector.count === 1 ? 'antecedente' : 'antecedentes'} de ${name} en ${sector.name}`}>
+          <span class="sector">{sector.name}</span>
+          <span class="track" aria-hidden="true"><span style={`width:${100 * sector.count / largest}%`}></span></span>
+          <strong>{sector.count}</strong><ArrowRight size={18} aria-hidden="true" />
+        </a>
+        <a class="sector-page" href={`/sectores/${sector.slug}`} aria-label={`Ver ficha del sector: ${sector.name}`}>Ver sector</a>
+      </li>)}
+    </ul>}
+    {unclassified > 0 && <a class="unclassified" href={catalogHref({service, sector:'sin-clasificar'})}>
+      {`Ver ${unclassified} ${unclassified === 1 ? 'antecedente sin sector asignado' : 'antecedentes sin sector asignado'}`}
+      <ArrowRight size={16} aria-hidden="true" />
+    </a>}
+  </div>
+</section>
+<style>
+  .sector-works { background:var(--bg-2); }
+  header { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px 24px; margin-bottom:var(--s3); }
+  header p { margin:0; color:var(--ink-2); }
+  ul { list-style:none; margin:0; padding:0; border-top:1px solid var(--line); }
+  li { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:clamp(14px,3vw,48px); border-bottom:1px solid var(--line); }
+  a { min-height:48px; }
+  .works { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,3fr) minmax(2ch,auto) 18px; align-items:center; gap:clamp(8px,2vw,28px); text-decoration:none; }
+  .sector { font-weight:600; line-height:1.3; padding-block:10px; }
+  .sector-page { display:inline-flex; align-items:center; color:var(--ink-2); font-size:.875rem; text-decoration:underline; text-underline-offset:4px; }
+  .track { height:4px; background:var(--line); }
+  .track span { display:block; height:100%; background:var(--ink-2); }
+  strong { text-align:end; font-size:1.125rem; font-variant-numeric:tabular-nums; }
+  .works :global(svg) { color:var(--red-text); }
+  .works:hover .sector,.unclassified:hover { text-decoration:underline; }
+  .works:hover .track span,.works:focus-visible .track span { background:var(--red-text); }
+  a:focus-visible { outline:2px solid currentColor; outline-offset:2px; }
+  .unclassified { display:inline-flex; align-items:center; gap:8px; padding-block:8px; margin-top:8px; color:var(--ink-2); text-underline-offset:4px; }
+  @media(max-width:640px) {
+    header { display:grid; }
+    .works { grid-template-columns:minmax(0,1fr) minmax(16px,.27fr) 2ch 16px; gap:6px; }
+    .works :global(svg) { width:16px; }
+  }
+</style>

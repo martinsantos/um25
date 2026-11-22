@@ -35,7 +35,9 @@ import { serviceDetailSeo } from '../../../data/serviceDetailSeo';
 import { SERVICE_SPECS } from '../../../data/serviceSpecs';
 import { SECTORS } from '../../../data/cine/scenes';
 
-import { isNamedClient } from '../../../components/proto/catalogEditorial';
+import ClientDirectory from '../../../components/proto/ClientDirectory.astro';
+import ServiceSectorWorks from '../../../components/proto/ServiceSectorWorks.astro';
+import { clientsForStories } from '../../../components/proto/clientDirectory';
 
 export const prerender = false;
 const code = String(Astro.params.code);
@@ -70,10 +72,10 @@ const documentedCases = own.filter((c) => c.documentedScope && !selectedCases.so
 const moreCases = remainingCaseProjects(rankedCases.filter((c) => !c.documentedScope), selectedCases).slice(0, 8);
 const lower = servicio.name.toLowerCase().replace(/\bit\b/g, 'IT');
 const bySector = SECTORS.map((s) => ({ slug: s.slug, name: s.name, count: own.filter((c) => c.sectorSlug === s.slug).length })).filter((s) => s.count > 0).sort((a, b) => b.count - a.count);
-const clientes = Object.values(own.filter(s => isNamedClient(s.client)).reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
+const clientes = clientsForStories(own);
 const anios = own.map((c) => c.year).filter(Boolean);
 const desde = anios.length ? Math.min(...anios) : 0;
-const cifras: [string, string][] = own.length ? [[String(own.length), 'antecedentes registrados'], [String(clientes.length), clientes.length === 1 ? 'cliente identificado' : 'clientes identificados'], [String(bySector.length), bySector.length === 1 ? 'sector' : 'sectores'], [String(desde), 'primer registro']] : [];
+const cifras: [string, string, string?][] = own.length ? [[String(own.length), 'antecedentes registrados'], [String(clientes.length), clientes.length === 1 ? 'cliente identificado' : 'clientes identificados', !security && clientes.length ? '#clientes' : undefined], [String(bySector.length), bySector.length === 1 ? 'sector' : 'sectores', !security && bySector.length ? '#obras-por-sector' : undefined], [String(desde), 'primer registro']] : [];
 const meta = Object.fromEntries(servicio.metadata.map((m) => [m.label, m.value]));
 const condiciones = ['Implementación', 'Garantía', 'Cobertura'].filter((k) => meta[k]).map((k) => `${k}: ${meta[k]}`).join('. ');
 const choices = serviceDecisionGuide[Number(code)] ?? [];
@@ -188,7 +190,7 @@ const cierre = cierrePorServicio[code];
       <h1 class:list={['service-detail-title', { 'redes-titulo': isNetworks }]} style={code === '103' ? 'font-size:clamp(2rem,3.6vw,3.5rem)' : undefined}>{servicio.name}<span class="dot">.</span></h1>
       <p class="tag">{isNetworks ? 'Cableado, fibra y redes para empresas.' : copy.headline}</p>
       <p>{isNetworks ? 'Desde Mendoza diseñamos e instalamos redes LAN/WAN, Wi-Fi corporativo y switching gestionado. Medimos los enlaces y documentamos la obra según su alcance.' : copy.paragraph}</p>
-      {cifras.length > 0 && <div class="cifras cifras--compact">{cifras.map(([n, t]) => <div><b>{n}</b><span>{t}</span></div>)}</div>}
+      {cifras.length > 0 && <div class="cifras cifras--compact">{cifras.map(([n, t, href]) => <div><b>{n}</b>{href ? <a class="metric-jump" href={href}>{t}</a> : <span>{t}</span>}</div>)}</div>}
       <div class="editorial-actions">
         <div class="service-actions">
           <a class="btn" href={contactLink(Astro.url.pathname)}>Pedir un relevamiento</a>
@@ -264,30 +266,11 @@ const cierre = cierrePorServicio[code];
       </section>
     )}
 
-    {!security && clientes.length > 0 && (
-      <section class="sec">
-        <div class="wrap">
-          <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2></div>
-          <ol class="clientes">
-            {clientes.slice(0, 9).map((c) => <li><a href={`/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
-            {clientes.length > 9 && <li class="mas">
-              <span>Y {clientes.length - 9} clientes más</span>
-              <span></span>
-            </li>}
-          </ol>
-        </div>
-      </section>
-    )}
+    {!security && <ClientDirectory clients={clientes} filter={{service: code}} archiveLabel={`Ver todos los antecedentes de ${servicio.name}`} />}
 
-    {!security && bySector.length > 0 && (
-      <section class="sec">
-        <div class="wrap">
-          <div class="item">
-            <h2>Dónde lo hicimos<span class="dot">.</span></h2>
-            <p class="frase">{bySector.map((s, i) => <><a href={`/sectores/${s.slug}`}><b>{s.name}</b></a>{` (${s.count} ${s.count === 1 ? 'antecedente' : 'antecedentes'})`}{i < bySector.length - 2 ? ', ' : i === bySector.length - 2 ? ' y ' : '.'}</>)}</p>
-          </div>
-        </div>
-      </section>
+    {!security && own.length > 0 && (
+      <ServiceSectorWorks service={code} name={servicio.name} sectors={bySector}
+        unclassified={own.filter(story => !story.sectorSlug).length} />
     )}
 
     {!security && showProjectArchive && (
