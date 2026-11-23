@@ -197,7 +197,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
 
       <section id="obras-filtradas" tabindex="-1" aria-label="Antecedentes">
         <div data-obras-seleccionadas hidden={!mostrarVisitas}>
-          <ObrasPortada inset obras={portadaCases(sourceStories, 'antecedentes')} jump={{ label: 'Ir a los resultados', href: '#resultados' }} />
+          <ObrasPortada compact inset title="Selección del archivo" obras={portadaCases(sourceStories, 'antecedentes')} jump={{ label: 'Ir a los resultados', href: '#resultados' }} />
         </div>
         <ol id="resultados" class="fichas" data-apertura={mostrarVisitas ? "si" : undefined} data-grid data-datos="/antecedentes/datos.json">
           {piezas.map((p, index) => p.rec ? (

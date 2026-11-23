@@ -15,6 +15,7 @@ import { portadaCases } from '../../../components/proto/portadaCases';
 
 export const prerender = false;
 const { stories } = await loadStories();
+const [feature, ...obras] = portadaCases(stories, 'sectores');
 const items = NAV_SECTORS.map((sector) => {
   const hasProvision = sector.slug === 'software' || sector.slug === 'seguridad-electronica';
   return {
@@ -43,9 +44,9 @@ const items = NAV_SECTORS.map((sector) => {
       <CatalogoEditorial sector
         title="Soluciones para cada sector"
         intro="Integramos redes, seguridad, comunicaciones y tecnología según la operación de cada sector. Desde Mendoza, para Cuyo, Patagonia y el país."
-        items={items}
+        items={items} feature={feature}
       >
-        <ObrasPortada inset obras={portadaCases(stories, 'sectores')} title="Proyectos por sector" jump={{ label: 'Ver los sectores', href: '#catalogo' }} />
+        <ObrasPortada inset obras={obras} title="Obras por actividad" />
       </CatalogoEditorial>
     </main>
     <Cierre />

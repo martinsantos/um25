@@ -59,6 +59,19 @@ jobs:
           available=$(ssh "${opts[@]}" root@179.198.115.115 "df -B1 --output=avail /srv | tail -n 1" | tr -d '[:space:]')
           [[ "$available" =~ ^[0-9]+$ ]]
           required=$((size + (5 * size > 5 * 1024**3 ? 5 * size : 5 * 1024**3)))
+          if [[ "$PREVIOUS_MASTER" == '8ed527635d8c0f3bbdf869c7cb31c3d38457df05' ]]; then
+            installed=$(du -sc -B1 dist node_modules package.json package-lock.json | awk 'END {print $1}')
+            backup_floor=$((10 * 1024**3 + size + installed))
+            if (( backup_floor > required )); then required=$backup_floor; fi
+            if (( available < required )); then
+              program=scripts/ops/hostinger-migration/share-portadas-20261123.py
+              remote_command=$(python3 "$program" command "$required")
+              ssh "${opts[@]}" -o ServerAliveInterval=30 root@179.198.115.115 "$remote_command" < "$program" | tee "$RUNNER_TEMP/umsa-portadas-static.jsonl"
+              python3 "$program" verify "$required" < "$RUNNER_TEMP/umsa-portadas-static.jsonl"
+              available=$(ssh "${opts[@]}" root@179.198.115.115 "df -B1 --output=avail /srv | tail -n 1" | tr -d '[:space:]')
+              [[ "$available" =~ ^[0-9]+$ ]]
+            fi
+          fi
           case "$PREVIOUS_MASTER" in
             d0a039d6e0071ed34af96ea28561dde1eb19b347) retirement=prune-pr678-transport.py ;;
             cd55cedf308e4904916cf57e8a3a29871c6cbd82) retirement=prune-catalog-transports.py ;;
