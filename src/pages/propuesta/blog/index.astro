@@ -66,15 +66,17 @@ const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina 
         {!categoria && <p>Notas de campo y artículos del equipo sobre redes, seguridad, software y operación IT.</p>}
         <BlogCategoryTabs current={categoria || undefined} query />
       </div>
-      <ObrasPortada inset obras={obras} title="Del archivo de obras" jump={{ label: 'Ir a las notas', href: '#notas' }} />
-      {posts.length > 0 && <ol id="notas" class="entradas">
-        {posts.map((p, index) => (
-          <li class:list={["entrada", { principal: !categoria && pagina === 1 && index === 0 }]}>
+      {posts.length > 0 && (obras.length ? [posts.slice(0,1), posts.slice(1)] : [posts]).map((articles,part) => <Fragment>
+        {articles.length > 0 && <ol id={part === 0 ? "notas" : undefined} start={part === 0 ? undefined : 2} class="entradas">
+        {articles.map((p, index) => (
+          <li class:list={["entrada", { principal: !categoria && pagina === 1 && part === 0 && index === 0 }]}>
             <span class="small"><span>{formatBlogDateLong(p.fecha_publicacion)}</span><span>{getCategoryLabel(p.categoria)}{p.tiempo_lectura ? ` · ${p.tiempo_lectura} min` : ''}</span></span>
-            <a href={`/blog/${p.slug}`}><img class="entrada__image" src={blogPostImageUrl(p)} srcset={blogImageSrcset(blogPostImageUrl(p))} sizes={!categoria && pagina === 1 && index === 0 ? "(max-width: 700px) 94vw, 55vw" : "(max-width: 700px) 94vw, (max-width: 1100px) 50vw, 33vw"} alt={blogPostImageAlt(p)} width="960" height="540" loading={index < 3 ? "eager" : "lazy"} fetchpriority={index === 0 ? "high" : undefined} /><h2>{p.titulo}</h2><p>{sanitizeBlogExcerpt(p.resumen, 220)}</p></a>
+            <a href={`/blog/${p.slug}`}><img class="entrada__image" src={blogPostImageUrl(p)} srcset={blogImageSrcset(blogPostImageUrl(p))} sizes={!categoria && pagina === 1 && part === 0 && index === 0 ? "(max-width: 700px) 94vw, 55vw" : "(max-width: 700px) 94vw, (max-width: 1100px) 50vw, 33vw"} alt={blogPostImageAlt(p)} width="960" height="540" loading={index < 3 ? "eager" : "lazy"} fetchpriority={part === 0 && index === 0 ? "high" : undefined} /><h2>{p.titulo}</h2><p>{sanitizeBlogExcerpt(p.resumen, 220)}</p></a>
           </li>
         ))}
       </ol>}
+        {part === 0 && obras.length > 0 && <ObrasPortada inset obras={obras} title="Proyectos del archivo" />}
+      </Fragment>)}
       {posts.length === 0 && (
         <section class="blog-empty" aria-labelledby="blog-empty-title">
           <h2 id="blog-empty-title">{categoria ? `Sin artículos publicados en ${getCategoryLabel(categoria).toLowerCase()}` : 'Sin artículos disponibles'}</h2>

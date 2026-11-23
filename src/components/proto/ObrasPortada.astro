@@ -1,129 +1,75 @@
 ---
 import { ArrowUpRight } from 'lucide-astro';
 import type { portadaCases } from './portadaCases';
-import PruebaProyecto from './PruebaProyecto.astro';
-
-interface Props {
-  obras: ReturnType<typeof portadaCases>;
-  title?: string;
-  inset?: boolean;
-  jump?: { label: string; href: string };
-}
-const { obras, title = 'Obras seleccionadas', inset = false, jump } = Astro.props;
+import { srcsetDe } from './isoData';
+interface Props { obras: ReturnType<typeof portadaCases>; title?: string; inset?: boolean; portada?: boolean; jump?: { label: string; href: string } }
+const { obras, title = 'Proyectos de infraestructura y software', inset = false, portada = false, jump } = Astro.props;
 ---
-{obras.length > 0 && <section id="casos" class:list={['archivo', { inset }]} aria-labelledby="obras-titulo" data-obras-portada>
-  <div class:list={[!inset && 'wrap', 'archivo-interior']}>
-    <header class="archivo-top">
-      <h2 id="obras-titulo">{title}<span class="dot">.</span></h2>
-      {jump && <a class="salto" href={jump.href}>{jump.label} <span aria-hidden="true">↓</span></a>}
-    </header>
-    <nav class="indice" aria-label="Elegir una obra">{obras.map(({ pub, label, detalle, thumb }) =>
-      <a id={'selector-' + pub.id} href={'#obra-' + pub.id}><img src={thumb} width="90" height="60" alt="" loading="lazy" /><span><small>{detalle.kicker.split(' · ')[0]}</small><b>{label}</b></span></a>
-    )}</nav>
-    {obras.map(({ pub, detalle, poster, caption, posterAlt, image, srcset }, index) => (
-      <article class="obra" id={'obra-' + pub.id} data-case-id={pub.id}>
-        <div class="imagen"><img src={image} srcset={srcset} sizes="(max-width:700px) 90vw, 44vw" width="960" height="600" alt="" loading={index === 0 ? 'eager' : 'lazy'} decoding="async" /></div>
-        <div class="identidad">
-          <p class="referencia">UM {pub.id}{pub.year > 0 && ' / ' + pub.year}</p>
-          <h3><a href={pub.href}>{detalle.title}</a></h3>
-          <p class="cliente">{pub.client}</p>
-          {detalle.evidence.length ? <PruebaProyecto items={detalle.evidence.slice(0, 2)} compact /> : <p class="scope">{detalle.introduction}</p>}
-          <a class="enlace-obra" href={pub.href}>Ver ficha de obra <ArrowUpRight size={16} aria-hidden="true" /></a>
+{obras.length > 0 && <section id="casos" class:list={['portafolio',{inset,portada}]} aria-labelledby="obras-titulo" data-obras-portada>
+  <div class:list={[!inset && 'wrap']}>
+    <header><h2 id="obras-titulo">{title}<span class="dot">.</span></h2>
+      {jump ? <a href={jump.href}>{jump.label} ↓</a> : <a href="/antecedentes">Archivo de obras <ArrowUpRight size={16} /></a>}</header>
+    <div class="obras">
+      {obras.map((obra,i) => <article data-obra={obra.key} class:list={[i === 0 && 'principal']}>
+        {obra.key === 'estadio' ? <div class="prensa" aria-label="Puestos de prensa y transmisión">
+          <div><strong>200</strong><span>puestos de periodistas</span><i aria-hidden="true"></i></div>
+          <div><strong>60</strong><span>puestos en viga de transmisión</span><i aria-hidden="true"></i></div>
+        </div> : <div class="visual"><img src={obra.image} srcset={srcsetDe(obra.image!)} sizes={i===0 ? '(max-width:680px) 92vw, 50vw' : '(max-width:680px) 92vw, (max-width:1050px) 44vw, 32vw'} alt="" width="960" height="540" loading="lazy" decoding="async"/></div>}
+        <div class="texto"><p class="meta">{obra.sector} <span>/</span> {obra.client}</p><h3>{obra.title}</h3>
+          <p class="alcance">{obra.scope}</p>
+          <div class="fuentes">{obra.links.map(link=><a href={link.href}>{link.label}<ArrowUpRight size={14} aria-hidden="true"/></a>)}</div>
         </div>
-        {poster && <figure class="equipo"><img src={poster} width="900" height="300" loading="lazy" alt={posterAlt} /><figcaption>{caption}</figcaption></figure>}
-      </article>
-    ))}
-
+      </article>)}
+    </div>
   </div>
 </section>}
 <style>
-  .archivo { --ink:#191e1f; --ink-2:#465254; --line:#bac4bf; color:var(--ink); background:#e8ece9; padding-block:clamp(20px,2.6vw,40px); scroll-margin-top:var(--top-h); container: archivo / inline-size; }
-  .archivo.inset { padding-inline:clamp(16px,2.7vw,40px); margin-bottom:var(--s4); }
-  .archivo-top { display:flex; align-items:baseline; justify-content:space-between; gap:8px 24px; flex-wrap:wrap; border-bottom:1px solid var(--line); padding-bottom:12px; }
-  h2 { font-size:clamp(1.4rem,2.25vw,2.2rem); line-height:1.1; letter-spacing:-.04em; }
-  .salto,.enlace-obra { display:inline-flex; align-items:center; gap:8px; font-weight:650; min-height:44px; }
-  .obra { display:grid; grid-template-columns:minmax(0,1.42fr) minmax(0,1fr) minmax(0,.84fr); gap:clamp(16px,2.1vw,36px); align-items:center; padding-block:clamp(16px,2vw,30px); scroll-margin-top:var(--top-h); }
-  .obra[hidden] { display:none; }
-  .imagen img { display:block; width:100%; height:clamp(210px,19vw,310px); object-fit:cover; }
-  .identidad { min-width:0; }
-  .referencia,.indice small { color:var(--ink-2); font-size:.8rem; font-variant-numeric:tabular-nums; }
-  h3 { margin:7px 0; font-size:clamp(1.5rem,2.25vw,2.65rem); line-height:1.06; letter-spacing:-.04em; text-wrap:balance; }
-  .cliente,.scope { color:var(--ink-2); line-height:1.4; }
-  .scope { margin-top:12px; }
-  .identidad :global(.prueba-proyecto) { margin-top:14px; padding:0; gap:12px; border:0; }
-  .identidad :global(.prueba-proyecto dd) { font-size:clamp(1.45rem,1.95vw,2rem); }
-  .identidad :global(.prueba-proyecto dt) { font-size:.85rem; line-height:1.25; }
-  .enlace-obra { margin-top:6px; }
-  .equipo { margin:0; align-self:center; }
-  .equipo img { display:block; width:100%; height:auto; }
-  .equipo figcaption { border-top:1px solid var(--line); padding-top:8px; color:var(--ink-2); font-size:.85rem; }
-  .indice { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr)); gap:0 clamp(10px,1.8vw,28px); }
-  .indice a { min-width:0; border-top:2px solid var(--line); padding-block:10px; display:flex; gap:10px; align-items:center; }
-  .indice a[aria-selected=true] { border-color:#bf2227; }
-  .indice img { width:clamp(52px,5.6vw,85px); aspect-ratio:1.45; height:auto; object-fit:cover; }
-  .indice b,.indice small { display:block; line-height:1.2; }
-  .indice b { margin-top:3px; font-size:1rem; }
-  .archivo a:focus-visible { outline:2px solid #a51d23; outline-offset:2px; }
-  .archivo a:hover { text-decoration:underline; text-underline-offset:4px; }
-  @container archivo (max-width:900px) {
-    .obra { grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px 24px; }
-    .imagen { grid-row:1 / 3; }
-    .imagen img { height:auto; aspect-ratio:1.13; }
-    .equipo { width:min(100%,290px); }
-    .indice { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .portafolio { background:#eff1ed;color:#181d1d; padding-block:clamp(32px,4vw,64px);scroll-margin-top:var(--top-h);container:portafolio / inline-size; }
+  .inset { padding:clamp(18px,2.8vw,44px);margin-bottom:var(--s4); }
+  header { display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 24px;margin-bottom:clamp(18px,2vw,34px); }
+  h2 { font-size:clamp(1.6rem,3.35vw,3.6rem);line-height:1.04;letter-spacing:-.045em;text-wrap:balance; }
+  header a,.fuentes a { display:inline-flex;align-items:center;gap:6px;min-height:44px;font-weight:600; }
+  .portafolio a:hover { text-decoration:underline;text-underline-offset:4px; }
+  .portafolio a:focus-visible { outline:2px solid #98191c;outline-offset:3px; }
+  .obras { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(22px,3vw,48px) clamp(18px,2.1vw,32px); }
+  article { min-width:0; }
+  .visual { overflow:hidden;background:#d9dfdc; }
+  .visual img { display:block;width:100%;height:auto;aspect-ratio:2.15;object-fit:cover; }
+  .texto { padding-top:16px; }
+  .meta { font-size:.84rem;line-height:1.4;color:#4a5553; }
+  .meta span { padding-inline:3px;color:#a32629; }
+  h3 { font-size:clamp(1.4rem,2vw,2.35rem);line-height:1.08;letter-spacing:-.035em;margin:8px 0 12px;text-wrap:balance; }
+  .alcance { font-size:1rem;line-height:1.5;color:#394341;max-width:56ch; }
+  .fuentes { display:flex;flex-wrap:wrap;gap:0 16px;margin-top:8px; }
+  .fuentes a { font-size:.91rem; }
+  .principal { grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);background:#151c1d;color:#fff; }
+  .principal .texto { padding:clamp(24px,3vw,52px);align-self:center; }
+  .principal .meta,.principal .alcance { color:#d2dad7; }
+  .principal h3 { font-size:clamp(1.9rem,3.25vw,3.7rem);max-width:23ch; }
+  .principal .visual img { height:100%;aspect-ratio:1.9; }
+  .prensa { display:grid;grid-template-columns:1fr 1fr;align-content:center;gap:clamp(12px,2vw,32px);padding:clamp(20px,3vw,48px);background:#253238;color:#f4f5ef; }
+  .prensa div { display:grid;align-content:start;grid-template-rows:auto minmax(2.5em,auto) auto; }
+  .prensa strong { font-size:clamp(3.4rem,6.8vw,8rem);line-height:1;font-weight:580;letter-spacing:-.07em;font-variant-numeric:tabular-nums; }
+  .prensa span { font-size:clamp(.85rem,1.25vw,1.1rem);line-height:1.25;margin-top:7px; }
+  .prensa i { --paso:clamp(5px,.68vw,10px);display:block;width:calc(20 * var(--paso));height:calc(10 * var(--paso));background:radial-gradient(circle,#9db6b3 27%,transparent 33%) 0 0/var(--paso) var(--paso);margin-top:12px; }
+  .prensa div:nth-child(2) i { width:calc(10 * var(--paso));height:calc(6 * var(--paso)); }
+  @container portafolio (max-width:950px) { .obras { grid-template-columns:repeat(2,minmax(0,1fr)); }.prensa i { --paso:5px; } }
+  @container portafolio (max-width:620px) { .obras,.principal { grid-template-columns:minmax(0,1fr); }.principal .texto { padding:20px; }.principal .visual img { aspect-ratio:2.25; }.prensa { padding:20px; }.prensa strong { font-size:3.8rem; }.prensa i { --paso:5px; }.prensa div {grid-template-rows:auto minmax(2em,auto) auto;}article + article { border-top:1px solid #c2cbc5;padding-top:20px; }.texto { padding-top:12px; } }
+  @container portafolio (min-width:951px) {
+    .portada .obras { grid-template-columns:repeat(12,minmax(0,1fr)); }
+    .portada article { grid-column:span 4; }
+    .portada .principal { grid-column:span 7;display:flex;flex-direction:column-reverse;justify-content:space-between; }
+    .portada .principal .texto { align-self:stretch;padding:clamp(22px,2vw,36px); }
+    .portada .principal h3 { margin-block:10px; }
+    .portada .prensa { padding:20px clamp(22px,2vw,36px); }
+    .portada .prensa strong { font-size:clamp(3.3rem,4.5vw,4.8rem); }
+    .portada .prensa i { --paso:5px; }
+    .portada .prensa div { grid-template-rows:auto auto 1fr; }
+    .portada article:nth-child(2) { grid-column:span 5; }
+    .portada article:nth-child(2) img { aspect-ratio:1.85; }
+    .portada article:nth-last-child(-n+2):nth-child(n+5) { grid-column:span 6; }
   }
-  @container archivo (max-width:540px) {
-    .obra { grid-template-columns:minmax(0,1fr); gap:14px; }
-    .imagen { grid-row:auto; }
-    .imagen img { aspect-ratio:2.2; }
-    .equipo { width:100%; display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:12px; align-items:center; }
-    .equipo figcaption { border:0; padding:0; }
-    .indice a { gap:7px; }
-    .indice img { width:clamp(40px,10vw,60px); }
-    .indice small { font-size:.73rem; }
-    .indice b { font-size:.87rem; }
-    .identidad :global(.prueba-proyecto) { max-width:310px; }
+  @container portafolio (max-width:620px) {
+    .principal:has(.prensa) .texto { grid-row:1; }
   }
 </style>
-<script>
-  for (const section of document.querySelectorAll<HTMLElement>('[data-obras-portada]')) {
-    const nav = section.querySelector<HTMLElement>('.indice')!;
-    const tabs = Array.from(nav.querySelectorAll<HTMLAnchorElement>('a'));
-    const panels = Array.from(section.querySelectorAll<HTMLElement>('.obra'));
-    const select = (index: number) => {
-      tabs.forEach((tab, i) => {
-        const active = index === i;
-        tab.setAttribute('aria-selected', String(active));
-        tab.tabIndex = active ? 0 : -1;
-        panels[i].hidden = !active;
-      });
-    };
-    nav.setAttribute('role', 'tablist');
-    tabs.forEach((tab, i) => {
-      const panel = panels[i];
-      tab.setAttribute('role', 'tab');
-      tab.setAttribute('aria-controls', panel.id);
-      panel.setAttribute('role', 'tabpanel');
-      panel.setAttribute('aria-labelledby', tab.id);
-      tab.addEventListener('click', event => {
-        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        event.preventDefault();
-        select(i);
-      });
-      tab.addEventListener('keydown', event => {
-        const keys: Record<string, number> = { ArrowRight: (i + 1) % tabs.length, ArrowLeft: (i + tabs.length - 1) % tabs.length, Home: 0, End: tabs.length - 1 };
-        if (!(event.key in keys)) return;
-        event.preventDefault();
-        select(keys[event.key]);
-        tabs[keys[event.key]].focus();
-      });
-    });
-    const fromHash = () => {
-      const index = panels.findIndex(panel => '#' + panel.id === location.hash);
-      if (index >= 0) select(index);
-    };
-    select(0);
-    fromHash();
-    window.addEventListener('hashchange', fromHash);
-  }
-</script>
