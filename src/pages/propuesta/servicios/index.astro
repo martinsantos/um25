@@ -13,6 +13,7 @@ import { portadaCases } from '../../../components/proto/portadaCases';
 
 export const prerender = false;
 const { stories } = await loadStories();
+const [feature, ...obras] = portadaCases(stories, 'servicios');
 const items = services.map((service) => ({
   name: service.name,
   summary: service.text,
@@ -35,9 +36,9 @@ const items = services.map((service) => ({
       <CatalogoEditorial
         title="Ocho frentes de servicio"
         intro="Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria."
-        items={items}
+        items={items} feature={feature}
       >
-        <ObrasPortada inset obras={portadaCases(stories, 'servicios')} title="Sistemas en obra" jump={{ label: 'Ver los servicios', href: '#catalogo' }} />
+        <ObrasPortada inset obras={obras} title="Ingeniería e integración en obra" />
       </CatalogoEditorial>
     </main>
     <Cierre />

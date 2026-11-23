@@ -6,8 +6,18 @@ import { contactLink } from '../../lib/contactEntry';
 import planta from '../../media/home/planta-1440.webp?url';
 import plantaSmall from '../../media/home/planta-720.webp?url';
 
-interface Props { obrasHref: string }
-const { obrasHref } = Astro.props;
+import { thumbOf } from './isoData';
+import type { Project } from './portadaCases';
+interface Props { obrasHref: string; obras: Project[] }
+const { obrasHref, obras } = Astro.props;
+const referentes = [
+  ['estadio','Estadio Malvinas Argentinas','Red de prensa y transmisión'],
+  ['hospitales','Hospitales de FUESMEN','Datos y energía'],
+  ['justicia','Suprema Corte de Mendoza','Validación de usuarios y documentos'],
+].flatMap(([key,name,scope]) => {
+  const project = obras.find(obra => obra.key === key);
+  return project ? [{key, name, scope, image:project.image}] : [];
+});
 ---
 <section class="opening" data-cover="planta" aria-labelledby="portada-titulo">
   <img class="opening-image" src={planta} srcset={`${plantaSmall} 720w, ${planta} 1440w`} sizes="100vw" width="1440" height="960" alt="" fetchpriority="high" />
@@ -22,6 +32,8 @@ const { obrasHref } = Astro.props;
       </div>
     </header>
   </div>
+  {referentes.length > 0 && <nav class="referencias wrap" aria-label="Obras destacadas">{referentes.map(({key,name,scope,image}) =>
+    <a href={'#obra-'+key}>{image && <img src={thumbOf(image)} width="96" height="64" alt="" />}<span>{name}<small>{scope}</small></span><ArrowDown size={16} aria-hidden="true" /></a>)}</nav>}
 </section>
 <style>
   .opening { position: relative; isolation: isolate; background: #101317; color: #fff; }
@@ -52,5 +64,22 @@ const { obrasHref } = Astro.props;
     .opening-grid { padding-block: 62px 18px; }
     header { gap: 9px; }
     .acciones { gap: 4px 12px; }
+  }
+  .referencias { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:#0b0d0ef2;border-top:1px solid #69706f; }
+  .referencias a {display:flex;align-items:center;gap:12px;position:relative;padding:12px 32px 12px 14px;min-height:74px;}
+  .referencias a+a {border-left:1px solid #434847;}
+  .referencias img {width:clamp(58px,6vw,90px);aspect-ratio:1.45;height:auto;object-fit:cover;}
+  .referencias span {font-weight:620;line-height:1.15;}
+  .referencias small {display:block;font-weight:400;font-size:.84rem;color:#cbd0ce;margin-top:4px;}
+  .referencias svg {position:absolute;right:12px;top:calc(50% - 8px);}
+  .referencias a:hover span {text-decoration:underline;}
+  @media (max-width:700px) {
+    .referencias {grid-template-columns:1fr;}
+    .referencias a {padding:7px 22px 7px 0;min-height:50px;}
+    .referencias a+a {border-left:0;border-top:1px solid #363b3b;}
+    .referencias img {width:48px;aspect-ratio:1.4;}
+    .referencias span {font-size:.95rem;}
+    .referencias small {font-size:.81rem;margin-top:2px;}
+    .referencias svg {right:0;}
   }
 </style>

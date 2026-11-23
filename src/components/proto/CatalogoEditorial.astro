@@ -1,9 +1,11 @@
 ---
 import { ArrowRight, FolderOpen } from 'lucide-astro';
+import type { Project } from './portadaCases';
 import { srcsetDe } from './isoData';
 
 interface Props {
   sector?: boolean;
+  feature?: Project;
   title: string;
   intro: string;
   items: {
@@ -17,19 +19,28 @@ interface Props {
     detailLabel: string;
   }[];
 }
-const { title, intro, items, sector = false } = Astro.props;
+const { title, intro, items, feature, sector = false } = Astro.props;
+const cover = feature?.contextImage || feature?.image;
 ---
-<div class="catalogo-intro">
-  <h1>{title}<span class="dot">.</span></h1>
-  <p>{intro}</p>
-</div>
-<slot />
+<header class="cabecera-catalogo">
+  <div class="catalogo-intro">
+    <h1>{title}<span class="dot">.</span></h1><p>{intro}</p>
+    <a class="indice" href="#catalogo">Ver los {items.length} {sector ? 'sectores' : 'servicios'} <span aria-hidden="true">↓</span></a>
+  </div>
+  {feature && <article class="referencia" data-caso-catalogo={feature.key}>
+    {cover && <img src={cover} srcset={srcsetDe(cover)} sizes="(max-width:700px) 94vw, 55vw" alt="" width="960" height="540" fetchpriority="high" />}
+    <div><p>{feature.client}</p><h2><a href={feature.links[0].href}>{feature.title}</a></h2>
+      {feature.fact && <strong>{feature.fact}</strong>}
+      <nav aria-label="Fichas de la obra destacada">{feature.links.map(link => <a class="leer" href={link.href}>{link.label}<ArrowRight size={14} aria-hidden="true" /></a>)}</nav>
+    </div>
+  </article>}
+</header>
 <ol id="catalogo" class:list={["catalogo", { "catalogo--sectores": sector }]}>
   {items.map(({ name, summary, count, photo, href, archiveHref, detailHref, detailLabel }, index) => (
-    <li class:list={{ apertura: index === 0 || (sector && index === 1) }}>
+    <li>
       <div class="catalogo-cuerpo">
         <a href={href} class="catalogo-ficha" aria-label={name}>
-          <img src={photo} srcset={srcsetDe(photo)} sizes={index === 0 || (sector && index === 1) ? "(max-width: 700px) 94vw, 48vw" : "(max-width: 600px) 26vw, (max-width: 900px) 128px, 154px"}
+          <img src={photo} srcset={srcsetDe(photo)} sizes={sector ? "(max-width:640px) 94vw, (max-width:960px) 45vw, 30vw" : "(max-width:640px) 25vw, 140px"}
             alt="" width="1672" height="941" loading={index < 4 ? 'eager' : 'lazy'} decoding="async" />
           <h2>{name}</h2>
         </a>
@@ -48,55 +59,36 @@ const { title, intro, items, sector = false } = Astro.props;
     </li>
   ))}
 </ol>
+<slot />
 <style>
-  .catalogo-intro { padding-block: var(--s4); }
-  .catalogo-intro h1 { font-size: clamp(2rem, 4.4vw, 3.5rem); line-height: 1.08; }
-  .catalogo-intro p { margin-top: var(--s2); max-width: 64ch; color: var(--ink-2); font-size: 1.125rem; }
-  .catalogo { scroll-margin-top: calc(var(--top-h) + 10px); --foto: clamp(120px, 11vw, 154px); --espacio: clamp(16px, 2vw, 24px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(28px, 4vw, 64px); margin: 0; padding: 0 0 var(--s6); list-style: none; }
-  .catalogo li { position: relative; min-height: calc(var(--foto) * .75 + 48px); display: flex; flex-direction: column; min-width: 0; border-top: 1px solid var(--line); padding-block: 24px 12px; }
-  .catalogo-cuerpo { padding-left: calc(var(--foto) + var(--espacio)); }
-  .catalogo-ficha { display: inline-flex; align-items: center; min-height: 44px; }
-  .catalogo-ficha img { position: absolute; inset: 24px auto auto 0; width: var(--foto); aspect-ratio: 4 / 3; height: auto; object-fit: cover; background: var(--bg-2); }
-  h2 { font-size: clamp(1.25rem, 2vw, 1.625rem); line-height: 1.2; overflow-wrap: anywhere; }
-  .resumen { margin: 2px 0 8px; color: var(--ink-2); line-height: 1.5; }
-  .acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 0 20px; margin-top: auto; padding-left: calc(var(--foto) + var(--espacio)); }
-  .acciones a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 600; }
-  .acciones .archivo { color: var(--ink-2); font-weight: 400; }
-  .catalogo a:hover { text-decoration: underline; text-underline-offset: 4px; }
-  .catalogo a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
-  @media (max-width: 900px) {
-    .catalogo-intro { padding-block: 32px 24px; }
-    .catalogo-intro p { font-size: 1.0625rem; }
-    .catalogo { --foto: 128px; grid-template-columns: minmax(0, 1fr); }
-  }
-  @media (max-width: 600px) {
-    .catalogo { --foto: clamp(82px, 26vw, 128px); --espacio: 14px; }
-    .catalogo li { padding: 18px 0 8px; }
-    .catalogo-cuerpo { position: relative; min-height: calc(var(--foto) * .75); }
-    .catalogo-ficha img { top: 0; }
-    .resumen { margin-top: 0; }
-    .acciones { justify-content: space-between; gap: 0 12px; padding-left: 0; }
-  }
-  .catalogo li.apertura { --foto: 50%; grid-column: 1 / -1; padding: 0 0 var(--s3); border: 0; min-height: clamp(240px, 22vw, 330px); justify-content: center; }
-  .apertura .catalogo-cuerpo, .apertura .acciones { padding-left: calc(var(--foto) + clamp(22px, 4vw, 70px)); }
-  .apertura .catalogo-ficha img { inset: 0 auto auto 0; height: calc(100% - var(--s3)); aspect-ratio: auto; }
-  .apertura h2 { font-size: clamp(1.8rem, 3vw, 3rem); line-height: 1.05; }
-  .apertura .resumen { max-width: 36ch; margin-block: 10px; font-size: 1.12rem; }
-  .apertura .acciones { margin-top: 4px; }
-  .catalogo--sectores li.apertura { grid-column: auto; justify-content: flex-start; }
-  .catalogo--sectores .apertura .catalogo-cuerpo, .catalogo--sectores .apertura .acciones { padding-left: 0; }
-  .catalogo--sectores .apertura .catalogo-ficha { display: block; }
-  .catalogo--sectores .apertura img { position: static; width: 100%; height: auto; aspect-ratio: 2.65; margin-bottom: 14px; }
-  .catalogo--sectores .apertura .resumen { max-width: 54ch; }
-  @media (min-width: 701px) and (max-width: 900px) {
-    .catalogo--sectores { grid-template-columns: repeat(2,minmax(0,1fr)); }
-    .catalogo--sectores li:not(.apertura) { grid-column: 1 / -1; }
-  }
-  @media (max-width: 700px) {
-    .catalogo li.apertura { padding-bottom: 20px; min-height: 0; }
-    .apertura .catalogo-cuerpo, .apertura .acciones { padding-left: 0; }
-    .apertura .catalogo-ficha { display: block; }
-    .apertura .catalogo-ficha img { position: static; width: 100%; height: auto; aspect-ratio: 2.1; margin-bottom: 14px; }
-    .apertura .resumen { margin-block: 6px; font-size: 1rem; }
-  }
+  .cabecera-catalogo { display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);align-items:center;gap:clamp(24px,4vw,72px);padding-block:clamp(24px,3vw,48px); }
+  .catalogo-intro h1 {font-size:clamp(2.4rem,4.6vw,4.8rem);line-height:1.02;letter-spacing:-.055em;text-wrap:balance;}
+  .catalogo-intro p {margin:16px 0;max-width:42ch;color:var(--ink-2);font-size:1.12rem;line-height:1.5;}
+  .indice,.leer,.acciones a {display:inline-flex;align-items:center;gap:8px;min-height:44px;font-weight:600;}
+  .referencia {position:relative;isolation:isolate;display:flex;align-items:flex-end;min-height:clamp(260px,24vw,385px);background:#101416;color:white;}
+  .referencia img,.referencia:after {position:absolute;inset:0;width:100%;height:100%;}
+  .referencia img {z-index:-2;object-fit:cover;}
+  .referencia:after {content:'';z-index:-1;background:linear-gradient(0deg,#070909f7,#070909c9 36%,#07090912 85%);}
+  .referencia div {padding:clamp(16px,2.2vw,33px);display:grid;justify-items:start;gap:5px;}
+  .referencia p {color:#e5e9e8;font-size:.9rem;}
+  .referencia h2 {font-size:clamp(1.4rem,2.25vw,2.45rem);line-height:1.09;max-width:30ch;text-wrap:balance;letter-spacing:-.035em;}
+  .referencia strong,.leer {font-size:.92rem;}
+  .referencia nav {display:flex;flex-wrap:wrap;column-gap:14px;}
+  .catalogo {--cols:2;display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:18px clamp(20px,2.6vw,44px);padding:0 0 var(--s5);list-style:none;scroll-margin-top:calc(var(--top-h) + 10px);}
+  .catalogo--sectores {--cols:3;}
+  .catalogo li {min-width:0;border-top:1px solid var(--line);padding-block:16px 0;display:flex;flex-direction:column;}
+  .catalogo-cuerpo {position:relative;}
+  .catalogo:not(.catalogo--sectores) .catalogo-cuerpo {padding-left:calc(28% + 16px);min-height:100px;}
+  .catalogo-ficha img {object-fit:cover;display:block;width:100%;aspect-ratio:2.1;}
+  .catalogo:not(.catalogo--sectores) img {width:28%;height:100%;position:absolute;left:0;top:0;}
+  .catalogo h2 {font-size:clamp(1.18rem,1.7vw,1.7rem);line-height:1.12;margin-top:6px;letter-spacing:-.025em;}
+  .catalogo--sectores h2 {margin-top:14px;}
+  .resumen {line-height:1.45;color:var(--ink-2);margin:7px 0;}
+  .acciones {display:flex;gap:0 14px;flex-wrap:wrap;margin-top:auto;}
+  .acciones a {font-size:.9rem;}
+  .archivo {color:var(--ink-2);}
+  a:focus-visible {outline:2px solid currentColor;outline-offset:3px;}
+  a:hover {text-decoration:underline;text-underline-offset:4px;}
+  @media(max-width:960px) { .catalogo--sectores {--cols:2;} }
+  @media(max-width:700px) { .cabecera-catalogo {grid-template-columns:1fr;gap:12px;} .catalogo-intro p {margin:9px 0 2px;font-size:1rem;} .catalogo-intro h1 {font-size:2.4rem;} .referencia {min-height:210px;} .catalogo {--cols:1;} .referencia div {padding:15px;} .catalogo:not(.catalogo--sectores) .catalogo-cuerpo {min-height:82px;} }
 </style>

@@ -57,6 +57,25 @@ const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina 
         .principal a { display: grid; gap: 14px; }
       }
       @media (max-width: 700px) { .principal .entrada__image { aspect-ratio: 1.95; } .principal .small { order: 1; } }
+      .apertura { margin-bottom:clamp(20px,3vw,44px); }
+      @media(min-width:901px) {
+        .apertura {grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:0 clamp(20px,3vw,48px);}
+        .apertura .entrada.principal {grid-column:1;grid-row:span 2;padding:0 0 12px;min-height:0;justify-content:flex-start;gap:14px;border:0;}
+        .apertura .principal .entrada__image {position:static;width:100%;height:auto;aspect-ratio:2.35;object-fit:cover;}
+        .apertura .principal h2 {font-size:clamp(1.65rem,2.6vw,2.8rem);}
+        .apertura .principal a {gap:12px;}
+        .apertura .entrada:not(.principal) {border-top:1px solid var(--line);padding:12px 0;gap:8px;}
+        .apertura .entrada:not(.principal) a {display:grid;grid-template-columns:34% 1fr;column-gap:14px;align-items:start;}
+        .apertura .entrada:not(.principal) img {grid-row:span 2;height:120px;object-fit:cover;margin:0;}
+        .apertura .entrada:not(.principal) h2 {font-size:clamp(1.2rem,1.6vw,1.6rem);}
+        .apertura .entrada:not(.principal) p {font-size:.95rem;color:var(--ink-2);margin-top:8px;}
+      }
+      @media(max-width:700px) {
+        .apertura {gap:12px;}
+        .apertura .entrada:not(.principal) a {display:grid;grid-template-columns:28% 1fr;gap:12px;}
+        .apertura .entrada:not(.principal) img {aspect-ratio:1.2;}
+        .apertura .entrada:not(.principal) p {grid-column:1/-1;}
+      }
     </style></head>
   <body>
     <Top current="blog" />
@@ -66,8 +85,8 @@ const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina 
         {!categoria && <p>Notas de campo y artículos del equipo sobre redes, seguridad, software y operación IT.</p>}
         <BlogCategoryTabs current={categoria || undefined} query />
       </div>
-      {posts.length > 0 && (obras.length ? [posts.slice(0,1), posts.slice(1)] : [posts]).map((articles,part) => <Fragment>
-        {articles.length > 0 && <ol id={part === 0 ? "notas" : undefined} start={part === 0 ? undefined : 2} class="entradas">
+      {posts.length > 0 && (obras.length ? [posts.slice(0,3), posts.slice(3)] : [posts]).map((articles,part) => <Fragment>
+        {articles.length > 0 && <ol id={part === 0 ? "notas" : undefined} start={part === 0 ? undefined : 4} class:list={["entradas",{apertura:obras.length > 0 && part === 0}]}>
         {articles.map((p, index) => (
           <li class:list={["entrada", { principal: !categoria && pagina === 1 && part === 0 && index === 0 }]}>
             <span class="small"><span>{formatBlogDateLong(p.fecha_publicacion)}</span><span>{getCategoryLabel(p.categoria)}{p.tiempo_lectura ? ` · ${p.tiempo_lectura} min` : ''}</span></span>
@@ -75,7 +94,7 @@ const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina 
           </li>
         ))}
       </ol>}
-        {part === 0 && obras.length > 0 && <ObrasPortada inset obras={obras} title="Proyectos del archivo" />}
+        {part === 0 && obras.length > 0 && <ObrasPortada compact inset obras={obras} title="Del archivo técnico" />}
       </Fragment>)}
       {posts.length === 0 && (
         <section class="blog-empty" aria-labelledby="blog-empty-title">
