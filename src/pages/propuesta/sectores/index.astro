@@ -10,6 +10,9 @@ import { sectorRelato } from '../../../components/proto/relato';
 import { catalogHref, matchesCatalog } from '../../../components/proto/catalogFilters';
 import { NAV_SECTORS } from '../../../data/navigation';
 
+import ObrasPortada from '../../../components/proto/ObrasPortada.astro';
+import { portadaCases } from '../../../components/proto/portadaCases';
+
 export const prerender = false;
 const { stories } = await loadStories();
 const items = NAV_SECTORS.map((sector) => {
@@ -41,7 +44,9 @@ const items = NAV_SECTORS.map((sector) => {
         title="Soluciones para cada sector"
         intro="Integramos redes, seguridad, comunicaciones y tecnología según la operación de cada sector. Desde Mendoza, para Cuyo, Patagonia y el país."
         items={items}
-      />
+      >
+        <ObrasPortada inset obras={portadaCases(stories, 'sectores')} title="Obras por sector" jump={{ label: 'Ver los sectores', href: '#catalogo' }} />
+      </CatalogoEditorial>
     </main>
     <Cierre />
   </body>

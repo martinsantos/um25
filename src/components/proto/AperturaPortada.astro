@@ -1,42 +1,56 @@
 ---
+import { ArrowDown } from 'lucide-astro';
+import { FOUNDING_DATE } from '../../config/publicFacts';
+import { BUSINESS_ADDRESS } from '../../config/seo';
 import { contactLink } from '../../lib/contactEntry';
 import planta from '../../media/home/planta-1440.webp?url';
 import plantaSmall from '../../media/home/planta-720.webp?url';
-interface Props { cifras:[string,string][]; total:number }
-const {cifras,total}=Astro.props;
----
-<section class="opening" data-cover="planta" aria-label="Portada">
-  <figure><img src={planta} srcset={`${plantaSmall} 720w, ${planta} 1440w`} sizes="100vw" width="1440" height="960" alt="Técnico junto a un gabinete de comunicaciones en una planta industrial" fetchpriority="high" /></figure>
- <div class="wrap opening-grid">
-  <div class="opening-copy"><p class="eyebrow">Ingeniería · Instalación · Soporte</p><h1>Servicios IT para operaciones que no pueden detenerse<span class="dot">.</span></h1><p class="intro">Redes, seguridad, comunicaciones y energía. Integramos cada sistema y documentamos lo que entregamos.</p><a class="btn" href={contactLink(Astro.url.pathname)}>Pedir un relevamiento</a></div>
 
-  <div class="opening-proof"><div class="cifras">{cifras.map(([n,t])=><div><b>{n}</b><span>{t}</span></div>)}</div><a class="u" href="/antecedentes">Ver los {total} antecedentes →</a></div>
- </div>
+interface Props { obrasHref: string }
+const { obrasHref } = Astro.props;
+---
+<section class="opening" data-cover="planta" aria-labelledby="portada-titulo">
+  <img class="opening-image" src={planta} srcset={`${plantaSmall} 720w, ${planta} 1440w`} sizes="100vw" width="1440" height="960" alt="" fetchpriority="high" />
+  <div class="wrap opening-grid">
+    <header>
+      <p class="origen">{BUSINESS_ADDRESS.addressRegion}, Argentina <span aria-hidden="true">/</span> Desde {FOUNDING_DATE.slice(0, 4)}</p>
+      <h1 id="portada-titulo">Infraestructura IT, de la obra a la operación<span class="dot">.</span></h1>
+      <p class="intro">Diseñamos, instalamos y mantenemos redes, comunicaciones y seguridad electrónica.</p>
+      <div class="acciones">
+        <a class="btn" href={contactLink(Astro.url.pathname)}>Pedir un relevamiento</a>
+        <a class="ver" href={obrasHref}>Ver obras <ArrowDown size={16} aria-hidden="true" /></a>
+      </div>
+    </header>
+  </div>
 </section>
 <style>
-.opening { position:relative; isolation:isolate; background:#101317; color:#fff; }
-figure, .opening::before { position:absolute; inset:0; margin:0; }
-figure { z-index:-2; }
-figure img { display:block; width:100%; height:100%; object-fit:cover; object-position:65% 45%; }
-.opening::before { content:""; z-index:-1; background:linear-gradient(0deg,rgba(8,11,14,.93),transparent 31%),linear-gradient(90deg,rgba(5,8,11,.95),rgba(5,8,11,.82) 35%,rgba(5,8,11,.06) 76%); }
-.opening[data-cover="planta"]::before { background:linear-gradient(0deg,rgba(8,11,14,.93),transparent 31%),linear-gradient(270deg,rgba(5,8,11,.95),rgba(5,8,11,.84) 35%,rgba(5,8,11,.04) 71%); }
-.opening-grid { display:grid; align-content:space-between; gap:3rem; min-height:clamp(36rem,78svh,48rem); padding-block:clamp(3rem,6vw,7rem) 2rem; }
-.opening-copy { display:grid; align-content:center; justify-items:start; gap:1.2rem; width:min(46%,36rem); }
-.opening[data-cover="planta"] .opening-copy { justify-self:end; }
-.eyebrow { font-size:.8125rem; letter-spacing:.08em; text-transform:uppercase; }
-h1 { font-size:clamp(2.4rem,4.3vw,4.4rem); line-height:1.04; letter-spacing:-.04em; text-wrap:balance; }
-.intro { max-width:42ch; font-size:1.125rem; line-height:1.5; color:#e2e6e8; }
-.opening-proof { display:flex; gap:2rem; align-items:center; justify-content:space-between; padding-top:1rem; border-top:1px solid #ffffff55; }
-.opening-proof .cifras { display:grid; grid-template-columns:repeat(4,1fr); flex:1; margin:0; padding:0; border:0; }
-.cifras b { font-size:2rem; } .cifras span { color:#e2e6e8; font-size:.875rem; }
-@media(max-width:700px) {
- .opening::before,.opening[data-cover="planta"]::before { background:linear-gradient(180deg,rgba(5,8,11,.04) 8%,rgba(5,8,11,.70) 33%,rgba(5,8,11,.89) 64%,#090c0e 100%); }
- figure img { object-position:65% 36%; } .opening[data-cover="planta"] img { object-position:25% center; }
- .opening-grid { min-height:0; gap:1.5rem; padding-block:clamp(9rem,24svh,14rem) 1.5rem; }
- .opening-copy { width:100%; gap:.875rem; }
- h1 { max-width:19ch; font-size:clamp(2rem,8.2vw,3rem); }
- .intro { font-size:1rem; } .opening-copy .btn { min-height:48px; }
- .opening-proof { display:grid; gap:.75rem; } .opening-proof .cifras { grid-template-columns:repeat(2,1fr); gap:.75rem; }
- .cifras b { font-size:1.5rem; } .opening-proof>a { justify-self:start; display:inline-flex; align-items:center; min-height:44px; }
-}
+  .opening { position: relative; isolation: isolate; background: #101317; color: #fff; }
+  .opening-image, .opening::before { position: absolute; inset: 0; }
+  .opening-image { z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: 48% 4%; }
+  .opening::before { content: ''; z-index: -1; background: linear-gradient(90deg, transparent 18%, #10141820 36%, #0b1014c9 53%, #090d11f2 79%); }
+  .opening-grid { display: grid; align-items: center; min-height: clamp(410px, 52svh, 570px); padding-block: clamp(26px, 3.8vw, 62px); }
+  header { justify-self: end; width: 48%; display: grid; justify-items: start; gap: clamp(13px, 1.5vw, 23px); }
+  .origen { display: flex; align-items: baseline; gap: 10px; color: #f2f3f3; font-size: .875rem; font-weight: 550; }
+  .origen span { color: #c9cacc; }
+  h1 { max-width: 16ch; text-wrap: balance; font-size: clamp(2.7rem, 4.8vw, 5.1rem); line-height: 1.02; letter-spacing: -.055em; }
+  .intro { max-width: 39ch; font-size: clamp(1.05rem, 1.35vw, 1.25rem); line-height: 1.45; color: #edf0ef; }
+  .acciones { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 24px; }
+  .acciones a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 600; }
+  .ver:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .acciones a:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+  @media (max-width: 700px) {
+    .opening-image { object-position: 23% 29%; }
+    .opening::before { background: linear-gradient(180deg, #080c0e0a, #080c0e33 18%, #080c0ecc 46%, #090c0efa 88%); }
+    .opening-grid { min-height: 0; padding-block: clamp(96px, 14svh, 150px) 24px; }
+    header { width: 100%; gap: 12px; }
+    h1 { font-size: clamp(2.15rem, 8.8vw, 3.7rem); }
+    .intro { font-size: 1rem; max-width: 38ch; }
+    .acciones { gap: 6px 16px; }
+    .acciones .btn { padding: 11px 16px; }
+  }
+  @media (max-width: 359px) {
+    .opening-grid { padding-block: 62px 18px; }
+    header { gap: 9px; }
+    .acciones { gap: 4px 12px; }
+  }
 </style>
