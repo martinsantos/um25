@@ -3,7 +3,7 @@ import { catalogPresentationFor, catalogSceneForCase, type CatalogContent } from
 
 type StoryIdentity = Parameters<typeof connectionSceneForCase>[0];
 type Points = readonly [readonly [number, number], readonly [number, number], readonly [number, number]];
-type EquipmentExample = Pick<CatalogContent, 'asset' | 'kind' | 'title' | 'steps'> & { id: number; anchor: string; counterView?: boolean; points?: Points };
+type EquipmentExample = Pick<CatalogContent, 'asset' | 'kind' | 'title' | 'steps'> & { id: number; anchor: string; signalRoute?: 'radio-link' | 'fire-loop'; counterView?: boolean; points?: Points };
 type ProcessExample = {
   id: number; anchor: string; format: 'software' | 'consulting';
   illustration?: 'exchange'; project: string; title: string; steps: readonly (readonly [string, string])[];
@@ -41,7 +41,7 @@ const hospitalPhone: EquipmentExample = {
   ],
 };
 const radioLink: EquipmentExample = {
-  id: 3624, anchor: 'enlace-de-planta', asset: 'radio', kind: 'coverage',
+  id: 3624, anchor: 'enlace-de-planta', signalRoute: 'radio-link', asset: 'radio', kind: 'coverage',
   title: 'Un enlace punto a punto para Nucete',
   steps: [
     ['Origen', 'Un extremo del enlace se encuentra en Nucete.'],
@@ -69,7 +69,7 @@ const parkingCameras: EquipmentExample = {
   ],
 };
 const smokeDetector: EquipmentExample = {
-  id: 3168, anchor: 'detector-de-la-esmeralda', asset: 'detector', kind: 'detection',
+  id: 3168, anchor: 'detector-de-la-esmeralda', signalRoute: 'fire-loop', asset: 'detector', kind: 'detection',
   title: 'Cómo llega el aviso de humo a la central',
   steps: [
     ['Detección', 'El detector responde a la presencia de humo en el ambiente.'],
@@ -147,5 +147,5 @@ export function workScene(example: Example | undefined, story: StoryIdentity | u
   }
   const scene = catalogSceneForCase(story);
   if (scene?.asset !== example.asset) return;
-  return { ...scene, format: 'equipment' as const, kind: example.kind, counterView: example.counterView, title: example.title, steps: example.steps, points: example.points };
+  return { ...scene, format: 'equipment' as const, kind: example.kind, counterView: example.counterView, signalRoute: example.signalRoute, title: example.title, steps: example.steps, points: example.points };
 }

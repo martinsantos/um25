@@ -130,6 +130,21 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
         .filtros__resultados { margin-top: 14px; }
       }
       @media (max-width: 600px) { .fichas { grid-template-columns: minmax(0, 1fr); } }
+      .fichas[data-apertura] :global(.ficha:first-child b) { font-size: clamp(1.55rem, 2.4vw, 2.4rem); line-height: 1.1; letter-spacing: -.025em; }
+      @media (min-width: 601px) {
+        .fichas[data-apertura] :global(.ficha:first-child) { grid-column: 1 / -1; padding-bottom: var(--s3); border-bottom: 1px solid var(--line); }
+        .fichas[data-apertura] :global(.ficha:first-child > a) { grid-template-columns: 1.45fr 1fr; grid-template-rows: 1fr auto auto 1fr; column-gap: clamp(18px, 3vw, 48px); align-content: center; }
+        .fichas[data-apertura] :global(.ficha:first-child figure) { grid-row: 1 / 5; aspect-ratio: 1.9; }
+        .fichas[data-apertura] :global(.ficha:first-child b) { grid-row: 2; align-self: end; border: 0; }
+        .fichas[data-apertura] :global(.ficha:first-child .t) { grid-column: 2; grid-row: 3; }
+        .fichas[data-apertura] :global(.ficha:first-child .small) { grid-column: 2; grid-row: 4; align-self: start; }
+      }
+      @media (max-width: 600px) {
+        .fichas[data-apertura] :global(.ficha:first-child figure) { aspect-ratio: 1.85; }
+        .fichas[data-apertura] :global(.ficha:not(:first-child):not(.ficha--rec) > a) { display: grid; grid-template-columns: 32% 1fr; gap: 5px 14px; }
+        .fichas[data-apertura] :global(.ficha:not(:first-child):not(.ficha--rec) figure) { grid-row: 1 / 4; aspect-ratio: 1.25; }
+        .fichas[data-apertura] :global(.ficha:not(:first-child):not(.ficha--rec) b) { margin: 0; padding: 0; border: 0; }
+      }
     </style>
     <noscript><style is:inline>#filtros-cuerpo { display:grid; } [data-filtros] button[data-toggle] { display:none; }</style></noscript>
   </head>
@@ -179,7 +194,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
       </aside>
 
       <section id="obras-filtradas" tabindex="-1" aria-label="Antecedentes">
-        <ol class="fichas" data-grid data-datos="/antecedentes/datos.json">
+        <ol class="fichas" data-apertura={mostrarVisitas ? "si" : undefined} data-grid data-datos="/antecedentes/datos.json">
           {piezas.map((p, index) => p.rec ? (
             <li class="ficha ficha--rec" data-rec data-at={String(p.at)} data-sector={p.rec} hidden={p.oculto}>
               <a href={`/sectores/${p.rec}`}>
@@ -189,7 +204,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
               </a>
             </li>
           ) : (
-            <Ficha story={p.story!} eager={p.eager} primera={index === 0} />
+            <Ficha story={p.story!} eager={p.eager} primera={index === 0} amplia={index === 0 && mostrarVisitas} />
           ))}
         </ol>
         <div class:list={['empty', { on: n === 0 }]} data-empty>
@@ -279,6 +294,8 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
           while (r < recs.length && Number(recs[r].dataset.at) <= i) { if (showHighlights) quiero.push(recs[r]); r++; }
           const it = items[i]; if (!it.el) it.el = it.crear(); quiero.push(it.el); vistas++;
         }
+        if (showHighlights) grid.dataset.apertura = "si";
+        else delete grid.dataset.apertura;
         recomponer(quiero);
         mas.hidden = n <= visibles;
         mas.textContent = `Mostrar ${Math.max(0, Math.min(TANDA, n - visibles))} más de ${n}`;

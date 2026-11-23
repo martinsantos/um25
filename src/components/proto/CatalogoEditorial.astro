@@ -3,6 +3,7 @@ import { ArrowRight, FolderOpen } from 'lucide-astro';
 import { srcsetDe } from './isoData';
 
 interface Props {
+  sector?: boolean;
   title: string;
   intro: string;
   items: {
@@ -16,18 +17,18 @@ interface Props {
     detailLabel: string;
   }[];
 }
-const { title, intro, items } = Astro.props;
+const { title, intro, items, sector = false } = Astro.props;
 ---
 <div class="catalogo-intro">
   <h1>{title}<span class="dot">.</span></h1>
   <p>{intro}</p>
 </div>
-<ol class="catalogo">
+<ol class:list={["catalogo", { "catalogo--sectores": sector }]}>
   {items.map(({ name, summary, count, photo, href, archiveHref, detailHref, detailLabel }, index) => (
-    <li>
+    <li class:list={{ apertura: index === 0 || (sector && index === 1) }}>
       <div class="catalogo-cuerpo">
         <a href={href} class="catalogo-ficha" aria-label={name}>
-          <img src={photo} srcset={srcsetDe(photo)} sizes="(max-width: 600px) 26vw, (max-width: 900px) 128px, 154px"
+          <img src={photo} srcset={srcsetDe(photo)} sizes={index === 0 || (sector && index === 1) ? "(max-width: 700px) 94vw, 48vw" : "(max-width: 600px) 26vw, (max-width: 900px) 128px, 154px"}
             alt="" width="1672" height="941" loading={index < 4 ? 'eager' : 'lazy'} decoding="async" />
           <h2>{name}</h2>
         </a>
@@ -74,5 +75,27 @@ const { title, intro, items } = Astro.props;
     .catalogo-ficha img { top: 0; }
     .resumen { margin-top: 0; }
     .acciones { justify-content: space-between; gap: 0 12px; padding-left: 0; }
+  }
+  .catalogo li.apertura { --foto: 50%; grid-column: 1 / -1; padding: 0 0 var(--s3); border: 0; min-height: clamp(240px, 22vw, 330px); justify-content: center; }
+  .apertura .catalogo-cuerpo, .apertura .acciones { padding-left: calc(var(--foto) + clamp(22px, 4vw, 70px)); }
+  .apertura .catalogo-ficha img { inset: 0 auto auto 0; height: calc(100% - var(--s3)); aspect-ratio: auto; }
+  .apertura h2 { font-size: clamp(1.8rem, 3vw, 3rem); line-height: 1.05; }
+  .apertura .resumen { max-width: 36ch; margin-block: 10px; font-size: 1.12rem; }
+  .apertura .acciones { margin-top: 4px; }
+  .catalogo--sectores li.apertura { grid-column: auto; justify-content: flex-start; }
+  .catalogo--sectores .apertura .catalogo-cuerpo, .catalogo--sectores .apertura .acciones { padding-left: 0; }
+  .catalogo--sectores .apertura .catalogo-ficha { display: block; }
+  .catalogo--sectores .apertura img { position: static; width: 100%; height: auto; aspect-ratio: 2.65; margin-bottom: 14px; }
+  .catalogo--sectores .apertura .resumen { max-width: 54ch; }
+  @media (min-width: 701px) and (max-width: 900px) {
+    .catalogo--sectores { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .catalogo--sectores li:not(.apertura) { grid-column: 1 / -1; }
+  }
+  @media (max-width: 700px) {
+    .catalogo li.apertura { padding-bottom: 20px; min-height: 0; }
+    .apertura .catalogo-cuerpo, .apertura .acciones { padding-left: 0; }
+    .apertura .catalogo-ficha { display: block; }
+    .apertura .catalogo-ficha img { position: static; width: 100%; height: auto; aspect-ratio: 2.1; margin-bottom: 14px; }
+    .apertura .resumen { margin-block: 6px; font-size: 1rem; }
   }
 </style>
