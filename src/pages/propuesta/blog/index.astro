@@ -44,6 +44,15 @@ const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina 
         .entrada p { color: var(--ink-2); font-size: 1.0625rem; line-height: 1.6; }
         .paginas .u { min-height: 44px; display: inline-flex; align-items: center; }
       }
+      .entrada.principal { grid-column: 1 / -1; border-block: 1px solid var(--line); padding-block: 20px; }
+      .principal h2 { font-size: clamp(1.75rem, 3.25vw, 3.1rem); line-height: 1.08; letter-spacing: -.035em; }
+      .principal p { max-width: 48ch; color: var(--ink-2); }
+      @media (min-width: 701px) {
+        .entrada.principal { position: relative; padding-left: 57%; min-height: clamp(270px, 27vw, 380px); justify-content: center; }
+        .principal .entrada__image { position: absolute; inset: 16px auto 16px 0; width: 53%; height: calc(100% - 32px); margin: 0; }
+        .principal a { display: grid; gap: 14px; }
+      }
+      @media (max-width: 700px) { .principal .entrada__image { aspect-ratio: 1.95; } .principal .small { order: 1; } }
     </style></head>
   <body>
     <Top current="blog" />
@@ -55,9 +64,9 @@ const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina 
       </div>
       {posts.length > 0 && <ol class="entradas">
         {posts.map((p, index) => (
-          <li class="entrada">
+          <li class:list={["entrada", { principal: !categoria && pagina === 1 && index === 0 }]}>
             <span class="small"><span>{formatBlogDateLong(p.fecha_publicacion)}</span><span>{getCategoryLabel(p.categoria)}{p.tiempo_lectura ? ` · ${p.tiempo_lectura} min` : ''}</span></span>
-            <a href={`/blog/${p.slug}`}><img class="entrada__image" src={blogPostImageUrl(p)} srcset={blogImageSrcset(blogPostImageUrl(p))} sizes="(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 33vw" alt={blogPostImageAlt(p)} width="960" height="540" loading={index < 3 ? "eager" : "lazy"} fetchpriority={index === 0 ? "high" : undefined} /><h2>{p.titulo}</h2><p>{sanitizeBlogExcerpt(p.resumen, 220)}</p></a>
+            <a href={`/blog/${p.slug}`}><img class="entrada__image" src={blogPostImageUrl(p)} srcset={blogImageSrcset(blogPostImageUrl(p))} sizes={!categoria && pagina === 1 && index === 0 ? "(max-width: 700px) 94vw, 55vw" : "(max-width: 700px) 94vw, (max-width: 1100px) 50vw, 33vw"} alt={blogPostImageAlt(p)} width="960" height="540" loading={index < 3 ? "eager" : "lazy"} fetchpriority={index === 0 ? "high" : undefined} /><h2>{p.titulo}</h2><p>{sanitizeBlogExcerpt(p.resumen, 220)}</p></a>
           </li>
         ))}
       </ol>}

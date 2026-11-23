@@ -10,6 +10,8 @@ import Casos from '../../components/proto/Casos.astro';
 import Cierre from '../../components/proto/Cierre.astro';
 import { loadStories } from '../../components/proto/isoData';
 import { sectorRelato } from '../../components/proto/relato';
+import { approvedImageVariants } from '../../data/approvedImageAssets';
+import { isShowcaseProject } from '../../components/proto/caseSelection';
 import { PORTADA_CASOS_IDS } from '../../data/propuesta/casos-destacados';
 import type { Caso } from '../../components/proto/relato';
 import { publicCaseFor } from '../../components/proto/casePresentation';
@@ -25,6 +27,10 @@ const casosPortada: Caso[] = PORTADA_CASOS_IDS.flatMap((id) => {
   const story = stories.find((s) => s.id === id);
   const detail = story && publicCaseFor(story);
   return story && detail ? [{ id, publicado: id, titulo: detail.title, cliente: story.client, sector: story.sectorSlug, servicios: story.serviceCodes, year: story.year, texto: detail.introduction }] : [];
+});
+const obrasPortada = casosPortada.flatMap(caso => {
+  const pub = stories.find(story => story.id === caso.publicado);
+  return pub && approvedImageVariants[pub.image] && isShowcaseProject(pub) ? [{ caso, pub }] : [];
 });
 const clientes = Object.values(stories.filter(s => isNamedClient(s.client)).reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
 const lugares = SECTORS.map((s) => ({ ...s, count: stories.filter((c) => matchesCatalog({sector: c.sectorSlug, services: c.serviceCodes, year: String(c.year), client: c.client, search: '', status: c.status}, {sector: s.slug})).length, headline: sectorRelato(s.slug).headline || s.text })).sort((a, b) => b.count - a.count);
@@ -44,6 +50,18 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
       .lugares a:hover { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
       .lugares .n { color: var(--ink-3); font-weight: 400; font-size: 1rem; margin-left: 8px; }
 
+      .obras-portada { scroll-margin-top: var(--top-h); }
+      .obras-portada :global(.casos) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s4); }
+      .obras-portada :global(.caso:first-child) { grid-column: 1 / -1; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); border: 0; padding: 0; }
+      .obras-portada :global(.caso:first-child h3) { font-size: clamp(1.75rem, 3.2vw, 3rem); line-height: 1.08; }
+      .obras-portada :global(.caso:not(:first-child)) { grid-template-columns: minmax(100px, .85fr) minmax(0, 1.15fr); gap: 18px; }
+      .obras-portada :global(.caso:nth-child(even) figure) { order: 0; }
+      .obras-portada :global(.caso:not(:first-child) h3) { font-size: clamp(1.1rem, 1.55vw, 1.45rem); }
+      @media (max-width: 760px) {
+        .obras-portada :global(.casos) { grid-template-columns: 1fr; gap: 20px; }
+        .obras-portada :global(.caso:first-child) { grid-template-columns: 1fr; gap: 16px; }
+        .obras-portada :global(.caso:not(:first-child)) { grid-template-columns: minmax(80px, .52fr) minmax(0, 1fr); }
+      }
     </style>
   </head>
   <body>
@@ -51,6 +69,17 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
     <main id="contenido">
 
     <AperturaPortada cifras={cifras} total={total} />
+
+    <div class="obras-portada">
+      <Casos casos={casosPortada} stories={stories} selection={obrasPortada.length ? obrasPortada : undefined} candidates={stories} title="Obras de ULTIMA MILLA" max={3} portada />
+    </div>
+
+    <section class="sec" id="servicios">
+      <div class="wrap">
+        <ExploradorServicios stories={stories} />
+        <ol class="lugares" id="lugares" aria-label="Sectores">{lugares.map((l) => <li><a href={`/sectores/${l.slug}`}>{l.name}{l.count > 0 && <span class="n">{l.count}</span>}</a></li>)}<li><a class="muted" href="/sectores">Todos los sectores</a></li></ol>
+      </div>
+    </section>
 
     <section class="sec" id="clientes">
       <div class="wrap">
@@ -62,14 +91,7 @@ const cifras: [string, string][] = [[String(anios), 'años de servicios IT'], [S
       </div>
     </section>
 
-    <section class="sec" id="servicios">
-      <div class="wrap">
-        <ExploradorServicios stories={stories} />
-        <ol class="lugares" id="lugares" aria-label="Sectores">{lugares.map((l) => <li><a href={`/sectores/${l.slug}`}>{l.name}{l.count > 0 && <span class="n">{l.count}</span>}</a></li>)}<li><a class="muted" href="/sectores">Todos los sectores</a></li></ol>
-      </div>
-    </section>
 
-    <Casos casos={casosPortada} stories={stories} title="Proyectos que muestran cómo trabajamos" max={3} />
 
     <EmpresaPortada stories={stories} />
 

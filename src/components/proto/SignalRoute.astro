@@ -1,0 +1,72 @@
+---
+import nucete from '../../assets/signal-routes/nucete.webp?url';
+import nuceteSmall from '../../assets/signal-routes/nucete-640.webp?url';
+import esmeralda from '../../assets/signal-routes/la-esmeralda.webp?url';
+import esmeraldaSmall from '../../assets/signal-routes/la-esmeralda-640.webp?url';
+import type { CatalogContent } from '../../data/catalogCasePresentation';
+
+interface Props {
+  content: Pick<CatalogContent, 'title' | 'steps' | 'kicker'>;
+  route: 'radio-link' | 'fire-loop';
+}
+const {content, route} = Astro.props;
+const wireless = route === 'radio-link';
+const plate = wireless ? nucete : esmeralda;
+const smallPlate = wireless ? nuceteSmall : esmeraldaSmall;
+const description = wireless
+  ? 'Ilustración de dos antenas direccionales montadas en los extremos de un radioenlace.'
+  : 'Ilustración de un detector de humo montado en el techo y una central de incendios en la pared.';
+---
+<section aria-label={content.title}>
+  <header><p>{content.kicker}</p><h3>{content.title}</h3></header>
+  <figure data-functional-scene={route} data-state="complete" data-phase="2">
+    <div class="stage" data-functional-stage>
+      <img class="plate" src={plate} srcset={`${smallPlate} 640w, ${plate} 1600w`}
+        sizes="(max-width: 760px) 94vw, (max-width: 1000px) 80vw, 55vw"
+        width="1600" height="800" alt={description} loading="lazy" decoding="async" />
+      <div class="route-labels">
+        <strong>{wireless ? 'Nucete' : 'Detector'}</strong>
+        <div class="link" aria-hidden="true">
+        {wireless ? <svg viewBox="0 0 120 44" fill="none">
+          <path class="guide" d="M2 22h116" stroke-dasharray="2 5" />
+          <g class="outbound"><path d="M40 12q8 10 0 20m8-24q12 14 0 28" /></g>
+          <g class="inbound"><path d="M80 12q-8 10 0 20m-8-24q-12 14 0 28" /></g>
+        </svg> : <svg viewBox="0 0 120 44" fill="none">
+          <path class="guide" d="M2 27h40l8-10h68" />
+          <path class="pulse" pathLength="100" d="M2 27h40l8-10h68" />
+        </svg>}
+        </div>
+        <strong>{wireless ? 'Chalet' : 'Central de incendios'}</strong>
+      </div>
+    </div>
+    <figcaption><ol>{content.steps.map(([title, description]) => <li><strong>{title}</strong><p>{description}</p></li>)}</ol></figcaption>
+  </figure>
+</section>
+<style>
+  header {margin-bottom:16px;}
+  header p {margin:0 0 6px;color:var(--ink-2);}
+  h3 {font-size:clamp(1.35rem,3.8cqi,1.85rem);line-height:1.14;text-wrap:balance;}
+  figure {margin:0;}
+  .stage {background:#e9edeb;color:#182022;}
+  .plate {display:block;width:100%;height:auto;}
+  .route-labels {display:grid;grid-template-columns:1fr minmax(44px,18%) 1fr;align-items:center;gap:6px;padding:6px 10px;text-align:center;}
+  .route-labels strong {font-size:clamp(.92rem,2.5cqi,1.12rem);line-height:1.25;}
+  .link svg {display:block;width:100%;height:32px;color:#495154;stroke:currentColor;stroke-width:2;stroke-linecap:round;}
+  .outbound,.inbound,.pulse {stroke:#aa232b;}
+  .pulse {stroke-dasharray:10 100;stroke-dashoffset:-90;}
+  ol {list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(10px,2.5cqi,22px);}
+  li {padding-block:12px;border-bottom:1px solid var(--line);}
+  li p {margin:4px 0 0;color:var(--ink-2);font-size:.95rem;line-height:1.45;}
+  @container(max-width:560px) {ol {grid-template-columns:1fr;gap:0;}li {display:grid;grid-template-columns:minmax(72px,1fr) 3fr;align-items:baseline;gap:10px;}li p {margin:0;}}
+  @media(prefers-reduced-motion:no-preference) {
+    [data-state="running"][data-phase="0"] .outbound {animation:transmit 1.2s ease-out both;}
+    [data-state="running"][data-phase="1"] .inbound {animation:receive 1.65s ease-out both;}
+    [data-state="running"][data-phase="1"] .pulse {animation:signal 1.7s linear both;}
+    [data-state="running"][data-phase="0"] li:first-child strong,
+    [data-state="running"][data-phase="1"] li:nth-child(2) strong,
+    [data-state="running"][data-phase="2"] li:last-child strong {color:var(--red-text);}
+    @keyframes transmit {from {transform:translateX(-22px);opacity:.2;}to {transform:translateX(18px);opacity:1;}}
+    @keyframes receive {from {transform:translateX(22px);opacity:.2;}to {transform:translateX(-18px);opacity:1;}}
+    @keyframes signal {from {stroke-dashoffset:8;}to {stroke-dashoffset:-90;}}
+  }
+</style>
