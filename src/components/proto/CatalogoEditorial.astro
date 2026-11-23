@@ -23,7 +23,8 @@ const { title, intro, items, sector = false } = Astro.props;
   <h1>{title}<span class="dot">.</span></h1>
   <p>{intro}</p>
 </div>
-<ol class:list={["catalogo", { "catalogo--sectores": sector }]}>
+<slot />
+<ol id="catalogo" class:list={["catalogo", { "catalogo--sectores": sector }]}>
   {items.map(({ name, summary, count, photo, href, archiveHref, detailHref, detailLabel }, index) => (
     <li class:list={{ apertura: index === 0 || (sector && index === 1) }}>
       <div class="catalogo-cuerpo">
@@ -51,7 +52,7 @@ const { title, intro, items, sector = false } = Astro.props;
   .catalogo-intro { padding-block: var(--s4); }
   .catalogo-intro h1 { font-size: clamp(2rem, 4.4vw, 3.5rem); line-height: 1.08; }
   .catalogo-intro p { margin-top: var(--s2); max-width: 64ch; color: var(--ink-2); font-size: 1.125rem; }
-  .catalogo { --foto: clamp(120px, 11vw, 154px); --espacio: clamp(16px, 2vw, 24px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(28px, 4vw, 64px); margin: 0; padding: 0 0 var(--s6); list-style: none; }
+  .catalogo { scroll-margin-top: calc(var(--top-h) + 10px); --foto: clamp(120px, 11vw, 154px); --espacio: clamp(16px, 2vw, 24px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(28px, 4vw, 64px); margin: 0; padding: 0 0 var(--s6); list-style: none; }
   .catalogo li { position: relative; min-height: calc(var(--foto) * .75 + 48px); display: flex; flex-direction: column; min-width: 0; border-top: 1px solid var(--line); padding-block: 24px 12px; }
   .catalogo-cuerpo { padding-left: calc(var(--foto) + var(--espacio)); }
   .catalogo-ficha { display: inline-flex; align-items: center; min-height: 44px; }

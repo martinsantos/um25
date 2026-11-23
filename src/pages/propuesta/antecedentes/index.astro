@@ -9,6 +9,8 @@
 import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
+import ObrasPortada from '../../../components/proto/ObrasPortada.astro';
+import { portadaCases } from '../../../components/proto/portadaCases';
 import Ficha from '../../../components/proto/Ficha.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import { loadStories, services, posterOf, SCENE_OF, type Story } from '../../../components/proto/isoData';
@@ -194,7 +196,10 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
       </aside>
 
       <section id="obras-filtradas" tabindex="-1" aria-label="Antecedentes">
-        <ol class="fichas" data-apertura={mostrarVisitas ? "si" : undefined} data-grid data-datos="/antecedentes/datos.json">
+        <div data-obras-seleccionadas hidden={!mostrarVisitas}>
+          <ObrasPortada inset obras={portadaCases(sourceStories, 'antecedentes')} jump={{ label: 'Ir a los resultados', href: '#resultados' }} />
+        </div>
+        <ol id="resultados" class="fichas" data-apertura={mostrarVisitas ? "si" : undefined} data-grid data-datos="/antecedentes/datos.json">
           {piezas.map((p, index) => p.rec ? (
             <li class="ficha ficha--rec" data-rec data-at={String(p.at)} data-sector={p.rec} hidden={p.oculto}>
               <a href={`/sectores/${p.rec}`}>
@@ -287,6 +292,8 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
         const ok = items.map((it) => matches(it));
         const n = ok.filter(Boolean).length;
         const showHighlights = showCatalogHighlights(state, n);
+        const destacados = document.querySelector<HTMLElement>('[data-obras-seleccionadas]');
+        if (destacados) destacados.hidden = !showHighlights;
         const quiero: HTMLElement[] = [];
         let r = 0, vistas = 0;
         for (let i = 0; i < items.length && vistas < visibles; i++) {

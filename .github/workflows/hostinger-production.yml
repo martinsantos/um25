@@ -63,6 +63,12 @@ jobs:
             d0a039d6e0071ed34af96ea28561dde1eb19b347) retirement=prune-pr678-transport.py ;;
             cd55cedf308e4904916cf57e8a3a29871c6cbd82) retirement=prune-catalog-transports.py ;;
             2e3f76b99044bbd05fe3bc30a555f6dba598398a) retirement=prune-pr687-transport.py ;;
+            e4c8024ab6231aa6e8eab99dc9191ce77cbd5bf2)
+              retirement=prune-featured-case-transports.py
+              installed=$(du -sc -B1 dist node_modules package.json package-lock.json | awk 'END {print $1}')
+              backup_floor=$((10 * 1024**3 + size + installed))
+              if (( backup_floor > required )); then required=$backup_floor; fi
+              ;;
             *) retirement='' ;;
           esac
           if (( available < required )) && [[ -n "$retirement" ]]; then
