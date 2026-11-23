@@ -51,9 +51,9 @@ const anios = yearsOfExperience();
     <Top />
     <main id="contenido">
 
-    <AperturaPortada obrasHref={obrasPortada.length ? "#casos" : "/antecedentes"} />
+    <AperturaPortada obras={obrasPortada} obrasHref={obrasPortada.length ? "#casos" : "/antecedentes"} />
 
-    {obrasPortada.length ? <ObrasPortada portada obras={obrasPortada} /> :
+    {obrasPortada.length ? <ObrasPortada obras={obrasPortada} /> :
       <Casos casos={[]} stories={stories} candidates={stories} title="Obras de ULTIMA MILLA" max={3} portada />}
     <nav class="wrap rutas-portada" aria-label="Explorar ULTIMA MILLA">
       <a href="/servicios"><strong>{services.length}</strong> servicios</a>
