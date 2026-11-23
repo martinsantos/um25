@@ -51,7 +51,7 @@ const archive = safeCases.filter(c => !c.publicado).slice(0, max).map(c => ({ ..
       {portada && <a class="u al-archivo" href="/antecedentes">Ver todos los antecedentes <span aria-hidden="true">→</span></a>}
       {archive.length > 0 && <details class="casos-archivo">
         <summary>Más proyectos del archivo <span>{archive.length}</span></summary>
-        <div class="casos-archivo__grid">{archive.map(c => <article>
+        <div class="casos-archivo__grid">{archive.map(c => <article id={'archivo-' + c.id}>
           <p class="casos-archivo__meta">{c.cliente}{c.year > 0 && ` · ${c.year}`}</p>
           <h3>{c.titulo}</h3>
           {sinTitulo(c.texto, c.titulo, c.cliente) && <p>{sinTitulo(c.texto, c.titulo, c.cliente)}</p>}
@@ -61,4 +61,5 @@ const archive = safeCases.filter(c => !c.publicado).slice(0, max).map(c => ({ ..
   </section>
 )}
 
-<style>.al-archivo { display: inline-flex; align-items: center; min-height: 44px; margin-top: var(--s3); }</style>
+<style>
+  .casos-archivo__grid article { scroll-margin-top: calc(var(--top-h) + 16px); }.al-archivo { display: inline-flex; align-items: center; min-height: 44px; margin-top: var(--s3); }</style>

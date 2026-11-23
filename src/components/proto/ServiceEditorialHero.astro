@@ -1,17 +1,17 @@
 ---
 import SoftwareFilmTone from '../cine/SoftwareFilmTone.astro';
 import { variantes } from './isoData';
-interface Props { label: string; image: string; film?: string; poster?: string; imageAlt?: string; naturalPhoto?: boolean }
-const { label, image, film, poster, imageAlt = '', naturalPhoto = false } = Astro.props;
+interface Props { label: string; image: string; film?: string; mobileFilm?: string; poster?: string; imageAlt?: string; naturalPhoto?: boolean }
+const { label, image, film, mobileFilm, poster, imageAlt = '', naturalPhoto = false } = Astro.props;
 const photo = variantes(image);
 ---
 {film && <SoftwareFilmTone />}
 <section class="service-editorial wrap" aria-label={label} data-software-film={film ? true : undefined}>
   <div class="service-editorial__copy"><slot /></div>
   <div class:list={["service-editorial__visual", { "service-editorial__visual--photo": naturalPhoto }]}>
-    {film ? <>
-      <video data-service-film={film} poster={poster || image} muted playsinline preload="none" width="1920" height="1080" aria-label={`Película de ${label}`}></video>
-    </> : <picture>{photo.avif && <source type="image/avif" srcset={photo.avif} sizes="(max-width: 900px) 100vw, 55vw" />}<img src={photo.w960} srcset={photo.ancho ? [photo.w480 + " 480w", photo.w960 + " 960w", photo.full + " " + photo.ancho + "w"].join(", ") : undefined} sizes="(max-width: 900px) 100vw, 55vw" alt={imageAlt} width="1672" height="941" fetchpriority="high" decoding="async" /></picture>}
+    {film ?
+      <video data-service-film={film} data-mobile-film={mobileFilm} loop poster={poster || image} muted playsinline preload="none" width="1920" height="1080" aria-label="Recorrido animado de una operación por la interfaz, la aplicación y sus servicios"></video>
+     : <picture>{photo.avif && <source type="image/avif" srcset={photo.avif} sizes="(max-width: 900px) 100vw, 55vw" />}<img src={photo.w960} srcset={photo.ancho ? [photo.w480 + " 480w", photo.w960 + " 960w", photo.full + " " + photo.ancho + "w"].join(", ") : undefined} sizes="(max-width: 900px) 100vw, 55vw" alt={imageAlt} width="1672" height="941" fetchpriority="high" decoding="async" /></picture>}
     <slot name="credit" />
   </div>
 </section>
@@ -28,7 +28,8 @@ const photo = variantes(image);
   .service-editorial__visual { position: relative; min-width: 0; }
   .service-editorial__visual img, .service-editorial__visual video { width: 100%; height: auto; display: block; aspect-ratio: 16 / 9; object-fit: contain; }
   .service-editorial__visual--photo img { aspect-ratio: 3 / 2; object-fit: cover; }
-  .service-editorial__visual button { display: grid; place-items: center; margin-top: 16px; margin-left: auto; width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 50%; }
+  [data-software-film] .service-editorial__visual { overflow: hidden; }
+  [data-software-film] video { transform: scale(1.1); }
   @media (max-width: 900px) {
     .service-editorial { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-block: 32px; }
     .service-editorial__copy { gap: 20px; }
@@ -44,21 +45,34 @@ const photo = variantes(image);
     .service-editorial__visual { grid-row: 2; }
     .service-editorial__copy :global(h1) { font-size: clamp(2rem, 7.5vw, 2.6rem); line-height: 1.08; font-weight: 600; letter-spacing: -.025em; }
   }
+  @media (max-width: 700px) {
+    .service-editorial[data-software-film] { gap: 14px; }
+    [data-software-film] .service-editorial__copy { display: contents; }
+    [data-software-film] .service-editorial__visual { grid-row: auto; order: 1; aspect-ratio: 1.32; width: 100%; }
+    [data-software-film] .service-editorial__visual video { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; object-fit: cover; transform: scale(1.15); }
+    [data-software-film] .service-editorial__copy :global(.editorial-actions) { order: 2; }
+    [data-software-film] .service-editorial__copy :global(.cifras) { order: 3; }
+  }
 </style>
 <script>
-  document.querySelectorAll<HTMLVideoElement>('video[data-service-film]').forEach(video => {
+  for (const video of document.querySelectorAll<HTMLVideoElement>('video[data-service-film]')) {
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    let visible = false;
+    const sync = () => {
+      if (!visible || document.hidden || reduced.matches) { video.pause(); return; }
+      if (!video.hasAttribute('src')) {
+        video.src = (matchMedia('(max-width: 700px)').matches && video.dataset.mobileFilm) || video.dataset.serviceFilm!;
+      }
+      void video.play().catch(() => {});
+    };
     if ('IntersectionObserver' in window) {
-      const observer = new IntersectionObserver(entries => {
-        if (!entries[0]?.isIntersecting) { video.pause(); return; }
-        observer.disconnect();
-        if (reduced.matches || !matchMedia('(min-width: 900px)').matches) return;
-        video.src = video.dataset.serviceFilm!;
-        video.play().catch(() => {});
-      }, { threshold: .35 });
-      observer.observe(video);
+      new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting && entry.intersectionRatio >= .25;
+        sync();
+      }, { threshold: [0, .25] }).observe(video);
     }
     video.addEventListener('loadeddata', () => { video.dataset.frameReady = 'true'; });
-    reduced.addEventListener('change', () => { if (reduced.matches) video.pause(); });
-  });
+    document.addEventListener('visibilitychange', sync);
+    reduced.addEventListener('change', sync);
+  }
 </script>
