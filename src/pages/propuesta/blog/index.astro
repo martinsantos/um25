@@ -4,6 +4,9 @@ import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
+import ObrasPortada from '../../../components/proto/ObrasPortada.astro';
+import { portadaCases } from '../../../components/proto/portadaCases';
+import { loadStories } from '../../../components/proto/isoData';
 import BlogCategoryTabs from '../../../components/blog/BlogCategoryTabs.astro';
 import { resolveBlogListingRoute } from '../../../lib/blogListingRoute';
 import { blogImageSrcset, blogPostImageAlt, blogPostImageUrl } from '../../../utils/blogHelpers';
@@ -27,6 +30,7 @@ const enlace = (p: number) => {
   return params.size ? `/blog?${params}` : '/blog';
 };
 const canonicalPath = route.canonicalPath || '/blog';
+const obras = pagina === 1 && !categoria && posts.length ? portadaCases((await loadStories()).stories, 'blog') : [];
 const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina > 1 ? [`Página ${pagina}`] : []), 'ULTIMA MILLA'].join(' · ');
 ---
 <!doctype html>
@@ -62,7 +66,8 @@ const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina 
         {!categoria && <p>Notas de campo y artículos del equipo sobre redes, seguridad, software y operación IT.</p>}
         <BlogCategoryTabs current={categoria || undefined} query />
       </div>
-      {posts.length > 0 && <ol class="entradas">
+      <ObrasPortada inset obras={obras} title="Del archivo de obras" jump={{ label: 'Ir a las notas', href: '#notas' }} />
+      {posts.length > 0 && <ol id="notas" class="entradas">
         {posts.map((p, index) => (
           <li class:list={["entrada", { principal: !categoria && pagina === 1 && index === 0 }]}>
             <span class="small"><span>{formatBlogDateLong(p.fecha_publicacion)}</span><span>{getCategoryLabel(p.categoria)}{p.tiempo_lectura ? ` · ${p.tiempo_lectura} min` : ''}</span></span>
