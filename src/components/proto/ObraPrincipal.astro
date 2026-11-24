@@ -1,0 +1,48 @@
+---
+import { ArrowUpRight } from 'lucide-astro';
+import { srcsetDe } from './isoData';
+import type { Project } from './portadaCases';
+interface Props { obra: Project; compact?: boolean }
+const { obra, compact = false } = Astro.props;
+const image = obra.contextImage || obra.image;
+---
+<article class:list={['principal', { compact }]} data-caso-catalogo={obra.key}>
+  {image && <div class="imagen"><img src={image} srcset={srcsetDe(image)} sizes="(max-width:700px) 100vw, 52vw" width="960" height="540" alt="" fetchpriority="high" />
+    {obra.image && obra.contextImage && obra.image !== image && <img class="detalle-foto" src={obra.image} srcset={srcsetDe(obra.image)} sizes="(max-width:700px) 26vw, 12vw" alt="" width="320" height="200" />}
+  </div>}
+  <div class="parte">
+    <p class="cliente">{compact ? 'Obra del archivo · ' : ''}{obra.client}</p>
+    <h2>{obra.title}</h2>
+    {obra.measure && <p class="medida"><b>{obra.measure[0]}</b> {obra.measure[1]}</p>}
+    {!compact && <p class="alcance">{obra.scope}</p>}
+    <div class="destinos">{obra.links.map(link => <a href={link.href}>{link.label}<ArrowUpRight size={16} aria-hidden="true" /></a>)}</div>
+  </div>
+</article>
+<style>
+  .principal { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); background:#e8eae5; color:#151818; }
+  .principal img { width:100%; height:100%; min-height:0; object-fit:cover; }
+  .imagen { position:relative; min-width:0; }
+  .imagen .detalle-foto { position:absolute; right:12px; bottom:12px; width:28%; height:auto; aspect-ratio:1.6; border:3px solid #e8eae5; }
+  .parte { padding:clamp(22px,3vw,46px); align-self:center; min-width:0; }
+  .cliente { font-weight:600; font-size:.95rem; }
+  h2 { margin:10px 0; font-size:clamp(1.65rem,2.8vw,3rem); line-height:1.04; text-wrap:balance; letter-spacing:-.046em; }
+  .medida { display:flex; align-items:baseline; flex-wrap:wrap; gap:2px 12px; line-height:1.1; margin-block:16px; }
+  .medida b { font-size:clamp(2.4rem,4.2vw,4.7rem); letter-spacing:-.065em; }
+  .alcance { max-width:55ch; line-height:1.5; color:#364040; }
+  .destinos { display:flex; flex-wrap:wrap; gap:0 20px; margin-top:12px; border-top:1px solid #a8afab; }
+  a { display:inline-flex; align-items:center; gap:6px; min-height:44px; font-size:.94rem; font-weight:600; }
+  a:hover { text-decoration:underline; text-underline-offset:4px; }
+  a:focus-visible { outline:2px solid currentColor; outline-offset:2px; }
+  .compact { grid-template-columns:1fr; border-top:4px solid var(--red); align-content:center; }
+  .compact .medida { margin:20px 0; }
+  .compact .medida b { font-size:clamp(3.8rem,7vw,7rem); }
+  @media(max-width:700px) {
+    .principal { grid-template-columns:1fr; }
+    .principal img { height:auto; aspect-ratio:2.4; }
+    .imagen { position:relative; min-width:0; }
+  .imagen .detalle-foto { position:absolute; right:12px; bottom:12px; width:28%; height:auto; aspect-ratio:1.6; border:3px solid #e8eae5; }
+  .parte { padding:18px 20px 12px; }
+    .alcance { font-size:.94rem; }
+    .medida { margin:8px 0; }
+  }
+</style>

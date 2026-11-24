@@ -1,4 +1,5 @@
 ---
+import ObraPrincipal from './ObraPrincipal.astro';
 import { ArrowRight, FolderOpen } from 'lucide-astro';
 import type { Project } from './portadaCases';
 import { srcsetDe } from './isoData';
@@ -6,6 +7,7 @@ import { srcsetDe } from './isoData';
 interface Props {
   sector?: boolean;
   feature?: Project;
+  hasWorks: boolean;
   title: string;
   intro: string;
   items: {
@@ -19,22 +21,18 @@ interface Props {
     detailLabel: string;
   }[];
 }
-const { title, intro, items, feature, sector = false } = Astro.props;
-const cover = feature?.contextImage || feature?.image;
+const { title, intro, items, feature, hasWorks, sector = false } = Astro.props;
 ---
 <header class="cabecera-catalogo">
   <div class="catalogo-intro">
     <h1>{title}<span class="dot">.</span></h1><p>{intro}</p>
-    <a class="indice" href="#catalogo">Ver los {items.length} {sector ? 'sectores' : 'servicios'} <span aria-hidden="true">↓</span></a>
+    <nav class="atajos" aria-label="En esta página">
+      <a class="indice" href="#catalogo">Ver los {items.length} {sector ? 'sectores' : 'servicios'} <span aria-hidden="true">↓</span></a>
+      {hasWorks && <a class="indice" href="#casos">Ver obras <span aria-hidden="true">↓</span></a>}
+    </nav>
   </div>
-  {feature && <article class="referencia" data-caso-catalogo={feature.key}>
-    {cover && <img src={cover} srcset={srcsetDe(cover)} sizes="(max-width:700px) 94vw, 55vw" alt="" width="960" height="540" fetchpriority="high" />}
-    <div><p>{feature.client}</p><h2><a href={feature.links[0].href}>{feature.title}</a></h2>
-      {feature.fact && <strong>{feature.fact}</strong>}
-      <nav aria-label="Fichas de la obra destacada">{feature.links.map(link => <a class="leer" href={link.href}>{link.label}<ArrowRight size={14} aria-hidden="true" /></a>)}</nav>
-    </div>
-  </article>}
 </header>
+{feature && <div class="obra-apertura"><ObraPrincipal obra={feature} /></div>}
 <ol id="catalogo" class:list={["catalogo", { "catalogo--sectores": sector }]}>
   {items.map(({ name, summary, count, photo, href, archiveHref, detailHref, detailLabel }, index) => (
     <li>
@@ -61,19 +59,13 @@ const cover = feature?.contextImage || feature?.image;
 </ol>
 <slot />
 <style>
-  .cabecera-catalogo { display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);align-items:center;gap:clamp(24px,4vw,72px);padding-block:clamp(24px,3vw,48px); }
-  .catalogo-intro h1 {font-size:clamp(2.4rem,4.6vw,4.8rem);line-height:1.02;letter-spacing:-.055em;text-wrap:balance;}
-  .catalogo-intro p {margin:16px 0;max-width:42ch;color:var(--ink-2);font-size:1.12rem;line-height:1.5;}
-  .indice,.leer,.acciones a {display:inline-flex;align-items:center;gap:8px;min-height:44px;font-weight:600;}
-  .referencia {position:relative;isolation:isolate;display:flex;align-items:flex-end;min-height:clamp(260px,24vw,385px);background:#101416;color:white;}
-  .referencia img,.referencia:after {position:absolute;inset:0;width:100%;height:100%;}
-  .referencia img {z-index:-2;object-fit:cover;}
-  .referencia:after {content:'';z-index:-1;background:linear-gradient(0deg,#070909f7,#070909c9 36%,#07090912 85%);}
-  .referencia div {padding:clamp(16px,2.2vw,33px);display:grid;justify-items:start;gap:5px;}
-  .referencia p {color:#e5e9e8;font-size:.9rem;}
-  .referencia h2 {font-size:clamp(1.4rem,2.25vw,2.45rem);line-height:1.09;max-width:30ch;text-wrap:balance;letter-spacing:-.035em;}
-  .referencia strong,.leer {font-size:.92rem;}
-  .referencia nav {display:flex;flex-wrap:wrap;column-gap:14px;}
+  .cabecera-catalogo { padding-block:clamp(22px,3vw,46px); }
+  .catalogo-intro { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:4px clamp(24px,6vw,88px); align-items:end; }
+  .catalogo-intro h1 { grid-row:span 2; font-size:clamp(2.4rem,4.8vw,5.1rem); line-height:1; letter-spacing:-.06em; text-wrap:balance; }
+  .catalogo-intro p { max-width:47ch; color:var(--ink-2); line-height:1.5; }
+  .atajos,.acciones { display:flex; flex-wrap:wrap; gap:0 20px; }
+  .indice,.acciones a { display:inline-flex;align-items:center;gap:8px;min-height:44px;font-weight:600; }
+  .obra-apertura { margin-bottom:clamp(24px,3vw,44px); }
   .catalogo {--cols:2;display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:18px clamp(20px,2.6vw,44px);padding:0 0 var(--s5);list-style:none;scroll-margin-top:calc(var(--top-h) + 10px);}
   .catalogo--sectores {--cols:3;}
   .catalogo li {min-width:0;border-top:1px solid var(--line);padding-block:16px 0;display:flex;flex-direction:column;}
@@ -90,5 +82,10 @@ const cover = feature?.contextImage || feature?.image;
   a:focus-visible {outline:2px solid currentColor;outline-offset:3px;}
   a:hover {text-decoration:underline;text-underline-offset:4px;}
   @media(max-width:960px) { .catalogo--sectores {--cols:2;} }
-  @media(max-width:700px) { .cabecera-catalogo {grid-template-columns:1fr;gap:12px;} .catalogo-intro p {margin:9px 0 2px;font-size:1rem;} .catalogo-intro h1 {font-size:2.4rem;} .referencia {min-height:210px;} .catalogo {--cols:1;} .referencia div {padding:15px;} .catalogo:not(.catalogo--sectores) .catalogo-cuerpo {min-height:82px;} }
+  @media(max-width:700px) {
+    .catalogo-intro {grid-template-columns:1fr;gap:8px;}
+    .catalogo-intro h1 {grid-row:auto;}
+    .catalogo {--cols:1;}
+    .catalogo:not(.catalogo--sectores) .catalogo-cuerpo {min-height:82px;}
+  }
 </style>

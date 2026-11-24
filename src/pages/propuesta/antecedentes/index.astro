@@ -114,7 +114,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
       .mas { margin-top: var(--s4); border: 0; cursor: pointer; }
       .fichas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       @media (max-width: 900px) {
-        .muro { grid-template-columns: 1fr; gap: var(--s3); } .panel { position: static; gap: var(--s3); max-height: none; overflow: visible; padding-right: 0; } .fichas { grid-template-columns: 1fr 1fr; }
+        .muro { grid-template-columns: minmax(0, 1fr); gap: var(--s3); } .panel { position: static; gap: var(--s3); max-height: none; overflow: visible; padding-right: 0; } .fichas { grid-template-columns: 1fr 1fr; }
         .muro { padding-top: 28px; }
         .catalog-title { font-size: clamp(2rem, 7.5vw, 2.6rem); font-weight: 600; line-height: 1.08; letter-spacing: -.025em; color: var(--ink); }
         .catalog-summary { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
@@ -146,6 +146,16 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
         .fichas[data-apertura] :global(.ficha:not(:first-child):not(.ficha--rec) > a) { display: grid; grid-template-columns: 32% 1fr; gap: 5px 14px; }
         .fichas[data-apertura] :global(.ficha:not(:first-child):not(.ficha--rec) figure) { grid-row: 1 / 4; aspect-ratio: 1.25; }
         .fichas[data-apertura] :global(.ficha:not(:first-child):not(.ficha--rec) b) { margin: 0; padding: 0; border: 0; }
+      }
+    </style>
+    <style is:inline>
+      /* Keep the archive usable while the external layout is loading. */
+      @media (max-width: 600px) {
+        :where([data-muro]) img,
+        :where([data-muro]) select,
+        :where([data-muro]) input { max-inline-size: 100%; box-sizing: border-box; }
+        :where([data-muro]) .anios { display: flex; flex-wrap: wrap; }
+        :where([data-muro]) :is(.catalog-form, .facet-fields, .filtros__cuerpo) { grid-template-columns: minmax(0, 1fr); }
       }
     </style>
     <noscript><style is:inline>#filtros-cuerpo { display:grid; } [data-filtros] button[data-toggle] { display:none; }</style></noscript>

@@ -4,6 +4,7 @@ import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
+import ObraPrincipal from '../../../components/proto/ObraPrincipal.astro';
 import ObrasPortada from '../../../components/proto/ObrasPortada.astro';
 import { portadaCases } from '../../../components/proto/portadaCases';
 import { loadStories } from '../../../components/proto/isoData';
@@ -36,6 +37,7 @@ const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina 
 <!doctype html>
 <html lang="es">
   <head><Head title={pageTitle} description="Novedades de ULTIMA MILLA: servicios, proyectos y evolución de la empresa de servicios IT con sede en Guaymallén, Mendoza." canonicalPath={canonicalPath} noindex={Boolean(categoria) && total === 0} /><style>.entradas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; } .entrada { min-width: 0; overflow-wrap: anywhere; display: flex; flex-direction: column; gap: 16px; padding-block: 16px; } .entrada h2 { font-size: clamp(1.4rem, 1.8vw, 1.8rem); line-height: 1.2; } .entrada .small { display: flex; flex-wrap: wrap; gap: 8px 20px; } @media(max-width: 1100px) { .entradas { grid-template-columns: repeat(2, minmax(0, 1fr)); } } @media(max-width: 700px) { .entradas { grid-template-columns: minmax(0, 1fr); } } .entrada__image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 24px; } .paginas { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; padding: var(--s4) 0 var(--s6); } .paginas > span:last-child { display: flex; gap: var(--s3); }
+      #mas-notas { scroll-margin-top: calc(var(--top-h) + 16px); }
       .blog-empty { padding-block: var(--s4) var(--s6); }
       .blog-empty h2 { margin-bottom: 16px; }
       @media (max-width: 900px) {
@@ -57,24 +59,24 @@ const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina 
         .principal a { display: grid; gap: 14px; }
       }
       @media (max-width: 700px) { .principal .entrada__image { aspect-ratio: 1.95; } .principal .small { order: 1; } }
-      .apertura { margin-bottom:clamp(20px,3vw,44px); }
-      @media(min-width:901px) {
-        .apertura {grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:0 clamp(20px,3vw,48px);}
-        .apertura .entrada.principal {grid-column:1;grid-row:span 2;padding:0 0 12px;min-height:0;justify-content:flex-start;gap:14px;border:0;}
-        .apertura .principal .entrada__image {position:static;width:100%;height:auto;aspect-ratio:2.35;object-fit:cover;}
-        .apertura .principal h2 {font-size:clamp(1.65rem,2.6vw,2.8rem);}
-        .apertura .principal a {gap:12px;}
-        .apertura .entrada:not(.principal) {border-top:1px solid var(--line);padding:12px 0;gap:8px;}
-        .apertura .entrada:not(.principal) a {display:grid;grid-template-columns:34% 1fr;column-gap:14px;align-items:start;}
-        .apertura .entrada:not(.principal) img {grid-row:span 2;height:120px;object-fit:cover;margin:0;}
-        .apertura .entrada:not(.principal) h2 {font-size:clamp(1.2rem,1.6vw,1.6rem);}
-        .apertura .entrada:not(.principal) p {font-size:.95rem;color:var(--ink-2);margin-top:8px;}
-      }
+      .edicion { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(0,1fr); gap:clamp(20px,3vw,44px); margin:0 0 30px; }
+      .edicion .entradas { display:block; grid-column:1; grid-row:1; }
+      .edicion .principal { padding:0; border:0; min-height:0; gap:12px; }
+      .edicion .principal a { display:grid; gap:12px; }
+      .edicion .principal .entrada__image { position:static; width:100%; height:auto; aspect-ratio:2.4; margin:0; }
+      .edicion .principal h2 {font-size:clamp(1.65rem,2.7vw,3rem);}
+      .edicion aside {grid-column:2; grid-row:1;align-self:stretch;display:grid;}
+      .edicion aside h2 {font-size:1.1rem;}
+      .notas-pareja {grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--line);}
+      .notas-pareja a {display:grid;grid-template-columns:minmax(0,30%) 1fr;gap:6px 16px;}
+      .notas-pareja img {grid-row:span 2; margin:0;}
+      .notas-pareja p {color:var(--ink-2);line-height:1.45;}
       @media(max-width:700px) {
-        .apertura {gap:12px;}
-        .apertura .entrada:not(.principal) a {display:grid;grid-template-columns:28% 1fr;gap:12px;}
-        .apertura .entrada:not(.principal) img {aspect-ratio:1.2;}
-        .apertura .entrada:not(.principal) p {grid-column:1/-1;}
+        .edicion,.notas-pareja {grid-template-columns:1fr;}
+        .edicion {gap:20px;}
+        .edicion aside,.edicion .entradas {grid-column:auto;grid-row:auto;}
+        .notas-pareja a {grid-template-columns:minmax(0,28%) 1fr;}
+        .notas-pareja p {grid-column:1/-1;}
       }
     </style></head>
   <body>
@@ -85,16 +87,20 @@ const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina 
         {!categoria && <p>Notas de campo y artículos del equipo sobre redes, seguridad, software y operación IT.</p>}
         <BlogCategoryTabs current={categoria || undefined} query />
       </div>
-      {posts.length > 0 && (obras.length ? [posts.slice(0,3), posts.slice(3)] : [posts]).map((articles,part) => <Fragment>
-        {articles.length > 0 && <ol id={part === 0 ? "notas" : undefined} start={part === 0 ? undefined : 4} class:list={["entradas",{apertura:obras.length > 0 && part === 0}]}>
+      {posts.length > 0 && (obras.length ? [posts.slice(0,1), posts.slice(1,3), posts.slice(3)] : [posts]).map((articles,part) => <Fragment>
+        {articles.length > 0 && <div class:list={[{edicion:obras.length > 0 && part === 0}]}>
+        {part === 0 && obras[0] && <aside aria-label="Proyecto de ULTIMA MILLA"><ObraPrincipal obra={obras[0]} compact /></aside>}
+        <ol id={part === 0 ? "notas" : part === 2 ? "mas-notas" : undefined} start={part === 0 ? undefined : part === 1 ? 2 : 4} class:list={["entradas",{"notas-pareja":part === 1}]}>
         {articles.map((p, index) => (
           <li class:list={["entrada", { principal: !categoria && pagina === 1 && part === 0 && index === 0 }]}>
             <span class="small"><span>{formatBlogDateLong(p.fecha_publicacion)}</span><span>{getCategoryLabel(p.categoria)}{p.tiempo_lectura ? ` · ${p.tiempo_lectura} min` : ''}</span></span>
-            <a href={`/blog/${p.slug}`}><img class="entrada__image" src={blogPostImageUrl(p)} srcset={blogImageSrcset(blogPostImageUrl(p))} sizes={!categoria && pagina === 1 && part === 0 && index === 0 ? "(max-width: 700px) 94vw, 55vw" : "(max-width: 700px) 94vw, (max-width: 1100px) 50vw, 33vw"} alt={blogPostImageAlt(p)} width="960" height="540" loading={index < 3 ? "eager" : "lazy"} fetchpriority={part === 0 && index === 0 ? "high" : undefined} /><h2>{p.titulo}</h2><p>{sanitizeBlogExcerpt(p.resumen, 220)}</p></a>
+            <a href={`/blog/${p.slug}`}><img class="entrada__image" src={blogPostImageUrl(p)} srcset={blogImageSrcset(blogPostImageUrl(p))} sizes={!categoria && pagina === 1 && part === 0 && index === 0 ? "(max-width: 700px) 94vw, 55vw" : "(max-width: 700px) 94vw, (max-width: 1100px) 50vw, 33vw"} alt={blogPostImageAlt(p)} width="960" height="540" loading={part === 0 && index < 3 ? "eager" : "lazy"} fetchpriority={part === 0 && index === 0 ? "high" : undefined} /><h2>{p.titulo}</h2><p>{sanitizeBlogExcerpt(p.resumen, 220)}</p></a>
           </li>
         ))}
-      </ol>}
-        {part === 0 && obras.length > 0 && <ObrasPortada compact inset obras={obras} title="Del archivo técnico" />}
+      </ol>
+
+        </div>}
+        {part === Math.min(1,posts.length - 1) && obras.length > 1 && <ObrasPortada compact inset obras={obras.slice(1)} title="Del archivo técnico" jump={posts.length > 3 ? { label: 'Seguir con las notas', href: '#mas-notas' } : undefined} />}
       </Fragment>)}
       {posts.length === 0 && (
         <section class="blog-empty" aria-labelledby="blog-empty-title">
