@@ -36,7 +36,7 @@ const items = services.map((service) => ({
       <CatalogoEditorial
         title="Ocho frentes de servicio"
         intro="Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria."
-        items={items} feature={feature}
+        items={items} feature={feature} hasWorks={obras.length > 0}
       >
         <ObrasPortada inset obras={obras} title="Ingeniería e integración en obra" />
       </CatalogoEditorial>
