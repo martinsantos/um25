@@ -148,21 +148,21 @@ const CASOS_BASE: Omit<Caso, 'texto' | 'year'>[] = [
 // Las solicitudes 10877 (cotizar) y 10881 (trabajo futuro) se conservan en origen,
 // pero no prueban una obra ejecutada y no forman parte de la vitrina comercial.
 export const CASOS_SECTOR: Record<string, number[]> = {
-  aeropuertos: [11146, 10737, 11158, 11166],
+  aeropuertos: [11146, 10737, 11158, 11166, 10738],
   salud: [11173, 11179, 11174, 11145],
   gobiernosectorpublico: [10728, 11141, 10817, 10778, 10792],
   constructoras: [11154, 11152, 10740, 11141],
-  industria: [10878, 10927, 11176, 10776],
+  industria: [10878, 10927, 11176, 10776, 10768, 10762],
   bodegas: [10798, 10813, 10771, 11162, 10903],
   mineria: [],
   software: [10817, 10778, 10779, 10792, 10813],
   'seguridad-electronica': [11158, 11166, 11154],
 };
 export const CASOS_SERVICIO: Record<string, number[]> = {
-  '101': [10728, 11173, 11145, 11176, 11179],
+  '101': [10728, 11173, 11145, 11176, 11179, 10742],
   '102': [11154, 11158, 11166, 10740],
-  '103': [10728, 10740, 11145, 10798],
-  '104': [10817, 10778, 10813, 10792, 10779],
+  '103': [10728, 10740, 11145, 10798, 10770],
+  '104': [10817, 10778, 10813, 10792, 10779, 10783],
   '105': [10903, 10744, 10728, 10778],
   '106': [11152, 10776, 10771],
   '107': [11146, 10737, 10914, 10804, 10903],

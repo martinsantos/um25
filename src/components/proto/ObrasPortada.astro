@@ -2,7 +2,6 @@
 import { ArrowUpRight } from 'lucide-astro';
 import type { Project } from './portadaCases';
 import { srcsetDe } from './isoData';
-
 interface Props {
   obras: Project[];
   title?: string;
@@ -10,85 +9,80 @@ interface Props {
   compact?: boolean;
   jump?: { label: string; href: string };
 }
-const { obras, title = 'Obras destacadas', inset = false, compact = false, jump } = Astro.props;
-const cards = obras.map((obra, i) => {
-  const lead = !compact && i === 0;
-  return { obra, i, lead, image: obra.contextImage || obra.image, large: lead || (!compact && i >= 3 && i <= 5) };
-});
-const destination = jump || { label:'Todos los antecedentes', href:'/antecedentes' };
+const { obras, title = 'Obras destacadas', inset = false, compact = false,
+  jump = { label:'Todos los antecedentes', href:'/antecedentes' } } = Astro.props;
 ---
 {obras.length > 0 && <section id="casos" data-obras-portada class:list={['seleccion',{inset,compact}]} aria-labelledby="obras-titulo">
   <div class:list={[!inset && 'wrap']}>
     <header><h2 id="obras-titulo">{title}<span class="dot">.</span></h2>
-      <a href={destination.href}>{destination.label}<ArrowUpRight size={17} aria-hidden="true" /></a>
-    </header>
+      <a href={jump.href}>{jump.label}<ArrowUpRight size={16} aria-hidden="true" /></a></header>
     <div class="obras">
-      {cards.map(({obra, i, lead, large, image}) => <article id={'obra-'+obra.key} data-obra={obra.key} class:list={[{lead, large, row: compact || i >= 6, side: !compact && (i === 1 || i === 2), illustrated: Boolean(image)}]}>
-          {image && <div class="foto"><img src={image} srcset={srcsetDe(image)}
-            sizes={lead ? '(max-width:760px) 94vw, 58vw' : large ? '(max-width:760px) 94vw, 30vw' : '(max-width:760px) 28vw, 16vw'}
-            width="960" height="540" loading={lead ? 'eager' : 'lazy'} alt="" decoding="async" /></div>}
+      {obras.map((obra,i) => {
+        const image = obra.contextImage || obra.image;
+        const kind = i === 0 ? 'principal' : i < 3 ? 'lateral' : i < 6 ? 'media' : 'breve';
+        return <article id={'obra-'+obra.key} data-obra={obra.key} class:list={[kind,{ilustrada:Boolean(image)}]}>
+          {image && <figure><img src={image} srcset={srcsetDe(image)}
+            sizes={kind === 'principal' ? '(max-width:700px) 94vw, 53vw' : kind === 'breve' ? '(max-width:700px) 24vw, 130px' : '(max-width:700px) 50vw, 32vw'}
+            width="960" height="540" loading={i===0 ? 'eager':'lazy'} decoding="async" alt="" /></figure>}
           <div class="detalle">
             <p class="cliente">{obra.client}</p>
-            <h3><a href={obra.links[0].href}>{obra.title}</a></h3>
+            {!image && obra.measure && <p class="medida"><b>{obra.measure[0]}</b> {obra.measure[1]}</p>}
+            <h3>{obra.title}</h3>
             {obra.fact && <p class="dato">{obra.fact}</p>}
-            {large && <p class="alcance">{obra.scope}</p>}
-            <div class="enlaces">{obra.links.map(link => <a href={link.href}>{link.label}<ArrowUpRight size={14} aria-hidden="true" /></a>)}</div>
+            {i===0 && <p class="alcance">{obra.scope}</p>}
+            <div class="destinos">{obra.links.map(link=><a href={link.href} aria-label={link.label+' · '+obra.title}>{link.label}<ArrowUpRight size={14} aria-hidden="true" /></a>)}</div>
           </div>
-        </article>)}
+        </article>;
+      })}
     </div>
   </div>
 </section>}
 <style>
-  .seleccion { container: obras / inline-size; color:var(--ink); padding-block:clamp(32px,5vw,76px); scroll-margin-top:var(--top-h); }
+  .seleccion { container: obras / inline-size; padding-block:clamp(26px,4vw,66px); scroll-margin-top:var(--top-h); }
   .inset { border-top:1px solid var(--line); }
-  header { display:flex; align-items:baseline; justify-content:space-between; gap:6px 24px; flex-wrap:wrap; margin-bottom:clamp(16px,2vw,32px); }
-  h2 { font-size:clamp(1.7rem,3.7vw,3.8rem); line-height:1.04; letter-spacing:-.055em; }
-  header a,.enlaces a { display:inline-flex; align-items:center; gap:7px; min-height:44px; font-size:.93rem; font-weight:550; }
+  header { display:flex; align-items:baseline; justify-content:space-between; gap:2px 24px; flex-wrap:wrap; margin-bottom:clamp(14px,2vw,28px); }
+  h2 { font-size:clamp(1.7rem,3.2vw,3.3rem); line-height:1.04; letter-spacing:-.05em; }
+  header a,.destinos a { display:inline-flex; align-items:center; gap:6px; min-height:44px; font-size:.92rem; font-weight:600; }
   a:hover { text-decoration:underline; text-underline-offset:4px; }
-  a:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
-  .obras { display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:clamp(18px,2vw,32px); }
-  article { position:relative; min-width:0; scroll-margin-top:calc(var(--top-h) + 16px); }
-  .foto { min-width:0; overflow:hidden; background:var(--bg-2); }
-  img { width:100%; height:100%; object-fit:cover; display:block; }
-  .cliente { font-size:.84rem; font-weight:550; color:var(--ink-2); line-height:1.35; }
-  h3 { font-size:clamp(1.18rem,1.75vw,1.8rem); line-height:1.12; letter-spacing:-.035em; margin-top:5px; text-wrap:balance; }
-  .dato { font-size:.94rem; font-weight:600; line-height:1.4; margin-top:9px; }
-  .alcance { max-width:64ch; font-size:1rem; line-height:1.5; color:var(--ink-2); margin-top:10px; }
-  .enlaces { display:flex; flex-wrap:wrap; column-gap:16px; }
-  .large { grid-column:span 4; }
-  .large .foto { aspect-ratio:1.9; margin-bottom:16px; }
-  .lead { grid-column:span 7; grid-row:span 2; display:flex; align-items:flex-end; isolation:isolate; background:#141819; color:white; min-height:360px; }
-  .lead .foto { position:absolute; inset:0; z-index:-2; aspect-ratio:auto; margin:0; }
-  .lead:after { content:''; position:absolute; inset:0; z-index:-1; background:linear-gradient(0deg,#080a0bf7 0%,#080a0be8 28%,#080a0b78 62%,#080a0b08); }
-  .lead .detalle { padding:clamp(20px,2.3vw,40px); }
-  .lead h3 { font-size:clamp(1.85rem,3.05vw,3.4rem); max-width:22ch; }
-  .lead .cliente,.lead .alcance { color:#f0f1f2; }
-  .side,.row { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.75fr); align-items:center; gap:clamp(12px,1.5vw,24px); }
-  .side { grid-column:span 5; border-top:1px solid var(--line); padding-block:14px 0; }
-  .side .foto { height:100%; min-height:120px; max-height:200px; }
-  .row { grid-column:span 6; grid-template-columns:minmax(82px,26%) minmax(0,1fr); border-top:1px solid var(--line); padding-top:16px; }
-  .row .foto { aspect-ratio:1.35; }
-  article:not(.illustrated) .detalle { grid-column:1/-1; }
+  a:focus-visible { outline:2px solid currentColor; outline-offset:2px; }
+  .obras { display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:clamp(16px,2vw,30px); }
+  article { min-width:0; scroll-margin-top:calc(var(--top-h) + 12px); }
+  article:target { outline:2px solid var(--red); outline-offset:4px; }
+  figure { min-width:0; margin:0; overflow:hidden; }
+  img { display:block; width:100%; height:100%; object-fit:cover; }
+  .cliente,.dato { font-size:.92rem; line-height:1.4; font-weight:570; }
+  .cliente {color:var(--ink-2);}
+  h3 { margin:5px 0; font-size:clamp(1.2rem,1.65vw,1.8rem); line-height:1.12; letter-spacing:-.035em; text-wrap:balance; }
+  .alcance { max-width:65ch; line-height:1.5; margin-top:8px; }
+  .destinos { display:flex; flex-wrap:wrap; gap:0 16px; margin-top:3px; }
+  .principal { grid-column:span 7; grid-row:span 2; background:#e8eae5; color:#141818; }
+  .principal figure { aspect-ratio:2.65; }
+  .principal .detalle { padding:clamp(18px,2vw,32px); }
+  .principal .cliente { color:#434e49; }
+  .principal h3 { font-size:clamp(1.55rem,2.55vw,2.7rem); max-width:26ch; }
+  .lateral { grid-column:span 5; display:grid; grid-template-columns:minmax(0,.78fr) minmax(0,1fr); gap:18px; align-items:center; border-top:1px solid var(--line); padding-top:12px; }
+  .lateral figure { height:100%; min-height:100px; }
+  .media { grid-column:span 4; border-top:2px solid var(--line); padding-top:12px; }
+  .media figure { aspect-ratio:2; margin-bottom:13px; }
+  .medida { margin:8px 0 12px; display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 9px; font-size:.95rem; }
+  .medida b { font-size:clamp(2.6rem,4vw,4.5rem); letter-spacing:-.06em; line-height:1; }
+  .breve { grid-column:span 6; display:grid; grid-template-columns:minmax(76px,24%) 1fr; align-items:center; gap:14px; border-top:1px solid var(--line); padding-top:14px; }
+  .breve figure { aspect-ratio:1.5; }
+  article:not(.ilustrada) .detalle { grid-column:1/-1; }
   .compact { padding-block:24px; }
-  .compact h2 { font-size:clamp(1.55rem,2.3vw,2.3rem); }
-  .compact .row h3 { font-size:1.15rem; }
-  .compact .enlaces a { font-size:.86rem; }
-  @container obras (max-width:900px) {
-    .side { grid-template-columns:1fr; }
-    .side .foto { min-height:0; height:110px; }
-    .compact .row { grid-template-columns:1fr; align-content:start; gap:8px; }
-    .compact .row .foto { aspect-ratio:2.5; }
+  .compact h2 { font-size:clamp(1.65rem,2.3vw,2.4rem); }
+  @container obras (max-width:850px) {
+    .principal {grid-column:span 7;}
+    .lateral {grid-template-columns:1fr;align-content:start;gap:8px;}
+    .lateral figure {height:100px;}
+    .breve {grid-column:span 6;grid-template-columns:1fr;}
   }
-  @container obras (max-width:650px) {
-    .obras { grid-template-columns:1fr; gap:22px; }
-    .lead,.side,.row,.large { grid-column:1; grid-row:auto; }
-    .lead { min-height:365px; }
-    .side,.row,.compact .row { grid-template-columns:minmax(0,27%) minmax(0,1fr); align-items:start; gap:12px; padding-top:14px; }
-    .side .foto,.row .foto,.compact .row .foto { height:auto; aspect-ratio:1; }
-    .large:not(.lead) .foto { margin-bottom:12px; }
-    h3 { font-size:1.3rem; }
-    .lead h3 { font-size:1.95rem; }
-    .enlaces { column-gap:12px; }
-    .enlaces a { font-size:.87rem; }
+  @container obras (max-width:640px) {
+    .obras {grid-template-columns:1fr;gap:20px;}
+    .principal,.lateral,.media,.breve {grid-column:auto;grid-row:auto;}
+    .principal figure {aspect-ratio:2;}
+    .lateral,.media,.breve {display:grid;grid-template-columns:30% minmax(0,1fr);gap:12px;align-items:start;border-top:1px solid var(--line);padding-top:14px;}
+    .lateral figure,.media figure,.breve figure {height:auto;min-height:0;aspect-ratio:1;margin:0;}
+    .medida b {font-size:2.4rem;}
   }
 </style>

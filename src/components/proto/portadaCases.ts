@@ -7,7 +7,7 @@ import { SECTOR_PHOTO, type Story } from './isoData';
 type Link = { label: string; href: string };
 export type Project = {
   key: string; sector: string; title: string; client: string; scope: string;
-  image?: string; contextImage?: string; links: Link[]; fact?: string;
+  measure?: [string, string]; image?: string; contextImage?: string; links: Link[]; fact?: string;
 };
 
 export function portadaCases(stories: Story[], surface: 'inicio' | 'servicios' | 'sectores' | 'antecedentes' | 'blog') {
@@ -22,14 +22,14 @@ export function portadaCases(stories: Story[], surface: 'inicio' | 'servicios' |
   const stadium = archived(10740);
   const stadiumNetwork = stories.find(s => s.id === 3436 && isNamedClient(s.client) && /estadio malvinas/i.test(s.title) && isShowcaseProject(s));
   if (stadium && stadium.texto.includes('200 puestos') && stadium.texto.includes('60 puestos')) {
-    projects.push({ key:'estadio', sector:'Eventos deportivos', title:'La red que conecta prensa, transmisión y control',
+    projects.push({ key:'estadio', measure:['200', 'puestos de prensa'], sector:'Eventos deportivos', title:'La red que conecta prensa, transmisión y control',
       client:'Estadio Malvinas Argentinas', fact:'200 puestos de prensa · 60 de transmisión', image:stadiumNetwork?.image, scope:'Cableado estructurado y telefonía interna para periodistas y transmisión. El trabajo incluyó el armado del data center que reunió los sistemas del estadio y el CCTV de la Policía de Mendoza.',
       links:[{ label:'Prensa y transmisión', href:'/sectores/constructoras#archivo-10740' }, ...(stadiumNetwork ? [{label:'Adecuación de la red',href:stadiumNetwork.href}] : [])] });
   }
   const hospitals = [current(3085), current(3102), current(3103)];
   if (hospitals.every(Boolean)) {
     const names = ['Hospital Perrupato', 'General Las Heras', 'Hospital de Uspallata'];
-    projects.push({ key:'hospitales', sector:'Salud', title:'Infraestructura de red para tres hospitales',
+    projects.push({ key:'hospitales', measure:['3','hospitales'], sector:'Salud', title:'Infraestructura de red para tres hospitales',
       client:hospitals[0]!.client, scope:'En Perrupato, la obra combinó red de datos y tableros. En General Las Heras y Uspallata, los puestos de trabajo se conectaron a racks dimensionados para cada edificio.',
       fact:'Perrupato · 56 puestos simples y 29 dobles', contextImage:SECTOR_PHOTO.salud, image:hospitals[0]!.image, links:hospitals.map((s,i) => ({ label:names[i], href:s!.href })) });
   }
@@ -41,7 +41,7 @@ export function portadaCases(stories: Story[], surface: 'inicio' | 'servicios' |
     scope:'Proyectamos e implementamos el data center de la bodega. En las oficinas integramos datos, telefonía, accesos y detección de incendios. Para la producción desarrollamos el sistema de trazabilidad de alimentos.',
     image:SECTOR_PHOTO.bodegas, links:[{label:'Data center',href:'/sectores/bodegas#archivo-10771'},{label:'Trazabilidad',href:'/servicios/104#archivo-10813'},{label:'Oficinas',href:'/sectores/bodegas#archivo-10798'}]});
   const runway=current(3126);
-  if (archived(10737) && runway) projects.push({ key:'aeropuerto',sector:'Infraestructura aeroportuaria',title:'Detección de incendios en El Plumerillo',
+  if (archived(10737) && runway) projects.push({ key:'aeropuerto',measure:['3','centrales de detección'],sector:'Infraestructura aeroportuaria',title:'Detección de incendios en El Plumerillo',
     client:runway.client,scope:'En la etapa IV de El Plumerillo, el alcance incluyó el estacionamiento y las edificaciones externas. Otra ficha documenta la instalación en balizamiento y Mantenimiento Central.',
     fact:'Balizamiento · 3 centrales de detección', contextImage:SECTOR_PHOTO.aeropuertos, image:runway.image,links:[{label:'Remodelación de El Plumerillo',href:'/sectores/aeropuertos#archivo-10737'},{label:'Balizamiento',href:runway.href}]});
   if (archived(10778)) projects.push({ key:'gobierno',sector:'Servicios digitales',title:'Un portal para los trámites y servicios de Mendoza',
@@ -55,6 +55,8 @@ export function portadaCases(stories: Story[], surface: 'inicio' | 'servicios' |
     [3588, 'marques', 'Edificios residenciales'],
     [3099, 'yaguar', 'Comercio mayorista'],
     [3144, 'salud-mujer', 'Salud pública'],
+    [3640, 'quilmes', 'Industria cervecera'],
+    [3104, 'campo-vuelo', 'Operación aeroportuaria'],
   ] as const) {
     const story = current(id);
     const detail = story && publicCaseFor(story);
@@ -73,12 +75,27 @@ export function portadaCases(stories: Story[], surface: 'inicio' | 'servicios' |
   if (archived(10779)) projects.push({ key:'distribucion', sector:'Software de gestión', client:'Sandra Marzzan',
     title:'Un sistema de ventas para la red de distribuidores', scope:'Desarrollo y mantenimiento del sistema de ventas y de la API de datos para la web.',
     links:[{label:'Ver el alcance del sistema',href:'/servicios/104#archivo-10779'}] });
+  // These works have a historical scope in the public service or sector archive.
+  const history: Array<{ id: number; page: string; key: string; sector: string; title: string; measure?: [string, string] }> = [
+    { id:10742, page:'/servicios/101', key:'fibra-municipal', sector:'Red metropolitana', title:'Fibra aérea entre el municipio y el centro de congresos', measure:['6,5 km','de fibra óptica aérea'] },
+    { id:10768, page:'/sectores/industria', key:'compresoras', sector:'Infraestructura de gas', title:'Voz y datos para las plantas compresoras de Córdoba', measure:['3','plantas compresoras'] },
+    { id:10762, page:'/sectores/industria', key:'ferrocarril', sector:'Transporte ferroviario', title:'Equipamiento embarcado en locomotoras', measure:['9','locomotoras con equipamiento embarcado'] },
+    { id:10738, page:'/sectores/aeropuertos', key:'torre-cordoba', sector:'Aviación', title:'Sonido, detección de incendios, datos y telefonía en la torre de control de Córdoba' },
+    { id:10770, page:'/servicios/103', key:'wifi-mendoza', sector:'Telecomunicaciones', title:'Radioenlaces para la red WiFi Mendoza', measure:['40','puntos de distribución'] },
+    { id:10783, page:'/servicios/104', key:'conicet', sector:'Software para investigación', title:'Gestión de turnos para activos científicos del CONICET' },
+  ];
+  for (const {id, page, ...project} of history) {
+    const record = archived(id);
+    if (!record || !isNamedClient(record.cliente)) continue;
+    projects.push({...project, client: record.cliente, scope: record.texto,
+      links:[{label:'Ver alcance',href:page+'#archivo-'+id}]});
+  }
   const order = {
-    inicio:['bodega','estadio','hospitales','aeropuerto','justicia','marques','yaguar','pasip','gobierno','energia'],
-    servicios:['estadio','energia','aeropuerto','justicia','yaguar','pasip','marques'],
-    sectores:['hospitales','bodega','aeropuerto','yaguar','marques','civit'],
-    antecedentes:['estadio','hospitales','bodega','energia','salud-mujer','marques'],
-    blog:['energia','justicia','yaguar','distribucion'],
+    inicio:['yaguar','hospitales','bodega','compresoras','ferrocarril','fibra-municipal','aeropuerto','justicia','wifi-mendoza','marques','estadio','pasip','gobierno','energia'],
+    servicios:['estadio','fibra-municipal','wifi-mendoza','energia','justicia','compresoras','campo-vuelo','aeropuerto','yaguar','pasip','marques'],
+    sectores:['aeropuerto','hospitales','compresoras','bodega','ferrocarril','torre-cordoba','quilmes','yaguar','marques','civit'],
+    antecedentes:['hospitales','estadio','bodega','fibra-municipal','ferrocarril','torre-cordoba','energia','salud-mujer','marques'],
+    blog:['wifi-mendoza','conicet','energia','justicia','campo-vuelo','yaguar','distribucion'],
   }[surface];
   return order.flatMap(key => projects.filter(project => project.key === key));
 }

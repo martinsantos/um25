@@ -82,6 +82,12 @@ jobs:
               backup_floor=$((10 * 1024**3 + size + installed))
               if (( backup_floor > required )); then required=$backup_floor; fi
               ;;
+            ed55f07fbcf4a28869996a71bb0e29b2638d6441)
+              retirement=prune-portadas-20261124.py
+              installed=$(du -sc -B1 dist node_modules package.json package-lock.json | awk 'END {print $1}')
+              backup_floor=$((10 * 1024**3 + size + installed))
+              if (( backup_floor > required )); then required=$backup_floor; fi
+              ;;
             14f54947c91902fe9bdb390d41aa16d1c74f8a37)
               retirement=prune-software-case-transports.py
               installed=$(du -sc -B1 dist node_modules package.json package-lock.json | awk 'END {print $1}')

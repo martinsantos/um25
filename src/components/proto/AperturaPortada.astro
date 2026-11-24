@@ -1,22 +1,17 @@
 ---
-import { ArrowDown } from 'lucide-astro';
+import { ArrowDown, ArrowRight } from 'lucide-astro';
 import { FOUNDING_DATE } from '../../config/publicFacts';
 import { BUSINESS_ADDRESS } from '../../config/seo';
 import { contactLink } from '../../lib/contactEntry';
 import planta from '../../media/home/planta-1440.webp?url';
 import plantaSmall from '../../media/home/planta-720.webp?url';
 
-import { thumbOf } from './isoData';
 import type { Project } from './portadaCases';
 interface Props { obrasHref: string; obras: Project[] }
 const { obrasHref, obras } = Astro.props;
-const referentes = [
-  ['estadio','Estadio Malvinas Argentinas','Red de prensa y transmisión'],
-  ['hospitales','Hospitales de FUESMEN','Datos y energía'],
-  ['justicia','Suprema Corte de Mendoza','Validación de usuarios y documentos'],
-].flatMap(([key,name,scope]) => {
-  const project = obras.find(obra => obra.key === key);
-  return project ? [{key, name, scope, image:project.image}] : [];
+const referentes = ['estadio', 'fibra-municipal', 'ferrocarril'].flatMap(key => {
+  const project = obras.find(o => o.key === key);
+  return project?.measure ? [{ title: project.client, measure: project.measure, href: project.links[0].href }] : [];
 });
 ---
 <section class="opening" data-cover="planta" aria-labelledby="portada-titulo">
@@ -32,8 +27,12 @@ const referentes = [
       </div>
     </header>
   </div>
-  {referentes.length > 0 && <nav class="referencias wrap" aria-label="Obras destacadas">{referentes.map(({key,name,scope,image}) =>
-    <a href={'#obra-'+key}>{image && <img src={thumbOf(image)} width="96" height="64" alt="" />}<span>{name}<small>{scope}</small></span><ArrowDown size={16} aria-hidden="true" /></a>)}</nav>}
+  {referentes.length > 0 && <nav class="referencias wrap" aria-label="Obras destacadas">
+    {referentes.map(({title,measure,href}) => <a href={href}>
+      <span class="valor">{measure[0]}</span>
+      <span class="prueba">{measure[1]}<small>{title}</small></span><ArrowRight size={18} aria-hidden="true" />
+    </a>)}
+  </nav>}
 </section>
 <style>
   .opening { position: relative; isolation: isolate; background: #101317; color: #fff; }
@@ -65,21 +64,19 @@ const referentes = [
     header { gap: 9px; }
     .acciones { gap: 4px 12px; }
   }
-  .referencias { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:#0b0d0ef2;border-top:1px solid #69706f; }
-  .referencias a {display:flex;align-items:center;gap:12px;position:relative;padding:12px 32px 12px 14px;min-height:74px;}
-  .referencias a+a {border-left:1px solid #434847;}
-  .referencias img {width:clamp(58px,6vw,90px);aspect-ratio:1.45;height:auto;object-fit:cover;}
-  .referencias span {font-weight:620;line-height:1.15;}
-  .referencias small {display:block;font-weight:400;font-size:.84rem;color:#cbd0ce;margin-top:4px;}
-  .referencias svg {position:absolute;right:12px;top:calc(50% - 8px);}
-  .referencias a:hover span {text-decoration:underline;}
-  @media (max-width:700px) {
+  .referencias { position:relative; display:grid;grid-template-columns:repeat(3,minmax(0,1fr)); background:#eceee8;color:#131818; }
+  .referencias a { display:flex;align-items:center;min-width:0;gap:clamp(10px,1.3vw,22px);padding:clamp(16px,2vw,32px); }
+  .referencias a+a { border-inline-start:1px solid #b5bbb6; }
+  .referencias .valor { font-size:clamp(2rem,3.4vw,3.85rem); line-height:1;letter-spacing:-.065em;font-weight:600;white-space:nowrap; }
+  .prueba { font-size:.96rem;line-height:1.2; font-weight:600; }
+  .prueba small { display:block;color:#424c49;font-size:.82rem;font-weight:400;margin-top:4px; }
+  .referencias svg { flex:none;margin-left:auto; }
+  .referencias a:hover .prueba { text-decoration:underline;text-underline-offset:3px; }
+  .referencias a:focus-visible { outline:2px solid currentColor;outline-offset:-4px; }
+  @media(max-width:800px) {
     .referencias {grid-template-columns:1fr;}
-    .referencias a {padding:7px 22px 7px 0;min-height:50px;}
-    .referencias a+a {border-left:0;border-top:1px solid #363b3b;}
-    .referencias img {width:48px;aspect-ratio:1.4;}
-    .referencias span {font-size:.95rem;}
-    .referencias small {font-size:.81rem;margin-top:2px;}
-    .referencias svg {right:0;}
+    .referencias a {padding:10px 14px;gap:12px;}
+    .referencias .valor {min-width:4ch;font-size:1.95rem;}
+    .referencias a+a {border-inline-start:0;border-top:1px solid #b5bbb6;}
   }
 </style>
