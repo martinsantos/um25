@@ -10,6 +10,7 @@ import WineryZones from '../../../components/proto/WineryZones.astro';
 import SectorSystems from '../../../components/proto/SectorSystems.astro';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
+import { detailPhotographs } from '../../../data/photography';
 import ServiceEditorialHero from '../../../components/proto/ServiceEditorialHero.astro';
 import Ficha from '../../../components/proto/Ficha.astro';
 import CaseLinks from '../../../components/proto/CaseLinks.astro';
@@ -39,7 +40,8 @@ const { stories } = await loadStories();
 const own = stories.filter((c) => c.sectorSlug === slug);
 // Gobierno es una operación distribuida: no se representa con un edificio genérico.
 const site = slug === 'gobiernosectorpublico' ? undefined : SITE_OF[slug];
-const photo = SECTOR_PHOTO[slug] || SECTOR_PHOTO.constructoras;
+const detailPhoto = detailPhotographs[slug];
+const photo = detailPhoto?.src || SECTOR_PHOTO[slug] || SECTOR_PHOTO.constructoras;
 const relato = sectorRelato(slug);
 const casos = casosDe(CASOS_SECTOR[slug] || []);
 const showcase = pageCaseCandidates(own, slug);
@@ -68,7 +70,7 @@ const cifras: [string, string, string?][] = own.length ? [[String(own.length), '
     <Top current="sectores" />
     <main id="contenido">
 
-    <ServiceEditorialHero label={name} image={photo}>
+    <ServiceEditorialHero label={name} image={photo} imageAlt={detailPhoto?.title} naturalPhoto={Boolean(detailPhoto)}>
       <a class="sector-back" href="/sectores">← Todos los sectores</a>
       <h1 style="font-size:clamp(2rem,3.6vw,3.6rem)">{relato.headline || name}<span class="dot">.</span></h1>
       <p>{relato.summary || sector.description}</p>

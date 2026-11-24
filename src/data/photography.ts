@@ -9,6 +9,11 @@ const photos = manifest.photos as Record<string, Photograph>;
 const cases = manifest.cases as Record<string, string>;
 const services = manifest.services as Record<string, string>;
 export const PHOTOGRAPHS = photos;
+export const detailPhotographs: Partial<Record<string, Photograph>> = {
+  '102': photos['9ccbea1245af9088fa45'],
+  '108': photos['b0fa37381aa35ca4003b'],
+  constructoras: photos['3effcaf7db3eb89c8f0d'],
+};
 export const photographForCase = (id: number | string) => {
   const key = cases[String(id)];
   return key ? photos[key] : undefined;
