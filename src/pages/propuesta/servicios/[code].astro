@@ -6,6 +6,7 @@ import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import DeviceExploded from '../../../components/proto/DeviceExploded.astro';
 import SoftwareExperience from '../../../components/proto/SoftwareExperience.astro';
+import { detailPhotographs } from '../../../data/photography';
 import ServiceEditorialHero from '../../../components/proto/ServiceEditorialHero.astro';
 import SecurityProvision from '../../../components/proto/SecurityProvision.astro';
 import ServiceProvision from '../../../components/proto/ServiceProvision.astro';
@@ -60,7 +61,8 @@ const archiveHref = `/antecedentes?service=${code}`;
 const archiveText = own.length > 0 ? `Ver los ${own.length} antecedentes` : 'Ver todos los antecedentes';
 const agregado = new Map(despieceAgregado(own, caseEquipmentFor).map((p) => [p.key, p]));
 const kit = (KIT_DE_SERVICIO[code] || []).map(([key, label]) => ({ key, label, n: agregado.get(key)?.proyectos || 0, u: agregado.get(key)?.unidades || 0 }));
-const photo = SERVICE_PHOTO[code];
+const detailPhoto = detailPhotographs[code];
+const photo = detailPhoto?.src || SERVICE_PHOTO[code];
 const casos = casosDe(CASOS_SERVICIO[code] || []);
 const softwareArchive = code === '104' ? [
   {id:10817, title:'Portal de la Suprema Corte de Mendoza', description:'Validación de usuarios, certificación de documentos con sello de tiempo y servicios internos conectados por API.'},
@@ -200,7 +202,9 @@ const cierre = cierrePorServicio[code];
     <Hero label={servicio.name} image={photo}
       film={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}.mp4` : undefined}
       mobileFilm={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}-sq.mp4` : undefined}
-      poster={code === '104' ? photo : undefined} naturalPhoto={['105', '106'].includes(code)} imageAlt={code === '105' ? 'Técnico revisando las conexiones Ethernet de un equipo montado en rack' : code === '106' ? 'Plano de instalación y elementos de relevamiento técnico sobre una mesa' : ''}>
+      poster={code === '104' ? photo : undefined}
+      naturalPhoto={Boolean(detailPhoto) || ['105', '106'].includes(code)}
+      imageAlt={detailPhoto?.title ?? (code === '105' ? 'Técnico revisando las conexiones Ethernet de un equipo montado en rack' : code === '106' ? 'Plano de instalación y elementos de relevamiento técnico sobre una mesa' : '')}>
       <h1 class:list={['service-detail-title', { 'redes-titulo': isNetworks }]} style={code === '103' ? 'font-size:clamp(2rem,3.6vw,3.5rem)' : undefined}>{servicio.name}<span class="dot">.</span></h1>
       <p class="tag">{isNetworks ? 'Cableado, fibra y redes para empresas.' : code === '104' ? 'Portales, trámites e integraciones.' : copy.headline}</p>
       <p>{isNetworks ? 'Desde Mendoza diseñamos e instalamos redes LAN/WAN, Wi-Fi corporativo y switching gestionado. Medimos los enlaces y documentamos la obra según su alcance.' : code === '104' ? 'Para la Suprema Corte de Mendoza integramos la validación de usuarios y la certificación de documentos con sello de tiempo en su portal.' : copy.paragraph}</p>
