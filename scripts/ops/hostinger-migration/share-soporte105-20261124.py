@@ -1,4 +1,4 @@
-"""Share identical static files in the two inactive releases reviewed for the five landing pages."""
+"""Share identical static files in the two inactive releases reviewed for the Support 105 photograph."""
 import fcntl
 import hashlib
 import importlib.util
@@ -11,12 +11,10 @@ import sys
 ROOT = Path('/srv/umsa-web-releases')
 PILOT = Path('/usr/local/libexec/umsa/share-static.py')
 PILOT_SHA256 = 'f93180d7381417194fcbf54fb0a2b64f976b3cb9ae66a1f09c4dce1689999839'
-UNIT = 'umsa-share-portadas-20261123.service'
-ACTIVE = '8ed527635d8c0f3bbdf869c7cb31c3d38457df05-45209428218-1'
-RETURNS = ('14f54947c91902fe9bdb390d41aa16d1c74f8a37-45188287522-1',
-           'e4c8024ab6231aa6e8eab99dc9191ce77cbd5bf2-45165225906-1')
-TARGETS = ('bb35338156cbb55fe87109e1e824090140d644ac-45032835173-1',
-           '18ad104d50345dccd160a53796ffd78d3af77ba3-45073185167-1')
+UNIT = 'umsa-share-soporte105-20261124.service'
+ACTIVE='28f931c73838064aaafe0febde1a58ebb75a4910-45432902505-1'
+RETURNS=('ed55f07fbcf4a28869996a71bb0e29b2638d6441-45249789027-1', '8ed527635d8c0f3bbdf869c7cb31c3d38457df05-45209428218-1')
+TARGETS=('14f54947c91902fe9bdb390d41aa16d1c74f8a37-45188287522-1', 'e4c8024ab6231aa6e8eab99dc9191ce77cbd5bf2-45165225906-1')
 
 def static_dir(target):
     return ROOT / target / 'application/dist/client'
