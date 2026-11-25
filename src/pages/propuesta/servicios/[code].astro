@@ -178,14 +178,6 @@ const cierre = cierrePorServicio[code];
         .cubre--editorial .caps { grid-template-columns: minmax(0, 1fr); }
         .cubre { grid-template-columns: minmax(0, 1fr); gap: var(--s4); align-items: start; }
         .caps li { font-size: 1rem; padding: 10px 0; }
-        :global(.service-editorial) .cifras.cifras--compact {
-          gap: var(--s1) var(--s2);
-          margin-top: 0;
-          padding-top: 12px;
-        }
-        .cifras--compact div { display: flex; flex-wrap: wrap; gap: 2px 6px; align-items: baseline; }
-        :global(.service-editorial) .cifras.cifras--compact b { flex-shrink: 0; font-size: 1.125rem; }
-        .cifras--compact span { flex: 1 1 min-content; line-height: 1.3; }
       }
       .software-obras { padding-block: 22px 36px; }
       .software-obras h2 { font-size:clamp(1.65rem,3.1vw,3rem);margin:0 0 20px;letter-spacing:-.04em; }
@@ -199,7 +191,7 @@ const cierre = cierrePorServicio[code];
     <Top current="servicios" />
     <main id="contenido">
 
-    <Hero label={servicio.name} image={photo}
+    <Hero label={servicio.name} image={photo} metrics={code === '104' ? [] : cifras}
       film={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}.mp4` : undefined}
       mobileFilm={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}-sq.mp4` : undefined}
       poster={code === '104' ? photo : undefined}
@@ -208,7 +200,6 @@ const cierre = cierrePorServicio[code];
       <h1 class:list={['service-detail-title', { 'redes-titulo': isNetworks }]} style={code === '103' ? 'font-size:clamp(2rem,3.6vw,3.5rem)' : undefined}>{servicio.name}<span class="dot">.</span></h1>
       <p class="tag">{isNetworks ? 'Cableado, fibra y redes para empresas.' : code === '104' ? 'Portales, trámites e integraciones.' : copy.headline}</p>
       <p>{isNetworks ? 'Desde Mendoza diseñamos e instalamos redes LAN/WAN, Wi-Fi corporativo y switching gestionado. Medimos los enlaces y documentamos la obra según su alcance.' : code === '104' ? 'Para la Suprema Corte de Mendoza integramos la validación de usuarios y la certificación de documentos con sello de tiempo en su portal.' : copy.paragraph}</p>
-      {code !== '104' && cifras.length > 0 && <div class="cifras cifras--compact">{cifras.map(([n, t, href]) => <div><b>{n}</b>{href ? <a class="metric-jump" href={href}>{t}</a> : <span>{t}</span>}</div>)}</div>}
       <div class="editorial-actions">
         <div class="service-actions">
           <a class="btn" href={contactLink(Astro.url.pathname)}>{code === '104' ? 'Consultar por un desarrollo' : 'Pedir un relevamiento'}</a>

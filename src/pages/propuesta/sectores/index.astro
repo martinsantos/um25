@@ -4,6 +4,8 @@ import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
+import { pageCaseCandidates, sectorReference } from '../../../components/proto/caseSelection';
+import { publicCaseTitle } from '../../../components/proto/casePresentation';
 import CatalogoEditorial from '../../../components/proto/CatalogoEditorial.astro';
 import { loadStories, SECTOR_PHOTO } from '../../../components/proto/isoData';
 import { sectorRelato } from '../../../components/proto/relato';
@@ -18,8 +20,10 @@ const { stories } = await loadStories();
 const [feature, ...obras] = portadaCases(stories, 'sectores');
 const items = NAV_SECTORS.map((sector) => {
   const hasProvision = sector.slug === 'software' || sector.slug === 'seguridad-electronica';
+  const reference = sectorReference(sector.slug, pageCaseCandidates(stories.filter(story => story.sectorSlug === sector.slug), sector.slug));
   return {
     name: sector.name,
+    reference: reference && { title: publicCaseTitle(reference), href: reference.href },
     summary: sectorRelato(sector.slug).summary || sector.text,
     photo: SECTOR_PHOTO[sector.slug] || SECTOR_PHOTO.constructoras,
     href: sector.href,

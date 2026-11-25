@@ -41,6 +41,7 @@ import { operationsSceneForCase } from "../../../../data/operationsScenes";
 import { technicalSceneForCase } from "../../../../data/technicalScenes";
 import {
   publicCaseFor,
+  publicCaseTitle,
   samePublicClient,
   caseEquipmentFor,
 } from "../../../../components/proto/casePresentation";
@@ -56,7 +57,7 @@ const index = stories.findIndex((c) => c.id === id);
 if (index < 0) return Astro.rewrite('/404');
 const c = stories[index];
 const caseDetail = publicCaseFor(c);
-const pageTitle = caseDetail?.title || c.title;
+const pageTitle = publicCaseTitle(c);
 if (Astro.params.slug !== c.slug) return Astro.redirect(c.href + Astro.url.search, 301);
 const svcs = services.filter((s) => c.serviceCodes.includes(s.code));
 const months = [

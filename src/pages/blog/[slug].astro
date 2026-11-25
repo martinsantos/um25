@@ -1,4 +1,5 @@
 ---
+import { FOUNDING_DATE } from '../../config/publicFacts';
 import LayoutV4 from '../../layouts/LayoutV4.astro';
 import BlogTOC from '../../components/blog/BlogTOC.astro';
 import BlogCard from '../../components/blog/BlogCard.astro';
@@ -349,6 +350,8 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
         )}
         <div class="prose" set:html={contentHtml} />
 
+        <a class="bp-return" data-blog-return={post.slug} href="/blog"><span aria-hidden="true">←</span> Volver al Blog</a>
+
         {post.tags && post.tags.length > 0 && (
           <ul class="bp-tags" aria-label="Temas">
             {post.tags.slice(0, 8).map((tag: string) => <li>{tag}</li>)}
@@ -359,7 +362,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
           <p class="bp-author__name">ULTIMA MILLA · Equipo técnico</p>
           <p class="bp-author__bio">
             Servicios IT integrales con sede en Guaymallén, Mendoza: redes, seguridad electrónica, telecomunicaciones,
-            software, soporte y energía IT. 24+ años de trayectoria y {catalogCount} antecedentes técnicos documentados.
+            software, soporte y energía IT. Desde {FOUNDING_DATE.slice(0, 4)}, con {catalogCount} antecedentes técnicos documentados.
           </p>
           <a class="bp-author__link" href="/nosotros">Conocer la empresa <span aria-hidden="true">→</span></a>
         </section>
@@ -413,6 +416,18 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
   </div>
 
   <script>
+    import { resolveBlogListingRoute } from '../../lib/blogListingRoute';
+    const back = document.querySelector<HTMLAnchorElement>('[data-blog-return]');
+    if (back && document.referrer) {
+      const previous = new URL(document.referrer);
+      if (previous.origin === location.origin && previous.pathname.replace(/\/$/, '') === '/blog') {
+        const listing = resolveBlogListingRoute(previous);
+        if (listing.canonicalPath) {
+          back.href = listing.canonicalPath + '#nota-' + encodeURIComponent(back.dataset.blogReturn!);
+          back.lastChild!.textContent = listing.page > 1 ? ` Volver a la página ${listing.page} del Blog` : ' Volver al listado de notas';
+        }
+      }
+    }
     const bar = document.getElementById('read-bar');
     const body = document.querySelector<HTMLElement>('.bp-main .prose');
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -553,6 +568,8 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
   .prose :global(th), .prose :global(td) { padding: 12px 16px; border-bottom: 1px solid var(--x-line); text-align: left; vertical-align: top; }
   .prose :global(th) { font-size: var(--x-fs-meta); font-weight: 600; color: var(--x-text); border-bottom-color: var(--x-line-strong); }
 
+  .bp-return { display:inline-flex;align-items:center;gap:8px;min-height:44px;margin-top:24px;font-weight:600;color:var(--x-text);text-decoration:underline;text-underline-offset:4px; }
+  .bp-return:focus-visible {outline:2px solid currentColor;outline-offset:2px;}
   .bp-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 48px 0 0; padding: 0; list-style: none; }
   .bp-tags li {
     padding: 6px 12px; border: 1px solid var(--x-line); border-radius: 4px;

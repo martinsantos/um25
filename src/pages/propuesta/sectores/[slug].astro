@@ -6,6 +6,7 @@ import '../../../styles/pilot-fichas.css';
  * dentro, los proyectos. Frases completas del sitio. No indexable.
  */
 import '../../../styles/proto-despiece.css';
+import { ArrowRight } from 'lucide-astro';
 import WineryZones from '../../../components/proto/WineryZones.astro';
 import SectorSystems from '../../../components/proto/SectorSystems.astro';
 import Head from '../../../components/proto/Head.astro';
@@ -15,10 +16,10 @@ import ServiceEditorialHero from '../../../components/proto/ServiceEditorialHero
 import Ficha from '../../../components/proto/Ficha.astro';
 import CaseLinks from '../../../components/proto/CaseLinks.astro';
 import Casos from '../../../components/proto/Casos.astro';
-import { selectCaseProjects, remainingCaseProjects, pageCaseCandidates } from '../../../components/proto/caseSelection';
+import { selectCaseProjects, remainingCaseProjects, pageCaseCandidates, sectorReference } from '../../../components/proto/caseSelection';
 import Cierre from '../../../components/proto/Cierre.astro';
 import Partes from '../../../components/proto/Partes.astro';
-import { caseEquipmentFor } from '../../../components/proto/casePresentation';
+import { publicCaseTitle, caseEquipmentFor } from '../../../components/proto/casePresentation';
 import { sectorDeclaredServices } from '../../../data/propuesta/sector-integration';
 import { getSectorBySlug } from '../../../lib/um26-directus';
 import { loadStories, services, SITE_OF, SECTOR_PHOTO, destacados } from '../../../components/proto/isoData';
@@ -47,6 +48,8 @@ const casos = casosDe(CASOS_SECTOR[slug] || []);
 const showcase = pageCaseCandidates(own, slug);
 const rankedCases = destacados(showcase, showcase.length);
 const selectedCases = selectCaseProjects(casos, stories, rankedCases);
+const reference = sectorReference(slug, showcase)
+  || selectedCases.find(({ pub }) => showcase.some((story) => story.id === pub.id))?.pub;
 const documentedCases = own.filter((c) => c.documentedScope && !selectedCases.some(({ pub }) => pub.id === c.id));
 const moreCases = remainingCaseProjects(rankedCases.filter((c) => !c.documentedScope), selectedCases).slice(0, 8);
 const name = SECTORS.find((s) => s.slug === slug)?.name || sector.name;
@@ -61,7 +64,7 @@ const clientes = clientsForStories(own);
 const anios = own.map((c) => c.year).filter(Boolean);
 const desde = anios.length ? Math.min(...anios) : 0;
 const instalado = despieceAgregado(own, caseEquipmentFor).slice(0, 12);
-const cifras: [string, string, string?][] = own.length ? [[String(own.length), 'antecedentes registrados'], [String(clientes.length), clientes.length === 1 ? 'cliente identificado' : 'clientes identificados', clientes.length ? '#clientes' : undefined], [String(byService.filter((s) => s.count > 0).length), 'servicios con obras registradas'], [String(desde), 'primer registro']] : [];
+const cifras: [string, string, string?][] = own.length ? [[String(own.length), own.length === 1 ? 'antecedente' : 'antecedentes', `/antecedentes?sector=${slug}`], [String(clientes.length), clientes.length === 1 ? 'cliente identificado' : 'clientes identificados', clientes.length ? '#clientes' : undefined], [String(byService.filter((s) => s.count > 0).length), 'servicios con obras'], [String(desde), 'primer registro']] : [];
 ---
 <!doctype html>
 <html lang="es">
@@ -70,15 +73,21 @@ const cifras: [string, string, string?][] = own.length ? [[String(own.length), '
     <Top current="sectores" />
     <main id="contenido">
 
-    <ServiceEditorialHero label={name} image={photo} imageAlt={detailPhoto?.title} naturalPhoto={Boolean(detailPhoto)}>
+    <ServiceEditorialHero label={name} image={photo} metrics={cifras} imageAlt={detailPhoto?.title} naturalPhoto={Boolean(detailPhoto)}>
       <a class="sector-back" href="/sectores">← Todos los sectores</a>
       <h1 style="font-size:clamp(2rem,3.6vw,3.6rem)">{relato.headline || name}<span class="dot">.</span></h1>
       <p>{relato.summary || sector.description}</p>
-      {cifras.length > 0 && <div class="cifras">{cifras.map(([n, t, href]) => <div><b>{n}</b>{href ? <a class="metric-jump" href={href}>{t}</a> : <span>{t}</span>}</div>)}</div>}
       <div class="editorial-actions">
-      <a class="u editorial-primary" href="#integracion">Ver cómo integramos los servicios</a>
-      {own.length > 0 && <a class="u" href={`/antecedentes?sector=${slug}`}>Ver los {own.length} antecedentes en {lower}</a>}
+        <a class="u editorial-primary" href="#integracion">Explorar los sistemas <ArrowRight size={16} aria-hidden="true" /></a>
       </div>
+      <Fragment slot="reference">
+        {reference && <a class="sector-reference" href={reference.href}>
+          <span class="sector-reference__label">Obra de referencia{reference.year > 0 && ` · ${reference.year}`}</span>
+          <strong>{publicCaseTitle(reference)}</strong>
+          <span class="sector-reference__client">{reference.client}</span>
+          <ArrowRight size={22} aria-hidden="true" />
+        </a>}
+      </Fragment>
     </ServiceEditorialHero>
 
     {slug === 'bodegas' && <WineryZones stories={stories} />}
@@ -129,3 +138,17 @@ const cifras: [string, string, string?][] = own.length ? [[String(own.length), '
     <Cierre />
   </body>
 </html>
+
+<style>
+  .sector-reference {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center;
+    gap: 3px 20px; padding: 16px 18px; color: var(--ink);
+    background: var(--panel, #151719); border-bottom: 1px solid var(--line);
+    text-decoration: none;
+  }
+  .sector-reference strong { grid-column: 1; font-size: clamp(1.05rem, 2vw, 1.35rem); line-height: 1.25; }
+  .sector-reference__label, .sector-reference__client { grid-column: 1; font-size: .9375rem; color: var(--ink-2); }
+  .sector-reference :global(svg) { grid-column: 2; grid-row: 1 / 4; }
+  .sector-reference:hover strong { text-decoration: underline; text-underline-offset: 4px; }
+  .sector-reference:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+</style>

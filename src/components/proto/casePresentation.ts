@@ -28,6 +28,21 @@ export function publicCaseFor(story: { id: number; client: string }) {
     : undefined;
 }
 
+export function publicCaseTitle(story: { id: number; client: string; title: string }) {
+  return publicCaseFor(story)?.title || story.title;
+}
+
+/** Public archive titles remain searchable under their original CMS wording. */
+export function archiveIdentity(story: {
+  id: number; client: string; title: string; sector: string; services: string[]; summary: string;
+}) {
+  const detail = publicCaseFor(story);
+  const title = detail?.title || story.title;
+  const terms = [`UM-${story.id}`, story.client, story.title, story.sector, ...story.services, story.summary];
+  if (title !== story.title) terms.push(title);
+  return { title, reviewed: Boolean(detail), search: terms.join(' ') };
+}
+
 /** The reviewed inventory and the editorial case share the same live identity gate. */
 export function caseEquipmentFor(story: {
   id: number;
