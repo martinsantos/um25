@@ -28,6 +28,35 @@ export function publicCaseFor(story: { id: number; client: string }) {
     : undefined;
 }
 
+// Reviewed case pages also have a CMS variant with no description or a repeated customer.
+export const reviewedIntroductions = new Set([
+  3082, 3143, 3145, 3148, 3150, 3161, 3162, 3196, 3209,
+  3220, 3273, 3304, 3312, 3313, 3326, 3344, 3401, 3454,
+  3469, 3473, 3474, 3477, 3497, 3592, 3599, 3631, 3641,
+]);
+
+/** Legacy exports append the customer and classification to the job description. */
+export function caseIntroduction(summary: string, title: string, client: string): string {
+  const footer = /(?:^|\s)Cliente:\s*(.+?)\.\s+Sector:\s*([\p{L}\p{N} &/-]+)\.?$/iu.exec(summary);
+  const customer = identity(client);
+  let body = summary.trim();
+  if (footer?.[1] && customer && identity(footer[1]) === customer) {
+    body = summary.slice(0, footer.index).trim();
+  }
+  const words = identity(body);
+  if (!words || words === identity(title) || words === customer ||
+      (customer && identity(body.replace(/\s*\(\d+\)$/, '')) === customer)) return '';
+  if (body !== summary.trim() && body.includes(':')) {
+    const subject = identity(body.slice(body.indexOf(':') + 1));
+    if (subject === identity(title) + ' ' + customer) return '';
+  }
+  // The live CMS can append the customer twice, after a classification and the job title.
+  const job = identity(title);
+  const subject = identity(body.includes(':') ? body.slice(body.indexOf(':') + 1) : body);
+  if (customer && [`para ${customer}`, `${job} para ${customer}`, `${job} ${customer} para ${customer}`].includes(subject)) return '';
+  return body;
+}
+
 export function publicCaseTitle(story: { id: number; client: string; title: string }) {
   return publicCaseFor(story)?.title || story.title;
 }
