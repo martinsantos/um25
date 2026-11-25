@@ -312,7 +312,7 @@ describe('Information hub visual contracts', () => {
     const requiredFieldNames = fieldTags.filter((match) => /\srequired\b/.test(match[0])).map((match) => match[1]);
 
     expect(requiredFieldNames).toEqual(['name', 'email', 'message']);
-    expect(visibleFieldNames).toEqual(['name', 'email', 'company', 'topic', 'services', 'site', 'urgency', 'message']);
+    expect(visibleFieldNames).toEqual(['name', 'email', 'message', 'company', 'topic', 'services', 'site', 'urgency']);
     expect(visibleFieldNames.length).toBeLessThanOrEqual(8);
     expect(formSource).toMatch(/<details class="ctf__more"[\s\S]*name="services"[\s\S]*<\/details>/);
     expect(formSource).toMatch(/<input type="hidden" name="startedAt"/);
