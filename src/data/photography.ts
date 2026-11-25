@@ -13,6 +13,7 @@ export const detailPhotographs: Partial<Record<string, Photograph>> = {
   '102': photos['9ccbea1245af9088fa45'],
   '108': photos['b0fa37381aa35ca4003b'],
   constructoras: photos['3effcaf7db3eb89c8f0d'],
+  salud: photos['77ab33368452e5be67d1'],
 };
 export const photographForCase = (id: number | string) => {
   const key = cases[String(id)];
