@@ -28,6 +28,24 @@ export function publicCaseFor(story: { id: number; client: string }) {
     : undefined;
 }
 
+/** Legacy exports append the customer and classification to the job description. */
+export function caseIntroduction(summary: string, title: string, client: string): string {
+  const footer = /(?:^|\s)Cliente:\s*(.+?)\.\s+Sector:\s*([\p{L}\p{N} &/-]+)\.?$/iu.exec(summary);
+  const customer = identity(client);
+  let body = summary.trim();
+  if (footer?.[1] && customer && identity(footer[1]) === customer) {
+    body = summary.slice(0, footer.index).trim();
+  }
+  const words = identity(body);
+  if (!words || words === identity(title) || words === customer ||
+      (customer && identity(body.replace(/\s*\(\d+\)$/, '')) === customer)) return '';
+  if (body !== summary.trim() && body.includes(':')) {
+    const subject = identity(body.slice(body.indexOf(':') + 1));
+    if (subject === identity(title) + ' ' + customer) return '';
+  }
+  return body;
+}
+
 export function publicCaseTitle(story: { id: number; client: string; title: string }) {
   return publicCaseFor(story)?.title || story.title;
 }
