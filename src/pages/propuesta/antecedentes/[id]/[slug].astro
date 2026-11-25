@@ -41,6 +41,7 @@ import { operationsSceneForCase } from "../../../../data/operationsScenes";
 import { technicalSceneForCase } from "../../../../data/technicalScenes";
 import {
   caseIntroduction,
+  reviewedIntroductions,
   publicCaseFor,
   publicCaseTitle,
   samePublicClient,
@@ -118,8 +119,9 @@ const catalogScene =
     : catalogSceneForCase(c);
 const accessProject = c.id === 3104;
 const ref = `UM-${c.id}`;
-const summary = caseDetail?.introduction || caseIntroduction(c.summary, pageTitle, c.client);
-const introduction = c.summary || caseDetail?.introduction ? summary :
+const reviewed = reviewedIntroductions.has(c.id);
+const summary = caseDetail?.introduction || (reviewed ? caseIntroduction(c.summary, pageTitle, c.client) : c.summary);
+const introduction = reviewed || summary ? summary :
   `Registro ${ref} del archivo de ULTIMA MILLA${when ? `, correspondiente a ${when}` : ""}. ${svcs.length ? `Servicios vinculados: ${svcs.map((s) => s.name).join(", ")}.` : "El alcance disponible se conserva con la referencia original del proyecto."}`;
 const caseSeo = buildCaseSeoMeta({
   title: pageTitle,
