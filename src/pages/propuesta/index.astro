@@ -12,19 +12,25 @@ import ObrasPortada from '../../components/proto/ObrasPortada.astro';
 import Casos from '../../components/proto/Casos.astro';
 import Cierre from '../../components/proto/Cierre.astro';
 import { loadStories, services } from '../../components/proto/isoData';
-import { sectorRelato } from '../../components/proto/relato';
+import ClientDirectory from '../../components/proto/ClientDirectory.astro';
+import { clientsForStories } from '../../components/proto/clientDirectory';
 import { portadaCases } from '../../components/proto/portadaCases';
-import { SECTORS } from '../../data/cine/scenes';
+import { NAV_SECTORS } from '../../data/navigation';
 import { matchesCatalog } from '../../components/proto/catalogFilters';
 
-import { isNamedClient } from '../../components/proto/catalogEditorial';
 
 import { yearsOfExperience } from '../../config/publicFacts';
 export const prerender = false;
 const { total, stories } = await loadStories();
 const obrasPortada = portadaCases(stories, 'inicio');
-const clientes = Object.values(stories.filter(s => isNamedClient(s.client)).reduce<Record<string, { name: string; count: number }>>((acc, s) => { const k = s.client.toLowerCase(); (acc[k] ||= { name: s.client, count: 0 }).count++; return acc; }, {})).sort((a, b) => b.count - a.count);
-const lugares = SECTORS.map((s) => ({ ...s, count: stories.filter((c) => matchesCatalog({sector: c.sectorSlug, services: c.serviceCodes, year: String(c.year), client: c.client, search: '', status: c.status}, {sector: s.slug})).length, headline: sectorRelato(s.slug).headline || s.text })).sort((a, b) => b.count - a.count);
+const clientes = clientsForStories(stories);
+const lugares = NAV_SECTORS.map((sector) => ({
+  name: sector.name,
+  href: sector.href,
+  count: stories.filter((c) => matchesCatalog({
+    sector: c.sectorSlug, services: c.serviceCodes, year: String(c.year), client: c.client, search: '', status: c.status,
+  }, {sector: sector.slug})).length,
+})).sort((a, b) => b.count - a.count);
 // A calendar-year difference is the conservative count; the founding year
 // itself is not a completed year of experience.
 const anios = yearsOfExperience();
@@ -35,12 +41,17 @@ const anios = yearsOfExperience();
     <Head title="Infraestructura IT, redes y seguridad electrónica en Mendoza · ULTIMA MILLA" description={`Redes, seguridad electrónica, telecomunicaciones, software a medida, soporte 24/7 y energía IT. ${anios} años y ${total} antecedentes registrados desde Mendoza.`} image={planta} />
     <link rel="preload" as="image" type="image/webp" href={planta} imagesrcset={`${plantaSmall} 720w, ${planta} 1440w`} imagesizes="100vw" />
     <style>
-      /* Los sectores: una línea, sin fotos. Las fotos se guardan para los casos. */
-      .lugares { margin: var(--s4) 0 0; padding: var(--s3) 0 0; list-style: none; display: flex; flex-wrap: wrap; gap: 10px 28px; border-top: 1px solid var(--line); }
-      .lugares a { font-weight: 600; font-size: 1.1rem; }
-      .lugares a:hover { text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
-      .lugares .n { color: var(--ink-3); font-weight: 400; font-size: 1rem; margin-left: 8px; }
-
+      .sectores-home {margin-top:var(--s5);border-top:1px solid var(--line);padding-top:var(--s3)}
+      .sectores-head {display:flex;align-items:baseline;justify-content:space-between;gap:10px 24px;flex-wrap:wrap;margin-bottom:16px}
+      .sectores-head h2 {font-size:clamp(1.6rem,2.6vw,2.5rem)}
+      .sectores-head a,.lugares a {display:flex;min-height:44px;align-items:center}
+      .sectores-head a {gap:8px;font-weight:600}
+      .lugares {margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:var(--s3)}
+      .lugares a {gap:4px 10px;flex-wrap:wrap;align-content:center;justify-content:space-between;height:100%;padding-block:9px;border-top:1px solid var(--line);font-weight:600}
+      .lugares .n {color:var(--ink-2);font-size:.9375rem;font-weight:400;white-space:nowrap}
+      .sectores-home a:hover {text-decoration:underline;text-underline-offset:4px}
+      .sectores-home a:focus-visible {outline:2px solid currentColor;outline-offset:2px}
+      @media(max-width:700px){.lugares{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:16px}.lugares a {flex-direction:column;align-items:start;align-content:start;justify-content:center}}
       .rutas-portada { display: flex; flex-wrap: wrap; gap: 2px clamp(18px, 4vw, 56px); padding-block: 12px; border-bottom: 1px solid var(--line); }
       .rutas-portada a { min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }
       .rutas-portada a:hover { text-decoration: underline; text-underline-offset: 4px; }
@@ -64,21 +75,20 @@ const anios = yearsOfExperience();
     <section class="sec" id="servicios">
       <div class="wrap">
         <ExploradorServicios stories={stories} />
-        <ol class="lugares" id="lugares" aria-label="Sectores">{lugares.map((l) => <li><a href={`/sectores/${l.slug}`}>{l.name}{l.count > 0 && <span class="n">{l.count}</span>}</a></li>)}<li><a class="muted" href="/sectores">Todos los sectores</a></li></ol>
+        <section id="lugares" class="sectores-home" aria-labelledby="sectores-home-title">
+          <div class="sectores-head">
+            <h2 id="sectores-home-title">Sectores<span class="dot">.</span></h2>
+            <a href="/sectores">Comparar sectores <span aria-hidden="true">→</span></a>
+          </div>
+          <ul class="lugares">{lugares.map(l => <li><a href={l.href}>
+            <span>{l.name}</span>
+            {l.count > 0 && <span class="n">{l.count} {l.count === 1 ? 'obra' : 'obras'}</span>}
+          </a></li>)}</ul>
+        </section>
       </div>
     </section>
 
-    <section class="sec" id="clientes">
-      <div class="wrap">
-        <div class="sec__head"><h2>Para quién lo hicimos<span class="dot">.</span></h2></div>
-        <ol class="clientes">
-          {clientes.slice(0, 12).map((c) => <li><a href={`/antecedentes?cliente=${encodeURIComponent(c.name)}`}>{c.name}</a><span>{c.count}</span></li>)}
-          <li class="mas"><a href="/antecedentes">Y {clientes.length - 12} más</a><span></span></li>
-        </ol>
-      </div>
-    </section>
-
-
+    <ClientDirectory title="Para quién lo hicimos" clients={clientes} archiveLabel="Ver todos los antecedentes" />
 
     <EmpresaPortada stories={stories} />
 

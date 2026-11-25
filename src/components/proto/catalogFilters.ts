@@ -1,6 +1,6 @@
 /** Shared filtering for the rendered catalog and its existing public URLs. */
 export type CatalogState = Partial<Record<(typeof filterKeys)[number], string>>;
-export type CatalogItem = { sector: string; services: string[]; year: string; client: string; search: string; status: string };
+export type CatalogItem = { sector: string; services: string[]; year: string; client: string; search: string; status: string; reviewed?: boolean };
 export const filterKeys = ['sector', 'service', 'year', 'cliente', 'q', 'periodo', 'estado', 'orden'] as const;
 export const catalogCriteria = filterKeys.filter((key) => key !== 'orden');
 export function catalogHref(state: CatalogState, without?: (typeof catalogCriteria)[number]): string {
@@ -78,6 +78,25 @@ export function catalogClientRecovery(items: readonly CatalogItem[], state: Cata
   };
 }
 
-export function orderCatalog<T extends Pick<CatalogItem, 'year' | 'client'>>(items: T[], mode: string): T[] {
-  return [...items].sort((a, b) => mode === 'client' ? a.client.localeCompare(b.client, 'es') : mode === 'year-asc' ? Number(a.year) - Number(b.year) : mode === 'year-desc' ? Number(b.year) - Number(a.year) : 0);
+/** Suggest the smallest useful change to an empty search before dropping other filters. */
+export function catalogRecovery(items: readonly CatalogItem[], state: CatalogState) {
+  if (state.q && catalogCriteria.some(key => key !== 'q' && state[key])) {
+    const retained = { ...state, q: '' };
+    const count = items.filter(item => matchesCatalog(item, retained)).length;
+    if (count) return {
+      href: catalogHref(retained),
+      label: count === 1 ? 'Ver 1 obra sin el texto de búsqueda' : `Ver ${count} obras sin el texto de búsqueda`,
+    };
+  }
+  return catalogClientRecovery(items, state);
+}
+
+export function orderCatalog<T extends Pick<CatalogItem, 'year' | 'client' | 'reviewed'>>(items: T[], mode: string, scoped = false): T[] {
+  const sorted = [...items];
+  switch (mode) {
+    case 'client': return sorted.sort((a, b) => a.client.localeCompare(b.client, 'es'));
+    case 'year-asc': return sorted.sort((a, b) => Number(a.year) - Number(b.year));
+    case 'year-desc': return sorted.sort((a, b) => Number(b.year) - Number(a.year));
+    default: return scoped ? sorted.sort((a, b) => Number(Boolean(b.reviewed)) - Number(Boolean(a.reviewed))) : sorted;
+  }
 }

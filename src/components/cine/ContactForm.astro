@@ -4,6 +4,7 @@
 // servicios, sede y urgencia se suman al mensaje y el tema viaja como originIntent,
 // que el mail usa como asunto.
 import { journeyContext } from '../../data/propuesta/recorrido';
+import { publicCaseTitle } from '../proto/casePresentation';
 import { loadStories } from '../proto/isoData';
 import { contactOrigin, contextualParams } from '../../lib/contactEntry';
 import { budgetSelections } from '../../data/budgetBrief';
@@ -38,7 +39,7 @@ const t = (es: string, en: string) => lang === 'en' ? en : es;
 const reference = params.get('antecedente') || '';
 const work = /^\d{1,8}$/.test(reference) ? (await loadStories()).stories.find(item => item.id === Number(reference)) : undefined;
 const project = work ? `UM-${work.id}` : '';
-const subject = project ? `${t('Proyecto', 'Project')} ${project} · ${work!.title}` : college ? 'Software para colegios profesionales' : context?.subject || (dossier ? t('Solicitud de dossier', 'Dossier request') : sourceTitle || undefined);
+const subject = work ? `${t('Proyecto', 'Project')} ${project} · ${publicCaseTitle(work)}` : college ? 'Software para colegios profesionales' : context?.subject || (dossier ? t('Solicitud de dossier', 'Dossier request') : sourceTitle || undefined);
 const question = project
   ? (project === 'UM-3104' ? t('¿Qué accesos necesitás controlar y en qué sitio?', 'Which entrances do you need to control and where?') : t('¿Qué necesitás implementar y en qué sitio?', 'What do you need to implement, and at which site?'))
   : college ? '¿Qué necesitás resolver en tu colegio profesional?' : context?.question || (dossier ? t('¿Para qué proyecto o licitación necesitás el dossier?', 'Which project or tender needs the dossier?') : undefined);
@@ -84,6 +85,13 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
     </div>
 
     <label class="ctf__field">
+      <span>{question || t('Mensaje', 'Message')} <em aria-hidden="true">*</em></span>
+      <textarea id="message" aria-describedby="error-message" name="message" required rows="5" maxlength="1200" placeholder={t('Contanos qué necesitás, en qué sede y para cuándo.', 'Tell us what you need, where and by when.')}>{draftField('notes', 1200)}</textarea>
+      <small class="ctf__error" data-error-for="message" id="error-message"></small>
+      <span class="ctf__count" aria-hidden="true"><b data-count>0</b>/1200</span>
+    </label>
+
+    <label class="ctf__field">
       <span>{t('Empresa u organismo', 'Company or organization')}</span>
       <input type="text" id="company" name="company" value={draftField('institution', 120)} autocomplete="organization" enterkeyhint="next" placeholder={t('Opcional', 'Optional')} />
     </label>
@@ -127,13 +135,6 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
         </select>
       </label>
     </div>
-
-    <label class="ctf__field">
-      <span>{question || t('Mensaje', 'Message')} <em aria-hidden="true">*</em></span>
-      <textarea id="message" aria-describedby="error-message" name="message" required rows="5" maxlength="1200" placeholder={t('Contanos qué necesitás, en qué sede y para cuándo.', 'Tell us what you need, where and by when.')}>{draftField('notes', 1200)}</textarea>
-      <small class="ctf__error" data-error-for="message" id="error-message"></small>
-      <span class="ctf__count" aria-hidden="true"><b data-count>0</b>/1200</span>
-    </label>
 
     <input type="text" name="website" class="ctf__hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
     <input type="text" name="contact_phone" class="ctf__hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
