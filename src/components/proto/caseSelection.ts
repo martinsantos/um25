@@ -75,6 +75,15 @@ export function isShowcaseProject(story: Story): boolean {
   if (genericTitle.test(story.title) && (!story.summary || isCaseBoilerplate(story.summary) || /Solución implementada por el equipo/.test(story.summary))) return false;
   return true;
 }
+// Only an eligible, currently published case from the sector may occupy this slot.
+export function sectorReference(slug: string, candidates: readonly Story[]) {
+  const ids: Record<string, number> = {
+    aeropuertos: 3126, bodegas: 3190, constructoras: 3588,
+    gobiernosectorpublico: 3064, industria: 3624, salud: 3103,
+  };
+  return candidates.find(story => story.id === ids[slug] && story.sectorSlug === slug && isNamedClient(story.client));
+}
+
 /** Withhold ambiguous placements from the showcase, retaining their catalog record. */
 export function pageCaseCandidates(stories: Story[], sector?: string, service?: string): Story[] {
   const scope: Record<string, RegExp> = {

@@ -5,10 +5,11 @@ import type { clientsForStories } from './clientDirectory';
 
 interface Props {
   clients: ReturnType<typeof clientsForStories>;
-  filter: {service: string} | {sector: string};
+  filter?: {service: string} | {sector: string};
+  title?: string;
   archiveLabel: string;
 }
-const {clients, filter, archiveLabel} = Astro.props;
+const {clients, filter, archiveLabel, title = 'Antecedentes por cliente'} = Astro.props;
 const first = 5;
 const rows = clients.map(({name, count, years}) => {
   const dates = [...years].sort((a, b) => a - b);
@@ -16,16 +17,29 @@ const rows = clients.map(({name, count, years}) => {
   return {name, count, period, href: catalogHref({...filter, cliente: name})};
 });
 const extra = rows.length - first;
+const choices = !filter && extra > 0 ? [...rows].sort((a, b) => a.name.localeCompare(b.name, 'es')) : [];
+const groups = [rows.slice(0, first)];
+if (filter && extra > 0) groups.push(rows.slice(first));
 ---
 {rows.length > 0 && <section id="clientes" class="sec directory" aria-labelledby="clientes-title">
   <div class="wrap directory-layout">
     <header>
-      <h2 id="clientes-title">Antecedentes por cliente<span class="dot">.</span></h2>
-      <a class="archive" href={catalogHref(filter)}>{archiveLabel}<ArrowRight size={18} aria-hidden="true" /></a>
+      <h2 id="clientes-title">{title}<span class="dot">.</span></h2>
+      {choices.length > 0 && <form method="get" action="/antecedentes" class="client-lookup">
+        <label for="home-client">Buscar obras por cliente</label>
+        <div>
+          <select id="home-client" name="cliente" required>
+            <option value="">Elegí entre {choices.length} clientes</option>
+            {choices.map(({name}) => <option value={name}>{name}</option>)}
+          </select>
+          <button type="submit">Ver obras <ArrowRight size={16} aria-hidden="true" /></button>
+        </div>
+      </form>}
+      <a class="archive" href={catalogHref(filter || {})}>{archiveLabel}<ArrowRight size={18} aria-hidden="true" /></a>
     </header>
     <div class="directory-list">
-      <div class="columns" aria-hidden="true"><span>Cliente y año</span><span>Antecedentes</span></div>
-      {[rows.slice(0, first), rows.slice(first)].map((entries, index) => {
+      <div class="columns" aria-hidden="true"><span>{choices.length ? 'Clientes con más obras' : 'Cliente y año'}</span><span>Antecedentes</span></div>
+      {groups.map((entries, index) => {
         if (!entries.length) return null;
         const list = <ul>{entries.map(row => <li>
           <a class="client" href={row.href}>
@@ -44,8 +58,15 @@ const extra = rows.length - first;
 </section>}
 <style>
   .directory-layout {display:grid;grid-template-columns:minmax(0, 4fr) minmax(0, 7fr);gap:clamp(32px,6vw,96px);align-items:start}
-  header {display:grid;justify-items:start;gap:16px}
+  header {display:grid;grid-template-columns:minmax(0,1fr);min-width:0;justify-items:start;gap:16px}
   h2 {max-width:13ch}
+  .client-lookup {display:grid;grid-template-columns:minmax(0,1fr);gap:7px;max-width:100%;width:100%;margin-block:4px}
+  .client-lookup label {font-size:1rem;font-weight:600}
+  .client-lookup div {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+  .client-lookup select {width:100%;min-width:0;max-width:100%;min-height:46px;padding:8px 10px;color:var(--ink);background:var(--bg-2);border:1px solid var(--ink-3);font:inherit}
+  .client-lookup button {display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:8px 16px;color:var(--bg);background:var(--ink);font-weight:600}
+  .client-lookup :is(select,button):focus-visible {outline:2px solid var(--ink);outline-offset:2px}
+  @media(max-width:359px) { .client-lookup div {grid-template-columns:1fr} }
   .archive,summary {display:inline-flex;align-items:center;min-height:44px;gap:10px;font-weight:600}
   .archive {text-decoration:underline;text-underline-offset:5px}
   .directory-list {border-top:1px solid var(--line)}

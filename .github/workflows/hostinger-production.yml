@@ -59,15 +59,15 @@ jobs:
           available=$(ssh "${opts[@]}" root@179.198.115.115 "df -B1 --output=avail /srv | tail -n 1" | tr -d '[:space:]')
           [[ "$available" =~ ^[0-9]+$ ]]
           required=$((size + (5 * size > 5 * 1024**3 ? 5 * size : 5 * 1024**3)))
-          if [[ "$PREVIOUS_MASTER" == '28f931c73838064aaafe0febde1a58ebb75a4910' ]]; then
+          if [[ "$PREVIOUS_MASTER" == '5081146d064b12ff134836f669a44544d76106b8' ]]; then
             installed=$(du -sc -B1 dist node_modules package.json package-lock.json | awk 'END {print $1}')
             backup_floor=$((10 * 1024**3 + size + installed))
             if (( backup_floor > required )); then required=$backup_floor; fi
             if (( available < required )); then
-              program=scripts/ops/hostinger-migration/share-soporte105-20261124.py
+              program=scripts/ops/hostinger-migration/share-portadas-20261125.py
               remote_command=$(python3 "$program" command "$required")
-              ssh "${opts[@]}" -o ServerAliveInterval=30 root@179.198.115.115 "$remote_command" < "$program" | tee "$RUNNER_TEMP/umsa-soporte105-static.jsonl"
-              python3 "$program" verify "$required" < "$RUNNER_TEMP/umsa-soporte105-static.jsonl"
+              ssh "${opts[@]}" -o ServerAliveInterval=30 root@179.198.115.115 "$remote_command" < "$program" | tee "$RUNNER_TEMP/umsa-portadas-static.jsonl"
+              python3 "$program" verify "$required" < "$RUNNER_TEMP/umsa-portadas-static.jsonl"
               available=$(ssh "${opts[@]}" root@179.198.115.115 "df -B1 --output=avail /srv | tail -n 1" | tr -d '[:space:]')
               [[ "$available" =~ ^[0-9]+$ ]]
             fi
