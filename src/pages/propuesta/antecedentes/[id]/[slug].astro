@@ -40,6 +40,8 @@ import OperationsSection from "../../../../components/proto/OperationsSection.as
 import { operationsSceneForCase } from "../../../../data/operationsScenes";
 import { technicalSceneForCase } from "../../../../data/technicalScenes";
 import {
+  caseIntroduction,
+  reviewedIntroductions,
   publicCaseFor,
   publicCaseTitle,
   samePublicClient,
@@ -117,13 +119,13 @@ const catalogScene =
     : catalogSceneForCase(c);
 const accessProject = c.id === 3104;
 const ref = `UM-${c.id}`;
-const introduction =
-  caseDetail?.introduction ||
-  c.summary ||
+const reviewed = reviewedIntroductions.has(c.id);
+const summary = caseDetail?.introduction || (reviewed ? caseIntroduction(c.summary, pageTitle, c.client) : c.summary);
+const introduction = reviewed || summary ? summary :
   `Registro ${ref} del archivo de ULTIMA MILLA${when ? `, correspondiente a ${when}` : ""}. ${svcs.length ? `Servicios vinculados: ${svcs.map((s) => s.name).join(", ")}.` : "El alcance disponible se conserva con la referencia original del proyecto."}`;
 const caseSeo = buildCaseSeoMeta({
   title: pageTitle,
-  description: caseDetail?.introduction || c.summary,
+  description: summary,
   client: c.client,
   area: c.sector,
   date: String(c.year),
@@ -375,7 +377,7 @@ const seoTitle = caseSeo.title.includes(ref)
             )
           }
           <div class="datos">
-            <h1 data-contact-origin-title={`Proyecto ${ref} · ${pageTitle}`}>{pageTitle}<span class="dot">.</span></h1>
+            <h1 data-contact-origin-title={`Proyecto ${ref} · ${pageTitle}`}>{pageTitle.replace(/\.$/, '')}<span class="dot">.</span></h1>
             <div class="quien">
               {c.client}{
                 (accessProject ? periodo : when) && (
@@ -390,14 +392,14 @@ const seoTitle = caseSeo.title.includes(ref)
               }
             </div>
             {
-              c.documentedScope ? (
+              introduction && (c.documentedScope ? (
                 <section class="alcance">
                   <h2>Alcance documentado</h2>
                   <p class="resumen">{introduction}</p>
                 </section>
               ) : (
                 <p class="resumen">{introduction}</p>
-              )
+              ))
             }
             <div class="project-actions">
               <a class={accessProject ? 'btn' : 'u'} href={contactLink(Astro.url.pathname, `/contacto?antecedente=${c.id}#formulario`)}>

@@ -59,6 +59,33 @@ jobs:
           available=$(ssh "${opts[@]}" root@179.198.115.115 "df -B1 --output=avail /srv | tail -n 1" | tr -d '[:space:]')
           [[ "$available" =~ ^[0-9]+$ ]]
           required=$((size + (5 * size > 5 * 1024**3 ? 5 * size : 5 * 1024**3)))
+          if [[ "$PREVIOUS_MASTER" == '855a98433a502f18dfcd593fa82b4ceb6c5af8ea' ]]; then
+            installed=$(du -sc -B1 dist node_modules package.json package-lock.json | awk 'END {print $1}')
+            backup_floor=$((10 * 1024**3 + size + installed))
+            if (( backup_floor > required )); then required=$backup_floor; fi
+            ops=scripts/ops/hostinger-migration
+            if (( available < required )); then
+              program="$ops/share-pr720-static.py"
+              remote_command=$(python3 "$program" command "$required")
+              ssh "${opts[@]}" -o ServerAliveInterval=30 root@179.198.115.115 "$remote_command" < "$program" | tee "$RUNNER_TEMP/umsa-pr720-static.jsonl"
+              python3 "$program" verify "$required" < "$RUNNER_TEMP/umsa-pr720-static.jsonl"
+              available=$(ssh "${opts[@]}" root@179.198.115.115 "df -B1 --output=avail /srv | tail -n 1" | tr -d '[:space:]')
+              [[ "$available" =~ ^[0-9]+$ ]]
+            fi
+            if (( available < required )); then
+              program="$RUNNER_TEMP/prune-pr720-transport.py"
+              sed '/^if __name__ == /,$d' "$ops/prune-reviewed-migration.py" > "$program"
+              sed '/^if __name__==/,$d' "$ops/prune-20261115-equipment-packages.py" >> "$program"
+              cat "$ops/prune-pr720-transport.py" >> "$program"
+              result=$(ssh "${opts[@]}" root@179.198.115.115 "python3 -B - inspect $required" < "$program")
+              printf '%s\n' "$result"
+              snapshot=$(jq -er '.snapshot_sha256' <<< "$result")
+              [[ "$snapshot" =~ ^[0-9a-f]{64}$ ]]
+              ssh "${opts[@]}" root@179.198.115.115 "env GITHUB_ACTIONS=true python3 -B - apply $required $snapshot" < "$program"
+              available=$(ssh "${opts[@]}" root@179.198.115.115 "df -B1 --output=avail /srv | tail -n 1" | tr -d '[:space:]')
+              [[ "$available" =~ ^[0-9]+$ ]]
+            fi
+          fi
           if [[ "$PREVIOUS_MASTER" == '5081146d064b12ff134836f669a44544d76106b8' ]]; then
             installed=$(du -sc -B1 dist node_modules package.json package-lock.json | awk 'END {print $1}')
             backup_floor=$((10 * 1024**3 + size + installed))
