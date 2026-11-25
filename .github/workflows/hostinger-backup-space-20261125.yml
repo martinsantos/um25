@@ -1,0 +1,48 @@
+name: Retire the approved UMSA transport for backup headroom
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/hostinger-backup-space-20261125.yml'
+      - 'scripts/ops/hostinger-migration/prune-backup-transport-20261125.py'
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: hostinger-umsa-production
+  cancel-in-progress: false
+
+jobs:
+  retire:
+    if: github.event.before == '7e944561a9c3be41da67c10b00926612fac9e2ff' && vars.UMSA_PRODUCTION_TARGET == 'hostinger'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ops/hostinger-migration/
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_MIGRATION_KEY }}
+      - name: Inspect and retire only the approved transport archive
+        run: |
+          set -euo pipefail
+          ops=scripts/ops/hostinger-migration
+          program="$RUNNER_TEMP/prune-transport.py"
+          sed '/^if __name__ == /,$d' "$ops/prune-reviewed-migration.py" > "$program"
+          sed '/^if __name__==/,$d' "$ops/prune-20261115-equipment-packages.py" >> "$program"
+          cat "$ops/prune-backup-transport-20261125.py" >> "$program"
+          opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$ops/known_hosts" -o ConnectTimeout=15 -o ServerAliveInterval=30)
+          # Reserve 10 GiB for the scheduled backup.
+          required=10737418240
+          result=$(ssh "${opts[@]}" root@179.198.115.115 "python3 -B - inspect $required" < "$program")
+          printf '%s\n' "$result"
+          snapshot=$(jq -er '.snapshot_sha256' <<< "$result")
+          [[ "$snapshot" =~ ^[0-9a-f]{64}$ ]]
+          ssh "${opts[@]}" root@179.198.115.115 "env GITHUB_ACTIONS=true python3 -B - apply $required $snapshot" < "$program"
