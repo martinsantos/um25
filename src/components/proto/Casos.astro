@@ -5,7 +5,7 @@ import { isNamedClient } from './catalogEditorial';
 import ObraArchivo from './ObraArchivo.astro';
 import { homeWorkReturn } from './portadaCases';
 import PruebaProyecto from './PruebaProyecto.astro';
-import { publicCaseFor, publicCaseTitle } from './casePresentation';
+import { caseIntroduction, publicCaseFor, publicCaseTitle } from './casePresentation';
 import { destacados, srcsetDe, cleanSummary, type Story } from './isoData';
 import { selectCaseProjects, isCaseBoilerplate as boilerplate, type SelectedCase } from './caseSelection';
 interface Props { casos: Caso[]; stories: Story[]; title?: string; max?: number; candidates?: Story[]; selection?: SelectedCase[]; textOnly?: boolean; portada?: boolean }
@@ -19,9 +19,12 @@ const selected = selection || selectCaseProjects(safeCases, stories, candidates.
 const items = selected.map(({ caso: c, pub }) => {
   const destacado = publicCaseFor(pub);
   const titulo = publicCaseTitle(pub);
-  const scope = (value: string) => boilerplate(value) || /^Cliente:.*\bSector:/i.test(value.trim()) ? '' : cleanSummary(value, titulo, pub.client);
+  const scope = (value: string) => {
+    if (boilerplate(value)) return '';
+    return cleanSummary(caseIntroduction(value, titulo, pub.client), titulo, pub.client);
+  };
   return { ...c, publicado: pub.id, cliente: pub.client, year: pub.year, titulo, destacado,
-    texto: destacado?.introduction || scope(c.texto) || scope(pub.summary),
+    texto: destacado?.introduction || (pub.documentedScope && scope(pub.summary)) || scope(c.texto) || scope(pub.summary),
     href: pub.href, image: pub.image };
 
 });

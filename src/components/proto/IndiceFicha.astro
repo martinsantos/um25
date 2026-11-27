@@ -1,32 +1,178 @@
 ---
-import { ArrowDown } from 'lucide-astro';
+import { ChevronDown } from 'lucide-astro';
 
-interface Props { links: { href: string; label: string }[]; class?: string }
-const { links, class: className } = Astro.props;
+interface Props { links: { href: string; label: string }[]; class?: string; label?: string }
+const { links, class: className, label = 'En esta ficha' } = Astro.props;
 ---
-<nav class:list={['indice-ficha', className]} aria-label="En esta ficha">
-  <ul>
-    {links.map(({ href, label }) => <li><a href={href}>{label}<ArrowDown size={15} aria-hidden="true" /></a></li>)}
-  </ul>
+<nav class="indice-ficha" aria-label={label}>
+  <div class:list={['indice-inner', className]}>
+    <button type="button" class="indice-toggle" aria-expanded="false" aria-controls="indice-ficha-secciones" hidden>
+      <span>{label}</span>
+      <strong data-indice-actual></strong>
+      <ChevronDown size={17} aria-hidden="true" />
+    </button>
+    <ul id="indice-ficha-secciones">
+      {links.map(({ href, label }) => <li><a href={href}>{label}</a></li>)}
+    </ul>
+  </div>
 </nav>
+<script>
+  const index = document.querySelector<HTMLElement>('.indice-ficha');
+  if (index) {
+    const shell = document.querySelector<HTMLElement>('.um-ops-header');
+    const toggle = index.querySelector<HTMLButtonElement>('.indice-toggle')!;
+    const list = index.querySelector('ul')!;
+    const currentLabel = toggle.querySelector<HTMLElement>('[data-indice-actual]')!;
+    const compact = matchMedia('(max-width:1110px)');
+    const entries = [...list.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')].flatMap(link => {
+      const section = document.getElementById(link.hash.slice(1));
+      return section ? [{ link, section }] : [];
+    });
+    const root = document.documentElement;
+    function expand(open: boolean) {
+      toggle.setAttribute('aria-expanded', String(open));
+      if (!open || !compact.matches) return;
+      const bounds = index!.getBoundingClientRect();
+      const footer = document.querySelector<HTMLElement>('.um-tabbar')?.offsetHeight || 0;
+      if (bounds.bottom + list.offsetHeight + footer <= innerHeight) return;
+      const distance = bounds.top - (shell?.offsetHeight || 0);
+      if (distance > 0) window.scrollBy({ top: distance, behavior: 'instant' });
+    }
+    const expanded = () => toggle.getAttribute('aria-expanded') === 'true';
+
+    let active: HTMLAnchorElement | undefined;
+    let frame = 0;
+    function updateSection() {
+      frame = 0;
+      const line = index!.getBoundingClientRect().bottom + 25;
+      let next: HTMLAnchorElement | undefined;
+      let lastTop = -Infinity;
+      for (const {link, section} of entries) {
+        if (section.closest('[hidden], details:not([open])') || !section.getClientRects().length) continue;
+        const top = section.getBoundingClientRect().top;
+        const margin = parseFloat(getComputedStyle(section).scrollMarginTop) || 0;
+        if (top - margin <= line && top >= lastTop) {
+          lastTop = top;
+          next = link;
+        }
+      }
+      if (active === next) return;
+      active?.removeAttribute('aria-current');
+      next?.setAttribute('aria-current', 'location');
+      active = next;
+      currentLabel.textContent = next?.textContent?.trim() || '';
+    }
+    function requestUpdate() {
+      if (!frame) frame = requestAnimationFrame(updateSection);
+    }
+    function measure() {
+      const height = index!.offsetHeight;
+      root.toggleAttribute('data-ficha-index', height > 0);
+      if (!height) return;
+      root.style.setProperty('--ficha-index-height', height + 'px');
+      if (shell) root.style.setProperty('--ficha-shell-height', shell.offsetHeight + 'px');
+      requestUpdate();
+    }
+
+    index.setAttribute('data-enhanced', '');
+    toggle.hidden = false;
+    measure();
+    if (typeof ResizeObserver !== 'undefined') {
+      const size = new ResizeObserver(measure);
+      size.observe(index);
+      if (shell) size.observe(shell);
+    }
+    addEventListener('resize', measure);
+    addEventListener('scroll', requestUpdate, { passive: true });
+    addEventListener('hashchange', requestUpdate);
+    addEventListener('pageshow', event => {
+      requestUpdate();
+      if (event.persisted) return;
+      const hash = location.hash;
+      const target = entries.find(({link}) => link.hash === hash)?.section;
+      if (!target) return;
+      const offset = scrollY;
+      // The initial fragment can land before the sticky index has been measured.
+      void document.fonts.ready.then(() => {
+        if (location.hash !== hash || Math.abs(scrollY - offset) > 1) return;
+        const top = target.getBoundingClientRect().top;
+        const navBottom = index.getBoundingClientRect().bottom;
+        if (top >= 0 && top < navBottom) target.scrollIntoView({ block: 'start', behavior: 'instant' });
+      });
+    });
+    addEventListener('umsa:system-selected', requestUpdate);
+
+    toggle.addEventListener('click', () => expand(!expanded()));
+    index.addEventListener('keydown', event => {
+      if (event.key !== 'Escape' || !compact.matches || !expanded()) return;
+      event.preventDefault();
+      expand(false);
+      toggle.focus();
+    });
+    list.addEventListener('click', event => {
+      const link = event.target instanceof Element && event.target.closest('a');
+      if (!link || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const target = entries.find(entry => entry.link === link)?.section;
+      if (target && !target.hasAttribute('tabindex')) target.tabIndex = -1;
+      expand(false);
+    });
+    document.addEventListener('click', event => {
+      if (expanded() && event.target instanceof Node && !index.contains(event.target)) expand(false);
+    });
+    compact.addEventListener('change', () => {
+      if (compact.matches && list.contains(document.activeElement)) toggle.focus({ preventScroll: true });
+      else if (!compact.matches && document.activeElement === toggle) {
+        (active || entries[0]?.link)?.focus({ preventScroll: true });
+      }
+      expand(false);
+    });
+  }
+</script>
 <style>
   .indice-ficha { border-block:1px solid var(--line, #44474b); }
+  .indice-inner { position:relative; margin-inline:auto; }
+  .indice-ficha[data-enhanced] {
+    position:sticky;
+    top:var(--ficha-shell-height,var(--top-h,66px));
+    z-index:var(--um-z-sticky,500);
+    background:var(--bg,#0a0b0d);
+  }
+  :global(html[data-ficha-index]) {
+    scroll-padding-top:calc(var(--ficha-shell-height,var(--top-h,66px)) + var(--ficha-index-height,0px) + 24px);
+  }
+  .indice-toggle { display:none; }
   ul {
-    display:flex; flex-wrap:wrap; gap:0 clamp(16px,2vw,32px);
-    margin:0; padding:6px 0; list-style:none;
+    display:flex; flex-wrap:wrap; gap:0 clamp(12px,1.2vw,20px);
+    margin:0; padding:2px 0; list-style:none;
   }
   a {
-    display:flex; align-items:center; justify-content:space-between; gap:8px;
-    min-height:44px; color:inherit; font-size:.96rem; font-weight:600; line-height:1.3;
-    text-decoration:underline; text-decoration-color:var(--line-2, #6b7076); text-underline-offset:4px;
+    display:flex; align-items:center; position:relative;
+    min-height:44px; color:var(--ink-2,#b9bcbe); font-size:.96rem; font-weight:600; line-height:1.3;
+    text-decoration:none;
   }
-  a svg { flex:none; color:var(--ink-2, #b9bcbe); }
-  a:hover { text-decoration-color:currentColor; }
-  a:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
+  a:hover { color:var(--ink,#f4f4f5);text-decoration:underline;text-underline-offset:4px; }
+  a[aria-current] { color:var(--ink,#f4f4f5); box-shadow:inset 0 -2px var(--red,var(--um-red,#dc2626)); }
+  a:focus-visible,.indice-toggle:focus-visible { outline:2px solid currentColor; outline-offset:-2px; }
   @media(max-width:700px) {
-    ul { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 16px; padding:0; }
-    li { min-width:0; }
-    li:nth-child(n+3) { border-top:1px solid var(--line, #44474b); }
-    a { padding-block:7px; }
+    .indice-ficha:not([data-enhanced]) ul { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 16px; padding:0; }
+    .indice-ficha:not([data-enhanced]) li:nth-child(n+3) { border-top:1px solid var(--line,#44474b); }
+    .indice-ficha:not([data-enhanced]) a { padding-block:7px; }
+  }
+  @media(max-width:1110px) {
+    [data-enhanced] .indice-toggle {
+      width:100%; display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:10px;
+      padding-block:8px; min-height:var(--indice-toggle-height,46px); text-align:start; font-size:.9375rem; color:var(--ink-2,#b9bcbe);
+    }
+    .indice-toggle strong { justify-self:end; text-align:end; color:var(--ink,#f4f4f5); line-height:1.25; }
+    .indice-toggle[aria-expanded=true] svg { transform:rotate(180deg); }
+    [data-enhanced] .indice-toggle[aria-expanded=false] + ul { display:none; }
+    [data-enhanced] ul {
+      display:block; position:absolute; inset:100% 0 auto; overflow:auto; overscroll-behavior:contain;
+      max-height:calc(100dvh - var(--ficha-shell-height,var(--top-h,66px)) - var(--ficha-index-height,46px) - var(--um-tabbar-height,0px) - 16px);
+      padding:0; background:var(--bg-2,#101215); border:1px solid var(--line,#44474b); border-top:2px solid var(--red,var(--um-red,#dc2626));
+    }
+    [data-enhanced] li + li { border-top:1px solid var(--line,#44474b); }
+    [data-enhanced] li a { padding:8px 12px; }
+    [data-enhanced] a[aria-current] { box-shadow:inset 3px 0 var(--red,var(--um-red,#dc2626)); }
   }
 </style>

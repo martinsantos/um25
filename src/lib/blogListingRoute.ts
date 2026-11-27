@@ -11,6 +11,7 @@ export type BlogListingCategory = (typeof BLOG_LISTING_CATEGORIES)[number];
 export interface BlogListingRoute {
   page: number;
   category?: BlogListingCategory;
+  search?: string;
   invalidCategory: boolean;
   canonicalPath?: string;
   redirectTo?: string;
@@ -22,9 +23,10 @@ function positiveIntegerOrOne(value: string | null): number {
   return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : 1;
 }
 
-function canonicalBlogPath(page: number, category?: BlogListingCategory): string {
+export function blogListingHref(page: number, category?: string, search?: string): string {
   const params = new URLSearchParams();
   if (category) params.set('categoria', category);
+  if (search) params.set('q', search);
   if (page > 1) params.set('page', String(page));
   const query = params.toString();
   return query ? `/blog?${query}` : '/blog';
@@ -42,21 +44,27 @@ export function resolveBlogListingRoute(url: URL): BlogListingRoute {
 
   const pageParam = params.has('page') ? params.get('page') : params.get('p');
   const page = positiveIntegerOrOne(pageParam);
-  const canonicalPath = canonicalBlogPath(page, category);
+  const rawSearch = params.get('q');
+  const search = rawSearch === null ? undefined
+    : Array.from(rawSearch.replace(/[\s\p{Cc}]+/gu, ' ').trim()).slice(0, 100).join('').trimEnd();
+  const canonicalPath = blogListingHref(page, category);
+  const normalizeSearch = rawSearch !== null && (!search || rawSearch !== search);
   const normalizePage = params.has('page') && (pageParam !== String(page) || page === 1);
 
   return {
     page,
     category,
     invalidCategory: false,
+    ...(search ? { search } : {}),
     canonicalPath,
-    ...(params.has('p') || normalizePage ? { redirectTo: canonicalPath } : {}),
+    ...(params.has('p') || normalizePage || normalizeSearch
+      ? { redirectTo: blogListingHref(page, category, search) } : {}),
   };
 }
 
 /** Only accept relative archive routes and note anchors carried by the reading links. */
 export function resolveBlogReadingReturn(value: string | null) {
-  if (!value || !value.startsWith('/blog') || value.length > 500 || /[\\\u0000-\u0020]/.test(value)) return;
+  if (!value || !value.startsWith('/blog') || value.length > 1800 || /[\\\u0000-\u0020]/.test(value)) return;
   const url = new URL(value, 'https://example.invalid');
   if (!/^#nota-[a-z0-9][a-z0-9-]*$/.test(url.hash)) return;
   const listing = resolveBlogListingRoute(url);
@@ -65,10 +73,14 @@ export function resolveBlogReadingReturn(value: string | null) {
   const categoryPath = BLOG_LISTING_CATEGORIES.some(category => url.pathname === '/blog/categoria/' + category);
   const topicPath = /^\/blog\/tema\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(url.pathname);
   if (url.pathname !== '/blog' && !categoryPath && !topicPath) return;
-  const path = url.pathname === '/blog' ? listing.canonicalPath : url.pathname + (listing.page > 1 ? '?page=' + listing.page : '');
+  const path = url.pathname === '/blog'
+    ? blogListingHref(listing.page, listing.category, listing.search)
+    : url.pathname + (listing.page > 1 ? '?page=' + listing.page : '');
   return {
     href: path + url.hash,
-    label: listing.page > 1 ? `Volver a la página ${listing.page} del listado` : 'Volver al listado de notas',
+    ...(listing.search ? { search: listing.search } : {}),
+    label: listing.search ? 'Volver a los resultados'
+      : listing.page > 1 ? `Volver a la página ${listing.page} del listado` : 'Volver al listado de notas',
   };
 }
 

@@ -123,3 +123,24 @@ test('generic imported records without a documented scope stay out of showcases'
     expect(isShowcaseProject(generic)).toBe(false);
   }
 });
+
+test('accepts an approved cover only for the project that owns it', () => {
+  const image = '/images/aprobadas-20261113/3588-1600.webp';
+  const other = story(2, { image });
+  const approved = story(3588, { image, client: 'Kristich Desarrollos' });
+  expect(selectCaseProjects([], [], [other, approved]).map(({ pub }) => pub.id)).toEqual([3588]);
+});
+
+test('starts from the preferred in-scope work and falls back when it is ineligible', () => {
+  const other = story(2, {image:'/images/photography/0123456789abcdef0123.webp'});
+  const preferred = story(3);
+  expect(selectCaseProjects([], [], [other, preferred], 1, 3)[0].pub.id).toBe(3);
+  expect(selectCaseProjects([], [], [other], 1, 3)[0].pub.id).toBe(2);
+});
+
+
+test('keeps a generic maintenance record out of the showcase when it adds no scope', () => {
+  const generic = story(3341, {client:'Bodega Caro', title:'Mantenimiento para Bodega Caro',
+    summary:'ULTIMA MILLA realizó un trabajo de mantenimiento para Bodega Caro.', documentedScope:true});
+  expect(selectCaseProjects([], [], [generic])).toEqual([]);
+});

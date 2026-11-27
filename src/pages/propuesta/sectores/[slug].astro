@@ -54,9 +54,9 @@ const relato = sectorRelato(slug);
 const casos = casosDe(CASOS_SECTOR[slug] || []);
 const showcase = pageCaseCandidates(own, slug);
 const rankedCases = destacados(showcase, showcase.length);
-const selectedCases = selectCaseProjects(casos, stories, rankedCases);
-const reference = sectorReference(slug, showcase)
-  || selectedCases.find(({ pub }) => showcase.some((story) => story.id === pub.id))?.pub;
+const directoryReference = sectorReference(slug, showcase);
+const selectedCases = selectCaseProjects(casos, stories, rankedCases, 4, directoryReference?.id);
+const reference = directoryReference || selectedCases[0]?.pub;
 const documentedCases = own.filter((c) => c.documentedScope && !selectedCases.some(({ pub }) => pub.id === c.id));
 const moreCases = remainingCaseProjects(rankedCases.filter((c) => !c.documentedScope), selectedCases).slice(0, 8);
 const name = SECTORS.find((s) => s.slug === slug)?.name || sector.name;

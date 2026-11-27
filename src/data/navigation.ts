@@ -92,7 +92,8 @@ export function directoryCardId(href: string) {
 export function directoryReturnHref(directory: string, currentPath: string) {
   const path = currentPath.replace(/\/$/, '');
   const entries = directory === '/servicios' ? NAV_SERVICES : directory === '/sectores' ? NAV_SECTORS : [];
-  const entry = entries.find(item => item.href === path);
+  const entry = entries.find(item => item.href === path ||
+    (directory === '/servicios' && path === item.href + '/ficha'));
   return entry ? directory + '#' + directoryCardId(entry.href) : directory;
 }
 

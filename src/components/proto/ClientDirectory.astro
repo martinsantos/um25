@@ -1,6 +1,6 @@
 ---
-import { ArrowRight, ChevronDown } from 'lucide-astro';
-import { catalogResultsHref } from './catalogFilters';
+import { ArrowRight, ChevronDown, Search } from 'lucide-astro';
+import { catalogResultsHref, clientKey } from './catalogFilters';
 import type { clientsForStories } from './clientDirectory';
 
 interface Props {
@@ -14,34 +14,34 @@ const first = 5;
 const rows = clients.map(({name, count, years}) => {
   const dates = [...years].sort((a, b) => a - b);
   const period = dates.length > 1 ? `${dates[0]}–${dates[dates.length - 1]}` : dates[0];
-  return {name, count, period, href: catalogResultsHref({...filter, cliente: name})};
+  return {name, count, period, key: clientKey(name), href: catalogResultsHref({...filter, cliente: name})};
 });
 const extra = rows.length - first;
-const choices = !filter && extra > 0 ? [...rows].sort((a, b) => a.name.localeCompare(b.name, 'es')) : [];
 const groups = [rows.slice(0, first)];
-if (filter && extra > 0) groups.push(rows.slice(first));
+if (extra > 0) groups.push(rows.slice(first));
+const columnLabel = !filter && extra > 0 ? 'Clientes con más obras' : 'Cliente y año';
 ---
 {rows.length > 0 && <section id="clientes" class="sec directory" aria-labelledby="clientes-title">
   <div class="wrap directory-layout">
     <header>
       <h2 id="clientes-title">{title}<span class="dot">.</span></h2>
-      {choices.length > 0 && <form method="get" action="/antecedentes#obras-filtradas" class="client-lookup">
-        <label for="home-client">Buscar obras por cliente</label>
-        <div>
-          <select id="home-client" name="cliente" required>
-            <option value="">Elegí entre {choices.length} clientes</option>
-            {choices.map(({name}) => <option value={name}>{name}</option>)}
-          </select>
-          <button type="submit">Ver obras <ArrowRight size={16} aria-hidden="true" /></button>
+      {extra > 0 && <form role="search" class="client-lookup" data-client-search hidden>
+        <label for="buscar-cliente">Buscar obras por cliente</label>
+        <div class="client-field">
+          <Search size={18} aria-hidden="true" />
+          <input id="buscar-cliente" type="search" aria-controls="client-results"
+            placeholder="Nombre o parte del nombre" maxlength="140" enterkeyhint="search" />
+          <button type="button" data-clear-client hidden>Limpiar</button>
         </div>
+        <p class="lookup-status" data-client-status role="status"></p>
       </form>}
       <a class="archive" href={filter ? catalogResultsHref(filter) : '/antecedentes'}>{archiveLabel}<ArrowRight size={18} aria-hidden="true" /></a>
     </header>
-    <div class="directory-list">
-      <div class="columns" aria-hidden="true"><span>{choices.length ? 'Clientes con más obras' : 'Cliente y año'}</span><span>Antecedentes</span></div>
+    <div class="directory-list" id="client-results">
+      <div class="columns" aria-hidden="true"><span data-client-columns data-default={columnLabel}>{columnLabel}</span><span>Antecedentes</span></div>
       {groups.map((entries, index) => {
         if (!entries.length) return null;
-        const list = <ul>{entries.map(row => <li>
+        const list = <ul>{entries.map(row => <li data-client-key={row.key}>
           <a class="client" href={row.href}>
             <span class="identity"><strong>{row.name}</strong>{row.period && <small>{row.period}</small>}</span>
             <span class="count">{row.count}<span class="unit">{row.count === 1 ? ' antecedente' : ' antecedentes'}</span></span>
@@ -56,17 +56,76 @@ if (filter && extra > 0) groups.push(rows.slice(first));
     </div>
   </div>
 </section>}
+<script>
+  import { clientKey } from './catalogFilters';
+
+  for (const form of document.querySelectorAll<HTMLFormElement>('[data-client-search]')) {
+    const directory = form.closest<HTMLElement>('.directory')!;
+    const results = directory.querySelector<HTMLElement>('.directory-list')!;
+    const details = results.querySelector<HTMLDetailsElement>('details')!;
+    const rows = [...results.querySelectorAll<HTMLElement>('[data-client-key]')];
+    const column = results.querySelector<HTMLElement>('[data-client-columns]')!;
+    const query = form.querySelector<HTMLInputElement>('input')!;
+    const status = form.querySelector<HTMLElement>('[data-client-status]')!;
+    const clear = form.querySelector<HTMLButtonElement>('[data-clear-client]')!;
+    let searching = false;
+    let wasOpen = false;
+
+    function update() {
+      const terms = clientKey(query.value).split('-').filter(Boolean);
+      const active = terms.length > 0;
+      if (active && !searching) wasOpen = details.open;
+      let visible = 0;
+      for (const row of rows) {
+        const match = terms.every(term => row.dataset.clientKey!.includes(term));
+        row.hidden = !match;
+        if (match) visible++;
+      }
+      if (searching !== active) {
+        details.open = active || wasOpen;
+        results.toggleAttribute('data-filtering', active);
+        column.textContent = active ? 'Clientes encontrados' : column.dataset.default!;
+      }
+      searching = active;
+      results.hidden = active && !visible;
+      clear.hidden = !query.value;
+      status.textContent = !active ? '' : visible === 0 ? 'No encontramos clientes con ese nombre.'
+        : visible === 1 ? '1 cliente encontrado' : visible + ' clientes encontrados';
+    }
+
+    query.addEventListener('input', update);
+    clear.addEventListener('click', () => {
+      query.value = '';
+      update();
+      query.focus();
+    });
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      if (searching) results.querySelector<HTMLAnchorElement>('li[data-client-key]:not([hidden]) a')?.focus();
+    });
+    form.hidden = false;
+    update();
+    window.addEventListener('pageshow', update);
+  }
+</script>
 <style>
   .directory-layout {display:grid;grid-template-columns:minmax(0, 4fr) minmax(0, 7fr);gap:clamp(32px,6vw,96px);align-items:start}
   header {display:grid;grid-template-columns:minmax(0,1fr);min-width:0;justify-items:start;gap:16px}
   h2 {max-width:13ch}
-  .client-lookup {display:grid;grid-template-columns:minmax(0,1fr);gap:7px;max-width:100%;width:100%;margin-block:4px}
+  .client-lookup {display:grid;min-width:0;width:100%;gap:7px;margin-block:4px}
+  .client-lookup[hidden],.client-lookup [hidden],.directory-list[hidden],.directory-list [hidden] {display:none}
   .client-lookup label {font-size:1rem;font-weight:600}
-  .client-lookup div {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
-  .client-lookup select {width:100%;min-width:0;max-width:100%;min-height:46px;padding:8px 10px;color:var(--ink);background:var(--bg-2);border:1px solid var(--ink-3);font:inherit}
-  .client-lookup button {display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:8px 16px;color:var(--bg);background:var(--ink);font-weight:600}
-  .client-lookup :is(select,button):focus-visible {outline:2px solid var(--ink);outline-offset:2px}
-  @media(max-width:359px) { .client-lookup div {grid-template-columns:1fr} }
+  .client-field {display:flex;align-items:center;gap:8px;min-height:46px;padding-inline:12px;color:var(--ink-2);background:var(--bg-2);border:1px solid var(--ink-3)}
+  .client-field:focus-within {outline:2px solid var(--ink);outline-offset:2px}
+  .client-field :global(svg) {flex:none}
+  .client-field input {width:100%;min-width:0;min-height:44px;padding:8px 0;color:var(--ink);background:transparent;border:0;outline:0;font:inherit}
+  .client-field input:focus {box-shadow:none}
+  .client-field input::placeholder {color:var(--ink-2)}
+  .client-field input::-webkit-search-cancel-button {appearance:none}
+  .client-field button {flex:none;min-height:44px;padding-inline:4px;color:var(--ink);font-size:.9rem;text-underline-offset:3px;text-decoration:underline}
+  .client-field button:focus-visible {outline:2px solid var(--ink);outline-offset:-3px}
+  .lookup-status {color:var(--ink-2);font-size:.9375rem;line-height:1.4}
+  .directory-list[data-filtering] summary {display:none}
   .archive,summary {display:inline-flex;align-items:center;min-height:44px;gap:10px;font-weight:600}
   .archive {text-decoration:underline;text-underline-offset:5px}
   .directory-list {border-top:1px solid var(--line)}

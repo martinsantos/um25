@@ -47,6 +47,7 @@ if (stories.some(c => !c.sectorSlug)) sectors.push({ slug: 'sin-clasificar', nam
 if (stories.some(c => !c.serviceCodes.length)) svcs.push({ code: 'sin-clasificar', name: 'Otros alcances del archivo', ...lente(baseService.filter(c => !c.serviceCodes.length).length, baseService.length, 'service', 'sin-clasificar') });
 const years = [...new Set(stories.map((c) => c.year).filter(Boolean))].sort((a, b) => b - a);
 const activos = catalogCriteria.filter((key) => estado[key]);
+const scoped = activos.length > 0 || estado.orden !== 'recent';
 const labelFor = (key: typeof activos[number]) => {
   const value = estado[key];
   if (key === 'sector') return sectors.find((sector) => sector.slug === value)?.name || value;
@@ -109,6 +110,9 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
       .facet summary:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
       .catalog-title { margin-bottom: 12px; font-size: clamp(1.5rem, 2vw, 2rem); font-weight: 600; line-height: 1.15; letter-spacing: -.025em; }
       .catalog-summary { display: contents; }
+      .muro[data-scoped] .catalog-summary {
+        display:block; position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap;
+      }
       .count { font-size: clamp(2.75rem, 4vw, 4rem); line-height: .9; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
       .count i { font-style: normal; color: var(--red); }
       .sentence { font-size: 1.2rem; font-weight: 600; letter-spacing: -.02em; margin-top: 6px; }
@@ -127,6 +131,8 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
       .active-filters :global(a) { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 10px; border: 1px solid var(--line); color: var(--ink); overflow-wrap: anywhere; }
       .active-filters :global(a:hover) { border-color: var(--red); }
       .active-filters :global(li) { min-width: 0; max-width: 100%; }
+      .reset-filters { margin-top:4px; font-size:.9375rem; }
+      .reset-filters[hidden] { display:none; }
       .clear { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-2); text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
       #obras-filtradas { min-width: 0; scroll-margin-top: 8px; }
       #obras-filtradas[data-client-scope] :global(.ficha[data-ficha] .t) { display:none; }
@@ -191,6 +197,29 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
         .fichas:not([data-apertura],.fichas--short) :global(b) { margin: 0; border: 0; padding: 0; overflow-wrap: anywhere; }
       }
       .fichas.fichas--short { grid-template-columns:minmax(0,1fr); gap:0; }
+      .fichas[data-unique] :global(.ficha > a) {
+        background:var(--bg-2); border:1px solid var(--line); padding:clamp(16px,2.1vw,28px);
+        gap:8px clamp(16px,2.1vw,32px);
+        grid-template-rows:auto;
+      }
+      .fichas[data-unique] :global(.ficha > a:has(figure img)) {
+        grid-template-columns:minmax(0,4fr) minmax(0,6fr);
+        grid-template-rows:auto auto auto 1fr;
+      }
+      .fichas[data-unique] :global(.ficha figure:has(img)) { grid-row:1 / 5; }
+      .fichas[data-unique] :global(.ficha b) {
+        color:var(--ink); font-size:clamp(1.35rem,2.4vw,2.15rem); line-height:1.13; letter-spacing:-.025em;
+      }
+      .fichas[data-unique] :global(.ficha .small) { color:var(--ink-2); }
+      .fichas[data-unique] :global(.case-action) {
+        display:inline-flex; align-items:center; gap:7px; align-self:end; justify-self:start;
+        min-height:32px; font-weight:600; color:var(--ink); border-bottom:2px solid var(--red);
+      }
+      @media (max-width:600px) {
+        .fichas[data-unique] :global(.ficha > a:has(figure img)) { grid-template-columns:minmax(0,1fr); grid-template-rows:none; }
+        .fichas[data-unique] :global(.ficha > a:has(img) > *) { grid-column:1; grid-row:auto; }
+        .fichas[data-unique] :global(.ficha figure) { aspect-ratio:1.9; margin-bottom:4px; }
+      }
     </style>
     <style is:inline>
       #resultados a[id^="resultado-um-"] { scroll-margin-top: calc(var(--top-h) + 12px); }
@@ -208,7 +237,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
   <body>
     <Top current="antecedentes" />
 
-    <main class="wrap muro" id="contenido" tabindex="-1" data-muro data-tanda={catalogBatch} data-visible-limit={INICIAL}>
+    <main class="wrap muro" id="contenido" tabindex="-1" data-muro data-scoped={scoped || undefined} data-tanda={catalogBatch} data-visible-limit={INICIAL}>
       <aside class="panel">
         <div>
           <h1 class="catalog-title">Proyectos y antecedentes<span class="dot">.</span></h1>
@@ -219,6 +248,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
           <ul class="active-filters" data-active-filters aria-label="Filtros activos" hidden={!activos.length}>
             {activos.map((key) => <li><a href={catalogHref(estado, key)} aria-label={`Quitar filtro: ${labelFor(key)}`}>{labelFor(key)} <span aria-hidden="true">×</span></a></li>)}
           </ul>
+          <a class="clear reset-filters" data-reset-filters href="/antecedentes#filtros-archivo" hidden={activos.length < 2 && estado.orden === 'recent'}>Restablecer filtros</a>
         </div>
         <form class="catalog-form" id="filtros-archivo" tabindex="-1" method="get" action="/antecedentes#obras-filtradas">
         {(['sector','service','year','estado'] as const).map(key => <input type="hidden" name={key} value={estado[key]} />)}
@@ -260,7 +290,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
       </aside>
 
       <section id="obras-filtradas" tabindex="-1" aria-label="Antecedentes" data-client-scope={Boolean(context.client) || undefined}>
-        <header class="scope-head" data-scope hidden={!context.title && !activos.length}>
+        <header class="scope-head" data-scope hidden={!scoped}>
           <div>
             <h2 data-scope-title>{context.title || "Resultados"}</h2>
             <p data-scope-qualifier hidden={!context.qualifier}>{context.qualifier}</p>
@@ -278,7 +308,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
         <div data-obras-seleccionadas hidden={!mostrarVisitas}>
           <ObrasPortada compact inset fold title="Selección del archivo" obras={portadaCases(sourceStories, 'antecedentes')} />
         </div>
-        <ol id="resultados" tabindex="-1" aria-label="Listado de antecedentes" class:list={['fichas', { 'fichas--short': shortResults }]} data-apertura={mostrarVisitas ? "si" : undefined} data-grid data-datos="/antecedentes/datos.json">
+        <ol id="resultados" tabindex="-1" aria-label="Listado de antecedentes" class:list={['fichas', { 'fichas--short': shortResults }]} data-apertura={mostrarVisitas ? "si" : undefined} data-unique={n === 1 || undefined} data-grid data-datos="/antecedentes/datos.json">
           {piezas.map((p, index) => p.rec ? (
             <li class="ficha ficha--rec" data-rec data-at={String(p.at)} data-sector={p.rec} hidden={p.oculto}>
               <a href={`/sectores/${p.rec}`}>
@@ -288,7 +318,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
               </a>
             </li>
           ) : (
-            <Ficha href={p.story!.href + caseQuery} archiveTitle={indexStory(p.story!).title} story={p.story!} eager={p.eager} primera={!mostrarVisitas && index === 0} imageSizes={catalogImageSizes(mostrarVisitas, index === 0, shortResults)} />
+            <Ficha href={p.story!.href + caseQuery} archiveTitle={indexStory(p.story!).title} story={p.story!} eager={p.eager} primera={!mostrarVisitas && index === 0} imageSizes={catalogImageSizes(mostrarVisitas, index === 0, n)} />
           ))}
         </ol>
         <div class:list={['empty', { on: n === 0 }]} data-empty>
@@ -353,7 +383,9 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
         scopeQualifier.hidden = !context.qualifier;
         scopeTitle.textContent = context.title || "Resultados";
         scopeCount.textContent = `${n} ${n === 1 ? 'antecedente' : 'antecedentes'}`;
-        scope.hidden = !context.title && !catalogCriteria.some(key => state[key]);
+        const scoped = catalogCriteria.some(key => state[key]) || (Boolean(state.orden) && state.orden !== 'recent');
+        scope.hidden = !scoped;
+        root.toggleAttribute('data-scoped', scoped);
         for (const link of scopeLinks) {
           const kind = link.dataset.scopeLink as keyof typeof context.links;
           const match = context.links[kind];
@@ -433,18 +465,19 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
         for (let i = 0; i < n && vistas < visibles; i++) {
           while (r < recs.length && Number(recs[r].dataset.at) <= i) { if (showHighlights) quiero.push(recs[r]); r++; }
           const it = filtered[i];
-          const sizes = catalogImageSizes(showHighlights, i === 0, shortResults);
+          const sizes = catalogImageSizes(showHighlights, i === 0, n);
           it.el ||= it.crear(sizes);
           const image = it.el.querySelector('img');
           if (image) image.sizes = image.loading === 'lazy' ? `auto, ${sizes}` : sizes;
           const link = it.el.querySelector('a')!;
-          link.search = caseQuery;
+          link.href = it.href + caseQuery;
           quiero.push(it.el);
           vistas++;
         }
         if (showHighlights) grid.dataset.apertura = "si";
         else delete grid.dataset.apertura;
         grid.classList.toggle('fichas--short', shortResults);
+        grid.toggleAttribute('data-unique', n === 1);
         recomponer(quiero);
         mas.hidden = n <= visibles;
         mas.textContent = `Mostrar ${Math.max(0, Math.min(TANDA, n - visibles))} más de ${n}`;
@@ -486,6 +519,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
           return item;
         }));
         activeFilters.hidden = keys.length === 0;
+        root.querySelector<HTMLElement>('[data-reset-filters]')!.hidden = keys.length < 2 && state.orden === 'recent';
         updateScope(n);
         root.querySelector('[data-count]')!.textContent = String(n);
         root.querySelector('[data-sentence]')!.textContent = `${n === 1 ? 'antecedente' : 'antecedentes'}${keys.length ? '' : n === 1 ? ' registrado' : ' registrados'}`;
@@ -585,7 +619,7 @@ const masTexto = n > INICIAL ? `Mostrar ${Math.min(catalogBatch, n - INICIAL)} m
         const target = card || featured || document.getElementById('obras-filtradas')!;
         const folded = featured?.closest<HTMLDetailsElement>('details[data-obras-plegadas]');
         if (!card && folded) folded.open = true;
-        if (!card) target.scrollIntoView({ block: 'center', behavior: 'instant' });
+        target.scrollIntoView({ block: card ? 'start' : 'center', behavior: 'instant' });
         target.focus({ preventScroll: true });
       } else {
         void restore();

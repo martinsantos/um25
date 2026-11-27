@@ -76,6 +76,8 @@ const sectorSystemContacts: Record<string, { subject:string; question:string }> 
   'salud/103': { subject: 'Salud · Telefonía interna', question: '¿Qué áreas necesitan internos y en cuáles se usarán teléfonos por Wi-Fi?' },
   'salud/106': { subject: 'Salud · Ingeniería de corrientes débiles', question: '¿En qué etapa está el proyecto del establecimiento y qué instalaciones deben coordinarse?' },
   'gobiernosectorpublico/104': { subject: 'Gobierno y Sector Público · Trazabilidad', question: '¿Qué registro necesita seguir el organismo y quién debe consultar sus cambios?' },
+  'gobiernosectorpublico/106': { subject: 'Gobierno y Sector Público · Evaluación de infraestructura', question: '¿Qué sistemas o dependencias necesitás relevar y qué decisión tiene que respaldar el diagnóstico?' },
+  'gobiernosectorpublico/107': { subject: 'Gobierno y Sector Público · Detección por edificio', question: '¿En qué edificios necesitás detección y en qué puesto se gestionan los avisos de alarma?' },
   'industria/103': { subject: 'Industria · Enlace punto a punto', question: '¿Qué dos sitios necesitás enlazar y qué hay entre ellos?' },
 };
 
@@ -95,6 +97,9 @@ export function journeyContext(params: URLSearchParams, lang: ShellLang = 'es') 
   if (sector?.name) {
     const specific = sectorSystemContacts[slug + '/' + code];
     if (specific) return specific;
+    if ((slug === 'seguridad-electronica' && code === '102') || (slug === 'software' && code === '104')) {
+      return { subject: service.name, question: sector.question };
+    }
     const site = sector.site;
     const questions: Record<string,string> = {
       '101': `¿Qué áreas hay que conectar en ${site} y cuántos puestos necesitan red?`,

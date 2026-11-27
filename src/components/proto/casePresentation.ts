@@ -146,6 +146,9 @@ function titleFromScope(story: CaseHeading): string | undefined {
 }
 
 export function publicCaseTitle(story: CaseHeading) {
+  if (story.id === 3624 && story.summary !== undefined && catalogPresentationFor({ ...story, summary: story.summary })?.asset === 'radio') {
+    return 'Radioenlace entre Nucete y el chalet';
+  }
   return (publicCaseFor(story)?.title || titleFromScope(story) || archiveHeadings.get(story.title) || story.title)
     .replace(/\bIngenieria\b/g, 'Ingeniería')
     .replace(/\bdebiles\b/g, 'débiles');
@@ -156,6 +159,9 @@ export function caseIntroduction(summary: string, title: string, client: string)
   const footer = /(?:^|\s)Cliente:\s*(.+?)\.\s+Sector:\s*([\p{L}\p{N} &/-]+)\.?$/iu.exec(summary);
   const customer = identity(client);
   let body = summary.trim();
+  const classification = /^Para\s+(.+?)\.\s*Rubro:\s*[^.]+\.?$/iu.exec(body);
+  if (classification?.[1] && customer && identity(classification[1]).replace(/ /g, '') === customer.replace(/ /g, '')) return '';
+
   if (footer?.[1] && customer && identity(footer[1]) === customer) {
     body = summary.slice(0, footer.index).trim();
   }
