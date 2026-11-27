@@ -1,6 +1,6 @@
 ---
 import { pageContactLink } from '../../../lib/caseJourney';
-import { serviceWorkEnquiry } from '../../../components/proto/serviceReference';
+import { serviceOverview, serviceWorkEnquiry } from '../../../components/proto/serviceReference';
 import '../../../styles/pilot-fichas.css';
 import '../../../styles/proto-despiece.css';
 import Head from '../../../components/proto/Head.astro';
@@ -30,7 +30,7 @@ import Cierre from '../../../components/proto/Cierre.astro';
 import { getServicioByCode } from '../../../lib/um26-directus';
 import { EDITORIAL_HERO_SIZES, loadStories, services, SERVICE_PHOTO } from '../../../components/proto/isoData';
 import { despieceAgregado, KIT_DE_SERVICIO } from '../../../components/proto/despiece';
-import { caseEquipmentFor, publicCaseFor } from '../../../components/proto/casePresentation';
+import { caseEquipmentFor, publicCaseFor, publicCaseTitle } from '../../../components/proto/casePresentation';
 import Partes from '../../../components/proto/Partes.astro';
 import { serviceCaseCollection } from '../../../components/proto/serviceCaseCollection';
 import DeliveryDocuments from '../../../components/proto/DeliveryDocuments.astro';
@@ -62,6 +62,7 @@ const security = code === '102';
 const Provision = security ? SecurityProvision : ServiceProvision;
 const { stories } = await loadStories();
 const { own, casos, rankedCases, selectedCases } = serviceCaseCollection(stories, code);
+const heroReference = code !== '104' ? serviceOverview(stories, code).reference : undefined;
 const archiveHref = `/antecedentes?service=${code}#obras-filtradas`;
 const archiveText = own.length > 0 ? `Ver los ${own.length} antecedentes` : 'Ver todos los antecedentes';
 const agregado = new Map(despieceAgregado(own, caseEquipmentFor).map((p) => [p.key, p]));
@@ -174,7 +175,6 @@ const cierre = cierrePorServicio[code];
   <head>
     <Head title={pageSeo.title} description={pageSeo.description} image={photo} precargar imageSizes={EDITORIAL_HERO_SIZES} />
     <style>
-      .service-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin-block: 24px; }
       .delivery-terms { margin-top:var(--s4); display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); gap:var(--s3) var(--s4); }
       .cubre { position: relative; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s4) clamp(28px, 4vw, 72px); align-items: center; }
       .cubre--guia { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: start; }
@@ -207,6 +207,7 @@ const cierre = cierrePorServicio[code];
     <main id="contenido" tabindex="-1">
 
     <Hero label={servicio.name} image={photo} metrics={code === '104' ? [] : cifras}
+      reference={heroReference && { href: heroReference.href, title: publicCaseTitle(heroReference), client: heroReference.client, year: heroReference.year }}
       film={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}.mp4` : undefined}
       mobileFilm={code === '104' ? `/cine/media/cine-${SOFTWARE_FILM}-sq.mp4` : undefined}
       poster={code === '104' ? photo : undefined}
@@ -216,13 +217,11 @@ const cierre = cierrePorServicio[code];
       <p class="tag">{isNetworks ? 'Cableado, fibra y redes para empresas.' : code === '104' ? 'Portales, trámites e integraciones.' : copy.headline}</p>
       <p>{isNetworks ? 'Desde Mendoza diseñamos e instalamos redes LAN/WAN, Wi-Fi corporativo y switching gestionado. Medimos los enlaces y documentamos la obra según su alcance.' : code === '104' ? 'Para la Suprema Corte de Mendoza integramos la validación de usuarios y la certificación de documentos con sello de tiempo en su portal.' : copy.paragraph}</p>
       <div class="editorial-actions">
-        <div class="service-actions">
-          <a class="btn" data-contact-follow id="consulta-principal"
-            href={pageContactLink(Astro, code === '104' ? '/contacto' : '/contacto?intent=relevamiento')}>
-            {code === '104' ? 'Consultar por un desarrollo' : 'Pedir un relevamiento'}
-          </a>
-          {provision.length > 0 && <a class="u" href="#provision">Ver qué proveemos</a>}
-        </div>
+        <a class="btn" data-contact-follow id="consulta-principal"
+          href={pageContactLink(Astro, code === '104' ? '/contacto' : '/contacto?intent=relevamiento')}>
+          {code === '104' ? 'Consultar por un desarrollo' : 'Pedir un relevamiento'}
+        </a>
+        {provision.length > 0 && <a class="u" href="#provision">Ver qué proveemos</a>}
         {!showProjectArchive && <a class="u" href={archiveHref}>{archiveText}</a>}
       </div>
     </Hero>
