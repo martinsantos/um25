@@ -1,81 +1,108 @@
 ---
-/** Nosotros (2026-10-30): la empresa con sus propias palabras (página Nosotros), su historia, dónde está y qué hace. No indexable. */
 import '../../styles/proto-despiece.css';
+import { ArrowDown, ArrowRight, MapPin } from 'lucide-astro';
+import { BUSINESS_ADDRESS } from '../../config/seo';
 import Head from '../../components/proto/Head.astro';
 import Top from '../../components/proto/Top.astro';
 import Apertura from '../../components/proto/Apertura.astro';
 import Cierre from '../../components/proto/Cierre.astro';
-import { loadStories, isoSrc } from '../../components/proto/isoData';
-import { EMPRESA, CUMPLIMIENTO } from '../../components/proto/relato';
+import DocumentacionDeObra from '../../components/proto/DocumentacionDeObra.astro';
+import ObrasPortada from '../../components/proto/ObrasPortada.astro';
+import { loadStories } from '../../components/proto/isoData';
+import { EMPRESA } from '../../components/proto/relato';
+import { portadaCases } from '../../components/proto/portadaCases';
 
 export const prerender = false;
-const { total } = await loadStories();
-const capacidades = ['Redes, fibra, switching, WiFi corporativo y radioenlaces', 'Seguridad electrónica, CCTV, accesos e intrusión', 'Telecomunicaciones, voz, datos, video y conectividad distribuida', 'Software a medida, SGI, APIs, tableros e integraciones', 'Soporte 24/7, mantenimiento preventivo y respuesta a incidentes', 'Detección de incendios y eléctricos dedicados para IT'];
+const { total, stories } = await loadStories();
+const works = portadaCases(stories, 'nosotros');
+const dossier = stories.find(({id}) => id === 3102);
+const cover = '/images/editorial/umsa-about-engineering.webp';
 ---
 <!doctype html>
 <html lang="es">
   <head>
-    <Head title={`${EMPRESA.titulo} · ULTIMA MILLA`} description={EMPRESA.lead} image="/images/editorial/umsa-about-engineering.webp" precargar />
-    <style>
-      .historia { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3) clamp(20px, 3vw, 48px); border-top: 1px solid var(--line); }
-      .historia li { padding-top: var(--s2); display: grid; gap: 6px; align-content: start; }
-      .historia .small { color: var(--ink); }
-      .sedes { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3); }
-      .sedes li { display: grid; gap: 4px; padding-top: var(--s2); border-top: 1px solid var(--line); }
-      .sedes b { font-size: 1.2rem; font-weight: 600; }
-      .sedes span { color: var(--ink-2); }
-      @media (max-width: 1100px) { .historia, .sedes { grid-template-columns: 1fr 1fr; } }
-      @media (max-width: 900px) { .historia, .sedes { grid-template-columns: 1fr; } }
-    </style>
+    <Head title={`${EMPRESA.titulo} · ULTIMA MILLA`} description={EMPRESA.lead} image={cover} precargar />
   </head>
   <body>
     <Top />
-    <main id="contenido">
-    <Apertura label="Nosotros" isoSrc={isoSrc('building')} image="/images/editorial/umsa-about-engineering.webp" hero>
-      <span class="small">Servicios IT desde 2003. Mendoza, Argentina.</span>
-      <h1 style="font-size:clamp(2rem,3.6vw,3.6rem)">{EMPRESA.titulo}<span class="dot">.</span></h1>
-      <p class="tag">{EMPRESA.lead}</p>
-      <a class="u" href="/antecedentes">{total} antecedentes registrados</a>
-    </Apertura>
+    <main id="contenido" tabindex="-1">
+      <Apertura label="Nuestra empresa" image={cover}>
+        <p>Servicios IT desde 2003 · Mendoza, Argentina</p>
+        <h1>{EMPRESA.titulo}<span class="dot">.</span></h1>
+        <p>{EMPRESA.lead}</p>
+        <nav class="action-links" aria-label="Explorar la empresa">
+          <a class="btn" href="#documentacion-de-obra">Cómo documentamos <ArrowDown size={17} aria-hidden="true" /></a>
+          <a class="u" href={works.length ? '#casos' : '/antecedentes'}>Ver obras de referencia {works.length ? <ArrowDown size={17} aria-hidden="true" /> : <ArrowRight size={17} aria-hidden="true" />}</a>
+        </nav>
+      </Apertura>
 
-    <section class="sec">
-      <div class="wrap cols cols-5-7">
-        <h2>Cómo trabajamos<span class="dot">.</span></h2>
-        <div class="cols cols-2">{EMPRESA.principios.map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div>
+      <ObrasPortada obras={works} title="Obras de referencia"
+        jump={{ label: `Ver los ${total} antecedentes`, href: '/antecedentes' }} />
+
+      <section class="sec" aria-labelledby="metodo-titulo">
+        <div class="wrap">
+          <header class="sec__head"><h2 id="metodo-titulo">Cómo trabajamos<span class="dot">.</span></h2></header>
+          <div class="principios">
+            {EMPRESA.principios.map(([title, description]) => <div><h3>{title}</h3><p>{description}</p></div>)}
+          </div>
+          <DocumentacionDeObra story={dossier} />
+        </div>
+      </section>
+
+      <div class="sec">
+        <div class="wrap empresa-base">
+          <section aria-labelledby="historia-titulo">
+            <h2 id="historia-titulo">Desde 2003, en campo<span class="dot">.</span></h2>
+            <ol class="historia">
+              {EMPRESA.historia.map(([year, title, description]) => <li>
+                {year === 'Hoy' ? <span class="hito">{year}</span> : <time class="hito" datetime={year}>{year}</time>}
+                <h3>{title}</h3><p>{description}</p>
+              </li>)}
+            </ol>
+          </section>
+          <section class="base-tecnica" aria-labelledby="cobertura-titulo">
+            <h2 id="cobertura-titulo">Dónde trabajamos<span class="dot">.</span></h2>
+            <div class="sede"><MapPin size={22} stroke-width={1.6} aria-hidden="true" /><p><strong>Base en {BUSINESS_ADDRESS.addressRegion}</strong><br />{BUSINESS_ADDRESS.streetAddress}, {BUSINESS_ADDRESS.addressLocality}</p></div>
+            <p>{EMPRESA.cobertura}</p>
+            <p>{EMPRESA.sedes.slice(1).map(({name}) => name).join(' · ')}</p>
+            <nav aria-label="Servicios y sectores">
+              <a href="/servicios">Ver los servicios <ArrowRight size={16} aria-hidden="true" /></a>
+              <a href="/sectores">Explorar sectores <ArrowRight size={16} aria-hidden="true" /></a>
+            </nav>
+          </section>
+        </div>
       </div>
-    </section>
-
-    <section class="sec">
-      <div class="wrap cols cols-5-7">
-        <h2>Qué hacemos<span class="dot">.</span></h2>
-        <ul class="lista" style="font-size:1.125rem">{capacidades.map((c) => <li>{c}</li>)}</ul>
-      </div>
-    </section>
-
-    <section class="sec">
-      <div class="wrap">
-        <div class="sec__head"><h2>La trayectoria importa cuando el sitio, el edificio o la planta ya están funcionando<span class="dot">.</span></h2></div>
-        <ol class="historia">{EMPRESA.historia.map(([y, t, d]) => <li><span class="small">{y}</span><h3>{t}</h3><p class="muted">{d}</p></li>)}</ol>
-      </div>
-    </section>
-
-    <section class="sec">
-      <div class="wrap">
-        <div class="sec__head"><h2>{EMPRESA.cobertura.replace(/\.$/, '')}<span class="dot">.</span></h2></div>
-        <ul class="sedes">{EMPRESA.sedes.map((s) => <li><b>{s.name}</b><span>{s.detail || s.role}</span></li>)}</ul>
-      </div>
-    </section>
-
-    <section class="sec">
-      <div class="wrap">
-        <div class="sec__head"><h2>Cada obra se entrega medida, documentada y trazable<span class="dot">.</span></h2></div>
-        <div class="cols cols-3">{CUMPLIMIENTO.slice(0, 3).map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div>
-        <a class="u more" href="/documentacion">Documentación técnica</a>
-      </div>
-    </section>
-
     </main>
-
     <Cierre />
   </body>
 </html>
+
+<style>
+  .principios {
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:16px clamp(16px,3vw,36px);
+    margin-bottom:var(--s4);
+  }
+  .principios > div { border-top:1px solid var(--line); padding-top:var(--s2); }
+  .principios p,.historia p { margin-top:6px; color:var(--ink-2); font-size:1rem; line-height:1.5; }
+  .empresa-base { display:grid; grid-template-columns:minmax(0,7fr) minmax(0,4fr); gap:var(--s4) clamp(24px,5vw,70px); }
+  .empresa-base h2 { font-size:clamp(1.75rem,3.1vw,2.85rem); margin-bottom:var(--s3); }
+  .historia { margin:0; padding:0; list-style:none; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--s3); }
+  .historia li { border-top:1px solid var(--line); padding-top:var(--s2); }
+  .hito { display:block; font-size:1.5rem; font-weight:600; font-variant-numeric:tabular-nums; margin-bottom:var(--s1); }
+  .historia h3 { font-size:1.125rem; }
+  .sede { display:flex; align-items:flex-start; gap:12px; border-top:1px solid var(--line); padding-top:var(--s2); }
+  .sede svg { flex:none; margin-top:3px; color:var(--red-text); }
+  .base-tecnica p { color:var(--ink-2); }
+  .base-tecnica p strong { color:var(--ink); }
+  .base-tecnica > p { margin-top:var(--s2); }
+  .base-tecnica nav { display:flex; flex-wrap:wrap; gap:0 var(--s2); margin-top:var(--s2); }
+  .base-tecnica a { display:inline-flex; align-items:center; gap:6px; min-height:44px; font-weight:600; }
+  .base-tecnica a:hover { text-decoration:underline; text-underline-offset:4px; }
+  @media(max-width:900px) {
+    .empresa-base { grid-template-columns:1fr; }
+    .principios { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  }
+  @media(max-width:540px) { .historia { grid-template-columns:1fr; } }
+</style>

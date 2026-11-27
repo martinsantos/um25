@@ -112,8 +112,8 @@ const network = kind === "network" || kind === "cabling";
               <div class="ts__object ts__object--antenna" />
               <div class="ts__equipment-label">
                 <>
-                  <strong>Sede A</strong>
-                  <span>Red de origen</span>
+                  <strong>{content.radioSites?.[0] || "Sede A"}</strong>
+                  {!content.radioSites && <span>Red de origen</span>}
                 </>
               </div>
             </>
@@ -123,8 +123,8 @@ const network = kind === "network" || kind === "cabling";
               <div class="ts__object ts__object--antenna" />
               <div class="ts__equipment-label">
                 <>
-                  <strong>Sede B</strong>
-                  <span>Red de destino</span>
+                  <strong>{content.radioSites?.[1] || "Sede B"}</strong>
+                  {!content.radioSites && <span>Red de destino</span>}
                 </>
               </div>
             </>

@@ -53,3 +53,26 @@ export function resolveBlogListingRoute(url: URL): BlogListingRoute {
     ...(params.has('p') || normalizePage ? { redirectTo: canonicalPath } : {}),
   };
 }
+
+/** Only accept relative archive routes and note anchors carried by the reading links. */
+export function resolveBlogReadingReturn(value: string | null) {
+  if (!value || !value.startsWith('/blog') || value.length > 500 || /[\\\u0000-\u0020]/.test(value)) return;
+  const url = new URL(value, 'https://example.invalid');
+  if (!/^#nota-[a-z0-9][a-z0-9-]*$/.test(url.hash)) return;
+  const listing = resolveBlogListingRoute(url);
+  if (!listing.canonicalPath) return;
+
+  const categoryPath = BLOG_LISTING_CATEGORIES.some(category => url.pathname === '/blog/categoria/' + category);
+  const topicPath = /^\/blog\/tema\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(url.pathname);
+  if (url.pathname !== '/blog' && !categoryPath && !topicPath) return;
+  const path = url.pathname === '/blog' ? listing.canonicalPath : url.pathname + (listing.page > 1 ? '?page=' + listing.page : '');
+  return {
+    href: path + url.hash,
+    label: listing.page > 1 ? `Volver a la página ${listing.page} del listado` : 'Volver al listado de notas',
+  };
+}
+
+export function blogNoteHref(slug: string, returnHref?: string) {
+  const path = '/blog/' + slug;
+  return returnHref ? path + '?' + new URLSearchParams({ lista: returnHref }) : path;
+}

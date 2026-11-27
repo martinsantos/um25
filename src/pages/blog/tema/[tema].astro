@@ -6,7 +6,6 @@
  * Sólo existe para clusters con notas suficientes (TOPIC_HUB_MIN_POSTS).
  */
 import LayoutV4 from '../../../layouts/LayoutV4.astro';
-import BlogCategoryTabs from '../../../components/blog/BlogCategoryTabs.astro';
 import BlogTopicNav from '../../../components/blog/BlogTopicNav.astro';
 import BlogCard from '../../../components/blog/BlogCard.astro';
 import BlogPagination from '../../../components/blog/BlogPagination.astro';
@@ -17,7 +16,9 @@ import { toIsoDate } from '../../../utils/blogUtils';
 import { getServiceClusterByHubSlug } from '../../../data/blogTopicTaxonomy';
 import { SERVICE_SUMMARIES } from '../../../data/serviceSummaries';
 import { TOPIC_HUB_MIN_POSTS, postsForCluster } from '../../../utils/blogTopicMap';
-import { casesForTopics } from '../../../utils/blogTopicCases';
+import { loadStories } from '../../../components/proto/isoData';
+import { publicCaseTitle } from '../../../components/proto/casePresentation';
+import { serviceCaseCollection } from '../../../components/proto/serviceCaseCollection';
 
 const tema = Astro.params.tema || '';
 const cluster = getServiceClusterByHubSlug(tema);
@@ -71,15 +72,18 @@ const pageTitle = page === 1 ? h1 : `${h1} · Página ${page}`;
 const description = page === 1
   ? `Notas técnicas de ULTIMA MILLA sobre ${topicName}: criterios, herramientas y casos para empresas y organismos de Argentina.`
   : `Página ${page} de las notas técnicas de ULTIMA MILLA sobre ${topicName}.`;
-const lead = `${total} notas del blog técnico sobre ${topicName}, de la más relevante a la menos relevante.`;
+const lead = `${total} notas técnicas sobre ${topicName}.`;
 
 const serviceLinks = [{
   href: cluster.href,
   label: SERVICE_SUMMARIES[cluster.key]?.name || cluster.label,
   summary: SERVICE_SUMMARIES[cluster.key]?.summary || cluster.schemaName,
 }];
-const caseLinks = casesForTopics({ services: [{ key: cluster.key, relevance: 100, evidence: [] }], sectors: [] }, 3)
-  .map((item) => ({ href: item.href, title: item.title, client: item.client, year: item.year }));
+const { selectedCases } = serviceCaseCollection((await loadStories()).stories, cluster.key);
+const caseLinks = selectedCases.slice(0, 3).map(({ pub }) => ({
+  href: pub.href, title: publicCaseTitle(pub), client: pub.client, year: String(pub.year || ''),
+  image: cluster.key === '104' ? undefined : pub.image,
+}));
 
 const latestModified = clusterPosts
   .map((item) => item.entry.modified || item.entry.published)
@@ -156,29 +160,27 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
           ? <span aria-current="page">{cluster.label}</span>
           : <><a href={hubPath}>{cluster.label}</a><span aria-hidden="true">/</span><span aria-current="page">Página {page}</span></>}
       </nav>
-      <p class="bt-kicker">Tema del blog</p>
       <h1 class="bt-title">{h1}</h1>
       <p class="bt-lead">{lead}</p>
       <p class="bt-meta">
         <a href={cluster.href}>Ver el servicio de {topicName}</a>
+        {caseLinks.length > 0 && <a href="#obras">Ver obras de este servicio</a>}
+        <a href="#temas">Explorar otros temas</a>
         <a href={`${hubPath}/rss.xml`}>RSS de este tema</a>
       </p>
     </header>
 
     <div class="bt-shell">
-      <BlogCategoryTabs />
-      <BlogTopicNav current={tema} />
-
       <section aria-labelledby="bt-list-title">
         <h2 id="bt-list-title" class="bt-list-title">{page === 1 ? 'Notas más relevantes' : `Notas · página ${page}`}</h2>
         <div class="bt-grid">
-          {posts.map((post, idx) => <BlogCard post={post} eager={idx < 3} />)}
+          {posts.map((post, idx) => <BlogCard anchor post={post} eager={idx < 3} />)}
         </div>
       </section>
 
       <BlogPagination page={page} totalPages={totalPages} baseHref={hubPath} />
 
-      <div class="bt-apply">
+      <div class="bt-apply" id="obras" tabindex="-1">
         <BlogTopicLinks
           kicker="Aplicación"
           title={caseLinks.length > 0 ? `El servicio de ${topicName} y sus antecedentes` : `El servicio de ${topicName}`}
@@ -186,6 +188,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
           cases={caseLinks}
         />
       </div>
+      <BlogTopicNav current={tema} />
     </div>
   </div>
 </LayoutV4>
@@ -197,11 +200,6 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
   .bt-crumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 48px; font-size: var(--x-fs-meta); color: var(--x-muted); }
   .bt-crumbs a { color: var(--x-text-2); text-decoration: none; transition: color 160ms var(--x-ease); }
   .bt-crumbs a:hover { color: var(--x-text); }
-  .bt-kicker {
-    display: flex; align-items: center; gap: 12px; margin: 0 0 24px;
-    font-size: var(--x-fs-kicker); font-weight: 600; line-height: 1.2; letter-spacing: .12em; text-transform: uppercase; color: var(--x-muted);
-  }
-  .bt-kicker::before { content: ''; flex: none; width: 28px; height: 2px; background: var(--x-red); }
   .bt-title {
     margin: 0; max-width: 20ch; font-family: var(--um-font-editorial);
     font-size: var(--x-fs-h1) !important; line-height: 1.02 !important; font-weight: 600 !important; letter-spacing: -.025em !important;
@@ -209,14 +207,14 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
   }
   .bt-lead { margin: 24px 0 0; max-width: 62ch; font-size: var(--x-fs-lead); line-height: 1.55; color: var(--x-text-2); }
   .bt-meta { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 24px 0 0; font-size: var(--x-fs-meta); line-height: 1.45; }
-  .bt-meta a { color: var(--x-text-2); text-decoration: underline; text-decoration-color: var(--x-line-strong); text-underline-offset: 4px; }
+  .bt-meta a { display:inline-flex; align-items:center; min-height:44px; color: var(--x-text-2); text-decoration: underline; text-decoration-color: var(--x-line-strong); text-underline-offset: 4px; }
   .bt-meta a:hover { color: var(--x-text); text-decoration-color: var(--x-red); }
   .bt-list-title {
     margin: 0 0 24px; font-family: var(--um-font-editorial);
     font-size: var(--x-fs-h2); line-height: 1.08; font-weight: 600; letter-spacing: -.02em; color: var(--x-text);
   }
   .bt-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
-  .bt-apply { margin-top: var(--x-section); padding-top: var(--x-section); border-top: 1px solid var(--x-line); }
+  .bt-apply { scroll-margin-top: 88px; margin-top: clamp(28px,4vw,56px); padding-top: clamp(20px,3vw,40px); border-top: 1px solid var(--x-line); }
   @media (max-width: 1100px) { .bt-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 680px) {
     .bt-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
@@ -230,6 +228,5 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
     .bt-title { font-size: clamp(2rem, 7.5vw, 2.6rem) !important; line-height: 1.08 !important; }
     .bt-crumbs { align-items: center; gap: 0 8px; margin-bottom: 24px; }
     .bt-crumbs a { display: inline-flex; align-items: center; min-height: 44px; }
-    .bt-kicker { letter-spacing: .04em; line-height: 1.4; }
   }
 </style>

@@ -2,7 +2,9 @@ const desplazamientos: Record<string, number> = { ArrowLeft: -1, ArrowUp: -1, Ar
 
 export function activarIndiceDocumental(root: HTMLElement, alCambiar?: () => void) {
   const indice = root.querySelector<HTMLElement>('[data-indice-documental]');
-  if (!indice) return;
+  const selector = root.querySelector<HTMLSelectElement>('[data-servicio-documental]');
+  const controlMovil = root.querySelector<HTMLElement>('[data-selector-documental]');
+  if (!indice || !selector || !controlMovil) return;
 
   const hojas = [...indice.querySelectorAll<HTMLButtonElement>('button[aria-controls]')].flatMap((boton) => {
     const hoja = document.getElementById(boton.getAttribute('aria-controls') ?? '');
@@ -17,6 +19,7 @@ export function activarIndiceDocumental(root: HTMLElement, alCambiar?: () => voi
       boton.tabIndex = elegida ? 0 : -1;
       hoja.hidden = !elegida;
     });
+    selector.value = hojas[activa]!.hoja.id;
     alCambiar?.();
   };
 
@@ -38,5 +41,25 @@ export function activarIndiceDocumental(root: HTMLElement, alCambiar?: () => voi
 
   const inicial = hojas.findIndex(({ boton }) => boton.getAttribute('aria-selected') === 'true');
   mostrar(Math.max(inicial, 0));
-  indice.hidden = false;
+  selector.addEventListener('change', () => {
+    const activa = hojas.findIndex(({ hoja }) => hoja.id === selector.value);
+    if (activa >= 0) mostrar(activa);
+  });
+
+  const movil = window.matchMedia('(max-width: 720px)');
+  const adaptarIndice = () => {
+    const focoEnIndice = indice.contains(document.activeElement) || document.activeElement === selector;
+    indice.hidden = movil.matches;
+    controlMovil.hidden = !movil.matches;
+    hojas.forEach(({ boton, hoja }) => {
+      hoja.setAttribute('role', movil.matches ? 'region' : 'tabpanel');
+      hoja.setAttribute('aria-labelledby', movil.matches ? hoja.querySelector('h3')!.id : boton.id);
+    });
+    if (focoEnIndice) {
+      const control = movil.matches ? selector : hojas.find(({ hoja }) => !hoja.hidden)?.boton;
+      control?.focus();
+    }
+  };
+  adaptarIndice();
+  movil.addEventListener('change', adaptarIndice);
 }

@@ -56,3 +56,20 @@ export function groupServiceProvision<T extends Pick<ServiceProvisionItem, 'titl
     return [{ title, members, parts }];
   });
 }
+
+export function securityProvisionGroups(items: ServiceProvisionItem[]) {
+  const blocks = groupServiceProvision(items);
+  const related = new Set(['Sistema de Detección de Incendios', 'Panel Central de Alarma SDI', 'Estaciones Manuales de Alarma']);
+  const fire = blocks.filter(block => related.has(block.title));
+  const systems = blocks.filter(block => !related.has(block.title)).map(block => ({
+    ...block,
+    integration: false,
+  }));
+  if (fire.length) systems.push({
+    title: 'Integración con detección de incendios',
+    members: fire.flatMap(block => block.members),
+    parts: [...new Map(fire.flatMap(block => block.parts).map(part => [part.key, part])).values()],
+    integration: true,
+  });
+  return systems;
+}

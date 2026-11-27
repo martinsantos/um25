@@ -250,8 +250,8 @@ describe('GEO discovery and commercial hub contracts', () => {
     // Rediseño 2026-09: la columna "Hubs GEO" pasó a llamarse "Sedes" y el
     // laboratorio /geo salió del footer y del sitemap. La garantía comercial es
     // la misma: cada hub GEO comercial queda enlazado con <a href> rastreable.
-    expect(footer).toContain("import { commercialHubLinkItems, commercialHubShortLabels } from '../../data/strategicLinkGraph'");
-    expect(footer).toMatch(/const shellFooterLinks = lang === 'en'[\s\S]*?commercialHubFooterLinks\.map\(\(link\) => \([\s\S]*?href: link\.href/);
+    expect(footer).toContain("import { commercialHubLinkItems } from '../../data/strategicLinkGraph'");
+    expect(footer).toMatch(/const solutions = lang === 'en'\s*\? commercialHubLinkItems\.map\(\(link\) => \(\{\s*href: link\.href/);
     expect(footer).toContain("{ href: '/certificaciones', label: 'Certificaciones' }");
     expect(footer).not.toContain("href: '/geo'");
 

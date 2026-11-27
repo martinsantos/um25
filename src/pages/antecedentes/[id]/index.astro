@@ -1,10 +1,20 @@
 ---
 import { loadStories } from '../../../components/proto/isoData';
+import NoEncontrada from '../../../components/proto/NoEncontrada.astro';
 
-const id = Astro.params.id || '';
-if (!/^\d+$/.test(id)) return Astro.rewrite('/404');
+const segment = Astro.params.id || '';
+const reference = /^(?:um[ -]?)?(\d+)$/i.exec(segment);
+const id = reference?.[1];
+if (!id && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(segment)) return Astro.rewrite('/404');
 const { stories } = await loadStories();
-const story = stories.find(item => item.id === Number(id));
-if (!story) return Astro.rewrite('/404');
-return Astro.redirect(story.href + Astro.url.search, 301);
+if (id) {
+  const story = stories.find(item => item.id === Number(id));
+  if (!story) return Astro.rewrite('/404');
+  return Astro.redirect(story.href + Astro.url.search, 301);
+}
+const matches = stories.filter(item => item.slug === segment);
+if (matches.length === 1) return Astro.redirect(matches[0]!.href + Astro.url.search, 301);
+if (!matches.length) return Astro.rewrite('/404');
+Astro.response.status = 404;
 ---
+<NoEncontrada matches={matches} />

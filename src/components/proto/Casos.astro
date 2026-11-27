@@ -1,15 +1,15 @@
 ---
-/** Casos con el alcance real de cada obra: foto, qué se hizo, para quién y cuándo, el texto del registro y los servicios. */
+/** Casos con el alcance real de cada obra: foto, qué se hizo, para quién y cuándo, el alcance documentado. */
 import type { Caso } from './relato';
 import { isNamedClient } from './catalogEditorial';
+import ObraArchivo from './ObraArchivo.astro';
+import { homeWorkReturn } from './portadaCases';
 import PruebaProyecto from './PruebaProyecto.astro';
-import { publicCaseFor } from './casePresentation';
-import { services, destacados, srcsetDe, sinTitulo, type Story } from './isoData';
+import { publicCaseFor, publicCaseTitle } from './casePresentation';
+import { destacados, srcsetDe, cleanSummary, type Story } from './isoData';
 import { selectCaseProjects, isCaseBoilerplate as boilerplate, type SelectedCase } from './caseSelection';
-import { tituloProyecto } from './titulos';
 interface Props { casos: Caso[]; stories: Story[]; title?: string; max?: number; candidates?: Story[]; selection?: SelectedCase[]; textOnly?: boolean; portada?: boolean }
 const { casos, stories, title, max = 4, candidates = [], selection, textOnly = false, portada = false } = Astro.props;
-const byCode = new Map(services.map((s) => [s.code, s]));
 // The live public identity wins over historical editorial records.
 const safeCases = casos.filter((c) => {
   const pub = c.publicado ? stories.find((s) => s.id === c.publicado) : undefined;
@@ -18,48 +18,46 @@ const safeCases = casos.filter((c) => {
 const selected = selection || selectCaseProjects(safeCases, stories, candidates.length ? destacados(candidates, candidates.length) : undefined, max);
 const items = selected.map(({ caso: c, pub }) => {
   const destacado = publicCaseFor(pub);
-  const titulo = (destacado?.title || tituloProyecto(c.titulo, pub.client, c.texto || pub.summary) || pub.title).replace(/\bIngenieria\b/g, 'Ingeniería').replace(/\bdebiles\b/g, 'débiles');
+  const titulo = publicCaseTitle(pub);
+  const scope = (value: string) => boilerplate(value) || /^Cliente:.*\bSector:/i.test(value.trim()) ? '' : cleanSummary(value, titulo, pub.client);
   return { ...c, publicado: pub.id, cliente: pub.client, year: pub.year, titulo, destacado,
-    texto: destacado?.introduction || (boilerplate(c.texto || pub.summary) ? '' : sinTitulo(c.texto || pub.summary, titulo, pub.client)),
-    href: pub.href, image: pub.image,
-    serviceNames: pub.serviceCodes.map(code => byCode.get(code)?.name).filter(Boolean) as string[] };
+    texto: destacado?.introduction || scope(c.texto) || scope(pub.summary),
+    href: pub.href, image: pub.image };
+
 });
 // Keep the historical scope available without suggesting a photo or a public
 // identity crosswalk that has not been verified against the current catalog.
-const archive = safeCases.filter(c => !c.publicado).slice(0, max).map(c => ({ ...c, titulo: tituloProyecto(c.titulo, c.cliente, c.texto) || c.titulo }));
+const archive = safeCases.filter(c => !c.publicado).slice(0, max)
+  .map(obra => ({ obra, returnHref: homeWorkReturn(Astro.url, stories, obra.id) }));
 
 ---
 {(items.length > 0 || archive.length > 0) && (
-  <section class="sec" id="casos">
+  <section class="sec" id="casos" tabindex="-1">
     <div class="wrap">
       {title && <div class="sec__head"><h2>{title}<span class="dot">.</span></h2></div>}
-      <div class:list={["casos", { "casos--text": textOnly }]}>
+      <div class:list={["casos", { "casos--text": textOnly, "casos--seleccion": !portada }]}>
         {items.map((c, i) => (
           <article class:list={["caso", { "caso--documentado": c.destacado }]} data-case-id={c.publicado}>
-            {!textOnly && <figure><a href={c.href} tabindex="-1" aria-hidden="true"><img src={c.image} srcset={srcsetDe(c.image)} sizes="(max-width: 900px) calc(100vw - 40px), 48vw" alt="" width="1200" height="750" loading="lazy" decoding="async" /></a></figure>}
+            {!textOnly && <figure><img src={c.image} srcset={srcsetDe(c.image)} sizes={i === 0 || portada ? '(max-width: 900px) calc(100vw - 40px), 48vw' : '(max-width: 600px) 84px, 150px'} alt="" width="1200" height="750" loading="lazy" decoding="async" /></figure>}
             <div class="caso__copy">
-              <h3><a href={c.href}>{c.titulo}</a></h3>
               <div class="quien">{c.cliente}{c.year > 0 && <span> · {c.year}</span>}</div>
+              <h3><a class="caso__titulo" href={c.href}>{c.titulo} <span aria-hidden="true">↗</span></a></h3>
               {(!portada || i === 0) && c.texto && <p>{c.texto}</p>}
-              {(!portada || i === 0) && c.destacado && c.destacado.evidence.length > 0 && <PruebaProyecto items={c.destacado.evidence.slice(0, 2)} compact />}
-              {!portada && c.serviceNames.length > 0 && <div class="svc">{c.serviceNames.map((n) => <span>{n}</span>)}</div>}
-            {(!portada || i === 0) && <a class="caso__enlace" href={c.href}>Ver alcance del proyecto <span aria-hidden="true">→</span></a>}
+              {i === 0 && c.destacado && c.destacado.evidence.length > 0 && <PruebaProyecto items={c.destacado.evidence.slice(0, 2)} compact />}
             </div>
           </article>
         ))}
       </div>
       {portada && <a class="u al-archivo" href="/antecedentes">Ver todos los antecedentes <span aria-hidden="true">→</span></a>}
-      {archive.length > 0 && <details class="casos-archivo">
+      {archive.length > 0 && <details class="casos-archivo" open={archive.some(entry => entry.returnHref)}>
         <summary>Más proyectos del archivo <span>{archive.length}</span></summary>
-        <div class="casos-archivo__grid">{archive.map(c => <article id={'archivo-' + c.id}>
-          <p class="casos-archivo__meta">{c.cliente}{c.year > 0 && ` · ${c.year}`}</p>
-          <h3>{c.titulo}</h3>
-          {sinTitulo(c.texto, c.titulo, c.cliente) && <p>{sinTitulo(c.texto, c.titulo, c.cliente)}</p>}
-        </article>)}</div>
+        <div class="casos-archivo__grid">{archive.map(({ obra, returnHref }) =>
+          <ObraArchivo obra={obra} returnHref={returnHref} />
+        )}</div>
       </details>}
     </div>
   </section>
 )}
 
 <style>
-  .casos-archivo__grid article { scroll-margin-top: calc(var(--top-h) + 16px); }.al-archivo { display: inline-flex; align-items: center; min-height: 44px; margin-top: var(--s3); }</style>
+  .al-archivo { display: inline-flex; align-items: center; min-height: 44px; margin-top: var(--s3); }</style>

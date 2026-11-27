@@ -1,0 +1,26 @@
+---
+import { ArrowLeft, ArrowRight } from 'lucide-astro';
+import { pageContactLink } from '../../lib/caseJourney';
+import type { Story } from './isoData';
+
+interface Props { work: Story }
+const { work } = Astro.props;
+---
+<nav class="obra-origen" aria-label={`Obra de origen UM-${work.id}`}>
+  <a href={work.href}><ArrowLeft size={16} aria-hidden="true" /> Volver a la obra UM-{work.id}</a>
+  <a href={pageContactLink(Astro)}>Consultar con esta referencia <ArrowRight size={16} aria-hidden="true" /></a>
+</nav>
+
+<style>
+  .obra-origen {
+    display:flex;
+    flex-wrap:wrap;
+    gap:0 clamp(14px,3vw,38px);
+    margin-block:12px 14px;
+    padding-block:4px;
+    border-block:1px solid var(--line);
+  }
+  a { display:inline-flex; align-items:center; gap:8px; min-height:44px; color:var(--ink-2); }
+  a:is(:hover,:focus-visible) { color:var(--ink); text-decoration:underline; text-underline-offset:.2em; }
+  a :global(svg) { flex:none; }
+</style>

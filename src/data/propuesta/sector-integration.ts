@@ -71,7 +71,7 @@ const serviceCode: Record<string, string> = {
   'Detección de incendios': '107', 'Eléctricos para IT': '108',
 };
 export const sectorDeclaredServices = (slug: string): string[] =>
-  (sectorVisualSystem[slug]?.services || []).map(name => serviceCode[name]).filter(Boolean);
+  (sectorVisualSystem[slug]?.services || []).map(name => serviceCode[name]).filter((code): code is string => Boolean(code));
 
 export const sectorIntegrationScope = (slug: string, code: string, fallback: string): string =>
   scope[slug]?.[code] || fallback;

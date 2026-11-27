@@ -6,18 +6,19 @@ import Top from '../../../components/proto/Top.astro';
 import Apertura from '../../../components/proto/Apertura.astro';
 import TrustStrip from '../../../components/um/TrustStrip.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
-import { loadStories, isoSrc, filmOf } from '../../../components/proto/isoData';
+import { loadStories, filmOf } from '../../../components/proto/isoData';
 import { yearsOfExperience } from '../../../config/publicFacts';
 export const prerender = false;
 const { total } = await loadStories();
+const image = filmOf('constructoras').poster;
 ---
 <!doctype html>
 <html lang="en">
-  <head><Head title="ULTIMA MILLA · IT services for critical operations" description="Networks, electronic security, telecom, custom software, energy and on-site support for organizations that need continuity, evidence and accountable delivery." image="/cine/media/cine-fachada-poster.jpg" lang="en" precargar /></head>
+  <head><Head title="ULTIMA MILLA · IT services for critical operations" description="Networks, electronic security, telecom, custom software, energy and on-site support for organizations that need continuity, evidence and accountable delivery." image={image} lang="en" precargar /></head>
   <body>
     <Top lang="en" />
-    <main id="contenido">
-    <Apertura label="Overview" isoSrc={isoSrc('building')} image={filmOf('constructoras').poster} film={filmOf('constructoras').film} poster={filmOf('constructoras').poster} hero>
+    <main id="contenido" tabindex="-1">
+    <Apertura label="Overview" image={image}>
       <span class="small">IT services since 2003. Mendoza, Argentina.</span>
       <h1>IT services for operations that cannot stop<span class="dot">.</span></h1>
       <p>Networks, electronic security, telecom, custom software, energy and on-site support for organizations that need continuity, evidence and accountable delivery.</p>

@@ -1,0 +1,95 @@
+---
+import { BookOpen } from 'lucide-astro';
+import { contactLink } from '../../lib/contactEntry';
+import DossierObraPortada from './DossierObraPortada.astro';
+import FichasTecnicasPortada from './FichasTecnicasPortada.astro';
+import type { Story } from './isoData';
+interface Props { story?: Story; lang?: 'es' | 'en' }
+const { story, lang = 'es' } = Astro.props;
+const t = (es: string, en: string) => lang === 'en' ? en : es;
+const contact = t('/contacto?intent=documentacion', '/en/contact?intent=documentacion');
+---
+<section class="documentacion" id="documentacion-de-obra" tabindex="-1" aria-labelledby="documentacion-titulo">
+  <header class="documentacion__intro">
+    <p class="documentacion__rotulo">{t('Documentación de obra', 'Handover documentation')}</p>
+    <h3 id="documentacion-titulo">{t('Lo que instalamos', 'From installation')}<br />{t('queda documentado', 'to handover')}<span class="dot">.</span></h3>
+    <p>{t('Dejamos un registro de lo instalado, de las pruebas realizadas y de cómo ubicar cada elemento. Así, el equipo que recibe la obra puede mantenerla y ampliarla.', 'We record what was installed, how to locate components and which tests were performed. The team taking over has the information it needs to maintain and extend the system.')}</p>
+  </header>
+  <DossierObraPortada story={story} lang={lang} />
+  <div class="documentacion__acciones" data-documentacion-acciones>
+    <button class="documentacion__boton" type="button"
+      data-abrir-fichas aria-haspopup="dialog" aria-controls="fichas-tecnicas-portada" hidden>
+      <BookOpen size={18} aria-hidden="true" /> {t('Fichas por servicio', 'Technical sheets (Spanish)')}
+    </button>
+    <a class="documentacion__boton" href={contactLink(Astro.url.pathname, contact)}>{t('Solicitar un dossier', 'Request a dossier')}</a>
+  </div>
+  <FichasTecnicasPortada lang={lang} />
+</section>
+
+<style>
+  .documentacion {
+    --empresa-paper:#e8ebea; --empresa-ink:#191e21; --empresa-muted:#515b60; --empresa-line:#c4ccce;
+    display: grid;
+    grid-template: "intro muestra" auto "acciones muestra" 1fr / minmax(0, 0.78fr) minmax(0, 1.22fr);
+    gap: var(--s3) clamp(32px, 5vw, 72px);
+    padding-block: var(--s4);
+    border-block: 1px solid var(--line);
+  }
+  .documentacion__intro { grid-area: intro; }
+  .documentacion__rotulo {
+    display: flex;
+    align-items: center;
+    gap: var(--s1);
+    margin-bottom: var(--s2);
+    color: var(--ink-2);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .documentacion__rotulo::before {
+    content: '';
+    width: 20px;
+    height: 2px;
+    background: var(--red);
+  }
+  .documentacion__intro h3 {
+    font-size: clamp(2rem, 3.35vw, 2.875rem);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: normal;
+    text-wrap: balance;
+  }
+  .documentacion__intro h3 ~ p {
+    max-width: 43ch;
+    margin-top: var(--s2);
+    color: var(--ink-2);
+    line-height: 1.6;
+  }
+  .documentacion__acciones {
+    grid-area: acciones;
+    display: flex;
+    align-self: start;
+    flex-wrap: wrap;
+    gap: var(--s1) var(--s3);
+  }
+  .documentacion__boton {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s1);
+    min-height: 48px;
+    border-bottom: 1px solid var(--line);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .documentacion__boton:hover { border-color: var(--red); }
+  .documentacion__boton :global(svg) { flex: none; }
+  @media (max-width: 900px) {
+    .documentacion {
+      grid-template: "intro" "muestra" "acciones" / minmax(0, 1fr);
+      padding-block: var(--s3);
+    }
+  }
+  @media(max-width:640px) {
+    .documentacion__intro h3 { font-size: clamp(1.8rem, 8vw, 2.5rem); }
+  }
+</style>

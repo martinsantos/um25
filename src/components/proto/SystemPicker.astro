@@ -1,82 +1,137 @@
 ---
-interface Props { id: string; label: string; back: string }
-const { id, label, back } = Astro.props;
+interface Props { id: string; label: string; back: string; change: string }
+const { id, label, back, change } = Astro.props;
 ---
 <div class="picker" data-system-picker>
-  <nav id={id} aria-label={label} hidden tabindex="-1"><ul></ul></nav>
+  <nav id={id} aria-label={label} hidden tabindex="-1">
+    <button type="button" class="chooser" aria-expanded="false" aria-controls={id + '-opciones'}>
+      <span class="choice-label">{change}</span>
+      <strong data-selected-title></strong>
+    </button>
+    <ul id={id + '-opciones'}></ul>
+  </nav>
   <div class="panels"><slot /></div>
-  <template><header class="panel-head"><h3 tabindex="-1"></h3><a href={`#${id}`}>{back} <span aria-hidden="true">↑</span></a></header></template>
+  <template>
+    <h3 class="panel-title" tabindex="-1"></h3>
+    <button class="panel-back" type="button">{back} <span aria-hidden="true">↑</span></button>
+  </template>
 </div>
 <script>
-  for (const picker of document.querySelectorAll('[data-system-picker]')) {
+  for (const picker of document.querySelectorAll<HTMLElement>('[data-system-picker]')) {
     const nav = picker.querySelector('nav')!;
     const list = nav.querySelector('ul')!;
+    const button = nav.querySelector('button')!;
+    const selectedTitle = button.querySelector('[data-selected-title]')!;
     const template = picker.querySelector('template')!;
     const groups = [...picker.querySelectorAll<HTMLDetailsElement>('.panels > .systems > details')];
     if (groups.length < 2) continue;
+    const compact = matchMedia('(max-width: 900px)');
 
     const entries = groups.map(group => {
       const summary = group.querySelector('summary')!;
+      const body = group.querySelector<HTMLElement>('[data-system-body]')!;
       const title = summary.dataset.title || summary.textContent!.trim();
       const row = document.createElement('li');
       const link = document.createElement('a');
-      link.href = '#' + group.id;
-      // Preserve the sector icon, task and service name from the native disclosure.
+      link.href = '#' + body.id;
       const name = summary.querySelector('.system-name');
       if (name) link.append(name.cloneNode(true));
       else link.textContent = title;
       row.append(link);
       list.append(row);
 
-      const header = template.content.firstElementChild!.cloneNode(true) as HTMLElement;
-      const heading = header.querySelector('h3')!;
+      const controls = template.content.cloneNode(true) as DocumentFragment;
+      const heading = controls.querySelector('h3')!;
       heading.textContent = title;
-      summary.after(header);
-      return { group, link, heading };
+      controls.querySelector<HTMLButtonElement>('.panel-back')!.addEventListener('click', () => reveal(nav, true));
+      summary.after(heading);
+      group.append(controls);
+      return { group, body, link, heading, title };
     });
 
+    function expand(open: boolean) {
+      button.setAttribute('aria-expanded', String(open));
+    }
+    // Native fragment navigation may position a panel after the script has run.
+    // Reserve exactly the height of its selector, including wrapped mobile titles.
+    function measureChooser() {
+      if (compact.matches) picker.style.setProperty('--chooser-height', button.offsetHeight + 'px');
+    }
     function select(group: HTMLDetailsElement) {
       for (const entry of entries) {
         const active = entry.group === group;
         entry.group.hidden = !active;
         entry.group.open = active;
-        if (active) entry.link.setAttribute('aria-current', 'location');
-        else entry.link.removeAttribute('aria-current');
+        if (active) {
+          entry.link.setAttribute('aria-current', 'location');
+          selectedTitle.textContent = entry.title;
+        } else entry.link.removeAttribute('aria-current');
       }
+      expand(false);
+      measureChooser();
+      window.dispatchEvent(new Event('umsa:system-selected'));
     }
-
     function reveal(target: HTMLElement | null, focus = false) {
+      if (target === nav) {
+        expand(compact.matches);
+        nav.scrollIntoView({ block: 'start', behavior: 'instant' });
+        if (focus) {
+          const current = list.querySelector<HTMLAnchorElement>('a[aria-current]');
+          current?.focus({ preventScroll: true });
+          current?.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+        }
+        return true;
+      }
       const entry = target && entries.find(({ group }) => group.contains(target));
       if (!entry || !target) return false;
       select(entry.group);
-      if (focus) entry.heading.focus({ preventScroll: true });
-      target.scrollIntoView({ block: 'start', behavior: 'instant' });
+      const panelLink = target === entry.body;
+      const atChooser = compact.matches && panelLink;
+      if (focus) (atChooser ? button : entry.heading).focus({ preventScroll: true });
+      const scrollTarget = atChooser ? nav : panelLink ? entry.group : target;
+      scrollTarget.scrollIntoView({ block: 'start', behavior: 'instant' });
       return true;
     }
-
     nav.hidden = false;
     picker.classList.add('enhanced');
+    const initial = groups.find(group => group.open) || groups[0]!;
+    select(initial);
     const target = () => document.getElementById(location.hash.slice(1));
-    if (!reveal(target())) select(groups.find(group => group.open) || groups[0]!);
+    reveal(target());
+    if (typeof ResizeObserver !== 'undefined') new ResizeObserver(measureChooser).observe(button);
 
-    let focusTarget: HTMLDetailsElement | undefined;
+    button.addEventListener('click', () => expand(button.getAttribute('aria-expanded') !== 'true'));
+    nav.addEventListener('keydown', event => {
+      if (event.key !== 'Escape' || !compact.matches || button.getAttribute('aria-expanded') !== 'true') return;
+      event.preventDefault();
+      expand(false);
+      button.focus();
+    });
+    compact.addEventListener('change', () => {
+      if (compact.matches && list.contains(document.activeElement)) button.focus({ preventScroll: true });
+      if (!compact.matches && document.activeElement === button) list.querySelector<HTMLAnchorElement>('a[aria-current]')?.focus({ preventScroll: true });
+      expand(false);
+    });
+
+    let focusTarget: HTMLElement | undefined;
     window.addEventListener('hashchange', () => {
       const el = target();
-      if (!reveal(el, el === focusTarget) && (!el || el === picker.closest('section'))) select(groups[0]!);
+      if (!reveal(el, el === focusTarget) && (!el || el === picker.closest('section'))) select(initial);
       focusTarget = undefined;
     });
-    nav.addEventListener('click', event => {
+    picker.addEventListener('click', event => {
       if (!(event instanceof MouseEvent) || event.button || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-      const link = event.target instanceof Element && event.target.closest('a');
-      const entry = entries.find(e => e.link === link);
-      if (!entry) return;
-      // Make the destination visible before the browser follows its native fragment.
-      select(entry.group);
-      if (location.hash === entry.link.hash) {
+      const link = event.target instanceof Element ? event.target.closest('a') : null;
+      if (!(link instanceof HTMLAnchorElement)) return;
+      const destination = entries.find(entry => entry.link === link);
+      if (!destination) return;
+      if (location.hash === link.hash) {
         event.preventDefault();
-        reveal(entry.group, true);
+        reveal(destination.body, true);
       } else {
-        focusTarget = entry.group;
+        // Reveal the native fragment before navigation. The browser owns its history.
+        select(destination.group);
+        focusTarget = destination.body;
       }
     });
   }
@@ -85,30 +140,38 @@ const { id, label, back } = Astro.props;
   .enhanced { display:grid;grid-template-columns:minmax(190px,1fr) minmax(0,3fr);gap:clamp(22px,3.5vw,58px);align-items:start;margin-top:var(--s3); }
   .panels { min-width:0; }
   nav { scroll-margin-top:0; }
+  .chooser,.panel-back { display:none; }
   nav ul { margin:0;padding:0;list-style:none;border-top:1px solid var(--line); }
   nav :global(li) { border-bottom:1px solid var(--line); }
   nav :global(a) { display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:12px 14px;border-inline-start:3px solid transparent;gap:10px;line-height:1.35;font-weight:550;color:var(--ink-2);text-decoration:none; }
   nav :global(a::after) { content:'';width:6px;height:6px;border:solid currentColor;border-width:1.5px 1.5px 0 0;transform:rotate(45deg);flex:none; }
   nav :global(a[aria-current]) { background:#202326;border-inline-start-color:var(--red);color:var(--ink); }
   nav :global(a[aria-current]::after) { color:var(--red-text); }
-  nav :global(a:hover), .panel-head a:hover { text-decoration:underline;text-underline-offset:4px; }
-  nav :global(a:focus-visible), .panel-head a:focus-visible { outline:2px solid currentColor;outline-offset:-2px; }
+  nav :global(a:hover),.panel-back:hover { text-decoration:underline;text-underline-offset:4px; }
+  nav :global(:focus-visible),.panel-back:focus-visible { outline:2px solid currentColor;outline-offset:-2px; }
   .enhanced :global(.panels > .systems) { margin:0;border:0; }
   .enhanced :global(.panels > .systems > details) { border:0;padding:0;scroll-margin-top:0; }
-  .enhanced :global(.panels > .systems > details > summary) { display:none; }
-  .enhanced :global(.panels > .systems > details[hidden]) { display:none; }
-  .panel-head { display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 16px;border-top:1px solid var(--line);padding-top:15px; }
-  .panel-head h3 { margin:0;font-size:clamp(1.3rem,2vw,1.8rem);line-height:1.2;text-wrap:balance; }
-  .panel-head a { display:none; }
+  .enhanced :global([data-system-body]) { scroll-margin-top:64px; }
+  .enhanced :global([data-system-body]:focus-visible) { outline-offset:6px; }
+  .enhanced :global(.panels > .systems > details > summary),.enhanced :global(.panels > .systems > details[hidden]) { display:none; }
+  .panel-title { margin:0 0 16px;border-top:1px solid var(--line);padding-top:15px;font-size:clamp(1.3rem,2vw,1.8rem);line-height:1.2;text-wrap:balance; }
   @media(max-width:900px){
     .enhanced { display:block; }
-    nav ul { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:12px; }
-    nav :global(li) { display:flex;min-width:0; }
-    nav :global(a) { flex:1;min-width:0;padding:10px;min-height:48px;font-size:.95rem;overflow-wrap:anywhere; }
-    nav :global(.system-name) { gap:8px; }
-    nav :global(.system-name svg) { width:17px; }
-    nav :global(.task small) { display:none; }
-    .panel-head { margin-top:20px; }
-    .panel-head a { display:inline-flex;align-items:center;gap:4px;min-height:44px;font-size:.875rem;white-space:nowrap;text-decoration:underline;text-underline-offset:4px; }
+    .chooser { width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:3px 16px;text-align:start;padding:12px 16px;background:var(--bg-2);border:1px solid var(--line);border-inline-start:3px solid var(--red);color:var(--ink);cursor:pointer; }
+    .choice-label { grid-column:1;color:var(--ink-2);font-size:.875rem; }
+    .chooser strong { grid-column:1;font-size:1.125rem;font-weight:600;line-height:1.3; }
+    .chooser::after { content:'';grid-column:2;grid-row:1 / span 2;width:9px;height:9px;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg);margin-inline:3px; }
+    .chooser[aria-expanded=true]::after { transform:rotate(225deg); }
+    .chooser[aria-expanded=false] + ul { display:none; }
+    nav ul { border-top:0; }
+    nav :global(a) { padding:10px 14px;min-height:48px; }
+    nav :global(.system-name) { display:flex;align-items:center;gap:12px; }
+    nav :global(.system-name svg) { flex:none;width:19px; }
+    nav :global(.task) { display:grid;gap:3px; }
+    nav :global(.task small) { font-size:.875rem;color:var(--ink-2); }
+    .panels { padding-top:12px; }
+    .enhanced :global([data-system-body]) { scroll-margin-top:calc(var(--chooser-height, 75px) + 12px); }
+    .panel-title { position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden;padding:0;border:0;margin:0; }
+    .panel-back { display:inline-flex;align-items:center;gap:6px;min-height:44px;text-decoration:underline;text-underline-offset:4px; }
   }
 </style>

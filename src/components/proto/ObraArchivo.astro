@@ -1,0 +1,57 @@
+---
+import { ArrowRight } from 'lucide-astro';
+import { contactLink } from '../../lib/contactEntry';
+import { homeWorkReturn } from './portadaCases';
+import { homeWorkContext } from './portadaCases';
+import { sinTitulo } from './isoData';
+import { anioObraArchivo, tituloObraArchivo } from './titulosArchivo';
+import { alcancesArchivo } from './alcancesArchivo';
+import PruebaProyecto from './PruebaProyecto.astro';
+import type { Caso } from './relato';
+
+interface Props { obra: Caso; returnHref?: string }
+const { obra, returnHref } = Astro.props;
+const title = tituloObraArchivo(obra);
+const year = anioObraArchivo(obra);
+const scope = alcancesArchivo[obra.id];
+const description = scope?.description ?? sinTitulo(obra.texto, title, obra.cliente);
+const origin = returnHref ? homeWorkContext(Astro.url.searchParams) : undefined;
+const contact = new URLSearchParams({ archivo: String(obra.id), ...origin });
+---
+<article class="obra-archivo" id={'archivo-' + obra.id} tabindex="-1">
+  <header>
+    <p class="meta">{[obra.cliente, year].filter(Boolean).join(' · ')}</p>
+    <h3>{title}</h3>
+  </header>
+  {description && <p class="alcance-archivo">{description}</p>}
+  {scope?.evidence && <PruebaProyecto items={scope.evidence} compact />}
+  <div class="acciones">
+    <a class="consulta-archivo" href={contactLink(Astro.url.pathname, `/contacto?${contact}`)}
+      aria-label={`Consultar por una obra similar a ${title}`}>
+      Consultar por una obra similar <ArrowRight size={16} aria-hidden="true" />
+    </a>
+    {returnHref && <a class="volver-inicio" href={returnHref}>← Volver a obras de Inicio</a>}
+  </div>
+</article>
+<style>
+  .obra-archivo {
+    display:grid; align-content:start; gap:12px; min-width:0;
+    padding:16px clamp(12px,2vw,24px) 10px;
+    border-top:1px solid var(--line);
+    background:var(--bg-2);
+    scroll-margin-top:12px;
+  }
+  .obra-archivo:target { outline:2px solid var(--red); outline-offset:-2px; }
+  .meta,.alcance-archivo { color:var(--ink-2); }
+  .meta { font-size:.9rem; line-height:1.35; }
+  h3 { margin-top:6px; font-size:clamp(1.22rem,1.7vw,1.55rem); line-height:1.16; text-wrap:pretty; }
+  .alcance-archivo { max-width:65ch; line-height:1.52; }
+  .obra-archivo :global(.prueba-proyecto) { padding-block:12px 0; }
+  .acciones { display:flex; flex-wrap:wrap; align-items:center; gap:0 18px; }
+  .acciones a { display:inline-flex; align-items:center; min-height:44px; }
+  .consulta-archivo { gap:8px; font-weight:600; }
+  .consulta-archivo :global(svg) { flex:none; color:var(--red); }
+  .volver-inicio { color:var(--ink-2); font-size:.94rem; text-decoration:underline; text-underline-offset:4px; }
+  .volver-inicio:hover { color:var(--ink); }
+  .consulta-archivo:hover,.consulta-archivo:focus-visible { text-decoration:underline; text-underline-offset:4px; }
+</style>

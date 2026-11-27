@@ -19,7 +19,7 @@ export const GET: APIRoute = async () => {
     const identity = archiveIdentity(c);
     const sitio = illustrationSiteFor(c) || '';
     if (sitio) sitios[sitio] = isoSrc(sitio);
-    return { id: c.id, slug: c.slug, cliente: c.client, titulo: identity.title, reviewed: identity.reviewed, sector: c.sector, sectorSlug: c.sectorSlug, servicios: c.serviceCodes.join(' '), anio: c.year || 0, foto: c.image ? thumbOf(c.image).replace(PREFIJO, '') : '', sitio, estado: c.status, busqueda: identity.search };
+    return { id: c.id, slug: c.slug, cliente: c.client, titulo: identity.title, reviewed: identity.reviewed, documented: identity.documented, sector: c.sector, sectorSlug: c.sectorSlug, servicios: c.serviceCodes.join(' '), anio: c.year || 0, foto: c.image ? thumbOf(c.image).replace(PREFIJO, '') : '', sitio, estado: c.status, busqueda: identity.search };
   });
   return new Response(JSON.stringify({ prefijo: PREFIJO, sitios, fichas }), { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=600', 'x-robots-tag': 'noindex' } });
 };

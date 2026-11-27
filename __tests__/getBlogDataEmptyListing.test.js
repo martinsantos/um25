@@ -43,11 +43,12 @@ describe('fetchBlogListing', () => {
     }));
     global.fetch = jest.fn()
       .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ data: [] }) })
-      .mockResolvedValueOnce({ ok: true, status: 200, text: async () => `<meta property="og:image" content="https://www.ultimamilla.com.ar/blog/og/nota.jpg"><h1 class="article-title">Nota técnica</h1><p class="article-lead">Texto publicado.</p><figure class="bp-cover bp-shell"><img src="https://images.unsplash.com/photo-1483058712412-4245e9b90334?w=1200&amp;q=80"></figure>` });
+      .mockResolvedValueOnce({ ok: true, status: 200, text: async () => `<meta property="og:image" content="https://www.ultimamilla.com.ar/blog/og/nota.jpg"><h1 class="article-title">Nota técnica</h1><p class="article-lead">Texto publicado.</p><figure class="bp-cover bp-shell"><img src="https://images.unsplash.com/photo-1483058712412-4245e9b90334?w=1200&amp;q=80"></figure><div class="prose"><div><p>Contenido publicado.</p></div></div><a class="bp-return" href="/blog">Volver</a>` });
     const { fetchBlogPost } = require('../src/utils/getBlogData');
     const post = await fetchBlogPost('nota-tecnica');
     expect(post.imagen_portada).toBe('https://images.unsplash.com/photo-1483058712412-4245e9b90334?w=1200&q=80');
     expect(post.titulo).toBe('Nota técnica');
+    expect(post.contenido).toBe('<div><p>Contenido publicado.</p></div>');
   });
 
   test('sitemap fallback keeps a cover with its own note and excludes category links', async () => {

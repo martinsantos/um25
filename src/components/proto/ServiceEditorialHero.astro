@@ -1,6 +1,6 @@
 ---
 import SoftwareFilmTone from '../cine/SoftwareFilmTone.astro';
-import { variantes } from './isoData';
+import { EDITORIAL_HERO_SIZES, srcsetDe, variantes } from './isoData';
 interface Props { label: string; image: string; film?: string; mobileFilm?: string; poster?: string; imageAlt?: string; naturalPhoto?: boolean; metrics?: [string, string, string?][] }
 const { label, image, film, mobileFilm, poster, imageAlt = '', naturalPhoto = false, metrics = [] } = Astro.props;
 const photo = variantes(image);
@@ -11,7 +11,7 @@ const photo = variantes(image);
   <div class:list={["service-editorial__visual", { "service-editorial__visual--photo": naturalPhoto }]}>
     {film ?
       <video data-service-film={film} data-mobile-film={mobileFilm} loop poster={poster || image} muted playsinline preload="none" width="1920" height="1080" aria-label="Recorrido animado de una operación por la interfaz, la aplicación y sus servicios"></video>
-     : <picture>{photo.avif && <source type="image/avif" srcset={photo.avif} sizes="(max-width: 900px) 100vw, 55vw" />}<img src={photo.w960} srcset={photo.ancho ? [photo.w480 + " 480w", photo.w960 + " 960w", photo.full + " " + photo.ancho + "w"].join(", ") : undefined} sizes="(max-width: 900px) 100vw, 55vw" alt={imageAlt} width="1672" height="941" fetchpriority="high" decoding="async" /></picture>}
+     : <picture>{photo.avif && <source type="image/avif" srcset={photo.avif} sizes={EDITORIAL_HERO_SIZES} />}<img src={photo.w960} srcset={srcsetDe(image)} sizes={EDITORIAL_HERO_SIZES} alt={imageAlt} width="1672" height="941" fetchpriority="high" decoding="async" /></picture>}
     <slot name="credit" />
     <slot name="reference" />
   </div>
@@ -28,7 +28,7 @@ const photo = variantes(image);
   .service-editorial__copy { display: grid; gap: var(--s2); }
   .service-editorial__copy :global(h1) { font-size: clamp(2.8rem, 5.4vw, 5.4rem); }
   .service-editorial__copy :global(p) { color: var(--ink-2); max-width: 45ch; font-size: 1.125rem; }
-  .service-editorial__copy :global(.u) { width: fit-content; max-width: 100%; }
+  .service-editorial__copy :global(.u) { display: inline-flex; align-items: center; min-height: 44px; width: fit-content; max-width: 100%; }
   .service-editorial__copy :global(.editorial-primary) { display: inline-flex; align-items: center; gap: 8px; }
   .service-editorial__copy :global(.tag) { color: var(--ink); }
   .service-editorial__visual { position: relative; min-width: 0; }
@@ -36,12 +36,20 @@ const photo = variantes(image);
   .service-editorial__visual--photo img { aspect-ratio: 3 / 2; object-fit: cover; }
   [data-software-film] .service-editorial__visual { overflow: hidden; }
   [data-software-film] video { transform: scale(1.1); }
-  @media (max-width: 900px) {
+  @media (min-width: 761px) and (max-width: 900px) {
+    .service-editorial { gap: 24px; padding-block: 36px; }
+    .service-editorial__copy :global(h1) { font-size: clamp(2rem, 4.3vw, 2.5rem); }
+    .service-editorial__copy :global(p) { font-size: 1.0625rem; line-height: 1.55; }
+    .service-editorial__copy :global(.service-actions) { margin-block: 8px 0; gap: 8px 16px; }
+  }
+  @media (max-width: 760px) {
     .service-editorial { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-block: 32px; }
     .service-editorial__copy { gap: 20px; }
     .service-editorial__copy :global(p) { font-size: 1.0625rem; line-height: 1.55; }
     .service-editorial__copy :global(.editorial-actions) { display: grid; gap: 12px; order: 2; }
-    .service-editorial__copy :global(.service-actions) { display: grid; gap: 12px; margin: 0; }
+    .service-editorial__copy :global(.service-actions) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; margin: 0; }
+    .service-editorial__copy :global(.service-actions .btn) { grid-column: 1 / -1; }
+    .service-editorial__copy :global(.service-actions .btn + .u:last-child) { grid-column: 1 / -1; }
     .service-editorial__copy :global(.editorial-actions .u) { display: inline-flex; align-items: center; justify-content: center; justify-self: center; min-height: 44px; text-align: center; font-size: 1rem; line-height: 1.4; }
     .service-editorial__copy :global(.service-actions .btn), .service-editorial__copy :global(.editorial-primary) { display: flex; justify-content: center; align-items: center; width: 100%; min-height: 52px; padding: 14px 20px; background: var(--red); color: #fff; border: 0; font-size: 1rem; line-height: 1.4; }
     .service-editorial__copy :global(.sector-back) { min-height: 44px; display: inline-flex; align-items: center; margin: 0; font-size: 1rem; }
@@ -49,7 +57,7 @@ const photo = variantes(image);
     .service-editorial__visual { grid-row: 2; }
     .service-editorial__copy :global(h1) { font-size: clamp(2rem, 7.5vw, 2.6rem); line-height: 1.08; font-weight: 600; letter-spacing: -.025em; }
   }
-  @media (max-width: 700px) {
+  @media (max-width: 600px) {
     .service-editorial[data-software-film] { gap: 14px; }
     [data-software-film] .service-editorial__copy { display: contents; }
     [data-software-film] .service-editorial__visual { grid-row: auto; order: 1; aspect-ratio: 1.32; width: 100%; }
@@ -77,7 +85,7 @@ const photo = variantes(image);
     const sync = () => {
       if (!visible || document.hidden || reduced.matches) { video.pause(); return; }
       if (!video.hasAttribute('src')) {
-        video.src = (matchMedia('(max-width: 700px)').matches && video.dataset.mobileFilm) || video.dataset.serviceFilm!;
+        video.src = (matchMedia('(max-width: 600px)').matches && video.dataset.mobileFilm) || video.dataset.serviceFilm!;
       }
       void video.play().catch(() => {});
     };

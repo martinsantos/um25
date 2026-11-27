@@ -7,6 +7,16 @@ const historicalCaseRedirects = new Map([
   ['/antecedentes/10980/hospital-a-italo-perrupato-sdi', '/antecedentes/3332/infraestructura-hospitalaria-servicio-tecnico-hospital-a-italo-perrupato'],
   ['/antecedentes/10942/hospital-a-italo-perrupato-sdi', '/antecedentes/3373/soporte-de-infraestructura-it-de-alta-disponibilidad-hospital-a-italo-perrupato-febrero-2020'],
 ]);
+/** Resolve only URLs that identify a public project, including verified historical aliases. */
+export function caseLinkReference(input: string): string | undefined {
+  const match = /^(?:(?:https?:\/\/)?(?:www\.)?ultimamilla\.com\.ar)?(\/(?:propuesta\/)?antecedentes\/[^?#\s]+)(?:[?#]\S*)?$/i.exec(input.trim());
+  if (!match) return;
+  const path = publicDespiecePath(match[1]!);
+  const target = historicalCaseRedirects.get(path) || path;
+  const project = /^\/antecedentes\/(?:um-?)?(\d{1,8})(?:\/[^/]+)?$/i.exec(target);
+  return project ? 'UM-' + Number(project[1]) : undefined;
+}
+
 export function publicDespiecePath(path: string): string {
   return (path.replace(/^\/propuesta(?=\/|$)/, '').replace(/\/$/, '') || '/');
 }
@@ -28,6 +38,8 @@ export function despieceRoute(path: string, method = 'GET'): { redirect?: string
   if (p === '/sectores/seguridad-electronica') return { redirect: '/seguridad-electronica' };
   if (p === '/sectores/gobierno') return { redirect: '/sectores/gobiernosectorpublico' };
   if (p === '/en/contacto') return { redirect: '/en/contact' };
+  const printedCase = /^\/antecedentes\/um-?(\d{1,8})\/[^/]+$/i.exec(p);
+  if (printedCase) return { rewrite: '/antecedentes/' + printedCase[1] };
   const oldService = p.match(/^\/servicios\/(10[1-8])\/([^/]+)$/);
   if (oldService && oldService[2] !== 'ficha') return { redirect: '/servicios/' + oldService[1] };
   const sector = p.match(/^\/sectores\/([^/]+)$/);

@@ -28,6 +28,17 @@ test('sorting preserves the original list for reset and handles chronological or
   expect(orderCatalog(source, 'client')).toEqual([airport, government]);
 });
 
+test('sector and service highlights put documented work before generic records', () => {
+  const generic = { ...airport, year: '2026' };
+  const documented = { ...airport, documented: true };
+  const featured = { ...government, reviewed: true };
+  const source = [generic, documented, featured];
+
+  expect(orderCatalog(source, 'recent', true)).toEqual([featured, documented, generic]);
+  expect(orderCatalog(source, 'recent')).toEqual(source);
+  expect(orderCatalog(source, 'year-desc', true)).toEqual(source);
+});
+
 test('production client links survive editorial accents and legal-suffix punctuation', () => {
   const client = { ...airport, client: 'José Nucete e Hijos S.A.' };
   expect(matchesCatalog(client, { cliente: 'Jose Nucete e Hijos SA' })).toBe(true);
@@ -57,4 +68,17 @@ test('finds a project by its printed reference and by words across fields in eit
   }
   expect(matchesCatalog(project, { q: 'pañol bodega' })).toBe(false);
   expect(matchesCatalog(project, { q: 'UM 3105' })).toBe(false);
+});
+
+test('pasted public project links use the reference in both historical and current routes', () => {
+  for (const q of [
+    'https://www.ultimamilla.com.ar/antecedentes/3104/obra?origen=mail#alcance',
+    'ultimamilla.com.ar/antecedentes/3104', '/propuesta/antecedentes/3104/obra/',
+    '/antecedentes/UM-3104',
+  ]) expect(catalogState(new URLSearchParams({ q })).q).toBe('UM-3104');
+  const old = '/antecedentes/10980/hospital-a-italo-perrupato-sdi';
+  expect(catalogState(new URLSearchParams({ q: old })).q).toBe('UM-3332');
+  for (const q of ['control de acceso', 'https://otro.example/antecedentes/3104', '/antecedentes/3104/obra/extra']) {
+    expect(catalogState(new URLSearchParams({ q })).q).toBe(q);
+  }
 });

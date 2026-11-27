@@ -13,7 +13,7 @@ const {items}=Astro.props;
   <div class="systems">
   {items.map((item,i)=><details name="construction-system" open={i===0}>
     <summary><span>{item.name}</span><ChevronDown size={20} aria-hidden="true"/></summary>
-    <div class="system-body"><div class="system-copy"><h3>{item.name}</h3><p>{sectorIntegrationScope('constructoras',item.code,item.text)}</p><a href={`/servicios/${item.code}#provision`}>Qué proveemos →</a>{item.count>0&&<a href={`/antecedentes?sector=constructoras&service=${item.code}`}>{item.count} antecedentes en construcción →</a>}</div>
+    <div class="system-body"><div class="system-copy"><h3>{item.name}</h3><p>{sectorIntegrationScope('constructoras',item.code,item.text)}</p><a href={`/servicios/${item.code}#provision`}>Qué proveemos →</a>{item.count>0&&<a href={`/antecedentes?sector=constructoras&service=${item.code}#obras-filtradas`}>{item.count} antecedentes en construcción →</a>}</div>
     <div class="system-scene">{technicalSceneForService(item.code) ? <TechnicalScene content={technicalSceneForService(item.code)!}/> : item.code==='102' ? <FunctionalScene kind="security"/> : item.code==='108' ? <FunctionalScene kind="energy"/> : <p>El alcance se define con el proyecto y se documenta para su operación y mantenimiento.</p>}</div></div>
   </details>)}
   </div>

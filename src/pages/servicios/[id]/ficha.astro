@@ -10,10 +10,29 @@ import ServiceSpecSheet from '../../../components/cine/ServiceSpecSheet.astro';
 import { getServiceSpec } from '../../../data/serviceSpecs';
 import { SITE_URL } from '../../../config/seo';
 
+import { datasheetSource } from '../../../utils/datasheets';
+import { contactLink } from '../../../lib/contactEntry';
+
 const { id } = Astro.params;
 const spec = getServiceSpec(id);
 if (!spec) return Astro.rewrite('/404');
 
+const { sector, desde } = datasheetSource(Astro.url.searchParams, spec.code);
+let back = { href: spec.href + '#provision', label: 'Volver al servicio' };
+if (sector) {
+  const destination = sector.href.startsWith('/sectores/')
+    ? '?entrega=' + spec.code + '#entrega-' + spec.code
+    : '#entregables';
+  back = { href: sector.href + destination, label: 'Volver a la entrega en ' + sector.name };
+} else if (desde === 'documentacion') {
+  back = { href: '/documentacion#ficha-' + spec.code, label: 'Volver a las fichas' };
+} else if (desde === 'entregables') {
+  back = { href: spec.href + '#entregables', label: 'Volver a qué entregamos' };
+}
+const params = new URLSearchParams({ intent: 'documentacion', sistema: spec.code });
+if (sector) params.set('sector', sector.slug);
+if (desde) params.set('desde', desde);
+const consult = contactLink(Astro.url.pathname, '/contacto?' + params);
 const issued = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long' });
 const detailUrl = `${SITE_URL}${spec.href}`;
 ---
@@ -57,12 +76,22 @@ const detailUrl = `${SITE_URL}${spec.href}`;
       .ds__actions { width: min(100%, 182mm); margin: 0 auto; padding: 16px; display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; align-items: center; border-bottom: 1px solid #d9dadd; }
       .ds__actions a { display: inline-flex; align-items: center; min-height: 44px; color: inherit; text-underline-offset: .22em; }
       .ds__print { min-height: 44px; padding: 0 16px; border: 1px solid #111; background: #fff; color: #111; font: 600 16px var(--um-font-body); cursor: pointer; }
-      @media print { .ds__actions { display: none; } .ds { padding: 0; width: auto; } }
+      .ds__consult { display: inline-flex; align-items: center; min-height: 44px; margin-top: 16px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+      @media screen and (max-width: 560px) {
+        .ds__head { align-items: flex-start; flex-direction: column; gap: 12px; }
+        .ds__meta { text-align: left; font-size: .875rem; }
+      }
+      @media print {
+        .ds__meta,.ds__foot { font-size: 9pt; }
+        .ds__title { font-size: 20pt; }
+        .ds__promise { font-size: 12pt; margin-bottom: 4mm; }
+        .ds__foot { margin-top: 5mm; break-inside: avoid; }
+        .ds__consult,.ds__actions { display: none; } .ds { padding: 0; width: auto; } }
     </style>
   </head>
   <body>
     <nav class="ds__actions" aria-label="Acciones de la ficha">
-      <a href={`/servicios/${spec.code}#provision`}>← Volver al servicio</a>
+      <a href={back.href}>← {back.label}</a>
       <button class="ds__print" type="button" onclick="window.print()">Imprimir o guardar PDF</button>
     </nav>
     <main class="ds">
@@ -77,6 +106,7 @@ const detailUrl = `${SITE_URL}${spec.href}`;
       <h1 class="ds__title">{spec.name}</h1>
       <p class="ds__promise">{spec.promise}</p>
       <ServiceSpecSheet spec={spec} print />
+      <a class="ds__consult" href={consult}>Consultar por esta ficha →</a>
       <footer class="ds__foot">
         <span>ULTIMA MILLA · Houssay 1159, Guaymallén, Mendoza · contacto@ultimamilla.com.ar</span>
         <a href={detailUrl}>{detailUrl.replace(/^https?:\/\//, '')}</a>

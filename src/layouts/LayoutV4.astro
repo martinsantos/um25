@@ -8,6 +8,7 @@
  */
 
 import NavbarV4 from '../components/v4/NavbarV4.astro';
+import SkipLink from '../components/v4/SkipLink.astro';
 import FooterV4 from '../components/v4/FooterV4.astro';
 import AppTabBar from '../components/v4/AppTabBar.astro';
 import ContactLinks from '../components/um/ContactLinks.astro';
@@ -258,37 +259,16 @@ const enableServiceWorker = import.meta.env.PUBLIC_ENABLE_SW === 'true';
         text-wrap: pretty;
       }
 
-      .um-skip-link {
-        position: fixed;
-        left: 16px;
-        top: 16px;
-        width: auto;
-        height: auto;
-        transform: translateY(calc(-100% - 32px));
-        overflow: visible;
-        z-index: var(--um-z-skip);
-        padding: 12px 18px;
-        background: #111;
-        color: #fff;
-        font-weight: 600;
-        text-decoration: none;
-      }
-
-      .um-skip-link:focus {
-        transform: translateY(0);
-        outline: 2px solid var(--um-red);
-        outline-offset: 2px;
-      }
     </style>
   </head>
   <body
     data-skin={skinAttribute}
     data-font-system="um-sans-2.0.0"
   >
-    <a class="um-skip-link" href="#main-content">{skipLinkLabel}</a>
+    <SkipLink target="main-content" label={skipLinkLabel} />
     <NavbarV4 />
 
-    <main id="main-content">
+    <main id="main-content" tabindex="-1">
       <slot />
     </main>
 

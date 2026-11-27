@@ -1,16 +1,140 @@
+import { titulosArchivo } from './titulosArchivo';
 import { isNamedClient } from './catalogEditorial';
 import { publicCaseFor } from './casePresentation';
 import { isShowcaseProject } from './caseSelection';
 import { casoDe } from './relato';
 import { SECTOR_PHOTO, type Story } from './isoData';
+import { publicDespiecePath } from '../../lib/despieceRoutes';
 
 type Link = { label: string; href: string };
+type Evidence = readonly [value: string, label: string];
 export type Project = {
   key: string; sector: string; title: string; client: string; scope: string;
-  measure?: [string, string]; image?: string; contextImage?: string; links: Link[]; fact?: string;
+  measure?: [string, string]; image?: string; contextImage?: string; links: Link[]; fact?: string; editorialScope?: string; editorialEvidence?: readonly Evidence[];
 };
 
-export function portadaCases(stories: Story[], surface: 'inicio' | 'servicios' | 'sectores' | 'antecedentes' | 'blog') {
+// Cada titular se apoya en el alcance documentado por las fichas enlazadas.
+const editorialCopy: Record<string, { title: string; scope: string; evidence?: readonly Evidence[]; links: string[] }> = {
+  yaguar: {
+    title: 'Red de datos para los puestos y el Wi-Fi de Yaguar',
+    scope: 'En dos sucursales, una en Mendoza y otra en San Juan, conectamos los racks con fibra monomodo de 12 hilos y dejamos puntos de red para los equipos Wi-Fi.',
+    evidence: [['16', 'puestos Cat. 6 en total'], ['10', 'destinados a equipos Wi-Fi']],
+    links: ['Ver la red instalada'],
+  },
+  hospitales: {
+    title: 'Puestos de trabajo conectados en tres hospitales',
+    scope: 'Conectamos los puestos a racks en General Las Heras y Uspallata. En Perrupato integramos el cableado de datos con el armado de tableros eléctricos.',
+    evidence: [['56', 'puestos simples en Perrupato'], ['29', 'puestos dobles en Perrupato']],
+    links: ['Perrupato', 'General Las Heras', 'Uspallata'],
+  },
+  bodega: {
+    title: 'Del centro de datos a la trazabilidad de alimentos',
+    scope: 'Pusimos en marcha el centro de datos, integramos telefonía, accesos y detección en oficinas, y desarrollamos software de trazabilidad para respaldar la certificación orgánica.',
+    links: ['Centro de datos', 'Trazabilidad', 'Sistemas de oficinas'],
+  },
+  compresoras: {
+    title: 'Ingeniería de voz y datos para las compresoras de gas',
+    scope: 'Diseñamos la red de telecomunicaciones de Tío Pujio, Leones y Candelarias, en Córdoba.',
+    evidence: [['3', 'plantas en el proyecto de ingeniería']],
+    links: ['Ver ingeniería de red'],
+  },
+  ferrocarril: {
+    title: 'Telecomunicaciones a bordo de locomotoras',
+    scope: 'Para EMEPA, montamos e instalamos el equipamiento de comunicaciones directamente en las unidades.',
+    evidence: [['9', 'locomotoras equipadas']],
+    links: ['Ver montaje a bordo'],
+  },
+  'fibra-municipal': {
+    title: 'Fibra entre el municipio y el centro de congresos',
+    scope: 'Tendimos la red entre la sede municipal y el Centro de Congresos y Exposiciones de San Martín.',
+    evidence: [['6,5 km', 'de fibra óptica aérea']],
+    links: ['Ver el tendido'],
+  },
+  aeropuerto: {
+    title: 'Detección de incendios para zonas operativas de El Plumerillo',
+    scope: 'En la remodelación instalamos detección en el estacionamiento y los edificios externos. Otra intervención cubrió balizamiento y Mantenimiento Central.',
+    evidence: [['3', 'centrales de detección en la obra de balizamiento']],
+    links: ['Remodelación del aeropuerto', 'Detección en balizamiento'],
+  },
+  justicia: {
+    title: 'Validación de usuarios y documentos en el portal judicial',
+    scope: 'Integramos la validación de usuarios, la certificación de documentos con sello de tiempo y un asistente de consultas conectado a los servicios internos del Poder Judicial.',
+    links: ['Ver el desarrollo del portal'],
+  },
+  'wifi-mendoza': {
+    title: 'Radioenlaces para distribuir Wi-Fi Mendoza',
+    scope: 'Implementamos los enlaces de radio y la distribución de los servicios hasta los puntos de conexión del proyecto.',
+    evidence: [['40', 'puntos de distribución']],
+    links: ['Ver la red de radioenlaces'],
+  },
+  marques: {
+    title: 'Portería IP y videovigilancia para DTP Marqués',
+    scope: 'Conectamos el frente de portería con las estaciones interiores del complejo e instalamos videovigilancia con grabación.',
+    evidence: [['31', 'estaciones interiores'], ['13', 'cámaras analógicas']],
+    links: ['Ver portería y cámaras'],
+  },
+  estadio: {
+    title: 'Red y telefonía para prensa y transmisión en el Malvinas',
+    scope: 'Pusimos en servicio los puestos de prensa y transmisión. En el centro de datos reunimos los sistemas del estadio y el CCTV de la Policía de Mendoza.',
+    evidence: [['200', 'puestos de prensa'], ['60', 'puestos de transmisión']],
+    links: ['Prensa y transmisión', 'Adecuación de la red'],
+  },
+  pasip: {
+    title: 'Ingeniería de infraestructura IT para el Parque PASIP',
+    scope: 'Diseñamos el centro de datos y las telecomunicaciones para el parque industrial de Palmira.',
+    links: ['Ver alcance de ingeniería'],
+  },
+  gobierno: {
+    title: 'Ministerios y trámites en un portal provincial',
+    scope: 'Reunimos los sitios de los ministerios de Mendoza, un buscador, un directorio de contactos y una API de trámites. La entrega incluyó capacitación y mantenimiento.',
+    links: ['Ver el proyecto del Gobierno'],
+  },
+  'campo-vuelo': {
+    title: 'Acceso controlado al pañol y al taller del campo de vuelo',
+    scope: 'Montamos y probamos el control de acceso perimetral para los espacios donde se guardan los activos de obra.',
+    links: ['Ver control de acceso'],
+  },
+  'torre-cordoba': {
+    title: 'Sistemas integrados en la torre de control de Córdoba',
+    scope: 'Integramos sonido, detección de incendios, datos y telefonía en la nueva torre de control del aeropuerto.',
+    links: ['Ver los sistemas de la torre'],
+  },
+  quilmes: {
+    title: 'Videovigilancia en camarines y elaboración',
+    scope: 'Instalamos las cámaras provistas por Quilmes y el cableado Cat. 6 en camarines y oficina de elaboración.',
+    evidence: [['5', 'cámaras de seguridad']],
+    links: ['Ver la instalación'],
+  },
+  civit: {
+    title: 'Ingeniería de datos y seguridad para Emilio Civit 75',
+    scope: 'Documentamos cómo integrar el cableado, la portería, el control de acceso y el CCTV en la vivienda multifamiliar.',
+    links: ['Ver alcance de ingeniería'],
+  },
+  'salud-mujer': {
+    title: 'Redes de datos y telefonía para la Casa de la Salud de la Mujer',
+    scope: 'El cableado Cat. 6 LSZH distingue los puestos para datos y telefonía, con racks murales y tendido de fibra monomodo.',
+    evidence: [['43', 'puestos de datos'], ['18', 'puestos de telefonía']],
+    links: ['Ver cableado y distribución'],
+  },
+  conicet: {
+    title: 'Turnos para usar activos científicos del CONICET',
+    scope: 'Desarrollamos el software que gestiona los turnos de uso de los activos científicos.',
+    links: ['Ver el alcance del software'],
+  },
+  distribucion: {
+    title: 'Gestión de ventas para una red de distribuidores',
+    scope: 'Desarrollamos y mantuvimos el sistema de ventas de Sandra Marzzan, con una API de datos para el sitio web.',
+    links: ['Ver el alcance del sistema'],
+  },
+  energia: {
+    title: 'Nuevos tableros para los circuitos de informática del Poder Judicial',
+    scope: 'Remodelamos los tableros del Edificio II en San Martín con gabinetes principales IP65 y unidades auxiliares.',
+    evidence: [['8', 'tableros eléctricos'], ['120', 'bocas por gabinete principal']],
+    links: ['Ver los tableros'],
+  },
+};
+
+export function portadaCases(stories: Story[], surface: 'inicio' | 'servicios' | 'sectores' | 'antecedentes' | 'blog' | 'nosotros') {
   const current = (id: number) => stories.find(s => s.id === id && publicCaseFor(s) && isShowcaseProject(s));
   // Unmapped historical records already appear in the public archive of their sector or service.
   // If an identity is subsequently mapped to the CMS, require a fresh editorial review.
@@ -77,11 +201,11 @@ export function portadaCases(stories: Story[], surface: 'inicio' | 'servicios' |
     links:[{label:'Ver el alcance del sistema',href:'/servicios/104#archivo-10779'}] });
   // These works have a historical scope in the public service or sector archive.
   const history: Array<{ id: number; page: string; key: string; sector: string; title: string; measure?: [string, string] }> = [
-    { id:10742, page:'/servicios/101', key:'fibra-municipal', sector:'Red metropolitana', title:'Fibra aérea entre el municipio y el centro de congresos', measure:['6,5 km','de fibra óptica aérea'] },
-    { id:10768, page:'/sectores/industria', key:'compresoras', sector:'Infraestructura de gas', title:'Voz y datos para las plantas compresoras de Córdoba', measure:['3','plantas compresoras'] },
-    { id:10762, page:'/sectores/industria', key:'ferrocarril', sector:'Transporte ferroviario', title:'Equipamiento embarcado en locomotoras', measure:['9','locomotoras con equipamiento embarcado'] },
+    { id:10742, page:'/servicios/101', key:'fibra-municipal', sector:'Red metropolitana', title:titulosArchivo[10742], measure:['6,5 km','de fibra óptica aérea'] },
+    { id:10768, page:'/sectores/industria', key:'compresoras', sector:'Infraestructura de gas', title:titulosArchivo[10768], measure:['3','plantas compresoras'] },
+    { id:10762, page:'/sectores/industria', key:'ferrocarril', sector:'Transporte ferroviario', title:titulosArchivo[10762], measure:['9','locomotoras con equipamiento embarcado'] },
     { id:10738, page:'/sectores/aeropuertos', key:'torre-cordoba', sector:'Aviación', title:'Sonido, detección de incendios, datos y telefonía en la torre de control de Córdoba' },
-    { id:10770, page:'/servicios/103', key:'wifi-mendoza', sector:'Telecomunicaciones', title:'Radioenlaces para la red WiFi Mendoza', measure:['40','puntos de distribución'] },
+    { id:10770, page:'/servicios/103', key:'wifi-mendoza', sector:'Telecomunicaciones', title:titulosArchivo[10770], measure:['40','puntos de distribución'] },
     { id:10783, page:'/servicios/104', key:'conicet', sector:'Software para investigación', title:'Gestión de turnos para activos científicos del CONICET' },
   ];
   for (const {id, page, ...project} of history) {
@@ -95,7 +219,90 @@ export function portadaCases(stories: Story[], surface: 'inicio' | 'servicios' |
     servicios:['estadio','fibra-municipal','wifi-mendoza','energia','justicia','compresoras','campo-vuelo','aeropuerto','yaguar','pasip','marques'],
     sectores:['aeropuerto','hospitales','compresoras','bodega','ferrocarril','torre-cordoba','quilmes','yaguar','marques','civit'],
     antecedentes:['hospitales','estadio','bodega','fibra-municipal','ferrocarril','torre-cordoba','energia','salud-mujer','marques'],
+    nosotros:['aeropuerto','energia','justicia'],
     blog:['wifi-mendoza','conicet','energia','justicia','campo-vuelo','yaguar','distribucion'],
   }[surface];
-  return order.flatMap(key => projects.filter(project => project.key === key));
+  const selected = order.flatMap(key => projects.filter(project => project.key === key));
+  return selected.map(project => {
+    const copy = editorialCopy[project.key];
+    if (!copy) return project;
+    return {
+      ...project,
+      title: copy.title,
+      client: project.key === 'hospitales' ? 'FUESMEN' : project.client,
+      editorialScope: copy.scope,
+      editorialEvidence: copy.evidence,
+      links: project.links.map((link, index) => ({
+        ...link,
+        label: copy.links[index] || link.label,
+      })),
+    };
+  });
+}
+
+export const homeReferenceKeys = ['estadio', 'fibra-municipal', 'ferrocarril'] as const;
+type HomeWorkSource = 'portada-inicio' | 'obras-inicio';
+
+export function homeWorkLink(href: string, key: string, source: HomeWorkSource, position = 0) {
+  const target = new URL(href, 'https://example.invalid');
+  target.searchParams.set('desde', source);
+  target.searchParams.set('obra', key);
+  return {
+    href: target.pathname + target.search + target.hash,
+    id: homeWorkAnchor(key, source, position),
+  };
+}
+
+function homeWorkAnchor(key: string, source: HomeWorkSource, position: number) {
+  return source === 'portada-inicio' ? 'referencia-portada-' + key : 'obra-' + key + '-enlace-' + (position + 1);
+}
+
+export function homeWorkContext(params: URLSearchParams): { desde: HomeWorkSource; obra: string } | undefined {
+  const desde = params.get('desde');
+  const obra = params.get('obra');
+  if ((desde === 'portada-inicio' || desde === 'obras-inicio') && obra && /^[a-z-]{1,32}$/.test(obra)) {
+    return { desde, obra };
+  }
+}
+
+/** Resolve only destinations actually linked from the current public homepage. */
+export function homeWorkReturn(url: URL, stories: Story[], archiveId?: number) {
+  const context = homeWorkContext(url.searchParams);
+  if (!context) return;
+  const target = publicDespiecePath(url.pathname) + (archiveId ? '#archivo-' + archiveId : '');
+  const project = portadaCases(stories, 'inicio').find(obra => obra.key === context.obra);
+  if (!project) return;
+
+  const position = project.links.findIndex(link => link.href === target);
+  if (position < 0) return;
+  if (context.desde === 'portada-inicio' && (!project.measure || position !== 0 || !homeReferenceKeys.some(key => key === project.key))) return;
+  return '/#' + homeWorkAnchor(project.key, context.desde, position);
+}
+
+/** Keep the verified home entry available while browsing related projects. */
+export function homeProjectJourney(current: Story, input: URLSearchParams, stories: Story[]) {
+  const context = homeWorkContext(input);
+  if (!context) return;
+  const featuredId = input.get('destacada');
+  if (featuredId !== null && !/^\d{1,8}$/.test(featuredId)) return;
+  const featured = featuredId === null || featuredId === String(current.id)
+    ? current
+    : stories.find(story => String(story.id) === featuredId);
+  if (!featured) return;
+
+  const params = new URLSearchParams(context);
+  const original = new URL(featured.href, 'https://example.invalid');
+  original.search = params.toString();
+  const home = homeWorkReturn(original, stories);
+  if (!home) return;
+
+  const onFeatured = featured.id === current.id;
+  const relatedParams = new URLSearchParams(params);
+  relatedParams.set('destacada', String(featured.id));
+  return {
+    href: onFeatured ? home : original.pathname + original.search + '#obras-relacionadas',
+    label: onFeatured ? 'Volver a obras de Inicio' : 'Volver a la obra destacada',
+    contact: onFeatured ? params : relatedParams,
+    relatedQuery: '?' + relatedParams.toString(),
+  };
 }
