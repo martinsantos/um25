@@ -127,6 +127,12 @@ jobs:
             fi
           fi
           case "$PREVIOUS_MASTER" in
+            5db725a2f8af15564cb355b2d0f557d4118f03db)
+              retirement=prune-pr728-transports.py
+              installed=$(du -sc -B1 dist node_modules package.json package-lock.json | awk 'END {print $1}')
+              backup_floor=$((10 * 1024**3 + size + installed))
+              if (( backup_floor > required )); then required=$backup_floor; fi
+              ;;
             5b3126173e887f1cb51879b39f8ff4d2def3a05c)
               retirement=prune-pr725-transports.py
               installed=$(du -sc -B1 dist node_modules package.json package-lock.json | awk 'END {print $1}')
@@ -168,7 +174,7 @@ jobs:
               ;;
             *) retirement='' ;;
           esac
-          if [[ -n "$retirement" ]] && { (( available < required )) || [[ "$retirement" == prune-fotos-20261124.py || "$retirement" == prune-pr725-transports.py ]]; }; then
+          if [[ -n "$retirement" ]] && { (( available < required )) || [[ "$retirement" == prune-fotos-20261124.py || "$retirement" == prune-pr725-transports.py || "$retirement" == prune-pr728-transports.py ]]; }; then
             ops=scripts/ops/hostinger-migration
             program="$RUNNER_TEMP/prune-approved.py"
             sed '/^if __name__ == /,$d' "$ops/prune-reviewed-migration.py" > "$program"
