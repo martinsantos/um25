@@ -30,11 +30,10 @@ export function catalogWindowHref(state: CatalogState, limit: number) {
   return limit > catalogBatch ? path + (path.includes('?') ? '&' : '?') + 'mostrar=' + limit : path;
 }
 
-/** Preserve the public case URL for unfiltered browsing. */
+/** Use the clean public URL until the archive has a filter, order or expanded list to restore. */
 export function caseContextQuery(state: CatalogState, visible: number) {
-  if (!catalogCriteria.some(key => state[key]) && (!state.orden || state.orden === 'recent')) return '';
   const query = catalogWindowHref(state, visible).split('?')[1];
-  return '?desde=archivo&' + query;
+  return query ? '?desde=archivo&' + query : '';
 }
 
 export function catalogNextHref(state: CatalogState, visible: number, nextId?: number) {

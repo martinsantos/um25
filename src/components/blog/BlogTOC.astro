@@ -10,14 +10,15 @@ interface Heading {
 }
 interface Props {
   headings: Heading[];
+  showLabel?: boolean;
 }
-const { headings } = Astro.props;
+const { headings, showLabel = true } = Astro.props;
 const items = headings.filter((h) => h.level === 2 || h.level === 3);
 ---
 
 {items.length > 1 && (
   <nav class="btoc" aria-label="En este artículo">
-    <p class="btoc__label">En este artículo</p>
+    {showLabel && <p class="btoc__label">En este artículo</p>}
     <ol class="btoc__list">
       {items.map((h) => (
         <li class:list={['btoc__item', h.level === 3 && 'btoc__item--sub']}>

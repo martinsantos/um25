@@ -61,16 +61,22 @@ const referentes = homeReferenceKeys.flatMap(key => {
     .rutas-portada a { font-size:.9375rem; }
   }
   @media (max-width: 700px) {
+    .opening { --opening-lead: clamp(96px, 14svh, 150px); }
     .opening-image { object-position: 23% 29%; }
-    .opening::before { background: linear-gradient(180deg, #080c0e0a, #080c0e33 18%, #080c0ecc 46%, #090c0efa 88%); }
-    .opening-grid { min-height: 0; padding-block: clamp(96px, 14svh, 150px) 24px; }
+    .opening::before {
+      background: linear-gradient(180deg, #080c0e14 calc(var(--opening-lead) - 42px),
+        #080c0eae calc(var(--opening-lead) - 8px),
+        #080c0ee0 calc(var(--opening-lead) + 175px), #090c0efa 88%);
+    }
+    .opening-grid { min-height: 0; padding-block: var(--opening-lead) 24px; }
     header { width: 100%; gap: 12px; }
     h1 { font-size: clamp(2.15rem, 8.8vw, 3.7rem); }
     .intro { font-size: 1rem; max-width: 38ch; }
     header .btn { padding: 11px 16px; }
   }
   @media (max-width: 359px) {
-    .opening-grid { padding-block: 62px 18px; }
+    .opening { --opening-lead: 62px; }
+    .opening-grid { padding-block-end: 18px; }
     header { gap: 9px; }
     .rutas-portada { display:grid; width:100%; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0 6px; }
     .rutas-portada a { font-size:.89rem; line-height:1.2; }

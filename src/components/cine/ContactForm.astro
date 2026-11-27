@@ -15,6 +15,8 @@ import { publicCaseTitle, samePublicClient } from '../proto/casePresentation';
 import { homeProjectJourney, homeWorkContext, homeWorkReturn } from '../proto/portadaCases';
 import { loadStories, thumbOf } from '../proto/isoData';
 import { contactOrigin, contextualParams } from '../../lib/contactEntry';
+import { catalogCaseJourney } from '../proto/catalogCaseJourney';
+import { relatedCaseJourney } from '../proto/relatedCaseGroups';
 import { caseJourney, contactPanelReturn } from '../../lib/caseJourney';
 import { budgetSelections } from '../../data/budgetBrief';
 import { datasheetSource } from '../../utils/datasheets';
@@ -61,13 +63,20 @@ const workTitle = work ? publicCaseTitle(work) : archiveTitle;
 const workClient = work?.client || archivo?.cliente;
 const referenceHref = work?.href || archiveHref;
 const sourceWork = referenceHref && new URL(referenceHref, Astro.url);
-const workJourney = work && sourceWork && sourceWork.pathname === from
-  ? homeProjectJourney(work, incoming, stories) || caseJourney(work, params, stories)
+const linkedWork = work && sourceWork?.pathname === from ? work : undefined;
+const relatedJourney = lang === 'es' && linkedWork ? relatedCaseJourney(linkedWork, params, stories) : undefined;
+const workJourney = linkedWork
+  ? homeProjectJourney(linkedWork, incoming, stories) || relatedJourney || caseJourney(linkedWork, params, stories)
   : undefined;
+const archiveSelection = incoming.get('seleccionArchivo');
+const resultsJourney = lang === 'es' && work && sourceWork && sourceWork.pathname === from && archiveSelection
+  ? catalogCaseJourney(work, new URLSearchParams(archiveSelection), stories)
+  : undefined;
+const returnToResults = resultsJourney || relatedJourney?.archive;
 const archiveFromHome = archivo && sourceWork && homeContext && sourceWork.pathname === from;
 if (archiveFromHome) sourceWork.search = new URLSearchParams(homeContext).toString();
-const returnToWork = workJourney
-  ? referenceHref + '?' + workJourney.contact.toString()
+const returnToWork = resultsJourney ? referenceHref + resultsJourney.query
+  : workJourney ? referenceHref + '?' + workJourney.contact.toString()
   : archiveFromHome && homeWorkReturn(sourceWork, stories, archivo.id)
     ? sourceWork.pathname + sourceWork.search + sourceWork.hash
     : referenceHref;
@@ -140,20 +149,20 @@ const selectedServices = new Set(params.getAll('servicio').map(value => value.to
 for (const serviceCode of new Set([code, ...(work?.serviceCodes || [])])) {
   if (/^10[1-8]$/.test(serviceCode)) selectedServices.add(services[Number(serviceCode) - 101]!.toLowerCase());
 }
-// When the itinerary already gives the enquiry a subject, open with the technical question.
-const guided = Boolean(referenceHref || context || dossier || assessment);
-const entryFields = guided ? ['message', 'reply'] : ['reply', 'message'];
 const optionalHint = t('Empresa, sede, servicios y urgencia', 'Company, site, services and urgency');
 const hasDraftDetails = Boolean(draftField('institution', 120) || draftField('site', 180));
 const initialTopic = params.get('tema') || '';
+const defaultMessageHint = messageQuestion ? '' : t('Incluí la sede y el plazo, si ya los tenés.', 'Include your site and timeframe if you know them.');
+const initialMessageHint = topics.find(topic => topic.id === initialTopic)?.hint || defaultMessageHint;
 const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'), t('Hoy: hay una falla en curso', 'Today: an incident is in progress'), t('Tengo fecha de pliego', 'I have a tender deadline')];
 ---
-<div class="ctf" id={withOffice ? 'formulario' : undefined} data-ctf data-guided={guided || undefined} data-lang={lang} data-archivo={archivo ? archivo.id : undefined} data-subject={subject} data-college={college ? (draft ? 'quiz' : 'form') : undefined} data-origin-path={originPath} data-origin-title={(referenceHref ? subject : sourceTitle) || subject || originPath} data-origin-label={sourceAction} data-origin-intent={assessment ? assessmentTitle : intent?.slice(0, 80)}>
+<div class="ctf" id={withOffice ? 'formulario' : undefined} data-ctf data-lang={lang} data-archivo={archivo ? archivo.id : undefined} data-subject={subject} data-college={college ? (draft ? 'quiz' : 'form') : undefined} data-origin-path={originPath} data-origin-title={(referenceHref ? subject : sourceTitle) || subject || originPath} data-origin-label={sourceAction} data-origin-intent={assessment ? assessmentTitle : intent?.slice(0, 80)}>
   <noscript>
     <style is:inline>[data-ctf] .ctf__form { display:none; }</style>
     {subject && <h2 class="ctf__subject">{subject}</h2>}
     <p>{t('Enviá tu consulta por email a', 'Email your enquiry to')} <a class="ctf__email" href={emailLink}>{emailRecipient}</a>.</p>
     {returnHref && <a class="ctf__return" href={returnHref}><span aria-hidden="true">←</span> {returnLabel}</a>}
+    {returnToResults && <a class="ctf__return" href={returnToResults.href}>{returnToResults.label}</a>}
     {budget.length > 0 && <dl class="ctf__brief">{budget.map(item => <div><dt>{item.label}</dt><dd>{item.value}</dd></div>)}</dl>}
   </noscript>
   <form class="ctf__form" id="contactForm" method="post" action="/api/contact" novalidate>
@@ -162,38 +171,40 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
         {referenceHref && <small>{sourceLabel}</small>}
         <h2 class="ctf__subject">{workTitle || subject}</h2>
         {workClient && isNamedClient(workClient) && <p>{workClient}</p>}
-        {returnHref && <a class="ctf__return" href={returnHref}><span aria-hidden="true">←</span> {returnLabel}</a>}
       </div>
       {photo && <img src={photo} width="160" height="112" alt="" decoding="async" />}
+      {returnHref && <nav class="ctf__context-links" aria-label={t('Volver desde la consulta', 'Return from the enquiry')}>
+        <a class="ctf__return" href={returnHref}><span aria-hidden="true">←</span> {returnLabel}</a>
+        {returnToResults && <a class="ctf__return" href={returnToResults.href}>{returnToResults.label}</a>}
+      </nav>}
       {lang === 'es' && !dossier && !college && !archivo && <ContactScope params={params} work={work} />}
     </header>}
     {budget.length > 0 && <dl class="ctf__brief" data-work-scope={Boolean(work && context && budget.length === 1) || undefined} aria-label={t('Contexto del presupuesto', 'Project brief')}>
       {budget.map(item => <div data-brief-row data-college-evaluation={college && evaluation && item.value === evaluation ? true : undefined}><dt>{item.label}</dt><dd>{item.value}</dd></div>)}
     </dl>}
     <fieldset class="ctf__fields">
-      {entryFields.map((section) => section === 'reply' ? (
-        <div class="ctf__grid">
-          <label class="ctf__field">
-            <span>{t('Nombre', 'Name')}&nbsp;<em aria-hidden="true">*</em></span>
-            <input type="text" id="name" value={draftField('person', 100)} aria-describedby="error-name" name="name" maxlength="100" required autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder={t('Nombre y apellido', 'Full name')} />
-            <small class="ctf__error" data-error-for="name" id="error-name"></small>
-          </label>
-          <label class="ctf__field">
-            <span>{t('Email de trabajo', 'Work email')}&nbsp;<em aria-hidden="true">*</em></span>
-            <input type="email" id="email" aria-describedby="error-email" name="email" maxlength="120" required autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder={t('mail@empresa.com', 'you@company.com')} />
-            <small class="ctf__error" data-error-for="email" id="error-email"></small>
-          </label>
-        </div>
-      ) : (
+      <div class="ctf__field ctf__prompt">
+        <label for="message">{messageQuestion || t('¿Qué necesitás resolver?', 'What do you need help with?')}&nbsp;<em aria-hidden="true">*</em></label>
+        <small class="ctf__hint" id="message-hint" data-default={defaultMessageHint} hidden={!initialMessageHint}>{initialMessageHint}</small>
+        <span class="ctf__message-input">
+          <textarea id="message" data-question={messageQuestion} aria-describedby="message-hint error-message" name="message" required rows="4" maxlength="1200">{draftField('notes', 1200)}</textarea>
+          <span class="ctf__count" aria-hidden="true" hidden><b data-count>0</b>/1200</span>
+        </span>
+        <small class="ctf__error" data-error-for="message" id="error-message"></small>
+      </div>
+
+      <div class="ctf__grid">
         <label class="ctf__field">
-          <span>{messageQuestion || t('Mensaje', 'Message')}&nbsp;<em aria-hidden="true">*</em></span>
-          <span class="ctf__message-input">
-            <textarea id="message" data-question={messageQuestion} aria-describedby="error-message" name="message" required rows="4" maxlength="1200" placeholder={messageQuestion ? undefined : t('Contanos qué necesitás, en qué sede y para cuándo.', 'Tell us what you need, where and by when.')}>{draftField('notes', 1200)}</textarea>
-            <span class="ctf__count" aria-hidden="true"><b data-count>0</b>/1200</span>
-          </span>
-          <small class="ctf__error" data-error-for="message" id="error-message"></small>
+          <span>{t('Nombre', 'Name')}&nbsp;<em aria-hidden="true">*</em></span>
+          <input type="text" id="name" value={draftField('person', 100)} aria-describedby="error-name" name="name" maxlength="100" required autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder={t('Nombre y apellido', 'Full name')} />
+          <small class="ctf__error" data-error-for="name" id="error-name"></small>
         </label>
-      ))}
+        <label class="ctf__field">
+          <span>{t('Email de trabajo', 'Work email')}&nbsp;<em aria-hidden="true">*</em></span>
+          <input type="email" id="email" aria-describedby="error-email" name="email" maxlength="120" required autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder={t('mail@empresa.com', 'you@company.com')} />
+          <small class="ctf__error" data-error-for="email" id="error-email"></small>
+        </label>
+      </div>
 
       <details class="ctf__more" data-ctf-more open={hasDraftDetails}>
         <summary>
@@ -252,7 +263,12 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
 
     <div class="ctf__error-box" role="alert" tabindex="-1" hidden>
       <p data-ctf-error></p>
-      <a class="ctf__error-email">{t('Enviar por email', 'Send by email')}</a>
+      <div class="ctf__error-actions">
+        <a class="ctf__error-email">{t('Enviar por email', 'Send by email')}</a>
+        <button type="button" class="ctf__error-copy" data-ctf-copy>{t('Copiar consulta', 'Copy enquiry')}</button>
+      </div>
+      <p data-ctf-copy-status role="status"></p>
+      <textarea data-ctf-copy-text hidden readonly rows="4" aria-label={t('Texto de la consulta', 'Enquiry text')}></textarea>
     </div>
     <div class="ctf__submit">
       <button type="submit" class="ctf__btn" data-retry={t('Reintentar envío', 'Try sending again')}>
@@ -285,6 +301,9 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
     const errorBox = form.querySelector<HTMLElement>('.ctf__error-box')!;
     const errorText = errorBox.querySelector<HTMLElement>('[data-ctf-error]')!;
     const errorEmail = errorBox.querySelector<HTMLAnchorElement>('.ctf__error-email')!;
+    const copyButton = errorBox.querySelector<HTMLButtonElement>('[data-ctf-copy]')!;
+    const copyStatus = errorBox.querySelector<HTMLElement>('[data-ctf-copy-status]')!;
+    const copyText = errorBox.querySelector<HTMLTextAreaElement>('[data-ctf-copy-text]')!;
     const message = form.querySelector<HTMLTextAreaElement>('textarea[name="message"]')!;
     const count = root.querySelector<HTMLElement>('[data-count]')!;
     const fields = form.querySelector<HTMLFieldSetElement>('.ctf__fields')!;
@@ -300,14 +319,18 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
     };
     stamp();
 
-    const updateCount = () => { count.textContent = String(message.value.length); };
+    const updateCount = () => {
+      count.textContent = String(message.value.length);
+      count.parentElement!.hidden = message.value.length < 1000;
+    };
     updateCount();
     message.addEventListener('input', updateCount);
     const topicSelect = form.querySelector<HTMLSelectElement>('select[name="topic"]')!;
-    const defaultHint = message.placeholder;
+    const messageHint = form.querySelector<HTMLElement>('#message-hint')!;
     const selectedTopic = () => topicSelect.selectedOptions[0]?.value ? topicSelect.selectedOptions[0] : null;
     const syncHint = () => {
-      message.placeholder = selectedTopic()?.dataset.hint || defaultHint;
+      messageHint.textContent = selectedTopic()?.dataset.hint || messageHint.dataset.default || '';
+      messageHint.hidden = !messageHint.textContent;
       topicSelect.classList.toggle('is-empty', !topicSelect.value);
     };
     topicSelect.addEventListener('change', syncHint);
@@ -393,8 +416,22 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
       const data = readEnquiry();
       const signature = [data.name, data.email, data.company].filter(Boolean).join(' · ');
       const originTitle = data.originTitle !== root.dataset.subject && data.originTitle !== data.originPath ? data.originTitle : '';
-      errorEmail.href = mailto([data.message, data.evaluation, originTitle, data.originHref, signature].filter(Boolean).join('\n\n'));
+      copyText.value = [data.message, data.evaluation, originTitle, data.originHref, signature].filter(Boolean).join('\n\n');
+      errorEmail.href = mailto(copyText.value);
+      copyStatus.textContent = '';
     };
+    copyButton.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(copyText.value);
+        copyText.hidden = true;
+        copyStatus.textContent = t('Consulta copiada.', 'Enquiry copied.');
+      } catch {
+        copyText.hidden = false;
+        copyText.focus();
+        copyText.select();
+        copyStatus.textContent = t('El texto está seleccionado. Podés copiarlo manualmente.', 'The text is selected. You can copy it manually.');
+      }
+    });
     form.addEventListener('input', updateEmailFallback);
     form.addEventListener('change', updateEmailFallback);
 
@@ -402,6 +439,9 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
       event.preventDefault();
       if (submit.disabled) return;
       errorBox.hidden = true;
+      copyText.hidden = true;
+      copyText.value = '';
+      copyStatus.textContent = '';
       status.textContent = defaultStatus;
       submitLabel.textContent = defaultSubmitLabel;
       for (const name of requiredFields) setFieldError(name, validate(name));
@@ -417,9 +457,16 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
       submit.disabled = true;
       submitLabel.textContent = t('Enviando…', 'Sending…');
       status.textContent = t('Enviando la consulta…', 'Sending your enquiry…');
+      const controller = new AbortController();
+      const deadline = setTimeout(() => controller.abort(), 20_000);
       let responseStatus: number | undefined;
       try {
-        const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        });
         responseStatus = res.status;
         const result = await res.json().catch(() => ({}));
         if (res.ok && result?.success === true) {
@@ -441,13 +488,14 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
           ? t('Hubo varios intentos de envío. Podés continuar por email o volver a intentar más tarde.', 'There have been several attempts. You can send by email or try again later.')
           : responseStatus === 400
             ? t('No se pudo procesar la consulta. Revisá los datos o enviala por email.', 'Your enquiry could not be processed. Check your details or send it by email.')
-            : err instanceof TypeError || (responseStatus && responseStatus < 400)
+            : controller.signal.aborted || err instanceof TypeError || (responseStatus && responseStatus < 400)
               ? t('No pudimos confirmar el envío.', 'We couldn’t confirm delivery.')
               : t('El envío web no está disponible en este momento.', 'Web enquiries are temporarily unavailable.');
         errorText.textContent = reason + ' ' + t('Tus datos siguen en el formulario.', 'Your details are still in the form.');
         errorBox.hidden = false;
         updateEmailFallback();
       } finally {
+        clearTimeout(deadline);
         fields.disabled = false;
         submit.disabled = false;
         status.textContent = errorBox.hidden ? defaultStatus : '';
@@ -476,6 +524,7 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
   .ctf__context:has(> img) { grid-template-columns:minmax(0,1fr) auto; }
   .ctf__context > :global(.scope-preview),.ctf__context > :global(.scope-note) { grid-column:1/-1; }
   .ctf__context div { min-width:0; }
+  .ctf__context-links { grid-column:1/-1; display:flex; flex-wrap:wrap; gap:0 20px; }
   .ctf__context small,.ctf__done-work small { display:block; margin-bottom:4px; color:var(--x-muted); font-size:.9375rem; }
   .ctf__context p { margin:4px 0 0; color:var(--x-text-2); font-size:1rem; line-height:1.4; }
   .ctf__return { display:inline-flex; align-items:center; gap:6px; min-height:44px; color:var(--x-text-2); text-decoration:underline; text-underline-offset:3px; }
@@ -492,7 +541,9 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
   .ctf__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; }
   .ctf__field { position: relative; display: grid; gap: 8px; min-width: 0; }
   .ctf__field > span { font-size: var(--x-fs-meta); font-weight: 600; line-height: 1.3; color: var(--x-text-2); }
-  .ctf__field > span em { font-style: normal; color: var(--x-muted); }
+  .ctf__field > :is(span, label) em { font-style: normal; color: var(--x-muted); }
+  .ctf__prompt > label { font-size:clamp(1rem,1.5vw,1.1875rem); font-weight:600; line-height:1.3; }
+  .ctf__hint { color:var(--x-text-2); font-size:var(--x-fs-meta); line-height:1.4; }
 
   .ctf .ctf__field input,
   .ctf .ctf__field select,
@@ -566,7 +617,19 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
   .ctf__btn--ghost:hover { background: rgba(255, 255, 255, .06); border-color: var(--x-text); }
   .ctf__error-box { padding: 12px 16px; border: 1px solid rgba(220, 38, 38, .5); border-left: 2px solid var(--x-red); border-radius: 4px; background: rgba(220, 38, 38, .08); font-size: var(--x-fs-meta); line-height: 1.5; color: var(--x-text); }
   .ctf__error-box p { margin:0; }
-  .ctf__error-email { display:inline-flex; align-items:center; min-height:44px; color:var(--x-text); font-weight:600; text-decoration:underline; text-decoration-color: var(--x-red); text-underline-offset:3px; }
+  .ctf__error-actions { display:flex; flex-wrap:wrap; column-gap:20px; }
+  .ctf__error-email, .ctf__error-copy {
+    display:inline-flex; align-items:center; min-height:44px; padding:0; border:0; background:transparent;
+    color:var(--x-text); font:inherit; font-weight:600; text-decoration:underline;
+    text-decoration-color:var(--x-red); text-underline-offset:3px; cursor:pointer;
+  }
+  :is(.ctf__error-email,.ctf__error-copy):hover { text-decoration-thickness:2px; }
+  :is(.ctf__error-email,.ctf__error-copy):focus-visible { outline:2px solid currentColor; outline-offset:2px; }
+  [data-ctf-copy-text] {
+    width:100%; max-width:100%; margin-top:8px; padding:10px 12px;
+    border:1px solid var(--x-line-strong); background:var(--x-panel-2); color:var(--x-text);
+    font:inherit; resize:vertical;
+  }
   .ctf__done { padding: 8px 0; outline: none; }
   .ctf__done h2 { margin:0; font-size:clamp(1.6rem,3vw,2.2rem); letter-spacing:-.025em; line-height:1.1; }
   .ctf__done p { margin:12px 0 20px; font-size:1.0625rem; line-height:1.55; overflow-wrap:anywhere; }

@@ -1,4 +1,5 @@
 ---
+import { ArrowUpRight } from 'lucide-astro';
 import { publicCaseTitle } from './casePresentation';
 import { variantes, type Story } from './isoData';
 interface Props { story: Story; href?: string; eager?: boolean; showSector?: boolean; primera?: boolean; imageSizes?: string; archiveTitle?: string }
@@ -13,5 +14,10 @@ const photo = variantes(c.image);
     <b>{archiveTitle || publicCaseTitle(c)}</b>
     <span class="t">{c.client}</span>
     <span class="small">{[archiveTitle ? `UM-${c.id}` : '', showSector ? c.sector : '', c.year || ''].filter(Boolean).join(' · ')}</span>
+    {archiveTitle && <span class="case-action" aria-hidden="true">Ver ficha <ArrowUpRight size={16} /></span>}
   </a>
 </li>
+
+<style>
+  .case-action { display:none; }
+</style>

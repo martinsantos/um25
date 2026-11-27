@@ -3,15 +3,23 @@ import CatalogResultsReturn from './CatalogResultsReturn.astro';
 import { contactLink } from '../../lib/contactEntry';
 import { ArrowRight, ArrowUpRight, Warehouse, BellRing } from 'lucide-astro';
 import gate from '../../media/bodegas/ingreso.webp?url';
+import gateSmall from '../../media/bodegas/ingreso-480.webp?url';
+import gateMedium from '../../media/bodegas/ingreso-720.webp?url';
 import porteria from '../../media/bodegas/porteria-animada.webp?url';
 import hall from '../../media/bodegas/nave.webp?url';
+import hallSmall from '../../media/bodegas/nave-480.webp?url';
+import hallMedium from '../../media/bodegas/nave-720.webp?url';
 import { thumbOf, type Story } from './isoData';
 import { samePublicClient } from './casePresentation';
 
 import { wineryContactParams, wineryZones } from '../../data/propuesta/wineryZones';
 
 interface Props { stories: Story[] }
-const visuals = { ingreso: { icon: BellRing, image: gate }, nave: { icon: Warehouse, image: hall } };
+const visuals = {
+  ingreso: { icon: BellRing, image: gate, small: gateSmall, medium: gateMedium },
+  nave: { icon: Warehouse, image: hall, small: hallSmall, medium: hallMedium },
+};
+const posterSizes = '(max-width:500px) calc(100vw - 40px), (max-width:800px) 92vw, (max-width:1520px) 52vw, 800px';
 const zones = wineryZones.map(zone => ({ ...zone, ...visuals[zone.key], story: Astro.props.stories.find(s => s.id === zone.id && samePublicClient(s.client, zone.client)) }));
 const selected = zones.find(zone => zone.key === Astro.url.searchParams.get('zona')) || zones[0]!;
 ---
@@ -28,7 +36,10 @@ const selected = zones.find(zone => zone.key === Astro.url.searchParams.get('zon
    const href = '/contacto?' + wineryContactParams(zone) + '#formulario';
    return <article class="zone-panel" data-zone-panel={zone.key} hidden={zone.key!==selected.key}>
     <figure data-flow-gif={zone.key === 'ingreso' ? porteria : undefined}>
-     <div class="zone-art" data-flow-art><img class="scene" src={zone.image} alt={zone.alt} width="1080" height="720" loading="lazy"/></div>
+     <div class="zone-art" data-flow-art>
+       <img class="scene" src={zone.image} srcset={zone.small + ' 480w, ' + zone.medium + ' 720w, ' + zone.image + ' 1080w'}
+         sizes={posterSizes} alt={zone.alt} width="1080" height="720" loading="lazy" decoding="async" />
+     </div>
      <figcaption aria-label="Secuencia de funcionamiento">{zone.steps.map((step,i) => <span>{i>0 && <ArrowRight size={14} aria-hidden="true"/>}{step}</span>)}</figcaption>
     </figure>
     <div class="info">

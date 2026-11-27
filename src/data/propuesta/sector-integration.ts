@@ -92,7 +92,8 @@ const tasks: Record<string, Record<string, string>> = {
   },
   gobiernosectorpublico: {
     '101':'Conectar dependencias', '102':'Supervisar edificios públicos', '103':'Comunicar oficinas y sedes',
-    '104':'Seguir el historial de un registro', '105':'Sostener los puestos de atención', '108':'Alimentar los equipos de informática',
+    '104':'Seguir el historial de un registro', '105':'Sostener los puestos de atención', '106':'Evaluar la infraestructura',
+    '107':'Coordinar avisos de incendio', '108':'Alimentar los equipos de informática',
   },
   industria: {
     '101':'Llevar datos a planta', '102':'Supervisar accesos industriales', '103':'Enlazar dos sitios de planta',

@@ -1,5 +1,6 @@
 ---
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-astro";
+import { catalogCaseJourney } from '../../../../components/proto/catalogCaseJourney';
 import { caseJourney, pageContactLink, sectorWorkLink } from '../../../../lib/caseJourney';
 import { homeProjectJourney } from '../../../../components/proto/portadaCases';
 import { serviceJourney } from "../../../../data/propuesta/recorrido";
@@ -17,8 +18,8 @@ import "../../../../styles/proto-despiece.css";
 import Head from "../../../../components/proto/Head.astro";
 import Top from "../../../../components/proto/Top.astro";
 import { isNamedClient } from "../../../../components/proto/catalogEditorial";
-import { catalogBatch, catalogHref, catalogState, catalogWindow, catalogWindowHref, caseContextQuery, clientKey, matchesCatalog, orderCatalog } from "../../../../components/proto/catalogFilters";
-import { relatedCaseGroups } from "../../../../components/proto/relatedCaseGroups";
+import { catalogHref, clientKey } from "../../../../components/proto/catalogFilters";
+import { relatedCaseGroups, relatedCaseJourney, relatedCaseQuery } from "../../../../components/proto/relatedCaseGroups";
 import RelatedCases from "../../../../components/proto/RelatedCases.astro";
 import FichaIso from "../../../../components/proto/FichaIso.astro";
 import Cierre from "../../../../components/proto/Cierre.astro";
@@ -54,7 +55,6 @@ import {
   caseIntroduction,
   publicCaseFor,
   publicCaseTitle,
-  archiveRecord,
   caseEquipmentFor,
 } from "../../../../components/proto/casePresentation";
 
@@ -123,24 +123,19 @@ const estadoVisible = enCurso ? "En curso" : c.documentedScope && c.estado === "
 const client = clientKey(c.client);
 const clientArchive = isNamedClient(c.client) && stories.some(s => s.id !== c.id && clientKey(s.client) === client)
   ? catalogHref({ cliente: c.client }) + '#obras-filtradas' : undefined;
-const filters = catalogState(Astro.url.searchParams);
-const windowSize = catalogWindow(Astro.url.searchParams.get('mostrar'), stories.length);
-const requestedSelection = Astro.url.searchParams.get('desde') === 'archivo' && caseContextQuery(filters, windowSize);
-const selection = requestedSelection
-  ? orderCatalog(stories.map(archiveRecord).filter(record => matchesCatalog(record, filters)), filters.orden, Boolean(filters.sector || filters.service))
-  : [];
-const position = selection.findIndex(record => record.story.id === c.id);
-const inSelection = position >= 0;
-const visible = Math.max(windowSize, Math.ceil((position + 1) / catalogBatch) * catalogBatch);
+const selection = catalogCaseJourney(c, Astro.url.searchParams, stories);
 const homeJourney = homeProjectJourney(c, Astro.url.searchParams, stories);
-const journey = homeJourney || (inSelection ? undefined : caseJourney(c, Astro.url.searchParams, stories));
+const relatedJourney = relatedCaseJourney(c, Astro.url.searchParams, stories);
+const journey = homeJourney || selection || relatedJourney || caseJourney(c, Astro.url.searchParams, stories);
 Astro.locals.caseJourney = journey;
-const returnHref = inSelection ? catalogWindowHref(filters, visible) + '#resultado-um-' + c.id : journey?.href || '/antecedentes';
-const returnLabel = inSelection ? '← Volver a resultados' : journey ? '← ' + journey.label : undefined;
-const neighborQuery = inSelection ? caseContextQuery(filters, visible) : '';
-const prev = inSelection ? selection[position - 1]?.story : undefined;
-const next = inSelection ? selection[position + 1]?.story : undefined;
+const returnHref = journey?.href || '/antecedentes';
+const returnLabel = journey ? '← ' + journey.label : undefined;
+const neighborQuery = selection?.query || '';
+const prev = selection?.prev;
+const next = selection?.next;
 const related = relatedCaseGroups(c, stories);
+const relatedArchive = selection ? { id: c.id, ...selection } : relatedJourney?.archive;
+const relatedQuery = homeJourney?.relatedQuery || relatedCaseQuery(c, relatedArchive);
 const photo = Boolean(c.image);
 const imageSet = variantes(c.image);
 const imageSrcset = srcsetDe(c.image);
@@ -271,9 +266,9 @@ const seoTitle = caseSeo.title.includes(ref)
       }
       .hoja-cab {
         display: flex;
-        justify-content: space-between;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 12px;
+        gap: 0 18px;
         margin-top: var(--s3);
         border-bottom: 1px solid var(--line);
       }
@@ -289,6 +284,7 @@ const seoTitle = caseSeo.title.includes(ref)
         text-decoration-color: currentColor;
       }
       .hoja-cab b {
+        margin-inline-start:auto;
         font-size: .9375rem;
         font-variant-numeric: tabular-nums;
         color: var(--ink-2);
@@ -386,7 +382,8 @@ const seoTitle = caseSeo.title.includes(ref)
     <main id="contenido" tabindex="-1" data-project-reference={c.id}>
       <div class="wrap">
         <nav class="hoja-cab" aria-label="Ubicación en el archivo">
-          <a href={returnHref} data-catalog-back data-selection-return={inSelection || undefined} data-home-work-return={Boolean(homeJourney) || undefined}>{returnLabel || 'Antecedentes'}</a>
+          <a href={returnHref} data-catalog-back data-preserve-origin={Boolean(journey) || undefined}>{returnLabel || 'Antecedentes'}</a>
+          {relatedJourney?.archive && <a href={relatedJourney.archive.href}>{relatedJourney.archive.label}</a>}
           <b aria-current="page">{ref}</b>
         </nav>
         <div class:list={["proyecto", { "proyecto--sinfoto": !photo }]}>
@@ -511,11 +508,11 @@ const seoTitle = caseSeo.title.includes(ref)
             </nav>
           )}
         </section>
-        {inSelection && (
+        {selection && (
           <nav class="case-return" aria-label="Navegar los resultados">
             <div class="case-return__head">
               <a href={returnHref} data-catalog-back>{returnLabel}</a>
-              <p>Resultado {position + 1} de {selection.length}</p>
+              {selection.total > 1 && <p>Resultado {selection.position} de {selection.total}</p>}
             </div>
             {(prev || next) && <div class="nav-obras" data-seleccion>
               {prev && <a href={prev.href + neighborQuery}><small><ArrowLeft size={15} aria-hidden="true" /> Anterior en los resultados</small><strong>{publicCaseTitle(prev)}</strong></a>}
@@ -524,8 +521,8 @@ const seoTitle = caseSeo.title.includes(ref)
           </nav>
         )}
       </div>
-      <RelatedCases cover={c.image} groups={related} query={homeJourney?.relatedQuery} />
-      {!inSelection && <div class="wrap"><nav class="case-return case-return__head" aria-label="Volver a los proyectos">
+      <RelatedCases cover={c.image} groups={related} query={relatedQuery} />
+      {!selection && <div class="wrap"><nav class="case-return case-return__head" aria-label="Volver a los proyectos">
         <a href={returnHref} data-catalog-back>{returnLabel || '← Todos los antecedentes'}</a>
       </nav></div>}
     </main>
@@ -538,34 +535,18 @@ const seoTitle = caseSeo.title.includes(ref)
       }
 
       const archive = '/antecedentes';
-      const key = 'umsa-related-return';
       const previous = document.referrer ? new URL(document.referrer) : null;
       const project = document.querySelector<HTMLElement>('[data-project-reference]')?.dataset.projectReference;
       const localReferrer = previous?.origin === location.origin ? previous : null;
       const fromArchive = localReferrer?.pathname.replace(/\/$/, '') === archive;
-      const selectionReturn = document.querySelector<HTMLAnchorElement>('[data-selection-return]')?.getAttribute('href');
-      const hasHomeReturn = Boolean(document.querySelector('[data-home-work-return]'));
-      let target = selectionReturn || (fromArchive && project ? archive + localReferrer!.search + '#resultado-um-' + project : history.state?.projectReturn);
-      try {
-        const handoff = JSON.parse(sessionStorage.getItem(key) || 'null');
-        sessionStorage.removeItem(key);
-        if (!target && handoff?.to === location.pathname && handoff.from === localReferrer?.pathname) target = handoff.target;
-      } catch { /* Browser storage is optional. Direct archive returns still work. */ }
-      if (!hasHomeReturn && typeof target === 'string' && /^\/antecedentes(?:\?[^#]*)?#resultado-um-\d+$/.test(target)) {
+      const knownOrigin = Boolean(document.querySelector('[data-preserve-origin]'));
+      const target = fromArchive && project ? archive + localReferrer!.search + '#resultado-um-' + project : history.state?.projectReturn;
+      if (!knownOrigin && typeof target === 'string' && /^\/antecedentes(?:\?[^#]*)?#resultado-um-\d+$/.test(target)) {
         history.replaceState({ ...history.state, projectReturn: target }, '');
         for (const link of document.querySelectorAll<HTMLAnchorElement>('[data-catalog-back]')) {
           link.href = target;
           link.textContent = '← Volver a resultados';
         }
-        document.getElementById('obras-relacionadas')?.addEventListener('click', event => {
-          if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-          const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[data-related-case]') : null;
-          if (link) {
-            try {
-              sessionStorage.setItem(key, JSON.stringify({ from: location.pathname, to: link.pathname, target }));
-            } catch { /* Navigation remains a standard link. */ }
-          }
-        });
       }
     </script>
   </body>

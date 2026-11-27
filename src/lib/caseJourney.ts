@@ -56,14 +56,15 @@ export function caseJourney(story: Story, params: URLSearchParams, stories: Stor
     const technical = slug === 'software' || slug === 'seguridad-electronica';
     if (technical) {
       const expected = slug === 'software' ? '104' : '102';
-      if (expected !== code || !pageCaseCandidates([story], undefined, code).length) return;
+      if (expected !== code || !story.serviceCodes.includes(code) || !pageCaseCandidates([story], slug, code).length) return;
     } else if (sectorSystemEvidence(stories, slug, code).story?.id !== id) return;
     const label = sectorJourney[slug]!.name;
     const task = sectorSystemTask(slug, code) || serviceJourney[code]!.name;
+    const fromWorks = technical && params.get('via') === 'obras';
     return {
-      href: technical ? `/${slug}#provision` : `/sectores/${slug}#${sectorSystemAnchor(slug, code)}`,
-      label: technical ? label : label + ' · ' + task,
-      contact: new URLSearchParams({ desde: 'sector', sector: slug, sistema: code }),
+      href: technical ? '/' + slug + (fromWorks ? '#casos-sector' : '#provision') : `/sectores/${slug}#${sectorSystemAnchor(slug, code)}`,
+      label: fromWorks ? 'Obras realizadas · ' + label : technical ? label : label + ' · ' + task,
+      contact: new URLSearchParams({ desde: 'sector', sector: slug, sistema: code, ...(fromWorks ? { via: 'obras' } : {}) }),
     };
   }
   if (origin !== 'servicio') return;
@@ -154,19 +155,24 @@ export function contactPanelReturn(from: string, params: URLSearchParams, work?:
   if (source === 'prestacion' && from === '/servicios/' + code) {
     const group = params.get('grupo')?.trim();
     if (!group || group.length > 160) return;
-    const reference = serviceJourney[code]?.groups[group]?.reference;
+    const groups = serviceJourney[code]!.groups;
+    const knownGroup = Object.prototype.hasOwnProperty.call(groups, group);
+    const reference = knownGroup ? groups[group]?.reference : undefined;
     const query = work && reference && matchesServiceReference(work, reference)
       ? new URLSearchParams({ desde: 'obra', grupo: group, antecedente: String(work.id) })
       : new URLSearchParams({ prestacion: group });
-    return { href: from + '?' + query + '#provision', label: 'Volver a la prestación' };
+    const anchor = knownGroup ? provisionDestination(code, group).id : 'provision';
+    return { href: from + '?' + query + '#' + anchor, label: 'Volver a la prestación' };
   }
 
   if (source !== 'sistema') return;
   const sector = NAV_SECTORS.find(entry => entry.href === from && entry.slug === params.get('sector'));
   if (!sector) return;
   if (sector.href.startsWith('/sectores/')) {
-    const anchor = sector.slug === 'bodegas' ? '#sistemas' : '#integracion';
-    return { href: from + '?sistema=' + code + anchor, label: 'Volver al sistema' };
+    const anchor = sectorSystemTask(sector.slug, code)
+      ? sectorSystemAnchor(sector.slug, code)
+      : sector.slug === 'bodegas' ? 'sistemas' : 'integracion';
+    return { href: from + '?sistema=' + code + '#' + anchor, label: 'Volver al sistema' };
   }
   if ((sector.slug === 'software' && code === '104') || (sector.slug === 'seguridad-electronica' && code === '102')) {
     return { href: from + '#provision', label: 'Volver al sistema' };

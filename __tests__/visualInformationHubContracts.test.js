@@ -49,7 +49,7 @@ describe('Information hub visual contracts', () => {
     // sistema) y los enlaces del menú quedan en >= 17 px.
     expect(navbar).toContain('<p class="um-ops-mobile__label">');
     expect(navbar).toMatch(/\.um-ops-mobile__label\s*\{[^}]*font-size:\s*var\(--x-fs-kicker\);/);
-    expect(navbar).toMatch(/\.um-ops-mobile__primary a\s*\{[^}]*font-size:\s*1\.625rem;/);
+    expect(navbar).toMatch(/\.um-ops-mobile__row\s*\{[^}]*font-size:\s*1\.625rem;/);
     expect(navbar).toMatch(/\.um-ops-mobile__secondary a\s*\{[^}]*font-size:\s*1\.0625rem;/);
     // Rediseño 2026-09: el menú móvil es una capa fija entre la cabecera y el
     // borde inferior (inset), con scroll propio: nunca excede el viewport.
@@ -189,13 +189,14 @@ describe('Information hub visual contracts', () => {
     expect(markup).not.toContain('sector26-feature-case');
     expect(markup).not.toContain('sector26-kicker');
     expect(markup).toMatch(/<ol class:list=\{\["sector26-evidence-grid"/);
-    expect(markup).toContain('src={caseImage(item)}');
+    expect(markup).toContain('src={story.image || sectorImage}');
+    expect(markup).toContain('href={story.href + evidenceQuery}');
     expect(markup).toContain('!isSoftware && !isSecurity && <SiteDespiece');
     expect(markup).toContain('class="sector26-evidence-card"');
     expect(markup).not.toMatch(/sector26-case-row"[^>]*>\s*<span>\{String/);
     expect(sectorUM26).toMatch(/\.sector26-case-list \.sector26-case-row\s*\{[\s\S]*display:\s*grid;/);
     expect(sectorUM26).toMatch(/\.sector26-case-list a:hover b,[\s\S]*text-decoration-color:\s*#dc2626;/);
-    expect(markup).toContain("const contactHref = contactLink(Astro.url.pathname");
+    expect(markup).toContain('const contactHref = pageContactLink(Astro, assessmentHref');
     expect(markup).toContain('<a class="sector26-closing__cta" href={contactHref}>Pedir un relevamiento</a>');
   });
 
@@ -311,8 +312,8 @@ describe('Information hub visual contracts', () => {
     const visibleFieldNames = [...new Set(fieldTags.map((match) => match[1]).filter((name) => !hiddenNames.includes(name)))];
     const requiredFieldNames = fieldTags.filter((match) => /\srequired\b/.test(match[0])).map((match) => match[1]);
 
-    expect(requiredFieldNames).toEqual(['name', 'email', 'message']);
-    expect(visibleFieldNames).toEqual(['name', 'email', 'message', 'company', 'topic', 'services', 'site', 'urgency']);
+    expect(requiredFieldNames).toEqual(['message', 'name', 'email']);
+    expect(visibleFieldNames).toEqual(['message', 'name', 'email', 'company', 'topic', 'services', 'site', 'urgency']);
     expect(visibleFieldNames.length).toBeLessThanOrEqual(8);
     expect(formSource).toMatch(/<details class="ctf__more"[\s\S]*name="services"[\s\S]*<\/details>/);
     expect(formSource).toMatch(/<input type="hidden" name="startedAt"/);
@@ -484,7 +485,7 @@ describe('Information hub visual contracts', () => {
     for (const source of [contacto, form]) {
       expect(source).not.toMatch(/#B91C1C/i);
     }
-    expect(cssBlock(form, '.ctf__error-email')).toMatch(/text-decoration-color:\s*var\(--x-red\);/);
+    expect(cssBlock(form, '.ctf__error-email, .ctf__error-copy')).toMatch(/text-decoration-color:\s*var\(--x-red\);/);
     expect(cssBlock(form, '.ctf__error-box')).toMatch(/border-left:\s*2px solid var\(--x-red\);/);
     expect(cssBlock(form, '.ctf__error-box')).toMatch(/rgba\(220,\s*38,\s*38,/);
   });
