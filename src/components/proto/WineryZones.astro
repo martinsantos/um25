@@ -1,4 +1,5 @@
 ---
+import CatalogResultsReturn from './CatalogResultsReturn.astro';
 import { contactLink } from '../../lib/contactEntry';
 import { ArrowRight, ArrowUpRight, Warehouse, BellRing } from 'lucide-astro';
 import gate from '../../media/bodegas/ingreso.webp?url';
@@ -7,37 +8,24 @@ import hall from '../../media/bodegas/nave.webp?url';
 import { thumbOf, type Story } from './isoData';
 import { samePublicClient } from './casePresentation';
 
+import { wineryContactParams, wineryZones } from '../../data/propuesta/wineryZones';
+
 interface Props { stories: Story[] }
-const zones = [
-  {
-    key: 'ingreso', service: '102', label: 'Ingreso', icon: BellRing, image: gate,
-    alt: 'Portero IP junto al portón de entrada de una bodega.',
-    title: 'Atender el portón a distancia', steps: ['Llamada', 'Recepción', 'Respuesta'],
-    description: 'La visita llama desde el portón. El puesto de recepción atiende por la red IP y habla con quien llegó.',
-    id: 3138, client: 'Luna Maya', work: 'Portería IP para Bodega Sur de los Andes',
-    cta: 'Consultar por el ingreso', question: '¿Desde qué puesto necesitás atender el ingreso a la bodega?',
-  },
-  {
-    key: 'nave', service: '107', label: 'Nave de producción', icon: Warehouse, image: hall,
-    alt: 'Detector en una viga y canalización sobre los tanques de una nave de producción.',
-    title: 'Recibir un aviso de humo', steps: ['Detector', 'Cableado', 'Central'],
-    description: 'Sobre la línea de tanques, el detector se conecta por cable a la central. Si detecta humo, la señal llega al puesto que supervisa la nave.',
-    id: 3168, client: 'Bodega La Esmeralda', work: 'Detector de humo con canalización y cableado',
-    cta: 'Consultar por la nave', question: '¿Qué áreas de la nave necesitás cubrir con detección de incendios?',
-  },
-].map(zone => ({ ...zone, story: Astro.props.stories.find(s => s.id === zone.id && samePublicClient(s.client, zone.client)) }));
+const visuals = { ingreso: { icon: BellRing, image: gate }, nave: { icon: Warehouse, image: hall } };
+const zones = wineryZones.map(zone => ({ ...zone, ...visuals[zone.key], story: Astro.props.stories.find(s => s.id === zone.id && samePublicClient(s.client, zone.client)) }));
 const selected = zones.find(zone => zone.key === Astro.url.searchParams.get('zona')) || zones[0]!;
 ---
 <section class="sec winery" aria-labelledby="zone-title">
  <div class="wrap">
-  <header class="zone-head" id="integracion">
+  <header class="zone-head" id="integracion" tabindex="-1">
+   {!Astro.url.searchParams.has('sistema') && <CatalogResultsReturn />}
    <h2 id="zone-title">La bodega, zona por zona<span class="dot">.</span></h2>
    <nav aria-label="Zonas de la bodega">{zones.map(({key,label,icon:Icon}) =>
     <a data-zone={key} aria-current={key===selected.key ? 'true' : undefined} href={`?zona=${key}#integracion`}><Icon size={19} aria-hidden="true"/>{label}</a>
    )}</nav>
   </header>
   {zones.map(zone => {
-   const href = '/contacto?' + new URLSearchParams({ budgetSector: 'Bodegas', budgetScope: zone.label, sistema: zone.service }) + '#formulario';
+   const href = '/contacto?' + wineryContactParams(zone) + '#formulario';
    return <article class="zone-panel" data-zone-panel={zone.key} hidden={zone.key!==selected.key}>
     <figure data-flow-gif={zone.key === 'ingreso' ? porteria : undefined}>
      <div class="zone-art" data-flow-art><img class="scene" src={zone.image} alt={zone.alt} width="1080" height="720" loading="lazy"/></div>
@@ -45,7 +33,7 @@ const selected = zones.find(zone => zone.key === Astro.url.searchParams.get('zon
     </figure>
     <div class="info">
      <div class="copy"><h3>{zone.title}</h3><p>{zone.description}</p></div>
-     {zone.story && <a class="work" href={zone.story.href}>
+     {zone.story && <a class="work" href={zone.story.href + '?zona=' + zone.key}>
       {zone.story.image && <img src={thumbOf(zone.story.image)} alt="" width="68" height="58" loading="lazy"/>}
       <span><small>Obra relacionada · UM-{zone.id}</small><strong>{zone.work}</strong><span class="client">{zone.story.client}</span></span>
       <ArrowUpRight size={17} aria-hidden="true"/>
@@ -71,6 +59,7 @@ const selected = zones.find(zone => zone.key === Astro.url.searchParams.get('zon
        else link.removeAttribute('aria-current');
      }
      for (const panel of panels) panel.hidden = panel.dataset.zonePanel !== active.dataset.zone;
+     window.dispatchEvent(new Event('umsa:zone-selected'));
    };
    for (const link of links) link.addEventListener('click', event => {
      if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -112,7 +101,14 @@ const selected = zones.find(zone => zone.key === Astro.url.searchParams.get('zon
   .zone-head{display:grid;gap:14px;margin-bottom:0}.zone-head nav{width:100%}
   nav a{padding:10px 12px}.zone-panel{grid-template-columns:1fr}.scene{min-height:0;aspect-ratio:1.85}
   .info{padding:20px;gap:16px}.copy h3{max-width:none;font-size:1.65rem}.copy p{margin-top:8px;font-size:1rem}
-  figcaption{padding:32px 16px 12px;font-size:.875rem}.work{padding:12px 0}.work img{width:54px;height:50px}
+  .zone-art{height:auto}
+  figcaption{
+   position:static; flex-wrap:wrap; gap:4px; padding:9px 10px;
+   background:var(--bg-2); color:var(--ink); border-bottom:1px solid var(--line);
+   font-size:.9375rem; line-height:1.4;
+  }
+  figcaption span{gap:4px}
+  .work{padding:12px 0}.work img{width:54px;height:50px}
   .zone-contact{min-height:44px}
  }
 </style>

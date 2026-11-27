@@ -3,5 +3,37 @@
 import type { ParteKey } from './despiece';
 interface Props { k: ParteKey; label?: string; size?: number; class?: string }
 const { k, label, size = 64, class: cls } = Astro.props;
+const symbolHref = `/cine/iso/partes.svg#p-${k}`;
+const classes = ['parte', cls];
+const semantics = label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' };
 ---
-<svg class:list={['parte', cls]} viewBox="0 0 64 64" width={size} height={size} role={label ? 'img' : undefined} aria-hidden={label ? undefined : 'true'} aria-label={label}><use href={`/cine/iso/partes.svg#p-${k}`} /></svg>
+<svg class:list={classes} viewBox="0 0 64 64" width={size} height={size} data-part-symbol={symbolHref} {...semantics}>
+  <use />
+</svg><noscript class="parte-alternativa"><svg class:list={classes} viewBox="0 0 64 64" width={size} height={size} {...semantics}>
+  <use href={symbolHref} />
+</svg></noscript>
+
+<script>
+  const parts = document.querySelectorAll<SVGSVGElement>('svg[data-part-symbol]');
+  const loadPart = (part: SVGSVGElement) => {
+    part.querySelector('use')?.setAttribute('href', part.dataset.partSymbol!);
+  };
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      for (const { target, isIntersecting } of entries) {
+        if (!isIntersecting) continue;
+        loadPart(target as SVGSVGElement);
+        observer.unobserve(target);
+      }
+    }, { rootMargin: '180px 0px' });
+    parts.forEach(part => observer.observe(part));
+  } else {
+    parts.forEach(loadPart);
+  }
+</script>
+
+<style>
+  .parte-alternativa { display: contents; }
+  [data-part-symbol]:has(+ .parte-alternativa > svg) { display: none; }
+</style>

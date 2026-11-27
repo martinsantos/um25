@@ -6,12 +6,12 @@ import { contactLink } from '../../lib/contactEntry';
 import planta from '../../media/home/planta-1440.webp?url';
 import plantaSmall from '../../media/home/planta-720.webp?url';
 
-import type { Project } from './portadaCases';
-interface Props { obrasHref: string; obras: Project[] }
-const { obrasHref, obras } = Astro.props;
-const referentes = ['estadio', 'fibra-municipal', 'ferrocarril'].flatMap(key => {
+import { homeReferenceKeys, homeWorkLink, type Project } from './portadaCases';
+interface Props { obrasHref: string; obras: Project[]; servicios: number; sectores: number }
+const { obrasHref, obras, servicios, sectores } = Astro.props;
+const referentes = homeReferenceKeys.flatMap(key => {
   const project = obras.find(o => o.key === key);
-  return project?.measure ? [{ title: project.client, measure: project.measure, href: project.links[0].href }] : [];
+  return project?.measure ? [{ title: project.client, measure: project.measure, ...homeWorkLink(project.links[0].href, key, 'portada-inicio') }] : [];
 });
 ---
 <section class="opening" data-cover="planta" aria-labelledby="portada-titulo">
@@ -20,20 +20,25 @@ const referentes = ['estadio', 'fibra-municipal', 'ferrocarril'].flatMap(key => 
     <header>
       <p class="origen">{BUSINESS_ADDRESS.addressRegion}, Argentina <span aria-hidden="true">/</span> Desde {FOUNDING_DATE.slice(0, 4)}</p>
       <h1 id="portada-titulo">Infraestructura IT, de la obra a la operación<span class="dot">.</span></h1>
-      <p class="intro">Diseñamos, instalamos y sostenemos redes, energía y software para hospitales, industria y organismos públicos.</p>
-      <div class="acciones">
-        <a class="btn" href={contactLink(Astro.url.pathname)}>Pedir un relevamiento</a>
-        <a class="ver" href={obrasHref}>Ver obras <ArrowDown size={16} aria-hidden="true" /></a>
-      </div>
+      <p class="intro">Integramos redes, seguridad, comunicaciones, software y energía para empresas y organismos públicos.</p>
+      <a class="btn" id="consulta-principal" href={contactLink(Astro.url.pathname, '/contacto?intent=relevamiento')}>Pedir un relevamiento</a>
+      <nav class="rutas-portada" aria-label="Explorar ULTIMA MILLA">
+        <a href={obrasHref}>Ver obras <ArrowDown size={15} aria-hidden="true" /></a>
+        <a href="#servicios">{servicios} servicios <ArrowDown size={15} aria-hidden="true" /></a>
+        <a href="#lugares">{sectores} sectores <ArrowDown size={15} aria-hidden="true" /></a>
+      </nav>
     </header>
   </div>
   {referentes.length > 0 && <nav class="referencias wrap" aria-label="Obras destacadas">
-    {referentes.map(({title,measure,href}) => <a href={href}>
+    {referentes.map(({title,measure,href,id}) => <a id={id} data-regreso-obra="apertura" href={href}>
       <span class="valor">{measure[0]}</span>
       <span class="prueba">{measure[1]}<small>{title}</small></span><ArrowRight size={18} aria-hidden="true" />
     </a>)}
   </nav>}
 </section>
+<script>
+  import './regresoObraPortada';
+</script>
 <style>
   .opening { position: relative; isolation: isolate; background: #101317; color: #fff; }
   .opening-image, .opening::before { position: absolute; inset: 0; }
@@ -45,10 +50,16 @@ const referentes = ['estadio', 'fibra-municipal', 'ferrocarril'].flatMap(key => 
   .origen span { color: #c9cacc; }
   h1 { max-width: 16ch; text-wrap: balance; font-size: clamp(2.7rem, 4.8vw, 5.1rem); line-height: 1.02; letter-spacing: -.055em; }
   .intro { max-width: 39ch; font-size: clamp(1.05rem, 1.35vw, 1.25rem); line-height: 1.45; color: #edf0ef; }
-  .acciones { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 24px; }
-  .acciones a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 600; }
-  .ver:hover { text-decoration: underline; text-underline-offset: 4px; }
-  .acciones a:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+  .rutas-portada { display:flex; flex-wrap:wrap; column-gap:clamp(12px,2vw,32px); border-top:1px solid #ffffff50; }
+  .rutas-portada a { display:inline-flex; align-items:center; gap:4px; min-height:44px; font-size:1rem; font-weight:600; }
+  .rutas-portada a:hover { text-decoration:underline; text-underline-offset:4px; }
+  header a:focus-visible { outline:2px solid #fff; outline-offset:3px; }
+  @media (min-width: 701px) and (max-width: 900px) {
+    .opening-grid { min-height: clamp(380px, 51vw, 455px); padding-block: 32px; }
+    header { width: 50%; }
+    .rutas-portada { column-gap:12px; }
+    .rutas-portada a { font-size:.9375rem; }
+  }
   @media (max-width: 700px) {
     .opening-image { object-position: 23% 29%; }
     .opening::before { background: linear-gradient(180deg, #080c0e0a, #080c0e33 18%, #080c0ecc 46%, #090c0efa 88%); }
@@ -56,13 +67,14 @@ const referentes = ['estadio', 'fibra-municipal', 'ferrocarril'].flatMap(key => 
     header { width: 100%; gap: 12px; }
     h1 { font-size: clamp(2.15rem, 8.8vw, 3.7rem); }
     .intro { font-size: 1rem; max-width: 38ch; }
-    .acciones { gap: 6px 16px; }
-    .acciones .btn { padding: 11px 16px; }
+    header .btn { padding: 11px 16px; }
   }
   @media (max-width: 359px) {
     .opening-grid { padding-block: 62px 18px; }
     header { gap: 9px; }
-    .acciones { gap: 4px 12px; }
+    .rutas-portada { display:grid; width:100%; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0 6px; }
+    .rutas-portada a { font-size:.89rem; line-height:1.2; }
+    .rutas-portada svg { flex:none; width:12px; }
   }
   .referencias { position:relative; display:grid;grid-template-columns:repeat(3,minmax(0,1fr)); background:#eceee8;color:#131818; }
   .referencias a { display:flex;align-items:center;min-width:0;gap:clamp(10px,1.3vw,22px);padding:clamp(16px,2vw,32px); }
@@ -72,11 +84,25 @@ const referentes = ['estadio', 'fibra-municipal', 'ferrocarril'].flatMap(key => 
   .prueba small { display:block;color:#424c49;font-size:.82rem;font-weight:400;margin-top:4px; }
   .referencias svg { flex:none;margin-left:auto; }
   .referencias a:hover .prueba { text-decoration:underline;text-underline-offset:3px; }
+  .referencias a:target { box-shadow:inset 0 -3px var(--red); }
   .referencias a:focus-visible { outline:2px solid currentColor;outline-offset:-4px; }
-  @media(max-width:800px) {
+  @media (min-width: 641px) and (max-width: 880px) {
+    .referencias a {
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      grid-template-rows:auto 1fr;
+      align-items:baseline;
+      gap:6px 10px;
+      padding:14px clamp(12px,2vw,20px);
+    }
+    .referencias .valor { font-size:clamp(1.85rem,3.6vw,2.85rem); }
+    .referencias .prueba { grid-column:1/-1; grid-row:2; }
+    .referencias svg { grid-column:2; grid-row:1; }
+  }
+  @media(max-width:640px) {
     .referencias {grid-template-columns:1fr;}
-    .referencias a {padding:10px 14px;gap:12px;}
-    .referencias .valor {min-width:4ch;font-size:1.95rem;}
+    .referencias a { display:grid; grid-template-columns:clamp(92px,24vw,104px) minmax(0,1fr) auto; padding:10px 14px; gap:10px; }
+    .referencias .valor { font-size:1.95rem; }
     .referencias a+a {border-inline-start:0;border-top:1px solid #b5bbb6;}
   }
 </style>

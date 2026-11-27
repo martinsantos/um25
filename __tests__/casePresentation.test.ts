@@ -1,4 +1,4 @@
-import { caseEquipmentFor, publicCaseFor, samePublicClient } from '../src/components/proto/casePresentation';
+import { archiveIdentity, caseEquipmentFor, publicCaseFor, samePublicClient } from '../src/components/proto/casePresentation';
 import { CASOS_DESTACADOS } from '../src/data/propuesta/casos-destacados';
 
 describe('public identity in editorial cases', () => {
@@ -24,4 +24,18 @@ describe('public identity in editorial cases', () => {
     expect(caseEquipmentFor({ ...story, client: 'Cliente Confidencial' }).partes).toEqual([]);
     expect(caseEquipmentFor({ ...story, client: 'Otro cliente' }).partes).toEqual([]);
   });
+});
+
+test('an editorial title requires the original public client and documented scope', () => {
+  const source = {
+    id: 3350, client: 'Los Silos Club S.A.', title: 'Gestión y Monitoreo de Seguridad Electrónica',
+    summary: 'Soporte técnico mensual para el sistema de CCTV.', sector: 'Industria', services: ['Seguridad electrónica'],
+  };
+  const item = archiveIdentity(source);
+  expect(item.title).toBe('Soporte mensual del sistema de CCTV');
+  expect(item.documented).toBe(true);
+  expect(item.search).toContain(source.title);
+  expect(item.search).toContain(item.title);
+  expect(archiveIdentity({ ...source, summary: 'Instalación de controles de acceso' }).title).toBe(source.title);
+  expect(archiveIdentity({ ...source, client: 'Cliente Confidencial' }).documented).toBe(false);
 });

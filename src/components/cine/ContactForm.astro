@@ -3,13 +3,23 @@
 // modal global (name, email, company, message + campos de origen y anti-spam): tema,
 // servicios, sede y urgencia se suman al mensaje y el tema viaja como originIntent,
 // que el mail usa como asunto.
-import { journeyContext } from '../../data/propuesta/recorrido';
-import { publicCaseTitle } from '../proto/casePresentation';
-import { loadStories } from '../proto/isoData';
+import { journeyContext, serviceJourney } from '../../data/propuesta/recorrido';
+import { shellServiceCopy } from '../../config/i18nShell';
+import { casoDeConsulta } from '../proto/relato';
+import { anioObraArchivo, tituloObraArchivo } from '../proto/titulosArchivo';
+import ContactScope from '../proto/ContactScope.astro';
+import ContactOffice from '../proto/ContactOffice.astro';
+import { isNamedClient } from '../proto/catalogEditorial';
+import { pageCaseCandidates } from '../proto/caseSelection';
+import { publicCaseTitle, samePublicClient } from '../proto/casePresentation';
+import { homeProjectJourney, homeWorkContext, homeWorkReturn } from '../proto/portadaCases';
+import { loadStories, thumbOf } from '../proto/isoData';
 import { contactOrigin, contextualParams } from '../../lib/contactEntry';
+import { caseJourney, contactPanelReturn } from '../../lib/caseJourney';
 import { budgetSelections } from '../../data/budgetBrief';
-interface Props { lang?: 'es' | 'en' }
-const { lang = 'es' } = Astro.props;
+import { datasheetSource } from '../../utils/datasheets';
+interface Props { lang?: 'es' | 'en'; withOffice?: boolean }
+const { lang = 'es', withOffice = false } = Astro.props;
 const incoming = Astro.url.searchParams;
 const referrer = Astro.request.headers.get('referer');
 let from = contactOrigin(incoming.get('origen'));
@@ -21,13 +31,13 @@ if (!from && referrer) {
 }
 const params = contextualParams(incoming, from);
 const budget = budgetSelections(params, lang);
-const context = lang === 'es' ? journeyContext(params) : undefined;
+const context = journeyContext(params, lang);
 const intent = params.get('intent') || (budget.length ? 'presupuesto' : '');
 const dossier = intent === 'documentacion';
+const assessment = intent === 'relevamiento';
 const sourceTitle = from ? incoming.get('tituloOrigen')?.trim().slice(0, 160) : '';
 const sourceAction = from ? incoming.get('accion')?.trim().slice(0, 100) : '';
-const originPath = from || (lang === 'en' ? '/en/contact' : '/contacto');
-const college = originPath === '/software/gestion-de-comunidades-profesionales';
+const college = from === '/software/gestion-de-comunidades-profesionales';
 const draft = college && Astro.request.method === 'POST' ? await Astro.request.formData() : undefined;
 const draftField = (key: string, limit: number) => {
   const value = draft?.get(key);
@@ -36,13 +46,86 @@ const draftField = (key: string, limit: number) => {
 const evaluation = draftField('brief', 2800);
 if (evaluation) budget.push({ label: 'Evaluación del colegio', value: evaluation });
 const t = (es: string, en: string) => lang === 'en' ? en : es;
+const assessmentTitle = t('Relevamiento técnico', 'Technical assessment');
 const reference = params.get('antecedente') || '';
-const work = /^\d{1,8}$/.test(reference) ? (await loadStories()).stories.find(item => item.id === Number(reference)) : undefined;
+const hasReference = /^\d{1,8}$/.test(reference);
+const homeContext = homeWorkContext(incoming);
+const stories = hasReference || (homeContext && params.has('archivo')) ? (await loadStories()).stories : [];
+const work = hasReference ? stories.find(item => item.id === Number(reference)) : undefined;
+const archivo = work ? undefined : casoDeConsulta(from, params.get('archivo')) || undefined;
+const archiveTitle = archivo ? tituloObraArchivo(archivo) : '';
+const archiveHref = archivo ? from + '#archivo-' + archivo.id : undefined;
 const project = work ? `UM-${work.id}` : '';
-const subject = work ? `${t('Proyecto', 'Project')} ${project} · ${publicCaseTitle(work)}` : college ? 'Software para colegios profesionales' : context?.subject || (dossier ? t('Solicitud de dossier', 'Dossier request') : sourceTitle || undefined);
-const question = project
-  ? (project === 'UM-3104' ? t('¿Qué accesos necesitás controlar y en qué sitio?', 'Which entrances do you need to control and where?') : t('¿Qué necesitás implementar y en qué sitio?', 'What do you need to implement, and at which site?'))
-  : college ? '¿Qué necesitás resolver en tu colegio profesional?' : context?.question || (dossier ? t('¿Para qué proyecto o licitación necesitás el dossier?', 'Which project or tender needs the dossier?') : undefined);
+const originPath = from || work?.href || (lang === 'en' ? '/en/contact' : '/contacto');
+const workTitle = work ? publicCaseTitle(work) : archiveTitle;
+const workClient = work?.client || archivo?.cliente;
+const referenceHref = work?.href || archiveHref;
+const sourceWork = referenceHref && new URL(referenceHref, Astro.url);
+const workJourney = work && sourceWork && sourceWork.pathname === from
+  ? homeProjectJourney(work, incoming, stories) || caseJourney(work, params, stories)
+  : undefined;
+const archiveFromHome = archivo && sourceWork && homeContext && sourceWork.pathname === from;
+if (archiveFromHome) sourceWork.search = new URLSearchParams(homeContext).toString();
+const returnToWork = workJourney
+  ? referenceHref + '?' + workJourney.contact.toString()
+  : archiveFromHome && homeWorkReturn(sourceWork, stories, archivo.id)
+    ? sourceWork.pathname + sourceWork.search + sourceWork.hash
+    : referenceHref;
+const referenceLabel = t('Obra de referencia', 'Reference project');
+const sourceLabel = [referenceLabel, project || (archivo && anioObraArchivo(archivo))].filter(Boolean).join(' · ');
+const sheetCode = dossier ? /^\/servicios\/(10[1-8])\/ficha$/.exec(from)?.[1] : undefined;
+const sheetSource = sheetCode && datasheetSource(params, sheetCode);
+const sheetQuery = sheetSource && (sheetSource.sector ? '?sector=' + sheetSource.sector.slug : sheetSource.desde ? '?desde=' + sheetSource.desde : '');
+const homeService = params.get('sistema') || '';
+const fromHomeService = from === '/' && params.get('desde') === 'inicio-servicios' && /^10[1-8]$/.test(homeService);
+const panelReturn = lang === 'es' ? contactPanelReturn(from, params, work) : undefined;
+const documentationReturn = dossier && from === '/documentacion';
+const assessmentReturn = assessment && (from === '/' || /^\/servicios\/10[1-8]$/.test(from));
+const returnHref = panelReturn?.href || returnToWork || (sheetCode ? from + sheetQuery
+  : documentationReturn ? '/documentacion#dossier'
+  : fromHomeService ? (homeService === '101' ? '/' : '/?servicio=' + homeService) + '#servicios'
+  : assessmentReturn ? from + '#consulta-principal' : undefined);
+const returnLabel = panelReturn?.label || (returnToWork ? t('Volver a la obra', 'Return to the project')
+  : sheetCode ? t('Volver a la ficha técnica', 'Return to the technical sheet')
+  : documentationReturn ? t('Volver a Documentación técnica', 'Return to technical documentation')
+  : fromHomeService ? t('Volver a Servicios de Inicio', 'Return to services on the home page')
+  : from === '/' ? t('Volver a Inicio', 'Return to the home page')
+  : t('Volver al servicio', 'Return to the service'));
+const photo = work && /^\/images\/(?:photography|antecedentes)\//.test(work.image) ? thumbOf(work.image) : '';
+const dossierSubject = [t('Solicitud de dossier', 'Dossier request'), context?.subject].filter(Boolean).join(' · ');
+const subject = work ? `${t('Proyecto', 'Project')} ${project} · ${workTitle}`
+  : archivo ? [referenceLabel + ' · ' + archiveTitle, archivo.cliente].filter(Boolean).join(' · ')
+  : college ? 'Software para colegios profesionales'
+  : dossier ? dossierSubject
+  : assessment ? [assessmentTitle, context?.subject].filter(Boolean).join(' · ')
+  : context?.subject || sourceTitle || undefined;
+const group = work && Object.values(serviceJourney).flatMap(service => Object.values(service.groups))
+  .find(({reference}) => reference?.id === work.id && (
+    samePublicClient(reference.client, work.client) ||
+    (reference.client === work.client && reference.title === workTitle)
+  ));
+const supportedServices = work && !group && lang === 'es'
+  ? work.serviceCodes.filter(code => pageCaseCandidates([work], undefined, code).length > 0) : [];
+const serviceQuestion = supportedServices.length === 1 ? serviceJourney[supportedServices[0]!]?.question : undefined;
+if (work && context) budget.push({ label: t('Alcance', 'Scope'), value: context.subject });
+const workQuestion = group && project === 'UM-3104'
+  ? t('¿Qué accesos necesitás controlar y en qué sitio?', 'Which entrances do you need to control and where?')
+  : lang === 'es' ? group?.question || serviceQuestion : undefined;
+const question = work && ['directorio', 'inicio'].includes(params.get('desde') || '')
+  ? workQuestion || context?.question
+  : context?.question || workQuestion;
+const messageQuestion = archivo
+  ? t('¿Qué necesitás resolver y dónde se haría el trabajo?', 'What do you need to address, and where would the work take place?')
+  : dossier && !project && !college
+  ? t('¿Para qué proyecto o licitación necesitás el dossier?', 'Which project or tender needs the dossier?')
+  : question || (project
+  ? t('¿Qué necesitás implementar y en qué sitio?', 'What do you need to implement, and at which site?')
+  : college ? '¿Qué necesitás resolver en tu colegio profesional?'
+  : assessment ? t('¿Qué necesitás instalar o mejorar y en qué sede?', 'What do you need to install or improve, and at which site?')
+  : undefined);
+const emailRecipient = ['contacto', 'ultimamilla.com.ar'].join('@');
+const emailContext = [subject, ...budget.map(item => item.label + ': ' + item.value), archiveHref || from || work?.href].filter(Boolean).join('\n');
+const emailLink = 'mailto:' + emailRecipient + '?subject=' + encodeURIComponent(subject || t('Consulta desde la web', 'Website enquiry')) + '&body=' + encodeURIComponent([emailContext, messageQuestion].filter(Boolean).join('\n\n') + '\n\n');
 const topics = [
   { id: 'diagnostico', label: t('Diagnóstico o incidente', 'Diagnosis or incident'), hint: t('Qué sistema falla, en qué sede y desde cuándo.', 'Which system is affected, where and since when.') },
   { id: 'relevamiento', label: t('Relevamiento técnico', 'Technical assessment'), hint: t('Qué hay que instalar o mejorar, cuántas sedes y qué restricciones tiene el edificio.', 'What needs to be installed or improved, how many sites and any building constraints.') },
@@ -50,111 +133,148 @@ const topics = [
   { id: 'pliego', label: t('Licitación o pliego', 'Tender or specification'), hint: t('Número de proceso, fechas y requisitos técnicos o de documentación.', 'Tender reference, dates and technical or documentation requirements.') },
   { id: 'otra', label: t('Otra consulta', 'Other enquiry'), hint: t('Contanos qué necesitás, en qué sede y para cuándo.', 'Tell us what you need, where and by when.') },
 ];
-const services = [t('Redes', 'Networks'), t('Seguridad electrónica', 'Electronic security'), t('Telecomunicaciones', 'Telecommunications'), t('Software a medida', 'Custom software'), t('Soporte 24/7', '24/7 support'), t('Consultoría IT', 'IT consulting'), t('Detección de incendios', 'Fire detection'), t('Eléctricos IT', 'IT power systems')];
+const services = ['Redes', 'Seguridad electrónica', 'Telecomunicaciones', 'Software a medida', 'Soporte 24/7', 'Consultoría IT', 'Detección de incendios', 'Eléctricos IT']
+  .map((name, index) => shellServiceCopy(lang, String(101 + index), name, '').name);
 const code = params.get('sistema') || '';
 const selectedServices = new Set(params.getAll('servicio').map(value => value.toLowerCase()));
 for (const serviceCode of new Set([code, ...(work?.serviceCodes || [])])) {
   if (/^10[1-8]$/.test(serviceCode)) selectedServices.add(services[Number(serviceCode) - 101]!.toLowerCase());
 }
-const initialTopic = params.get('tema') || (intent === 'relevamiento' ? 'relevamiento' : '');
+// When the itinerary already gives the enquiry a subject, open with the technical question.
+const guided = Boolean(referenceHref || context || dossier || assessment);
+const entryFields = guided ? ['message', 'reply'] : ['reply', 'message'];
+const optionalHint = t('Empresa, sede, servicios y urgencia', 'Company, site, services and urgency');
+const hasDraftDetails = Boolean(draftField('institution', 120) || draftField('site', 180));
+const initialTopic = params.get('tema') || '';
 const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'), t('Hoy: hay una falla en curso', 'Today: an incident is in progress'), t('Tengo fecha de pliego', 'I have a tender deadline')];
 ---
-<div class="ctf" data-ctf data-lang={lang} data-subject={subject} data-college={college ? (draft ? 'quiz' : 'form') : undefined} data-origin-path={originPath} data-origin-title={sourceTitle || subject || originPath} data-origin-label={sourceAction} data-origin-intent={intent?.slice(0, 80)}>
+<div class="ctf" id={withOffice ? 'formulario' : undefined} data-ctf data-guided={guided || undefined} data-lang={lang} data-archivo={archivo ? archivo.id : undefined} data-subject={subject} data-college={college ? (draft ? 'quiz' : 'form') : undefined} data-origin-path={originPath} data-origin-title={(referenceHref ? subject : sourceTitle) || subject || originPath} data-origin-label={sourceAction} data-origin-intent={assessment ? assessmentTitle : intent?.slice(0, 80)}>
   <noscript>
     <style is:inline>[data-ctf] .ctf__form { display:none; }</style>
     {subject && <h2 class="ctf__subject">{subject}</h2>}
-    <p>{t('Enviá tu consulta por email a', 'Email your enquiry to')} <strong><span>contacto</span><span>&#64;</span><span>ultimamilla.com.ar</span></strong>.</p>
+    <p>{t('Enviá tu consulta por email a', 'Email your enquiry to')} <a class="ctf__email" href={emailLink}>{emailRecipient}</a>.</p>
+    {returnHref && <a class="ctf__return" href={returnHref}><span aria-hidden="true">←</span> {returnLabel}</a>}
     {budget.length > 0 && <dl class="ctf__brief">{budget.map(item => <div><dt>{item.label}</dt><dd>{item.value}</dd></div>)}</dl>}
   </noscript>
   <form class="ctf__form" id="contactForm" method="post" action="/api/contact" novalidate>
-    {subject && <h2 class="ctf__subject">{subject}</h2>}
-    {budget.length > 0 && <dl class="ctf__brief" aria-label={t('Contexto del presupuesto', 'Project brief')}>
+    {subject && <header class="ctf__context">
+      <div>
+        {referenceHref && <small>{sourceLabel}</small>}
+        <h2 class="ctf__subject">{workTitle || subject}</h2>
+        {workClient && isNamedClient(workClient) && <p>{workClient}</p>}
+        {returnHref && <a class="ctf__return" href={returnHref}><span aria-hidden="true">←</span> {returnLabel}</a>}
+      </div>
+      {photo && <img src={photo} width="160" height="112" alt="" decoding="async" />}
+      {lang === 'es' && !dossier && !college && !archivo && <ContactScope params={params} work={work} />}
+    </header>}
+    {budget.length > 0 && <dl class="ctf__brief" data-work-scope={Boolean(work && context && budget.length === 1) || undefined} aria-label={t('Contexto del presupuesto', 'Project brief')}>
       {budget.map(item => <div data-brief-row data-college-evaluation={college && evaluation && item.value === evaluation ? true : undefined}><dt>{item.label}</dt><dd>{item.value}</dd></div>)}
     </dl>}
-    <div class="ctf__grid">
-      <label class="ctf__field">
-        <span>{t('Nombre', 'Name')} <em aria-hidden="true">*</em></span>
-        <input type="text" id="name" value={draftField('person', 100)} aria-describedby="error-name" name="name" required autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder={t('Nombre y apellido', 'Full name')} />
-        <small class="ctf__error" data-error-for="name" id="error-name"></small>
-      </label>
-      <label class="ctf__field">
-        <span>{t('Email de trabajo', 'Work email')} <em aria-hidden="true">*</em></span>
-        <input type="email" id="email" aria-describedby="error-email" name="email" required autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder={t('mail@empresa.com', 'you@company.com')} />
-        <small class="ctf__error" data-error-for="email" id="error-email"></small>
-      </label>
-    </div>
-
-    <label class="ctf__field">
-      <span>{question || t('Mensaje', 'Message')} <em aria-hidden="true">*</em></span>
-      <textarea id="message" aria-describedby="error-message" name="message" required rows="5" maxlength="1200" placeholder={t('Contanos qué necesitás, en qué sede y para cuándo.', 'Tell us what you need, where and by when.')}>{draftField('notes', 1200)}</textarea>
-      <small class="ctf__error" data-error-for="message" id="error-message"></small>
-      <span class="ctf__count" aria-hidden="true"><b data-count>0</b>/1200</span>
-    </label>
-
-    <label class="ctf__field">
-      <span>{t('Empresa u organismo', 'Company or organization')}</span>
-      <input type="text" id="company" name="company" value={draftField('institution', 120)} autocomplete="organization" enterkeyhint="next" placeholder={t('Opcional', 'Optional')} />
-    </label>
-
-    <label class="ctf__field" hidden={Boolean(context)}>
-      <span>{t('Motivo', 'Enquiry type')}</span>
-      <select id="topic" name="topic">
-        <option value="">{t('Elegí un motivo', 'Choose an enquiry type')}</option>
-        {topics.map((t) => <option value={t.id} selected={initialTopic === t.id} data-label={t.label} data-hint={t.hint}>{t.label}</option>)}
-      </select>
-    </label>
-
-    <details class="ctf__more" data-ctf-more open={selectedServices.size > 0}>
-      <summary>
-        <span class="ctf__more-icon" aria-hidden="true"></span>
-        {t('Agregar servicios', 'Add services')} <small>{t('(opcional)', '(optional)')}</small>
-        <b class="ctf__more-count" data-services-count hidden></b>
-      </summary>
-      <fieldset class="ctf__group">
-        <legend class="ctf__sr">{t('Servicios relacionados', 'Related services')}</legend>
-        <div class="ctf__chips">
-          {services.map((s, i) => (
-            <label class="ctf__chip">
-              <input type="checkbox" name="services" checked={selectedServices.has(s.toLowerCase())} value={s} id={`service-${i}`} />
-              <span>{s}</span>
-            </label>
-          ))}
+    <fieldset class="ctf__fields">
+      {entryFields.map((section) => section === 'reply' ? (
+        <div class="ctf__grid">
+          <label class="ctf__field">
+            <span>{t('Nombre', 'Name')}&nbsp;<em aria-hidden="true">*</em></span>
+            <input type="text" id="name" value={draftField('person', 100)} aria-describedby="error-name" name="name" maxlength="100" required autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder={t('Nombre y apellido', 'Full name')} />
+            <small class="ctf__error" data-error-for="name" id="error-name"></small>
+          </label>
+          <label class="ctf__field">
+            <span>{t('Email de trabajo', 'Work email')}&nbsp;<em aria-hidden="true">*</em></span>
+            <input type="email" id="email" aria-describedby="error-email" name="email" maxlength="120" required autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder={t('mail@empresa.com', 'you@company.com')} />
+            <small class="ctf__error" data-error-for="email" id="error-email"></small>
+          </label>
         </div>
-      </fieldset>
-    </details>
+      ) : (
+        <label class="ctf__field">
+          <span>{messageQuestion || t('Mensaje', 'Message')}&nbsp;<em aria-hidden="true">*</em></span>
+          <span class="ctf__message-input">
+            <textarea id="message" data-question={messageQuestion} aria-describedby="error-message" name="message" required rows="4" maxlength="1200" placeholder={messageQuestion ? undefined : t('Contanos qué necesitás, en qué sede y para cuándo.', 'Tell us what you need, where and by when.')}>{draftField('notes', 1200)}</textarea>
+            <span class="ctf__count" aria-hidden="true"><b data-count>0</b>/1200</span>
+          </span>
+          <small class="ctf__error" data-error-for="message" id="error-message"></small>
+        </label>
+      ))}
 
-    <div class="ctf__grid">
-      <label class="ctf__field">
-        <span>{t('Ciudad o sede', 'City or site')}</span>
-        <input type="text" id="site" name="site" value={draftField('site', 180)} autocomplete="address-level2" enterkeyhint="next" placeholder={t('Ej.: Mendoza, 3 sedes', 'E.g. Mendoza, 3 sites')} />
-      </label>
-      <label class="ctf__field">
-        <span>{t('Urgencia', 'Urgency')}</span>
-        <select id="urgency" name="urgency">
-          {urgencies.map((u) => <option value={u}>{u}</option>)}
-        </select>
-      </label>
-    </div>
+      <details class="ctf__more" data-ctf-more open={hasDraftDetails}>
+        <summary>
+          <span>
+            <strong>{t('Detalles opcionales', 'Optional details')}</strong>
+            <small data-detail-summary data-default={optionalHint}>{services.filter(service => selectedServices.has(service.toLowerCase())).join(' · ') || optionalHint}</small>
+          </span>
+          <span class="ctf__more-icon" aria-hidden="true"></span>
+        </summary>
+        <div class="ctf__optional-fields">
+          <label class="ctf__field">
+            <span>{t('Empresa u organismo', 'Company or organization')}</span>
+            <input type="text" id="company" name="company" value={draftField('institution', 120)} autocomplete="organization" enterkeyhint="next" placeholder={t('Opcional', 'Optional')} />
+          </label>
+
+          <label class="ctf__field" hidden={Boolean(context) || assessment}>
+            <span>{t('Motivo', 'Enquiry type')}</span>
+            <select id="topic" name="topic">
+              <option value="">{t('Elegí un motivo', 'Choose an enquiry type')}</option>
+              {topics.map((t) => <option value={t.id} selected={initialTopic === t.id} data-label={t.label} data-hint={t.hint}>{t.label}</option>)}
+            </select>
+          </label>
+
+          <fieldset class="ctf__group">
+            <legend class="ctf__legend">{t('Servicios relacionados', 'Related services')}</legend>
+            <div class="ctf__chips">
+              {services.map((s, i) => (
+                <label class="ctf__chip">
+                  <input type="checkbox" name="services" checked={selectedServices.has(s.toLowerCase())} value={s} id={`service-${i}`} />
+                  <span>{s}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <div class="ctf__grid">
+            <label class="ctf__field">
+              <span>{t('Ciudad o sede', 'City or site')}</span>
+              <input type="text" id="site" name="site" value={draftField('site', 180)} autocomplete="address-level2" enterkeyhint="next" placeholder={t('Ej.: Mendoza, 3 sedes', 'E.g. Mendoza, 3 sites')} />
+            </label>
+            <label class="ctf__field">
+              <span>{t('Urgencia', 'Urgency')}</span>
+              <select id="urgency" name="urgency">
+                {urgencies.map((u) => <option value={u}>{u}</option>)}
+              </select>
+            </label>
+          </div>
+        </div>
+      </details>
+    </fieldset>
 
     <input type="text" name="website" class="ctf__hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
     <input type="text" name="contact_phone" class="ctf__hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
     <input type="hidden" name="startedAt" value="" />
     <input type="hidden" name="contactProof" value="" />
 
-    <div class="ctf__submit">
-      <button type="submit" class="ctf__btn">{t('Enviar consulta', 'Send enquiry')} <span aria-hidden="true">→</span></button>
-      <p>{t('Te respondemos por email en el día hábil.', 'We reply by email during business hours.')}</p>
+    <div class="ctf__error-box" role="alert" tabindex="-1" hidden>
+      <p data-ctf-error></p>
+      <a class="ctf__error-email">{t('Enviar por email', 'Send by email')}</a>
     </div>
-    <div class="ctf__error-box" role="alert" hidden></div>
+    <div class="ctf__submit">
+      <button type="submit" class="ctf__btn" data-retry={t('Reintentar envío', 'Try sending again')}>
+        <span data-ctf-submit-label>{t('Enviar consulta', 'Send enquiry')}</span><span class="ctf__arrow" aria-hidden="true">→</span>
+      </button>
+      <p data-ctf-status role="status">{t('Te respondemos por email en el día hábil.', 'We reply by email during business hours.')}</p>
+    </div>
   </form>
 
   <div class="ctf__done" role="status" hidden tabindex="-1">
-    <p class="ctf__done-kicker">{t('Consulta enviada', 'Enquiry sent')}</p>
-    <h3>{t('Recibimos tu mensaje.', 'We received your message.')}</h3>
-    <p>{t('Un técnico lo revisa y te responde por email con el próximo paso.', 'A technician will review your message and reply by email with the next step.')}</p>
+    <h2>{t('Consulta recibida', 'Enquiry received')}</h2>
+    <p>{t('Te respondemos a', 'We’ll reply to')} <strong data-reply-email></strong>.</p>
+    {referenceHref && <a class="ctf__done-work" href={returnToWork || referenceHref}>
+      <small>{sourceLabel}</small>
+      <strong>{workTitle} <span aria-hidden="true">↗</span></strong>
+    </a>}
+    {!referenceHref && subject && <p class="ctf__done-subject">{subject}</p>}
     <button type="button" class="ctf__btn ctf__btn--ghost" data-ctf-again>{t('Enviar otra consulta', 'Send another enquiry')}</button>
   </div>
 </div>
+
+{withOffice && <ContactOffice lang={lang} emailLink={emailLink} address={emailRecipient} />}
 
 <script>
   import { collegeAttribution } from '../../lib/collegeAttribution';
@@ -162,10 +282,17 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
     const t = (es: string, en: string) => root.dataset.lang === 'en' ? en : es;
     const form = root.querySelector<HTMLFormElement>('form')!;
     const done = root.querySelector<HTMLElement>('.ctf__done')!;
-    const errorBox = root.querySelector<HTMLElement>('.ctf__error-box')!;
+    const errorBox = form.querySelector<HTMLElement>('.ctf__error-box')!;
+    const errorText = errorBox.querySelector<HTMLElement>('[data-ctf-error]')!;
+    const errorEmail = errorBox.querySelector<HTMLAnchorElement>('.ctf__error-email')!;
     const message = form.querySelector<HTMLTextAreaElement>('textarea[name="message"]')!;
     const count = root.querySelector<HTMLElement>('[data-count]')!;
+    const fields = form.querySelector<HTMLFieldSetElement>('.ctf__fields')!;
     const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const submitLabel = submit.querySelector<HTMLElement>('[data-ctf-submit-label]')!;
+    const defaultSubmitLabel = submitLabel.textContent;
+    const status = form.querySelector<HTMLElement>('[data-ctf-status]')!;
+    const defaultStatus = status.textContent;
     const field = (name: string) => form.elements.namedItem(name) as HTMLInputElement | null;
     const stamp = () => {
       field('startedAt')!.value = String(Date.now());
@@ -175,14 +302,6 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
 
     const updateCount = () => { count.textContent = String(message.value.length); };
     updateCount();
-    // El error de un campo se va apenas se corrige.
-    form.addEventListener('input', (e) => {
-      const el = e.target as HTMLElement;
-      if (!el.hasAttribute('aria-invalid')) return;
-      el.removeAttribute('aria-invalid');
-      const msg = form.querySelector<HTMLElement>(`[data-error-for="${(el as HTMLInputElement).name}"]`);
-      if (msg) msg.textContent = '';
-    });
     message.addEventListener('input', updateCount);
     const topicSelect = form.querySelector<HTMLSelectElement>('select[name="topic"]')!;
     const defaultHint = message.placeholder;
@@ -194,44 +313,45 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
     topicSelect.addEventListener('change', syncHint);
     syncHint();
 
-    // Servicios plegables: el resumen muestra cuántos hay marcados.
     const more = root.querySelector<HTMLDetailsElement>('[data-ctf-more]')!;
-    const servicesCount = root.querySelector<HTMLElement>('[data-services-count]')!;
+    const initiallyOpen = more.open;
+    const detailSummary = more.querySelector<HTMLElement>('[data-detail-summary]')!;
     const syncServices = () => {
-      const n = form.querySelectorAll('input[name="services"]:checked').length;
-      servicesCount.textContent = String(n);
-      servicesCount.hidden = n === 0;
+      const selected = [...form.querySelectorAll<HTMLInputElement>('input[name="services"]:checked')];
+      detailSummary.textContent = selected.map(input => input.value).join(' · ') || detailSummary.dataset.default!;
     };
-    form.addEventListener('change', (e) => { if ((e.target as HTMLInputElement).name === 'services') syncServices(); });
-
+    more.addEventListener('change', syncServices);
     syncServices();
-    const showError = (name: string, text: string) => {
-      const el = form.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
-      if (el) el.textContent = text;
-      field(name)?.setAttribute('aria-invalid', 'true');
+    const requiredFields = ['name', 'email', 'message'] as const;
+    type RequiredField = typeof requiredFields[number];
+    const validate = (name: RequiredField) => {
+      const value = field(name)!.value.trim();
+      if (name === 'name') return value.length < 2 ? t('Ingresá tu nombre.', 'Enter your name.') : '';
+      if (name === 'email') return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+        ? t('Ingresá un email válido.', 'Enter a valid email address.') : '';
+      if (message.dataset.question) return !value ? t('Escribí tu respuesta.', 'Enter your answer.') : '';
+      return value.length < 12 ? t('Contanos un poco más para poder ayudarte.', 'Please add a little more detail so we can help.') : '';
     };
-    const clearErrors = () => {
-      form.querySelectorAll<HTMLElement>('[data-error-for]').forEach((el) => { el.textContent = ''; });
-      form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
-      errorBox.hidden = true;
+    const setFieldError = (name: RequiredField, text: string) => {
+      const error = form.querySelector<HTMLElement>(`[data-error-for="${name}"]`)!;
+      const input = field(name)!;
+      error.textContent = text;
+      if (text) input.setAttribute('aria-invalid', 'true');
+      else input.removeAttribute('aria-invalid');
     };
+    for (const name of requiredFields) {
+      const input = field(name)!;
+      input.addEventListener('input', () => {
+        if (input.hasAttribute('aria-invalid')) setFieldError(name, validate(name));
+      });
+    }
     const mailto = (body: string) => {
       const address = ['contacto', 'ultimamilla.com.ar'].join('@');
       return `${['mai', 'lto:'].join('')}${address}?subject=${encodeURIComponent(t('Consulta desde la web ULTIMA MILLA', 'Enquiry from the ULTIMA MILLA website'))}&body=${encodeURIComponent(body)}`;
     };
 
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      clearErrors();
-      const name = field('name')!.value.trim();
-      const email = field('email')!.value.trim();
-      const text = message.value.trim();
-      let invalid = false;
-      if (name.length < 2) { showError('name', t('Ingresá tu nombre.', 'Enter your name.')); invalid = true; }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('email', t('Ingresá un email válido.', 'Enter a valid email address.')); invalid = true; }
-      if (text.length < 12) { showError('message', t('Contanos un poco más para poder ayudarte.', 'Please add a little more detail so we can help.')); invalid = true; }
-      if (invalid) { form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(); return; }
-
+    const campaign = root.dataset.college ? collegeAttribution(new URLSearchParams(location.search)) : {};
+    const readEnquiry = () => {
       const topicInput = selectedTopic();
       const services = [...form.querySelectorAll<HTMLInputElement>('input[name="services"]:checked')].map((c) => c.value);
       const site = field('site')!.value.trim();
@@ -246,14 +366,15 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
         site ? `Ciudad o sede: ${site}` : '',
         urgency && urgency !== t('Sin urgencia', 'No urgency') ? `Urgencia: ${urgency}` : '',
       ].filter(Boolean);
-      const campaign = root.dataset.college ? collegeAttribution(new URLSearchParams(location.search)) : {};
       const originUrl = new URL(root.dataset.originPath!, location.origin);
+      if (root.dataset.archivo) originUrl.hash = 'archivo-' + root.dataset.archivo;
       for (const [key, value] of Object.entries(campaign)) originUrl.searchParams.set(key, value);
       const evaluation = form.querySelector('[data-college-evaluation] dd')?.textContent || '';
-      const payload = {
-        name, email, evaluation,
+      const answer = [message.dataset.question, message.value.trim()].filter(Boolean).join('\n');
+      return {
+        name: field('name')!.value.trim(), email: field('email')!.value.trim(), evaluation,
         company: field('company')!.value.trim(),
-        message: header.length ? `${header.join('\n')}\n\n${text}` : text,
+        message: [...header, '', answer].join('\n').trim(),
         website: field('website')!.value,
         contact_phone: field('contact_phone')!.value,
         startedAt: field('startedAt')!.value,
@@ -265,40 +386,81 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
         originIntent: root.dataset.originIntent || topicInput?.dataset.label || t('Consulta general', 'General enquiry'),
         originHref: originUrl.href,
       };
+    };
 
+    const updateEmailFallback = () => {
+      if (errorBox.hidden) return;
+      const data = readEnquiry();
+      const signature = [data.name, data.email, data.company].filter(Boolean).join(' · ');
+      const originTitle = data.originTitle !== root.dataset.subject && data.originTitle !== data.originPath ? data.originTitle : '';
+      errorEmail.href = mailto([data.message, data.evaluation, originTitle, data.originHref, signature].filter(Boolean).join('\n\n'));
+    };
+    form.addEventListener('input', updateEmailFallback);
+    form.addEventListener('change', updateEmailFallback);
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (submit.disabled) return;
+      errorBox.hidden = true;
+      status.textContent = defaultStatus;
+      submitLabel.textContent = defaultSubmitLabel;
+      for (const name of requiredFields) setFieldError(name, validate(name));
+      const firstError = fields.querySelector<HTMLElement>('[aria-invalid="true"]');
+      if (firstError) {
+        firstError.focus();
+        return;
+      }
+
+      const payload = readEnquiry();
+      const { email } = payload;
+      fields.disabled = true;
       submit.disabled = true;
-      submit.firstChild!.textContent = t('Enviando ', 'Sending ');
+      submitLabel.textContent = t('Enviando…', 'Sending…');
+      status.textContent = t('Enviando la consulta…', 'Sending your enquiry…');
+      let responseStatus: number | undefined;
       try {
         const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        responseStatus = res.status;
         const result = await res.json().catch(() => ({}));
-        if (res.ok && result.success) {
+        if (res.ok && result?.success === true) {
           if (root.dataset.college && !result.duplicate) {
             const layer = (window as Window & { dataLayer?: unknown[] }).dataLayer;
             function record(command: string, event: string, fields: Record<string, string>) { layer?.push(arguments); }
             record('event', 'gc_inquiry_confirmed', { campaign: 'comunidades_profesionales', placement: root.dataset.college, ...campaign });
           }
+          done.querySelector<HTMLElement>('[data-reply-email]')!.textContent = email;
           form.hidden = true;
           done.hidden = false;
           done.focus();
-          form.reset(); stamp(); updateCount(); syncHint(); syncServices(); more.open = Boolean(form.querySelector('input[name=services]:checked'));
+          form.reset(); stamp(); updateCount(); syncHint(); syncServices(); more.open = initiallyOpen;
         } else {
           throw new Error(result.message || t('No se pudo enviar.', 'Your message could not be sent. Please try again.'));
         }
       } catch (err) {
-        errorBox.innerHTML = '';
-        errorBox.append(`${root.dataset.lang !== 'en' && err instanceof Error && err.message ? err.message : t('No se pudo enviar.', 'Your message could not be sent. Please try again.')} `);
-        const link = document.createElement('a');
-        link.href = mailto(`${payload.message}\n\n${evaluation ? evaluation + "\n\n" : ""}${payload.originTitle}\n${payload.originHref}\n\n${name} · ${email}${payload.company ? ` · ${payload.company}` : ''}`);
-        link.textContent = t('Enviala por email', 'Send it by email');
-        errorBox.append(link);
+        const reason = responseStatus === 429
+          ? t('Hubo varios intentos de envío. Podés continuar por email o volver a intentar más tarde.', 'There have been several attempts. You can send by email or try again later.')
+          : responseStatus === 400
+            ? t('No se pudo procesar la consulta. Revisá los datos o enviala por email.', 'Your enquiry could not be processed. Check your details or send it by email.')
+            : err instanceof TypeError || (responseStatus && responseStatus < 400)
+              ? t('No pudimos confirmar el envío.', 'We couldn’t confirm delivery.')
+              : t('El envío web no está disponible en este momento.', 'Web enquiries are temporarily unavailable.');
+        errorText.textContent = reason + ' ' + t('Tus datos siguen en el formulario.', 'Your details are still in the form.');
         errorBox.hidden = false;
+        updateEmailFallback();
       } finally {
+        fields.disabled = false;
         submit.disabled = false;
-        submit.firstChild!.textContent = t('Enviar consulta ', 'Send enquiry ');
+        status.textContent = errorBox.hidden ? defaultStatus : '';
+        submitLabel.textContent = errorBox.hidden ? defaultSubmitLabel : submit.dataset.retry!;
       }
+      if (!errorBox.hidden) errorBox.focus();
     });
 
-    root.querySelector('[data-ctf-again]')?.addEventListener('click', () => { done.hidden = true; form.hidden = false; field('name')?.focus(); });
+    root.querySelector('[data-ctf-again]')?.addEventListener('click', () => {
+      done.hidden = true;
+      form.hidden = false;
+      form.querySelector<HTMLElement>('[required]')?.focus();
+    });
   });
 </script>
 
@@ -306,12 +468,27 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
   .ctf__brief { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,13rem),1fr)); gap:12px 24px; margin:0; padding:16px 0; border-block:1px solid var(--x-line); }
   .ctf__brief dt { color:var(--x-muted); font-size:.875rem; }
   .ctf__brief dd { white-space:pre-line; margin:2px 0 0; font-weight:600; }
+  .ctf__brief[data-work-scope] { padding-block:8px; }
+  .ctf__brief[data-work-scope] :is(dt, dd) { display:inline; }
+  .ctf__brief[data-work-scope] dt { margin-inline-end:8px; }
   .ctf__field[hidden] { display:none; }
-  .ctf__subject {font-size:clamp(1.25rem,2vw,1.7rem);line-height:1.2;margin:0 0 12px;}
+  .ctf__context { display:grid; grid-template-columns:minmax(0,1fr); align-items:center; gap:4px 12px; border-left:2px solid var(--x-red); padding-left:14px; }
+  .ctf__context:has(> img) { grid-template-columns:minmax(0,1fr) auto; }
+  .ctf__context > :global(.scope-preview),.ctf__context > :global(.scope-note) { grid-column:1/-1; }
+  .ctf__context div { min-width:0; }
+  .ctf__context small,.ctf__done-work small { display:block; margin-bottom:4px; color:var(--x-muted); font-size:.9375rem; }
+  .ctf__context p { margin:4px 0 0; color:var(--x-text-2); font-size:1rem; line-height:1.4; }
+  .ctf__return { display:inline-flex; align-items:center; gap:6px; min-height:44px; color:var(--x-text-2); text-decoration:underline; text-underline-offset:3px; }
+  .ctf__return:hover { color:var(--x-text); }
+  .ctf__context img { width:clamp(64px,10vw,112px); height:auto; aspect-ratio:1.32; object-fit:cover; flex:none; }
+  @media(max-width:370px) { .ctf__context img { display:none; } }
+  .ctf__subject { font-size: clamp(1.25rem,2vw,1.7rem); line-height: 1.2; margin: 0; }
   .ctf { font-family: var(--um-font-editorial); color: var(--x-text); }
   .ctf__form { position: relative; display: grid; gap: 24px; }
+  .ctf__fields { display:grid; gap:24px; min-width:0; margin:0; padding:0; border:0; }
+  .ctf__fields:disabled :is(input,textarea,select,.ctf__chip) { cursor:progress; }
   .ctf [hidden] { display: none !important; }
-  .ctf__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ctf__legend { padding: 0 0 8px; font-size: var(--x-fs-meta); font-weight: 600; color: var(--x-text-2); }
   .ctf__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; }
   .ctf__field { position: relative; display: grid; gap: 8px; min-width: 0; }
   .ctf__field > span { font-size: var(--x-fs-meta); font-weight: 600; line-height: 1.3; color: var(--x-text-2); }
@@ -320,7 +497,7 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
   .ctf .ctf__field input,
   .ctf .ctf__field select,
   .ctf .ctf__field textarea {
-    width: 100%; min-height: 48px; padding: 0 16px; border: 1px solid var(--x-line-strong) !important; border-radius: 4px; background-color: var(--x-panel-2) !important;
+    width: 100%; min-height: 48px; scroll-margin-block: 88px 72px; padding: 0 16px; border: 1px solid var(--x-line-strong) !important; border-radius: 4px; background-color: var(--x-panel-2) !important;
     color: var(--x-text) !important; font: 400 1rem/1.4 var(--um-font-editorial); box-shadow: none !important;
     transition: border-color 160ms var(--x-ease), background-color 160ms var(--x-ease);
   }
@@ -331,7 +508,7 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
   }
   .ctf .ctf__field select.is-empty { color: var(--x-muted) !important; }
   .ctf__field select option { background: var(--x-panel-2); color: var(--x-text); }
-  .ctf .ctf__field textarea { min-height: 144px; padding: 12px 16px 32px; line-height: 1.55; resize: vertical; }
+  .ctf .ctf__field textarea { min-height: 124px; padding: 12px 16px 32px; line-height: 1.55; resize: vertical; }
   .ctf__field ::placeholder { color: var(--x-muted); opacity: .8; }
   .ctf .ctf__field input:hover, .ctf .ctf__field select:hover, .ctf .ctf__field textarea:hover { border-color: rgba(255, 255, 255, .32) !important; }
   .ctf .ctf__field input:focus, .ctf .ctf__field select:focus, .ctf .ctf__field textarea:focus { outline: none; border-color: var(--x-text) !important; background-color: #1c1d21 !important; }
@@ -341,25 +518,26 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
   .ctf__error { font-size: var(--x-fs-meta); line-height: 1.4; color: #fff; padding-left: 10px; border-left: 2px solid var(--x-red); }
   .ctf__error:empty { display: none; }
   .ctf__count { position: absolute; right: 12px; bottom: 8px; font-size: var(--x-fs-kicker); color: var(--x-muted); font-variant-numeric: tabular-nums; pointer-events: none; }
-  .ctf__field:has(.ctf__error:not(:empty)) .ctf__count { bottom: 32px; }
+  .ctf__message-input { display:block; position:relative; }
+  .ctf__message-input textarea { display:block; }
   .ctf__count b { font-weight: 500; }
   /* Honeypots: ocultos sin sacarlos de pantalla (left negativo genera overflow horizontal). */
   .ctf__hp { position: absolute !important; width: 1px !important; height: 1px !important; margin: 0 !important; padding: 0 !important; border: 0 !important; overflow: hidden !important; clip: rect(0 0 0 0) !important; clip-path: inset(50%) !important; white-space: nowrap !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
 
-  /* Servicios plegables */
+  /* Información opcional de la consulta */
   .ctf__more { border-top: 1px solid var(--x-line); border-bottom: 1px solid var(--x-line); }
   .ctf__more summary {
-    display: flex; align-items: center; gap: 12px; min-height: 48px; cursor: pointer; list-style: none;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding-block: 10px; cursor: pointer; list-style: none;
     font-size: 1rem; font-weight: 600; color: var(--x-text); user-select: none;
   }
   .ctf__more summary::-webkit-details-marker { display: none; }
-  .ctf__more summary small { font-size: var(--x-fs-meta); font-weight: 400; color: var(--x-muted); }
+  .ctf__optional-fields { display: grid; gap: 18px; padding-block: 12px 20px; }
+  .ctf__more summary small { display: block; font-size: var(--x-fs-meta); font-weight: 400; color: var(--x-muted); }
   .ctf__more summary:focus-visible { outline: 2px solid var(--x-text); outline-offset: 2px; }
   .ctf__more-icon { position: relative; flex: none; width: 16px; height: 16px; }
   .ctf__more-icon::before, .ctf__more-icon::after { content: ''; position: absolute; left: 3px; top: 7.5px; width: 10px; height: 1.5px; background: var(--x-text-2); transition: transform 160ms var(--x-ease); }
   .ctf__more-icon::after { transform: rotate(90deg); }
   .ctf__more[open] .ctf__more-icon::after { transform: rotate(0deg); }
-  .ctf__more-count { margin-left: auto; min-width: 24px; height: 24px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; background: var(--x-text); color: var(--x-ink); font-size: var(--x-fs-kicker); font-weight: 600; }
   .ctf__group { margin: 0; padding: 4px 0 16px; border: 0; min-width: 0; }
   .ctf__chips { display: flex; flex-wrap: wrap; gap: 8px; }
   .ctf__chip { position: relative; cursor: pointer; }
@@ -379,22 +557,26 @@ const urgencies = [t('Sin urgencia', 'No urgency'), t('Esta semana', 'This week'
     display: inline-flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 24px; border: 0; border-radius: 0;
     background: var(--x-red); color: #fff; font: 600 1rem var(--um-font-editorial); cursor: pointer; transition: background-color 160ms var(--x-ease);
   }
-  .ctf__btn span { transition: transform 160ms var(--x-ease); }
+  .ctf__arrow { transition: transform 160ms var(--x-ease); }
   .ctf__btn:hover { background: var(--x-red-hover); }
-  .ctf__btn:hover span { transform: translateX(3px); }
+  .ctf__btn:hover .ctf__arrow { transform: translateX(3px); }
   .ctf__btn:focus-visible { outline: 2px solid var(--x-text); outline-offset: 3px; }
   .ctf__btn:disabled { opacity: .7; cursor: progress; }
   .ctf__btn--ghost { background: transparent; border: 1px solid var(--x-line-strong); }
   .ctf__btn--ghost:hover { background: rgba(255, 255, 255, .06); border-color: var(--x-text); }
   .ctf__error-box { padding: 12px 16px; border: 1px solid rgba(220, 38, 38, .5); border-left: 2px solid var(--x-red); border-radius: 4px; background: rgba(220, 38, 38, .08); font-size: var(--x-fs-meta); line-height: 1.5; color: var(--x-text); }
-  /* El enlace de respaldo se crea por JS: sin :global no recibe el atributo de alcance. */
-  .ctf__error-box :global(a) { color: var(--x-text); font-weight: 600; text-decoration: underline; text-decoration-color: var(--x-red); text-underline-offset: 3px; }
+  .ctf__error-box p { margin:0; }
+  .ctf__error-email { display:inline-flex; align-items:center; min-height:44px; color:var(--x-text); font-weight:600; text-decoration:underline; text-decoration-color: var(--x-red); text-underline-offset:3px; }
   .ctf__done { padding: 8px 0; outline: none; }
-  .ctf__done-kicker { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; font-size: var(--x-fs-kicker); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--x-muted); }
-  .ctf__done-kicker::before { content: ''; width: 28px; height: 2px; background: var(--x-red); }
-  .ctf__done h3 { margin: 0; font-size: 2rem !important; line-height: 1.1 !important; font-weight: 600 !important; letter-spacing: -.02em !important; color: var(--x-text); }
-  .ctf__done p { margin: 12px 0 24px; font-size: 1.0625rem; line-height: 1.55; color: var(--x-text-2); }
+  .ctf__done h2 { margin:0; font-size:clamp(1.6rem,3vw,2.2rem); letter-spacing:-.025em; line-height:1.1; }
+  .ctf__done p { margin:12px 0 20px; font-size:1.0625rem; line-height:1.55; overflow-wrap:anywhere; }
+  .ctf__done-work { display:block; margin:0 0 24px; border-block:1px solid var(--x-line); padding:14px 0; color:inherit; }
+  .ctf__done-work:hover strong { text-decoration:underline; text-underline-offset:3px; }
+  .ctf__email { display:inline-flex; align-items:center; min-height:44px; text-decoration:underline; }
+  .ctf__done-subject { padding:12px 0; border-block:1px solid var(--x-line); font-weight:600; }
+  .ctf__done-work:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
   @media (max-width: 640px) {
+    .ctf__form, .ctf__fields, .ctf__grid { gap: 16px; }
     .ctf__grid { grid-template-columns: 1fr; }
     .ctf__submit .ctf__btn { width: 100%; justify-content: space-between; }
   }

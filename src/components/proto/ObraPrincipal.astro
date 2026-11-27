@@ -1,25 +1,32 @@
 ---
-import { ArrowUpRight } from 'lucide-astro';
+import { ArrowDown, ArrowUpRight } from 'lucide-astro';
 import { srcsetDe } from './isoData';
 import type { Project } from './portadaCases';
-interface Props { obra: Project; compact?: boolean }
-const { obra, compact = false } = Astro.props;
+import ProjectEvidence from './ProjectEvidence.astro';
+interface Props { obra: Project; compact?: boolean; moreWorks?: boolean }
+const { obra, compact = false, moreWorks = false } = Astro.props;
 const image = obra.contextImage || obra.image;
 ---
-<article class:list={['principal', { compact }]} data-caso-catalogo={obra.key}>
+<article class:list={['principal', { compact, 'sin-imagen': !image }]} data-caso-catalogo={obra.key}>
   {image && <div class="imagen"><img src={image} srcset={srcsetDe(image)} sizes="(max-width:700px) 100vw, 52vw" width="960" height="540" alt="" fetchpriority="high" />
     {obra.image && obra.contextImage && obra.image !== image && <img class="detalle-foto" src={obra.image} srcset={srcsetDe(obra.image)} sizes="(max-width:700px) 26vw, 12vw" alt="" width="320" height="200" />}
   </div>}
   <div class="parte">
     <p class="cliente">{compact ? 'Obra del archivo · ' : ''}{obra.client}</p>
     <h2>{obra.title}</h2>
-    {obra.measure && <p class="medida"><b>{obra.measure[0]}</b> {obra.measure[1]}</p>}
-    {!compact && <p class="alcance">{obra.scope}</p>}
-    <div class="destinos">{obra.links.map(link => <a href={link.href}>{link.label}<ArrowUpRight size={16} aria-hidden="true" /></a>)}</div>
+    {!obra.editorialEvidence && obra.measure && <p class="medida"><b>{obra.measure[0]}</b> {obra.measure[1]}</p>}
+    {!compact && <p class="alcance">{obra.editorialScope || obra.scope}</p>}
+    {obra.editorialEvidence && <ProjectEvidence evidence={obra.editorialEvidence} light />}
+    <div class="destinos">{obra.links.map(link => <a data-regreso-obra={"principal-" + obra.key} href={link.href}>{link.label}<ArrowUpRight size={16} aria-hidden="true" /></a>)}{moreWorks && <a class="mas-obras" href="#casos">Ver más obras<ArrowDown size={16} aria-hidden="true" /></a>}</div>
   </div>
 </article>
+<script>
+  import './regresoObraPortada';
+</script>
 <style>
   .principal { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); background:#e8eae5; color:#151818; }
+  .sin-imagen { grid-template-columns:1fr; }
+  .sin-imagen .parte { max-width:72ch; }
   .principal img { width:100%; height:100%; min-height:0; object-fit:cover; }
   .imagen { position:relative; min-width:0; }
   .imagen .detalle-foto { position:absolute; right:12px; bottom:12px; width:28%; height:auto; aspect-ratio:1.6; border:3px solid #e8eae5; }
@@ -29,6 +36,7 @@ const image = obra.contextImage || obra.image;
   .medida { display:flex; align-items:baseline; flex-wrap:wrap; gap:2px 12px; line-height:1.1; margin-block:16px; }
   .medida b { font-size:clamp(2.4rem,4.2vw,4.7rem); letter-spacing:-.065em; }
   .alcance { max-width:55ch; line-height:1.5; color:#364040; }
+  .parte :global(.evidencia) + .destinos { border-top:0; margin-top:4px; }
   .destinos { display:flex; flex-wrap:wrap; gap:0 20px; margin-top:12px; border-top:1px solid #a8afab; }
   a { display:inline-flex; align-items:center; gap:6px; min-height:44px; font-size:.94rem; font-weight:600; }
   a:hover { text-decoration:underline; text-underline-offset:4px; }

@@ -1,96 +1,66 @@
 ---
-import { FileText } from 'lucide-astro';
+import { ClipboardCheck, FileText, Map, Network } from 'lucide-astro';
 import { publicCaseFor } from './casePresentation';
 import type { Story } from './isoData';
 
-interface Props { story?: Story }
-const { story } = Astro.props;
-const caso = story && publicCaseFor(story);
-const metadata = caso
-  ? ['Cableado de datos', 'Tupungato, Mendoza', story?.year || null].filter(Boolean).join(' · ')
-  : 'Ejemplo de documentación para el servicio de Redes';
-
-const folios = [
-  { id: 'alcance', label: 'Alcance' },
-  { id: 'pruebas', label: 'Pruebas' },
-  { id: 'entrega', label: 'Entrega' },
-];
+interface Props { story?: Story; lang?: 'es' | 'en'; headingLevel?: 3 | 4 }
+const { story, lang = 'es', headingLevel = 4 } = Astro.props;
+const Title = headingLevel === 3 ? 'h3' : 'h4';
+const SectionTitle = headingLevel === 3 ? 'h4' : 'h5';
+const caso = story?.id === 3102 ? publicCaseFor(story) : undefined;
+const t = (es: string, en: string) => lang === 'en' ? en : es;
+const labels: Record<string, string> = {
+  'puestos simples de datos Cat. 6 LSZH': 'Single Cat 6 LSZH data outlets',
+  'puestos dobles de datos Cat. 6 LSZH': 'Dual Cat 6 LSZH data outlets',
+  'rack de piso · 1000 mm': 'Floor-standing rack · 1000 mm',
+  'racks murales · 500 mm': 'Wall-mounted racks · 500 mm',
+};
 ---
 <div class="dossier-obra" data-dossier-obra>
   <header class="dossier-obra__cabecera">
-    <div class="dossier-obra__identidad">
-      <p><FileText size={18} stroke-width={1.6} aria-hidden="true" /> Muestra de obra</p>
-      {caso && <span>Antecedente {caso.id}</span>}
-    </div>
-    <h4>{caso ? 'Hospital General Las Heras' : 'Una instalación de cableado'}</h4>
-    <p class="dossier-obra__meta">{metadata}</p>
+    <p class="dossier-obra__rotulo"><FileText size={18} stroke-width={1.6} aria-hidden="true" /> {caso ? t('Muestra de obra', 'Project example') : t('Ejemplo de entrega', 'Handover example')}</p>
+    <Title class="dossier-obra__titulo">{caso ? 'Hospital General Las Heras' : t('Una instalación de cableado', 'A cabling installation')}</Title>
+    {caso && <p class="dossier-obra__meta">{['Tupungato, Mendoza', story?.year, `UM-${caso.id}`].filter(Boolean).join(' · ')}</p>}
   </header>
 
-  <div class="dossier-obra__indice" role="tablist" aria-label="Folios de la muestra" data-indice-documental hidden>
-    {folios.map(({ id, label }, i) => (
-      <button type="button" role="tab" id={`obra-tab-${id}`} aria-controls={`obra-folio-${id}`} aria-selected={i === 0} tabindex={i === 0 ? 0 : -1}>
-        <span aria-hidden="true">{`0${i + 1}`}</span>
-        {label}
-      </button>
-    ))}
-  </div>
-
-  <section class="dossier-obra__folio" role="tabpanel" id="obra-folio-alcance" aria-labelledby="obra-tab-alcance" tabindex="0">
-    <h5>{caso ? 'Inventario de cableado' : 'Qué se registra en el inventario'}</h5>
-    {caso ? (
-      <>
-        <p>El registro distingue los puestos simples de los dobles y especifica la capacidad de cada rack.</p>
+  <section class="dossier-obra__paso">
+    <Network size={23} stroke-width={1.5} aria-hidden="true" />
+    <div>
+      <SectionTitle class="dossier-obra__subtitulo">{t('Inventario de la instalación', 'Installation inventory')}</SectionTitle>
+      {caso ? (
         <dl class="dossier-obra__inventario">
           {caso.evidence.map(({ label, value }) => (
-            <div><dt>{label}</dt><dd>{value}</dd></div>
+            <div><dt lang={lang === 'en' && !labels[label] ? 'es-AR' : undefined}>{lang === 'en' ? labels[label] || label : label}</dt><dd>{value}</dd></div>
           ))}
         </dl>
-      </>
-    ) : (
-      <dl class="dossier-obra__detalle">
-        <div><dt>Puestos de datos</dt><dd>Cantidad, categoría de cableado y tipo de puesto.</dd></div>
-        <div><dt>Racks y enlaces</dt><dd>Capacidad, tipo de montaje y alcance del tendido.</dd></div>
-      </dl>
-    )}
+      ) : (
+        <p>{t('Registra la cantidad, la categoría y el tipo de puestos, la capacidad de los racks y el alcance del tendido.', 'The inventory records outlet counts, cabling category, rack capacity and the extent of the cabling installation.')}</p>
+      )}
+    </div>
   </section>
 
-  <section class="dossier-obra__folio" role="tabpanel" id="obra-folio-pruebas" aria-labelledby="obra-tab-pruebas" tabindex="0" hidden>
-    <p class="dossier-obra__tipo">Referencia técnica · Redes</p>
-    <h5>Cómo se respalda la recepción</h5>
-    <p>Al cotejar el rótulo del punto con el informe, el equipo que recibe la obra puede identificar qué enlace se ensayó.</p>
-    <dl class="dossier-obra__detalle">
-      <div><dt>Reporte de certificación por canal</dt><dd>Mediciones Fluke de los enlaces ensayados, identificadas por punto.</dd></div>
-      <div><dt>Protocolos de prueba</dt><dd>Registro de las verificaciones previstas en el alcance acordado.</dd></div>
-    </dl>
-  </section>
-
-  <section class="dossier-obra__folio" role="tabpanel" id="obra-folio-entrega" aria-labelledby="obra-tab-entrega" tabindex="0" hidden>
-    <p class="dossier-obra__tipo">Referencia técnica · Redes</p>
-    <h5>Qué consulta el próximo técnico</h5>
-    <p>Cuando hay que localizar un enlace o sumar un puesto, la documentación de entrega permite retomar la instalación con sus referencias.</p>
-    <dl class="dossier-obra__detalle">
-      <div><dt>Planos conforme a obra y rotulado</dt><dd>Referencias para ubicar el tendido, los puntos y los equipos instalados.</dd></div>
-      <div><dt>Memoria técnica y registro de alcance</dt><dd>Descripción de lo ejecutado y de lo que incluye la entrega.</dd></div>
-    </dl>
-  </section>
-
-  <footer class="dossier-obra__fuente">
-    {caso
-      ? `Muestra editorial basada en el antecedente ${caso.id} y la ficha técnica de Redes.`
-      : 'Ejemplo basado en los entregables de la ficha técnica de Redes.'}
-  </footer>
+  <div class="dossier-obra__entregables">
+    <p class="dossier-obra__referencia">{t('Entregables según la ficha técnica de Redes', 'Handover documents in our networking specification')}</p>
+    <section class="dossier-obra__paso">
+      <ClipboardCheck size={23} stroke-width={1.5} aria-hidden="true" />
+      <div>
+        <SectionTitle class="dossier-obra__subtitulo">{t('Certificación y protocolos de prueba', 'Certification and test protocols')}</SectionTitle>
+        <p>{t('El informe de certificación identifica cada enlace ensayado y reúne sus mediciones. Los protocolos registran las verificaciones acordadas.', 'The certification report identifies each tested link and records its measurements. Test protocols record the agreed checks.')}</p>
+      </div>
+    </section>
+    <section class="dossier-obra__paso">
+      <Map size={23} stroke-width={1.5} aria-hidden="true" />
+      <div>
+        <SectionTitle class="dossier-obra__subtitulo">{t('Plano conforme a obra y memoria técnica', 'As-built drawings and technical report')}</SectionTitle>
+        <p>{t('El plano y los rótulos permiten localizar puntos y racks. La memoria deja constancia de lo instalado para que otro técnico pueda intervenir o ampliar la red.', 'The drawings and labels help locate outlets and racks. The technical report records what was installed so another engineer can service or extend the network.')}</p>
+      </div>
+    </section>
+  </div>
 </div>
-
-<script>
-  import { activarIndiceDocumental } from './indiceDocumental';
-
-  const dossier = document.querySelector<HTMLElement>('[data-dossier-obra]');
-  if (dossier) activarIndiceDocumental(dossier);
-</script>
 
 <style>
   .dossier-obra {
-    --dossier-gutter: clamp(20px, 3.2vw, 40px);
+    --dossier-gutter: clamp(16px, 3.2vw, 40px);
     grid-area: muestra;
     min-width: 0;
     align-self: start;
@@ -98,110 +68,73 @@ const folios = [
     background: var(--empresa-paper);
     border-top: 3px solid var(--red);
   }
-  .dossier-obra__cabecera {
-    padding: var(--s3) var(--dossier-gutter) var(--s2);
-  }
-  .dossier-obra__identidad {
+  .dossier-obra__cabecera { padding: var(--s3) var(--dossier-gutter) var(--s2); }
+  .dossier-obra__rotulo {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 4px var(--s2);
+    align-items: center;
+    gap: var(--s1);
     color: var(--empresa-muted);
     font-size: 1rem;
     font-weight: 600;
-    line-height: 1.35;
   }
-  .dossier-obra__identidad p {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--s1);
-  }
-  .dossier-obra__identidad span { font-variant-numeric: tabular-nums; }
-  .dossier-obra__cabecera h4 {
-    margin-top: var(--s2);
+  .dossier-obra__titulo {
+    margin-top: var(--s1);
     font-size: clamp(1.5rem, 2.65vw, 2.25rem);
     font-weight: 600;
     line-height: 1.15;
     text-wrap: balance;
   }
-  .dossier-obra__meta {
-    margin-top: 4px;
-    color: var(--empresa-muted);
-    font-size: 1rem;
-    line-height: 1.5;
-  }
-  .dossier-obra__indice {
+  .dossier-obra__meta { margin-top: 4px; color: var(--empresa-muted); }
+  .dossier-obra__paso {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin-inline: var(--dossier-gutter);
-    border-block: 1px solid var(--empresa-line);
-  }
-  .dossier-obra__indice button {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    grid-template-columns: 23px minmax(0, 1fr);
     gap: var(--s1);
-    min-height: 48px;
-    padding: var(--s1) 4px;
-    font-size: 1rem;
-    font-weight: 600;
-    line-height: 1.25;
-  }
-  .dossier-obra__indice span {
-    color: var(--empresa-muted);
-    font-variant-numeric: tabular-nums;
-  }
-  .dossier-obra__indice button:hover { background: rgb(0 0 0 / .05); }
-  .dossier-obra__indice button[aria-selected='true'] {
-    background: #f5f6f5;
-    box-shadow: inset 0 -2px var(--red);
-  }
-  .dossier-obra__indice button:focus-visible { outline-offset: -3px; }
-  .dossier-obra__folio {
-    padding: var(--s2) var(--dossier-gutter) var(--s3);
-    font-size: 1rem;
-    line-height: 1.5;
-  }
-  .dossier-obra__folio:focus-visible { outline-offset: -3px; }
-  .dossier-obra__folio h5 {
-    margin-bottom: 6px;
-    font-size: clamp(1.2rem, 1.8vw, 1.375rem);
-    font-weight: 600;
-    line-height: 1.25;
-  }
-  .dossier-obra__folio p { color: var(--empresa-muted); }
-  .dossier-obra__tipo { margin-bottom: var(--s1); font-weight: 600; }
-  .dossier-obra__inventario,
-  .dossier-obra__detalle {
-    margin-top: var(--s2);
+    margin-inline: var(--dossier-gutter);
+    padding-block: var(--s2);
     border-top: 1px solid var(--empresa-line);
   }
-  .dossier-obra__inventario > div,
-  .dossier-obra__detalle > div {
-    padding-block: 10px;
-    border-bottom: 1px solid var(--empresa-line);
-  }
-  .dossier-obra__inventario > div {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: baseline;
-    gap: var(--s2);
-  }
-  .dossier-obra__inventario dd {
-    font-size: 1.125rem;
-    font-variant-numeric: tabular-nums;
+  .dossier-obra__paso > :global(svg) { margin-top: 1px; color: var(--empresa-muted); }
+  .dossier-obra__subtitulo {
+    font-size: clamp(1.125rem, 1.5vw, 1.375rem);
     font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: normal;
   }
-  .dossier-obra__detalle dt { font-weight: 600; }
-  .dossier-obra__detalle dd { color: var(--empresa-muted); }
-  .dossier-obra__fuente {
-    padding: 0 var(--dossier-gutter) var(--s3);
+  .dossier-obra__paso p {
+    max-width: 61ch;
+    margin-top: 6px;
     color: var(--empresa-muted);
     font-size: 1rem;
-    line-height: 1.45;
+    line-height: 1.5;
   }
-  @media (max-width: 400px) {
-    .dossier-obra__indice button { flex-direction: column; gap: 2px; }
+  .dossier-obra__inventario {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px var(--s2);
+    margin: var(--s1) 0 0;
   }
+  .dossier-obra__inventario > div {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 2px;
+  }
+  .dossier-obra__inventario dt { color: var(--empresa-muted); font-size: 1rem; line-height: 1.3; }
+  .dossier-obra__inventario dd {
+    order: -1;
+    font-size: clamp(1.25rem, 2vw, 1.625rem);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
+  }
+  .dossier-obra__entregables { background: rgb(0 0 0 / .04); border-top: 1px solid var(--empresa-line); }
+  .dossier-obra__referencia {
+    margin-inline: var(--dossier-gutter);
+    padding-block: var(--s2) 0;
+    color: var(--empresa-muted);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .dossier-obra__referencia + .dossier-obra__paso { border-top: 0; }
 </style>

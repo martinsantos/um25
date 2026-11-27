@@ -23,7 +23,7 @@ const STRINGS: Record<ShellLang, ShellStrings> = {
     megaServices: { kicker: 'Ocho frentes de servicio', lead: 'Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria.', all: 'Ver los ocho servicios', open: 'Abrir servicios' },
     megaSectors: { kicker: 'Nueve sectores', lead: 'Explorá el alcance de cada sector, sus servicios y los proyectos documentados.', all: 'Ver todos los sectores', open: 'Abrir sectores' },
     mobile: { more: 'Más', hours: 'Lunes a viernes, 8 a 18 h · Mendoza', open: 'Abrir menú', close: 'Cerrar menú' },
-    tabs: { home: 'Inicio', services: 'Servicios', projects: 'Proyectos', contact: 'Contacto', aria: 'Navegación rápida' },
+    tabs: { home: 'Inicio', services: 'Servicios', projects: 'Antecedentes', contact: 'Contacto', aria: 'Navegación rápida' },
     footer: { privacy: 'Privacidad', terms: 'Términos', rights: 'Todos los derechos reservados.' },
     lang: { label: 'Idioma', switchTo: 'English version', code: 'EN' },
     footerShell: { company: 'Empresa', projects: 'Antecedentes', industries: 'Sectores', contact: 'Contacto', documentation: 'Certificaciones', locationHours: 'Lunes a viernes, 8 a 18 h', home: 'Ir al inicio' },
@@ -56,15 +56,15 @@ const SERVICE_EN: Record<string, { name: string; text: string }> = {
 };
 
 const SECTOR_EN: Record<string, { name: string; text: string }> = {
-  aeropuertos: { name: 'Airports', text: '24/7 perimeter CCTV' },
-  bodegas: { name: 'Wineries', text: 'End-to-end wine production traceability' },
-  constructoras: { name: 'Construction', text: 'Certified structured cabling' },
-  gobiernosectorpublico: { name: 'Government and public sector', text: 'Digital public services' },
-  industria: { name: 'Industry', text: '24/7 industrial plant networks' },
-  mineria: { name: 'Mining', text: 'Telecommunications for remote camps' },
-  salud: { name: 'Healthcare', text: 'Networks for medical imaging' },
-  'seguridad-electronica': { name: 'Electronic security', text: '24/7 monitoring center' },
-  software: { name: 'Software', text: 'Custom ERPs and platforms' },
+  aeropuertos: { name: 'Airports', text: 'Airfield access control and fire detection' },
+  bodegas: { name: 'Wineries', text: 'IP intercoms and fire detection' },
+  constructoras: { name: 'Construction', text: 'Intercoms and cameras for buildings' },
+  gobiernosectorpublico: { name: 'Government and public sector', text: 'Environmental tracking and municipal websites' },
+  industria: { name: 'Industry', text: 'Site-to-site radio links and camera cabling' },
+  mineria: { name: 'Mining', text: 'Connectivity between base and camp' },
+  salud: { name: 'Healthcare', text: 'Data cabling and electrical panels in hospitals' },
+  'seguridad-electronica': { name: 'Electronic security', text: 'IP cameras and access control' },
+  software: { name: 'Software', text: 'Traceability and electronic invoicing' },
 };
 
 export function shellServiceCopy(lang: ShellLang, code: string, name: string, text: string) {

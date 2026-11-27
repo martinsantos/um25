@@ -12,16 +12,8 @@ import { createRequire } from 'node:module';
 
 const BASE = process.env.DATASHEET_BASE || 'http://127.0.0.1:4321';
 const OUT = path.join(process.cwd(), 'public', 'datasheets');
-const SERVICES = [
-  ['101', 'infraestructura-de-redes-cableado-fibra-optica-radioenlaces'],
-  ['102', 'sistemas-de-seguridad-electronica-cctv-control-acceso-sistemas-de-deteccion-de-incendios-sdi'],
-  ['103', 'telecomunicaciones-datos-voz-video'],
-  ['104', 'desarrollo-de-software-a-medida-web-mobile-erp'],
-  ['105', 'soporte-tecnico-247-mesa-de-ayuda-mantenimiento-it'],
-  ['106', 'consultoria-it-y-transformacion-digital-arquitectura-auditoria'],
-  ['107', 'sistemas-de-deteccion-y-alarma-de-incendios'],
-  ['108', 'servicios-electricos-para-it'],
-];
+const files = JSON.parse(fs.readFileSync(new URL('../../src/data/serviceDatasheetFiles.json', import.meta.url), 'utf8'));
+const SERVICES = Object.entries(files);
 
 const requireFrom = createRequire(process.env.PLAYWRIGHT_REQUIRE_FROM || path.join(process.cwd(), 'package.json'));
 let chromium;

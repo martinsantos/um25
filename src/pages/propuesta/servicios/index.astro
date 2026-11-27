@@ -5,25 +5,63 @@ import Head from '../../../components/proto/Head.astro';
 import Top from '../../../components/proto/Top.astro';
 import Cierre from '../../../components/proto/Cierre.astro';
 import CatalogoEditorial from '../../../components/proto/CatalogoEditorial.astro';
-import { catalogHref } from '../../../components/proto/catalogFilters';
+import { serviceOverview } from '../../../components/proto/serviceReference';
+import { getServicios } from '../../../lib/um26-directus';
+import { groupServiceProvision, securityProvisionGroups, serviceProvisionItems } from '../../../utils/serviceProvision';
+import { provisionDestination } from '../../../data/propuesta/workScenes';
+import { publicCaseTitle } from '../../../components/proto/casePresentation';
+import { catalogResultsHref } from '../../../components/proto/catalogFilters';
 import { loadStories, services, SERVICE_PHOTO } from '../../../components/proto/isoData';
 
 import ObrasPortada from '../../../components/proto/ObrasPortada.astro';
 import { portadaCases } from '../../../components/proto/portadaCases';
 
 export const prerender = false;
-const { stories } = await loadStories();
+const [{ stories }, definitions] = await Promise.all([loadStories(), getServicios()]);
+const featuredProvisions: Record<string, { group: string; label?: string }[]> = {
+  '101': [{ group: 'Cableado y certificación' }, { group: 'Fibra óptica' }],
+  '102': [{ group: 'Videovigilancia IP', label: 'Cámaras IP' }, { group: 'Control de Acceso Biométrico' }],
+  '103': [{ group: 'Telefonía IP' }, { group: 'Sistema de Voceo y PA', label: 'Voceo y avisos' }],
+  '104': [{ group: 'Aplicaciones a medida' }, { group: 'Integración y automatización' }],
+  '105': [{ group: 'Atención y gestión de incidentes', label: 'Mesa de ayuda' }, { group: 'Backup y Recuperación', label: 'Recuperación de datos' }],
+  '106': [{ group: 'Diagnóstico y evaluación', label: 'Diagnóstico IT' }, { group: 'Planificación y arquitectura' }],
+  '107': [{ group: 'Detectores según el ambiente', label: 'Detectores' }, { group: 'Activación manual y aviso de alarma', label: 'Pulsadores y avisos' }],
+  '108': [{ group: 'Respaldo de energía' }, { group: 'Distribución y puesta a tierra', label: 'Tableros y puesta a tierra' }],
+};
+const purposes: Record<string, string> = {
+  '101': 'Conectar puestos de trabajo, racks y edificios.',
+  '102': 'Supervisar zonas críticas y registrar quién ingresa.',
+  '103': 'Comunicar al personal entre oficinas y sitios remotos.',
+  '104': 'Digitalizar procesos y hacer que los sistemas compartan datos.',
+  '105': 'Resolver incidentes y mantener operativos los sistemas críticos.',
+  '106': 'Evaluar la infraestructura y planificar inversiones IT.',
+  '107': 'Detectar un incendio y dar aviso en las zonas afectadas.',
+  '108': 'Alimentar y proteger equipos IT ante fallas eléctricas.',
+};
 const [feature, ...obras] = portadaCases(stories, 'servicios');
-const items = services.map((service) => ({
-  name: service.name,
-  summary: service.text,
-  photo: SERVICE_PHOTO[service.code],
-  href: service.href,
-  detailHref: service.href + '#provision',
-  detailLabel: 'Qué proveemos',
-  archiveHref: catalogHref({ service: service.code }),
-  count: stories.filter((story) => story.serviceCodes.includes(service.code)).length,
-}));
+const items = services.map(service => {
+  const { reference, count } = serviceOverview(stories, service.code);
+  const definition = definitions.find(item => item.code === Number(service.code));
+  const provision = serviceProvisionItems(definition?.products ?? [], Number(service.code));
+  const groups = service.code === '102' ? securityProvisionGroups(provision) : groupServiceProvision(provision);
+  const available = new Set(groups.map(group => group.title));
+  const shortcuts = (featuredProvisions[service.code] ?? []).filter(item => available.has(item.group)).map(item => {
+    const destination = provisionDestination(service.code, item.group);
+    return { href: service.href + '#' + destination.id, label: item.label || destination.label };
+  });
+  return {
+    shortcuts,
+    name: service.name,
+    summary: purposes[service.code] || service.text,
+    photo: SERVICE_PHOTO[service.code],
+    href: service.href,
+    detailHref: service.href + '#provision',
+    detailLabel: 'Qué proveemos',
+    archiveHref: catalogResultsHref({ service: service.code }),
+    count,
+    reference: reference && { title: publicCaseTitle(reference), client: reference.client, href: reference.href },
+  };
+});
 ---
 <!doctype html>
 <html lang="es">
@@ -32,7 +70,7 @@ const items = services.map((service) => ({
   </head>
   <body>
     <Top current="servicios" />
-    <main id="contenido" class="wrap">
+    <main id="contenido" tabindex="-1" class="wrap">
       <CatalogoEditorial
         title="Ocho frentes de servicio"
         intro="Un mismo equipo releva, instala, documenta y sostiene cada sistema, de la obra a la operación diaria."

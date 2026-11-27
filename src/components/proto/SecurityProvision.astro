@@ -3,21 +3,9 @@ import CredentialSequence from './CredentialSequence.astro';
 import Parte from './Parte.astro';
 import type { Story } from './isoData';
 import ServiceProvision from './ServiceProvision.astro';
-import { groupServiceProvision, type ServiceProvisionItem } from '../../utils/serviceProvision';
+import { securityProvisionGroups, type ServiceProvisionItem } from '../../utils/serviceProvision';
 interface Props { items: ServiceProvisionItem[]; stories:Story[]; code:string; sceneGroup?:string }
-const blocks = groupServiceProvision(Astro.props.items);
-const related = new Set(['Sistema de Detección de Incendios', 'Panel Central de Alarma SDI', 'Estaciones Manuales de Alarma']);
-const fire = blocks.filter(block => related.has(block.title));
-const systems = blocks.filter(block => !related.has(block.title)).map(block => ({
-  ...block,
-  integration: false,
-}));
-if (fire.length) systems.push({
-  title: 'Integración con detección de incendios',
-  members: fire.flatMap(block => block.members),
-  parts: [...new Map(fire.flatMap(block => block.parts).map(part => [part.key, part])).values()],
-  integration: true,
-});
+const systems = securityProvisionGroups(Astro.props.items);
 const camera = systems.find(system => system.title === 'Videovigilancia IP');
 const { code, stories } = Astro.props;
 const stages = [

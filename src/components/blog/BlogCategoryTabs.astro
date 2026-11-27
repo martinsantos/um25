@@ -69,4 +69,8 @@ const tabs = [
   .btabs__tab:hover { border-color: var(--x-line-strong); color: var(--x-text); }
   .btabs__tab.is-active { background: var(--x-text); border-color: var(--x-text); color: var(--x-ink); }
   .btabs__tab:focus-visible { outline: 2px solid var(--x-red); outline-offset: 2px; }
+  @media (max-width: 400px) {
+    .btabs__list { gap: 6px; }
+    .btabs__tab { padding-inline: 11px; }
+  }
 </style>

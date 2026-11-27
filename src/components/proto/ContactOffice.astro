@@ -1,0 +1,34 @@
+---
+import { Clock3, Mail, MapPin } from 'lucide-astro';
+interface Props { lang: 'es' | 'en'; emailLink: string; address: string }
+const { lang, emailLink, address } = Astro.props;
+const t = (es: string, en: string) => lang === 'en' ? en : es;
+---
+<dl class="oficina">
+  <div>
+    <dt><Mail size={18} aria-hidden="true" />Email</dt>
+    <dd><a href={emailLink} data-contact-email>{address}</a></dd>
+  </div>
+  <div>
+    <dt><MapPin size={18} aria-hidden="true" />{t('Oficina','Office')}</dt>
+    <dd><a href="https://www.google.com/maps/search/?api=1&query=Houssay%201159%20Guaymallen%20Mendoza" target="_blank" rel="noopener">Houssay 1159, Guaymallén, Mendoza <span aria-hidden="true">↗</span></a></dd>
+  </div>
+  <div>
+    <dt><Clock3 size={18} aria-hidden="true" />{t('Horario','Hours')}</dt>
+    <dd>{t('Lunes a viernes, 8 a 18 h','Monday to Friday, 8 am to 6 pm (Mendoza time)')}<small>{t('Clientes con abono: guardia 24/7.', '24/7 assistance for customers with a support agreement.')}</small></dd>
+  </div>
+</dl>
+<style>
+  .oficina { margin:0; }
+  .oficina > div { display:grid; grid-template-columns:6.5rem minmax(0,1fr); align-items:baseline; gap:12px; padding:6px 0; border-top:1px solid var(--line); }
+  dt { display:flex; align-items:center; gap:8px; color:var(--ink-2); }
+  dd { margin:0; line-height:1.45; }
+  dd a { display:inline-flex; align-items:center; min-height:44px; gap:5px; color:inherit; overflow-wrap:anywhere; }
+  dd a:hover { text-decoration:underline; text-underline-offset:3px; }
+  dd small { display:block; color:var(--ink-2); font-size:.94rem; }
+  .oficina > div:last-child { padding-block:14px; }
+  @media(max-width:400px) {
+    .oficina > div { grid-template-columns:minmax(0,1fr); gap:0; padding-block:10px; }
+    dd { padding-inline-start:26px; }
+  }
+</style>

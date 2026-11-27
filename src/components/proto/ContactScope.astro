@@ -1,0 +1,73 @@
+---
+import { ChevronDown } from 'lucide-astro';
+import { getServicioByCode } from '../../lib/um26-directus';
+import { groupedProvisionParts, type ProvisionPart } from '../../data/propuesta/service-provision-visuals';
+import { sectorIntegrationScope } from '../../data/propuesta/sector-integration';
+import { serviceJourney, sectorJourney } from '../../data/propuesta/recorrido';
+import { wineryZones } from '../../data/propuesta/wineryZones';
+import { groupServiceProvision, securityProvisionGroups, serviceProvisionItems } from '../../utils/serviceProvision';
+import { publicCaseFor, publicCaseTitle } from './casePresentation';
+import type { Story } from './isoData';
+import Parte from './Parte.astro';
+
+interface Props { params: URLSearchParams; work?: Story }
+const { params, work } = Astro.props;
+const code = params.get('sistema') || '';
+const group = params.get('grupo');
+const sector = params.get('sector') || '';
+const zone = params.get('budgetSector') === 'Bodegas' && wineryZones.find(item => item.label === params.get('budgetScope'));
+let label = 'Qué incluye la prestación';
+let scope: string[] = [];
+let parts: ProvisionPart[] = [];
+let steps: readonly string[] = [];
+
+if (work) {
+  label = 'Alcance de la obra';
+  const detail = publicCaseFor(work);
+  scope = detail?.scope.length ? detail.scope : [detail?.introduction || work.summary].filter(text => text && text !== publicCaseTitle(work));
+} else if (zone) {
+  label = zone.title;
+  scope = [zone.description];
+  steps = zone.steps;
+} else if (/^10[1-8]$/.test(code)) {
+  if (Object.prototype.hasOwnProperty.call(sectorJourney, sector)) {
+    const description = sectorIntegrationScope(sector, code, '');
+    if (description) scope = [description];
+  } else if (!sector && group && Object.prototype.hasOwnProperty.call(serviceJourney[code]?.groups ?? {}, group)) {
+    const service = await getServicioByCode(Number(code)).catch(() => null);
+    const items = serviceProvisionItems(service?.products || [], Number(code));
+    const groups = code === '102' ? securityProvisionGroups(items) : groupServiceProvision(items);
+    const selected = groups.find(item => item.title === group);
+    if (selected) {
+      scope = selected.members.map(member => member.summary).filter(Boolean);
+      parts = code === '102' ? selected.parts : groupedProvisionParts(selected.members);
+    }
+  }
+}
+const hasDetails = (work && scope.length > 0) || scope.length > 1 || parts.length > 0 || steps.length > 0;
+---
+{hasDetails ? <details class="scope-preview">
+  <summary>{label}<ChevronDown size={16} aria-hidden="true" /></summary>
+  <div class="scope-body">
+    {scope.map(text => <p>{text}</p>)}
+    {parts.length > 0 && <ul aria-label="Componentes">{parts.map(part =>
+      <li><Parte k={part.key} size={52}/><span>{part.label}</span></li>)}</ul>}
+    {steps.length > 0 && <ol aria-label="Secuencia de funcionamiento">{steps.map(step => <li>{step}</li>)}</ol>}
+  </div>
+</details> : scope.length > 0 && <p class="scope-note">{scope[0]}</p>}
+<style>
+  .scope-preview { margin-top:2px; }
+  summary { display:flex; align-items:center; gap:8px; width:fit-content; min-height:44px; list-style:none; cursor:pointer; color:var(--x-text-2); font-weight:550; }
+  summary::-webkit-details-marker { display:none; }
+  summary:focus-visible { outline:2px solid currentColor; outline-offset:2px; }
+  summary:hover { text-decoration:underline; text-underline-offset:3px; }
+  details[open] summary svg { transform:rotate(180deg); }
+  .scope-body { display:grid; gap:8px; padding:4px 0 12px; }
+  .scope-note,.scope-body p { margin:6px 0 0; max-width:58ch; color:var(--x-text-2); font-size:.96rem; line-height:1.5; }
+  ul,ol { padding:0; margin:4px 0 0; list-style:none; }
+  ul { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(9rem,100%),1fr)); gap:8px 12px; }
+  li { display:flex; align-items:center; gap:8px; font-size:.92rem; line-height:1.35; }
+  li :global(.parte) { flex:none; background:#e3e8e6; padding:2px; }
+  ol { display:flex; flex-wrap:wrap; gap:6px; }
+  ol li + li::before { content:'→'; color:var(--x-muted); }
+</style>

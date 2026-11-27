@@ -4,7 +4,8 @@
  * Handles all sector slugs using Directus data.
  */
 
-import { SECTOR_PHOTO } from '../components/proto/isoData';
+import { loadStories, SECTOR_PHOTO } from '../components/proto/isoData';
+import { sectorWorkEnquiry } from '../lib/caseJourney';
 import LayoutV4 from '../layouts/LayoutV4.astro';
 import SectorTemplateUM26 from '../components/templates/SectorTemplateUM26.astro';
 import GeoHubDossier from '../components/templates/GeoHubDossier.astro';
@@ -40,6 +41,11 @@ const sectorData = geoHub ? null : await getSectorBySlug(sectorSlug);
 
 if (!geoHub && !sectorData) {
   return Astro.rewrite('/404');
+}
+
+if (['software', 'seguridad-electronica'].includes(sectorSlug) && Astro.url.searchParams.get('desde') === 'obra') {
+  const { stories } = await loadStories();
+  Astro.locals.sectorWorkEnquiry = sectorWorkEnquiry(sectorSlug, Astro.url.searchParams, stories);
 }
 
 const {

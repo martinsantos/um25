@@ -42,11 +42,12 @@ describe('single contextual contact form', () => {
 
     expect(page).toContain("import ContactForm from '../components/cine/ContactForm.astro'");
     expect(page).toContain('<ContactForm />');
-    expect(form).toContain('Enviala por email');
+    expect(form).toContain('Enviar por email');
     expect(form).toMatch(/const mailto = \(body: string\) =>/);
     expect(form).toContain("['contacto', 'ultimamilla.com.ar'].join('@')");
     expect(form).toContain("['mai', 'lto:'].join('')");
-    expect(form).toMatch(/catch \(err\) \{[\s\S]*link\.href = mailto\(/);
+    expect(form).toMatch(/const updateEmailFallback = \(\) => \{[\s\S]*errorEmail\.href = mailto\(/);
+    expect(form).toMatch(/catch \(err\) \{[^]*?errorBox\.hidden = false;\s*updateEmailFallback\(\);/);
     expect(form).toContain('role="alert"');
     for (const source of [page, form]) {
       expect(source).not.toContain('mailto:contacto@ultimamilla.com.ar');

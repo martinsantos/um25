@@ -187,6 +187,18 @@ export const casoDe = (id: number): Caso | null => {
   if (!texto) return null;
   return { id, publicado: base?.publicado ?? PUBLICADO_DE[id], titulo: base?.titulo || tituloFinal(r, texto), cliente: base?.cliente || clienteDe(r), year: Number((r.Fecha || '').slice(0, 4)), sector: base?.sector || SECTOR_DE[id] || '', servicios: base?.servicios || SERVICIOS_DE[id] || [], texto };
 };
+/** Identidad histórica que la página de origen expone en su archivo de obras. */
+export function casoDeConsulta(origen: string, referencia: string | null) {
+  if (!referencia || !/^\d{1,8}$/.test(referencia)) return null;
+  const servicio = /^\/servicios\/(10[1-8])$/.exec(origen);
+  const sector = /^\/(?:sectores\/([\w-]+)|(software|seguridad-electronica))$/.exec(origen);
+  const ids = servicio ? CASOS_SERVICIO[servicio[1]!] : sector && CASOS_SECTOR[(sector[1] || sector[2])!];
+  const id = Number(referencia);
+  if (!Array.isArray(ids) || !ids.includes(id)) return null;
+  const caso = casoDe(id);
+  return caso && !caso.publicado ? caso : null;
+}
+
 export const casosDe = (ids: number[]): Caso[] => ids.map(casoDe).filter((c): c is Caso => Boolean(c));
 
 export const CASOS: Caso[] = CASOS_BASE.map((c) => { const r = registros.find((x) => x.id === c.id); return { ...c, year: Number((r?.Fecha || '').slice(0, 4)), texto: descripcionCompleta(c.id) }; }).filter((c) => c.texto);

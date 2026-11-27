@@ -175,7 +175,7 @@ async function fetchPublicBlogPostUncached(slug: string): Promise<EntradaBlog | 
     const lead = stripTags(html.match(/<p[^>]*class=["'][^"']*article-lead[^"']*["'][^>]*>([\s\S]*?)<\/p>/i)?.[1] || '');
     const prose = (
       html.match(
-        /<div class=["']prose["'][^>]*>([\s\S]*?)<\/div>\s*(?:<section\b[^>]*(?:um-intent-link-graph|post-|bp-author|bp-topic)|<ul\b[^>]*class=["'][^"']*bp-tags|<nav\b[^>]*class=["'][^"']*(?:post-nav|bp-pn)|<aside\b|<div\b[^>]*class=["'][^"']*tags-row|<\/article>)/i,
+        /<div class=["']prose["'][^>]*>([\s\S]*?)<\/div>\s*(?:<a\b[^>]*class=["'][^"']*bp-return|<section\b[^>]*(?:um-intent-link-graph|post-|bp-author|bp-topic)|<ul\b[^>]*class=["'][^"']*bp-tags|<nav\b[^>]*class=["'][^"']*(?:post-nav|bp-pn)|<aside\b|<div\b[^>]*class=["'][^"']*tags-row|<\/article>)/i,
       )?.[1] || ''
     );
     const category = normalizeCategory(metaContent(html, 'article:section'));

@@ -14,6 +14,13 @@ test('never repeats an image variant or featured ID in the lower gallery', () =>
 test('does not use a service cover or an anonymous client as a named feature', () => {
   expect(selectCaseProjects([], [], [story(1,{image:'/images/editorial/cover.webp'}),story(2,{client:'Cliente Confidencial'})])).toEqual([]);
 });
+test('a case with verified scope leads a photograph-only case when the live customer matches', () => {
+  const reader = story(3104, {client: 'Aeropuertos Argentina 2000'});
+  const photograph = story(2, {image:'/images/photography/0123456789abcdef0123.webp'});
+  expect(selectCaseProjects([], [], [photograph, reader], 1)[0].pub.id).toBe(3104);
+  const reassigned = {...reader, client: 'Otro cliente'};
+  expect(selectCaseProjects([], [], [photograph, reassigned], 1)[0].pub.id).toBe(2);
+});
 test('a reviewed case photograph remains eligible for its featured story', () => {
   const reviewed = story(3, {image:'/images/photography/0123456789abcdef0123.webp'});
   expect(selectCaseProjects([linked(3)], [reviewed], [reviewed]).map(x => x.pub.id)).toEqual([3]);

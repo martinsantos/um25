@@ -5,9 +5,9 @@ import FunctionalScene from './FunctionalScene.astro';
 import OperationsScene from './OperationsScene.astro';
 import { technicalSceneForService } from '../../data/technicalScenes';
 import { operationsSceneForService } from '../../data/operationsScenes';
-interface Props { code: string }
-const {code}=Astro.props;
-const technical=technicalSceneForService(code);
+interface Props { code: string; sector?: string }
+const {code, sector}=Astro.props;
+const technical=technicalSceneForService(code, sector);
 const operations=operationsSceneForService(code);
 ---
 <div class="service-scene" data-service-scene={code}>

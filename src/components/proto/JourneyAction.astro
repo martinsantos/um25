@@ -1,20 +1,31 @@
 ---
 import { contactLink } from '../../lib/contactEntry';
 import { ArrowRight, ArrowUpRight } from 'lucide-astro';
-import { publicCaseFor } from './casePresentation';
+import { publicCaseTitle } from './casePresentation';
 import { thumbOf, type Story } from './isoData';
 import { journeyContext } from '../../data/propuesta/recorrido';
-interface Props { code:string; group?:string; sector?:string; story?:Story }
-const { code, group, sector, story } = Astro.props;
+interface Props { code:string; group?:string; sector?:string; story?:Story; fromWork?:boolean }
+const { code, group, sector, story, fromWork = false } = Astro.props;
 const params = new URLSearchParams({sistema:code});
-if (group) params.set('grupo', group);
-if (sector) params.set('sector', sector);
+if (group) {
+  params.set('grupo', group);
+  params.set('desde', 'prestacion');
+}
+if (sector) {
+  params.set('sector', sector);
+  if (!group) params.set('desde', 'sistema');
+}
 const context = journeyContext(params);
+const origin = group ? 'servicio' : sector ? 'sector' : undefined;
+const projectParams = new URLSearchParams(params);
+if (origin) projectParams.set('desde', origin);
+const projectHref = story && origin && !fromWork ? story.href + '?' + projectParams : story?.href;
+if (fromWork && story) params.set('antecedente', String(story.id));
 ---
 {(story || context) && <div class="next-step">
-  {story && <a class="project" href={story.href}>
+  {story && <a class="project" href={projectHref}>
     {story.image && <img src={thumbOf(story.image)} width="82" height="64" loading="lazy" alt="" />}
-    <span><small>Obra relacionada · UM-{story.id}</small><strong>{publicCaseFor(story)?.title || story.title}</strong><small>{story.client}</small></span>
+    <span><small>{fromWork ? "Volver a la obra" : "Obra relacionada"} · UM-{story.id}</small><strong>{publicCaseTitle(story)}</strong><small>{story.client}</small></span>
     <ArrowUpRight size={18} aria-hidden="true" />
   </a>}
   {context && <a class="enquire" href={contactLink(Astro.url.pathname, '/contacto?' + params)} aria-label={'Consultar por '+context.subject} data-contact-subject={context.subject} data-contact-question={context.question}>

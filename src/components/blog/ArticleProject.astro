@@ -1,0 +1,42 @@
+---
+import { ArrowRight, ArrowUpRight } from 'lucide-astro';
+import { srcsetDe, type Story } from '../proto/isoData';
+import { publicCaseTitle } from '../proto/casePresentation';
+
+interface Props {
+  project?: Story;
+  services: { href: string; label: string }[];
+  sectors: { href: string; label: string }[];
+}
+const { project, services, sectors } = Astro.props;
+const heading = services.length && sectors.length ? 'Servicios y sectores relacionados'
+  : services.length ? 'Servicios relacionados' : 'Sectores relacionados';
+const photo = project && /^\/images\/(antecedentes|photography)\//.test(project.image) ? project.image : '';
+---
+<section class="experiencia" id="aplicacion-en-obra" tabindex="-1" aria-labelledby="experiencia-titulo">
+  <h2 id="experiencia-titulo">{project ? 'Del archivo de obras' : heading}</h2>
+  {project && <a class="obra" href={project.href}>
+    {photo && <img src={photo} srcset={srcsetDe(photo)} sizes="(max-width:600px) 32vw, 190px" width="320" height="220" alt="" loading="lazy" />}
+    <div><small>{project.client}{project.year > 0 && ' · ' + project.year}</small><strong>{publicCaseTitle(project)}</strong></div>
+    <ArrowUpRight size={18} aria-hidden="true" />
+  </a>}
+  <ul class="destinos">
+    {[...services, ...sectors].map(link => <li><a href={link.href}>{link.label} <ArrowRight size={15} aria-hidden="true" /></a></li>)}
+  </ul>
+</section>
+<style>
+  .experiencia { scroll-margin-top:calc(var(--top-h,66px) + 16px); margin-top:32px; padding-block:20px 8px; border-block:1px solid var(--x-line); }
+  h2 { scroll-margin-top:92px; margin:0 0 12px; font-size:1.3rem; line-height:1.25; letter-spacing:-.02em; }
+  .obra { display:flex; align-items:center; gap:clamp(10px,2vw,20px); min-height:48px; padding-block:8px; }
+  .obra img { flex:none; width:28%; aspect-ratio:1.5; height:auto; object-fit:cover; }
+  .obra div { min-width:0; overflow-wrap:anywhere; }
+  .obra small,.obra strong { display:block; }
+  .obra small { color:var(--x-muted); font-size:.94rem; }
+  .obra strong { margin-top:4px; font-size:clamp(1.1rem,1.6vw,1.45rem); line-height:1.2; text-wrap:balance; }
+  .obra > :global(svg) { flex:none; margin-left:auto; }
+  .destinos { display:flex; flex-wrap:wrap; gap:0 20px; padding:0; margin:4px 0 0; list-style:none; }
+  a { color:inherit; text-decoration:none; }
+  .destinos a { display:inline-flex; align-items:center; gap:6px; min-height:44px; font-weight:600; line-height:1.25; }
+  a:hover strong,.destinos a:hover { text-decoration:underline; text-underline-offset:3px; }
+  a:focus-visible { outline:2px solid currentColor; outline-offset:2px; }
+</style>

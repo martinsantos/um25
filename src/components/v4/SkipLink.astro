@@ -1,0 +1,30 @@
+---
+interface Props { target: string; label: string }
+const { target, label } = Astro.props;
+---
+<a class="um-skip-link" href={'#' + target}>{label}</a>
+
+<style>
+  .um-skip-link {
+    position:fixed;
+    inset-block-start:12px;
+    inset-inline-start:max(16px,env(safe-area-inset-left,0px));
+    z-index:var(--um-z-skip,1100);
+    display:inline-flex;
+    align-items:center;
+    min-height:44px;
+    max-width:calc(100% - 32px);
+    padding:8px 16px;
+    color:#fff;
+    background:#141818;
+    font-weight:600;
+    text-decoration:none;
+    clip-path:inset(50%);
+  }
+  .um-skip-link:focus {
+    clip-path:none;
+    outline:2px solid var(--um-red,#dc2626);
+    outline-offset:2px;
+  }
+  @media print { .um-skip-link { display:none; } }
+</style>

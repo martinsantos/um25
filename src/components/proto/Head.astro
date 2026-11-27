@@ -9,17 +9,13 @@ import { SITE_URL, SITE_NAME } from '../../config/seo';
 import { publicStructuredData } from '../../utils/publicStructuredData';
 import { trimAtWordBoundary } from '../../utils/seoMetaPolicy';
 import { publicDespiecePath } from '../../lib/despieceRoutes';
-import { variantes } from './isoData';
-interface Props { title: string; description?: string; image?: string; lang?: string; precargar?: boolean; canonicalPath?: string; noindex?: boolean }
-const { title, description: rawDescription = '', image = '/images/editorial/umsa-home-operations.webp', lang = 'es', precargar = false, canonicalPath, noindex = false } = Astro.props;
+import { srcsetDe, variantes } from './isoData';
+interface Props { title: string; description?: string; image?: string; lang?: string; precargar?: boolean; imageSizes?: string; canonicalPath?: string; noindex?: boolean }
+const { title, description: rawDescription = '', image = '/images/editorial/umsa-home-operations.webp', lang = 'es', precargar = false, imageSizes = '100vw', canonicalPath, noindex = false } = Astro.props;
 const description = trimAtWordBoundary(rawDescription, 160);
-// La imagen de apertura se precarga en la variante justa: el póster de película en AVIF; la foto editorial en AVIF a 960/1672 (quien no lee AVIF ignora la precarga por su type y descubre la foto en el HTML); la foto de antecedente en WebP a 960/1600.
 const avif = /^\/cine\/media\/cine-.+-poster\.jpg$/.test(image) ? image.replace(/\.jpg$/, '.avif') : '';
-const v = variantes(image);
-const avifSet = v.avif;
-const w960 = !avifSet && v.ancho ? v.w960 : '';
-const wMax = `${v.ancho}w`;
-const tam = /-principal\.webp$/.test(image) ? '(max-width: 900px) 100vw, 58vw' : '100vw';
+const avifSet = variantes(image).avif;
+const responsiveSet = avifSet || srcsetDe(image);
 const publicPath = publicDespiecePath(Astro.url.pathname);
 const canonical = new URL(canonicalPath || publicPath, SITE_URL).href;
 const languagePair = [['/', '/en'], ['/servicios', '/en/services'], ['/nosotros', '/en/about'], ['/contacto', '/en/contact']]
@@ -53,10 +49,12 @@ const structuredData = publicStructuredData(canonicalPath || publicPath, title, 
 <meta property="og:image" content={abs(image)} />
 <meta property="og:url" content={canonical} />
 <meta name="twitter:card" content="summary_large_image" />
-{precargar && avif && <link rel="preload" as="image" href={avif} type="image/avif" fetchpriority="high" />}
-{precargar && !avif && avifSet && <link rel="preload" as="image" href={avifSet.split(' ')[0]} imagesrcset={avifSet} imagesizes={tam} type="image/avif" fetchpriority="high" />}
-{precargar && !avif && w960 && <link rel="preload" as="image" href={image} imagesrcset={`${w960} 960w, ${image} ${wMax}`} imagesizes={tam} fetchpriority="high" />}
-{precargar && !avif && !avifSet && !w960 && <link rel="preload" as="image" href={image} fetchpriority="high" />}
+{precargar && <link rel="preload" as="image"
+  href={avif || (avifSet ? avifSet.split(' ')[0] : image)}
+  imagesrcset={avif ? undefined : responsiveSet}
+  imagesizes={!avif && responsiveSet ? imageSizes : undefined}
+  type={avif || avifSet ? 'image/avif' : undefined}
+  fetchpriority="high" />}
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="preload" href="/fonts/um-sans/v2.0.0/UMSans2-Variable.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" href="/fonts/um-sans/v2.0.0/um-sans-2.css" />

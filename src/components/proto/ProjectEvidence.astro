@@ -1,0 +1,32 @@
+---
+import type { Project } from './portadaCases';
+interface Props { evidence: NonNullable<Project['editorialEvidence']>; light?: boolean }
+const { evidence, light = false } = Astro.props;
+---
+<ul class:list={['evidencia', { light }]} role="list">
+  {evidence.map(([value, label]) => <li><strong>{value}</strong> <span>{label}</span></li>)}
+</ul>
+
+<style>
+  .evidencia {
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px clamp(12px,2vw,28px);
+    list-style:none;
+    margin:14px 0 4px;
+    padding:10px 0 0;
+    border-top:1px solid var(--line);
+  }
+  li { flex:1 1 100px; display:grid; align-content:start; gap:3px; min-width:0; }
+  strong {
+    font-size:clamp(1.5rem,2.25vw,2.2rem);
+    letter-spacing:-.055em;
+    line-height:1;
+    font-weight:650;
+    font-variant-numeric:tabular-nums;
+  }
+  span { color:var(--ink-2); font-size:.875rem; line-height:1.25; }
+  .light { border-color:#bdc4bd; }
+  .light strong { font-size:clamp(1.9rem,3vw,3rem); }
+  .light span { color:#434e49; }
+</style>

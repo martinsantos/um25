@@ -251,9 +251,12 @@
   transition: border-color 0.2s;
 }
 .fs__step-number {
+  flex: none;
   color: var(--ink-3);
   font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
   line-height: 1.8;
+  white-space: nowrap;
 }
 .fs__caption strong {
   font-size: 1.0625rem;

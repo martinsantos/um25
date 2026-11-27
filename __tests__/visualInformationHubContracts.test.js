@@ -42,7 +42,7 @@ describe('Information hub visual contracts', () => {
     expect(navbar).toMatch(/\.um-ops-ticker\s*\{[\s\S]*display:\s*none;/);
     expect(navbar).not.toContain('class="um-ops-tag"');
     expect(navbar).not.toContain('class="um-ops-ticker"');
-    expect(navbar).toContain('<a href={contactLink(currentPath)} class="um-ops-cta">');
+    expect(navbar).toContain('<a data-contact-follow href={pageContactLink(Astro)} class="um-ops-cta">');
     expect(navbar).toContain("document.addEventListener('astro:page-load', initOpsNavigation)");
     expect(navbar).toContain("menuToggle.dataset.bound = 'true'");
     // Rediseño 2026-09: el rótulo del menú móvil es un kicker de 13 px (mínimo del
@@ -361,7 +361,7 @@ describe('Information hub visual contracts', () => {
     const normalizeEnd = blogSingle.indexOf('const normalizedContent');
     const normalizer = blogSingle.slice(normalizeStart, normalizeEnd);
 
-    expect(normalizer).toContain("const canonicalizedHtml = canonicalizeInternalBlogLinks(html || '')");
+    expect(normalizer).toContain("const canonicalizedHtml = canonicalizeInternalBlogLinks(html || '', readingReturn?.href)");
     expect(normalizer).toContain('replace(/https?:');
     expect(normalizer).toContain('ultimamilla');
     expect(normalizer).toContain('siteUrl');
@@ -484,7 +484,7 @@ describe('Information hub visual contracts', () => {
     for (const source of [contacto, form]) {
       expect(source).not.toMatch(/#B91C1C/i);
     }
-    expect(cssBlock(form, '.ctf__error-box :global(a)')).toMatch(/text-decoration-color:\s*var\(--x-red\);/);
+    expect(cssBlock(form, '.ctf__error-email')).toMatch(/text-decoration-color:\s*var\(--x-red\);/);
     expect(cssBlock(form, '.ctf__error-box')).toMatch(/border-left:\s*2px solid var\(--x-red\);/);
     expect(cssBlock(form, '.ctf__error-box')).toMatch(/rgba\(220,\s*38,\s*38,/);
   });

@@ -1,11 +1,11 @@
 ---
-import { contactLink } from '../../lib/contactEntry';
+import { pageContactLink } from '../../lib/caseJourney';
 /**
- * Barra de pestañas inferior para teléfono (app shell). Cinco destinos fijos,
+ * Barra de pestañas inferior para teléfono (app shell). Cuatro destinos fijos,
  * estado activo por ruta, safe-area iOS y sin JS obligatorio. Se oculta cuando
  * el menú móvil está abierto y en escritorio no existe.
  */
-import { APP_TABS } from '../../data/navigation';
+import { APP_TABS, directoryReturnHref } from '../../data/navigation';
 import { shellLocale, shellRoutes } from '../../config/i18nShell';
 
 interface Props { currentPath?: string }
@@ -13,16 +13,16 @@ const { currentPath = Astro.url.pathname } = Astro.props;
 const clean = currentPath.replace(/\/$/, '') || '/';
 const { lang, t } = shellLocale(currentPath);
 const routes = shellRoutes(lang);
-const tabHref: Record<string, string> = { '/': routes.home, '/servicios': routes.services, '/antecedentes': routes.projects, '/contacto': routes.contact };
-const tabLabel: Record<string, string> = { '/': t.tabs.home, '/servicios': t.tabs.services, '/antecedentes': lang === 'en' ? t.destinationLabel(t.tabs.projects) : t.tabs.projects, '/contacto': t.tabs.contact };
-const isActive = (href: string) => {
-  const target = (tabHref[href] || href).replace(/\/$/, '') || '/';
-  if (target === '/' || target === '/en') return clean === target;
-  return clean === target || clean.startsWith(`${target}/`);
-};
+const tabHref: Record<string, string> = { '/sectores': routes.sectors, '/servicios': routes.services, '/antecedentes': routes.projects, '/contacto': routes.contact };
+const tabLabel: Record<string, string> = { '/sectores': lang === 'en' ? t.destinationLabel(t.nav.sectors) : t.nav.sectors, '/servicios': t.tabs.services, '/antecedentes': lang === 'en' ? t.destinationLabel(t.tabs.projects) : t.tabs.projects, '/contacto': t.tabs.contact };
+function currentSection(href: string) {
+  const target = tabHref[href] || href;
+  if (clean === target) return 'page';
+  if (clean.startsWith(target + '/') ||
+      (target === routes.sectors && ['/software', '/seguridad-electronica'].includes(clean))) return 'location';
+}
 
 const ICONS: Record<(typeof APP_TABS)[number]['icon'], string> = {
-  home: '<path d="M3 11 12 4l9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
   services: '<rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/><path d="M7 7h.01M7 17h.01"/>',
   sectors: '<path d="M3 21h18"/><path d="M5 21V8l7-5 7 5v13"/><path d="M9 21v-6h6v6"/><path d="M9 11h.01M15 11h.01"/>',
   projects: '<path d="M4 20V6a2 2 0 0 1 2-2h5l2 2h5a2 2 0 0 1 2 2v12"/><path d="M4 20h16"/><path d="M8 14h8M8 17h5"/>',
@@ -31,12 +31,46 @@ const ICONS: Record<(typeof APP_TABS)[number]['icon'], string> = {
 ---
 <nav class="um-tabbar" aria-label={t.tabs.aria}>
   {APP_TABS.map((tab) => (
-    <a href={tab.href === '/contacto' ? contactLink(currentPath, routes.contact) : tabHref[tab.href] || tab.href} class:list={['um-tabbar__item', { 'is-active': isActive(tab.href) }]} aria-current={isActive(tab.href) ? 'page' : undefined}>
+    <a data-contact-follow={tab.href === '/contacto' || undefined} href={tab.href === '/contacto' ? pageContactLink(Astro, routes.contact) : directoryReturnHref(tabHref[tab.href] || tab.href, currentPath)} class:list={['um-tabbar__item', { 'is-active': Boolean(currentSection(tab.href)) }]} aria-current={currentSection(tab.href)}>
       <svg viewBox="0 0 24 24" aria-hidden="true" set:html={ICONS[tab.icon]} />
       <span>{tabLabel[tab.href] || tab.label}</span>
     </a>
   ))}
 </nav>
+
+<script>
+  const tabBar = document.querySelector<HTMLElement>('.um-tabbar');
+  if (tabBar) {
+    const root = document.documentElement;
+    const header = document.querySelector<HTMLElement>('.um-ops-header');
+    const updateInset = () => {
+      if (tabBar.offsetHeight) root.style.setProperty('--um-tabbar-height', `${tabBar.offsetHeight}px`);
+    };
+    updateInset();
+    if ('ResizeObserver' in window) new ResizeObserver(updateInset).observe(tabBar);
+
+    // El navegador puede dar foco a un elemento parcialmente tapado por la navegación fija.
+    document.addEventListener('focusin', ({ target }) => {
+      if (!(target instanceof HTMLElement) || target.closest(
+        '.um-ops-header, .um-tabbar, .um-ops-mobile, dialog, [role="dialog"], .um-skip-link',
+      )) return;
+      requestAnimationFrame(() => {
+        if (document.activeElement !== target || !target.matches(':focus-visible')) return;
+        const focused = target.getBoundingClientRect();
+        const headerBottom = Math.max(0, header?.getBoundingClientRect().bottom ?? 0);
+        if (focused.top < headerBottom && focused.bottom > 0) {
+          window.scrollBy({ top: focused.top - headerBottom - 8, behavior: 'instant' });
+          return;
+        }
+        if (!tabBar.offsetHeight) return;
+        const bar = tabBar.getBoundingClientRect();
+        if (focused.bottom <= bar.top || focused.top >= bar.bottom) return;
+        const shift = Math.min(focused.bottom - bar.top + 8, focused.top - headerBottom - 8);
+        if (shift > 0) window.scrollBy({ top: shift, behavior: 'instant' });
+      });
+    });
+  }
+</script>
 
 <style>
   .um-tabbar {
@@ -44,6 +78,7 @@ const ICONS: Record<(typeof APP_TABS)[number]['icon'], string> = {
   }
 
   @media (max-width: 760px) {
+    :global(html) { scroll-padding-bottom: calc(var(--um-tabbar-height, 59px + env(safe-area-inset-bottom, 0px)) + 16px); }
     .um-tabbar {
       position: fixed;
       left: 0;
@@ -51,7 +86,7 @@ const ICONS: Record<(typeof APP_TABS)[number]['icon'], string> = {
       bottom: 0;
       z-index: var(--um-z-sticky);
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(4, auto);
       padding-bottom: env(safe-area-inset-bottom, 0px);
       background: rgba(10, 10, 11, 0.94);
       backdrop-filter: blur(14px);
@@ -69,8 +104,9 @@ const ICONS: Record<(typeof APP_TABS)[number]['icon'], string> = {
       align-items: center;
       justify-content: center;
       gap: 4px;
+      min-width: 0;
       min-height: 58px;
-      padding: 8px 2px 6px;
+      padding: 8px clamp(4px, 1.2vw, 12px) 6px;
       color: inherit;
       text-decoration: none;
       font-size: 1rem;
@@ -92,6 +128,9 @@ const ICONS: Record<(typeof APP_TABS)[number]['icon'], string> = {
 
     .um-tabbar__item span {
       font-size: clamp(.875rem, 3.9vw, 1rem);
+      text-align: center;
+      max-width: 100%;
+      overflow-wrap: anywhere;
       letter-spacing: 0.01em;
     }
 
@@ -129,12 +168,7 @@ const ICONS: Record<(typeof APP_TABS)[number]['icon'], string> = {
     /* El contenido y el pie dejan lugar a la barra (el layout fija body
        padding: 0, por eso la especificidad del atributo). */
     :global(body[data-skin]) {
-      padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px));
-    }
-
-    /* La barra reemplaza al botón flotante de contacto. */
-    :global(.um-ops-dock) {
-      display: none !important;
+      padding-bottom: var(--um-tabbar-height, calc(59px + env(safe-area-inset-bottom, 0px)));
     }
   }
 </style>

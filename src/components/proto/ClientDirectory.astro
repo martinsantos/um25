@@ -1,6 +1,6 @@
 ---
 import { ArrowRight, ChevronDown } from 'lucide-astro';
-import { catalogHref } from './catalogFilters';
+import { catalogResultsHref } from './catalogFilters';
 import type { clientsForStories } from './clientDirectory';
 
 interface Props {
@@ -14,7 +14,7 @@ const first = 5;
 const rows = clients.map(({name, count, years}) => {
   const dates = [...years].sort((a, b) => a - b);
   const period = dates.length > 1 ? `${dates[0]}–${dates[dates.length - 1]}` : dates[0];
-  return {name, count, period, href: catalogHref({...filter, cliente: name})};
+  return {name, count, period, href: catalogResultsHref({...filter, cliente: name})};
 });
 const extra = rows.length - first;
 const choices = !filter && extra > 0 ? [...rows].sort((a, b) => a.name.localeCompare(b.name, 'es')) : [];
@@ -25,7 +25,7 @@ if (filter && extra > 0) groups.push(rows.slice(first));
   <div class="wrap directory-layout">
     <header>
       <h2 id="clientes-title">{title}<span class="dot">.</span></h2>
-      {choices.length > 0 && <form method="get" action="/antecedentes" class="client-lookup">
+      {choices.length > 0 && <form method="get" action="/antecedentes#obras-filtradas" class="client-lookup">
         <label for="home-client">Buscar obras por cliente</label>
         <div>
           <select id="home-client" name="cliente" required>
@@ -35,7 +35,7 @@ if (filter && extra > 0) groups.push(rows.slice(first));
           <button type="submit">Ver obras <ArrowRight size={16} aria-hidden="true" /></button>
         </div>
       </form>}
-      <a class="archive" href={catalogHref(filter || {})}>{archiveLabel}<ArrowRight size={18} aria-hidden="true" /></a>
+      <a class="archive" href={filter ? catalogResultsHref(filter) : '/antecedentes'}>{archiveLabel}<ArrowRight size={18} aria-hidden="true" /></a>
     </header>
     <div class="directory-list">
       <div class="columns" aria-hidden="true"><span>{choices.length ? 'Clientes con más obras' : 'Cliente y año'}</span><span>Antecedentes</span></div>

@@ -1,17 +1,24 @@
 ---
+import CatalogResultsReturn from './CatalogResultsReturn.astro';
+import WorkContextActions from './WorkContextActions.astro';
 import SystemPicker from './SystemPicker.astro';
-import { ChevronDown, Network, Cctv, RadioTower, CodeXml, Headset, Workflow, Flame, Zap } from 'lucide-astro';
+import { ArrowUpRight, ChevronDown, Network, Cctv, RadioTower, CodeXml, Headset, Workflow, Flame, Zap } from 'lucide-astro';
 import WorkScene from './WorkScene.astro';
 import ServiceScene from './ServiceScene.astro';
 import JourneyAction from './JourneyAction.astro';
 import DeliveryDocuments from './DeliveryDocuments.astro';
 import { SERVICE_SPECS } from '../../data/serviceSpecs';
-import { sectorWorkExamples, serviceWorkExamples, workScene } from '../../data/propuesta/workScenes';
+import { sectorSystemAnchor, serviceWorkExamples } from '../../data/propuesta/workScenes';
 import type { Story } from './isoData';
-import { pageCaseCandidates } from './caseSelection';
+import { sectorSystemEvidence } from './sectorSystemEvidence';
 import { sectorIntegrationScope, sectorSystemTask } from '../../data/propuesta/sector-integration';
-interface Props { slug:string; name:string; stories:Story[]; items: {code:string;name:string;text:string;count:number}[] }
-const {items,slug,name,stories}=Astro.props;
+interface Props { slug:string; name:string; stories:Story[]; miningReference?:Story; items: {code:string;name:string;text:string;count:number}[] }
+const {items,slug,name,stories,miningReference}=Astro.props;
+const delivery = Astro.url.searchParams.get('entrega');
+const requestedItem = items.find(item => item.code === delivery && SERVICE_SPECS[item.code]);
+const requestedSystem = Astro.url.searchParams.get('sistema');
+const initialItem = requestedItem || items.find(item => item.code === requestedSystem) || items[0];
+const miningFromHome = slug === 'mineria' && requestedSystem === '103' && Astro.url.searchParams.get('desde') === 'inicio';
 const intros:Record<string,[string,string]>={
  bodegas:['Tecnología entre producción y administración','La misma operación, de la cava al despacho.'],
  industria:['Infraestructura para la planta','Cada sistema, al ritmo de la producción.'],
@@ -24,39 +31,55 @@ const intros:Record<string,[string,string]>={
 const icons:Record<string,typeof Network>={'101':Network,'102':Cctv,'103':RadioTower,'104':CodeXml,'105':Headset,'106':Workflow,'107':Flame,'108':Zap};
 const intro=intros[slug] || ['Integración por sistema',`Tecnología para ${name.toLowerCase()}.`];
 ---
-<section class="sec sector-systems" id={slug === 'bodegas' ? 'sistemas' : 'integracion'}>
+<section class="sec sector-systems" id={slug === 'bodegas' ? 'sistemas' : 'integracion'} tabindex="-1">
  <div class="wrap">
+  {(slug !== 'bodegas' || requestedSystem) && <CatalogResultsReturn />}
   <header><p class="eyebrow">{intro[0]}</p><h2>{intro[1].replace(/\.$/,'')}<span class="dot">.</span></h2><p>{stories.length ? "Elegí una tarea para ver cómo funciona el sistema y consultar por tu instalación." : "Elegí qué necesitás resolver en el sitio para ver la integración y preparar el relevamiento."}</p></header>
-  <SystemPicker id="tareas-del-sector" label="Tareas del sector" back="Ver tareas">
+  {Astro.locals.sectorWorkEnquiry && <WorkContextActions work={Astro.locals.sectorWorkEnquiry.story} />}
+  <SystemPicker change="Cambiar tarea" id="tareas-del-sector" label="Tareas del sector" back="Ver tareas">
     <div class="systems">
-  {items.map((item,i)=>{ const Icon=icons[item.code] || Network;
-    const sectorStories = stories.filter(s => s.serviceCodes.includes(item.code));
-    const candidates = pageCaseCandidates(sectorStories,slug,item.code);
-    const example = sectorWorkExamples[slug]?.[item.code];
-    const matched = example && sectorStories.find(s => s.id === example.id);
-    const caseScene = workScene(example, matched);
+  {items.map((item)=>{ const Icon=icons[item.code] || Network;
+    const { story, caseScene, example } = sectorSystemEvidence(stories, slug, item.code);
     const relatedGroup = caseScene && Object.entries(serviceWorkExamples[item.code] || {}).find(([, work]) => work.id === example?.id);
-    const story = example ? (caseScene ? matched : undefined) : candidates.find(s => s.documentedScope) || candidates[0];
     const task = sectorSystemTask(slug,item.code);
+    const miningRadio = slug === 'mineria' && item.code === '103';
     const wineryFire = slug === 'bodegas' && item.code === '107';
-    return <details id={example?.anchor || `sistema-${item.code}`} name={`sector-system-${slug}`} open={i===0}>
+    return <details name={`sector-system-${slug}`} open={item === initialItem}>
     <summary data-title={task || item.name}><span class="system-name"><Icon size={22} stroke-width={1.6} aria-hidden="true"/><span class="task">{task || item.name}{task && <small>{item.name}</small>}</span></span><ChevronDown size={20} aria-hidden="true"/></summary>
-    <div class:list={['system-body', {'text-only': example && !caseScene}]}>
-      <p class="system-description">{sectorIntegrationScope(slug,item.code,item.text)}</p>
-      {(!example || caseScene) && <div class="system-scene">
-        {wineryFire
-          ? <a class="zone-shortcut" href="?zona=nave#integracion">Ver la detección en la nave de producción →</a>
-          : caseScene ? <WorkScene content={caseScene} />
-          : <ServiceScene code={item.code}/>}
-      </div>}
-      <div class="system-evidence">
-        <JourneyAction code={item.code} sector={slug} story={story} />
-        {SERVICE_SPECS[item.code] && <DeliveryDocuments spec={SERVICE_SPECS[item.code]} compact />}
+    <div class="system-body" id={sectorSystemAnchor(slug, item.code)} data-system-body tabindex="-1">
+      <div class="system-copy">
+        {miningRadio && miningFromHome && <a class="system-origin" href="/#obra-sector-mineria">← Volver a Minería en Inicio</a>}
+        <p class="system-description">{sectorIntegrationScope(slug, item.code, item.text)}</p>
+        {wineryFire && <a class="zone-shortcut" href="?zona=nave#integracion">Ver la detección en la nave de producción →</a>}
       </div>
-      <nav class="system-links" aria-label={`Más sobre ${item.name}`}>
-        <a href={`/servicios/${item.code}#${relatedGroup ? relatedGroup[1].anchor : 'provision'}`}>{relatedGroup ? relatedGroup[0] : 'Desglose del servicio'} →</a>
-        {item.count > 0 && <a href={`/antecedentes?sector=${slug}&service=${item.code}`}>{item.count} {item.count === 1 ? 'antecedente' : 'antecedentes'} en {name.toLowerCase()} →</a>}
-      </nav>
+      {!wineryFire && (!example || caseScene) && <div class="system-scene">
+        {caseScene ? <WorkScene content={caseScene} /> : <ServiceScene code={item.code} sector={slug} />}
+      </div>}
+      {miningRadio && <section class="radio-assessment" aria-labelledby="radio-assessment-title">
+        <div>
+          <h3 id="radio-assessment-title">Qué relevar entre la base y el campamento</h3>
+          <ul role="list">
+            <li><strong>Extremos</strong><span>Ubicación de ambos sitios y distancia aproximada.</span></li>
+            <li><strong>Trayecto</strong><span>Relieve, obstáculos y altura disponible para montar antenas.</span></li>
+            <li><strong>Operación</strong><span>Alimentación disponible y qué debe pasar por el enlace: datos, voz o video.</span></li>
+          </ul>
+        </div>
+        {miningReference && <a class="radio-reference" href={miningReference.href + '?desde=ejemplo-mineria' + (miningFromHome ? '&via=inicio' : '')}>
+          <small>Obra comparable en Industria · UM-{miningReference.id}</small>
+          <strong>Radioenlace punto a punto para Nucete <ArrowUpRight size={16} aria-hidden="true" /></strong>
+          <span>Ver qué se instaló en los dos extremos.</span>
+        </a>}
+      </section>}
+      <div class:list={['system-next', { 'has-docs': SERVICE_SPECS[item.code] }]}>
+        <div class="system-evidence">
+          <JourneyAction code={item.code} sector={slug} story={story} />
+          <nav class="system-links" aria-label={`Más sobre ${item.name}`}>
+            <a href={`/servicios/${item.code}#${relatedGroup ? relatedGroup[1].anchor : 'provision'}`}>{relatedGroup ? relatedGroup[0] : 'Desglose del servicio'} →</a>
+            {item.count > 0 && <a href={`/antecedentes?sector=${slug}&service=${item.code}#obras-filtradas`}>{item.count} {item.count === 1 ? 'antecedente' : 'antecedentes'} en {name.toLowerCase()} →</a>}
+          </nav>
+        </div>
+        {SERVICE_SPECS[item.code] && <DeliveryDocuments spec={SERVICE_SPECS[item.code]} sector={slug} compact expanded={item === requestedItem} />}
+      </div>
     </div>
   </details>})}
   </div>
@@ -64,28 +87,68 @@ const intro=intros[slug] || ['Integración por sistema',`Tecnología para ${name
  </div>
 </section>
 <style>
-.sector-systems { padding-top:var(--s4); }
-.zone-shortcut { display:inline-flex;align-items:center;min-height:48px;text-decoration:underline;text-underline-offset:4px; }.task{display:grid;gap:4px;text-align:left}.task small{color:var(--ink-2);font-size:.875rem;font-weight:400}.system-name{display:flex;align-items:center;gap:14px}.system-name :global(svg){flex:none}header{max-width:880px;margin-bottom:32px}header h2{max-width:22ch}header p{margin-top:16px;color:var(--ink-2)}.eyebrow{font-size:.875rem;letter-spacing:.06em}.systems{border-top:1px solid var(--line)}details{scroll-margin-top:calc(var(--top-h,66px) + 16px);border-bottom:1px solid var(--line)}summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;min-height:68px;font-size:1.25rem;font-weight:600;padding:16px 4px}summary::-webkit-details-marker{display:none}summary:focus-visible{outline:2px solid var(--red);outline-offset:4px}details[open] summary{color:var(--red-text)}details[open] summary > :global(svg){transform:rotate(180deg)}.system-body {
-  display:grid;
-  grid-template-columns:minmax(220px,.8fr) minmax(0,1.5fr);
-  grid-template-areas:"description scene" "evidence scene" "links scene";
-  grid-template-rows:auto auto 1fr;
-  gap:12px clamp(24px,4vw,56px);
-  padding:12px 0 32px;
-  align-items:start;
-}
-.system-body.text-only {grid-template-columns:minmax(0,65ch);grid-template-areas:"description" "evidence" "links";}
-.system-description { grid-area:description; color:var(--ink-2); line-height:1.6; }
-.system-scene { grid-area:scene; min-width:0; }
-.system-evidence { grid-area:evidence; min-width:0; }
-.system-links { grid-area:links; display:flex; flex-wrap:wrap; gap:0 18px; }
-.system-links a,.zone-shortcut { display:inline-flex; align-items:center; min-height:44px; text-underline-offset:4px; text-decoration:underline; }
-@media(max-width:900px) {
-  .system-body {
-    grid-template-columns:minmax(0,1fr);
-    grid-template-areas:"description" "scene" "evidence" "links";
-    grid-template-rows:auto;gap:12px;
+  .sector-systems { padding-top:var(--s4); }
+  header { max-width:880px; margin-bottom:32px; }
+  header h2 { max-width:22ch; }
+  header p { margin-top:16px; color:var(--ink-2); }
+  .eyebrow { font-size:.875rem; letter-spacing:.06em; }
+  .systems { border-top:1px solid var(--line); }
+  details { border-bottom:1px solid var(--line); }
+  [data-system-body] { scroll-margin-top:84px; }
+  summary {
+    display:flex; justify-content:space-between; align-items:center;
+    min-height:68px; padding:16px 4px; cursor:pointer; list-style:none;
+    font-size:1.25rem; font-weight:600;
   }
-  summary {font-size:1.125rem;}
-}
+  summary::-webkit-details-marker { display:none; }
+  summary:focus-visible { outline:2px solid var(--red); outline-offset:4px; }
+  details[open] summary { color:var(--red-text); }
+  details[open] summary > :global(svg) { transform:rotate(180deg); }
+  .system-name { display:flex; align-items:center; gap:14px; }
+  .system-name :global(svg) { flex:none; }
+  .task { display:grid; gap:4px; text-align:left; }
+  .task small { color:var(--ink-2); font-size:.875rem; font-weight:400; }
+
+  .system-body { display:grid; gap:clamp(16px,2vw,28px); padding:12px 0 32px; }
+  .system-description { max-width:68ch; color:var(--ink-2); line-height:1.6; }
+  .system-scene,.system-evidence { min-width:0; }
+  .radio-assessment {
+    display:grid;
+    grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);
+    align-items:start;
+    gap:18px clamp(24px,4vw,64px);
+    padding-block:18px;
+    border-block:1px solid var(--line);
+  }
+  .radio-assessment h3 { font-size:clamp(1.2rem,1.8vw,1.55rem); }
+  .radio-assessment ul { padding:0; margin:12px 0 0; list-style:none; }
+  .radio-assessment li { display:grid; grid-template-columns:7rem minmax(0,1fr); gap:4px 12px; padding-block:8px; border-top:1px solid var(--line); }
+  .radio-assessment li span { color:var(--ink-2); }
+  .radio-reference { display:grid; gap:6px; padding:18px; color:#141818; background:#e8eae5; border-top:3px solid var(--red); }
+  .radio-reference small,.radio-reference span { color:#414c48; }
+  .radio-reference strong { line-height:1.3; }
+  .radio-reference :global(svg) { display:inline-block; vertical-align:middle; margin-left:4px; }
+  .radio-reference:is(:hover,:focus-visible) strong { text-decoration:underline; text-underline-offset:.2em; }
+  @media(max-width:730px) { .radio-assessment { grid-template-columns:minmax(0,1fr); } }
+  @media(max-width:430px) { .radio-assessment li { grid-template-columns:minmax(0,1fr); } }
+  .system-next { display:grid; align-items:start; gap:16px clamp(20px,3vw,48px); }
+  .system-next.has-docs { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .system-evidence :global(.next-step) { margin-top:0; }
+  .system-links { display:flex; flex-wrap:wrap; gap:0 18px; border-top:1px solid var(--line); }
+  .system-links a,.zone-shortcut {
+    display:inline-flex; align-items:center; min-height:44px;
+    text-underline-offset:4px; text-decoration:underline;
+  }
+  .zone-shortcut { margin-top:6px; }
+  .system-origin {
+    display:inline-flex; align-items:center; min-height:44px;
+    color:var(--ink-2); text-decoration:underline; text-underline-offset:4px;
+  }
+  .system-origin:is(:hover,:focus-visible) { color:var(--ink); }
+  @media(max-width:900px) {
+    summary { font-size:1.125rem; }
+  }
+  @media(max-width:760px) {
+    .system-next.has-docs { grid-template-columns:minmax(0,1fr); }
+  }
 </style>

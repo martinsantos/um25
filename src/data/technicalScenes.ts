@@ -7,6 +7,7 @@ export type TechnicalContent = {
   title: string;
   description: string;
   accessible: string;
+  radioSites?: readonly [string, string];
   steps: readonly (readonly [string, string])[];
 };
 const network: TechnicalContent = {
@@ -56,7 +57,20 @@ const services: Partial<Record<string, TechnicalContent>> = {
   "103": radio,
   "107": fire,
 };
-export const technicalSceneForService = (code: string) => services[code];
+const miningRadio: TechnicalContent = {
+  ...radio,
+  title: "Radioenlace entre la base y el campamento",
+  radioSites: ["Base operativa", "Campamento"],
+  description: "Para evaluar un enlace se relevan la distancia y la visibilidad entre los dos sitios.",
+  accessible: "Una antena en la base envía una solicitud al campamento. La antena del campamento devuelve la respuesta a la base.",
+  steps: [
+    ["Relevamiento", "Se verifica la línea de vista entre los dos sitios."],
+    ["Solicitud", "La base envía datos a la red del campamento."],
+    ["Respuesta", "Los datos del campamento regresan a la base."],
+  ],
+};
+export const technicalSceneForService = (code: string, sector?: string) =>
+  code === "103" && sector === "mineria" ? miningRadio : services[code];
 
 /** Only reviewed identities and recorded scope get a project-specific scene. */
 export function technicalSceneForCase(story: {

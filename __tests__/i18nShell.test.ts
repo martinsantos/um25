@@ -15,7 +15,7 @@ describe('English shell locale', () => {
       name: 'Networks', text: 'Certified structured cabling and fiber optics.',
     });
     expect(shellSectorCopy('en', 'aeropuertos', 'Aeropuertos', 'texto')).toEqual({
-      name: 'Airports', text: '24/7 perimeter CCTV',
+      name: 'Airports', text: 'Airfield access control and fire detection',
     });
     expect(shellServiceCopy('es', '101', 'Redes', 'Cableado')).toEqual({ name: 'Redes', text: 'Cableado' });
     expect(shellSectorCopy('es', 'aeropuertos', 'Aeropuertos', 'CCTV')).toEqual({ name: 'Aeropuertos', text: 'CCTV' });

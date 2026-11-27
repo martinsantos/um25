@@ -1,6 +1,8 @@
+import { matchesCatalogSector } from './catalogFilters';
 import type { Caso } from './relato';
 import type { Story } from './isoData';
 import { isNamedClient } from './catalogEditorial';
+import { publicCaseFor } from './casePresentation';
 
 export type SelectedCase = { caso: Caso; pub: Story };
 export const projectMediaKey = (image: string) => image.replace(/-(?:480|960|1600)\.(?:webp|avif|jpg)$/, '').replace(/\.(?:webp|avif|jpg)$/, '');
@@ -42,11 +44,21 @@ export function selectCaseProjects(casos: Caso[], stories: Story[], candidates?:
   const curated = casos.filter(caso => caso.publicado).map(caso => ({ caso, pub: stories.find(s => s.id === caso.publicado) }));
   const ranked = (candidates || []).filter(s => s.estado !== 'pendiente').slice().sort((a,b) =>
     Number(b.summary.length > 40 && !isCaseBoilerplate(b.summary)) - Number(a.summary.length > 40 && !isCaseBoilerplate(a.summary)));
-  // A documented, individually reviewed photograph gets the first visible
-  // slots. Unreviewed records remain accessible in the catalog and gallery.
-  for (const reviewed of [true, false]) {
-    for (const { caso, pub } of curated) if (Boolean(pub?.image.startsWith('/images/photography/')) === reviewed) add(caso, pub);
-    for (const pub of ranked) if (pub.image.startsWith('/images/photography/') === reviewed) add({ id: pub.id, publicado: pub.id, titulo: pub.title, cliente: pub.client, year: pub.year, sector: pub.sectorSlug, servicios: pub.serviceCodes, texto: pub.summary }, pub);
+  const entries: SelectedCase[] = [];
+  for (const { caso, pub } of curated) if (pub) entries.push({ caso, pub });
+  for (const pub of ranked) entries.push({ caso: { id: pub.id, publicado: pub.id, titulo: pub.title, cliente: pub.client, year: pub.year, sector: pub.sectorSlug, servicios: pub.serviceCodes, texto: pub.summary }, pub });
+  // Retain editorial order within each tier; the live identity must still support the scope.
+  const ordered = entries.map(entry => ({
+    entry,
+    detailed: Boolean(publicCaseFor(entry.pub)),
+    documented: Boolean(entry.pub.documentedScope),
+    reviewedPhoto: entry.pub.image.startsWith('/images/photography/'),
+  })).sort((a, b) => Number(b.detailed) - Number(a.detailed)
+    || Number(b.documented) - Number(a.documented)
+    || Number(b.reviewedPhoto) - Number(a.reviewedPhoto));
+  for (const { entry } of ordered) {
+    if (selected.length >= max) break;
+    add(entry.caso, entry.pub);
   }
   return selected;
 }
@@ -80,8 +92,9 @@ export function sectorReference(slug: string, candidates: readonly Story[]) {
   const ids: Record<string, number> = {
     aeropuertos: 3126, bodegas: 3190, constructoras: 3588,
     gobiernosectorpublico: 3064, industria: 3624, salud: 3103,
+    software: 3348, 'seguridad-electronica': 3104,
   };
-  return candidates.find(story => story.id === ids[slug] && story.sectorSlug === slug && isNamedClient(story.client));
+  return candidates.find(story => story.id === ids[slug] && matchesCatalogSector(story.sectorSlug, story.serviceCodes, slug) && isNamedClient(story.client));
 }
 
 /** Withhold ambiguous placements from the showcase, retaining their catalog record. */

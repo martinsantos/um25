@@ -1,51 +1,130 @@
 ---
 /** Documentación técnica (2026-10-30): lo que entrega cada obra (página de certificaciones) y las fichas técnicas de cada servicio. No indexable. */
 import '../../styles/proto-despiece.css';
+import { ArrowRight, ArrowUpRight, Download } from 'lucide-astro';
 import Head from '../../components/proto/Head.astro';
 import Top from '../../components/proto/Top.astro';
 import Cierre from '../../components/proto/Cierre.astro';
-import { CUMPLIMIENTO } from '../../components/proto/relato';
+import DossierObraPortada from '../../components/proto/DossierObraPortada.astro';
+import { loadStories } from '../../components/proto/isoData';
+import { publicCaseFor } from '../../components/proto/casePresentation';
 import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
 import { getDatasheetPublicPath } from '../../utils/datasheets';
 
+import { contactLink } from '../../lib/contactEntry';
+
 export const prerender = false;
 const fichas = SERVICE_SPEC_LIST.map((s) => ({ ...s, pdf: getDatasheetPublicPath(s.slug) }));
+const { stories } = await loadStories();
+const obra = stories.find(story => story.id === 3102 && Boolean(publicCaseFor(story)));
+const dossierHref = contactLink(Astro.url.pathname, '/contacto?intent=documentacion');
 ---
 <!doctype html>
 <html lang="es">
   <head>
     <Head title="Documentación técnica para compras, auditorías y licitaciones · ULTIMA MILLA" description="Protocolos, mediciones y documentación de obra que respaldan cada proyecto, listos para compras, auditoría o pliego." />
     <style>
+      .indice { --columnas: minmax(0, 1fr) minmax(0, 2.1fr) 6rem; }
       .fichas-tec { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
-      .fichas-tec li { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 4fr) minmax(0, 3fr) auto; gap: var(--s2) var(--s4); padding: var(--s3) 0; border-bottom: 1px solid var(--line-2); align-items: baseline; }
-      .fichas-tec b { font-size: 1.15rem; font-weight: 600; }
-      .fichas-tec span { color: var(--ink-2); }
-      .fichas-tec .small { color: var(--ink-3); }
-      .fichas-tec a { color: var(--ink); border-bottom: 1px solid var(--red); white-space: nowrap; }
-      @media (max-width: 900px) { .fichas-tec li { grid-template-columns: 1fr; gap: 6px; } }
+      .columnas, .fichas-tec li { display: grid; grid-template-columns: var(--columnas); align-items: center; gap: var(--s3); }
+      .columnas { padding-block: var(--s2); color: var(--ink-2); font-size: .9375rem; }
+      .columnas div, .fichas-tec dl { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--s3); }
+      .fichas-tec li { padding-block: var(--s2); border-bottom: 1px solid var(--line-2); scroll-margin-top: 6rem; }
+      .fichas-tec li:target { box-shadow: inset 3px 0 var(--red); padding-inline-start: var(--s2); }
+      .fichas-tec h3 { font-size: clamp(1.1rem, 1.6vw, 1.4rem); line-height: 1.2; }
+      .fichas-tec dl, .fichas-tec dd { margin: 0; }
+      .fichas-tec dd { line-height: 1.45; }
+      .fichas-tec dt { position: absolute; clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden; }
+      .fichas-tec a { display: inline-flex; gap: 8px; align-items: center; min-height: 44px; color: var(--ink); }
+      .fichas-tec :global(svg) { flex: none; }
+      .fichas-tec h3 :global(svg) { color: var(--red); }
+      .fichas-tec a:hover, .fichas-tec a:focus-visible { text-decoration: underline; text-underline-offset: .22em; }
+      .pdf { justify-self: end; }
+      .doc-actions { margin-block:8px 0; gap:4px 18px; }
+      .doc-actions .u { display:inline-flex; align-items:center; gap:6px; min-height:44px; }
+      .doc-sample {
+        --empresa-paper:#e8ebea;
+        --empresa-ink:#191e21;
+        --empresa-muted:#515b60;
+        --empresa-line:#c4ccce;
+        border-top:1px solid var(--line);
+        scroll-margin-top:12px;
+      }
+      .doc-sample__grid {
+        display:grid;
+        grid-template-columns:minmax(0,4fr) minmax(0,7fr);
+        grid-template-areas:"intro muestra" "dossier muestra";
+        grid-template-rows:auto 1fr;
+        gap:var(--s3) clamp(28px,5vw,76px);
+        align-items:start;
+      }
+      .doc-sample__intro { grid-area:intro; }
+      .doc-sample__intro h2 { font-size:clamp(1.9rem,3.2vw,3.1rem); }
+      .doc-sample__intro p { max-width:43ch; color:var(--ink-2); margin:12px 0 8px; }
+      .doc-sample__intro .u { display:inline-flex; align-items:center; min-height:44px; gap:6px; }
+      .doc-sample__intro svg { flex:none; }
+      .dossier-request { grid-area:dossier; padding-top:var(--s3); border-top:1px solid var(--line); scroll-margin-top:12px; }
+      .dossier-request p { max-width:43ch; color:var(--ink-2); margin:12px 0 8px; }
+      .dossier-request .btn { margin-top:8px; max-width:100%; }
+      @media (max-width:860px) {
+        .doc-sample__grid { grid-template-columns:minmax(0,1fr); grid-template-areas:"intro" "muestra" "dossier"; grid-template-rows:auto; }
+      }
+      @media (max-width: 780px) {
+        .columnas { display: none; }
+        .fichas-tec li { grid-template-columns: minmax(0, 1fr) auto; gap: 4px var(--s1); padding-block: var(--s2); }
+        .fichas-tec dl { grid-row: 2; grid-column: 1/-1; grid-template-columns: 1fr; gap: 6px; }
+        .fichas-tec dl div { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: var(--s1); }
+        .fichas-tec dt { position: static; width: auto; height: auto; overflow: visible; clip-path: none; color: var(--ink-2); line-height: 1.45; }
+        .pdf { grid-row: 1; grid-column: 2; }
+      }
     </style>
   </head>
   <body>
     <Top />
-    <main id="contenido">
+    <main id="contenido" tabindex="-1">
     <div class="wrap">
       <div class="cabecera">
-        <h1>Documentación técnica para compras, auditorías y licitaciones<span class="dot">.</span></h1>
-        <p>ULTIMA MILLA entrega con cada proyecto los protocolos, las mediciones y la documentación de obra que respaldan lo ejecutado, listos para compras, auditoría o pliego.</p>
-        <div class="action-links"><a class="btn" href="#fichas-tecnicas">Descargar fichas técnicas <span aria-hidden="true">↓</span></a><a class="u" href="/contacto">Solicitar un dossier</a></div>
+        <h1>Documentación técnica<span class="dot">.</span></h1>
+        <p>Compará los entregables de cada servicio y mirá cómo documentamos una instalación para que se pueda operar y mantener.</p>
+        <div class="action-links doc-actions">
+          <a class="btn" href="#fichas-tecnicas">Ver fichas por servicio <span aria-hidden="true">↓</span></a>
+          <a class="u" href="#muestra-de-obra">Ver muestra de obra <span aria-hidden="true">↓</span></a>
+          <a class="u" href={dossierHref}>Solicitar un dossier <ArrowUpRight size={15} aria-hidden="true" /></a>
+        </div>
       </div>
     
     </div>
-    <section class="sec">
+    <section class="sec indice" id="fichas-tecnicas" tabindex="-1" aria-labelledby="titulo-fichas">
       <div class="wrap">
-        <div class="sec__head"><h2>Cada obra se entrega medida, documentada y trazable<span class="dot">.</span></h2></div>
-        <div class="cols cols-3">{CUMPLIMIENTO.map(([t, d]) => <div class="item"><h3>{t}</h3><p>{d}</p></div>)}</div>
+        <div class="sec__head"><h2 id="titulo-fichas">Fichas por servicio<span class="dot">.</span></h2></div>
+        <div class="columnas" aria-hidden="true"><span>Servicio</span><div><span>Entregable</span><span>Criterio técnico</span></div></div>
+        <ol class="fichas-tec" role="list">{fichas.map((f) => (
+          <li id={`ficha-${f.code}`} tabindex="-1">
+            <h3><a href={`/servicios/${f.code}/ficha?desde=documentacion`} aria-label={`Ver ficha de ${f.name}`}>
+              {f.name}<ArrowRight size={17} aria-hidden="true" />
+            </a></h3>
+            <dl>
+              <div><dt>Entregable</dt><dd>{f.keyDeliverable}</dd></div>
+              <div><dt>Criterio técnico</dt><dd>{f.keyStandard}</dd></div>
+            </dl>
+            {f.pdf && <a class="pdf" href={f.pdf} download aria-label={`Descargar PDF de ${f.name}`}><Download size={17} aria-hidden="true" />PDF</a>}
+          </li>
+        ))}</ol>
       </div>
     </section>
-    <section class="sec" id="fichas-tecnicas">
-      <div class="wrap">
-        <div class="sec__head"><h2>Fichas técnicas por servicio<span class="dot">.</span></h2></div>
-        <ol class="fichas-tec">{fichas.map((f) => <li><b>{f.name}</b><span>{f.keyDeliverable}</span><span class="small">{f.keyStandard}</span>{f.pdf ? <a href={f.pdf} download>Descargar PDF</a> : <a href={`/servicios/${f.code}`}>Ver servicio</a>}</li>)}</ol>
+    <section class="sec doc-sample" id="muestra-de-obra" tabindex="-1" aria-labelledby="muestra-titulo">
+      <div class="wrap doc-sample__grid">
+        <div class="doc-sample__intro">
+          <h2 id="muestra-titulo">Documentación para operar la instalación<span class="dot">.</span></h2>
+          <p>El inventario identifica lo que se instaló. Los planos y protocolos de entrega, según el alcance, ayudan al equipo que recibe la obra a localizar los equipos, revisar las pruebas y planificar ampliaciones.</p>
+          {obra && <a class="u" href={obra.href}>Ver la ficha de General Las Heras <ArrowUpRight size={15} aria-hidden="true" /></a>}
+        </div>
+        <DossierObraPortada story={obra} headingLevel={3} />
+        <div class="dossier-request" id="dossier" tabindex="-1">
+          <h3>Dossier para compras, auditorías y licitaciones</h3>
+          <p>Indicá para qué lo necesitás y qué documentación te piden. Reunimos los antecedentes, protocolos y fichas pertinentes al alcance.</p>
+          <a class="btn" href={dossierHref}>Solicitar un dossier <ArrowRight size={17} aria-hidden="true" /></a>
+        </div>
       </div>
     </section>
     </main>
