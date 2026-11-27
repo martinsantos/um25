@@ -145,12 +145,11 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
 
     <div class="bx-shell">
       <BlogCategoryTabs current={cat} />
-      <BlogTopicNav />
 
       {archivePosts.length > 0 && (
         <section aria-label={`Artículos de ${catLabel.toLowerCase()}`}>
           <div class="bx-grid">
-            {archivePosts.map((post, idx) => <BlogCard post={post} headingLevel="h2" eager={idx < 3} />)}
+            {archivePosts.map((post, idx) => <BlogCard anchor post={post} headingLevel="h2" eager={idx < 3} />)}
           </div>
         </section>
       )}
@@ -164,6 +163,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=300, stale-while-re
       )}
 
       <BlogPagination page={page} totalPages={totalPages} baseHref={`/blog/categoria/${cat}`} />
+      <BlogTopicNav />
 
       <div class="bx-related">
         <IntentLinkGraph

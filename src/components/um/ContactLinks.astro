@@ -23,6 +23,50 @@
     link.href = target.href;
   }
   document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach(link => prepare(link));
+
+  // Keep the global navigation in step with an explicitly opened system or winery zone.
+  const destinations = [...document.querySelectorAll<HTMLAnchorElement>('a[data-contact-follow]')]
+    .filter(link => link.pathname === '/contacto' && !isContactPage(location.pathname))
+    .map(link => ({ link, base: link.href }));
+  function syncContact() {
+    const fragment = document.getElementById(location.hash.slice(1));
+    const picker = fragment?.closest('[data-system-picker]') || fragment?.querySelector('[data-system-picker]');
+    const system = fragment?.closest('[data-system-picker] .systems > details')
+      || picker?.querySelector('.systems > details[open]:not([hidden])');
+    const home = fragment?.closest('[data-home-service-picker]') || fragment?.querySelector('[data-home-service-picker]');
+    const service = home?.querySelector<HTMLInputElement>('input[name="frente-portada"]:checked')?.value;
+    const zone = document.querySelector<HTMLElement>('.winery [data-zone-panel]:not([hidden])');
+    const requestedZone = new URLSearchParams(location.search).get('zona');
+    const inWinery = fragment?.closest('.winery') || requestedZone === zone?.dataset.zonePanel;
+    const panel = system || (inWinery ? zone : null);
+    const action = panel?.querySelector<HTMLAnchorElement>('a[data-contact-question]');
+    for (const { link, base } of destinations) {
+      if (action) {
+        const target = new URL(action.href);
+        const intent = new URL(base).searchParams.get('intent');
+        if (intent && !target.searchParams.has('intent')) target.searchParams.set('intent', intent);
+        link.href = target.href;
+      } else if (service && /^10[1-8]$/.test(service)) {
+        const target = new URL(base);
+        target.searchParams.set('sistema', service);
+        target.searchParams.set('desde', 'inicio-servicios');
+        link.href = target.href;
+      } else if (system?.closest('[data-provision]')) {
+        const general = new URL(base);
+        general.searchParams.delete('grupo');
+        general.searchParams.delete('antecedente');
+        link.href = general.href;
+      } else link.href = base;
+    }
+  }
+  if (destinations.length) {
+    syncContact();
+    window.addEventListener('hashchange', syncContact);
+    window.addEventListener('pageshow', syncContact);
+    window.addEventListener('umsa:zone-selected', syncContact);
+    window.addEventListener('umsa:system-selected', syncContact);
+    window.addEventListener('umsa:home-service-selected', syncContact);
+  }
   document.addEventListener('click', event => {
     const link = event.target instanceof Element && event.target.closest<HTMLAnchorElement>('a[href]');
     if (link) prepare(link, true);

@@ -1,42 +1,80 @@
 ---
-import { ArrowUpRight } from 'lucide-astro';
-import type { Project } from './portadaCases';
+import { ArrowDown, ArrowUpRight, ChevronDown } from 'lucide-astro';
+import { homeWorkLink, type Project } from './portadaCases';
 import { srcsetDe } from './isoData';
+import ProjectEvidence from './ProjectEvidence.astro';
 interface Props {
   obras: Project[];
   title?: string;
   inset?: boolean;
   compact?: boolean;
+  fold?: boolean;
+  continuation?: boolean;
+  home?: boolean;
+  destinationLanguage?: 'es-AR';
   jump?: { label: string; href: string };
 }
-const { obras, title = 'Obras destacadas', inset = false, compact = false,
+const { obras, title = 'Obras destacadas', inset = false, compact = false, fold = false, continuation = false, home = false, destinationLanguage,
   jump = { label:'Todos los antecedentes', href:'/antecedentes' } } = Astro.props;
+const sectionId = continuation ? 'mas-obras' : 'casos';
+const headingId = continuation ? 'mas-obras-titulo' : 'obras-titulo';
+const JumpIcon = jump.href.startsWith('#') ? ArrowDown : ArrowUpRight;
+const more = obras.length - 1;
+const folded = fold && more > 0;
+const groups = folded
+  ? [{ items: obras.slice(0, 1), offset: 0 }, { items: obras.slice(1), offset: 1 }]
+  : [{ items: obras, offset: 0 }];
 ---
-{obras.length > 0 && <section id="casos" data-obras-portada class:list={['seleccion',{inset,compact}]} aria-labelledby="obras-titulo">
+{obras.length > 0 && <section id={sectionId} tabindex="-1" data-obras-portada class:list={['seleccion',{inset,compact}]} aria-labelledby={headingId}>
   <div class:list={[!inset && 'wrap']}>
-    <header><h2 id="obras-titulo">{title}<span class="dot">.</span></h2>
-      <a href={jump.href}>{jump.label}<ArrowUpRight size={16} aria-hidden="true" /></a></header>
-    <div class="obras">
-      {obras.map((obra,i) => {
-        const image = obra.contextImage || obra.image;
-        const kind = i === 0 ? 'principal' : i < 3 ? 'lateral' : i < 6 ? 'media' : 'breve';
-        return <article id={'obra-'+obra.key} data-obra={obra.key} class:list={[kind,{ilustrada:Boolean(image)}]}>
-          {image && <figure><img src={image} srcset={srcsetDe(image)}
-            sizes={kind === 'principal' ? '(max-width:700px) 94vw, 53vw' : kind === 'breve' ? '(max-width:700px) 24vw, 130px' : '(max-width:700px) 50vw, 32vw'}
-            width="960" height="540" loading={i===0 ? 'eager':'lazy'} decoding="async" alt="" /></figure>}
-          <div class="detalle">
-            <p class="cliente">{obra.client}</p>
-            {!image && obra.measure && <p class="medida"><b>{obra.measure[0]}</b> {obra.measure[1]}</p>}
-            <h3>{obra.title}</h3>
-            {obra.fact && <p class="dato">{obra.fact}</p>}
-            {i===0 && <p class="alcance">{obra.scope}</p>}
-            <div class="destinos">{obra.links.map(link=><a href={link.href} aria-label={link.label+' · '+obra.title}>{link.label}<ArrowUpRight size={14} aria-hidden="true" /></a>)}</div>
-          </div>
-        </article>;
-      })}
-    </div>
+    <header><h2 id={headingId}>{title}<span class="dot">.</span></h2>
+      {!fold && <a href={jump.href} hreflang={destinationLanguage}>{jump.label}<JumpIcon size={16} aria-hidden="true" /></a>}</header>
+    {groups.map(({ items, offset }) => {
+      const Group = offset ? 'details' : 'div';
+      return <Group class:list={[offset && 'resto-obras']} data-obras-plegadas={offset ? '' : undefined}>
+        {offset > 0 && <summary>Ver {more === 1 ? 'otra obra' : `otras ${more} obras`} <ChevronDown size={18} aria-hidden="true" /></summary>}
+        <div class:list={['obras', { 'obras--lead': fold && offset === 0 }]}>
+          {items.map((obra,i) => {
+            const image = obra.contextImage || obra.image;
+            const caseScope = obra.editorialScope;
+            const evidence = obra.editorialEvidence;
+            const position = i + (continuation ? 3 : offset);
+            const kind = position === 0 ? 'principal' : position < 3 ? 'lateral' : position < 6 ? 'media' : 'breve';
+            const sizes = fold && kind === 'principal'
+              ? '(max-width:640px) 94vw, 35vw'
+              : caseScope && kind === 'lateral'
+              ? '(max-width:640px) 94vw, (max-width:850px) 37vw, 15vw'
+              : kind === 'principal' ? '(max-width:700px) 94vw, 53vw'
+              : kind === 'breve' ? '(max-width:700px) 24vw, 130px' : '(max-width:700px) 50vw, 32vw';
+            return <article id={'obra-'+obra.key} data-obra={obra.key} class:list={[kind,{ilustrada:Boolean(image), directa:obra.links.length === 1, narrada:Boolean(caseScope)}]}>
+              {image && <figure><img src={image} srcset={srcsetDe(image)}
+                sizes={sizes}
+                width="960" height="540" loading={kind === 'principal' ? 'eager' : 'lazy'} decoding="async" alt="" /></figure>}
+              <div class="detalle">
+                <div class="identidad">
+                  <p class="cliente">{obra.client}</p>
+                  {!image && !caseScope && obra.measure && <p class="medida"><b>{obra.measure[0]}</b> {obra.measure[1]}</p>}
+                  <h3>{obra.title}</h3>
+                </div>
+                {!caseScope && obra.fact && <p class="dato">{obra.fact}</p>}
+                {(caseScope || kind === 'principal') && <p class="alcance">{caseScope || obra.scope}</p>}
+                {evidence && <ProjectEvidence evidence={evidence} light={kind === 'principal'} /> }
+                <div class="destinos">{obra.links.map((link, position) => {
+                  const target = home ? homeWorkLink(link.href, obra.key, 'obras-inicio', position) : { href: link.href, id: undefined };
+                  return <a id={target.id} data-regreso-obra={sectionId + "-" + obra.key} href={target.href}
+                    hreflang={destinationLanguage} aria-label={link.label+' · '+obra.title}>{link.label}<ArrowUpRight size={14} aria-hidden="true" /></a>;
+                })}</div>
+              </div>
+            </article>;
+          })}
+        </div>
+      </Group>;
+    })}
   </div>
 </section>}
+<script>
+  import './regresoObraPortada';
+</script>
 <style>
   .seleccion { container: obras / inline-size; padding-block:clamp(26px,4vw,66px); scroll-margin-top:var(--top-h); }
   .inset { border-top:1px solid var(--line); }
@@ -46,8 +84,27 @@ const { obras, title = 'Obras destacadas', inset = false, compact = false,
   a:hover { text-decoration:underline; text-underline-offset:4px; }
   a:focus-visible { outline:2px solid currentColor; outline-offset:2px; }
   .obras { display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:clamp(16px,2vw,30px); }
+  .obras--lead .principal { grid-column:1 / -1; grid-row:auto; }
+  .resto-obras { margin-top:12px; border-bottom:1px solid var(--line); }
+  .resto-obras summary { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:48px; cursor:pointer; font-weight:600; list-style:none; }
+  .resto-obras summary::-webkit-details-marker { display:none; }
+  .resto-obras[open] summary :global(svg) { transform:rotate(180deg); }
+  .resto-obras .obras { margin-block:12px 24px; }
+  @container obras (min-width:641px) {
+    .obras--lead .principal.ilustrada { display:grid; grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr); grid-template-rows:auto; align-items:stretch; }
+    .obras--lead .principal figure { position:relative; aspect-ratio:auto; min-height:0; }
+    .obras--lead .principal img { position:absolute; inset:0; }
+    .resto-obras .lateral { grid-column:span 6; }
+  }
   article { min-width:0; scroll-margin-top:calc(var(--top-h) + 12px); }
-  article:target { outline:2px solid var(--red); outline-offset:4px; }
+  .directa { position:relative; isolation:isolate; }
+  .directa .destinos a::after { content:''; position:absolute; inset:0; z-index:1; }
+  .directa .detalle p { position:relative; z-index:2; width:fit-content; }
+  .directa:has(a:focus-visible) { outline:2px solid currentColor; outline-offset:3px; }
+  @media (hover:hover) {
+    .directa:has(a:hover) h3 { text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:.13em; }
+  }
+  article:target, article:has(.destinos a:target) { outline:2px solid var(--red); outline-offset:4px; }
   figure { min-width:0; margin:0; overflow:hidden; }
   img { display:block; width:100%; height:100%; object-fit:cover; }
   .cliente,.dato { font-size:.92rem; line-height:1.4; font-weight:570; }
@@ -57,11 +114,29 @@ const { obras, title = 'Obras destacadas', inset = false, compact = false,
   .destinos { display:flex; flex-wrap:wrap; gap:0 16px; margin-top:3px; }
   .principal { grid-column:span 7; grid-row:span 2; background:#e8eae5; color:#141818; }
   .principal figure { aspect-ratio:2.65; }
+  @container obras (min-width:851px) {
+    .narrada.principal { display:grid; grid-template-rows:1fr auto; }
+    .narrada.principal figure {
+      position:relative;
+      min-height:clamp(220px,20vw,340px);
+      aspect-ratio:auto;
+    }
+    .narrada.principal img { position:absolute; inset:0; }
+  }
   .principal .detalle { padding:clamp(18px,2vw,32px); }
   .principal .cliente { color:#434e49; }
   .principal h3 { font-size:clamp(1.55rem,2.55vw,2.7rem); max-width:26ch; }
   .lateral { grid-column:span 5; display:grid; grid-template-columns:minmax(0,.78fr) minmax(0,1fr); gap:18px; align-items:center; border-top:1px solid var(--line); padding-top:12px; }
+  .narrada.lateral { grid-template-columns:minmax(0,.6fr) minmax(0,1fr); }
+  .narrada:not(.principal) .alcance { font-size:.96rem; color:var(--ink-2); }
+  .principal :global(.evidencia) { max-width:44ch; }
+  .narrada .destinos { column-gap:14px; }
+  .narrada .destinos a { text-decoration:underline; text-decoration-color:var(--line); text-underline-offset:4px; }
+  .narrada.principal .destinos a { text-decoration-color:#9ba19d; }
+  .narrada .destinos a:hover { text-decoration-color:currentColor; }
   .lateral figure { height:100%; min-height:100px; }
+  .narrada.lateral { align-items:start; }
+  .narrada.lateral figure { height:auto; aspect-ratio:4/5; }
   .media { grid-column:span 4; border-top:2px solid var(--line); padding-top:12px; }
   .media figure { aspect-ratio:2; margin-bottom:13px; }
   .medida { margin:8px 0 12px; display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 9px; font-size:.95rem; }
@@ -73,16 +148,25 @@ const { obras, title = 'Obras destacadas', inset = false, compact = false,
   .compact h2 { font-size:clamp(1.65rem,2.3vw,2.4rem); }
   @container obras (max-width:850px) {
     .principal {grid-column:span 7;}
-    .lateral {grid-template-columns:1fr;align-content:start;gap:8px;}
+    .lateral,.narrada.lateral {grid-template-columns:1fr;align-content:start;gap:8px;}
     .lateral figure {height:100px;}
+    .narrada.lateral figure {min-height:0; aspect-ratio:2;}
     .breve {grid-column:span 6;grid-template-columns:1fr;}
   }
   @container obras (max-width:640px) {
     .obras {grid-template-columns:1fr;gap:20px;}
     .principal,.lateral,.media,.breve {grid-column:auto;grid-row:auto;}
     .principal figure {aspect-ratio:2;}
-    .lateral,.media,.breve {display:grid;grid-template-columns:30% minmax(0,1fr);gap:12px;align-items:start;border-top:1px solid var(--line);padding-top:14px;}
+    .lateral,.narrada.lateral,.media,.breve {display:grid;grid-template-columns:30% minmax(0,1fr);gap:12px;align-items:start;border-top:1px solid var(--line);padding-top:14px;}
     .lateral figure,.media figure,.breve figure {height:auto;min-height:0;aspect-ratio:1;margin:0;}
+    .narrada:not(.principal) .detalle { display:contents; }
+    .narrada.ilustrada:not(.principal) .identidad { grid-column:2; align-self:center; }
+    .narrada:not(.ilustrada) .identidad,.narrada:not(.principal) :is(.alcance,.destinos) { grid-column:1 / -1; }
+    .narrada:not(.principal) :global(.evidencia) { grid-column:1 / -1; margin-top:0; }
+    .narrada:not(.principal) .alcance { margin-top:0; }
+    .narrada.lateral figure { grid-column:1 / -1; aspect-ratio:2.15; }
+    .narrada.ilustrada.lateral .identidad { grid-column:1 / -1; }
+    .narrada:not(.principal) .destinos { margin-top:-6px; }
     .medida b {font-size:2.4rem;}
   }
 </style>

@@ -1,7 +1,12 @@
 /** GIFs are loaded only for the diagram the visitor can see. */
 export function initFlowMotion(root: Document) {
   if (typeof IntersectionObserver === 'undefined') return;
-  const diagrams = [...root.querySelectorAll<HTMLElement>('[data-flow-gif]:not([data-flow-ready])')];
+  const frames = new Map<Element, HTMLElement>();
+  root.querySelectorAll<HTMLElement>('[data-flow-gif]:not([data-flow-ready])').forEach(diagram => {
+    const frame = diagram.querySelector('[data-flow-art]');
+    if (frame) frames.set(frame, diagram);
+  });
+  const diagrams = [...frames.values()];
   if (!diagrams.length) return;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const visible = new Set<HTMLElement>();
@@ -50,7 +55,8 @@ export function initFlowMotion(root: Document) {
 
   const observer = new IntersectionObserver((entries) => {
     for (const entry of entries) {
-      const diagram = entry.target as HTMLElement;
+      const diagram = frames.get(entry.target);
+      if (!diagram) continue;
       if (entry.isIntersecting && entry.intersectionRatio >= .55) visible.add(diagram);
       else {
         visible.delete(diagram);
@@ -60,7 +66,10 @@ export function initFlowMotion(root: Document) {
     update();
   }, { threshold: [0, .55] });
 
-  diagrams.forEach((diagram) => { diagram.setAttribute('data-flow-ready',''); observer.observe(diagram); });
+  frames.forEach((diagram, frame) => {
+    diagram.setAttribute('data-flow-ready', '');
+    observer.observe(frame);
+  });
   root.addEventListener('change', (event) => {
     if (event.target instanceof HTMLInputElement && event.target.matches('.selector,.detalle-control')) update();
   });
@@ -73,6 +82,6 @@ export function initFlowMotion(root: Document) {
     observer.disconnect();
   });
   window.addEventListener('pageshow', (event) => {
-    if (event.persisted) diagrams.forEach((diagram) => observer.observe(diagram));
+    if (event.persisted) frames.forEach((_diagram, frame) => observer.observe(frame));
   });
 }

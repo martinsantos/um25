@@ -1,3 +1,4 @@
+import { blogNoteHref } from '../lib/blogListingRoute';
 import { resolveCanonicalBlogSlug } from '../data/seoRedirects';
 import { generateSlug } from './slugUtils.js';
 
@@ -15,12 +16,13 @@ export function canonicalizeBlogSlug(value: unknown): string {
   return resolveCanonicalBlogSlug(clean);
 }
 
-export function canonicalizeInternalBlogLinks(html: string): string {
+export function canonicalizeInternalBlogLinks(html: string, readingReturn?: string): string {
   return String(html || '').replace(
-    /href=(["'])(?:https?:\/\/(?:www\.)?ultimamilla\.com\.ar)?\/blog\/([^"'?#]+)([^"']*)\1/gi,
-    (_match, quote: string, rawSlug: string, suffix: string) => {
-      const canonicalSlug = canonicalizeBlogSlug(rawSlug);
-      return `href=${quote}/blog/${canonicalSlug}${suffix}${quote}`;
+    /(<a\b[^>]*?\shref\s*=\s*)(["'])(?:https?:\/\/(?:www\.)?ultimamilla\.com\.ar)?\/blog\/([^"'/?#]+)\/?(\?[^"'#]*)?(#[^"']*)?\2/gi,
+    (_match, prefix: string, quote: string, rawSlug: string, query?: string, fragment?: string) => {
+      const href = blogNoteHref(canonicalizeBlogSlug(rawSlug), readingReturn);
+      const rest = readingReturn && query ? '&amp;' + query.slice(1) : (query || '');
+      return prefix + quote + href + rest + (fragment || '') + quote;
     },
   );
 }

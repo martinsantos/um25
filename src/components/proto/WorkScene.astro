@@ -57,6 +57,12 @@ const plate = content.format !== 'equipment' ? undefined : content.asset === 'di
     figcaption {border-inline-start:0;border-top:1px solid #bdc7c4;}
     .work-example :global(.catalog-scene__operation-head), .work-example :global(.catalog-scene__call-mark) {display:none;}
     .work-example :global(.catalog-scene__mechanism) {min-height:0;height:112px;flex:none;}
+    .work-example :global(.catalog-scene__mechanism:has(.catalog-scene__wave)) {
+      height:auto;min-height:108px;flex:1 0 auto;padding:12px;gap:6px;grid-template-columns:minmax(0,1fr);
+    }
+    .work-example :global(.catalog-scene__wave) { height:clamp(48px,10cqi,60px);gap:clamp(2px,.9cqi,6px); }
+    .work-example :global(.catalog-scene__wave i) { height:calc(100% * var(--bar)); }
+    .work-example :global(.catalog-scene__wave + .catalog-scene__mechanism-label) { position:static; }
     .work-example :global(.catalog-scene__operation-foot) {height:auto;padding:12px 16px;}
   }
 </style>

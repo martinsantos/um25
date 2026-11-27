@@ -4,6 +4,7 @@
  * Imagen 16:9, categoría, fecha, tiempo de lectura, título y bajada.
  */
 import type { EntradaBlog } from '../../lib/directus';
+import { blogNoteHref, resolveBlogReadingReturn } from '../../lib/blogListingRoute';
 import { blogImageSrcset, blogPostImageAlt, blogPostImageUrl } from '../../utils/blogHelpers';
 import { formatBlogDate, getCategoryLabel, normalizeInlineBlogMarkdown } from '../../utils/blogUtils';
 
@@ -11,10 +12,14 @@ interface Props {
   post: EntradaBlog;
   headingLevel?: 'h2' | 'h3';
   eager?: boolean;
+  anchor?: boolean;
+  returnHref?: string;
 }
 
-const { post, headingLevel = 'h3', eager = false } = Astro.props;
-const href = `/blog/${post.slug}`;
+const { post, headingLevel = 'h3', eager = false, anchor = false, returnHref } = Astro.props;
+const noteId = anchor ? 'nota-' + post.slug : undefined;
+const listing = noteId && resolveBlogReadingReturn(Astro.url.pathname + Astro.url.search + '#' + noteId);
+const href = blogNoteHref(post.slug, returnHref || (listing ? listing.href : undefined));
 const imgUrl = blogPostImageUrl(post);
 const imgAlt = blogPostImageAlt(post);
 const label = getCategoryLabel(post.categoria);
@@ -24,7 +29,7 @@ const excerpt = normalizeInlineBlogMarkdown(post.resumen);
 const Heading = headingLevel;
 ---
 
-<article class="bcard">
+<article class="bcard" id={noteId} tabindex={anchor ? "-1" : undefined}>
   <a class="bcard__media" href={href} tabindex="-1" aria-hidden="true">
     <img
       src={imgUrl} srcset={blogImageSrcset(imgUrl)} sizes="(max-width: 720px) 100vw, 32vw"
@@ -48,6 +53,7 @@ const Heading = headingLevel;
 
 <style>
   .bcard {
+    scroll-margin-top: 90px;
     position: relative;
     display: flex;
     flex-direction: column;

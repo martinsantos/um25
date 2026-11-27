@@ -1,7 +1,7 @@
 // Fuente única de los frentes de servicio y sectores para navegación comercial
 // (mega-menú desktop, barra de pestañas mobile y home). Los textos replican la
 // home de producción; los conteos de casos salen del catálogo verificado.
-import { SECTORS } from './cine/scenes';
+import { SECTOR_ROWS } from './sectorDirectoryRows';
 
 export interface NavService {
   code: string;
@@ -75,22 +75,32 @@ export interface NavSector {
   name: string;
   text: string;
   href: string;
-  count: string | number | null;
 }
 
-export const NAV_SECTORS: NavSector[] = SECTORS.map((s) => ({
+export const NAV_SECTORS: NavSector[] = SECTOR_ROWS.map((s) => ({
   slug: s.slug,
   name: s.name,
   text: s.text,
   href: ['software', 'seguridad-electronica'].includes(s.slug) ? `/${s.slug}` : `/sectores/${s.slug}`,
-  count: s.count ?? null,
 }));
 
+export function directoryCardId(href: string) {
+  return 'ficha-' + href.split('/').filter(Boolean).pop();
+}
+
+/** On a listed detail page, the directory link returns to that same card. */
+export function directoryReturnHref(directory: string, currentPath: string) {
+  const path = currentPath.replace(/\/$/, '');
+  const entries = directory === '/servicios' ? NAV_SERVICES : directory === '/sectores' ? NAV_SECTORS : [];
+  const entry = entries.find(item => item.href === path);
+  return entry ? directory + '#' + directoryCardId(entry.href) : directory;
+}
+
 /** Pestañas de la barra inferior en teléfono (app shell). Cuatro destinos
- *  para que cada etiqueta entre a 16px en 360px; sectores queda en el menú. */
+ *  con acceso al inicio desde la marca de la cabecera. */
 export const APP_TABS = [
-  { href: '/', label: 'Inicio', icon: 'home' },
   { href: '/servicios', label: 'Servicios', icon: 'services' },
-  { href: '/antecedentes', label: 'Proyectos', icon: 'projects' },
+  { href: '/sectores', label: 'Sectores', icon: 'sectors' },
+  { href: '/antecedentes', label: 'Antecedentes', icon: 'projects' },
   { href: '/contacto', label: 'Contacto', icon: 'contact' },
 ] as const;

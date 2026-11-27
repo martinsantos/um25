@@ -1,0 +1,37 @@
+---
+import { ArrowLeft } from 'lucide-astro';
+import { publicDespiecePath } from '../../lib/despieceRoutes';
+import { catalogContext } from './catalogContext';
+import { catalogState, catalogWindow, catalogWindowHref } from './catalogFilters';
+
+const input = Astro.url.searchParams;
+const state = catalogState(input);
+const path = publicDespiecePath(Astro.url.pathname);
+const context = catalogContext(state);
+const matches = Object.values(context.links).some(link =>
+  link && new URL(link.href, Astro.url).pathname === path
+);
+const visible = catalogWindow(input.get('mostrar'), Number.MAX_SAFE_INTEGER);
+const href = input.get('desde') === 'archivo' && matches
+  ? catalogWindowHref(state, visible) + '#obras-filtradas'
+  : undefined;
+---
+{href && <a class="catalog-return" data-catalog-results-return href={href}>
+  <ArrowLeft size={16} aria-hidden="true" /> Volver a los resultados
+</a>}
+
+<style>
+  .catalog-return {
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    min-height:44px;
+    margin-block-end:8px;
+    color:var(--ink-2,inherit);
+    text-decoration:underline;
+    text-underline-offset:.2em;
+  }
+  .catalog-return svg { flex:none; }
+  .catalog-return:is(:hover,:focus-visible) { color:var(--ink,inherit); }
+  .catalog-return:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
+</style>

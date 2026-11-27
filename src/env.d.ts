@@ -25,6 +25,9 @@ interface ImportMeta {
 
 declare namespace App {
   interface Locals {
+    serviceWorkEnquiry?: ReturnType<typeof import('./components/proto/serviceReference').serviceWorkEnquiry>;
+    sectorWorkEnquiry?: ReturnType<typeof import('./lib/caseJourney').sectorWorkEnquiry>;
+    caseJourney?: ReturnType<typeof import('./lib/caseJourney').caseJourney>;
     /**
      * Migas explícitas para BreadcrumbList: una página las fija en su frontmatter
      * cuando la jerarquía temática no coincide con la ruta (p. ej. Blog → Tema → Nota).

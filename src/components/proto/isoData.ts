@@ -183,6 +183,8 @@ export const variantes = (image: string) => {
   if (/^\/images\/editorial\/umsa-[a-z0-9-]+\.webp$/.test(image) && !/-(480|960)\.webp$/.test(image)) return { w480: image.replace(/\.webp$/, '-480.webp'), w960: image.replace(/\.webp$/, '-960.webp'), full: image, ancho: 1672, avif: `${image.replace(/\.webp$/, '-960.avif')} 960w, ${image.replace(/\.webp$/, '.avif')} 1672w` };
   return { w480: image, w960: image, full: image, ancho: 0, avif: '' };
 };
+// Ancho real de la imagen de apertura en las fichas de Servicios y Sectores.
+export const EDITORIAL_HERO_SIZES = '(max-width: 500px) calc(100vw - 40px), (max-width: 760px) 92vw, (max-width: 1520px) 48vw, 725px';
 /** El srcset de una foto con variantes, o nada. */
 export const srcsetDe = (image: string) => { const v = variantes(image); return v.ancho ? `${v.w480} 480w, ${v.w960} 960w, ${v.full} ${v.ancho}w` : undefined; };
 /** Las fichas que mejor representan un conjunto, con la curaduría del sitio (utils/antecedentesCuration): los casos fuertes primero, las ventas de insumos y los registros con error al final; dentro de cada grupo, las más recientes. Para las ocho tarjetas de un servicio o un sector. */

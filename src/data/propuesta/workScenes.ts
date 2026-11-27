@@ -1,3 +1,5 @@
+import { generateSlug } from '../../utils/slugUtils';
+import { serviceJourney } from './recorrido';
 import { connectionSceneForCase } from '../connectionScenes';
 import { catalogPresentationFor, catalogSceneForCase, type CatalogContent } from '../catalogCasePresentation';
 
@@ -148,4 +150,19 @@ export function workScene(example: Example | undefined, story: StoryIdentity | u
   const scene = catalogSceneForCase(story);
   if (scene?.asset !== example.asset) return;
   return { ...scene, format: 'equipment' as const, kind: example.kind, counterView: example.counterView, signalRoute: example.signalRoute, title: example.title, steps: example.steps, points: example.points };
+}
+
+export function provisionDestination(code: string, title: string) {
+  return {
+    id: serviceWorkExamples[code]?.[title]?.anchor || `prestacion-${generateSlug(title)}`,
+    label: serviceJourney[code]?.groups[title]?.label || title,
+  };
+}
+
+export function sectorSystemAnchor(slug: string, code: string) {
+  return sectorWorkExamples[slug]?.[code]?.anchor || `sistema-${code}`;
+}
+
+export function miningRadioHref(fromHome = false) {
+  return '/sectores/mineria?sistema=103' + (fromHome ? '&desde=inicio' : '') + '#' + sectorSystemAnchor('mineria', '103');
 }

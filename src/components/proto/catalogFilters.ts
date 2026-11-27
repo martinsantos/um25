@@ -1,6 +1,8 @@
+import { caseLinkReference } from '../../lib/despieceRoutes';
+
 /** Shared filtering for the rendered catalog and its existing public URLs. */
 export type CatalogState = Partial<Record<(typeof filterKeys)[number], string>>;
-export type CatalogItem = { sector: string; services: string[]; year: string; client: string; search: string; status: string; reviewed?: boolean };
+export type CatalogItem = { sector: string; services: string[]; year: string; client: string; search: string; status: string; reviewed?: boolean; documented?: boolean };
 export const filterKeys = ['sector', 'service', 'year', 'cliente', 'q', 'periodo', 'estado', 'orden'] as const;
 export const catalogCriteria = filterKeys.filter((key) => key !== 'orden');
 export function catalogHref(state: CatalogState, without?: (typeof catalogCriteria)[number]): string {
@@ -13,6 +15,8 @@ export function catalogHref(state: CatalogState, without?: (typeof catalogCriter
   return query ? `/antecedentes?${query}` : '/antecedentes';
 }
 
+export const catalogResultsHref = (state: CatalogState) => catalogHref(state) + '#obras-filtradas';
+
 export const catalogBatch = 36;
 export function catalogWindow(value: string | null, total: number) {
   const requested = Number(value);
@@ -24,6 +28,18 @@ export function catalogWindow(value: string | null, total: number) {
 export function catalogWindowHref(state: CatalogState, limit: number) {
   const path = catalogHref(state);
   return limit > catalogBatch ? path + (path.includes('?') ? '&' : '?') + 'mostrar=' + limit : path;
+}
+
+/** Preserve the public case URL for unfiltered browsing. */
+export function caseContextQuery(state: CatalogState, visible: number) {
+  if (!catalogCriteria.some(key => state[key]) && (!state.orden || state.orden === 'recent')) return '';
+  const query = catalogWindowHref(state, visible).split('?')[1];
+  return '?desde=archivo&' + query;
+}
+
+export function catalogNextHref(state: CatalogState, visible: number, nextId?: number) {
+  if (nextId === undefined) return undefined;
+  return catalogWindowHref(state, visible + catalogBatch) + '#resultado-um-' + nextId;
 }
 
 export function toggleCatalogHref(state: CatalogState, key: 'sector' | 'service' | 'year', value: string) {
@@ -39,6 +55,7 @@ export const clientKey = (value: string) => normalizeSearch(value).replace(/\bs[
 export const periodOf = (value: string) => { const y = Number(value); return y >= 2024 ? '2024' : y >= 2020 ? '2020' : y >= 2015 ? '2015' : y >= 2010 ? '2010' : 'antes'; };
 export function catalogState(params: URLSearchParams): Record<(typeof filterKeys)[number], string> {
   const state = Object.fromEntries(filterKeys.map(k => [k, params.get(k) || ''])) as Record<(typeof filterKeys)[number], string>;
+  state.q = caseLinkReference(state.q) || state.q;
   state.service ||= params.get('servicio') || '';
   state.year ||= params.get('anio') || '';
   if (state.sector === 'gobierno') state.sector = 'gobiernosectorpublico';
@@ -51,10 +68,15 @@ function matchesSearch(text: string, query: string): boolean {
   return terms.every(term => haystack.includes(term));
 }
 
+export function matchesCatalogSector(sector: string, services: readonly string[], filter?: string): boolean {
+  const wanted = filter === 'gobierno' ? 'gobiernosectorpublico' : filter;
+  return !wanted || sector === wanted || (wanted === 'sin-clasificar' && !sector)
+    || (wanted === 'software' && services.includes('104'))
+    || (wanted === 'seguridad-electronica' && services.includes('102'));
+}
+
 export function matchesCatalog(it: CatalogItem, state: CatalogState, skip?: string): boolean {
-  const sector = state.sector === 'gobierno' ? 'gobiernosectorpublico' : state.sector;
-  const sectorMatches = (sector === 'sin-clasificar' && !it.sector) || it.sector === sector || (sector === 'software' && it.services.includes('104')) || (sector === 'seguridad-electronica' && it.services.includes('102'));
-  return (skip === 'sector' || !sector || sectorMatches) &&
+  return (skip === 'sector' || matchesCatalogSector(it.sector, it.services, state.sector)) &&
     (skip === 'service' || !state.service || (state.service === 'sin-clasificar' ? it.services.length === 0 : it.services.includes(state.service))) &&
     (!state.year || it.year === state.year) &&
     (!state.cliente || clientKey(it.client) === clientKey(state.cliente)) &&
@@ -79,7 +101,27 @@ export function catalogClientRecovery(items: readonly CatalogItem[], state: Cata
 }
 
 /** Suggest the smallest useful change to an empty search before dropping other filters. */
-export function catalogRecovery(items: readonly CatalogItem[], state: CatalogState) {
+export function catalogRecovery(items: readonly (CatalogItem & { id: number; href: string })[], state: CatalogState) {
+  const reference = /^(?:um[\s-]*)?(\d{1,8})$/i.exec(state.q?.trim() || '');
+  if (reference) {
+    const project = items.find(item => item.id === Number(reference[1]));
+    if (project) return { href: project.href, label: `Abrir la ficha UM-${project.id}` };
+  }
+
+  const active = catalogCriteria.filter(key => state[key]);
+  if (active.length > 1) {
+    const facets = { year: 'año', periodo: 'período', estado: 'estado', service: 'servicio', sector: 'sector' } as const;
+    for (const key of Object.keys(facets) as (keyof typeof facets)[]) {
+      if (!state[key]) continue;
+      const retained = { ...state, [key]: '' };
+      const count = items.filter(item => matchesCatalog(item, retained)).length;
+      if (count) return {
+        href: catalogResultsHref(retained),
+        label: `Ver ${count} ${count === 1 ? 'obra' : 'obras'} sin el filtro de ${facets[key]}`,
+      };
+    }
+  }
+
   if (state.q && catalogCriteria.some(key => key !== 'q' && state[key])) {
     const retained = { ...state, q: '' };
     const count = items.filter(item => matchesCatalog(item, retained)).length;
@@ -91,12 +133,15 @@ export function catalogRecovery(items: readonly CatalogItem[], state: CatalogSta
   return catalogClientRecovery(items, state);
 }
 
-export function orderCatalog<T extends Pick<CatalogItem, 'year' | 'client' | 'reviewed'>>(items: T[], mode: string, scoped = false): T[] {
+export function orderCatalog<T extends Pick<CatalogItem, 'year' | 'client' | 'reviewed' | 'documented'>>(items: T[], mode: string, scoped = false): T[] {
   const sorted = [...items];
   switch (mode) {
     case 'client': return sorted.sort((a, b) => a.client.localeCompare(b.client, 'es'));
     case 'year-asc': return sorted.sort((a, b) => Number(a.year) - Number(b.year));
     case 'year-desc': return sorted.sort((a, b) => Number(b.year) - Number(a.year));
-    default: return scoped ? sorted.sort((a, b) => Number(Boolean(b.reviewed)) - Number(Boolean(a.reviewed))) : sorted;
+    default: return scoped ? sorted.sort((a, b) =>
+      Number(Boolean(b.reviewed)) - Number(Boolean(a.reviewed)) ||
+      Number(Boolean(b.documented)) - Number(Boolean(a.documented))
+    ) : sorted;
   }
 }

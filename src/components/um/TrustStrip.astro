@@ -68,12 +68,12 @@ const clientRecords = getTopClienteRecords(6);
     </header>
 
     <div class="um-trust-strip__board">
-      <aside class="um-trust-strip__proof" aria-label={`${catalogCount} ${COPY.archiveNote}`}>
+      <div class="um-trust-strip__proof">
         <span>{COPY.archive}</span>
         <strong>{catalogCount}</strong>
         <p>{COPY.archiveNote}</p>
         <a href="/antecedentes" class="um-trust-strip__proof-link">{COPY.archiveLink}</a>
-      </aside>
+      </div>
 
       <div class="um-trust-strip__ledger" aria-label={COPY.ledger}>
         <p class="um-trust-strip__ledger-title">{COPY.ledger}</p>

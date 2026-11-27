@@ -93,12 +93,26 @@ describe("functional scenes stay quiet outside the viewport", () => {
     expect(scene.dataset.state).toBe("complete");
     expect(jest.getTimerCount()).toBe(0);
   });
-  it("cancels pending changes when the tab is hidden", () => {
+  it("cancels pending changes when hidden and restarts an interrupted sequence upon return", () => {
     visibility(0.8);
     Object.defineProperty(document, "hidden", {
       configurable: true,
       value: true,
     });
+    document.dispatchEvent(new Event("visibilitychange"));
+    expect(scene.dataset.state).toBe("complete");
+    expect(jest.getTimerCount()).toBe(0);
+    Object.defineProperty(document, "hidden", {
+      configurable: true,
+      value: false,
+    });
+    document.dispatchEvent(new Event("visibilitychange"));
+    expect(scene.dataset.state).toBe("running");
+    expect(scene.dataset.phase).toBe("0");
+    jest.advanceTimersByTime(4800);
+    Object.defineProperty(document, "hidden", { configurable: true, value: true });
+    document.dispatchEvent(new Event("visibilitychange"));
+    Object.defineProperty(document, "hidden", { configurable: true, value: false });
     document.dispatchEvent(new Event("visibilitychange"));
     expect(scene.dataset.state).toBe("complete");
     expect(jest.getTimerCount()).toBe(0);

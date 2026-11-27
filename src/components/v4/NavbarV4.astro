@@ -1,7 +1,7 @@
 ---
-import { contactLink } from '../../lib/contactEntry';
+import { pageContactLink } from '../../lib/caseJourney';
 import UMLogo from '../brand/UMLogo.astro';
-import { NAV_SECTORS, NAV_SERVICES } from '../../data/navigation';
+import { directoryReturnHref, NAV_SECTORS, NAV_SERVICES } from '../../data/navigation';
 import { SERVICE_NAV_MEDIA, SECTOR_NAV_MEDIA } from '../../data/navigationMedia';
 import { shellLocale, shellRoutes, shellServiceCopy, shellSectorCopy } from '../../config/i18nShell';
 /** Cabecera comercial UMSA: marca, navegación principal (con mega-menú de
@@ -43,22 +43,26 @@ const isActive = (href: string) => {
   return matchesPath(clean, target);
 };
 
+const currentMarker = (href: string) => isActive(href)
+  ? (href === (currentPath.replace(/\/$/, '') || '/') ? 'page' : 'location')
+  : undefined;
+
 ---
 
 <header class="um-ops-header">
   <div class="um-ops-header__main">
     <div class="um-ops-container um-ops-header__row">
-      <a href={routes.home} class="um-ops-logo" aria-label={t.footerShell.home}>
+      <a href={routes.home} class="um-ops-logo" aria-current={isActive(routes.home) ? 'page' : undefined} aria-label={t.footerShell.home}>
         <UMLogo title="ultimamilla.com.ar" />
       </a>
 
       <nav class="um-ops-nav" aria-label={lang === 'en' ? 'Main navigation' : 'Navegación principal'}>
         {navItems.map((item) => item.mega ? (
           <div class:list={['um-ops-mega', { 'is-active': isActive(item.href) }]} data-mega={item.mega}>
-            <a href={item.href} class:list={['um-ops-nav__link', 'um-ops-mega__link', { 'is-active': isActive(item.href) }]}>
+            <a href={directoryReturnHref(item.href, currentPath)} class:list={['um-ops-nav__link', 'um-ops-mega__link', { 'is-active': isActive(item.href) }]} aria-current={currentMarker(item.href)}>
               {item.label}
             </a>
-            <button type="button" class="um-ops-mega__toggle" aria-expanded="false" aria-controls={`um-mega-${item.mega}`} aria-label={item.mega === 'servicios' ? t.megaServices.open : t.megaSectors.open}>
+            <button type="button" class="um-ops-mega__toggle" aria-expanded="false" aria-controls={`um-mega-${item.mega}`} aria-label={lang === 'en' ? `${item.mega === 'servicios' ? t.nav.services : t.nav.sectors} menu` : `Menú de ${item.label.toLowerCase()}`}>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
             </button>
             <div class="um-ops-mega__panel" id={`um-mega-${item.mega}`}>
@@ -68,7 +72,7 @@ const isActive = (href: string) => {
                     <div class="um-ops-mega__intro">
                       <p class="um-ops-mega__kicker">{t.megaServices.kicker}</p>
                       <p class="um-ops-mega__lead">{t.megaServices.lead}</p>
-                      <a class="um-ops-mega__all" href={routes.services}>{t.megaServices.all} <span aria-hidden="true">→</span></a>
+                      <a class="um-ops-mega__all" href={directoryReturnHref(routes.services, currentPath)}>{t.megaServices.all} <span aria-hidden="true">→</span></a>
                     </div>
                     <ul class="um-ops-mega__grid um-ops-mega__grid--services">
                       {NAV_SERVICES.map((s) => (
@@ -88,7 +92,7 @@ const isActive = (href: string) => {
                     <div class="um-ops-mega__intro">
                       <p class="um-ops-mega__kicker">{t.megaSectors.kicker}</p>
                       <p class="um-ops-mega__lead">{t.megaSectors.lead}</p>
-                      <a class="um-ops-mega__all" href={routes.sectors}>{lang === 'en' ? t.destinationLabel(t.megaSectors.all) : t.megaSectors.all} <span aria-hidden="true">→</span></a>
+                      <a class="um-ops-mega__all" href={directoryReturnHref(routes.sectors, currentPath)}>{lang === 'en' ? t.destinationLabel(t.megaSectors.all) : t.megaSectors.all} <span aria-hidden="true">→</span></a>
                     </div>
                     <ul class="um-ops-mega__grid um-ops-mega__grid--sectors">
                       {NAV_SECTORS.map((s) => (
@@ -107,7 +111,7 @@ const isActive = (href: string) => {
             </div>
           </div>
         ) : (
-          <a href={item.href} class:list={['um-ops-nav__link', { 'is-active': isActive(item.href) }]}>
+          <a href={item.href} class:list={['um-ops-nav__link', { 'is-active': isActive(item.href) }]} aria-current={currentMarker(item.href)}>
             {item.label}
           </a>
         ))}
@@ -116,9 +120,9 @@ const isActive = (href: string) => {
 
 
       {lang === 'en' ? (
-        <a href={contactLink(currentPath, routes.contact)} class="um-ops-cta">{t.nav.contact}</a>
+        <a data-contact-follow href={pageContactLink(Astro, routes.contact)} class="um-ops-cta">{t.nav.contact}</a>
       ) : (
-        <a href={contactLink(currentPath)} class="um-ops-cta">Contactar</a>
+        <a data-contact-follow href={pageContactLink(Astro)} class="um-ops-cta">Contactar</a>
       )}
 
       <button
@@ -135,6 +139,21 @@ const isActive = (href: string) => {
         <span></span>
         <span></span>
       </button>
+      <noscript>
+        <style is:inline>@media (max-width:1110px) { #menuToggle { display:none; } }</style>
+        <details class="um-ops-nojs">
+          <summary>{lang === 'en' ? 'Menu' : 'Menú'}</summary>
+          <nav aria-label={lang === 'en' ? 'Main navigation' : 'Navegación principal'}>
+            <ul>
+              {[...navItems, ...moreItems].map(item => (
+                <li><a href={item.href === routes.contact ? pageContactLink(Astro, routes.contact) : directoryReturnHref(item.href, currentPath)}
+                  aria-current={currentMarker(item.href)}>{item.label}</a></li>
+              ))}
+              <li><a href={alternate} hreflang={alternateLang} lang={alternateLang}>{t.lang.switchTo}</a></li>
+            </ul>
+          </nav>
+        </details>
+      </noscript>
     </div>
   </div>
 
@@ -142,14 +161,26 @@ const isActive = (href: string) => {
 
 <div id="mobileMenu" class="um-ops-mobile" hidden>
   <nav class="um-ops-container um-ops-mobile__inner" aria-label={lang === 'en' ? 'Mobile menu' : 'Menú móvil'}>
+    <div class="um-ops-mobile__switch" data-menu-catalogs hidden>
+      <button type="button" data-menu-index><span aria-hidden="true">←</span> {lang === 'en' ? 'Menu' : 'Menú'}</button>
+      <div role="group" aria-label={lang === 'en' ? 'Catalogue' : 'Catálogo'}>
+        {navItems.filter(item => item.mega).map(item =>
+          <button type="button" data-menu-catalog={item.mega} aria-pressed="false" aria-controls={`mobile-${item.mega}`}>{item.mega === 'servicios' ? t.nav.services : t.nav.sectors}</button>
+        )}
+      </div>
+    </div>
     <ul class="um-ops-mobile__primary">
       {navItems.map((item) => (
         <li>
           <div class="um-ops-mobile__destination">
-            <a href={item.href} class:list={[{ 'is-active': isActive(item.href) }]} aria-current={isActive(item.href) ? 'page' : undefined}>
-              {item.label}
+            <a href={directoryReturnHref(item.href, currentPath)} class:list={[{ 'is-active': isActive(item.href) }]} aria-current={currentMarker(item.href)}>
+              <span>{item.label}</span>
+              {item.mega && <span class="um-ops-mobile__all">{item.mega === 'servicios' ? t.megaServices.all : lang === 'en' ? t.destinationLabel(t.megaSectors.all) : t.megaSectors.all} <span aria-hidden="true">→</span></span>}
             </a>
-            {item.mega && <button type="button" class="um-ops-mobile__explore" data-mobile-group-toggle aria-expanded="false" aria-controls={`mobile-${item.mega}`} aria-label={`${lang === 'en' ? 'Explore' : 'Explorar'} ${item.label.toLowerCase()}`}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></button>}
+            {item.mega && <button type="button" class="um-ops-mobile__explore" data-mobile-group-toggle aria-expanded="false" aria-controls={`mobile-${item.mega}`} aria-label={`${lang === 'en' ? 'Explore' : 'Explorar'} ${item.label.toLowerCase()}`}>
+              {lang === 'en' ? 'Explore' : 'Explorar'}
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>
+            </button>}
           </div>
           {item.mega && <ul class="um-ops-mobile__destinations" id={`mobile-${item.mega}`} hidden>
             {(item.mega === 'servicios' ? NAV_SERVICES.map(s => ({key:s.code,href:s.href,image:SERVICE_NAV_MEDIA[s.code],...shellServiceCopy(lang,s.code,s.name,s.text)})) : NAV_SECTORS.map(s => ({key:s.slug,href:s.href,image:SECTOR_NAV_MEDIA[s.slug],...shellSectorCopy(lang,s.slug,s.name,s.text)}))).map(s => <li><a href={s.href} aria-current={isActive(s.href) ? 'page' : undefined}>
@@ -164,27 +195,20 @@ const isActive = (href: string) => {
     <ul class="um-ops-mobile__secondary">
       {moreItems.filter((item) => item.href !== routes.contact).map((item) => (
         <li>
-          <a href={item.href} class:list={[{ 'is-active': isActive(item.href) }]} aria-current={isActive(item.href) ? 'page' : undefined}>
+          <a href={item.href} class:list={[{ 'is-active': isActive(item.href) }]} aria-current={currentMarker(item.href)}>
             {item.label}
           </a>
         </li>
       ))}
     </ul>
     <div class="um-ops-mobile__foot">
-      <a href={contactLink(currentPath, routes.contact)} class="um-ops-mobile__cta">
+      <a data-contact-follow href={pageContactLink(Astro, routes.contact)} class="um-ops-mobile__cta">
         {t.nav.contact}
         <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
       </a>
       <p>{t.mobile.hours} · <a href={alternate} hreflang={alternateLang} lang={alternateLang}>{t.lang.switchTo}</a></p>
     </div>
   </nav>
-</div>
-
-<div class="um-ops-dock" data-ops-dock aria-hidden="true">
-  <a href={contactLink(currentPath, routes.contact)} class="um-ops-dock__cta" data-ops-dock-cta tabindex="-1">
-    {t.nav.contact}
-    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
-  </a>
 </div>
 
 <style>
@@ -285,6 +309,7 @@ const isActive = (href: string) => {
     /* Sin posicionamiento propio: el panel del mega-menú se ancla al ancho
        completo de .um-ops-header__main. */
     position: static;
+    align-self: stretch;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -339,6 +364,7 @@ const isActive = (href: string) => {
   /* Mega-menú de escritorio: Servicios y Sectores despliegan un panel a todo
      el ancho con los ocho frentes / nueve sectores, código y promesa. */
   .um-ops-mega {
+    align-self: stretch;
     display: inline-flex;
     align-items: center;
   }
@@ -422,7 +448,7 @@ const isActive = (href: string) => {
     transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s linear 0.16s;
   }
 
-  .um-ops-mega:hover:not(.is-dismissed) .um-ops-mega__panel,
+  .um-ops-mega:not([data-interactive]):hover .um-ops-mega__panel,
   .um-ops-mega.is-open .um-ops-mega__panel {
     opacity: 1;
     visibility: visible;
@@ -533,6 +559,9 @@ const isActive = (href: string) => {
     grid-template-areas: "image name" "image text";
   }
 
+  /* A lazy image in a visibility:hidden panel can still be fetched before the menu opens. */
+  .um-ops-mega:not(.is-open):not(:hover) .um-ops-mega__thumb,
+  .um-ops-mega[data-interactive]:not(.is-open) .um-ops-mega__thumb { display:none; }
   .um-ops-mega__thumb { grid-area: image; width: 100%; height: 64px; object-fit: cover; align-self: start; }
   @media (max-width: 1279px) {
     .um-ops-mega__grid a { grid-template-columns: 72px 3ch minmax(0,1fr); }
@@ -704,6 +733,7 @@ const isActive = (href: string) => {
     width: 44px;
     height: 44px;
     margin-left: auto;
+    flex-shrink: 0;
     border: 0;
     background: transparent;
     color: #fff;
@@ -981,9 +1011,12 @@ const isActive = (href: string) => {
 
   .um-ops-mobile__destination { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .um-ops-mobile__destination > a { flex: 1; }
-  .um-ops-mobile__explore { display: grid; place-items: center; width: 48px; height: 48px; flex-shrink: 0; color: #fff; background: transparent; border: 1px solid rgba(255,255,255,.18); }
-  .um-ops-mobile__explore svg { width: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; transition: transform 160ms ease-out; }
-  .um-ops-mobile__explore[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .um-ops-mobile__explore {
+    display: inline-flex; align-items: center; gap: 4px; min-height: 48px; padding-inline: 10px;
+    flex-shrink: 0; color: #fff; background: transparent; border: 1px solid rgba(255,255,255,.18);
+    font: inherit; font-size: .9375rem; cursor: pointer;
+  }
+  .um-ops-mobile__explore svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; }
   .um-ops-mobile__destinations { list-style: none; padding: 4px 0 20px; margin: 0; }
   .um-ops-mobile__destinations[hidden] { display: none; }
   .um-ops-mobile__primary .um-ops-mobile__destinations a { display: grid; grid-template-columns: 64px minmax(0,1fr); gap: 16px; align-items: center; padding: 16px 0; font-size: 1rem; line-height: 1.4; }
@@ -993,6 +1026,39 @@ const isActive = (href: string) => {
   .um-ops-mobile__destinations strong + span { display: block; margin-top: 4px; color: #c4c7cc; font-weight: 400; }
   .um-ops-mobile__primary .um-ops-mobile__destinations a[aria-current="page"] { background: #f4f4f5; border-left: 3px solid #dc2626; padding-inline: 12px; }
   .um-ops-mobile__destinations a[aria-current="page"] :is(strong, span) { color: #111; }
+
+  .um-ops-mobile__all, .um-ops-mobile__switch[hidden] { display: none; }
+  .um-ops-mobile__switch {
+    position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between;
+    gap: 6px; padding-block: 6px; background: #0a0a0b; border-bottom: 1px solid #414145;
+  }
+  .um-ops-mobile__switch div { display: flex; }
+  .um-ops-mobile__switch button {
+    min-height: 44px; padding-inline: 10px; background: transparent; border: 0;
+    color: #d4d4d8; font: inherit; font-weight: 600; cursor: pointer;
+  }
+  .um-ops-mobile__switch button[data-menu-index] { padding-left: 0; }
+  .um-ops-mobile__switch button[aria-pressed="true"] { color: #fff; border-bottom: 2px solid #dc2626; }
+  .um-ops-mobile__switch button:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+  /* Dejá sitio para el selector fijo al enfocar cualquier enlace del catálogo. */
+  .um-ops-mobile[data-browsing] { scroll-padding-block-start: 64px; }
+  .um-ops-mobile[data-browsing] .um-ops-mobile__primary > li:not([data-selected]),
+  .um-ops-mobile[data-browsing] :is(.um-ops-mobile__label, .um-ops-mobile__secondary, .um-ops-mobile__foot, .um-ops-mobile__explore),
+  .um-ops-mobile[data-browsing] .um-ops-mobile__destination > a > span:first-child { display: none; }
+  .um-ops-mobile[data-browsing] .um-ops-mobile__destination > a {
+    min-height: 44px; font-size: 1rem; color: #fff; background: transparent; border-left: 0; padding-inline: 0;
+  }
+  .um-ops-mobile[data-browsing] .um-ops-mobile__destination > a:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+  .um-ops-mobile[data-browsing] .um-ops-mobile__destination > a::after { display: none; }
+  .um-ops-mobile[data-browsing] .um-ops-mobile__all { display: inline; }
+  .um-ops-mobile[data-browsing] .um-ops-mobile__primary .um-ops-mobile__destinations a {
+    grid-template-columns: 52px minmax(0, 1fr); gap: 12px; padding-block: 10px;
+  }
+  .um-ops-mobile[data-browsing] .um-ops-mobile__destinations img { width: 52px; height: 52px; }
+  @media (min-width: 640px) {
+    .um-ops-mobile__destinations:not([hidden]) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; }
+    .um-ops-mobile__destinations li a { height: 100%; }
+  }
 
   .um-ops-mobile__foot {
     margin-top: auto;
@@ -1032,55 +1098,9 @@ const isActive = (href: string) => {
   }
 
   .um-ops-mobile a:focus-visible,
-  .um-ops-menu-toggle:focus-visible,
-  .um-ops-dock__cta:focus-visible {
+  .um-ops-menu-toggle:focus-visible {
     outline: 2px solid #dc2626;
     outline-offset: 2px;
-  }
-
-  /* Acceso rápido a contacto en teléfono: aparece al dejar el hero y se retira
-     cuando hay otro CTA de contacto, el pie o un formulario a la vista. */
-  .um-ops-dock {
-    display: none;
-  }
-
-  @media (max-width: 760px) {
-    .um-ops-dock {
-      position: fixed;
-      right: 16px;
-      bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-      z-index: var(--um-z-sticky);
-      display: block;
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(12px);
-      transition: opacity 240ms cubic-bezier(.2,.8,.2,1), transform 240ms cubic-bezier(.2,.8,.2,1);
-    }
-
-    .um-ops-dock.is-on {
-      opacity: 1;
-      pointer-events: auto;
-      transform: none;
-    }
-
-    .um-ops-dock__cta {
-      display: inline-flex;
-      min-height: 48px;
-      align-items: center;
-      gap: 10px;
-      padding: 0 20px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: #dc2626;
-      color: #fff;
-      font-size: 1rem;
-      font-weight: 700;
-      text-decoration: none;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.45);
-    }
-
-    .um-ops-dock__cta:active {
-      background: #b91c1c;
-    }
   }
 
   /* El bloqueo va en body: el body propaga su overflow al viewport, así la
@@ -1092,6 +1112,17 @@ const isActive = (href: string) => {
   :global(html.um-ops-menu-open) .um-ops-mobile {
     touch-action: pan-y;
   }
+
+  .um-ops-nojs { display:none; margin-left:auto; }
+  .um-ops-nojs summary { padding:12px; font-weight:600; cursor:pointer; min-height:44px; }
+  .um-ops-nojs nav {
+    position:absolute; top:100%; inset-inline:0; max-height:calc(100dvh - 70px); overflow:auto;
+    background:#0c0d0e; color:#f5f5f5; border-block:1px solid #36383b;
+  }
+  .um-ops-nojs ul { margin:0 auto; padding:8px var(--um-page-gutter,20px) max(22px,env(safe-area-inset-bottom)); list-style:none; max-width:var(--um-container-wide); }
+  .um-ops-nojs a { display:flex; align-items:center; padding:10px; min-height:44px; border-bottom:1px solid #36383b; color:inherit; }
+  .um-ops-nojs a[aria-current] { border-inline-start:2px solid #e5272a; font-weight:650; }
+  @media (max-width:1110px) { .um-ops-nojs { display:block; } }
 
   @media (max-width: 1110px) {
     .um-ops-nav,
@@ -1114,8 +1145,7 @@ const isActive = (href: string) => {
   }
 
   @media (min-width: 1111px) {
-    .um-ops-mobile,
-    .um-ops-dock {
+    .um-ops-mobile {
       display: none !important;
     }
   }
@@ -1139,7 +1169,8 @@ const isActive = (href: string) => {
     }
 
     .um-ops-logo {
-      font-size: clamp(1.05rem, 5vw, 1.28rem);
+      /* Dejá libres el botón y la separación de cabecera al ampliar texto. */
+      font-size: min(clamp(1.05rem, 5vw, 1.28rem), calc((100vw - 2 * var(--um-page-gutter, 20px) - 56px) / 10.7));
     }
 
     .um-ops-ticker {
@@ -1149,7 +1180,6 @@ const isActive = (href: string) => {
 
   @media (prefers-reduced-motion: reduce) {
     .um-ops-mobile,
-    .um-ops-dock,
     .um-ops-mobile__explore svg {
       animation: none;
       transition: none;
@@ -1171,13 +1201,12 @@ const isActive = (href: string) => {
     if (!header || !menuToggle || !mobileMenu || menuToggle.dataset.bound === 'true') return;
     menuToggle.dataset.bound = 'true';
 
-    // Mega-menú de escritorio: hover lo abre por CSS; teclado y clic usan is-open.
+    // Un solo estado visible para puntero, teclado y lector de pantalla.
     const megas = [...document.querySelectorAll<HTMLElement>('.um-ops-mega')];
     const closeMegas = (except?: HTMLElement) => {
       megas.forEach((m) => {
         if (m === except) return;
         m.classList.remove('is-open');
-        m.classList.toggle('is-dismissed', m.matches(':hover'));
         m.querySelector<HTMLButtonElement>('.um-ops-mega__toggle')?.setAttribute('aria-expanded', 'false');
       });
     };
@@ -1185,13 +1214,15 @@ const isActive = (href: string) => {
       const toggle = mega.querySelector<HTMLButtonElement>('.um-ops-mega__toggle');
       const link = mega.querySelector<HTMLAnchorElement>('.um-ops-mega__link');
       if (!toggle) return;
-      const setOpen = (open: boolean) => {
-        closeMegas(mega);
+      mega.dataset.interactive = 'true';
+      let hoverOnly = false;
+      const setOpen = (open: boolean, hovered = false) => {
+        hoverOnly = open && hovered;
+        if (open) closeMegas(mega);
         mega.classList.toggle('is-open', open);
-        mega.classList.toggle('is-dismissed', !open && mega.matches(':hover'));
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       };
-      toggle.addEventListener('click', () => setOpen(!mega.classList.contains('is-open')));
+      toggle.addEventListener('click', event => setOpen((event.detail > 0 && hoverOnly) || !mega.classList.contains('is-open')));
       link?.addEventListener('keydown', (event) => {
         if (event.key === 'ArrowDown') { event.preventDefault(); setOpen(true); mega.querySelector<HTMLAnchorElement>('.um-ops-mega__grid a')?.focus(); }
       });
@@ -1199,12 +1230,14 @@ const isActive = (href: string) => {
         const next = event.relatedTarget as Node | null;
         if (next && !mega.contains(next)) setOpen(false);
       });
-      mega.addEventListener('mouseenter', () => mega.classList.remove('is-dismissed'));
-      mega.addEventListener('mouseleave', () => { setOpen(false); mega.classList.remove('is-dismissed'); });
+      mega.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse' && !mega.classList.contains('is-open')) setOpen(true, true); });
+      mega.addEventListener('pointerleave', event => {
+        if (event.pointerType === 'mouse' && !mega.querySelector('.um-ops-mega__panel')?.contains(document.activeElement)) setOpen(false);
+      });
     });
     document.addEventListener('keydown', (event) => {
       if (event.key !== 'Escape') return;
-      const opened = megas.find(m => m.classList.contains('is-open') || (m.matches(':hover') && !m.classList.contains('is-dismissed')));
+      const opened = megas.find(m => m.classList.contains('is-open'));
       if (!opened) return;
       event.preventDefault();
       const restoreFocus = opened.contains(document.activeElement);
@@ -1217,7 +1250,10 @@ const isActive = (href: string) => {
 
     const root = document.documentElement;
     const desktop = matchMedia('(min-width: 1111px)');
-    const focusables = () => [menuToggle, ...mobileMenu.querySelectorAll<HTMLElement>('a[href], button')].filter(el => el.getClientRects().length > 0);
+    const focusables = () => [
+      ...header.querySelectorAll<HTMLElement>('a[href], button'),
+      ...mobileMenu.querySelectorAll<HTMLElement>('a[href], button'),
+    ].filter(element => element.tabIndex >= 0 && element.getClientRects().length > 0);
     // Todo lo que no es la cabecera ni el menú queda inerte mientras el menú está abierto.
     const outside = () => [...document.body.children].filter((el) => el !== header && el !== mobileMenu && el.tagName !== 'SCRIPT') as HTMLElement[];
 
@@ -1229,6 +1265,8 @@ const isActive = (href: string) => {
       root.style.setProperty('--um-ops-header-h', `${Math.max(0, Math.round(header.getBoundingClientRect().bottom))}px`);
       mobileMenu.removeAttribute('hidden');
       root.classList.add('um-ops-menu-open');
+      rootScroll = 0;
+      selectCatalog();
       for (const el of outside()) {
         if (el.inert) continue;
         el.inert = true;
@@ -1247,29 +1285,56 @@ const isActive = (href: string) => {
       if (Math.abs(scrollY - savedY) > 1) scrollTo({ top: savedY, behavior: 'instant' as ScrollBehavior });
       menuToggle.setAttribute('aria-expanded', 'false');
       menuToggle.setAttribute('aria-label', menuToggle.dataset.labelOpen || 'Abrir menú');
-      if (restoreFocus) menuToggle.focus();
+      if (restoreFocus) menuToggle.focus({ preventScroll: true });
     };
 
-    mobileMenu.querySelectorAll<HTMLButtonElement>('[data-mobile-group-toggle]').forEach(button => {
-      button.addEventListener('click', () => {
-        const target = document.getElementById(button.getAttribute('aria-controls') || '');
-        if (!target) return;
-        const open = button.getAttribute('aria-expanded') !== 'true';
-        mobileMenu.querySelectorAll<HTMLButtonElement>('[data-mobile-group-toggle]').forEach(other => {
-          other.setAttribute('aria-expanded', 'false');
-          document.getElementById(other.getAttribute('aria-controls') || '')?.setAttribute('hidden', '');
-        });
-        button.setAttribute('aria-expanded', String(open));
-        target.toggleAttribute('hidden', !open);
-      });
-    });
+    const catalogs = mobileMenu.querySelector<HTMLElement>('[data-menu-catalogs]')!;
+    const groupButtons = [...mobileMenu.querySelectorAll<HTMLButtonElement>('[data-mobile-group-toggle]')];
+    const switches = [...catalogs.querySelectorAll<HTMLButtonElement>('[data-menu-catalog]')];
+    let rootScroll = 0;
+    const selectCatalog = (selected?: HTMLButtonElement) => {
+      if (selected && !mobileMenu.hasAttribute('data-browsing')) rootScroll = mobileMenu.scrollTop;
+      mobileMenu.toggleAttribute('data-browsing', Boolean(selected));
+      catalogs.hidden = !selected;
+      for (const button of groupButtons) {
+        const active = button === selected;
+        button.setAttribute('aria-expanded', String(active));
+        button.closest('li')?.toggleAttribute('data-selected', active);
+        document.getElementById(button.getAttribute('aria-controls')!)!.hidden = !active;
+      }
+      for (const button of switches) {
+        const active = Boolean(selected && button.getAttribute('aria-controls') === selected.getAttribute('aria-controls'));
+        button.setAttribute('aria-pressed', String(active));
+        if (active) button.focus({ preventScroll: true });
+      }
+      mobileMenu.scrollTop = selected ? 0 : rootScroll;
+    };
+    const menuIndex = () => {
+      const from = groupButtons.find(button => button.getAttribute('aria-expanded') === 'true');
+      selectCatalog();
+      from?.focus({ preventScroll: true });
+    };
+    groupButtons.forEach(button => button.addEventListener('click', () => selectCatalog(button)));
+    switches.forEach(button => button.addEventListener('click', () => {
+      const target = groupButtons.find(group => group.getAttribute('aria-controls') === button.getAttribute('aria-controls'));
+      if (target) selectCatalog(target);
+    }));
+    catalogs.querySelector('[data-menu-index]')?.addEventListener('click', menuIndex);
     menuToggle.addEventListener('click', () => (isOpen() ? closeMenu() : openMenu()));
-    mobileMenu.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => closeMenu()));
+    const closeOnNavigation = (event: MouseEvent) => {
+      if (!isOpen() || event.defaultPrevented || event.button !== 0 ||
+          event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null;
+      if (link && (!link.target || link.target === '_self') && !link.hasAttribute('download')) closeMenu();
+    };
+    header.addEventListener('click', closeOnNavigation);
+    mobileMenu.addEventListener('click', closeOnNavigation);
     document.addEventListener('keydown', (event) => {
       if (!isOpen()) return;
       if (event.key === 'Escape') {
         event.preventDefault();
-        closeMenu(true);
+        if (mobileMenu.hasAttribute('data-browsing')) menuIndex();
+        else closeMenu(true);
         return;
       }
       if (event.key !== 'Tab') return;
@@ -1279,56 +1344,30 @@ const isActive = (href: string) => {
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     });
-    desktop.addEventListener('change', (e) => { if (e.matches) closeMenu(); });
+    let lastNavigationFocus: Element | null = null;
+    document.addEventListener('focusin', (event) => {
+      const target = event.target;
+      lastNavigationFocus = target instanceof Element && (header.contains(target) || mobileMenu.contains(target)) ? target : null;
+    });
+    desktop.addEventListener('change', (event) => {
+      const focused = document.activeElement === document.body ? lastNavigationFocus : document.activeElement;
+      closeMegas();
+      if (event.matches) {
+        const catalog = focused?.closest('.um-ops-mobile__destinations')?.id.replace('mobile-', '');
+        const href = focused?.closest<HTMLAnchorElement>('a')?.getAttribute('href');
+        closeMenu();
+        if (focused === menuToggle || (focused && mobileMenu.contains(focused))) {
+          const links = [...header.querySelectorAll<HTMLAnchorElement>('.um-ops-nav__link, .um-ops-cta')];
+          const equivalent = links.find(link => catalog ? link.closest<HTMLElement>('[data-mega]')?.dataset.mega === catalog : link.getAttribute('href') === href);
+          const current = header.querySelector<HTMLElement>('.um-ops-nav__link[aria-current], .um-ops-logo[aria-current]');
+          (equivalent || current || header.querySelector<HTMLElement>('.um-ops-logo'))?.focus({ preventScroll: true });
+        }
+      } else if (focused?.closest('.um-ops-nav') || (focused?.matches('.um-ops-cta') && !focused.getClientRects().length)) {
+        menuToggle.focus({ preventScroll: true });
+      }
+    });
     addEventListener('pageshow', () => closeMenu());
     addEventListener('popstate', () => closeMenu());
-
-    // Dock de contacto (sólo teléfono).
-    const dock = document.querySelector<HTMLElement>('[data-ops-dock]');
-    const dockCta = dock?.querySelector<HTMLAnchorElement>('[data-ops-dock-cta]');
-    const phone = matchMedia('(max-width: 760px)');
-    const onContactPage = ['/contacto', '/en/contact'].includes(location.pathname.replace(/\/$/, ''));
-    if (dock && dockCta && !onContactPage && 'IntersectionObserver' in window) {
-      const blockers = new Set<Element>();
-      let pastHero = false;
-      const render = () => {
-        const on = phone.matches && pastHero && blockers.size === 0;
-        dock.classList.toggle('is-on', on);
-        dock.setAttribute('aria-hidden', on ? 'false' : 'true');
-        dockCta.tabIndex = on ? 0 : -1;
-      };
-      const watch = new IntersectionObserver((entries) => {
-        entries.forEach((e) => (e.isIntersecting ? blockers.add(e.target) : blockers.delete(e.target)));
-        render();
-      });
-      // Otros CTA de contacto, cualquier botón primario rojo, formularios y el pie
-      // retiran el dock: nunca hay dos CTA primarios en pantalla ni tapa un formulario.
-      const isRed = (el: Element) => /rgb\(220, 38, 38\)/.test(getComputedStyle(el).backgroundColor);
-      const candidates = new Set<Element>([
-        ...document.querySelectorAll('main a[href^="/contacto"], main [data-contact-open], main form, .um-site-footer, .um-contact-modal'),
-        ...[...document.querySelectorAll('main a, main button')].filter(isRed),
-      ]);
-      candidates.forEach((el) => watch.observe(el));
-      // Aparece al volver hacia arriba (intención de navegar) y se oculta mientras se lee hacia abajo.
-      let lastY = scrollY;
-      let goingUp = false;
-      let ticking = false;
-      const onScroll = () => {
-        if (ticking) return;
-        ticking = true;
-        requestAnimationFrame(() => {
-          ticking = false;
-          const y = scrollY;
-          const delta = y - lastY;
-          if (Math.abs(delta) > 6) { goingUp = delta < 0; lastY = y; }
-          pastHero = y > innerHeight * 0.85 && goingUp;
-          render();
-        });
-      };
-      addEventListener('scroll', onScroll, { passive: true });
-      phone.addEventListener('change', render);
-      render();
-    }
   };
 
   initOpsNavigation();

@@ -1,14 +1,15 @@
 ---
 import { Download, X } from 'lucide-astro';
 import { SERVICE_SPEC_LIST } from '../../data/serviceSpecs';
-import serviciosSnapshot from '../../data/snapshots/servicios.json';
+import { contactLink } from '../../lib/contactEntry';
 import { getDatasheetPublicPath } from '../../utils/datasheets';
-import { generateSlug } from '../../utils/slugUtils';
+import { shellServiceCopy, type ShellLang } from '../../config/i18nShell';
 
-const pdfs = new Map(serviciosSnapshot.data.map(({ id, Titulo }) => [
-  String(id),
-  getDatasheetPublicPath(generateSlug(Titulo.replace('24/7', '247'))),
-]));
+interface Props { lang?: ShellLang }
+const { lang = 'es' } = Astro.props;
+const t = (es: string, en: string) => lang === 'en' ? en : es;
+const shortEnglish: Record<string, string> = { '102': 'Security', '103': 'Telecom', '104': 'Software', '107': 'Fire detection', '108': 'IT power' };
+
 const nombresDeIndice: Record<string, string> = {
   '102': 'Seguridad',
   '103': 'Telecom',
@@ -20,29 +21,37 @@ const nombresDeIndice: Record<string, string> = {
 <dialog id="fichas-tecnicas-portada" class="fichas-portada" aria-labelledby="fichas-portada-titulo">
   <div class="fichas-portada__panel">
     <header class="fichas-portada__cabecera">
-      <h2 id="fichas-portada-titulo">Fichas técnicas<span class="dot">.</span></h2>
+      <h2 id="fichas-portada-titulo">{t('Fichas técnicas', 'Technical sheets in Spanish')}<span class="dot">.</span></h2>
       <form method="dialog">
-        <button type="submit" class="fichas-portada__cerrar" aria-label="Cerrar fichas técnicas" autofocus>
+        <button type="submit" class="fichas-portada__cerrar" aria-label={t('Cerrar fichas técnicas', 'Close technical sheets')} autofocus>
           <X size={22} aria-hidden="true" />
         </button>
       </form>
     </header>
 
     <div class="fichas-portada__lectura">
-      <div class="fichas-portada__indice" role="tablist" aria-label="Índice de servicios" data-indice-documental hidden>
+      <div class="fichas-portada__selector" data-selector-documental hidden>
+        <select data-servicio-documental aria-label={t('Elegir servicio', 'Choose a service')} aria-controls="fichas-contenido">
+          {SERVICE_SPEC_LIST.map(({ code, name }) => (
+            <option value={`fichas-hoja-${code}`}>{shellServiceCopy(lang, code, name, '').name}</option>
+          ))}
+        </select>
+      </div>
+      <div class="fichas-portada__indice" role="tablist" aria-orientation="vertical" aria-label={t('Índice de servicios', 'Service index')} data-indice-documental hidden>
         {SERVICE_SPEC_LIST.map(({ code, name }, index) => (
           <button type="button" role="tab" id={`fichas-tab-${code}`} aria-controls={`fichas-hoja-${code}`}
-            aria-selected={index === 0} aria-label={name} tabindex={index === 0 ? 0 : -1}>
-            <span>{nombresDeIndice[code] || name}</span>
+            aria-selected={index === 0} aria-label={shellServiceCopy(lang, code, name, '').name} tabindex={index === 0 ? 0 : -1}>
+            <span>{lang === 'en' ? shortEnglish[code] || shellServiceCopy(lang, code, name, '').name : nombresDeIndice[code] || name}</span>
           </button>
         ))}
       </div>
-      <div class="fichas-portada__contenido" data-fichas-contenido>
+      <div class="fichas-portada__contenido" id="fichas-contenido" data-fichas-contenido lang={lang === 'en' ? 'es-AR' : undefined}>
         {SERVICE_SPEC_LIST.map(({ code, name, deliverables, scope, standards }, index) => {
-          const pdf = pdfs.get(code);
+          const pdf = getDatasheetPublicPath(code);
+          const consult = contactLink(Astro.url.pathname, t('/contacto', '/en/contact') + '?intent=documentacion&sistema=' + code);
           return (
             <section role="tabpanel" id={`fichas-hoja-${code}`} aria-labelledby={`fichas-tab-${code}`} tabindex="0" hidden={index !== 0}>
-              <h3>{name}</h3>
+              <h3 id={`fichas-titulo-${code}`}>{name}</h3>
               <div class="fichas-portada__grupos">
                 <div>
                   <h4>Documentación que recibís</h4>
@@ -57,9 +66,12 @@ const nombresDeIndice: Record<string, string> = {
                 <h4>Normas y criterios</h4>
                 <ul class="lista">{standards.map((item) => <li>{item}</li>)}</ul>
               </div>
-              {pdf && <a class="fichas-portada__pdf" href={pdf} download>
-                Descargar ficha en PDF <Download size={18} aria-hidden="true" />
-              </a>}
+              <div class="fichas-portada__acciones" lang={lang}>
+                {pdf && <a href={pdf} hreflang="es-AR" download>
+                  {t('Descargar ficha en PDF', 'Download PDF (Spanish)')} <Download size={18} aria-hidden="true" />
+                </a>}
+                <a data-consultar-ficha href={consult}>{t('Consultar por esta ficha', 'Ask about this service')}</a>
+              </div>
             </section>
           );
         })}
@@ -76,12 +88,41 @@ const nombresDeIndice: Record<string, string> = {
   const visor = document.querySelector<HTMLDialogElement>('#fichas-tecnicas-portada');
   const contenido = visor?.querySelector<HTMLElement>('[data-fichas-contenido]');
 
-  if (acciones) acciones.hidden = false;
   if (abrir && visor && contenido && typeof visor.showModal === 'function') {
     activarIndiceDocumental(visor, () => { contenido.scrollTop = 0; });
     abrir.hidden = false;
     abrir.addEventListener('click', () => visor.showModal());
-    visor.addEventListener('close', () => abrir.focus({ preventScroll: true }));
+    contenido.addEventListener('click', (event) => {
+      if (event.button !== 0 || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+      const enlace = event.target instanceof Element && event.target.closest('[data-consultar-ficha]');
+      if (!enlace) return;
+      const hoja = enlace.closest('section');
+      if (hoja) history.replaceState({ ...history.state, fichaConsultada: { id: hoja.id, scroll: contenido.scrollTop } }, '');
+    });
+
+    window.addEventListener('pageshow', () => {
+      const guardada = history.state?.fichaConsultada;
+      if (!guardada || typeof guardada.id !== 'string') return;
+      const hoja = document.getElementById(guardada.id);
+      if (!hoja || !contenido.contains(hoja)) return;
+      const tab = visor.querySelector<HTMLButtonElement>(`[aria-controls="${CSS.escape(hoja.id)}"][role="tab"]`);
+      if (!tab) return;
+      tab.click();
+      if (!visor.open) visor.showModal();
+      contenido.scrollTop = guardada.scroll;
+      const consulta = hoja.querySelector<HTMLElement>('[data-consultar-ficha]');
+      consulta?.focus({ preventScroll: true });
+      consulta?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' });
+    });
+
+    visor.addEventListener('close', () => {
+      if (history.state?.fichaConsultada) {
+        const state = { ...history.state };
+        delete state.fichaConsultada;
+        history.replaceState(state, '');
+      }
+      abrir.focus({ preventScroll: true });
+    });
   }
 </script>
 
@@ -147,6 +188,23 @@ const nombresDeIndice: Record<string, string> = {
     overflow-y: auto;
     overscroll-behavior: contain;
   }
+  .fichas-portada__selector {
+    padding: 8px var(--fichas-gutter);
+    border-bottom: 1px solid var(--empresa-line);
+  }
+  .fichas-portada__selector select {
+    width: 100%;
+    min-height: 44px;
+    padding-inline: 8px;
+    border: 1px solid var(--empresa-muted);
+    border-radius: 0;
+    background: var(--empresa-paper);
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    appearance: auto;
+  }
+  .fichas-portada__selector[hidden], .fichas-portada__indice[hidden] { display: none; }
   .fichas-portada__indice button {
     min-height: 44px;
     padding: 8px 12px;
@@ -199,29 +257,27 @@ const nombresDeIndice: Record<string, string> = {
     padding-top: var(--s2);
     border-top: 1px solid var(--empresa-line);
   }
-  .fichas-portada .fichas-portada__pdf {
+  .fichas-portada__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--s3);
+    margin-top: var(--s2);
+  }
+  .fichas-portada__acciones a {
     display: inline-flex;
     align-items: center;
     gap: var(--s1);
     min-height: 44px;
-    margin-top: var(--s2);
     font-size: 1rem;
     font-weight: 600;
     text-decoration: underline;
     text-underline-offset: 4px;
   }
-  .fichas-portada__pdf :global(svg) { flex: none; }
+  .fichas-portada__acciones :global(svg) { flex: none; }
   @media (max-width: 720px) {
     .fichas-portada__lectura {
       grid-template-columns: minmax(0, 1fr);
       grid-template-rows: auto minmax(0, 1fr);
-    }
-    .fichas-portada__indice {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      max-height: 40dvh;
-      padding-block: var(--s1);
-      border-right: 0;
-      border-bottom: 1px solid var(--empresa-line);
     }
     .fichas-portada__grupos { grid-template-columns: minmax(0, 1fr); }
   }

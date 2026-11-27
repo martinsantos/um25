@@ -1,10 +1,11 @@
 ---
-import { generateSlug } from '../../utils/slugUtils';
+import CatalogResultsReturn from './CatalogResultsReturn.astro';
+import WorkContextActions from './WorkContextActions.astro';
 import SystemPicker from './SystemPicker.astro';
 import Parte from './Parte.astro';
 import WorkScene from './WorkScene.astro';
-import { serviceWorkExamples, workScene } from '../../data/propuesta/workScenes';
-import { samePublicClient } from './casePresentation';
+import { provisionDestination, serviceWorkExamples, workScene } from '../../data/propuesta/workScenes';
+import { matchesServiceReference } from './serviceReference';
 import JourneyAction from './JourneyAction.astro';
 import { serviceJourney } from '../../data/propuesta/recorrido';
 import { groupedProvisionParts } from '../../data/propuesta/service-provision-visuals';
@@ -20,32 +21,34 @@ const systems: System[] = 'systems' in props ? props.systems : groupServiceProvi
   parts: groupedProvisionParts(system.members),
 }));
 const { introduction } = props;
+const enquiry = Astro.locals.serviceWorkEnquiry;
+const requested = Astro.url.searchParams.get('prestacion');
+const initialGroup = enquiry?.group || systems.find(system => system.title === requested)?.title || systems[0]?.title;
+const originWork = enquiry && !enquiry.group ? props.stories.find(story => story.id === enquiry.id) : undefined;
 ---
-<section id="provision" class="sec" data-provision aria-labelledby="provision-title">
+<section id="provision" tabindex="-1" class="sec" data-provision aria-labelledby="provision-title">
   <div class="wrap">
+    <CatalogResultsReturn />
     <h2 id="provision-title">Qué proveemos<span class="dot">.</span></h2>
+    {originWork && <WorkContextActions work={originWork} />}
     {introduction && <p class="intro">{introduction}</p>}
-    <SystemPicker id="sistemas-del-servicio" label="Sistemas y prestaciones" back="Ver opciones">
+    <SystemPicker change="Cambiar sistema" id="sistemas-del-servicio" label="Sistemas y prestaciones" back="Ver opciones">
     <div class="systems">
-      {systems.map((system, index) => {
+      {systems.map(system => {
         const guide = serviceJourney[props.code]?.groups[system.title];
-        const label = guide?.label || system.title;
+        const { id, label } = provisionDestination(props.code, system.title);
         const reference = guide?.reference;
-        const story = reference && props.stories.find(s => s.id === reference.id && (samePublicClient(s.client, reference.client)
-          || (s.client === reference.client && s.title === reference.title)));
+        const story = reference && props.stories.find(item => matchesServiceReference(item, reference));
+        const fromWork = enquiry?.code === props.code && enquiry.group === system.title && story?.id === enquiry.id;
         const example = serviceWorkExamples[props.code]?.[system.title];
         const scene = workScene(example, story);
-        return <details id={example?.anchor || `prestacion-${generateSlug(system.title)}`} open={index === 0}>
+        const inlineFlow = system.title === props.sceneGroup && !scene && Astro.slots.has('flow');
+        const accessReader = system.title === 'Control de Acceso Biométrico' && Astro.slots.has('accessReader');
+        const cameraStages = system.title === 'Videovigilancia IP' && Astro.slots.has('cameraStages');
+        const hasScene = scene || inlineFlow || accessReader;
+        return <details open={system.title === initialGroup}>
         <summary>{label}</summary>
-        {system.title === props.sceneGroup && !scene && <div class="inline-flow"><slot name="flow" /></div>}
-        {system.title === 'Control de Acceso Biométrico' && <slot name="accessReader" />}
-        <div class:list={['system-body', { compact: !scene && 'items' in props && system.parts.length < 3, 'with-scene': scene }]} style={`--part-count:${system.parts.length}`}>
-          {scene && <div class="work-scene" id={system.title === props.sceneGroup ? "flujo" : undefined}><WorkScene content={scene} /></div>}
-          {system.title === "Videovigilancia IP" && Astro.slots.has("cameraStages") ? <slot name="cameraStages" /> : system.parts.length > 0 && <div class="parts" aria-label={`Componentes de ${label}`}>
-            {system.parts.map(part => <figure data-provision-part={part.key}>
-              <Parte k={part.key} size={96} /><figcaption>{part.label}</figcaption>
-            </figure>)}
-          </div>}
+        <div id={id} data-system-body tabindex="-1" class:list={['system-body', { 'with-parts': cameraStages || system.parts.length > 0, 'with-scene': hasScene }]}>
           <div class="scope">
             {system.members.map(member => <div data-provision-item>
               {system.members.length > 1 && <h3>{member.group?.heading || member.title}</h3>}
@@ -56,9 +59,22 @@ const { introduction } = props;
               </p>}
             </div>)}
             {system.integration && <a class="u" href="/servicios/107#provision">Ver el servicio de incendios →</a>}
-            {!scene && <JourneyAction code={props.code} group={system.title} story={example ? undefined : story} />}
           </div>
-          {scene && <div class="work-evidence"><JourneyAction code={props.code} group={system.title} story={story} /></div>}
+          {hasScene && <div class="system-media">
+            {inlineFlow && <div class="inline-flow"><slot name="flow" /></div>}
+            {accessReader && <slot name="accessReader" />}
+            {scene && <div class="work-scene" id={system.title === props.sceneGroup ? 'flujo' : undefined}><WorkScene content={scene} /></div>}
+          </div>}
+          {(cameraStages || system.parts.length > 0) && <div class="system-parts">
+            {cameraStages ? <slot name="cameraStages" /> : <div class="parts" aria-label={`Componentes de ${label}`}>
+              {system.parts.map(part => <figure data-provision-part={part.key}>
+                <Parte k={part.key} size={96} /><figcaption>{part.label}</figcaption>
+              </figure>)}
+            </div>}
+          </div>}
+          <div class="work-evidence">
+            <JourneyAction code={props.code} group={system.title} story={example && !scene && !fromWork ? undefined : story} fromWork={Boolean(fromWork)} />
+          </div>
         </div>
       </details>})}
     </div>
@@ -67,7 +83,6 @@ const { introduction } = props;
   </div>
 </section>
 <style>
-  .inline-flow { margin:2px 0 var(--s3); }
   .inline-flow :global(section.sec) { padding:0; border:0; scroll-margin-top:calc(var(--top-h,66px) + 12px); }
   .inline-flow :global(.wrap) { width:100%;max-width:none;padding:0; }
   #provision { padding-top:var(--s4); }
@@ -78,35 +93,38 @@ const { introduction } = props;
   summary { cursor:pointer; padding:18px 4px; font-size:1.2rem; font-weight:600; }
   summary::marker { color:var(--ink-2); font-size:.85em; }
   summary:focus-visible { outline:2px solid currentColor; outline-offset:2px; }
-  .system-body { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--s4); padding-bottom:var(--s3); align-items:start; }
-  .parts :global(.parte) { width:clamp(76px,8vw,110px);height:auto;max-width:100%; }
-  @media(min-width:721px) {
-    .system-body.compact { grid-template-columns:minmax(0,calc(var(--part-count) * 148px + 32px)) minmax(0,1fr); }
+  [data-system-body] { scroll-margin-top:72px; }
+  .system-body {
+    display:grid; grid-template-columns:minmax(0,1fr);
+    gap:clamp(16px,2vw,28px); padding-bottom:var(--s3); align-items:start;
   }
-  .system-body .scope:only-child { grid-column:1 / -1; }
-  .parts { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(110px,100%),1fr)); gap:14px; padding:16px; background:#e3e8e6; color:#20292b; }
-  figure { display:grid; justify-items:center; align-content:start; margin:0; }
-  figcaption { text-align:center; font-size:.95rem; line-height:1.3; }
-  details[id] { scroll-margin-top:calc(var(--top-h,66px) + 12px); }
-  .system-body.with-scene {
-    grid-template-columns:minmax(240px,.8fr) minmax(0,1.5fr);
-    grid-template-areas:"scope scene" "parts scene" "evidence scene";
-    grid-template-rows:auto auto 1fr;
-    gap:16px clamp(24px,4vw,56px);
-  }
-  .with-scene .work-scene { grid-area:scene; min-width:0; }
-  .with-scene .scope { grid-area:scope; }
-  .with-scene .parts { grid-area:parts; background:transparent; color:inherit; padding:0; grid-template-columns:1fr; gap:8px; }
-  .with-scene figure { display:flex;gap:10px;align-items:center; }
-  .with-scene figure :global(.parte) { width:40px;flex-shrink:0; }
-  .with-scene figcaption { text-align:start; }
-  .work-evidence { grid-area:evidence; }
-  @media(max-width:900px) {
-    .system-body.with-scene { grid-template-columns:minmax(0,1fr);grid-template-areas:"scope" "scene" "parts" "evidence";grid-template-rows:auto; }
-    .with-scene .parts {grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));}
-  }
-  .scope { min-width:0; display:grid; gap:16px; max-width:60ch; }
+  .system-media { display:grid; gap:var(--s3); min-width:0; }
+  .scope { min-width:0; display:grid; gap:16px; max-width:68ch; }
   .scope h3 { font-size:1.05rem; }
   .scope p { color:var(--ink-2); margin:4px 0 0; line-height:1.5; }
-  @media(max-width:720px) { .system-body { grid-template-columns:minmax(0,1fr); gap:16px; } }
+  .work-evidence :global(.next-step) { margin-top:0; }
+  .parts {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(min(108px,100%),1fr));
+    gap:14px; padding:clamp(12px,1.5vw,20px); background:#e3e8e6; color:#20292b;
+  }
+  .parts :global(.parte) { width:clamp(76px,7vw,102px); height:auto; max-width:100%; }
+  figure { display:grid; justify-items:center; align-content:start; margin:0; }
+  figcaption { text-align:center; font-size:.95rem; line-height:1.3; }
+  @media(min-width:761px) {
+    .system-body.with-parts {
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      grid-template-areas:"scope parts" "evidence parts";
+      grid-template-rows:auto 1fr;
+      gap:18px clamp(20px,3vw,48px);
+    }
+    .system-body.with-parts .scope { grid-area:scope; }
+    .system-parts { grid-area:parts; }
+    .system-body.with-parts .work-evidence { grid-area:evidence; }
+    .system-body.with-parts.with-scene {
+      grid-template-areas:"scope scope" "scene scene" "parts evidence";
+      grid-template-rows:auto;
+      row-gap:clamp(16px,2vw,28px);
+    }
+    .with-parts.with-scene .system-media { grid-area:scene; }
+  }
 </style>

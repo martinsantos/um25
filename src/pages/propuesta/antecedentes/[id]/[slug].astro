@@ -1,5 +1,12 @@
 ---
-import { contactLink } from '../../../../lib/contactEntry';
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-astro";
+import { caseJourney, pageContactLink, sectorWorkLink } from '../../../../lib/caseJourney';
+import { homeProjectJourney } from '../../../../components/proto/portadaCases';
+import { serviceJourney } from "../../../../data/propuesta/recorrido";
+import { provisionDestination } from "../../../../data/propuesta/workScenes";
+import { getServicios } from "../../../../lib/um26-directus";
+import { serviceProvisionItems, groupServiceProvision, securityProvisionGroups } from "../../../../utils/serviceProvision";
+import { matchesServiceReference } from "../../../../components/proto/serviceReference";
 import "../../../../styles/case-presentation.css";
 /**
  * Ficha de trabajo (2026-10-31). Cada antecedente como hoja de trabajo: cabecera con la referencia
@@ -9,12 +16,16 @@ import "../../../../styles/case-presentation.css";
 import "../../../../styles/proto-despiece.css";
 import Head from "../../../../components/proto/Head.astro";
 import Top from "../../../../components/proto/Top.astro";
-import Ficha from "../../../../components/proto/Ficha.astro";
+import { isNamedClient } from "../../../../components/proto/catalogEditorial";
+import { catalogBatch, catalogHref, catalogState, catalogWindow, catalogWindowHref, caseContextQuery, clientKey, matchesCatalog, orderCatalog } from "../../../../components/proto/catalogFilters";
+import { relatedCaseGroups } from "../../../../components/proto/relatedCaseGroups";
+import RelatedCases from "../../../../components/proto/RelatedCases.astro";
 import FichaIso from "../../../../components/proto/FichaIso.astro";
 import Cierre from "../../../../components/proto/Cierre.astro";
 import {
   loadStories,
   services,
+  srcsetDe,
   variantes,
 } from "../../../../components/proto/isoData";
 import caseImageDescriptions from "../../../../data/casePhotoAlt.json";
@@ -41,10 +52,9 @@ import { operationsSceneForCase } from "../../../../data/operationsScenes";
 import { technicalSceneForCase } from "../../../../data/technicalScenes";
 import {
   caseIntroduction,
-  reviewedIntroductions,
   publicCaseFor,
   publicCaseTitle,
-  samePublicClient,
+  archiveRecord,
   caseEquipmentFor,
 } from "../../../../components/proto/casePresentation";
 
@@ -61,7 +71,25 @@ const c = stories[index];
 const caseDetail = publicCaseFor(c);
 const pageTitle = publicCaseTitle(c);
 if (Astro.params.slug !== c.slug) return Astro.redirect(c.href + Astro.url.search, 301);
-const svcs = services.filter((s) => c.serviceCodes.includes(s.code));
+const candidates = services.filter(s => c.serviceCodes.includes(s.code)).map(service => ({
+  service,
+  references: Object.entries(serviceJourney[service.code]?.groups ?? {}).filter(([, group]) =>
+    group.reference && matchesServiceReference(c, group.reference)),
+}));
+const definitions = candidates.some(item => item.references.length > 0) ? await getServicios() : [];
+const svcs = candidates.map(({ service, references }) => {
+  const definition = definitions.find(item => item.code === Number(service.code));
+  const items = serviceProvisionItems(definition?.products ?? [], Number(service.code));
+  const groups = service.code === '102' ? securityProvisionGroups(items) : groupServiceProvision(items);
+  const reference = references.find(([title]) => groups.some(group => group.title === title));
+  const query = new URLSearchParams({ desde: 'obra', antecedente: String(c.id) });
+  if (!reference) return { name: service.name, href: service.href + '?' + query + '#provision', provision: undefined };
+  const [group] = reference;
+  const destination = provisionDestination(service.code, group);
+  query.set('grupo', group);
+  return { name: service.name, href: service.href + '?' + query + '#' + destination.id, provision: destination.label };
+});
+const sectorHref = sectorWorkLink(c)?.href;
 const months = [
   "",
   "enero",
@@ -77,28 +105,46 @@ const months = [
   "noviembre",
   "diciembre",
 ];
-const when = [c.month ? months[c.month] : "", c.year].filter(Boolean).join(" ");
-const mesAnio = (iso?: string) => {
-  if (!iso) return "";
-  const [y, m] = iso.split("-").map(Number);
-  return [m ? months[m] : "", y].filter(Boolean).join(" ");
-};
-const cierre = c.cierre && mesAnio(c.cierre) !== when ? mesAnio(c.cierre) : "";
 const enCurso = c.estado === "en-curso";
-const periodo = cierre ? `${when} – ${cierre}` : when;
-const sameClient = stories
-  .filter((o) => o.id !== c.id && samePublicClient(o.client, c.client))
-  .slice(0, 4);
-const sameSector = stories
-  .filter(
-    (o) =>
-      o.id !== c.id && o.sectorSlug === c.sectorSlug && !sameClient.includes(o),
-  )
-  .slice(0, 4);
-const prev = stories[index + 1];
-const next = stories[index - 1];
+const monthYear = (month: number, year: number) => [months[month], year || ""].filter(Boolean).join(" de ");
+const start = monthYear(c.month, c.year);
+const [endYear, endMonth] = (c.cierre || "").split("-").map(Number);
+const end = monthYear(endMonth, endYear);
+function projectPeriod() {
+  if (!end) return start;
+  if (enCurso) return [start, `cierre previsto en ${end}`].filter(Boolean).join(" · ");
+  if (!start) return `Cierre en ${end}`;
+  if (start === end) return start;
+  const from = c.year === endYear && months[c.month] && months[endMonth] ? months[c.month] : start;
+  return `${from} a ${end}`;
+}
+const periodo = projectPeriod();
+const estadoVisible = enCurso ? "En curso" : c.documentedScope && c.estado === "finalizado" ? "Finalizado" : "";
+const client = clientKey(c.client);
+const clientArchive = isNamedClient(c.client) && stories.some(s => s.id !== c.id && clientKey(s.client) === client)
+  ? catalogHref({ cliente: c.client }) + '#obras-filtradas' : undefined;
+const filters = catalogState(Astro.url.searchParams);
+const windowSize = catalogWindow(Astro.url.searchParams.get('mostrar'), stories.length);
+const requestedSelection = Astro.url.searchParams.get('desde') === 'archivo' && caseContextQuery(filters, windowSize);
+const selection = requestedSelection
+  ? orderCatalog(stories.map(archiveRecord).filter(record => matchesCatalog(record, filters)), filters.orden, Boolean(filters.sector || filters.service))
+  : [];
+const position = selection.findIndex(record => record.story.id === c.id);
+const inSelection = position >= 0;
+const visible = Math.max(windowSize, Math.ceil((position + 1) / catalogBatch) * catalogBatch);
+const homeJourney = homeProjectJourney(c, Astro.url.searchParams, stories);
+const journey = homeJourney || (inSelection ? undefined : caseJourney(c, Astro.url.searchParams, stories));
+Astro.locals.caseJourney = journey;
+const returnHref = inSelection ? catalogWindowHref(filters, visible) + '#resultado-um-' + c.id : journey?.href || '/antecedentes';
+const returnLabel = inSelection ? '← Volver a resultados' : journey ? '← ' + journey.label : undefined;
+const neighborQuery = inSelection ? caseContextQuery(filters, visible) : '';
+const prev = inSelection ? selection[position - 1]?.story : undefined;
+const next = inSelection ? selection[position + 1]?.story : undefined;
+const related = relatedCaseGroups(c, stories);
 const photo = Boolean(c.image);
 const imageSet = variantes(c.image);
+const imageSrcset = srcsetDe(c.image);
+const imageSizes = "(max-width: 500px) calc(100vw - 40px), (max-width: 900px) 92vw, (max-width: 1520px) 52vw, 775px";
 const photoAlt =
   photographForCase(c.id)?.context ||
   (caseImageDescriptions as Record<string, string>)[String(c.id)] ||
@@ -118,14 +164,24 @@ const catalogScene =
     ? undefined
     : catalogSceneForCase(c);
 const accessProject = c.id === 3104;
+const showEquipment = scope.partes.length > 0 && !interventionScene && !equipmentScene && !hospitalScene;
+const showScene = Boolean(accessProject || residentialScene || hospitalScene || equipmentScene ||
+  interventionScene || connectionScene || operationsScene || technicalScene || catalogScene);
+const sections = [
+  {
+    show: Boolean(caseDetail || showEquipment),
+    id: caseDetail ? "alcance-del-proyecto" : "alcance",
+    label: !caseDetail && scope.origen === "servicio" ? "Capacidades vinculadas" : "Qué se hizo",
+  },
+  { show: showScene, id: "flujo", label: accessProject ? "Ver la lectura de la credencial" : "Cómo funciona" },
+  { show: related.length > 0, id: "obras-relacionadas", label: "Obras relacionadas" },
+].filter(section => section.show);
 const ref = `UM-${c.id}`;
-const reviewed = reviewedIntroductions.has(c.id);
-const summary = caseDetail?.introduction || (reviewed ? caseIntroduction(c.summary, pageTitle, c.client) : c.summary);
-const introduction = reviewed || summary ? summary :
-  `Registro ${ref} del archivo de ULTIMA MILLA${when ? `, correspondiente a ${when}` : ""}. ${svcs.length ? `Servicios vinculados: ${svcs.map((s) => s.name).join(", ")}.` : "El alcance disponible se conserva con la referencia original del proyecto."}`;
+const contactHref = pageContactLink(Astro, `/contacto?antecedente=${c.id}#formulario`);
+const introduction = caseDetail?.introduction || caseIntroduction(c.summary, pageTitle, c.client);
 const caseSeo = buildCaseSeoMeta({
   title: pageTitle,
-  description: summary,
+  description: introduction,
   client: c.client,
   area: c.sector,
   date: String(c.year),
@@ -143,49 +199,100 @@ const seoTitle = caseSeo.title.includes(ref)
       title={seoTitle}
       description={caseSeo.description}
       image={c.image}
-      precargar
     />
+    {photo && <link rel="preload" as="image" href={c.image}
+      imagesrcset={imageSrcset} imagesizes={imageSrcset ? imageSizes : undefined} fetchpriority="high" />}
     <style>
       .project-actions { display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin-top:8px; }
-      .project-actions a {min-height:44px;display:inline-flex;align-items:center;}
-
-      .nav {
+      .project-actions a {min-height:44px;display:inline-flex;align-items:center;gap:6px;}
+      .project-sections { border-top: 1px solid var(--line); }
+      .project-sections ul {
         display: flex;
-        justify-content: space-between;
-        gap: 16px;
-        padding: var(--s3) 0 0;
-        color: var(--ink-3);
-        font-size: 1rem;
+        flex-wrap: wrap;
+        gap: 0 16px;
+        padding: 0;
+        margin: 0;
+        list-style: none;
       }
-      .nav a:hover {
-        color: var(--ink);
+      .project-sections a {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 44px;
+        font-size: .9375rem;
+        font-weight: 550;
+        line-height: 1.35;
+        color: var(--ink-2);
       }
-      /* Cabecera de la hoja: la referencia a la izquierda, sector y fecha a la derecha, como un cajetín superior. */
+      .project-sections a:is(:hover,:focus-visible) { color:var(--ink); text-decoration:underline; text-underline-offset:.22em; }
+      .project-sections :global(svg) { flex: none; }
+
+      .project-close {
+        display:grid;
+        grid-template-columns:minmax(0, 6fr) minmax(0, 5fr);
+        align-items:start;
+        gap:var(--s3) clamp(32px, 5vw, 80px);
+        margin-block-end:var(--s5);
+        padding:clamp(18px, 3.5vw, 52px);
+        color:#141818;
+        background:#eceee8;
+        border-top:3px solid var(--red);
+        scroll-margin-top:calc(var(--top-h) + 16px);
+      }
+      .project-close--single { grid-template-columns:minmax(0,1fr); }
+      .project-close h2 { font-size:clamp(1.7rem, 3vw, 3rem); line-height:1.08; text-wrap:balance; }
+      .project-close p { margin:10px 0 18px; max-width:43ch; color:#414c48; }
+      .project-close .btn { width:fit-content; background:#141818; color:#fff; border-color:#141818; }
+      .project-close .btn:hover { background:#292f2f; }
+      .project-close h3 { font-size:1.05rem; letter-spacing:normal; }
+      .project-close ul { margin:8px 0 0; padding:0; list-style:none; }
+      .project-close li { border-top:1px solid #b9c0ba; }
+      .project-close li a { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:48px; padding-block:8px; }
+      .project-close li a:is(:hover,:focus-visible) strong { text-decoration:underline; text-underline-offset:.2em; }
+      .project-close li strong,.project-close li small { display:block; }
+      .project-close li strong { font-weight:650; line-height:1.3; }
+      .project-close li small { color:#414c48; line-height:1.3; }
+      .project-close svg { flex:none; }
+      .project-close a:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
+      .case-return { margin-block:0 var(--s4); }
+      .case-return__head { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0 12px; }
+      .case-return__head > a { display:inline-flex; align-items:center; min-height:44px; color:var(--ink-2); }
+      .case-return__head > p { color:var(--ink-2); font-variant-numeric:tabular-nums; }
+      .nav-obras { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 270px), 1fr)); gap:0 var(--s4); }
+      .nav-obras a { display:grid; align-content:start; padding-block:14px; gap:5px; border-top:1px solid var(--line); }
+      .nav-obras small { display:flex; align-items:center; gap:8px; font-size:.9375rem; color:var(--ink-2); }
+      .nav-obras strong { font-size:1.125rem; line-height:1.35; overflow-wrap:anywhere; }
+      .case-return a:is(:hover,:focus-visible) { text-decoration:underline; text-underline-offset:.2em; }
+      @media (max-width:700px) {
+        .project-close { grid-template-columns:minmax(0,1fr); }
+      }
+      @media print {
+        .project-close,.case-return { display:none; }
+      }
       .hoja-cab {
         display: flex;
         justify-content: space-between;
-        align-items: baseline;
-        gap: 16px;
+        align-items: center;
+        gap: 12px;
         margin-top: var(--s3);
-        padding-bottom: 10px;
         border-bottom: 1px solid var(--line);
-        color: var(--ink-3);
-        font-size: 1rem;
-        letter-spacing: 0.02em;
       }
-      .hoja-cab a { text-decoration: underline; text-underline-offset: .2em; }
+      .hoja-cab a, .quien a, .tabla a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        text-decoration: underline;
+        text-decoration-color: var(--ink-3);
+        text-underline-offset: .2em;
+      }
+      .proyecto a:is(:hover, :focus-visible), .hoja-cab a:is(:hover, :focus-visible) {
+        text-decoration-color: currentColor;
+      }
       .hoja-cab b {
-        color: var(--ink);
-        font-weight: 600;
+        font-size: .9375rem;
+        font-variant-numeric: tabular-nums;
+        color: var(--ink-2);
         white-space: nowrap;
-      }
-      .hoja-cab .curso {
-        font-style: normal;
-        margin-left: 12px;
-        padding: 2px 8px;
-        border: 1px solid var(--red);
-        color: var(--ink);
-        font-size: 1rem;
       }
       .proyecto {
         padding-block: var(--s4) var(--s5);
@@ -194,9 +301,11 @@ const seoTitle = caseSeo.title.includes(ref)
         gap: var(--s4) clamp(28px, 4vw, 72px);
         align-items: start;
       }
+      .proyecto:not(.proyecto--sinfoto) > :is(.datos,.tabla) { grid-column: 2; }
       .obra {
         margin: 0;
-        grid-row: span 2;
+        grid-column: 1;
+        grid-row: 1 / span 2;
         overflow: hidden;
         background: var(--bg-2);
       }
@@ -219,14 +328,10 @@ const seoTitle = caseSeo.title.includes(ref)
       .datos h1 {
         font-size: clamp(1.7rem, 2.6vw, 2.4rem);
       }
-      .datos .quien {
-        font-size: 1.1rem;
-        font-weight: 600;
-      }
-      .datos .quien span {
-        color: var(--ink-3);
-        font-weight: 400;
-      }
+      .quien { display: grid; justify-items: start; }
+      .quien strong { font-size: 1.1rem; }
+      .quien p { color: var(--ink-2); font-size: 1rem; }
+      .quien p::first-letter { text-transform: uppercase; }
       .datos .alcance h2 {
         margin-bottom: 6px;
         font-size: 1rem;
@@ -238,65 +343,24 @@ const seoTitle = caseSeo.title.includes(ref)
       .tabla {
         margin: 0;
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
         gap: var(--s2) var(--s3);
         padding-top: var(--s2);
         border-top: 1px solid var(--line);
         align-self: start;
       }
-      .tabla div {
-        display: grid;
-        gap: 4px;
-      }
-      .tabla dt {
-        color: var(--ink-3);
-        font-size: 1rem;
-      }
-      .tabla dd {
-        margin: 0;
-        font-weight: 500;
-      }
-      .tabla .ancho {
-        grid-column: 1 / -1;
-      }
-      .tabla dd a {
-        border-bottom: 1px solid var(--red);
-      }
-      .tabla dd a + a::before {
-        content: ", ";
-        border: 0;
-      }
+      .tabla .con-prestacion { align-items:flex-start; flex-direction:column; justify-content:center; padding-block:6px; }
+      .servicio-obra small { display:inline-flex; align-items:center; gap:5px; color:var(--ink-2); font-size:.9rem; line-height:1.35; }
+      .servicio-obra small :global(svg) { flex:none; color:var(--red-text); }
+      .tabla dt { color: var(--ink-2); font-size: .9375rem; }
+      .tabla dd { display: flex; flex-wrap: wrap; gap: 0 14px; margin: 0; font-weight: 500; }
       .proyecto--sinfoto {
         grid-template-columns: 1fr;
         max-width: 72ch;
       }
       @media (max-width: 900px) {
-        .hoja-cab {
-          flex-direction: column;
-          gap: 8px;
-        }
         .proyecto {
           grid-template-columns: 1fr;
-        }
-        .nav {
-          flex-direction: column;
-          gap: 4px;
-          padding-top: 20px;
-        }
-        .nav > span {
-          display: flex;
-          justify-content: space-between;
-          gap: 24px;
-        }
-        .nav a {
-          display: inline-flex;
-          align-items: center;
-          min-height: 44px;
-          width: fit-content;
-          white-space: nowrap;
-        }
-        .nav .nav-separator {
-          display: none;
         }
         .hoja-cab {
           margin-top: 16px;
@@ -305,39 +369,13 @@ const seoTitle = caseSeo.title.includes(ref)
           gap: 24px;
           padding-top: 24px;
         }
-        .datos {
-          grid-row: 1;
-        }
+        .proyecto:not(.proyecto--sinfoto) > :is(.datos,.tabla),
+        .obra { grid-column: auto; grid-row: auto; }
         .datos h1 {
           font-size: clamp(2rem, 7.5vw, 2.6rem);
           line-height: 1.08;
           font-weight: 600;
           letter-spacing: -0.025em;
-        }
-        .datos .quien > span {
-          display: block;
-        }
-        .datos .quien .quien-separator {
-          display: none;
-        }
-        .obra {
-          grid-row: 2;
-        }
-        .tabla {
-          grid-row: 3;
-        }
-        .tabla dd a {
-          display: inline-flex;
-          align-items: center;
-          min-height: 44px;
-        }
-        .tabla .ancho dd {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px 16px;
-        }
-        .tabla dd a + a::before {
-          content: none;
         }
       }
     </style>
@@ -345,51 +383,18 @@ const seoTitle = caseSeo.title.includes(ref)
   <body class="hoja-trabajo">
     <Top current="antecedentes" />
 
-    <main id="contenido">
+    <main id="contenido" tabindex="-1" data-project-reference={c.id}>
       <div class="wrap">
-        {!accessProject && <div class="hoja-cab">
-          <span
-            ><a href="/antecedentes" data-catalog-back>Antecedentes</a> · <b>{ref}</b>{
-              enCurso && <i class="curso">En curso</i>
-            }</span
-          ><span>{[c.sector, periodo].filter(Boolean).join(" · ")}</span>
-        </div>
-        }
+        <nav class="hoja-cab" aria-label="Ubicación en el archivo">
+          <a href={returnHref} data-catalog-back data-selection-return={inSelection || undefined} data-home-work-return={Boolean(homeJourney) || undefined}>{returnLabel || 'Antecedentes'}</a>
+          <b aria-current="page">{ref}</b>
+        </nav>
         <div class:list={["proyecto", { "proyecto--sinfoto": !photo }]}>
-          {
-            photo && (
-              <figure class="obra">
-                <img
-                  src={c.image}
-                  srcset={
-                    imageSet.ancho
-                      ? `${imageSet.w480} 480w, ${imageSet.w960} 960w, ${c.image} ${imageSet.ancho}w`
-                      : undefined
-                  }
-                  sizes="(max-width: 900px) 100vw, 58vw"
-                  alt={photoAlt}
-                  width={imageSet.ancho || 1600}
-                  height={imageSet.ancho === 1536 ? 1024 : 1000}
-                  fetchpriority="high"
-                  decoding="async"
-                />
-              </figure>
-            )
-          }
           <div class="datos">
             <h1 data-contact-origin-title={`Proyecto ${ref} · ${pageTitle}`}>{pageTitle.replace(/\.$/, '')}<span class="dot">.</span></h1>
             <div class="quien">
-              {c.client}{
-                (accessProject ? periodo : when) && (
-                  <span>
-                    <span class="quien-separator" aria-hidden="true">
-                      {" "}
-                      ·{" "}
-                    </span>
-                    {accessProject ? periodo : when}
-                  </span>
-                )
-              }
+              <strong>{clientArchive ? <a href={clientArchive} aria-label={`Ver antecedentes de ${c.client}`}>{c.client}</a> : c.client}</strong>
+              {(periodo || estadoVisible) && <p>{[periodo, estadoVisible].filter(Boolean).join(" · ")}</p>}
             </div>
             {
               introduction && (c.documentedScope ? (
@@ -402,118 +407,68 @@ const seoTitle = caseSeo.title.includes(ref)
               ))
             }
             <div class="project-actions">
-              <a class={accessProject ? 'btn' : 'u'} href={contactLink(Astro.url.pathname, `/contacto?antecedente=${c.id}#formulario`)}>
+              <a class={accessProject ? 'btn' : 'u'} href={contactHref}>
                 {accessProject ? 'Consultar por un acceso similar' : 'Consultar por una obra similar'} <span aria-hidden="true">→</span>
               </a>
-              {accessProject && <a class="u" href="#flujo">Ver la lectura de la credencial</a>}
             </div>
+            {sections.length > 0 && (
+              <nav class="project-sections" aria-label="En esta obra">
+                <ul>{sections.map(({ id, label }) => (
+                  <li><a href={`#${id}`}>{label}<ArrowDown size={15} aria-hidden="true" /></a></li>
+                ))}</ul>
+              </nav>
+            )}
           </div>
-          <dl class="tabla">
-            {
-              c.sector && (
-                <div>
-                  <>
-                    <dt>Sector</dt>
-                    <dd>
-                      <a href={`/sectores/${c.sectorSlug}`}>{c.sector}</a>
-                    </dd>
-                  </>
-                </div>
-              )
-            }
-            {
-              !accessProject && when && (
-                <div>
-                  <>
-                    <dt>{cierre ? "Inicio" : "Fecha"}</dt>
-                    <dd>{when}</dd>
-                  </>
-                </div>
-              )
-            }
-            {
-              !accessProject && cierre && (
-                <div>
-                  <>
-                    <dt>{enCurso ? "Cierre previsto" : "Cierre"}</dt>
-                    <dd>{cierre}</dd>
-                  </>
-                </div>
-              )
-            }
-            {
-              c.documentedScope && c.estado === "finalizado" && (
-                <div>
-                  <>
-                    <dt>Estado</dt>
-                    <dd>Finalizado</dd>
-                  </>
-                </div>
-              )
-            }
-            <div><dt>Referencia</dt><dd>{ref}</dd></div>
-            {
-              svcs.length > 0 && (
-                <div class="ancho">
-                  <>
-                    <dt>Servicios del proyecto · ver provisión</dt>
-                    <dd>
-                      {svcs.map((s) => (
-                        <a href={`/servicios/${s.code}#provision`}>{s.name}</a>
-                      ))}
-                    </dd>
-                  </>
-                </div>
-              )
-            }
-          </dl>
+          {
+            photo && (
+              <figure class="obra">
+                <img
+                  src={c.image}
+                  srcset={imageSrcset}
+                  sizes={imageSrcset ? imageSizes : undefined}
+                  alt={photoAlt}
+                  width={imageSet.ancho || 1600}
+                  height={imageSet.ancho === 1536 ? 1024 : 1000}
+                  fetchpriority="high"
+                  decoding="async"
+                />
+              </figure>
+            )
+          }
+          {(c.sector || svcs.length > 0) && <dl class="tabla">
+            {c.sector && <div>
+              <dt>Sector</dt>
+              <dd>{sectorHref ? <a href={sectorHref}>{c.sector}</a> : c.sector}</dd>
+            </div>}
+            {svcs.length > 0 && <div>
+              <dt>{svcs.length === 1 ? 'Servicio del proyecto' : 'Servicios del proyecto'}</dt>
+              <dd>{svcs.map(s => <a class:list={['servicio-obra', s.provision && 'con-prestacion']} href={s.href}>
+                <span>{s.name}</span>
+                {s.provision && <small>{s.provision} <ArrowRight size={14} aria-hidden="true" /></small>}
+              </a>)}</dd>
+            </div>}
+          </dl>}
+
         </div>
       </div>
       <>
         {accessProject && <CredentialSequence />}
         {caseDetail && <CasoEnDetalle caso={caseDetail} original={c.summary} />}
-        {
-          scope.partes.length > 0 &&
-            !interventionScene &&
-            !equipmentScene &&
-            !hospitalScene && (
-              <section class="sec" id={c.id === 3082 ? "alcance" : undefined}>
-                <div class="wrap">
-                  <div class="sec__head">
-                    <h2>
-                      {!scope.partes.length
-                        ? "Información disponible del proyecto"
-                        : scope.origen === "servicio"
-                          ? "Capacidades de los servicios vinculados"
-                          : c.documentedScope
-                            ? "Componentes y tareas del proyecto"
-                            : "Alcance documentado del proyecto"}
-                      <span class="dot">.</span>
-                    </h2>
-                  </div>
-                  {scope.partes.length > 0 ? (
-                    <FichaIso story={c} />
-                  ) : (
-                    <div class="reading">
-                      <p>{c.summary || pageTitle}</p>
-                      <p>
-                        El archivo público no especifica equipos, cantidades ni
-                        entregables adicionales para esta referencia. Para
-                        ampliar la información disponible, consultanos por {ref}
-                        .
-                      </p>
-                      <a
-                        class="line-link"
-                        href={contactLink(Astro.url.pathname, `/contacto?antecedente=${c.id}`)}
-                      >
-                        Consultar por este antecedente →
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </section>
-            )
-        }
+        {showEquipment && (
+          <section class="sec" id="alcance" tabindex="-1" aria-labelledby="titulo-equipos">
+            <div class="wrap">
+              <div class="sec__head">
+                <h2 id="titulo-equipos">
+                  {scope.origen === "servicio"
+                    ? "Capacidades de los servicios vinculados"
+                    : c.documentedScope ? "Componentes y tareas del proyecto" : "Alcance documentado del proyecto"}
+                  <span class="dot">.</span>
+                </h2>
+              </div>
+              <FichaIso story={c} />
+            </div>
+          </section>
+        )}
       </>
       {
         residentialScene ? (
@@ -534,92 +489,83 @@ const seoTitle = caseSeo.title.includes(ref)
           !accessProject && catalogScene && <CatalogScene content={catalogScene} />
         )
       }
-      {
-        sameClient.length > 0 && (
-          <section class="sec">
-            <div class="wrap">
-              <>
-                <div class="sec__head">
-                  <h2>
-                    Más proyectos para {c.client}
-                    <span class="dot">.</span>
-                  </h2>
-                </div>
-                <ol class="fichas">
-                  {sameClient.map((o) => (
-                    <Ficha story={o} />
-                  ))}
-                </ol>
-              </>
+      <div class="wrap">
+        <section id="contacto" class:list={["project-close", { "project-close--single": !svcs.length }]} aria-labelledby="consulta-obra">
+          <div>
+            <h2 id="consulta-obra">¿Tenés un proyecto similar?</h2>
+            <p>Contanos qué necesitás resolver. La consulta lleva la referencia <strong>{ref}</strong>.</p>
+            <a class="btn" href={contactHref}>Iniciar consulta <ArrowRight size={17} aria-hidden="true" /></a>
+          </div>
+          {svcs.length > 0 && (
+            <nav aria-labelledby="servicios-obra">
+              <h3 id="servicios-obra">Servicios de esta obra</h3>
+              <ul role="list">{svcs.map(service => (
+                <li><a href={service.href}>
+                  <span>
+                    <strong>{service.provision || service.name}</strong>
+                    {service.provision && <small>{service.name}</small>}
+                  </span>
+                  <ArrowUpRight size={16} aria-hidden="true" />
+                </a></li>
+              ))}</ul>
+            </nav>
+          )}
+        </section>
+        {inSelection && (
+          <nav class="case-return" aria-label="Navegar los resultados">
+            <div class="case-return__head">
+              <a href={returnHref} data-catalog-back>{returnLabel}</a>
+              <p>Resultado {position + 1} de {selection.length}</p>
             </div>
-          </section>
-        )
-      }
-      {
-        sameSector.length > 0 && c.sector && (
-          <section class="sec">
-            <div class="wrap">
-              <>
-                <div class="sec__head">
-                  <h2>
-                    Más proyectos en {c.sector.toLowerCase()}
-                    <span class="dot">.</span>
-                  </h2>
-                </div>
-                <ol class="fichas">
-                  {sameSector.map((o) => (
-                    <Ficha story={o} showSector={false} />
-                  ))}
-                </ol>
-              </>
-            </div>
-          </section>
-        )
-      }
-      <div class="wrap"><nav class="nav" aria-label="Proyectos">
-          <a href="/antecedentes" data-catalog-back>← Todos los proyectos</a>
-          <span
-            >{prev && <a href={prev.href}>← Anterior</a>}{
-              prev && next && (
-                <span class="nav-separator" aria-hidden="true">
-                  {" "}
-                  ·{" "}
-                </span>
-              )
-            }{next && <a href={next.href}>Siguiente →</a>}</span
-          >
-        </nav></div>
+            {(prev || next) && <div class="nav-obras" data-seleccion>
+              {prev && <a href={prev.href + neighborQuery}><small><ArrowLeft size={15} aria-hidden="true" /> Anterior en los resultados</small><strong>{publicCaseTitle(prev)}</strong></a>}
+              {next && <a href={next.href + neighborQuery}><small>Siguiente en los resultados <ArrowRight size={15} aria-hidden="true" /></small><strong>{publicCaseTitle(next)}</strong></a>}
+            </div>}
+          </nav>
+        )}
+      </div>
+      <RelatedCases cover={c.image} groups={related} query={homeJourney?.relatedQuery} />
+      {!inSelection && <div class="wrap"><nav class="case-return case-return__head" aria-label="Volver a los proyectos">
+        <a href={returnHref} data-catalog-back>{returnLabel || '← Todos los antecedentes'}</a>
+      </nav></div>}
     </main>
 
-    <Cierre
-      heading="Conversemos sobre un proyecto similar"
-      contactHref={`/contacto?antecedente=${c.id}#formulario`}
-      description="Contanos qué necesitás implementar y dónde. La consulta incluye la referencia de esta obra."
-    />
+    <Cierre withContact={false} />
     <script>
-      const links = document.querySelectorAll<HTMLAnchorElement>("[data-catalog-back]");
-      const origin = document.referrer ? new URL(document.referrer) : null;
-      if (
-        origin?.origin === location.origin &&
-        origin.pathname.replace(/\/$/, "") === "/antecedentes"
-      ) {
-        for (const link of links) {
-          link.href = origin.pathname + origin.search + origin.hash;
-          link.textContent = "← Volver a resultados";
-          link.addEventListener("click", (event) => {
-            if (
-              event.button !== 0 ||
-              event.metaKey ||
-              event.ctrlKey ||
-              event.shiftKey ||
-              event.altKey ||
-              history.length < 2
-            )
-              return;
-            event.preventDefault();
-            history.back();
-          });
+      for (const link of document.querySelectorAll<HTMLAnchorElement>('.project-sections a')) {
+        const section = document.getElementById(link.hash.slice(1));
+        if (section && !section.hasAttribute('tabindex')) section.tabIndex = -1;
+      }
+
+      const archive = '/antecedentes';
+      const key = 'umsa-related-return';
+      const previous = document.referrer ? new URL(document.referrer) : null;
+      const project = document.querySelector<HTMLElement>('[data-project-reference]')?.dataset.projectReference;
+      const localReferrer = previous?.origin === location.origin ? previous : null;
+      const fromArchive = localReferrer?.pathname.replace(/\/$/, '') === archive;
+      const selectionReturn = document.querySelector<HTMLAnchorElement>('[data-selection-return]')?.getAttribute('href');
+      const hasHomeReturn = Boolean(document.querySelector('[data-home-work-return]'));
+      let target = selectionReturn || (fromArchive && project ? archive + localReferrer!.search + '#resultado-um-' + project : history.state?.projectReturn);
+      try {
+        const handoff = JSON.parse(sessionStorage.getItem(key) || 'null');
+        sessionStorage.removeItem(key);
+        if (!target && handoff?.to === location.pathname && handoff.from === localReferrer?.pathname) target = handoff.target;
+      } catch { /* Browser storage is optional. Direct archive returns still work. */ }
+      if (!hasHomeReturn && typeof target === 'string' && /^\/antecedentes(?:\?[^#]*)?#resultado-um-\d+$/.test(target)) {
+        history.replaceState({ ...history.state, projectReturn: target }, '');
+        for (const link of document.querySelectorAll<HTMLAnchorElement>('[data-catalog-back]')) {
+          link.href = target;
+          link.textContent = '← Volver a resultados';
         }
+        document.getElementById('obras-relacionadas')?.addEventListener('click', event => {
+          if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+          const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[data-related-case]') : null;
+          if (link) {
+            try {
+              sessionStorage.setItem(key, JSON.stringify({ from: location.pathname, to: link.pathname, target }));
+            } catch { /* Navigation remains a standard link. */ }
+          }
+        });
       }
     </script>
   </body>

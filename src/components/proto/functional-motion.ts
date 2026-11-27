@@ -18,6 +18,9 @@ export function initFunctionalScenes(root: Document) {
   function update() {
     for (const scene of scenes) {
       if (!visible.has(scene) || root.hidden || reduced.matches) {
+        // An interrupted running sequence may start again when the visitor can watch it.
+        // A complete sequence stays complete until the visitor leaves its scene.
+        if ((root.hidden || reduced.matches) && timers.has(scene)) seen.delete(scene);
         finish(scene);
         continue;
       }

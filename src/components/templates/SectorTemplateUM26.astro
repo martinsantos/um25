@@ -1,8 +1,14 @@
 ---
+import CatalogResultsReturn from '../proto/CatalogResultsReturn.astro';
+import WorkContextActions from '../proto/WorkContextActions.astro';
+import { directoryReturnHref } from "../../data/navigation";
 import { contactLink } from "../../lib/contactEntry";
 import { isShowcaseProject, pageCaseCandidates } from '../proto/caseSelection';
 import CctvSequence from '../proto/CctvSequence.astro';
 import JourneyAction from '../proto/JourneyAction.astro';
+import DeliveryDocuments from '../proto/DeliveryDocuments.astro';
+import IndiceFicha from '../proto/IndiceFicha.astro';
+import { SERVICE_SPECS } from '../../data/serviceSpecs';
 import SoftwareExperience from '../proto/SoftwareExperience.astro';
 import { loadStories, SECTOR_PHOTO, srcsetDe } from '../proto/isoData';
 import { generateSlug } from '../../utils/slugUtils';
@@ -44,7 +50,7 @@ const caseImage = (item: any) => storyById.get(Number(item.id))?.image || sector
 const sectorServices = Array.isArray(sector.services) ? sector.services : [];
 const proofLabel = getAntecedentesCountShort();
 const sectorAntecedentesHref = sectorSlug
-  ? `/antecedentes?sector=${encodeURIComponent(sectorSlug)}`
+  ? `/antecedentes?sector=${encodeURIComponent(sectorSlug)}#obras-filtradas`
   : '/antecedentes';
 const caseHref = (item: any) => storyById.get(Number(item.id))?.href || `/antecedentes/${item.id}/${item.slug || generateSlug(item.Titulo || 'proyecto')}`;
 const leadCase = antecedentes[0];
@@ -110,9 +116,18 @@ const strategicLinkGroups = buildSectorStrategicLinkGroups({
 const cineSector = sectorBySlug(sectorDataSlug);
 const cineScene = cineSector?.scene || 'fachada';
 // /software: el banner es la película propia de pantallas con transparencias, sin cortes por servicio.
+const sectorDirectoryHref = directoryReturnHref('/sectores', Astro.url.pathname);
 const isSoftware = sectorDataSlug === 'software';
 const isSecurity = sectorDataSlug === 'seguridad-electronica';
-const contactHref = contactLink(Astro.url.pathname, isSecurity || isSoftware ? `/contacto?sistema=${isSecurity ? '102' : '104'}` : '/contacto');
+const deliverySpec = isSoftware ? SERVICE_SPECS['104'] : isSecurity ? SERVICE_SPECS['102'] : undefined;
+const sectionLinks = [
+  ...(isSoftware ? [{ href: '#demostracion-sector', label: 'Cómo funciona' }] : []),
+  { href: '#provision', label: 'Qué proveemos' },
+  ...(evidenceCases.length ? [{ href: '#casos-sector', label: 'Obras realizadas' }] : []),
+  ...(deliverySpec ? [{ href: '#entregables', label: 'Qué entregamos' }] : []),
+];
+const assessmentHref = '/contacto?intent=relevamiento';
+const contactHref = contactLink(Astro.url.pathname, isSecurity || isSoftware ? assessmentHref + `&sistema=${isSecurity ? '102' : '104'}` : assessmentHref);
 const cineStats = [
   cineSector?.count
     ? { label: 'Casos en el sector', value: cineSector.count }
@@ -147,7 +162,7 @@ const areaLabel = (area: unknown) => {
   {isSecurity ? (
     <section class="sector26-context sector26-shell" aria-labelledby="sector26-title">
       <div>
-        <a class="sector26-context__back" href="/sectores">← Todos los sectores</a>
+        <a class="sector26-context__back" href={sectorDirectoryHref}>← Todos los sectores</a>
         <h1 id="sector26-title">{sectorTitle}<span>.</span></h1>
         <p>{sectorSummary}</p>
         <a class="sector26-context__cta" href={contactHref}>Pedir un relevamiento</a>
@@ -164,13 +179,16 @@ const areaLabel = (area: unknown) => {
     lead={sectorSummary}
     primary={{ href: contactHref, label: 'Pedir un relevamiento' }}
     stats={cineStats}
-    back={{ href: '/sectores', label: '← Todos los sectores' }}
+    back={{ href: sectorDirectoryHref, label: '← Todos los sectores' }}
   />}
 
-  {isSoftware && <SoftwareExperience />}
+  {(isSoftware || isSecurity) && <div class="sector26-shell"><IndiceFicha links={sectionLinks} /></div>}
+  {isSoftware && <div id="demostracion-sector" tabindex="-1"><SoftwareExperience /></div>}
 
-  {(isSoftware || isSecurity) && <section id="provision" class="sector26-provision sector26-shell" aria-labelledby="sector26-provision-title">
-    <div><h2 id="sector26-provision-title">Qué proveemos<span>.</span></h2><p>Conocé los productos, prestaciones y componentes de {isSoftware ? 'Software a medida' : 'Seguridad electrónica'}, con el detalle de instalación, integración y soporte según el proyecto.</p></div>
+  {(isSoftware || isSecurity) && <section id="provision" tabindex="-1" class="sector26-provision sector26-shell" aria-labelledby="sector26-provision-title">
+    <div><CatalogResultsReturn />
+      {Astro.locals.sectorWorkEnquiry && <WorkContextActions work={Astro.locals.sectorWorkEnquiry.story} />}
+      <h2 id="sector26-provision-title">Qué proveemos<span>.</span></h2><p>Conocé los productos, prestaciones y componentes de {isSoftware ? 'Software a medida' : 'Seguridad electrónica'}, con el detalle de instalación, integración y soporte según el proyecto.</p></div>
     <div class="sector26-journey"><a href={`/servicios/${isSoftware ? '104' : '102'}#provision`}>Ver el desglose del servicio <span aria-hidden="true">→</span></a>
       <JourneyAction code={isSoftware ? '104':'102'} sector={sectorDataSlug} story={storyById.get(Number(evidenceCases[0]?.id))} /></div>
     {isSecurity && <div class="sector26-camera"><CctvSequence /></div>}
@@ -178,7 +196,7 @@ const areaLabel = (area: unknown) => {
 
   {!isSoftware && !isSecurity && <SiteDespiece scene={cineScene} sectorSlug={sectorDataSlug} sectorName={sectorName} linkBanner />}
 
-  <section class="sector26-evidence" aria-label="Proyectos del sector">
+  <section class="sector26-evidence" id="casos-sector" tabindex="-1" aria-label="Proyectos del sector">
     <div class="sector26-shell">
       <div class="sector26-section-head sector26-section-head--split">
         <h2>Lo que hicimos en {sectorName.toLowerCase()}.</h2>
@@ -199,6 +217,10 @@ const areaLabel = (area: unknown) => {
     </div>
   </section>
 
+  {deliverySpec && <section id="entregables" class="sector26-shell sector26-documentos" tabindex="-1">
+    <DeliveryDocuments spec={deliverySpec} sector={sectorDataSlug} />
+  </section>}
+
   <section class="sector26-closing">
     <div class="sector26-shell sector26-closing__panel">
       <div>
@@ -215,7 +237,8 @@ const areaLabel = (area: unknown) => {
 {!isSoftware && !isSecurity && <SnapRail />}
 
 <style>
-  .sector26-provision { scroll-margin-top: calc(var(--top-h, 66px) + 12px); }
+  :is(#provision,#demostracion-sector,#casos-sector,#entregables) { scroll-margin-top: calc(var(--top-h, 66px) + 12px); }
+  .sector26-documentos { padding-block:clamp(24px,4vw,48px); }
   .sector26-camera { grid-column:1/-1;min-width:0; }
   .sector26-journey { min-width:0;max-width:44rem; }
   .sector26-provision { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 48px; align-items: center; padding-block: 48px; border-block: 1px solid #50545b; }

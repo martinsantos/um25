@@ -27,11 +27,11 @@ const rows: { label: string; items: string[] }[] = [
 ];
 ---
 <div class:list={['um-spec', { 'um-spec--print': print }]}>
-  <p class="um-spec__caption">
+  {!print && <p class="um-spec__caption">
     <span class="um-spec__code">SRV.{spec.code}</span>
     <span>Ficha técnica · {spec.name}</span>
     <span class="um-spec__rev">rev. {spec.revision}</span>
-  </p>
+  </p>}
   <table class="um-spec__table" aria-label={`Ficha técnica de ${spec.name}`}>
     <tbody>
       {rows.map((row) => (
@@ -242,7 +242,15 @@ const rows: { label: string; items: string[] }[] = [
     color: #5f6368;
   }
 
-  @media (max-width: 760px) {
+  @media print {
+    .um-spec__table tr { break-inside: avoid; }
+    .um-spec__table th, .um-spec__table td { padding: 2.7mm 0; }
+    .um-spec__table th { width: 37mm; padding-right: 4mm; font-size: 9pt; }
+    .um-spec__table li { font-size: 10.5pt; line-height: 1.35; }
+    .um-spec__table ul { gap: 1mm; }
+  }
+
+  @media screen and (max-width: 760px) {
     .um-spec__table,
     .um-spec__table tbody,
     .um-spec__table tr,
