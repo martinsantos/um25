@@ -1,3 +1,4 @@
+import { approvedCaseImages } from '../../data/approvedImageAssets';
 import { matchesCatalogSector } from './catalogFilters';
 import type { Caso } from './relato';
 import type { Story } from './isoData';
@@ -33,12 +34,14 @@ function escapeRegExp(value: string): string {
 }
 
 /** One identity and one image per page; no service-cover fallback for a project. */
-export function selectCaseProjects(casos: Caso[], stories: Story[], candidates?: Story[], max = 4): SelectedCase[] {
+export function selectCaseProjects(casos: Caso[], stories: Story[], candidates?: Story[], max = 4, preferredId?: number): SelectedCase[] {
   const selected: SelectedCase[] = [];
   const eligibleIds = new Set((candidates || []).map(s => s.id));
   const ids = new Set<number>(), images = new Set<string>();
   const add = (caso: Caso, pub?: Story) => {
-    if (!pub || (candidates !== undefined && !eligibleIds.has(pub.id)) || !isShowcaseProject(pub) || !isNamedClient(pub.client) || !(/^\/images\/(?:antecedentes|photography)\//.test(pub.image)) || ids.has(pub.id) || images.has(projectMediaKey(pub.image)) || selected.length >= max) return;
+    if (!pub || (candidates !== undefined && !eligibleIds.has(pub.id)) || !isShowcaseProject(pub) || !isNamedClient(pub.client)) return;
+    const projectImage = /^\/images\/(?:antecedentes|photography)\//.test(pub.image) || pub.image === approvedCaseImages[pub.id];
+    if (!projectImage || ids.has(pub.id) || images.has(projectMediaKey(pub.image)) || selected.length >= max) return;
     selected.push({ caso, pub }); ids.add(pub.id); images.add(projectMediaKey(pub.image));
   };
   const curated = casos.filter(caso => caso.publicado).map(caso => ({ caso, pub: stories.find(s => s.id === caso.publicado) }));
@@ -50,10 +53,12 @@ export function selectCaseProjects(casos: Caso[], stories: Story[], candidates?:
   // Retain editorial order within each tier; the live identity must still support the scope.
   const ordered = entries.map(entry => ({
     entry,
+    preferred: entry.pub.id === preferredId,
     detailed: Boolean(publicCaseFor(entry.pub)),
     documented: Boolean(entry.pub.documentedScope),
     reviewedPhoto: entry.pub.image.startsWith('/images/photography/'),
-  })).sort((a, b) => Number(b.detailed) - Number(a.detailed)
+  })).sort((a, b) => Number(b.preferred) - Number(a.preferred)
+    || Number(b.detailed) - Number(a.detailed)
     || Number(b.documented) - Number(a.documented)
     || Number(b.reviewedPhoto) - Number(a.reviewedPhoto));
   for (const { entry } of ordered) {
@@ -77,6 +82,9 @@ export function remainingCaseProjects(candidates: Story[], selected: SelectedCas
 const genericTitle = /^(?:implementaci[oó]n de redes de datos y fibra [oó]ptica|desarrollo de software y digitalizaci[oó]n de procesos|soporte de infraestructura IT de alta disponibilidad|mantenimiento cr[ií]tico)/i;
 export function isShowcaseProject(story: Story): boolean {
   const text = `${story.title} ${story.summary}`;
+  if (/^mantenimiento para\b/i.test(story.title) &&
+      /^[uú]ltima milla realiz[oó] un trabajo de mantenimiento para\b/i.test(story.summary)) return false;
+
   // These two imported records contain a generic software heading and client
   // metadata, but no documented scope supporting a completed showcase case.
   if ([3145, 3150].includes(story.id) && genericTitle.test(story.title) && /Cliente:.*Sector:/i.test(story.summary)) return false;

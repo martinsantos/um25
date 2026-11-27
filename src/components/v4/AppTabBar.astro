@@ -52,12 +52,14 @@ const ICONS: Record<(typeof APP_TABS)[number]['icon'], string> = {
     // El navegador puede dar foco a un elemento parcialmente tapado por la navegación fija.
     document.addEventListener('focusin', ({ target }) => {
       if (!(target instanceof HTMLElement) || target.closest(
-        '.um-ops-header, .um-tabbar, .um-ops-mobile, dialog, [role="dialog"], .um-skip-link',
+        '.um-ops-header, .um-tabbar, .um-ops-mobile, .indice-ficha, dialog, [role="dialog"], .um-skip-link',
       )) return;
       requestAnimationFrame(() => {
         if (document.activeElement !== target || !target.matches(':focus-visible')) return;
         const focused = target.getBoundingClientRect();
-        const headerBottom = Math.max(0, header?.getBoundingClientRect().bottom ?? 0);
+        let headerBottom = Math.max(0, header?.getBoundingClientRect().bottom ?? 0);
+        const index = document.querySelector<HTMLElement>('.indice-ficha[data-enhanced]')?.getBoundingClientRect();
+        if (index && index.top <= headerBottom + 1) headerBottom = Math.max(headerBottom, index.bottom);
         if (focused.top < headerBottom && focused.bottom > 0) {
           window.scrollBy({ top: focused.top - headerBottom - 8, behavior: 'instant' });
           return;
@@ -132,6 +134,10 @@ const ICONS: Record<(typeof APP_TABS)[number]['icon'], string> = {
       max-width: 100%;
       overflow-wrap: anywhere;
       letter-spacing: 0.01em;
+    }
+
+    @media (max-width: 360px) {
+      .um-tabbar__item span { font-size: .8125rem; letter-spacing: 0; }
     }
 
     .um-tabbar__item.is-active {

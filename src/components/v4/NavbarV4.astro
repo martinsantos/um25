@@ -47,6 +47,17 @@ const currentMarker = (href: string) => isActive(href)
   ? (href === (currentPath.replace(/\/$/, '') || '/') ? 'page' : 'location')
   : undefined;
 
+const mobileCatalogs = {
+  servicios: {
+    all: t.megaServices.all,
+    entries: NAV_SERVICES.map(s => ({ href: s.href, image: SERVICE_NAV_MEDIA[s.code], ...shellServiceCopy(lang, s.code, s.name, s.text) })),
+  },
+  sectores: {
+    all: lang === 'en' ? t.destinationLabel(t.megaSectors.all) : t.megaSectors.all,
+    entries: NAV_SECTORS.map(s => ({ href: s.href, image: SECTOR_NAV_MEDIA[s.slug], ...shellSectorCopy(lang, s.slug, s.name, s.text) })),
+  },
+};
+
 ---
 
 <header class="um-ops-header">
@@ -77,7 +88,7 @@ const currentMarker = (href: string) => isActive(href)
                     <ul class="um-ops-mega__grid um-ops-mega__grid--services">
                       {NAV_SERVICES.map((s) => (
                         <li>
-                          <a href={s.href} class:list={[{ 'is-active': isActive(s.href) }]} aria-current={isActive(s.href) ? 'page' : undefined}>
+                          <a href={s.href} class:list={[{ 'is-active': isActive(s.href) }]} aria-current={currentMarker(s.href)}>
                             <img class="um-ops-mega__thumb" src={SERVICE_NAV_MEDIA[s.code]} width="112" height="84" alt="" loading="lazy" decoding="async" />
                             <span class="um-ops-mega__code">{s.code}</span>
                             <span class="um-ops-mega__name">{lang === 'en' ? t.destinationLabel(shellServiceCopy(lang, s.code, s.name, s.text).name) : s.name}</span>
@@ -97,7 +108,7 @@ const currentMarker = (href: string) => isActive(href)
                     <ul class="um-ops-mega__grid um-ops-mega__grid--sectors">
                       {NAV_SECTORS.map((s) => (
                         <li>
-                          <a href={s.href} class:list={[{ 'is-active': isActive(s.href) }]} aria-current={isActive(s.href) ? 'page' : undefined}>
+                          <a href={s.href} class:list={[{ 'is-active': isActive(s.href) }]} aria-current={currentMarker(s.href)}>
                             <img class="um-ops-mega__thumb" src={SECTOR_NAV_MEDIA[s.slug]} width="112" height="84" alt="" loading="lazy" decoding="async" />
                             <span class="um-ops-mega__name">{lang === 'en' ? t.destinationLabel(shellSectorCopy(lang, s.slug, s.name, s.text).name) : s.name}</span>
                             <span class="um-ops-mega__text">{shellSectorCopy(lang, s.slug, s.name, s.text).text}</span>
@@ -170,26 +181,43 @@ const currentMarker = (href: string) => isActive(href)
       </div>
     </div>
     <ul class="um-ops-mobile__primary">
-      {navItems.map((item) => (
-        <li>
-          <div class="um-ops-mobile__destination">
-            <a href={directoryReturnHref(item.href, currentPath)} class:list={[{ 'is-active': isActive(item.href) }]} aria-current={currentMarker(item.href)}>
-              <span>{item.label}</span>
-              {item.mega && <span class="um-ops-mobile__all">{item.mega === 'servicios' ? t.megaServices.all : lang === 'en' ? t.destinationLabel(t.megaSectors.all) : t.megaSectors.all} <span aria-hidden="true">→</span></span>}
-            </a>
-            {item.mega && <button type="button" class="um-ops-mobile__explore" data-mobile-group-toggle aria-expanded="false" aria-controls={`mobile-${item.mega}`} aria-label={`${lang === 'en' ? 'Explore' : 'Explorar'} ${item.label.toLowerCase()}`}>
-              {lang === 'en' ? 'Explore' : 'Explorar'}
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>
-            </button>}
-          </div>
-          {item.mega && <ul class="um-ops-mobile__destinations" id={`mobile-${item.mega}`} hidden>
-            {(item.mega === 'servicios' ? NAV_SERVICES.map(s => ({key:s.code,href:s.href,image:SERVICE_NAV_MEDIA[s.code],...shellServiceCopy(lang,s.code,s.name,s.text)})) : NAV_SECTORS.map(s => ({key:s.slug,href:s.href,image:SECTOR_NAV_MEDIA[s.slug],...shellSectorCopy(lang,s.slug,s.name,s.text)}))).map(s => <li><a href={s.href} aria-current={isActive(s.href) ? 'page' : undefined}>
-              <img src={s.image} width="64" height="64" alt="" loading="lazy" decoding="async" />
-              <span><strong>{lang === 'en' ? t.destinationLabel(s.name) : s.name}</strong><span>{s.text}</span></span>
-            </a></li>)}
-          </ul>}
-        </li>
-      ))}
+      {navItems.map(item => {
+        const catalog = item.mega && mobileCatalogs[item.mega];
+        const current = isActive(item.href);
+        const currentEntry = catalog && catalog.entries.find(entry => isActive(entry.href));
+        return (
+          <li>
+            {catalog ? (
+              <>
+                <button type="button" class:list={['um-ops-mobile__row', { 'is-active': current }]}
+                  data-mobile-group-toggle data-menu-current={current || undefined} aria-expanded="false" aria-controls={'mobile-' + item.mega}
+                  aria-labelledby={'mobile-label-' + item.mega}
+                  aria-describedby={currentEntry ? 'mobile-current-' + item.mega : undefined}>
+                  <span>
+                    <span id={'mobile-label-' + item.mega}>{item.label}</span>
+                    {currentEntry && <small id={'mobile-current-' + item.mega}>{currentEntry.name}</small>}
+                  </span>
+                  <svg class="um-ops-mobile__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>
+                </button>
+                <div id={'mobile-' + item.mega} data-mobile-catalog-panel hidden>
+                  <a class="um-ops-mobile__all" href={directoryReturnHref(item.href, currentPath)} aria-current={currentMarker(item.href)}>
+                    {catalog.all} <span aria-hidden="true">→</span>
+                  </a>
+                  <ul class="um-ops-mobile__destinations">
+                    {catalog.entries.map(s => <li><a href={s.href} aria-current={currentMarker(s.href)}>
+                      <img src={s.image} width="46" height="46" alt="" loading="lazy" decoding="async" />
+                      <span><strong>{lang === 'en' ? t.destinationLabel(s.name) : s.name}</strong><span>{s.text}</span></span>
+                    </a></li>)}
+                  </ul>
+                </div>
+              </>
+            ) : (
+              <a href={item.href} class:list={['um-ops-mobile__row', { 'is-active': current }]}
+                data-menu-current={current || undefined} aria-current={currentMarker(item.href)}>{item.label}</a>
+            )}
+          </li>
+        );
+      })}
     </ul>
     <p class="um-ops-mobile__label">{t.mobile.more}</p>
     <ul class="um-ops-mobile__secondary">
@@ -938,8 +966,14 @@ const currentMarker = (href: string) => isActive(href)
     list-style: none;
   }
 
-  .um-ops-mobile__primary a {
+  .um-ops-mobile__row {
     display: flex;
+    width: 100%;
+    padding: 8px 0;
+    border: 0;
+    background: transparent;
+    text-align: start;
+    cursor: pointer;
     min-height: 56px;
     align-items: center;
     justify-content: space-between;
@@ -953,15 +987,22 @@ const currentMarker = (href: string) => isActive(href)
     text-decoration: none;
   }
 
-  .um-ops-mobile__primary a::after {
-    content: "";
-    width: 8px;
-    height: 8px;
-    background: transparent;
+  .um-ops-mobile__row small {
+    display: block;
+    margin-top: 4px;
+    font-size: .9375rem;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0;
   }
 
-  .um-ops-mobile__primary a.is-active::after {
-    background: #dc2626;
+  .um-ops-mobile__chevron {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
   }
 
   .um-ops-mobile__label {
@@ -995,39 +1036,49 @@ const currentMarker = (href: string) => isActive(href)
     text-decoration: none;
   }
 
-  .um-ops-mobile__secondary a.is-active,
   .um-ops-mobile__secondary a:hover,
-  .um-ops-mobile__primary a:hover {
-    color: #fff;
-  }
+  .um-ops-mobile__row:not(.is-active):hover { color: #fff; }
 
-  .um-ops-mobile__primary a.is-active,
-  .um-ops-mobile__secondary a.is-active { background: #f4f4f5; color: #111; padding-inline: 12px; border-left: 3px solid #dc2626; }
-  .um-ops-mobile__primary a:focus-visible,
+  .um-ops-mobile__row.is-active,
+  .um-ops-mobile__secondary a.is-active,
+  .um-ops-mobile__destinations a[aria-current] { background: #f4f4f5; color: #111; border-inline-start: 3px solid #dc2626; padding-inline: 12px; }
+  .um-ops-mobile__row:focus-visible,
   .um-ops-mobile__secondary a:focus-visible,
-  .um-ops-mobile__explore:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-  .um-ops-mobile__primary a.is-active:focus-visible,
-  .um-ops-mobile__secondary a.is-active:focus-visible { outline-color: #111; outline-offset: -5px; }
+  .um-ops-mobile__all:focus-visible,
+  .um-ops-mobile__destinations a:focus-visible { outline: 2px solid #fff; outline-offset: -3px; }
+  .um-ops-mobile__row.is-active:focus-visible,
+  .um-ops-mobile__secondary a.is-active:focus-visible,
+  .um-ops-mobile__destinations a[aria-current]:focus-visible { outline-color: #111; }
 
-  .um-ops-mobile__destination { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .um-ops-mobile__destination > a { flex: 1; }
-  .um-ops-mobile__explore {
-    display: inline-flex; align-items: center; gap: 4px; min-height: 48px; padding-inline: 10px;
-    flex-shrink: 0; color: #fff; background: transparent; border: 1px solid rgba(255,255,255,.18);
-    font: inherit; font-size: .9375rem; cursor: pointer;
+  .um-ops-mobile__all {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,.12);
   }
-  .um-ops-mobile__explore svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; }
-  .um-ops-mobile__destinations { list-style: none; padding: 4px 0 20px; margin: 0; }
-  .um-ops-mobile__destinations[hidden] { display: none; }
-  .um-ops-mobile__primary .um-ops-mobile__destinations a { display: grid; grid-template-columns: 64px minmax(0,1fr); gap: 16px; align-items: center; padding: 16px 0; font-size: 1rem; line-height: 1.4; }
-  .um-ops-mobile__destinations a::after { display: none; }
-  .um-ops-mobile__destinations img { width: 64px; height: 64px; object-fit: cover; }
-  .um-ops-mobile__destinations strong { display: block; font-size: 1rem; font-weight: 600; color: #fff; }
-  .um-ops-mobile__destinations strong + span { display: block; margin-top: 4px; color: #c4c7cc; font-weight: 400; }
-  .um-ops-mobile__primary .um-ops-mobile__destinations a[aria-current="page"] { background: #f4f4f5; border-left: 3px solid #dc2626; padding-inline: 12px; }
-  .um-ops-mobile__destinations a[aria-current="page"] :is(strong, span) { color: #111; }
 
-  .um-ops-mobile__all, .um-ops-mobile__switch[hidden] { display: none; }
+  .um-ops-mobile__destinations a {
+    display: grid;
+    grid-template-columns: 46px minmax(0,1fr);
+    align-items: center;
+    gap: 12px;
+    padding-block: 9px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    color: #fafafa;
+    text-decoration: none;
+    line-height: 1.3;
+  }
+
+  .um-ops-mobile__destinations img { width: 46px; height: 46px; object-fit: cover; }
+  .um-ops-mobile__destinations strong { display: block; font-size: 1rem; font-weight: 600; }
+  .um-ops-mobile__destinations strong + span { display: block; margin-top: 3px; color: #c4c7cc; font-size: .9375rem; }
+  .um-ops-mobile__destinations a[aria-current] strong + span { color: #303035; }
+
+  .um-ops-mobile__switch[hidden] { display: none; }
   .um-ops-mobile__switch {
     position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between;
     gap: 6px; padding-block: 6px; background: #0a0a0b; border-bottom: 1px solid #414145;
@@ -1043,20 +1094,10 @@ const currentMarker = (href: string) => isActive(href)
   /* Dejá sitio para el selector fijo al enfocar cualquier enlace del catálogo. */
   .um-ops-mobile[data-browsing] { scroll-padding-block-start: 64px; }
   .um-ops-mobile[data-browsing] .um-ops-mobile__primary > li:not([data-selected]),
-  .um-ops-mobile[data-browsing] :is(.um-ops-mobile__label, .um-ops-mobile__secondary, .um-ops-mobile__foot, .um-ops-mobile__explore),
-  .um-ops-mobile[data-browsing] .um-ops-mobile__destination > a > span:first-child { display: none; }
-  .um-ops-mobile[data-browsing] .um-ops-mobile__destination > a {
-    min-height: 44px; font-size: 1rem; color: #fff; background: transparent; border-left: 0; padding-inline: 0;
-  }
-  .um-ops-mobile[data-browsing] .um-ops-mobile__destination > a:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
-  .um-ops-mobile[data-browsing] .um-ops-mobile__destination > a::after { display: none; }
-  .um-ops-mobile[data-browsing] .um-ops-mobile__all { display: inline; }
-  .um-ops-mobile[data-browsing] .um-ops-mobile__primary .um-ops-mobile__destinations a {
-    grid-template-columns: 52px minmax(0, 1fr); gap: 12px; padding-block: 10px;
-  }
-  .um-ops-mobile[data-browsing] .um-ops-mobile__destinations img { width: 52px; height: 52px; }
+  .um-ops-mobile[data-browsing] :is(.um-ops-mobile__label, .um-ops-mobile__secondary, .um-ops-mobile__foot, [data-mobile-group-toggle]) { display: none; }
+
   @media (min-width: 640px) {
-    .um-ops-mobile__destinations:not([hidden]) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; }
+    .um-ops-mobile__destinations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; }
     .um-ops-mobile__destinations li a { height: 100%; }
   }
 
@@ -1179,8 +1220,7 @@ const currentMarker = (href: string) => isActive(href)
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .um-ops-mobile,
-    .um-ops-mobile__explore svg {
+    .um-ops-mobile {
       animation: none;
       transition: none;
     }
@@ -1274,7 +1314,8 @@ const currentMarker = (href: string) => isActive(href)
       }
       menuToggle.setAttribute('aria-expanded', 'true');
       menuToggle.setAttribute('aria-label', menuToggle.dataset.labelClose || 'Cerrar menú');
-      mobileMenu.querySelector<HTMLElement>('a[href]')?.focus({ preventScroll: true });
+      const active = mobileMenu.querySelector<HTMLElement>('[data-menu-current]');
+      (active || mobileMenu.querySelector<HTMLElement>('.um-ops-mobile__row'))?.focus({ preventScroll: true });
     };
     const closeMenu = (restoreFocus = false) => {
       if (!isOpen()) return;
@@ -1353,7 +1394,8 @@ const currentMarker = (href: string) => isActive(href)
       const focused = document.activeElement === document.body ? lastNavigationFocus : document.activeElement;
       closeMegas();
       if (event.matches) {
-        const catalog = focused?.closest('.um-ops-mobile__destinations')?.id.replace('mobile-', '');
+        const mobilePanel = focused?.closest('[data-mobile-catalog-panel]')?.id || focused?.getAttribute('aria-controls');
+        const catalog = mobilePanel?.match(/^mobile-(servicios|sectores)$/)?.[1];
         const href = focused?.closest<HTMLAnchorElement>('a')?.getAttribute('href');
         closeMenu();
         if (focused === menuToggle || (focused && mobileMenu.contains(focused))) {

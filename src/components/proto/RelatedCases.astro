@@ -8,6 +8,7 @@ import type { RelatedGroup } from './relatedCaseGroups';
 interface Props { cover: string; groups: RelatedGroup[]; query?: string }
 const { cover, groups, query = '' } = Astro.props;
 const photos = new Set([projectMediaKey(cover)]);
+const relation = { cliente: 'Mismo cliente', sector: 'Mismo sector', servicio: 'Mismo servicio' };
 ---
 {groups.length > 0 && <section class:list={['related', { 'related--single': groups.length === 1 }]} id="obras-relacionadas" tabindex="-1" aria-labelledby="related-heading">
   <div class="wrap">
@@ -17,7 +18,7 @@ const photos = new Set([projectMediaKey(cover)]);
         const illustrated = group.works.find(s => /^\/images\/(antecedentes|photography)\//.test(s.image) && !photos.has(projectMediaKey(s.image)));
         if (illustrated) photos.add(projectMediaKey(illustrated.image));
         return <section data-related-group={group.kind} aria-labelledby={'related-' + group.kind}>
-          <h3 id={'related-' + group.kind}>{group.name}</h3>
+          <h3 id={'related-' + group.kind}><span>{relation[group.kind]}</span>{group.name}</h3>
           <ul>{group.works.map(s => <li>
             <a href={s.href + query} data-related-case={s.id}>
               {s === illustrated && <img src={thumbOf(s.image)} srcset={srcsetDe(s.image)} sizes="(max-width: 550px) 96px, 148px" width="148" height="96" alt="" loading="lazy" decoding="async" />}
@@ -33,7 +34,7 @@ const photos = new Set([projectMediaKey(cover)]);
   </div>
 </section>}
 <style>
-  .related { scroll-margin-top: 88px; padding-block: var(--s5); border-block-start: 1px solid var(--line); }
+  .related { padding-block: var(--s5); border-block-start: 1px solid var(--line); }
   h2 { margin-bottom: var(--s4); }
   .groups { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--s4); }
   .related--single .groups { grid-template-columns: minmax(0,1fr); }
@@ -41,7 +42,8 @@ const photos = new Set([projectMediaKey(cover)]);
     .related--single > .wrap { display: grid; grid-template-columns: minmax(240px, 4fr) minmax(0, 7fr); gap: var(--s4); }
     .related--single h2 { max-width: 12ch; }
   }
-  h3 { font-size: clamp(1.125rem,1.5vw,1.4rem); margin-bottom: 12px; }
+  h3 { display:grid; gap:5px; font-size:clamp(1.125rem,1.5vw,1.4rem); margin-bottom:12px; }
+  h3 span { color:var(--ink-2); font-size:.875rem; font-weight:500; }
   ul { padding: 0; margin: 0; list-style: none; }
   li { border-block-start: 1px solid var(--line); }
   li a { display: flex; gap: clamp(10px,1.4vw,20px); align-items: center; padding-block: 14px; min-height: 52px; }

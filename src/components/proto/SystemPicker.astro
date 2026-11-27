@@ -98,6 +98,22 @@ const { id, label, back, change } = Astro.props;
     select(initial);
     const target = () => document.getElementById(location.hash.slice(1));
     reveal(target());
+    const firstPanel = entries.find(entry => entry.body === target())?.body;
+    if (firstPanel) {
+      const initialNavigation = new AbortController();
+      const options = { once: true, passive: true, signal: initialNavigation.signal };
+      for (const event of ['pointerdown', 'wheel', 'keydown']) {
+        addEventListener(event, () => initialNavigation.abort(), options);
+      }
+      addEventListener('pageshow', event => {
+        if (event.persisted) return;
+        // Native fragment positioning can happen after the component initializes.
+        void document.fonts.ready.then(() => requestAnimationFrame(() => {
+          if (!initialNavigation.signal.aborted && target() === firstPanel) reveal(firstPanel, true);
+          initialNavigation.abort();
+        }));
+      }, { once: true });
+    }
     if (typeof ResizeObserver !== 'undefined') new ResizeObserver(measureChooser).observe(button);
 
     button.addEventListener('click', () => expand(button.getAttribute('aria-expanded') !== 'true'));
@@ -105,7 +121,7 @@ const { id, label, back, change } = Astro.props;
       if (event.key !== 'Escape' || !compact.matches || button.getAttribute('aria-expanded') !== 'true') return;
       event.preventDefault();
       expand(false);
-      button.focus();
+      button.focus({ preventScroll: true });
     });
     compact.addEventListener('change', () => {
       if (compact.matches && list.contains(document.activeElement)) button.focus({ preventScroll: true });

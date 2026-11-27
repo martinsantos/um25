@@ -47,3 +47,17 @@ window.addEventListener('pageshow', (event) => {
     }
   });
 });
+
+
+// Direct return links land at the start of the card. The exact link still
+// has a visible indicator when the card points to more than one work.
+function marcarDestino() {
+  document.querySelector('[data-destino-de-regreso]')?.removeAttribute('data-destino-de-regreso');
+  const target = location.hash.slice(1);
+  if (!target) return;
+  const link = [...document.querySelectorAll<HTMLAnchorElement>('[data-obra-destino]')]
+    .find(enlace => enlace.dataset.obraDestino === target);
+  link?.setAttribute('data-destino-de-regreso', '');
+}
+marcarDestino();
+window.addEventListener('hashchange', marcarDestino);

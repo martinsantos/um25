@@ -21,11 +21,15 @@ const headingId = continuation ? 'mas-obras-titulo' : 'obras-titulo';
 const JumpIcon = jump.href.startsWith('#') ? ArrowDown : ArrowUpRight;
 const more = obras.length - 1;
 const folded = fold && more > 0;
+const projectImage = (obra: Project) => obra.contextImage || obra.image;
+const ordered = continuation
+  ? [...obras.filter(projectImage), ...obras.filter(obra => !projectImage(obra))]
+  : obras;
 const groups = folded
-  ? [{ items: obras.slice(0, 1), offset: 0 }, { items: obras.slice(1), offset: 1 }]
-  : [{ items: obras, offset: 0 }];
+  ? [{ items: ordered.slice(0, 1), offset: 0 }, { items: ordered.slice(1), offset: 1 }]
+  : [{ items: ordered, offset: 0 }];
 ---
-{obras.length > 0 && <section id={sectionId} tabindex="-1" data-obras-portada class:list={['seleccion',{inset,compact}]} aria-labelledby={headingId}>
+{obras.length > 0 && <section id={sectionId} tabindex="-1" data-obras-portada class:list={['seleccion',{inset,compact,continuation,home}]} aria-labelledby={headingId}>
   <div class:list={[!inset && 'wrap']}>
     <header><h2 id={headingId}>{title}<span class="dot">.</span></h2>
       {!fold && <a href={jump.href} hreflang={destinationLanguage}>{jump.label}<JumpIcon size={16} aria-hidden="true" /></a>}</header>
@@ -35,18 +39,26 @@ const groups = folded
         {offset > 0 && <summary>Ver {more === 1 ? 'otra obra' : `otras ${more} obras`} <ChevronDown size={18} aria-hidden="true" /></summary>}
         <div class:list={['obras', { 'obras--lead': fold && offset === 0 }]}>
           {items.map((obra,i) => {
-            const image = obra.contextImage || obra.image;
+            const image = projectImage(obra);
             const caseScope = obra.editorialScope;
             const evidence = obra.editorialEvidence;
-            const position = i + (continuation ? 3 : offset);
-            const kind = position === 0 ? 'principal' : position < 3 ? 'lateral' : position < 6 ? 'media' : 'breve';
-            const sizes = fold && kind === 'principal'
+            const position = i + offset;
+            const destinations = obra.links.map((link, index) => ({
+              label: link.label,
+              ...(home ? homeWorkLink(link.href, obra.key, 'obras-inicio', index) : { href: link.href, id: undefined }),
+            }));
+            const kind = continuation ? (image ? 'galeria' : 'archivo') :
+              position === 0 ? 'principal' : position < 3 ? 'lateral' : position < 6 ? 'media' : 'breve';
+            const sizes = kind === 'galeria'
+              ? '(max-width:700px) 94vw, (max-width:940px) 45vw, (max-width:1500px) 31vw, 448px'
+              : fold && kind === 'principal'
               ? '(max-width:640px) 94vw, 35vw'
               : caseScope && kind === 'lateral'
               ? '(max-width:640px) 94vw, (max-width:850px) 37vw, 15vw'
               : kind === 'principal' ? '(max-width:700px) 94vw, 53vw'
               : kind === 'breve' ? '(max-width:700px) 24vw, 130px' : '(max-width:700px) 50vw, 32vw';
             return <article id={'obra-'+obra.key} data-obra={obra.key} class:list={[kind,{ilustrada:Boolean(image), directa:obra.links.length === 1, narrada:Boolean(caseScope)}]}>
+              {home && destinations.map(({id}) => <span id={id} class="ancla-destino" aria-hidden="true"></span>)}
               {image && <figure><img src={image} srcset={srcsetDe(image)}
                 sizes={sizes}
                 width="960" height="540" loading={kind === 'principal' ? 'eager' : 'lazy'} decoding="async" alt="" /></figure>}
@@ -59,11 +71,10 @@ const groups = folded
                 {!caseScope && obra.fact && <p class="dato">{obra.fact}</p>}
                 {(caseScope || kind === 'principal') && <p class="alcance">{caseScope || obra.scope}</p>}
                 {evidence && <ProjectEvidence evidence={evidence} light={kind === 'principal'} /> }
-                <div class="destinos">{obra.links.map((link, position) => {
-                  const target = home ? homeWorkLink(link.href, obra.key, 'obras-inicio', position) : { href: link.href, id: undefined };
-                  return <a id={target.id} data-regreso-obra={sectionId + "-" + obra.key} href={target.href}
-                    hreflang={destinationLanguage} aria-label={link.label+' · '+obra.title}>{link.label}<ArrowUpRight size={14} aria-hidden="true" /></a>;
-                })}</div>
+                <div class="destinos">{destinations.map(({id, href, label}) =>
+                  <a data-obra-destino={id} data-regreso-obra={sectionId + "-" + obra.key} href={href}
+                    hreflang={destinationLanguage} aria-label={label+' · '+obra.title}>{label}<ArrowUpRight size={14} aria-hidden="true" /></a>
+                )}</div>
               </div>
             </article>;
           })}
@@ -77,7 +88,12 @@ const groups = folded
 </script>
 <style>
   .seleccion { container: obras / inline-size; padding-block:clamp(26px,4vw,66px); scroll-margin-top:var(--top-h); }
+  .home { scroll-margin-top:0; }
   .inset { border-top:1px solid var(--line); }
+  .continuation {
+    scroll-margin-top:0;
+    border-top:1px solid var(--line);
+  }
   header { display:flex; align-items:baseline; justify-content:space-between; gap:2px 24px; flex-wrap:wrap; margin-bottom:clamp(14px,2vw,28px); }
   h2 { font-size:clamp(1.7rem,3.2vw,3.3rem); line-height:1.04; letter-spacing:-.05em; }
   header a,.destinos a { display:inline-flex; align-items:center; gap:6px; min-height:44px; font-size:.92rem; font-weight:600; }
@@ -96,7 +112,8 @@ const groups = folded
     .obras--lead .principal img { position:absolute; inset:0; }
     .resto-obras .lateral { grid-column:span 6; }
   }
-  article { min-width:0; scroll-margin-top:calc(var(--top-h) + 12px); }
+  article { position:relative; min-width:0; scroll-margin-top:calc(var(--top-h) + 12px); }
+  .ancla-destino { position:absolute; inset-block-start:0; inset-inline-start:0; width:1px; height:1px; pointer-events:none; }
   .directa { position:relative; isolation:isolate; }
   .directa .destinos a::after { content:''; position:absolute; inset:0; z-index:1; }
   .directa .detalle p { position:relative; z-index:2; width:fit-content; }
@@ -104,7 +121,7 @@ const groups = folded
   @media (hover:hover) {
     .directa:has(a:hover) h3 { text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:.13em; }
   }
-  article:target, article:has(.destinos a:target) { outline:2px solid var(--red); outline-offset:4px; }
+  article:target, article:has(.ancla-destino:target) { outline:2px solid var(--red); outline-offset:4px; }
   figure { min-width:0; margin:0; overflow:hidden; }
   img { display:block; width:100%; height:100%; object-fit:cover; }
   .cliente,.dato { font-size:.92rem; line-height:1.4; font-weight:570; }
@@ -134,6 +151,11 @@ const groups = folded
   .narrada .destinos a { text-decoration:underline; text-decoration-color:var(--line); text-underline-offset:4px; }
   .narrada.principal .destinos a { text-decoration-color:#9ba19d; }
   .narrada .destinos a:hover { text-decoration-color:currentColor; }
+  .detalle .destinos a[data-destino-de-regreso] {
+    text-decoration-line:underline; text-decoration-color:var(--red); text-decoration-thickness:2px;
+    text-underline-offset:4px;
+  }
+  .destinos a[data-destino-de-regreso] :global(svg) { color:var(--red); }
   .lateral figure { height:100%; min-height:100px; }
   .narrada.lateral { align-items:start; }
   .narrada.lateral figure { height:auto; aspect-ratio:4/5; }
@@ -144,6 +166,26 @@ const groups = folded
   .breve { grid-column:span 6; display:grid; grid-template-columns:minmax(76px,24%) 1fr; align-items:center; gap:14px; border-top:1px solid var(--line); padding-top:14px; }
   .breve figure { aspect-ratio:1.5; }
   article:not(.ilustrada) .detalle { grid-column:1/-1; }
+
+  .galeria {
+    grid-column:span 4;
+    align-self:start;
+    background:var(--bg-2);
+    border:1px solid var(--line);
+  }
+  .galeria figure { aspect-ratio:1.9; }
+  .galeria .detalle { padding:clamp(14px,1.7vw,24px); }
+  .galeria .detalle :global(.evidencia) { margin-bottom:8px; }
+
+  .archivo {
+    grid-column:span 6;
+    padding-top:14px;
+    border-top:1px solid var(--line);
+  }
+  .archivo .identidad h3 { text-wrap:pretty; }
+  .archivo .detalle :global(.evidencia) { border-top:0; margin:8px 0 2px; padding:0; }
+  .archivo .detalle :global(.evidencia li) { display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 8px; }
+
   .compact { padding-block:24px; }
   .compact h2 { font-size:clamp(1.65rem,2.3vw,2.4rem); }
   @container obras (max-width:850px) {
@@ -152,21 +194,23 @@ const groups = folded
     .lateral figure {height:100px;}
     .narrada.lateral figure {min-height:0; aspect-ratio:2;}
     .breve {grid-column:span 6;grid-template-columns:1fr;}
+    .galeria { grid-column:span 6; }
   }
   @container obras (max-width:640px) {
     .obras {grid-template-columns:1fr;gap:20px;}
-    .principal,.lateral,.media,.breve {grid-column:auto;grid-row:auto;}
+    .principal,.lateral,.media,.breve,.galeria,.archivo {grid-column:auto;grid-row:auto;}
+    .galeria figure { aspect-ratio:2.1; }
     .principal figure {aspect-ratio:2;}
     .lateral,.narrada.lateral,.media,.breve {display:grid;grid-template-columns:30% minmax(0,1fr);gap:12px;align-items:start;border-top:1px solid var(--line);padding-top:14px;}
     .lateral figure,.media figure,.breve figure {height:auto;min-height:0;aspect-ratio:1;margin:0;}
-    .narrada:not(.principal) .detalle { display:contents; }
-    .narrada.ilustrada:not(.principal) .identidad { grid-column:2; align-self:center; }
-    .narrada:not(.ilustrada) .identidad,.narrada:not(.principal) :is(.alcance,.destinos) { grid-column:1 / -1; }
-    .narrada:not(.principal) :global(.evidencia) { grid-column:1 / -1; margin-top:0; }
-    .narrada:not(.principal) .alcance { margin-top:0; }
+    .narrada:is(.lateral,.media,.breve) .detalle { display:contents; }
+    .narrada.ilustrada:is(.lateral,.media,.breve) .identidad { grid-column:2; align-self:center; }
+    .narrada:not(.ilustrada) .identidad,.narrada:is(.lateral,.media,.breve) :is(.alcance,.destinos) { grid-column:1 / -1; }
+    .narrada:is(.lateral,.media,.breve) :global(.evidencia) { grid-column:1 / -1; margin-top:0; }
+    .narrada:is(.lateral,.media,.breve) .alcance { margin-top:0; }
     .narrada.lateral figure { grid-column:1 / -1; aspect-ratio:2.15; }
     .narrada.ilustrada.lateral .identidad { grid-column:1 / -1; }
-    .narrada:not(.principal) .destinos { margin-top:-6px; }
+    .narrada:is(.lateral,.media,.breve) .destinos { margin-top:-6px; }
     .medida b {font-size:2.4rem;}
   }
 </style>

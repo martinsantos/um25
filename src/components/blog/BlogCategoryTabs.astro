@@ -1,20 +1,21 @@
 ---
-import { BLOG_LISTING_CATEGORIES } from '../../lib/blogListingRoute';
+import { blogListingHref, BLOG_LISTING_CATEGORIES } from '../../lib/blogListingRoute';
 import { fetchPublishedBlogIndex } from '../../utils/blogPublishedIndex';
 import { getCategoryLabel } from '../../utils/blogUtils';
 
 interface Props {
   current?: string;
   query?: boolean;
+  search?: string;
 }
 
-const { current, query = false } = Astro.props;
+const { current, query = false, search } = Astro.props;
 const available = new Set((await fetchPublishedBlogIndex()).map((post) => post.categoria));
 const tabs = [
-  { label: 'Todas', href: '/blog', key: undefined },
+  { label: 'Todas', href: query ? blogListingHref(1, undefined, search) : '/blog', key: undefined },
   ...BLOG_LISTING_CATEGORIES.filter((category) => available.has(category)).map((category) => ({
     label: getCategoryLabel(category),
-    href: query ? `/blog?categoria=${category}` : `/blog/categoria/${category}`,
+    href: query ? blogListingHref(1, category, search) : `/blog/categoria/${category}`,
     key: category,
   })),
 ];

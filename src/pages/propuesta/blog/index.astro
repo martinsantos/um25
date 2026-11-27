@@ -10,39 +10,50 @@ import { loadStories } from '../../../components/proto/isoData';
 import BlogTopicNav from '../../../components/blog/BlogTopicNav.astro';
 import { publishableServiceHubs } from '../../../utils/blogTopicMap';
 import BlogCategoryTabs from '../../../components/blog/BlogCategoryTabs.astro';
-import { blogNoteHref, resolveBlogListingRoute } from '../../../lib/blogListingRoute';
+import { blogListingHref, blogNoteHref, resolveBlogListingRoute } from '../../../lib/blogListingRoute';
 import { blogImageSrcset, blogPostImageAlt, blogPostImageUrl } from '../../../utils/blogHelpers';
 import { fetchBlogListing } from '../../../utils/getBlogData';
+import { searchPublishedBlogIndex } from '../../../utils/blogPublishedIndex';
+import { Search } from 'lucide-astro';
 import { getCategoryLabel, formatBlogDateLong, sanitizeBlogExcerpt } from '../../../utils/blogUtils';
 
 export const prerender = false;
 const route = resolveBlogListingRoute(Astro.url);
 if (route.invalidCategory) return Astro.rewrite('/404');
 if (route.redirectTo) return Astro.redirect(route.redirectTo, 301);
-const categoria = route.category || '';
+const categoria = route.category;
+const search = route.search;
 const POR_PAGINA = 10;
 const pagina = route.page;
-const { posts, total } = await fetchBlogListing(pagina, POR_PAGINA, categoria || undefined);
+const listing = search
+  ? await searchPublishedBlogIndex(search, pagina, POR_PAGINA, categoria)
+  : { ...(await fetchBlogListing(pagina, POR_PAGINA, categoria)), unavailable: false };
+const { posts, total, unavailable } = listing;
 const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
-if (pagina > paginas) return Astro.rewrite('/404');
-const enlace = (p: number) => {
-  const params = new URLSearchParams();
-  if (categoria) params.set('categoria', categoria);
-  if (p > 1) params.set('page', String(p));
-  return params.size ? `/blog?${params}` : '/blog';
-};
-const canonicalPath = route.canonicalPath || '/blog';
-const obras = pagina === 1 && !categoria && posts.length ? portadaCases((await loadStories()).stories, 'blog') : [];
-const topics = pagina === 1 && !categoria && posts.length > 0 ? publishableServiceHubs() : [];
+if (!unavailable && pagina > paginas) return Astro.rewrite('/404');
+const enlace = (p: number) => blogListingHref(p, categoria, search);
+const listingPath = enlace(pagina);
+const canonicalPath = search ? blogListingHref(1, categoria) : route.canonicalPath || '/blog';
+const primeraPagina = pagina === 1 && !categoria && !search;
+const obras = primeraPagina && posts.length ? portadaCases((await loadStories()).stories, 'blog') : [];
+const topics = primeraPagina && posts.length > 0 ? publishableServiceHubs() : [];
 const showTopics = topics.length > 0;
-const primeraPagina = pagina === 1 && !categoria;
 const articleGroups = primeraPagina ? [posts.slice(0, 3), posts.slice(3)] : [posts];
 const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina > 1 ? [`Página ${pagina}`] : []), 'ULTIMA MILLA'].join(' · ');
 ---
 <!doctype html>
 <html lang="es">
-  <head><Head title={pageTitle} description="Novedades de ULTIMA MILLA: servicios, proyectos y evolución de la empresa de servicios IT con sede en Guaymallén, Mendoza." canonicalPath={canonicalPath} noindex={Boolean(categoria) && total === 0} /><style>
-      .blog-controls { display:flex; flex-wrap:wrap; align-items:baseline; gap:0 24px; }
+  <head><Head title={pageTitle} description="Novedades de ULTIMA MILLA: servicios, proyectos y evolución de la empresa de servicios IT con sede en Guaymallén, Mendoza." canonicalPath={canonicalPath} noindex={Boolean(search || (categoria && total === 0))} /><style>
+      .cabecera { grid-template-columns:minmax(0,1fr) minmax(260px,440px); gap:10px clamp(24px,4vw,64px); align-items:end; }
+      .blog-search { min-width:0; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 8px; }
+      .blog-search label { grid-column:1/-1; color:var(--ink-2); font-size:.9375rem; }
+      .blog-search input { min-width:0; width:100%; color:var(--ink); background:var(--bg-2); border:1px solid var(--ink-3); padding:10px 12px; font-size:1rem; }
+      .blog-search .btn { min-height:44px; padding:8px 12px; gap:6px; }
+      .blog-controls { grid-column:1/-1; display:flex; flex-wrap:wrap; align-items:center; gap:4px 24px; }
+      .blog-result { display:flex; align-items:center; flex-wrap:wrap; gap:0 20px; color:var(--ink-2); margin-bottom:8px; overflow-wrap:anywhere; }
+      .blog-result b { color:var(--ink); }
+      .blog-result a { display:inline-flex; align-items:center; min-height:44px; text-decoration:underline; text-underline-offset:.22em; }
+      .blog-result-error { color:var(--ink-2); margin-bottom:12px; }
       .blog-topic-jump { display:inline-flex; align-items:center; gap:6px; min-height:44px; text-underline-offset:.22em; text-decoration:underline; }
       .entradas { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:clamp(16px,2.4vw,36px); }
       .entrada { display:flex; flex-direction:column; align-items:stretch; gap:12px; min-width:0; padding-block:16px; overflow-wrap:anywhere; scroll-margin-top:12px; }
@@ -69,7 +80,8 @@ const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina 
       .blog-empty h2 { margin-bottom:16px; }
       @media(max-width:1100px) { .entradas:not(.edicion) { grid-template-columns:repeat(2,minmax(0,1fr)); } }
       @media(max-width:900px) {
-        .cabecera { padding-block:32px; }
+        .cabecera { grid-template-columns:minmax(0,1fr); padding-block:24px 16px; gap:12px; }
+        .blog-controls :global(.btabs--query) { margin-top:0; }
         .cabecera h1 { font-size:clamp(2rem,7.5vw,2.6rem); line-height:1.08; font-weight:600; letter-spacing:-.025em; }
         .cabecera p { font-size:1.0625rem; line-height:1.55; }
       }
@@ -85,13 +97,28 @@ const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina 
     <Top current="blog" />
     <main id="contenido" tabindex="-1" class="wrap">
       <div class="cabecera">
-        <h1>{categoria ? getCategoryLabel(categoria) : 'Blog'}<span class="dot">.</span></h1>
-        {!categoria && <p>Notas de campo y artículos del equipo sobre redes, seguridad, software y operación IT.</p>}
+        <div>
+          <h1>{categoria ? getCategoryLabel(categoria) : 'Blog'}<span class="dot">.</span></h1>
+          {!categoria && !search && <p>Notas de campo y guías sobre infraestructura y operación IT.</p>}
+        </div>
+        <form class="blog-search" role="search" aria-label="Buscar en el blog" action="/blog" method="get">
+          {categoria && <input type="hidden" name="categoria" value={categoria} />}
+          <label for="buscar-notas">Buscar por título</label>
+          <input type="search" id="buscar-notas" name="q" value={search} placeholder="Ej. Node-RED" maxlength="100" enterkeyhint="search" />
+          <button class="btn" type="submit"><Search size={16} aria-hidden="true" /> Buscar</button>
+        </form>
         <div class="blog-controls">
-          <BlogCategoryTabs current={categoria || undefined} query />
+          <BlogCategoryTabs current={categoria} search={search} query />
           {showTopics && <a class="blog-topic-jump" href="#temas">Explorar por tema <span aria-hidden="true">↓</span></a>}
         </div>
       </div>
+      {search && (
+        <div class="blog-result">
+          {total > 0 && <p><b>{total} {total === 1 ? 'nota' : 'notas'}</b> para «{search}»</p>}
+          <a href={blogListingHref(1, categoria)}>Limpiar búsqueda</a>
+        </div>
+      )}
+      {unavailable && posts.length > 0 && <p class="blog-result-error">Algunas notas no pudieron cargar. <a class="u" href={listingPath}>Reintentar</a></p>}
       {posts.length > 0 && articleGroups.map((articles, part) => <Fragment>
         {articles.length > 0 && <ol id={part === 0 ? 'notas' : 'mas-notas'} start={part === 0 ? undefined : 4}
           class:list={['entradas', { edicion: primeraPagina && part === 0 }]}>
@@ -104,7 +131,7 @@ const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina 
               : '(max-width: 700px) 94vw, (max-width: 1100px) 50vw, 33vw';
             return <li id={`nota-${p.slug}`} tabindex="-1" class:list={['entrada', { principal, secundaria }]}>
               <span class="small"><span>{formatBlogDateLong(p.fecha_publicacion)}</span><span>{getCategoryLabel(p.categoria)}{p.tiempo_lectura ? ` · ${p.tiempo_lectura} min` : ''}</span></span>
-              <a href={blogNoteHref(p.slug, canonicalPath + '#nota-' + p.slug)}>
+              <a href={blogNoteHref(p.slug, listingPath + '#nota-' + p.slug)}>
                 <img class="entrada__image" src={image} srcset={blogImageSrcset(image)} sizes={sizes} alt={blogPostImageAlt(p)}
                   width="960" height="540" loading={part === 0 && index < 3 ? 'eager' : 'lazy'} fetchpriority={part === 0 && index === 0 ? 'high' : undefined} />
                 <h2>{p.titulo}</h2>
@@ -113,15 +140,19 @@ const pageTitle = [categoria ? getCategoryLabel(categoria) : 'Blog', ...(pagina 
             </li>;
           })}
         </ol>}
-        {part === 0 && showTopics && <BlogTopicNav hubs={topics} />}
       </Fragment>)}
       {posts.length === 0 && (
         <section class="blog-empty" aria-labelledby="blog-empty-title">
-          <h2 id="blog-empty-title">{categoria ? `Sin artículos publicados en ${getCategoryLabel(categoria).toLowerCase()}` : 'Sin artículos disponibles'}</h2>
-          {categoria && <a class="u" href="/blog">Ver todas las notas <span aria-hidden="true">→</span></a>}
+          <h2 id="blog-empty-title">{unavailable ? 'No pudimos cargar las notas'
+            : search ? `Sin notas para «${search}»`
+            : categoria ? `Sin artículos publicados en ${getCategoryLabel(categoria).toLowerCase()}` : 'Sin artículos disponibles'}</h2>
+          {unavailable ? <a class="u" href={listingPath}>Reintentar</a>
+            : search && categoria ? <a class="u" href={blogListingHref(1, undefined, search)}>Buscar en todas las categorías <span aria-hidden="true">→</span></a>
+            : !search && categoria && <a class="u" href="/blog">Ver todas las notas <span aria-hidden="true">→</span></a>}
         </section>
       )}
       {total > 0 && <nav class="paginas" aria-label="Páginas"><span class="small">{total} {total === 1 ? 'entrada' : 'entradas'} · página {pagina} de {paginas}</span><span>{pagina > 1 && <a class="u" href={enlace(pagina - 1)}>← Página anterior</a>}{pagina < paginas && <a class="u" href={enlace(pagina + 1)}>Página siguiente →</a>}</span></nav>}
+      {showTopics && <BlogTopicNav hubs={topics} />}
       {obras.length > 0 && <ObrasPortada compact inset obras={obras} title="Del archivo técnico" />}
     </main>
     <Cierre />
