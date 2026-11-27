@@ -73,12 +73,14 @@ const anios = yearsOfExperience();
       .sectores-head a,.lugares a { display:inline-flex; align-items:center; min-height:44px; line-height:1.3; }
       .sectores-head a { gap:8px; font-weight:600; }
       .lugares { margin:0; padding:0; list-style:none; display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,21rem),1fr)); gap:4px clamp(16px,2.5vw,38px); }
-      .lugares li { --foto:clamp(60px,7vw,96px); position:relative; min-width:0; display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-rows:auto 1fr; gap:0 10px; align-content:start; padding:8px 0 12px calc(var(--foto) + 14px); border-top:1px solid var(--line); }
+      .lugares li { --foto:clamp(60px,7vw,96px); position:relative; min-width:0; display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-rows:auto auto 1fr; gap:0 10px; align-content:start; padding:8px 0 12px calc(var(--foto) + 14px); border-top:1px solid var(--line); }
       .lugar { font-size:1.1rem; font-weight:650; letter-spacing:-.02em; }
       .lugar img { position:absolute; inset:12px auto auto 0; width:var(--foto); height:calc(var(--foto) * .91); object-fit:cover; }
+      .lugar-alcance { grid-column:1/-1; margin:0; font-size:.9rem; line-height:1.35; color:var(--ink-2); }
       .n { align-self:start; gap:4px; font-size:.875rem; white-space:nowrap; }
-      .obra-sector { scroll-margin-top:12px; grid-column:1/-1; align-self:start; justify-self:start; font-size:.95rem; text-wrap:pretty; color:var(--ink-2); }
-      .obra-sector span { text-decoration:underline; text-decoration-color:var(--line); text-underline-offset:3px; }
+      .obra-sector { scroll-margin-top:calc(var(--top-h) + 10px); grid-column:1/-1; align-self:start; justify-self:start; font-size:.9rem; text-wrap:pretty; color:var(--ink); }
+      .obra-sector > span { text-decoration:underline; text-decoration-color:var(--line); text-underline-offset:3px; }
+      .obra-sector [aria-hidden] { color:var(--red-text); }
       .sectores-home a:hover,.sectores-home a:focus-visible { text-decoration:underline; text-underline-offset:4px; }
       .sectores-home a:focus-visible { outline:2px solid currentColor; outline-offset:2px; }
       @media(max-width:380px){ .lugares li { --foto:48px; column-gap:6px; padding-left:calc(var(--foto) + 10px); } }
@@ -110,6 +112,7 @@ const anios = yearsOfExperience();
             {l.count > 0 && <a class="n" href={l.archiveHref} aria-label={`Ver ${l.count} ${l.count === 1 ? 'obra' : 'obras'} de ${l.name}`}>
               {l.count} {l.count === 1 ? 'obra' : 'obras'} <span aria-hidden="true">→</span>
             </a>}
+            <p class="lugar-alcance">{l.summary}</p>
             <a class="obra-sector" id={`obra-sector-${l.slug}`} data-regreso-obra={`inicio-sector-${l.slug}`}
               href={l.reference ? l.reference.href + '?desde=inicio&sector=' + l.slug : l.task?.href || l.detailHref}>
               <span>{l.reference?.title || l.task?.title || l.detailLabel}&nbsp;<span aria-hidden="true">↗</span></span>
