@@ -1,7 +1,7 @@
 ---
 import { directoryReturnHref } from "../../../data/navigation";
 import '../../../styles/pilot-fichas.css';
-import { sectorWorkEnquiry } from '../../../lib/caseJourney';
+import { pageContactLink, sectorWorkEnquiry } from '../../../lib/caseJourney';
 import { sectorSystemEvidence } from '../../../components/proto/sectorSystemEvidence';
 /**
  * Sector (2026-10-30, v6). La prueba primero: la apertura con las cifras del sector, para quién,
@@ -93,21 +93,21 @@ const cifras: [string, string, string?][] = own.length ? [[String(own.length), o
     <Top current="sectores" />
     <main id="contenido" tabindex="-1">
 
-    <ServiceEditorialHero label={name} image={photo} metrics={cifras} imageAlt={detailPhoto?.title} naturalPhoto={Boolean(detailPhoto)}>
+    <ServiceEditorialHero label={name} image={photo} metrics={cifras} imageAlt={detailPhoto?.title} naturalPhoto={Boolean(detailPhoto)}
+      reference={reference && { href: reference.href, title: publicCaseTitle(reference), client: reference.client, year: reference.year }}>
       <a class="sector-back" href={directoryReturnHref('/sectores', `/sectores/${slug}`)}>← Todos los sectores</a>
       <h1 style="font-size:clamp(2rem,3.6vw,3.6rem)">{relato.headline || name}<span class="dot">.</span></h1>
       <p>{relato.summary || sector.description}</p>
-      {(isWinery || displayedServices.length > 0) && <div class="editorial-actions">
-        <a class="u editorial-primary" href={radioIndex >= 0 ? `#${sectorSystemAnchor(slug, '103')}` : '#integracion'}>{radioIndex >= 0 ? 'Ver el enlace entre base y campamento' : isWinery ? 'Explorar las zonas de la bodega' : 'Explorar los sistemas'} <ArrowRight size={16} aria-hidden="true" /></a>
-      </div>}
-      <Fragment slot="reference">
-        {reference && <a class="sector-reference" href={reference.href}>
-          <span class="sector-reference__label">Obra de referencia{reference.year > 0 && ` · ${reference.year}`}</span>
-          <strong>{publicCaseTitle(reference)}</strong>
-          <span class="sector-reference__client">{reference.client}</span>
-          <ArrowRight size={22} aria-hidden="true" />
-        </a>}
-      </Fragment>
+      <div class="editorial-actions">
+        {(isWinery || displayedServices.length > 0) && (
+          <a class="btn" href={radioIndex >= 0 ? `#${sectorSystemAnchor(slug, '103')}` : '#integracion'}>
+            {radioIndex >= 0 ? 'Ver el enlace entre base y campamento' : isWinery ? 'Explorar las zonas de la bodega' : 'Ver cómo integramos los sistemas'}
+            <ArrowRight size={18} aria-hidden="true" />
+          </a>
+        )}
+        <a class={isWinery || displayedServices.length ? 'u' : 'btn'} data-contact-follow
+          href={pageContactLink(Astro, '/contacto?intent=relevamiento')}>Pedir un relevamiento</a>
+      </div>
     </ServiceEditorialHero>
     <IndiceFicha class="wrap" links={sectionLinks} />
 
@@ -124,6 +124,8 @@ const cifras: [string, string, string?][] = own.length ? [[String(own.length), o
 
     {displayedServices.length > 0 && <SectorSystems stories={own} slug={slug} name={name} items={displayedServices} miningReference={miningReference} />}
 
+    <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} selection={selectedCases} />
+
     <ClientDirectory clients={clientes} filter={{sector: slug}} archiveLabel={`Ver todos los antecedentes en ${lower}`} />
 
     {instalado.length > 0 && (
@@ -134,8 +136,6 @@ const cifras: [string, string, string?][] = own.length ? [[String(own.length), o
         </div>
       </section>
     )}
-
-    <Casos casos={casos} stories={stories} title={`Lo que hicimos en ${lower}`} selection={selectedCases} />
 
     {hasMoreCases && (
       <section class="sec" id="mas-proyectos" tabindex="-1">
@@ -160,16 +160,3 @@ const cifras: [string, string, string?][] = own.length ? [[String(own.length), o
   </body>
 </html>
 
-<style>
-  .sector-reference {
-    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center;
-    gap: 3px 20px; padding: 16px 18px; color: var(--ink);
-    background: var(--panel, #151719); border-bottom: 1px solid var(--line);
-    text-decoration: none;
-  }
-  .sector-reference strong { grid-column: 1; font-size: clamp(1.05rem, 2vw, 1.35rem); line-height: 1.25; }
-  .sector-reference__label, .sector-reference__client { grid-column: 1; font-size: .9375rem; color: var(--ink-2); }
-  .sector-reference :global(svg) { grid-column: 2; grid-row: 1 / 4; }
-  .sector-reference:hover strong { text-decoration: underline; text-underline-offset: 4px; }
-  .sector-reference:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
-</style>

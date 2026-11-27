@@ -126,6 +126,18 @@ jobs:
               [[ "$available" =~ ^[0-9]+$ ]]
             fi
           fi
+          if [[ "$PREVIOUS_MASTER" == '838f085d0c66cc824eb58d2b9d2cd932f3f477fa' ]]; then
+            installed=$(du -sc -B1 dist node_modules package.json package-lock.json | awk 'END {print $1}')
+            backup_floor=$((10 * 1024**3 + size + installed))
+            if (( backup_floor > required )); then required=$backup_floor; fi
+            program=scripts/ops/hostinger-migration/share-pr731-dependencies.py
+            remote_command=$(python3 "$program" command "$required")
+            receipt="$RUNNER_TEMP/umsa-pr731-dependencies.jsonl"
+            ssh "${opts[@]}" -o ServerAliveInterval=30 root@179.198.115.115 "$remote_command" < "$program" | tee "$receipt"
+            python3 "$program" verify "$required" < "$receipt"
+            available=$(ssh "${opts[@]}" root@179.198.115.115 "df -B1 --output=avail /srv | tail -n 1" | tr -d '[:space:]')
+            [[ "$available" =~ ^[0-9]+$ ]]
+          fi
           case "$PREVIOUS_MASTER" in
             5db725a2f8af15564cb355b2d0f557d4118f03db)
               retirement=prune-pr728-transports.py
