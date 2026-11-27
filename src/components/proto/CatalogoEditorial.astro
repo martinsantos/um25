@@ -48,6 +48,7 @@ const icons: Record<string, typeof Network> = {
   <div class="catalogo-intro">
     <h1>{title}<span class="dot">.</span></h1>
     <p>{intro}</p>
+    <a class="indice" href="#catalogo">{directory.comparison} <ArrowDown size={17} aria-hidden="true" /></a>
   </div>
 
   <nav class:list={["atajos", {"atajos--sectores": sector}]} aria-label={directory.browse}>
@@ -56,16 +57,14 @@ const icons: Record<string, typeof Network> = {
         const key = item.href.split('/').at(-1)!;
         const Icon = icons[key] || ArrowUpRight;
         return <li>
-          <a class="acceso" href={english ? '#' + directoryCardId(item.href) : item.href} aria-label={key === '103' ? item.name : undefined}>
+          <a class="acceso" href={english ? '#' + directoryCardId(item.href) : item.href}
+            aria-label={!english && key === '103' ? item.name : undefined}>
             <Icon size={19} stroke-width={1.65} aria-hidden="true" />
-            {key === '103'
-              ? <><span class="nombre-completo">{item.name}</span><span class="nombre-corto">Telecom</span></>
-              : <span>{item.name}</span>}
+            <span>{!english && key === '103' ? 'Telecomuni\u00adcaciones' : item.name}</span>
           </a>
         </li>;
       })}
     </ul>
-    <a class="indice" href="#catalogo">{directory.comparison} <ArrowDown size={16} aria-hidden="true" /></a>
   </nav>
 </header>
 
@@ -79,8 +78,8 @@ const icons: Record<string, typeof Network> = {
         <a id={directoryCardId(href)} href={href} hreflang={langOfDetails} class="catalogo-ficha" aria-label={english ? `${name} · Service details in Spanish` : name}>
           <img src={photo} srcset={srcsetDe(photo)} sizes={sector ? "auto, (max-width:700px) 27vw, (max-width:960px) 45vw, 30vw" : "auto, (max-width:700px) 27vw, 14vw"}
             alt="" width="1672" height="941" loading="lazy" decoding="async" />
-          <h3>{name}</h3>
-          {(!reference || !sector) && <p class="resumen">{summary}</p>}
+          <h3>{name}<ArrowUpRight size={17} aria-hidden="true" /></h3>
+          <p class="resumen">{summary}</p>
           {english && <span class="idioma-ficha">Service details (ES) <span aria-hidden="true">↗</span></span>}
         </a>
         {shortcuts && shortcuts.length > 0 && (
@@ -135,14 +134,10 @@ const icons: Record<string, typeof Network> = {
     font-size:clamp(.9375rem,1.1vw,1.0625rem); line-height:1.2; font-weight:600;
   }
   .acceso svg { flex:none; color:var(--ink-2); }
+  .acceso span { overflow-wrap:anywhere; }
   .acceso:hover { background:var(--ink); color:var(--bg); text-decoration:none; }
   .acceso:hover svg { color:var(--red); }
   .acceso:focus-visible { position:relative; z-index:1; outline-offset:-3px; }
-  .nombre-corto { display:none; }
-  @container (max-width:385px) {
-    .nombre-corto { display:inline; }
-    .nombre-completo { display:none; }
-  }
   @container (max-width:350px) {
     .acceso { padding-inline:8px; gap:6px; letter-spacing:-.015em; }
     .acceso svg { width:15px; height:15px; }
@@ -152,7 +147,12 @@ const icons: Record<string, typeof Network> = {
     .acceso svg { display:none; }
   }
   .indice,.acciones a { display:inline-flex;align-items:center;gap:8px;min-height:44px;font-weight:600; }
-  .indice { color:var(--ink-2); font-size:.9375rem; margin-top:2px; }
+  .indice {
+    color:var(--ink); font-size:.9375rem; margin-top:12px;
+    border-bottom:1px solid var(--line); gap:12px;
+  }
+  .indice svg { color:var(--red-text); }
+  .indice:hover,.indice:focus-visible { border-color:var(--red-text); }
   .comparacion > h2 { font-size:clamp(1.65rem,3vw,2.75rem); margin-bottom:var(--s2); }
   .comparacion:focus-visible { outline:none; }
   .comparacion:focus-visible > h2 { outline:2px solid var(--red-text); outline-offset:5px; }
@@ -160,11 +160,15 @@ const icons: Record<string, typeof Network> = {
   .catalogo {position:relative;--cols:2;display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:18px clamp(20px,2.6vw,44px);padding:0 0 var(--s5);list-style:none;}
   .catalogo--sectores {--cols:3;}
   .catalogo > li {min-width:0;border-top:1px solid var(--line);padding-block:16px 0;display:flex;flex-direction:column;}
-  .catalogo-ficha {position:relative; display:block;}
+  .catalogo-ficha {position:relative; display:block; scroll-margin-top:calc(var(--top-h) + 12px);}
   .catalogo:not(.catalogo--sectores) .catalogo-ficha {padding-left:calc(28% + 16px);min-height:100px;}
   .catalogo-ficha img {object-fit:cover;display:block;width:100%;aspect-ratio:2.1;}
   .catalogo:not(.catalogo--sectores) img {width:28%;height:100%;position:absolute;left:0;top:0;}
-  .catalogo h3 {font-size:clamp(1.18rem,1.7vw,1.7rem);line-height:1.12;margin-top:6px;letter-spacing:-.025em;}
+  .catalogo h3 {
+    display:flex; align-items:baseline; gap:8px; font-size:clamp(1.18rem,1.7vw,1.7rem);
+    line-height:1.12; margin-top:6px; letter-spacing:-.025em;
+  }
+  .catalogo h3 svg { flex:none; color:var(--ink-2); }
   .catalogo--sectores h3 {margin-top:14px;}
   .prestaciones { display:flex; flex-wrap:wrap; gap:0 20px; list-style:none; margin:6px 0 0; padding:0; border-block:1px solid var(--line); }
   .prestaciones li { min-width:0; }
@@ -173,7 +177,7 @@ const icons: Record<string, typeof Network> = {
   .obra-ejemplo { scroll-margin-top:calc(var(--top-h) + 10px); display:grid; align-content:start; gap:3px; margin-block:8px; color:var(--ink); min-height:44px; }
   .obra-ejemplo > span { font-size:.875rem; color:var(--ink-2); }
   .obra-ejemplo strong { font-size:1rem; font-weight:500; line-height:1.35; }
-  .catalogo:not(.catalogo--sectores) .obra-ejemplo { border-inline-start:2px solid var(--line); padding-inline-start:12px; margin-block:14px 4px; }
+  .obra-ejemplo { border-inline-start:2px solid var(--line); padding-inline-start:12px; margin-block:12px 6px; }
   .idioma-ficha { display:block; margin-top:4px; color:var(--ink-2); font-size:.875rem; line-height:1.35; }
   .resumen {line-height:1.45;color:var(--ink-2);margin:7px 0;}
   .acciones {display:flex;gap:0 14px;flex-wrap:wrap;margin-top:auto;}
@@ -195,11 +199,7 @@ const icons: Record<string, typeof Network> = {
     .catalogo .catalogo-ficha h3 { grid-column:2; margin:0; }
     .catalogo .resumen { grid-column:2; margin:0; }
     .catalogo .idioma-ficha { grid-column:2; }
-    .catalogo--sectores li:has(.obra-ejemplo) { position:relative; --thumb:clamp(80px,26vw,148px); display:grid; grid-template-columns:var(--thumb) minmax(0,1fr); grid-template-rows:auto 1fr auto; column-gap:14px; }
-    .catalogo--sectores li:has(.obra-ejemplo)::before { content:""; grid-column:1; grid-row:1 / 3; align-self:start; aspect-ratio:1.12; }
-    .catalogo--sectores li:has(.obra-ejemplo) .catalogo-ficha { display:flex; align-items:center; position:static; grid-column:2; grid-row:1; min-height:44px; }
-    .catalogo--sectores li:has(.obra-ejemplo) .catalogo-ficha img { position:absolute; left:0; top:14px; width:var(--thumb); }
-    .obra-ejemplo { grid-column:2; margin:5px 0 0; }
+    .obra-ejemplo { margin-block:10px 2px; }
     .acciones { grid-column:1 / -1; margin-top:6px; }
 
   }

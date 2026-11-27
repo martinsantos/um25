@@ -29,7 +29,7 @@ const referentes = homeReferenceKeys.flatMap(key => {
       </nav>
     </header>
   </div>
-  {referentes.length > 0 && <nav class="referencias wrap" aria-label="Obras destacadas">
+  {referentes.length > 0 && <nav class="referencias wrap" aria-label="Cifras de obras destacadas">
     {referentes.map(({title,measure,href,id}) => <a id={id} data-regreso-obra="apertura" href={href}>
       <span class="valor">{measure[0]}</span>
       <span class="prueba">{measure[1]}<small>{title}</small></span><ArrowRight size={18} aria-hidden="true" />
@@ -61,14 +61,14 @@ const referentes = homeReferenceKeys.flatMap(key => {
     .rutas-portada a { font-size:.9375rem; }
   }
   @media (max-width: 700px) {
-    .opening { --opening-lead: clamp(96px, 14svh, 150px); }
+    .opening { --opening-lead: clamp(74px, 11svh, 120px); }
     .opening-image { object-position: 23% 29%; }
     .opening::before {
       background: linear-gradient(180deg, #080c0e14 calc(var(--opening-lead) - 42px),
         #080c0eae calc(var(--opening-lead) - 8px),
         #080c0ee0 calc(var(--opening-lead) + 175px), #090c0efa 88%);
     }
-    .opening-grid { min-height: 0; padding-block: var(--opening-lead) 24px; }
+    .opening-grid { min-height: 0; padding-block: var(--opening-lead) 18px; }
     header { width: 100%; gap: 12px; }
     h1 { font-size: clamp(2.15rem, 8.8vw, 3.7rem); }
     .intro { font-size: 1rem; max-width: 38ch; }
@@ -107,7 +107,7 @@ const referentes = homeReferenceKeys.flatMap(key => {
   }
   @media(max-width:640px) {
     .referencias {grid-template-columns:1fr;}
-    .referencias a { display:grid; grid-template-columns:clamp(92px,24vw,104px) minmax(0,1fr) auto; padding:10px 14px; gap:10px; }
+    .referencias a { display:grid; grid-template-columns:clamp(82px,23vw,104px) minmax(0,1fr) auto; min-height:58px; padding:8px 14px; gap:10px; }
     .referencias .valor { font-size:1.95rem; }
     .referencias a+a {border-inline-start:0;border-top:1px solid #b5bbb6;}
   }
